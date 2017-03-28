@@ -1,0 +1,33 @@
+{
+  "name": "@genet/tcp",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "TCP dissector",
+  "engines": {
+    "genet": "*"
+  },
+  "genet": {
+    "components": [
+      {
+        "type": "core:library",
+        "main": "tcp"
+      },
+      {
+        "type": "core:library",
+        "main": "tcp-stream"
+      },
+      {
+        "type": "core:style",
+        "files": [
+          "tcp.css"
+        ]
+      },
+      {
+        "type": "core:token",
+        "files": [
+          "tokens.json"
+        ]
+      }
+    ]
+  }
+}

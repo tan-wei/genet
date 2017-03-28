@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true,
+        "noImplicitAny": false,
+        "strictNullChecks": true,
+        "outDir": "./dist/",
+        "module": "esnext",
+        "target": "esnext",
+        "allowJs": true
+    },
+    "typedocOptions": {
+        "name": "genet",
+        "out": "doc",
+        "excludeExternals": true,
+        "ignoreCompilerErrors": true,
+        "mode": "file",
+        "readme": "none"
+    }
+}

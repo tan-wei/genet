@@ -1,0 +1,29 @@
+{
+  "name": "@genet/tokens",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Built-in tokens",
+  "engines": {
+    "genet": "*"
+  },
+  "homepage": "https://genet.app/",
+  "genet": {
+    "components": [
+      {
+        "type": "core:token",
+        "files": [
+          "tokens.json"
+        ]
+      }
+    ],
+    "configSchema": {
+      "@genet/tokens.snaplen": {
+        "title": "Snapshot Length",
+        "description": "Snapshot Length",
+        "type": "integer",
+        "minimum": 0,
+        "default": 2048
+      }
+    }
+  }
+}

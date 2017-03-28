@@ -1,0 +1,9 @@
+[package]
+name = "pcap-cli"
+version = "0.1.0"
+authors = ["Ron Hashimoto <mail@h2so5.net>"]
+
+[dependencies]
+pcap = { path = "../pcap" }
+clap = "2"
+serde_json = "1"

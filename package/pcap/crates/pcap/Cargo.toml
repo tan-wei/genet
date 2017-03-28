@@ -1,0 +1,13 @@
+[package]
+name = "pcap"
+version = "0.1.0"
+authors = ["Ron Hashimoto <mail@h2so5.net>"]
+
+[dependencies]
+libc = "0.2"
+libloading = "0.5"
+serde = "1"
+serde_derive = "1"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+capabilities = "0.3"

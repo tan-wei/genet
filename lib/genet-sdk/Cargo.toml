@@ -1,0 +1,10 @@
+[package]
+name = "genet-sdk"
+description = "genet SDK"
+license = "MIT"
+version = "0.1.0"
+authors = ["Ron Hashimoto <mail@h2so5.net>"]
+
+[dependencies]
+byteorder = "1"
+genet-abi = "0.1"

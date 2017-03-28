@@ -1,0 +1,21 @@
+{
+  "name": "@genet/binary-panel",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Binary Panel",
+  "engines": {
+    "genet": "*"
+  },
+  "genet": {
+    "components": [
+      {
+        "type": "core:panel",
+        "main": "main.js",
+        "name": "Binary",
+        "id": "core:panel:binary",
+        "slot": "tools:bottom",
+        "style": "style.css"
+      }
+    ]
+  }
+}

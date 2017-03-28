@@ -1,0 +1,34 @@
+{
+  "name": "@genet/udp",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "UDP dissector",
+  "engines": {
+    "genet": "*"
+  },
+  "genet": {
+    "components": [
+      {
+        "type": "core:library",
+        "main": "udp"
+      },
+      {
+        "type": "core:style",
+        "files": [
+          "udp.css"
+        ]
+      },
+      {
+        "type": "core:renderer:layer",
+        "id": "udp",
+        "main": "summary.js"
+      },
+      {
+        "type": "core:token",
+        "files": [
+          "tokens.json"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "@genet/pcap",
+  "version": "0.0.1",
+  "license": "MIT",
+  "description": "Pcap Module",
+  "engines": {
+    "genet": "*"
+  },
+  "genet": {
+    "components": [
+      {
+        "type": "core:panel",
+        "main": "main.js",
+        "name": "📡 Live Capture",
+        "id": "core:panel:live-capture",
+        "slot": "dialog:input",
+        "style": "style.css"
+      },
+      {
+        "type": "core:library",
+        "main": "pcap-reader"
+      }
+    ]
+  }
+}

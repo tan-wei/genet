@@ -1,0 +1,94 @@
+@nav-width: 280px;
+
+[disabled] {
+  opacity: 0.6;
+}
+
+nav {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: @nav-width;
+  padding: 0;
+  -webkit-app-region: drag;
+  overflow-y: hidden;
+  border-right: 1px solid var(--theme-lighter-bg);
+
+  .local-packages {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    overflow-y: scroll;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      padding: 0;
+      user-select: none;
+
+      h4 {
+        font-size: 1.0em;
+        margin: 0 0 5px 0;
+      }
+
+      span {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        display: block;
+        overflow: hidden;
+      }
+
+      a {
+        padding: 10px 15px;
+        display: block;
+        cursor: pointer;
+        text-decoration: none;
+
+        &:hover {
+          background: var(--theme-lighter-bg);
+        }
+
+        &[active] {
+          color: var(--theme-default-bg);
+          background-color: var(--theme-default-fg);
+
+          h4 {
+            color: var(--theme-default-bg);
+          }
+        }
+      }
+    }
+  }
+}
+
+main {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: @nav-width;
+  right: 0;
+  padding: 0 20px;
+  overflow-y: scroll;
+
+  span.version, span.schema-path {
+    margin: 10px 25px;
+    font-weight: normal;
+    color: var(--theme-dark-fg);
+  }
+
+  pre.output {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  input[type=button] {
+    max-width: 120px;
+  }
+}

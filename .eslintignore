@@ -1,0 +1,5 @@
+/scripts/**
+**/vendor/**
+**/node_modules/**
+/genet_modules
+runtime.js

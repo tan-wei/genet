@@ -1,0 +1,12 @@
+{
+  "name": "@genet/core",
+  "version": "0.0.1",
+  "description": "genet core modules",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/genet-app/genet.git"
+  },
+  "files": [],
+  "author": "h2so5",
+  "license": "MIT"
+}

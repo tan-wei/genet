@@ -1,0 +1,39 @@
+{
+  "name": "@genet/pcap-file",
+  "version": "0.0.1",
+  "license": "MIT",
+  "description": "Pcap File Format",
+  "engines": {
+    "genet": "*"
+  },
+  "genet": {
+    "components": [
+      {
+        "type": "core:library",
+        "main": "reader"
+      },
+      {
+        "type": "core:file:reader",
+        "main": "reader.js",
+        "filters": [
+          {
+            "name": "Pcap Files",
+            "extensions": ["pcap"]
+          }
+        ]
+      },
+      {
+        "type": "core:library",
+        "main": "writer"
+      },
+      {
+        "type": "core:panel",
+        "main": "output.js",
+        "name": "Pcap File",
+        "id": "core:panel:pcap-file-writer",
+        "slot": "dialog:output",
+        "style": "style.css"
+      }
+    ]
+  }
+}

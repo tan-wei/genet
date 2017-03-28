@@ -1,0 +1,84 @@
+body {
+  background-color: #101216;
+}
+
+nav {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 38px 0;
+  -webkit-app-region: drag;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      padding: 0;
+      user-select: none;
+
+      a {
+        padding: 8px 20px;
+        display: block;
+        cursor: pointer;
+        text-decoration: none;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.2);
+        }
+
+        &[active] {
+          background: var(--theme-default-fg);
+          color: var(--theme-default-bg);
+        }
+      }
+
+      .close-button {
+        float: right;
+      }
+    }
+  }
+}
+
+main {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  &.loading {
+    background-color: var(--theme-default-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  webview {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    visibility: hidden;
+    outline: none;
+
+    &[loading] {
+      transform: translateY(1000%);
+      visibility: visible;
+    }
+
+    &[active] {
+      visibility: visible;
+      background-color: var(--theme-default-bg);
+    }
+  }
+}
