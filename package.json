@@ -1,0 +1,19 @@
+{
+  "name": "deplug",
+  "productName": "Deplug",
+  "version": "0.0.1",
+  "description": "Next generation packet analyzer",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/deplug/deplug.git"
+  },
+  "main": "node_modules/deplug-core/main.js",
+  "author": "h2so5",
+  "license": "MIT",
+  "dependencies": {
+    "plugkit": "^0.0.6"
+  },
+  "devDependencies": {
+    "electron-deplug": "^1.5.1"
+  }
+}
