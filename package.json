@@ -11,9 +11,11 @@
   "author": "h2so5",
   "license": "MIT",
   "dependencies": {
+    "less": "^2.7.2",
     "plugkit": "^0.0.6"
   },
   "devDependencies": {
-    "electron-deplug": "^1.5.1"
+    "electron-deplug": "^1.5.1",
+    "rollup": "^0.41.6"
   }
 }
