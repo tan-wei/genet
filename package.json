@@ -15,7 +15,11 @@
     "plugkit": "^0.0.6"
   },
   "devDependencies": {
-    "electron-deplug": "^1.5.1",
+    "electron-deplug": "1.5.1",
+    "electron-packager": "^8.6.0",
     "rollup": "^0.41.6"
+  },
+  "optionalDependencies": {
+    "deplug-helper": "^0.1.0"
   }
 }
