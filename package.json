@@ -13,7 +13,7 @@
   "dependencies": {
     "less": "^2.7.2",
     "minimist": "^1.2.0",
-    "plugkit": "^0.0.6"
+    "plugkit": "^0.0.8"
   },
   "devDependencies": {
     "electron-deplug": "1.5.1",

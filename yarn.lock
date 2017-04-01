@@ -1313,9 +1313,9 @@ plist@^2.0.0, plist@^2.0.1:
     xmlbuilder "8.2.2"
     xmldom "0.1.x"
 
-plugkit@^0.0.6:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/plugkit/-/plugkit-0.0.6.tgz#46e430a5bc7db84944b8ebdc18b15d712b1dfc4e"
+plugkit@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/plugkit/-/plugkit-0.0.8.tgz#f997ba290798ebc3d75633f92b2589359efa11cd"
   dependencies:
     bindings "^1.2.1"
     esprima "^3.1.3"

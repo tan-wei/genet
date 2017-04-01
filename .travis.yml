@@ -1,0 +1,14 @@
+sudo: true
+language: node
+os:
+- linux
+- osx
+osx_image: xcode8
+cache: yarn
+install:
+  - yarn
+script:
+  - make lint
+  - make build
+notifications:
+  email: false
