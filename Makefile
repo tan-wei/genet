@@ -7,7 +7,8 @@ DEPLUG_CORE_JS = $(wildcard deplug-core/*.js)
 DEPLUG_CORE_MAIN_JS = $(wildcard deplug-core/*.main.js)
 DEPLUG_CORE_JS_OUT = $(addprefix node_modules/,$(DEPLUG_CORE_MAIN_JS))
 
-ROOLUP_EXTERN = electron,deplug,$(shell jq '.dependencies | keys | join(",")' package.json -r)
+ROOLUP_EXTERN_BUILTIN = electron,deplug,module,path,os
+ROOLUP_EXTERN = $(ROOLUP_EXTERN_BUILTIN),$(shell jq '.dependencies | keys | join(",")' package.json -r)
 ROLLUP = node_modules/.bin/rollup
 
 ESLINT = node_modules/.bin/eslint

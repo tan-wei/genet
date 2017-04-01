@@ -1,9 +1,14 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_load"] }] */
 
-const module = require('module')
+import config from './config'
+import module from 'module'
+
 export default function (argv) {
   let deplug = {}
-  Object.defineProperties(deplug, { Argv: { value: argv, }, })
+  Object.defineProperties(deplug, {
+    Argv: { value: argv, },
+    Config: { value: config, },
+  })
 
   const load = module._load
   module._load = (request, parent, isMain) => {
