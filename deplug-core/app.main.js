@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import { Pcap } from 'plugkit'
 import minimist from 'minimist'
 
@@ -25,8 +25,10 @@ app.on('ready', () => {
   contents.on('did-finish-load', () => {
     const argv = JSON.stringify(minimist(process.argv.slice(2)))
     const script = `require("./window.main.js")(${argv})`
-    contents.executeJavaScript(script, false).then(() => {
-      mainWindow.show()
-    })
+    contents.executeJavaScript(script)
   })
+})
+
+ipcMain.on('window-deplug-loaded', (event, id) => {
+  BrowserWindow.fromId(id).show()
 })

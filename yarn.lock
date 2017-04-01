@@ -395,6 +395,10 @@ electron-download@^4.0.0:
     semver "^5.3.0"
     sumchecker "^2.0.1"
 
+electron-log@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-2.0.2.tgz#ea7c3d584da1e02df48e68f16fb750b61e3ab05b"
+
 electron-osx-sign@^0.4.1:
   version "0.4.4"
   resolved "https://registry.yarnpkg.com/electron-osx-sign/-/electron-osx-sign-0.4.4.tgz#afdf38450ccaebe6dabeca71fb0fad6294a8c57c"
@@ -1201,6 +1205,10 @@ object-assign@^4.0.1, object-assign@^4.1.0:
 object-keys@~0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/object-keys/-/object-keys-0.4.0.tgz#28a6aae7428dd2c3a92f3d95f21335dd204e0336"
+
+object-path@^0.11.4:
+  version "0.11.4"
+  resolved "https://registry.yarnpkg.com/object-path/-/object-path-0.11.4.tgz#370ae752fbf37de3ea70a861c23bba8915691949"
 
 once@^1.3.0:
   version "1.4.0"

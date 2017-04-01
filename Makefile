@@ -21,7 +21,7 @@ ELECTRON_UNPACK = node_modules/deplug-helper
 PACKAGER = node_modules/.bin/electron-packager
 
 all: build
-	$(ELECTRON) .
+	$(ELECTRON) --enable-logging .
 
 build: $(DEPLUG_CORE_RES_OUT) $(DEPLUG_CORE_JS_OUT)
 

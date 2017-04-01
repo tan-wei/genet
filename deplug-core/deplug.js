@@ -4,7 +4,7 @@ import Parcel from './parcel'
 import config from './config'
 import module from 'module'
 
-export default function (argv) {
+export default async function (argv) {
   const deplug = {}
   Object.defineProperties(deplug, {
     Argv: { value: argv, },
@@ -19,4 +19,13 @@ export default function (argv) {
     }
     return load(request, parent, isMain)
   }
+
+  const parcels = Parcel.list()
+  const tasks = []
+  for (const parcel of parcels) {
+    for (const comp of parcel.components) {
+      tasks.push(comp.load())
+    }
+  }
+  await Promise.all(tasks)
 }

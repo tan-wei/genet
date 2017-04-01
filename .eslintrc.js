@@ -7,7 +7,8 @@ module.exports = {
     },
     "extends": "eslint:recommended",
     "parserOptions": {
-        "sourceType": "module"
+        "sourceType": "module",
+        "ecmaVersion": 8
     },
     "rules": {
         "accessor-pairs": "error",
@@ -31,7 +32,7 @@ module.exports = {
         "callback-return": "error",
         "camelcase": "error",
         "capitalized-comments": "error",
-        "class-methods-use-this": "error",
+        "class-methods-use-this": "off",
         "comma-dangle": ["error", {
             "arrays": "never",
             "objects": "always",
@@ -192,7 +193,7 @@ module.exports = {
         "no-unmodified-loop-condition": "error",
         "no-unneeded-ternary": "error",
         "no-unused-expressions": "error",
-        "no-use-before-define": "error",
+        "no-use-before-define": ["error", { "classes": false }],
         "no-useless-call": "error",
         "no-useless-computed-key": "error",
         "no-useless-concat": "error",
@@ -233,7 +234,7 @@ module.exports = {
             "single"
         ],
         "radix": "error",
-        "require-await": "error",
+        "require-await": "off",
         "require-jsdoc": "off",
         "rest-spread-spacing": "error",
         "semi": ["error", "never"],

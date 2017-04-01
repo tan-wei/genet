@@ -1,7 +1,11 @@
+import Component from './component'
 import config from './config'
 import glob from 'glob'
 import jsonfile from 'jsonfile'
+import log from 'electron-log'
+import objpath from 'object-path'
 import path from 'path'
+import semver from 'semver'
 
 export default class Parcel {
   static list () {
@@ -14,14 +18,29 @@ export default class Parcel {
 
     const list = []
     for (const json of paths) {
-      list.push(new Parcel(json))
+      try {
+        list.push(new Parcel(json))
+      } catch (err) {
+        log.error(`failed to load ${json}: ${err}`)
+      }
     }
 
     return list
   }
 
-  constructor (jsonPath) {
-    const pkg = jsonfile.readFileSync(jsonPath)
-    return pkg
+  constructor (rootPath) {
+    const pkg = jsonfile.readFileSync(rootPath)
+    const engine = objpath.get(pkg, 'engines.deplug', null)
+    if (engine === null) {
+      throw new Error('deplug version required')
+    }
+    if (!semver.satisfies(config.deplug.version, engine)) {
+      throw new Error('deplug version mismatch')
+    }
+    const components = objpath.get(pkg, 'deplugParcel.components', [])
+    this.components = []
+    for (const comp of components) {
+      this.components.push(Component.create(rootPath, comp))
+    }
   }
 }
