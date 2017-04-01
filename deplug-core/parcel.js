@@ -8,24 +8,16 @@ import path from 'path'
 import semver from 'semver'
 
 export default class Parcel {
-  static list () {
-    const builtinParcelPattern =
-      path.join(config.builtinParcelPath, '/**/package.json')
-    const userParcelPattern =
-      path.join(config.userParcelPath, '/**/package.json')
-    const paths = glob.sync(builtinParcelPattern)
-      .concat(glob.sync(userParcelPattern))
-
-    const list = []
-    for (const json of paths) {
-      try {
-        list.push(new Parcel(json))
-      } catch (err) {
-        log.error(`failed to load ${json}: ${err}`)
+  static async loadComponents (type) {
+    const tasks = []
+    for (const parcel of parcels) {
+      for (const comp of parcel.components) {
+        if (comp.type === type) {
+          tasks.push(comp.load())
+        }
       }
     }
-
-    return list
+    return Promise.all(tasks)
   }
 
   constructor (rootPath) {
@@ -44,3 +36,24 @@ export default class Parcel {
     }
   }
 }
+
+function listParcels () {
+  const builtinParcelPattern =
+    path.join(config.builtinParcelPath, '/**/package.json')
+  const userParcelPattern =
+    path.join(config.userParcelPath, '/**/package.json')
+  const paths = glob.sync(builtinParcelPattern)
+    .concat(glob.sync(userParcelPattern))
+
+  const list = []
+  for (const json of paths) {
+    try {
+      list.push(new Parcel(json))
+    } catch (err) {
+      log.error(`failed to load ${json}: ${err}`)
+    }
+  }
+  return list
+}
+
+const parcels = listParcels()

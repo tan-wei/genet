@@ -27,7 +27,7 @@ export default class Theme {
       filename: lessFile,
       compress: true,
     }
-    const code = await denodeify(fs.readFile)(lessFile, {encoding: 'utf8'})
+    const code = await denodeify(fs.readFile)(lessFile, { encoding: 'utf8', })
     return less.render(code, options)
   }
 

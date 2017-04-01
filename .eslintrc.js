@@ -72,7 +72,7 @@ module.exports = {
         "func-call-spacing": "error",
         "func-name-matching": "error",
         "func-names": "error",
-        "func-style": "error",
+        "func-style": ["error", "declaration"],
         "generator-star-spacing": "error",
         "global-require": "off",
         "guard-for-in": "error",

@@ -6,13 +6,14 @@ export default class Component {
   static create (rootPath, comp) {
     switch (comp.type) {
       case 'theme':
-        return new ThemeComponent(rootPath, comp)
+        return new ThemeComponent(comp.type, rootPath, comp)
       default:
         throw new Error(`unknown component type: ${comp.type}`)
     }
   }
 
-  constructor (rootPath, comp) {
+  constructor (type, rootPath, comp) {
+    this.type = type
     this.rootPath = rootPath
     this.comp = comp
   }
