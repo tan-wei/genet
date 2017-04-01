@@ -8,7 +8,7 @@ os:
 osx_image: xcode8
 cache: yarn
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install yarn jq; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install jq; fi
 install:
   - yarn
 script:
