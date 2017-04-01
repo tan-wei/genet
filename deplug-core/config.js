@@ -1,15 +1,18 @@
+
+import jsonfile from 'jsonfile'
 import os from 'os'
 import path from 'path'
 
-const Package = require(path.join(__dirname, '..', '..', 'package.json'))
-const UserPath = path.join(os.homedir(), '.deplug')
-const UserPackagePath = path.join(UserPath, 'packages')
-const UserProfilePath = path.join(UserPath, 'profiles')
-const BuiltinPackagePath = path.join(__dirname, '..', 'packages')
+const npm = jsonfile.readFileSync(
+  path.join(__dirname, '..', '..', 'package.json'))
+const userPath = path.join(os.homedir(), '.deplug')
+const userParcelPath = path.join(userPath, 'parcels')
+const userProfilePath = path.join(userPath, 'profiles')
+const builtinParcelPath = path.join(__dirname, '..', '..', 'parcels')
 export default {
- Package,
- UserPath,
- UserPackagePath,
- UserProfilePath,
- BuiltinPackagePath,
+ npm,
+ userPath,
+ userParcelPath,
+ userProfilePath,
+ builtinParcelPath,
 }

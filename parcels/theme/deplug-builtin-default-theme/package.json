@@ -1,0 +1,17 @@
+{
+  "name": "deplug-builtin-default-theme",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Deplug default theme",
+  "engines": {
+    "deplug": "*"
+  },
+  "deplugParcel": {
+    "components": [
+      {
+        "type": "theme",
+        "file": "theme.less"
+      }
+    ]
+  }
+}

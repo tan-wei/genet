@@ -11,20 +11,20 @@ app.commandLine.appendSwitch('--enable-experimental-web-platform-features')
 
 app.on('window-all-closed', () => app.quit())
 app.on('ready', () => {
-  let options = {
+  const options = {
     width: 1200,
     height: 600,
     show: false,
     titleBarStyle: 'hidden-inset',
   }
-  let mainWindow = new BrowserWindow(options)
+  const mainWindow = new BrowserWindow(options)
   mainWindow.loadURL(`file://${__dirname}/index.htm`)
-  let contents = mainWindow.webContents
+  const contents = mainWindow.webContents
   contents.on('crashed', () => mainWindow.reload())
   contents.on('unresponsive', () => mainWindow.reload())
   contents.on('did-finish-load', () => {
-    let argv = JSON.stringify(minimist(process.argv.slice(2)))
-    let script = `require("./window.main.js")(${argv})`
+    const argv = JSON.stringify(minimist(process.argv.slice(2)))
+    const script = `require("./window.main.js")(${argv})`
     contents.executeJavaScript(script, false).then(() => {
       mainWindow.show()
     })

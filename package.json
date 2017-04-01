@@ -11,15 +11,18 @@
   "author": "h2so5",
   "license": "MIT",
   "dependencies": {
+    "glob": "^7.1.1",
+    "jsonfile": "^2.4.0",
     "less": "^2.7.2",
     "minimist": "^1.2.0",
-    "plugkit": "^0.0.8"
+    "plugkit": "^0.0.8",
+    "rollup": "^0.41.6",
+    "semver": "^5.3.0"
   },
   "devDependencies": {
     "electron-deplug": "1.5.1",
     "electron-packager": "^8.6.0",
-    "eslint": "^3.19.0",
-    "rollup": "^0.41.6"
+    "eslint": "^3.19.0"
   },
   "optionalDependencies": {
     "deplug-helper": "^0.1.0"
