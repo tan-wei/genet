@@ -355,6 +355,10 @@ delayed-stream@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/delayed-stream/-/delayed-stream-1.0.0.tgz#df3ae199acadfb7d440aaae0b29e2272b24ec619"
 
+denodeify@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/denodeify/-/denodeify-1.2.1.tgz#3a36287f5034e699e7577901052c2e6c94251631"
+
 deplug-helper@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/deplug-helper/-/deplug-helper-0.1.0.tgz#1dd0416cb31996618cf4867562c26846c5d115d3"

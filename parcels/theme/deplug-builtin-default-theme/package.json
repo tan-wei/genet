@@ -10,7 +10,11 @@
     "components": [
       {
         "type": "theme",
-        "file": "theme.less"
+        "theme": {
+          "less": "theme.less",
+          "id": "default",
+          "name": "Default"
+        }
       }
     ]
   }

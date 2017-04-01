@@ -1,16 +1,17 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_load"] }] */
 
 import Parcel from './parcel'
+import Theme from './theme'
 import config from './config'
 import module from 'module'
 
 export default async function (argv) {
-  const deplug = {}
-  Object.defineProperties(deplug, {
-    Argv: { value: argv, },
-    Config: { value: config, },
-    Parcel: { value: Parcel, },
-  })
+  const deplug = {
+    Argv: argv,
+    Config: config,
+    Parcel,
+    Theme,
+  }
 
   const load = module._load
   module._load = (request, parent, isMain) => {

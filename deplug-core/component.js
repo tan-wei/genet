@@ -1,3 +1,4 @@
+import Theme from './theme'
 import objpath from 'object-path'
 import path from 'path'
 
@@ -19,12 +20,22 @@ export default class Component {
 
 class ThemeComponent extends Component {
   async load () {
-    const file = objpath.get(this.comp, 'file', null)
-    if (file === null) {
-      throw new Error('file parameter required')
+    const id = objpath.get(this.comp, 'theme.id', '')
+    if (id === '') {
+      throw new Error('theme.id field required')
     }
 
-    const filePath = path.join(path.dirname(this.rootPath), file)
-    return filePath
+    const name = objpath.get(this.comp, 'theme.name', '')
+    if (name === '') {
+      throw new Error('theme.name field required')
+    }
+
+    const less = objpath.get(this.comp, 'theme.less', '')
+    if (less === '') {
+      throw new Error('theme.less field required')
+    }
+
+    const lessFile = path.join(path.dirname(this.rootPath), less)
+    Theme.register(new Theme(id, name, lessFile))
   }
 }
