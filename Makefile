@@ -3,11 +3,14 @@ DEPLUG_CORE = node_modules/deplug-core
 DEPLUG_CORE_RES = $(wildcard deplug-core/*.htm) $(wildcard deplug-core/*.less)
 DEPLUG_CORE_RES_OUT = $(addprefix node_modules/,$(DEPLUG_CORE_RES))
 
-DEPLUG_CORE_JS = $(wildcard deplug-core/*.main.js)
-DEPLUG_CORE_JS_OUT = $(addprefix node_modules/,$(DEPLUG_CORE_JS))
+DEPLUG_CORE_JS = $(wildcard deplug-core/*.js)
+DEPLUG_CORE_MAIN_JS = $(wildcard deplug-core/*.main.js)
+DEPLUG_CORE_JS_OUT = $(addprefix node_modules/,$(DEPLUG_CORE_MAIN_JS))
 
 ROOLUP_EXTERN = electron,deplug,$(shell jq '.dependencies | keys | join(",")' package.json -r)
 ROLLUP = node_modules/.bin/rollup
+
+ESLINT = node_modules/.bin/eslint
 
 ELECTRON = node_modules/.bin/electron-deplug
 ELECTRON_VERSION = $(shell jq '.devDependencies."electron-deplug"' package.json -r)
@@ -20,6 +23,9 @@ all: build
 	$(ELECTRON) .
 
 build: $(DEPLUG_CORE_RES_OUT) $(DEPLUG_CORE_JS_OUT)
+
+lint:
+	$(ESLINT) --fix $(DEPLUG_CORE_JS)
 
 pack: build
 	$(PACKAGER) ./ --download.mirror=$(ELECTRON_MIRROR) \
@@ -36,4 +42,4 @@ $(DEPLUG_CORE_JS_OUT): $(DEPLUG_CORE_JS) $(DEPLUG_CORE)
 $(DEPLUG_CORE):
 	@mkdir $(DEPLUG_CORE)
 
-.PHONY: all run build pack clean fmt
+.PHONY: all run build lint pack clean fmt

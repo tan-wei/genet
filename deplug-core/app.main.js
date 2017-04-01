@@ -14,8 +14,8 @@ app.on('ready', () => {
   let options = {
     width: 1200,
     height: 600,
-    show: true,
-    titleBarStyle: 'hidden-inset'
+    show: false,
+    titleBarStyle: 'hidden-inset',
   }
   let mainWindow = new BrowserWindow(options)
   mainWindow.loadURL(`file://${__dirname}/index.htm`)
@@ -24,7 +24,9 @@ app.on('ready', () => {
   contents.on('unresponsive', () => mainWindow.reload())
   contents.on('did-finish-load', () => {
     let argv = JSON.stringify(minimist(process.argv.slice(2)))
-    let script = `require("./window.main.js")(${argv}, "default")`
-    contents.executeJavaScript(script, false).then(mainWindow.show)
+    let script = `require("./window.main.js")(${argv})`
+    contents.executeJavaScript(script, false).then(() => {
+      mainWindow.show()
+    })
   })
 })
