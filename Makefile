@@ -25,6 +25,9 @@ all: build
 build: $(DEPLUG_CORE_RES_OUT) $(DEPLUG_CORE_JS_OUT)
 
 lint:
+	$(ESLINT) $(DEPLUG_CORE_JS)
+
+fix:
 	$(ESLINT) --fix $(DEPLUG_CORE_JS)
 
 pack: build
@@ -42,4 +45,4 @@ $(DEPLUG_CORE_JS_OUT): $(DEPLUG_CORE_JS) $(DEPLUG_CORE)
 $(DEPLUG_CORE):
 	@mkdir $(DEPLUG_CORE)
 
-.PHONY: all run build lint pack clean fmt
+.PHONY: all run build fix lint pack clean fmt
