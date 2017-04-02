@@ -32,10 +32,9 @@ export default class TabComponent extends Component {
       func({}, this.rootDir)
     }
 
-    const elements = objpath.get(this.comp, 'tab.elements', [])
-    for (const elem of elements) {
-      const elemFile = path.join(this.rootDir, elem)
-      head.append(jquery(`<link rel="import" href="${elemFile}">`))
+    const index = objpath.get(this.comp, 'tab.index', '')
+    if (index === '') {
+      throw new Error('tab.index field required')
     }
   }
 }

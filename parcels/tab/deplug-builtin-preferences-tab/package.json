@@ -13,9 +13,7 @@
         "tab": {
           "name": "Preferences",
           "tag": "deplug-preferences-tab",
-          "elements": [
-            "elements.htm"
-          ]
+          "index": "index.htm"
         }
       }
     ]
