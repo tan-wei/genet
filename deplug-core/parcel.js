@@ -7,8 +7,13 @@ import objpath from 'object-path'
 import path from 'path'
 import semver from 'semver'
 
+let parcels = null
+
 export default class Parcel {
   static async loadComponents (type) {
+    if (parcels === null) {
+      parcels = listParcels()
+    }
     const tasks = []
     for (const parcel of parcels) {
       for (const comp of parcel.components) {
@@ -47,13 +52,7 @@ function listParcels () {
 
   const list = []
   for (const root of paths) {
-    try {
-      list.push(new Parcel(path.dirname(root)))
-    } catch (err) {
-      log.error(`failed to load ${root}: ${err}`)
-    }
+    list.push(new Parcel(path.dirname(root)))
   }
   return list
 }
-
-const parcels = listParcels()
