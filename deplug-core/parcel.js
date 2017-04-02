@@ -20,19 +20,19 @@ export default class Parcel {
     return Promise.all(tasks)
   }
 
-  constructor (rootPath) {
-    const pkg = jsonfile.readFileSync(rootPath)
-    const engine = objpath.get(pkg, 'engines.deplug', null)
+  constructor (rootDir) {
+    const parc = jsonfile.readFileSync(path.join(rootDir, 'package.json'))
+    const engine = objpath.get(parc, 'engines.deplug', null)
     if (engine === null) {
       throw new Error('deplug version required')
     }
     if (!semver.satisfies(config.deplug.version, engine)) {
       throw new Error('deplug version mismatch')
     }
-    const components = objpath.get(pkg, 'deplugParcel.components', [])
+    const components = objpath.get(parc, 'deplugParcel.components', [])
     this.components = []
     for (const comp of components) {
-      this.components.push(ComponentFactory.create(rootPath, comp))
+      this.components.push(ComponentFactory.create(rootDir, parc, comp))
     }
   }
 }
@@ -46,11 +46,11 @@ function listParcels () {
     .concat(glob.sync(userParcelPattern))
 
   const list = []
-  for (const json of paths) {
+  for (const root of paths) {
     try {
-      list.push(new Parcel(json))
+      list.push(new Parcel(path.dirname(root)))
     } catch (err) {
-      log.error(`failed to load ${json}: ${err}`)
+      log.error(`failed to load ${root}: ${err}`)
     }
   }
   return list

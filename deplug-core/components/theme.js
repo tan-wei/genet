@@ -20,7 +20,7 @@ export default class ThemeComponent extends Component {
       throw new Error('theme.less field required')
     }
 
-    const lessFile = path.join(path.dirname(this.rootPath), less)
+    const lessFile = path.join(this.rootDir, less)
     Theme.register(new Theme(id, name, lessFile))
   }
 }

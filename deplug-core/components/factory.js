@@ -2,12 +2,12 @@ import ThemeComponent from './theme'
 import WindowComponent from './window'
 
 export default class ComponentFactory {
-  static create (rootPath, comp) {
+  static create (rootDir, parc, comp) {
     switch (comp.type) {
       case 'theme':
-        return new ThemeComponent(comp.type, rootPath, comp)
+        return new ThemeComponent(rootDir, parc, comp)
       case 'window':
-        return new WindowComponent(comp.type, rootPath, comp)
+        return new WindowComponent(rootDir, parc, comp)
       default:
         throw new Error(`unknown component type: ${comp.type}`)
     }
