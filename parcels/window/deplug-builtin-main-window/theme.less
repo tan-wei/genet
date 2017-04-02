@@ -1,6 +1,47 @@
 @import "deplug.theme";
 
+* {
+  font-family: @theme-font-family;
+  font-size: @theme-font-size;
+  -webkit-appearance: none;
+}
+
+html {
+  overflow: hidden;
+  height: 100%;
+}
+
 body {
   background-color: @theme-default-bg;
   color: @theme-default-fg;
+}
+
+.fa {
+  font-family: 'FontAwesome', sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  background: @theme-lighter-bg;
+}
+
+::-webkit-scrollbar:horizontal {
+  height: 6px;
+}
+
+::-webkit-scrollbar-piece {
+  background: @theme-lighter-bg;
+}
+
+::-webkit-scrollbar-piece:start {
+  background: @theme-lighter-bg;
+}
+
+::-webkit-scrollbar-thumb {
+  background: @theme-selection-bg;
+  min-height: 50px;
+}
+
+::-webkit-scrollbar-corner {
+  background: @theme-selection-bg;
 }

@@ -4,6 +4,7 @@ import less from 'less'
 import mkpath from 'mkpath'
 import os from 'os'
 import path from 'path'
+import s2p from 'stream-to-promise'
 
 const globalRegistry = {}
 const currentThemeId = 'default'
@@ -12,19 +13,28 @@ export default class Theme {
     this.id = id
     this.name = name
     this.lessFile = lessFile
-    this.tmpDir = null
   }
 
   async render (lessFile) {
-    if (this.tmpDir === null) {
-      this.tmpDir = path.join(os.tmpdir(), 'deplug', 'theme', this.id)
-      const tmpFile = path.join(this.tmpDir, 'deplug.theme')
-      await denodeify(mkpath)(this.tmpDir)
-      const data = await denodeify(fs.readFile)(this.lessFile)
-      await denodeify(fs.writeFile)(tmpFile, data)
+    const tmpDir = path.join(os.tmpdir(), 'deplug', 'theme')
+    await denodeify(mkpath)(tmpDir)
+
+    const files = { [path.join(tmpDir, 'deplug.theme')]: this.lessFile, }
+    for (const id in globalRegistry) {
+      const theme = globalRegistry[id]
+      files[path.join(tmpDir, `deplug.${theme.id}.theme`)] = theme.lessFile
     }
+
+    const tasks = []
+    for (const dst in files) {
+      const read = fs.createReadStream(files[dst])
+      const write = fs.createWriteStream(dst)
+      tasks.push(s2p(read.pipe(write)))
+    }
+    await Promise.all(tasks)
+
     const options = {
-      paths: [this.tmpDir, path.dirname(lessFile)],
+      paths: [tmpDir, path.dirname(lessFile)],
       filename: lessFile,
       compress: true,
     }

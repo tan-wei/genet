@@ -75,7 +75,7 @@ module.exports = {
         "func-style": ["error", "declaration"],
         "generator-star-spacing": "error",
         "global-require": "off",
-        "guard-for-in": "error",
+        "guard-for-in": "off",
         "handle-callback-err": "error",
         "id-blacklist": "error",
         "id-length": "error",
