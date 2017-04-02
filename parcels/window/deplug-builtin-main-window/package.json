@@ -12,7 +12,10 @@
         "type": "window",
         "window": {
           "less": "theme.less",
-          "main": "index.js"
+          "main": "index.js",
+          "elements": [
+            "elements.htm"
+          ]
         }
       }
     ]
