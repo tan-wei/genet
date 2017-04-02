@@ -11,7 +11,8 @@
       {
         "type": "window",
         "window": {
-          "less": "theme.less"
+          "less": "theme.less",
+          "main": "index.js"
         }
       }
     ]

@@ -1,5 +1,3 @@
-/* eslint no-underscore-dangle: ["error", { "allow": ["_load"] }] */
-
 import Parcel from './parcel'
 import Theme from './theme'
 import config from './config'
@@ -13,6 +11,7 @@ export default async function (argv) {
     Theme,
   }
 
+  /* eslint-disable no-underscore-dangle */
   const load = module._load
   module._load = (request, parent, isMain) => {
     if (request === 'deplug') {
@@ -20,6 +19,7 @@ export default async function (argv) {
     }
     return load(request, parent, isMain)
   }
+  /* eslint-enable no-underscore-dangle */
 
   await Parcel.loadComponents('theme')
   return deplug

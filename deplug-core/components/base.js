@@ -20,7 +20,7 @@ export default class Component {
       Object.keys(objpath.get(config.deplug, 'dependencies', {}))
     const deplugExtern = ['deplug', 'electron']
     const moduleDir = JSON.stringify(path.join(this.rootDir, 'node_modules'))
-    rollup({
+    const bundle = await rollup({
       entry: file,
       external: localExtern.concat(globalExtern, builtin, deplugExtern),
       acorn: { ecmaVersion: 8, },
@@ -32,5 +32,8 @@ export default class Component {
         log.warn(err)
       },
     })
+    const result = bundle.generate({ format: 'cjs', })
+    // eslint-disable-next-line no-new-func
+    return new Function('module', '__dirname', result.code)
   }
 }

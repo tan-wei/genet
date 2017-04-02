@@ -12,5 +12,12 @@ export default class WindowComponent extends Component {
       const style = await Theme.current.render(lessFile)
       jquery('head').append(jquery('<style>').text(style.css))
     }
+
+    const main = objpath.get(this.comp, 'window.main', '')
+    if (main !== '') {
+      const mainFile = path.join(this.rootDir, main)
+      const func = await this.roll(mainFile)
+      func({}, this.rootDir)
+    }
   }
 }
