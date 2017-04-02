@@ -1,8 +1,21 @@
+<template id="sdtemplate">
+  <style>
+    p { color: orange; }
+  </style>
+  <p>I'm in Shadow DOM. My markup was stamped from a &lt;template&gt;.</p>
+  <webview id="foo" src="https://www.github.com/" style="display:inline-flex; width:640px; height:480px"></webview>
+</template>
+
 <script>
   class Window extends HTMLElement {
+    constructor() {
+      super()
+    }
+
     connectedCallback() {
-      this.innerHTML = 'Hello, <b>' +
-                       (this.getAttribute('name') || '?') + '</b>'
+      var t = document.currentScript.ownerDocument.querySelector('#sdtemplate')
+      var clone = document.importNode(t.content, true)
+      this.createShadowRoot().appendChild(clone)
     }
   }
   customElements.define('deplug-window-main', Window)
