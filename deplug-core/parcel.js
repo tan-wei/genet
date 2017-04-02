@@ -2,17 +2,15 @@ import ComponentFactory from './components/factory'
 import config from './config'
 import glob from 'glob'
 import jsonfile from 'jsonfile'
-import log from 'electron-log'
 import objpath from 'object-path'
 import path from 'path'
 import semver from 'semver'
 
 let parcels = null
-
 export default class Parcel {
   static async loadComponents (type) {
     if (parcels === null) {
-      parcels = listParcels()
+      parcels = this.listParcels()
     }
     const tasks = []
     for (const parcel of parcels) {
@@ -23,6 +21,21 @@ export default class Parcel {
       }
     }
     return Promise.all(tasks)
+  }
+
+  static listParcels () {
+    const builtinParcelPattern =
+      path.join(config.builtinParcelPath, '/**/package.json')
+    const userParcelPattern =
+      path.join(config.userParcelPath, '/**/package.json')
+    const paths = glob.sync(builtinParcelPattern)
+      .concat(glob.sync(userParcelPattern))
+
+    const list = []
+    for (const root of paths) {
+      list.push(new Parcel(path.dirname(root)))
+    }
+    return list
   }
 
   constructor (rootDir) {
@@ -40,19 +53,4 @@ export default class Parcel {
       this.components.push(ComponentFactory.create(rootDir, parc, comp))
     }
   }
-}
-
-function listParcels () {
-  const builtinParcelPattern =
-    path.join(config.builtinParcelPath, '/**/package.json')
-  const userParcelPattern =
-    path.join(config.userParcelPath, '/**/package.json')
-  const paths = glob.sync(builtinParcelPattern)
-    .concat(glob.sync(userParcelPattern))
-
-  const list = []
-  for (const root of paths) {
-    list.push(new Parcel(path.dirname(root)))
-  }
-  return list
 }
