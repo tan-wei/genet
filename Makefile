@@ -3,7 +3,7 @@ DEPLUG_CORE = node_modules/deplug-core
 DEPLUG_CORE_RES = $(wildcard deplug-core/*.htm) $(wildcard deplug-core/*.less)
 DEPLUG_CORE_RES_OUT = $(addprefix node_modules/,$(DEPLUG_CORE_RES))
 
-DEPLUG_CORE_JS = $(wildcard deplug-core/*.js)
+DEPLUG_CORE_JS = $(wildcard deplug-core/*.js) $(wildcard deplug-core/components/*.js)
 DEPLUG_CORE_MAIN_JS = $(wildcard deplug-core/*.main.js)
 DEPLUG_CORE_JS_OUT = $(addprefix node_modules/,$(DEPLUG_CORE_MAIN_JS))
 

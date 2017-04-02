@@ -1,4 +1,4 @@
-import Component from './component'
+import ComponentFactory from './components/factory'
 import config from './config'
 import glob from 'glob'
 import jsonfile from 'jsonfile'
@@ -32,7 +32,7 @@ export default class Parcel {
     const components = objpath.get(pkg, 'deplugParcel.components', [])
     this.components = []
     for (const comp of components) {
-      this.components.push(Component.create(rootPath, comp))
+      this.components.push(ComponentFactory.create(rootPath, comp))
     }
   }
 }

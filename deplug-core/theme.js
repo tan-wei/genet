@@ -18,7 +18,7 @@ export default class Theme {
   async render (lessFile) {
     if (this.tmpDir === null) {
       this.tmpDir = path.join(os.tmpdir(), 'deplug', 'theme', this.id)
-      const tmpFile = path.join(this.tmpDir, 'theme.less')
+      const tmpFile = path.join(this.tmpDir, 'deplug.theme')
       await denodeify(mkpath)(this.tmpDir)
       const data = await denodeify(fs.readFile)(this.lessFile)
       await denodeify(fs.writeFile)(tmpFile, data)
