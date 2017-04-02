@@ -18,10 +18,11 @@ export default class Component {
       Object.keys(objpath.get(this.parc, 'dependencies', {}))
     const globalExtern =
       Object.keys(objpath.get(config.deplug, 'dependencies', {}))
+    const deplugExtern = ['deplug', 'electron']
     const moduleDir = JSON.stringify(path.join(this.rootDir, 'node_modules'))
     rollup({
       entry: file,
-      external: localExtern.concat(globalExtern, builtin),
+      external: localExtern.concat(globalExtern, builtin, deplugExtern),
       acorn: { ecmaVersion: 8, },
       plugins: [{
         name: 'globalPaths',
