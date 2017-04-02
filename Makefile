@@ -7,7 +7,7 @@ DEPLUG_CORE_JS = $(wildcard deplug-core/*.js) $(wildcard deplug-core/components/
 DEPLUG_CORE_MAIN_JS = $(wildcard deplug-core/*.main.js)
 DEPLUG_CORE_JS_OUT = $(addprefix node_modules/,$(DEPLUG_CORE_MAIN_JS))
 
-ROOLUP_EXTERN_BUILTIN = electron,deplug,module,path,os,fs
+ROOLUP_EXTERN_BUILTIN = electron,deplug,$(shell node -p -e 'require("builtin-modules").join(",")')
 ROOLUP_EXTERN = $(ROOLUP_EXTERN_BUILTIN),$(shell jq '.dependencies | keys | join(",")' package.json -r)
 ROLLUP = node_modules/.bin/rollup
 
@@ -45,5 +45,8 @@ $(DEPLUG_CORE_JS_OUT): $(DEPLUG_CORE_JS) $(DEPLUG_CORE)
 
 $(DEPLUG_CORE):
 	@mkdir $(DEPLUG_CORE)
+
+clean:
+	@rm -r $(DEPLUG_CORE)
 
 .PHONY: all run build fix lint pack clean fmt
