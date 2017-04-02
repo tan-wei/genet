@@ -1,0 +1,24 @@
+{
+  "name": "deplug-builtin-frame-list-panel",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Deplug frame list panel",
+  "engines": {
+    "deplug": "*"
+  },
+  "deplugParcel": {
+    "components": [
+      {
+        "type": "panel",
+        "panel": {
+          "name": "Frames",
+          "slot": "top",
+          "tag": "deplug-frame-list-panel",
+          "elements": [
+            "elements.htm"
+          ]
+        }
+      }
+    ]
+  }
+}

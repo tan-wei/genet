@@ -11,7 +11,7 @@
       {
         "type": "tab",
         "tab": {
-          "name": "preferences",
+          "name": "Preferences",
           "tag": "deplug-preferences-tab",
           "elements": [
             "elements.htm"
