@@ -1,0 +1,19 @@
+{
+  "name": "deplug-builtin-main-window",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Deplug main window",
+  "engines": {
+    "deplug": "*"
+  },
+  "deplugParcel": {
+    "components": [
+      {
+        "type": "window",
+        "window": {
+          "less": "theme.less"
+        }
+      }
+    ]
+  }
+}

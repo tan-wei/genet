@@ -5,7 +5,8 @@ import mkpath from 'mkpath'
 import os from 'os'
 import path from 'path'
 
-const globalRegistry = []
+const globalRegistry = {}
+const currentThemeId = 'default'
 export default class Theme {
   constructor (id, name, lessFile) {
     this.id = id
@@ -31,8 +32,12 @@ export default class Theme {
     return less.render(code, options)
   }
 
+  static get current () {
+    return globalRegistry[currentThemeId]
+  }
+
   static register (theme) {
-    globalRegistry.push(theme)
+    globalRegistry[theme.id] = theme
   }
 
   static get registry () {

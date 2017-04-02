@@ -7,6 +7,8 @@ export default class Component {
     switch (comp.type) {
       case 'theme':
         return new ThemeComponent(comp.type, rootPath, comp)
+      case 'window':
+        return new WindowComponent(comp.type, rootPath, comp)
       default:
         throw new Error(`unknown component type: ${comp.type}`)
     }
@@ -38,5 +40,15 @@ class ThemeComponent extends Component {
 
     const lessFile = path.join(path.dirname(this.rootPath), less)
     Theme.register(new Theme(id, name, lessFile))
+  }
+}
+
+class WindowComponent extends Component {
+  async load () {
+    const less = objpath.get(this.comp, 'window.less', '')
+    if (less !== '') {
+      const lessFile = path.join(path.dirname(this.rootPath), less)
+      await Theme.current.render(lessFile)
+    }
   }
 }

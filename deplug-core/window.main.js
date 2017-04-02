@@ -2,7 +2,7 @@ import { ipcRenderer, remote } from 'electron'
 import deplug from './deplug'
 
 export default async function (argv) {
-  await deplug(argv)
+  const { Parcel, } = await deplug(argv)
+  await Parcel.loadComponents('window')
   ipcRenderer.send('window-deplug-loaded', remote.getCurrentWindow().id)
-  document.write('Hey!')
 }

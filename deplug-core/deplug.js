@@ -22,4 +22,5 @@ export default async function (argv) {
   }
 
   await Parcel.loadComponents('theme')
+  return deplug
 }
