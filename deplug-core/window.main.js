@@ -6,6 +6,7 @@ export default async function (argv) {
   try {
     const { Parcel, } = await deplug(argv)
     await Parcel.loadComponents('window')
+    await Parcel.loadComponents('tab')
     await new Promise((res) => {
       jquery(res)
     })

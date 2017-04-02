@@ -1,0 +1,23 @@
+{
+  "name": "deplug-builtin-preferances-tab",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Deplug preferences tab",
+  "engines": {
+    "deplug": "*"
+  },
+  "deplugParcel": {
+    "components": [
+      {
+        "type": "tab",
+        "tab": {
+          "name": "preferences",
+          "tag": "deplug-preferences-tab",
+          "elements": [
+            "elements.htm"
+          ]
+        }
+      }
+    ]
+  }
+}
