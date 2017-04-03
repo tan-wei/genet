@@ -1,4 +1,5 @@
 import Parcel from './parcel'
+import Profile from './profile'
 import Theme from './theme'
 import config from './config'
 import module from 'module'
@@ -8,6 +9,7 @@ export default async function (argv) {
     Argv: argv,
     Config: config,
     Parcel,
+    Profile,
     Theme,
   }
 
