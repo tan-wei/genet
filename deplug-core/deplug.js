@@ -1,3 +1,4 @@
+import Channel from './channel'
 import Parcel from './parcel'
 import Profile from './profile'
 import Theme from './theme'
@@ -8,6 +9,7 @@ export default async function (argv) {
   const deplug = {
     Argv: argv,
     Config: config,
+    Channel,
     Parcel,
     Profile,
     Theme,
