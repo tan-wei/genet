@@ -16,7 +16,9 @@ function createHandler (parcel = null) {
     Object.keys(EventEmitter.prototype).concat(Object.keys(Object.prototype))
   return {
     get: (target, name) => {
-      if (proto.includes(name)) {
+      if (name.startsWith('$')) {
+        return new Proxy(target, createHandler(name.substr(1)))
+      } else if (proto.includes(name)) {
         return target[name]
       } else if (parcel === null) {
         return target.getGlobal(name)
@@ -48,12 +50,6 @@ function createHandler (parcel = null) {
       } else {
         target.setParcel(parcel, name, value)
       }
-    },
-    apply: (target, thisArg, argumentsList) => {
-      if (parcel === null && argumentsList.length === 1) {
-        return new Proxy(target, createHandler(argumentsList[0]))
-      }
-      throw new Error('invalid arguments')
     },
   }
 }
@@ -105,7 +101,6 @@ export default class Profile extends EventEmitter {
       }
       this.emit('parcel-updated', id, opath, value)
     })
-    process.on('exit', this.writeSync)
   }
 
   static get default () {
