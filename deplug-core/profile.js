@@ -1,6 +1,7 @@
-import { webContents, ipcRenderer } from 'electron'
+import { ipcRenderer, remote } from 'electron'
 import { EventEmitter } from 'events'
 import config from './config'
+import denodeify from 'denodeify'
 import fs from 'fs'
 import glob from 'glob'
 import jsonfile from 'jsonfile'
@@ -9,6 +10,7 @@ import mkpath from 'mkpath'
 import objpath from 'object-path'
 import path from 'path'
 
+const { webContents, } = remote
 function createHandler (parcel = null) {
   const proto =
     Object.keys(EventEmitter.prototype).concat(Object.keys(Object.prototype))
@@ -134,6 +136,7 @@ export default class Profile extends EventEmitter {
     for (const wc of webContents.getAllWebContents()) {
       wc.send('global-updated', opath, null)
     }
+    this.write()
   }
 
   setGlobal (opath, value) {
@@ -145,6 +148,7 @@ export default class Profile extends EventEmitter {
     for (const wc of webContents.getAllWebContents()) {
       wc.send('global-updated', opath, value)
     }
+    this.write()
   }
 
   getParcel (id, opath) {
@@ -168,6 +172,7 @@ export default class Profile extends EventEmitter {
         wc.send('parcel-updated', id, opath, null)
       }
     }
+    this.write()
   }
 
   setParcel (id, opath, value) {
@@ -182,14 +187,18 @@ export default class Profile extends EventEmitter {
     for (const wc of webContents.getAllWebContents()) {
       wc.send('parcel-updated', id, opath, value)
     }
+    this.write()
   }
 
-  write () {
-    fs.writeFile(this.globalFile, JSON.stringify(this.globalObject))
+  async write () {
+    const write = denodeify(fs.writeFile)
+    await write(this.globalFile, JSON.stringify(this.globalObject))
+    const tasks = []
     for (const id in this.parcelObject) {
       const jsonFile = path.join(this.parcelsDir, `${id}.json`)
-      fs.writeFile(jsonFile, JSON.stringify(this.parcelObject[id]))
+      tasks.push(write(jsonFile, JSON.stringify(this.parcelObject[id])))
     }
+    return Promise.all(tasks)
   }
 
   writeSync () {
