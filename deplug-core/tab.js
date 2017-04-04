@@ -7,4 +7,8 @@ export default class Tab {
   static get registry () {
     return globalRegistry
   }
+
+  static get (name) {
+    return globalRegistry[name]
+  }
 }

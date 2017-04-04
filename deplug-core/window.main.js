@@ -4,12 +4,17 @@ import jquery from 'jquery'
 
 export default async function (argv) {
   try {
-    const { Parcel, } = await deplug(argv)
+    const { Parcel, Channel, } = await deplug(argv)
     await Parcel.loadComponents('window')
     await Parcel.loadComponents('tab')
     await new Promise((res) => {
       jquery(res)
     })
+    Channel.emit('core:window-loaded')
+    process.nextTick(() => {
+      Channel.emit('core:create-tab', 'Preferences')
+    })
+
   } catch (err) {
     remote.getCurrentWindow().openDevTools()
     throw err

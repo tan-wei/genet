@@ -1,6 +1,7 @@
 import Channel from './channel'
 import Parcel from './parcel'
 import Profile from './profile'
+import Tab from './tab'
 import Theme from './theme'
 import config from './config'
 import module from 'module'
@@ -12,6 +13,7 @@ export default async function (argv) {
     Channel,
     Parcel,
     Profile,
+    Tab,
     Theme,
   }
 
