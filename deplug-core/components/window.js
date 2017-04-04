@@ -1,6 +1,7 @@
 import Component from './base'
 import Theme from '../theme'
 import jquery from 'jquery'
+import mithril from 'mithril'
 import objpath from 'object-path'
 import path from 'path'
 
@@ -21,10 +22,13 @@ export default class WindowComponent extends Component {
       func({}, this.rootDir)
     }
 
-    const elements = objpath.get(this.comp, 'window.elements', [])
-    for (const elem of elements) {
-      const elemFile = path.join(this.rootDir, elem)
-      head.append(jquery(`<link rel="import" href="${elemFile}">`))
+    const root = objpath.get(this.comp, 'window.root', '')
+    if (root !== '') {
+      const rootFile = path.join(this.rootDir, root)
+      const func = await this.roll(rootFile)
+      const module = {}
+      func(module, this.rootDir)
+      mithril.mount(document.body, module.exports)
     }
   }
 }
