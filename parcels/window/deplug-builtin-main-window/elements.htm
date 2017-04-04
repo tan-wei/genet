@@ -5,9 +5,3 @@
   <p>I'm in Shadow DOM. My markup was stamped from a &lt;template&gt;.</p>
   <webview id="foo" src="https://www.github.com/" style="display:inline-flex; width:640px; height:480px"></webview>
 </template>
-
-<script>
-const path = require('path')
-const p = path.join(path.dirname(document.currentScript.ownerDocument.documentURI.substr(7)), 'element.js')
-require(p)
-</script>
