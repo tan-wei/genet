@@ -83,7 +83,7 @@ export default class Profile extends EventEmitter {
     }
 
     ipcRenderer.on('global-updated', (event, opath, value) => {
-      if (value === null) {
+      if (typeof value === 'undefined') {
         objpath.del(this.globalObject, opath)
       } else {
         objpath.set(this.globalObject, opath, value)
@@ -94,7 +94,7 @@ export default class Profile extends EventEmitter {
       if (!(id in this.parcelObject)) {
         this.parcelObject[id] = {}
       }
-      if (value === null) {
+      if (typeof value === 'undefined') {
         objpath.del(this.parcelObject[id], opath)
       } else {
         objpath.set(this.parcelObject[id], opath, value)
@@ -129,13 +129,13 @@ export default class Profile extends EventEmitter {
   deleteGlobal (opath) {
     objpath.del(this.globalObject, opath)
     for (const wc of webContents.getAllWebContents()) {
-      wc.send('global-updated', opath, null)
+      wc.send('global-updated', opath)
     }
     this.write()
   }
 
   setGlobal (opath, value) {
-    if (value === null) {
+    if (typeof value === 'undefined') {
       objpath.del(this.globalObject, opath)
     } else {
       objpath.set(this.globalObject, opath, value)
@@ -164,7 +164,7 @@ export default class Profile extends EventEmitter {
     if (id in this.parcelObject) {
       objpath.del(this.parcelObject[id], opath)
       for (const wc of webContents.getAllWebContents()) {
-        wc.send('parcel-updated', id, opath, null)
+        wc.send('parcel-updated', id, opath)
       }
     }
     this.write()
@@ -174,7 +174,7 @@ export default class Profile extends EventEmitter {
     if (!(id in this.parcelObject)) {
       this.parcelObject[id] = {}
     }
-    if (value === null) {
+    if (typeof value === 'undefined') {
       objpath.del(this.parcelObject[id], opath)
     } else {
       objpath.set(this.parcelObject[id], opath, value)
