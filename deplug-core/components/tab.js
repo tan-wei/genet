@@ -1,4 +1,5 @@
 import Component from './base'
+import Tab from '../tab'
 import Theme from '../theme'
 import jquery from 'jquery'
 import objpath from 'object-path'
@@ -11,11 +12,6 @@ export default class TabComponent extends Component {
     const name = objpath.get(this.comp, 'tab.name', '')
     if (name === '') {
       throw new Error('tab.name field required')
-    }
-
-    const tag = objpath.get(this.comp, 'tab.tag', '')
-    if (tag === '') {
-      throw new Error('tab.tag field required')
     }
 
     const less = objpath.get(this.comp, 'tab.less', '')
@@ -36,5 +32,13 @@ export default class TabComponent extends Component {
     if (index === '') {
       throw new Error('tab.index field required')
     }
+
+    const elements = objpath.get(this.comp, 'tab.elements', [])
+    for (const elem of elements) {
+      const elemFile = path.join(this.rootDir, elem)
+      head.append(jquery(`<link rel="import" href="${elemFile}">`))
+    }
+
+    Tab.register(this.comp.tab)
   }
 }
