@@ -1,6 +1,6 @@
 const globalRegistry = {}
 export default class Tab {
-  static register (tab) {
+  static registerTemplate (tab) {
     globalRegistry[tab.name] = tab
   }
 
@@ -8,7 +8,7 @@ export default class Tab {
     return globalRegistry
   }
 
-  static get (name) {
+  static getTemplate (name) {
     return globalRegistry[name]
   }
 }

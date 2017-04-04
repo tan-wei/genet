@@ -39,6 +39,6 @@ export default class TabComponent extends Component {
       head.append(jquery(`<link rel="import" href="${elemFile}">`))
     }
 
-    Tab.register(this.comp.tab)
+    Tab.registerTemplate(this.comp.tab)
   }
 }
