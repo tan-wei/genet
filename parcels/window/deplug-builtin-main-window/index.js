@@ -13,7 +13,8 @@ export default class Main {
   view() {
     return (
       <main>
-          <h1>Hello world</h1>
+        <div id="tab-container"></div>
+        <webview class="tab-content" src="https://www.github.com/"></webview>
       </main>
     )
   }

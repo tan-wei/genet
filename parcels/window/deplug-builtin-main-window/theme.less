@@ -45,3 +45,25 @@ body {
 ::-webkit-scrollbar-corner {
   background: @theme-selection-bg;
 }
+
+@tab-height: 38px;
+
+#tab-container {
+  position: absolute;
+  top: 0;
+  left: 0px;
+  right: 0;
+  height: @tab-height;
+  .mixin (@b) when (@b = darwin) {
+    left: 80px;
+  }
+  .mixin (@node-platform);
+}
+
+webview.tab-content {
+  position: absolute;
+  top: (@tab-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
