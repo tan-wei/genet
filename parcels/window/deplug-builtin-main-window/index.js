@@ -9,10 +9,12 @@ const User = {
   ]
 }
 
-export default {
-  view: () => {
-    return m(".user-list", User.list.map((user) => {
-      return m(".user-list-item", user.firstName + " " + user.lastName)
-    }))
+export default class Main {
+  view() {
+    return (
+      <main>
+          <h1>Hello world</h1>
+      </main>
+    )
   }
 }

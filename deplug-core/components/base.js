@@ -1,6 +1,7 @@
 import builtin from 'builtin-modules'
 import config from '../config'
 import log from 'electron-log'
+import msx from 'msx-optimized'
 import objpath from 'object-path'
 import path from 'path'
 import { rollup } from 'rollup'
@@ -25,6 +26,11 @@ export default class Component {
       external: localExtern.concat(globalExtern, builtin, deplugExtern),
       acorn: { ecmaVersion: 8, },
       plugins: [{
+        name: 'jsx',
+        transform (code) {
+          return { code: msx.transform(code, { precompile: false, }), }
+        },
+      }, {
         name: 'globalPaths',
         banner: `require('module').globalPaths.push(${moduleDir})`,
       }],
