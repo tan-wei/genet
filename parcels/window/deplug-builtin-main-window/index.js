@@ -1,15 +1,18 @@
 import m from 'mithril'
 import jquery from 'jquery'
-import { Argv, Tab } from 'deplug'
+import { Argv, Channel, Tab } from 'deplug'
 
-const tabs = [
-  {
-    name: "Preferences"
-  },
-  {
-    name: "Live capture 1"
-  }
-]
+const tabs = []
+let idCounter = 0
+
+Channel.on('core:create-tab', (_, template) => {
+  let tab = Tab.getTemplate(template)
+  tabs.push({
+    id: ++idCounter,
+    tab: tab
+  })
+  m.redraw()
+})
 
 class WebView {
   constructor() {
@@ -18,12 +21,15 @@ class WebView {
 
   oncreate(vnode) {
     let webview = vnode.dom
-    webview.addEventListener('dom-ready', () => {
-      const argv = JSON.stringify(Argv)
-      const tab = JSON.stringify(Tab.getTemplate('Preferences'))
-      const script = `require("deplug-core/tab.main")(${argv}, ${tab})`
-      webview.executeJavaScript(script)
-    })
+    let item = tabs.find((t) => { return t.id === parseInt(vnode.attrs.id) })
+    if (item) {
+      webview.addEventListener('dom-ready', () => {
+        const argv = JSON.stringify(Argv)
+        const tab = JSON.stringify(Tab.getTemplate(item.tab.template))
+        const script = `require("deplug-core/tab.main")(${argv}, ${tab})`
+        webview.executeJavaScript(script)
+      })
+    }
   }
 
   view(vnode) {
@@ -59,7 +65,7 @@ export default class Main {
                   isActive={ this.currentIndex === i }
                   onclick={m.withAttr('index', this.activate, this)}
                 >
-                  { t.name }
+                  { t.tab.name }
                 </a>
               )
             })
@@ -67,7 +73,7 @@ export default class Main {
         </div>
         {
           tabs.map((t, i) => {
-            return m(WebView, {index: i, isActive: this.currentIndex === i })
+            return m(WebView, {key: t.id, id: t.id, index: i, isActive: this.currentIndex === i })
           })
         }
       </main>

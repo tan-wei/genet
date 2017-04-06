@@ -1,3 +1,4 @@
+import { remote } from 'electron'
 import deplug from './deplug'
 import jquery from 'jquery'
 import path from 'path'
@@ -17,6 +18,7 @@ export default async function (argv, tab) {
       jquery(res)
     })
   } catch (err) {
+    remote.getCurrentWebContents().openDevTools()
     throw err
   }
 }

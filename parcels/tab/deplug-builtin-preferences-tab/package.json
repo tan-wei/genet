@@ -12,8 +12,10 @@
         "type": "tab",
         "tab": {
           "name": "Preferences",
+          "template": "Preferences",
           "less": "theme.less",
-          "root": "index.js"
+          "root": "index.js",
+          "singleton": true
         }
       }
     ]
