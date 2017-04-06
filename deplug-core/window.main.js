@@ -13,10 +13,10 @@ export default async function (argv) {
     Channel.emit('core:window-loaded')
     process.nextTick(() => {
       Channel.emit('core:create-tab', 'Preferences')
-        Channel.emit('core:create-tab', 'Preferences')
-          Channel.emit('core:create-tab', 'Preferences')
-            Channel.emit('core:create-tab', 'Preferences')
-              Channel.emit('core:create-tab', 'Preferences')
+      Channel.emit('core:create-tab', 'Preferences')
+      Channel.emit('core:create-tab', 'Preferences')
+      Channel.emit('core:create-tab', 'Preferences')
+      Channel.emit('core:create-tab', 'Preferences')
     })
 
   } catch (err) {

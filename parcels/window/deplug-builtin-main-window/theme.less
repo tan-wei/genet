@@ -27,6 +27,16 @@
   }
 }
 
+#tab-mask {
+  position: absolute;
+  top: (@tab-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  background-color: @theme-lighter-bg;
+}
+
 webview.tab-content {
   position: absolute;
   top: (@tab-height);
@@ -34,8 +44,13 @@ webview.tab-content {
   right: 0;
   bottom: 0;
   z-index: -1;
+  transition: opacity 0.2s;
+  opacity: 0;
   &[isactive] {
     z-index: 1;
+  }
+  &[isloaded] {
+    opacity: 1;
   }
   background-color: @theme-default-bg;
 }

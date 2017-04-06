@@ -1,8 +1,10 @@
+import { ipcRenderer } from 'electron'
+import { Argv, Channel, Tab } from 'deplug'
 import m from 'mithril'
 import jquery from 'jquery'
-import { Argv, Channel, Tab } from 'deplug'
 
 const tabs = []
+const loadedTabs = []
 let idCounter = 0
 
 Channel.on('core:create-tab', (_, template) => {
@@ -11,6 +13,11 @@ Channel.on('core:create-tab', (_, template) => {
     id: ++idCounter,
     tab: tab
   })
+  m.redraw()
+})
+
+ipcRenderer.on('tab-deplug-loaded', (_, id) => {
+  loadedTabs[id] = true
   m.redraw()
 })
 
@@ -26,7 +33,8 @@ class WebView {
       webview.addEventListener('dom-ready', () => {
         const argv = JSON.stringify(Argv)
         const tab = JSON.stringify(Tab.getTemplate(item.tab.template))
-        const script = `require("deplug-core/tab.main")(${argv}, ${tab})`
+        const id = JSON.stringify(vnode.attrs.id)
+        const script = `require("deplug-core/tab.main")(${argv}, ${tab}, ${id})`
         webview.executeJavaScript(script)
       })
     }
@@ -37,6 +45,7 @@ class WebView {
       class="tab-content"
       src={`file://${__dirname}/index.htm`}
       isActive={vnode.attrs.isActive}
+      isLoaded={vnode.attrs.isLoaded}
       nodeintegration
     >
     </webview>
@@ -71,9 +80,16 @@ export default class Main {
             })
           }
         </div>
+        <div id="tab-mask"></div>
         {
           tabs.map((t, i) => {
-            return m(WebView, {key: t.id, id: t.id, index: i, isActive: this.currentIndex === i })
+            return m(WebView, {
+              key: t.id,
+              id: t.id,
+              index: i,
+              isLoaded: (loadedTabs[t.id] === true),
+              isActive: this.currentIndex === i
+            })
           })
         }
       </main>
