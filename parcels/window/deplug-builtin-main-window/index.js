@@ -9,6 +9,12 @@ let idCounter = 0
 
 Channel.on('core:create-tab', (_, template) => {
   let tab = Tab.getTemplate(template)
+  if (tab.singleton === true) {
+    let item = tabs.find((t) => { return t.tab.template === template })
+    if (item) {
+      return
+    }
+  }
   tabs.push({
     id: ++idCounter,
     tab: tab
@@ -32,9 +38,8 @@ class WebView {
     if (item) {
       webview.addEventListener('dom-ready', () => {
         const argv = JSON.stringify(Argv)
-        const tab = JSON.stringify(Tab.getTemplate(item.tab.template))
-        const id = JSON.stringify(vnode.attrs.id)
-        const script = `require("deplug-core/tab.main")(${argv}, ${tab}, ${id})`
+        const tab = JSON.stringify(item)
+        const script = `require("deplug-core/tab.main")(${argv}, ${tab})`
         webview.executeJavaScript(script)
       })
     }

@@ -4,13 +4,13 @@ import path from 'path'
 import { remote } from 'electron'
 
 const { webContents, } = remote
-export default async function (argv, tab, id) {
+export default async function (argv, tab) {
   try {
     const { Theme, } = await deplug(argv)
 
-    const less = tab.less || ''
+    const less = tab.tab.less || ''
     if (less !== '') {
-      const lessFile = path.join(tab.rootDir, less)
+      const lessFile = path.join(tab.tab.rootDir, less)
       const style = await Theme.current.render(lessFile)
       jquery('head').append(jquery('<style>').text(style.css))
     }
@@ -23,7 +23,7 @@ export default async function (argv, tab, id) {
     throw err
   } finally {
     for (const wc of webContents.getAllWebContents()) {
-      wc.send('tab-deplug-loaded', id)
+      wc.send('tab-deplug-loaded', tab.id)
     }
   }
 }
