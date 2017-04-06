@@ -1,12 +1,12 @@
-import { ipcRenderer, remote } from 'electron'
-const { webContents, } = remote
 import deplug from './deplug'
 import jquery from 'jquery'
 import path from 'path'
+import { remote } from 'electron'
 
+const { webContents, } = remote
 export default async function (argv, tab, id) {
   try {
-    const { Theme, Channel } = await deplug(argv)
+    const { Theme, } = await deplug(argv)
 
     const less = tab.less || ''
     if (less !== '') {

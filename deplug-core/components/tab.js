@@ -19,7 +19,7 @@ export default class TabComponent extends Component {
       throw new Error('tab.root field required')
     }
 
-    const tab = Object.assign({rootDir: this.rootDir}, this.comp.tab)
+    const tab = Object.assign({ rootDir: this.rootDir, }, this.comp.tab)
     Tab.registerTemplate(tab)
   }
 }
