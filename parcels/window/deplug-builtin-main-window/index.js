@@ -1,4 +1,5 @@
 import m from 'mithril'
+import jquery from 'jquery'
 
 const tabs = [
   {
@@ -14,6 +15,8 @@ let currentIndex = 0
 export default class Main {
   activate(index) {
     currentIndex = parseInt(index)
+    let content = jquery(`webview[index=${currentIndex}]`).get()[0]
+    content.loadURL('https://github.com/')
   }
 
   view() {
@@ -40,7 +43,7 @@ export default class Main {
               <webview class="tab-content"
                 index={i}
                 isActive={ currentIndex === i }
-                src="https://www.github.com/"
+                src="blank"
               >
               </webview>
             )
