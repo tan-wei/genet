@@ -16,7 +16,7 @@ export default class Theme {
   }
 
   async render (lessFile) {
-    const tmpDir = path.join(os.tmpdir(), 'deplug', 'theme')
+    const tmpDir = path.join(os.tmpdir(), `${process.pid}`, 'deplug', 'theme')
     await denodeify(mkpath)(tmpDir)
 
     const files = { [path.join(tmpDir, 'deplug.theme')]: this.lessFile, }
@@ -34,10 +34,17 @@ export default class Theme {
     await Promise.all(tasks)
 
     const options = {
-      paths: [tmpDir, path.dirname(lessFile), path.join(__dirname, 'theme')],
+      paths: [
+        tmpDir,
+        path.dirname(lessFile),
+        path.join(__dirname, 'theme'),
+        path.join(__dirname, '../font-awesome/css')
+      ],
       filename: lessFile,
       compress: true,
-      globalVars: { 'node-platform': process.platform, },
+      globalVars: {
+        'node-platform': process.platform
+      },
     }
     const code = await denodeify(fs.readFile)(lessFile, { encoding: 'utf8', })
     return less.render(code, options)
