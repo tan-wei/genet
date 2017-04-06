@@ -14,6 +14,7 @@ html {
 body {
   background-color: @theme-default-bg;
   color: @theme-default-fg;
+  -webkit-user-select: none;
 }
 
 .fa {
@@ -78,4 +79,8 @@ webview.tab-content {
   left: 0;
   right: 0;
   bottom: 0;
+  visibility: hidden;
+  &[isactive] {
+    visibility: visible;
+  }
 }

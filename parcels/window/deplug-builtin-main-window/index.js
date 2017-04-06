@@ -9,7 +9,13 @@ const tabs = [
   }
 ]
 
+let currentIndex = 0
+
 export default class Main {
+  activate(index) {
+    currentIndex = parseInt(index)
+  }
+
   view() {
     return (
       <main>
@@ -17,14 +23,29 @@ export default class Main {
           {
             tabs.map((t, i) => {
               return (
-                <a class="tab-label" index={i} isActive={ 1 === i }>
+                <a class="tab-label"
+                  index={i}
+                  isActive={ currentIndex === i }
+                  onclick={m.withAttr('index', this.activate)}
+                >
                   { t.name }
                 </a>
               )
             })
           }
         </div>
-        <webview class="tab-content" src="https://www.github.com/"></webview>
+        {
+          tabs.map((t, i) => {
+            return (
+              <webview class="tab-content"
+                index={i}
+                isActive={ currentIndex === i }
+                src="https://www.github.com/"
+              >
+              </webview>
+            )
+          })
+        }
       </main>
     )
   }
