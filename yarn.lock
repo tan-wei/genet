@@ -21,8 +21,8 @@ acorn@^4.0.3:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-4.0.11.tgz#edcda3bd937e7556410d42ed5860f67399c794c0"
 
 acorn@^5.0.1:
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.0.2.tgz#dc1c8fb907f64db2ab573de2326b73527c24de36"
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.0.3.tgz#c460df08491463f028ccb82eab3730bf01087b3d"
 
 ajv-keywords@^1.0.0:
   version "1.5.1"
@@ -421,9 +421,9 @@ ecc-jsbn@~0.1.1:
   dependencies:
     jsbn "~0.1.0"
 
-electron-deplug@1.5.1:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/electron-deplug/-/electron-deplug-1.5.1.tgz#aa79eebbeab87746409f5dc94e4471c8a5064635"
+electron-deplug@1.6.4:
+  version "1.6.4"
+  resolved "https://registry.yarnpkg.com/electron-deplug/-/electron-deplug-1.6.4.tgz#a198374703918e60d5d7475d53fd03456abebd06"
   dependencies:
     decompress-zip "^0.3.0"
     mkpath "^1.0.0"
@@ -1037,8 +1037,8 @@ js-tokens@^3.0.0:
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-3.0.1.tgz#08e9f132484a2c45a30907e9dc4d5567b7f114d7"
 
 js-yaml@^3.5.1:
-  version "3.8.2"
-  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.8.2.tgz#02d3e2c0f6beab20248d412c352203827d786721"
+  version "3.8.3"
+  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.8.3.tgz#33a05ec481c850c8875929166fe1beb61c728766"
   dependencies:
     argparse "^1.0.7"
     esprima "^3.1.1"
@@ -1427,9 +1427,9 @@ plist@^2.0.0, plist@^2.0.1:
     xmlbuilder "8.2.2"
     xmldom "0.1.x"
 
-plugkit@^0.0.8:
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/plugkit/-/plugkit-0.0.8.tgz#f997ba290798ebc3d75633f92b2589359efa11cd"
+plugkit@^0.0.9:
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/plugkit/-/plugkit-0.0.9.tgz#b4ac8f2fac42ac6732fb5e74badb461b257217a2"
   dependencies:
     bindings "^1.2.1"
     esprima "^3.1.3"
@@ -1492,8 +1492,8 @@ qs@~6.4.0:
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.4.0.tgz#13e26d28ad6b0ffaa91312cd3bf708ed351e7233"
 
 rc@^1.1.2:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/rc/-/rc-1.2.0.tgz#c7de973b7b46297c041366b2fd3d2363b1697c66"
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/rc/-/rc-1.2.1.tgz#2e03e8e42ee450b8cb3dce65be1bf8974e1dfd95"
   dependencies:
     deep-extend "~0.4.0"
     ini "~1.3.0"
