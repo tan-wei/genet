@@ -1,6 +1,6 @@
 import m from 'mithril'
 import jquery from 'jquery'
-import { Argv } from 'deplug'
+import { Argv, Tab } from 'deplug'
 
 const tabs = [
   {
@@ -19,8 +19,9 @@ class WebView {
   oncreate(vnode) {
     let webview = vnode.dom
     webview.addEventListener('dom-ready', () => {
-      let argv = JSON.stringify(Argv)
-      const script = `require("deplug-core/tab.main")(${argv})`
+      const argv = JSON.stringify(Argv)
+      const tab = JSON.stringify(Tab.getTemplate('Preferences'))
+      const script = `require("deplug-core/tab.main")(${argv}, ${tab})`
       webview.executeJavaScript(script)
     })
   }
@@ -28,7 +29,7 @@ class WebView {
   view(vnode) {
     return <webview
       class="tab-content"
-      src={`file://index.htm`}
+      src={`file://${__dirname}/index.htm`}
       isActive={vnode.attrs.isActive}
       nodeintegration
     >

@@ -37,9 +37,7 @@ export default class Theme {
       paths: [tmpDir, path.dirname(lessFile), path.join(__dirname, 'theme')],
       filename: lessFile,
       compress: true,
-      globalVars: {
-        'node-platform': process.platform
-      },
+      globalVars: { 'node-platform': process.platform, },
     }
     const code = await denodeify(fs.readFile)(lessFile, { encoding: 'utf8', })
     return less.render(code, options)
