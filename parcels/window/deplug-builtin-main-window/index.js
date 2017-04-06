@@ -12,11 +12,25 @@ const tabs = [
 
 let currentIndex = 0
 
+class WebView {
+  constructor() {
+
+  }
+
+  view(vnode) {
+    return <webview
+      class="tab-content"
+      src={`file://${__dirname}/index.htm`}
+      isActive={vnode.attrs.isActive}
+    >
+    </webview>
+  }
+}
+
 export default class Main {
   activate(index) {
     currentIndex = parseInt(index)
     let content = jquery(`webview[index=${currentIndex}]`).get()[0]
-    content.loadURL('https://github.com/')
   }
 
   view() {
@@ -39,14 +53,7 @@ export default class Main {
         </div>
         {
           tabs.map((t, i) => {
-            return (
-              <webview class="tab-content"
-                index={i}
-                isActive={ currentIndex === i }
-                src="blank"
-              >
-              </webview>
-            )
+            return m(WebView, {index: i, isActive: currentIndex === i })
           })
         }
       </main>
