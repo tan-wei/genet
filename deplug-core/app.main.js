@@ -22,7 +22,7 @@ app.on('ready', () => {
   const contents = mainWindow.webContents
   contents.on('crashed', () => mainWindow.reload())
   contents.on('unresponsive', () => mainWindow.reload())
-  contents.on('did-finish-load', () => {
+  contents.on('dom-ready', () => {
     const argv = JSON.stringify(minimist(process.argv.slice(2)))
     const script = `require("./window.main.js")(${argv})`
     contents.executeJavaScript(script)

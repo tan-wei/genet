@@ -21,22 +21,9 @@ export default class TabComponent extends Component {
       head.append(jquery('<style>').text(style.css))
     }
 
-    const main = objpath.get(this.comp, 'tab.main', '')
-    if (main !== '') {
-      const mainFile = path.join(this.rootDir, main)
-      const func = await this.roll(mainFile)
-      func({}, this.rootDir)
-    }
-
-    const index = objpath.get(this.comp, 'tab.index', '')
-    if (index === '') {
-      throw new Error('tab.index field required')
-    }
-
-    const elements = objpath.get(this.comp, 'tab.elements', [])
-    for (const elem of elements) {
-      const elemFile = path.join(this.rootDir, elem)
-      head.append(jquery(`<link rel="import" href="${elemFile}">`))
+    const root = objpath.get(this.comp, 'tab.root', '')
+    if (root === '') {
+      throw new Error('tab.root field required')
     }
 
     Tab.registerTemplate(this.comp.tab)

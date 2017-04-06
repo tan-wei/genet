@@ -12,8 +12,8 @@
         "type": "tab",
         "tab": {
           "name": "Preferences",
-          "index": "index.htm",
-          "elements": []
+          "less": "theme.less",
+          "root": "index.js"
         }
       }
     ]
