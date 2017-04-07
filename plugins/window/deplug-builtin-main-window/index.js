@@ -3,6 +3,7 @@ import { Argv, Channel, Tab } from 'deplug'
 import m from 'mithril'
 import jquery from 'jquery'
 
+let currentIndex = 0
 const tabs = []
 const loadedTabs = []
 let idCounter = 0
@@ -10,16 +11,34 @@ let idCounter = 0
 Channel.on('core:create-tab', (_, template) => {
   let tab = Tab.getTemplate(template)
   if (tab.singleton === true) {
-    let item = tabs.find((t) => { return t.tab.template === template })
-    if (item) {
+    let index = tabs.findIndex((t) => { return t.tab.template === template })
+    if (index >= 0) {
+      currentIndex = index
+      m.redraw()
       return
     }
   }
   tabs.push({
-    id: ++idCounter,
-    tab: tab
+    id: idCounter++,
+    tab: Object.assign({}, tab)
   })
   m.redraw()
+})
+
+Channel.on('core:set-tab-name', (_, id, name) => {
+  let item = tabs.find((t) => { return t.id === id })
+  if (item) {
+    item.tab.name = name
+    m.redraw()
+  }
+})
+
+Channel.on('core:focus-tab', (_, id) => {
+  let index = tabs.findIndex((t) => { return t.id === id })
+  if (index >= 0) {
+    currentIndex = index
+    m.redraw()
+  }
 })
 
 ipcRenderer.on('tab-deplug-loaded', (_, id) => {
@@ -58,13 +77,9 @@ class WebView {
 }
 
 export default class Main {
-  constructor() {
-    this.currentIndex = 0
-  }
-
   activate(index) {
-    this.currentIndex = parseInt(index)
-    let content = jquery(`webview[index=${this.currentIndex}]`).get()[0]
+    currentIndex = parseInt(index)
+    let content = jquery(`webview[index=${currentIndex}]`).get()[0]
   }
 
   view() {
@@ -76,7 +91,7 @@ export default class Main {
               return (
                 <a class="tab-label"
                   index={i}
-                  isActive={ this.currentIndex === i }
+                  isActive={ currentIndex === i }
                   onclick={m.withAttr('index', this.activate, this)}
                 >
                   { t.tab.name }
@@ -93,7 +108,7 @@ export default class Main {
               id: t.id,
               index: i,
               isLoaded: (loadedTabs[t.id] === true),
-              isActive: this.currentIndex === i
+              isActive: currentIndex === i
             })
           })
         }
