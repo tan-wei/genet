@@ -8,6 +8,7 @@ html {
 
 @tab-height: 38px;
 @tab-border-width: 4px;
+@tab-max-width: 220px;
 @tab-menu-width: 100px;
 
 #tab-container {
@@ -24,7 +25,7 @@ html {
 
   .tab-label {
     flex-grow: 1;
-    max-width: 120px;
+    max-width: @tab-max-width;
     display: block;
     float: left;
     line-height: @tab-height - @tab-border-width;
