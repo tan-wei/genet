@@ -22,6 +22,7 @@ Channel.on('core:tab:open', (_, template) => {
     id: idCounter++,
     tab: Object.assign({}, tab)
   })
+  currentIndex = tabs.length - 1
   m.redraw()
 })
 
@@ -44,7 +45,7 @@ Channel.on('core:tab:focus', (_, id) => {
 Channel.on('core:tab:close', (_, id) => {
   let index = tabs.findIndex((t) => { return t.id === id })
   if (index >= 0) {
-    if (currentIndex > 0 && currentIndex === index) {
+    if (currentIndex > 0 && currentIndex === index && currentIndex === tabs.length - 1) {
       currentIndex--
     }
     tabs.splice(index, 1)
@@ -101,11 +102,29 @@ export default class Main {
                   isActive={ currentIndex === i }
                   onclick={m.withAttr('index', this.activate, this)}
                 >
+                <i class="fa fa-times-circle"
+                  onclick={() => {
+                    if (currentIndex === i) {
+                      Channel.emit('core:tab:close', t.id)
+                    }
+                  }}
+                  style={{visibility: (currentIndex === i) ? 'visible' : 'hidden'}}
+                ></i>
                   { t.tab.name }
                 </a>
               )
             })
           }
+          <a class="tab-menu-button"
+            onclick={() => {Channel.emit('core:tab:open', 'Preferences')}}
+          >
+            <i class="fa fa-cog" aria-hidden="true"></i>
+          </a>
+          <a class="tab-menu-button"
+            onclick={() => {Channel.emit('core:tab:open', 'Pcap')}}
+          >
+            <i class="fa fa-plus" aria-hidden="true"></i>
+          </a>
         </div>
         <div id="tab-mask"></div>
         {

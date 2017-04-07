@@ -12,7 +12,6 @@ export default async function (argv) {
     })
     Channel.emit('core:window:loaded')
     process.nextTick(() => {
-      Channel.emit('core:tab:open', 'Preferences')
       Channel.emit('core:tab:open', 'Pcap')
       Channel.emit('core:tab:open', 'Pcap')
       Channel.emit('core:tab:open', 'Pcap')
