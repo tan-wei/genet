@@ -16,6 +16,7 @@
     "electron-log": "^2.0.2",
     "font-awesome": "^4.7.0",
     "glob": "^7.1.1",
+    "i18n4v": "^0.2.2",
     "jquery": "^3.2.1",
     "jsonfile": "^2.4.0",
     "less": "^2.7.2",

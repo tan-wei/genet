@@ -2,6 +2,7 @@ import { ipcRenderer } from 'electron'
 import { Argv, Channel, Tab } from 'deplug'
 import m from 'mithril'
 import jquery from 'jquery'
+import i18n from 'i18n4v'
 
 const tabs = []
 const loadedTabs = []
@@ -110,7 +111,7 @@ export default class Main {
                   }}
                   style={{visibility: (currentIndex === i) ? 'visible' : 'hidden'}}
                 ></i>
-                  { t.tab.name }
+                  { i18n(t.tab.name) }
                 </a>
               )
             })
