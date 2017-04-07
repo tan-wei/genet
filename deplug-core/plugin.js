@@ -6,15 +6,15 @@ import objpath from 'object-path'
 import path from 'path'
 import semver from 'semver'
 
-let parcels = null
-export default class Parcel {
+let plugins = null
+export default class Plugin {
   static async loadComponents (type) {
-    if (parcels === null) {
-      parcels = this.listParcels()
+    if (plugins === null) {
+      plugins = this.listPlugins()
     }
     const tasks = []
-    for (const parcel of parcels) {
-      for (const comp of parcel.components) {
+    for (const plugin of plugins) {
+      for (const comp of plugin.components) {
         if (comp.type === type) {
           tasks.push(comp.load())
         }
@@ -23,17 +23,17 @@ export default class Parcel {
     return Promise.all(tasks)
   }
 
-  static listParcels () {
-    const builtinParcelPattern =
-      path.join(config.builtinParcelPath, '/**/package.json')
-    const userParcelPattern =
-      path.join(config.userParcelPath, '/**/package.json')
-    const paths = glob.sync(builtinParcelPattern)
-      .concat(glob.sync(userParcelPattern))
+  static listPlugins () {
+    const builtinPluginPattern =
+      path.join(config.builtinPluginPath, '/**/package.json')
+    const userPluginPattern =
+      path.join(config.userPluginPath, '/**/package.json')
+    const paths = glob.sync(builtinPluginPattern)
+      .concat(glob.sync(userPluginPattern))
 
     const list = []
     for (const root of paths) {
-      list.push(new Parcel(path.dirname(root)))
+      list.push(new Plugin(path.dirname(root)))
     }
     return list
   }
@@ -47,7 +47,7 @@ export default class Parcel {
     if (!semver.satisfies(config.deplug.version, engine)) {
       throw new Error('deplug version mismatch')
     }
-    const components = objpath.get(parc, 'deplugParcel.components', [])
+    const components = objpath.get(parc, 'deplugin.components', [])
     this.components = []
     for (const comp of components) {
       this.components.push(ComponentFactory.create(rootDir, parc, comp))

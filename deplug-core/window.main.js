@@ -4,9 +4,9 @@ import jquery from 'jquery'
 
 export default async function (argv) {
   try {
-    const { Parcel, Channel, } = await deplug(argv)
-    await Parcel.loadComponents('window')
-    await Parcel.loadComponents('tab')
+    const { Plugin, Channel, } = await deplug(argv)
+    await Plugin.loadComponents('window')
+    await Plugin.loadComponents('tab')
     await new Promise((res) => {
       jquery(res)
     })

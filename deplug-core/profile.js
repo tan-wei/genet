@@ -11,7 +11,7 @@ import objpath from 'object-path'
 import path from 'path'
 
 const { webContents, } = remote
-function createHandler (parcel = null) {
+function createHandler (plugin = null) {
   const proto =
     Object.keys(EventEmitter.prototype).concat(Object.keys(Object.prototype))
   return {
@@ -20,35 +20,35 @@ function createHandler (parcel = null) {
         return new Proxy(target, createHandler(name.substr(1)))
       } else if (proto.includes(name)) {
         return target[name]
-      } else if (parcel === null) {
+      } else if (plugin === null) {
         return target.getGlobal(name)
       }
-      return target.getParcel(parcel, name)
+      return target.getPlugin(plugin, name)
     },
     has: (target, name) => {
       if (proto.includes(name)) {
         return true
-      } else if (parcel === null) {
+      } else if (plugin === null) {
         return target.hasGlobal(name)
       }
-      return target.hasParcel(parcel, name)
+      return target.hasPlugin(plugin, name)
     },
     deleteProperty: (target, name) => {
       if (proto.includes(name)) {
         Reflect.deleteProperty(target, name)
-      } else if (parcel === null) {
+      } else if (plugin === null) {
         target.deleteGlobal(name)
       } else {
-        target.deleteParcel(parcel, name)
+        target.deletePlugin(plugin, name)
       }
     },
     set: (target, name, value) => {
       if (proto.includes(name)) {
         target[name] = value
-      } else if (parcel === null) {
+      } else if (plugin === null) {
         target.setGlobal(name, value)
       } else {
-        target.setParcel(parcel, name, value)
+        target.setPlugin(plugin, name, value)
       }
     },
   }
@@ -60,8 +60,8 @@ export default class Profile extends EventEmitter {
   constructor (profile) {
     super()
     const profileDir = path.join(config.userProfilePath, profile)
-    this.parcelsDir = path.join(profileDir, 'parcels')
-    mkpath.sync(this.parcelsDir)
+    this.pluginsDir = path.join(profileDir, 'plugins')
+    mkpath.sync(this.pluginsDir)
     this.globalFile = path.join(profileDir, 'global.json')
 
     try {
@@ -71,11 +71,11 @@ export default class Profile extends EventEmitter {
       this.globalObject = {}
     }
 
-    this.parcelObject = {}
-    const parcels = glob.sync(path.join(this.parcelsDir, '*.json'))
-    for (const json of parcels) {
+    this.pluginObject = {}
+    const plugins = glob.sync(path.join(this.pluginsDir, '*.json'))
+    for (const json of plugins) {
       try {
-        this.parcelObject[path.basename(json, '.json')] =
+        this.pluginObject[path.basename(json, '.json')] =
           jsonfile.readFileSync(json)
       } catch (err) {
         log.warn(err)
@@ -90,16 +90,16 @@ export default class Profile extends EventEmitter {
       }
       this.emit('global-updated', opath, value)
     })
-    ipcRenderer.on('parcel-updated', (event, id, opath, value) => {
-      if (!(id in this.parcelObject)) {
-        this.parcelObject[id] = {}
+    ipcRenderer.on('plugin-updated', (event, id, opath, value) => {
+      if (!(id in this.pluginObject)) {
+        this.pluginObject[id] = {}
       }
       if (typeof value === 'undefined') {
-        objpath.del(this.parcelObject[id], opath)
+        objpath.del(this.pluginObject[id], opath)
       } else {
-        objpath.set(this.parcelObject[id], opath, value)
+        objpath.set(this.pluginObject[id], opath, value)
       }
-      this.emit('parcel-updated', id, opath, value)
+      this.emit('plugin-updated', id, opath, value)
     })
   }
 
@@ -146,41 +146,41 @@ export default class Profile extends EventEmitter {
     this.write()
   }
 
-  getParcel (id, opath) {
-    if (id in this.parcelObject) {
-      return objpath.get(this.parcelObject[id], opath, null)
+  getPlugin (id, opath) {
+    if (id in this.pluginObject) {
+      return objpath.get(this.pluginObject[id], opath, null)
     }
     return null
   }
 
-  hasParcel (id, opath) {
-    if (id in this.parcelObject) {
-      return objpath.has(this.parcelObject[id], opath)
+  hasPlugin (id, opath) {
+    if (id in this.pluginObject) {
+      return objpath.has(this.pluginObject[id], opath)
     }
     return false
   }
 
-  deleteParcel (id, opath) {
-    if (id in this.parcelObject) {
-      objpath.del(this.parcelObject[id], opath)
+  deletePlugin (id, opath) {
+    if (id in this.pluginObject) {
+      objpath.del(this.pluginObject[id], opath)
       for (const wc of webContents.getAllWebContents()) {
-        wc.send('parcel-updated', id, opath)
+        wc.send('plugin-updated', id, opath)
       }
     }
     this.write()
   }
 
-  setParcel (id, opath, value) {
-    if (!(id in this.parcelObject)) {
-      this.parcelObject[id] = {}
+  setPlugin (id, opath, value) {
+    if (!(id in this.pluginObject)) {
+      this.pluginObject[id] = {}
     }
     if (typeof value === 'undefined') {
-      objpath.del(this.parcelObject[id], opath)
+      objpath.del(this.pluginObject[id], opath)
     } else {
-      objpath.set(this.parcelObject[id], opath, value)
+      objpath.set(this.pluginObject[id], opath, value)
     }
     for (const wc of webContents.getAllWebContents()) {
-      wc.send('parcel-updated', id, opath, value)
+      wc.send('plugin-updated', id, opath, value)
     }
     this.write()
   }
@@ -189,18 +189,18 @@ export default class Profile extends EventEmitter {
     const write = denodeify(fs.writeFile)
     await write(this.globalFile, JSON.stringify(this.globalObject))
     const tasks = []
-    for (const id in this.parcelObject) {
-      const jsonFile = path.join(this.parcelsDir, `${id}.json`)
-      tasks.push(write(jsonFile, JSON.stringify(this.parcelObject[id])))
+    for (const id in this.pluginObject) {
+      const jsonFile = path.join(this.pluginsDir, `${id}.json`)
+      tasks.push(write(jsonFile, JSON.stringify(this.pluginObject[id])))
     }
     return Promise.all(tasks)
   }
 
   writeSync () {
     fs.writeFileSync(this.globalFile, JSON.stringify(this.globalObject))
-    for (const id in this.parcelObject) {
-      const jsonFile = path.join(this.parcelsDir, `${id}.json`)
-      fs.writeFileSync(jsonFile, JSON.stringify(this.parcelObject[id]))
+    for (const id in this.pluginObject) {
+      const jsonFile = path.join(this.pluginsDir, `${id}.json`)
+      fs.writeFileSync(jsonFile, JSON.stringify(this.pluginObject[id]))
     }
   }
 }

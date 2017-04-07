@@ -1,5 +1,5 @@
 import Channel from './channel'
-import Parcel from './parcel'
+import Plugin from './plugin'
 import Profile from './profile'
 import Tab from './tab'
 import Theme from './theme'
@@ -11,7 +11,7 @@ export default async function (argv) {
     Argv: argv,
     Config: config,
     Channel,
-    Parcel,
+    Plugin,
     Profile,
     Tab,
     Theme,
@@ -27,6 +27,6 @@ export default async function (argv) {
   }
   /* eslint-enable no-underscore-dangle */
 
-  await Parcel.loadComponents('theme')
+  await Plugin.loadComponents('theme')
   return deplug
 }

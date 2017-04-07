@@ -5,13 +5,13 @@ import path from 'path'
 const deplug = jsonfile.readFileSync(
   path.join(__dirname, '..', '..', 'package.json'))
 const userPath = path.join(os.homedir(), '.deplug')
-const userParcelPath = path.join(userPath, 'parcels')
+const userPluginPath = path.join(userPath, 'plugins')
 const userProfilePath = path.join(userPath, 'profiles')
-const builtinParcelPath = path.join(__dirname, '..', '..', 'parcels')
+const builtinPluginPath = path.join(__dirname, '..', '..', 'plugins')
 export default {
  deplug,
  userPath,
- userParcelPath,
+ userPluginPath,
  userProfilePath,
- builtinParcelPath,
+ builtinPluginPath,
 }
