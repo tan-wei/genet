@@ -10,17 +10,17 @@ export default async function (argv) {
     await new Promise((res) => {
       jquery(res)
     })
-    Channel.emit('core:window-loaded')
+    Channel.emit('core:window:loaded')
     process.nextTick(() => {
-      Channel.emit('core:create-tab', 'Preferences')
-      Channel.emit('core:create-tab', 'Pcap')
-      Channel.emit('core:create-tab', 'Pcap')
-      Channel.emit('core:create-tab', 'Pcap')
+      Channel.emit('core:tab:open', 'Preferences')
+      Channel.emit('core:tab:open', 'Pcap')
+      Channel.emit('core:tab:open', 'Pcap')
+      Channel.emit('core:tab:open', 'Pcap')
     })
     setInterval(() => {
-      Channel.emit('core:set-tab-name', 1, `PREF ${Math.random()}`)
-      Channel.emit('core:create-tab', 'Preferences')
-    }, 1000)
+      Channel.emit('core:tab:set-name', 1, `PREF ${Math.random()}`)
+      Channel.emit('core:tab:close', 2, `PREF ${Math.random()}`)
+    }, 5000)
 
   } catch (err) {
     remote.getCurrentWindow().openDevTools()

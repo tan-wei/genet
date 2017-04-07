@@ -6,11 +6,6 @@
   -webkit-appearance: none;
 }
 
-html {
-  overflow: hidden;
-  height: 100%;
-}
-
 body {
   background-color: @theme-default-bg;
   color: @theme-default-fg;

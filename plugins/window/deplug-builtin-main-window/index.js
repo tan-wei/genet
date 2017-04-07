@@ -3,12 +3,12 @@ import { Argv, Channel, Tab } from 'deplug'
 import m from 'mithril'
 import jquery from 'jquery'
 
-let currentIndex = 0
 const tabs = []
 const loadedTabs = []
+let currentIndex = 0
 let idCounter = 0
 
-Channel.on('core:create-tab', (_, template) => {
+Channel.on('core:tab:open', (_, template) => {
   let tab = Tab.getTemplate(template)
   if (tab.singleton === true) {
     let index = tabs.findIndex((t) => { return t.tab.template === template })
@@ -25,7 +25,7 @@ Channel.on('core:create-tab', (_, template) => {
   m.redraw()
 })
 
-Channel.on('core:set-tab-name', (_, id, name) => {
+Channel.on('core:tab:set-name', (_, id, name) => {
   let item = tabs.find((t) => { return t.id === id })
   if (item) {
     item.tab.name = name
@@ -33,10 +33,21 @@ Channel.on('core:set-tab-name', (_, id, name) => {
   }
 })
 
-Channel.on('core:focus-tab', (_, id) => {
+Channel.on('core:tab:focus', (_, id) => {
   let index = tabs.findIndex((t) => { return t.id === id })
   if (index >= 0) {
     currentIndex = index
+    m.redraw()
+  }
+})
+
+Channel.on('core:tab:close', (_, id) => {
+  let index = tabs.findIndex((t) => { return t.id === id })
+  if (index >= 0) {
+    if (currentIndex > 0 && currentIndex === index) {
+      currentIndex--
+    }
+    tabs.splice(index, 1)
     m.redraw()
   }
 })
@@ -47,10 +58,6 @@ ipcRenderer.on('tab-deplug-loaded', (_, id) => {
 })
 
 class WebView {
-  constructor() {
-
-  }
-
   oncreate(vnode) {
     let webview = vnode.dom
     let item = tabs.find((t) => { return t.id === parseInt(vnode.attrs.id) })
