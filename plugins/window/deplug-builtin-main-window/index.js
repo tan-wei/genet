@@ -46,7 +46,7 @@ Channel.on('core:tab:focus', (_, id) => {
 Channel.on('core:tab:close', (_, id) => {
   let index = tabs.findIndex((t) => { return t.id === id })
   if (index >= 0) {
-    if (currentIndex > 0 && currentIndex === index && currentIndex === tabs.length - 1) {
+    if (currentIndex > 0 && currentIndex === tabs.length - 1) {
       currentIndex--
     }
     tabs.splice(index, 1)
@@ -103,28 +103,29 @@ export default class Main {
                   isActive={ currentIndex === i }
                   onclick={m.withAttr('index', this.activate, this)}
                 >
-                <i class="fa fa-times-circle"
+                <i class="fa fa-times"
                   onclick={() => {
                     if (currentIndex === i) {
                       Channel.emit('core:tab:close', t.id)
                     }
                   }}
-                  style={{visibility: (currentIndex === i) ? 'visible' : 'hidden'}}
                 ></i>
                   { i18n(t.tab.name) }
                 </a>
               )
             })
           }
+        </div>
+        <div id="menu-container">
           <a class="tab-menu-button"
             onclick={() => {Channel.emit('core:tab:open', 'Preferences')}}
           >
-            <i class="fa fa-cog" aria-hidden="true"></i>
+            <i class="fa fa-cog"></i>
           </a>
           <a class="tab-menu-button"
             onclick={() => {Channel.emit('core:tab:open', 'Pcap')}}
           >
-            <i class="fa fa-plus" aria-hidden="true"></i>
+            <i class="fa fa-plus"></i>
           </a>
         </div>
         <div id="tab-mask"></div>
