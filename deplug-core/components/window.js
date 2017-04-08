@@ -4,6 +4,7 @@ import jquery from 'jquery'
 import mithril from 'mithril'
 import objpath from 'object-path'
 import path from 'path'
+import roll from '../roll'
 
 export default class WindowComponent extends Component {
   async load () {
@@ -18,14 +19,14 @@ export default class WindowComponent extends Component {
     const main = objpath.get(this.comp, 'window.main', '')
     if (main !== '') {
       const mainFile = path.join(this.rootDir, main)
-      const func = await this.roll(mainFile)
+      const func = await roll(mainFile, this.rootDir, this.localExtern)
       func({}, this.rootDir)
     }
 
     const root = objpath.get(this.comp, 'window.root', '')
     if (root !== '') {
       const rootFile = path.join(this.rootDir, root)
-      const func = await this.roll(rootFile)
+      const func = await roll(rootFile, this.rootDir, this.localExtern)
       const module = {}
       func(module, this.rootDir)
       mithril.mount(document.body, module.exports)

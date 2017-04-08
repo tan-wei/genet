@@ -3,6 +3,7 @@ import Theme from '../theme'
 import jquery from 'jquery'
 import objpath from 'object-path'
 import path from 'path'
+import roll from '../roll'
 
 export default class PanelComponent extends Component {
   async load () {
@@ -28,7 +29,7 @@ export default class PanelComponent extends Component {
     const main = objpath.get(this.comp, 'panel.main', '')
     if (main !== '') {
       const mainFile = path.join(this.rootDir, main)
-      const func = await this.roll(mainFile)
+      const func = await roll(mainFile, this.rootDir, this.localExtern)
       func({}, this.rootDir)
     }
 

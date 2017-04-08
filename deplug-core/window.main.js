@@ -23,7 +23,8 @@ export default async function (argv) {
 
   } catch (err) {
     remote.getCurrentWindow().openDevTools()
-    throw err
+    // eslint-disable-next-line no-console
+    console.error(err)
   } finally {
     ipcRenderer.send('window-deplug-loaded', remote.getCurrentWindow().id)
   }
