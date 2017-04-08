@@ -79,6 +79,8 @@ export default class TabView {
         if (this.currentIndex > 0 && this.currentIndex === this.tabs.length - 1) {
           this.currentIndex--
         }
+        let content = jquery(`webview:eq(${index})`)[0]
+        content.closeDevTools()
         this.tabs.splice(index, 1)
         m.redraw()
       }
@@ -100,7 +102,7 @@ export default class TabView {
     menu.append(new MenuItem({
       label: 'Show Developer Tools',
       click: () => {
-        let content = jquery(`webview:eq(${this.currentIndex})`).get()[0]
+        let content = jquery(`webview:eq(${this.currentIndex})`)[0]
         content.openDevTools()
       }
     }))

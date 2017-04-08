@@ -24,7 +24,19 @@ export default async function (argv, tab) {
       const func = await roll(rootFile, rootDir)
       const module = {}
       func(module, rootDir)
-      mithril.mount(document.body, module.exports)
+      mithril.route.prefix('')
+      mithril.route(document.body, '/#!', {
+        '/': {
+          onmatch: (args, requestedPath) => {
+            const route = requestedPath.replace(/^\/#!/, '') || '/'
+            if (route in module.exports) {
+              return module.exports[route]
+            }
+              return module.exports
+
+          },
+        },
+      })
     }
 
     await new Promise((res) => {

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, webContents } from 'electron'
 import { Pcap } from 'plugkit'
 import minimist from 'minimist'
 
@@ -9,7 +9,12 @@ if (process.platform === 'darwin' && !Pcap.permission) {
 app.commandLine.appendSwitch('js-flags', '--harmony-async-await')
 app.commandLine.appendSwitch('--enable-experimental-web-platform-features')
 
-app.on('window-all-closed', () => app.quit())
+app.on('window-all-closed', () => {
+  for (const wc of webContents.getAllWebContents()) {
+    wc.closeDevTools()
+  }
+  app.quit()
+})
 app.on('ready', () => {
   const options = {
     width: 1200,
