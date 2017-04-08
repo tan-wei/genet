@@ -1,111 +1,115 @@
 import { EventEmitter } from 'events'
 import { remote } from 'electron'
 
+const handlers = Symbol('handlers')
+const mainHadlers = Symbol('mainHadlers')
+const mainPriorities = Symbol('mainPriorities')
 export default class Menu extends EventEmitter {
   constructor () {
     super()
-    this._handlers = {}
-    this._mainHadlers = {}
-    this._mainPriorities = {}
+    this[handlers] = {}
+    this[mainHadlers] = {}
+    this[mainPriorities] = {}
+  }
 
-    this._updateMainMenu = () => {
-      const root = new remote.Menu()
-      const keys = Object.keys(this._mainHadlers)
-      keys.sort((a, b) => (this._mainPriorities[b] || 0) - (this._mainPriorities[a] || 0))
-      for (let j = 0; j < keys.length; j++) {
-        const k = keys[j]
-        let menu = new remote.Menu()
-        for (let i = 0; i < this._mainHadlers[k].length; i++) {
-          const h = this._mainHadlers[k][i]
-          menu = h.handler.call(this, menu)
-          if (i < this._mainHadlers[k].length - 1) {
-            menu.append(new remote.MenuItem({ type: 'separator', }))
-          }
+  register (name, handler, priority = 0) {
+    if (!(name in this[handlers])) {
+      this[handlers][name] = []
+    }
+    this[handlers][name].push({
+      handler,
+      priority,
+    })
+    this[handlers][name]
+      .sort((first, second) => first.priority - second.priority)
+  }
+
+  unregister (name, handler) {
+    if (!(name in this[handlers])) {
+      this[handlers][name] = []
+    }
+    this[handlers][name] =
+      this[handlers][name].filter((item) => item.handler !== handler)
+  }
+
+  registerMain (name, handler, priority = 0) {
+    if (!(name in this[mainHadlers])) {
+      this[mainHadlers][name] = []
+    }
+    this[mainHadlers][name].push({
+      handler,
+      priority,
+    })
+    this[mainHadlers][name]
+      .sort((first, second) => first.priority - second.priority)
+    this.updateMainMenu()
+  }
+
+  unregisterMain (name, handler) {
+    if (!(name in this[mainHadlers])) {
+      this[mainHadlers][name] = []
+    }
+    this[mainHadlers][name] =
+      this[mainHadlers][name].filter((item) => item.handler !== handler)
+    this.updateMainMenu()
+  }
+
+  setMainPriority (name, priority) {
+    this[mainPriorities][name] = priority
+  }
+
+  updateMainMenu () {
+    const root = new remote.Menu()
+    const keys = Object.keys(this[mainHadlers])
+    keys.sort((first, second) => (this[mainPriorities][second] || 0) -
+        (this[mainPriorities][first] || 0))
+    for (const key of keys) {
+      let menu = new remote.Menu()
+      const list = this[mainHadlers][key]
+      list.forEach((item, index) => {
+        menu = Reflect.apply(item.handler, this, [menu])
+        if (index < list.length - 1) {
+          menu.append(new remote.MenuItem({ type: 'separator', }))
         }
-        if (menu.items.length === 0) {
-          continue
-        }
+      })
+      if (menu.items.length > 0) {
         const item = {
-          label: k,
+          label: key,
           submenu: menu,
           type: 'submenu',
         }
-        switch (k) {
+        switch (key) {
           case 'Help':
             item.role = 'help'
             break
           case 'Window':
             item.role = 'window'
             break
+          default:
+
         }
         root.append(new remote.MenuItem(item))
       }
-
-      if (process.platform !== 'darwin') {
-        return remote.getCurrentWindow().setMenu(root)
-      }
-      return remote.Menu.setApplicationMenu(root)
     }
-  }
 
-  register (name, handler, priority = 0) {
-    if (this._handlers[name] == null) {
-      this._handlers[name] = []
+    if (process.platform === 'darwin') {
+      remote.Menu.setApplicationMenu(root)
+    } else {
+    remote.getCurrentWindow().setMenu(root)
     }
-    this._handlers[name].push({
-      handler,
-      priority,
-    })
-    return this._handlers[name].sort((a, b) => b.priority - a.priority)
-  }
-
-  unregister (name, handler) {
-    if (this._handlers[name] == null) {
-      this._handlers[name] = []
-    }
-    return this._handlers[name] = this._handlers[name].filter((h) => h.handler !== handler)
-  }
-
-  registerMain (name, handler, priority = 0) {
-    if (this._mainHadlers[name] == null) {
-      this._mainHadlers[name] = []
-    }
-    this._mainHadlers[name].push({
-      handler,
-      priority,
-    })
-    this._mainHadlers[name].sort((a, b) => b.priority - a.priority)
-    return this.updateMainMenu()
-  }
-
-  unregisterMain (name, handler) {
-    if (this._mainHadlers[name] == null) {
-      this._mainHadlers[name] = []
-    }
-    this._mainHadlers[name] = this._mainHadlers[name].filter((h) => h.handler !== handler)
-    return this.updateMainMenu()
-  }
-
-  setMainPriority (name, priority) {
-    return this._mainPriorities[name] = priority
-  }
-
-  updateMainMenu () {
-    return this._updateMainMenu()
   }
 
   popup (name, self, browserWindow, option = {}) {
-    if (this._handlers[name] != null) {
+    if (name in this[handlers]) {
       let menu = new remote.Menu()
-      const handlers = this._handlers[name]
-      for (let i = 0; i < handlers.length; i++) {
-        const h = handlers[i]
-        menu = h.handler.call(self, menu, option.event)
-        if (i < handlers.length - 1) {
+      const list = this[handlers][name]
+      list.forEach((item, index) => {
+        menu = Reflect.apply(item.handler, self, [menu, option.event])
+        if (index < list.length - 1) {
           menu.append(new remote.MenuItem({ type: 'separator', }))
         }
-      }
-      return menu.popup(browserWindow, option.x, option.y)
+      })
+      menu.popup(browserWindow, option.x, option.y)
     }
   }
 }

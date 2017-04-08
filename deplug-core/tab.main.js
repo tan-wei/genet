@@ -9,7 +9,7 @@ const { webContents, } = remote
 export default async function (argv, tab) {
   try {
     const { Theme, } = await deplug(argv)
-    const rootDir = tab.tab.rootDir
+    const { rootDir, } = tab.tab
 
     const less = tab.tab.less || ''
     if (less !== '') {
