@@ -1,8 +1,10 @@
-import { ipcRenderer } from 'electron'
-import { Argv, Channel, Tab } from 'deplug'
+import { ipcRenderer, remote } from 'electron'
+import { Argv, Channel, Tab, Menu } from 'deplug'
 import m from 'mithril'
 import jquery from 'jquery'
 import i18n from 'i18n4v'
+
+const { MenuItem } = remote
 
 class WebView {
   oncreate(vnode) {
@@ -86,11 +88,23 @@ export default class TabView {
       this.loadedTabs[id] = true
       m.redraw()
     })
+
+    Menu.register('core:tab:context', this.tabMenu)
   }
 
   activate(index) {
     this.currentIndex = parseInt(index)
-    let content = jquery(`webview[index=${this.currentIndex}]`).get()[0]
+  }
+
+  tabMenu(menu, e) {
+    menu.append(new MenuItem({
+      label: 'Show Developer Tools',
+      click: () => {
+        let content = jquery(`webview:eq(${this.currentIndex})`).get()[0]
+        content.openDevTools()
+      }
+    }))
+    return menu
   }
 
   view() {
@@ -104,6 +118,9 @@ export default class TabView {
                   index={i}
                   isActive={ this.currentIndex === i }
                   onclick={m.withAttr('index', this.activate, this)}
+                  oncontextmenu={ (e)=> {
+                    Menu.popup('core:tab:context', this, remote.getCurrentWindow(), {event: e})
+                  } }
                 >
                 <i class="fa fa-times"
                   onclick={() => {

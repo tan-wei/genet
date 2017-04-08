@@ -1,4 +1,5 @@
 import Channel from './channel'
+import Menu from './menu'
 import Plugin from './plugin'
 import Profile from './profile'
 import Tab from './tab'
@@ -11,6 +12,7 @@ export default async function (argv) {
     Argv: argv,
     Config: config,
     Channel,
+    Menu: new Menu(),
     Plugin,
     Profile,
     Tab,

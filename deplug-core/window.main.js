@@ -13,13 +13,7 @@ export default async function (argv) {
     Channel.emit('core:window:loaded')
     process.nextTick(() => {
       Channel.emit('core:tab:open', 'Pcap')
-      Channel.emit('core:tab:open', 'Pcap')
-      Channel.emit('core:tab:open', 'Pcap')
     })
-    setInterval(() => {
-      Channel.emit('core:tab:set-name', 1, `PREF ${Math.random()}`)
-      Channel.emit('core:tab:close', 2, `PREF ${Math.random()}`)
-    }, 5000)
 
   } catch (err) {
     remote.getCurrentWindow().openDevTools()
