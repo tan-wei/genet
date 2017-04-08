@@ -11,10 +11,11 @@
       {
         "type": "tab",
         "tab": {
-          "name": "Pcap",
-          "template": "Pcap",
+          "name": "Preferences",
+          "template": "Preferences",
           "less": "theme.less",
-          "root": "index.js"
+          "root": "index.js",
+          "singleton": true
         }
       }
     ]
