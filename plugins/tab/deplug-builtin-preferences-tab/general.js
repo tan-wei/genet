@@ -15,24 +15,13 @@ export default class General {
       <h1>General Settings </h1>
       ,
       <table>
-        <tr><td>Deplug version: </td><td>{ this.version }</td></tr>
-        <tr><td>Electron version: </td><td>{ this.electronVersion }</td></tr>
-        <tr><td>Deplug version: </td><td>{ this.version }</td></tr>
-        <tr><td>Electron version: </td><td>{ this.electronVersion }</td></tr>
-        <tr><td>Deplug version: </td><td>{ this.version }</td></tr>
-        <tr><td>Electron version: </td><td>{ this.electronVersion }</td></tr>
-        <tr><td>Deplug version: </td><td>{ this.version }</td></tr>
-        <tr><td>Electron version: </td><td>{ this.electronVersion }</td></tr>
-        <tr><td>Deplug version: </td><td>{ this.version }</td></tr>
-        <tr><td>Electron version: </td><td>{ this.electronVersion }</td></tr>
-        <tr><td>Deplug version: </td><td>{ this.version }</td></tr>
-        <tr><td>Electron version: </td><td>{ this.electronVersion }</td></tr>
-        <tr><td>Deplug version: </td><td>{ this.version }</td></tr>
-        <tr><td>Electron version: </td><td>{ this.electronVersion }</td></tr>
-        <tr><td>Deplug version: </td><td>{ this.version }</td></tr>
-        <tr><td>Electron version: </td><td>{ this.electronVersion }</td></tr>
-        <tr><td>Deplug version: </td><td>{ this.version }</td></tr>
-        <tr><td>Electron version: </td><td>{ this.electronVersion }</td></tr>
+        <tr><td>Deplug version</td><td>{ this.version }</td></tr>
+        <tr><td>Electron version</td><td>{ this.electronVersion } (Custom build)</td></tr>
+        <tr><td>Theme</td><td>
+          <select>
+            <option>Base16 Ocean Dark</option>
+          </select>
+        </td></tr>
       </table>
     ]
   }

@@ -27,4 +27,23 @@ main {
   left: @navigation-width;
   right: 0;
   padding: 40px;
+
+  table {
+    tr {
+      td:first-child {
+        vertical-align: top;
+        min-width: 180px;
+        font-weight: bold;
+        color: @theme-dark-fg;
+      }
+      td:nth-child(2) {
+        min-width: 500px;
+      }
+      td {
+        padding: 10px;
+        font-size: 1.2em;
+      }
+      padding: 10px;
+    }
+  }
 }
