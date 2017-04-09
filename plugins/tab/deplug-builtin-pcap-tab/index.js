@@ -31,7 +31,7 @@ class ConfigView {
 
 class FrameItem {
   oninit(vnode) {
-    this.frame = vnode.attrs.session.getFrames(vnode.attrs.seq, 1)[0]
+    this.frame = vnode.attrs.session.getFrames(vnode.attrs.seq - 1, 1)[0]
   }
 
   view(vnode) {
@@ -44,7 +44,7 @@ class FrameItem {
         top: `${(seq - 1) * itemHeight}px`
       }}
     >
-    { `>>>> ${seq} ${this.frame ? this.frame.timestamp : ''}` }
+    { `>>>> ${seq} ${this.frame.timestamp} ${this.frame.length}` }
     </div>
   }
 }
