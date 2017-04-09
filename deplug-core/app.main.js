@@ -1,8 +1,8 @@
 import { app, BrowserWindow, ipcMain, webContents } from 'electron'
 import { Pcap } from 'plugkit'
 import config from './config'
-import mkpath from 'mkpath'
 import minimist from 'minimist'
+import mkpath from 'mkpath'
 
 if (process.platform === 'darwin' && !Pcap.permission) {
   require('deplug-helper')()

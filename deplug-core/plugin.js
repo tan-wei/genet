@@ -30,8 +30,8 @@ export default class Plugin {
     const userPluginPattern =
       path.join(config.userPluginPath, '/**/package.json')
 
-    let builtinPaths = await denodeify(glob)(builtinPluginPattern)
-    let userPaths = await denodeify(glob)(userPluginPattern)
+    const builtinPaths = await denodeify(glob)(builtinPluginPattern)
+    const userPaths = await denodeify(glob)(userPluginPattern)
 
     const list = []
     for (const root of builtinPaths.concat(userPaths)) {
