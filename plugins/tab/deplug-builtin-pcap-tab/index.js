@@ -29,6 +29,26 @@ class ConfigView {
   }
 }
 
+class FrameItem {
+  oninit(vnode) {
+    this.frame = vnode.attrs.session.getFrames(vnode.attrs.seq, 1)[0]
+  }
+
+  view(vnode) {
+    let seq = vnode.attrs.seq
+    let itemHeight = vnode.attrs.itemHeight
+    return <div
+      class="item"
+      style={{
+        height: `${itemHeight}px`,
+        top: `${(seq - 1) * itemHeight}px`
+      }}
+    >
+    { `>>>> ${seq} ${this.frame ? this.frame.timestamp : ''}` }
+    </div>
+  }
+}
+
 class FrameView {
   constructor() {
     this.frame = {frames: 0}
@@ -70,16 +90,12 @@ class FrameView {
         {
           (new Array(end - begin)).fill().map((dev, index) => {
             const id = index + begin + 1
-            return <div
-              key={id}
-              class="item"
-              style={{
-                height: `${itemHeight}px`,
-                top: `${(id - 1) * itemHeight}px`
-              }}
-            >
-            { `>>>> ${id}` }
-            </div>
+            return m(FrameItem, {
+              key: id,
+              seq: id,
+              itemHeight: itemHeight,
+              session: this.session
+            })
           })
         }
       </div>
