@@ -1,4 +1,5 @@
 import General from './general'
+import Install from './install'
 import Plugin from './plugin'
 import m from 'mithril'
 
@@ -9,6 +10,9 @@ export default class View {
     switch (page) {
       case '/plugin':
         comp = Plugin
+        break
+      case '/install':
+        comp = Install
         break
     }
     return [
