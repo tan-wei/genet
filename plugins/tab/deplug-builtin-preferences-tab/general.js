@@ -21,6 +21,7 @@ export default class General {
           <select>
             <option>Base16 Ocean Dark</option>
           </select>
+          <p><small>This change does not affect already opened tabs.</small></p>
         </td></tr>
       </table>
     ]
