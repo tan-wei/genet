@@ -33,6 +33,7 @@ html {
     border-left: 1px solid fade(@theme-default-fg, 50%);
     border-top: @tab-border-width solid transparent;
     background-color: @theme-default-bg;
+    -webkit-app-region: drag;
     &[isactive] {
       border-top-color: @theme-default-fg;
       i.fa-times {
@@ -42,14 +43,13 @@ html {
         }
       }
     }
-    -webkit-app-region: no-drag;
 
     i.fa-times {
       transform: translateX(-4px);
       opacity: 0;
     }
   }
-  -webkit-app-region: drag
+  -webkit-app-region: drag;
 }
 
 #menu-container {
