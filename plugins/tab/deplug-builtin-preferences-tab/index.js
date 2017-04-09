@@ -11,9 +11,46 @@ export default class View {
   }
 
   view(vnode) {
-    return <table>
-      <tr><td>Deplug version: </td><td>{ this.version }</td></tr>
-      <tr><td>Electron version: </td><td>{ this.electronVersion }</td></tr>
-    </table>
+    let page = location.hash.replace(/^#!/, '') || '/'
+    return [
+      <nav>
+        <a
+          href="#!/"
+          isactive={ page==='/' }
+        >General</a>
+        <a
+          href="#!/plugin"
+          isactive={ page==='/plugin' }
+        >Plugin</a>
+      </nav>
+      ,
+      <main>
+        <h1>General Settings</h1>
+          <h2>General Settings</h2>
+            <h3>General Settings</h3>
+              <h4>General Settings</h4>
+                <h5>General Settings</h5>
+        <table>
+          <tr><td>Deplug version: </td><td>{ this.version }</td></tr>
+          <tr><td>Electron version: </td><td>{ this.electronVersion }</td></tr>
+          <tr><td>Deplug version: </td><td>{ this.version }</td></tr>
+          <tr><td>Electron version: </td><td>{ this.electronVersion }</td></tr>
+          <tr><td>Deplug version: </td><td>{ this.version }</td></tr>
+          <tr><td>Electron version: </td><td>{ this.electronVersion }</td></tr>
+          <tr><td>Deplug version: </td><td>{ this.version }</td></tr>
+          <tr><td>Electron version: </td><td>{ this.electronVersion }</td></tr>
+          <tr><td>Deplug version: </td><td>{ this.version }</td></tr>
+          <tr><td>Electron version: </td><td>{ this.electronVersion }</td></tr>
+          <tr><td>Deplug version: </td><td>{ this.version }</td></tr>
+          <tr><td>Electron version: </td><td>{ this.electronVersion }</td></tr>
+          <tr><td>Deplug version: </td><td>{ this.version }</td></tr>
+          <tr><td>Electron version: </td><td>{ this.electronVersion }</td></tr>
+          <tr><td>Deplug version: </td><td>{ this.version }</td></tr>
+          <tr><td>Electron version: </td><td>{ this.electronVersion }</td></tr>
+          <tr><td>Deplug version: </td><td>{ this.version }</td></tr>
+          <tr><td>Electron version: </td><td>{ this.electronVersion }</td></tr>
+        </table>
+      </main>
+    ]
   }
 }

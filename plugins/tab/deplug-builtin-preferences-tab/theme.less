@@ -1,2 +1,30 @@
 @import "deplug.theme";
 @import "deplug.common.window";
+
+@navigation-width: 200px;
+
+nav {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: @navigation-width;
+  padding: 40px 0;
+
+  a {
+    display: block;
+    padding: 10px 20px;
+    border-left: 4px solid transparent;
+    &[isActive] {
+      border-color: @theme-default-fg;
+    }
+  }
+}
+
+main {
+  position: absolute;
+  top: 0;
+  left: @navigation-width;
+  right: 0;
+  padding: 40px;
+}

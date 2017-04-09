@@ -83,12 +83,28 @@ input[type=button] {
   color: @theme-default-fg;
 }
 // headline
-h1,
-h2,
-h3,
-h4,
-h5,
+h1 {
+  font-size: 2.0em;
+  color: @theme-light-fg;
+}
+h2 {
+  font-size: 1.8em;
+  color: @theme-light-fg;
+}
+h3 {
+  font-size: 1.6em;
+  color: @theme-light-fg;
+}
+h4 {
+  font-size: 1.4em;
+  color: @theme-light-fg;
+}
+h5 {
+  font-size: 1.2em;
+  color: @theme-light-fg;
+}
 h6 {
+  font-size: 1.0em;
   color: @theme-light-fg;
 }
 th {
