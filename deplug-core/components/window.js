@@ -5,6 +5,7 @@ import mithril from 'mithril'
 import objpath from 'object-path'
 import path from 'path'
 import roll from '../roll'
+import { remote } from 'electron'
 
 export default class WindowComponent extends Component {
   async load () {
@@ -14,6 +15,9 @@ export default class WindowComponent extends Component {
       const lessFile = path.join(this.rootDir, less)
       const style = await Theme.current.render(lessFile)
       head.append(jquery('<style>').text(style.css))
+      let computed = getComputedStyle(document.documentElement)
+      let vibrancy = JSON.parse(computed.getPropertyValue('--vibrancy'))
+      remote.getCurrentWindow().setVibrancy(vibrancy)
     }
 
     const main = objpath.get(this.comp, 'window.main', '')

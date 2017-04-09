@@ -139,3 +139,7 @@ input[type=checkbox]:checked {
   color: @theme-dark-fg;
   opacity: 0.5;
 }
+
+:root {
+  --vibrancy: @theme-vibrancy;
+}

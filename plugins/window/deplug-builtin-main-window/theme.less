@@ -30,10 +30,11 @@ html {
     float: left;
     line-height: @tab-height - @tab-border-width;
     padding: 0 12px;
+    border-left: 1px solid fade(@theme-default-fg, 50%);
     border-top: @tab-border-width solid transparent;
     background-color: @theme-default-bg;
     &[isactive] {
-      border-color: @theme-default-fg;
+      border-top-color: @theme-default-fg;
       i.fa-times {
         opacity: 0.4;
         &:hover {

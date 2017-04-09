@@ -13,7 +13,8 @@
         "theme": {
           "less": "theme.less",
           "id": "default",
-          "name": "Base16 Ocean Dark"
+          "name": "Base16 Ocean Dark",
+          "vibrancy": "light"
         }
       }
     ]
