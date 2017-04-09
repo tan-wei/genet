@@ -7,7 +7,10 @@
 }
 
 body {
-  background-color: @theme-default-bg;
+  .mixin (@b) when not (@b = darwin) {
+    background-color: @theme-default-bg;
+  }
+  .mixin (@node-platform);
   color: @theme-default-fg;
   -webkit-user-select: none;
 }

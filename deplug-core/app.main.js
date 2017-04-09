@@ -21,6 +21,7 @@ app.on('ready', () => {
     height: 600,
     show: false,
     titleBarStyle: 'hidden-inset',
+    vibrancy: 'ultra-dark',
   }
   const mainWindow = new BrowserWindow(options)
   mainWindow.loadURL(`file://${__dirname}/index.htm`)

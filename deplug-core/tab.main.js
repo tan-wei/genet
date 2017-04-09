@@ -32,8 +32,7 @@ export default async function (argv, tab) {
             if (route in module.exports) {
               return module.exports[route]
             }
-              return module.exports
-
+            return module.exports
           },
         },
       })
