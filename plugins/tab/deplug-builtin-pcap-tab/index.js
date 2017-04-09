@@ -33,6 +33,22 @@ class FrameView {
   constructor() {
     this.frame = {frames: 0}
     this.session = null
+    this.viewScrollTop = 0
+    this.viewHeight = 0
+  }
+
+  oncreate(vnode) {
+    this.onupdate(vnode)
+    vnode.dom.addEventListener('scroll', (event) => {
+      this.viewHeight = event.target.offsetHeight
+      this.viewScrollTop = event.target.scrollTop
+      m.redraw()
+    })
+  }
+
+  onupdate(vnode) {
+    this.viewHeight = vnode.dom.offsetHeight
+    this.viewScrollTop = vnode.dom.scrollTop
   }
 
   view(vnode) {
@@ -43,12 +59,30 @@ class FrameView {
         m.redraw()
       })
     }
-    return <div>
-      {
-        (new Array(this.frame.frames)).fill().map((dev) => {
-          return <li>{ "dev.name" }</li>
-        })
-      }
+    const itemHeight = 40
+    const viewHeight = this.frame.frames * itemHeight
+    const begin = Math.floor(this.viewScrollTop / itemHeight)
+    const end = Math.min(begin + Math.ceil(this.viewHeight / itemHeight) + 1, this.frame.frames)
+    return <div class="frame-view">
+      <div
+        style={{height: `${viewHeight}px`}}
+      >
+        {
+          (new Array(end - begin)).fill().map((dev, index) => {
+            const id = index + begin + 1
+            return <div
+              key={id}
+              class="item"
+              style={{
+                height: `${itemHeight}px`,
+                top: `${(id - 1) * itemHeight}px`
+              }}
+            >
+            { `>>>> ${id}` }
+            </div>
+          })
+        }
+      </div>
     </div>
   }
 }
