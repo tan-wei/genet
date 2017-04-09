@@ -1,5 +1,7 @@
 import { app, BrowserWindow, ipcMain, webContents } from 'electron'
 import { Pcap } from 'plugkit'
+import config from './config'
+import mkpath from 'mkpath'
 import minimist from 'minimist'
 
 if (process.platform === 'darwin' && !Pcap.permission) {
@@ -8,6 +10,8 @@ if (process.platform === 'darwin' && !Pcap.permission) {
 
 app.commandLine.appendSwitch('js-flags', '--harmony-async-await')
 app.commandLine.appendSwitch('--enable-experimental-web-platform-features')
+
+mkpath.sync(config.userPluginPath)
 
 app.on('window-all-closed', () => {
   for (const wc of webContents.getAllWebContents()) {

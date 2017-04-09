@@ -21,6 +21,10 @@ export default class View {
           href="#!/plugin"
           isactive={ page==='/plugin' }
         >Plugin</a>
+        <a
+          href="#!/install"
+          isactive={ page==='/install' }
+        >Install</a>
       </nav>
       ,
       <main>

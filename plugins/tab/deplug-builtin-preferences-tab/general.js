@@ -2,7 +2,7 @@ import { Config, Theme } from 'deplug'
 import m from 'mithril'
 import objpath from 'object-path'
 
-export default class General {
+export default class GeneralView {
   constructor() {
     this.version =
       objpath.get(Config.deplug, 'version', 'n/a')
