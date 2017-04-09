@@ -1,4 +1,4 @@
-import {Config} from 'deplug'
+import { Config, Theme } from 'deplug'
 import m from 'mithril'
 import objpath from 'object-path'
 
@@ -19,9 +19,14 @@ export default class General {
         <tr><td>Electron version</td><td>{ this.electronVersion } (Custom build)</td></tr>
         <tr><td>Theme</td><td>
           <select>
-            <option>Base16 Ocean Dark</option>
+          {
+            Object.keys(Theme.registry).map((key) => {
+              let theme = Theme.registry[key]
+              return <option id={ theme.id }>{ theme.name }</option>
+            })
+          }
           </select>
-          <p><small>This change does not affect already opened tabs.</small></p>
+          <p><small>Changing this option does not affect already opened tabs.</small></p>
         </td></tr>
       </table>
     ]
