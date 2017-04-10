@@ -35,7 +35,12 @@ export default class Plugin {
 
     const list = []
     for (const root of builtinPaths.concat(userPaths)) {
-      list.push(new Plugin(path.dirname(root)))
+      try {
+        list.push(new Plugin(path.dirname(root)))
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error)
+      }
     }
     return list
   }

@@ -1,25 +1,24 @@
 import { Plugin } from 'deplug'
-import denodeify from 'denodeify'
+import { Deplugin } from 'deplugin'
 import m from 'mithril'
-import npm from 'npm'
 
 export default class InstallView {
   constructor() {
-    this.packages = []
+    this.packages = [
+      {'name': 'Now Loading...'}
+    ]
   }
 
   oncreate() {
-    this.updatePackages().then((a) => {
-      console.log(a)
+    let deplugin = new Deplugin()
+    deplugin.cache().then((packages) => {
+      this.packages = packages
+      m.redraw()
+      return deplugin.search()
+    }).then((packages) => {
+      this.packages = packages
+      m.redraw()
     })
-  }
-
-  async updatePackages() {
-    await denodeify(npm.load)({production: true})
-    console.log(npm.commands.search)
-    npm.config.set('json', true)
-    let search = denodeify(npm.commands.search)(['dripcap-'])
-    return search
   }
 
   view(vnode) {
