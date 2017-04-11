@@ -1,36 +1,37 @@
 import { EventEmitter } from 'events'
 import Mousetrap from 'mousetrap'
+import internal from './internal'
 import jquery from 'jquery'
 
 export default class Keybind extends EventEmitter {
   constructor (profile) {
     super()
-    this.profile = profile
-    this.builtinCommands = {}
-    this.commands = {}
+    internal(this).profile = profile
+    internal(this).builtinCommands = {}
+    internal(this).commands = {}
   }
 
   bind (command, selector, act) {
-    if (!(command in this.builtinCommands)) {
-      this.builtinCommands[command] = {}
+    if (!(command in internal(this).builtinCommands)) {
+      internal(this).builtinCommands[command] = {}
     }
-    this.builtinCommands[command][selector] = act
+    internal(this).builtinCommands[command][selector] = act
     return this.update()
   }
 
   unbind (command, selector, act) {
-    if (command in this.builtinCommands &&
-        this.builtinCommands[command][selector] === act) {
-      Reflect.deleteProperty(this.builtinCommands[command], selector)
-      if (Object.keys(this.builtinCommands[command]) === 0) {
-        Reflect.deleteProperty(this.builtinCommands, command)
+    if (command in internal(this).builtinCommands &&
+        internal(this).builtinCommands[command][selector] === act) {
+      Reflect.deleteProperty(internal(this).builtinCommands[command], selector)
+      if (Object.keys(internal(this).builtinCommands[command]) === 0) {
+        Reflect.deleteProperty(internal(this).builtinCommands, command)
       }
     }
     return this.update()
   }
 
   get (selector, action) {
-    const map = this.profile.getKeymap()
+    const map = internal(this).profile.getKeymap()
     for (const sel in map) {
       const commands = map[sel]
       for (const command in commands) {
@@ -45,8 +46,8 @@ export default class Keybind extends EventEmitter {
       }
     }
 
-    for (const command in this.commands) {
-      const sels = this.commands[command]
+    for (const command in internal(this).commands) {
+      const sels = internal(this).commands[command]
       for (const sel in sels) {
         const act = sels[sel]
         if (sel === selector && act === action) {
@@ -63,22 +64,22 @@ export default class Keybind extends EventEmitter {
   update () {
     Mousetrap.reset()
 
-    this.commands = Object.assign({}, this.builtinCommands)
+    internal(this).commands = Object.assign({}, internal(this).builtinCommands)
 
-    const map = this.profile.getKeymap()
+    const map = internal(this).profile.getKeymap()
     for (const selector in map) {
       const commands = map[selector]
       for (const command in commands) {
         const act = commands[command]
-        if (!(command in this.commands)) {
-          this.commands[command] = {}
+        if (!(command in internal(this).commands)) {
+          internal(this).commands[command] = {}
         }
-        this.commands[command][selector] = act
+        internal(this).commands[command][selector] = act
       }
     }
 
-    for (let command in this.commands) {
-      const sels = this.commands[command]
+    for (let command in internal(this).commands) {
+      const sels = internal(this).commands[command]
       if (process.platform !== 'darwin') {
         command = command.replace('command', 'ctrl')
       }

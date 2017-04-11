@@ -1,71 +1,70 @@
 import { EventEmitter } from 'events'
+import internal from './internal'
 import { remote } from 'electron'
 
-const handlers = Symbol('handlers')
-const mainHadlers = Symbol('mainHadlers')
-const mainPriorities = Symbol('mainPriorities')
 export default class Menu extends EventEmitter {
   constructor () {
     super()
-    this[handlers] = {}
-    this[mainHadlers] = {}
-    this[mainPriorities] = {}
+    internal(this).handlers = {}
+    internal(this).mainHadlers = {}
+    internal(this).mainPriorities = {}
   }
 
   register (name, handler, priority = 0) {
-    if (!(name in this[handlers])) {
-      this[handlers][name] = []
+    if (!(name in internal(this).handlers)) {
+      internal(this).handlers[name] = []
     }
-    this[handlers][name].push({
+    internal(this).handlers[name].push({
       handler,
       priority,
     })
-    this[handlers][name]
+    internal(this).handlers[name]
       .sort((first, second) => first.priority - second.priority)
   }
 
   unregister (name, handler) {
-    if (!(name in this[handlers])) {
-      this[handlers][name] = []
+    if (!(name in internal(this).handlers)) {
+      internal(this).handlers[name] = []
     }
-    this[handlers][name] =
-      this[handlers][name].filter((item) => item.handler !== handler)
+    internal(this).handlers[name] =
+      internal(this).handlers[name].filter((item) => item.handler !== handler)
   }
 
   registerMain (name, handler, priority = 0) {
-    if (!(name in this[mainHadlers])) {
-      this[mainHadlers][name] = []
+    if (!(name in internal(this).mainHadlers)) {
+      internal(this).mainHadlers[name] = []
     }
-    this[mainHadlers][name].push({
+    internal(this).mainHadlers[name].push({
       handler,
       priority,
     })
-    this[mainHadlers][name]
+    internal(this).mainHadlers[name]
       .sort((first, second) => first.priority - second.priority)
     this.updateMainMenu()
   }
 
   unregisterMain (name, handler) {
-    if (!(name in this[mainHadlers])) {
-      this[mainHadlers][name] = []
+    if (!(name in internal(this).mainHadlers)) {
+      internal(this).mainHadlers[name] = []
     }
-    this[mainHadlers][name] =
-      this[mainHadlers][name].filter((item) => item.handler !== handler)
+    internal(this).mainHadlers[name] =
+      internal(this).mainHadlers[name]
+        .filter((item) => item.handler !== handler)
     this.updateMainMenu()
   }
 
   setMainPriority (name, priority) {
-    this[mainPriorities][name] = priority
+    internal(this).mainPriorities[name] = priority
   }
 
   updateMainMenu () {
     const root = new remote.Menu()
-    const keys = Object.keys(this[mainHadlers])
-    keys.sort((first, second) => (this[mainPriorities][second] || 0) -
-        (this[mainPriorities][first] || 0))
+    const keys = Object.keys(internal(this).mainHadlers)
+    keys.sort((first, second) => (internal(this).mainPriorities[second] || 0) -
+        (internal(this).mainPriorities[first] || 0))
     for (const key of keys) {
       let menu = new remote.Menu()
-      const list = this[mainHadlers][key]
+      const list = internal(this).mainHadlers[key]
       list.forEach((item, index) => {
         menu = Reflect.apply(item.handler, this, [menu])
         if (index < list.length - 1) {
@@ -100,9 +99,9 @@ export default class Menu extends EventEmitter {
   }
 
   popup (name, self, browserWindow, option = {}) {
-    if (name in this[handlers]) {
+    if (name in internal(this).handlers) {
       let menu = new remote.Menu()
-      const list = this[handlers][name]
+      const list = internal(this).handlers[name]
       list.forEach((item, index) => {
         menu = Reflect.apply(item.handler, self, [menu, option.event])
         if (index < list.length - 1) {

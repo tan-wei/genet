@@ -1,0 +1,49 @@
+diff --git a/deplug-core/components/base.js b/deplug-core/components/base.js
+index 9fde4a8..1c91d4f 100644
+--- a/deplug-core/components/base.js
++++ b/deplug-core/components/base.js
+@@ -8,4 +8,12 @@ export default class Component {
+     this.comp = comp
+     this.localExtern = Object.keys(objpath.get(this.parc, 'dependencies', {}))
+   }
++
++  async load () {
++    // Loading
++  }
++
++  async unload () {
++    // Unloading
++  }
+ }
+diff --git a/deplug-core/components/theme.js b/deplug-core/components/theme.js
+index 4e330ea..60385c5 100644
+--- a/deplug-core/components/theme.js
++++ b/deplug-core/components/theme.js
+@@ -21,6 +21,11 @@ export default class ThemeComponent extends Component {
+     }
+ 
+     const lessFile = path.join(this.rootDir, less)
+-    Theme.register(new Theme(id, name, lessFile))
++    this.theme = new Theme(id, name, lessFile)
++    Theme.register(this.theme)
++  }
++
++  async unload () {
++    Theme.unregister(this.theme)
+   }
+ }
+diff --git a/deplug-core/theme.js b/deplug-core/theme.js
+index 4bae5fa..599ae56 100644
+--- a/deplug-core/theme.js
++++ b/deplug-core/theme.js
+@@ -56,6 +56,10 @@ export default class Theme {
+     globalRegistry[theme.id] = theme
+   }
+ 
++  static unregister (theme) {
++    Reflect.deleteProperty(globalRegistry, theme.id)
++  }
++
+   static get registry () {
+     return globalRegistry
+   }
