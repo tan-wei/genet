@@ -37,8 +37,10 @@ class FrameItem {
   view(vnode) {
     let seq = vnode.attrs.seq
     let itemHeight = vnode.attrs.itemHeight
+    const prot = (this.frame.length % 2) ? 'tcp' : 'udp'
     return <div
       class="item"
+      data-layer={`eth ipv4 ${prot}`}
       style={{
         height: `${itemHeight}px`,
         top: `${(seq - 1) * itemHeight}px`
@@ -81,8 +83,11 @@ class FrameView {
     }
     const itemHeight = 40
     const viewHeight = this.frame.frames * itemHeight
-    const begin = Math.floor(this.viewScrollTop / itemHeight)
-    const end = Math.min(begin + Math.ceil(this.viewHeight / itemHeight) + 1, this.frame.frames)
+    const margin = 5
+    const begin = Math.max(0,
+      Math.floor(this.viewScrollTop / itemHeight) - margin)
+    const end = Math.min(begin +
+      Math.ceil(this.viewHeight / itemHeight) + margin * 2, this.frame.frames)
     return <div class="frame-view">
       <div
         style={{height: `${viewHeight}px`}}

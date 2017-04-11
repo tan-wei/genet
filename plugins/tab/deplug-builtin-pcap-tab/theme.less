@@ -17,5 +17,12 @@ body {
     position: absolute;
     left: 0;
     right: 0;
+
+    &[data-layer~="udp"] {
+      background-color: #397569;
+    }
+    &[data-layer~="tcp"] {
+      background-color: #58388e;
+    }
   }
 }
