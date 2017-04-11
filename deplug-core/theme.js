@@ -56,6 +56,10 @@ export default class Theme {
     globalRegistry[theme.id] = theme
   }
 
+  static unregister (theme) {
+    Reflect.deleteProperty(globalRegistry, theme.id)
+  }
+
   static get registry () {
     return globalRegistry
   }

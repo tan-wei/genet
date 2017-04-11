@@ -8,4 +8,12 @@ export default class Component {
     this.comp = comp
     this.localExtern = Object.keys(objpath.get(this.parc, 'dependencies', {}))
   }
+
+  async load () {
+    // Loading
+  }
+
+  async unload () {
+    // Unloading
+  }
 }

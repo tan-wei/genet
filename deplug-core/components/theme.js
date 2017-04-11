@@ -21,6 +21,11 @@ export default class ThemeComponent extends Component {
     }
 
     const lessFile = path.join(this.rootDir, less)
-    Theme.register(new Theme(id, name, lessFile))
+    this.theme = new Theme(id, name, lessFile)
+    Theme.register(this.theme)
+  }
+
+  async unload () {
+    Theme.unregister(this.theme)
   }
 }
