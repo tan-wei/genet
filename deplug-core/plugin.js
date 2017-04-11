@@ -59,5 +59,6 @@ export default class Plugin {
     for (const comp of components) {
       this.components.push(ComponentFactory.create(rootDir, this.pkg, comp))
     }
+    this.builtin = this.pkg.name.startsWith('deplug-builtin-')
   }
 }

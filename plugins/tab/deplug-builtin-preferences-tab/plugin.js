@@ -1,4 +1,5 @@
 import { Plugin } from 'deplug'
+import PluginCard from './plugin-card'
 import m from 'mithril'
 
 export default class PluginView {
@@ -12,18 +13,25 @@ export default class PluginView {
 
   view(vnode) {
     return [
-      <h1>Plugin Settings </h1>
-      ,
-      <table>
+      <div>
+      <h1>Plugin Settings</h1>
+      <h2>User Plugins</h2>
+      <div>
         {
-          this.plugins.map((plugin) => {
-            let name = plugin.pkg.name.replace(/^deplug-builtin-/, '')
-            return <tr><td>{ name }</td><td>
-              <label><input type="checkbox" name="enabled"></input>Enabled</label>
-            </td></tr>
+          this.plugins.filter((plugin) => !plugin.builtin).map((plugin) => {
+            return m(PluginCard, {pkg: plugin.pkg})
           })
         }
-      </table>
+      </div>
+      <h2>Built-in Plugins</h2>
+      <div>
+        {
+          this.plugins.filter((plugin) => plugin.builtin).map((plugin) => {
+            return m(PluginCard, {pkg: plugin.pkg})
+          })
+        }
+      </div>
+      </div>
     ]
   }
 }

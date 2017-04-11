@@ -1,5 +1,6 @@
-import { Plugin } from 'deplug'
 import { Deplugin } from 'deplugin'
+import { Plugin } from 'deplug'
+import PluginCard from './plugin-card'
 import m from 'mithril'
 
 export default class InstallView {
@@ -25,13 +26,13 @@ export default class InstallView {
     return [
       <h1>Install Plugins </h1>
       ,
-      <table>
+      <div>
         {
           this.packages.map((pkg) => {
-            return <tr><td>{ pkg.name }</td><td></td></tr>
+            return m(PluginCard, {pkg: pkg})
           })
         }
-      </table>
+      </div>
     ]
   }
 }
