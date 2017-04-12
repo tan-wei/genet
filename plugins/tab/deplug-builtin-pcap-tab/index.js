@@ -52,31 +52,6 @@ class FrameItem {
   }
 }
 
-class MapItem {
-  constructor() {
-    this.prot = ''
-  }
-
-  oncreate(vnode) {
-  }
-
-  onbeforeupdate(vnode) {
-    if (vnode.attrs.session) {
-      const frames = vnode.attrs.session.frame.frames
-      const index = Math.floor((frames / 100) * vnode.attrs.index)
-      this.frame = vnode.attrs.session.getFrames(index, 1)[0]
-      if (this.frame) {
-        this.prot = (this.frame.length % 2) ? 'tcp' : 'udp'
-      }
-    }
-    return true
-  }
-
-  view() {
-    return <div class="map-item" data-layer={`eth ipv4 ${this.prot}`}></div>
-  }
-}
-
 class FrameView {
   constructor() {
     this.frame = {frames: 0}
@@ -115,17 +90,6 @@ class FrameView {
     const end = Math.min(begin +
       Math.ceil(this.viewHeight / itemHeight) + margin * 2, this.frame.frames)
     return <div class="frame-view">
-      <div class="map">
-        {
-          (new Array(100)).fill().map((dev, index) => {
-            return m(MapItem, {
-              key: index,
-              index: index,
-              session: this.session
-            })
-          })
-        }
-      </div>
       <div
         style={{height: `${viewHeight}px`}}
       >
