@@ -4,15 +4,15 @@ import jquery from 'jquery'
 
 export default async function (argv) {
   try {
-    const { Plugin, Channel, } = await deplug(argv)
+    const { Plugin, GlobalChannel, } = await deplug(argv)
     await Plugin.loadComponents('window')
     await Plugin.loadComponents('tab')
     await new Promise((res) => {
       jquery(res)
     })
-    Channel.emit('core:window:loaded')
+    GlobalChannel.emit('core:window:loaded')
     process.nextTick(() => {
-      Channel.emit('core:tab:open', 'Pcap')
+      GlobalChannel.emit('core:tab:open', 'Pcap')
     })
 
   } catch (err) {

@@ -1,5 +1,5 @@
 import m from 'mithril'
-import { Channel, Panel } from 'deplug'
+import { GlobalChannel, Panel } from 'deplug'
 import { Pcap, SessionFactory } from 'plugkit'
 
 class ConfigView {

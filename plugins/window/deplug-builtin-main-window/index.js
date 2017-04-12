@@ -1,5 +1,5 @@
 import { ipcRenderer, remote } from 'electron'
-import { Argv, Channel, Tab, Menu } from 'deplug'
+import { Argv, GlobalChannel, Tab, Menu } from 'deplug'
 import m from 'mithril'
 import jquery from 'jquery'
 import i18n from 'i18n4v'
@@ -39,7 +39,7 @@ export default class TabView {
     this.loadedTabs = []
     this.tabs = []
 
-    Channel.on('core:tab:open', (_, template) => {
+    GlobalChannel.on('core:tab:open', (_, template) => {
       let tab = Tab.getTemplate(template)
       if (tab.singleton === true) {
         let index = this.tabs.findIndex((t) => { return t.tab.template === template })
@@ -57,7 +57,7 @@ export default class TabView {
       m.redraw()
     })
 
-    Channel.on('core:tab:set-name', (_, id, name) => {
+    GlobalChannel.on('core:tab:set-name', (_, id, name) => {
       let item = this.tabs.find((t) => { return t.id === id })
       if (item) {
         item.tab.name = name
@@ -65,7 +65,7 @@ export default class TabView {
       }
     })
 
-    Channel.on('core:tab:focus', (_, id) => {
+    GlobalChannel.on('core:tab:focus', (_, id) => {
       let index = this.tabs.findIndex((t) => { return t.id === id })
       if (index >= 0) {
         this.currentIndex = index
@@ -73,7 +73,7 @@ export default class TabView {
       }
     })
 
-    Channel.on('core:tab:close', (_, id) => {
+    GlobalChannel.on('core:tab:close', (_, id) => {
       let index = this.tabs.findIndex((t) => { return t.id === id })
       if (index >= 0) {
         if (this.currentIndex > 0 && this.currentIndex === this.tabs.length - 1) {
@@ -127,7 +127,7 @@ export default class TabView {
                 <i class="fa fa-times"
                   onclick={() => {
                     if (this.currentIndex === i) {
-                      Channel.emit('core:tab:close', t.id)
+                      GlobalChannel.emit('core:tab:close', t.id)
                     }
                   }}
                 ></i>
@@ -139,12 +139,12 @@ export default class TabView {
         </div>
         <div id="menu-container">
           <a class="tab-menu-button"
-            onclick={() => {Channel.emit('core:tab:open', 'Preferences')}}
+            onclick={() => {GlobalChannel.emit('core:tab:open', 'Preferences')}}
           >
             <i class="fa fa-cog"></i>
           </a>
           <a class="tab-menu-button"
-            onclick={() => {Channel.emit('core:tab:open', 'Pcap')}}
+            onclick={() => {GlobalChannel.emit('core:tab:open', 'Pcap')}}
           >
             <i class="fa fa-plus"></i>
           </a>

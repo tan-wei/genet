@@ -1,4 +1,5 @@
-import Channel from './channel'
+import { EventEmitter } from 'events'
+import GlobalChannel from './global-channel'
 import Menu from './menu'
 import Panel from './panel'
 import Plugin from './plugin'
@@ -11,8 +12,9 @@ import module from 'module'
 export default async function (argv) {
   const deplug = {
     Argv: argv,
+    Channel: new EventEmitter(),
     Config: config,
-    Channel,
+    GlobalChannel: new GlobalChannel(),
     Menu: new Menu(),
     Panel,
     Plugin,

@@ -8,7 +8,7 @@ import roll from './roll'
 const { webContents, } = remote
 export default async function (argv, tab) {
   try {
-    const { Theme, Plugin } = await deplug(argv)
+    const { Theme, Plugin, } = await deplug(argv)
     const { rootDir, } = tab.tab
 
     const less = tab.tab.less || ''
