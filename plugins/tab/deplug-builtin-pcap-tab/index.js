@@ -1,5 +1,6 @@
 import m from 'mithril'
-import { GlobalChannel, Panel } from 'deplug'
+import jquery from 'jquery'
+import { Channel, Panel } from 'deplug'
 import { Pcap, SessionFactory } from 'plugkit'
 
 class ConfigView {
@@ -58,6 +59,14 @@ class FrameView {
     this.session = null
     this.viewScrollTop = 0
     this.viewHeight = 0
+    Channel.on('core:pcap:session-created', (sess) => {
+      this.session = sess
+      this.session.on('frame', (stat) => {
+        this.frame = stat
+        m.redraw()
+      })
+      m.redraw()
+    })
   }
 
   oncreate(vnode) {
@@ -72,16 +81,29 @@ class FrameView {
   onupdate(vnode) {
     this.viewHeight = vnode.dom.offsetHeight
     this.viewScrollTop = vnode.dom.scrollTop
+
+    if (this.session) {
+      const dummy = vnode.dom.querySelector('.dummy-item')
+      const ctx = dummy.getContext('2d')
+      for (let i = 0; i < 100; ++i) {
+        const index = Math.floor(this.session.frame.frames / 100 * i)
+        const length = this.session.getFrames(index, 1)[0].length
+        if (length % 2) {
+          dummy.setAttribute('data-layer', "eth ipv4 tcp")
+        } else {
+          dummy.setAttribute('data-layer', "eth ipv4 udp")
+        }
+        ctx.fillStyle = getComputedStyle(dummy, null).getPropertyValue("background-color")
+        ctx.fillRect(0, i, 1, 1)
+      }
+      const data = dummy.toDataURL("image/png")
+      document.styleSheets[0]
+        .addRule('.frame-view::-webkit-scrollbar', `background-image: url(${data});`)
+      // TODO: remove rule
+    }
   }
 
   view(vnode) {
-    if (this.session === null && vnode.attrs.session !== null) {
-      this.session = vnode.attrs.session
-      this.session.on('frame', (stat) => {
-        this.frame = stat
-        m.redraw()
-      })
-    }
     const itemHeight = 40
     const viewHeight = this.frame.frames * itemHeight
     const margin = 5
@@ -89,7 +111,15 @@ class FrameView {
       Math.floor(this.viewScrollTop / itemHeight) - margin)
     const end = Math.min(begin +
       Math.ceil(this.viewHeight / itemHeight) + margin * 2, this.frame.frames)
+
     return <div class="frame-view">
+      <canvas
+        style="opacity: 0; position: absolute;"
+        class="dummy-item"
+        data-layer="eth ipv4 tcp"
+        width="1"
+        height="100"
+      ></canvas>
       <div
         style={{height: `${viewHeight}px`}}
       >
@@ -111,20 +141,18 @@ class FrameView {
 
 class PcapView {
   constructor() {
-    this.session = null
     let factory = new SessionFactory()
     factory.networkInterface = Pcap.devices[0].id
-    factory.create().then((s) => {
-      this.session = s
-      s.startPcap()
-      m.redraw()
+    factory.create().then((sess) => {
+      sess.startPcap()
+      Channel.emit('core:pcap:session-created', sess)
     }, (err) => {
       console.log(err)
     })
   }
 
   view(vnode) {
-    return m(FrameView, {session: this.session})
+    return m(FrameView)
   }
 }
 
