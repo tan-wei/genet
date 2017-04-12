@@ -5,6 +5,8 @@ body {
   overflow: hidden;
 }
 
+@frame-map-width: 10px;
+
 .frame-view {
   position: absolute;
   top: 0;
@@ -13,16 +15,30 @@ body {
   height: 400px;
   overflow-y: scroll;
 
+  .map {
+    position: fixed;
+    right: 12px;
+    width: @frame-map-width;
+    top: 0;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    .map-item {
+      flex-grow: 1;
+    }
+  }
+
   .item {
     position: absolute;
     left: 0;
-    right: 0;
+    right: @frame-map-width;
+  }
 
-    &[data-layer~="udp"] {
-      background-color: #397569;
-    }
-    &[data-layer~="tcp"] {
-      background-color: #58388e;
-    }
+  [data-layer~="udp"] {
+    background-color: #397569;
+  }
+  [data-layer~="tcp"] {
+    background-color: #58388e;
   }
 }
