@@ -1,4 +1,5 @@
 import m from 'mithril'
+import { Channel, Panel } from 'deplug'
 import { Pcap, SessionFactory } from 'plugkit'
 
 class ConfigView {
@@ -162,6 +163,10 @@ class PcapView {
     return m(FrameView, {session: this.session})
   }
 }
+
+Panel.registerSlot('pcap-top', (comp) => {
+  console.log(comp)
+})
 
 export default {
   '/pcap': ConfigView,

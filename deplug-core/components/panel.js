@@ -15,11 +15,6 @@ export default class PanelComponent extends Component {
       throw new Error('panel.name field required')
     }
 
-    const tag = objpath.get(this.comp, 'panel.tag', '')
-    if (tag === '') {
-      throw new Error('panel.tag field required')
-    }
-
     const slot = objpath.get(this.comp, 'panel.slot', '')
     if (slot === '') {
       throw new Error('panel.slot field required')

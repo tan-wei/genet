@@ -12,11 +12,8 @@
         "type": "panel",
         "panel": {
           "name": "Frames",
-          "slot": "top",
-          "tag": "deplug-frame-list-panel",
-          "elements": [
-            "elements.htm"
-          ]
+          "slot": "pcap-top",
+          "root": "index.js"
         }
       }
     ]
