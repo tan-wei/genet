@@ -1,4 +1,5 @@
 import Component from './base'
+import Panel from '../panel'
 import Theme from '../theme'
 import jquery from 'jquery'
 import objpath from 'object-path'
@@ -19,6 +20,11 @@ export default class PanelComponent extends Component {
       throw new Error('panel.tag field required')
     }
 
+    const slot = objpath.get(this.comp, 'panel.slot', '')
+    if (slot === '') {
+      throw new Error('panel.slot field required')
+    }
+
     const less = objpath.get(this.comp, 'panel.less', '')
     if (less !== '') {
       const lessFile = path.join(this.rootDir, less)
@@ -33,10 +39,15 @@ export default class PanelComponent extends Component {
       func({}, this.rootDir)
     }
 
-    const elements = objpath.get(this.comp, 'panel.elements', [])
-    for (const elem of elements) {
-      const elemFile = path.join(this.rootDir, elem)
-      head.append(jquery(`<link rel="import" href="${elemFile}">`))
+    const root = objpath.get(this.comp, 'panel.root', '')
+    if (root === '') {
+      throw new Error('panel.root field required')
     }
+
+    const rootFile = path.join(this.rootDir, root)
+    const func = await roll(rootFile, this.rootDir, this.localExtern)
+    const module = {}
+    func(module, this.rootDir)
+    Panel.mount(slot, module.exports)
   }
 }
