@@ -1,0 +1,28 @@
+@import "deplug-theme";
+
+.frame-view {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 400px;
+  overflow-y: scroll;
+
+  &::-webkit-scrollbar {
+    width: 18px;
+    background-color: @theme-lighter-bg;
+    background-size: 100% 100%;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: fade(@theme-selection-bg, 30%);
+    border: 2px solid @theme-default-fg;
+  }
+
+  .item {
+    position: absolute;
+    left: 0;
+    right: 0;
+  }
+}
+@import "protocol.less";
