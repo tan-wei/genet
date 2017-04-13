@@ -1,3 +1,4 @@
+import Profile from './profile'
 import denodeify from 'denodeify'
 import fs from 'fs'
 import less from 'less'
@@ -38,7 +39,8 @@ export default class Theme {
         tmpDir,
         path.dirname(lessFile),
         path.join(__dirname, 'theme'),
-        path.join(__dirname, '../font-awesome/css')
+        path.join(__dirname, '../font-awesome/css'),
+        Profile.current.$$dir
       ],
       filename: lessFile,
       compress: true,

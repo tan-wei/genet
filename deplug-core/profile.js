@@ -16,7 +16,9 @@ function createHandler (plugin = null) {
     Object.keys(EventEmitter.prototype).concat(Object.keys(Object.prototype))
   return {
     get: (target, name) => {
-      if (name.startsWith('$')) {
+      if (name === '$$dir') {
+        return target.profileDir
+      } else if (name.startsWith('$')) {
         return new Proxy(target, createHandler(name.substr(1)))
       } else if (proto.includes(name)) {
         return target[name]
@@ -59,10 +61,10 @@ const currentProfile = 'default'
 export default class Profile extends EventEmitter {
   constructor (profile) {
     super()
-    const profileDir = path.join(config.userProfilePath, profile)
-    this.pluginsDir = path.join(profileDir, 'plugins')
+    this.profileDir = path.join(config.userProfilePath, profile)
+    this.pluginsDir = path.join(this.profileDir, 'plugins')
     mkpath.sync(this.pluginsDir)
-    this.globalFile = path.join(profileDir, 'global.json')
+    this.globalFile = path.join(this.profileDir, 'global.json')
 
     try {
       this.globalObject = jsonfile.readFileSync(this.globalFile)
