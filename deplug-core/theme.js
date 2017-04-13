@@ -9,6 +9,7 @@ import path from 'path'
 import s2p from 'stream-to-promise'
 
 const globalRegistry = {}
+const tmpDir = path.join(os.tmpdir(), `${process.pid}`, 'deplug', 'theme')
 let currentThemeId = 'default'
 export default class Theme {
   constructor (id, name, lessFile) {
@@ -18,7 +19,6 @@ export default class Theme {
   }
 
   async render (lessFile) {
-    const tmpDir = path.join(os.tmpdir(), `${process.pid}`, 'deplug', 'theme')
     await denodeify(mkpath)(tmpDir)
 
     const files = { [path.join(tmpDir, 'deplug-theme.less')]: this.lessFile, }
@@ -74,7 +74,3 @@ GlobalChannel.on('core:theme:set', (event, id) => {
     GlobalChannel.emit('core:theme:updated', currentThemeId)
   }
 })
-
-setTimeout(() => {
-  GlobalChannel.emit('core:theme:set', 'base16-ocean-light')
-}, 1000)
