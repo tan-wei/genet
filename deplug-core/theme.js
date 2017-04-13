@@ -19,10 +19,10 @@ export default class Theme {
     const tmpDir = path.join(os.tmpdir(), `${process.pid}`, 'deplug', 'theme')
     await denodeify(mkpath)(tmpDir)
 
-    const files = { [path.join(tmpDir, 'deplug.theme')]: this.lessFile, }
+    const files = { [path.join(tmpDir, 'deplug-theme.less')]: this.lessFile, }
     for (const id in globalRegistry) {
       const theme = globalRegistry[id]
-      files[path.join(tmpDir, `deplug.${theme.id}.theme`)] = theme.lessFile
+      files[path.join(tmpDir, `deplug-${theme.id}-theme.less`)] = theme.lessFile
     }
 
     const tasks = []
