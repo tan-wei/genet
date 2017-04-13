@@ -1,3 +1,4 @@
+import lodash from 'lodash'
 import m from 'mithril'
 import { Channel, Panel } from 'deplug'
 import { Pcap, SessionFactory } from 'plugkit'
@@ -30,6 +31,11 @@ export default class FrameView {
     this.session = null
     this.viewScrollTop = 0
     this.viewHeight = 0
+
+    this.updateMap = lodash.throttle((vnode) => {
+      this.updateMapThrottle(vnode)
+    }, 200)
+
     Channel.on('core:pcap:session-created', (sess) => {
       this.session = sess
       this.session.on('frame', (stat) => {
@@ -61,7 +67,10 @@ export default class FrameView {
   onupdate(vnode) {
     this.viewHeight = vnode.dom.offsetHeight
     this.viewScrollTop = vnode.dom.scrollTop
+    this.updateMap(vnode)
+  }
 
+  updateMapThrottle(vnode) {
     if (this.session) {
       const dummy = vnode.dom.querySelector('.dummy-item')
       const ctx = dummy.getContext('2d')
