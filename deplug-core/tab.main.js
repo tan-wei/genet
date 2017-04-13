@@ -43,7 +43,7 @@ export default async function (argv, tab) {
     })
 
     await Plugin.loadComponents('panel')
-    
+
   } catch (err) {
     remote.getCurrentWebContents().openDevTools()
     // eslint-disable-next-line no-console
