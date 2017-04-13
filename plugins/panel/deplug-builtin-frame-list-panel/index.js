@@ -77,9 +77,18 @@ export default class FrameView {
         ctx.fillRect(0, i, 1, 1)
       }
       const data = dummy.toDataURL("image/png")
-      document.styleSheets[0]
-        .addRule('.frame-view::-webkit-scrollbar', `background-image: url(${data});`)
-      // TODO: remove rule
+
+      const css = document.styleSheets[0]
+      const rules = css.cssRules
+      for (let i = rules.length - 1; i >= 0; --i) {
+        if (rules[i].cssText
+            .startsWith('.frame-view::-webkit-scrollbar { background-image:')) {
+          css.deleteRule(i)
+          break
+        }
+      }
+      css.addRule('.frame-view::-webkit-scrollbar',
+        `background-image: url(${data});`)
     }
   }
 
