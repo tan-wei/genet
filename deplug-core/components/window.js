@@ -32,7 +32,7 @@ export default class WindowComponent extends Component {
       const rootFile = path.join(this.rootDir, root)
       const func = await roll(rootFile, this.rootDir, this.localExtern)
       const module = {}
-      func(module, this.rootDir)
+      func(module)
       mithril.mount(document.body, module.exports)
     }
   }

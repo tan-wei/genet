@@ -28,5 +28,8 @@ export default async function roll (file, rootDir, extern = []) {
   })
   const result = bundle.generate({ format: 'cjs', })
   // eslint-disable-next-line no-new-func
-  return new Function('module', '__dirname', result.code)
+  return function(module) {
+    return (new Function('module', '__filename', '__dirname', result.code))
+      (module, file, path.dirname(file))
+  }
 }

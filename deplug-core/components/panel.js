@@ -42,7 +42,7 @@ export default class PanelComponent extends Component {
     const rootFile = path.join(this.rootDir, root)
     const func = await roll(rootFile, this.rootDir, this.localExtern)
     const module = {}
-    func(module, this.rootDir)
+    func(module)
     Panel.mount(slot, module.exports)
   }
 }
