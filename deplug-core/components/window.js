@@ -1,4 +1,5 @@
 import Component from './base'
+import GlobalChannel from '../global-channel'
 import Theme from '../theme'
 import jquery from 'jquery'
 import mithril from 'mithril'
@@ -9,15 +10,23 @@ import roll from '../roll'
 
 export default class WindowComponent extends Component {
   async load () {
-    const head = jquery('head')
+    this.styleTag = jquery('<style>').appendTo(jquery('head'))
+
+    this.updateTheme = async () => {
+      if (this.lessFile) {
+        const style = await Theme.current.render(this.lessFile)
+        this.styleTag.text(style.css)
+        const computed = getComputedStyle(document.documentElement)
+        const vibrancy = JSON.parse(computed.getPropertyValue('--vibrancy'))
+        remote.getCurrentWindow().setVibrancy(vibrancy)
+      }
+    }
+    GlobalChannel.on('core:theme:updated', this.updateTheme)
+
     const less = objpath.get(this.comp, 'window.less', '')
     if (less !== '') {
-      const lessFile = path.join(this.rootDir, less)
-      const style = await Theme.current.render(lessFile)
-      head.append(jquery('<style>').text(style.css))
-      const computed = getComputedStyle(document.documentElement)
-      const vibrancy = JSON.parse(computed.getPropertyValue('--vibrancy'))
-      remote.getCurrentWindow().setVibrancy(vibrancy)
+      this.lessFile = path.join(this.rootDir, less)
+      await this.updateTheme()
     }
 
     const main = objpath.get(this.comp, 'window.main', '')
@@ -35,5 +44,10 @@ export default class WindowComponent extends Component {
       func(module)
       mithril.mount(document.body, module.exports)
     }
+  }
+
+  async unload () {
+    GlobalChannel.removeListener('core:theme:updated', this.updateTheme)
+    this.styleTag.remove()
   }
 }

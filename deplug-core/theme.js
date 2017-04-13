@@ -1,3 +1,4 @@
+import GlobalChannel from './global-channel'
 import Profile from './profile'
 import denodeify from 'denodeify'
 import fs from 'fs'
@@ -8,7 +9,7 @@ import path from 'path'
 import s2p from 'stream-to-promise'
 
 const globalRegistry = {}
-const currentThemeId = 'default'
+let currentThemeId = 'default'
 export default class Theme {
   constructor (id, name, lessFile) {
     this.id = id
@@ -66,3 +67,14 @@ export default class Theme {
     return globalRegistry
   }
 }
+
+GlobalChannel.on('core:theme:set', (event, id) => {
+  if (id in globalRegistry && currentThemeId !== id) {
+    currentThemeId = id
+    GlobalChannel.emit('core:theme:updated', currentThemeId)
+  }
+})
+
+setTimeout(() => {
+  GlobalChannel.emit('core:theme:set', 'base16-ocean-light')
+}, 1000)

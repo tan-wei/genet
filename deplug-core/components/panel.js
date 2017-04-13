@@ -1,4 +1,5 @@
 import Component from './base'
+import GlobalChannel from '../global-channel'
 import Panel from '../panel'
 import Theme from '../theme'
 import jquery from 'jquery'
@@ -8,7 +9,15 @@ import roll from '../roll'
 
 export default class PanelComponent extends Component {
   async load () {
-    const head = jquery('head')
+    this.styleTag = jquery('<style>').appendTo(jquery('head'))
+
+    this.updateTheme = async () => {
+      if (this.lessFile) {
+        const style = await Theme.current.render(this.lessFile)
+        this.styleTag.text(style.css)
+      }
+    }
+    GlobalChannel.on('core:theme:updated', this.updateTheme)
 
     const name = objpath.get(this.comp, 'panel.name', '')
     if (name === '') {
@@ -22,9 +31,8 @@ export default class PanelComponent extends Component {
 
     const less = objpath.get(this.comp, 'panel.less', '')
     if (less !== '') {
-      const lessFile = path.join(this.rootDir, less)
-      const style = await Theme.current.render(lessFile)
-      head.append(jquery('<style>').text(style.css))
+      this.lessFile = path.join(this.rootDir, less)
+      await this.updateTheme()
     }
 
     const main = objpath.get(this.comp, 'panel.main', '')
@@ -44,5 +52,10 @@ export default class PanelComponent extends Component {
     const module = {}
     func(module)
     Panel.mount(slot, module.exports)
+  }
+
+  async unload () {
+    GlobalChannel.removeListener('core:theme:updated', this.updateTheme)
+    this.styleTag.remove()
   }
 }

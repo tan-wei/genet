@@ -1,3 +1,4 @@
+import GlobalChannel from './global-channel'
 import deplug from './deplug'
 import jquery from 'jquery'
 import mithril from 'mithril'
@@ -14,8 +15,15 @@ export default async function (argv, tab) {
     const less = tab.tab.less || ''
     if (less !== '') {
       const lessFile = path.join(rootDir, less)
-      const style = await Theme.current.render(lessFile)
-      jquery('head').append(jquery('<style>').text(style.css))
+      const styleTag = jquery('<style>').appendTo(jquery('head'))
+      async function updateTheme () {
+        if (lessFile) {
+          const style = await Theme.current.render(lessFile)
+          styleTag.text(style.css)
+        }
+      }
+      GlobalChannel.on('core:theme:updated', updateTheme)
+      await updateTheme()
     }
 
     const root = tab.tab.root || ''

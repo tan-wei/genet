@@ -1,5 +1,6 @@
 import m from 'mithril'
 import { Panel } from 'deplug'
+import { Pcap } from 'plugkit'
 
 class ConfigView {
   constructor() {
@@ -46,6 +47,6 @@ class PcapView {
 }
 
 export default {
-  '/pcap': ConfigView,
-  '/': PcapView
+  '/': ConfigView,
+  '/pcap': PcapView
 }

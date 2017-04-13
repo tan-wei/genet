@@ -1,36 +1,30 @@
 import { ipcRenderer, remote } from 'electron'
 const { webContents, } = remote
-
-let count = 0
+const channelPrefix = 'deplug-channel@'
 export default class GlobalChannel {
-  constructor () {
-    count += 1
-    this.channelPrefix = `deplug-channel-${count}@`
+  static on (channel, listener) {
+    ipcRenderer.on(channelPrefix + channel, listener)
   }
 
-  on (channel, listener) {
-    ipcRenderer.on(this.channelPrefix + channel, listener)
+  static once (channel, listener) {
+    ipcRenderer.once(channelPrefix + channel, listener)
   }
 
-  once (channel, listener) {
-    ipcRenderer.once(this.channelPrefix + channel, listener)
+  static removeListener (channel, listener) {
+    ipcRenderer.removeListener(channelPrefix + channel, listener)
   }
 
-  removeListener (channel, listener) {
-    ipcRenderer.removeListener(this.channelPrefix + channel, listener)
-  }
-
-  removeAllListeners (channel) {
+  static removeAllListeners (channel) {
     if (typeof channel === 'string') {
-      ipcRenderer.removeAllListeners(this.channelPrefix + channel)
+      ipcRenderer.removeAllListeners(channelPrefix + channel)
     } else {
       ipcRenderer.removeAllListeners()
     }
   }
 
-  emit (channel, ...args) {
+  static emit (channel, ...args) {
     for (const wc of webContents.getAllWebContents()) {
-      wc.send(this.channelPrefix + channel, ...args)
+      wc.send(channelPrefix + channel, ...args)
     }
   }
 }

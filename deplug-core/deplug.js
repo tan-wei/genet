@@ -14,7 +14,7 @@ export default async function (argv) {
     Argv: argv,
     Channel: new EventEmitter(),
     Config: config,
-    GlobalChannel: new GlobalChannel(),
+    GlobalChannel,
     Menu: new Menu(),
     Panel,
     Plugin,
