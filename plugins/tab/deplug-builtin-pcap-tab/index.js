@@ -42,11 +42,11 @@ class PcapView {
   }
 
   view(vnode) {
-    return <div></div>
+    return <div id="pcap-top"></div>
   }
 }
 
 export default {
-  '/': ConfigView,
-  '/pcap': PcapView
+  '/pcap': ConfigView,
+  '/': PcapView
 }
