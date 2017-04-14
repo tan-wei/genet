@@ -42,7 +42,12 @@ class PcapView {
   }
 
   view(vnode) {
-    return <div id="pcap-top"></div>
+    return [
+      <div id="pcap-top"></div>,
+      <div class="vertical-handle"></div>,
+      <div id="pcap-middle"></div>,
+      <div id="pcap-bottom"></div>
+    ]
   }
 }
 
