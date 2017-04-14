@@ -18,17 +18,36 @@ class WebView {
         webview.executeJavaScript(script)
       })
     }
+
+  }
+
+  onupdate(vnode) {
+    if (vnode.attrs.isLoaded && typeof this.guestinstance === 'undefined') {
+      this.guestinstance = vnode.dom.getAttribute('guestinstance')
+    }
   }
 
   view(vnode) {
-    return <webview
-      class="tab-content"
-      src={`file://${__dirname}/index.htm`}
-      isActive={vnode.attrs.isActive}
-      isLoaded={vnode.attrs.isLoaded}
-      nodeintegration
-    >
-    </webview>
+    if (this.guestinstance) {
+      return <webview
+        class="tab-content"
+        src={`file://${__dirname}/index.htm`}
+        isActive={vnode.attrs.isActive}
+        isLoaded={vnode.attrs.isLoaded}
+        guestinstance={this.guestinstance}
+        nodeintegration
+      >
+      </webview>
+    } else {
+      return <webview
+        class="tab-content"
+        src={`file://${__dirname}/index.htm`}
+        isActive={vnode.attrs.isActive}
+        isLoaded={vnode.attrs.isLoaded}
+        nodeintegration
+      >
+      </webview>
+    }
   }
 }
 
@@ -140,18 +159,17 @@ export default class TabView {
       const currentIndex = parseInt(event.target.getAttribute('index'))
       event.target.removeAttribute('isDragging')
       if (index !== currentIndex) {
-        /*
+        const id = this.tabs[this.currentIndex].id
         const tmp = this.tabs[index]
         this.tabs[index] = this.tabs[currentIndex]
         this.tabs[currentIndex] = tmp
+        this.currentIndex = this.tabs.findIndex((t) => t.id === id)
         m.redraw()
-        */
-      } else {
-        event.target.setAttribute('exitDragging', '')
-        process.nextTick(() => {
-          event.target.removeAttribute('exitDragging')
-        })
       }
+      event.target.setAttribute('exitDragging', '')
+      process.nextTick(() => {
+        event.target.removeAttribute('exitDragging')
+      })
     }
   }
 
@@ -201,14 +219,16 @@ export default class TabView {
         </div>
         <div id="tab-mask"></div>
         {
-          this.tabs.map((t, i) => {
+          (() => {
+            const tabs = [].concat(this.tabs)
+            tabs.sort((tab1, tab2) => tab1.id - tab2.id)
+            return tabs
+          })().map((t, i) => {
             return m(WebView, {
               key: t.id,
-              id: t.id,
-              index: i,
               item: t,
               isLoaded: (this.loadedTabs[t.id] === true),
-              isActive: this.currentIndex === i
+              isActive: this.tabs[this.currentIndex].id === t.id
             })
           })
         }
