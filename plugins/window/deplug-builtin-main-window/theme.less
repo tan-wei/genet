@@ -20,6 +20,7 @@ html {
   height: @tab-height;
   .mixin (@b) when (@b = darwin) {
     left: 80px;
+    padding-right: 180px;
   }
   .mixin (@node-platform);
 
@@ -43,11 +44,16 @@ html {
         }
       }
     }
+    &[isdragging] {
+      opacity: 0.6;
+      z-index: 5;
+    }
 
     i.fa-times {
       transform: translateX(-4px);
       opacity: 0;
     }
+    -webkit-app-region: no-drag;
   }
   -webkit-app-region: drag;
 }

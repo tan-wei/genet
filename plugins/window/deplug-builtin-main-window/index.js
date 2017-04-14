@@ -109,6 +109,26 @@ export default class TabView {
     return menu
   }
 
+  startDrag(event) {
+    if (!event.target.hasAttribute('isPressed')) {
+      event.target.setAttribute('isPressed', `${event.clientX}`)
+    }
+  }
+
+  dragMove(event) {
+    let pos = parseInt(event.target.getAttribute('isPressed'))
+    if (!Number.isNaN(pos) && Math.abs(event.clientX - pos) > 5) {
+      event.target.setAttribute('isDragging', '')
+      event.target.style.transform = `translateX(${event.clientX - pos}px)`
+    }
+  }
+
+  endDrag(event) {
+    event.target.removeAttribute('isPressed')
+    event.target.removeAttribute('isDragging')
+    event.target.style.transform = ''
+  }
+
   view() {
     return (
       <main>
@@ -120,6 +140,10 @@ export default class TabView {
                   index={i}
                   isActive={ this.currentIndex === i }
                   onclick={m.withAttr('index', this.activate, this)}
+                  onmousedown={(event) => {this.startDrag(event)}}
+                  onmousemove={(event) => {this.dragMove(event)}}
+                  onmouseup={(event) => {this.endDrag(event)}}
+                  onmouseout={(event) => {this.endDrag(event)}}
                   oncontextmenu={ (e)=> {
                     Menu.popup('core:tab:context', this, remote.getCurrentWindow(), {event: e})
                   } }
