@@ -94,8 +94,14 @@ export default class TabView {
     Menu.register('core:tab:context', this.tabMenu)
   }
 
+  oncreate(vnode) {
+    this.tabContainer = vnode.dom.querySelector('#tab-container')
+  }
+
   activate(index) {
-    this.currentIndex = parseInt(index)
+    if (!event.target.hasAttribute('exitDragging')) {
+      this.currentIndex = parseInt(index)
+    }
   }
 
   tabMenu(menu, e) {
@@ -125,8 +131,28 @@ export default class TabView {
 
   endDrag(event) {
     event.target.removeAttribute('isPressed')
-    event.target.removeAttribute('isDragging')
     event.target.style.transform = ''
+
+    if (event.target.hasAttribute('isDragging')) {
+      const left = event.clientX - this.tabContainer.getBoundingClientRect().left
+      const width = this.tabContainer.querySelector('.tab-label').getBoundingClientRect().width
+      const index = Math.min(Math.max(0, Math.floor(left / width)), this.tabs.length - 1)
+      const currentIndex = parseInt(event.target.getAttribute('index'))
+      event.target.removeAttribute('isDragging')
+      if (index !== currentIndex) {
+        /*
+        const tmp = this.tabs[index]
+        this.tabs[index] = this.tabs[currentIndex]
+        this.tabs[currentIndex] = tmp
+        m.redraw()
+        */
+      } else {
+        event.target.setAttribute('exitDragging', '')
+        process.nextTick(() => {
+          event.target.removeAttribute('exitDragging')
+        })
+      }
+    }
   }
 
   view() {
