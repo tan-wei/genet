@@ -43,6 +43,7 @@ function createHandler (plugin = null) {
       } else {
         target.deletePlugin(plugin, name)
       }
+      return true
     },
     set: (target, name, value) => {
       if (proto.includes(name)) {
@@ -52,6 +53,7 @@ function createHandler (plugin = null) {
       } else {
         target.setPlugin(plugin, name, value)
       }
+      return true
     },
   }
 }

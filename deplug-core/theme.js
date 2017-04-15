@@ -6,14 +6,13 @@ import less from 'less'
 import path from 'path'
 
 const globalRegistry = {}
-let currentThemeId = 'default'
 class FileManager extends less.FileManager {
   supports (filename) {
     return (/^deplug-(\w+-)?theme$/).test(filename)
   }
   loadFile (filename, currentDirectory, options, environment) {
     const id = (/^deplug-(?:(\w+)-)?theme.less$/).exec(filename)[1] ||
-      currentThemeId
+      Theme.currentId
     const file = globalRegistry[id].lessFile
     return super.loadFile(file, currentDirectory, options, environment)
   }
@@ -50,7 +49,16 @@ export default class Theme {
   }
 
   static get current () {
-    return globalRegistry[currentThemeId]
+    const id = Theme.currentId
+    if (id in globalRegistry) {
+      return globalRegistry[id]
+    } else {
+      return globalRegistry.default
+    }
+  }
+
+  static get currentId() {
+    return Profile.current.theme || 'default'
   }
 
   static register (theme) {
@@ -67,8 +75,8 @@ export default class Theme {
 }
 
 GlobalChannel.on('core:theme:set', (event, id) => {
-  if (id in globalRegistry && currentThemeId !== id) {
-    currentThemeId = id
-    GlobalChannel.emit('core:theme:updated', currentThemeId)
+  if (id in globalRegistry && Profile.current.theme !== id) {
+    Profile.current.theme = id
+    GlobalChannel.emit('core:theme:updated', id)
   }
 })
