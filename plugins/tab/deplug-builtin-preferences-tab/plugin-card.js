@@ -2,12 +2,13 @@ import m from 'mithril'
 
 export default class PluginCard {
   view(vnode) {
-    let name = vnode.attrs.pkg.name
+    const pkg = vnode.attrs.pkg
+    let name = pkg.name
       .replace(/^(deplug-builtin-|deplugin-)/, '')
-    return <div>
-      <a>{ name }</a>
+    return <div class="card">
+      <a>{ name } <small>({ pkg.version })</small></a>
       <p>
-        <label><input type="checkbox" name="enabled"></input>Enabled</label>
+        <label><input type="checkbox" name="enabled" checked></input>Enabled</label>
       </p>
     </div>
   }
