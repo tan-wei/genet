@@ -3,14 +3,28 @@ import Profile from './profile'
 import denodeify from 'denodeify'
 import fs from 'fs'
 import less from 'less'
-import mkpath from 'mkpath'
-import os from 'os'
 import path from 'path'
-import s2p from 'stream-to-promise'
 
 const globalRegistry = {}
-const tmpDir = path.join(os.tmpdir(), `${process.pid}`, 'deplug', 'theme')
 let currentThemeId = 'default'
+class FileManager extends less.FileManager {
+  supports (filename) {
+    return (/^deplug-(\w+-)?theme$/).test(filename)
+  }
+  loadFile (filename, currentDirectory, options, environment) {
+    const id = (/^deplug-(?:(\w+)-)?theme.less$/).exec(filename)[1] ||
+      currentThemeId
+    const file = globalRegistry[id].lessFile
+    return super.loadFile(file, currentDirectory, options, environment)
+  }
+}
+
+class LessPlugin {
+  install (ls, pluginManager) {
+    pluginManager.addFileManager(new FileManager())
+  }
+}
+
 export default class Theme {
   constructor (id, name, lessFile) {
     this.id = id
@@ -19,30 +33,14 @@ export default class Theme {
   }
 
   async render (lessFile) {
-    await denodeify(mkpath)(tmpDir)
-
-    const files = { [path.join(tmpDir, 'deplug-theme.less')]: this.lessFile, }
-    for (const id in globalRegistry) {
-      const theme = globalRegistry[id]
-      files[path.join(tmpDir, `deplug-${theme.id}-theme.less`)] = theme.lessFile
-    }
-
-    const tasks = []
-    for (const dst in files) {
-      const read = fs.createReadStream(files[dst])
-      const write = fs.createWriteStream(dst)
-      tasks.push(s2p(read.pipe(write)))
-    }
-    await Promise.all(tasks)
-
     const options = {
       paths: [
-        tmpDir,
         path.dirname(lessFile),
         path.join(__dirname, 'theme'),
         path.join(__dirname, '../font-awesome/css'),
         Profile.current.$$dir
       ],
+      plugins: [new LessPlugin()],
       filename: lessFile,
       compress: true,
       globalVars: { 'node-platform': process.platform, },
