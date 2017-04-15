@@ -15,6 +15,9 @@ class FrameItem {
     return <div
       class="item"
       data-layer={`eth ipv4 ${prot}`}
+      data-layer-confidence={1}
+      data-frame-length={this.frame.length}
+      data-frame-capture-length={this.frame.rootLayer.payload.length}
       style={{
         height: `${itemHeight}px`,
         top: `${(seq - 1) * itemHeight}px`
@@ -71,7 +74,7 @@ export default class FrameView {
   }
 
   updateMap(vnode) {
-    if (this.session) {
+    if (this.session && this.session.frame.frames > 0) {
       const dummy = vnode.dom.querySelector('.dummy-item')
       const ctx = dummy.getContext('2d')
       for (let i = 0; i < 100; ++i) {
