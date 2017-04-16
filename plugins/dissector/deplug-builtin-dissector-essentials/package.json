@@ -1,0 +1,20 @@
+{
+  "name": "deplug-builtin-dissector-essentials",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Deplug builtin dissectors",
+  "engines": {
+    "deplug": "*"
+  },
+  "gypfile": true,
+  "deplugin": {
+    "components": [
+      {
+        "type": "dissector",
+        "dissector": {
+          "main": "build/Release/ethernet.node"
+        }
+      }
+    ]
+  }
+}
