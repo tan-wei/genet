@@ -13,8 +13,8 @@
   "dependencies": {
     "builtin-modules": "^1.1.1",
     "denodeify": "^1.2.1",
-    "deplugin": "^0.0.7",
     "deplug-core": "*",
+    "deplugin": "^0.0.7",
     "electron-log": "^2.0.2",
     "font-awesome": "^4.7.0",
     "glob": "^7.1.1",
@@ -40,7 +40,8 @@
     "electron-deplug": "1.6.4",
     "electron-packager": "^8.6.0",
     "eslint": "^3.19.0",
-    "nan": "^2.6.2"
+    "nan": "^2.6.2",
+    "node-gyp": "^3.6.0"
   },
   "optionalDependencies": {
     "deplug-helper": "^0.1.0"

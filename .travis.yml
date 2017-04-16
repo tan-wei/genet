@@ -18,7 +18,6 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install jq; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source ci/linux-before-install.sh; fi
 install:
-  - yarn global add node-gyp
   - yarn
 script:
   - make lint

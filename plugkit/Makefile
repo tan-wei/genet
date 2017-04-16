@@ -1,27 +1,28 @@
 ELECTRON_VERSION = $(shell jq '.devDependencies."electron-deplug"' package.json -r)
 GYPCONFING = binding.gyp
+GYP=../../node_modules/.bin/node-gyp
 
 ifeq ($(OS),Windows_NT)
 
 CONFIG = build/binding.sln
 all: $(CONFIG)
-	node-gyp build --target=$(ELECTRON_VERSION) \
+	$(GYP) build --target=$(ELECTRON_VERSION) \
 		--arch=x64 --dist-url=https://atom.io/download/electron
 
 $(CONFIG): $(GYPCONFING)
-	node-gyp configure --target=$(ELECTRON_VERSION) \
+	$(GYP) configure --target=$(ELECTRON_VERSION) \
 		--arch=x64 --dist-url=https://atom.io/download/electron
 
 else
 
 CONFIG = build/Makefile
 all: $(CONFIG)
-	JOBS=4 HOME=~/.electron-gyp node-gyp build \
+	JOBS=4 HOME=~/.electron-gyp $(GYP) build \
 		--target=$(ELECTRON_VERSION) --arch=x64 \
 		--dist-url=https://atom.io/download/electron
 
 $(CONFIG): $(GYPCONFING)
-	HOME=~/.electron-gyp node-gyp configure \
+	HOME=~/.electron-gyp $(GYP) configure \
 		--target=$(ELECTRON_VERSION) --arch=x64 \
 		--dist-url=https://atom.io/download/electron
 
@@ -31,7 +32,7 @@ $(GYPCONFING): $(GYPCONFING).plugkit
 	cp $(GYPCONFING).plugkit $(GYPCONFING)
 
 clean:
-	@node-gyp clean
+	@$(GYP) clean
 	@rm $(GYPCONFING)
 
 fmt:
