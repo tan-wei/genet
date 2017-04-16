@@ -1,7 +1,12 @@
+.protocol-color (@background) {
+  background-color: @background;
+  color: contrast(@background, @theme-default-fg, @theme-default-bg);
+}
+
 [data-layer~="udp"] {
-  background-color: #397569;
+  .protocol-color(#ddd);
 }
 
 [data-layer~="tcp"] {
-  background-color: #58388e;
+  .protocol-color(#58388e);
 }

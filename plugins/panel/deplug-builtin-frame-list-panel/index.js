@@ -48,6 +48,8 @@ export default class FrameView {
     this.session = null
     this.viewScrollTop = 0
     this.viewHeight = 0
+    this.mapHeight = 500
+    this.previousScrollTop = 0
 
     this.updateMapThrottle = throttle((vnode) => {
       this.updateMap(vnode)
@@ -85,14 +87,20 @@ export default class FrameView {
     this.viewHeight = vnode.dom.offsetHeight
     this.viewScrollTop = vnode.dom.scrollTop
     this.updateMapThrottle(vnode)
+
+    const maxScrollTop = vnode.dom.scrollHeight - vnode.dom.offsetHeight
+    if (this.previousScrollTop <= vnode.dom.scrollTop) {
+      vnode.dom.scrollTop = maxScrollTop
+      this.previousScrollTop = maxScrollTop
+    }
   }
 
   updateMap(vnode) {
     if (this.session && this.session.frame.frames > 0) {
       const dummy = vnode.dom.querySelector('.dummy-item')
       const ctx = dummy.getContext('2d')
-      for (let i = 0; i < 100; ++i) {
-        const index = Math.floor(this.session.frame.frames / 100 * i)
+      for (let i = 0; i < this.mapHeight; ++i) {
+        const index = Math.floor(this.session.frame.frames / this.mapHeight * i)
         const length = this.session.getFrames(index, 1)[0].length
         if (length % 2) {
           dummy.setAttribute('data-layer', "eth ipv4 tcp")
@@ -133,7 +141,7 @@ export default class FrameView {
         class="dummy-item"
         data-layer="eth ipv4 tcp"
         width="1"
-        height="100"
+        height={this.mapHeight}
       ></canvas>
       <div
         style={{height: `${viewHeight}px`}}
