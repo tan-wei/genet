@@ -7,6 +7,9 @@ DEPLUG_CORE_JS = $(wildcard deplug-core/*.js) $(wildcard deplug-core/components/
 DEPLUG_CORE_MAIN_JS = $(wildcard deplug-core/*.main.js)
 DEPLUG_CORE_JS_OUT = $(addprefix node_modules/,$(DEPLUG_CORE_MAIN_JS))
 
+PLUGKIT_SRC = plugkit
+PLUGKIT_DST = node_modules/plugkit
+
 ROOLUP_EXTERN_BUILTIN = electron,deplug,$(shell node -p -e 'require("builtin-modules").join(",")')
 ROOLUP_EXTERN = $(ROOLUP_EXTERN_BUILTIN),$(shell jq '.dependencies | keys | join(",")' package.json -r)
 ROLLUP = node_modules/.bin/rollup
@@ -23,13 +26,17 @@ PACKAGER = node_modules/.bin/electron-packager
 all: build
 	$(ELECTRON) --enable-logging .
 
-build: $(DEPLUG_CORE_RES_OUT) $(DEPLUG_CORE_JS_OUT)
+build: $(DEPLUG_CORE_RES_OUT) $(DEPLUG_CORE_JS_OUT) plugkit
 
 lint:
 	$(ESLINT) $(DEPLUG_CORE_JS)
 
 fix:
 	$(ESLINT) --fix $(DEPLUG_CORE_JS)
+
+plugkit:
+	cp -r -f -p $(PLUGKIT_SRC) node_modules
+	$(MAKE) -C $(PLUGKIT_DST)
 
 pack: build
 	$(PACKAGER) ./ --download.mirror=$(ELECTRON_MIRROR) \
@@ -49,4 +56,4 @@ $(DEPLUG_CORE):
 clean:
 	@rm -rf $(DEPLUG_CORE)
 
-.PHONY: all run build fix lint pack clean fmt
+.PHONY: all run build fix lint pack clean fmt plugkit
