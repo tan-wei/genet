@@ -4,6 +4,20 @@ import { Channel, Panel } from 'deplug'
 import { Pcap, SessionFactory } from 'plugkit'
 
 class FrameItem {
+  constructor() {
+    this.attrs = {
+      'layer-confidence': 'primaryLayer.confidence',
+      'frame-length': 'length',
+      'frame-capture-length': 'rootLayer.payload.length',
+    }
+    this.columns = [
+      {name: 'No', value: 'seq'},
+      {name: 'Protocol', value: 'primaryLayer.name'},
+      {name: 'Length', value: 'length'},
+      {name: 'Summary', value: 'primaryLayer.summary'},
+    ]
+  }
+
   oninit(vnode) {
     this.frame = vnode.attrs.session.getFrames(vnode.attrs.seq - 1, 1)[0]
   }
@@ -23,7 +37,7 @@ class FrameItem {
         top: `${(seq - 1) * itemHeight}px`
       }}
     >
-    { `>>>> ${seq} ${this.frame.timestamp} ${this.frame.length}` }
+    { `${seq} ${this.frame.primaryLayer.name} ${this.frame.length}` }
     </div>
   }
 }

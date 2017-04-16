@@ -2220,9 +2220,9 @@ plist@^2.0.0, plist@^2.0.1:
     xmlbuilder "8.2.2"
     xmldom "0.1.x"
 
-plugkit@^0.0.11:
-  version "0.0.11"
-  resolved "https://registry.yarnpkg.com/plugkit/-/plugkit-0.0.11.tgz#c3e95b0786addc8eabc0d517bf2ebee98265c74b"
+plugkit@^0.0.12:
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/plugkit/-/plugkit-0.0.12.tgz#db26c7c0b36459da7bc350f89d74f9199be88502"
   dependencies:
     bindings "^1.2.1"
     esprima "^3.1.3"
