@@ -1,0 +1,14 @@
+{
+  "name": "deplug-core",
+  "version": "0.0.1",
+  "description": "Deplug core modules",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/deplug/deplug.git"
+  },
+  "author": "h2so5",
+  "license": "MIT",
+  "engines": {
+    "deplug": "*"
+  }
+}

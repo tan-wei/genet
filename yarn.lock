@@ -589,6 +589,10 @@ denodeify@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/denodeify/-/denodeify-1.2.1.tgz#3a36287f5034e699e7577901052c2e6c94251631"
 
+deplug-core@*:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/deplug-core/-/deplug-core-0.0.1.tgz#ae4cb928558d58e092c625fe25643fc2989d093d"
+
 deplug-helper@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/deplug-helper/-/deplug-helper-0.1.0.tgz#1dd0416cb31996618cf4867562c26846c5d115d3"
@@ -2228,7 +2232,7 @@ plist@^2.0.0, plist@^2.0.1:
     xmlbuilder "8.2.2"
     xmldom "0.1.x"
 
-plugkit@^0.0.12:
+plugkit@*:
   version "0.0.12"
   resolved "https://registry.yarnpkg.com/plugkit/-/plugkit-0.0.12.tgz#db26c7c0b36459da7bc350f89d74f9199be88502"
   dependencies:

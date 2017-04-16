@@ -48,7 +48,7 @@ pack: build
 							--out=./out --overwrite
 
 $(DEPLUG_CORE_RES_OUT): $(DEPLUG_CORE_RES) $(DEPLUG_CORE)
-	cp $(subst node_modules/,,$@) $@
+	cp -r -f -p $(subst node_modules/,,$@) $@
 
 $(DEPLUG_CORE_JS_OUT): $(DEPLUG_CORE_JS) $(DEPLUG_CORE)
 	$(ROLLUP) $(subst node_modules/,,$@) -e $(ROOLUP_EXTERN) --format cjs --output $@
