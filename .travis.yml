@@ -1,0 +1,34 @@
+sudo: true
+language: cpp
+os:
+- linux
+- osx
+osx_image: xcode8
+cache:
+  directories:
+  - $HOME/.yarn-cache
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - gcc-5
+    - g++-5
+    - libcap-dev
+    - python-pip
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source ci/linux-before-install.sh
+    ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source ci/osx-before-install.sh
+    ; fi
+install:
+  - yarn global add node-gyp
+script:
+  - make
+after_script:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source ci/linux-after-script.sh
+    ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source ci/osx-after-script.sh
+    ; fi
+notifications:
+  email: false

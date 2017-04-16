@@ -1,0 +1,25 @@
+{
+  "name": "plugkit",
+  "version": "0.0.12",
+  "description": "deplug pcap engine",
+  "author": "h2so5",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "install": "./download.js || make"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deplug/deplug.git"
+  },
+  "dependencies": {
+    "bindings": "^1.2.1",
+    "esprima": "^3.1.3",
+    "rollup": "^0.41.5"
+  },
+  "devDependencies": {
+    "mkpath": "^1.0.0",
+    "request": "^2.81.0",
+    "electron-deplug": "1.6.4"
+  }
+}
