@@ -20,6 +20,7 @@ ELECTRON = node_modules/.bin/electron-deplug
 ELECTRON_VERSION = $(shell jq '.devDependencies."electron-deplug"' package.json -r)
 ELECTRON_MIRROR = https://s3-ap-northeast-1.amazonaws.com/deplug-build-junk/electron/v
 ELECTRON_UNPACK = node_modules/deplug-helper
+ELECTRON_IGNORE = "deplug-core","plugkit"
 
 PACKAGER = node_modules/.bin/electron-packager
 
@@ -41,6 +42,8 @@ plugkit:
 pack: build
 	$(PACKAGER) ./ --download.mirror=$(ELECTRON_MIRROR) \
 	 						--asar.unpackDir=$(ELECTRON_UNPACK) \
+							--no-prune \
+							--ignore=$(ELECTRON_IGNORE) \
 							--electron-version=$(ELECTRON_VERSION) \
 							--out=./out --overwrite
 

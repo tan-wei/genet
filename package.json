@@ -38,7 +38,8 @@
   "devDependencies": {
     "electron-deplug": "1.6.4",
     "electron-packager": "^8.6.0",
-    "eslint": "^3.19.0"
+    "eslint": "^3.19.0",
+    "nan": "^2.6.2"
   },
   "optionalDependencies": {
     "deplug-helper": "^0.1.0"
