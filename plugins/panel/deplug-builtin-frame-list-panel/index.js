@@ -1,21 +1,11 @@
 import throttle from 'lodash.throttle'
 import m from 'mithril'
-import { Channel, Panel } from 'deplug'
+import { Channel, Panel, Profile } from 'deplug'
 import { Pcap, SessionFactory } from 'plugkit'
 
 class FrameItem {
   constructor() {
-    this.attrs = {
-      'layer-confidence': 'primaryLayer.confidence',
-      'frame-length': 'length',
-      'frame-capture-length': 'rootLayer.payload.length',
-    }
-    this.columns = [
-      {name: 'No', value: 'seq'},
-      {name: 'Protocol', value: 'primaryLayer.name'},
-      {name: 'Length', value: 'length'},
-      {name: 'Summary', value: 'primaryLayer.summary'},
-    ]
+
   }
 
   oninit(vnode) {
@@ -50,6 +40,19 @@ export default class FrameView {
     this.viewHeight = 0
     this.mapHeight = 100
     this.previousScrollTop = 0
+
+    const profile = Profile.current['$deplug-builtin-frame-list-panel']
+    this.columns = profile.columns || [
+      {name: 'No', value: 'seq'},
+      {name: 'Protocol', value: 'primaryLayer.name'},
+      {name: 'Length', value: 'length'},
+      {name: 'Summary', value: 'primaryLayer.summary'},
+    ]
+    this.attrs = Object.assign({
+      'layer-confidence': 'primaryLayer.confidence',
+      'frame-length': 'length',
+      'frame-capture-length': 'rootLayer.payload.length',
+    }, profile.attrs)
 
     this.updateMapThrottle = throttle((vnode) => {
       this.updateMap(vnode)
@@ -158,6 +161,8 @@ export default class FrameView {
                 key: id,
                 seq: id,
                 itemHeight: itemHeight,
+                columns: this.columns,
+                attrs: this.attrs,
                 session: this.session
               })
             })
