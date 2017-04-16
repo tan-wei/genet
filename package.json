@@ -13,7 +13,7 @@
   "dependencies": {
     "builtin-modules": "^1.1.1",
     "denodeify": "^1.2.1",
-    "deplugin": "^0.0.5",
+    "deplugin": "^0.0.7",
     "electron-log": "^2.0.2",
     "font-awesome": "^4.7.0",
     "glob": "^7.1.1",
@@ -25,6 +25,7 @@
     "minimist": "^1.2.0",
     "mithril": "^1.1.1",
     "mkpath": "^1.0.0",
+    "moment": "^2.18.1",
     "mousetrap": "^1.6.1",
     "msx-optimized": "^0.3.0",
     "npm": "^4.4.4",

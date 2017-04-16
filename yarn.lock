@@ -593,9 +593,9 @@ deplug-helper@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/deplug-helper/-/deplug-helper-0.1.0.tgz#1dd0416cb31996618cf4867562c26846c5d115d3"
 
-deplugin@^0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/deplugin/-/deplugin-0.0.5.tgz#e9f19f2b2ea11f39620be7f34ca182d6f93008f0"
+deplugin@^0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/deplugin/-/deplugin-0.0.7.tgz#3ec68bcb0322c2ecb689300cf4412cd2240f609a"
   dependencies:
     denodeify "^1.2.1"
     jsonfile "^2.4.0"
@@ -1802,6 +1802,10 @@ mksnapshot@^0.3.0:
     decompress-zip "0.3.0"
     fs-extra "0.26.7"
     request "^2.79.0"
+
+moment@^2.18.1:
+  version "2.18.1"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.18.1.tgz#c36193dd3ce1c2eed2adb7c802dbbc77a81b1c0f"
 
 mousetrap@^1.6.1:
   version "1.6.1"
