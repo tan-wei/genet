@@ -52,12 +52,12 @@ export default class Theme {
     const id = Theme.currentId
     if (id in globalRegistry) {
       return globalRegistry[id]
-    } else {
-      return globalRegistry.default
     }
+      return globalRegistry.default
+
   }
 
-  static get currentId() {
+  static get currentId () {
     return Profile.current.theme || 'default'
   }
 
