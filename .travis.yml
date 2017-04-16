@@ -13,11 +13,10 @@ addons:
     packages:
     - g++-5
     - libcap-dev
-    - libpcap-dev
 cache: yarn
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install jq; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CXX=g++-5; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source ci/linux-before-install.sh; fi
 install:
   - yarn global add node-gyp
   - yarn
