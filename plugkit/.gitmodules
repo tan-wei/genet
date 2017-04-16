@@ -1,0 +1,9 @@
+[submodule "vendor/winpcap"]
+	path = vendor/winpcap
+	url = https://github.com/deplug/winpcap.git
+[submodule "vendor/nan"]
+	path = vendor/nan
+	url = https://github.com/nodejs/nan.git
+[submodule "vendor/json11"]
+	path = vendor/json11
+	url = https://github.com/dropbox/json11.git

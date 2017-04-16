@@ -1,0 +1,15 @@
+{
+  "name": "plugkit.hpp",
+  "version": "0.0.6",
+  "description": "deplug pcap engine header for C++",
+  "author": "h2so5",
+  "license": "MIT",
+  "main": "index.js",
+  "files": [
+    "plugkit"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deplug/plugkit.git"
+  }
+}
