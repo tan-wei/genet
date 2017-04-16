@@ -3,6 +3,14 @@
   color: contrast(@background, @theme-default-fg, @theme-default-bg);
 }
 
+[data-layer] {
+  .protocol-color(@theme-lighter-bg);
+}
+
+[data-layer~="<eth>"] {
+  .protocol-color(rgb(70, 101, 134));
+}
+
 [data-layer~="udp"] {
   .protocol-color(#ddd);
 }

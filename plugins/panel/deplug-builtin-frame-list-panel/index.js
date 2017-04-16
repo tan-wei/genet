@@ -18,7 +18,7 @@ class FrameItem {
     const prot = (this.frame.length % 2) ? 'tcp' : 'udp'
     return <div
       class="item"
-      data-layer={`eth ipv4 ${prot}`}
+      data-layer={this.frame.primaryLayer.namespace}
       data-layer-confidence={1}
       data-frame-length={this.frame.length}
       data-frame-capture-length={this.frame.rootLayer.payload.length}
@@ -108,12 +108,8 @@ export default class FrameView {
       const ctx = dummy.getContext('2d')
       for (let i = 0; i < this.mapHeight; ++i) {
         const index = Math.floor(this.session.frame.frames / this.mapHeight * i)
-        const length = this.session.getFrames(index, 1)[0].length
-        if (length % 2) {
-          dummy.setAttribute('data-layer', "eth ipv4 tcp")
-        } else {
-          dummy.setAttribute('data-layer', "eth ipv4 udp")
-        }
+        const frame = this.session.getFrames(index, 1)[0]
+        dummy.setAttribute('data-layer', frame.primaryLayer.namespace)
         ctx.fillStyle = getComputedStyle(dummy, null).getPropertyValue("background-color")
         ctx.fillRect(0, i, 1, 1)
       }
