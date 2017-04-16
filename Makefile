@@ -56,6 +56,6 @@ $(DEPLUG_CORE):
 	@mkdir $(DEPLUG_CORE)
 
 clean:
-	@rm -rf $(DEPLUG_CORE)
+	@rm -rf $(DEPLUG_CORE) $(PLUGKIT_DST)
 
 .PHONY: all run build fix lint pack clean fmt plugkit
