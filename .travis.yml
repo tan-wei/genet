@@ -6,9 +6,18 @@ os:
 - linux
 - osx
 osx_image: xcode8
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-5
+    - libcap-dev
+    - libpcap-dev
 cache: yarn
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install jq; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export COMPILER=g++-5; fi
 install:
   - yarn global add node-gyp
   - yarn
