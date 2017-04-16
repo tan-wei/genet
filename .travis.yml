@@ -17,7 +17,7 @@ addons:
 cache: yarn
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install jq; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export COMPILER=g++-5; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CXX=g++-5; fi
 install:
   - yarn global add node-gyp
   - yarn
