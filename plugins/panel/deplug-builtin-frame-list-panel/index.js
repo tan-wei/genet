@@ -48,7 +48,7 @@ export default class FrameView {
     this.session = null
     this.viewScrollTop = 0
     this.viewHeight = 0
-    this.mapHeight = 500
+    this.mapHeight = 100
     this.previousScrollTop = 0
 
     this.updateMapThrottle = throttle((vnode) => {
@@ -75,8 +75,9 @@ export default class FrameView {
   }
 
   oncreate(vnode) {
+    this.frameView = vnode.dom.querySelector('.frame-view')
     this.onupdate(vnode)
-    vnode.dom.addEventListener('scroll', (event) => {
+    this.frameView.addEventListener('scroll', (event) => {
       this.viewHeight = event.target.offsetHeight
       this.viewScrollTop = event.target.scrollTop
       m.redraw()
@@ -84,14 +85,17 @@ export default class FrameView {
   }
 
   onupdate(vnode) {
-    this.viewHeight = vnode.dom.offsetHeight
-    this.viewScrollTop = vnode.dom.scrollTop
+    this.viewHeight = this.frameView.offsetHeight
+    this.viewScrollTop = this.frameView.scrollTop
     this.updateMapThrottle(vnode)
 
-    const maxScrollTop = vnode.dom.scrollHeight - vnode.dom.offsetHeight
-    if (this.previousScrollTop <= vnode.dom.scrollTop) {
-      vnode.dom.scrollTop = maxScrollTop
+    const maxScrollTop = this.frameView.scrollHeight - this.frameView.clientHeight
+    if (this.previousScrollTop <= this.frameView.scrollTop) {
+      this.frameView.scrollTop = maxScrollTop
       this.previousScrollTop = maxScrollTop
+    } else {
+      this.previousScrollTop =
+        Math.max(this.previousScrollTop, this.frameView.scrollHeight * 0.8)
     }
   }
 
@@ -135,7 +139,7 @@ export default class FrameView {
     const end = Math.min(begin +
       Math.ceil(this.viewHeight / itemHeight) + margin * 2, this.frame.frames)
 
-    return <div class="frame-view">
+    return <div>
       <canvas
         style="opacity: 0; position: absolute;"
         class="dummy-item"
@@ -143,20 +147,22 @@ export default class FrameView {
         width="1"
         height={this.mapHeight}
       ></canvas>
-      <div
-        style={{height: `${viewHeight}px`}}
-      >
-        {
-          (new Array(end - begin)).fill().map((dev, index) => {
-            const id = index + begin + 1
-            return m(FrameItem, {
-              key: id,
-              seq: id,
-              itemHeight: itemHeight,
-              session: this.session
+      <div class="frame-view">
+        <div
+          style={{height: `${viewHeight}px`}}
+        >
+          {
+            (new Array(end - begin)).fill().map((dev, index) => {
+              const id = index + begin + 1
+              return m(FrameItem, {
+                key: id,
+                seq: id,
+                itemHeight: itemHeight,
+                session: this.session
+              })
             })
-          })
-        }
+          }
+        </div>
       </div>
     </div>
   }
