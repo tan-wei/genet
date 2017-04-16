@@ -26,6 +26,7 @@ export default class InstallView {
   update() {
     if (!loading) {
       loading = true
+      m.redraw()
       deplugin.search().then((packages) => {
         this.packages = packages
         loading = false
