@@ -27,7 +27,7 @@ class FrameItem {
         top: `${(seq - 1) * itemHeight}px`
       }}
     >
-    { `${seq} ${this.frame.primaryLayer.name} ${this.frame.length}` }
+    { `${seq} ${this.frame.primaryLayer.name} ${this.frame.primaryLayer.summary} ${this.frame.length}` }
     </div>
   }
 }
