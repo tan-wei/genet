@@ -1,6 +1,6 @@
 import throttle from 'lodash.throttle'
 import m from 'mithril'
-import { Channel, Panel, Profile } from 'deplug'
+import { Channel, Panel, Profile, Session } from 'deplug'
 import { Pcap, SessionFactory } from 'plugkit'
 
 class FrameItem {
@@ -69,6 +69,9 @@ export default class FrameView {
 
     let factory = new SessionFactory()
     factory.networkInterface = Pcap.devices[0].id
+    for (const diss of Session.dissectors) {
+      factory.registerDissector(diss)
+    }
     factory.create().then((sess) => {
       sess.startPcap()
       Channel.emit('core:pcap:session-created', sess)

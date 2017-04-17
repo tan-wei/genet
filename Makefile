@@ -10,6 +10,8 @@ DEPLUG_CORE_JS_OUT = $(addprefix node_modules/,$(DEPLUG_CORE_MAIN_JS))
 PLUGKIT_SRC = plugkit
 PLUGKIT_DST = node_modules/plugkit
 
+DISSECTOR_ESS = plugins/dissector/deplug-builtin-dissector-essentials
+
 ROOLUP_EXTERN_BUILTIN = electron,deplug,$(shell node -p -e 'require("builtin-modules").join(",")')
 ROOLUP_EXTERN = $(ROOLUP_EXTERN_BUILTIN),$(shell jq '.dependencies | keys | join(",")' package.json -r)
 ROLLUP = node_modules/.bin/rollup
@@ -38,6 +40,7 @@ fix:
 plugkit:
 	cp -r -f -p $(PLUGKIT_SRC) node_modules
 	$(MAKE) -C $(PLUGKIT_DST)
+	$(MAKE) -C $(DISSECTOR_ESS)
 
 pack: build
 	$(PACKAGER) ./ --download.mirror=$(ELECTRON_MIRROR) \

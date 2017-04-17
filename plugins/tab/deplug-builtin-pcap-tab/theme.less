@@ -1,45 +1,40 @@
 @import "deplug-theme";
 @import "deplug-common-window";
 
-@pcap-top-height: 400px;
-@pcap-middle-height: 100px;
-
 #pcap-top {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: @pcap-top-height;
   overflow: hidden;
-  background-color: #aaa;
-}
-
-#pcap-middle {
-  position: absolute;
-  top: @pcap-top-height;
-  left: 0;
-  right: 0;
-  height: @pcap-middle-height;
-  overflow: hidden;
-  background-color: #bbb;
 }
 
 #pcap-bottom {
   position: absolute;
-  top: @pcap-top-height + @pcap-middle-height;
   left: 0;
   right: 0;
   bottom: 0;
   overflow: hidden;
-  background-color: #ccc;
 }
 
 .vertical-handle {
   position: absolute;
-  top: @pcap-top-height;
   left: 0;
   right: 0;
   height: 4px;
   transform: translateY(-2px);
-  background-color: red;
+  background-color: @theme-lighter-bg;
+  cursor:row-resize;
+  z-index: 1;
+}
+
+.vertical-drag-area {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  cursor:row-resize;
+  visibility: hidden;
+  z-index: 2;
 }

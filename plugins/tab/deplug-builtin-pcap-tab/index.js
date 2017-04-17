@@ -1,5 +1,5 @@
 import m from 'mithril'
-import { Panel } from 'deplug'
+import { Panel, Plugin } from 'deplug'
 import { Pcap } from 'plugkit'
 
 class ConfigView {
@@ -32,22 +32,56 @@ class ConfigView {
 
 class PcapView {
   constructor() {
-
+    Plugin.loadComponents('dissector')
+    console.log('plugin')
   }
 
   oncreate(vnode) {
-    Panel.registerSlot('pcap-top', (comp) => {
-      m.mount(vnode.dom, comp)
+    Panel.registerSlot('core:pcap:top', (comp) => {
+      m.mount(vnode.dom.querySelector('#pcap-top'), comp)
     })
+    Panel.registerSlot('core:pcap:bottom', (comp) => {
+      m.mount(vnode.dom.querySelector('#pcap-bottom'), comp)
+    })
+
+    this.topDragArea = vnode.dom.querySelector('#pcap-top-drag-area')
+  }
+
+  startDrag() {
+    this.topDragArea.style.visibility = 'visible'
+  }
+
+  endDrag() {
+    this.topDragArea.style.visibility = 'hidden'
+  }
+
+  move(event) {
+    console.log(event.clientY)
   }
 
   view(vnode) {
-    return [
-      <div id="pcap-top"></div>,
-      <div class="vertical-handle"></div>,
-      <div id="pcap-middle"></div>,
-      <div id="pcap-bottom"></div>
-    ]
+    let bottomHeight = 200
+    return <div>
+      <div id="pcap-top"
+        style={{bottom: `${bottomHeight}px`}}
+        ></div>
+      <div class="vertical-handle"
+        style={{bottom: `${bottomHeight}px`}}
+        onmousedown={(event) => {this.startDrag(event)}}
+        onmouseup={(event) => {this.endDrag(event)}}
+        ></div>
+      <div
+        id="pcap-top-drag-area"
+        class="vertical-drag-area"
+        onmousedown={(event) => {this.startDrag(event)}}
+        onmouseup={(event) => {this.endDrag(event)}}
+        onmouseout={(event) => {this.endDrag(event)}}
+        onmousemove={(event) => {this.move(event)}}
+        ></div>
+      <div id="pcap-bottom"
+        style={{height: `${bottomHeight}px`}}
+        ></div>
+    </div>
   }
 }
 

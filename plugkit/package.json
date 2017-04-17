@@ -19,7 +19,6 @@
   },
   "devDependencies": {
     "mkpath": "^1.0.0",
-    "request": "^2.81.0",
-    "electron-deplug": "1.6.4"
+    "request": "^2.81.0"
   }
 }

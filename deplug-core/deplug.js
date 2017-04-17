@@ -4,6 +4,7 @@ import Menu from './menu'
 import Panel from './panel'
 import Plugin from './plugin'
 import Profile from './profile'
+import Session from './session'
 import Tab from './tab'
 import Theme from './theme'
 import config from './config'
@@ -19,6 +20,7 @@ export default async function (argv) {
     Panel,
     Plugin,
     Profile,
+    Session,
     Tab,
     Theme,
   }

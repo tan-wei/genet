@@ -56,4 +56,3 @@ typings/
 .env
 
 build
-binding.gyp

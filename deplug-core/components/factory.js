@@ -1,3 +1,4 @@
+import DissectorComponent from './dissector'
 import PanelComponent from './panel'
 import TabComponent from './tab'
 import ThemeComponent from './theme'
@@ -14,6 +15,8 @@ export default class ComponentFactory {
         return new ThemeComponent(rootDir, parc, comp)
       case 'window':
         return new WindowComponent(rootDir, parc, comp)
+      case 'dissector':
+        return new DissectorComponent(rootDir, parc, comp)
       default:
         throw new Error(`unknown component type: ${comp.type}`)
     }

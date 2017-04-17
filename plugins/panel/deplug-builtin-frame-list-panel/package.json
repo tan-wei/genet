@@ -12,7 +12,7 @@
         "type": "panel",
         "panel": {
           "name": "Frames",
-          "slot": "pcap-top",
+          "slot": "core:pcap:top",
           "less": "theme.less",
           "root": "index.js"
         }

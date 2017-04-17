@@ -1,5 +1,5 @@
-ELECTRON_VERSION = $(shell jq '.devDependencies."electron-deplug"' ../../package.json -r)
-GYP=../../node_modules/.bin/node-gyp
+ELECTRON_VERSION = $(shell jq '.devDependencies."electron-deplug"' ../../../package.json -r)
+GYP=../../../node_modules/.bin/node-gyp
 
 ifeq ($(OS),Windows_NT)
 CONFIG = build/binding.sln
@@ -19,10 +19,4 @@ $(CONFIG):
 clean:
 	@$(GYP) clean
 
-fmt:
-	@clang-format -i src/*.cpp src/*.hpp \
-		include/plugkit/*.hpp src/private/*.hpp \
-		src/wrapper/*.hpp src/wrapper/*.cpp \
-		**/*.hpp **/*.cpp
-
-.PHONY: all clean fmt
+.PHONY: all clean
