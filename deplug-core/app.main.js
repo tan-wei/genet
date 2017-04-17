@@ -8,10 +8,6 @@ if (process.platform === 'darwin' && !Pcap.permission) {
   require('deplug-helper')()
 }
 
-if (process.platform === 'linux') {
-  process.env.RTLD_GLOBAL = '1'
-}
-
 app.commandLine.appendSwitch('js-flags', '--harmony-async-await')
 app.commandLine.appendSwitch('--enable-experimental-web-platform-features')
 
