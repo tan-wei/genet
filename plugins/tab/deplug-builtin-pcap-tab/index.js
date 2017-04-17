@@ -33,7 +33,7 @@ class ConfigView {
 class PcapView {
   constructor() {
     Plugin.loadComponents('dissector')
-    console.log('plugin')
+    this.bottomHeight = 200
   }
 
   oncreate(vnode) {
@@ -47,26 +47,33 @@ class PcapView {
     this.topDragArea = vnode.dom.querySelector('#pcap-top-drag-area')
   }
 
-  startDrag() {
+  startDrag(event) {
     this.topDragArea.style.visibility = 'visible'
+    if (!this.topDragArea.hasAttribute('data-start-y')) {
+      this.topDragArea.setAttribute('data-start-y', event.clientY)
+    }
   }
 
   endDrag() {
     this.topDragArea.style.visibility = 'hidden'
+    this.topDragArea.removeAttribute('data-start-y')
   }
 
   move(event) {
-    console.log(event.clientY)
+    const minBottomHeight = 20
+    const maxBottomHeight = this.topDragArea.clientHeight - minBottomHeight
+    this.bottomHeight = this.topDragArea.clientHeight - event.clientY
+    this.bottomHeight = Math.min(maxBottomHeight,
+      Math.max(this.bottomHeight, minBottomHeight))
   }
 
   view(vnode) {
-    let bottomHeight = 200
     return <div>
       <div id="pcap-top"
-        style={{bottom: `${bottomHeight}px`}}
+        style={{bottom: `${this.bottomHeight}px`}}
         ></div>
       <div class="vertical-handle"
-        style={{bottom: `${bottomHeight}px`}}
+        style={{bottom: `${this.bottomHeight}px`}}
         onmousedown={(event) => {this.startDrag(event)}}
         onmouseup={(event) => {this.endDrag(event)}}
         ></div>
@@ -79,7 +86,7 @@ class PcapView {
         onmousemove={(event) => {this.move(event)}}
         ></div>
       <div id="pcap-bottom"
-        style={{height: `${bottomHeight}px`}}
+        style={{height: `${this.bottomHeight}px`}}
         ></div>
     </div>
   }
