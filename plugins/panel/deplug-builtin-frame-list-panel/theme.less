@@ -21,10 +21,26 @@
     border: 3px solid @theme-default-bg;
   }
 
-  .item {
+  .frame-item {
     position: absolute;
     left: 0;
     right: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-top: 1px solid @theme-selection-bg;
+
+    .frame-column {
+      padding: 0 10px;
+      width: 100px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .frame-column:last-child {
+      width: initial;
+      flex-grow: 1;
+    }
   }
 }
 @import "protocol.less";

@@ -17,7 +17,7 @@ class FrameItem {
     let itemHeight = vnode.attrs.itemHeight
     const prot = (this.frame.length % 2) ? 'tcp' : 'udp'
     return <div
-      class="item"
+      class="frame-item"
       data-layer={this.frame.primaryLayer.namespace}
       data-layer-confidence={1}
       data-frame-length={this.frame.length}
@@ -27,7 +27,10 @@ class FrameItem {
         top: `${(seq - 1) * itemHeight}px`
       }}
     >
-    { `${seq} ${this.frame.primaryLayer.name} ${this.frame.primaryLayer.summary} ${this.frame.length}` }
+      <div class="frame-column">{seq}</div>
+      <div class="frame-column">{this.frame.primaryLayer.name}</div>
+      <div class="frame-column">{this.frame.length}</div>
+      <div class="frame-column">{this.frame.primaryLayer.summary}</div>
     </div>
   }
 }
