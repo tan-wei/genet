@@ -49,6 +49,26 @@ std::string toDec(const S &slice, int group = 0, int width = 0,
   }
   return stream.str();
 }
+
+template <class S> std::string range(const S &base, const S &slice) {
+  const char *baseBegin = base.data();
+  const char *baseEnd = baseBegin + base.size();
+  const char *sliceBegin = slice.data();
+  const char *sliceEnd = sliceBegin + slice.size();
+  if (baseBegin <= sliceBegin && sliceBegin < baseEnd && baseBegin < sliceEnd &&
+      sliceEnd <= baseEnd) {
+    std::string begin;
+    std::string end;
+    if (baseBegin != sliceBegin) {
+      begin = std::to_string(sliceBegin - baseBegin);
+    }
+    if (baseEnd != sliceEnd) {
+      end = std::to_string(sliceBegin - baseBegin + slice.size());
+    }
+    return begin + ":" + end;
+  }
+  return std::string();
+}
 }
 }
 

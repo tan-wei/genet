@@ -3,7 +3,7 @@
     {
       "target_name":"ethernet",
       "sources":[
-        "main.cpp"
+        "eth.cpp"
       ],
       "include_dirs":[
         "<!(node -e \"require('nan')\")",

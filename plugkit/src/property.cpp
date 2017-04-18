@@ -18,6 +18,14 @@ public:
 
 Property::Property() : d(new Private()) {}
 
+Property::Property(const std::string &id, const std::string &name,
+                   const Variant &value)
+    : d(new Private()) {
+  d->id = id;
+  d->name = name;
+  d->value = value;
+}
+
 Property::~Property() {}
 
 Property::Property(const Property &prop) {

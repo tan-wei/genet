@@ -13,6 +13,8 @@ using PropertyConstPtr = std::shared_ptr<const Property>;
 class Property final {
 public:
   Property();
+  Property(const std::string &id, const std::string &name,
+           const Variant &value = Variant());
   ~Property();
   Property(const Property &prop);
   Property &operator=(const Property &prop);

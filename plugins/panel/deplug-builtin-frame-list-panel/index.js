@@ -29,6 +29,8 @@ class FrameItem {
     >
       <div class="frame-column">{seq}</div>
       <div class="frame-column">{this.frame.primaryLayer.name}</div>
+      <div class="frame-column">{this.frame.primaryLayer.propertyFromId('src').summary}</div>
+      <div class="frame-column">{this.frame.primaryLayer.propertyFromId('dst').summary}</div>
       <div class="frame-column">{this.frame.length}</div>
       <div class="frame-column">{this.frame.primaryLayer.summary}</div>
     </div>
