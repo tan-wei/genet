@@ -17,25 +17,11 @@ public:
       child->setNs("eth");
       child->setName("Ethernet");
 
-      const auto &payload = layer->payload().data();
-      std::stringstream dst;
-      dst << std::hex << std::setfill('0');
-      for (size_t i = 0; i < 6; ++i) {
-        dst << ":" << std::setw(2) << static_cast<int>(
-          *reinterpret_cast<const uint8_t *>(&payload[i]));
-      }
+      const auto &payload = layer->payload();
 
-      std::stringstream src;
-      src << std::hex << std::setfill('0');
-      for (size_t i = 6; i < 12; ++i) {
-        src << ":" << std::setw(2) << static_cast<int>(
-          *reinterpret_cast<const uint8_t *>(&payload[i]));
-      }
 
-      child->setSummary(src.str().substr(1) +
-        " -> " +
-        dst.str().substr(1) + "  " +
-        std::to_string(fmt::readBE<uint64_t>(layer->payload()))
+      child->setSummary(fmt::toHex(payload.slice(0, 6), 1) +
+        " -> " + fmt::toHex(payload.slice(6, 6), 1)
       );
       return child;
     }
