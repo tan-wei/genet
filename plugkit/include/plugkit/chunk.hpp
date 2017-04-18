@@ -15,9 +15,9 @@ using PropertyConstPtr = std::shared_ptr<const Property>;
 class Chunk final {
 public:
   Chunk();
+  Chunk(const std::string &ns, const std::string &id);
+  Chunk(Chunk &&chunk);
   ~Chunk();
-  Chunk(const Chunk &layer) = delete;
-  Chunk &operator=(const Chunk &layer) = delete;
 
   std::string streamNs() const;
   void setStreamNs(const std::string &ns);
@@ -30,6 +30,10 @@ public:
   const std::vector<PropertyConstPtr> &properties() const;
   PropertyConstPtr propertyFromId(const std::string &id) const;
   void addProperty(const PropertyConstPtr &prop);
+
+private:
+  Chunk(const Chunk &layer) = delete;
+  Chunk &operator=(const Chunk &layer) = delete;
 
 private:
   class Private;

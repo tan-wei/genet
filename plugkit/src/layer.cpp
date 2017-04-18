@@ -1,6 +1,7 @@
 #include "layer.hpp"
 #include "wrapper/layer.hpp"
 #include "slice.hpp"
+#include "chunk.hpp"
 #include "property.hpp"
 #include <unordered_map>
 
@@ -71,6 +72,10 @@ void Layer::addChild(const LayerPtr &child) { d->children.push_back(child); }
 const std::vector<ChunkConstPtr> &Layer::chunks() const { return d->chunks; }
 
 void Layer::addChunk(const ChunkConstPtr &chunk) { d->chunks.push_back(chunk); }
+
+void Layer::addChunk(Chunk &&chunk) {
+  addChunk(std::make_shared<Chunk>(std::move(chunk)));
+}
 
 const Slice &Layer::payload() const { return d->payload; }
 

@@ -54,6 +54,7 @@ public:
 
   const std::vector<ChunkConstPtr> &chunks() const;
   void addChunk(const ChunkConstPtr &chunk);
+  void addChunk(Chunk &&chunk);
 
   const Slice &payload() const;
   void setPayload(const Slice &payload);
