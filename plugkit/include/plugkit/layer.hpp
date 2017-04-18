@@ -27,6 +27,8 @@ class Slice;
 class Layer final {
 public:
   Layer();
+  Layer(const std::string &ns, const std::string &name);
+  Layer(Layer &&layer);
   ~Layer();
 
   std::string ns() const;
@@ -48,6 +50,7 @@ public:
   const std::vector<PropertyConstPtr> &properties() const;
   PropertyConstPtr propertyFromId(const std::string &id) const;
   void addProperty(const PropertyConstPtr &prop);
+  void addProperty(Property &&prop);
 
   const std::vector<ChunkConstPtr> &chunks() const;
   void addChunk(const ChunkConstPtr &chunk);

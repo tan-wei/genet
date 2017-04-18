@@ -15,9 +15,8 @@ public:
   Property();
   Property(const std::string &id, const std::string &name,
            const Variant &value = Variant());
+  Property(Property &&prop);
   ~Property();
-  Property(const Property &prop);
-  Property &operator=(const Property &prop);
 
   std::string name() const;
   void setName(const std::string &name);
@@ -33,8 +32,11 @@ public:
   const std::vector<PropertyConstPtr> &properties() const;
   PropertyConstPtr propertyFromId(const std::string &id) const;
   void addProperty(const PropertyConstPtr &prop);
+  void addProperty(Property &&prop);
 
-  PropertyConstPtr deepCopy() const;
+private:
+  Property(const Property &prop) = delete;
+  Property &operator=(const Property &prop) = delete;
 
 private:
   class Private;

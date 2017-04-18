@@ -1,14 +1,15 @@
 #include "property.hpp"
 #include "wrapper/property.hpp"
 #include <unordered_map>
+#include <iostream>
 
 namespace plugkit {
 
 class Property::Private {
 public:
-  Private() = default;
-  std::string name;
+  Private(const std::string &id, const std::string &name, const Variant &value);
   std::string id;
+  std::string name;
   std::string range;
   std::string summary;
   Variant value;
@@ -16,26 +17,19 @@ public:
   std::unordered_map<std::string, size_t> idMap;
 };
 
-Property::Property() : d(new Private()) {}
+Property::Private::Private(const std::string &id, const std::string &name,
+                           const Variant &value)
+    : id(id), name(name), value(value) {}
+
+Property::Property() : d(new Private("", "", Variant())) {}
 
 Property::Property(const std::string &id, const std::string &name,
                    const Variant &value)
-    : d(new Private()) {
-  d->id = id;
-  d->name = name;
-  d->value = value;
-}
+    : d(new Private(id, name, value)) {}
 
 Property::~Property() {}
 
-Property::Property(const Property &prop) {
-  this->d.reset(new Private(*prop.d));
-}
-
-Property &Property::operator=(const Property &prop) {
-  this->d.reset(new Private(*prop.d));
-  return *this;
-}
+Property::Property(Property &&prop) { this->d.reset(prop.d.release()); }
 
 std::string Property::name() const { return d->name; }
 
@@ -70,16 +64,12 @@ PropertyConstPtr Property::propertyFromId(const std::string &id) const {
   }
 }
 
-void Property::addProperty(const PropertyConstPtr &child) {
-  d->idMap[child->id()] = d->children.size();
-  d->children.push_back(child);
+void Property::addProperty(const PropertyConstPtr &prop) {
+  d->idMap[prop->id()] = d->children.size();
+  d->children.push_back(prop);
 }
 
-PropertyConstPtr Property::deepCopy() const {
-  PropertyConstPtr ptr = std::make_shared<Property>(*this);
-  for (PropertyConstPtr &child : ptr->d->children) {
-    child = child->deepCopy();
-  }
-  return ptr;
+void Property::addProperty(Property &&prop) {
+  addProperty(std::make_shared<Property>(std::move(prop)));
 }
 }

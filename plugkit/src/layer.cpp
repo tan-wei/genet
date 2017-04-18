@@ -8,6 +8,9 @@ namespace plugkit {
 
 class Layer::Private {
 public:
+  Private(const std::string &ns, const std::string &name);
+
+public:
   std::string ns;
   std::string name;
   std::string id;
@@ -23,9 +26,17 @@ public:
   std::unordered_map<std::string, size_t> idMap;
 };
 
-Layer::Layer() : d(new Private()) {}
+Layer::Private::Private(const std::string &ns, const std::string &name)
+    : ns(ns), name(name) {}
+
+Layer::Layer() : d(new Private("", "")) {}
+
+Layer::Layer(const std::string &ns, const std::string &name)
+    : d(new Private(ns, name)) {}
 
 Layer::~Layer() {}
+
+Layer::Layer(Layer &&layer) { this->d.reset(layer.d.release()); }
 
 std::string Layer::ns() const { return d->ns; }
 
@@ -85,5 +96,9 @@ PropertyConstPtr Layer::propertyFromId(const std::string &id) const {
 void Layer::addProperty(const PropertyConstPtr &prop) {
   d->idMap[prop->id()] = d->properties.size();
   d->properties.push_back(prop);
+}
+
+void Layer::addProperty(Property &&prop) {
+  addProperty(std::make_shared<Property>(std::move(prop)));
 }
 }

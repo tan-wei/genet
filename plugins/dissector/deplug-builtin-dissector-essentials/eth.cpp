@@ -14,27 +14,23 @@ public:
   class Worker final : public Dissector::Worker {
   public:
     LayerPtr analyze(const LayerConstPtr &layer) override {
-      const LayerPtr& child = std::make_shared<Layer>();
-      child->setNs("eth");
-      child->setName("Ethernet");
+      Layer child("eth", "Ethernet");
 
       const auto &payload = layer->payload();
       const auto &srcSlice = payload.slice(0, 6);
-      const auto &src =
-        std::make_shared<Property>("src", "Source", srcSlice);
-      src->setSummary(fmt::toHex(srcSlice, 1));
-      src->setRange(fmt::range(payload, srcSlice));
-      child->addProperty(src);
+      Property src("src", "Source", srcSlice);
+      src.setSummary(fmt::toHex(srcSlice, 1));
+      src.setRange(fmt::range(payload, srcSlice));
 
       const auto &dstSlice = payload.slice(6, 6);
-      const auto &dst =
-        std::make_shared<Property>("dst", "Destination", dstSlice);
-      dst->setSummary(fmt::toHex(dstSlice, 1));
-      dst->setRange(fmt::range(payload, dstSlice));
-      child->addProperty(dst);
+      Property dst("dst", "Destination", dstSlice);
+      dst.setSummary(fmt::toHex(dstSlice, 1));
+      dst.setRange(fmt::range(payload, dstSlice));
 
-      child->setSummary(src->summary() + " -> " + dst->summary());
-      return child;
+      child.setSummary(src.summary() + " -> " + dst.summary());
+      child.addProperty(std::move(src));
+      child.addProperty(std::move(dst));
+      return std::make_shared<Layer>(std::move(child));
     }
   };
 
