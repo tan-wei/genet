@@ -28,7 +28,7 @@ std::string toHex(const S &slice, int group = 0, int width = 2,
   std::stringstream stream;
   stream << std::hex << std::setfill('0');
   for (size_t i = 0; i < slice.size(); ++i) {
-    stream << std::setw(width) << +static_cast<uint8_t>(slice.data()[i]);
+    stream << std::setw(width) << +static_cast<uint8_t>(slice[i]);
     if (group > 0 && (i + 1) % group == 0 && i < slice.size() - 1) {
       stream << sep;
     }
@@ -42,7 +42,7 @@ std::string toDec(const S &slice, int group = 0, int width = 0,
   std::stringstream stream;
   stream << std::dec << std::setfill('0');
   for (size_t i = 0; i < slice.size(); ++i) {
-    stream << std::setw(width) << +static_cast<uint8_t>(slice.data()[i]);
+    stream << std::setw(width) << +static_cast<uint8_t>(slice[i]);
     if (group > 0 && (i + 1) % group == 0 && i < slice.size() - 1) {
       stream << sep;
     }

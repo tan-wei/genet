@@ -40,6 +40,10 @@ const char *Slice::data() const {
 
 size_t Slice::size() const { return d->length; }
 
+char Slice::operator[](size_t index) const {
+  return (*d->buf)[d->offset + index];
+}
+
 const Slice::Buffer &Slice::buffer() const { return d->buf; }
 
 Slice Slice::slice(size_t offset, size_t length) const {
