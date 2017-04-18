@@ -2,6 +2,7 @@
 #include <plugkit/dissector.hpp>
 #include <plugkit/stream_dissector.hpp>
 #include <plugkit/layer.hpp>
+#include <plugkit/fmt.hpp>
 #include <sstream>
 #include <iomanip>
 
@@ -30,7 +31,12 @@ public:
         src << ":" << std::setw(2) << static_cast<int>(
           *reinterpret_cast<const uint8_t *>(&payload[i]));
       }
-      child->setSummary(src.str().substr(1) + " -> " + dst.str().substr(1));
+
+      child->setSummary(src.str().substr(1) +
+        " -> " +
+        dst.str().substr(1) + "  " +
+        std::to_string(fmt::readBE<uint64_t>(layer->payload()))
+      );
       return child;
     }
   };

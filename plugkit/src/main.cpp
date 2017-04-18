@@ -17,7 +17,7 @@ NAN_GC_CALLBACK(gcPrologueCallback) {
 void Init(v8::Local<v8::Object> exports) {
 #if defined(PLUGKIT_OS_LINUX)
   Dl_info info;
-  if (dladdr(reinterpret_cast<const void*>(&Init), &info) != 0) {
+  if (dladdr(reinterpret_cast<const void *>(&Init), &info) != 0) {
     dlopen(info.dli_fname, RTLD_LAZY | RTLD_NOLOAD | RTLD_GLOBAL);
   }
 #endif

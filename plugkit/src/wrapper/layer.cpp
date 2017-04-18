@@ -21,7 +21,8 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("namespace").ToLocalChecked(), ns, setNs);
   Nan::SetAccessor(otl, Nan::New("name").ToLocalChecked(), name, setName);
-  Nan::SetAccessor(otl, Nan::New("summary").ToLocalChecked(), summary, setSummary);
+  Nan::SetAccessor(otl, Nan::New("summary").ToLocalChecked(), summary,
+                   setSummary);
   Nan::SetAccessor(otl, Nan::New("range").ToLocalChecked(), range, setRange);
   Nan::SetAccessor(otl, Nan::New("confidence").ToLocalChecked(), confidence,
                    setConfidence);
