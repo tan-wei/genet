@@ -28,6 +28,8 @@ public:
   static NAN_SETTER(setRange);
   static NAN_GETTER(confidence);
   static NAN_SETTER(setConfidence);
+  static NAN_GETTER(error);
+  static NAN_SETTER(setError);
   static NAN_GETTER(parent);
   static NAN_GETTER(children);
   static NAN_GETTER(properties);

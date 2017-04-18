@@ -39,6 +39,8 @@ public:
   void setRange(const std::string &ns);
   double confidence() const;
   void setConfidence(double confidence);
+  std::string error() const;
+  void setError(const std::string &error);
 
   const std::vector<LayerConstPtr> &children() const;
   void addChild(const LayerPtr &child);

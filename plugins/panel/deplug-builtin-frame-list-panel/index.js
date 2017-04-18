@@ -15,13 +15,13 @@ class FrameItem {
   view(vnode) {
     let seq = vnode.attrs.seq
     let itemHeight = vnode.attrs.itemHeight
-    const prot = (this.frame.length % 2) ? 'tcp' : 'udp'
     return <div
       class="frame-item"
       data-layer={this.frame.primaryLayer.namespace}
       data-layer-confidence={1}
       data-frame-length={this.frame.length}
       data-frame-capture-length={this.frame.rootLayer.payload.length}
+      data-layer-error={this.frame.primaryLayer.error !== ''}
       style={{
         height: `${itemHeight}px`,
         top: `${(seq - 1) * itemHeight}px`

@@ -12,6 +12,7 @@ public:
   std::string name;
   std::string id;
   std::string summary;
+  std::string error;
   std::string range = ":";
   double confidence = 1.0;
   Slice payload;
@@ -45,6 +46,10 @@ void Layer::setSummary(const std::string &summary) { d->summary = summary; }
 double Layer::confidence() const { return d->confidence; }
 
 void Layer::setConfidence(double confidence) { d->confidence = confidence; }
+
+std::string Layer::error() const { return d->error; }
+
+void Layer::setError(const std::string &error) { d->error = error; }
 
 const std::vector<LayerConstPtr> &Layer::children() const {
   return d->children;

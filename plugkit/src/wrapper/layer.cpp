@@ -26,6 +26,7 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   Nan::SetAccessor(otl, Nan::New("range").ToLocalChecked(), range, setRange);
   Nan::SetAccessor(otl, Nan::New("confidence").ToLocalChecked(), confidence,
                    setConfidence);
+  Nan::SetAccessor(otl, Nan::New("error").ToLocalChecked(), error, setError);
   Nan::SetAccessor(otl, Nan::New("parent").ToLocalChecked(), parent);
   Nan::SetAccessor(otl, Nan::New("payload").ToLocalChecked(), payload,
                    setPayload);
@@ -121,6 +122,20 @@ NAN_SETTER(LayerWrapper::setConfidence) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
     layer->setConfidence(value->NumberValue());
+  }
+}
+
+NAN_GETTER(LayerWrapper::error) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->weakLayer.lock()) {
+    info.GetReturnValue().Set(Nan::New(layer->error()).ToLocalChecked());
+  }
+}
+
+NAN_SETTER(LayerWrapper::setError) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->layer) {
+    layer->setError(*Nan::Utf8String(value));
   }
 }
 
