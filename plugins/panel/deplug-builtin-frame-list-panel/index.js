@@ -12,6 +12,10 @@ class FrameItem {
     this.frame = vnode.attrs.session.getFrames(vnode.attrs.seq - 1, 1)[0]
   }
 
+  select() {
+    Channel.emit('core:frame:selected', this.frame)
+  }
+
   view(vnode) {
     let seq = vnode.attrs.seq
     let itemHeight = vnode.attrs.itemHeight
@@ -22,6 +26,7 @@ class FrameItem {
       data-frame-length={this.frame.length}
       data-frame-capture-length={this.frame.rootLayer.payload.length}
       data-layer-error={this.frame.hasError}
+      onclick={() => {this.select()}}
       style={{
         height: `${itemHeight}px`,
         top: `${(seq - 1) * itemHeight}px`
@@ -37,7 +42,7 @@ class FrameItem {
   }
 }
 
-export default class FrameView {
+export default class FrameListView {
   constructor() {
     this.frame = {frames: 0}
     this.session = null
@@ -86,7 +91,7 @@ export default class FrameView {
   }
 
   oncreate(vnode) {
-    this.frameView = vnode.dom.querySelector('.frame-view')
+    this.frameView = vnode.dom.querySelector('.frame-list-view')
     this.onupdate(vnode)
     this.frameView.addEventListener('scroll', (event) => {
       this.viewHeight = event.target.offsetHeight
@@ -118,6 +123,11 @@ export default class FrameView {
         const index = Math.floor(this.session.frame.frames / this.mapHeight * i)
         const frame = this.session.getFrames(index, 1)[0]
         dummy.setAttribute('data-layer', frame.primaryLayer.namespace)
+        if (frame.hasError) {
+          dummy.setAttribute('data-layer-error', '')
+        } else {
+          dummy.removeAttribute('data-layer-error')
+        }
         ctx.fillStyle = getComputedStyle(dummy, null).getPropertyValue("background-color")
         ctx.fillRect(0, i, 1, 1)
       }
@@ -127,12 +137,12 @@ export default class FrameView {
       const rules = css.cssRules
       for (let i = rules.length - 1; i >= 0; --i) {
         if (rules[i].cssText
-            .startsWith('.frame-view::-webkit-scrollbar { background-image:')) {
+            .startsWith('.frame-list-view::-webkit-scrollbar { background-image:')) {
           css.deleteRule(i)
           break
         }
       }
-      css.addRule('.frame-view::-webkit-scrollbar',
+      css.addRule('.frame-list-view::-webkit-scrollbar',
         `background-image: url(${data});`)
     }
   }
@@ -154,7 +164,7 @@ export default class FrameView {
         width="1"
         height={this.mapHeight}
       ></canvas>
-      <div class="frame-view">
+      <div class="frame-list-view">
         <div
           style={{height: `${viewHeight}px`}}
         >

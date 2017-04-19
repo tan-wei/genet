@@ -1,0 +1,22 @@
+{
+  "name": "deplug-builtin-layer-list-panel",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Deplug layer list panel",
+  "engines": {
+    "deplug": "*"
+  },
+  "deplugin": {
+    "components": [
+      {
+        "type": "panel",
+        "panel": {
+          "name": "Layers",
+          "slot": "core:pcap:bottom",
+          "less": "theme.less",
+          "root": "index.js"
+        }
+      }
+    ]
+  }
+}
