@@ -85,14 +85,22 @@ bool DissectorThread::loop() {
             }
           }
         }
+        std::vector<LayerPtr> childLayers;
         for (auto *worker : *workers) {
           if (const LayerPtr &childLayer = worker->analyze(layer)) {
             childLayer->setParent(layer);
-            layer->addChild(childLayer);
+            childLayers.push_back(childLayer);
             if (dissectedNamespaces.count(childLayer->ns()) == 0) {
               nextlayers.push_back(childLayer);
             }
           }
+        }
+        std::sort(childLayers.begin(), childLayers.end(),
+                  [](const LayerConstPtr &a, const LayerConstPtr &b) {
+                    return b->confidence() < a->confidence();
+                  });
+        for (const LayerPtr &child : childLayers) {
+          layer->addChild(child);
         }
       }
       layers.swap(nextlayers);

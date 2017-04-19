@@ -3,7 +3,6 @@
 #include "layer.hpp"
 #include "property.hpp"
 #include <functional>
-#include <algorithm>
 #include <unordered_map>
 
 namespace plugkit {
@@ -19,27 +18,17 @@ public:
 FrameView::FrameView(FrameUniquePtr &&frame) : d(new Private()) {
   d->frame.reset(frame.release());
 
-  std::unordered_map<const Layer *, double> confidenceMap;
-
-  std::function<void(const LayerConstPtr &, double confidence)> findLeafLayers =
-      [this, &findLeafLayers, &confidenceMap](const LayerConstPtr &layer,
-                                              double confidence) {
+  std::function<void(const LayerConstPtr &)> findLeafLayers =
+      [this, &findLeafLayers](const LayerConstPtr &layer) {
         if (layer->children().empty()) {
-          confidenceMap[layer.get()] = confidence * layer->confidence();
           d->leafLayers.push_back(layer);
         } else {
           for (const LayerConstPtr &child : layer->children()) {
-            findLeafLayers(child, confidence * layer->confidence());
+            findLeafLayers(child);
           }
         }
       };
-  findLeafLayers(d->frame->rootLayer(), 1.0);
-
-  std::stable_sort(
-      d->leafLayers.begin(), d->leafLayers.end(),
-      [&confidenceMap](const LayerConstPtr &a, const LayerConstPtr &b) {
-        return confidenceMap[b.get()] < confidenceMap[a.get()];
-      });
+  findLeafLayers(d->frame->rootLayer());
 
   if (!d->leafLayers.empty()) {
     d->primaryLayer = d->leafLayers.front();
