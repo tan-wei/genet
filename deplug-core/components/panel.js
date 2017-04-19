@@ -51,7 +51,7 @@ export default class PanelComponent extends Component {
     const func = await roll(rootFile, this.rootDir, this.localExtern)
     const module = {}
     func(module)
-    Panel.mount(slot, module.exports)
+    Panel.mount(slot, module.exports, this.lessFile)
   }
 
   async unload () {

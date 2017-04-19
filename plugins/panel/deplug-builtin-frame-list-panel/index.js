@@ -92,6 +92,7 @@ export default class FrameListView {
 
   oncreate(vnode) {
     this.frameView = vnode.dom.querySelector('.frame-list-view')
+    this.style = vnode.dom.querySelector('.scrollbar-style')
     this.onupdate(vnode)
     this.frameView.addEventListener('scroll', (event) => {
       this.viewHeight = event.target.offsetHeight
@@ -133,17 +134,11 @@ export default class FrameListView {
       }
       const data = dummy.toDataURL("image/png")
 
-      const css = document.styleSheets[0]
-      const rules = css.cssRules
-      for (let i = rules.length - 1; i >= 0; --i) {
-        if (rules[i].cssText
-            .startsWith('.frame-list-view::-webkit-scrollbar { background-image:')) {
-          css.deleteRule(i)
-          break
-        }
+      this.style.textContent = `
+      .frame-list-view::-webkit-scrollbar {
+        background-image: url(${data});
       }
-      css.addRule('.frame-list-view::-webkit-scrollbar',
-        `background-image: url(${data});`)
+      `
     }
   }
 
@@ -157,6 +152,7 @@ export default class FrameListView {
       Math.ceil(this.viewHeight / itemHeight) + margin * 2, this.frame.frames)
 
     return <div>
+      <style class="scrollbar-style"></style>
       <canvas
         style="opacity: 0; position: absolute;"
         class="dummy-item"

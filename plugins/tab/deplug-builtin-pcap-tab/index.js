@@ -1,5 +1,5 @@
 import m from 'mithril'
-import { Panel, Plugin } from 'deplug'
+import { Panel, Plugin, Theme } from 'deplug'
 import { Pcap } from 'plugkit'
 
 class ConfigView {
@@ -37,13 +37,24 @@ class PcapView {
   }
 
   oncreate(vnode) {
-    Panel.registerSlot('core:pcap:top', (comp) => {
-      m.mount(vnode.dom.querySelector('#pcap-top'), comp)
+    this.top = vnode.dom.querySelector('#pcap-top').attachShadow({mode: 'open'})
+    this.bottom = vnode.dom.querySelector('#pcap-bottom').attachShadow({mode: 'open'})
+    Panel.registerSlot('core:pcap:top', (comp, less) => {
+      Theme.current.render(less).then((style) => {
+        const styleTag = document.createElement('style')
+        styleTag.textContent = style.css
+        m.mount(this.top, comp)
+        this.top.append(styleTag)
+      })
     })
-    Panel.registerSlot('core:pcap:bottom', (comp) => {
-      m.mount(vnode.dom.querySelector('#pcap-bottom'), comp)
+    Panel.registerSlot('core:pcap:bottom', (comp, less) => {
+      Theme.current.render(less).then((style) => {
+        const styleTag = document.createElement('style')
+        styleTag.textContent = style.css
+        m.mount(this.bottom, comp)
+        this.bottom.append(styleTag)
+      })
     })
-
     this.topDragArea = vnode.dom.querySelector('#pcap-top-drag-area')
   }
 
