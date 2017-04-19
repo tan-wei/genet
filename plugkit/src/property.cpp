@@ -12,6 +12,7 @@ public:
   std::string name;
   std::string range;
   std::string summary;
+  std::string error;
   Variant value;
   std::vector<PropertyConstPtr> children;
   std::unordered_map<std::string, size_t> idMap;
@@ -46,6 +47,10 @@ void Property::setRange(const std::string &range) { d->range = range; }
 std::string Property::summary() const { return d->summary; }
 
 void Property::setSummary(const std::string &summary) { d->summary = summary; }
+
+std::string Property::error() const { return d->error; }
+
+void Property::setError(const std::string &error) { d->error = error; }
 
 Variant Property::value() const { return d->value; }
 

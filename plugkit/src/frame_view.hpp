@@ -23,6 +23,7 @@ public:
   FrameConstPtr frame() const;
   LayerConstPtr primaryLayer() const;
   const std::vector<LayerConstPtr> &leafLayers() const;
+  bool hasError() const;
 
 private:
   class Private;

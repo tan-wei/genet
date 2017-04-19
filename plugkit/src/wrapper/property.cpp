@@ -19,6 +19,7 @@ void PropertyWrapper::init(v8::Isolate *isolate,
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id, setId);
   Nan::SetAccessor(otl, Nan::New("summary").ToLocalChecked(), summary,
                    setSummary);
+  Nan::SetAccessor(otl, Nan::New("error").ToLocalChecked(), error, setError);
   Nan::SetAccessor(otl, Nan::New("range").ToLocalChecked(), range, setRange);
   Nan::SetAccessor(otl, Nan::New("value").ToLocalChecked(), value, setValue);
   Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
@@ -98,6 +99,20 @@ NAN_SETTER(PropertyWrapper::setSummary) {
   PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
   if (auto prop = wrapper->prop) {
     prop->setSummary(*Nan::Utf8String(value));
+  }
+}
+
+NAN_GETTER(PropertyWrapper::error) {
+  PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
+  if (auto prop = wrapper->constProp) {
+    info.GetReturnValue().Set(Nan::New(prop->error()).ToLocalChecked());
+  }
+}
+
+NAN_SETTER(PropertyWrapper::setError) {
+  PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
+  if (auto prop = wrapper->prop) {
+    prop->setError(*Nan::Utf8String(value));
   }
 }
 

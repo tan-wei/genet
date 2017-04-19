@@ -21,6 +21,7 @@ void FrameWrapper::init(v8::Isolate *isolate) {
   Nan::SetAccessor(otl, Nan::New("primaryLayer").ToLocalChecked(),
                    primaryLayer);
   Nan::SetAccessor(otl, Nan::New("leafLayers").ToLocalChecked(), leafLayers);
+  Nan::SetAccessor(otl, Nan::New("hasError").ToLocalChecked(), hasError);
 
   PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
       isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
@@ -42,12 +43,14 @@ NAN_GETTER(FrameWrapper::timestamp) {
     info.GetReturnValue().Set(v8::Date::New(isolate, nano / 1000000.0));
   }
 }
+
 NAN_GETTER(FrameWrapper::length) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
   if (const auto &view = wrapper->view.lock()) {
     info.GetReturnValue().Set(static_cast<uint32_t>(view->frame()->length()));
   }
 }
+
 NAN_GETTER(FrameWrapper::seq) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
   if (const auto &view = wrapper->view.lock()) {
@@ -87,6 +90,13 @@ NAN_GETTER(FrameWrapper::leafLayers) {
       array->Set(i, LayerWrapper::wrap(layers[i]));
     }
     info.GetReturnValue().Set(array);
+  }
+}
+
+NAN_GETTER(FrameWrapper::hasError) {
+  FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
+  if (const auto &view = wrapper->view.lock()) {
+    info.GetReturnValue().Set(view->hasError());
   }
 }
 

@@ -26,6 +26,8 @@ public:
   void setRange(const std::string &range);
   std::string summary() const;
   void setSummary(const std::string &summary);
+  std::string error() const;
+  void setError(const std::string &error);
   Variant value() const;
   void setValue(const Variant &value);
 

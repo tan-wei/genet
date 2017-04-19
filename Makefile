@@ -58,6 +58,9 @@ $(DEPLUG_CORE_JS_OUT): $(DEPLUG_CORE_JS) $(DEPLUG_CORE)
 $(DEPLUG_CORE):
 	@mkdir $(DEPLUG_CORE)
 
+fmt:
+	$(MAKE) fmt -C $(PLUGKIT_SRC)
+
 clean:
 	@rm -rf $(DEPLUG_CORE) $(PLUGKIT_DST)
 

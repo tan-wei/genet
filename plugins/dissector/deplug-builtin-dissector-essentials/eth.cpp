@@ -27,9 +27,14 @@ public:
       dst.setSummary(fmt::toHex(dstSlice, 1));
       dst.setRange(fmt::range(payload, dstSlice));
 
+      static int it = 0;
+      if (++it % 2)
+      dst.setError("what's wrong?");
+
       child.setSummary(src.summary() + " -> " + dst.summary());
       child.addProperty(std::move(src));
       child.addProperty(std::move(dst));
+
       return std::make_shared<Layer>(std::move(child));
     }
   };
