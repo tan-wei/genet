@@ -40,7 +40,10 @@ NAN_GETTER(FrameWrapper::timestamp) {
     auto nano = std::chrono::duration_cast<std::chrono::nanoseconds>(
                     view->frame()->timestamp().time_since_epoch())
                     .count();
-    info.GetReturnValue().Set(v8::Date::New(isolate, nano / 1000000.0));
+    auto date = v8::Date::New(isolate, nano / 1000000.0).As<v8::Object>();
+    date->Set(Nan::New("nsec").ToLocalChecked(),
+              Nan::New(static_cast<double>(nano % 1000000)));
+    info.GetReturnValue().Set(date);
   }
 }
 
