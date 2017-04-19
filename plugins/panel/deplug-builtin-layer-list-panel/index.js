@@ -16,9 +16,18 @@ export default class LayerListView {
       return <div class="layer-list-view">No frames selected</div>
     }
     const ts = moment(this.frame.timestamp)
+    const tsString = ts.format('YYYY-MM-DDTHH:mm:ss.SSS') +
+      this.frame.timestamp.nsec + ts.format('Z')
+
+    let length = `${this.frame.rootLayer.payload.length}`
+    if (this.frame.length > this.frame.rootLayer.payload.length) {
+      length += ` (actual: ${this.frame.length})`
+    }
     return <div class="layer-list-view">
-      <p>{ this.frame.primaryLayer.summary }</p>
-      <p>{ ts.format('YYYY-MM-DDTHH:mm:ss.SSS') + this.frame.timestamp.nsec + ts.format('Z') }</p>
+      <table>
+        <tr><td>Timestamp </td><td>{ tsString }</td></tr>
+        <tr><td>Length </td><td>{ length }</td></tr>
+      </table>
     </div>
   }
 }
