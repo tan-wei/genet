@@ -3,55 +3,49 @@
 #include <cstring>
 #include <sys/stat.h>
 
-#ifdef _WIN32
-#include <direct.h>
-#else
 #include <unistd.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+
+#if defined(PLUGKIT_OS_LINUX)
+#define MB_MMAP_FLAGS MAP_SHARED
+#elif defined(PLUGKIT_OS_MAC)
+#define MB_MMAP_FLAGS MAP_SHARED | MAP_NOCACHE
 #endif
 
 namespace plugkit {
-
-std::atomic<uint64_t> StreamBuffer::Private::seq;
 
 StreamBuffer StreamBuffer::Private::create(uint64_t id) {
   return StreamBuffer(id);
 }
 
-uint64_t StreamBuffer::Private::getSeq() {
-  return seq.fetch_add(1u, std::memory_order_relaxed);
-}
+StreamBuffer::StreamBuffer() : d(new Private()) {
+  d->id = 0;
 
-std::string StreamBuffer::Private::getTmpDir() {
-  std::string path = "/tmp";
-  const char *envs[] = {"TMP", "TEMP", "TMPDIR", "TEMPDIR"};
-  for (const char *env : envs) {
-    const char *tmp = std::getenv(env);
-    if (tmp && strlen(tmp)) {
-      path = tmp;
-      break;
-    }
-  }
-  path += "/plugkit_stream_";
-#ifdef _WIN32
-  path += std::to_string(GetCurrentProcessId());
-  _mkdir(path.c_str());
+#ifdef PLUGKIT_OS_LINUX
+  d->fd = open("/tmp", O_TMPFILE | O_RDWR);
 #else
-  path += std::to_string(getpid());
-  mkdir(path.c_str(), 0755);
+  char filename[] = "/tmp/mbuf.XXXXXX";
+  d->fd = mkstemp(filename);
+  unlink(filename);
 #endif
-  return path;
+  ftruncate(d->fd, d->length);
+  d->begin = (char *)mmap(NULL, d->length, PROT_READ | PROT_WRITE,
+                          MB_MMAP_FLAGS, d->fd, 0);
 }
-
-StreamBuffer::StreamBuffer() : d(new Private()) { d->id = Private::getSeq(); }
 
 StreamBuffer::StreamBuffer(uint64_t id) : d(new Private()) { d->id = id; }
 
-StreamBuffer::~StreamBuffer() {}
+StreamBuffer::~StreamBuffer() {
+  munmap(d->begin, d->length);
+  close(d->fd);
+}
 
 StreamBuffer::StreamBuffer(const StreamBuffer &stream) {
   d.reset(new Private());
   d->id = stream.d->id;
 }
+
 StreamBuffer &StreamBuffer::operator=(const StreamBuffer &stream) {
   d.reset(new Private());
   d->id = stream.d->id;
