@@ -13,6 +13,7 @@ template <class S> class Reader {
 public:
   Reader(const S &slice);
   S slice(size_t length);
+  S left() const;
   template <class T> T readLE();
   template <class T> T readBE();
   std::pair<uint32_t, uint32_t> lastRange() const;
@@ -43,6 +44,10 @@ template <class S> S Reader<S>::slice(size_t length) {
   lastRange_.second = offset_ + length;
   offset_ += length;
   return s;
+}
+
+template <class S> S Reader<S>::left() const {
+  return slice_.slice(offset_, slice_.size() - offset_);
 }
 
 template <class S> template <class T> T Reader<S>::readLE() {
