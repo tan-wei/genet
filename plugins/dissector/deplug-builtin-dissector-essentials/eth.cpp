@@ -32,7 +32,9 @@ public:
 
       auto protocolType = fmt::readBE<uint16_t>(payload, 12);
       if (protocolType <= 1500) {
-
+        Property length("len", "Length", protocolType);
+        length.setRange("12:14");
+        child.addProperty(std::move(length));
       } else {
         static const std::unordered_map<uint16_t, std::string> types = {
           {0x0800, "IPv4"},
@@ -46,6 +48,7 @@ public:
         Property etherType("etherType", "EtherType", protocolType);
         etherType.setSummary(fmt::enums(types, protocolType, "Unknown"));
         etherType.setRange("12:14");
+        child.setSummary("[" + etherType.summary() + "] " + child.summary());
         child.addProperty(std::move(etherType));
       }
 
