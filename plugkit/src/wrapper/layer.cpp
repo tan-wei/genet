@@ -100,14 +100,24 @@ NAN_SETTER(LayerWrapper::setSummary) {
 NAN_GETTER(LayerWrapper::range) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->weakLayer.lock()) {
-    info.GetReturnValue().Set(Nan::New(layer->range()).ToLocalChecked());
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    auto array = v8::Array::New(isolate, 2);
+    array->Set(0, Nan::New(layer->range().first));
+    array->Set(1, Nan::New(layer->range().second));
+    info.GetReturnValue().Set(array);
   }
 }
 
 NAN_SETTER(LayerWrapper::setRange) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
-    layer->setRange(*Nan::Utf8String(value));
+    if (value->IsArray()) {
+      auto array = value.As<v8::Array>();
+      if (array->Length() >= 2) {
+        layer->setRange(std::make_pair(array->Get(0)->Uint32Value(),
+                                       array->Get(1)->Uint32Value()));
+      }
+    }
   }
 }
 

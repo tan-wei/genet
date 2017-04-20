@@ -10,7 +10,7 @@ public:
   Private(const std::string &id, const std::string &name, const Variant &value);
   std::string id;
   std::string name;
-  std::string range;
+  std::pair<uint32_t, uint32_t> range;
   std::string summary;
   std::string error;
   Variant value;
@@ -40,9 +40,11 @@ std::string Property::id() const { return d->id; }
 
 void Property::setId(const std::string &id) { d->id = id; }
 
-std::string Property::range() const { return d->range; }
+std::pair<uint32_t, uint32_t> Property::range() const { return d->range; }
 
-void Property::setRange(const std::string &range) { d->range = range; }
+void Property::setRange(const std::pair<uint32_t, uint32_t> &range) {
+  d->range = range;
+}
 
 std::string Property::summary() const { return d->summary; }
 

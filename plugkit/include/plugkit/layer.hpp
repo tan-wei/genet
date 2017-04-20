@@ -37,8 +37,8 @@ public:
   void setName(const std::string &name);
   std::string summary() const;
   void setSummary(const std::string &summary);
-  std::string range() const;
-  void setRange(const std::string &ns);
+  std::pair<uint32_t, uint32_t> range() const;
+  void setRange(const std::pair<uint32_t, uint32_t> &range);
   double confidence() const;
   void setConfidence(double confidence);
   std::string error() const;

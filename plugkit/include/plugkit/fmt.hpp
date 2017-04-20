@@ -15,13 +15,13 @@ public:
   S slice(size_t length);
   template <class T> T readLE();
   template <class T> T readBE();
-  std::string lastRange() const;
+  std::pair<uint32_t, uint32_t> lastRange() const;
   std::string lastError() const;
 
 private:
   S slice_;
   size_t offset_;
-  std::string lastRange_;
+  std::pair<uint32_t, uint32_t> lastRange_;
   std::string lastError_;
 };
 
@@ -33,12 +33,14 @@ template <class S> S Reader<S>::slice(size_t length) {
   if (!lastError_.empty())
     return S();
   if (offset_ + length > slice_.size()) {
-    lastRange_.clear();
+    lastRange_.first = 0;
+    lastRange_.second = 0;
     lastError_ = "unexpected EOS";
     return S();
   }
   const S &s = slice_.slice(offset_, length);
-  lastRange_ = std::to_string(offset_) + ":" + std::to_string(offset_ + length);
+  lastRange_.first = offset_;
+  lastRange_.second = offset_ + length;
   offset_ += length;
   return s;
 }
@@ -48,13 +50,14 @@ template <class S> template <class T> T Reader<S>::readLE() {
   if (!lastError_.empty())
     return T();
   if (offset_ + sizeof(T) > slice_.size()) {
-    lastRange_.clear();
+    lastRange_.first = 0;
+    lastRange_.second = 0;
     lastError_ = "unexpected EOS";
     return T();
   }
   const T &value = *reinterpret_cast<const T *>(slice_.data() + offset_);
-  lastRange_ =
-      std::to_string(offset_) + ":" + std::to_string(offset_ + sizeof(T));
+  lastRange_.first = offset_;
+  lastRange_.second = offset_ + sizeof(T);
   offset_ += sizeof(T);
   return value;
 }
@@ -64,7 +67,8 @@ template <class S> template <class T> T Reader<S>::readBE() {
   if (!lastError_.empty())
     return T();
   if (offset_ + sizeof(T) > slice_.size()) {
-    lastRange_.clear();
+    lastRange_.first = 0;
+    lastRange_.second = 0;
     lastError_ = "unexpected EOS";
     return T();
   }
@@ -73,13 +77,13 @@ template <class S> template <class T> T Reader<S>::readBE() {
   std::reverse_copy(begin, begin + sizeof(T), data);
   const char *alias = data;
   const T &value = *reinterpret_cast<const T *>(alias);
-  lastRange_ =
-      std::to_string(offset_) + ":" + std::to_string(offset_ + sizeof(T));
+  lastRange_.first = offset_;
+  lastRange_.second = offset_ + sizeof(T);
   offset_ += sizeof(T);
   return value;
 }
 
-template <class S> std::string Reader<S>::lastRange() const {
+template <class S> std::pair<uint32_t, uint32_t> Reader<S>::lastRange() const {
   return lastRange_;
 }
 

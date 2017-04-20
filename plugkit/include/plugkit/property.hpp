@@ -22,8 +22,8 @@ public:
   void setName(const std::string &name);
   std::string id() const;
   void setId(const std::string &id);
-  std::string range() const;
-  void setRange(const std::string &range);
+  std::pair<uint32_t, uint32_t> range() const;
+  void setRange(const std::pair<uint32_t, uint32_t> &range);
   std::string summary() const;
   void setSummary(const std::string &summary);
   std::string error() const;

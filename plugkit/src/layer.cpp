@@ -17,7 +17,7 @@ public:
   std::string id;
   std::string summary;
   std::string error;
-  std::string range = ":";
+  std::pair<uint32_t, uint32_t> range;
   double confidence = 1.0;
   Slice payload;
   LayerConstWeakPtr parent;
@@ -47,9 +47,11 @@ std::string Layer::name() const { return d->name; }
 
 void Layer::setName(const std::string &name) { d->name = name; }
 
-std::string Layer::range() const { return d->range; }
+std::pair<uint32_t, uint32_t> Layer::range() const { return d->range; }
 
-void Layer::setRange(const std::string &range) { d->range = range; }
+void Layer::setRange(const std::pair<uint32_t, uint32_t> &range) {
+  d->range = range;
+}
 
 std::string Layer::summary() const { return d->summary; }
 

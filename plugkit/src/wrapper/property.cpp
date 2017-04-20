@@ -77,14 +77,25 @@ NAN_SETTER(PropertyWrapper::setId) {
 NAN_GETTER(PropertyWrapper::range) {
   PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
   if (auto prop = wrapper->constProp) {
-    info.GetReturnValue().Set(Nan::New(prop->range()).ToLocalChecked());
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    auto array = v8::Array::New(isolate, 2);
+    array->Set(0, Nan::New(prop->range().first));
+    array->Set(1, Nan::New(prop->range().second));
+    info.GetReturnValue().Set(array);
   }
 }
 
 NAN_SETTER(PropertyWrapper::setRange) {
   PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
   if (auto prop = wrapper->prop) {
-    prop->setRange(*Nan::Utf8String(value));
+    if (value->IsArray()) {
+      auto array = value.As<v8::Array>();
+      if (array->Length() >= 2) {
+        prop->setRange(
+          std::make_pair(array->Get(0)->Uint32Value(),
+            array->Get(1)->Uint32Value()));
+      }
+    }
   }
 }
 
