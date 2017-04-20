@@ -5,7 +5,7 @@ import { Channel } from 'deplug'
 class PropertyItem {
   view(vnode) {
     const prop = vnode.attrs.property
-    return <tr><td>{ prop.name }</td><td>{ prop.summary }</td></tr>
+    return <tr><td>{ prop.name }</td><td>{ prop.summary }</td><td>{ prop.value.toString() }</td></tr>
   }
 }
 

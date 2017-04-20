@@ -4,8 +4,7 @@
 #include <plugkit/layer.hpp>
 #include <plugkit/property.hpp>
 #include <plugkit/fmt.hpp>
-#include <sstream>
-#include <iomanip>
+#include <unordered_map>
 
 using namespace plugkit;
 
@@ -31,12 +30,21 @@ public:
       child.addProperty(std::move(src));
       child.addProperty(std::move(dst));
 
-      auto protocolType = fmt::readBE<uint16_t>(payload);
+      auto protocolType = fmt::readBE<uint16_t>(payload, 12);
       if (protocolType <= 1500) {
 
       } else {
-        Property etherType("etherType", "EtherType", static_cast<double>(protocolType));
-        etherType.setSummary(std::to_string(protocolType));
+        static const std::unordered_map<uint16_t, std::string> types = {
+          {0x0800, "IPv4"},
+          {0x0806, "ARP"},
+          {0x0842, "WoL"},
+          {0x809B, "AppleTalk"},
+          {0x80F3, "AARP"},
+          {0x86DD, "IPv6"},
+        };
+
+        Property etherType("etherType", "EtherType", protocolType);
+        etherType.setSummary(fmt::enums(types, protocolType, "Unknown"));
         etherType.setRange("12:14");
         child.addProperty(std::move(etherType));
       }

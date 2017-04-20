@@ -68,6 +68,18 @@ Variant::Variant() : type_(TYPE_NIL) {}
 
 Variant::Variant(bool value) : type_(TYPE_BOOL) { d.bool_ = value; }
 
+Variant::Variant(int8_t value) : Variant(static_cast<double>(value)) {}
+
+Variant::Variant(uint8_t value) : Variant(static_cast<double>(value)) {}
+
+Variant::Variant(int16_t value) : Variant(static_cast<double>(value)) {}
+
+Variant::Variant(uint16_t value) : Variant(static_cast<double>(value)) {}
+
+Variant::Variant(int32_t value) : Variant(static_cast<double>(value)) {}
+
+Variant::Variant(uint32_t value) : Variant(static_cast<double>(value)) {}
+
 Variant::Variant(int64_t value) : type_(TYPE_INT64) { d.int_ = value; }
 
 Variant::Variant(uint64_t value) : type_(TYPE_UINT64) { d.uint_ = value; }

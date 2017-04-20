@@ -19,7 +19,8 @@ template <class T, class S> T readBE(const S &slice, size_t offset = 0) {
   char data[sizeof(T)];
   const char *begin = slice.data() + offset;
   std::reverse_copy(begin, begin + sizeof(T), data);
-  return *reinterpret_cast<const T *>(data);
+  const char *alias = data;
+  return *reinterpret_cast<const T *>(alias);
 }
 
 template <class S>
@@ -68,6 +69,16 @@ template <class S> std::string range(const S &base, const S &slice) {
     return begin + ":" + end;
   }
   return std::string();
+}
+
+template <class M, class K = typename M::key_type,
+          class V = typename M::mapped_type>
+std::string enums(const M &table, const K &value, const V &defval = V()) {
+  const auto &it = table.find(value);
+  if (it != table.end()) {
+    return it->second;
+  }
+  return defval;
 }
 }
 }

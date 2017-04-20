@@ -34,6 +34,12 @@ public:
 public:
   Variant();
   Variant(bool value);
+  Variant(int8_t value);
+  Variant(uint8_t value);
+  Variant(int16_t value);
+  Variant(uint16_t value);
+  Variant(int32_t value);
+  Variant(uint32_t value);
   Variant(int64_t value);
   Variant(uint64_t value);
   Variant(double value);
