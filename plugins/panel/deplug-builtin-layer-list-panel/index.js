@@ -63,8 +63,8 @@ export default class LayerListView {
       <table>
         <tr><td>Timestamp </td><td>{ tsString }</td></tr>
         <tr><td>Length </td><td>{ length }</td></tr>
-        { m(LayerItem, {layer: this.frame.rootLayer}) }
       </table>
+      { m(LayerItem, {layer: this.frame.rootLayer}) }
     </div>
   }
 }
