@@ -88,6 +88,14 @@ template <class S> template <class T> T Reader<S>::readBE() {
   return value;
 }
 
+template <> template <> uint8_t Reader<Slice>::readBE<uint8_t>() {
+  return readLE<uint8_t>();
+}
+
+template <> template <> int8_t Reader<Slice>::readBE<int8_t>() {
+  return readLE<int8_t>();
+}
+
 template <class S> std::pair<uint32_t, uint32_t> Reader<S>::lastRange() const {
   return lastRange_;
 }

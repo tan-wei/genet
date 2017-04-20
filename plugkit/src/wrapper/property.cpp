@@ -91,9 +91,8 @@ NAN_SETTER(PropertyWrapper::setRange) {
     if (value->IsArray()) {
       auto array = value.As<v8::Array>();
       if (array->Length() >= 2) {
-        prop->setRange(
-          std::make_pair(array->Get(0)->Uint32Value(),
-            array->Get(1)->Uint32Value()));
+        prop->setRange(std::make_pair(array->Get(0)->Uint32Value(),
+                                      array->Get(1)->Uint32Value()));
       }
     }
   }

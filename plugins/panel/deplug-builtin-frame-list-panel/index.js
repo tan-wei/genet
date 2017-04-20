@@ -17,8 +17,10 @@ class FrameItem {
   }
 
   view(vnode) {
-    let seq = vnode.attrs.seq
-    let itemHeight = vnode.attrs.itemHeight
+    const seq = vnode.attrs.seq
+    const itemHeight = vnode.attrs.itemHeight
+    const src = this.frame.primaryLayer.propertyFromId('src')
+    const dst = this.frame.primaryLayer.propertyFromId('dst')
     return <div
       class="frame-item"
       data-layer={this.frame.primaryLayer.namespace}
@@ -34,8 +36,8 @@ class FrameItem {
     >
       <div class="frame-column">{seq}</div>
       <div class="frame-column">{this.frame.primaryLayer.name}</div>
-      <div class="frame-column">{this.frame.primaryLayer.propertyFromId('src').summary}</div>
-      <div class="frame-column">{this.frame.primaryLayer.propertyFromId('dst').summary}</div>
+      <div class="frame-column">{src ? src.summary : ''}</div>
+      <div class="frame-column">{dst ? dst.summary : ''}</div>
       <div class="frame-column">{this.frame.length}</div>
       <div class="frame-column">{this.frame.primaryLayer.summary}</div>
     </div>
