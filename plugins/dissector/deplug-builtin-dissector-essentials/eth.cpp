@@ -31,6 +31,16 @@ public:
       child.addProperty(std::move(src));
       child.addProperty(std::move(dst));
 
+      auto protocolType = fmt::readBE<uint16_t>(payload);
+      if (protocolType <= 1500) {
+
+      } else {
+        Property etherType("etherType", "EtherType", static_cast<double>(protocolType));
+        etherType.setSummary(std::to_string(protocolType));
+        etherType.setRange("12:14");
+        child.addProperty(std::move(etherType));
+      }
+
       return std::make_shared<Layer>(std::move(child));
     }
   };
