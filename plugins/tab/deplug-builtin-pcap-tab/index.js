@@ -96,9 +96,11 @@ class PcapView {
         onmouseout={(event) => {this.endDrag(event)}}
         onmousemove={(event) => {this.move(event)}}
         ></div>
-      <div id="pcap-bottom"
+      <div id="pcap-bottom-wrap"
         style={{height: `${this.bottomHeight}px`}}
-        ></div>
+      >
+        <div id="pcap-bottom"></div>
+      </div>
     </div>
   }
 }

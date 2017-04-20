@@ -2,6 +2,36 @@ import m from 'mithril'
 import moment from 'moment'
 import { Channel } from 'deplug'
 
+class PropertyItem {
+  view(vnode) {
+    const prop = vnode.attrs.property
+    return <tr><td>{ prop.name }</td><td>{ prop.summary }</td></tr>
+  }
+}
+
+class LayerItem {
+  view(vnode) {
+    const layer = vnode.attrs.layer
+    return <ul>
+      <li>{ layer.name }</li>
+      <table>
+        {
+          layer.properties.map((prop) => {
+            return m(PropertyItem, {property: prop})
+          })
+        }
+      </table>
+      <ul>
+        {
+          layer.children.map((child) => {
+            return m(LayerItem, {layer: child})
+          })
+        }
+      </ul>
+    </ul>
+  }
+}
+
 export default class LayerListView {
   constructor() {
     this.frame = null
@@ -27,6 +57,7 @@ export default class LayerListView {
       <table>
         <tr><td>Timestamp </td><td>{ tsString }</td></tr>
         <tr><td>Length </td><td>{ length }</td></tr>
+        { m(LayerItem, {layer: this.frame.primaryLayer}) }
       </table>
     </div>
   }
