@@ -9,6 +9,8 @@ class PropertyItem {
       <td>{ prop.name }</td>
       <td>{ prop.summary || prop.value.toString() }</td>
       <td>{ prop.value.toString() }</td>
+      <td>{ prop.range }</td>
+      <td>{ prop.error }</td>
     </tr>
   }
 }

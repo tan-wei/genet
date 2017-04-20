@@ -9,6 +9,84 @@
 namespace plugkit {
 namespace fmt {
 
+template <class S> class Reader {
+public:
+  Reader(const S &slice);
+  S slice(size_t length);
+  template <class T> T readLE();
+  template <class T> T readBE();
+  std::string lastRange() const;
+  std::string lastError() const;
+
+private:
+  S slice_;
+  size_t offset_;
+  std::string lastRange_;
+  std::string lastError_;
+};
+
+template <class S>
+Reader<S>::Reader(const S &slice)
+    : slice_(slice), offset_(0), lastRange_(), lastError_() {}
+
+template <class S> S Reader<S>::slice(size_t length) {
+  if (!lastError_.empty())
+    return S();
+  if (offset_ + length > slice_.size()) {
+    lastRange_.clear();
+    lastError_ = "unexpected EOS";
+    return S();
+  }
+  const S &s = slice_.slice(offset_, length);
+  lastRange_ = std::to_string(offset_) + ":" + std::to_string(offset_ + length);
+  offset_ += length;
+  return s;
+}
+
+template <class S> template <class T> T Reader<S>::readLE() {
+  static_assert(std::is_arithmetic<T>::value, "T must be arithmetic");
+  if (!lastError_.empty())
+    return T();
+  if (offset_ + sizeof(T) > slice_.size()) {
+    lastRange_.clear();
+    lastError_ = "unexpected EOS";
+    return T();
+  }
+  const T &value = *reinterpret_cast<const T *>(slice_.data() + offset_);
+  lastRange_ =
+      std::to_string(offset_) + ":" + std::to_string(offset_ + sizeof(T));
+  offset_ += sizeof(T);
+  return value;
+}
+
+template <class S> template <class T> T Reader<S>::readBE() {
+  static_assert(std::is_arithmetic<T>::value, "T must be arithmetic");
+  if (!lastError_.empty())
+    return T();
+  if (offset_ + sizeof(T) > slice_.size()) {
+    lastRange_.clear();
+    lastError_ = "unexpected EOS";
+    return T();
+  }
+  char data[sizeof(T)];
+  const char *begin = slice_.data() + offset_;
+  std::reverse_copy(begin, begin + sizeof(T), data);
+  const char *alias = data;
+  const T &value = *reinterpret_cast<const T *>(alias);
+  lastRange_ =
+      std::to_string(offset_) + ":" + std::to_string(offset_ + sizeof(T));
+  offset_ += sizeof(T);
+  return value;
+}
+
+template <class S> std::string Reader<S>::lastRange() const {
+  return lastRange_;
+}
+
+template <class S> std::string Reader<S>::lastError() const {
+  return lastError_;
+}
+
 template <class T, class S> T readLE(const S &slice, size_t offset = 0) {
   static_assert(std::is_arithmetic<T>::value, "T must be arithmetic");
   return *reinterpret_cast<const T *>(slice.data() + offset);

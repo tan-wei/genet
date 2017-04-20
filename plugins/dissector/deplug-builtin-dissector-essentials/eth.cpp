@@ -13,27 +13,30 @@ public:
   class Worker final : public Dissector::Worker {
   public:
     LayerPtr analyze(const LayerConstPtr &layer) override {
+      fmt::Reader<Slice> reader(layer->payload());
       Layer child("eth", "Ethernet");
 
-      const auto &payload = layer->payload();
-      const auto &srcSlice = payload.slice(0, 6);
+      const auto &srcSlice = reader.slice(6);
       Property src("src", "Source", srcSlice);
       src.setSummary(fmt::toHex(srcSlice, 1));
-      src.setRange(fmt::range(payload, srcSlice));
+      src.setRange(reader.lastRange());
+      src.setError(reader.lastError());
 
-      const auto &dstSlice = payload.slice(6, 6);
+      const auto &dstSlice = reader.slice(6);
       Property dst("dst", "Destination", dstSlice);
       dst.setSummary(fmt::toHex(dstSlice, 1));
-      dst.setRange(fmt::range(payload, dstSlice));
+      dst.setRange(reader.lastRange());
+      dst.setError(reader.lastError());
 
       child.setSummary(src.summary() + " -> " + dst.summary());
       child.addProperty(std::move(src));
       child.addProperty(std::move(dst));
 
-      auto protocolType = fmt::readBE<uint16_t>(payload, 12);
+      auto protocolType = reader.readBE<uint16_t>();
       if (protocolType <= 1500) {
         Property length("len", "Length", protocolType);
-        length.setRange("12:14");
+        length.setRange(reader.lastRange());
+        length.setError(reader.lastError());
         child.addProperty(std::move(length));
       } else {
         static const std::unordered_map<uint16_t, std::string> types = {
@@ -47,7 +50,8 @@ public:
 
         Property etherType("etherType", "EtherType", protocolType);
         etherType.setSummary(fmt::enums(types, protocolType, "Unknown"));
-        etherType.setRange("12:14");
+        etherType.setRange(reader.lastRange());
+        etherType.setError(reader.lastError());
         child.setSummary("[" + etherType.summary() + "] " + child.summary());
         child.addProperty(std::move(etherType));
       }
