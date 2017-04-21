@@ -183,9 +183,10 @@ template <class S> std::string range(const S &base, const S &slice) {
   return std::string();
 }
 
-template <class M, class K = typename M::key_type,
-          class V = typename M::mapped_type>
-std::string enums(const M &table, const K &value, const V &defval = V()) {
+template <class M>
+typename M::mapped_type
+enums(const M &table, const typename M::key_type &value,
+      const typename M::mapped_type &defval = typename M::mapped_type()) {
   const auto &it = table.find(value);
   if (it != table.end()) {
     return it->second;

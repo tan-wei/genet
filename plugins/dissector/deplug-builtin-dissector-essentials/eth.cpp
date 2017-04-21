@@ -39,28 +39,20 @@ public:
         length.setError(reader.lastError());
         child.addProperty(std::move(length));
       } else {
-        static const std::unordered_map<uint16_t, std::string> typeTable = {
-          {0x0800, "IPv4"},
-          {0x0806, "ARP"},
-          {0x0842, "WoL"},
-          {0x809B, "AppleTalk"},
-          {0x80F3, "AARP"},
-          {0x86DD, "IPv6"},
-        };
-        static const std::unordered_map<uint16_t, std::string> nsTable = {
-          {0x0800, "ipv4"},
-          {0x0806, "arp"},
-          {0x0842, "wol"},
-          {0x809B, "apple-talk"},
-          {0x80F3, "aarp"},
-          {0x86DD, "ipv6"},
+        static const std::unordered_map<uint16_t, std::pair<std::string,std::string>> typeTable = {
+          {0x0800, std::make_pair("IPv4", "ipv4")},
+          {0x0806, std::make_pair("ARP", "arp")},
+          {0x0842, std::make_pair("WoL", "wol")},
+          {0x809B, std::make_pair("AppleTalk", "appleTalk")},
+          {0x80F3, std::make_pair("AARP", "aarp")},
+          {0x86DD, std::make_pair("IPv6", "ipv6")},
         };
 
         Property etherType("etherType", "EtherType", protocolType);
-        etherType.setSummary(fmt::enums(typeTable, protocolType, "Unknown"));
-        const auto &ns = fmt::enums(nsTable, protocolType, "");
-        if (!ns.empty()) {
-          child.setNs("eth <" + ns + ">");
+        const auto &type = fmt::enums(typeTable, protocolType, std::make_pair("Unknown", ""));
+        etherType.setSummary(type.first);
+        if (!type.second.empty()) {
+          child.setNs("eth <" + type.second + ">");
         }
         etherType.setRange(reader.lastRange());
         etherType.setError(reader.lastError());
