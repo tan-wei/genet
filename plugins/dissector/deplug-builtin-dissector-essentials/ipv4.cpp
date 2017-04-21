@@ -43,12 +43,28 @@ public:
       uint8_t flagAndOffset = reader.readBE<uint8_t>();
       uint8_t flag = (flagAndOffset >> 5) & 0b00000111;
 
-      static const std::pair<std::string, uint16_t> flagTable[] = {
-        {"Reserved",        0x1},
-        {"Don\'t Fragment", 0x2},
-        {"More Fragments",  0x4},
+      static const std::tuple<uint16_t, const char*, const char*> flagTable[] = {
+        {0x1, "Reserved", "reserved" },
+        {0x2, "Don\'t Fragment", "dontFragment" },
+        {0x4, "More Fragments", "moreFragments" },
       };
-      fmt::flags(std::begin(flagTable), std::end(flagTable), flag);
+
+      Property flags("flags", "Flags", flag);
+      std::string flagSummary;
+      for (const auto& bit : flagTable) {
+        bool on = std::get<0>(bit) & flag;
+        Property flagBit(std::get<2>(bit), std::get<1>(bit), on);
+        flagBit.setRange(reader.lastRange());
+        flagBit.setError(reader.lastError());
+        flags.addProperty(std::move(flagBit));
+        if (on) {
+          if (!flagSummary.empty()) flagSummary += ", ";
+          flagSummary += std::get<1>(bit);
+        }
+      }
+      flags.setSummary(flagSummary);
+      flags.setRange(reader.lastRange());
+      flags.setError(reader.lastError());
 
       Property fragmentOffset("fragmentOffset", "Fragment Offset", flagAndOffset & 0b11111000);
       fragmentOffset.setRange(reader.lastRange());
@@ -58,6 +74,7 @@ public:
       child.addProperty(std::move(hlen));
       child.addProperty(std::move(tos));
       child.addProperty(std::move(tlen));
+      child.addProperty(std::move(flags));
       child.addProperty(std::move(fragmentOffset));
       return std::make_shared<Layer>(std::move(child));
     }

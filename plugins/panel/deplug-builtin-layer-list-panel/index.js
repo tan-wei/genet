@@ -11,6 +11,15 @@ class PropertyItem {
       <td>{ prop.value.toString() }</td>
       <td>{ prop.range }</td>
       <td>{ prop.error }</td>
+      <td>
+      <table>
+        {
+          prop.properties.map((prop) => {
+            return m(PropertyItem, {property: prop})
+          })
+        }
+      </table>
+      </td>
     </tr>
   }
 }
