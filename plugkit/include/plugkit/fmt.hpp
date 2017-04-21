@@ -16,6 +16,8 @@ public:
   S left() const;
   template <class T> T readLE();
   template <class T> T readBE();
+  template <class T> void skip();
+  void skip(size_t length);
   std::pair<uint32_t, uint32_t> lastRange() const;
   std::string lastError() const;
 
@@ -86,6 +88,21 @@ template <class S> template <class T> T Reader<S>::readBE() {
   lastRange_.second = offset_ + sizeof(T);
   offset_ += sizeof(T);
   return value;
+}
+
+template <class S> template <class T> void Reader<S>::skip() { readLE<T>(); }
+
+template <class S> void Reader<S>::skip(size_t length) {
+  if (!lastError_.empty())
+    return;
+  if (offset_ + length > slice_.size()) {
+    lastRange_.first = 0;
+    lastRange_.second = 0;
+    lastError_ = "unexpected EOS";
+  }
+  lastRange_.first = offset_;
+  lastRange_.second = offset_ + length;
+  offset_ += length;
 }
 
 template <> template <> uint8_t Reader<Slice>::readBE<uint8_t>() {
