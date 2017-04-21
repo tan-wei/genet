@@ -13,7 +13,7 @@ template <class S> class Reader {
 public:
   Reader(const S &slice);
   S slice(size_t length);
-  S left() const;
+  S slice();
   template <class T> T readLE();
   template <class T> T readBE();
   template <class T> void skip();
@@ -48,7 +48,7 @@ template <class S> S Reader<S>::slice(size_t length) {
   return s;
 }
 
-template <class S> S Reader<S>::left() const {
+template <class S> S Reader<S>::slice() {
   return slice_.slice(offset_, slice_.size() - offset_);
 }
 

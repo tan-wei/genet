@@ -32,7 +32,8 @@ public:
       tos.setRange(reader.lastRange());
       tos.setError(reader.lastError());
 
-      Property tlen("totalLength", "Total Length", reader.readBE<uint16_t>());
+      uint16_t totalLength = reader.readBE<uint16_t>();
+      Property tlen("totalLength", "Total Length", totalLength);
       tlen.setRange(reader.lastRange());
       tlen.setError(reader.lastError());
 
@@ -66,16 +67,66 @@ public:
       flags.setRange(reader.lastRange());
       flags.setError(reader.lastError());
 
-      Property fragmentOffset("fragmentOffset", "Fragment Offset", flagAndOffset & 0b11111000);
-      fragmentOffset.setRange(reader.lastRange());
+      uint16_t fgOffset = ((flagAndOffset & 0b00011111) << 8) | reader.readBE<uint8_t>();
+      Property fragmentOffset("fragmentOffset", "Fragment Offset", fgOffset);
+      fragmentOffset.setRange(std::make_pair(6, 8));
       fragmentOffset.setError(reader.lastError());
+
+      Property ttl("ttl", "TTL", reader.readBE<uint8_t>());
+      ttl.setRange(reader.lastRange());
+      ttl.setError(reader.lastError());
+
+      static const std::unordered_map<
+        uint16_t, std::pair<std::string,std::string>> protoTable = {
+        {0x01, std::make_pair("ICMP", "icmp")},
+        {0x02, std::make_pair("IGMP", "igmp")},
+        {0x06, std::make_pair("TCP", "tcp")},
+        {0x11, std::make_pair("UDP", "udp")},
+      };
+
+      uint8_t protocolNumber = reader.readBE<uint8_t>();
+      Property proto("protocol", "Protocol", protocolNumber);
+      const auto &type = fmt::enums(protoTable, protocolNumber, std::make_pair("Unknown", ""));
+      proto.setSummary(type.first);
+      if (!type.second.empty()) {
+        child.setNs(child.ns() + " <" + type.second + ">");
+      }
+      proto.setRange(reader.lastRange());
+      proto.setError(reader.lastError());
+
+      Property checksum("checksum", "Header Checksum", reader.readBE<uint16_t>());
+      checksum.setRange(reader.lastRange());
+      checksum.setError(reader.lastError());
+
+      const auto &srcSlice = reader.slice(4);
+      Property src("src", "Source", srcSlice);
+      src.setSummary(fmt::toDec(srcSlice, 1));
+      src.setRange(reader.lastRange());
+      src.setError(reader.lastError());
+
+      const auto &dstSlice = reader.slice(4);
+      Property dst("dst", "Destination", dstSlice);
+      dst.setSummary(fmt::toDec(dstSlice, 1));
+      dst.setRange(reader.lastRange());
+      dst.setError(reader.lastError());
+
+      child.setSummary("[" + proto.summary() + "] " +
+        src.summary() + " -> " + dst.summary());
 
       child.addProperty(std::move(ver));
       child.addProperty(std::move(hlen));
       child.addProperty(std::move(tos));
       child.addProperty(std::move(tlen));
+      child.addProperty(std::move(id));
       child.addProperty(std::move(flags));
       child.addProperty(std::move(fragmentOffset));
+      child.addProperty(std::move(ttl));
+      child.addProperty(std::move(proto));
+      child.addProperty(std::move(checksum));
+      child.addProperty(std::move(src));
+      child.addProperty(std::move(dst));
+
+      child.setPayload(reader.slice(totalLength));
       return std::make_shared<Layer>(std::move(child));
     }
   };

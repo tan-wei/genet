@@ -39,7 +39,8 @@ public:
         length.setError(reader.lastError());
         child.addProperty(std::move(length));
       } else {
-        static const std::unordered_map<uint16_t, std::pair<std::string,std::string>> typeTable = {
+        static const std::unordered_map<
+          uint16_t, std::pair<std::string,std::string>> typeTable = {
           {0x0800, std::make_pair("IPv4", "ipv4")},
           {0x0806, std::make_pair("ARP", "arp")},
           {0x0842, std::make_pair("WoL", "wol")},
@@ -52,7 +53,7 @@ public:
         const auto &type = fmt::enums(typeTable, protocolType, std::make_pair("Unknown", ""));
         etherType.setSummary(type.first);
         if (!type.second.empty()) {
-          child.setNs("eth <" + type.second + ">");
+          child.setNs(child.ns() + " <" + type.second + ">");
         }
         etherType.setRange(reader.lastRange());
         etherType.setError(reader.lastError());
@@ -60,7 +61,7 @@ public:
         child.addProperty(std::move(etherType));
       }
 
-      child.setPayload(reader.left());
+      child.setPayload(reader.slice());
       return std::make_shared<Layer>(std::move(child));
     }
   };
