@@ -192,6 +192,22 @@ std::string enums(const M &table, const K &value, const V &defval = V()) {
   }
   return defval;
 }
+
+template <class It>
+std::string flags(It begin, It end, int value,
+                  const std::string &defval = std::string()) {
+  std::string str;
+  for (auto it = begin; it != end; ++it) {
+    if (it->second & value) {
+      if (!str.empty())
+        str += ", ";
+      str += it->first;
+    }
+  }
+  if (!str.empty())
+    return str;
+  return defval;
+}
 }
 }
 

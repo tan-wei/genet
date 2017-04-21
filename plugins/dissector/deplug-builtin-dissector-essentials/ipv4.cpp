@@ -36,10 +36,29 @@ public:
       tlen.setRange(reader.lastRange());
       tlen.setError(reader.lastError());
 
+      Property id("id", "Identification", reader.readBE<uint16_t>());
+      id.setRange(reader.lastRange());
+      id.setError(reader.lastError());
+
+      uint8_t flagAndOffset = reader.readBE<uint8_t>();
+      uint8_t flag = (flagAndOffset >> 5) & 0b00000111;
+
+      static const std::pair<std::string, uint16_t> flagTable[] = {
+        {"Reserved",        0x1},
+        {"Don\'t Fragment", 0x2},
+        {"More Fragments",  0x4},
+      };
+      fmt::flags(std::begin(flagTable), std::end(flagTable), flag);
+
+      Property fragmentOffset("fragmentOffset", "Fragment Offset", flagAndOffset & 0b11111000);
+      fragmentOffset.setRange(reader.lastRange());
+      fragmentOffset.setError(reader.lastError());
+
       child.addProperty(std::move(ver));
       child.addProperty(std::move(hlen));
       child.addProperty(std::move(tos));
       child.addProperty(std::move(tlen));
+      child.addProperty(std::move(fragmentOffset));
       return std::make_shared<Layer>(std::move(child));
     }
   };
