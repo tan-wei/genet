@@ -14,7 +14,7 @@ public:
   public:
     LayerPtr analyze(const LayerConstPtr &layer) override {
       fmt::Reader<Slice> reader(layer->payload());
-      Layer child("eth ipv4", "IPv4");
+      Layer child(fmt::replace(layer->ns(), "<ipv4>", "ipv4"), "IPv4");
 
       uint8_t header = reader.readBE<uint8_t>();
       int version = header >> 4;
@@ -136,7 +136,7 @@ public:
     return Dissector::WorkerPtr(new IPv4Dissector::Worker());
   }
   std::vector<std::regex> namespaces() const override {
-    return std::vector<std::regex>{std::regex("eth <ipv4>")};
+    return std::vector<std::regex>{std::regex(".+<ipv4>$")};
   }
 };
 

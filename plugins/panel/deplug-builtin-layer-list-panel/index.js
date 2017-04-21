@@ -28,7 +28,7 @@ class LayerItem {
   view(vnode) {
     const layer = vnode.attrs.layer
     return <ul>
-      <li>{ layer.name }</li>
+      <li>{ layer.name } ( { layer.namespace } )</li>
       <table>
         {
           layer.properties.map((prop) => {

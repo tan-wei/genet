@@ -194,20 +194,15 @@ enums(const M &table, const typename M::key_type &value,
   return defval;
 }
 
-template <class It>
-std::string flags(It begin, It end, int value,
-                  const std::string &defval = std::string()) {
-  std::string str;
-  for (auto it = begin; it != end; ++it) {
-    if (it->second & value) {
-      if (!str.empty())
-        str += ", ";
-      str += it->first;
-    }
+template <class S>
+S replace(const S &target, const std::string &before,
+          const std::string &after) {
+  S result = target;
+  auto pos = target.rfind(before);
+  if (pos != S::npos) {
+    result.replace(pos, before.size(), after);
   }
-  if (!str.empty())
-    return str;
-  return defval;
+  return result;
 }
 }
 }
