@@ -15,6 +15,158 @@ public:
     LayerPtr analyze(const LayerConstPtr &layer) override {
       fmt::Reader<Slice> reader(layer->payload());
       Layer child(fmt::replace(layer->ns(), "<tcp>", "tcp"), "TCP");
+
+      uint16_t sourcePort = reader.readBE<uint16_t>();
+      Property src("src", "Source", sourcePort);
+      src.setRange(reader.lastRange());
+      src.setError(reader.lastError());
+
+      uint16_t dstPort = reader.readBE<uint16_t>();
+      Property dst("dst", "Destination", dstPort);
+      src.setRange(reader.lastRange());
+      src.setError(reader.lastError());
+
+      uint32_t seqNumber = reader.readBE<uint32_t>();
+      Property seq("seq", "Sequence number", seqNumber);
+      seq.setRange(reader.lastRange());
+      seq.setError(reader.lastError());
+
+      uint32_t ackNumber = reader.readBE<uint32_t>();
+      Property ack("seq", "Acknowledgment number", ackNumber);
+      ack.setRange(reader.lastRange());
+      ack.setError(reader.lastError());
+
+      uint8_t offsetAndFlag = reader.readBE<uint8_t>();
+      int dataOffset = offsetAndFlag >> 4;
+      Property offset("dataOffset", "Data offset", dataOffset);
+      offset.setRange(reader.lastRange());
+      offset.setError(reader.lastError());
+
+      uint8_t flag = reader.readBE<uint8_t>() |
+        ((offsetAndFlag & 0x1) << 8);
+
+      static const std::tuple<uint16_t, const char*, const char*> flagTable[] = {
+        {0x1 << 8, "NS",  "ns"  },
+        {0x1 << 7, "CWR", "cwr" },
+        {0x1 << 6, "ECE", "ece" },
+        {0x1 << 5, "URG", "urg" },
+        {0x1 << 4, "ACK", "ack" },
+        {0x1 << 3, "PSH", "psh" },
+        {0x1 << 2, "RST", "rst" },
+        {0x1 << 1, "SYN", "syn" },
+        {0x1 << 0, "FIN", "fin" },
+      };
+
+      Property flags("flags", "Flags", flag);
+      std::string flagSummary;
+      for (const auto& bit : flagTable) {
+        bool on = std::get<0>(bit) & flag;
+        Property flagBit(std::get<2>(bit), std::get<1>(bit), on);
+        flagBit.setRange(reader.lastRange());
+        flagBit.setError(reader.lastError());
+        flags.addProperty(std::move(flagBit));
+        if (on) {
+          if (!flagSummary.empty()) flagSummary += ", ";
+          flagSummary += std::get<1>(bit);
+        }
+      }
+      flags.setSummary(flagSummary);
+      flags.setRange(std::make_pair(12, 14));
+      flags.setError(reader.lastError());
+
+      Property window("window", "Window size", reader.readBE<uint16_t>());
+      window.setRange(reader.lastRange());
+      window.setError(reader.lastError());
+
+      Property checksum("checksum", "Checksum", reader.readBE<uint16_t>());
+      checksum.setRange(reader.lastRange());
+      checksum.setError(reader.lastError());
+
+      Property urgent("urgent", "Urgent pointer", reader.readBE<uint16_t>());
+      urgent.setRange(reader.lastRange());
+      urgent.setError(reader.lastError());
+
+      Property options("options", "Options");
+      options.setRange(reader.lastRange());
+      options.setError(reader.lastError());
+
+      size_t optionDataOffset = dataOffset * 4;
+      size_t optionOffset = 20;
+      while (optionDataOffset > optionOffset) {
+        switch (layer->payload()[optionOffset]) {
+          case 0:
+            optionOffset = optionDataOffset;
+            break;
+          case 1:
+            {
+              Property opt("nop", "NOP");
+              opt.setRange(std::make_pair(optionOffset, optionOffset + 1));
+              opt.setError(reader.lastError());
+              options.addProperty(std::move(opt));
+              optionOffset++;
+            }
+            break;
+          case 2:
+            {
+              uint16_t size = fmt::readBE<uint16_t>(layer->payload(), optionOffset + 2);
+              Property opt("mss", "Maximum segment size", size);
+              opt.setRange(std::make_pair(optionOffset, optionOffset + 4));
+              opt.setError(reader.lastError());
+              options.addProperty(std::move(opt));
+              optionOffset += 4;
+            }
+            break;
+          case 3:
+            {
+              uint8_t scale = fmt::readBE<uint8_t>(layer->payload(), optionOffset + 2);
+              Property opt("scale", "Window scale", scale);
+              opt.setRange(std::make_pair(optionOffset, optionOffset + 2));
+              opt.setError(reader.lastError());
+              options.addProperty(std::move(opt));
+              optionOffset += 3;
+            }
+            break;
+
+          case 4:
+            {
+              Property opt("ackPerm", "Selective ACK permitted", true);
+              opt.setRange(std::make_pair(optionOffset, optionOffset + 2));
+              opt.setError(reader.lastError());
+              options.addProperty(std::move(opt));
+              optionOffset += 2;
+            }
+            break;
+
+          // TODO: https://tools.ietf.org/html/rfc2018
+          case 5:
+            {
+              uint8_t length = fmt::readBE<uint8_t>(layer->payload(), optionOffset + 1);
+              Property opt("selectiveAck", "Selective ACK", layer->payload().slice(optionOffset + 2, length));
+              opt.setRange(std::make_pair(optionOffset, optionOffset + length));
+              opt.setError(reader.lastError());
+              options.addProperty(std::move(opt));
+              optionOffset += length;
+            }
+            break;
+
+          default:
+            options.setError("Unknown option type");
+            optionOffset = optionDataOffset;
+            break;
+        }
+      }
+
+      child.addProperty(std::move(src));
+      child.addProperty(std::move(dst));
+      child.addProperty(std::move(seq));
+      child.addProperty(std::move(ack));
+      child.addProperty(std::move(offset));
+      child.addProperty(std::move(flags));
+      child.addProperty(std::move(window));
+      child.addProperty(std::move(checksum));
+      child.addProperty(std::move(urgent));
+      child.addProperty(std::move(options));
+      child.setPayload(reader.slice());
       return std::make_shared<Layer>(std::move(child));
     }
   };
