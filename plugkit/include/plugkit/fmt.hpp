@@ -5,6 +5,8 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <string>
+#include "slice.hpp"
 
 namespace plugkit {
 namespace fmt {
@@ -194,16 +196,8 @@ enums(const M &table, const typename M::key_type &value,
   return defval;
 }
 
-template <class S>
-S replace(const S &target, const std::string &before,
-          const std::string &after) {
-  S result = target;
-  auto pos = target.rfind(before);
-  if (pos != S::npos) {
-    result.replace(pos, before.size(), after);
-  }
-  return result;
-}
+std::string replace(const std::string &target, const std::string &before,
+                    const std::string &after);
 }
 }
 

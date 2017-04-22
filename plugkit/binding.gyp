@@ -25,6 +25,7 @@
         "src/frame_store.cpp",
         "src/stream_buffer.cpp",
         "src/filter.cpp",
+        "src/fmt.cpp",
         "src/logger.cpp",
         "src/null_logger.cpp",
         "src/stream_logger.cpp",
