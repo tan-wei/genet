@@ -14,7 +14,6 @@ DISSECTOR_ESS = plugins/dissector/deplug-builtin-dissector-essentials
 
 ROOLUP_EXTERN_BUILTIN = electron,deplug,$(shell node -p -e 'require("builtin-modules").join(",")')
 ROOLUP_EXTERN = $(ROOLUP_EXTERN_BUILTIN),$(shell jq '.dependencies | keys | join(",")' package.json -r)
-ROLLUP = node_modules/.bin/rollup
 
 ESLINT = node_modules/.bin/eslint
 
@@ -25,6 +24,12 @@ ELECTRON_UNPACK = node_modules/deplug-helper
 ELECTRON_IGNORE = "deplug-core","plugkit"
 
 PACKAGER = node_modules/.bin/electron-packager
+
+ifeq ($(OS),Windows_NT)
+ROLLUP = node_modules\.bin\rollup
+else
+ROLLUP = node_modules/.bin/rollup
+endif
 
 all: build
 	$(ELECTRON) --enable-logging .

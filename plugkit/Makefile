@@ -1,9 +1,10 @@
 ELECTRON_VERSION = $(shell jq '.devDependencies."electron-deplug"' ../../package.json -r)
-GYP=../../node_modules/.bin/node-gyp
 
 ifeq ($(OS),Windows_NT)
+GYP=..\..\node_modules\.bin\node-gyp
 CONFIG = build/binding.sln
 else
+GYP=../../node_modules/.bin/node-gyp
 CONFIG = build/Makefile
 ENV = JOBS=4 HOME=~/.electron-gyp
 endif

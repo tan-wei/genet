@@ -2,6 +2,7 @@
 #include <uv.h>
 #include <vector>
 #include <mutex>
+#include <iterator>
 
 namespace plugkit {
 

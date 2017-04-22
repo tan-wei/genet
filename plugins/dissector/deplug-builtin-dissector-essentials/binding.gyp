@@ -12,6 +12,23 @@
               "MACOSX_DEPLOYMENT_TARGET":"10.9"
             }
           }
+        ],
+        [
+          "OS=='win'",
+          {
+            "configurations":{
+              "Release":{
+                "msvs_settings":{
+                  "VCCLCompilerTool":{
+                    "ObjectFile":"$(IntDir)/%(Directory)"
+                  },
+                  "VCLinkerTool":{
+                    "ForceFileOutput": "UndefinedSymbolOnly"
+                  }
+                }
+              }
+            }
+          }
         ]
       ]
   },
