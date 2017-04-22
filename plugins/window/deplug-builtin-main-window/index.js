@@ -58,7 +58,7 @@ export default class TabView {
     this.loadedTabs = []
     this.tabs = []
 
-    GlobalChannel.on('core:tab:open', (_, template) => {
+    GlobalChannel.on('core:tab:open', (_, template, options = {}) => {
       let tab = Tab.getTemplate(template)
       if (tab.singleton === true) {
         let index = this.tabs.findIndex((t) => { return t.tab.template === template })
@@ -70,7 +70,8 @@ export default class TabView {
       }
       this.tabs.push({
         id: this.idCounter++,
-        tab: Object.assign({}, tab)
+        tab: Object.assign({}, tab),
+        options
       })
       this.currentIndex = this.tabs.length - 1
       m.redraw()

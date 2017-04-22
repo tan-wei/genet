@@ -7,7 +7,7 @@ import throttle from 'lodash.throttle'
 const handlers = []
 
 const reload = throttle(() => {
-  const root = {}
+  const root = {'Electron': {}}
   const handlerSymbol = Symbol('handler')
   for (const handler of handlers) {
     if (!objpath.has(root, handler.path)) {

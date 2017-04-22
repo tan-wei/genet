@@ -1,0 +1,21 @@
+{
+  "name": "deplug-builtin-pcap-file",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Deplug pcap file format",
+  "engines": {
+    "deplug": "*"
+  },
+  "deplugin": {
+    "components": [
+      {
+        "type": "menu",
+        "menu": {
+          "path": ["File", "Open Pcap File..."],
+          "accelerator": "Cmd+O",
+          "root": "open.js"
+        }
+      }
+    ]
+  }
+}
