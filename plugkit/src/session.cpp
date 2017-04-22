@@ -114,7 +114,9 @@ Session::Session(const Config &config) : d(new Private()) {
 
   d->logger = std::make_shared<UvLoopLogger>(
       uv_default_loop(),
-      [this](Logger::MessagePtr &&msg) { d->loggerCallback(std::move(msg)); });
+      [this](Logger::MessagePtr &&msg) {
+        if (d->loggerCallback) d->loggerCallback(std::move(msg)); 
+      });
   d->pcap = Pcap::create();
   d->pcap->setNetworkInterface(config.networkInterface);
   d->pcap->setPromiscuous(config.promiscuous);
