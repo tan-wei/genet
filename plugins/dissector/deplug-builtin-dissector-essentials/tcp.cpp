@@ -26,6 +26,16 @@ public:
       src.setRange(reader.lastRange());
       src.setError(reader.lastError());
 
+      const auto& parentSrc = layer->propertyFromId("src");
+      const auto& parentDst = layer->propertyFromId("dst");
+
+      if (parentSrc && parentDst) {
+        child.setSummary(
+          parentSrc->summary() + ":" + std::to_string(sourcePort) +
+          " -> " +
+          parentDst->summary() + ":" + std::to_string(dstPort));
+      }
+
       uint32_t seqNumber = reader.readBE<uint32_t>();
       Property seq("seq", "Sequence number", seqNumber);
       seq.setRange(reader.lastRange());
@@ -148,7 +158,28 @@ public:
               optionOffset += length;
             }
             break;
+          case 8:
+            {
+              uint32_t mt = fmt::readBE<uint32_t>(layer->payload(), optionOffset + 2);
+              uint32_t et = fmt::readBE<uint32_t>(layer->payload(), optionOffset + 2 + sizeof(uint32_t));
+              Property opt("timestamps", "Timestamps", std::to_string(mt) + " - " + std::to_string(et));
+              opt.setRange(std::make_pair(optionOffset, optionOffset + 10));
+              opt.setError(reader.lastError());
 
+              Property optmt("mt", "My timestamp", mt);
+              optmt.setRange(std::make_pair(optionOffset + 2, optionOffset + 6));
+              optmt.setError(reader.lastError());
+
+              Property optet("et", "Echo reply timestamp", et);
+              optet.setRange(std::make_pair(optionOffset + 6, optionOffset + 01));
+              optet.setError(reader.lastError());
+
+              opt.addProperty(std::move(optmt));
+              opt.addProperty(std::move(optet));
+              options.addProperty(std::move(opt));
+              optionOffset += 10;
+            }
+            break;
           default:
             options.setError("Unknown option type");
             optionOffset = optionDataOffset;
