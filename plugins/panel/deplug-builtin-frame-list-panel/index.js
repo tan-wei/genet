@@ -81,6 +81,9 @@ export default class FrameListView {
 
     let factory = new SessionFactory()
     factory.networkInterface = Pcap.devices[0].id
+    for (const layer of Session.linkLayers) {
+      factory.registerLinkLayer(layer)
+    }
     for (const diss of Session.dissectors) {
       factory.registerDissector(diss)
     }

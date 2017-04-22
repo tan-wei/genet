@@ -2,7 +2,6 @@ const kit = require('bindings')('plugkit.node')
 const esprima = require('esprima')
 const {rollup} = require('rollup')
 const EventEmitter = require('events')
-const linkLayers = require('./link')
 
 const map = new WeakMap()
 function internal (object) {
@@ -124,15 +123,20 @@ class SessionFactory extends kit.SessionFactory {
   constructor() {
     super()
     internal(this).tasks = []
+    internal(this).linkLayers = []
   }
 
   create() {
     return Promise.all(internal(this).tasks).then(() => {
-      for (let link in linkLayers) {
-        super.registerLinkLayer(link, linkLayers[link].id, linkLayers[link].name)
+      for (let link of internal(this).linkLayers) {
+        super.registerLinkLayer(link.link, link.id, link.name)
       }
       return new Session(super.create())
     })
+  }
+
+  registerLinkLayer(layer) {
+    internal(this).linkLayers.push(layer)
   }
 
   registerDissector(dissector) {
