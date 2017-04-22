@@ -1,8 +1,59 @@
 import { EventEmitter } from 'events'
 import internal from './internal'
+import objpath from 'object-path'
 import { remote } from 'electron'
+import throttle from 'lodash.throttle'
 
+const handlers = []
+
+const reload = throttle(() => {
+  const root = {}
+  const handlerSymbol = Symbol('handler')
+  for (const handler of handlers) {
+    if (!objpath.has(root, handler.path)) {
+      objpath.set(root, handler.path, { [handlerSymbol]: handler, })
+    }
+  }
+
+  function crateMenuItem (name, object) {
+    if (handlerSymbol in object) {
+      const { handler, accelerator, } = object[handlerSymbol]
+      return new remote.MenuItem({
+        label: name,
+        accelerator,
+        click: () => {
+          if (handler.action) {
+            handler.action()
+          }
+        },
+      })
+    }
+
+    return new remote.MenuItem({
+      label: name,
+      type: 'submenu',
+      submenu: Object.keys(object)
+        .map((key) => crateMenuItem(key, object[key])),
+    })
+  }
+
+  const menu = new remote.Menu()
+  for (const name in root) {
+    menu.append(crateMenuItem(name, root[name]))
+  }
+
+  if (process.platform === 'darwin') {
+    remote.Menu.setApplicationMenu(menu)
+  } else {
+    remote.getCurrentWindow().setMenu(menu)
+  }
+})
 export default class Menu extends EventEmitter {
+  static registerHandler (handler) {
+    handlers.push(handler)
+    reload()
+  }
+
   constructor () {
     super()
     internal(this).handlers = {}

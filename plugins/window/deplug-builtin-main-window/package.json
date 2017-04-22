@@ -14,6 +14,14 @@
           "less": "theme.less",
           "root": "index.js"
         }
+      },
+      {
+        "type": "menu",
+        "menu": {
+          "path": ["Developer", "Toggle Developer Tools"],
+          "accelerator": "Cmd+Shift+I",
+          "root": "menu-devtool.js"
+        }
       }
     ]
   }

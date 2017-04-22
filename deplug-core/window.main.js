@@ -6,6 +6,7 @@ export default async function (argv) {
   try {
     const { Plugin, GlobalChannel, } = await deplug(argv)
     await Plugin.loadComponents('window')
+    await Plugin.loadComponents('menu')
     await Plugin.loadComponents('tab')
     await new Promise((res) => {
       jquery(res)
