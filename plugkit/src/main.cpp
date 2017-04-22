@@ -14,6 +14,7 @@ NAN_GC_CALLBACK(gcPrologueCallback) {
   Variant::Private::cleanupSharedBuffers();
 }
 
+namespace {
 void Init(v8::Local<v8::Object> exports) {
 #if defined(PLUGKIT_OS_LINUX)
   Dl_info info;
@@ -28,6 +29,7 @@ void Init(v8::Local<v8::Object> exports) {
   ExtendedSlot::init(isolate);
   ExtendedSlot::set(isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE,
                     new PlugkitModule(isolate, exports, true));
+}
 }
 
 NODE_MODULE(plugkit, Init)
