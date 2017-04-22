@@ -79,7 +79,7 @@ bool DissectorThread::loop() {
           workers = &d->workerMap[ns];
           for (const auto &pair : d->workers) {
             for (const auto &regex : pair.second) {
-              if (std::regex_match(ns, regex)) {
+              if (std::regex_search(ns, regex)) {
                 workers->push_back(pair.first.get());
               }
             }

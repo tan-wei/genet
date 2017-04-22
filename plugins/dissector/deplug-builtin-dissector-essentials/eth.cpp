@@ -71,7 +71,7 @@ public:
     return Dissector::WorkerPtr(new EthernetDissector::Worker());
   }
   std::vector<std::regex> namespaces() const override {
-    return std::vector<std::regex>{std::regex("<eth>")};
+    return std::vector<std::regex>{std::regex("<eth>$")};
   }
 };
 

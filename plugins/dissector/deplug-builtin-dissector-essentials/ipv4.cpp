@@ -136,7 +136,7 @@ public:
     return Dissector::WorkerPtr(new IPv4Dissector::Worker());
   }
   std::vector<std::regex> namespaces() const override {
-    return std::vector<std::regex>{std::regex(".+<ipv4>$")};
+    return std::vector<std::regex>{std::regex("<ipv4>$")};
   }
 };
 

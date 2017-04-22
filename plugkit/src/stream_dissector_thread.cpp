@@ -99,7 +99,7 @@ bool StreamDissectorThread::loop() {
         dissectors = &d->dissectorMap[ns];
         for (const auto &pair : d->dissectors) {
           for (const auto &regex : pair.second) {
-            if (std::regex_match(ns, regex)) {
+            if (std::regex_search(ns, regex)) {
               dissectors->push_back(pair.first.get());
             }
           }
