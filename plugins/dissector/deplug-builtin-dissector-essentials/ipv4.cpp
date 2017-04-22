@@ -45,9 +45,9 @@ public:
       uint8_t flag = (flagAndOffset >> 5) & 0b00000111;
 
       static const std::tuple<uint16_t, const char*, const char*> flagTable[] = {
-        {0x1, "Reserved", "reserved" },
-        {0x2, "Don\'t Fragment", "dontFragment" },
-        {0x4, "More Fragments", "moreFragments" },
+        std::make_tuple(0x1, "Reserved", "reserved" ),
+        std::make_tuple(0x2, "Don\'t Fragment", "dontFragment" ),
+        std::make_tuple(0x4, "More Fragments", "moreFragments" ),
       };
 
       Property flags("flags", "Flags", flag);

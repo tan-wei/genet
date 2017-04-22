@@ -23,7 +23,7 @@ StreamBuffer::StreamBuffer() : d(new Private()) {
   d->id = 0;
 
 #ifdef PLUGKIT_OS_LINUX
-  d->fd = open("/tmp", O_TMPFILE | O_RDWR);
+  d->fd = open("/tmp", O_TMPFILE | O_RDWR, 0600);
 #else
   char filename[] = "/tmp/mbuf.XXXXXX";
   d->fd = mkstemp(filename);

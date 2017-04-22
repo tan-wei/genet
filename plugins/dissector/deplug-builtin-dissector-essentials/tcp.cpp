@@ -56,15 +56,15 @@ public:
         ((offsetAndFlag & 0x1) << 8);
 
       static const std::tuple<uint16_t, const char*, const char*> flagTable[] = {
-        {0x1 << 8, "NS",  "ns"  },
-        {0x1 << 7, "CWR", "cwr" },
-        {0x1 << 6, "ECE", "ece" },
-        {0x1 << 5, "URG", "urg" },
-        {0x1 << 4, "ACK", "ack" },
-        {0x1 << 3, "PSH", "psh" },
-        {0x1 << 2, "RST", "rst" },
-        {0x1 << 1, "SYN", "syn" },
-        {0x1 << 0, "FIN", "fin" },
+        std::make_tuple(0x1 << 8, "NS",  "ns"  ),
+        std::make_tuple(0x1 << 7, "CWR", "cwr" ),
+        std::make_tuple(0x1 << 6, "ECE", "ece" ),
+        std::make_tuple(0x1 << 5, "URG", "urg" ),
+        std::make_tuple(0x1 << 4, "ACK", "ack" ),
+        std::make_tuple(0x1 << 3, "PSH", "psh" ),
+        std::make_tuple(0x1 << 2, "RST", "rst" ),
+        std::make_tuple(0x1 << 1, "SYN", "syn" ),
+        std::make_tuple(0x1 << 0, "FIN", "fin" ),
       };
 
       Property flags("flags", "Flags", flag);
