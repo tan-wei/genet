@@ -3,6 +3,7 @@
 #include <plugkit/stream_dissector.hpp>
 #include <plugkit/layer.hpp>
 #include <plugkit/property.hpp>
+#include <plugkit/chunk.hpp>
 #include <plugkit/fmt.hpp>
 #include <unordered_map>
 
@@ -197,7 +198,10 @@ public:
       child.addProperty(std::move(checksum));
       child.addProperty(std::move(urgent));
       child.addProperty(std::move(options));
-      child.setPayload(reader.slice());
+
+      const auto& payload = reader.slice();
+      child.setPayload(payload);
+      child.addChunk(Chunk(child.ns(), child.summary(), payload));
       return std::make_shared<Layer>(std::move(child));
     }
   };

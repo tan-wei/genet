@@ -15,7 +15,7 @@ using PropertyConstPtr = std::shared_ptr<const Property>;
 class Chunk final {
 public:
   Chunk();
-  Chunk(const std::string &ns, const std::string &id);
+  Chunk(const std::string &ns, const std::string &id, const Slice &payload);
   Chunk(Chunk &&chunk);
   ~Chunk();
 

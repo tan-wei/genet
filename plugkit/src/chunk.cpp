@@ -8,7 +8,7 @@ namespace plugkit {
 
 class Chunk::Private {
 public:
-  Private(const std::string &ns, const std::string &id);
+  Private(const std::string &ns, const std::string &id, const Slice &payload);
   std::string streamNs;
   std::string streamId;
   Slice payload;
@@ -16,13 +16,14 @@ public:
   std::unordered_map<std::string, size_t> idMap;
 };
 
-Chunk::Private::Private(const std::string &ns, const std::string &id)
-    : streamNs(ns), streamId(id) {}
+Chunk::Private::Private(const std::string &ns, const std::string &id,
+                        const Slice &payload)
+    : streamNs(ns), streamId(id), payload(payload) {}
 
-Chunk::Chunk() : d(new Private("", "")) {}
+Chunk::Chunk() : d(new Private("", "", Slice())) {}
 
-Chunk::Chunk(const std::string &ns, const std::string &id)
-    : d(new Private(ns, id)) {}
+Chunk::Chunk(const std::string &ns, const std::string &id, const Slice &payload)
+    : d(new Private(ns, id, payload)) {}
 
 Chunk::Chunk(Chunk &&chunk) { this->d.reset(chunk.d.release()); }
 

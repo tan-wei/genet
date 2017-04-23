@@ -34,8 +34,8 @@ std::string StreamBuffer::Private::getTmpDir() {
   }
   path += "/plugkit_stream_";
 #ifdef _WIN32
-  //path += std::to_string(GetCurrentProcessId());
-  //_mkdir(path.c_str());
+// path += std::to_string(GetCurrentProcessId());
+//_mkdir(path.c_str());
 #else
   path += std::to_string(getpid());
   mkdir(path.c_str(), 0755);

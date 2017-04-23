@@ -38,8 +38,7 @@ void FilterThread::exit() { d->filter.reset(); }
 bool FilterThread::loop() {
   std::thread::id id = std::this_thread::get_id();
   std::array<FrameViewConstPtr, 128> views;
-  size_t size =
-      d->store->dequeue(d->offset, views.size(), &views[0], id);
+  size_t size = d->store->dequeue(d->offset, views.size(), &views[0], id);
   if (size == 0)
     return false;
 
