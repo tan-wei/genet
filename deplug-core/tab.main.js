@@ -14,11 +14,9 @@ async function updateTheme (theme, styleTag, lessFile) {
 
 export default async function (argv, tab) {
   try {
-    const { Theme, Plugin, } = await deplug(argv)
-    const { options } = tab
+    const { Theme, Plugin, Tab, } = await deplug(argv)
+    const { options, } = tab
     const { rootDir, } = tab.tab
-
-    console.log(options)
 
     const less = tab.tab.less || ''
     if (less !== '') {
@@ -30,24 +28,22 @@ export default async function (argv, tab) {
       await updateTheme(Theme.current, styleTag, lessFile)
     }
 
+    let page = ''
+    Reflect.defineProperty(Tab, 'page', {
+      get: () => page,
+      set: (value) => {
+       page = value
+      },
+    })
+    Reflect.defineProperty(Tab, 'options', { value: options, })
+
     const root = tab.tab.root || ''
     if (root !== '') {
       const rootFile = path.join(rootDir, root)
       const func = await roll(rootFile, rootDir)
       const module = {}
       func(module, rootDir)
-      mithril.route.prefix('')
-      mithril.route(document.body, '/#!', {
-        '/': {
-          onmatch: (args, requestedPath) => {
-            const route = requestedPath.replace(/^\/#!/, '') || '/'
-            if (route in module.exports) {
-              return module.exports[route]
-            }
-            return module.exports
-          },
-        },
-      })
+      mithril.mount(document.body, module.exports)
     }
 
     await new Promise((res) => {

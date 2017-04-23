@@ -1,5 +1,5 @@
 import m from 'mithril'
-import { Panel, Plugin, Theme } from 'deplug'
+import { Panel, Plugin, Theme, Tab } from 'deplug'
 import { Pcap } from 'plugkit'
 
 class ConfigView {
@@ -24,7 +24,7 @@ class ConfigView {
         <input
           type="button"
           value="Choose pcap file..."
-          onclick={ ()=>{ location.hash = "!/pcap" } }
+          onclick={ ()=>{ Tab.page = 'pcap' } }
         ></input>
       </div>
   }
@@ -105,7 +105,11 @@ class PcapView {
   }
 }
 
-export default {
-  '/pcap': ConfigView,
-  '/': PcapView
+export default class View {
+  view(vnode) {
+    if (Tab.page === '') {
+      return m(PcapView, {})
+    }
+    return m(ConfigView, {})
+  }
 }
