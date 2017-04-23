@@ -91,10 +91,11 @@
             ],
             "configurations":{
               "Release":{
-                "msvs_settings":{
-                  "VCCLCompilerTool":{
-                    "ObjectFile":"$(IntDir)/%(Directory)"
-                  }
+                "msbuild_settings": {
+                  'ClCompile': {
+                    "Optimization": "Custom",
+                    "ObjectFileName": "$(IntDir)/%(Directory)"
+                  },
                 }
               }
             },
