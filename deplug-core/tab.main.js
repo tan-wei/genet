@@ -15,7 +15,7 @@ async function updateTheme (theme, styleTag, lessFile) {
 export default async function (argv, tab) {
   try {
     const { Theme, Plugin, Tab, } = await deplug(argv)
-    const { options, id } = tab
+    const { options, id, } = tab
     const { rootDir, } = tab.tab
 
     const less = tab.tab.less || ''

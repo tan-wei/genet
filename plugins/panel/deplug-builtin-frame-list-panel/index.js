@@ -19,8 +19,8 @@ class FrameItem {
   view(vnode) {
     const seq = vnode.attrs.seq
     const itemHeight = vnode.attrs.itemHeight
-    const src = this.frame.primaryLayer.propertyFromId('src')
-    const dst = this.frame.primaryLayer.propertyFromId('dst')
+    const src = this.frame.propertyFromId('src')
+    const dst = this.frame.propertyFromId('dst')
     return <div
       class="frame-item"
       data-layer={this.frame.primaryLayer.namespace}

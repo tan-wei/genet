@@ -1,5 +1,6 @@
-import { Channel, Tab } from 'deplug'
+import { Channel, GlobalChannel, Tab } from 'deplug'
 import fs from 'fs'
+import path from 'path'
 
 class Pcap {
   constructor(filePath) {
@@ -98,6 +99,8 @@ if ('id' in Tab) {
           for (const frame of pcap.packets) {
             sess.analyze(pcap.network, frame.payload)
           }
+
+          GlobalChannel.emit('core:tab:set-name', Tab.id, path.basename(file))
         }
       }
   })
