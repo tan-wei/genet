@@ -3,6 +3,7 @@
 #include "layer.hpp"
 #include "private/variant.hpp"
 #include "../plugkit/frame.hpp"
+#include "wrapper/property.hpp"
 #include "plugkit_module.hpp"
 #include "extended_slot.hpp"
 
@@ -12,6 +13,7 @@ void FrameWrapper::init(v8::Isolate *isolate) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Frame").ToLocalChecked());
+  SetPrototypeMethod(tpl, "propertyFromId", propertyFromId);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("timestamp").ToLocalChecked(), timestamp);
@@ -100,6 +102,17 @@ NAN_GETTER(FrameWrapper::hasError) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
   if (const auto &view = wrapper->view.lock()) {
     info.GetReturnValue().Set(view->hasError());
+  }
+}
+
+NAN_METHOD(FrameWrapper::propertyFromId) {
+  FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
+  if (const auto &view = wrapper->view.lock()) {
+    if (const auto &prop = view->propertyFromId(*Nan::Utf8String(info[0]))) {
+      info.GetReturnValue().Set(PropertyWrapper::wrap(prop));
+    } else {
+      info.GetReturnValue().Set(Nan::Null());
+    }
   }
 }
 

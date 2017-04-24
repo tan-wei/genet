@@ -12,6 +12,7 @@ public:
   FrameConstPtr frame;
   LayerConstPtr primaryLayer;
   std::vector<LayerConstPtr> leafLayers;
+  std::unordered_map<std::string, PropertyConstPtr> properties;
   bool hasError = false;
 };
 
@@ -43,6 +44,9 @@ FrameView::FrameView(FrameUniquePtr &&frame) : d(new Private()) {
       }
     }
   }
+
+  propertyFromId("src");
+  propertyFromId("dst");
 }
 
 FrameView::~FrameView() {}
@@ -53,6 +57,23 @@ LayerConstPtr FrameView::primaryLayer() const { return d->primaryLayer; }
 
 const std::vector<LayerConstPtr> &FrameView::leafLayers() const {
   return d->leafLayers;
+}
+
+PropertyConstPtr FrameView::propertyFromId(const std::string &id) const {
+  const auto &it = d->properties.find(id);
+  if (it != d->properties.end()) {
+    return it->second;
+  }
+
+  PropertyConstPtr prop;
+  for (auto layer = primaryLayer(); layer; layer = layer->parent()) {
+    if (const auto &layerProp = layer->propertyFromId(id)) {
+      prop = layerProp;
+      break;
+    }
+  }
+  d->properties[id] = prop;
+  return prop;
 }
 
 bool FrameView::hasError() const { return d->hasError; }

@@ -16,6 +16,9 @@ using FrameViewConstPtr = std::shared_ptr<const FrameView>;
 class Layer;
 using LayerConstPtr = std::shared_ptr<const Layer>;
 
+class Property;
+using PropertyConstPtr = std::shared_ptr<const Property>;
+
 class FrameView final {
 public:
   explicit FrameView(FrameUniquePtr &&frame);
@@ -23,6 +26,7 @@ public:
   FrameConstPtr frame() const;
   LayerConstPtr primaryLayer() const;
   const std::vector<LayerConstPtr> &leafLayers() const;
+  PropertyConstPtr propertyFromId(const std::string &id) const;
   bool hasError() const;
 
 private:

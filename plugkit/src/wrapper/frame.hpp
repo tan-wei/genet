@@ -21,6 +21,7 @@ public:
   static NAN_GETTER(primaryLayer);
   static NAN_GETTER(leafLayers);
   static NAN_GETTER(hasError);
+  static NAN_METHOD(propertyFromId);
 
 private:
   FrameWrapper(const std::weak_ptr<const FrameView> &view);
