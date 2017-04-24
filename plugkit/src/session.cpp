@@ -8,6 +8,7 @@
 #include "dissector_thread_pool.hpp"
 #include "stream_dissector_thread_pool.hpp"
 #include "frame_store.hpp"
+#include "layer.hpp"
 #include "variant.hpp"
 #include <unordered_map>
 #include <atomic>
@@ -46,6 +47,7 @@ public:
   std::unique_ptr<DissectorThreadPool> dissectorPool;
   std::unique_ptr<StreamDissectorThreadPool> streamDissectorPool;
   std::unordered_map<std::string, std::unique_ptr<FilterThreadPool>> filters;
+  std::unordered_map<int, std::pair<std::string, std::string>> linkLayers;
   std::shared_ptr<FrameStore> frameStore;
   std::unique_ptr<Pcap> pcap;
   FilterThreadPool::AliasMap aliasMap;
@@ -148,6 +150,7 @@ Session::Session(const Config &config) : d(new Private()) {
     d->dissectorPool->push(std::move(pkt));
   });
 
+  d->linkLayers = config.linkLayers;
   for (const auto &pair : config.linkLayers) {
     d->pcap->registerLinkLayer(pair.first, pair.second.first,
                                pair.second.second);
@@ -240,6 +243,25 @@ std::vector<uint32_t> Session::getFilteredFrames(const std::string &name,
 std::vector<FrameViewConstPtr> Session::getFrames(uint32_t offset,
                                                   uint32_t length) const {
   return d->frameStore->get(offset, length);
+}
+
+void Session::analyze(int link, const Slice &data, size_t length, Variant::Timestamp ts) {
+  auto rootLayer = std::make_shared<Layer>();
+  const auto &linkLayer = d->linkLayers.find(link);
+  if (linkLayer != d->linkLayers.end()) {
+    rootLayer->setNs(linkLayer->second.first);
+    rootLayer->setName(linkLayer->second.second);
+  } else {
+    rootLayer->setNs("<link:" + std::to_string(link) + ">");
+    rootLayer->setName("Unknown Link Layer: " + std::to_string(link));
+  }
+
+  FrameUniquePtr frame = Frame::Private::create();
+  frame->d->setTimestamp(ts);
+  frame->d->setLength((length < data.size()) ? data.size() : length);
+  frame->d->setRootLayer(rootLayer);
+  frame->d->setSeq(d->getSeq());
+  d->dissectorPool->push(std::move(frame));
 }
 
 void Session::setStatusCallback(const StatusCallback &callback) {
