@@ -245,7 +245,8 @@ std::vector<FrameViewConstPtr> Session::getFrames(uint32_t offset,
   return d->frameStore->get(offset, length);
 }
 
-void Session::analyze(int link, const Slice &data, size_t length, Variant::Timestamp ts) {
+void Session::analyze(int link, const Slice &data, size_t length,
+                      Variant::Timestamp ts) {
   auto rootLayer = std::make_shared<Layer>();
   const auto &linkLayer = d->linkLayers.find(link);
   if (linkLayer != d->linkLayers.end()) {
@@ -255,6 +256,7 @@ void Session::analyze(int link, const Slice &data, size_t length, Variant::Times
     rootLayer->setNs("<link:" + std::to_string(link) + ">");
     rootLayer->setName("Unknown Link Layer: " + std::to_string(link));
   }
+  rootLayer->setPayload(data);
 
   FrameUniquePtr frame = Frame::Private::create();
   frame->d->setTimestamp(ts);

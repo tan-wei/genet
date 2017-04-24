@@ -15,7 +15,7 @@ async function updateTheme (theme, styleTag, lessFile) {
 export default async function (argv, tab) {
   try {
     const { Theme, Plugin, Tab, } = await deplug(argv)
-    const { options, } = tab
+    const { options, id } = tab
     const { rootDir, } = tab.tab
 
     const less = tab.tab.less || ''
@@ -36,6 +36,7 @@ export default async function (argv, tab) {
       },
     })
     Reflect.defineProperty(Tab, 'options', { value: options, })
+    Reflect.defineProperty(Tab, 'id', { value: id, })
 
     const root = tab.tab.root || ''
     if (root !== '') {
@@ -50,6 +51,7 @@ export default async function (argv, tab) {
       jquery(res)
     })
 
+    await Plugin.loadComponents('script')
     await Plugin.loadComponents('panel')
 
   } catch (err) {

@@ -8,7 +8,7 @@ async function readPcapFile() {
 
 export default class Menu {
   action() {
-    let filePath = dialog.showOpenDialog(remote.getCurrentWindow(), {
+    let files = dialog.showOpenDialog(remote.getCurrentWindow(), {
       filters: [{name: 'PCAP File', extensions: ['pcap']}]
     })
     if (files !== null) {

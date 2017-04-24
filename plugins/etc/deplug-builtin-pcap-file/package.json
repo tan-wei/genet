@@ -15,6 +15,12 @@
           "accelerator": "Cmd+O",
           "root": "open.js"
         }
+      },
+      {
+        "type": "script",
+        "script": {
+          "main": "main.js"
+        }
       }
     ]
   }

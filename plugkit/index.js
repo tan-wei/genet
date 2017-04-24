@@ -100,6 +100,10 @@ class Session extends EventEmitter {
     return internal(this).sess.getFrames(offset, length)
   }
 
+  analyze(link, payload) {
+    return internal(this).sess.analyze(link, payload)
+  }
+
   setDisplayFilter(name, filter) {
     let body = ''
     const ast = esprima.parse(filter)

@@ -139,11 +139,9 @@ NAN_METHOD(SessionWrapper::getFrames) {
 NAN_METHOD(SessionWrapper::analyze) {
   SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
   if (const auto &session = wrapper->session) {
-    /*
-    const std::string &name = *Nan::Utf8String(info[0]);
-    const std::string &body = *Nan::Utf8String(info[1]);
-    session->setDisplayFilter(name, body);
-    */
+    int link = info[0]->Uint32Value();
+    const Slice &data = Variant::Private::getSlice(info[1].As<v8::Object>());
+    session->analyze(link, data);
   }
 }
 
