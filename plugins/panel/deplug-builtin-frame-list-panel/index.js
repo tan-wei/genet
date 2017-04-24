@@ -87,6 +87,9 @@ export default class FrameListView {
     for (const diss of Session.dissectors) {
       factory.registerDissector(diss)
     }
+    for (const diss of Session.streamDissectors) {
+      factory.registerStreamDissector(diss)
+    }
     factory.create().then((sess) => {
       sess.startPcap()
       Channel.emit('core:pcap:session-created', sess)

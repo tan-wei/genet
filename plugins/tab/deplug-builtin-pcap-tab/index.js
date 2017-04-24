@@ -33,6 +33,7 @@ class ConfigView {
 class PcapView {
   constructor() {
     Plugin.loadComponents('dissector')
+    Plugin.loadComponents('stream-dissector')
     this.bottomHeight = 200
   }
 

@@ -29,6 +29,12 @@
         "dissector": {
           "main": "build/Release/tcp.node"
         }
+      },
+      {
+        "type": "stream-dissector",
+        "stream_dissector": {
+          "main": "build/Release/tcp-stream.node"
+        }
       }
     ]
   }
