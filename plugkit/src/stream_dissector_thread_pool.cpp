@@ -89,13 +89,14 @@ void StreamDissectorThreadPool::start() {
         return;
       offset += size;
 
-      auto findChunks = [](
-          const LayerConstPtr &layer) -> std::vector<ChunkConstPtr> {
+      std::function<std::vector<ChunkConstPtr>(const LayerConstPtr &)>
+          findChunks = [&findChunks](
+              const LayerConstPtr &layer) -> std::vector<ChunkConstPtr> {
         std::vector<ChunkConstPtr> chunks;
         const auto &list = layer->chunks();
         chunks.insert(chunks.begin(), list.begin(), list.end());
         for (const auto &child : layer->children()) {
-          const auto &childList = child->chunks();
+          const auto &childList = findChunks(child);
           chunks.insert(chunks.begin(), childList.begin(), childList.end());
         }
         return chunks;

@@ -14,11 +14,8 @@ public:
   class Worker final : public StreamDissector::Worker {
   public:
     LayerPtr analyze(const ChunkConstPtr &layer) override {
-      return LayerPtr();
       const LayerPtr& child = std::make_shared<Layer>();
-      child->setNs("ethk");
-      child->setName("Ethernetl");
-      return child ;
+      return child;
     }
   };
 
