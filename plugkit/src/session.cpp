@@ -226,8 +226,8 @@ void Session::setDisplayFilter(const std::string &name,
     pool->setLogger(d->logger);
     pool->start();
     d->filters[name] = std::move(pool);
-    d->notifyStatus(Private::UPDATE_FILTER);
   }
+  d->notifyStatus(Private::UPDATE_FILTER);
 }
 
 std::vector<uint32_t> Session::getFilteredFrames(const std::string &name,

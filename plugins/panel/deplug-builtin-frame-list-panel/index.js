@@ -18,6 +18,7 @@ class FrameItem {
 
   view(vnode) {
     const seq = vnode.attrs.seq
+    const index = vnode.attrs.index
     const itemHeight = vnode.attrs.itemHeight
     const src = this.frame.propertyFromId('src')
     const dst = this.frame.propertyFromId('dst')
@@ -31,7 +32,7 @@ class FrameItem {
       onclick={() => {this.select()}}
       style={{
         height: `${itemHeight}px`,
-        top: `${(seq - 1) * itemHeight}px`
+        top: `${index * itemHeight}px`
       }}
     >
       <div class="frame-column">{seq}</div>
@@ -72,12 +73,14 @@ export default class FrameListView {
 
     Channel.on('core:pcap:session-created', (sess) => {
       this.session = sess
+      this.filtered = null
       this.session.on('frame', (stat) => {
         this.frame = stat
         m.redraw()
       })
       this.session.on('filter', (stat) => {
-        console.log(stat.main.frames)
+        this.filtered = stat.main
+        m.redraw()
       })
       m.redraw()
     })
@@ -134,20 +137,28 @@ export default class FrameListView {
   }
 
   updateMap(vnode) {
-    if (this.session && this.session.frame.frames > 0) {
+    if (this.session && this.frame.frames > 0) {
       const dummy = vnode.dom.querySelector('.dummy-item')
       const ctx = dummy.getContext('2d')
-      for (let i = 0; i < this.mapHeight; ++i) {
-        const index = Math.floor(this.session.frame.frames / this.mapHeight * i)
-        const frame = this.session.getFrames(index, 1)[0]
-        dummy.setAttribute('data-layer', frame.primaryLayer.namespace)
-        if (frame.hasError) {
-          dummy.setAttribute('data-layer-error', '')
-        } else {
-          dummy.removeAttribute('data-layer-error')
+      const frames = (this.filtered ? this.filtered.frames : this.frame.frames)
+      ctx.clearRect(0, 0, 1, this.mapHeight)
+
+      if (frames > 0) {
+        for (let i = 0; i < this.mapHeight; ++i) {
+          let index = Math.floor(frames / this.mapHeight * i)
+          if (this.filtered) {
+            index = this.session.getFilteredFrames('main', index, 1)[0]
+          }
+          const frame = this.session.getFrames(index, 1)[0]
+          dummy.setAttribute('data-layer', frame.primaryLayer.namespace)
+          if (frame.hasError) {
+            dummy.setAttribute('data-layer-error', '')
+          } else {
+            dummy.removeAttribute('data-layer-error')
+          }
+          ctx.fillStyle = getComputedStyle(dummy, null).getPropertyValue("background-color")
+          ctx.fillRect(0, i, 1, 1)
         }
-        ctx.fillStyle = getComputedStyle(dummy, null).getPropertyValue("background-color")
-        ctx.fillRect(0, i, 1, 1)
       }
       const data = dummy.toDataURL("image/png")
 
@@ -160,13 +171,19 @@ export default class FrameListView {
   }
 
   view(vnode) {
+    const frames = (this.filtered ? this.filtered.frames : this.frame.frames)
     const itemHeight = 40
-    const viewHeight = this.frame.frames * itemHeight
+    const viewHeight = frames * itemHeight
     const margin = 5
     const begin = Math.max(0,
-      Math.floor(this.viewScrollTop / itemHeight) - margin)
+      Math.floor(Math.min(this.viewScrollTop, viewHeight - this.viewHeight) / itemHeight) - margin)
     const end = Math.min(begin +
-      Math.ceil(this.viewHeight / itemHeight) + margin * 2, this.frame.frames)
+      Math.ceil(this.viewHeight / itemHeight) + margin * 2, frames)
+
+    let filterdFrames = null
+    if (this.filtered) {
+      filterdFrames = this.session.getFilteredFrames('main', begin, (end - begin))
+    }
 
     return <div>
       <style class="scrollbar-style"></style>
@@ -183,10 +200,11 @@ export default class FrameListView {
         >
           {
             (new Array(end - begin)).fill().map((dev, index) => {
-              const id = index + begin + 1
+              const id = filterdFrames ? filterdFrames[index] : (index + begin + 1)
               return m(FrameItem, {
                 key: id,
                 seq: id,
+                index: index + begin,
                 itemHeight: itemHeight,
                 columns: this.columns,
                 attrs: this.attrs,
