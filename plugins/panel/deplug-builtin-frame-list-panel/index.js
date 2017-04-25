@@ -76,7 +76,16 @@ export default class FrameListView {
         this.frame = stat
         m.redraw()
       })
+      this.session.on('filter', (stat) => {
+        console.log(stat.main.frames)
+      })
       m.redraw()
+    })
+
+    Channel.on('core:display-filter:set', (filter) => {
+      if (this.session) {
+        this.session.setDisplayFilter('main', filter)
+      }
     })
 
     let factory = new SessionFactory()

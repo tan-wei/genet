@@ -1,6 +1,8 @@
 @import "deplug-theme";
 @import "deplug-common-window";
 
+@pcap-tool-height: 32px;
+
 #pcap-top {
   position: absolute;
   top: 0;
@@ -17,7 +19,22 @@
   overflow: auto;
 }
 
+#pcap-tool {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: @pcap-tool-height;
+  overflow: hidden;
+}
+
 #pcap-bottom {
+  border-top: 2px solid @theme-lighter-bg;
+  position: absolute;
+  top: @pcap-tool-height;
+  left: 0;
+  right: 0;
+  bottom: 0;
   overflow: auto;
 }
 

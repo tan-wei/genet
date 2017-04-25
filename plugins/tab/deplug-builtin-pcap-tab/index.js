@@ -40,6 +40,7 @@ class PcapView {
   oncreate(vnode) {
     this.top = vnode.dom.querySelector('#pcap-top').attachShadow({mode: 'open'})
     this.bottom = vnode.dom.querySelector('#pcap-bottom').attachShadow({mode: 'open'})
+    this.tool = vnode.dom.querySelector('#pcap-tool').attachShadow({mode: 'open'})
     Panel.registerSlot('core:pcap:top', (comp, less) => {
       Theme.current.render(less).then((style) => {
         const styleTag = document.createElement('style')
@@ -54,6 +55,14 @@ class PcapView {
         styleTag.textContent = style.css
         m.mount(this.bottom, comp)
         this.bottom.append(styleTag)
+      })
+    })
+    Panel.registerSlot('core:pcap:tool', (comp, less) => {
+      Theme.current.render(less).then((style) => {
+        const styleTag = document.createElement('style')
+        styleTag.textContent = style.css
+        m.mount(this.tool, comp)
+        this.tool.append(styleTag)
       })
     })
     this.topDragArea = vnode.dom.querySelector('#pcap-top-drag-area')
@@ -100,6 +109,7 @@ class PcapView {
       <div id="pcap-bottom-wrap"
         style={{height: `${this.bottomHeight}px`}}
       >
+        <div id="pcap-tool"></div>
         <div id="pcap-bottom"></div>
       </div>
     </div>

@@ -1,0 +1,22 @@
+{
+  "name": "deplug-builtin-filter-panel",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Deplug filter panel",
+  "engines": {
+    "deplug": "*"
+  },
+  "deplugin": {
+    "components": [
+      {
+        "type": "panel",
+        "panel": {
+          "name": "Filter",
+          "slot": "core:pcap:tool",
+          "less": "theme.less",
+          "root": "index.js"
+        }
+      }
+    ]
+  }
+}
