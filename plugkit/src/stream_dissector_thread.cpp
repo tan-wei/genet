@@ -9,7 +9,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <regex>
-#include <array>
 #include <v8.h>
 
 namespace plugkit {
@@ -80,57 +79,21 @@ void StreamDissectorThread::enter() {
 }
 
 bool StreamDissectorThread::loop() {
-  std::array<ChunkConstPtr, 128> chunks;
-  size_t size = d->queue.dequeue(std::begin(chunks), chunks.size());
+  std::vector<ChunkConstPtr> chunks;
+  chunks.resize(128);
+  size_t size = d->queue.dequeue(std::begin(chunks), chunks.capacity());
   if (size == 0)
     return false;
 
-  for (size_t i = 0; i < size; ++i) {
-    const auto &chunk = chunks[i];
-    const std::string &ns = chunk->streamNs();
-    auto &workers = d->workers[ns][chunk->streamId()];
+  chunks.resize(size);
 
-    if (workers.list.empty()) {
-      std::vector<StreamDissector *> *dissectors;
-      auto it = d->dissectorMap.find(ns);
-      if (it != d->dissectorMap.end()) {
-        dissectors = &it->second;
-      } else {
-        dissectors = &d->dissectorMap[ns];
-        for (const auto &pair : d->dissectors) {
-          for (const auto &regex : pair.second) {
-            if (std::regex_search(ns, regex)) {
-              dissectors->push_back(pair.first.get());
-            }
-          }
-        }
-      }
-
-      for (auto dissector : *dissectors) {
-        if (auto worker = dissector->createWorker()) {
-          workers.list.push_back(std::move(worker));
-        }
-      }
-    }
-
-    std::vector<FrameUniquePtr> frames;
-    for (const auto &worker : workers.list) {
-      if (const auto &layer = worker->analyze(chunk)) {
-        if (!layer->ns().empty()) {
-          auto frame = Frame::Private::create();
-          frame->d->setRootLayer(layer);
-          frames.push_back(std::move(frame));  
-        }
-      }
-    }
-
-    if (!workers.list.empty()) {
-      workers.lastUpdated = std::chrono::system_clock::now();
-    }
-
-    d->callback(&frames.front(), frames.size());
+  for (size_t i = 0; i < chunks.size(); ++i) {
+    const auto chunk = chunks[i];
+    const auto &subChunks = processChunk(chunk);
+    chunks.insert(chunks.end(), subChunks.begin(), subChunks.end());
+    d->count++;
   }
-  d->count++;
+
   if (d->count % 1024 == 0) {
     d->cleanup();
   }
@@ -148,4 +111,66 @@ void StreamDissectorThread::push(const ChunkConstPtr *begin, size_t size) {
 }
 
 void StreamDissectorThread::stop() { d->queue.close(); }
+
+std::vector<ChunkConstPtr>
+StreamDissectorThread::processChunk(const ChunkConstPtr &chunk) {
+  const std::string &ns = chunk->streamNs();
+  auto &workers = d->workers[ns][chunk->streamId()];
+
+  if (workers.list.empty()) {
+    std::vector<StreamDissector *> *dissectors;
+    auto it = d->dissectorMap.find(ns);
+    if (it != d->dissectorMap.end()) {
+      dissectors = &it->second;
+    } else {
+      dissectors = &d->dissectorMap[ns];
+      for (const auto &pair : d->dissectors) {
+        for (const auto &regex : pair.second) {
+          if (std::regex_search(ns, regex)) {
+            dissectors->push_back(pair.first.get());
+          }
+        }
+      }
+    }
+
+    for (auto dissector : *dissectors) {
+      if (auto worker = dissector->createWorker()) {
+        workers.list.push_back(std::move(worker));
+      }
+    }
+  }
+
+  std::vector<ChunkConstPtr> subChunks;
+
+  std::function<std::vector<ChunkConstPtr>(const LayerConstPtr &)> findChunks =
+      [&findChunks](const LayerConstPtr &layer) -> std::vector<ChunkConstPtr> {
+    std::vector<ChunkConstPtr> chunks;
+    const auto &list = layer->chunks();
+    chunks.insert(chunks.begin(), list.begin(), list.end());
+    for (const auto &child : layer->children()) {
+      const auto &childList = findChunks(child);
+      chunks.insert(chunks.begin(), childList.begin(), childList.end());
+    }
+    return chunks;
+  };
+
+  std::vector<FrameUniquePtr> frames;
+  for (const auto &worker : workers.list) {
+    if (const auto &layer = worker->analyze(chunk)) {
+      if (!layer->ns().empty()) {
+        auto frame = Frame::Private::create();
+        frame->d->setRootLayer(layer);
+        frames.push_back(std::move(frame));
+      }
+      subChunks = findChunks(layer);
+    }
+  }
+
+  if (!workers.list.empty()) {
+    workers.lastUpdated = std::chrono::system_clock::now();
+  }
+
+  d->callback(&frames.front(), frames.size());
+  return subChunks;
+}
 }

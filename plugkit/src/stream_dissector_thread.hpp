@@ -3,6 +3,7 @@
 
 #include "worker_thread.hpp"
 #include <memory>
+#include <vector>
 
 namespace plugkit {
 
@@ -32,6 +33,9 @@ public:
   void exit() override;
   void push(const ChunkConstPtr *begin, size_t size);
   void stop();
+
+private:
+  std::vector<ChunkConstPtr> processChunk(const ChunkConstPtr &chunk);
 
 private:
   class Private;

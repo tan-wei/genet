@@ -13,9 +13,10 @@ class TCPStreamDissector final : public StreamDissector {
 public:
   class Worker final : public StreamDissector::Worker {
   public:
-    LayerPtr analyze(const ChunkConstPtr &layer) override {
-      const LayerPtr& child = std::make_shared<Layer>();
-      return child;
+    LayerPtr analyze(const ChunkConstPtr &chunk) override {
+      Layer child;
+      child.addChunk(Chunk(chunk->streamNs() + "+", chunk->streamId(), chunk->payload()));
+      return std::make_shared<Layer>(std::move(child));
     }
   };
 
@@ -24,7 +25,7 @@ public:
     return StreamDissector::WorkerPtr(new TCPStreamDissector::Worker());
   }
   std::vector<std::regex> namespaces() const override {
-    return std::vector<std::regex>{std::regex("eth ipv4 <tcp>")};
+    return std::vector<std::regex>{std::regex("eth ipv4 <tcp>$")};
   }
 };
 
