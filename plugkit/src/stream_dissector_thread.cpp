@@ -116,9 +116,11 @@ bool StreamDissectorThread::loop() {
     std::vector<FrameUniquePtr> frames;
     for (const auto &worker : workers.list) {
       if (const auto &layer = worker->analyze(chunk)) {
-        auto frame = Frame::Private::create();
-        frame->d->setRootLayer(layer);
-        frames.push_back(std::move(frame));
+        if (!layer->ns().empty()) {
+          auto frame = Frame::Private::create();
+          frame->d->setRootLayer(layer);
+          frames.push_back(std::move(frame));  
+        }
       }
     }
 

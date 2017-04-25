@@ -201,7 +201,7 @@ public:
 
       const auto& payload = reader.slice();
       child.setPayload(payload);
-      child.addChunk(Chunk(child.ns(), child.summary(), payload));
+      child.addChunk(Chunk(layer->ns(), child.summary(), payload));
       return std::make_shared<Layer>(std::move(child));
     }
   };
