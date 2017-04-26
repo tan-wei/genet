@@ -218,7 +218,7 @@ void Session::setDisplayFilter(const std::string &name,
   if (filter != d->filters.end() && body.empty()) {
     d->filters.erase(filter);
   } else {
-    d->aliasMap["eth"] = "::Ethernet";
+    d->aliasMap["eth"] = "eth <ipv4>";
     auto pool = std::unique_ptr<FilterThreadPool>(
         new FilterThreadPool(body, d->frameStore, d->aliasMap, [this]() {
           d->notifyStatus(Private::UPDATE_FILTER);
