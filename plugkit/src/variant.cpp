@@ -343,9 +343,17 @@ bool Variant::isStream() const { return type() == TYPE_STREAM; }
 
 v8::Local<v8::Object> Variant::Private::getNodeBuffer(const Slice &slice) {
   using namespace v8;
-  void *hint = new Slice::Buffer(slice.buffer());
-  return node::Buffer::New(Isolate::GetCurrent(),
-                           const_cast<char *>(slice.data()), slice.size(),
+
+  Isolate *isolate = Isolate::GetCurrent();
+  const Slice::Buffer &buffer = slice.buffer();
+  if (!isolate->GetData(1)) { // Node.js is not installed
+    auto array = ArrayBuffer::New(isolate, const_cast<char *>(buffer->data()),
+                                  buffer->size());
+    return Uint8Array::New(array, slice.data() - buffer->data(), slice.size());
+  }
+  void *hint = new Slice::Buffer(buffer);
+  return node::Buffer::New(isolate, const_cast<char *>(slice.data()),
+                           slice.size(),
                            [](char *data, void *hint) {
                              delete static_cast<Slice::Buffer *>(hint);
                            },
