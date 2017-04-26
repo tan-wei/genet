@@ -308,30 +308,9 @@ FilterFunc Filter::Private::makeFilter(const json11::Json &json) const {
         return Filter::Result(frameObject->Get(key));
       }
 
-      using LayerMap = std::vector<LayerConstPtr>;
-      std::function<LayerConstPtr(const std::string &name, const LayerMap &)>
-          findLayer;
-      findLayer = [&findLayer](const std::string &name,
-                               const LayerMap &layers) {
-        for (const auto &layer : layers) {
-          if (layer->ns() == name) {
-            return layer;
-          }
-        }
-        for (const auto &layer : layers) {
-          if (const LayerConstPtr &child = findLayer(name, layer->children()))
-            return child;
-        }
-        return LayerConstPtr();
-      };
-
-      auto ns = aliasMap.find(name);
-      if (ns != aliasMap.end()) {
-        if (const auto &layer =
-                findLayer(ns->second, LayerMap{view->frame()->rootLayer()})) {
-          Local<Object> layerObject = LayerWrapper::wrap(layer);
-          return Filter::Result(layerObject);
-        }
+      if (const auto &layer = view->layerFromId(name)) {
+        Local<Object> layerObject = LayerWrapper::wrap(layer);
+        return Filter::Result(layerObject);
       }
 
       if (name == "$") {

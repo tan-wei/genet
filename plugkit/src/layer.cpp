@@ -4,13 +4,11 @@
 #include "chunk.hpp"
 #include "property.hpp"
 #include <unordered_map>
+#include <regex>
 
 namespace plugkit {
 
 class Layer::Private {
-public:
-  Private(const std::string &ns, const std::string &name);
-
 public:
   std::string ns;
   std::string name;
@@ -27,21 +25,30 @@ public:
   std::unordered_map<std::string, size_t> idMap;
 };
 
-Layer::Private::Private(const std::string &ns, const std::string &name)
-    : ns(ns), name(name) {}
-
-Layer::Layer() : d(new Private("", "")) {}
+Layer::Layer() : d(new Private()) {}
 
 Layer::Layer(const std::string &ns, const std::string &name)
-    : d(new Private(ns, name)) {}
+    : d(new Private()) {
+  setNs(ns);
+  d->name = name;
+}
 
 Layer::~Layer() {}
 
 Layer::Layer(Layer &&layer) { this->d.reset(layer.d.release()); }
 
+std::string Layer::id() const { return d->id; }
+
 std::string Layer::ns() const { return d->ns; }
 
-void Layer::setNs(const std::string &ns) { d->ns = ns; }
+void Layer::setNs(const std::string &ns) {
+  std::smatch match;
+  static const std::regex regex(".*(?:[^<]|^)\\b(\\w+)\\b");
+  if (std::regex_search(ns, match, regex)) {
+    d->id = match[1].str();
+  }
+  d->ns = ns;
+}
 
 std::string Layer::name() const { return d->name; }
 

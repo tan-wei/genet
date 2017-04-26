@@ -31,6 +31,7 @@ public:
   Layer(Layer &&layer);
   ~Layer();
 
+  std::string id() const;
   std::string ns() const;
   void setNs(const std::string &ns);
   std::string name() const;

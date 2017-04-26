@@ -13,6 +13,7 @@ public:
   LayerConstPtr primaryLayer;
   std::vector<LayerConstPtr> leafLayers;
   std::unordered_map<std::string, PropertyConstPtr> properties;
+  std::unordered_map<std::string, LayerConstPtr> layers;
   bool hasError = false;
 };
 
@@ -21,6 +22,7 @@ FrameView::FrameView(FrameUniquePtr &&frame) : d(new Private()) {
 
   std::function<void(const LayerConstPtr &)> findLeafLayers =
       [this, &findLeafLayers](const LayerConstPtr &layer) {
+        d->layers[layer->id()] = layer;
         if (layer->children().empty()) {
           d->leafLayers.push_back(layer);
         } else {
@@ -74,6 +76,14 @@ PropertyConstPtr FrameView::propertyFromId(const std::string &id) const {
   }
   d->properties[id] = prop;
   return prop;
+}
+
+LayerConstPtr FrameView::layerFromId(const std::string &id) const {
+  const auto &it = d->layers.find(id);
+  if (it != d->layers.end()) {
+    return it->second;
+  }
+  return LayerConstPtr();
 }
 
 bool FrameView::hasError() const { return d->hasError; }
