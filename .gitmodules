@@ -1,3 +1,6 @@
 [submodule "images"]
 	path = images
 	url = https://github.com/deplug/images.git
+[submodule "plugkit/vendor/json11"]
+	path = plugkit/vendor/json11
+	url = https://github.com/dropbox/json11.git
