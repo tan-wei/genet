@@ -1,0 +1,17 @@
+{
+  "title": "Deplug",
+  "icon": "../images/deplug-drive.icns",
+  "background": "../images/dmg-background.png",
+  "icon-size": 128,
+  "contents": [{
+    "x": 450,
+    "y": 180,
+    "type": "link",
+    "path": "/Applications"
+  }, {
+    "x": 180,
+    "y": 180,
+    "type": "file",
+    "path": "../out/Deplug-darwin-x64/Deplug.app"
+  }]
+}
