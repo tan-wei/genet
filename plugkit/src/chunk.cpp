@@ -1,4 +1,4 @@
-#include "chunk.hpp"
+#include "private/chunk.hpp"
 #include "wrapper/chunk.hpp"
 #include "property.hpp"
 #include "slice.hpp"
@@ -6,19 +6,15 @@
 
 namespace plugkit {
 
-class Chunk::Private {
-public:
-  Private(const std::string &ns, const std::string &id, const Slice &payload);
-  std::string streamNs;
-  std::string streamId;
-  Slice payload;
-  std::vector<PropertyConstPtr> properties;
-  std::unordered_map<std::string, size_t> idMap;
-};
-
 Chunk::Private::Private(const std::string &ns, const std::string &id,
                         const Slice &payload)
     : streamNs(ns), streamId(id), payload(payload) {}
+
+LayerConstPtr Chunk::Private::layer() const { return layer_.lock(); }
+
+void Chunk::Private::setLayer(const LayerConstWeakPtr &layer) {
+  layer_ = layer;
+}
 
 Chunk::Chunk() : d(new Private("", "", Slice())) {}
 
@@ -58,4 +54,6 @@ void Chunk::addProperty(const PropertyConstPtr &prop) {
   d->idMap[prop->id()] = d->properties.size();
   d->properties.push_back(prop);
 }
+
+LayerConstPtr Chunk::layer() const { return d->layer(); }
 }

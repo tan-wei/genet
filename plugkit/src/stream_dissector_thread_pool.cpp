@@ -6,7 +6,7 @@
 #include "variant.hpp"
 #include "frame.hpp"
 #include "layer.hpp"
-#include "chunk.hpp"
+#include "private/chunk.hpp"
 #include <thread>
 #include <array>
 #include <v8.h>
@@ -94,6 +94,9 @@ void StreamDissectorThreadPool::start() {
               const LayerConstPtr &layer) -> std::vector<ChunkConstPtr> {
         std::vector<ChunkConstPtr> chunks;
         const auto &list = layer->chunks();
+        for (const auto &chunk : list) {
+          chunk->d->setLayer(layer);
+        }
         chunks.insert(chunks.begin(), list.begin(), list.end());
         for (const auto &child : layer->children()) {
           const auto &childList = findChunks(child);

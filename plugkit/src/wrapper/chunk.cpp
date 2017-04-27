@@ -2,6 +2,7 @@
 #include "../plugkit/chunk.hpp"
 #include "private/variant.hpp"
 #include "wrapper/property.hpp"
+#include "wrapper/layer.hpp"
 #include "plugkit_module.hpp"
 #include "extended_slot.hpp"
 
@@ -22,6 +23,7 @@ void ChunkWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   Nan::SetAccessor(otl, Nan::New("payload").ToLocalChecked(), payload,
                    setPayload);
   Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
+  Nan::SetAccessor(otl, Nan::New("layer").ToLocalChecked(), layer);
 
   PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
       isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
@@ -122,6 +124,17 @@ NAN_METHOD(ChunkWrapper::addProperty) {
               PropertyWrapper::unwrap(info[0].As<v8::Object>())) {
         chunk->addProperty(prop);
       }
+    }
+  }
+}
+
+NAN_GETTER(ChunkWrapper::layer) {
+  ChunkWrapper *wrapper = ObjectWrap::Unwrap<ChunkWrapper>(info.Holder());
+  if (auto chunk = wrapper->constChunk) {
+    if (const auto &layer = chunk->layer()) {
+      info.GetReturnValue().Set(LayerWrapper::wrap(layer));
+    } else {
+      info.GetReturnValue().Set(Nan::Null());
     }
   }
 }

@@ -2,7 +2,7 @@
 #include "stream_dissector.hpp"
 #include "session_context.hpp"
 #include "private/frame.hpp"
-#include "chunk.hpp"
+#include "private/chunk.hpp"
 #include "layer.hpp"
 #include "queue.hpp"
 #include "variant.hpp"
@@ -90,6 +90,9 @@ bool StreamDissectorThread::loop() {
   for (size_t i = 0; i < chunks.size(); ++i) {
     const auto chunk = chunks[i];
     const auto &subChunks = processChunk(chunk);
+    for (const auto &sub : subChunks) {
+      sub->d->setLayer(chunk->layer());
+    }
     chunks.insert(chunks.end(), subChunks.begin(), subChunks.end());
     d->count++;
   }

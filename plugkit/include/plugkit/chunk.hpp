@@ -12,6 +12,9 @@ class Slice;
 class Property;
 using PropertyConstPtr = std::shared_ptr<const Property>;
 
+class Layer;
+using LayerConstPtr = std::shared_ptr<const Layer>;
+
 class Chunk final {
 public:
   Chunk();
@@ -31,11 +34,13 @@ public:
   PropertyConstPtr propertyFromId(const std::string &id) const;
   void addProperty(const PropertyConstPtr &prop);
 
+  LayerConstPtr layer() const;
+
 private:
   Chunk(const Chunk &chunk) = delete;
   Chunk &operator=(const Chunk &chunk) = delete;
 
-private:
+public:
   class Private;
   std::unique_ptr<Private> d;
 };
