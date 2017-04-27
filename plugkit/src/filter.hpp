@@ -13,9 +13,6 @@ using FrameViewConstPtr = std::shared_ptr<const FrameView>;
 
 class Filter {
 public:
-  using AliasMap = std::unordered_map<std::string, std::string>;
-
-public:
   struct Result {
     using Value = v8::Local<v8::Value>;
     Result(Value value, Value parent = Value())
@@ -25,7 +22,7 @@ public:
   };
 
 public:
-  Filter(const std::string &body, const AliasMap &map);
+  Filter(const std::string &body);
   ~Filter();
   bool test(const FrameViewConstPtr &frame) const;
 

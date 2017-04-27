@@ -13,7 +13,6 @@ public:
 
 public:
   FrameStorePtr store;
-  AliasMap map;
   std::string body;
   std::vector<std::unique_ptr<FilterThread>> threads;
   std::map<uint32_t, bool> sequence;
@@ -30,12 +29,10 @@ FilterThreadPool::Private::~Private() { uv_rwlock_destroy(&rwlock); }
 
 FilterThreadPool::FilterThreadPool(const std::string &body,
                                    const FrameStorePtr &store,
-                                   const AliasMap &map,
                                    const Callback &callback)
     : d(new Private()) {
   d->body = body;
   d->store = store;
-  d->map = map;
   d->callback = callback;
 }
 
@@ -73,7 +70,7 @@ void FilterThreadPool::start() {
 
   int threads = std::thread::hardware_concurrency();
   for (int i = 0; i < threads; ++i) {
-    auto thread = new FilterThread(d->body, d->store, d->map, threadCallback);
+    auto thread = new FilterThread(d->body, d->store, threadCallback);
     thread->setLogger(d->logger);
     d->threads.emplace_back(thread);
   }

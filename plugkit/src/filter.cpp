@@ -25,7 +25,6 @@ public:
 
 public:
   FilterFunc func;
-  AliasMap aliasMap;
 };
 
 Local<Value> Filter::Private::fetchValue(Local<Value> value) const {
@@ -339,9 +338,7 @@ FilterFunc Filter::Private::makeFilter(const std::string &str) const {
       });
 }
 
-Filter::Filter(const std::string &body, const AliasMap &map)
-    : d(new Private()) {
-  d->aliasMap = map;
+Filter::Filter(const std::string &body) : d(new Private()) {
   d->func = d->makeFilter(body);
 }
 

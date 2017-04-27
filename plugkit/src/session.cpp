@@ -50,7 +50,6 @@ public:
   std::unordered_map<int, std::pair<std::string, std::string>> linkLayers;
   std::shared_ptr<FrameStore> frameStore;
   std::unique_ptr<Pcap> pcap;
-  FilterThreadPool::AliasMap aliasMap;
   StatusCallback statusCallback;
   FilterCallback filterCallback;
   FrameCallback frameCallback;
@@ -218,9 +217,8 @@ void Session::setDisplayFilter(const std::string &name,
   if (filter != d->filters.end() && body.empty()) {
     d->filters.erase(filter);
   } else {
-    d->aliasMap["eth"] = "eth <ipv4>";
     auto pool = std::unique_ptr<FilterThreadPool>(
-        new FilterThreadPool(body, d->frameStore, d->aliasMap, [this]() {
+        new FilterThreadPool(body, d->frameStore, [this]() {
           d->notifyStatus(Private::UPDATE_FILTER);
         }));
     pool->setLogger(d->logger);

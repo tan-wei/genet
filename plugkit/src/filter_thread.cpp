@@ -14,24 +14,22 @@ class FilterThread::Private {
 public:
   FrameStorePtr store;
   Callback callback;
-  AliasMap map;
   std::string body;
   std::unique_ptr<Filter> filter;
   size_t offset = 0;
 };
 
 FilterThread::FilterThread(const std::string &body, const FrameStorePtr &store,
-                           const AliasMap &map, const Callback &callback)
+                           const Callback &callback)
     : WorkerThread(false), d(new Private()) {
   d->store = store;
   d->callback = callback;
-  d->map = map;
   d->body = body;
 }
 
 FilterThread::~FilterThread() {}
 
-void FilterThread::enter() { d->filter.reset(new Filter(d->body, d->map)); }
+void FilterThread::enter() { d->filter.reset(new Filter(d->body)); }
 
 void FilterThread::exit() { d->filter.reset(); }
 

@@ -17,11 +17,10 @@ using FrameStorePtr = std::shared_ptr<FrameStore>;
 class FilterThreadPool final {
 public:
   using Callback = std::function<void()>;
-  using AliasMap = std::unordered_map<std::string, std::string>;
 
 public:
   FilterThreadPool(const std::string &body, const FrameStorePtr &store,
-                   const AliasMap &map, const Callback &callback);
+                   const Callback &callback);
   ~FilterThreadPool();
   void start();
   void setLogger(const LoggerPtr &logger);

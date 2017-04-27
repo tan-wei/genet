@@ -15,11 +15,10 @@ class FilterThread final : public WorkerThread {
 public:
   using Callback =
       std::function<void(const std::vector<std::pair<uint32_t, bool>> &)>;
-  using AliasMap = std::unordered_map<std::string, std::string>;
 
 public:
   FilterThread(const std::string &body, const FrameStorePtr &store,
-               const AliasMap &map, const Callback &callback);
+               const Callback &callback);
   ~FilterThread() override;
   void enter() override;
   bool loop() override;
