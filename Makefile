@@ -25,6 +25,8 @@ ELECTRON_IGNORE = "deplug-core","plugkit"
 
 PACKAGER = node_modules/.bin/electron-packager
 
+APPDMG = node_modules/.bin/appdmg
+
 ifeq ($(OS),Windows_NT)
 ROLLUP = node_modules\.bin\rollup
 else
@@ -46,6 +48,9 @@ plugkit:
 	cp -r -f -p $(PLUGKIT_SRC) node_modules
 	$(MAKE) -C $(PLUGKIT_DST)
 	$(MAKE) -C $(DISSECTOR_ESS)
+
+dmg:
+	$(APPDMG) ci/appdmg.json out/deplug-darwin-amd64.dmg
 
 pack: build
 	$(PACKAGER) ./ --download.mirror=$(ELECTRON_MIRROR) \
@@ -69,4 +74,4 @@ fmt:
 clean:
 	@rm -rf $(DEPLUG_CORE) $(PLUGKIT_DST)
 
-.PHONY: all run build fix lint pack clean fmt plugkit
+.PHONY: all run build fix lint pack clean fmt plugkit dmg
