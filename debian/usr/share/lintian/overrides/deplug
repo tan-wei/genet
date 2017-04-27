@@ -1,0 +1,10 @@
+deplug: arch-dependent-file-in-usr-share
+deplug: changelog-file-missing-in-native-package
+deplug: embedded-library
+deplug: package-installs-python-bytecode
+deplug: unstripped-binary-or-object
+deplug: python-script-but-no-python-dep
+deplug: missing-dependency-on-libc
+deplug: shell-script-fails-syntax-check
+deplug: wrong-path-for-interpreter
+deplug: shlib-with-executable-bit

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Deplug
+Comment=Next generation packet analyzer
+Exec=/usr/share/deplug/deplug
+Terminal=false
+Type=Application
+Icon=deplug
+Categories=Network;Monitor
+StartupNotify=true
