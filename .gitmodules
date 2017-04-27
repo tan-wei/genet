@@ -4,3 +4,9 @@
 [submodule "plugkit/vendor/json11"]
 	path = plugkit/vendor/json11
 	url = https://github.com/dropbox/json11.git
+[submodule "plugkit/vendor/nan"]
+	path = plugkit/vendor/nan
+	url = https://github.com/nodejs/nan.git
+[submodule "plugkit/vendor/winpcap"]
+	path = plugkit/vendor/winpcap
+	url = https://github.com/deplug/winpcap.git
