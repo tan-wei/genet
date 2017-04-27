@@ -45,6 +45,7 @@
   },
   "optionalDependencies": {
     "appdmg": "^0.4.5",
-    "deplug-helper": "^0.1.0"
+    "deplug-helper": "^0.1.0",
+    "electron-winstaller": "^2.5.2"
   }
 }
