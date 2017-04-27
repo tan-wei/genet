@@ -15,7 +15,8 @@ public:
   public:
     LayerPtr analyze(const ChunkConstPtr &chunk) override {
       Layer child;
-      child.addChunk(Chunk(chunk->streamNs() + "+", chunk->streamId(), chunk->payload()));
+      child.addChunk(Chunk(fmt::replace(chunk->streamNs(), "<tcp>", "tcp"),
+        chunk->streamId(), chunk->payload()));
       return std::make_shared<Layer>(std::move(child));
     }
   };

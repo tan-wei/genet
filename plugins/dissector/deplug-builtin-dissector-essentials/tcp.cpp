@@ -30,12 +30,10 @@ public:
       const auto& parentSrc = layer->propertyFromId("src");
       const auto& parentDst = layer->propertyFromId("dst");
 
-      if (parentSrc && parentDst) {
-        child.setSummary(
-          parentSrc->summary() + ":" + std::to_string(sourcePort) +
-          " -> " +
-          parentDst->summary() + ":" + std::to_string(dstPort));
-      }
+      child.setSummary(
+        parentSrc->summary() + ":" + std::to_string(sourcePort) +
+        " -> " +
+        parentDst->summary() + ":" + std::to_string(dstPort));
 
       uint32_t seqNumber = reader.readBE<uint32_t>();
       Property seq("seq", "Sequence number", seqNumber);
@@ -200,8 +198,11 @@ public:
       child.addProperty(std::move(options));
 
       const auto& payload = reader.slice();
+      const std::string &streamId = parentSrc->summary() +
+        ":" + std::to_string(sourcePort) + "/" +
+        parentDst->summary() + ":" + std::to_string(dstPort);
       child.setPayload(payload);
-      child.addChunk(Chunk(layer->ns(), child.summary(), payload));
+      child.addChunk(Chunk(layer->ns(), streamId, payload));
       return std::make_shared<Layer>(std::move(child));
     }
   };

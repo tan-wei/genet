@@ -32,8 +32,8 @@ public:
   void addProperty(const PropertyConstPtr &prop);
 
 private:
-  Chunk(const Chunk &layer) = delete;
-  Chunk &operator=(const Chunk &layer) = delete;
+  Chunk(const Chunk &chunk) = delete;
+  Chunk &operator=(const Chunk &chunk) = delete;
 
 private:
   class Private;
