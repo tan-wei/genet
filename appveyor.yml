@@ -10,8 +10,8 @@ build_script:
 test_script:
 - ps: make lint
 before_deploy:
-- ps: make pack
-- ps: make winstaller
+- ps: make pack; true
+- ps: make winstaller; true
 artifacts:
 - path: deplug-win-amd64.exe
 deploy:

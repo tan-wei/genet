@@ -66,7 +66,7 @@ deb:
 	(cd out/.debian && fakeroot dpkg-deb --build . ../deplug-linux-amd64.deb)
 
 winstaller:
-	node ci/winstaller.js; true
+	node ci/winstaller.js
 	mv out/DeplugSetup.exe out/deplug-win-amd64.exe
 
 pack: build
