@@ -26,6 +26,7 @@ script:
 - make lint
 - make build
 before_deploy:
+- make pack
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make deb ; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then make dmg ; fi
 notifications:
