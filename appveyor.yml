@@ -6,7 +6,7 @@ environment:
   CL: -DDELAYIMP_INSECURE_WRITABLE_HOOKS
 build_script:
 - ps: yarn
-- ps: make build
+- ps: make build; true
 test_script:
 - ps: make lint
 before_deploy:
