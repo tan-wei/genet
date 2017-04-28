@@ -8,9 +8,6 @@ if (process.platform === 'darwin' && !Pcap.permission) {
   require('deplug-helper')()
 }
 
-app.commandLine.appendSwitch('js-flags', '--harmony-async-await')
-app.commandLine.appendSwitch('--enable-experimental-web-platform-features')
-
 mkpath.sync(config.userPluginPath)
 
 app.on('window-all-closed', () => {
