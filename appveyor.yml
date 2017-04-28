@@ -15,13 +15,13 @@ before_deploy:
 - ps: make pack; true
 - ps: make winstaller; true
 artifacts:
-- path: deplug-win-amd64.exe
+- path: out/deplug-win-amd64.exe
 deploy:
   release: $(APPVEYOR_REPO_TAG_NAME)
   provider: GitHub
   auth_token:
     secure: 5xfEThlejgLcJhJS3rNfbbvFPDyuRy+wVgC0/KrbMiWycAYQej7GhAbCVvSneLoT
-  artifact: deplug-win-amd64.exe
+  artifact: out/deplug-win-amd64.exe
   draft: false
   prerelease: false
   on:
