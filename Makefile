@@ -21,15 +21,14 @@ ELECTRON_MIRROR = https://s3-ap-northeast-1.amazonaws.com/deplug-build-junk/elec
 ELECTRON_UNPACK = node_modules/deplug-helper
 ELECTRON_IGNORE = "deplug-core","plugkit"
 
+PACKAGER = node_modules/.bin/electron-packager
 APPDMG = node_modules/.bin/appdmg
 
 ifeq ($(OS),Windows_NT)
-PACKAGER = node_modules\.bin\electron-packager
 ELECTRON = node_modules\.bin\electron-deplug
 ESLINT = node_modules\.bin\eslint
 ROLLUP = node_modules\.bin\rollup
 else
-PACKAGER = node_modules/.bin/electron-packager
 ELECTRON = node_modules/.bin/electron-deplug
 ESLINT = node_modules/.bin/eslint
 ROLLUP = node_modules/.bin/rollup
