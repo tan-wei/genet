@@ -52,6 +52,7 @@ plugkit:
 	$(MAKE) -C $(DISSECTOR_ESS)
 
 dmg:
+	yarn add appdmg
 	$(APPDMG) ci/appdmg.json out/deplug-darwin-amd64.dmg
 
 deb:

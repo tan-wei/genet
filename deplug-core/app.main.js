@@ -4,7 +4,9 @@ import config from './config'
 import minimist from 'minimist'
 import mkpath from 'mkpath'
 
-if (require('electron-squirrel-startup')) app.quit()
+if (require('electron-squirrel-startup')) {
+  app.quit()
+}
 
 if (process.platform === 'darwin' && !Pcap.permission) {
   require('deplug-helper')()
