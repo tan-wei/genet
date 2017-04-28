@@ -37,7 +37,7 @@
     "stream-to-promise": "^2.2.0"
   },
   "devDependencies": {
-    "electron-deplug": "1.6.4",
+    "electron-deplug": "1.6.5",
     "electron-packager": "^8.6.0",
     "eslint": "^3.19.0",
     "nan": "^2.6.2",
