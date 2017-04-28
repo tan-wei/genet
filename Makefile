@@ -65,6 +65,10 @@ deb:
 	chrpath -r /usr/share/deplug out/.debian/usr/share/deplug/deplug
 	(cd out/.debian && fakeroot dpkg-deb --build . ../deplug-linux-amd64.deb)
 
+winstaller:
+	node ci/winstaller.js
+	mv out/DeplugSetup.exe out/deplug-win-amd64.exe
+
 pack: build
 	$(PACKAGER) ./ --download.mirror=$(ELECTRON_MIRROR) \
 	 						--asar.unpackDir=$(ELECTRON_UNPACK) \
@@ -87,4 +91,4 @@ fmt:
 clean:
 	@rm -rf $(DEPLUG_CORE) $(PLUGKIT_DST)
 
-.PHONY: all run build fix lint pack clean fmt plugkit dmg deb
+.PHONY: all run build fix lint pack clean fmt plugkit dmg deb winstaller
