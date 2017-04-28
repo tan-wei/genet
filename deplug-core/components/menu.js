@@ -12,20 +12,21 @@ export default class MenuComponent extends Component {
     }
 
     const root = objpath.get(this.comp, 'menu.root', '')
-    if (root === '') {
-      throw new Error('menu.root field required')
+
+    const module = {}
+    let Handler = Object
+    if (root !== '') {
+      const rootFile = path.join(this.rootDir, root)
+      const func = await roll(rootFile, this.rootDir, this.localExtern)
+      func(module)
+      Handler = module.exports
     }
 
-    const rootFile = path.join(this.rootDir, root)
-    const func = await roll(rootFile, this.rootDir, this.localExtern)
-    const module = {}
-    func(module)
-
-    const Handler = module.exports
     Menu.registerHandler({
       path: menuPath,
       handler: new Handler(),
-      accelerator: objpath.get(this.comp, 'menu.accelerator', ''),
+      accelerator: objpath.get(this.comp, 'menu.accelerator'),
+      selector: objpath.get(this.comp, 'menu.selector'),
     })
   }
 }

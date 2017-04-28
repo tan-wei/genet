@@ -18,6 +18,38 @@
       {
         "type": "menu",
         "menu": {
+          "path": ["Edit", "Cut"],
+          "accelerator": "Cmd+X",
+          "selector": "cut:"
+        }
+      },
+      {
+        "type": "menu",
+        "menu": {
+          "path": ["Edit", "Copy"],
+          "accelerator": "Cmd+C",
+          "selector": "copy:"
+        }
+      },
+      {
+        "type": "menu",
+        "menu": {
+          "path": ["Edit", "Paste"],
+          "accelerator": "Cmd+V",
+          "selector": "paste:"
+        }
+      },
+      {
+        "type": "menu",
+        "menu": {
+          "path": ["Edit", "Select All"],
+          "accelerator": "Cmd+A",
+          "selector": "selectAll:"
+        }
+      },
+      {
+        "type": "menu",
+        "menu": {
           "path": ["Developer", "Toggle Developer Tools"],
           "accelerator": "Cmd+Shift+I",
           "root": "menu-devtool.js"
