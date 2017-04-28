@@ -11,7 +11,7 @@ build_script:
 - ps: make build; true
 test_script:
 - ps: make lint
-before_deploy:
+after_test:
 - ps: make pack; true
 - ps: make winstaller; true
 artifacts:
