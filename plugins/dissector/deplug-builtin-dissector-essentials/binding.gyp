@@ -1,36 +1,35 @@
 {
-  "target_defaults": {
-      "include_dirs":[
-        "<!(node -e \"require('nan')\")",
-        "<!(node -e \"require('../../../node_modules/plugkit/include')\")"
-      ],
-      "conditions":[
-        [
-          "OS=='mac'",
-          {
-            "xcode_settings":{
-              "MACOSX_DEPLOYMENT_TARGET":"10.9"
-            }
+  "target_defaults":{
+    "include_dirs":[
+      "<!(node -e \"require('nan')\")",
+      "<!(node -e \"require('../../../node_modules/plugkit/include')\")"
+    ],
+    "conditions":[
+      [
+        "OS=='mac'",
+        {
+          "xcode_settings":{
+            "MACOSX_DEPLOYMENT_TARGET":"10.9"
           }
-        ],
-        [
-          "OS=='win'",
-          {
-            "configurations":{
-              "Release":{
-                "msvs_settings":{
-                  "VCCLCompilerTool":{
-                    "ObjectFile":"$(IntDir)/%(Directory)"
-                  },
-                  "VCLinkerTool":{
-                    "ForceFileOutput": "UndefinedSymbolOnly"
-                  }
+        }
+      ],
+      [
+        "OS=='win'",
+        {
+          "configurations":{
+            "Release":{
+              "msbuild_settings":{
+                "Link":{
+                  "AdditionalDependencies":[
+                    "\"../../../../node_modules/plugkit/build/Release/plugkit_static.lib\""
+                  ]
                 }
               }
             }
           }
-        ]
+        }
       ]
+    ]
   },
   "targets":[
     {
