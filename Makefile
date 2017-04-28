@@ -16,8 +16,6 @@ DISSECTOR_ESS = plugins/dissector/deplug-builtin-dissector-essentials
 ROOLUP_EXTERN_BUILTIN = electron,deplug,$(shell node -p -e 'require("builtin-modules").join(",")')
 ROOLUP_EXTERN = $(ROOLUP_EXTERN_BUILTIN),$(shell jq '.dependencies | keys | join(",")' package.json -r)
 
-ESLINT = node_modules/.bin/eslint
-
 ELECTRON_VERSION = $(shell jq '.devDependencies."electron-deplug"' package.json -r)
 ELECTRON_MIRROR = https://s3-ap-northeast-1.amazonaws.com/deplug-build-junk/electron/v
 ELECTRON_UNPACK = node_modules/deplug-helper
@@ -29,9 +27,11 @@ APPDMG = node_modules/.bin/appdmg
 
 ifeq ($(OS),Windows_NT)
 ELECTRON = node_modules\.bin\electron-deplug
+ESLINT = node_modules\.bin\eslint
 ROLLUP = node_modules\.bin\rollup
 else
 ELECTRON = node_modules/.bin/electron-deplug
+ESLINT = node_modules/.bin/eslint
 ROLLUP = node_modules/.bin/rollup
 endif
 
