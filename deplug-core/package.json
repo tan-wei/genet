@@ -7,8 +7,5 @@
     "url": "https://github.com/deplug/deplug.git"
   },
   "author": "h2so5",
-  "license": "MIT",
-  "engines": {
-    "deplug": "*"
-  }
+  "license": "MIT"
 }
