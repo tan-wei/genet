@@ -67,7 +67,7 @@ deb:
 
 winstaller:
 	node ci/winstaller.js
-	mv out/DeplugSetup.exe out/deplug-win-amd64.exe
+	mv out/DeplugSetup.exe deplug-win-amd64.exe
 
 pack: build
 	$(PACKAGER) ./ --download.mirror=$(ELECTRON_MIRROR) \
