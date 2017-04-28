@@ -1,7 +1,7 @@
 sudo: true
 language: node_js
 node_js:
-  - "7"
+- '7'
 os:
 - linux
 - osx
@@ -13,14 +13,37 @@ addons:
     packages:
     - g++-5
     - libcap-dev
+    - lintian
+    - chrpath
+    - rpm
 cache: yarn
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install jq; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source ci/linux-before-install.sh; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install jq; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source ci/linux-before-install.sh; fi
 install:
-  - yarn
+- yarn
 script:
-  - make lint
-  - make build
+- make lint
+- make build
+before_deploy:
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make deb ; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then make dmg ; fi
 notifications:
   email: false
+deploy:
+- provider: releases
+  api_key:
+    secure: T9OqQih4WkfV5AgQY8Y5/vhR3NuMZP6f2F2b0+oEZgBWkXP8xQ+FNzVrd4yR7TNiWmgb8CcDGax5HeHoUi1h9Mzx1ZPFAYYBUxc9jvp3LBzPw22ftWIGoAt5jI89k5cQqxvHj4w6cs7WrQBlLuQfgceNh9Gt0Yykj2PmoF+G81KLEBsHUgt7uXSc78d8+JJ+Gtbk9dwP6gS98d3oVxGStwGzolrjiEHW+DkbOYPfO4xk0nQhe+swwKPTF+1IYnsbAQ7yY34gosXrKsu3YRLZFBaWfiG2A9nYjLqXmVjvoEUVJE/m4x81EULWQbaKRpihb/jy5ZrZFStC2vV/NCYe5NT9poT6Dp0NYFXzaqwgEEpr3Dh4XNLObMQKjkoACNBTS3bsx14czSi7nZY441+YAe9TvHl6v3SkAyPrtnmbj4Mg7qaa7rV0mH+o5shvJALfskSoY2mJsg+Ed8O6LDy9mxeYbs1YAvSqDt3Th2U1R+y1kIyGuMj9A7wq9ACnSZHuRNSbr7HRfduhI9W8qIYhjmtqaG5jYJOGkvX4ecy3D20L13bGTT+VecvXysfFQYPnOQ2wb7gfhoBT+mNnapcR0615z7c4MYoOXK6jo7rp6hP4W8zmoSKEcZW9BxOh2v5M2LaIpWSxFNagXSsCwIi7z3jZI+0Rco3qu/WO0CWrgVI=
+  file: out/deplug-darwin-amd64.dmg
+  skip_cleanup: true
+  on:
+    tags: true
+    condition: $TRAVIS_OS_NAME = osx
+- provider: releases
+  api_key:
+    secure: T9OqQih4WkfV5AgQY8Y5/vhR3NuMZP6f2F2b0+oEZgBWkXP8xQ+FNzVrd4yR7TNiWmgb8CcDGax5HeHoUi1h9Mzx1ZPFAYYBUxc9jvp3LBzPw22ftWIGoAt5jI89k5cQqxvHj4w6cs7WrQBlLuQfgceNh9Gt0Yykj2PmoF+G81KLEBsHUgt7uXSc78d8+JJ+Gtbk9dwP6gS98d3oVxGStwGzolrjiEHW+DkbOYPfO4xk0nQhe+swwKPTF+1IYnsbAQ7yY34gosXrKsu3YRLZFBaWfiG2A9nYjLqXmVjvoEUVJE/m4x81EULWQbaKRpihb/jy5ZrZFStC2vV/NCYe5NT9poT6Dp0NYFXzaqwgEEpr3Dh4XNLObMQKjkoACNBTS3bsx14czSi7nZY441+YAe9TvHl6v3SkAyPrtnmbj4Mg7qaa7rV0mH+o5shvJALfskSoY2mJsg+Ed8O6LDy9mxeYbs1YAvSqDt3Th2U1R+y1kIyGuMj9A7wq9ACnSZHuRNSbr7HRfduhI9W8qIYhjmtqaG5jYJOGkvX4ecy3D20L13bGTT+VecvXysfFQYPnOQ2wb7gfhoBT+mNnapcR0615z7c4MYoOXK6jo7rp6hP4W8zmoSKEcZW9BxOh2v5M2LaIpWSxFNagXSsCwIi7z3jZI+0Rco3qu/WO0CWrgVI=
+  file: out/deplug-linux-amd64.deb
+  skip_cleanup: true
+  on:
+    tags: true
+    condition: $TRAVIS_OS_NAME = linux
