@@ -8,7 +8,7 @@ class ConfigView {
   }
 
   view(vnode) {
-    return <div>
+    return <main>
         <h1>Live capture</h1>
         <p>
           Permission: { Pcap.permission ? 'OK' : 'NG'}
@@ -26,7 +26,7 @@ class ConfigView {
           value="Choose pcap file..."
           onclick={ ()=>{ Tab.page = 'pcap' } }
         ></input>
-      </div>
+      </main>
   }
 }
 
@@ -119,8 +119,8 @@ class PcapView {
 export default class View {
   view(vnode) {
     if (Tab.page === '') {
-      return m(PcapView, {})
+      return m(ConfigView, {})
     }
-    return m(ConfigView, {})
+    return m(PcapView, {})
   }
 }
