@@ -28,26 +28,14 @@ class WebView {
   }
 
   view(vnode) {
-    if (this.guestinstance) {
-      return <webview
-        class="tab-content"
-        src={`file://${__dirname}/index.htm`}
-        isActive={vnode.attrs.isActive}
-        isLoaded={vnode.attrs.isLoaded}
-        guestinstance={this.guestinstance}
-        nodeintegration
-      >
-      </webview>
-    } else {
-      return <webview
-        class="tab-content"
-        src={`file://${__dirname}/index.htm`}
-        isActive={vnode.attrs.isActive}
-        isLoaded={vnode.attrs.isLoaded}
-        nodeintegration
-      >
-      </webview>
-    }
+    return <webview
+      class="tab-content"
+      src={`file://${__dirname}/index.htm`}
+      isActive={vnode.attrs.isActive}
+      isLoaded={vnode.attrs.isLoaded}
+      nodeintegration
+    >
+    </webview>
   }
 }
 
@@ -116,12 +104,11 @@ export default class TabView {
 
   oncreate(vnode) {
     this.tabContainer = vnode.dom.querySelector('#tab-container')
+    this.styleTag = jquery('<style>').appendTo(jquery('head'))
   }
 
   activate(index) {
-    if (!event.target.hasAttribute('exitDragging')) {
-      this.currentIndex = parseInt(index)
-    }
+    this.currentIndex = parseInt(index)
   }
 
   tabMenu(menu, e) {
@@ -135,43 +122,46 @@ export default class TabView {
     return menu
   }
 
-  startDrag(event) {
-    if (!event.target.hasAttribute('isPressed')) {
-      event.target.setAttribute('isPressed', `${event.clientX}`)
-    }
+  dragStart(event) {
+    event.target.style.opacity = '0.4'
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.setData('text/plain', event.target.getAttribute('index'))
+    this.styleTag.text('webview { pointer-events: none; }')
   }
 
-  dragMove(event) {
-    let pos = parseInt(event.target.getAttribute('isPressed'))
-    if (!Number.isNaN(pos) && Math.abs(event.clientX - pos) > 5) {
-      event.target.setAttribute('isDragging', '')
-      event.target.style.transform = `translateX(${event.clientX - pos}px)`
-    }
+  dragEnd(event) {
+    event.target.style.opacity = '1.0'
+    this.styleTag.text('')
   }
 
-  endDrag(event) {
-    event.target.removeAttribute('isPressed')
-    event.target.style.transform = ''
-
-    if (event.target.hasAttribute('isDragging')) {
-      const left = event.clientX - this.tabContainer.getBoundingClientRect().left
-      const width = this.tabContainer.querySelector('.tab-label').getBoundingClientRect().width
-      const index = Math.min(Math.max(0, Math.floor(left / width)), this.tabs.length - 1)
-      const currentIndex = parseInt(event.target.getAttribute('index'))
-      event.target.removeAttribute('isDragging')
-      if (index !== currentIndex) {
-        const id = this.tabs[this.currentIndex].id
-        const tmp = this.tabs[index]
-        this.tabs[index] = this.tabs[currentIndex]
-        this.tabs[currentIndex] = tmp
-        this.currentIndex = this.tabs.findIndex((t) => t.id === id)
-        m.redraw()
-      }
-      event.target.setAttribute('exitDragging', '')
-      process.nextTick(() => {
-        event.target.removeAttribute('exitDragging')
-      })
+  dragDrop(event) {
+    const currentIndex = parseInt(event.dataTransfer.getData('text/plain'))
+    const index = parseInt(event.target.getAttribute('index'))
+    if (index !== currentIndex) {
+      const id = this.tabs[this.currentIndex].id
+      const tmp = this.tabs[index]
+      this.tabs[index] = this.tabs[currentIndex]
+      this.tabs[currentIndex] = tmp
+      this.currentIndex = this.tabs.findIndex((t) => t.id === id)
+      m.redraw()
     }
+    event.target.classList.remove('over')
+  }
+
+  dragEnter(event) {
+    event.target.classList.add('over')
+  }
+
+  dragLeave(event) {
+    event.target.classList.remove('over')
+  }
+
+  dragOver(event) {
+    if (event.preventDefault) {
+      event.preventDefault()
+    }
+    event.dataTransfer.dropEffect = 'move'
+    return false
   }
 
   view() {
@@ -182,13 +172,16 @@ export default class TabView {
             this.tabs.map((t, i) => {
               return (
                 <a class="tab-label"
+                  draggable="true"
                   index={i}
                   isActive={ this.currentIndex === i }
                   onclick={m.withAttr('index', this.activate, this)}
-                  onmousedown={(event) => {this.startDrag(event)}}
-                  onmousemove={(event) => {this.dragMove(event)}}
-                  onmouseup={(event) => {this.endDrag(event)}}
-                  onmouseout={(event) => {this.endDrag(event)}}
+                  ondragstart={(e) => {this.dragStart(e)}}
+                  ondragend={(e) => {this.dragEnd(e)}}
+                  ondragenter={(e) => {this.dragEnter(e)}}
+                  ondragleave={(e) => {this.dragLeave(e)}}
+                  ondrop={(e) => {this.dragDrop(e)}}
+                  ondragover={(e) => {this.dragOver(e)}}
                   oncontextmenu={ (e)=> {
                     Menu.popup('core:tab:context', this, remote.getCurrentWindow(), {event: e})
                   } }
@@ -218,7 +211,6 @@ export default class TabView {
             <i class="fa fa-plus"></i>
           </a>
         </div>
-        <div id="tab-mask"></div>
         {
           (() => {
             const tabs = [].concat(this.tabs)

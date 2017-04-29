@@ -45,9 +45,9 @@ html {
         }
       }
     }
-    &[isdragging] {
-      opacity: 0.6;
-      z-index: 5;
+    &.over {
+      z-index: 2;
+      outline: 2px solid @theme-default-fg;
     }
 
     i.fa-times {
@@ -76,16 +76,6 @@ html {
       color: @theme-variables;
     }
   }
-}
-
-#tab-mask {
-  position: absolute;
-  top: (@tab-height);
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 0;
-  background-color: @theme-lighter-bg;
 }
 
 webview.tab-content {
