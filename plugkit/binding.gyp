@@ -78,6 +78,12 @@
               "-L/usr/local/lib",
               "-lpcap"
             ],
+            'link_settings': {
+                'libraries': [
+                    '$(SDKROOT)/System/Library/Frameworks/Foundation.framework',
+                    '$(SDKROOT)/System/Library/Frameworks/SystemConfiguration.framework'
+                ],
+            },
             "xcode_settings":{
               "MACOSX_DEPLOYMENT_TARGET":"10.9",
               "GCC_ENABLE_CPP_EXCEPTIONS":"YES",

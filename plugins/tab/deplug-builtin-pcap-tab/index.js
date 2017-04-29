@@ -49,13 +49,16 @@ class ConfigView {
         {
           m(PermissionMassage, {})
         }
-        <ul>
-          {
-            Pcap.devices.map((dev) => {
-              return <li>{ dev.name }</li>
-            })
-          }
-        </ul>
+        <select>
+        {
+          Pcap.devices.map((dev) => {
+            return <option
+              value={ dev.id }
+              >{ (dev.id === dev.name) ? dev.id : `${dev.name} - ${dev.id}` }
+            </option>
+          })
+        }
+        </select>
         <h1>Import local file</h1>
         <input
           type="button"

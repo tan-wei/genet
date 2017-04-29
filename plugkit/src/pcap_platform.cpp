@@ -12,6 +12,7 @@
 #if defined(PLUGKIT_OS_MAC)
 #include <dirent.h>
 #include <sys/stat.h>
+#include <SystemConfiguration/SystemConfiguration.h>
 #elif defined(PLUGKIT_OS_LINUX)
 #include <sys/capability.h>
 #include <unistd.h>
@@ -264,9 +265,10 @@ std::vector<NetworkInterface> PcapPlatform::devices() const {
   if (!d->pcapLoaded)
     return devs;
 
+  std::unordered_map<std::string, std::string> descriptions;
+
 #if defined(PLUGKIT_OS_WIN)
   static constexpr int guidLen = 38;
-  std::unordered_map<std::string, std::string> descriptions;
   {
     PMIB_IFTABLE ifTable = nullptr;
     DWORD dwSize = 0;
@@ -290,6 +292,27 @@ std::vector<NetworkInterface> PcapPlatform::devices() const {
     }
     free(ifTable);
   }
+#elif defined(PLUGKIT_OS_MAC)
+  {
+    auto CFStringToStdString = [](CFStringRef str) -> std::string {
+      char buf[2048];
+      CFStringGetCString(str, buf, sizeof(buf), kCFStringEncodingUTF8);
+      return buf;
+    };
+
+    CFArrayRef list = SCNetworkInterfaceCopyAll();
+    CFIndex size = CFArrayGetCount(list);
+    for (CFIndex i = 0; i < size; ++i) {
+      SCNetworkInterfaceRef ifs =
+          static_cast<SCNetworkInterfaceRef>(CFArrayGetValueAtIndex(list, i));
+      const std::string &id =
+          CFStringToStdString(SCNetworkInterfaceGetBSDName(ifs));
+      const std::string &name =
+          CFStringToStdString(SCNetworkInterfaceGetLocalizedDisplayName(ifs));
+      descriptions[id] = name;
+    }
+    CFRelease(list);
+  }
 #endif
 
   pcap_if_t *alldevsp;
@@ -301,17 +324,19 @@ std::vector<NetworkInterface> PcapPlatform::devices() const {
   for (pcap_if_t *ifs = alldevsp; ifs; ifs = ifs->next) {
     NetworkInterface dev;
     dev.id = ifs->name;
-    dev.name = ifs->name;
 
 #if defined(PLUGKIT_OS_WIN)
+    dev.name = ifs->name + (strlen(ifs->name) - guidLen);
+#else
+    dev.name = ifs->name;
+#endif
+
     {
-      const auto &it =
-          descriptions.find(ifs->name + (strlen(ifs->name) - guidLen));
+      const auto &it = descriptions.find(dev.name);
       if (it != descriptions.end()) {
         dev.name = it->second;
       }
     }
-#endif
 
     if (ifs->description)
       dev.description = ifs->description;

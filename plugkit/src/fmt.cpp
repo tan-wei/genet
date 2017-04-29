@@ -21,6 +21,5 @@ template <> template <> uint8_t Reader<Slice>::readBE<uint8_t>() {
 template <> template <> int8_t Reader<Slice>::readBE<int8_t>() {
   return readLE<int8_t>();
 }
-
 }
 }
