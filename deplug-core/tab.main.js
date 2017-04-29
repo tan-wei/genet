@@ -3,7 +3,7 @@ import deplug from './deplug'
 import jquery from 'jquery'
 import mithril from 'mithril'
 import path from 'path'
-import { remote } from 'electron'
+import { remote, shell } from 'electron'
 import roll from './roll'
 
 const { webContents, } = remote
@@ -62,5 +62,16 @@ export default async function (argv, tab) {
     for (const wc of webContents.getAllWebContents()) {
       wc.send('tab-deplug-loaded', tab.id)
     }
+
+    const contents = remote.getCurrentWebContents()
+    const handleRedirect = (event, url) => {
+      event.preventDefault()
+      if(url !== contents.getURL()) {
+        shell.openExternal(url)
+      }
+    }
+
+    contents.on('will-navigate', handleRedirect)
+    contents.on('new-window', handleRedirect)
   }
 }
