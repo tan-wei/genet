@@ -50,31 +50,37 @@ class LayerItem {
 
 export default class LayerListView {
   constructor() {
-    this.frame = null
-    Channel.on('core:frame:selected', (frame) => {
-      this.frame = frame
+    this.frames = []
+    Channel.on('core:frame:selected', (frames) => {
+      this.frames = frames
       m.redraw()
     })
   }
 
   view(vnode) {
-    if (!this.frame) {
+    if (!this.frames.length) {
       return <div class="layer-list-view">No frames selected</div>
     }
-    const ts = moment(this.frame.timestamp)
-    const tsString = ts.format('YYYY-MM-DDTHH:mm:ss.SSS') +
-      this.frame.timestamp.nsec + ts.format('Z')
+    return <div>
+      {
+        this.frames.map((frame) => {
+          const ts = moment(frame.timestamp)
+          const tsString = ts.format('YYYY-MM-DDTHH:mm:ss.SSS') +
+            frame.timestamp.nsec + ts.format('Z')
 
-    let length = `${this.frame.rootLayer.payload.length}`
-    if (this.frame.length > this.frame.rootLayer.payload.length) {
-      length += ` (actual: ${this.frame.length})`
-    }
-    return <div class="layer-list-view">
-      <table>
-        <tr><td>Timestamp </td><td>{ tsString }</td></tr>
-        <tr><td>Length </td><td>{ length }</td></tr>
-      </table>
-      { m(LayerItem, {layer: this.frame.rootLayer}) }
+          let length = `${frame.rootLayer.payload.length}`
+          if (frame.length > frame.rootLayer.payload.length) {
+            length += ` (actual: ${frame.length})`
+          }
+          return <div class="layer-list-view">
+            <table>
+              <tr><td>Timestamp </td><td>{ tsString }</td></tr>
+              <tr><td>Length </td><td>{ length }</td></tr>
+            </table>
+            { m(LayerItem, {layer: frame.rootLayer}) }
+          </div>
+        })
+      }
     </div>
   }
 }

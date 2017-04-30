@@ -13,7 +13,7 @@ class FrameItem {
   }
 
   select() {
-    Channel.emit('core:frame:selected', this.frame)
+    Channel.emit('core:frame:selected', [this.frame])
   }
 
   view(vnode) {
@@ -29,7 +29,8 @@ class FrameItem {
       data-frame-length={this.frame.length}
       data-frame-capture-length={this.frame.rootLayer.payload.length}
       data-layer-error={this.frame.hasError}
-      onclick={() => {this.select()}}
+      data-selected={ vnode.attrs.selected }
+      onmousedown={() => {this.select()}}
       style={{
         height: `${itemHeight}px`,
         top: `${index * itemHeight}px`
@@ -53,6 +54,12 @@ export default class FrameListView {
     this.viewHeight = 0
     this.mapHeight = 100
     this.previousScrollTop = 0
+    this.selectedFrames = []
+
+    Channel.on('core:frame:selected', (frames) => {
+      this.selectedFrames = frames
+      m.redraw()
+    })
 
     const profile = Profile.current['$deplug-builtin-frame-list-panel']
     this.columns = profile.columns || [
@@ -201,6 +208,7 @@ export default class FrameListView {
           {
             (new Array(end - begin)).fill().map((dev, index) => {
               const id = filterdFrames ? filterdFrames[index] : (index + begin + 1)
+              const selected = this.selectedFrames.some((frame) => frame.seq === id )
               return m(FrameItem, {
                 key: id,
                 seq: id,
@@ -208,7 +216,8 @@ export default class FrameListView {
                 itemHeight: itemHeight,
                 columns: this.columns,
                 attrs: this.attrs,
-                session: this.session
+                session: this.session,
+                selected: selected
               })
             })
           }

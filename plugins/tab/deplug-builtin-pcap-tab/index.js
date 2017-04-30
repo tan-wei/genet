@@ -158,8 +158,8 @@ class PcapView {
 export default class View {
   view(vnode) {
     if (Tab.page === '') {
-      return m(ConfigView, {})
+      return m(PcapView, {})
     }
-    return m(PcapView, {})
+    return m(ConfigView, {})
   }
 }
