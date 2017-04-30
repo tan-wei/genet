@@ -1,15 +1,23 @@
+import { remote, shell } from 'electron'
 import GlobalChannel from './global-channel'
 import deplug from './deplug'
 import jquery from 'jquery'
 import mithril from 'mithril'
 import path from 'path'
-import { remote, shell } from 'electron'
 import roll from './roll'
 
 const { webContents, } = remote
 async function updateTheme (theme, styleTag, lessFile) {
   const style = await theme.render(lessFile)
   styleTag.text(style.css)
+}
+
+function handleRedirect (event, url) {
+  event.preventDefault()
+  const contents = remote.getCurrentWebContents()
+  if (url !== contents.getURL()) {
+    shell.openExternal(url)
+  }
 }
 
 export default async function (argv, tab) {
@@ -64,13 +72,6 @@ export default async function (argv, tab) {
     }
 
     const contents = remote.getCurrentWebContents()
-    const handleRedirect = (event, url) => {
-      event.preventDefault()
-      if(url !== contents.getURL()) {
-        shell.openExternal(url)
-      }
-    }
-
     contents.on('will-navigate', handleRedirect)
     contents.on('new-window', handleRedirect)
   }

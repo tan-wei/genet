@@ -11,9 +11,7 @@
       {
         "type": "menu",
         "menu": {
-          "path": ["File", "Open Pcap File..."],
-          "accelerator": "Cmd+O",
-          "root": "open.js"
+          "root": "menu.js"
         }
       },
       {
