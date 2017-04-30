@@ -18,6 +18,7 @@ export default class FilterView {
   view(vnode) {
     return <input
       type="text"
+      placeholder="Display Filter ..."
       onkeypress={ (event) => {this.press(event)} }
     ></input>
   }

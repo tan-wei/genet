@@ -1,17 +1,28 @@
-import { Panel, Plugin, Theme } from 'deplug'
+import { GlobalChannel, Panel, Plugin, Theme } from 'deplug'
 import m from 'mithril'
 
 class PanelSlot {
+  constructor() {
+    GlobalChannel.on('core:theme:updated', () => { this.updateTheme() })
+  }
+
   oncreate(vnode) {
     const panels = Panel.get(vnode.attrs.slot)
     if (panels.length > 0) {
-      const node = vnode.dom.parentNode.attachShadow({mode: 'open'})
-      const panel = panels[0]
-      Theme.current.render(panel.less).then((style) => {
+      this.node = vnode.dom.parentNode.attachShadow({mode: 'open'})
+      this.panel = panels[0]
+      m.mount(this.node, this.panel.component)
+      this.updateTheme()
+    }
+  }
+
+  updateTheme() {
+    if (this.panel) {
+      console.log('updateTheme')
+      Theme.current.render(this.panel.less).then((style) => {
         const styleTag = document.createElement('style')
         styleTag.textContent = style.css
-        m.mount(node, panel.component)
-        node.append(styleTag)
+        this.node.append(styleTag)
       })
     }
   }

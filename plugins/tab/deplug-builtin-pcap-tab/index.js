@@ -6,8 +6,8 @@ import m from 'mithril'
 export default class View {
   view(vnode) {
     if (Tab.page === '') {
-      return m(PcapView, {})
+      return m(ConfigView, {})
     }
-    return m(ConfigView, {})
+    return m(PcapView, {})
   }
 }
