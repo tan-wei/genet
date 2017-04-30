@@ -46,6 +46,8 @@ export default async function (argv, tab) {
     Reflect.defineProperty(Tab, 'options', { value: options, })
     Reflect.defineProperty(Tab, 'id', { value: id, })
 
+    await Plugin.loadComponents('panel')
+
     const root = tab.tab.root || ''
     if (root !== '') {
       const rootFile = path.join(rootDir, root)
@@ -60,7 +62,6 @@ export default async function (argv, tab) {
     })
 
     await Plugin.loadComponents('script')
-    await Plugin.loadComponents('panel')
 
   } catch (err) {
     remote.getCurrentWebContents().openDevTools()

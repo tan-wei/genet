@@ -14,7 +14,7 @@ export default class MenuComponent extends Component {
     const func = await roll(rootFile, this.rootDir, this.localExtern)
     func(module)
 
-    for (let menu of module.exports) {
+    for (const menu of module.exports) {
       const menuPath = objpath.get(menu, 'path', null)
       if (menuPath === null) {
         throw new Error('menu.path field required')

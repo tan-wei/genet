@@ -17,7 +17,7 @@ const reload = throttle(() => {
 
   function crateMenuItem (name, object) {
     if (handlerSymbol in object) {
-      const { handler, accelerator, selector, click } = object[handlerSymbol]
+      const { accelerator, selector, click, } = object[handlerSymbol]
       const item = {
         label: name,
         selector,

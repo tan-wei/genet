@@ -1,6 +1,26 @@
 import { Panel, Plugin, Theme } from 'deplug'
 import m from 'mithril'
 
+class PanelSlot {
+  oncreate(vnode) {
+    const panels = Panel.get(vnode.attrs.slot)
+    if (panels.length > 0) {
+      const node = vnode.dom.parentNode.attachShadow({mode: 'open'})
+      const panel = panels[0]
+      Theme.current.render(panel.less).then((style) => {
+        const styleTag = document.createElement('style')
+        styleTag.textContent = style.css
+        m.mount(node, panel.component)
+        node.append(styleTag)
+      })
+    }
+  }
+
+  view(vnode) {
+    return <div></div>
+  }
+}
+
 export default class PcapView {
   constructor() {
     Plugin.loadComponents('dissector')
@@ -9,33 +29,6 @@ export default class PcapView {
   }
 
   oncreate(vnode) {
-    this.top = vnode.dom.querySelector('#pcap-top').attachShadow({mode: 'open'})
-    this.bottom = vnode.dom.querySelector('#pcap-bottom').attachShadow({mode: 'open'})
-    this.tool = vnode.dom.querySelector('#pcap-tool').attachShadow({mode: 'open'})
-    Panel.registerSlot('core:pcap:top', (comp, less) => {
-      Theme.current.render(less).then((style) => {
-        const styleTag = document.createElement('style')
-        styleTag.textContent = style.css
-        m.mount(this.top, comp)
-        this.top.append(styleTag)
-      })
-    })
-    Panel.registerSlot('core:pcap:bottom', (comp, less) => {
-      Theme.current.render(less).then((style) => {
-        const styleTag = document.createElement('style')
-        styleTag.textContent = style.css
-        m.mount(this.bottom, comp)
-        this.bottom.append(styleTag)
-      })
-    })
-    Panel.registerSlot('core:pcap:tool', (comp, less) => {
-      Theme.current.render(less).then((style) => {
-        const styleTag = document.createElement('style')
-        styleTag.textContent = style.css
-        m.mount(this.tool, comp)
-        this.tool.append(styleTag)
-      })
-    })
     this.topDragArea = vnode.dom.querySelector('#pcap-top-drag-area')
   }
 
@@ -63,7 +56,11 @@ export default class PcapView {
     return <div>
       <div id="pcap-top"
         style={{bottom: `${this.bottomHeight}px`}}
-        ></div>
+        >
+        {
+          m(PanelSlot, {slot: 'core:pcap:top'})
+        }
+      </div>
       <div class="vertical-handle"
         style={{bottom: `${this.bottomHeight}px`}}
         onmousedown={(event) => {this.startDrag(event)}}
@@ -80,8 +77,12 @@ export default class PcapView {
       <div id="pcap-bottom-wrap"
         style={{height: `${this.bottomHeight}px`}}
       >
-        <div id="pcap-tool"></div>
-        <div id="pcap-bottom"></div>
+        <div id="pcap-tool">{
+          m(PanelSlot, {slot: 'core:pcap:tool'})
+        }</div>
+        <div id="pcap-bottom">{
+          m(PanelSlot, {slot: 'core:pcap:bottom'})
+        }</div>
       </div>
     </div>
   }

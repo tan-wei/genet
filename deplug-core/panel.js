@@ -1,12 +1,16 @@
-const registry = {}
+const panelList = {}
 export default class Panel {
-  static mount (slot, component, options = {}) {
-    if (slot in registry) {
-      registry[slot](component, options)
+  static mount (slot, component, less) {
+    if (!(slot in panelList)) {
+      panelList[slot] = []
     }
+    panelList[slot].push({
+      component,
+      less,
+    })
   }
 
-  static registerSlot (slot, handler) {
-    registry[slot] = handler
+  static get (slot) {
+    return panelList[slot] || []
   }
 }
