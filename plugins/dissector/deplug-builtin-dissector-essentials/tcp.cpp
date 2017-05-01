@@ -54,7 +54,7 @@ public:
       uint8_t flag = reader.readBE<uint8_t>() |
         ((offsetAndFlag & 0x1) << 8);
 
-      static const std::tuple<uint16_t, const char*, const char*> flagTable[] = {
+      const std::tuple<uint16_t, const char*, const char*> flagTable[] = {
         std::make_tuple(0x1 << 8, "NS",  "ns"  ),
         std::make_tuple(0x1 << 7, "CWR", "cwr" ),
         std::make_tuple(0x1 << 6, "ECE", "ece" ),

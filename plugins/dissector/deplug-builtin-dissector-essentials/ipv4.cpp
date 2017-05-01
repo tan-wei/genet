@@ -44,7 +44,7 @@ public:
       uint8_t flagAndOffset = reader.readBE<uint8_t>();
       uint8_t flag = (flagAndOffset >> 5) & 0b00000111;
 
-      static const std::tuple<uint16_t, const char*, const char*> flagTable[] = {
+      const std::tuple<uint16_t, const char*, const char*> flagTable[] = {
         std::make_tuple(0x1, "Reserved", "reserved" ),
         std::make_tuple(0x2, "Don\'t Fragment", "dontFragment" ),
         std::make_tuple(0x4, "More Fragments", "moreFragments" ),
@@ -76,7 +76,7 @@ public:
       ttl.setRange(reader.lastRange());
       ttl.setError(reader.lastError());
 
-      static const std::unordered_map<
+      const std::unordered_map<
         uint16_t, std::pair<std::string,std::string>> protoTable = {
         {0x01, std::make_pair("ICMP", "icmp")},
         {0x02, std::make_pair("IGMP", "igmp")},

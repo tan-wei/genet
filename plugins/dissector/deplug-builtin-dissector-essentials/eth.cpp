@@ -39,7 +39,7 @@ public:
         length.setError(reader.lastError());
         child.addProperty(std::move(length));
       } else {
-        static const std::unordered_map<
+        const std::unordered_map<
           uint16_t, std::pair<std::string,std::string>> typeTable = {
           {0x0800, std::make_pair("IPv4", "ipv4")},
           {0x0806, std::make_pair("ARP", "arp")},
