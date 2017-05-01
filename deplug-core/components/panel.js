@@ -9,16 +9,6 @@ import roll from '../roll'
 
 export default class PanelComponent extends Component {
   async load () {
-    this.styleTag = jquery('<style>').appendTo(jquery('head'))
-
-    this.updateTheme = async () => {
-      if (this.lessFile) {
-        const style = await Theme.current.render(this.lessFile)
-        this.styleTag.text(style.css)
-      }
-    }
-    GlobalChannel.on('core:theme:updated', this.updateTheme)
-
     const name = objpath.get(this.comp, 'panel.name', '')
     if (name === '') {
       throw new Error('panel.name field required')
@@ -32,7 +22,6 @@ export default class PanelComponent extends Component {
     const less = objpath.get(this.comp, 'panel.less', '')
     if (less !== '') {
       this.lessFile = path.join(this.rootDir, less)
-      await this.updateTheme()
     }
 
     const main = objpath.get(this.comp, 'panel.main', '')
@@ -56,6 +45,5 @@ export default class PanelComponent extends Component {
 
   async unload () {
     GlobalChannel.removeListener('core:theme:updated', this.updateTheme)
-    this.styleTag.remove()
   }
 }

@@ -45,26 +45,41 @@ export default class ConfigView {
 
   view(vnode) {
     return <main>
+      <section>
         <h1>Live capture</h1>
         {
           m(PermissionMassage, {})
         }
-        <select>
-        {
-          Pcap.devices.map((dev) => {
-            return <option
-              value={ dev.id }
-              >{ (dev.id === dev.name) ? dev.id : `${dev.name} - ${dev.id}` }
-            </option>
-          })
-        }
-        </select>
+        <ul>
+        <li>
+          <select>
+          {
+            Pcap.devices.map((dev) => {
+              return <option
+                value={ dev.id }
+                >{ (dev.id === dev.name) ? dev.id : `${dev.name} - ${dev.id}` }
+              </option>
+            })
+          }
+          </select>
+        </li>
+        <li>
+        <input
+          type="button"
+          value="Start Live Capture"
+          onclick={ ()=>{ Tab.page = 'pcap' } }
+        ></input>
+        </li>
+        </ul>
+      </section>
+      <section>
         <h1>Import local file</h1>
         <input
           type="button"
           value="Choose pcap file..."
           onclick={ ()=>{ Tab.page = 'pcap' } }
         ></input>
-      </main>
+      </section>
+    </main>
   }
 }
