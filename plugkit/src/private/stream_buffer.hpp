@@ -15,7 +15,7 @@ public:
   uint64_t id;
   size_t length = 0;
   std::fstream stream;
-  static std::atomic<uint64_t> seq;
+  static std::atomic<uint64_t> index;
 };
 }
 

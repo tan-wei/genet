@@ -18,8 +18,8 @@ public:
   void setTimestamp(const Timestamp &timestamp);
   size_t length() const;
   void setLength(size_t length);
-  uint32_t seq() const;
-  void setSeq(uint32_t seq);
+  uint32_t index() const;
+  void setIndex(uint32_t index);
   LayerPtr rootLayer() const;
   void setRootLayer(const LayerPtr &layer);
 

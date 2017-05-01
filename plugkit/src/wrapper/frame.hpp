@@ -16,7 +16,7 @@ public:
   static NAN_METHOD(New);
   static NAN_GETTER(timestamp);
   static NAN_GETTER(length);
-  static NAN_GETTER(seq);
+  static NAN_GETTER(index);
   static NAN_GETTER(rootLayer);
   static NAN_GETTER(primaryLayer);
   static NAN_GETTER(leafLayers);

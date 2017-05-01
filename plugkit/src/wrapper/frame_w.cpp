@@ -18,7 +18,7 @@ void FrameWrapper::init(v8::Isolate *isolate) {
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("timestamp").ToLocalChecked(), timestamp);
   Nan::SetAccessor(otl, Nan::New("length").ToLocalChecked(), length);
-  Nan::SetAccessor(otl, Nan::New("seq").ToLocalChecked(), seq);
+  Nan::SetAccessor(otl, Nan::New("index").ToLocalChecked(), index);
   Nan::SetAccessor(otl, Nan::New("rootLayer").ToLocalChecked(), rootLayer);
   Nan::SetAccessor(otl, Nan::New("primaryLayer").ToLocalChecked(),
                    primaryLayer);
@@ -56,10 +56,10 @@ NAN_GETTER(FrameWrapper::length) {
   }
 }
 
-NAN_GETTER(FrameWrapper::seq) {
+NAN_GETTER(FrameWrapper::index) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
   if (const auto &view = wrapper->view.lock()) {
-    info.GetReturnValue().Set(view->frame()->seq());
+    info.GetReturnValue().Set(view->frame()->index());
   }
 }
 

@@ -12,14 +12,14 @@
 
 namespace plugkit {
 
-std::atomic<uint64_t> StreamBuffer::Private::seq;
+std::atomic<uint64_t> StreamBuffer::Private::index;
 
 StreamBuffer StreamBuffer::Private::create(uint64_t id) {
   return StreamBuffer(id);
 }
 
 uint64_t StreamBuffer::Private::getSeq() {
-  return seq.fetch_add(1u, std::memory_order_relaxed);
+  return index.fetch_add(1u, std::memory_order_relaxed);
 }
 
 std::string StreamBuffer::Private::getTmpDir() {

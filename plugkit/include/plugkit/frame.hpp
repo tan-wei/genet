@@ -19,7 +19,7 @@ public:
   virtual ~Frame();
   Timestamp timestamp() const;
   size_t length() const;
-  uint32_t seq() const;
+  uint32_t index() const;
   LayerPtr rootLayer() const;
 
 private:

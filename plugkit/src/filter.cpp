@@ -303,6 +303,11 @@ FilterFunc Filter::Private::makeFilter(const json11::Json &json) const {
 
       Local<Value> key = Nan::New(name).ToLocalChecked();
       Local<Object> frameObject = FrameWrapper::wrap(view);
+
+      if (const auto &prop = view->propertyFromId(name)) {
+        return Filter::Result(PropertyWrapper::wrap(prop));
+      }
+
       if (frameObject->Has(key)) {
         return Filter::Result(frameObject->Get(key));
       }

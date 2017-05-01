@@ -208,7 +208,7 @@ export default class FrameListView {
           {
             (new Array(end - begin)).fill().map((dev, index) => {
               const id = filterdFrames ? filterdFrames[index] : (index + begin + 1)
-              const selected = this.selectedFrames.some((frame) => frame.seq === id )
+              const selected = this.selectedFrames.some((frame) => frame.index === id )
               return m(FrameItem, {
                 key: id,
                 seq: id,

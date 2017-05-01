@@ -26,11 +26,11 @@ size_t Frame::Private::length() const { return length_; }
 
 void Frame::Private::setLength(size_t length) { length_ = length; }
 
-uint32_t Frame::seq() const { return d->seq(); }
+uint32_t Frame::index() const { return d->index(); }
 
-uint32_t Frame::Private::seq() const { return seq_; }
+uint32_t Frame::Private::index() const { return seq_; }
 
-void Frame::Private::setSeq(uint32_t seq) { seq_ = seq; }
+void Frame::Private::setIndex(uint32_t index) { seq_ = index; }
 
 LayerPtr Frame::rootLayer() const { return d->rootLayer(); }
 

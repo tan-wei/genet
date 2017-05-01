@@ -41,7 +41,7 @@ public:
   void notifyStatus(UpdateType type);
 
 public:
-  std::atomic<uint32_t> seq;
+  std::atomic<uint32_t> index;
   std::atomic<int> updates;
   std::shared_ptr<UvLoopLogger> logger;
   std::unique_ptr<DissectorThreadPool> dissectorPool;
@@ -65,7 +65,7 @@ public:
 };
 
 uint32_t Session::Private::getSeq() {
-  return seq.fetch_add(1u, std::memory_order_relaxed);
+  return index.fetch_add(1u, std::memory_order_relaxed);
 }
 
 void Session::Private::updateStatus() {
@@ -99,7 +99,7 @@ void Session::Private::notifyStatus(UpdateType type) {
 }
 
 Session::Session(const Config &config) : d(new Private()) {
-  std::atomic_init(&d->seq, 1u);
+  std::atomic_init(&d->index, 1u);
   std::atomic_init(&d->updates, 0);
 
   d->async.data = d;
@@ -138,14 +138,14 @@ Session::Session(const Config &config) : d(new Private()) {
       new StreamDissectorThreadPool(config.options, d->frameStore,
                                     [this](FrameUniquePtr *begin, size_t size) {
                                       for (size_t i = 0; i < size; ++i) {
-                                        begin[i]->d->setSeq(d->getSeq());
+                                        begin[i]->d->setIndex(d->getSeq());
                                       }
                                       d->frameStore->insert(begin, size);
                                     }));
   d->streamDissectorPool->setLogger(d->logger);
 
   d->pcap->setCallback([this](std::unique_ptr<Frame> &&pkt) {
-    pkt->d->setSeq(d->getSeq());
+    pkt->d->setIndex(d->getSeq());
     d->dissectorPool->push(std::move(pkt));
   });
 
@@ -260,7 +260,7 @@ void Session::analyze(int link, const Slice &data, size_t length,
   frame->d->setTimestamp(ts);
   frame->d->setLength((length < data.size()) ? data.size() : length);
   frame->d->setRootLayer(rootLayer);
-  frame->d->setSeq(d->getSeq());
+  frame->d->setIndex(d->getSeq());
   d->dissectorPool->push(std::move(frame));
 }
 

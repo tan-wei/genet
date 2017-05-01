@@ -44,7 +44,7 @@ bool FilterThread::loop() {
   for (size_t i = 0; i < size; ++i) {
     const auto &view = views[i];
     bool match = d->filter->test(view);
-    results.push_back(std::make_pair(view->frame()->seq(), match));
+    results.push_back(std::make_pair(view->frame()->index(), match));
   }
 
   d->callback(results);
