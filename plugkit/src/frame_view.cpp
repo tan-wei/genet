@@ -4,6 +4,7 @@
 #include "property.hpp"
 #include <functional>
 #include <unordered_map>
+#include <mutex>
 
 namespace plugkit {
 
@@ -15,6 +16,7 @@ public:
   std::unordered_map<std::string, PropertyConstPtr> properties;
   std::unordered_map<std::string, LayerConstPtr> layers;
   bool hasError = false;
+  std::mutex mutex;
 };
 
 FrameView::FrameView(FrameUniquePtr &&frame) : d(new Private()) {
@@ -62,6 +64,7 @@ const std::vector<LayerConstPtr> &FrameView::leafLayers() const {
 }
 
 PropertyConstPtr FrameView::propertyFromId(const std::string &id) const {
+  std::lock_guard<std::mutex> lock(d->mutex);
   const auto &it = d->properties.find(id);
   if (it != d->properties.end()) {
     return it->second;
