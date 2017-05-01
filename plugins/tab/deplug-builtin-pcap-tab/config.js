@@ -54,10 +54,11 @@ export default class ConfigView {
           <select>
           {
             Pcap.devices.map((dev) => {
-              return <option
-                value={ dev.id }
-                >{ (dev.id === dev.name) ? dev.id : `${dev.name} - ${dev.id}` }
-              </option>
+              let name = dev.name
+              if (name !== dev.id && process.platform !== 'win32') {
+                name += ` - ${dev.id}`
+              }
+              return <option value={ dev.id }>{ name }</option>
             })
           }
           </select>
