@@ -19,12 +19,11 @@ class PermissionMassage {
         <i class="fa fa-exclamation-triangle"></i> Live captures are NOT ready.<br></br>
         The program does not have enough capabilities to start a live capture.<br></br>
         Please run setcap to the executable and don’t forget change RPATH.
-        <pre>
-          $ setcap cap_net_raw,cap_net_admin=eip /usr/share/deplug/deplug
-        </pre>
-        <pre>
-          $ patchelf --set-rpath $ORIGIN:$ORIGIN/lib/:/usr/share/deplug /usr/share/deplug/deplug
-        </pre>
+        <ul>
+          <li>$ DEPLAG_BIN={process.execPath}</li>
+          <li>$ patchelf --set-rpath $(dirname $DEPLAG_BIN) $DEPLAG_BIN</li>
+          <li>$ sudo setcap cap_net_raw,cap_net_admin=eip $DEPLAG_BIN</li>
+        </ul>
         </p>
       case 'win32':
         return <p>
