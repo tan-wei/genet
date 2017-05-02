@@ -17,7 +17,7 @@ export default class View {
       </p>
       <input
         type="button"
-        value={ Pcap.permission ? 'Successfully Installed' : "Install Helper Tool..." }
+        value={ Pcap.permission ? '✔ Successfully Installed' : "Install" }
         disabled={ Pcap.permission }
         onclick={ (event)=>{
           require('deplug-helper')()
