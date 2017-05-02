@@ -37,11 +37,10 @@ export default class Keybind extends EventEmitter {
       for (const command in commands) {
         const act = commands[command]
         if (sel === selector && act === action) {
-          if (process.platform !== 'darwin') {
-            return command.replace('command', 'ctrl')
+          if (process.platform === 'darwin') {
+            return command.replace('CmdOrCtrl', 'command')
           }
-            return command
-
+          return command.replace('CmdOrCtrl', 'ctrl')
         }
       }
     }
@@ -51,10 +50,10 @@ export default class Keybind extends EventEmitter {
       for (const sel in sels) {
         const act = sels[sel]
         if (sel === selector && act === action) {
-          if (process.platform !== 'darwin') {
-            return command.replace('command', 'ctrl')
+          if (process.platform === 'darwin') {
+            return command.replace('CmdOrCtrl', 'command')
           }
-          return command
+          return command.replace('CmdOrCtrl', 'ctrl')
         }
       }
     }
@@ -80,8 +79,10 @@ export default class Keybind extends EventEmitter {
 
     for (let command in internal(this).commands) {
       const sels = internal(this).commands[command]
-      if (process.platform !== 'darwin') {
-        command = command.replace('command', 'ctrl')
+      if (process.platform === 'darwin') {
+        command = command.replace('CmdOrCtrl', 'command')
+      } else {
+        command = command.replace('CmdOrCtrl', 'ctrl')
       }
       Mousetrap.bind(command, (event) => {
         for (const sel in sels) {
