@@ -16,6 +16,8 @@ addons:
     - lintian
     - chrpath
     - rpm
+    - ruby
+    - ruby-dev
 cache: yarn
 before_install:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install jq; fi
