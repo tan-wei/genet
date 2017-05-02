@@ -44,9 +44,12 @@ export default class ConfigView {
 
   startPcap(vnode) {
     const ifsSelector = vnode.dom.querySelector('[name=ifs]')
-    const ifs = ifsSelector.options[ifsSelector.selectedIndex].value
+    const opt = ifsSelector.options[ifsSelector.selectedIndex]
+    const ifs = opt.value
+    const ifsName = opt.getAttribute('data-name')
     Object.assign(Tab.options, {
-      ifs
+      ifs,
+      ifsName
     })
     Tab.page = 'pcap'
   }
@@ -74,7 +77,7 @@ export default class ConfigView {
               if (name !== dev.id && process.platform !== 'win32') {
                 name += ` - ${dev.id}`
               }
-              return <option value={ dev.id }>{ name }</option>
+              return <option value={ dev.id } data-name={ name }>{ name }</option>
             })
           }
           </select>

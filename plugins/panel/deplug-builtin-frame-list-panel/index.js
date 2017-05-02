@@ -1,6 +1,6 @@
 import throttle from 'lodash.throttle'
 import m from 'mithril'
-import { Channel, Panel, Profile, Session, Tab } from 'deplug'
+import { Channel, GlobalChannel, Panel, Profile, Session, Tab } from 'deplug'
 import { Pcap, SessionFactory } from 'plugkit'
 
 class FrameItem {
@@ -117,6 +117,7 @@ export default class FrameListView {
     }, (err) => {
       console.log(err)
     })
+    GlobalChannel.emit('core:tab:set-name', Tab.id, `${Tab.options.ifsName} @ Live Capture`)
   }
 
   oncreate(vnode) {
