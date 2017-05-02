@@ -36,9 +36,9 @@ export default class View {
           <li>Put the current user into the group</li>
           <li>Register a startup script</li>
         </ol>
-        The startup script runs the following commands as a previliged user every time.
+        The startup script runs the following commands as a previliged user every time:
         <ol>
-          <li>chgrp /dev/bpf*</li>
+          <li>chgrp access_bpf /dev/bpf*</li>
           <li>chmod g+rw /dev/bpf*</li>
         </ol>
       </p>
@@ -50,6 +50,7 @@ export default class View {
         <li>sudo rm /Library/LaunchDaemons/net.deplug.DeplugHelper.plist</li>
         <li>sudo rm /Library/PrivilegedHelperTools/net.deplug.DeplugHelper</li>
         <li>sudo dscl . -delete /Groups/access_bpf</li>
+        <li>sudo chmod g-rw /dev/bpf*</li>
       </ol>
     </section>
     </main>

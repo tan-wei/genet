@@ -371,7 +371,7 @@ bool PcapPlatform::hasPermission() const {
     if (name.find("bpf") == 0) {
       struct stat buf;
       if (stat(("/dev/" + name).c_str(), &buf) < 0 ||
-          !(buf.st_mode & S_IRGRP)) {
+          !(buf.st_mode & S_IRGRP) || (buf.st_gid == 0)) {
         ok = false;
         break;
       }
