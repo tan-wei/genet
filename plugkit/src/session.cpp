@@ -214,8 +214,10 @@ void Session::setDisplayFilter(const std::string &name,
                                const std::string &body) {
 
   auto filter = d->filters.find(name);
-  if (filter != d->filters.end() && body.empty()) {
-    d->filters.erase(filter);
+  if (body.empty()) {
+    if (filter != d->filters.end()) {
+      d->filters.erase(filter);
+    }
   } else {
     auto pool = std::unique_ptr<FilterThreadPool>(
         new FilterThreadPool(body, d->frameStore, [this]() {

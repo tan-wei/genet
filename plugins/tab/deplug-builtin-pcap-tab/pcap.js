@@ -18,7 +18,6 @@ class PanelSlot {
 
   updateTheme() {
     if (this.panel) {
-      console.log('updateTheme')
       Theme.current.render(this.panel.less).then((style) => {
         const styleTag = document.createElement('style')
         styleTag.textContent = style.css
