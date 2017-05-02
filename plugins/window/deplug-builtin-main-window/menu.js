@@ -1,4 +1,5 @@
-import {remote} from 'electron'
+import { remote, shell } from 'electron'
+import { Config } from 'deplug'
 const contents = remote.getCurrentWebContents()
 
 export default [
@@ -30,5 +31,9 @@ export default [
     path: ["Developer", "Toggle Developer Tools"],
     accelerator: "Cmd+Shift+I",
     click: () => remote.getCurrentWindow().toggleDevTools()
+  },
+  {
+    path: ["File", "Open Profile Directory..."],
+    click: () => shell.showItemInFolder(Config.userProfilePath)
   },
 ]
