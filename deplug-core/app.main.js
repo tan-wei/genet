@@ -1,15 +1,10 @@
 import { app, BrowserWindow, ipcMain, webContents } from 'electron'
-import { Pcap } from 'plugkit'
 import config from './config'
 import minimist from 'minimist'
 import mkpath from 'mkpath'
 
 if (require('electron-squirrel-startup')) {
   app.quit()
-}
-
-if (process.platform === 'darwin' && !Pcap.permission) {
-  require('deplug-helper')()
 }
 
 mkpath.sync(config.userPluginPath)

@@ -1,0 +1,22 @@
+{
+  "name": "deplug-builtin-mac-helper-tab",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Deplug helper tab",
+  "engines": {
+    "deplug": "*"
+  },
+  "deplugin": {
+    "components": [
+      {
+        "type": "tab",
+        "tab": {
+          "name": "Helper",
+          "template": "Helper",
+          "less": "theme.less",
+          "root": "index.js"
+        }
+      }
+    ]
+  }
+}

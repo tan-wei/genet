@@ -1,3 +1,4 @@
+import { Pcap } from 'plugkit'
 import { ipcRenderer, remote } from 'electron'
 import deplug from './deplug'
 import jquery from 'jquery'
@@ -13,7 +14,11 @@ export default async function (argv) {
     })
     GlobalChannel.emit('core:window:loaded')
     process.nextTick(() => {
-      GlobalChannel.emit('core:tab:open', 'Pcap')
+      if (process.platform === 'darwin' && !Pcap.permission) {
+        GlobalChannel.emit('core:tab:open', 'Helper')
+      } else {
+        GlobalChannel.emit('core:tab:open', 'Pcap')
+      }
     })
 
   } catch (err) {
