@@ -6,7 +6,7 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "install": "./download.js || make"
+    "install": "true"
   },
   "repository": {
     "type": "git",
