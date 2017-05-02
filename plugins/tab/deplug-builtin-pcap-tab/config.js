@@ -42,6 +42,22 @@ export default class ConfigView {
 
   }
 
+  startPcap(vnode) {
+    const ifsSelector = vnode.dom.querySelector('[name=ifs]')
+    const ifs = ifsSelector.options[ifsSelector.selectedIndex].value
+    Object.assign(Tab.options, {
+      ifs
+    })
+    Tab.page = 'pcap'
+  }
+
+  oncreate(vnode) {
+    if (Tab.options.files) {
+      Tab.page = 'pcap'
+      m.redraw()
+    }
+  }
+
   view(vnode) {
     return <main>
       <section>
@@ -51,7 +67,7 @@ export default class ConfigView {
         }
         <ul>
         <li>
-          <select>
+          <select name="ifs">
           {
             Pcap.devices.map((dev) => {
               let name = dev.name
@@ -76,7 +92,7 @@ export default class ConfigView {
           <input
             type="button"
             value="Start Live Capture"
-            onclick={ ()=>{ Tab.page = 'pcap' } }
+            onclick={ ()=>{ this.startPcap(vnode) } }
           ></input>
         </li>
         </ul>

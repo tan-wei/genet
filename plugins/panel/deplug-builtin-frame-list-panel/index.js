@@ -1,6 +1,6 @@
 import throttle from 'lodash.throttle'
 import m from 'mithril'
-import { Channel, Panel, Profile, Session } from 'deplug'
+import { Channel, Panel, Profile, Session, Tab } from 'deplug'
 import { Pcap, SessionFactory } from 'plugkit'
 
 class FrameItem {
@@ -99,7 +99,7 @@ export default class FrameListView {
     })
 
     let factory = new SessionFactory()
-    factory.networkInterface = Pcap.devices[0].id
+    factory.networkInterface = Tab.options.ifs || ''
     for (const layer of Session.linkLayers) {
       factory.registerLinkLayer(layer)
     }
@@ -110,7 +110,9 @@ export default class FrameListView {
       factory.registerStreamDissector(diss)
     }
     factory.create().then((sess) => {
-      sess.startPcap()
+      if (Tab.options.ifs) {
+        sess.startPcap()
+      }
       Channel.emit('core:pcap:session-created', sess)
     }, (err) => {
       console.log(err)
