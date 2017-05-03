@@ -61,26 +61,22 @@ export default class LayerListView {
     if (!this.frames.length) {
       return <div class="layer-list-view">No frames selected</div>
     }
-    return <div>
-      {
-        this.frames.map((frame) => {
-          const ts = moment(frame.timestamp)
-          const tsString = ts.format('YYYY-MM-DDTHH:mm:ss.SSS') +
-            frame.timestamp.nsec + ts.format('Z')
+    return this.frames.map((frame) => {
+      const ts = moment(frame.timestamp)
+      const tsString = ts.format('YYYY-MM-DDTHH:mm:ss.SSS') +
+        frame.timestamp.nsec + ts.format('Z')
 
-          let length = `${frame.rootLayer.payload.length}`
-          if (frame.length > frame.rootLayer.payload.length) {
-            length += ` (actual: ${frame.length})`
-          }
-          return <div class="layer-list-view">
-            <table>
-              <tr><td>Timestamp </td><td>{ tsString }</td></tr>
-              <tr><td>Length </td><td>{ length }</td></tr>
-            </table>
-            { m(LayerItem, {layer: frame.rootLayer}) }
-          </div>
-        })
+      let length = `${frame.rootLayer.payload.length}`
+      if (frame.length > frame.rootLayer.payload.length) {
+        length += ` (actual: ${frame.length})`
       }
-    </div>
+      return <div class="layer-list-view">
+        <table>
+          <tr><td>Timestamp </td><td>{ tsString }</td></tr>
+          <tr><td>Length </td><td>{ length }</td></tr>
+        </table>
+        { m(LayerItem, {layer: frame.rootLayer}) }
+      </div>
+    })
   }
 }

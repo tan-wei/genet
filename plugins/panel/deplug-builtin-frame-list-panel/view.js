@@ -121,8 +121,8 @@ export default class FrameListView {
   }
 
   oncreate(vnode) {
-    this.frameView = vnode.dom.querySelector('.frame-list-view')
-    this.style = vnode.dom.querySelector('.scrollbar-style')
+    this.frameView = vnode.dom.parentNode.querySelector('.frame-list-view')
+    this.style = vnode.dom.parentNode.querySelector('.scrollbar-style')
     this.onupdate(vnode)
     this.frameView.addEventListener('scroll', (event) => {
       this.viewHeight = event.target.offsetHeight
@@ -148,7 +148,7 @@ export default class FrameListView {
 
   updateMap(vnode) {
     if (this.session && this.frame.frames > 0) {
-      const dummy = vnode.dom.querySelector('.dummy-item')
+      const dummy = vnode.dom.parentNode.querySelector('.dummy-item')
       const ctx = dummy.getContext('2d')
       const frames = (this.filtered ? this.filtered.frames : this.frame.frames)
       ctx.clearRect(0, 0, 1, this.mapHeight)
@@ -195,8 +195,9 @@ export default class FrameListView {
       filterdFrames = this.session.getFilteredFrames('main', begin, (end - begin))
     }
 
-    return <div>
+    return [
       <style class="scrollbar-style"></style>
+      ,
       <canvas
         style="opacity: 0; position: absolute;"
         class="dummy-item"
@@ -204,6 +205,7 @@ export default class FrameListView {
         width="1"
         height={this.mapHeight}
       ></canvas>
+      ,
       <div class="frame-list-view">
         <div
           style={{height: `${viewHeight}px`}}
@@ -226,6 +228,6 @@ export default class FrameListView {
           }
         </div>
       </div>
-    </div>
+    ]
   }
 }

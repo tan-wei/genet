@@ -7,21 +7,32 @@ class PanelSlot {
   }
 
   oncreate(vnode) {
-    const panels = Panel.get(vnode.attrs.slot)
-    if (panels.length > 0) {
-      this.node = vnode.dom.parentNode.attachShadow({mode: 'open'})
-      this.panel = panels[0]
-      m.mount(this.node, this.panel.component)
-      this.updateTheme()
+    this.panels = Panel.get(vnode.attrs.slot)
+    this.nodes = []
+    for (const panel of this.panels) {
+      const div = document.createElement('div')
+      div.classList.add('slot-wrapper')
+      const node = div.attachShadow({mode: 'open'})
+      m.mount(node, panel.component)
+      vnode.dom.parentNode.appendChild(div)
+      this.nodes.push(node)
     }
+    this.updateTheme()
   }
 
   updateTheme() {
-    if (this.panel) {
-      Theme.current.render(this.panel.less).then((style) => {
+    for (let i = 0; i < this.panels.length; ++i) {
+      const panel = this.panels[i]
+      Theme.current.render(panel.less).then((style) => {
         const styleTag = document.createElement('style')
+        styleTag.classList.add('slot-style')
         styleTag.textContent = style.css
-        this.node.append(styleTag)
+        const node = this.nodes[i]
+        const old = node.querySelector('.slot-style')
+        if (old) {
+          old.remove()
+        }
+        node.append(styleTag)
       })
     }
   }
