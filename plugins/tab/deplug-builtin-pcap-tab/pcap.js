@@ -15,6 +15,7 @@ class PanelSlot {
       const node = div.attachShadow({mode: 'open'})
       m.mount(node, panel.component)
       vnode.dom.parentNode.appendChild(div)
+      node.host.style.cssText = "visibility: hidden";
       this.nodes.push(node)
     }
     this.updateTheme()
@@ -33,6 +34,7 @@ class PanelSlot {
           old.remove()
         }
         node.append(styleTag)
+        node.host.style.cssText = "visibility: visible";
       })
     }
   }
