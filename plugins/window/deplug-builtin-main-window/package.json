@@ -6,21 +6,5 @@
   "engines": {
     "deplug": "*"
   },
-  "deplugin": {
-    "components": [
-      {
-        "type": "window",
-        "window": {
-          "less": "theme.less",
-          "root": "index.js"
-        }
-      },
-      {
-        "type": "menu",
-        "menu": {
-          "root": "menu.js"
-        }
-      }
-    ]
-  }
+  "main": "index.js"
 }

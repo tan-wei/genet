@@ -6,17 +6,5 @@
   "engines": {
     "deplug": "*"
   },
-  "deplugin": {
-    "components": [
-      {
-        "type": "panel",
-        "panel": {
-          "name": "Frames",
-          "slot": "core:pcap:top",
-          "less": "theme.less",
-          "root": "index.js"
-        }
-      }
-    ]
-  }
+  "main": "index.js"
 }

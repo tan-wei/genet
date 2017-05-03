@@ -1,25 +1,11 @@
-import { Channel } from 'deplug'
-import m from 'mithril'
-
-export default class FilterView {
-  constructor() {
-
-  }
-
-  press(event) {
-    switch (event.code) {
-    case 'Enter':
-      const filter = event.target.value
-      Channel.emit('core:display-filter:set', filter)
+export default [
+  {
+    type: 'panel',
+    panel: {
+      name: 'Filter',
+      slot: 'core:pcap:tool',
+      less: 'theme.less',
+      root: 'view.js'
     }
-    return true
   }
-
-  view(vnode) {
-    return <input
-      type="text"
-      placeholder="Display Filter ..."
-      onkeypress={ (event) => {this.press(event)} }
-    ></input>
-  }
-}
+]

@@ -1,13 +1,11 @@
-import ConfigView from './config'
-import PcapView from './pcap'
-import { Tab } from 'deplug'
-import m from 'mithril'
-
-export default class View {
-  view(vnode) {
-    if (Tab.page === '') {
-      return m(ConfigView, {})
+export default [
+  {
+    type: 'tab',
+    tab: {
+      name: 'Pcap',
+      template: 'Pcap',
+      less: 'theme.less',
+      root: 'view.js'
     }
-    return m(PcapView, {})
   }
-}
+]

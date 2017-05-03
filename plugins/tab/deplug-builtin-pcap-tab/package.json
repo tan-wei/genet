@@ -6,17 +6,5 @@
   "engines": {
     "deplug": "*"
   },
-  "deplugin": {
-    "components": [
-      {
-        "type": "tab",
-        "tab": {
-          "name": "Pcap",
-          "template": "Pcap",
-          "less": "theme.less",
-          "root": "index.js"
-        }
-      }
-    ]
-  }
+  "main": "index.js"
 }

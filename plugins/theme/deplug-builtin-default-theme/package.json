@@ -6,16 +6,5 @@
   "engines": {
     "deplug": "*"
   },
-  "deplugin": {
-    "components": [
-      {
-        "type": "theme",
-        "theme": {
-          "less": "theme.less",
-          "id": "default",
-          "name": "Base16 Ocean Dark"
-        }
-      }
-    ]
-  }
+  "main": "index.js"
 }

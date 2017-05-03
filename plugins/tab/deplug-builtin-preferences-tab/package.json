@@ -6,18 +6,5 @@
   "engines": {
     "deplug": "*"
   },
-  "deplugin": {
-    "components": [
-      {
-        "type": "tab",
-        "tab": {
-          "name": "Preferences",
-          "template": "Preferences",
-          "less": "theme.less",
-          "root": "index.js",
-          "singleton": true
-        }
-      }
-    ]
-  }
+  "main": "index.js"
 }
