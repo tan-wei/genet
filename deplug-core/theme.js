@@ -36,7 +36,7 @@ export default class Theme {
       paths: [
         path.dirname(lessFile),
         path.join(__dirname, 'theme'),
-        path.join(__dirname, '../font-awesome/css'),
+        path.join(__dirname, '../font-awesome/less'),
         Profile.current.$$dir
       ],
       plugins: [new LessPlugin()],

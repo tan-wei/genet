@@ -6,6 +6,12 @@ export default class FilterView {
 
   }
 
+  oncreate(vnode) {
+    Channel.on('core:display-filter:set', (filter) => {
+      vnode.dom.value = filter
+    })
+  }
+
   press(event) {
     switch (event.code) {
     case 'Enter':
