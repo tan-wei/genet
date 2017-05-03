@@ -14,7 +14,7 @@ void SessionWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Session").ToLocalChecked());
   SetPrototypeMethod(tpl, "startPcap", startPcap);
-  SetPrototypeMethod(tpl, "stopPcap", startPcap);
+  SetPrototypeMethod(tpl, "stopPcap", stopPcap);
   SetPrototypeMethod(tpl, "destroy", destroy);
   SetPrototypeMethod(tpl, "getFilteredFrames", getFilteredFrames);
   SetPrototypeMethod(tpl, "getFrames", getFrames);
