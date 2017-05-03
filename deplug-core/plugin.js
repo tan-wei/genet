@@ -57,14 +57,16 @@ export default class Plugin {
       throw new Error('deplug version mismatch')
     }
     const { main } = pkg
+    let compList = objpath.get(pkg, 'deplugin.components', [])
     if (main) {
+      const module = {}
       const localExtern = Object.keys(objpath.get(pkg, 'dependencies', {}))
-      await roll(main, rootDir, localExtern)
+      const func = await roll(path.join(rootDir, main), rootDir, localExtern)
+      func(module)
+      compList = module.exports
     }
-    const components = []
-    for (const comp of objpath.get(pkg, 'deplugin.components', [])) {
-      components.push(ComponentFactory.create(rootDir, pkg, comp))
-    }
+    const components =
+      compList.map((comp) => ComponentFactory.create(rootDir, pkg, comp))
     return new Plugin(rootDir, pkg, components)
   }
 
