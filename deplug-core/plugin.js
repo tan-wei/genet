@@ -36,29 +36,35 @@ export default class Plugin {
     const list = []
     for (const root of builtinPaths.concat(userPaths)) {
       try {
-        list.push(new Plugin(path.dirname(root)))
+        list.push(Plugin.create(path.dirname(root)))
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error)
       }
     }
-    return list
+    return Promise.all(list)
   }
 
-  constructor (rootDir) {
-    this.pkg = jsonfile.readFileSync(path.join(rootDir, 'package.json'))
-    const engine = objpath.get(this.pkg, 'engines.deplug', null)
+  static async create (rootDir) {
+    const pkg = await denodeify(jsonfile.readFile)(
+      path.join(rootDir, 'package.json'))
+    const engine = objpath.get(pkg, 'engines.deplug', null)
     if (engine === null) {
       throw new Error('deplug version required')
     }
     if (!semver.satisfies(config.deplug.version, engine)) {
       throw new Error('deplug version mismatch')
     }
-    const components = objpath.get(this.pkg, 'deplugin.components', [])
-    this.components = []
-    for (const comp of components) {
-      this.components.push(ComponentFactory.create(rootDir, this.pkg, comp))
+    const components = []
+    for (const comp of objpath.get(pkg, 'deplugin.components', [])) {
+      components.push(ComponentFactory.create(rootDir, pkg, comp))
     }
+    return new Plugin(rootDir, pkg, components)
+  }
+
+  constructor (rootDir, pkg, comp) {
+    this.pkg = pkg
+    this.components = comp
     this.builtin = this.pkg.name.startsWith('deplug-builtin-')
   }
 }
