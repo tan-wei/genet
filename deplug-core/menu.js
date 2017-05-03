@@ -7,17 +7,17 @@ import throttle from 'lodash.throttle'
 const handlers = []
 
 const reload = throttle(() => {
-  const root = { 'Electron': {}, }
+  const root = { 'Electron': {} }
   const handlerSymbol = Symbol('handler')
   for (const handler of handlers) {
     if (!objpath.has(root, handler.path)) {
-      objpath.set(root, handler.path, { [handlerSymbol]: handler, })
+      objpath.set(root, handler.path, { [handlerSymbol]: handler })
     }
   }
 
   function crateMenuItem (name, object) {
     if (handlerSymbol in object) {
-      const { accelerator, selector, click, } = object[handlerSymbol]
+      const { accelerator, selector, click } = object[handlerSymbol]
       const item = {
         label: name,
         selector,
@@ -117,7 +117,7 @@ export default class Menu extends EventEmitter {
       list.forEach((item, index) => {
         menu = Reflect.apply(item.handler, this, [menu])
         if (index < list.length - 1) {
-          menu.append(new remote.MenuItem({ type: 'separator', }))
+          menu.append(new remote.MenuItem({ type: 'separator' }))
         }
       })
       if (menu.items.length > 0) {
@@ -154,7 +154,7 @@ export default class Menu extends EventEmitter {
       list.forEach((item, index) => {
         menu = Reflect.apply(item.handler, self, [menu, option.event])
         if (index < list.length - 1) {
-          menu.append(new remote.MenuItem({ type: 'separator', }))
+          menu.append(new remote.MenuItem({ type: 'separator' }))
         }
       })
       menu.popup(browserWindow, option.x, option.y)

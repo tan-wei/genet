@@ -42,9 +42,9 @@ export default class Theme {
       plugins: [new LessPlugin()],
       filename: lessFile,
       compress: true,
-      globalVars: { 'node-platform': process.platform, },
+      globalVars: { 'node-platform': process.platform },
     }
-    const code = await denodeify(fs.readFile)(lessFile, { encoding: 'utf8', })
+    const code = await denodeify(fs.readFile)(lessFile, { encoding: 'utf8' })
     return less.render(code, options)
   }
 

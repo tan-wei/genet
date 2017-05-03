@@ -35,7 +35,7 @@ module.exports = {
         "class-methods-use-this": "off",
         "comma-dangle": ["error", {
             "arrays": "never",
-            "objects": "always",
+            "objects": "always-multiline",
             "imports": "never",
             "exports": "never",
             "functions": "never",

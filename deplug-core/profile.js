@@ -10,7 +10,7 @@ import mkpath from 'mkpath'
 import objpath from 'object-path'
 import path from 'path'
 
-const { webContents, } = remote
+const { webContents } = remote
 function createHandler (plugin = null) {
   const proto =
     Object.keys(EventEmitter.prototype).concat(Object.keys(Object.prototype))

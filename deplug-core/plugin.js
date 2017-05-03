@@ -5,6 +5,7 @@ import glob from 'glob'
 import jsonfile from 'jsonfile'
 import objpath from 'object-path'
 import path from 'path'
+import roll from './roll'
 import semver from 'semver'
 
 let plugins = null
@@ -54,6 +55,11 @@ export default class Plugin {
     }
     if (!semver.satisfies(config.deplug.version, engine)) {
       throw new Error('deplug version mismatch')
+    }
+    const { main } = pkg
+    if (main) {
+      const localExtern = Object.keys(objpath.get(pkg, 'dependencies', {}))
+      await roll(main, rootDir, localExtern)
     }
     const components = []
     for (const comp of objpath.get(pkg, 'deplugin.components', [])) {

@@ -1,5 +1,5 @@
 import { ipcRenderer, remote } from 'electron'
-const { webContents, } = remote
+const { webContents } = remote
 const channelPrefix = 'deplug-channel@'
 export default class GlobalChannel {
   static on (channel, listener) {

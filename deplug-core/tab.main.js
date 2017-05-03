@@ -6,7 +6,7 @@ import mithril from 'mithril'
 import path from 'path'
 import roll from './roll'
 
-const { webContents, } = remote
+const { webContents } = remote
 async function updateTheme (theme, styleTag, lessFile) {
   const style = await theme.render(lessFile)
   styleTag.text(style.css)
@@ -22,9 +22,9 @@ function handleRedirect (event, url) {
 
 export default async function (argv, tab) {
   try {
-    const { Theme, Plugin, Tab, } = await deplug(argv)
-    const { options, id, } = tab
-    const { rootDir, } = tab.tab
+    const { Theme, Plugin, Tab } = await deplug(argv)
+    const { options, id } = tab
+    const { rootDir } = tab.tab
 
     const less = tab.tab.less || ''
     if (less !== '') {
@@ -43,8 +43,8 @@ export default async function (argv, tab) {
        page = value
       },
     })
-    Reflect.defineProperty(Tab, 'options', { value: options, })
-    Reflect.defineProperty(Tab, 'id', { value: id, })
+    Reflect.defineProperty(Tab, 'options', { value: options })
+    Reflect.defineProperty(Tab, 'id', { value: id })
 
     await Plugin.loadComponents('panel')
 
