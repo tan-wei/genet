@@ -44,33 +44,90 @@ class PanelSlot {
   }
 }
 
-export default class PcapView {
+class DrawerView {
   constructor() {
-    Plugin.loadComponents('dissector')
-    Plugin.loadComponents('stream-dissector')
-    this.bottomHeight = 200
+    this.separatorRatio = 0.5
   }
 
   oncreate(vnode) {
-    this.topDragArea = vnode.dom.querySelector('#pcap-top-drag-area')
+    this.dom = vnode.dom
+    this.dragArea = vnode.dom.querySelector('#pcap-separator-drag-area')
   }
 
   startDrag(event) {
-    this.topDragArea.style.visibility = 'visible'
-    if (!this.topDragArea.hasAttribute('data-start-y')) {
-      this.topDragArea.setAttribute('data-start-y', event.clientY)
+    this.dragArea.style.visibility = 'visible'
+    if (!this.dragArea.hasAttribute('data-start-y')) {
+      this.dragArea.setAttribute('data-start-y', event.clientY)
     }
   }
 
   endDrag() {
-    this.topDragArea.style.visibility = 'hidden'
-    this.topDragArea.removeAttribute('data-start-y')
+    this.dragArea.style.visibility = 'hidden'
+    this.dragArea.removeAttribute('data-start-y')
   }
 
   move(event) {
-    const minBottomHeight = 20
-    const maxBottomHeight = this.topDragArea.clientHeight - minBottomHeight
-    this.bottomHeight = this.topDragArea.clientHeight - event.clientY
+    this.separatorRatio = event.offsetY / this.dragArea.clientHeight
+  }
+
+  view(vnode) {
+    return <div id="pcap-separator-wrap">
+      <div class="vertical-handle"
+        style={{
+          top: `${this.separatorRatio * 100}%`,
+          transform: 'translateY(-4px)'
+        }}
+        onmousedown={(event) => {this.startDrag(event)}}
+        onmouseup={(event) => {this.endDrag(event)}}
+        ></div>
+      <div
+        id="pcap-separator-drag-area"
+        class="vertical-drag-area"
+        onmouseup={(event) => {this.endDrag(event)}}
+        onmouseout={(event) => {this.endDrag(event)}}
+        onmousemove={(event) => {this.move(event)}}
+        ></div>
+      <div id="pcap-middle"
+      style={{bottom: `${(1 - this.separatorRatio) * 100}%`}}
+      >{
+        m(PanelSlot, {slot: 'core:pcap:middle'})
+      }</div>
+      <div id="pcap-bottom"
+      style={{top: `${this.separatorRatio * 100}%`}}
+      >{
+        m(PanelSlot, {slot: 'core:pcap:middle'})
+      }</div>
+    </div>
+  }
+}
+
+export default class PcapView {
+  constructor() {
+    Plugin.loadComponents('dissector')
+    Plugin.loadComponents('stream-dissector')
+    this.bottomHeight = 300
+  }
+
+  oncreate(vnode) {
+    this.dragArea = vnode.dom.querySelector('#pcap-top-drag-area')
+  }
+
+  startDrag(event) {
+    this.dragArea.style.visibility = 'visible'
+    if (!this.dragArea.hasAttribute('data-start-y')) {
+      this.dragArea.setAttribute('data-start-y', event.clientY)
+    }
+  }
+
+  endDrag() {
+    this.dragArea.style.visibility = 'hidden'
+    this.dragArea.removeAttribute('data-start-y')
+  }
+
+  move(event) {
+    const minBottomHeight = 32
+    const maxBottomHeight = this.dragArea.clientHeight - minBottomHeight
+    this.bottomHeight = this.dragArea.clientHeight - event.clientY
     this.bottomHeight = Math.min(maxBottomHeight,
       Math.max(this.bottomHeight, minBottomHeight))
   }
@@ -92,20 +149,19 @@ export default class PcapView {
       <div
         id="pcap-top-drag-area"
         class="vertical-drag-area"
-        onmousedown={(event) => {this.startDrag(event)}}
         onmouseup={(event) => {this.endDrag(event)}}
         onmouseout={(event) => {this.endDrag(event)}}
         onmousemove={(event) => {this.move(event)}}
         ></div>
-      <div id="pcap-bottom-wrap"
+      <div id="pcap-drawer-wrap"
         style={{height: `${this.bottomHeight}px`}}
       >
-        <div id="pcap-tool">{
-          m(PanelSlot, {slot: 'core:pcap:tool'})
-        }</div>
-        <div id="pcap-bottom">{
-          m(PanelSlot, {slot: 'core:pcap:bottom'})
-        }</div>
+      <div id="pcap-tool">{
+        m(PanelSlot, {slot: 'core:pcap:tool'})
+      }</div>
+      {
+        m(DrawerView, {})
+      }
       </div>
     </div>
   }
