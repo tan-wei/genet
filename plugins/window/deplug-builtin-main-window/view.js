@@ -1,6 +1,7 @@
 import { ipcRenderer, remote } from 'electron'
 import { Argv, GlobalChannel, Tab, Menu } from 'deplug'
 import m from 'mithril'
+import url from 'url'
 import jquery from 'jquery'
 import i18n from 'i18n4v'
 
@@ -28,12 +29,18 @@ class WebView {
   }
 
   view(vnode) {
+    let item = vnode.attrs.item
+    const src = url.format({
+      protocol: 'file',
+      pathname: __dirname + '/index.htm'
+    })
     return <webview
       class="tab-content"
-      src={`file://${__dirname}/index.htm`}
+      src={src}
       isActive={vnode.attrs.isActive}
       isLoaded={vnode.attrs.isLoaded}
       nodeintegration
+      useragent={JSON.stringify([Argv, item])}
       preload={`file://${__dirname}/preload.js`}
     >
     </webview>

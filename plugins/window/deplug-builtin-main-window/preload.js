@@ -1,1 +1,2 @@
-console.log(__filename, location.href)
+const args = JSON.parse(navigator.userAgent)
+console.log(args)
