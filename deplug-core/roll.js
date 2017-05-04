@@ -8,7 +8,6 @@ import { rollup } from 'rollup'
 export default async function roll (file, rootDir, extern = []) {
   const deplugExtern = ['deplug', 'electron']
   const globalExtern = Object.keys(config.deplug.dependencies)
-  const moduleDir = JSON.stringify(path.join(rootDir, 'node_modules'))
   const bundle = await rollup({
     entry: file,
     external: extern.concat(builtin, deplugExtern, globalExtern),
@@ -18,9 +17,6 @@ export default async function roll (file, rootDir, extern = []) {
       transform (code) {
         return { code: msx.transform(code, { precompile: false }) }
       },
-    }, {
-      name: 'globalPaths',
-      banner: `require('module').globalPaths.push(${moduleDir})`,
     }],
     onwarn: (err) => {
       log.warn(err)

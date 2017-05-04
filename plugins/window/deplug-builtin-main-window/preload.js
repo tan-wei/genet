@@ -1,2 +1,3 @@
 const args = JSON.parse(navigator.userAgent)
-console.log(args)
+navigator.userAgent = ''
+require('deplug-core/tab.new.main.js')(...args)

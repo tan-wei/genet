@@ -39,7 +39,6 @@ class WebView {
       src={src}
       isActive={vnode.attrs.isActive}
       isLoaded={vnode.attrs.isLoaded}
-      nodeintegration
       useragent={JSON.stringify([Argv, item])}
       preload={`file://${__dirname}/preload.js`}
     >
