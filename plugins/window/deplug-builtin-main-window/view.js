@@ -34,6 +34,7 @@ class WebView {
       isActive={vnode.attrs.isActive}
       isLoaded={vnode.attrs.isLoaded}
       nodeintegration
+      preload={`file://${__dirname}/preload.js`}
     >
     </webview>
   }
