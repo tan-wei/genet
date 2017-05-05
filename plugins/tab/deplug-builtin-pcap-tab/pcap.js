@@ -46,17 +46,28 @@ class PanelSlot {
 
 class TabSlot {
   constructor() {
-
+    this.panels = []
   }
 
   oncreate(vnode) {
     this.panels = Panel.get(vnode.attrs.slot)
+    for (const panel of this.panels) {
+      const div = document.createElement('div')
+      div.classList.add('tab-content')
+      const node = div.attachShadow({mode: 'open'})
+      m.mount(node, panel.component, {})
+      vnode.dom.appendChild(div)
+    }
   }
 
   view(vnode) {
     return <div class="tab-container">
       <div class="tab-header">
-      <a class="tab-label" draggable="true" isactive>tab</a>
+      {
+        this.panels.map((panel) => {
+          return <a class="tab-label" draggable="true" isactive>{ panel.name }</a>
+        })
+      }
       </div>
     </div>
   }
