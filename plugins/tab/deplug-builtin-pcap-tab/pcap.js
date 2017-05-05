@@ -7,40 +7,49 @@ class PanelSlot {
   }
 
   oncreate(vnode) {
-    this.panels = Panel.get(vnode.attrs.slot)
-    this.nodes = []
-    for (const panel of this.panels) {
-      const div = document.createElement('div')
-      div.classList.add('slot-wrapper')
-      const node = div.attachShadow({mode: 'open'})
-      m.mount(node, panel.component)
-      vnode.dom.parentNode.appendChild(div)
-      node.host.style.cssText = "visibility: hidden";
-      this.nodes.push(node)
-    }
+    this.panel = vnode.attrs.panel
+    const div = document.createElement('div')
+    div.classList.add('slot-wrapper')
+    const node = div.attachShadow({mode: 'open'})
+    m.mount(node, this.panel.component)
+    vnode.dom.parentNode.appendChild(div)
+    node.host.style.cssText = 'visibility: hidden'
+    this.node = node
     this.updateTheme()
   }
 
   updateTheme() {
-    for (let i = 0; i < this.panels.length; ++i) {
-      const panel = this.panels[i]
-      Theme.current.render(panel.less).then((style) => {
-        const styleTag = document.createElement('style')
-        styleTag.classList.add('slot-style')
-        styleTag.textContent = style.css
-        const node = this.nodes[i]
-        const old = node.querySelector('.slot-style')
-        if (old) {
-          old.remove()
-        }
-        node.append(styleTag)
-        node.host.style.cssText = "visibility: visible";
-      })
-    }
+    Theme.current.render(this.panel.less).then((style) => {
+      const styleTag = document.createElement('style')
+      styleTag.classList.add('slot-style')
+      styleTag.textContent = style.css
+      const old = this.node.querySelector('.slot-style')
+      if (old) {
+        old.remove()
+      }
+      this.node.append(styleTag)
+      this.node.host.style.cssText = 'visibility: visible';
+    })
   }
 
   view(vnode) {
     return <div></div>
+  }
+}
+
+class MultiPanelSlot {
+  constructor() {
+    this.panels = []
+  }
+
+  oncreate(vnode) {
+    this.panels = Panel.get(vnode.attrs.slot)
+  }
+
+  view(vnode) {
+    return this.panels.map((panel) => {
+      return m(PanelSlot, {panel})
+    })
   }
 }
 
@@ -51,13 +60,7 @@ class TabSlot {
 
   oncreate(vnode) {
     this.panels = Panel.get(vnode.attrs.slot)
-    for (const panel of this.panels) {
-      const div = document.createElement('div')
-      div.classList.add('tab-content')
-      const node = div.attachShadow({mode: 'open'})
-      m.mount(node, panel.component, {})
-      vnode.dom.appendChild(div)
-    }
+    m.redraw()
   }
 
   view(vnode) {
@@ -69,6 +72,11 @@ class TabSlot {
         })
       }
       </div>
+      {
+        this.panels.map((panel) => {
+          return m(PanelSlot, {panel})
+        })
+      }
     </div>
   }
 }
@@ -167,7 +175,7 @@ export default class PcapView {
         style={{bottom: `${this.bottomHeight}px`}}
         >
         {
-          m(PanelSlot, {slot: 'core:pcap:top'})
+          m(MultiPanelSlot, {slot: 'core:pcap:top'})
         }
       </div>
       <div class="vertical-handle"
@@ -186,7 +194,7 @@ export default class PcapView {
         style={{height: `${this.bottomHeight}px`}}
       >
       <div id="pcap-tool">{
-        m(PanelSlot, {slot: 'core:pcap:tool'})
+        m(MultiPanelSlot, {slot: 'core:pcap:tool'})
       }</div>
       {
         m(DrawerView, {})
