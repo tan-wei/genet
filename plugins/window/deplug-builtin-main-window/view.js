@@ -7,20 +7,6 @@ import i18n from 'i18n4v'
 const { MenuItem } = remote
 
 class WebView {
-  oncreate(vnode) {
-    let webview = vnode.dom
-    let item = vnode.attrs.item
-    if (item) {
-      webview.addEventListener('dom-ready', () => {
-        const argv = JSON.stringify(Argv)
-        const tab = JSON.stringify(item)
-        const script = `require("deplug-core/tab.main")(${argv}, ${tab})`
-        webview.executeJavaScript(script)
-      })
-    }
-
-  }
-
   onupdate(vnode) {
     if (vnode.attrs.isLoaded && typeof this.guestinstance === 'undefined') {
       this.guestinstance = vnode.dom.getAttribute('guestinstance')

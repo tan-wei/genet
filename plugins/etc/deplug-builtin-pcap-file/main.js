@@ -1,10 +1,9 @@
 import { Channel, GlobalChannel, Tab } from 'deplug'
-import fs from 'fs'
 import path from 'path'
 
 class Pcap {
   constructor(filePath) {
-    let data = fs.readFileSync(filePath)
+    let data = new Buffer([]) // TODO
     if (data.length < 24) {
       throw new Error('too short global header')
     }

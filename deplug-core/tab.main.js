@@ -4,8 +4,18 @@ import deplug from './deplug'
 import mithril from 'mithril'
 import path from 'path'
 import roll from './roll'
-
 const { webContents } = remote
+
+const packageWhiteList = [
+  'mithril',
+  'moment',
+  'path',
+  'mithril',
+  'deplug',
+  'plugkit',
+  'lodash.throttle',
+]
+
 async function updateTheme (theme, styleTag, lessFile) {
   const style = await theme.render(lessFile)
   styleTag.textContent = style.css
@@ -19,7 +29,7 @@ function handleRedirect (event, url) {
   }
 }
 
-export default async function (argv, tab) {
+async function init(argv, tab) {
   try {
     const { Theme, Plugin, Tab } = await deplug(argv)
     const { options, id } = tab
@@ -74,4 +84,24 @@ export default async function (argv, tab) {
     contents.on('will-navigate', handleRedirect)
     contents.on('new-window', handleRedirect)
   }
+}
+
+export default function (argv, tab) {
+  const nodeRequire = require
+  const nodeProcess = process
+
+  const contents = remote.getCurrentWebContents()
+  contents.on('dom-ready', () => {
+    global.require = (name) => {
+      if (!packageWhiteList.includes(name)) {
+        throw new Error(`Cannot find module '${name}'`)
+      }
+      return nodeRequire(name)
+    }
+    global.process = {
+      execPath: nodeProcess.execPath,
+      platform: nodeProcess.platform,
+    }
+    init(argv, tab)
+  })
 }
