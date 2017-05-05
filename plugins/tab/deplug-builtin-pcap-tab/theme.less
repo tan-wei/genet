@@ -2,6 +2,7 @@
 @import "deplug-common-window";
 
 @pcap-tool-height: 32px;
+@pcap-tab-max-width: 120px;
 
 main {
   padding: 40px;
@@ -115,4 +116,34 @@ section {
 
 .slot-wrapper {
   display: flex;
+}
+
+.tab-container {
+  flex-grow: 1;
+
+  .tab-header {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 20px;
+    background-color: @theme-lighter-bg;
+    display: flex;
+
+    .tab-label {
+      flex-grow: 1;
+      max-width: @pcap-tab-max-width;
+      display: block;
+      float: left;
+      padding: 0 12px;
+      border-left: 1px solid fade(@theme-default-fg, 50%);
+      border-top: 2px solid @theme-default-bg;
+      background-color: @theme-default-bg;
+      -webkit-app-region: drag;
+      text-decoration: none;
+      &[isactive] {
+        border-top-color: @theme-default-fg;
+      }
+    }
+  }
 }

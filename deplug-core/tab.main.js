@@ -13,6 +13,8 @@ const packageWhiteList = [
   'mithril',
   'deplug',
   'plugkit',
+  'object-path',
+  'deplugin',
   'lodash.throttle',
 ]
 

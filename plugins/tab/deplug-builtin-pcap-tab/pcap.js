@@ -44,6 +44,24 @@ class PanelSlot {
   }
 }
 
+class TabSlot {
+  constructor() {
+
+  }
+
+  oncreate(vnode) {
+    this.panels = Panel.get(vnode.attrs.slot)
+  }
+
+  view(vnode) {
+    return <div class="tab-container">
+      <div class="tab-header">
+      <a class="tab-label" draggable="true" isactive>tab</a>
+      </div>
+    </div>
+  }
+}
+
 class DrawerView {
   constructor() {
     this.separatorRatio = 0.5
@@ -90,12 +108,12 @@ class DrawerView {
       <div id="pcap-middle"
       style={{bottom: `${(1 - this.separatorRatio) * 100}%`}}
       >{
-        m(PanelSlot, {slot: 'core:pcap:middle'})
+        m(TabSlot, {slot: 'core:pcap:middle'})
       }</div>
       <div id="pcap-bottom"
       style={{top: `${this.separatorRatio * 100}%`}}
       >{
-        m(PanelSlot, {slot: 'core:pcap:middle'})
+        m(TabSlot, {slot: 'core:pcap:bottom'})
       }</div>
     </div>
   }
