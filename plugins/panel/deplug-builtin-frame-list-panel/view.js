@@ -173,7 +173,7 @@ export default class FrameListView {
       const data = dummy.toDataURL("image/png")
 
       this.style.textContent = `
-      .frame-list-view::-webkit-scrollbar {
+      .frame-list-view, .frame-list-view .padding, .frame-list-view::-webkit-scrollbar {
         background-image: url(${data});
       }
       `
@@ -207,7 +207,7 @@ export default class FrameListView {
       ></canvas>
       ,
       <div class="frame-list-view">
-        <div
+        <div class="padding"
           style={{height: `${viewHeight}px`}}
         >
           {
