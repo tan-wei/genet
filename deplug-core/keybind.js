@@ -1,7 +1,6 @@
 import { EventEmitter } from 'events'
 import Mousetrap from 'mousetrap'
 import internal from './internal'
-import jquery from 'jquery'
 
 export default class Keybind extends EventEmitter {
   constructor (profile) {
@@ -88,8 +87,8 @@ export default class Keybind extends EventEmitter {
         for (const sel in sels) {
           const act = sels[sel]
           const active = !sel.startsWith('!') &&
-            (jquery(event.target).is(sel) ||
-              jquery(event.target).parents(sel).length)
+            event.target.matches(sel) ||
+              event.target.parentNode.matches(sel).length)
           if (active) {
             if (typeof act === 'function') {
               if (act(event) === false) {

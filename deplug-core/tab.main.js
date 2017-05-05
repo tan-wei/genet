@@ -1,7 +1,6 @@
 import { remote, shell } from 'electron'
 import GlobalChannel from './global-channel'
 import deplug from './deplug'
-import jquery from 'jquery'
 import mithril from 'mithril'
 import path from 'path'
 import roll from './roll'
@@ -9,7 +8,7 @@ import roll from './roll'
 const { webContents } = remote
 async function updateTheme (theme, styleTag, lessFile) {
   const style = await theme.render(lessFile)
-  styleTag.text(style.css)
+  styleTag.textContent = style.css
 }
 
 function handleRedirect (event, url) {
@@ -26,10 +25,13 @@ export default async function (argv, tab) {
     const { options, id } = tab
     const { rootDir } = tab.tab
 
+    await Plugin.loadComponents('theme')
+
     const less = tab.tab.less || ''
     if (less !== '') {
       const lessFile = path.join(rootDir, less)
-      const styleTag = jquery('<style>').appendTo(jquery('head'))
+      const styleTag = document.createElement('style')
+      document.head.appendChild(styleTag)
       GlobalChannel.on('core:theme:updated', () => {
         updateTheme(Theme.current, styleTag, lessFile)
       })
@@ -56,10 +58,6 @@ export default async function (argv, tab) {
       func(module, rootDir)
       mithril.mount(document.body, module.exports)
     }
-
-    await new Promise((res) => {
-      jquery(res)
-    })
 
     await Plugin.loadComponents('script')
 

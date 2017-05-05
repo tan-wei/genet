@@ -1,6 +1,6 @@
 import { remote } from 'electron'
 const { webContents } = remote
-import deplug from './deplug.new'
+import deplug from './deplug'
 
 const packageWhiteList = [
   'mithril',
@@ -15,7 +15,6 @@ export default function (argv, tab) {
 
   const nodeRequire = require
   const nodeProcess = process
-
   console.log(deplug(argv))
 
   const contents = remote.getCurrentWebContents()

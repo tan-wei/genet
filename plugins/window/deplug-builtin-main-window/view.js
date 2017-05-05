@@ -2,7 +2,6 @@ import { ipcRenderer, remote } from 'electron'
 import { Argv, GlobalChannel, Tab, Menu } from 'deplug'
 import m from 'mithril'
 import url from 'url'
-import jquery from 'jquery'
 import i18n from 'i18n4v'
 
 const { MenuItem } = remote
@@ -35,6 +34,7 @@ class WebView {
       pathname: __dirname + '/index.htm'
     })
     return <webview
+      id={`tab-content-${vnode.attrs.key}`}
       class="tab-content"
       src={src}
       isActive={vnode.attrs.isActive}
@@ -94,7 +94,7 @@ export default class TabView {
         if (this.currentIndex > 0 && this.currentIndex === this.tabs.length - 1) {
           this.currentIndex--
         }
-        let content = jquery(`webview:eq(${index})`)[0]
+        let content = document.querySelector(`#tab-content-${index}`)
         content.closeDevTools()
         this.tabs.splice(index, 1)
         m.redraw()
@@ -111,7 +111,8 @@ export default class TabView {
 
   oncreate(vnode) {
     this.tabContainer = vnode.dom.querySelector('#tab-container')
-    this.styleTag = jquery('<style>').appendTo(jquery('head'))
+    this.styleTag = document.createElement('style')
+    document.head.appendChild(this.styleTag)
   }
 
   activate(index) {
@@ -122,7 +123,7 @@ export default class TabView {
     menu.append(new MenuItem({
       label: 'Show Developer Tools',
       click: () => {
-        let content = jquery(`webview:eq(${this.currentIndex})`)[0]
+        let content = document.querySelector(`#tab-content-${this.currentIndex}`)
         content.openDevTools()
       }
     }))
@@ -133,12 +134,12 @@ export default class TabView {
     event.target.style.opacity = '0.4'
     event.dataTransfer.effectAllowed = 'move'
     event.dataTransfer.setData('text/plain', event.target.getAttribute('index'))
-    this.styleTag.text('webview { pointer-events: none; }')
+    this.styleTag.textContent = 'webview { pointer-events: none; }'
   }
 
   dragEnd(event) {
     event.target.style.opacity = '1.0'
-    this.styleTag.text('')
+    this.styleTag.textContent = ''
   }
 
   dragDrop(event) {
