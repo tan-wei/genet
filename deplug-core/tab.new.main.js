@@ -1,5 +1,6 @@
 import { remote } from 'electron'
 const { webContents } = remote
+import deplug from './deplug.new'
 
 const packageWhiteList = [
   'mithril',
@@ -11,9 +12,13 @@ const packageWhiteList = [
   'lodash.throttle'
 ]
 export default function (argv, tab) {
-  const contents = remote.getCurrentWebContents()
+
   const nodeRequire = require
   const nodeProcess = process
+
+  console.log(deplug(argv))
+
+  const contents = remote.getCurrentWebContents()
   contents.on('dom-ready', () => {
     global.require = (name) => {
       if (!packageWhiteList.includes(name)) {

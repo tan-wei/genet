@@ -1,7 +1,6 @@
 import Component from './base'
 import GlobalChannel from '../global-channel'
 import Theme from '../theme'
-import jquery from 'jquery'
 import mithril from 'mithril'
 import objpath from 'object-path'
 import path from 'path'
@@ -10,12 +9,13 @@ import roll from '../roll'
 
 export default class WindowComponent extends Component {
   async load () {
-    this.styleTag = jquery('<style>').appendTo(jquery('head'))
+    this.styleTag = document.createElement('style')
+    document.head.appendChild(this.styleTag)
 
     this.updateTheme = async () => {
       if (this.lessFile) {
         const style = await Theme.current.render(this.lessFile)
-        this.styleTag.text(style.css)
+        this.styleTag.textContent = style.css
         const computed = getComputedStyle(document.documentElement)
         const vibrancy = JSON.parse(computed.getPropertyValue('--vibrancy'))
         remote.getCurrentWindow().setVibrancy(vibrancy)
