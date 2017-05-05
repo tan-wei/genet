@@ -182,7 +182,7 @@ export default class FrameListView {
 
   view(vnode) {
     const frames = (this.filtered ? this.filtered.frames : this.frame.frames)
-    const itemHeight = 40
+    const itemHeight = 30
     const viewHeight = frames * itemHeight
     const margin = 5
     const begin = Math.max(0,
