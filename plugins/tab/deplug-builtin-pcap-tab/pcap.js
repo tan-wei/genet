@@ -4,6 +4,7 @@ import m from 'mithril'
 class PanelSlot {
   constructor() {
     GlobalChannel.on('core:theme:updated', () => { this.updateTheme() })
+    this.ready = false
   }
 
   oncreate(vnode) {
@@ -13,9 +14,9 @@ class PanelSlot {
     const node = div.attachShadow({mode: 'open'})
     m.mount(node, this.panel.component)
     vnode.dom.parentNode.appendChild(div)
-    node.host.style.cssText = 'visibility: hidden'
     this.node = node
     this.updateTheme()
+    m.redraw()
   }
 
   updateTheme() {
@@ -28,8 +29,19 @@ class PanelSlot {
         old.remove()
       }
       this.node.append(styleTag)
-      this.node.host.style.cssText = 'visibility: visible';
+      this.ready = true
+      m.redraw()
     })
+  }
+
+  onupdate(vnode) {
+    if (this.node) {
+      if (this.ready && vnode.attrs.active) {
+        this.node.host.style.cssText = 'visibility: visible;'
+      } else {
+        this.node.host.style.cssText = 'visibility: hidden;'
+      }  
+    }
   }
 
   view(vnode) {
@@ -48,7 +60,7 @@ class MultiPanelSlot {
 
   view(vnode) {
     return this.panels.map((panel) => {
-      return m(PanelSlot, {panel})
+      return m(PanelSlot, {panel, active: true})
     })
   }
 }
@@ -56,6 +68,7 @@ class MultiPanelSlot {
 class TabSlot {
   constructor() {
     this.panels = []
+    this.currentIndex = 0
   }
 
   oncreate(vnode) {
@@ -63,18 +76,27 @@ class TabSlot {
     m.redraw()
   }
 
+  activate(index) {
+    this.currentIndex = parseInt(index)
+  }
+
   view(vnode) {
     return <div class="tab-container">
       <div class="tab-header">
       {
-        this.panels.map((panel) => {
-          return <a class="tab-label" draggable="true" isactive>{ panel.name }</a>
+        this.panels.map((panel, index) => {
+          return <a
+            class="tab-label"
+            onclick={ () => this.activate(index) }
+            isactive={ this.currentIndex === index }>
+            { panel.name }
+            </a>
         })
       }
       </div>
       {
-        this.panels.map((panel) => {
-          return m(PanelSlot, {panel})
+        this.panels.map((panel, index) => {
+          return m(PanelSlot, {panel, active: this.currentIndex === index})
         })
       }
     </div>

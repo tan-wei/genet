@@ -128,6 +128,10 @@ section {
     top: 20px;
     bottom: 0;
     overflow: auto;
+    background-color: @theme-default-bg;
+    &[isactive] {
+      z-index: 1;
+    }
   }
 
   .tab-header {
@@ -138,7 +142,7 @@ section {
     height: 20px;
     background-color: @theme-lighter-bg;
     display: flex;
-    
+    cursor: default;
     .tab-label {
       flex-grow: 1;
       max-width: @pcap-tab-max-width;
