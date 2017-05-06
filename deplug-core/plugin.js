@@ -72,6 +72,7 @@ export default class Plugin {
         Profile.setPluginDefault(pkg.name, opt.id, opt.default)
       }
     }
+    Profile.setPluginDefault(pkg.name, 'enabled', true)
     const components =
       compList.map((comp) => ComponentFactory.create(rootDir, pkg, comp))
     return new Plugin(rootDir, pkg, components, options)

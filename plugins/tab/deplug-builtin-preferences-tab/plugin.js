@@ -19,7 +19,11 @@ export default class PluginView {
       <div>
         {
           this.plugins.filter((plugin) => !plugin.builtin).map((plugin) => {
-            return m(PluginCard, {pkg: plugin.pkg})
+            return m(PluginCard, {
+              pkg: plugin.pkg,
+              installed: true,
+              options: plugin.options
+            })
           })
         }
       </div>
@@ -27,7 +31,11 @@ export default class PluginView {
       <div>
         {
           this.plugins.filter((plugin) => plugin.builtin).map((plugin) => {
-            return m(PluginCard, {pkg: plugin.pkg})
+            return m(PluginCard, {
+              pkg: plugin.pkg,
+              installed: true,
+              options: plugin.options
+            })
           })
         }
       </div>
