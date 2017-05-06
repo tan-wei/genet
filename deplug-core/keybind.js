@@ -87,7 +87,7 @@ export default class Keybind extends EventEmitter {
         for (const sel in sels) {
           const act = sels[sel]
           const active = !sel.startsWith('!') &&
-            event.target.matches(sel) ||
+            (event.target.matches(sel) ||
               event.target.parentNode.matches(sel).length)
           if (active) {
             if (typeof act === 'function') {

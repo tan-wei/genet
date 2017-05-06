@@ -63,16 +63,18 @@ export default class Plugin {
       const localExtern = Object.keys(objpath.get(pkg, 'dependencies', {}))
       const func = await roll(path.join(rootDir, main), rootDir, localExtern)
       func(module)
-      compList = module.exports
+      compList = objpath.get(module.exports, 'components', [])
     }
+    const options = objpath.get(module.exports, 'options', [])
     const components =
       compList.map((comp) => ComponentFactory.create(rootDir, pkg, comp))
-    return new Plugin(rootDir, pkg, components)
+    return new Plugin(rootDir, pkg, components, options)
   }
 
-  constructor (rootDir, pkg, comp) {
+  constructor (rootDir, pkg, comp, options) {
     this.pkg = pkg
     this.components = comp
     this.builtin = this.pkg.name.startsWith('deplug-builtin-')
+    this.options = options
   }
 }

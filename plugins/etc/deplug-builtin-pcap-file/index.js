@@ -1,14 +1,16 @@
-export default [
-  {
-    type: 'menu',
-    menu: {
-      root: 'menu.js'
+export default {
+  components: [
+    {
+      type: 'menu',
+      menu: {
+        root: 'menu.js'
+      }
+    },
+    {
+      type: 'script',
+      script: {
+        main: 'main.js'
+      }
     }
-  },
-  {
-    type: 'script',
-    script: {
-      main: 'main.js'
-    }
-  }
-]
+  ]
+}

@@ -15,9 +15,8 @@ const packageWhiteList = [
   'plugkit',
   'object-path',
   'deplugin',
-  'lodash.throttle',
+  'lodash.throttle'
 ]
-
 async function updateTheme (theme, styleTag, lessFile) {
   const style = await theme.render(lessFile)
   styleTag.textContent = style.css
@@ -31,12 +30,11 @@ function handleRedirect (event, url) {
   }
 }
 
-async function init(argv, tab) {
+async function init (argv, tab) {
   try {
     const { Theme, Plugin, Tab } = await deplug(argv)
     const { options, id } = tab
     const { rootDir } = tab.tab
-
     await Plugin.loadComponents('theme')
 
     const less = tab.tab.less || ''

@@ -1,29 +1,31 @@
-export default [
-  {
-    type: 'dissector',
-    dissector: {
-      main: 'build/Release/ethernet.node',
-      linkLyaers: [
-        {link: 1, id: '<eth>', name: '<Ethernet>'}
-      ]
+export default {
+  components: [
+    {
+      type: 'dissector',
+      dissector: {
+        main: 'build/Release/ethernet.node',
+        linkLyaers: [
+          {link: 1, id: '<eth>', name: '<Ethernet>'}
+        ]
+      }
+    },
+    {
+      type: 'dissector',
+      dissector: {
+        main: 'build/Release/ipv4.node'
+      }
+    },
+    {
+      type: 'dissector',
+      dissector: {
+        main: 'build/Release/tcp.node'
+      }
+    },
+    {
+      type: 'stream-dissector',
+      stream_dissector: {
+        main: 'build/Release/tcp-stream.node'
+      }
     }
-  },
-  {
-    type: 'dissector',
-    dissector: {
-      main: 'build/Release/ipv4.node'
-    }
-  },
-  {
-    type: 'dissector',
-    dissector: {
-      main: 'build/Release/tcp.node'
-    }
-  },
-  {
-    type: 'stream-dissector',
-    stream_dissector: {
-      main: 'build/Release/tcp-stream.node'
-    }
-  }
-]
+  ]
+}

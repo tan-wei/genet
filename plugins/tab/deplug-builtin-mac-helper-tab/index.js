@@ -1,11 +1,13 @@
-export default [
-  {
-    type: 'tab',
-    tab: {
-      name: 'Helper',
-      template: 'Helper',
-      less: 'theme.less',
-      root: 'view.js'
+export default {
+  components: [
+    {
+      type: 'tab',
+      tab: {
+        name: 'Helper',
+        template: 'Helper',
+        less: 'theme.less',
+        root: 'view.js'
+      }
     }
-  }
-]
+  ]
+}
