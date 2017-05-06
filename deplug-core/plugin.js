@@ -1,4 +1,5 @@
 import ComponentFactory from './components/factory'
+import Profile from './profile'
 import config from './config'
 import denodeify from 'denodeify'
 import glob from 'glob'
@@ -58,14 +59,19 @@ export default class Plugin {
     }
     const { main } = pkg
     let compList = objpath.get(pkg, 'deplugin.components', [])
+    const module = {}
     if (main) {
-      const module = {}
       const localExtern = Object.keys(objpath.get(pkg, 'dependencies', {}))
       const func = await roll(path.join(rootDir, main), rootDir, localExtern)
       func(module)
       compList = objpath.get(module.exports, 'components', [])
     }
     const options = objpath.get(module.exports, 'options', [])
+    for (const opt of options) {
+      if ('default' in opt) {
+        Profile.setPluginDefault(pkg.name, opt.id, opt.default)
+      }
+    }
     const components =
       compList.map((comp) => ComponentFactory.create(rootDir, pkg, comp))
     return new Plugin(rootDir, pkg, components, options)

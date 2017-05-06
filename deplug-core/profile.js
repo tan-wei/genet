@@ -59,6 +59,7 @@ function createHandler (plugin = null) {
 }
 
 const profileRegistory = {}
+const pluginDefaults = {}
 const currentProfile = 'default'
 export default class Profile extends EventEmitter {
   constructor (profile) {
@@ -152,7 +153,14 @@ export default class Profile extends EventEmitter {
 
   getPlugin (id, opath) {
     if (id in this.pluginObject) {
-      return objpath.get(this.pluginObject[id], opath, null)
+      const value = objpath.get(this.pluginObject[id], opath)
+      if (typeof value === 'undefined') {
+        if (id in pluginDefaults) {
+          return objpath.get(pluginDefaults[id], opath, null)
+        }
+      } else {
+        return value
+      }
     }
     return null
   }
@@ -187,6 +195,13 @@ export default class Profile extends EventEmitter {
       wc.send('plugin-updated', id, opath, value)
     }
     this.write()
+  }
+
+  static setPluginDefault (id, opath, value) {
+    if (!(id in pluginDefaults)) {
+      pluginDefaults[id] = {}
+    }
+    objpath.set(pluginDefaults[id], opath, value)
   }
 
   async write () {
