@@ -204,20 +204,24 @@ export default class Profile extends EventEmitter {
 
   async write () {
     const write = denodeify(fs.writeFile)
-    await write(this.globalFile, JSON.stringify(this.globalObject))
+    await write(this.globalFile,
+      JSON.stringify(this.globalObject, null, ' '))
     const tasks = []
     for (const id in this.pluginObject) {
       const jsonFile = path.join(this.pluginsDir, `${id}.json`)
-      tasks.push(write(jsonFile, JSON.stringify(this.pluginObject[id])))
+      tasks.push(write(jsonFile,
+        JSON.stringify(this.pluginObject[id], null, ' ')))
     }
     return Promise.all(tasks)
   }
 
   writeSync () {
-    fs.writeFileSync(this.globalFile, JSON.stringify(this.globalObject))
+    fs.writeFileSync(this.globalFile,
+      JSON.stringify(this.globalObject, null, ' '))
     for (const id in this.pluginObject) {
       const jsonFile = path.join(this.pluginsDir, `${id}.json`)
-      fs.writeFileSync(jsonFile, JSON.stringify(this.pluginObject[id]))
+      fs.writeFileSync(jsonFile,
+        JSON.stringify(this.pluginObject[id], null, ' '))
     }
   }
 }
