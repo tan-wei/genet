@@ -1,12 +1,15 @@
 import m from 'mithril'
 import moment from 'moment'
-import { Channel } from 'deplug'
+import { Channel, Profile } from 'deplug'
 
 class BinaryItem {
   view(vnode) {
+    const { layout } = Profile.current['$deplug-builtin-binary-panel']
+    const hex = layout.includes('hex')
+    const ascii = layout.includes('ascii')
     const payload = vnode.attrs.payload
     return <div class="binary-view">
-      <ul class="hex-list">
+      <ul class="hex-list" style={{display: hex ? 'block' : 'none'}}>
         {
           (new Array(Math.ceil(payload.length / 16))).fill().map((_, line) => {
             const slice = payload.slice(line * 16, (line + 1) * 16)
@@ -21,7 +24,7 @@ class BinaryItem {
           })
         }
       </ul>
-      <ul class="ascii-list">
+      <ul class="ascii-list" style={{display: ascii ? 'block' : 'none'}}>
         {
           (new Array(Math.ceil(payload.length / 16))).fill().map((_, line) => {
             const slice = payload.slice(line * 16, (line + 1) * 16)

@@ -17,9 +17,12 @@ export default class Plugin {
     }
     const tasks = []
     for (const plugin of plugins) {
-      for (const comp of plugin.components) {
-        if (comp.type === type) {
-          tasks.push(comp.load())
+      const { enabled } = Profile.current[`$${plugin.pkg.name}`]
+      if (enabled) {
+        for (const comp of plugin.components) {
+          if (comp.type === type) {
+            tasks.push(comp.load())
+          }
         }
       }
     }

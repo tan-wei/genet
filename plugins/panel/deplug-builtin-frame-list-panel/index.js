@@ -12,7 +12,7 @@ export default {
   ],
   options: [
     {
-      id: 'map-resolution',
+      id: 'mapResolution',
       name: 'Minimap Resolution',
       type: 'integer',
       min: '10',

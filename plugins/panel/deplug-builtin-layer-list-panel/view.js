@@ -1,6 +1,6 @@
 import m from 'mithril'
 import moment from 'moment'
-import { Channel } from 'deplug'
+import { Channel, Profile } from 'deplug'
 
 class PropertyItem {
   view(vnode) {
@@ -62,10 +62,9 @@ export default class LayerListView {
       return <div class="layer-list-view">No frames selected</div>
     }
     return this.frames.map((frame) => {
+      const profile = Profile.current['$deplug-builtin-layer-list-panel']
       const ts = moment(frame.timestamp)
-      const tsString = ts.format('YYYY-MM-DDTHH:mm:ss.SSS') +
-        frame.timestamp.nsec + ts.format('Z')
-
+      const tsString = ts.format(profile.tsformat)
       let length = `${frame.rootLayer.payload.length}`
       if (frame.length > frame.rootLayer.payload.length) {
         length += ` (actual: ${frame.length})`

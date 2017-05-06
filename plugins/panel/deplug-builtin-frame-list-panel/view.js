@@ -48,11 +48,12 @@ class FrameItem {
 
 export default class FrameListView {
   constructor() {
+    const profile = Profile.current['$deplug-builtin-frame-list-panel']
     this.frame = {frames: 0}
     this.session = null
     this.viewScrollTop = 0
     this.viewHeight = 0
-    this.mapHeight = 100
+    this.mapHeight = profile.mapResolution
     this.previousScrollTop = 0
     this.selectedFrames = []
 
@@ -61,7 +62,6 @@ export default class FrameListView {
       m.redraw()
     })
 
-    const profile = Profile.current['$deplug-builtin-frame-list-panel']
     this.columns = profile.columns || [
       {name: 'No', value: 'seq'},
       {name: 'Protocol', value: 'primaryLayer.name'},

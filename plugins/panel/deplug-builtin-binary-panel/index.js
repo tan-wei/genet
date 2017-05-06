@@ -9,5 +9,18 @@ export default {
         root: 'view.js'
       }
     }
+  ],
+  options: [
+    {
+      id: 'layout',
+      name: 'Layout',
+      type: 'enum',
+      values: [
+        {value: 'hex-ascii', name: 'Hex + ASCII'},
+        {value: 'hex', name: 'Hex'},
+        {value: 'ascii', name: 'ASCII'}
+      ],
+      default: 'hex-ascii'
+    }
   ]
 }
