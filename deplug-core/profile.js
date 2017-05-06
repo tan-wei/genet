@@ -152,15 +152,13 @@ export default class Profile extends EventEmitter {
   }
 
   getPlugin (id, opath) {
-    if (id in this.pluginObject) {
-      const value = objpath.get(this.pluginObject[id], opath)
-      if (typeof value === 'undefined') {
-        if (id in pluginDefaults) {
-          return objpath.get(pluginDefaults[id], opath, null)
-        }
-      } else {
-        return value
+    const value = objpath.get(this.pluginObject[id] || {}, opath)
+    if (typeof value === 'undefined') {
+      if (id in pluginDefaults) {
+        return objpath.get(pluginDefaults[id], opath, null)
       }
+    } else {
+      return value
     }
     return null
   }
