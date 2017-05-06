@@ -99,13 +99,13 @@ export default class PluginCard {
       <a>{ name } <small>({ pkg.version })</small></a>
       <table style={{display: vnode.attrs.installed ? 'block' : 'none'}}>
         <tr>
-          <td>Enabled</td>
+          <td data-tooltip={ '.enabled' }>Enabled</td>
           <td>{ m(OptionView, {pkg, option: {id: 'enabled', type: 'boolean', default: true}}) }</td>
         </tr>
         {
           options.map((opt) => {
             return <tr>
-              <td>{ opt.name }</td>
+              <td data-tooltip={ `.${opt.id}` }>{ opt.name }</td>
               <td>{ m(OptionView, {pkg, option: opt}) }</td>
             </tr>
           })

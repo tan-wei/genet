@@ -151,3 +151,31 @@ input[type=checkbox]:checked {
   padding: 20px;
   margin: 10px 0;
 }
+
+
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: auto;
+  left: 50%;
+  top: 100%;
+  transform: translate(-50%, 0);
+  transform-origin: top;
+  font-size: 14px;
+  border: 1px @theme-light-fg solid;
+  background-color: @theme-lighter-bg;
+  border-radius: 2px;
+  padding: 6px;
+  color: @theme-default-fg;
+  opacity: 0;
+}
+
+[data-tooltip]:hover::after {
+  z-index: 100;
+  opacity: 1;
+  transition: opacity 0.3s;
+}
