@@ -508,8 +508,13 @@ Variant Variant::Private::getVariant(v8::Local<v8::Value> var) {
   } else if (var->IsString()) {
     return std::string(*Nan::Utf8String(var));
   } else if (var->IsDate()) {
-    return Variant::Timestamp(std::chrono::milliseconds(
-        static_cast<uint64_t>(var.As<v8::Date>()->ValueOf())));
+    auto nsec = var.As<v8::Object>()->Get(Nan::New("nsec").ToLocalChecked());
+    uint64_t ts =
+        static_cast<uint64_t>(var.As<v8::Date>()->ValueOf()) * 1000000;
+    if (nsec->IsNumber()) {
+      ts += var->NumberValue();
+    }
+    return Variant::Timestamp(std::chrono::nanoseconds(ts));
   } else if (node::Buffer::HasInstance(var)) {
     return getSlice(var.As<v8::Object>());
   } else if (var->IsArray()) {

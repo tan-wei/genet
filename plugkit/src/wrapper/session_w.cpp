@@ -141,7 +141,13 @@ NAN_METHOD(SessionWrapper::analyze) {
   if (const auto &session = wrapper->session) {
     int link = info[0]->Uint32Value();
     const Slice &data = Variant::Private::getSlice(info[1].As<v8::Object>());
-    session->analyze(link, data);
+    size_t length = info[2]->IsNumber() ? info[2]->Uint32Value() : data.size();
+    const Variant &tsVariant = Variant::Private::getVariant(info[3]);
+    Variant::Timestamp ts = tsVariant.isTimestamp()
+                                ? tsVariant.timestamp()
+                                : std::chrono::system_clock::now();
+    uint32_t sourceId = info[4]->IsNumber() ? info[4]->Uint32Value() : 0;
+    session->analyze(link, data, length, ts, sourceId);
   }
 }
 

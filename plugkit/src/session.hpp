@@ -66,7 +66,8 @@ public:
                                            uint32_t length) const;
 
   void analyze(int link, const Slice &data, size_t length = 0,
-               Variant::Timestamp ts = std::chrono::system_clock::now());
+               Variant::Timestamp ts = std::chrono::system_clock::now(),
+               uint32_t sourceId = 0);
 
   void setStatusCallback(const StatusCallback &callback);
   void setFilterCallback(const FilterCallback &callback);
