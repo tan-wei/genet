@@ -613,9 +613,9 @@ deplug-helper@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/deplug-helper/-/deplug-helper-0.1.0.tgz#1dd0416cb31996618cf4867562c26846c5d115d3"
 
-deplugin@^0.0.7:
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/deplugin/-/deplugin-0.0.7.tgz#3ec68bcb0322c2ecb689300cf4412cd2240f609a"
+deplugin@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/deplugin/-/deplugin-0.0.8.tgz#ff1200dd89adf37f7dad64f196afaf33fc9fb022"
   dependencies:
     denodeify "^1.2.1"
     jsonfile "^2.4.0"
@@ -1510,10 +1510,6 @@ jodid25519@^1.0.0:
   resolved "https://registry.yarnpkg.com/jodid25519/-/jodid25519-1.0.2.tgz#06d4912255093419477d425633606e0e90782967"
   dependencies:
     jsbn "~0.1.0"
-
-jquery@^3.2.1:
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.2.1.tgz#5c4d9de652af6cd0a770154a631bba12b015c787"
 
 js-tokens@^3.0.0:
   version "3.0.1"

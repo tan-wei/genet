@@ -14,7 +14,7 @@
     "builtin-modules": "^1.1.1",
     "denodeify": "^1.2.1",
     "deplug-core": "*",
-    "deplugin": "^0.0.7",
+    "deplugin": "^0.0.8",
     "electron-log": "^2.0.2",
     "electron-squirrel-startup": "^1.0.0",
     "font-awesome": "^4.7.0",

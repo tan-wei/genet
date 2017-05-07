@@ -7,7 +7,10 @@ export default {
         linkLyaers: [
           {link: 1, id: '<eth>', name: '<Ethernet>'}
         ]
-      }
+      },
+      samples: [
+        { pcap: 'test.pcap' }
+      ]
     },
     {
       type: 'dissector',
