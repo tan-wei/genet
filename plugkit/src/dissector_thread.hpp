@@ -31,6 +31,7 @@ public:
   void enter() override;
   bool loop() override;
   void exit() override;
+  uint32_t queue() const;
 
 private:
   class Private;

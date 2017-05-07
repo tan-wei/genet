@@ -30,13 +30,14 @@ public:
   using StatusCallback = std::function<void(const Status &)>;
 
   struct FilterStatus {
-    uint32_t frames;
+    uint32_t frames = 0;
   };
   using FilterStatusMap = std::unordered_map<std::string, FilterStatus>;
   using FilterCallback = std::function<void(const FilterStatusMap &)>;
 
   struct FrameStatus {
-    uint32_t frames;
+    uint32_t frames = 0;
+    uint32_t queue = 0;
   };
   using FrameCallback = std::function<void(const FrameStatus &)>;
 

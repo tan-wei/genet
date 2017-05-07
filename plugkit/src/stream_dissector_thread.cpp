@@ -8,6 +8,7 @@
 #include "variant.hpp"
 #include <unordered_map>
 #include <unordered_set>
+#include <atomic>
 #include <regex>
 #include <v8.h>
 
@@ -24,6 +25,7 @@ public:
   std::vector<StreamDissectorFactoryConstPtr> factories;
   std::unordered_map<StreamDissectorPtr, std::vector<std::regex>> dissectors;
   std::unordered_map<std::string, std::vector<StreamDissector *>> dissectorMap;
+  std::atomic<uint32_t> queuedFrames;
   size_t count = 0;
 
   struct WorkerList {
@@ -81,7 +83,9 @@ void StreamDissectorThread::enter() {
 bool StreamDissectorThread::loop() {
   std::vector<ChunkConstPtr> chunks;
   chunks.resize(128);
+  d->queuedFrames.store(0, std::memory_order_relaxed);
   size_t size = d->queue.dequeue(std::begin(chunks), chunks.capacity());
+  d->queuedFrames.store(size, std::memory_order_relaxed);
   if (size == 0)
     return false;
 
@@ -94,6 +98,7 @@ bool StreamDissectorThread::loop() {
       sub->d->setLayer(chunk->layer());
     }
     chunks.insert(chunks.end(), subChunks.begin(), subChunks.end());
+    d->queuedFrames.store(chunks.size(), std::memory_order_relaxed);
     d->count++;
   }
 
@@ -175,5 +180,9 @@ StreamDissectorThread::processChunk(const ChunkConstPtr &chunk) {
 
   d->callback(&frames.front(), frames.size());
   return subChunks;
+}
+
+uint32_t StreamDissectorThread::queue() const {
+  return d->queuedFrames.load(std::memory_order_relaxed);
 }
 }

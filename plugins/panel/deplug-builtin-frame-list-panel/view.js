@@ -81,6 +81,7 @@ export default class FrameListView {
       this.session = sess
       this.filtered = null
       this.session.on('frame', (stat) => {
+        console.log(stat.queue)
         this.frame = stat
         m.redraw()
       })

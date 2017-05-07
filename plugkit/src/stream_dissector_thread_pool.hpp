@@ -34,6 +34,7 @@ public:
   void registerDissector(const StreamDissectorFactoryConstPtr &factory);
   void start();
   void setLogger(const LoggerPtr &logger);
+  uint32_t queue() const;
 
 private:
   StreamDissectorThreadPool(const StreamDissectorThreadPool &) = delete;

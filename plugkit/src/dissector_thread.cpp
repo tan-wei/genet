@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <regex>
+#include <atomic>
 #include <array>
 #include <v8.h>
 
@@ -20,6 +21,7 @@ public:
   std::unordered_map<Dissector::WorkerPtr, std::vector<std::regex>> workers;
   std::unordered_map<std::string, std::vector<Dissector::Worker *>> workerMap;
   Variant options;
+  std::atomic<uint32_t> queuedFrames;
 };
 
 DissectorThread::DissectorThread(const Variant &options,
@@ -52,7 +54,9 @@ void DissectorThread::enter() {
 
 bool DissectorThread::loop() {
   std::array<FrameUniquePtr, 128> frames;
+  d->queuedFrames.store(0, std::memory_order_relaxed);
   size_t size = d->queue->dequeue(std::begin(frames), frames.size());
+  d->queuedFrames.store(size, std::memory_order_relaxed);
   if (size == 0)
     return false;
 
@@ -110,34 +114,16 @@ bool DissectorThread::loop() {
   if (d->callback) {
     d->callback(&frames.front(), size);
   }
-  /*
-    using namespace v8;
-    Isolate *isolate = Isolate::GetCurrent();
-    Local<v8::Context> context = isolate->GetCurrentContext();
 
-    v8::Local<v8::String> source =
-        v8::String::NewFromUtf8(isolate, R"(
-              var crypto = require('crypto');
-              var shasum = crypto.createHash('sha1');
-              shasum.update('my data');
-              var hash = shasum.digest('hex');
-              console.log(hash);
-            )",
-                                v8::NewStringType::kNormal)
-            .ToLocalChecked();
-
-    v8::Local<v8::Script> script =
-        v8::Script::Compile(context, source).ToLocalChecked();
-    v8::Local<v8::Value> result = script->Run(context).ToLocalChecked();
-
-    v8::String::Utf8Value utf8(result);
-    printf("%s\n", *utf8);
-  */
   return true;
 }
 
 void DissectorThread::exit() {
   d->workers.clear();
   d->workerMap.clear();
+}
+
+uint32_t DissectorThread::queue() const {
+  return d->queuedFrames.load(std::memory_order_relaxed);
 }
 }
