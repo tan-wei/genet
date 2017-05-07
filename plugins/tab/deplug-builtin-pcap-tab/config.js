@@ -1,5 +1,5 @@
-import { Tab } from 'deplug'
-import { Pcap } from 'plugkit'
+import { Session, Tab, Channel, GlobalChannel } from 'deplug'
+import { Pcap, SessionFactory } from 'plugkit'
 import m from 'mithril'
 
 class PermissionMassage {
@@ -52,6 +52,29 @@ export default class ConfigView {
       ifsName
     })
     Tab.page = 'pcap'
+
+    setTimeout(() => {
+      let factory = new SessionFactory()
+      factory.networkInterface = Tab.options.ifs || ''
+      for (const layer of Session.linkLayers) {
+        factory.registerLinkLayer(layer)
+      }
+      for (const diss of Session.dissectors) {
+        factory.registerDissector(diss)
+      }
+      for (const diss of Session.streamDissectors) {
+        factory.registerStreamDissector(diss)
+      }
+      factory.create().then((sess) => {
+        if (Tab.options.ifs) {
+          sess.startPcap()
+        }
+        Channel.emit('core:pcap:session-created', sess)
+      }, (err) => {
+        console.log(err)
+      })
+      GlobalChannel.emit('core:tab:set-name', Tab.id, `${Tab.options.ifsName} @ Live Capture`)
+    }, 100)
   }
 
   oncreate(vnode) {
@@ -83,7 +106,7 @@ export default class ConfigView {
           </select>
         </li>
         <li>
-          <input type="text" ref="filter" placeholder="filter (BPF)"></input>
+          <input data-tooltip="BPF" type="text" ref="filter" placeholder="filter (BPF)"></input>
         </li>
         <li>
           <label>

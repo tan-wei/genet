@@ -1,7 +1,6 @@
 import throttle from 'lodash.throttle'
 import m from 'mithril'
-import { Channel, GlobalChannel, Panel, Profile, Session, Tab } from 'deplug'
-import { Pcap, SessionFactory } from 'plugkit'
+import { Channel, Panel, Profile, Session, Tab } from 'deplug'
 
 class FrameItem {
   constructor() {
@@ -97,27 +96,6 @@ export default class FrameListView {
         this.session.setDisplayFilter('main', filter)
       }
     })
-
-    let factory = new SessionFactory()
-    factory.networkInterface = Tab.options.ifs || ''
-    for (const layer of Session.linkLayers) {
-      factory.registerLinkLayer(layer)
-    }
-    for (const diss of Session.dissectors) {
-      factory.registerDissector(diss)
-    }
-    for (const diss of Session.streamDissectors) {
-      factory.registerStreamDissector(diss)
-    }
-    factory.create().then((sess) => {
-      if (Tab.options.ifs) {
-        sess.startPcap()
-      }
-      Channel.emit('core:pcap:session-created', sess)
-    }, (err) => {
-      console.log(err)
-    })
-    GlobalChannel.emit('core:tab:set-name', Tab.id, `${Tab.options.ifsName} @ Live Capture`)
   }
 
   oncreate(vnode) {
