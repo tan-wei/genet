@@ -1,5 +1,5 @@
 import { remote, shell } from 'electron'
-import { Config } from 'deplug'
+import { Config, GlobalChannel } from 'deplug'
 const contents = remote.getCurrentWebContents()
 
 export default [
@@ -36,4 +36,12 @@ export default [
     path: ["File", "Open Profile Directory..."],
     click: () => shell.showItemInFolder(Config.userProfilePath)
   },
+  {
+    path: [
+      (process.platform === 'darwin') ? remote.app.getName() : "Edit",
+      "Preferences..."
+    ],
+    accelerator: "CmdOrCtrl+,",
+    click: () => GlobalChannel.emit('core:tab:open', 'Preferences')
+  }
 ]
