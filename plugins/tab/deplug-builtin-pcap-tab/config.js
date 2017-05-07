@@ -49,7 +49,9 @@ export default class ConfigView {
     this.loaded = true
     m.redraw()
 
-    Session.runSampleAnalysis()
+    Session.runSampleAnalysis().then((r) => {
+      console.log(r)
+    })
   }
 
   startPcap(vnode) {

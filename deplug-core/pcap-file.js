@@ -1,3 +1,19 @@
+class Frame {
+  constructor (tsSec, tsNsec, length, payload) {
+    this.tsSec = tsSec
+    this.tsNsec = tsNsec
+    this.length = length
+    this.payload = payload
+  }
+
+  get timestamp () {
+    const date = new Date((this.tsSec * 1000) +
+      Math.floor(this.tsNsec / 1000000))
+    date.nsec = this.tsNsec % 1000000
+    return date
+  }
+}
+
 export default class PcapFile {
   constructor (data) {
     if (data.length < 24) {
@@ -46,7 +62,7 @@ export default class PcapFile {
     this.versionMinor = data.readUInt16BE(6, true)
     this.versionMinor = data.readUInt16BE(6, true)
 
-    this.packets = []
+    this.frames = []
 
     let offset = 24
     while (offset < data.length) {
@@ -55,7 +71,7 @@ export default class PcapFile {
       let inclLen = 0
       let origLen = 0
       if (data.length - offset < 16) {
-        throw new Error('too short packet header')
+        throw new Error('too short frame header')
       }
       if (littleEndian) {
         tsSec = data.readUInt32LE(offset, true)
@@ -71,7 +87,7 @@ export default class PcapFile {
 
       offset += 16
       if (data.length - offset < inclLen) {
-        throw new Error('too short packet body')
+        throw new Error('too short frame body')
       }
 
       const payload = data.slice(offset, offset + inclLen)
@@ -79,13 +95,7 @@ export default class PcapFile {
         tsUsec *= 1000
       }
 
-      const pakcet = {
-        tsSec,
-        tsNsec: tsUsec,
-        length: origLen,
-        payload,
-      }
-      this.packets.push(pakcet)
+      this.frames.push(new Frame(tsSec, tsUsec, origLen, payload))
       offset += inclLen
     }
   }
