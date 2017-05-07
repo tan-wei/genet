@@ -7,7 +7,10 @@ import throttle from 'lodash.throttle'
 const handlers = []
 
 const reload = throttle(() => {
-  const root = { [remote.app.getName()]: {} }
+  const root = {}
+  if (process.platform === 'darwin') {
+    root[remote.app.getName()] = {}
+  }
   const handlerSymbol = Symbol('handler')
   for (const handler of handlers) {
     if (!objpath.has(root, handler.path)) {
