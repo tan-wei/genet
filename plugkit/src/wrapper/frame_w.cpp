@@ -24,6 +24,7 @@ void FrameWrapper::init(v8::Isolate *isolate) {
                    primaryLayer);
   Nan::SetAccessor(otl, Nan::New("leafLayers").ToLocalChecked(), leafLayers);
   Nan::SetAccessor(otl, Nan::New("hasError").ToLocalChecked(), hasError);
+  Nan::SetAccessor(otl, Nan::New("sourceId").ToLocalChecked(), sourceId);
 
   PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
       isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
@@ -102,6 +103,13 @@ NAN_GETTER(FrameWrapper::hasError) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
   if (const auto &view = wrapper->view.lock()) {
     info.GetReturnValue().Set(view->hasError());
+  }
+}
+
+NAN_GETTER(FrameWrapper::sourceId) {
+  FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
+  if (const auto &view = wrapper->view.lock()) {
+    info.GetReturnValue().Set(view->frame()->sourceId());
   }
 }
 

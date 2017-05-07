@@ -22,6 +22,8 @@ public:
   uint32_t index() const;
   LayerPtr rootLayer() const;
 
+  uint32_t sourceId() const;
+
 private:
   Frame();
   Frame(const Frame &) = delete;

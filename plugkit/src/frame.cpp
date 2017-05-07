@@ -37,4 +37,10 @@ LayerPtr Frame::rootLayer() const { return d->rootLayer(); }
 LayerPtr Frame::Private::rootLayer() const { return layer_; }
 
 void Frame::Private::setRootLayer(const LayerPtr &layer) { layer_ = layer; }
+
+uint32_t Frame::sourceId() const { return d->sourceId(); }
+
+uint32_t Frame::Private::sourceId() const { return sourceId_; }
+
+void Frame::Private::setSourceId(uint32_t id) { sourceId_ = id; }
 }
