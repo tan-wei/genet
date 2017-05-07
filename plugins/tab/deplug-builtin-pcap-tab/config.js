@@ -1,4 +1,4 @@
-import { Session, Tab, Channel, GlobalChannel } from 'deplug'
+import { Plugin, Session, Tab, Channel, GlobalChannel } from 'deplug'
 import { Pcap, SessionFactory } from 'plugkit'
 import m from 'mithril'
 
@@ -39,7 +39,17 @@ class PermissionMassage {
 
 export default class ConfigView {
   constructor() {
+    this.loaded = false
+    this.load()
+  }
 
+  async load() {
+    await Plugin.loadComponents('dissector')
+    await Plugin.loadComponents('stream-dissector')
+    this.loaded = true
+    m.redraw()
+
+    Session.runSampleAnalysis()
   }
 
   startPcap(vnode) {
@@ -118,6 +128,7 @@ export default class ConfigView {
           <input
             type="button"
             value="Start Live Capture"
+            disabled={ !this.loaded }
             onclick={ ()=>{ this.startPcap(vnode) } }
           ></input>
         </li>

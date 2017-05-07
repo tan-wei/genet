@@ -6,11 +6,11 @@ export default {
         main: 'build/Release/ethernet.node',
         linkLyaers: [
           {link: 1, id: '<eth>', name: '<Ethernet>'}
+        ],
+        samples: [
+          { pcap: 'samples/eth.pcap' }
         ]
-      },
-      samples: [
-        { pcap: 'test.pcap' }
-      ]
+      }
     },
     {
       type: 'dissector',

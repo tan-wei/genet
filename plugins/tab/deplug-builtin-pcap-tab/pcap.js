@@ -1,4 +1,4 @@
-import { GlobalChannel, Panel, Plugin, Theme } from 'deplug'
+import { GlobalChannel, Panel, Theme } from 'deplug'
 import m from 'mithril'
 
 class PanelSlot {
@@ -40,7 +40,7 @@ class PanelSlot {
         this.node.host.style.cssText = 'visibility: visible;'
       } else {
         this.node.host.style.cssText = 'visibility: hidden;'
-      }  
+      }
     }
   }
 
@@ -162,8 +162,6 @@ class DrawerView {
 
 export default class PcapView {
   constructor() {
-    Plugin.loadComponents('dissector')
-    Plugin.loadComponents('stream-dissector')
     this.bottomHeight = 300
   }
 

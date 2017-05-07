@@ -1,3 +1,7 @@
+import PcapFile from './pcap-file'
+import denodeify from 'denodeify'
+import fs from 'fs'
+
 const dissectors = []
 const streamDissectors = []
 const linkLayers = []
@@ -33,5 +37,15 @@ export default class Session {
 
   static get samples () {
     return samples
+  }
+
+  static async runSampleAnalysis () {
+    const pcapData = []
+    for (const samp of samples) {
+      pcapData.push(denodeify(fs.readFile)(samp.pcap))
+    }
+    const files = (await Promise.all(pcapData))
+      .map((data) => new PcapFile(data))
+    console.log(files)
   }
 }

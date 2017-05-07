@@ -19,7 +19,7 @@ export default class DissectorComponent extends Component {
 
     const samples = objpath.get(this.comp, 'dissector.samples', [])
     for (const samp of samples) {
-      Session.addSample(samp)
+      Session.addSample({ pcap: path.join(this.rootDir, samp.pcap) })
     }
   }
 }
