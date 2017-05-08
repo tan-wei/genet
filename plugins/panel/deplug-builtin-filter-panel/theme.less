@@ -15,6 +15,23 @@ input {
   flex-grow: 1;
 }
 
+.candidates {
+  position: absolute;
+  height: 120px;
+  width: 50%;
+  bottom: 50px;
+  border: 1px @theme-light-fg solid;
+  background-color: @theme-lighter-bg;
+  border-radius: 2px;
+  padding: 6px;
+  box-shadow:0px 0px 17px 3px rgba(0,0,0,0.40);
+  overflow-y: scroll;
+
+  ul {
+    list-style: none;
+  }
+}
+
 ::selection {
   background: @theme-selection-bg;
   color: @theme-default-fg;

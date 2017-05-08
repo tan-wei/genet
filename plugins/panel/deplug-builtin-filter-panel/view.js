@@ -3,7 +3,8 @@ import m from 'mithril'
 
 export default class FilterView {
   constructor() {
-    this.candidates = {}
+    this.layerCandidates = {}
+    this.candidates = []
   }
 
   oncreate(vnode) {
@@ -14,7 +15,13 @@ export default class FilterView {
       for (const frame of frames) {
         this.candidatesFromLayer(frame.rootLayer)
       }
-      console.log(this.candidates)
+      for (const propPaths in this.layerCandidates) {
+        this.candidates.push({
+          propPaths,
+          name:  this.layerCandidates[propPaths].name
+        })
+      }
+      m.redraw()
     })
   }
 
@@ -29,7 +36,7 @@ export default class FilterView {
 
   candidatesFromProperty(paths, prop) {
     const propPaths = paths.concat(prop.id)
-    this.candidates[propPaths.join('.')] = prop
+    this.layerCandidates[propPaths.join('.')] = prop
     for (const child of prop.properties) {
       this.candidatesFromProperty(propPaths, child)
     }
@@ -45,10 +52,21 @@ export default class FilterView {
   }
 
   view(vnode) {
-    return <input
-      type="text"
-      placeholder="Display Filter ..."
-      onkeypress={ (event) => {this.press(event)} }
-    ></input>
+    return [
+      <input
+        type="text"
+        placeholder="Display Filter ..."
+        onkeypress={ (event) => {this.press(event)} }
+      ></input>,
+      <div class="candidates">
+        <ul>
+          {
+            this.candidates.map((cand) => {
+              return <li>{ cand.propPaths }</li>
+            })
+          }
+        </ul>
+      </div>
+    ]
   }
 }
