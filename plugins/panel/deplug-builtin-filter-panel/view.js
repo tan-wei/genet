@@ -7,6 +7,7 @@ export default class FilterView {
     this.candidates = []
     this.activeCandidates = []
     this.showCandidates = false
+    this.currentCandidate = -1
   }
 
   oncreate(vnode) {
@@ -26,6 +27,7 @@ export default class FilterView {
       m.redraw()
     })
     this.input = vnode.dom.parentNode.querySelector('input')
+    this.list = vnode.dom.parentNode.querySelector('.candidates')
   }
 
   candidatesFromLayer(layer) {
@@ -46,10 +48,39 @@ export default class FilterView {
   }
 
   press(event) {
+  console.log(event.code)
     switch (event.code) {
     case 'Enter':
-      const filter = event.target.value
-      Channel.emit('core:display-filter:set', filter)
+      if (this.currentCandidate >= 0) {
+        this.selectCandidate(this.activeCandidates[this.currentCandidate].propPaths)
+      } else {
+        const filter = event.target.value
+        Channel.emit('core:display-filter:set', filter)
+      }
+      break
+    case 'ArrowDown':
+      if (this.activeCandidates.length > 0) {
+        if (this.currentCandidate < 0) {
+          this.currentCandidate = 0
+        } else {
+          this.currentCandidate = (this.currentCandidate + 1) % this.activeCandidates.length
+        }
+        this.list.querySelector(`li:nth-child(${this.currentCandidate+1})`)
+          .scrollIntoView(false)
+      }
+      break
+    case 'ArrowUp':
+      if (this.activeCandidates.length > 0) {
+        if (this.currentCandidate < 0) {
+          this.currentCandidate = this.activeCandidates.length - 1
+        } else {
+          this.currentCandidate = (this.currentCandidate +
+            this.activeCandidates.length - 1) % this.activeCandidates.length
+        }
+        this.list.querySelector(`li:nth-child(${this.currentCandidate+1})`)
+          .scrollIntoView(false)
+      }
+      break
     }
     return true
   }
@@ -72,6 +103,19 @@ export default class FilterView {
       return cand.propPaths.startsWith(input)
     })
     this.showCandidates = active && !!this.activeCandidates.length
+    if (!this.showCandidates) {
+      this.currentCandidate = -1
+    }
+  }
+
+  selectCandidate(propPaths) {
+    const tokens = this.input.value.split(' ')
+    if (tokens.length === 0) {
+      tokens.push('')
+    }
+    tokens[tokens.length - 1] = propPaths
+    this.input.value = tokens.join(' ')
+    this.updateCandidates(false)
   }
 
   view(vnode) {
@@ -81,7 +125,7 @@ export default class FilterView {
         placeholder="Display Filter ..."
         onfocus={ () => this.updateCandidates(true) }
         onblur={ () => this.updateCandidates(false) }
-        onkeypress={ (event) => {this.press(event)} }
+        onkeydown={ (event) => {this.press(event)} }
         onkeyup={ (event) => {this.up(event)} }
       ></input>,
       <div
@@ -90,8 +134,11 @@ export default class FilterView {
       >
         <ul>
           {
-            this.activeCandidates.map((cand) => {
-              return <li>{ cand.propPaths } <small>{ cand.name }</small></li>
+            this.activeCandidates.map((cand, index) => {
+              return <li
+                selected={ this.currentCandidate === index }
+              >{ cand.propPaths }
+              <small>{ cand.name }</small></li>
             })
           }
         </ul>

@@ -33,9 +33,12 @@ input {
     margin: 0;
 
     li {
-      margin: 10px 15px;
+      padding: 10px 15px;
       small {
         float: right;
+      }
+      &[selected] {
+        background-color: @theme-selection-bg;
       }
     }
   }
