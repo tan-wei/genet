@@ -48,10 +48,6 @@ export default class ConfigView {
     await Plugin.loadComponents('stream-dissector')
     this.loaded = true
     m.redraw()
-
-    Session.runSampleAnalysis().then((r) => {
-      console.log(r)
-    })
   }
 
   startPcap(vnode) {

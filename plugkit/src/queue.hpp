@@ -1,6 +1,7 @@
 #ifndef PLUGKIT_Queue_H
 #define PLUGKIT_Queue_H
 
+#include <atomic>
 #include <mutex>
 #include <condition_variable>
 #include <queue>
@@ -14,6 +15,7 @@ public:
   void enqueue(T value);
   template <class It> void enqueue(It b, It e);
   template <class It> size_t dequeue(It it, size_t max);
+  uint32_t size() const;
   void close();
 
 private:
@@ -21,6 +23,7 @@ private:
   std::condition_variable cond;
   std::queue<T> buf;
   bool closed = false;
+  std::atomic<uint32_t> count;
 };
 
 template <class T> Queue<T>::Queue() {}
@@ -41,6 +44,7 @@ template <class T> template <class It> void Queue<T>::enqueue(It b, It e) {
     return;
   for (It it = b; it != e; ++it)
     buf.push(std::move(*it));
+  count.store(buf.size(), std::memory_order_relaxed);
   cond.notify_all();
 }
 
@@ -58,6 +62,7 @@ size_t Queue<T>::dequeue(It it, size_t max) {
     ++it;
     ++num;
   }
+  count.store(buf.size(), std::memory_order_relaxed);
   return num;
 }
 
@@ -65,6 +70,10 @@ template <class T> void Queue<T>::close() {
   std::unique_lock<std::mutex> lock(mutex);
   closed = true;
   cond.notify_all();
+}
+
+template <class T> uint32_t Queue<T>::size() const {
+  return count.load(std::memory_order_relaxed);
 }
 }
 

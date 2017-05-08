@@ -73,8 +73,8 @@ export default class Session {
 
     return new Promise((res) => {
       sess.on('frame', (stat) => {
-        if (stat.frames >= count) {
-          res(sess.getFrames(0, count))
+        if (stat.frames >= count && stat.queue === 0) {
+          res(sess.getFrames(0, stat.frames))
         }
       })
     })

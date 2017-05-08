@@ -19,6 +19,7 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   SetPrototypeMethod(tpl, "toJSON", toJSON);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
+  Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
   Nan::SetAccessor(otl, Nan::New("namespace").ToLocalChecked(), ns, setNs);
   Nan::SetAccessor(otl, Nan::New("name").ToLocalChecked(), name, setName);
   Nan::SetAccessor(otl, Nan::New("summary").ToLocalChecked(), summary,
@@ -53,6 +54,13 @@ NAN_METHOD(LayerWrapper::New) {
   LayerWrapper *obj = new LayerWrapper(std::make_shared<Layer>());
   obj->Wrap(info.This());
   info.GetReturnValue().Set(info.This());
+}
+
+NAN_GETTER(LayerWrapper::id) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->weakLayer.lock()) {
+    info.GetReturnValue().Set(Nan::New(layer->id()).ToLocalChecked());
+  }
 }
 
 NAN_GETTER(LayerWrapper::ns) {

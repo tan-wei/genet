@@ -77,6 +77,7 @@ void DissectorThreadPool::push(FrameUniquePtr &&frame) {
 }
 
 uint32_t DissectorThreadPool::queue() const {
+  uint32_t size = d->queue->size();
   for (const auto &thread : d->threads) {
     thread->queue();
   }
