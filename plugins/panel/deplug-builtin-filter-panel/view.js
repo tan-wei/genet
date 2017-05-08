@@ -5,6 +5,8 @@ export default class FilterView {
   constructor() {
     this.layerCandidates = {}
     this.candidates = []
+    this.activeCandidates = []
+    this.showCandidates = false
   }
 
   oncreate(vnode) {
@@ -23,6 +25,7 @@ export default class FilterView {
       }
       m.redraw()
     })
+    this.input = vnode.dom.parentNode.querySelector('input')
   }
 
   candidatesFromLayer(layer) {
@@ -51,18 +54,44 @@ export default class FilterView {
     return true
   }
 
+  up(event) {
+    switch (event.code) {
+    case 'Enter':
+      this.updateCandidates(false)
+      break
+    default:
+      this.updateCandidates(true)
+    }
+    return true
+  }
+
+  updateCandidates(active) {
+    const tokens = this.input.value.split(' ')
+    const input = tokens[tokens.length - 1]
+    this.activeCandidates = this.candidates.filter((cand) => {
+      return cand.propPaths.startsWith(input)
+    })
+    this.showCandidates = active && !!this.activeCandidates.length
+  }
+
   view(vnode) {
     return [
       <input
         type="text"
         placeholder="Display Filter ..."
+        onfocus={ () => this.updateCandidates(true) }
+        onblur={ () => this.updateCandidates(false) }
         onkeypress={ (event) => {this.press(event)} }
+        onkeyup={ (event) => {this.up(event)} }
       ></input>,
-      <div class="candidates">
+      <div
+      class="candidates"
+      style={{visibility: this.showCandidates ? 'visible' : 'hidden'}}
+      >
         <ul>
           {
-            this.candidates.map((cand) => {
-              return <li>{ cand.propPaths }</li>
+            this.activeCandidates.map((cand) => {
+              return <li>{ cand.propPaths } <small>{ cand.name }</small></li>
             })
           }
         </ul>
