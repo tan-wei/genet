@@ -6,44 +6,44 @@ class PropertyItem {
   view(vnode) {
     const prop = vnode.attrs.property
     const value = (prop.value == null ? '' : prop.value.toString())
-    return <tr>
-      <td>{ prop.name }</td>
-      <td>{ prop.summary || value }</td>
-      <td>{ value }</td>
-      <td>{ prop.range }</td>
-      <td>{ prop.error }</td>
-      <td>
-      <table>
+    const faClass = `fa ${prop.properties.length ? 'fa-arrow-circle-down' : 'fa-circle-o'}`
+    return <li>
+      <i class={faClass}></i>
+      <label> { prop.name }: </label>
+      <span> { prop.summary || value } </span>
+      <ul>
         {
           prop.properties.map((prop) => {
             return m(PropertyItem, {property: prop})
           })
         }
-      </table>
-      </td>
-    </tr>
+      </ul>
+    </li>
   }
 }
 
 class LayerItem {
   view(vnode) {
     const layer = vnode.attrs.layer
+    const faClass = `fa ${layer.children.length ? 'fa-arrow-circle-down' : 'fa-circle-o'}`
     return <ul>
-      <li>{ layer.name } ( { layer.namespace } )</li>
-      <table>
-        {
-          layer.properties.map((prop) => {
-            return m(PropertyItem, {property: prop})
-          })
-        }
-      </table>
-      <ul>
-        {
-          layer.children.map((child) => {
-            return m(LayerItem, {layer: child})
-          })
-        }
-      </ul>
+      <li>
+        <h4><i class={faClass}></i>{ layer.name }</h4>
+      </li>
+      {
+        layer.properties.map((prop) => {
+          return m(PropertyItem, {property: prop})
+        })
+      }
+      <li>
+        <ul>
+          {
+            layer.children.map((child) => {
+              return m(LayerItem, {layer: child})
+            })
+          }
+        </ul>
+      </li>
     </ul>
   }
 }
@@ -70,10 +70,18 @@ export default class LayerListView {
         length += ` (actual: ${frame.length})`
       }
       return <div class="layer-list-view">
-        <table>
-          <tr><td>Timestamp </td><td>{ tsString }</td></tr>
-          <tr><td>Length </td><td>{ length }</td></tr>
-        </table>
+        <ul>
+          <li>
+            <i class="fa fa-circle-o"></i>
+            <label> Timestamp: </label>
+            <span> { tsString } </span>
+          </li>
+          <li>
+            <i class="fa fa-circle-o"></i>
+            <label> Length: </label>
+            <span> { length } </span>
+          </li>
+        </ul>
         { m(LayerItem, {layer: frame.rootLayer}) }
       </div>
     })
