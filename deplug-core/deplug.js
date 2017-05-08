@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events'
 import GlobalChannel from './global-channel'
+import File from './file'
 import Menu from './menu'
 import Panel from './panel'
 import Plugin from './plugin'
@@ -15,6 +16,7 @@ export default async function (argv) {
     Argv: argv,
     Channel: new EventEmitter(),
     Config: config,
+    File,
     GlobalChannel,
     Menu: new Menu(),
     Panel,
