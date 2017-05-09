@@ -16,6 +16,7 @@ addons:
     - lintian
     - chrpath
     - rpm
+    - fakeroot
     - ruby
     - ruby-dev
 cache: yarn
