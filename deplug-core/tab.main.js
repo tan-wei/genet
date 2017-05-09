@@ -15,6 +15,7 @@ const packageWhiteList = [
   'plugkit',
   'object-path',
   'deplugin',
+  'deplug-helper',
   'lodash.throttle'
 ]
 async function updateTheme (theme, styleTag, lessFile) {
