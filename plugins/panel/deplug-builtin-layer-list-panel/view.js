@@ -28,7 +28,7 @@ class LayerItem {
     const faClass = `fa ${layer.children.length ? 'fa-arrow-circle-down' : 'fa-circle-o'}`
     return <ul>
       <li>
-        <h4><i class={faClass}></i>{ layer.name }</h4>
+        <h4><i class={faClass}></i> { layer.name } { layer.summary }</h4>
       </li>
       {
         layer.properties.map((prop) => {
@@ -69,6 +69,10 @@ export default class LayerListView {
       if (frame.length > frame.rootLayer.payload.length) {
         length += ` (actual: ${frame.length})`
       }
+      let layers = [ frame.rootLayer ]
+      if (frame.rootLayer.id === '') {
+        layers = frame.rootLayer.children
+      }
       return <div class="layer-list-view">
         <ul>
           <li>
@@ -82,7 +86,11 @@ export default class LayerListView {
             <span> { length } </span>
           </li>
         </ul>
-        { m(LayerItem, {layer: frame.rootLayer}) }
+        {
+          layers.map((layer) => {
+            return m(LayerItem, {layer})
+          })
+        }
       </div>
     })
   }

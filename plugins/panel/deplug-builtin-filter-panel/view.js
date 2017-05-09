@@ -31,6 +31,9 @@ export default class FilterView {
   }
 
   candidatesFromLayer(layer) {
+    if (layer.id.length > 0) {
+      this.layerCandidates[layer.id] = layer
+    }
     for (const prop of layer.properties) {
       this.candidatesFromProperty([layer.id], prop)
     }
@@ -99,7 +102,9 @@ export default class FilterView {
       this.updateCandidates(false)
       break
     default:
-    if (this.activeCandidates.length > 0 && this.currentCandidate < 0) {
+    if (this.input.value.length > 0 &&
+        this.activeCandidates.length > 0 &&
+        this.currentCandidate < 0) {
       this.currentCandidate = 0
       this.list.querySelector(`li:nth-child(${this.currentCandidate+1})`)
         .scrollIntoView(false)
