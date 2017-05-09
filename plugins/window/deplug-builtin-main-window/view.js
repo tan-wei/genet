@@ -81,7 +81,7 @@ export default class TabView {
           this.currentIndex--
         }
         let content = document.querySelector(`#tab-content-${index}`)
-        content.closeDevTools()
+        if (content) content.closeDevTools()
         this.tabs.splice(index, 1)
         m.redraw()
       }
