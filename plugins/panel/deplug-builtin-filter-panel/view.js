@@ -48,7 +48,6 @@ export default class FilterView {
   }
 
   press(event) {
-  console.log(event.code)
     switch (event.code) {
     case 'Enter':
       if (this.currentCandidate >= 0) {
@@ -87,10 +86,19 @@ export default class FilterView {
 
   up(event) {
     switch (event.code) {
+    case 'Escape':
+      this.currentCandidate = -1
+      this.updateCandidates(false)
+      break
     case 'Enter':
       this.updateCandidates(false)
       break
     default:
+    if (this.activeCandidates.length > 0 && this.currentCandidate < 0) {
+      this.currentCandidate = 0
+      this.list.querySelector(`li:nth-child(${this.currentCandidate+1})`)
+        .scrollIntoView(false)
+    }
       this.updateCandidates(true)
     }
     return true
