@@ -3,6 +3,7 @@ import { remote } from 'electron'
 const { dialog } = remote
 
 export default [
+  /*
   {
     path: ["File", "Open Pcap File..."],
     accelerator: "Cmd+O",
@@ -15,4 +16,5 @@ export default [
       }
     }
   }
+  */
 ]

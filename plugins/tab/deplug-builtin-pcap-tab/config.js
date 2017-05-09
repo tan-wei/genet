@@ -114,15 +114,6 @@ export default class ConfigView {
           </select>
         </li>
         <li>
-          <input data-tooltip="BPF" type="text" ref="filter" placeholder="filter (BPF)"></input>
-        </li>
-        <li>
-          <label>
-            <input type="checkbox" ref="promisc"></input>
-            Promiscuous mode
-          </label>
-        </li>
-        <li>
           <input
             type="button"
             value="Start Live Capture"
@@ -131,14 +122,6 @@ export default class ConfigView {
           ></input>
         </li>
         </ul>
-      </section>
-      <section>
-        <h1>Import local file</h1>
-        <input
-          type="button"
-          value="Open File..."
-          onclick={ ()=>{ Tab.page = 'pcap' } }
-        ></input>
       </section>
     </main>
   }
