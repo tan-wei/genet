@@ -28,7 +28,9 @@ class LayerItem {
     const faClass = `fa ${layer.children.length ? 'fa-arrow-circle-down' : 'fa-circle-o'}`
     return <ul>
       <li>
-        <h4><i class={faClass}></i> { layer.name } { layer.summary }</h4>
+        <h4
+          data-layer={layer.namespace}
+        ><i class={faClass}></i> { layer.name } { layer.summary }</h4>
       </li>
       {
         layer.properties.map((prop) => {
