@@ -49,6 +49,12 @@ export default class FilterView {
 
   press(event) {
     switch (event.code) {
+    case 'Tab':
+      if (this.currentCandidate >= 0) {
+        this.selectCandidate(this.activeCandidates[this.currentCandidate].propPaths)
+        event.preventDefault()
+      }
+      break
     case 'Enter':
       if (this.currentCandidate >= 0) {
         this.selectCandidate(this.activeCandidates[this.currentCandidate].propPaths)
@@ -87,10 +93,9 @@ export default class FilterView {
   up(event) {
     switch (event.code) {
     case 'Escape':
-      this.currentCandidate = -1
-      this.updateCandidates(false)
-      break
+    case 'Tab':
     case 'Enter':
+      this.currentCandidate = -1
       this.updateCandidates(false)
       break
     default:

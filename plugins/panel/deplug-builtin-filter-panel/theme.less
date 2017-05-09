@@ -11,9 +11,14 @@ input {
   padding: 0 10px;
   border: none;
   outline: none;
-  background: @theme-default-bg;
+  background-color: @theme-default-bg;
   color: @theme-default-fg;
   flex-grow: 1;
+
+  &::selection {
+    background-color: @theme-default-fg;
+    color: @theme-default-bg;
+  }
 }
 
 .candidates {
@@ -40,11 +45,7 @@ input {
       &[selected] {
         background-color: @theme-selection-bg;
       }
+      cursor: default;
     }
   }
-}
-
-::selection {
-  background: @theme-selection-bg;
-  color: @theme-default-fg;
 }
