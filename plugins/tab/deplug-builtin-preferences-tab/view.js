@@ -27,11 +27,6 @@ export default class View {
           onclick={ () => { Tab.page = 'plugin' } }
           isactive={ Tab.page==='plugin' }
         >Plugin</a>
-        <a
-          href="javascript:void(0)"
-          onclick={ () => { Tab.page = 'install' } }
-          isactive={ Tab.page==='install' }
-        >Install</a>
       </nav>
       ,
       <main>

@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events'
-import GlobalChannel from './global-channel'
 import File from './file'
+import GlobalChannel from './global-channel'
 import Menu from './menu'
 import Panel from './panel'
 import Plugin from './plugin'

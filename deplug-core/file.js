@@ -9,19 +9,3 @@ export default class File {
     exporters.push(exp)
   }
 }
-
-File.registerImporter({
-  name: 'Pcap File',
-  extensions: ['pcap'],
-  handler: (readStream) => {
-
-  },
-})
-
-File.registerExporter({
-  name: 'Pcap File',
-  extensions: ['pcap'],
-  handler: (writeStream) => {
-
-  },
-})
