@@ -16,7 +16,7 @@ export default class PluginView {
     return [
       <div>
       <h1>Plugin Settings</h1>
-      <h2 style={{display: userPlugins.length ? 'block' : 'hidden'}}>User Plugins</h2>
+      <h2 style={{display: userPlugins.length ? 'block' : 'none'}}>User Plugins</h2>
       <div>
         {
           userPlugins.map((plugin) => {
