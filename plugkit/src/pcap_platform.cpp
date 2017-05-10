@@ -415,14 +415,13 @@ end:
   cap_free(cap);
   return ok;
 #elif defined(PLUGKIT_OS_WIN)
-  pcap_if_t *alldevsp;
+  pcap_if_t *alldevsp = nullptr;
   char err[PCAP_ERRBUF_SIZE] = {'\0'};
-  if (d->pcapFindalldevs(&alldevsp, err) < 0) {
+  if (d->pcapFindalldevs(&alldevsp, err) < 0 || !alldevsp) {
     return false;
   }
   d->pcapFreealldevs(alldevsp);
-#else
-  return true;
 #endif
+  return true;
 }
 }
