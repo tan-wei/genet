@@ -3,15 +3,23 @@ import moment from 'moment'
 import { Channel, Profile } from 'deplug'
 
 class PropertyItem {
+  constructor() {
+    this.expanded = false
+  }
+
   view(vnode) {
     const prop = vnode.attrs.property
     const value = (prop.value == null ? '' : prop.value.toString())
-    const faClass = `fa ${prop.properties.length ? 'fa-arrow-circle-down' : 'fa-circle-o'}`
+    let faClass = 'fa fa-circle-o'
+    if (prop.properties.length) {
+      faClass = this.expanded ? 'fa fa-arrow-circle-down' : 'fa fa-arrow-circle-right'
+    }
     return <li>
-      <i class={faClass}></i>
-      <label> { prop.name }: </label>
+      <label
+        onclick={ () => this.expanded = !this.expanded }
+      ><i class={faClass}></i> { prop.name }: </label>
       <span> { prop.summary || value } </span>
-      <ul>
+      <ul style={{ display: this.expanded ? 'block' : 'none' }}>
         {
           prop.properties.map((prop) => {
             return m(PropertyItem, {property: prop})
@@ -23,20 +31,30 @@ class PropertyItem {
 }
 
 class LayerItem {
+  constructor() {
+    this.expanded = false
+  }
+
   view(vnode) {
     const layer = vnode.attrs.layer
-    const faClass = `fa ${layer.children.length ? 'fa-arrow-circle-down' : 'fa-circle-o'}`
+    let faClass = 'fa fa-circle-o'
+    if (layer.children.length + layer.properties.length) {
+      faClass = this.expanded ? 'fa fa-arrow-circle-down' : 'fa fa-arrow-circle-right'
+    }
     return <ul>
       <li>
         <h4
           data-layer={layer.namespace}
+          onclick={ () => this.expanded = !this.expanded }
         ><i class={faClass}></i> { layer.name } { layer.summary }</h4>
       </li>
+      <div style={{ display: this.expanded ? 'block' : 'none' }}>
       {
         layer.properties.map((prop) => {
           return m(PropertyItem, {property: prop})
         })
       }
+      </div>
       <li>
         <ul>
           {
