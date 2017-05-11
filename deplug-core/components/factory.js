@@ -1,4 +1,5 @@
 import DissectorComponent from './dissector'
+import FileComponent from './file'
 import MenuComponent from './menu'
 import PanelComponent from './panel'
 import ScriptComponent from './script'
@@ -26,6 +27,8 @@ export default class ComponentFactory {
         return new MenuComponent(rootDir, parc, comp)
       case 'script':
         return new ScriptComponent(rootDir, parc, comp)
+      case 'file':
+        return new FileComponent(rootDir, parc, comp)
       default:
         throw new Error(`unknown component type: ${comp.type}`)
     }
