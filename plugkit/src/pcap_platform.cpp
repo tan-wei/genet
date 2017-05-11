@@ -414,8 +414,14 @@ bool PcapPlatform::hasPermission() const {
 end:
   cap_free(cap);
   return ok;
-#else
-  return true;
+#elif defined(PLUGKIT_OS_WIN)
+  pcap_if_t *alldevsp = nullptr;
+  char err[PCAP_ERRBUF_SIZE] = {'\0'};
+  if (d->pcapFindalldevs(&alldevsp, err) < 0 || !alldevsp) {
+    return false;
+  }
+  d->pcapFreealldevs(alldevsp);
 #endif
+  return true;
 }
 }
