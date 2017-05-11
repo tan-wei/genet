@@ -1,11 +1,19 @@
-const importers = []
-const exporters = []
+const importerRegistry = []
+const exporterRegistry = []
 export default class File {
   static registerImporter (imp) {
-    importers.push(imp)
+    importerRegistry.push(imp)
   }
 
   static registerExporter (exp) {
-    exporters.push(exp)
+    exporterRegistry.push(exp)
+  }
+
+  static importers () {
+    return importerRegistry
+  }
+
+  static exporters () {
+    return exporterRegistry
   }
 }

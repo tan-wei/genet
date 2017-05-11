@@ -1,17 +1,6 @@
 export default class PcapFileImportHandler {
-	open(stream) {
-
-  }
-
-	readHeader(stream) {
+  async loadFrames(read) {
+    console.log(read)
     return {}
-  }
-
-	readFrames(stream) {
-    return []
-  }
-
-	close(stream) {
-
   }
 }

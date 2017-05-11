@@ -33,6 +33,11 @@ export default [
     click: () => remote.getCurrentWindow().toggleDevTools()
   },
   {
+    path: ["File", "Import..."],
+    click: () => GlobalChannel.emit('core:file:import'),
+    accelerator: "CmdOrCtrl+O"
+  },
+  {
     path: ["File", "Open Profile Directory..."],
     click: () => shell.showItemInFolder(Config.userProfilePath)
   },
