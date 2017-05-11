@@ -93,6 +93,17 @@ export default function (argv, tab) {
 
   const contents = remote.getCurrentWebContents()
   contents.on('dom-ready', () => {
+
+    document.addEventListener('dragover', (event) => {
+      event.preventDefault()
+      return false
+    }, false)
+
+    document.addEventListener('drop', (event) => {
+      event.preventDefault()
+      return false
+    }, false)
+
     global.require = (name) => {
       if (!packageWhiteList.includes(name)) {
         throw new Error(`Cannot find module '${name}'`)
