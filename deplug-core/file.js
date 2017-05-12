@@ -1,3 +1,4 @@
+import GlobalChannel from './global-channel'
 import Menu from './menu'
 
 const importerRegistry = []
@@ -12,7 +13,10 @@ export default class File {
 
     const ext = exp.extensions.map((item) => `*.${item}`).join(',')
     Menu.registerHandler(
-      { path: ['File', 'Export As...', `${exp.name} (${ext})`] })
+      {
+        path: ['File', 'Export As...', `${exp.name} (${ext})`],
+        click: () => GlobalChannel.emit('core:file:export', exp),
+      })
   }
 
   static importers () {
