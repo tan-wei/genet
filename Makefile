@@ -65,6 +65,19 @@ deb:
 	chrpath -r /usr/share/deplug out/.debian/usr/share/deplug/deplug
 	(cd out/.debian && fakeroot dpkg-deb --build . ../deplug-linux-amd64.deb)
 
+rpm:
+	mkdir -p out/.rpm
+	(cd out/.rpm && mkdir -p SOURCES BUILD RPMS SRPMS)
+	sed -e "s/{{DEPLUG_VERSION}}/$(DEPLUG_VER)/g" deplug.rpm.spec > out/.rpm/deplug.rpm.spec
+	cp -r debian/usr out/.rpm/BUILD
+	mkdir -p out/.rpm/BUILD/usr/share/icons/hicolor/256x256/apps
+	cp images/deplug.png out/.rpm/BUILD/usr/share/icons/hicolor/256x256/apps
+	cp -r out/Deplug-linux-x64/. out/.rpm/BUILD/usr/share/deplug
+	mv out/.rpm/BUILD/usr/share/deplug/Deplug out/.rpm/BUILD/usr/share/deplug/deplug
+	chrpath -r /usr/share/deplug out/.rpm/BUILD/usr/share/deplug/deplug
+	rpmbuild --define "_topdir $(CURDIR)/out/.rpm" -bb out/.rpm/deplug.rpm.spec
+	mv out/.rpm/RPMS/*/*.rpm out/deplug-linux-amd64.rpm
+
 winstaller:
 	node ci/winstaller.js
 	mv out/DeplugSetup.exe out/deplug-win-amd64.exe
@@ -91,4 +104,4 @@ fmt:
 clean:
 	@rm -rf $(DEPLUG_CORE) $(PLUGKIT_DST)
 
-.PHONY: all run build fix lint pack clean fmt plugkit dmg deb winstaller
+.PHONY: all run build fix lint pack clean fmt plugkit dmg deb rpm winstaller
