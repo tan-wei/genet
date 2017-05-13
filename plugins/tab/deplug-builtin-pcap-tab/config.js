@@ -62,7 +62,7 @@ export default class ConfigView {
     Tab.page = 'pcap'
 
     setTimeout(() => {
-      let factory = new SessionFactory()
+      const factory = new SessionFactory()
       factory.networkInterface = Tab.options.ifs || ''
       for (const layer of Session.linkLayers) {
         factory.registerLinkLayer(layer)
@@ -90,9 +90,30 @@ export default class ConfigView {
       Tab.page = 'pcap'
       m.redraw()
 
-      File.loadFrames(Tab.options.files).then((result) => {
-        console.log(result)
-      })
+      setTimeout(() => {
+        const factory = new SessionFactory()
+        factory.networkInterface = Tab.options.ifs || ''
+        for (const layer of Session.linkLayers) {
+          factory.registerLinkLayer(layer)
+        }
+        for (const diss of Session.dissectors) {
+          factory.registerDissector(diss)
+        }
+        for (const diss of Session.streamDissectors) {
+          factory.registerStreamDissector(diss)
+        }
+        File.loadFrames(Tab.options.files).then((results) => {
+          factory.create().then((sess) => {
+            Channel.emit('core:pcap:session-created', sess)
+            for (const pcap of results) {
+              for (const frame of pcap.frames) {
+                sess.analyze(pcap.link, frame.payload,
+                  frame.length, frame.timestamp)
+              }
+            }
+          })
+        })
+      }, 100)
     }
   }
 

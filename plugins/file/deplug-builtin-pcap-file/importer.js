@@ -110,10 +110,8 @@ export default class PcapFileImportHandler {
     }
 
     return {
-      pcap: {
-        snaplen,
-        link: network
-      },
+      snaplen,
+      link: network,
       frames
     }
   }
