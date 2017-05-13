@@ -58,9 +58,6 @@ export default class PcapFile {
       this.snaplen = data.readUInt32BE(16, true)
       this.network = data.readUInt32BE(20, true)
     }
-    this.versionMinor = data.readUInt16BE(6, true)
-    this.versionMinor = data.readUInt16BE(6, true)
-    this.versionMinor = data.readUInt16BE(6, true)
 
     this.frames = []
 

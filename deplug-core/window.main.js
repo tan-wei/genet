@@ -38,7 +38,9 @@ export default async function (argv) {
           for (const imp of File.importers(ext)) {
             const Handler = imp.handler
             const handler = new Handler()
-            handler.loadFrames(fs.createReadStream(file))
+            handler.loadFrames(fs.createReadStream(file)).then((result) => {
+              GlobalChannel.emit('core:file:frame-loaded', result)
+            })
           }
         }
       }
