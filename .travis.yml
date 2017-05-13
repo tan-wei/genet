@@ -31,6 +31,7 @@ script:
 before_deploy:
 - make pack
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make deb rpm ; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then deb-s3 upload --bucket deplug-deb out/deplug-linux-amd64.deb ; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then make dmg ; fi
 notifications:
   email: false
