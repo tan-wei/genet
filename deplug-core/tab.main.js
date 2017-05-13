@@ -9,6 +9,7 @@ const { webContents } = remote
 const packageWhiteList = [
   'mithril',
   'moment',
+  'buffer',
   'path',
   'mithril',
   'deplug',
@@ -37,6 +38,7 @@ async function init (argv, tab) {
     const { options, id } = tab
     const { rootDir } = tab.tab
     await Plugin.loadComponents('theme')
+    await Plugin.loadComponents('file')
 
     const less = tab.tab.less || ''
     if (less !== '') {

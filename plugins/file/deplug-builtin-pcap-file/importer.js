@@ -1,3 +1,5 @@
+import {Buffer} from 'buffer'
+
 export default class PcapFileImportHandler {
   async loadFrames(stream) {
     const data = await new Promise((res, rej) => {

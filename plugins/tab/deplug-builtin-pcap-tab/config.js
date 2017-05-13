@@ -1,4 +1,4 @@
-import { Plugin, Session, Tab, Channel, GlobalChannel } from 'deplug'
+import { File, Plugin, Session, Tab, Channel, GlobalChannel } from 'deplug'
 import { Pcap, SessionFactory } from 'plugkit'
 import m from 'mithril'
 
@@ -89,6 +89,10 @@ export default class ConfigView {
     if (Tab.options.files) {
       Tab.page = 'pcap'
       m.redraw()
+
+      File.loadFrames(Tab.options.files).then((result) => {
+        console.log(result)
+      })
     }
   }
 

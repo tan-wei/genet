@@ -1,8 +1,6 @@
 import { ipcRenderer, remote } from 'electron'
 import { Pcap } from 'plugkit'
 import deplug from './deplug'
-import fs from 'fs'
-import path from 'path'
 
 const { dialog } = remote
 export default async function (argv) {
@@ -33,16 +31,7 @@ export default async function (argv) {
       const files = dialog.showOpenDialog(
         remote.getCurrentWindow(), { filters })
       if (files) {
-        for (const file of files) {
-          const ext = path.extname(file).substr(1)
-          for (const imp of File.importers(ext)) {
-            const Handler = imp.handler
-            const handler = new Handler()
-            handler.loadFrames(fs.createReadStream(file)).then((result) => {
-              GlobalChannel.emit('core:file:frame-loaded', result)
-            })
-          }
-        }
+        GlobalChannel.emit('core:tab:open', 'Pcap', { files })
       }
     })
 
