@@ -3,10 +3,8 @@ import { EventEmitter } from 'events'
 import config from './config'
 import denodeify from 'denodeify'
 import fs from 'fs'
-import glob from 'glob'
 import jsonfile from 'jsonfile'
 import log from 'electron-log'
-import mkpath from 'mkpath'
 import objpath from 'object-path'
 import path from 'path'
 
@@ -65,26 +63,15 @@ export default class Profile extends EventEmitter {
   constructor (profile) {
     super()
     this.profileDir = path.join(config.userProfilePath, profile)
-    this.pluginsDir = path.join(this.profileDir, 'plugins')
-    mkpath.sync(this.pluginsDir)
-    this.globalFile = path.join(this.profileDir, 'global.json')
+    this.configFile = path.join(this.profileDir, 'config.json')
+    this.globalObject = {}
+    this.pluginObject = {}
 
     try {
-      this.globalObject = jsonfile.readFileSync(this.globalFile)
+      this.pluginObject = jsonfile.readFileSync(this.configFile)
+      this.globalObject = this.pluginObject._ || {}
     } catch (err) {
       log.warn(err)
-      this.globalObject = {}
-    }
-
-    this.pluginObject = {}
-    const plugins = glob.sync(path.join(this.pluginsDir, '*.json'))
-    for (const json of plugins) {
-      try {
-        this.pluginObject[path.basename(json, '.json')] =
-          jsonfile.readFileSync(json)
-      } catch (err) {
-        log.warn(err)
-      }
     }
 
     ipcRenderer.on('global-updated', (event, opath, value) => {
@@ -204,24 +191,15 @@ export default class Profile extends EventEmitter {
 
   async write () {
     const write = denodeify(fs.writeFile)
-    await write(this.globalFile,
-      JSON.stringify(this.globalObject, null, ' '))
-    const tasks = []
-    for (const id in this.pluginObject) {
-      const jsonFile = path.join(this.pluginsDir, `${id}.json`)
-      tasks.push(write(jsonFile,
-        JSON.stringify(this.pluginObject[id], null, ' ')))
-    }
-    return Promise.all(tasks)
+    const object = Object.assign(this.pluginObject, { '_': this.globalObject })
+    return write(this.configFile,
+      JSON.stringify(
+        object, null, ' '))
   }
 
   writeSync () {
-    fs.writeFileSync(this.globalFile,
-      JSON.stringify(this.globalObject, null, ' '))
-    for (const id in this.pluginObject) {
-      const jsonFile = path.join(this.pluginsDir, `${id}.json`)
-      fs.writeFileSync(jsonFile,
-        JSON.stringify(this.pluginObject[id], null, ' '))
-    }
+    const object = Object.assign(this.pluginObject, { '_': this.globalObject })
+    fs.writeFileSync(this.configFile,
+      JSON.stringify(object, null, ' '))
   }
 }
