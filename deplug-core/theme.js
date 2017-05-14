@@ -1,3 +1,4 @@
+import Config from './config'
 import GlobalChannel from './global-channel'
 import Profile from './profile'
 import denodeify from 'denodeify'
@@ -5,7 +6,10 @@ import fs from 'fs'
 import less from 'less'
 import path from 'path'
 
+const themeCachePath = path.join(Config.userPath, '.theme-cache.json')
+
 const globalRegistry = {}
+let globalCache = {}
 class FileManager extends less.FileManager {
   supports (filename) {
     return (/^deplug-(\w+-)?theme$/).test(filename)
@@ -29,9 +33,20 @@ export default class Theme {
     this.id = id
     this.name = name
     this.lessFile = lessFile
+
+    denodeify(fs.readFile)(themeCachePath,
+        { encoding: 'utf8' }).then((json) => {
+      for (const file of JSON.parse(json)) {
+        this.render(file)
+      }
+    })
+    .catch()
   }
 
   async render (lessFile) {
+    if (lessFile in globalCache) {
+      return globalCache[lessFile]
+    }
     const options = {
       paths: [
         path.dirname(lessFile),
@@ -45,7 +60,11 @@ export default class Theme {
       globalVars: { 'node-platform': process.platform },
     }
     const code = await denodeify(fs.readFile)(lessFile, { encoding: 'utf8' })
-    return less.render(code, options)
+    const result = less.render(code, options)
+    globalCache[lessFile] = result
+    denodeify(fs.writeFile)(themeCachePath,
+      JSON.stringify(Object.keys(globalCache)), { encoding: 'utf8' })
+    return result
   }
 
   static get current () {
@@ -53,8 +72,7 @@ export default class Theme {
     if (id in globalRegistry) {
       return globalRegistry[id]
     }
-      return globalRegistry.default
-
+    return globalRegistry.default
   }
 
   static get currentId () {
@@ -76,6 +94,7 @@ export default class Theme {
 
 GlobalChannel.on('core:theme:set', (event, id) => {
   if (id in globalRegistry && Profile.current.theme !== id) {
+    globalCache = {}
     Profile.current.theme = id
     GlobalChannel.emit('core:theme:updated', id)
   }
