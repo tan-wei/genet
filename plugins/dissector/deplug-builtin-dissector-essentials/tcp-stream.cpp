@@ -16,12 +16,36 @@ public:
     LayerPtr analyze(const ChunkConstPtr &chunk) override {
       Layer child;
       const auto& layer = chunk->layer();
-      const auto& seq = layer->propertyFromId("seq");
+      const auto& payload = chunk->payload();
+      uint32_t seq = layer->propertyFromId("seq")->value().uint64Value();
+      uint8_t flags = layer->propertyFromId("flags")->value().uint64Value();
+      bool syn = (flags & (0x1 << 1));
 
-      child.addChunk(Chunk(fmt::replace(chunk->streamNs(), "<tcp>", "tcp"),
-        chunk->streamId(), chunk->payload()));
+      Slice chunkPayload;
+      if (syn) {
+        seq_ = seq;
+        length_ += payload.size();
+        chunkPayload = payload;
+      }
+
+      if (payload.size() > 0) {
+        if (seq_ < 0) {
+          length_ += payload.size();
+          chunkPayload = payload;
+        }
+      }
+      seq_ = seq;
+
+      if (chunkPayload.size() > 0) {
+        child.addChunk(Chunk(fmt::replace(chunk->streamNs(), "<tcp>", "tcp"),
+          chunk->streamId(), chunkPayload));
+      }
       return std::make_shared<Layer>(std::move(child));
     }
+
+  private:
+    int64_t seq_ = -1;
+    uint64_t length_ = 0;
   };
 
 public:
