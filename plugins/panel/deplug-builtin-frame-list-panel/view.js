@@ -184,6 +184,15 @@ export default class FrameListView {
         height={this.mapHeight}
       ></canvas>
       ,
+      <div class="header">
+        <div class="frame-column">No.</div>
+        <div class="frame-column">Protocol</div>
+        <div class="frame-column">Source</div>
+        <div class="frame-column">Destination</div>
+        <div class="frame-column">Length</div>
+        <div class="frame-column">Summary</div>
+      </div>
+      ,
       <div class="frame-list-view">
         <div class="padding"
           style={{height: `${viewHeight}px`}}
@@ -196,11 +205,11 @@ export default class FrameListView {
                 key: id,
                 seq: id,
                 index: index + begin,
-                itemHeight: itemHeight,
+                itemHeight,
                 columns: this.columns,
                 attrs: this.attrs,
                 session: this.session,
-                selected: selected
+                selected
               })
             })
           }

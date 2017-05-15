@@ -17,23 +17,22 @@ public:
       fmt::Reader<Slice> reader(layer->payload());
       Layer child(fmt::replace(layer->ns(), "<tcp>", "tcp"), "TCP");
 
+      const auto& parentSrc = layer->propertyFromId("src");
+      const auto& parentDst = layer->propertyFromId("dst");
+
       uint16_t sourcePort = reader.readBE<uint16_t>();
       Property src("src", "Source", sourcePort);
+      src.setSummary(parentSrc->summary() + ":" + std::to_string(sourcePort));
       src.setRange(reader.lastRange());
       src.setError(reader.lastError());
 
       uint16_t dstPort = reader.readBE<uint16_t>();
       Property dst("dst", "Destination", dstPort);
-      src.setRange(reader.lastRange());
-      src.setError(reader.lastError());
+      dst.setSummary(parentDst->summary() + ":" + std::to_string(dstPort));
+      dst.setRange(reader.lastRange());
+      dst.setError(reader.lastError());
 
-      const auto& parentSrc = layer->propertyFromId("src");
-      const auto& parentDst = layer->propertyFromId("dst");
-
-      child.setSummary(
-        parentSrc->summary() + ":" + std::to_string(sourcePort) +
-        " -> " +
-        parentDst->summary() + ":" + std::to_string(dstPort));
+      child.setSummary(src.summary() + " -> " + dst.summary());
 
       uint32_t seqNumber = reader.readBE<uint32_t>();
       Property seq("seq", "Sequence number", seqNumber);
