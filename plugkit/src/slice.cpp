@@ -57,4 +57,8 @@ Slice Slice::slice(size_t offset, size_t length) const {
   size_t newLength = clip(clip(length, d->buf->size() - newOffset), s);
   return Slice(d->buf, newOffset, newLength);
 }
+
+Slice Slice::slice(size_t offset) const {
+  return slice(offset, size() - offset);
+}
 }

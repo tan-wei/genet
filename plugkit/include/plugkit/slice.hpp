@@ -23,6 +23,7 @@ public:
   char operator[](size_t index) const;
   const Buffer &buffer() const;
   Slice slice(size_t offset, size_t length) const;
+  Slice slice(size_t offset) const;
 
 private:
   class Private;

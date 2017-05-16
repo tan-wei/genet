@@ -196,7 +196,7 @@ public:
       child.addProperty(std::move(urgent));
       child.addProperty(std::move(options));
 
-      const auto& payload = reader.slice();
+      const auto& payload = layer->payload().slice(optionDataOffset);
       const std::string &streamId = parentSrc->summary() +
         ":" + std::to_string(sourcePort) + "/" +
         parentDst->summary() + ":" + std::to_string(dstPort);
