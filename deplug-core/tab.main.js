@@ -33,12 +33,17 @@ function handleRedirect (event, url) {
 }
 
 async function init (argv, tab) {
+  for (const wc of webContents.getAllWebContents()) {
+    wc.send('tab-deplug-loaded', tab.id)
+  }
   try {
     const { Theme, Plugin, Tab } = await deplug(argv)
     const { options, id } = tab
     const { rootDir } = tab.tab
-    await Plugin.loadComponents('theme')
-    await Plugin.loadComponents('file')
+    await Promise.all([
+      Plugin.loadComponents('theme'),
+      Plugin.loadComponents('file')
+    ])
 
     const less = tab.tab.less || ''
     if (less !== '') {
@@ -79,10 +84,6 @@ async function init (argv, tab) {
     // eslint-disable-next-line no-console
     console.error(err)
   } finally {
-    for (const wc of webContents.getAllWebContents()) {
-      wc.send('tab-deplug-loaded', tab.id)
-    }
-
     const contents = remote.getCurrentWebContents()
     contents.on('will-navigate', handleRedirect)
     contents.on('new-window', handleRedirect)
