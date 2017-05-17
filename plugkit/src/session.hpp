@@ -2,6 +2,7 @@
 #define PLUGKIT_SESSION_H
 
 #include <memory>
+#include <vector>
 #include <string>
 #include "variant.hpp"
 #include "logger.hpp"
@@ -24,6 +25,14 @@ class Session final {
   friend class SessionFactory;
 
 public:
+  struct RawFrame {
+    int link = 0;
+    Slice payload;
+    size_t length = 0;
+    Variant::Timestamp timestamp = std::chrono::system_clock::now();
+    uint32_t sourceId = 0;
+  };
+
   struct Status {
     bool capture = false;
   };
@@ -66,9 +75,7 @@ public:
   std::vector<FrameViewConstPtr> getFrames(uint32_t offset,
                                            uint32_t length) const;
 
-  void analyze(int link, const Slice &data, size_t length = 0,
-               Variant::Timestamp ts = std::chrono::system_clock::now(),
-               uint32_t sourceId = 0);
+  void analyze(const std::vector<RawFrame> &rawFrames);
 
   void setStatusCallback(const StatusCallback &callback);
   void setFilterCallback(const FilterCallback &callback);

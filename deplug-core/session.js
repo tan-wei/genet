@@ -64,11 +64,14 @@ export default class Session {
 
     let count = 0
     for (const pcap of files) {
-      for (const frame of pcap.frames) {
-        sess.analyze(pcap.network, frame.payload,
-          frame.length, frame.timestamp, count)
-        count += 1
-      }
+      sess.analyze(pcap.frames.map((frame, index) => ({
+            link: pcap.network,
+            payload: frame.payload,
+            length: frame.length,
+            timestamp: frame.timestamp,
+            sourceId: count + index,
+          })))
+      count += pcap.frames.length
     }
 
     return new Promise((res) => {

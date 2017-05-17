@@ -106,10 +106,13 @@ export default class ConfigView {
           factory.create().then((sess) => {
             Channel.emit('core:pcap:session-created', sess)
             for (const pcap of results) {
-              for (const frame of pcap.frames) {
-                sess.analyze(pcap.link, frame.payload,
-                  frame.length, frame.timestamp)
-              }
+              sess.analyze(pcap.frames.map((frame) => ({
+                    link: pcap.link,
+                    payload: frame.payload,
+                    length: frame.length,
+                    timestamp: frame.timestamp,
+                    sourceId: 0,
+                  })))
             }
           })
         })

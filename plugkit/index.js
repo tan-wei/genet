@@ -100,8 +100,8 @@ class Session extends EventEmitter {
     return internal(this).sess.getFrames(offset, length)
   }
 
-  analyze(link, payload, length, ts, sourceId) {
-    return internal(this).sess.analyze(link, payload, length, ts, sourceId)
+  analyze(frames) {
+    return internal(this).sess.analyze(frames)
   }
 
   setDisplayFilter(name, filter) {

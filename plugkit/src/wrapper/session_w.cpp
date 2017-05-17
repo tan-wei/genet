@@ -139,15 +139,28 @@ NAN_METHOD(SessionWrapper::getFrames) {
 NAN_METHOD(SessionWrapper::analyze) {
   SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
   if (const auto &session = wrapper->session) {
-    int link = info[0]->Uint32Value();
-    const Slice &data = Variant::Private::getSlice(info[1].As<v8::Object>());
-    size_t length = info[2]->IsNumber() ? info[2]->Uint32Value() : data.size();
-    const Variant &tsVariant = Variant::Private::getVariant(info[3]);
-    Variant::Timestamp ts = tsVariant.isTimestamp()
-                                ? tsVariant.timestamp()
-                                : std::chrono::system_clock::now();
-    uint32_t sourceId = info[4]->IsNumber() ? info[4]->Uint32Value() : 0;
-    session->analyze(link, data, length, ts, sourceId);
+    if (info[0]->IsArray()) {
+      auto array = info[0].As<v8::Array>();
+      std::vector<Session::RawFrame> frames;
+      for (uint32_t i = 0; i < array->Length(); ++i) {
+        auto obj = array->Get(i).As<v8::Object>();
+        Session::RawFrame frame;
+        frame.link = obj->Get(Nan::New("link").ToLocalChecked())->Uint32Value();
+        frame.payload = Variant::Private::getSlice(
+            obj->Get(Nan::New("payload").ToLocalChecked()).As<v8::Object>());
+        frame.length =
+            obj->Get(Nan::New("length").ToLocalChecked())->Uint32Value();
+        const Variant &tsVariant = Variant::Private::getVariant(
+            obj->Get(Nan::New("timestamp").ToLocalChecked()));
+        frame.timestamp = tsVariant.isTimestamp()
+                              ? tsVariant.timestamp()
+                              : std::chrono::system_clock::now();
+        frame.sourceId =
+            obj->Get(Nan::New("sourceId").ToLocalChecked())->Uint32Value();
+        frames.push_back(std::move(frame));
+      }
+      session->analyze(frames);
+    }
   }
 }
 

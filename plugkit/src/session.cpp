@@ -246,26 +246,28 @@ std::vector<FrameViewConstPtr> Session::getFrames(uint32_t offset,
   return d->frameStore->get(offset, length);
 }
 
-void Session::analyze(int link, const Slice &data, size_t length,
-                      Variant::Timestamp ts, uint32_t sourceId) {
-  auto rootLayer = std::make_shared<Layer>();
-  const auto &linkLayer = d->linkLayers.find(link);
-  if (linkLayer != d->linkLayers.end()) {
-    rootLayer->setNs(linkLayer->second.first);
-    rootLayer->setName(linkLayer->second.second);
-  } else {
-    rootLayer->setNs("<link:" + std::to_string(link) + ">");
-    rootLayer->setName("Unknown Link Layer: " + std::to_string(link));
-  }
-  rootLayer->setPayload(data);
+void Session::analyze(const std::vector<RawFrame> &rawFrames) {
+  for (const RawFrame &raw : rawFrames) {
+    auto rootLayer = std::make_shared<Layer>();
+    const auto &linkLayer = d->linkLayers.find(raw.link);
+    if (linkLayer != d->linkLayers.end()) {
+      rootLayer->setNs(linkLayer->second.first);
+      rootLayer->setName(linkLayer->second.second);
+    } else {
+      rootLayer->setNs("<link:" + std::to_string(raw.link) + ">");
+      rootLayer->setName("Unknown Link Layer: " + std::to_string(raw.link));
+    }
+    rootLayer->setPayload(raw.payload);
 
-  FrameUniquePtr frame = Frame::Private::create();
-  frame->d->setSourceId(sourceId);
-  frame->d->setTimestamp(ts);
-  frame->d->setLength((length < data.size()) ? data.size() : length);
-  frame->d->setRootLayer(rootLayer);
-  frame->d->setIndex(d->getSeq());
-  d->dissectorPool->push(std::move(frame));
+    FrameUniquePtr frame = Frame::Private::create();
+    frame->d->setSourceId(raw.sourceId);
+    frame->d->setTimestamp(raw.timestamp);
+    frame->d->setLength((raw.length < raw.payload.size()) ? raw.payload.size()
+                                                          : raw.length);
+    frame->d->setRootLayer(rootLayer);
+    frame->d->setIndex(d->getSeq());
+    d->dissectorPool->push(std::move(frame));
+  }
 }
 
 void Session::setStatusCallback(const StatusCallback &callback) {
