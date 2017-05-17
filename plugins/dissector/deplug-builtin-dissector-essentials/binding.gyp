@@ -55,6 +55,12 @@
       "sources":[
         "tcp-stream.cpp"
       ]
+    },
+    {
+      "target_name":"http-stream",
+      "sources":[
+        "http-stream.cpp"
+      ]
     }
   ]
 }

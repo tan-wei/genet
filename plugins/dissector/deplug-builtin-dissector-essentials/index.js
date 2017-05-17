@@ -35,6 +35,12 @@ export default {
       stream_dissector: {
         main: 'build/Release/tcp-stream.node'
       }
+    },
+    {
+      type: 'stream-dissector',
+      stream_dissector: {
+        main: 'build/Release/http-stream.node'
+      }
     }
   ]
 }

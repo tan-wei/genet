@@ -109,7 +109,7 @@ public:
     return StreamDissector::WorkerPtr(new TCPStreamDissector::Worker());
   }
   std::vector<std::regex> namespaces() const override {
-    return std::vector<std::regex>{std::regex("eth ipv4 <tcp>$")};
+    return std::vector<std::regex>{std::regex("<tcp>$")};
   }
 };
 
