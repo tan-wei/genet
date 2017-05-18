@@ -88,11 +88,10 @@ public:
       }
 
       const auto &sequence = ring.fetch();
-      if (sequence.size() > 0) {
-        for (const auto& slice : sequence) {
-          child.addChunk(Chunk(fmt::replace(chunk->streamNs(), "<tcp>", "tcp"),
-                               chunk->streamId(), slice));
-        }
+      for (const auto& slice : sequence) {
+        Chunk subChunk(fmt::replace(chunk->streamNs(), "<tcp>", "tcp"),
+                             chunk->streamId(), slice);
+        child.addChunk(std::move(subChunk));
       }
 
       return std::make_shared<Layer>(std::move(child));

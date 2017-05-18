@@ -12,7 +12,7 @@ public:
   class Worker final : public StreamDissector::Worker {
   public:
     LayerPtr analyze(const ChunkConstPtr &chunk) override {
-      Layer child;
+      Layer child(chunk->streamNs() + " http", "HTTP");
       return std::make_shared<Layer>(std::move(child));
     }
   };

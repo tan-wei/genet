@@ -17,7 +17,7 @@ using PropertyConstPtr = std::shared_ptr<const Property>;
 
 class Frame;
 using FrameConstPtr = std::shared_ptr<const Frame>;
-using FrameWeakPtr = std::weak_ptr<const Frame>;
+using FrameConstWeakPtr = std::weak_ptr<const Frame>;
 
 class Chunk;
 using ChunkConstPtr = std::shared_ptr<const Chunk>;
@@ -62,6 +62,9 @@ public:
 
   LayerConstPtr parent() const;
   void setParent(const LayerConstWeakPtr &layer);
+
+  FrameConstPtr frame() const;
+  void setFrame(const FrameConstWeakPtr &frame);
 
 private:
   Layer(const Layer &layer) = delete;

@@ -19,6 +19,7 @@ public:
   double confidence = 1.0;
   Slice payload;
   LayerConstWeakPtr parent;
+  FrameConstWeakPtr frame;
   std::vector<LayerConstPtr> children;
   std::vector<ChunkConstPtr> chunks;
   std::vector<PropertyConstPtr> properties;
@@ -97,6 +98,10 @@ const std::vector<PropertyConstPtr> &Layer::properties() const {
 LayerConstPtr Layer::parent() const { return d->parent.lock(); }
 
 void Layer::setParent(const LayerConstWeakPtr &layer) { d->parent = layer; }
+
+FrameConstPtr Layer::frame() const { return d->frame.lock(); }
+
+void Layer::setFrame(const FrameConstWeakPtr &frame) { d->frame = frame; }
 
 PropertyConstPtr Layer::propertyFromId(const std::string &id) const {
   auto it = d->idMap.find(id);
