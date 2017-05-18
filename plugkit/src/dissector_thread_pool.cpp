@@ -72,8 +72,8 @@ void DissectorThreadPool::setLogger(const LoggerPtr &logger) {
   d->logger = logger;
 }
 
-void DissectorThreadPool::push(FrameUniquePtr &&frame) {
-  d->queue->enqueue(std::move(frame));
+void DissectorThreadPool::push(FrameUniquePtr *begin, size_t length) {
+  d->queue->enqueue(begin, begin + length);
 }
 
 uint32_t DissectorThreadPool::queue() const {

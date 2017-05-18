@@ -147,7 +147,7 @@ Session::Session(const Config &config) : d(new Private()) {
 
   d->pcap->setCallback([this](std::unique_ptr<Frame> &&pkt) {
     pkt->d->setIndex(d->getSeq());
-    d->dissectorPool->push(std::move(pkt));
+    d->dissectorPool->push(&pkt, 1);
   });
 
   d->linkLayers = config.linkLayers;
@@ -247,6 +247,7 @@ std::vector<FrameViewConstPtr> Session::getFrames(uint32_t offset,
 }
 
 void Session::analyze(const std::vector<RawFrame> &rawFrames) {
+  std::vector<FrameUniquePtr> frames;
   for (const RawFrame &raw : rawFrames) {
     auto rootLayer = std::make_shared<Layer>();
     const auto &linkLayer = d->linkLayers.find(raw.link);
@@ -266,8 +267,9 @@ void Session::analyze(const std::vector<RawFrame> &rawFrames) {
                                                           : raw.length);
     frame->d->setRootLayer(rootLayer);
     frame->d->setIndex(d->getSeq());
-    d->dissectorPool->push(std::move(frame));
+    frames.push_back(std::move(frame));
   }
+  d->dissectorPool->push(&frames[0], frames.size());
 }
 
 void Session::setStatusCallback(const StatusCallback &callback) {
