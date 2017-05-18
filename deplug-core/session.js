@@ -62,21 +62,23 @@ export default class Session {
 
     const sess = await factory.create()
 
-    let count = 0
+    const frames = []
     for (const pcap of files) {
-      sess.analyze(pcap.frames.map((frame, index) => ({
+      for (const frame of pcap.frames) {
+          frames.push({
             link: pcap.network,
             payload: frame.payload,
             length: frame.length,
             timestamp: frame.timestamp,
-            sourceId: count + index,
-          })))
-      count += pcap.frames.length
+            sourceId: frames.length,
+          })
+      }
     }
+    sess.analyze(frames)
 
     return new Promise((res) => {
       sess.on('frame', (stat) => {
-        if (stat.frames >= count && stat.queue === 0) {
+        if (stat.frames >= frames.length && stat.queue === 0) {
           res(sess.getFrames(0, stat.frames))
         }
       })
