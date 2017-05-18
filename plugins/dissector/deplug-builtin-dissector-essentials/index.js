@@ -42,5 +42,25 @@ export default {
         main: 'build/Release/http-stream.node'
       }
     }
+  ],
+  options: [
+    {
+      id: 'eth',
+      name: 'Ethernet',
+      type: 'boolean',
+      default: true
+    },
+    {
+      id: 'ipv4',
+      name: 'IPv4',
+      type: 'boolean',
+      default: true
+    },
+    {
+      id: 'tcp',
+      name: 'TCP',
+      type: 'boolean',
+      default: true
+    }
   ]
 }

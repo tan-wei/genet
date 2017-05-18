@@ -97,11 +97,13 @@ export default class PluginCard {
       .replace(/^(deplug-builtin-|deplugin-)/, '')
     return <div class="card">
       <a>{ name } <small>({ pkg.version })</small></a>
-      <table style={{display: vnode.attrs.installed ? 'block' : 'none'}}>
-        <tr>
-          <td data-tooltip={ '.enabled' }>Enabled</td>
-          <td>{ m(OptionView, {pkg, option: {id: 'enabled', type: 'boolean', default: true}}) }</td>
-        </tr>
+      <div class="tools">
+        <input
+          type="button"
+          value="Disable"
+        ></input>
+      </div>
+      <table style={{display: vnode.attrs.installed && options.length ? 'block' : 'none'}}>
         {
           options.map((opt) => {
             return <tr>
