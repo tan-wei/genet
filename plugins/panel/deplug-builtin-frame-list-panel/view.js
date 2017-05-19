@@ -133,9 +133,9 @@ export default class FrameListView {
 
       if (frames > 0) {
         for (let i = 0; i < this.mapHeight; ++i) {
-          let index = Math.floor(frames / this.mapHeight * i)
+          let index = Math.floor(frames / this.mapHeight * (i + 0.5))
           if (this.filtered) {
-            index = this.session.getFilteredFrames('main', index, 1)[0]
+            index = this.session.getFilteredFrames('main', index, 1)[0] - 1
           }
           const frame = this.session.getFrames(index, 1)[0]
           dummy.setAttribute('data-layer', frame.primaryLayer.namespace)
