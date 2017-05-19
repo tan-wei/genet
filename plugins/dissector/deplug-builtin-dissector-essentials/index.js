@@ -45,22 +45,11 @@ export default {
   ],
   options: [
     {
-      id: 'eth',
-      name: 'Ethernet',
-      type: 'boolean',
-      default: true
-    },
-    {
-      id: 'ipv4',
-      name: 'IPv4',
-      type: 'boolean',
-      default: true
-    },
-    {
-      id: 'tcp',
-      name: 'TCP',
-      type: 'boolean',
-      default: true
+      id: 'httpPorts',
+      name: 'Restrict HTTP Ports',
+      type: 'string',
+      regexp: '^\\s*([0-9]+,\\s*)*[0-9]*\\s*$',
+      default: '80, 8080'
     }
   ]
 }
