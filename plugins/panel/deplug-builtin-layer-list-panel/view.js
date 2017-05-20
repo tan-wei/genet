@@ -2,6 +2,24 @@ import m from 'mithril'
 import moment from 'moment'
 import { Channel, Profile } from 'deplug'
 
+class BooleanValueItem {
+  view(vnode) {
+    const faClass = vnode.attrs.value ? 'fa-check-square-o' : 'fa-square-o'
+    return <span><i class={`fa ${faClass}`}></i></span>
+  }
+}
+
+class PropertyValueItem {
+  view(vnode) {
+    const prop = vnode.attrs.prop
+    if (typeof prop.value === 'boolean') {
+      return m(BooleanValueItem, {value: prop.value})
+    }
+    const value = (prop.value == null ? '' : prop.value.toString())
+    return <span> { prop.summary || value } </span>
+  }
+}
+
 class PropertyItem {
   constructor() {
     this.expanded = false
@@ -18,7 +36,7 @@ class PropertyItem {
       <label
         onclick={ () => this.expanded = !this.expanded }
       ><i class={faClass}></i> { prop.name }: </label>
-      <span> { prop.summary || value } </span>
+      { m(PropertyValueItem, {prop}) }
       <ul style={{ display: this.expanded ? 'block' : 'none' }}>
         {
           prop.properties.map((prop) => {
