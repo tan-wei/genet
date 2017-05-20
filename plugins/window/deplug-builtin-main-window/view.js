@@ -109,7 +109,8 @@ export default class TabView {
     menu.append(new MenuItem({
       label: 'Show Developer Tools',
       click: () => {
-        let content = document.querySelector(`#tab-content-${this.currentIndex}`)
+        const id = e.target.getAttribute('tabId')
+        const content = document.querySelector(`#tab-content-${id}`)
         content.openDevTools()
       }
     }))
@@ -168,6 +169,7 @@ export default class TabView {
                 <a class="tab-label"
                   draggable="true"
                   index={i}
+                  tabId={t.id}
                   isActive={ this.currentIndex === i }
                   onclick={m.withAttr('index', this.activate, this)}
                   ondragstart={(e) => {this.dragStart(e)}}
