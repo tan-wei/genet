@@ -96,12 +96,20 @@ export default class PluginCard {
     let name = pkg.name
       .replace(/^(deplug-builtin-|deplugin-)/, '')
     return <div class="card">
-      <a>{ name } <small>({ pkg.version })</small></a>
-      <div class="tools">
-        <input
-          type="button"
-          value="Disable"
-        ></input>
+      <div class="title">
+        <span>{ name } <small>({ pkg.version })</small></span>
+        <span>
+          <input
+            type="button"
+            value="Disable"
+          ></input>
+        </span>
+        <span>
+          <input
+            type="button"
+            value="Unistall"
+          ></input>
+        </span>
       </div>
       <table style={{display: vnode.attrs.installed && options.length ? 'block' : 'none'}}>
         {
