@@ -23,6 +23,9 @@ app.on('ready', () => {
     titleBarStyle: 'hidden-inset',
     vibrancy: 'ultra-dark',
   }
+  if (process.platform === 'linux') {
+    options.icon = '/usr/share/icons/hicolor/256x256/apps/deplug.png'
+  }
   const mainWindow = new BrowserWindow(options)
   mainWindow.loadURL(`file://${__dirname}/index.htm`)
   const contents = mainWindow.webContents
