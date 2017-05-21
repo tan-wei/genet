@@ -5,20 +5,20 @@ import m from 'mithril'
 class PermissionMassage {
   view(vnode) {
     if (Pcap.permission) {
-      return <p><i class="fa fa-check"></i> Live captures are ready.</p>
+      return <p><i class="fa fa-check"></i> Live capture is ready.</p>
     }
     switch (process.platform) {
       case 'darwin':
         return <p>
-        <i class="fa fa-exclamation-triangle"></i> Live captures are NOT ready.<br></br>
+        <i class="fa fa-exclamation-triangle"></i> Live capture is NOT ready.<br></br>
           Could not access /dev/bpf*.
           Please check if the Deplug Helper Tool has been installed correctly.
         </p>
       case 'linux':
         return <p>
-        <i class="fa fa-exclamation-triangle"></i> Live captures are NOT ready.<br></br>
+        <i class="fa fa-exclamation-triangle"></i> Live capture is NOT ready.<br></br>
         The program does not have enough capabilities to start a live capture.<br></br>
-        Please run setcap to the executable and don’t forget change RPATH.
+        Please run setcap to the executable and don’t forget to change RPATH.
         <ul>
           <li>$ DEPLAG_BIN={process.execPath}</li>
           <li>$ patchelf --set-rpath $(dirname $DEPLAG_BIN) $DEPLAG_BIN</li>
@@ -27,7 +27,7 @@ class PermissionMassage {
         </p>
       case 'win32':
         return <p>
-        <i class="fa fa-exclamation-triangle"></i> Live captures are NOT ready.<br></br>
+        <i class="fa fa-exclamation-triangle"></i> Live capture is NOT ready.<br></br>
         Could not load wpcap.dll.
         Please install WinPcap from <a target="_blank" href="https://www.winpcap.org/install/">
           https://www.winpcap.org/install/</a>.
