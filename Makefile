@@ -85,6 +85,7 @@ winstaller:
 pack: build
 	$(PACKAGER) ./ --download.mirror=$(ELECTRON_MIRROR) \
 	 						--asar.unpackDir=$(ELECTRON_UNPACK) \
+							--icon=images/deplug \
 							--ignore=$(ELECTRON_IGNORE) \
 							--electron-version=$(ELECTRON_VERSION) \
 							--out=./out --overwrite
