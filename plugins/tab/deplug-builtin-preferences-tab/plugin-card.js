@@ -90,21 +90,39 @@ class OptionView {
 }
 
 export default class PluginCard {
+  disable(pkg) {
+    Profile.current[`$${pkg.name}`].enabled = false
+  }
+
+  enable(pkg) {
+    Profile.current[`$${pkg.name}`].enabled = true
+  }
+
   view(vnode) {
     const pkg = vnode.attrs.pkg
     const options = vnode.attrs.options || []
-    let name = pkg.name
+    const enabled = Profile.current[`$${pkg.name}`].enabled
+    const name = pkg.name
       .replace(/^(deplug-builtin-|deplugin-)/, '')
-    return <div class="card">
+    const builtin = pkg.name.startsWith('deplug-builtin-')
+    return <div class="card" enabled={enabled}>
       <div class="title">
         <span>{ name } <small>({ pkg.version })</small></span>
-        <span>
+        <span style={{display: enabled ? 'block' : 'none'}}>
           <input
             type="button"
             value="Disable"
+            onclick={ () => this.disable(pkg) }
           ></input>
         </span>
-        <span>
+        <span style={{display: !enabled ? 'block' : 'none'}}>
+          <input
+            type="button"
+            value="Enable"
+            onclick={ () => this.enable(pkg) }
+          ></input>
+        </span>
+        <span style={{display: vnode.attrs.installed && !builtin ? 'block' : 'none'}}>
           <input
             type="button"
             value="Unistall"
