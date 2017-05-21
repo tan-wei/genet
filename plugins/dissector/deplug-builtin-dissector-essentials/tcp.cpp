@@ -40,7 +40,7 @@ public:
       seq.setError(reader.lastError());
 
       uint32_t ackNumber = reader.readBE<uint32_t>();
-      Property ack("seq", "Acknowledgment number", ackNumber);
+      Property ack("ack", "Acknowledgment number", ackNumber);
       ack.setRange(reader.lastRange());
       ack.setError(reader.lastError());
 

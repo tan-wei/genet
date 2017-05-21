@@ -167,6 +167,7 @@ StreamDissectorThread::processChunk(const ChunkConstPtr &chunk) {
     if (const auto &layer = worker->analyze(chunk)) {
       if (!layer->ns().empty()) {
         auto frame = Frame::Private::create();
+        frame->d->setLength(layer->payload().size());
         frame->d->setRootLayer(layer);
         frames.push_back(std::move(frame));
       }

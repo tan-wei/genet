@@ -13,6 +13,13 @@ public:
   public:
     LayerPtr analyze(const ChunkConstPtr &chunk) override {
       Layer child(chunk->streamNs() + " http", "HTTP");
+      const auto &layer = chunk->layer();
+      uint16_t srcPort = layer->propertyFromId("src")->value().uint64Value();
+      uint16_t dstPort = layer->propertyFromId("dst")->value().uint64Value();
+      if (srcPort != 80 && dstPort != 80) {
+        return LayerPtr();
+      }
+      child.setPayload(chunk->payload());
       return std::make_shared<Layer>(std::move(child));
     }
   };
