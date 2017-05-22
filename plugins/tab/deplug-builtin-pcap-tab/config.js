@@ -1,4 +1,4 @@
-import { File, Plugin, Session, Tab, Channel, GlobalChannel } from 'deplug'
+import { File, Plugin, Profile, Session, Tab, Channel, GlobalChannel } from 'deplug'
 import { Pcap, SessionFactory } from 'plugkit'
 import m from 'mithril'
 
@@ -63,6 +63,7 @@ export default class ConfigView {
 
     setTimeout(() => {
       const factory = new SessionFactory()
+      factory.options = Profile.current.$$object
       factory.networkInterface = Tab.options.ifs || ''
       for (const layer of Session.linkLayers) {
         factory.registerLinkLayer(layer)
@@ -92,6 +93,7 @@ export default class ConfigView {
 
       setTimeout(() => {
         const factory = new SessionFactory()
+        factory.options = Profile.current.$$object
         factory.networkInterface = Tab.options.ifs || ''
         for (const layer of Session.linkLayers) {
           factory.registerLinkLayer(layer)

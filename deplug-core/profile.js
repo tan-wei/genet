@@ -16,6 +16,8 @@ function createHandler (plugin = null) {
     get: (target, name) => {
       if (name === '$$dir') {
         return target.profileDir
+      } else if (name === '$$object') {
+        return target.pluginObject
       } else if (name.startsWith('$')) {
         return new Proxy(target, createHandler(name.substr(1)))
       } else if (proto.includes(name)) {
