@@ -24,7 +24,10 @@ class OptionView {
     const { option } = vnode.attrs
     let value = event.target.value
     if ('regexp' in option && !(new RegExp(option.regexp)).test(value)) {
-      value = option.default || 0
+      value = option.default || ''
+    }
+    if ('toJSON' in option) {
+      value = option.toJSON(value)
     }
     this.updateValue(value, vnode)
   }
@@ -47,8 +50,11 @@ class OptionView {
 
   view(vnode) {
     const { pkg, option } = vnode.attrs
-    const value = Profile.current[`$${pkg.name}`][option.id]
+    let value = Profile.current[`$${pkg.name}`][option.id]
     const defaultValue = ('default' in option) ? `Default: ${option.default}` : ''
+    if ('toString' in option) {
+      value = option.toString(value)
+    }
     switch (option.type) {
       case 'boolean':
         return <input

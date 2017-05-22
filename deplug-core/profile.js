@@ -9,6 +9,10 @@ import merge from 'lodash.merge'
 import objpath from 'object-path'
 import path from 'path'
 
+const profileRegistory = {}
+const pluginDefaults = {}
+const currentProfile = 'default'
+
 const { webContents } = remote
 function createHandler (plugin = null) {
   const proto =
@@ -59,9 +63,6 @@ function createHandler (plugin = null) {
   }
 }
 
-const profileRegistory = {}
-const pluginDefaults = {}
-const currentProfile = 'default'
 export default class Profile extends EventEmitter {
   constructor (profile) {
     super()

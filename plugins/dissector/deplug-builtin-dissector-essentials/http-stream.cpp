@@ -37,9 +37,11 @@ public:
 class HTTPDissectorFactory final : public StreamDissectorFactory {
 public:
   StreamDissectorPtr create(const SessionContext &ctx) const override {
-    const auto &ports =
-      ctx.options["deplug-builtin-dissector-essentials"]["httpPorts"].string();
-    printf("%s\n", ports.c_str());
+    const auto ports =
+      ctx.options["deplug-builtin-dissector-essentials"]["httpPorts"].array();
+    for (const auto& port : ports) {
+      printf("++ %d\n", static_cast<int>(port.uint64Value()));
+    }
     return StreamDissectorPtr(new HTTPDissector());
   };
 };
