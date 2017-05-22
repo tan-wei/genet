@@ -2,6 +2,7 @@
 #include <plugkit/stream_dissector.hpp>
 #include <plugkit/layer.hpp>
 #include <plugkit/property.hpp>
+#include <plugkit/session_context.hpp>
 #include <plugkit/chunk.hpp>
 #include <plugkit/fmt.hpp>
 
@@ -36,6 +37,9 @@ public:
 class HTTPDissectorFactory final : public StreamDissectorFactory {
 public:
   StreamDissectorPtr create(const SessionContext &ctx) const override {
+    const auto &ports =
+      ctx.options["deplug-builtin-dissector-essentials"]["httpPorts"].string();
+    printf("%s\n", ports.c_str());
     return StreamDissectorPtr(new HTTPDissector());
   };
 };

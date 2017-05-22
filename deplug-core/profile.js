@@ -5,6 +5,7 @@ import denodeify from 'denodeify'
 import fs from 'fs'
 import jsonfile from 'jsonfile'
 import log from 'electron-log'
+import merge from 'lodash.merge'
 import objpath from 'object-path'
 import path from 'path'
 
@@ -15,7 +16,7 @@ function createHandler (plugin = null) {
   return {
     get: (target, name) => {
       if (name === '$$dir') {
-        return target.profileDir
+        return merge(Object.assign({}, target.profileDir), pluginDefaults)
       } else if (name === '$$object') {
         return target.pluginObject
       } else if (name.startsWith('$')) {
