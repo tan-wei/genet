@@ -10,6 +10,7 @@ import objpath from 'object-path'
 import path from 'path'
 
 const profileRegistory = {}
+const globalDefaults = {}
 const pluginDefaults = {}
 const currentProfile = 'default'
 
@@ -20,9 +21,9 @@ function createHandler (plugin = null) {
   return {
     get: (target, name) => {
       if (name === '$$dir') {
-        return merge(Object.assign({}, target.profileDir), pluginDefaults)
+        return target.profileDir
       } else if (name === '$$object') {
-        return target.pluginObject
+        return merge(Object.assign({}, target.pluginObject), pluginDefaults)
       } else if (name.startsWith('$')) {
         return new Proxy(target, createHandler(name.substr(1)))
       } else if (proto.includes(name)) {
@@ -115,7 +116,11 @@ export default class Profile extends EventEmitter {
   }
 
   getGlobal (opath) {
-    return objpath.get(this.globalObject, opath, null)
+    const value = objpath.get(this.globalObject, opath)
+    if (typeof value === 'undefined') {
+      return objpath.get(globalDefaults, opath, null)
+    }
+    return value
   }
 
   hasGlobal (opath) {
@@ -191,6 +196,10 @@ export default class Profile extends EventEmitter {
       pluginDefaults[id] = {}
     }
     objpath.set(pluginDefaults[id], opath, value)
+  }
+
+  static setGlobalDefault (opath, value) {
+    objpath.set(globalDefaults, opath, value)
   }
 
   async write () {
