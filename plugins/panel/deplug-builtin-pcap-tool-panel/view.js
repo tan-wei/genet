@@ -1,4 +1,4 @@
-import { Channel } from 'deplug'
+import { Channel, Tab } from 'deplug'
 import m from 'mithril'
 
 export default class View {
@@ -18,6 +18,9 @@ export default class View {
   }
 
   view(vnode) {
+    if (!Tab.options.ifs) {
+      return <a style="display: none;"></a>
+    }
     if (this.capture) {
       return <a href="javascript:void(0)"
         onclick={ () => { this.session.stopPcap() } }
