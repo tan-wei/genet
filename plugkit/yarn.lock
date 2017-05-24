@@ -122,9 +122,9 @@ ecc-jsbn@~0.1.1:
   dependencies:
     jsbn "~0.1.0"
 
-electron-deplug@1.6.4:
+negatron@1.6.4:
   version "1.6.4"
-  resolved "https://registry.yarnpkg.com/electron-deplug/-/electron-deplug-1.6.4.tgz#a198374703918e60d5d7475d53fd03456abebd06"
+  resolved "https://registry.yarnpkg.com/negatron/-/negatron-1.6.4.tgz#a198374703918e60d5d7475d53fd03456abebd06"
   dependencies:
     decompress-zip "^0.3.0"
     mkpath "^1.0.0"

@@ -7,7 +7,7 @@ export default class GeneralView {
     this.version =
       objpath.get(Config.deplug, 'version', 'n/a')
     this.electronVersion =
-      objpath.get(Config.deplug, 'devDependencies.electron-deplug', 'n/a')
+      objpath.get(Config.deplug, 'devDependencies.negatron', 'n/a')
     this.themeId = Theme.currentId
   }
 

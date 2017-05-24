@@ -678,16 +678,6 @@ editor@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/editor/-/editor-1.0.0.tgz#60c7f87bd62bcc6a894fa8ccd6afb7823a24f742"
 
-electron-deplug@1.6.5:
-  version "1.6.5"
-  resolved "https://registry.yarnpkg.com/electron-deplug/-/electron-deplug-1.6.5.tgz#2e20c4b77f3b9a4cfbe20fbfa2745f76ea1c8fed"
-  dependencies:
-    decompress-zip "^0.3.0"
-    mkpath "^1.0.0"
-    progress "^1.1.8"
-    request "^2.81.0"
-    request-progress "^3.0.0"
-
 electron-download@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/electron-download/-/electron-download-4.0.0.tgz#53b54b744f992a89b198a7c23c2c4c329aaedabd"
@@ -1902,6 +1892,16 @@ nan@^2.6.2:
 natural-compare@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
+
+negatron@1.7.1:
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/negatron/-/negatron-1.7.1.tgz#076d8af56f8fcfe5fa035de250ee3f90b0a5f3e7"
+  dependencies:
+    decompress-zip "^0.3.0"
+    mkpath "^1.0.0"
+    progress "^1.1.8"
+    request "^2.81.0"
+    request-progress "^3.0.0"
 
 node-gyp@^3.6.0, node-gyp@~3.6.0:
   version "3.6.0"

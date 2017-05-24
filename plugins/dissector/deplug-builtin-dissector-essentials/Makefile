@@ -1,4 +1,4 @@
-ELECTRON_VERSION = $(shell jq '.devDependencies."electron-deplug"' ../../../package.json -r)
+ELECTRON_VERSION = $(shell jq '.devDependencies."negatron"' ../../../package.json -r)
 
 ifeq ($(OS),Windows_NT)
 GYP=..\..\..\node_modules\.bin\node-gyp
