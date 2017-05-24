@@ -1,0 +1,10 @@
+{
+  "name": "deplug-builtin-binary-panel",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Deplug binary panel",
+  "engines": {
+    "deplug": "*"
+  },
+  "main": "index.js"
+}
