@@ -17,7 +17,7 @@ export default class GeneralView {
       ,
       <table>
         <tr><td>Deplug version</td><td>{ this.version }</td></tr>
-        <tr><td>Electron version</td><td>{ this.electronVersion } (Custom build)</td></tr>
+        <tr><td>Negatron version</td><td>{ this.electronVersion }</td></tr>
         <tr><td>Theme</td><td>
           <select
           onchange={(event) => {
