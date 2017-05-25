@@ -64,7 +64,7 @@ class LayerItem {
         <h4
           data-layer={layer.namespace}
           onclick={ () => this.expanded = !this.expanded }
-        ><i class={faClass}></i> { layer.name } { layer.summary }</h4>
+        ><i class={faClass}></i> { layer.name } { layer.summary } [confidence: { layer.confidence * 100 }%]</h4>
       </li>
       <div style={{ display: this.expanded ? 'block' : 'none' }}>
       {
