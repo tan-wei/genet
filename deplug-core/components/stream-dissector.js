@@ -10,6 +10,10 @@ export default class StreamDissectorComponent extends Component {
       throw new Error('stream_dissector.main field required')
     }
     const mainFile = path.join(this.rootDir, main)
-    Session.registerStreamDissector(mainFile)
+    if (path.extname(mainFile) === '.node') {
+      Session.registerNativeStreamDissector(mainFile)
+    } else {
+      Session.registerStreamDissector(mainFile)
+    }
   }
 }

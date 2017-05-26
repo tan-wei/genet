@@ -10,7 +10,11 @@ export default class DissectorComponent extends Component {
       throw new Error('dissector.main field required')
     }
     const mainFile = path.join(this.rootDir, main)
-    Session.registerDissector(mainFile)
+    if (path.extname(mainFile) === '.node') {
+      Session.registerNativeDissector(mainFile)
+    } else {
+      Session.registerDissector(mainFile)
+    }
 
     const linkLyaers = objpath.get(this.comp, 'dissector.linkLyaers', [])
     for (const layer of linkLyaers) {

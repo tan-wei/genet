@@ -9,12 +9,20 @@ const streamDissectors = []
 const linkLayers = []
 const samples = []
 export default class Session {
-  static registerDissector (file) {
+  static registerNativeDissector (file) {
     dissectors.push(require(file).factory)
   }
 
-  static registerStreamDissector (file) {
+  static registerNativeStreamDissector (file) {
     streamDissectors.push(require(file).factory)
+  }
+
+  static registerDissector (file) {
+    dissectors.push(file)
+  }
+
+  static registerStreamDissector (file) {
+    streamDissectors.push(file)
   }
 
   static registerLinkLayer (layer) {
