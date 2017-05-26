@@ -23,7 +23,7 @@ function createHandler (plugin = null) {
       if (name === '$$dir') {
         return target.profileDir
       } else if (name === '$$object') {
-        return merge(Object.assign({}, target.pluginObject), pluginDefaults)
+        return merge(Object.assign({}, pluginDefaults), target.pluginObject)
       } else if (name.startsWith('$')) {
         return new Proxy(target, createHandler(name.substr(1)))
       } else if (proto.includes(name)) {
@@ -132,7 +132,7 @@ export default class Profile extends EventEmitter {
     for (const wc of webContents.getAllWebContents()) {
       wc.send('global-updated', opath)
     }
-    this.write()
+    this.writeSyncSync()
   }
 
   setGlobal (opath, value) {
@@ -144,7 +144,7 @@ export default class Profile extends EventEmitter {
     for (const wc of webContents.getAllWebContents()) {
       wc.send('global-updated', opath, value)
     }
-    this.write()
+    this.writeSync()
   }
 
   getPlugin (id, opath) {
@@ -173,7 +173,7 @@ export default class Profile extends EventEmitter {
         wc.send('plugin-updated', id, opath)
       }
     }
-    this.write()
+    this.writeSync()
   }
 
   setPlugin (id, opath, value) {
@@ -188,7 +188,7 @@ export default class Profile extends EventEmitter {
     for (const wc of webContents.getAllWebContents()) {
       wc.send('plugin-updated', id, opath, value)
     }
-    this.write()
+    this.writeSync()
   }
 
   static setPluginDefault (id, opath, value) {

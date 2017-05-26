@@ -49,7 +49,7 @@ export default {
       name: 'Restrict HTTP Ports',
       type: 'string',
       regexp: '^\\s*([0-9]+,\\s*)*[0-9]*\\s*$',
-      default: '80, 8080',
+      default: [80, 8080],
       toJSON: (str) => str.split(',').map((str) => Number.parseInt(str)),
       toString: (json) => json.join(', ')
     }
