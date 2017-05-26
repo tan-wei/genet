@@ -1,8 +1,8 @@
 #ifndef PLUGKIT_STREAM_DISSECTOR_FACTORY_WRAPPER_H
 #define PLUGKIT_STREAM_DISSECTOR_FACTORY_WRAPPER_H
 
-#include <nan.h>
 #include <memory>
+#include <nan.h>
 
 namespace plugkit {
 

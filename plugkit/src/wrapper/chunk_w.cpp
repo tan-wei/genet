@@ -1,10 +1,10 @@
 #include "chunk.hpp"
 #include "../plugkit/chunk.hpp"
-#include "private/variant.hpp"
-#include "wrapper/property.hpp"
-#include "wrapper/layer.hpp"
-#include "plugkit_module.hpp"
 #include "extended_slot.hpp"
+#include "plugkit_module.hpp"
+#include "private/variant.hpp"
+#include "wrapper/layer.hpp"
+#include "wrapper/property.hpp"
 
 namespace plugkit {
 

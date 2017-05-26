@@ -1,10 +1,10 @@
 #ifndef PLUGKIT_FILTER_HPP
 #define PLUGKIT_FILTER_HPP
 
-#include <v8.h>
 #include <functional>
 #include <string>
 #include <unordered_map>
+#include <v8.h>
 
 namespace plugkit {
 

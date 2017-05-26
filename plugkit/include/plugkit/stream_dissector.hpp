@@ -3,9 +3,9 @@
 
 #include "variant.hpp"
 #include <memory>
-#include <vector>
 #include <regex>
 #include <v8.h>
+#include <vector>
 
 namespace plugkit {
 

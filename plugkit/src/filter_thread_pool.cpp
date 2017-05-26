@@ -1,8 +1,8 @@
 #include "filter_thread_pool.hpp"
 #include "filter_thread.hpp"
+#include <map>
 #include <uv.h>
 #include <vector>
-#include <map>
 
 namespace plugkit {
 

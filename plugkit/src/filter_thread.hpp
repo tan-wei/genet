@@ -1,8 +1,8 @@
 #ifndef PLUGKIT_FILTER_THREAD_H
 #define PLUGKIT_FILTER_THREAD_H
 
-#include "worker_thread.hpp"
 #include "queue.hpp"
+#include "worker_thread.hpp"
 #include <memory>
 #include <unordered_map>
 

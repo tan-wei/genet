@@ -1,5 +1,5 @@
-#include "pcap_platform.hpp"
 #include "pcap_dummy.hpp"
+#include "pcap_platform.hpp"
 #include <cstdlib>
 #include <cstring>
 

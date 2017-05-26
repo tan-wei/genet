@@ -1,7 +1,7 @@
 #include "private/chunk.hpp"
-#include "wrapper/chunk.hpp"
 #include "property.hpp"
 #include "slice.hpp"
+#include "wrapper/chunk.hpp"
 #include <unordered_map>
 
 namespace plugkit {

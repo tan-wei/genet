@@ -1,8 +1,8 @@
 #include "plugkit_private.hpp"
 #include "extended_slot.hpp"
-#include <vector>
 #include <map>
 #include <v8.h>
+#include <vector>
 
 namespace plugkit {
 

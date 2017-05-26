@@ -1,10 +1,10 @@
 #ifndef PLUGKIT_PCAP_HPP
 #define PLUGKIT_PCAP_HPP
 
-#include <string>
-#include <vector>
 #include <functional>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace plugkit {
 

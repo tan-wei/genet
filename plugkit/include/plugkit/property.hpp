@@ -1,9 +1,9 @@
 #ifndef PLUGKIT_PROPERTY_H
 #define PLUGKIT_PROPERTY_H
 
+#include "variant.hpp"
 #include <memory>
 #include <vector>
-#include "variant.hpp"
 
 namespace plugkit {
 

@@ -1,18 +1,18 @@
 #include "worker_thread.hpp"
 #include "extended_slot.hpp"
 #include "plugkit_module.hpp"
-#include <v8.h>
-#include <uv.h>
-#include <nan.h>
-#include <node.h>
-#include <map>
-#include <thread>
 #include <cstdlib>
 #include <cstring>
-#include <string>
 #include <fstream>
-#include <sstream>
+#include <map>
 #include <mutex>
+#include <nan.h>
+#include <node.h>
+#include <sstream>
+#include <string>
+#include <thread>
+#include <uv.h>
+#include <v8.h>
 
 namespace plugkit {
 

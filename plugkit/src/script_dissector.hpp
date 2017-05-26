@@ -2,8 +2,8 @@
 #define PLUGKIT_SCRIPT_DISSECTOR_H
 
 #include "dissector.hpp"
-#include <v8.h>
 #include <string>
+#include <v8.h>
 
 namespace plugkit {
 

@@ -1,10 +1,10 @@
 #ifndef PLUGKIT_FRAME_STORE_HPP
 #define PLUGKIT_FRAME_STORE_HPP
 
-#include <memory>
 #include <functional>
-#include <vector>
+#include <memory>
 #include <thread>
+#include <vector>
 
 namespace plugkit {
 

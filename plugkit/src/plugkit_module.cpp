@@ -1,14 +1,14 @@
 #include "plugkit_module.hpp"
 #include "extended_slot.hpp"
-#include "wrapper/property.hpp"
-#include "wrapper/layer.hpp"
-#include "wrapper/frame.hpp"
 #include "wrapper/chunk.hpp"
-#include "wrapper/session.hpp"
-#include "wrapper/pcap.hpp"
 #include "wrapper/dissector_factory.hpp"
-#include "wrapper/stream_dissector_factory.hpp"
+#include "wrapper/frame.hpp"
+#include "wrapper/layer.hpp"
+#include "wrapper/pcap.hpp"
+#include "wrapper/property.hpp"
+#include "wrapper/session.hpp"
 #include "wrapper/session_factory.hpp"
+#include "wrapper/stream_dissector_factory.hpp"
 
 namespace plugkit {
 

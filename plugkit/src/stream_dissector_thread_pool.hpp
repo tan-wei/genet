@@ -1,10 +1,10 @@
 #ifndef PLUGKIT_STREAM_DISSECTOR_THREAD_POOL_H
 #define PLUGKIT_STREAM_DISSECTOR_THREAD_POOL_H
 
-#include <memory>
-#include <functional>
-#include <vector>
 #include "queue.hpp"
+#include <functional>
+#include <memory>
+#include <vector>
 
 namespace plugkit {
 

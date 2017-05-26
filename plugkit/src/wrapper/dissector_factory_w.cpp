@@ -1,7 +1,7 @@
 #include "dissector_factory.hpp"
 #include "../plugkit/dissector.hpp"
-#include "plugkit_module.hpp"
 #include "extended_slot.hpp"
+#include "plugkit_module.hpp"
 
 namespace plugkit {
 void DissectorFactoryWrapper::init(v8::Isolate *isolate) {

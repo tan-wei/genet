@@ -1,8 +1,8 @@
 #ifndef PLUGKIT_DISSECTOR_THREAD_H
 #define PLUGKIT_DISSECTOR_THREAD_H
 
-#include "worker_thread.hpp"
 #include "queue.hpp"
+#include "worker_thread.hpp"
 #include <memory>
 
 namespace plugkit {

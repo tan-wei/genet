@@ -1,14 +1,14 @@
 #include "filter.hpp"
-#include "property.hpp"
-#include "layer.hpp"
 #include "frame.hpp"
 #include "frame_view.hpp"
+#include "layer.hpp"
+#include "private/variant.hpp"
+#include "property.hpp"
 #include "wrapper/frame.hpp"
 #include "wrapper/layer.hpp"
 #include "wrapper/property.hpp"
-#include "private/variant.hpp"
-#include <nan.h>
 #include <json11.hpp>
+#include <nan.h>
 
 namespace plugkit {
 

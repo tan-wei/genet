@@ -1,7 +1,7 @@
 #include "stream_dissector_factory.hpp"
 #include "../plugkit/stream_dissector.hpp"
-#include "plugkit_module.hpp"
 #include "extended_slot.hpp"
+#include "plugkit_module.hpp"
 
 namespace plugkit {
 void StreamDissectorFactoryWrapper::init(v8::Isolate *isolate) {

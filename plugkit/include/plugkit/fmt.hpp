@@ -1,12 +1,12 @@
 #ifndef PLUGKIT_FMT_H
 #define PLUGKIT_FMT_H
 
+#include "slice.hpp"
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
 #include <string>
 #include <string>
-#include "slice.hpp"
 
 namespace plugkit {
 namespace fmt {

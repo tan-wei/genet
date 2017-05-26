@@ -1,10 +1,10 @@
 #include "layer.hpp"
-#include "wrapper/layer.hpp"
-#include "slice.hpp"
 #include "chunk.hpp"
 #include "property.hpp"
-#include <unordered_map>
+#include "slice.hpp"
+#include "wrapper/layer.hpp"
 #include <regex>
+#include <unordered_map>
 
 namespace plugkit {
 

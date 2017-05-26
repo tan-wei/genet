@@ -39,4 +39,4 @@ cp -a * %{buildroot}
 %changelog
 
 %post
-setcap cap_net_raw,cap_net_admin=eip /usr/share/deplug/deplug
+setcap cap_net_raw,cap_net_admin=p /usr/share/deplug/deplug

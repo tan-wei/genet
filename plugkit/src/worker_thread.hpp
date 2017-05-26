@@ -1,8 +1,8 @@
 #ifndef PLUGKIT_WORKER_THREAD_H
 #define PLUGKIT_WORKER_THREAD_H
 
-#include <thread>
 #include "stream_logger.hpp"
+#include <thread>
 
 namespace plugkit {
 

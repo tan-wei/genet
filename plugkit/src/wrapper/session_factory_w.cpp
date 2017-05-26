@@ -1,13 +1,13 @@
 #include "session_factory.hpp"
+#include "../src/session.hpp"
+#include "dissector_factory.hpp"
+#include "extended_slot.hpp"
+#include "plugkit_module.hpp"
+#include "private/variant.hpp"
 #include "script_dissector.hpp"
 #include "script_stream_dissector.hpp"
-#include "dissector_factory.hpp"
-#include "stream_dissector_factory.hpp"
 #include "session.hpp"
-#include "private/variant.hpp"
-#include "../src/session.hpp"
-#include "plugkit_module.hpp"
-#include "extended_slot.hpp"
+#include "stream_dissector_factory.hpp"
 
 namespace plugkit {
 

@@ -1,10 +1,10 @@
 #include "private/logger.hpp"
-#include <uv.h>
-#include <nan.h>
-#include <vector>
-#include <mutex>
 #include <iomanip>
+#include <mutex>
+#include <nan.h>
 #include <sstream>
+#include <uv.h>
+#include <vector>
 
 namespace plugkit {
 

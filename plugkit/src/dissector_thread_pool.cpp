@@ -1,10 +1,10 @@
 #include "dissector_thread_pool.hpp"
-#include "dissector_thread.hpp"
 #include "dissector.hpp"
-#include "variant.hpp"
+#include "dissector_thread.hpp"
 #include "frame.hpp"
-#include <v8.h>
+#include "variant.hpp"
 #include <uv.h>
+#include <v8.h>
 
 namespace plugkit {
 

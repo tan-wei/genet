@@ -1,12 +1,12 @@
 #include "private/variant.hpp"
 #include "private/stream_buffer.hpp"
 #include "slice.hpp"
-#include <nan.h>
-#include <uv.h>
-#include <mutex>
-#include <unordered_map>
 #include <iomanip>
+#include <mutex>
+#include <nan.h>
 #include <sstream>
+#include <unordered_map>
+#include <uv.h>
 
 namespace plugkit {
 

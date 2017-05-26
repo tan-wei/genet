@@ -22,7 +22,7 @@ class PermissionMassage {
         <ul>
           <li>$ DEPLAG_BIN={process.execPath}</li>
           <li>$ patchelf --set-rpath $(dirname $DEPLAG_BIN) $DEPLAG_BIN</li>
-          <li>$ sudo setcap cap_net_raw,cap_net_admin=eip $DEPLAG_BIN</li>
+          <li>$ sudo setcap cap_net_raw,cap_net_admin=p $DEPLAG_BIN</li>
         </ul>
         </p>
       case 'win32':

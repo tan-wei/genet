@@ -1,8 +1,8 @@
 #ifndef PLUGKIT_STREAM_BUFFER_PRIVATE_H
 #define PLUGKIT_STREAM_BUFFER_PRIVATE_H
+#include "../plugkit/stream_buffer.hpp"
 #include <atomic>
 #include <fstream>
-#include "../plugkit/stream_buffer.hpp"
 namespace plugkit {
 
 class StreamBuffer::Private {

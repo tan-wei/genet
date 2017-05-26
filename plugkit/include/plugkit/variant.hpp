@@ -1,13 +1,13 @@
 #ifndef PLUGKIT_VARIANT_H
 #define PLUGKIT_VARIANT_H
 
-#include <memory>
-#include <string>
-#include <vector>
-#include <unordered_map>
-#include <chrono>
 #include "slice.hpp"
 #include "stream_buffer.hpp"
+#include <chrono>
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace plugkit {
 

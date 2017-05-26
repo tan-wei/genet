@@ -1,11 +1,11 @@
 #include "frame.hpp"
+#include "../plugkit/frame.hpp"
+#include "extended_slot.hpp"
 #include "frame_view.hpp"
 #include "layer.hpp"
-#include "private/variant.hpp"
-#include "../plugkit/frame.hpp"
-#include "wrapper/property.hpp"
 #include "plugkit_module.hpp"
-#include "extended_slot.hpp"
+#include "private/variant.hpp"
+#include "wrapper/property.hpp"
 
 namespace plugkit {
 

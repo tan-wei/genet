@@ -1,8 +1,8 @@
 #include "property.hpp"
-#include "private/variant.hpp"
 #include "../plugkit/property.hpp"
-#include "plugkit_module.hpp"
 #include "extended_slot.hpp"
+#include "plugkit_module.hpp"
+#include "private/variant.hpp"
 
 namespace plugkit {
 

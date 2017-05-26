@@ -1,9 +1,9 @@
 #include "script_stream_dissector.hpp"
+#include "private/logger.hpp"
+#include "private/variant.hpp"
 #include "session_context.hpp"
 #include "wrapper/chunk.hpp"
 #include "wrapper/layer.hpp"
-#include "private/variant.hpp"
-#include "private/logger.hpp"
 #include <nan.h>
 
 namespace plugkit {

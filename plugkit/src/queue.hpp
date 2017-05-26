@@ -2,8 +2,8 @@
 #define PLUGKIT_Queue_H
 
 #include <atomic>
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
 #include <queue>
 
 namespace plugkit {

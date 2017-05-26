@@ -1,25 +1,25 @@
 #include "pcap_platform.hpp"
 #include "layer.hpp"
-#include "slice.hpp"
 #include "private/frame.hpp"
+#include "slice.hpp"
 #include "stream_logger.hpp"
 #include <mutex>
-#include <unordered_map>
 #include <pcap.h>
 #include <signal.h>
 #include <thread>
+#include <unordered_map>
 
 #if defined(PLUGKIT_OS_MAC)
+#include <SystemConfiguration/SystemConfiguration.h>
 #include <dirent.h>
 #include <sys/stat.h>
-#include <SystemConfiguration/SystemConfiguration.h>
 #elif defined(PLUGKIT_OS_LINUX)
 #include <sys/capability.h>
 #include <unistd.h>
 #elif defined(PLUGKIT_OS_WIN)
+#include <iphlpapi.h>
 #include <windows.h>
 #include <winsock2.h>
-#include <iphlpapi.h>
 #pragma comment(lib, "iphlpapi.lib")
 #endif
 
@@ -385,33 +385,24 @@ bool PcapPlatform::hasPermission() const {
   ssize_t length = readlink("/proc/self/exe", buf, sizeof(buf));
   std::string execPath(buf, length);
 
-  cap_t cap = cap_get_file(execPath.c_str());
+  cap_t cap = cap_get_proc();
   if (!cap)
     return false;
 
-  bool ok = false;
+  cap_value_t cap_list[2] = {CAP_NET_ADMIN, CAP_NET_RAW};
+  cap_set_flag(cap, CAP_EFFECTIVE, 2, cap_list, CAP_SET);
+  cap_set_proc(cap);
+
+  bool ok = true;
   cap_flag_value_t value;
   if (cap_get_flag(cap, CAP_NET_ADMIN, CAP_EFFECTIVE, &value) < 0 ||
       value == CAP_CLEAR)
-    goto end;
-  if (cap_get_flag(cap, CAP_NET_ADMIN, CAP_PERMITTED, &value) < 0 ||
-      value == CAP_CLEAR)
-    goto end;
-  if (cap_get_flag(cap, CAP_NET_ADMIN, CAP_INHERITABLE, &value) < 0 ||
-      value == CAP_CLEAR)
-    goto end;
+    ok = false;
+
   if (cap_get_flag(cap, CAP_NET_RAW, CAP_EFFECTIVE, &value) < 0 ||
       value == CAP_CLEAR)
-    goto end;
-  if (cap_get_flag(cap, CAP_NET_RAW, CAP_PERMITTED, &value) < 0 ||
-      value == CAP_CLEAR)
-    goto end;
-  if (cap_get_flag(cap, CAP_NET_RAW, CAP_INHERITABLE, &value) < 0 ||
-      value == CAP_CLEAR)
-    goto end;
-  ok = true;
+    ok = false;
 
-end:
   cap_free(cap);
   return ok;
 #elif defined(PLUGKIT_OS_WIN)

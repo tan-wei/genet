@@ -1,12 +1,12 @@
 #include "filter_thread.hpp"
-#include "null_logger.hpp"
+#include "filter.hpp"
+#include "frame.hpp"
 #include "frame_store.hpp"
 #include "frame_view.hpp"
-#include "frame.hpp"
-#include "filter.hpp"
+#include "null_logger.hpp"
+#include <array>
 #include <uv.h>
 #include <v8.h>
-#include <array>
 
 namespace plugkit {
 

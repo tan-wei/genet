@@ -1,8 +1,8 @@
-#include <nan.h>
-#include "session.hpp"
 #include "extended_slot.hpp"
 #include "plugkit_module.hpp"
 #include "private/variant.hpp"
+#include "session.hpp"
+#include <nan.h>
 
 #if defined(PLUGKIT_OS_LINUX)
 #include <dlfcn.h>

@@ -1,8 +1,8 @@
 #ifndef PLUGKIT_FILTER_THREAD_POOL_H
 #define PLUGKIT_FILTER_THREAD_POOL_H
 
-#include <memory>
 #include <functional>
+#include <memory>
 #include <unordered_map>
 #include <vector>
 

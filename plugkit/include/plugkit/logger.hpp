@@ -1,10 +1,10 @@
 #ifndef PLUGKIT_LOGGER_HPP
 #define PLUGKIT_LOGGER_HPP
 
-#include <string>
+#include <chrono>
 #include <functional>
 #include <memory>
-#include <chrono>
+#include <string>
 #include <thread>
 
 namespace plugkit {

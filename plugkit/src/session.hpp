@@ -1,11 +1,11 @@
 #ifndef PLUGKIT_SESSION_H
 #define PLUGKIT_SESSION_H
 
-#include <memory>
-#include <vector>
-#include <string>
-#include "variant.hpp"
 #include "logger.hpp"
+#include "variant.hpp"
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace plugkit {
 
