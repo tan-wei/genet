@@ -4,7 +4,7 @@ import { Channel, Profile } from 'deplug'
 
 export default class StatView {
   constructor() {
-    this.stat = {}
+    this.stat = {frames: 0, queue: 0}
     Channel.on('core:pcap:session-created', (sess) => {
       sess.on('frame', (stat) => {
         this.stat = stat
@@ -14,6 +14,19 @@ export default class StatView {
   }
 
   view(vnode) {
-    return <div class="stat-view">{ JSON.stringify(this.stat) }</div>
+    return <div class="stat-view">
+      <ul>
+        <li>
+          <i class="fa fa-flask"></i>
+          <label> Dissected Frames: </label>
+          <span> { this.stat.frames } </span>
+        </li>
+        <li>
+          <i class="fa fa-hourglass"></i>
+          <label> Queued Frames: </label>
+          <span> { this.stat.queue } </span>
+        </li>
+      </ul>
+    </div>
   }
 }
