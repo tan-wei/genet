@@ -47,7 +47,7 @@ public:
       child.addProperty(std::move(dst));
       child.addProperty(std::move(length));
       child.addProperty(std::move(checksum));
-      child.setPayload(reader.slice(lengthNumber));
+      child.setPayload(reader.slice(lengthNumber - 8));
       return std::make_shared<Layer>(std::move(child));
     }
   };
