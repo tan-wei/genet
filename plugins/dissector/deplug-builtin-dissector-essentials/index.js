@@ -24,7 +24,10 @@ export default {
     {
       type: 'dissector',
       dissector: {
-        main: 'build/Release/udp.node'
+        main: 'build/Release/udp.node',
+        samples: [
+          { pcap: 'samples/ntp.pcap' }
+        ]
       }
     },
     {
