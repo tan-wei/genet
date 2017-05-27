@@ -24,6 +24,12 @@ export default {
     {
       type: 'dissector',
       dissector: {
+        main: 'build/Release/udp.node'
+      }
+    },
+    {
+      type: 'dissector',
+      dissector: {
         main: 'build/Release/tcp.node'
       },
       samples: [

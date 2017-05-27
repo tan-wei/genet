@@ -45,6 +45,12 @@
       ]
     },
     {
+      "target_name":"udp",
+      "sources":[
+        "udp.cpp"
+      ]
+    },
+    {
       "target_name":"tcp",
       "sources":[
         "tcp.cpp"
