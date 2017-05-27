@@ -21,7 +21,7 @@ public:
   const char *data() const;
   size_t size() const;
   char operator[](size_t index) const;
-  const Buffer &buffer() const;
+  Buffer buffer() const;
   Slice slice(size_t offset, size_t length) const;
   Slice slice(size_t offset) const;
 

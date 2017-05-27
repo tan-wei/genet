@@ -41,7 +41,15 @@ PropertyWrapper::PropertyWrapper(const std::shared_ptr<const Property> &prop)
     : constProp(prop) {}
 
 NAN_METHOD(PropertyWrapper::New) {
-  PropertyWrapper *obj = new PropertyWrapper(std::make_shared<Property>());
+  auto prop = std::make_shared<Property>();
+  if (info[0]->IsString()) {
+    prop->setId(*Nan::Utf8String(info[0]));
+  }
+  if (info[1]->IsString()) {
+    prop->setName(*Nan::Utf8String(info[1]));
+  }
+  prop->setValue(Variant::Private::getVariant(info[2]));
+  PropertyWrapper *obj = new PropertyWrapper(prop);
   obj->Wrap(info.This());
   info.GetReturnValue().Set(info.This());
 }

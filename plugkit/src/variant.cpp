@@ -345,7 +345,10 @@ v8::Local<v8::Object> Variant::Private::getNodeBuffer(const Slice &slice) {
   using namespace v8;
 
   Isolate *isolate = Isolate::GetCurrent();
-  const Slice::Buffer &buffer = slice.buffer();
+  Slice::Buffer buffer = slice.buffer();
+  if (!buffer) {
+    buffer = std::make_shared<std::string>();
+  }
   if (!isolate->GetData(1)) { // Node.js is not installed
     auto array = ArrayBuffer::New(isolate, const_cast<char *>(buffer->data()),
                                   buffer->size());

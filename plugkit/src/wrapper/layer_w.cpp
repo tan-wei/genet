@@ -51,7 +51,14 @@ LayerWrapper::LayerWrapper(const LayerPtr &layer)
     : weakLayer(layer), layer(layer) {}
 
 NAN_METHOD(LayerWrapper::New) {
-  LayerWrapper *obj = new LayerWrapper(std::make_shared<Layer>());
+  auto layer = std::make_shared<Layer>();
+  if (info[0]->IsString()) {
+    layer->setNs(*Nan::Utf8String(info[0]));
+  }
+  if (info[1]->IsString()) {
+    layer->setName(*Nan::Utf8String(info[1]));
+  }
+  LayerWrapper *obj = new LayerWrapper(layer);
   obj->Wrap(info.This());
   info.GetReturnValue().Set(info.This());
 }

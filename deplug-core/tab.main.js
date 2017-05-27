@@ -116,6 +116,7 @@ export default function (argv, tab) {
     global.process = {
       execPath: nodeProcess.execPath,
       platform: nodeProcess.platform,
+      pid: nodeProcess.pid,
     }
     init(argv, tab)
   })
