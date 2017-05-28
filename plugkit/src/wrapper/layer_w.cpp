@@ -52,12 +52,39 @@ LayerWrapper::LayerWrapper(const LayerPtr &layer)
 
 NAN_METHOD(LayerWrapper::New) {
   auto layer = std::make_shared<Layer>();
-  if (info[0]->IsString()) {
-    layer->setNs(*Nan::Utf8String(info[0]));
+
+  if (info[0]->IsObject()) {
+    auto options = info[0].As<v8::Object>();
+    auto nsValue = options->Get(Nan::New("namespace").ToLocalChecked());
+    auto nameValue = options->Get(Nan::New("name").ToLocalChecked());
+    auto summaryValue = options->Get(Nan::New("summary").ToLocalChecked());
+    auto rangeValue = options->Get(Nan::New("range").ToLocalChecked());
+    auto confValue = options->Get(Nan::New("confidence").ToLocalChecked());
+    auto errorValue = options->Get(Nan::New("error").ToLocalChecked());
+    if (nsValue->IsString()) {
+      layer->setNs(*Nan::Utf8String(nsValue));
+    }
+    if (nameValue->IsString()) {
+      layer->setName(*Nan::Utf8String(nameValue));
+    }
+    if (summaryValue->IsString()) {
+      layer->setSummary(*Nan::Utf8String(summaryValue));
+    }
+    if (rangeValue->IsArray()) {
+      auto array = rangeValue.As<v8::Array>();
+      if (array->Length() >= 2) {
+        layer->setRange(std::make_pair(array->Get(0)->Uint32Value(),
+                                      array->Get(1)->Uint32Value()));
+      }
+    }
+    if (confValue->IsNumber()) {
+      layer->setConfidence(confValue->NumberValue());
+    }
+    if (errorValue->IsString()) {
+      layer->setError(*Nan::Utf8String(errorValue));
+    }
   }
-  if (info[1]->IsString()) {
-    layer->setName(*Nan::Utf8String(info[1]));
-  }
+
   LayerWrapper *obj = new LayerWrapper(layer);
   obj->Wrap(info.This());
   info.GetReturnValue().Set(info.This());
