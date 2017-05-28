@@ -42,13 +42,35 @@ PropertyWrapper::PropertyWrapper(const std::shared_ptr<const Property> &prop)
 
 NAN_METHOD(PropertyWrapper::New) {
   auto prop = std::make_shared<Property>();
-  if (info[0]->IsString()) {
-    prop->setId(*Nan::Utf8String(info[0]));
+  if (info[0]->IsObject()) {
+    auto options = info[0].As<v8::Object>();
+    auto nameValue = options->Get(Nan::New("name").ToLocalChecked());
+    auto idValue = options->Get(Nan::New("id").ToLocalChecked());
+    auto rangeValue = options->Get(Nan::New("range").ToLocalChecked());
+    auto summaryValue = options->Get(Nan::New("summary").ToLocalChecked());
+    auto errorValue = options->Get(Nan::New("error").ToLocalChecked());
+    auto value = options->Get(Nan::New("value").ToLocalChecked());
+    if (nameValue->IsString()) {
+      prop->setName(*Nan::Utf8String(nameValue));
+    }
+    if (idValue->IsString()) {
+      prop->setId(*Nan::Utf8String(idValue));
+    }
+    if (rangeValue->IsArray()) {
+      auto array = rangeValue.As<v8::Array>();
+      if (array->Length() >= 2) {
+        prop->setRange(std::make_pair(array->Get(0)->Uint32Value(),
+                                      array->Get(1)->Uint32Value()));
+      }
+    }
+    if (summaryValue->IsString()) {
+      prop->setSummary(*Nan::Utf8String(summaryValue));
+    }
+    if (errorValue->IsString()) {
+      prop->setError(*Nan::Utf8String(errorValue));
+    }
+    prop->setValue(Variant::Private::getVariant(value));
   }
-  if (info[1]->IsString()) {
-    prop->setName(*Nan::Utf8String(info[1]));
-  }
-  prop->setValue(Variant::Private::getVariant(info[2]));
   PropertyWrapper *obj = new PropertyWrapper(prop);
   obj->Wrap(info.This());
   info.GetReturnValue().Set(info.This());
