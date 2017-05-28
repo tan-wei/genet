@@ -74,7 +74,7 @@ NAN_METHOD(LayerWrapper::New) {
       auto array = rangeValue.As<v8::Array>();
       if (array->Length() >= 2) {
         layer->setRange(std::make_pair(array->Get(0)->Uint32Value(),
-                                      array->Get(1)->Uint32Value()));
+                                       array->Get(1)->Uint32Value()));
       }
     }
     if (confValue->IsNumber()) {

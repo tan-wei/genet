@@ -72,12 +72,12 @@ public:
   bool isMap() const;
 
 public:
-  bool boolValue() const;
-  int64_t int64Value() const;
-  uint64_t uint64Value() const;
-  double doubleValue() const;
-  Timestamp timestamp() const;
-  std::string string() const;
+  bool boolValue(bool defaultValue = bool()) const;
+  int64_t int64Value(int64_t defaultValue = int64_t()) const;
+  uint64_t uint64Value(uint64_t defaultValue = uint64_t()) const;
+  double doubleValue(double defaultValue = double()) const;
+  Timestamp timestamp(const Timestamp &defaultValue = Timestamp()) const;
+  std::string string(const std::string &defaultValue = std::string()) const;
   Slice slice() const;
   StreamBuffer stream() const;
   const Array &array() const;

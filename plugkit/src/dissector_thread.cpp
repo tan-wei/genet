@@ -22,6 +22,7 @@ public:
   std::unordered_map<std::string, std::vector<Dissector::Worker *>> workerMap;
   Variant options;
   std::atomic<uint32_t> queuedFrames;
+  double confidenceThreshold;
 };
 
 DissectorThread::DissectorThread(const Variant &options,
@@ -31,6 +32,7 @@ DissectorThread::DissectorThread(const Variant &options,
   d->options = options;
   d->queue = queue;
   d->callback = callback;
+  d->confidenceThreshold = options["_"]["confidenceThreshold"].doubleValue(0.0);
 }
 
 DissectorThread::~DissectorThread() {}
@@ -92,10 +94,12 @@ bool DissectorThread::loop() {
         std::vector<LayerPtr> childLayers;
         for (auto *worker : *workers) {
           if (const LayerPtr &childLayer = worker->analyze(layer)) {
-            childLayer->setParent(layer);
-            childLayers.push_back(childLayer);
-            if (dissectedNamespaces.count(childLayer->ns()) == 0) {
-              nextlayers.push_back(childLayer);
+            if (childLayer->confidence() >= d->confidenceThreshold) {
+              childLayer->setParent(layer);
+              childLayers.push_back(childLayer);
+              if (dissectedNamespaces.count(childLayer->ns()) == 0) {
+                nextlayers.push_back(childLayer);
+              }
             }
           }
         }

@@ -169,7 +169,7 @@ bool Variant::isNil() const { return type() == TYPE_NIL; }
 
 bool Variant::isBool() const { return type() == TYPE_BOOL; }
 
-bool Variant::boolValue() const {
+bool Variant::boolValue(bool defaultValue) const {
   switch (type_) {
   case TYPE_BOOL:
     return d.bool_;
@@ -180,13 +180,13 @@ bool Variant::boolValue() const {
   case TYPE_DOUBLE:
     return d.double_;
   default:
-    return 0;
+    return defaultValue;
   }
 }
 
 bool Variant::isInt64() const { return type() == TYPE_INT64; }
 
-int64_t Variant::int64Value() const {
+int64_t Variant::int64Value(int64_t defaultValue) const {
   switch (type_) {
   case TYPE_BOOL:
     return d.bool_;
@@ -197,13 +197,13 @@ int64_t Variant::int64Value() const {
   case TYPE_DOUBLE:
     return d.double_;
   default:
-    return 0;
+    return defaultValue;
   }
 }
 
 bool Variant::isUint64() const { return type() == TYPE_UINT64; }
 
-uint64_t Variant::uint64Value() const {
+uint64_t Variant::uint64Value(uint64_t defaultValue) const {
   switch (type_) {
   case TYPE_BOOL:
     return d.bool_;
@@ -215,13 +215,13 @@ uint64_t Variant::uint64Value() const {
   case TYPE_DOUBLE:
     return d.double_;
   default:
-    return 0.0;
+    return defaultValue;
   }
 }
 
 bool Variant::isDouble() const { return type() == TYPE_DOUBLE; }
 
-double Variant::doubleValue() const {
+double Variant::doubleValue(double defaultValue) const {
   switch (type_) {
   case TYPE_BOOL:
     return d.bool_;
@@ -233,11 +233,11 @@ double Variant::doubleValue() const {
   case TYPE_DOUBLE:
     return d.double_;
   default:
-    return 0.0;
+    return defaultValue;
   }
 }
 
-std::string Variant::string() const {
+std::string Variant::string(const std::string &defaultValue) const {
   if (hasBuffer(*this)) {
     return *d.slice->buffer();
   } else {
@@ -259,16 +259,16 @@ std::string Variant::string() const {
       return stream.str();
     }
     default:
-      return std::string();
+      return defaultValue;
     }
   }
 }
 
-Variant::Timestamp Variant::timestamp() const {
+Variant::Timestamp Variant::timestamp(const Timestamp &defaultValue) const {
   if (isTimestamp()) {
     return *d.ts;
   } else {
-    return Timestamp();
+    return defaultValue;
   }
 }
 
