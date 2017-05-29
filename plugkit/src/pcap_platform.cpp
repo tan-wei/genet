@@ -403,6 +403,14 @@ bool PcapPlatform::hasPermission() const {
       value == CAP_CLEAR)
     ok = false;
 
+  if (cap_get_flag(cap, CAP_NET_ADMIN, CAP_PERMITTED, &value) < 0 ||
+      value == CAP_CLEAR)
+    ok = false;
+
+  if (cap_get_flag(cap, CAP_NET_RAW, CAP_PERMITTED, &value) < 0 ||
+      value == CAP_CLEAR)
+    ok = false;
+
   cap_free(cap);
   return ok;
 #elif defined(PLUGKIT_OS_WIN)
