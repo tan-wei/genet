@@ -51,9 +51,8 @@ class OptionView {
   view(vnode) {
     const { pkg, option } = vnode.attrs
     let value = Profile.current[`$${pkg.name}`][option.id]
-    console.log(value, pkg.name, option.id, Profile.current.$$object)
     const defaultValue = ('default' in option) ? `Default: ${option.default}` : ''
-    if ('toString' in option) {
+    if (option.hasOwnProperty('toString')) {
       value = option.toString(value)
     }
     switch (option.type) {
