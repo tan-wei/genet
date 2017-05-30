@@ -15,8 +15,8 @@ export default {
       id: 'mapResolution',
       name: 'Minimap Resolution',
       type: 'integer',
-      min: '10',
-      max: '1000',
+      min: 10,
+      max: 1000,
       default: 100
     }
   ]

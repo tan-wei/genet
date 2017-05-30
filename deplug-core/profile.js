@@ -7,6 +7,7 @@ import jsonfile from 'jsonfile'
 import log from 'electron-log'
 import merge from 'lodash.merge'
 import objpath from 'object-path'
+import options from './options'
 import path from 'path'
 
 const profileRegistory = {}
@@ -23,7 +24,8 @@ function createHandler (plugin = null) {
       if (name === '$$dir') {
         return target.profileDir
       } else if (name === '$$object') {
-        return merge(Object.assign({}, pluginDefaults), target.pluginObject)
+        return merge(Object.assign({ '_': globalDefaults }, pluginDefaults),
+          target.pluginObject)
       } else if (name.startsWith('$')) {
         return new Proxy(target, createHandler(name.substr(1)))
       } else if (proto.includes(name)) {
@@ -132,7 +134,7 @@ export default class Profile extends EventEmitter {
     for (const wc of webContents.getAllWebContents()) {
       wc.send('global-updated', opath)
     }
-    this.writeSyncSync()
+    this.writeSync()
   }
 
   setGlobal (opath, value) {
@@ -202,6 +204,10 @@ export default class Profile extends EventEmitter {
     objpath.set(globalDefaults, opath, value)
   }
 
+  static get globalOptions () {
+    return options
+  }
+
   async write () {
     const write = denodeify(fs.writeFile)
     const object = Object.assign(this.pluginObject, { '_': this.globalObject })
@@ -214,5 +220,11 @@ export default class Profile extends EventEmitter {
     const object = Object.assign(this.pluginObject, { '_': this.globalObject })
     fs.writeFileSync(this.configFile,
       JSON.stringify(object, null, ' '))
+  }
+}
+
+for (const opt of options) {
+  if ('default' in opt) {
+    Profile.setGlobalDefault(opt.id, opt.default)
   }
 }

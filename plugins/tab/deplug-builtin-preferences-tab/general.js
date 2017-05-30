@@ -1,4 +1,5 @@
-import { Config, GlobalChannel, Theme } from 'deplug'
+import { Config, GlobalChannel, Profile, Theme } from 'deplug'
+import OptionView from './option-view'
 import m from 'mithril'
 import objpath from 'object-path'
 
@@ -39,6 +40,14 @@ export default class GeneralView {
           }
           </select>
         </td></tr>
+        {
+          Profile.globalOptions.map((opt) => {
+            return <tr>
+              <td data-tooltip={ `.${opt.id}` }>{ opt.name }</td>
+              <td>{ m(OptionView, {option: opt}) }</td>
+            </tr>
+          })
+        }
       </table>
     ]
   }
