@@ -1,7 +1,7 @@
 export default [
   {
-    id: 'caplen',
-    name: 'Capture Length (Bytes)',
+    id: 'snaplen',
+    name: 'Snapshot Length (Bytes)',
     type: 'integer',
     min: 0,
     default: 2048,

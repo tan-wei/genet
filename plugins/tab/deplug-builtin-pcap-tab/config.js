@@ -65,7 +65,7 @@ export default class ConfigView {
       const factory = new SessionFactory()
       factory.options = Profile.current.$$object
       factory.networkInterface = Tab.options.ifs || ''
-      factory.snaplen = Profile.current.snaplen || factory.snaplen
+      factory.snaplen = Profile.current.snaplen
       for (const layer of Session.linkLayers) {
         factory.registerLinkLayer(layer)
       }
