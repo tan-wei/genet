@@ -88,6 +88,11 @@ pack: build
 							--icon=images/deplug \
 							--ignore=$(ELECTRON_IGNORE) \
 							--electron-version=$(ELECTRON_VERSION) \
+							--win32metadata.CompanyName=Deplug \
+							--win32metadata.FileDescription="Next generation packet analyzer" \
+							--win32metadata.OriginalFilename=Deplug.exe \
+							--win32metadata.ProductName=Deplug \
+							--win32metadata.InternalName=Deplug \
 							--out=./out --overwrite
 
 $(DEPLUG_CORE_RES_OUT): $(DEPLUG_CORE_RES) $(DEPLUG_CORE)
