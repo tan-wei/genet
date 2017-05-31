@@ -3,6 +3,7 @@
 #include "property.hpp"
 #include "slice.hpp"
 #include "wrapper/layer.hpp"
+#include <functional>
 #include <regex>
 #include <unordered_map>
 
