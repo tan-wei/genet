@@ -37,6 +37,10 @@ class PropertyItem {
         onclick={ () => this.expanded = !this.expanded }
       ><i class={faClass}></i> { prop.name }: </label>
       { m(PropertyValueItem, {prop}) }
+      <label
+      class="error"
+      style={{ display: prop.error ? 'inline' : 'none' }}
+      ><i class="fa fa-exclamation-triangle"></i> { prop.error }</label>
       <ul style={{ display: this.expanded ? 'block' : 'none' }}>
         {
           prop.properties.map((prop) => {
