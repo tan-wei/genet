@@ -1,3 +1,4 @@
+import About from './about'
 import General from './general'
 import Install from './install'
 import Plugin from './plugin'
@@ -14,6 +15,9 @@ export default class View {
       case 'install':
         comp = Install
         break
+      case 'about':
+        comp = About
+        break
     }
     return [
       <nav>
@@ -27,6 +31,11 @@ export default class View {
           onclick={ () => { Tab.page = 'plugin' } }
           isactive={ Tab.page==='plugin' }
         >Plugin</a>
+        <a
+          href="javascript:void(0)"
+          onclick={ () => { Tab.page = 'about' } }
+          isactive={ Tab.page==='about' }
+        >About Deplug</a>
       </nav>
       ,
       <main>

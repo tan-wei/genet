@@ -1,14 +1,9 @@
-import { Config, GlobalChannel, Profile, Theme } from 'deplug'
+import { GlobalChannel, Profile, Theme } from 'deplug'
 import OptionView from './option-view'
 import m from 'mithril'
-import objpath from 'object-path'
 
 export default class GeneralView {
   constructor() {
-    this.version =
-      objpath.get(Config.deplug, 'version', 'n/a')
-    this.electronVersion =
-      objpath.get(Config.deplug, 'devDependencies.negatron', 'n/a')
     this.themeId = Theme.currentId
   }
 
@@ -17,8 +12,6 @@ export default class GeneralView {
       <h1>General Settings </h1>
       ,
       <table>
-        <tr><td>Deplug version</td><td>{ this.version }</td></tr>
-        <tr><td>Negatron version</td><td>{ this.electronVersion }</td></tr>
         <tr><td>Theme</td><td>
           <select
           onchange={(event) => {
