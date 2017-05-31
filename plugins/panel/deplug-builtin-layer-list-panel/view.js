@@ -16,7 +16,7 @@ class PropertyValueItem {
       return m(BooleanValueItem, {value: prop.value})
     }
     const value = (prop.value == null ? '' : prop.value.toString())
-    return <span> { prop.summary || value } </span>
+    return <span> { value } </span>
   }
 }
 
@@ -37,6 +37,10 @@ class PropertyItem {
         onclick={ () => this.expanded = !this.expanded }
       ><i class={faClass}></i> { prop.name }: </label>
       { m(PropertyValueItem, {prop}) }
+      <label
+      class="summary"
+      style={{ display: prop.summary.length && prop.summary != prop.value ? 'inline' : 'none' }}
+      >{ prop.summary }</label>
       <label
       class="error"
       style={{ display: prop.error ? 'inline' : 'none' }}
