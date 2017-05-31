@@ -3,6 +3,7 @@ import { EventEmitter } from 'events'
 import config from './config'
 import denodeify from 'denodeify'
 import fs from 'fs'
+import glob from 'glob'
 import jsonfile from 'jsonfile'
 import log from 'electron-log'
 import merge from 'lodash.merge'
@@ -100,6 +101,12 @@ export default class Profile extends EventEmitter {
       }
       this.emit('plugin-updated', id, opath, value)
     })
+  }
+
+  static get list () {
+    return glob.sync(path.join(config.userProfilePath, '*/config.json'))
+      .map(path.dirname)
+      .map((dir) => path.basename(dir))
   }
 
   static get default () {
