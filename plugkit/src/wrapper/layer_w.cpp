@@ -34,6 +34,7 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
   Nan::SetAccessor(otl, Nan::New("chunks").ToLocalChecked(), chunks);
   Nan::SetAccessor(otl, Nan::New("children").ToLocalChecked(), children);
+  Nan::SetAccessor(otl, Nan::New("hasError").ToLocalChecked(), hasError);
 
   PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
       isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
@@ -315,6 +316,13 @@ NAN_METHOD(LayerWrapper::toJSON) {
       }
     }
     info.GetReturnValue().Set(obj);
+  }
+}
+
+NAN_GETTER(LayerWrapper::hasError) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->weakLayer.lock()) {
+    info.GetReturnValue().Set(layer->hasError());
   }
 }
 

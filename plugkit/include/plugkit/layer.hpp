@@ -66,6 +66,8 @@ public:
   FrameConstPtr frame() const;
   void setFrame(const FrameConstWeakPtr &frame);
 
+  bool hasError() const;
+
 private:
   Layer(const Layer &layer) = delete;
   Layer &operator=(const Layer &layer) = delete;

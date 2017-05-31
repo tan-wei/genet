@@ -120,4 +120,20 @@ void Layer::addProperty(const PropertyConstPtr &prop) {
 void Layer::addProperty(Property &&prop) {
   addProperty(std::make_shared<Property>(std::move(prop)));
 }
+
+bool Layer::hasError() const {
+  std::function<bool(const std::vector<PropertyConstPtr> &)> checkError =
+      [&checkError](const std::vector<PropertyConstPtr> &properties) {
+        for (const auto &prop : properties) {
+          if (!prop->error().empty()) {
+            return true;
+          }
+          if (checkError(prop->properties())) {
+            return true;
+          }
+        }
+        return false;
+      };
+  return checkError(d->properties);
+}
 }

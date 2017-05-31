@@ -42,6 +42,7 @@ public:
   static NAN_METHOD(addProperty);
   static NAN_METHOD(addChunk);
   static NAN_METHOD(toJSON);
+  static NAN_GETTER(hasError);
 
 private:
   LayerWrapper(const LayerPtr &layer);

@@ -63,6 +63,7 @@ class LayerItem {
       <li>
         <h4
           data-layer={layer.namespace}
+          data-layer-error={layer.hasError}
           onclick={ () => this.expanded = !this.expanded }
         ><i class={faClass}></i> { layer.name } { layer.summary } [confidence: { layer.confidence * 100 }%]</h4>
       </li>
