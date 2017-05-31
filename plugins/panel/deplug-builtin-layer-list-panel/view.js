@@ -1,6 +1,7 @@
 import m from 'mithril'
 import moment from 'moment'
 import { Channel, Profile } from 'deplug'
+import Buffer from 'buffer'
 
 class BooleanValueItem {
   view(vnode) {
@@ -9,11 +10,22 @@ class BooleanValueItem {
   }
 }
 
+class BufferValueItem {
+  view(vnode) {
+    const buffer = vnode.attrs.value
+    const hex = buffer.slice(0, 16).toString('hex') +
+      (buffer.length > 16 ? '...' : '')
+    return <span>0x{ hex }</span>
+  }
+}
+
 class PropertyValueItem {
   view(vnode) {
     const prop = vnode.attrs.prop
     if (typeof prop.value === 'boolean') {
       return m(BooleanValueItem, {value: prop.value})
+    } else if (prop.value instanceof Uint8Array) {
+      return m(BufferValueItem, {value: prop.value})
     }
     const value = (prop.value == null ? '' : prop.value.toString())
     return <span> { value } </span>
@@ -73,7 +85,11 @@ class LayerItem {
           data-layer={layer.namespace}
           data-layer-error={layer.hasError}
           onclick={ () => this.expanded = !this.expanded }
-        ><i class={faClass}></i> { layer.name } { layer.summary } [confidence: { layer.confidence * 100 }%]</h4>
+        ><i class={faClass}></i> { layer.name } { layer.summary }
+        <span
+        style={{ display: layer.confidence < 1.0 ? 'inline' : 'none' }}
+        ><i class="fa fa-question-circle"></i> { layer.confidence * 100 }%</span>
+        </h4>
       </li>
       <div style={{ display: this.expanded ? 'block' : 'none' }}>
       {
