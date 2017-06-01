@@ -10,6 +10,15 @@ class BooleanValueItem {
   }
 }
 
+class DateValueItem {
+  view(vnode) {
+    const profile = Profile.current['$deplug-builtin-layer-list-panel']
+    const ts = moment(vnode.attrs.value)
+    const tsString = ts.format(profile.tsformat)
+    return <span>{ tsString }</span>
+  }
+}
+
 class BufferValueItem {
   view(vnode) {
     const buffer = vnode.attrs.value
@@ -24,6 +33,8 @@ class PropertyValueItem {
     const prop = vnode.attrs.prop
     if (typeof prop.value === 'boolean') {
       return m(BooleanValueItem, {value: prop.value})
+    } else if (prop.value instanceof Date) {
+      return m(DateValueItem, {value: prop.value})
     } else if (prop.value instanceof Uint8Array) {
       return m(BufferValueItem, {value: prop.value})
     }
