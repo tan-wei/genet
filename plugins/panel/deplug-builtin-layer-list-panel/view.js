@@ -55,7 +55,9 @@ class PropertyItem {
     if (prop.properties.length) {
       faClass = this.expanded ? 'fa fa-arrow-circle-down' : 'fa fa-arrow-circle-right'
     }
-    return <li>
+    return <li
+        data-prop-range={ `${prop.range[0]}:${prop.range[1]}` }
+      >
       <label
         onclick={ () => this.expanded = !this.expanded }
       ><i class={faClass}></i> { prop.name }: </label>
