@@ -55,8 +55,12 @@ class PropertyItem {
     if (prop.properties.length) {
       faClass = this.expanded ? 'fa fa-arrow-circle-down' : 'fa fa-arrow-circle-right'
     }
+    const range = [
+      prop.range[0] + vnode.attrs.dataOffset,
+      prop.range[1] + vnode.attrs.dataOffset
+    ]
     return <li
-        data-prop-range={ `${prop.range[0]}:${prop.range[1]}` }
+        data-prop-range={ `${range[0]}:${range[1]}` }
       >
       <label
         onclick={ () => this.expanded = !this.expanded }
@@ -92,6 +96,7 @@ class LayerItem {
     if (layer.children.length + layer.properties.length) {
       faClass = this.expanded ? 'fa fa-arrow-circle-down' : 'fa fa-arrow-circle-right'
     }
+    const dataOffset = layer.parent ? layer.parent.payload.dataOffset : 0
     return <ul>
       <li>
         <h4
@@ -107,7 +112,7 @@ class LayerItem {
       <div style={{ display: this.expanded ? 'block' : 'none' }}>
       {
         layer.properties.map((prop) => {
-          return m(PropertyItem, {property: prop})
+          return m(PropertyItem, {property: prop, dataOffset})
         })
       }
       </div>

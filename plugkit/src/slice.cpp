@@ -46,6 +46,8 @@ char Slice::operator[](size_t index) const {
 
 Slice::Buffer Slice::buffer() const { return d->buf; }
 
+size_t Slice::offset() const { return d->offset; }
+
 Slice Slice::slice(size_t offset, size_t length) const {
   if (!d->buf)
     return Slice();

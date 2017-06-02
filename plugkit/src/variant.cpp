@@ -355,13 +355,16 @@ v8::Local<v8::Object> Variant::Private::getNodeBuffer(const Slice &slice) {
     return Uint8Array::New(array, slice.data() - buffer->data(), slice.size());
   }
   void *hint = new Slice::Buffer(buffer);
-  return node::Buffer::New(isolate, const_cast<char *>(slice.data()),
-                           slice.size(),
-                           [](char *data, void *hint) {
-                             delete static_cast<Slice::Buffer *>(hint);
-                           },
-                           hint)
-      .ToLocalChecked();
+  auto nodeBuf =
+      node::Buffer::New(isolate, const_cast<char *>(slice.data()), slice.size(),
+                        [](char *data, void *hint) {
+                          delete static_cast<Slice::Buffer *>(hint);
+                        },
+                        hint)
+          .ToLocalChecked();
+  nodeBuf->Set(Nan::New("dataOffset").ToLocalChecked(),
+               Nan::New(static_cast<uint32_t>(slice.offset())));
+  return nodeBuf;
 }
 
 Slice Variant::Private::getSlice(v8::Local<v8::Object> obj) {
