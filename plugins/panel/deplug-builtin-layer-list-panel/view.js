@@ -60,7 +60,7 @@ class PropertyItem {
       prop.range[1] + vnode.attrs.dataOffset
     ]
     return <li
-        data-prop-range={ `${range[0]}:${range[1]}` }
+        data-range={ `${range[0]}:${range[1]}` }
       >
       <label
         onclick={ () => this.expanded = !this.expanded }
@@ -97,8 +97,14 @@ class LayerItem {
       faClass = this.expanded ? 'fa fa-arrow-circle-down' : 'fa fa-arrow-circle-right'
     }
     const dataOffset = layer.parent ? layer.parent.payload.dataOffset : 0
+    const range = [
+      dataOffset,
+      dataOffset + layer.payload.length
+    ]
     return <ul>
-      <li>
+      <li
+        data-range={ `${range[0]}:${range[1]}` }
+      >
         <h4
           data-layer={layer.namespace}
           data-layer-error={layer.hasError}
