@@ -8,6 +8,7 @@ class BinaryItem {
     const hex = layout.includes('hex')
     const ascii = layout.includes('ascii')
     const payload = vnode.attrs.payload
+    const range = vnode.attrs.range.length ? vnode.attrs.range : [-1, -1]
     return <div class="binary-view">
       <ul class="hex-list" style={{display: hex ? 'block' : 'none'}}>
         {
@@ -17,7 +18,9 @@ class BinaryItem {
               {
                 (new Array(slice.length)).fill().map((_, byte) => {
                   const index = line * 16 + byte
-                  return <span>{ ('0' + payload[index].toString(16)).slice(-2) }</span>
+                  return <span
+                    data-selected={ range[0] <= index && index < range[1] }
+                  >{ ('0' + payload[index].toString(16)).slice(-2) }</span>
                 })
               }
             </li>
@@ -47,8 +50,13 @@ class BinaryItem {
 export default class BinaryView {
   constructor() {
     this.frames = []
+    this.range = []
     Channel.on('core:frame:selected', (frames) => {
       this.frames = frames
+      m.redraw()
+    })
+    Channel.on('core:frame:range-selected', (range) => {
+      this.range = range
       m.redraw()
     })
   }
@@ -58,7 +66,7 @@ export default class BinaryView {
       return <div class="binary-view">No frames selected</div>
     }
     return this.frames.map((frame) => {
-      return m(BinaryItem, {payload: frame.rootLayer.payload})
+      return m(BinaryItem, {payload: frame.rootLayer.payload, range: this.range})
     })
   }
 }

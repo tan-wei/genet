@@ -103,9 +103,10 @@ class LayerItem {
       faClass = this.expanded ? 'fa fa-arrow-circle-down' : 'fa fa-arrow-circle-right'
     }
     const dataOffset = layer.parent ? layer.parent.payload.dataOffset : 0
+    const dataLength = layer.parent ? layer.parent.payload.length : 0
     const range = [
       dataOffset,
-      dataOffset + layer.payload.length
+      dataOffset + dataLength
     ]
     return <ul>
       <li
