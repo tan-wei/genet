@@ -34,9 +34,12 @@ class BinaryItem {
             return <li>
               {
                 (new Array(slice.length)).fill().map((_, byte) => {
-                  const char = payload[line * 16 + byte]
+                  const index = line * 16 + byte
+                  const char = payload[index]
                   const ascii = (0x21 <= char && char <= 0x7e) ? String.fromCharCode(char) : '.'
-                  return <span>{ ascii }</span>
+                  return <span
+                    data-selected={ range[0] <= index && index < range[1] }
+                  >{ ascii }</span>
                 })
               }
             </li>
