@@ -43,6 +43,10 @@ class PropertyValueItem {
   }
 }
 
+function selectRange(range = []) {
+  Channel.emit('core:frame:range-selected', range)
+}
+
 class PropertyItem {
   constructor() {
     this.expanded = false
@@ -61,6 +65,8 @@ class PropertyItem {
     ]
     return <li
         data-range={ `${range[0]}:${range[1]}` }
+        onmouseover={ () => selectRange(range) }
+        onmouseout= { () => selectRange() }
       >
       <label
         onclick={ () => this.expanded = !this.expanded }
@@ -104,6 +110,8 @@ class LayerItem {
     return <ul>
       <li
         data-range={ `${range[0]}:${range[1]}` }
+        onmouseover={ () => selectRange(range) }
+        onmouseout= { () => selectRange() }
       >
         <h4
           data-layer={layer.namespace}
