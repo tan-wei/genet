@@ -92,6 +92,7 @@ void WorkerThread::start() {
         std::lock_guard<std::mutex> lock(nodeLock);
         env = node::CreateEnvironment(idata, context, 2, args, 0, nullptr);
         node::LoadEnvironment(env);
+        isolate->SetData(1, this);
       }
       ExtendedSlot::init(isolate);
       {
