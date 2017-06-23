@@ -193,8 +193,9 @@ enums(const M &table, const typename M::key_type &value,
   return defval;
 }
 
-PLUGKIT_EXPORT std::string replace(const std::string &target, const std::string &before,
-                    const std::string &after);
+PLUGKIT_EXPORT std::string replace(const std::string &target,
+                                   const std::string &before,
+                                   const std::string &after);
 }
 }
 
