@@ -29,6 +29,8 @@ public:
   Class sessionFactory;
   Class dissectorFactory;
   Class streamDissectorFactory;
+
+  Function arrayToBuffer;
 };
 }
 

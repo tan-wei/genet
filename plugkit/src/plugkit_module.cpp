@@ -9,12 +9,14 @@
 #include "wrapper/session.hpp"
 #include "wrapper/session_factory.hpp"
 #include "wrapper/stream_dissector_factory.hpp"
+#include "private/variant.hpp"
 
 namespace plugkit {
 
 PlugkitModule::PlugkitModule(v8::Isolate *isolate,
                              v8::Local<v8::Object> exports, bool mainThread) {
   ExtendedSlot::set(isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE, this);
+  Variant::Private::init(isolate);
   PropertyWrapper::init(isolate, exports);
   LayerWrapper::init(isolate, exports);
   FrameWrapper::init(isolate);

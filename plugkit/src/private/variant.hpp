@@ -15,6 +15,7 @@ public:
   static Variant getVariant(v8::Local<v8::Value> var);
   static json11::Json getJson(const Variant &var);
   static void cleanupSharedBuffers();
+  static void init(v8::Isolate *isolate);
 };
 }
 

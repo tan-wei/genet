@@ -1,5 +1,7 @@
 #include "private/variant.hpp"
 #include "private/stream_buffer.hpp"
+#include "plugkit_module.hpp"
+#include "extended_slot.hpp"
 #include "slice.hpp"
 #include <iomanip>
 #include <mutex>
@@ -62,6 +64,21 @@ struct SharedBufferStore {
 };
 
 SharedBufferStore bufferStore;
+}
+
+void Variant::Private::init(v8::Isolate *isolate) {
+  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
+      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+
+  auto script = Nan::CompileScript(
+      Nan::New("(function (buf) { return "
+               "require('buffer').Buffer.from(buf).slice(buf.byteOffset, "
+               "buf.byteOffset + buf.byteLength) })")
+          .ToLocalChecked());
+  auto func = Nan::RunScript(script.ToLocalChecked())
+                  .ToLocalChecked()
+                  .As<v8::Function>();
+  module->arrayToBuffer.Reset(isolate, func);
 }
 
 Variant::Variant() : type_(TYPE_NIL) {}
@@ -358,30 +375,14 @@ v8::Local<v8::Object> Variant::Private::getNodeBuffer(const Slice &slice) {
     return array;
   }
 
-  auto script = Nan::CompileScript(
-      Nan::New("(function (buf) { return "
-               "require('buffer').Buffer.from(buf).slice(buf.byteOffset, "
-               "buf.byteOffset + buf.byteLength) })")
-          .ToLocalChecked());
-  auto func = Nan::RunScript(script.ToLocalChecked())
-                  .ToLocalChecked()
-                  .As<v8::Function>();
+  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
+      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+
+  auto func = v8::Local<v8::Function>::New(isolate, module->arrayToBuffer);
 
   v8::Local<v8::Value> args[1] = {array};
   auto nodeBufObj = func->Call(func, 1, args);
   auto nodeBuf = nodeBufObj.As<v8::Object>();
-
-  /*
-    void *hint = new Slice::Buffer(buffer);
-    auto nodeBuf =
-        node::Buffer::New(isolate, const_cast<char *>(slice.data()),
-    slice.size(),
-                          [](char *data, void *hint) {
-                            delete static_cast<Slice::Buffer *>(hint);
-                          },
-                          hint)
-            .ToLocalChecked();
-  */
   nodeBuf->Set(Nan::New("dataOffset").ToLocalChecked(),
                Nan::New(static_cast<uint32_t>(slice.offset())));
   return nodeBuf;
