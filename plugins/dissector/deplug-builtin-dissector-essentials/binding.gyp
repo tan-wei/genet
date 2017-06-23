@@ -21,7 +21,7 @@
               "msbuild_settings":{
                 "Link":{
                   "AdditionalDependencies":[
-                    "\"../../../../node_modules/plugkit/build/Release/plugkit_static.lib\""
+                    "\"../../../../node_modules/plugkit/build/Release/plugkit.lib\""
                   ]
                 }
               }

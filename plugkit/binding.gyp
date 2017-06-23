@@ -111,51 +111,12 @@
             },
             "defines":[
               "PLUGKIT_OS_WIN",
+              "PLUGKIT_DLL_EXPORT",
               "NOMINMAX"
             ]
           }
         ]
       ]
     }
-  ],
-  "conditions":[
-    [
-      "OS=='win'",
-      {
-        "targets":[
-          {
-            "target_name":"plugkit_static",
-            "type":"static_library",
-            "include_dirs":[
-              "vendor/nan",
-              "vendor/json11",
-              "vendor/winpcap/Include",
-              "include/plugkit",
-              "src"
-            ],
-            "sources":[
-              "<@(plugkit_sources)"
-            ],
-            "configurations":{
-              "Release":{
-                "msbuild_settings":{
-                  "ClCompile":{
-                    "Optimization":"Custom"
-                  },
-                  "Link":{
-                    "OutputFile":"$(OutDir)$(ProjectName).lib",
-                    "TargetExt":".lib"
-                  }
-                }
-              }
-            },
-            "defines":[
-              "PLUGKIT_OS_WIN",
-              "NOMINMAX"
-            ]
-          }
-        ]
-      }
-    ]
   ]
 }

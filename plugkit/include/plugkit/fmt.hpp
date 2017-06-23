@@ -2,6 +2,7 @@
 #define PLUGKIT_FMT_H
 
 #include "slice.hpp"
+#include "export.hpp"
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
@@ -107,9 +108,9 @@ template <class S> void Reader<S>::skip(size_t length) {
   offset_ += length;
 }
 
-template <> template <> uint8_t Reader<Slice>::readBE<uint8_t>();
+template <> template <> PLUGKIT_EXPORT uint8_t Reader<Slice>::readBE<uint8_t>();
 
-template <> template <> int8_t Reader<Slice>::readBE<int8_t>();
+template <> template <> PLUGKIT_EXPORT int8_t Reader<Slice>::readBE<int8_t>();
 
 template <class S> std::pair<uint32_t, uint32_t> Reader<S>::lastRange() const {
   return lastRange_;
@@ -192,7 +193,7 @@ enums(const M &table, const typename M::key_type &value,
   return defval;
 }
 
-std::string replace(const std::string &target, const std::string &before,
+PLUGKIT_EXPORT std::string replace(const std::string &target, const std::string &before,
                     const std::string &after);
 }
 }

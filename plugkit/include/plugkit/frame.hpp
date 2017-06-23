@@ -2,6 +2,7 @@
 #define PLUGKIT_FRAME_H
 
 #include "slice.hpp"
+#include "export.hpp"
 #include <chrono>
 #include <memory>
 
@@ -10,7 +11,7 @@ namespace plugkit {
 class Layer;
 using LayerPtr = std::shared_ptr<Layer>;
 
-class Frame final {
+class PLUGKIT_EXPORT Frame final {
 public:
   using Timestamp = std::chrono::time_point<std::chrono::system_clock,
                                             std::chrono::nanoseconds>;

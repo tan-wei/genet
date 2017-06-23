@@ -2,6 +2,7 @@
 #define PLUGKIT_PROPERTY_H
 
 #include "variant.hpp"
+#include "export.hpp"
 #include <memory>
 #include <vector>
 
@@ -10,7 +11,7 @@ namespace plugkit {
 class Property;
 using PropertyConstPtr = std::shared_ptr<const Property>;
 
-class Property final {
+class PLUGKIT_EXPORT Property final {
 public:
   Property();
   Property(const std::string &id, const std::string &name,

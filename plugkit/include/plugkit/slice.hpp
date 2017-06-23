@@ -3,10 +3,11 @@
 
 #include <memory>
 #include <string>
+#include "export.hpp"
 
 namespace plugkit {
 
-class Slice final {
+class PLUGKIT_EXPORT Slice final {
 public:
   using Buffer = std::shared_ptr<const std::string>;
 

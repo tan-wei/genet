@@ -2,6 +2,7 @@
 #define PLUGKIT_STREAM_DISSECTOR_H
 
 #include "variant.hpp"
+#include "export.hpp"
 #include <memory>
 #include <regex>
 #include <v8.h>
@@ -18,12 +19,12 @@ using ChunkConstPtr = std::shared_ptr<const Chunk>;
 
 struct SessionContext;
 
-class StreamDissector {
+class PLUGKIT_EXPORT StreamDissector {
 public:
   virtual ~StreamDissector();
 
 public:
-  class Worker {
+  class PLUGKIT_EXPORT Worker {
   public:
     using Timestamp = std::chrono::time_point<std::chrono::system_clock,
                                               std::chrono::nanoseconds>;
@@ -51,7 +52,7 @@ class StreamDissectorFactory;
 using StreamDissectorFactoryConstPtr =
     std::shared_ptr<const StreamDissectorFactory>;
 
-class StreamDissectorFactory {
+class PLUGKIT_EXPORT StreamDissectorFactory {
 public:
   struct TestData {
     std::vector<ChunkConstPtr> chunks;

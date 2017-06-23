@@ -2,12 +2,13 @@
 #define PLUGKIT_H
 
 #include <memory>
+#include "export.hpp"
 
 namespace plugkit {
 
 class Plugin;
 
-class PlugKit {
+class PLUGKIT_EXPORT PlugKit {
 public:
   static PlugKit &getInstance();
 };

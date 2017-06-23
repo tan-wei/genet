@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "export.hpp"
 
 namespace plugkit {
 
@@ -24,7 +25,7 @@ using ChunkConstPtr = std::shared_ptr<const Chunk>;
 
 class Slice;
 
-class Layer final {
+class PLUGKIT_EXPORT Layer final {
 public:
   Layer();
   Layer(const std::string &ns, const std::string &name);

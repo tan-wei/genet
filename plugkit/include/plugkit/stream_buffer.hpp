@@ -2,9 +2,10 @@
 #define PLUGKIT_STREAM_BUFFER_H
 
 #include <memory>
+#include "export.hpp"
 
 namespace plugkit {
-class StreamBuffer final {
+class PLUGKIT_EXPORT StreamBuffer final {
 public:
   StreamBuffer();
   ~StreamBuffer();

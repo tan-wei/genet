@@ -2,6 +2,7 @@
 #define PLUGKIT_DISSECTOR_H
 
 #include "variant.hpp"
+#include "export.hpp"
 #include <memory>
 #include <regex>
 #include <v8.h>
@@ -18,12 +19,12 @@ using FrameConstPtr = std::shared_ptr<const Frame>;
 
 struct SessionContext;
 
-class Dissector {
+class PLUGKIT_EXPORT Dissector {
 public:
   virtual ~Dissector();
 
 public:
-  class Worker {
+  class PLUGKIT_EXPORT Worker {
   public:
     virtual ~Worker();
     virtual LayerPtr analyze(const LayerConstPtr &layer) = 0;
@@ -40,7 +41,7 @@ using DissectorPtr = std::unique_ptr<Dissector>;
 class DissectorFactory;
 using DissectorFactoryConstPtr = std::shared_ptr<const DissectorFactory>;
 
-class DissectorFactory {
+class PLUGKIT_EXPORT DissectorFactory {
 public:
   struct TestData {
     LayerConstPtr parent;

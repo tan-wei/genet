@@ -3,6 +3,7 @@
 
 #include "slice.hpp"
 #include "stream_buffer.hpp"
+#include "export.hpp"
 #include <chrono>
 #include <memory>
 #include <string>
@@ -11,7 +12,7 @@
 
 namespace plugkit {
 
-class Variant final {
+class PLUGKIT_EXPORT Variant final {
 public:
   enum Type {
     TYPE_NIL,

@@ -6,10 +6,11 @@
 #include <memory>
 #include <string>
 #include <thread>
+#include "export.hpp"
 
 namespace plugkit {
 
-class Logger {
+class PLUGKIT_EXPORT Logger {
 public:
   enum Level { LEVEL_DEBUG, LEVEL_INFO, LEVEL_WARN, LEVEL_ERROR };
 
