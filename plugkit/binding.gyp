@@ -100,15 +100,6 @@
             "include_dirs":[
               "vendor/winpcap/Include"
             ],
-            "configurations":{
-              "Release":{
-                "msbuild_settings":{
-                  "ClCompile":{
-                    "Optimization":"Custom"
-                  }
-                }
-              }
-            },
             "defines":[
               "PLUGKIT_OS_WIN",
               "PLUGKIT_DLL_EXPORT",
