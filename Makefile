@@ -18,7 +18,7 @@ ROOLUP_EXTERN = $(ROOLUP_EXTERN_BUILTIN),$(shell jq '.dependencies | keys | join
 
 ELECTRON_VERSION = $(shell jq '.devDependencies."negatron"' package.json -r)
 ELECTRON_MIRROR = https://s3-ap-northeast-1.amazonaws.com/deplug-build-junk/electron/v
-ELECTRON_UNPACK = node_modules/deplug-helper
+ELECTRON_UNPACK = "node_modules/{deplug-helper,plugkit}"
 ELECTRON_IGNORE = "deplug-core","plugkit"
 
 PACKAGER = node_modules/.bin/electron-packager
