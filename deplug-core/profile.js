@@ -215,14 +215,6 @@ export default class Profile extends EventEmitter {
     return options
   }
 
-  async write () {
-    const write = denodeify(fs.writeFile)
-    const object = Object.assign(this.pluginObject, { '_': this.globalObject })
-    return write(this.configFile,
-      JSON.stringify(
-        object, null, ' '))
-  }
-
   writeSync () {
     const object = Object.assign(this.pluginObject, { '_': this.globalObject })
     mkpath.sync(path.dirname(this.configFile))
