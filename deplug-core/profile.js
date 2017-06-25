@@ -1,12 +1,12 @@
 import { ipcRenderer, remote } from 'electron'
 import { EventEmitter } from 'events'
 import config from './config'
-import denodeify from 'denodeify'
 import fs from 'fs'
 import glob from 'glob'
 import jsonfile from 'jsonfile'
 import log from 'electron-log'
 import merge from 'lodash.merge'
+import mkpath from 'mkpath'
 import objpath from 'object-path'
 import options from './options'
 import path from 'path'
@@ -225,6 +225,7 @@ export default class Profile extends EventEmitter {
 
   writeSync () {
     const object = Object.assign(this.pluginObject, { '_': this.globalObject })
+    mkpath.sync(path.dirname(this.configFile))
     fs.writeFileSync(this.configFile,
       JSON.stringify(object, null, ' '))
   }
