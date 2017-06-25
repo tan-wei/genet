@@ -2,6 +2,7 @@ import About from './about'
 import General from './general'
 import Install from './install'
 import Plugin from './plugin'
+import Profile from './profile'
 import { Tab } from 'deplug'
 import m from 'mithril'
 
@@ -14,6 +15,9 @@ export default class View {
         break
       case 'install':
         comp = Install
+        break
+      case 'profile':
+        comp = Profile
         break
       case 'about':
         comp = About
@@ -31,6 +35,11 @@ export default class View {
           onclick={ () => { Tab.page = 'plugin' } }
           isactive={ Tab.page==='plugin' }
         >Plugin</a>
+        <a
+          href="javascript:void(0)"
+          onclick={ () => { Tab.page = 'profile' } }
+          isactive={ Tab.page==='profile' }
+        >Profile</a>
         <a
           href="javascript:void(0)"
           onclick={ () => { Tab.page = 'about' } }

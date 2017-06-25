@@ -114,7 +114,11 @@ export default class Profile extends EventEmitter {
   }
 
   static get current () {
-    return this.fromId(currentProfile)
+    return this.fromId(this.currentId)
+  }
+
+  static get currentId () {
+    return currentProfile
   }
 
   static fromId (id) {
