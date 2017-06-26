@@ -1,5 +1,5 @@
 import { ipcRenderer, remote } from 'electron'
-import { Argv, GlobalChannel, Tab, Menu } from 'deplug'
+import { Argv, GlobalChannel, Tab, Menu, Profile } from 'deplug'
 import m from 'mithril'
 import url from 'url'
 import i18n from 'i18n4v'
@@ -25,7 +25,7 @@ class WebView {
       src={src}
       isActive={vnode.attrs.isActive}
       isLoaded={vnode.attrs.isLoaded}
-      useragent={JSON.stringify([Argv, item])}
+      useragent={JSON.stringify([Profile.currentId, Argv, item])}
       preload={`file://${__dirname}/preload.js`}
     >
     </webview>

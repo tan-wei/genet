@@ -1,8 +1,8 @@
-import { remote, shell } from 'electron'
-import { Config, GlobalChannel } from 'deplug'
+import { remote, shell, ipcRenderer } from 'electron'
+import { Config, GlobalChannel, Profile } from 'deplug'
 const contents = remote.getCurrentWebContents()
 
-export default [
+export default ([
   {
     path: ["Edit", "Cut"],
     accelerator: "Cmd+X",
@@ -49,4 +49,13 @@ export default [
     accelerator: "CmdOrCtrl+,",
     click: () => GlobalChannel.emit('core:tab:open', 'Preferences')
   }
-]
+]).concat(Profile.list.map((id) => {
+  return {
+    path: [
+      (process.platform === 'darwin') ? remote.app.getName() : "Window",
+      "New Window",
+      id
+    ],
+    click: () => ipcRenderer.send('new-window', id)
+  }
+}))

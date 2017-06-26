@@ -32,12 +32,12 @@ function handleRedirect (event, url) {
   }
 }
 
-async function init (argv, tab) {
+async function init (profile, argv, tab) {
   for (const wc of webContents.getAllWebContents()) {
     wc.send('tab-deplug-loaded', tab.id)
   }
   try {
-    const { Theme, Plugin, Tab } = await deplug(argv)
+    const { Theme, Plugin, Tab } = await deplug(profile, argv)
     const { options, id } = tab
     const { rootDir } = tab.tab
     await Promise.all([
@@ -90,7 +90,7 @@ async function init (argv, tab) {
   }
 }
 
-export default function (argv, tab) {
+export default function (profile, argv, tab) {
   const nodeRequire = require
   const nodeProcess = process
 
@@ -118,6 +118,6 @@ export default function (argv, tab) {
       platform: nodeProcess.platform,
       pid: nodeProcess.pid,
     }
-    init(argv, tab)
+    init(profile, argv, tab)
   })
 }

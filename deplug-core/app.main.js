@@ -15,7 +15,8 @@ app.on('window-all-closed', () => {
   }
   app.quit()
 })
-app.on('ready', () => {
+
+function newWindow (profile = 'default') {
   const options = {
     width: 1200,
     height: 600,
@@ -33,9 +34,18 @@ app.on('ready', () => {
   contents.on('unresponsive', () => mainWindow.reload())
   contents.on('dom-ready', () => {
     const argv = JSON.stringify(minimist(process.argv.slice(2)))
-    const script = `require("./window.main.js")(${argv})`
+    const profileId = JSON.stringify(profile)
+    const script = `require("./window.main.js")(${profileId}, ${argv})`
     contents.executeJavaScript(script)
   })
+}
+
+app.on('ready', () => {
+  newWindow()
+})
+
+ipcMain.on('new-window', (event, profile) => {
+  newWindow(profile)
 })
 
 ipcMain.on('window-deplug-loaded', (event, id) => {

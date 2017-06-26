@@ -3,9 +3,9 @@ import { Pcap } from 'plugkit'
 import deplug from './deplug'
 
 const { dialog } = remote
-export default async function (argv) {
+export default async function (profile, argv) {
   try {
-    const { File, Plugin, GlobalChannel } = await deplug(argv)
+    const { File, Plugin, GlobalChannel } = await deplug(profile, argv)
     await Plugin.loadComponents('theme')
     await Plugin.loadComponents('file')
     await Plugin.loadComponents('window')

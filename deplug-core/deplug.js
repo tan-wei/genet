@@ -11,7 +11,8 @@ import Theme from './theme'
 import config from './config'
 import module from 'module'
 
-export default async function (argv) {
+export default async function (profile, argv) {
+  Profile.currentId = profile
   const deplug = {
     Argv: argv,
     Channel: new EventEmitter(),

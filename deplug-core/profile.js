@@ -14,7 +14,7 @@ import path from 'path'
 const profileRegistory = {}
 const globalDefaults = {}
 const pluginDefaults = {}
-const currentProfile = 'default'
+let currentProfile = 'default'
 
 const { webContents } = remote
 function createHandler (plugin = null) {
@@ -119,6 +119,10 @@ export default class Profile extends EventEmitter {
 
   static get currentId () {
     return currentProfile
+  }
+
+  static set currentId (id) {
+    currentProfile = id
   }
 
   static fromId (id) {
