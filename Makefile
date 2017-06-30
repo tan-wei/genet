@@ -50,6 +50,9 @@ plugkit:
 	$(MAKE) -C $(PLUGKIT_DST)
 	$(MAKE) -C $(DISSECTOR_ESS)
 
+plugtest: build
+	ELECTRON_RUN_AS_NODE=1 $(ELECTRON) node_modules/deplug-core/plugtest.main.js
+
 dmg:
 	yarn add appdmg
 	$(APPDMG) ci/appdmg.json out/deplug-darwin-amd64.dmg
@@ -110,4 +113,4 @@ fmt:
 clean:
 	@rm -rf $(DEPLUG_CORE) $(PLUGKIT_DST)
 
-.PHONY: all run build fix lint pack clean fmt plugkit dmg deb rpm winstaller
+.PHONY: all run build fix lint pack clean fmt plugkit plugtest dmg deb rpm winstaller

@@ -11,6 +11,7 @@ build_script:
 - ps: make build; true
 test_script:
 - ps: make lint
+- ps: make plugtest
 after_test:
 - ps: make pack; true
 - ps: make winstaller; true
