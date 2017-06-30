@@ -28,7 +28,7 @@ public:
       hlen.setRange(reader.lastRange());
       hlen.setError(reader.lastError());
 
-      Property tos("type", "Typr Of Service", reader.readBE<uint8_t>());
+      Property tos("type", "Type Of Service", reader.readBE<uint8_t>());
       tos.setRange(reader.lastRange());
       tos.setError(reader.lastError());
 
