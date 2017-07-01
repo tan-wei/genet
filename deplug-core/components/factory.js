@@ -9,26 +9,26 @@ import ThemeComponent from './theme'
 import WindowComponent from './window'
 
 export default class ComponentFactory {
-  static create (rootDir, parc, comp) {
+  static create (rootDir, pkg, comp) {
     switch (comp.type) {
       case 'panel':
-        return new PanelComponent(rootDir, parc, comp)
+        return new PanelComponent(rootDir, pkg, comp)
       case 'tab':
-        return new TabComponent(rootDir, parc, comp)
+        return new TabComponent(rootDir, pkg, comp)
       case 'theme':
-        return new ThemeComponent(rootDir, parc, comp)
+        return new ThemeComponent(rootDir, pkg, comp)
       case 'window':
-        return new WindowComponent(rootDir, parc, comp)
+        return new WindowComponent(rootDir, pkg, comp)
       case 'dissector':
-        return new DissectorComponent(rootDir, parc, comp)
+        return new DissectorComponent(rootDir, pkg, comp)
       case 'stream-dissector':
-        return new StreamDissectorComponent(rootDir, parc, comp)
+        return new StreamDissectorComponent(rootDir, pkg, comp)
       case 'menu':
-        return new MenuComponent(rootDir, parc, comp)
+        return new MenuComponent(rootDir, pkg, comp)
       case 'script':
-        return new ScriptComponent(rootDir, parc, comp)
+        return new ScriptComponent(rootDir, pkg, comp)
       case 'file':
-        return new FileComponent(rootDir, parc, comp)
+        return new FileComponent(rootDir, pkg, comp)
       default:
         throw new Error(`unknown component type: ${comp.type}`)
     }

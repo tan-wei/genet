@@ -1,12 +1,12 @@
 import objpath from 'object-path'
 
 export default class Component {
-  constructor (rootDir, parc, comp) {
+  constructor (rootDir, pkg, comp) {
     this.type = comp.type
     this.rootDir = rootDir
-    this.parc = parc
+    this.pkg = pkg
     this.comp = comp
-    this.localExtern = Object.keys(objpath.get(this.parc, 'dependencies', {}))
+    this.localExtern = Object.keys(objpath.get(this.pkg, 'dependencies', {}))
   }
 
   async load () {
