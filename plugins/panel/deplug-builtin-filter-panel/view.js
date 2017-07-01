@@ -1,4 +1,4 @@
-import { Channel, Session } from 'deplug'
+import { Channel, Profile, Session } from 'deplug'
 import m from 'mithril'
 
 export default class FilterView {
@@ -14,7 +14,7 @@ export default class FilterView {
     Channel.on('core:display-filter:set', (filter) => {
       vnode.dom.value = filter
     })
-    Session.runSampleAnalysis().then((frames) => {
+    Session.runSampleAnalysis(Profile.current.$$object).then((frames) => {
       for (const frame of frames) {
         this.candidatesFromLayer(frame.rootLayer)
       }

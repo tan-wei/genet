@@ -1,5 +1,4 @@
 import PcapFile from './pcap-file'
-import Profile from './profile'
 import { SessionFactory } from 'plugkit'
 import denodeify from 'denodeify'
 import fs from 'fs'
@@ -49,7 +48,7 @@ export default class Session {
     return samples
   }
 
-  static async runSampleAnalysis () {
+  static async runSampleAnalysis (options = {}) {
     const pcapData = []
     for (const samp of samples) {
       pcapData.push(denodeify(fs.readFile)(samp.pcap))
@@ -59,7 +58,7 @@ export default class Session {
       .map((data) => new PcapFile(data))
 
     const factory = new SessionFactory()
-    factory.options = Profile.current.$$object
+    factory.options = options
     for (const layer of Session.linkLayers) {
       factory.registerLinkLayer(layer)
     }
