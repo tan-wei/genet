@@ -1,0 +1,9 @@
+[
+  {
+    "layer": "eth",
+    "properties": {
+      "namespace": "eth",
+      "name": "Ethernet"
+    }
+  }
+]

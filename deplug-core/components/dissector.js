@@ -1,5 +1,6 @@
 import Component from './base'
 import Session from '../session'
+import jsonfile from 'jsonfile'
 import objpath from 'object-path'
 import path from 'path'
 
@@ -22,8 +23,13 @@ export default class DissectorComponent extends Component {
     }
 
     const samples = objpath.get(this.comp, 'dissector.samples', [])
-    for (const samp of samples) {
-      Session.addSample({ pcap: path.join(this.rootDir, samp.pcap) })
+    for (const item of samples) {
+      const sample = { pcap: path.join(this.rootDir, item.pcap) }
+      if (item.assert) {
+        sample.assert =
+          jsonfile.readFileSync(path.join(this.rootDir, item.assert))
+      }
+      Session.addSample(sample)
     }
   }
 }

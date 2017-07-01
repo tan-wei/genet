@@ -72,14 +72,15 @@ export default class Session {
     const sess = await factory.create()
 
     const frames = []
-    for (const pcap of files) {
+    for (let sourceId = 0; sourceId < files.length; sourceId += 1) {
+      const pcap = files[sourceId]
       for (const frame of pcap.frames) {
           frames.push({
             link: pcap.network,
             payload: frame.payload,
             length: frame.length,
             timestamp: frame.timestamp,
-            sourceId: frames.length,
+            sourceId,
           })
       }
     }
