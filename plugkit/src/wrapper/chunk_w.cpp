@@ -14,6 +14,7 @@ void ChunkWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   tpl->SetClassName(Nan::New("Chunk").ToLocalChecked());
   SetPrototypeMethod(tpl, "propertyFromId", propertyFromId);
   SetPrototypeMethod(tpl, "addProperty", addProperty);
+  SetPrototypeMethod(tpl, "toJSON", toJSON);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("streamNamespace").ToLocalChecked(), streamNs,
@@ -137,6 +138,18 @@ NAN_GETTER(ChunkWrapper::layer) {
       info.GetReturnValue().Set(Nan::Null());
     }
   }
+}
+
+NAN_METHOD(ChunkWrapper::toJSON) {
+  auto keys = info.This()->GetOwnPropertyNames();
+  auto obj = Nan::New<v8::Object>();
+  for (size_t i = 0; i < keys->Length(); ++i) {
+    auto key = keys->Get(i).As<v8::String>();
+    if (strcmp(*Nan::Utf8String(key), "layer") != 0) {
+      obj->Set(key, info.This()->Get(key));
+    }
+  }
+  info.GetReturnValue().Set(obj);
 }
 
 v8::Local<v8::Object>

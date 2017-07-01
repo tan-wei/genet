@@ -23,6 +23,7 @@ public:
   static NAN_GETTER(properties);
   static NAN_METHOD(propertyFromId);
   static NAN_METHOD(addProperty);
+  static NAN_METHOD(toJSON);
   static NAN_GETTER(layer);
 
 private:

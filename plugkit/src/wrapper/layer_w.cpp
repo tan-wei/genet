@@ -305,18 +305,15 @@ NAN_METHOD(LayerWrapper::addProperty) {
 }
 
 NAN_METHOD(LayerWrapper::toJSON) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer.lock()) {
-    auto keys = info.This()->GetOwnPropertyNames();
-    auto obj = Nan::New<v8::Object>();
-    for (size_t i = 0; i < keys->Length(); ++i) {
-      auto key = keys->Get(i).As<v8::String>();
-      if (strcmp(*Nan::Utf8String(key), "parent") != 0) {
-        obj->Set(key, info.This()->Get(key));
-      }
+  auto keys = info.This()->GetOwnPropertyNames();
+  auto obj = Nan::New<v8::Object>();
+  for (size_t i = 0; i < keys->Length(); ++i) {
+    auto key = keys->Get(i).As<v8::String>();
+    if (strcmp(*Nan::Utf8String(key), "parent") != 0) {
+      obj->Set(key, info.This()->Get(key));
     }
-    info.GetReturnValue().Set(obj);
   }
+  info.GetReturnValue().Set(obj);
 }
 
 NAN_GETTER(LayerWrapper::hasError) {
