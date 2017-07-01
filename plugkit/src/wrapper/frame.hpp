@@ -23,6 +23,7 @@ public:
   static NAN_GETTER(hasError);
   static NAN_GETTER(sourceId);
   static NAN_METHOD(propertyFromId);
+  static NAN_METHOD(layerFromId);
 
 private:
   FrameWrapper(const std::weak_ptr<const FrameView> &view);

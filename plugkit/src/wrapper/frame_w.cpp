@@ -14,6 +14,7 @@ void FrameWrapper::init(v8::Isolate *isolate) {
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Frame").ToLocalChecked());
   SetPrototypeMethod(tpl, "propertyFromId", propertyFromId);
+  SetPrototypeMethod(tpl, "layerFromId", layerFromId);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("timestamp").ToLocalChecked(), timestamp);
@@ -118,6 +119,17 @@ NAN_METHOD(FrameWrapper::propertyFromId) {
   if (const auto &view = wrapper->view.lock()) {
     if (const auto &prop = view->propertyFromId(*Nan::Utf8String(info[0]))) {
       info.GetReturnValue().Set(PropertyWrapper::wrap(prop));
+    } else {
+      info.GetReturnValue().Set(Nan::Null());
+    }
+  }
+}
+
+NAN_METHOD(FrameWrapper::layerFromId) {
+  FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
+  if (const auto &view = wrapper->view.lock()) {
+    if (const auto &layer = view->layerFromId(*Nan::Utf8String(info[0]))) {
+      info.GetReturnValue().Set(LayerWrapper::wrap(layer));
     } else {
       info.GetReturnValue().Set(Nan::Null());
     }
