@@ -2,7 +2,7 @@
   {
     "layer": "eth",
     "properties": {
-      "namespace": "eth",
+      "namespace": "eth <ipv4>",
       "name": "Ethernet"
     }
   }
