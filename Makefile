@@ -25,7 +25,7 @@ PACKAGER = node_modules/.bin/electron-packager
 APPDMG = node_modules/.bin/appdmg
 
 ifeq ($(OS),Windows_NT)
-ELECTRON = node_modules\.bin\negatron
+ELECTRON = node_modules\.bin\negatron.cmd
 ESLINT = node_modules\.bin\eslint
 ROLLUP = node_modules\.bin\rollup
 else
