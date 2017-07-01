@@ -1,5 +1,3 @@
-import ComponentFactory from './components/factory'
-import Profile from './profile'
 import config from './config'
 import denodeify from 'denodeify'
 import glob from 'glob'
@@ -9,26 +7,7 @@ import path from 'path'
 import roll from './roll'
 import semver from 'semver'
 
-let plugins = null
 export default class Plugin {
-  static async loadComponents (type) {
-    if (plugins === null) {
-      plugins = await this.listPlugins()
-    }
-    const tasks = []
-    for (const plugin of plugins) {
-      const { enabled } = Profile.current[`$${plugin.pkg.name}`]
-      if (enabled) {
-        for (const comp of plugin.components) {
-          if (comp.type === type) {
-            tasks.push(comp.load())
-          }
-        }
-      }
-    }
-    return Promise.all(tasks)
-  }
-
   static async listPlugins () {
     const builtinPluginPattern =
       path.join(config.builtinPluginPath, '/**/package.json')
@@ -70,21 +49,14 @@ export default class Plugin {
       compList = objpath.get(module.exports, 'components', [])
     }
     const options = objpath.get(module.exports, 'options', [])
-    for (const opt of options) {
-      if ('default' in opt) {
-        Profile.setPluginDefault(pkg.name, opt.id, opt.default)
-      }
-    }
-    Profile.setPluginDefault(pkg.name, 'enabled', true)
-    const components =
-      compList.map((comp) => ComponentFactory.create(rootDir, pkg, comp))
-    return new Plugin(rootDir, pkg, components, options)
+    return new Plugin(rootDir, pkg, compList, options)
   }
 
-  constructor (rootDir, pkg, comp, options) {
+  constructor (rootDir, pkg, compList, options) {
     this.pkg = pkg
-    this.components = comp
+    this.rootDir = rootDir
     this.builtin = this.pkg.name.startsWith('deplug-builtin-')
+    this.compList = compList
     this.options = options
   }
 }

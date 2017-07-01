@@ -5,12 +5,12 @@ import deplug from './deplug'
 const { dialog } = remote
 export default async function (profile, argv) {
   try {
-    const { File, Plugin, GlobalChannel } = await deplug(profile, argv)
-    await Plugin.loadComponents('theme')
-    await Plugin.loadComponents('file')
-    await Plugin.loadComponents('window')
-    await Plugin.loadComponents('menu')
-    await Plugin.loadComponents('tab')
+    const { File, PluginLoader, GlobalChannel } = await deplug(profile, argv)
+    await PluginLoader.loadComponents('theme')
+    await PluginLoader.loadComponents('file')
+    await PluginLoader.loadComponents('window')
+    await PluginLoader.loadComponents('menu')
+    await PluginLoader.loadComponents('tab')
     GlobalChannel.emit('core:window:loaded')
     process.nextTick(() => {
       if (process.platform === 'darwin' && !Pcap.permission) {

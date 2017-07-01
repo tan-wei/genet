@@ -37,12 +37,12 @@ async function init (profile, argv, tab) {
     wc.send('tab-deplug-loaded', tab.id)
   }
   try {
-    const { Theme, Plugin, Tab } = await deplug(profile, argv)
+    const { Theme, PluginLoader, Tab } = await deplug(profile, argv)
     const { options, id } = tab
     const { rootDir } = tab.tab
     await Promise.all([
-      Plugin.loadComponents('theme'),
-      Plugin.loadComponents('file')
+      PluginLoader.loadComponents('theme'),
+      PluginLoader.loadComponents('file')
     ])
 
     const less = tab.tab.less || ''
@@ -66,7 +66,7 @@ async function init (profile, argv, tab) {
     Reflect.defineProperty(Tab, 'options', { value: options })
     Reflect.defineProperty(Tab, 'id', { value: id })
 
-    await Plugin.loadComponents('panel')
+    await PluginLoader.loadComponents('panel')
 
     const root = tab.tab.root || ''
     if (root !== '') {
@@ -77,7 +77,7 @@ async function init (profile, argv, tab) {
       mithril.mount(document.body, module.exports)
     }
 
-    await Plugin.loadComponents('script')
+    await PluginLoader.loadComponents('script')
 
   } catch (err) {
     remote.getCurrentWebContents().openDevTools()

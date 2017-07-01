@@ -1,4 +1,4 @@
-import { File, Plugin, Profile, Session, Tab, Channel, GlobalChannel } from 'deplug'
+import { File, PluginLoader, Profile, Session, Tab, Channel, GlobalChannel } from 'deplug'
 import { Pcap, SessionFactory } from 'plugkit'
 import m from 'mithril'
 
@@ -44,8 +44,8 @@ export default class ConfigView {
   }
 
   async load() {
-    await Plugin.loadComponents('dissector')
-    await Plugin.loadComponents('stream-dissector')
+    await PluginLoader.loadComponents('dissector')
+    await PluginLoader.loadComponents('stream-dissector')
     this.loaded = true
     m.redraw()
   }

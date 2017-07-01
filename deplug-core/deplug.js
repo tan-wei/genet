@@ -4,6 +4,7 @@ import GlobalChannel from './global-channel'
 import Menu from './menu'
 import Panel from './panel'
 import Plugin from './plugin'
+import PluginLoader from './plugin-loader'
 import Profile from './profile'
 import Session from './session'
 import Tab from './tab'
@@ -21,6 +22,7 @@ export default async function (profile, argv) {
     GlobalChannel,
     Menu: new Menu(),
     Panel,
+    PluginLoader,
     Plugin,
     Profile,
     Session,
@@ -38,6 +40,6 @@ export default async function (profile, argv) {
   }
   /* eslint-enable no-underscore-dangle */
 
-  await Plugin.loadComponents('theme')
+  await PluginLoader.loadComponents('theme')
   return deplug
 }
