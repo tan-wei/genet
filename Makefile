@@ -51,7 +51,7 @@ plugkit:
 	$(MAKE) -C $(DISSECTOR_ESS)
 
 plugtest: build
-	ELECTRON_RUN_AS_NODE=1 $(ELECTRON) node_modules/deplug-core/plugtest.main.js
+	node ci/run-as-node.js $(ELECTRON) node_modules/deplug-core/plugtest.main.js
 
 dmg:
 	yarn add appdmg
