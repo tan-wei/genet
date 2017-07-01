@@ -50,7 +50,7 @@ plugkit:
 	$(MAKE) -C $(PLUGKIT_DST)
 	$(MAKE) -C $(DISSECTOR_ESS)
 
-plugtest: build
+plugtest:
 	node ci/run-as-node.js $(ELECTRON) node_modules/deplug-core/plugtest.main.js
 
 dmg:
