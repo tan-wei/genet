@@ -4,7 +4,7 @@ export default {
       type: 'dissector',
       dissector: {
         main: 'build/Release/ethernet.node',
-        linkLyaers: [
+        linkLayers: [
           {link: 1, id: '<eth>', name: '<Ethernet>'}
         ],
         samples: [

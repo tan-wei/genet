@@ -16,8 +16,8 @@ export default class DissectorComponent extends Component {
       Session.registerDissector(mainFile)
     }
 
-    const linkLyaers = objpath.get(this.comp, 'dissector.linkLyaers', [])
-    for (const layer of linkLyaers) {
+    const linkLayers = objpath.get(this.comp, 'dissector.linkLayers', [])
+    for (const layer of linkLayers) {
       Session.registerLinkLayer(layer)
     }
 
