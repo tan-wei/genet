@@ -70,11 +70,10 @@ void Variant::Private::init(v8::Isolate *isolate) {
   PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
       isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
 
-  auto script = Nan::CompileScript(
-      Nan::New("(function (buf) { return "
-               "require('buffer').Buffer.from(buf).slice(buf.byteOffset, "
-               "buf.byteOffset + buf.byteLength) })")
-          .ToLocalChecked());
+  auto script =
+      Nan::CompileScript(Nan::New("(function (buf) { return "
+                                  "require('buffer').Buffer.from(buf) })")
+                             .ToLocalChecked());
   auto func = Nan::RunScript(script.ToLocalChecked())
                   .ToLocalChecked()
                   .As<v8::Function>();
@@ -369,8 +368,7 @@ v8::Local<v8::Object> Variant::Private::getNodeBuffer(const Slice &slice) {
 
   auto abuf = ArrayBuffer::New(isolate, const_cast<char *>(buffer->data()),
                                buffer->size());
-  auto array =
-      Uint8Array::New(abuf, slice.data() - buffer->data(), slice.size());
+  auto array = Uint8Array::New(abuf, slice.offset(), slice.size());
   if (!isolate->GetData(1)) { // Node.js is not installed
     return array;
   }
