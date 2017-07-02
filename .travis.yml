@@ -29,6 +29,7 @@ install:
 script:
 - make lint
 - make plugtest
+- make plugbench
 before_deploy:
 - make pack
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make deb rpm ; fi

@@ -94,4 +94,62 @@ export default class Session {
       })
     })
   }
+
+  static async runSampleBenchmark (options = {}, size = 100000) {
+    const pcapData = []
+    for (const samp of samples) {
+      pcapData.push(denodeify(fs.readFile)(samp.pcap))
+    }
+
+    const files = (await Promise.all(pcapData))
+      .map((data) => new PcapFile(data))
+
+    const frames = []
+    for (let sourceId = 0; sourceId < files.length; sourceId += 1) {
+      const pcap = files[sourceId]
+      for (const frame of pcap.frames) {
+          frames.push({
+            link: pcap.network,
+            payload: frame.payload,
+            length: frame.length,
+            timestamp: frame.timestamp,
+            sourceId,
+          })
+      }
+    }
+
+    const source = [].concat(frames)
+    for (let conut = 0; frames.length < size; conut += 1) {
+      frames.push(source[conut % source.length])
+    }
+
+    const factory = new SessionFactory()
+    factory.options = options
+    for (const layer of Session.linkLayers) {
+      factory.registerLinkLayer(layer)
+    }
+    for (const diss of Session.dissectors) {
+      factory.registerDissector(diss)
+    }
+    for (const diss of Session.streamDissectors) {
+      factory.registerStreamDissector(diss)
+    }
+
+    const sess = await factory.create()
+    sess.analyze(frames)
+    const start = process.hrtime()
+    return new Promise((res) => {
+      sess.on('frame', (stat) => {
+        if (stat.frames >= frames.length && stat.queue === 0) {
+          const diff = process.hrtime(start)
+          res([
+            {
+              frames: stat.frames,
+              duration: (diff[0] * 1e9) + diff[1],
+            }
+          ])
+        }
+      })
+    })
+  }
 }

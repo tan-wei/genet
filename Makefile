@@ -53,6 +53,9 @@ plugkit:
 plugtest:
 	node ci/run-as-node.js $(ELECTRON) node_modules/deplug-core/plugtest.main.js
 
+plugbench:
+	node ci/run-as-node.js $(ELECTRON) node_modules/deplug-core/plugbench.main.js
+
 dmg:
 	yarn add appdmg
 	$(APPDMG) ci/appdmg.json out/deplug-darwin-amd64.dmg

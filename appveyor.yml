@@ -12,6 +12,7 @@ build_script:
 test_script:
 - ps: make lint
 - ps: make plugtest
+- ps: make plugbench
 after_test:
 - ps: make pack; true
 - ps: make winstaller; true
