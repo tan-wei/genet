@@ -1,7 +1,10 @@
+/* eslint-disable no-process-exit, no-console */
+
 import DissectorComponent from './components/dissector'
 import Plugin from './plugin'
 import Session from './session'
 import StreamDissectorComponent from './components/stream-dissector'
+import path from 'path'
 
 Plugin.listPlugins()
 .then((list) => {
@@ -22,15 +25,20 @@ Plugin.listPlugins()
   return Promise.all(tasks)
 })
 .then(() => Session.runSampleBenchmark())
-.then((result) => {
-  const fps = result[0].frames / (result[0].duration / 1000000000)
-  console.log(`${fps} frames/sec`) // eslint-disable-line no-console
+.then((results) => {
+  for (const result of results) {
+    const fps = (result.frames / (result.duration / 1000000000)).toFixed(3)
+    console.log(`${path.basename(result.pcap)}:\t\t${fps} frames/sec`)
+  }
+  const mean = results.reduce((sum, value) => sum +
+    (value.frames / (value.duration / 1000000000)), 0) / results.length
+  console.log('------------------------')
+  console.log(`${mean.toFixed(3)} frames/sec`)
 
-  // eslint-disable-next-line no-process-exit
   process.exit(0)
 })
-.catch(() => {
+.catch((err) => {
+  console.warn(err)
 
-  // eslint-disable-next-line no-process-exit
   process.exit(-1)
 })
