@@ -10,7 +10,8 @@ struct strid {
   constexpr strid(uint64_t num) : id(num) {}
   explicit strid(const char str[8]);
   std::string str() const;
-  bool operator==(strid other);
+  bool operator==(strid other) const;
+  bool operator<(strid other) const;
 };
 
 inline strid::strid(const char str[8]) : id(0) {
@@ -24,7 +25,9 @@ inline std::string strid::str() const {
   return std::string(data, sizeof(data));
 }
 
-inline bool strid::operator==(strid other) { return this->id == other.id; }
+inline bool strid::operator==(strid other) const { return this->id == other.id; }
+
+inline bool strid::operator<(strid other) const { return this->id < other.id; }
 
 template <size_t len> constexpr strid strid_(const char *str) {
   return strid{((len > 0 ? (uint64_t)str[0] : 0) << (8 * 0)) |
