@@ -1,6 +1,7 @@
 #ifndef PLUGKIT_STRID_H
 #define PLUGKIT_STRID_H
 
+#include <cstring>
 #include <string>
 
 struct strid {
