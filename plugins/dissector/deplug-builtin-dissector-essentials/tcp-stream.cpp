@@ -57,9 +57,9 @@ public:
       Layer child;
       const auto &layer = chunk->layer();
       const auto &payload = chunk->payload();
-      uint32_t seq = layer->propertyFromId("seq")->value().uint64Value();
-      uint16_t window = layer->propertyFromId("window")->value().uint64Value();
-      uint8_t flags = layer->propertyFromId("flags")->value().uint64Value();
+      uint32_t seq = layer->propertyFromId(PK_STRID("seq"))->value().uint64Value();
+      uint16_t window = layer->propertyFromId(PK_STRID("window"))->value().uint64Value();
+      uint8_t flags = layer->propertyFromId(PK_STRID("flags"))->value().uint64Value();
       bool syn = (flags & (0x1 << 1));
 
       if (syn) {

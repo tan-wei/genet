@@ -262,7 +262,8 @@ NAN_GETTER(LayerWrapper::properties) {
 NAN_METHOD(LayerWrapper::propertyFromId) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->weakLayer.lock()) {
-    if (const auto &prop = layer->propertyFromId(*Nan::Utf8String(info[0]))) {
+    if (const auto &prop =
+            layer->propertyFromId(strid(*Nan::Utf8String(info[0])))) {
       info.GetReturnValue().Set(PropertyWrapper::wrap(prop));
     } else {
       info.GetReturnValue().Set(Nan::Null());

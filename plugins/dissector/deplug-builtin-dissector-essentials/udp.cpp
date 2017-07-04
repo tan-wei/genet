@@ -16,28 +16,28 @@ public:
       fmt::Reader<Slice> reader(layer->payload());
       Layer child(fmt::replace(layer->ns(), "<udp>", "udp"), "UDP");
 
-      const auto& parentSrc = layer->propertyFromId("src");
-      const auto& parentDst = layer->propertyFromId("dst");
+      const auto& parentSrc = layer->propertyFromId(PK_STRID("src"));
+      const auto& parentDst = layer->propertyFromId(PK_STRID("dst"));
 
       uint16_t sourcePort = reader.readBE<uint16_t>();
-      Property src("src", "Source", sourcePort);
+      Property src(PK_STRID("src"), "Source", sourcePort);
       src.setSummary(parentSrc->summary() + ":" + std::to_string(sourcePort));
       src.setRange(reader.lastRange());
       src.setError(reader.lastError());
 
       uint16_t dstPort = reader.readBE<uint16_t>();
-      Property dst("dst", "Destination", dstPort);
+      Property dst(PK_STRID("dst"), "Destination", dstPort);
       dst.setSummary(parentDst->summary() + ":" + std::to_string(dstPort));
       dst.setRange(reader.lastRange());
       dst.setError(reader.lastError());
 
       uint32_t lengthNumber = reader.readBE<uint16_t>();
-      Property length("length", "Length", lengthNumber);
+      Property length(PK_STRID("length"), "Length", lengthNumber);
       length.setRange(reader.lastRange());
       length.setError(reader.lastError());
 
       uint32_t checksumNumber = reader.readBE<uint16_t>();
-      Property checksum("checksum", "Checksum", checksumNumber);
+      Property checksum(PK_STRID("checksum"), "Checksum", checksumNumber);
       checksum.setRange(reader.lastRange());
       checksum.setError(reader.lastError());
 

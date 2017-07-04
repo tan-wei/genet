@@ -54,7 +54,7 @@ NAN_METHOD(PropertyWrapper::New) {
       prop->setName(*Nan::Utf8String(nameValue));
     }
     if (idValue->IsString()) {
-      prop->setId(*Nan::Utf8String(idValue));
+      prop->setId(strid(*Nan::Utf8String(idValue)));
     }
     if (rangeValue->IsArray()) {
       auto array = rangeValue.As<v8::Array>();
@@ -93,19 +93,14 @@ NAN_SETTER(PropertyWrapper::setName) {
 NAN_GETTER(PropertyWrapper::id) {
   PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
   if (auto prop = wrapper->constProp) {
-    const char *id = prop->id();
-    size_t length = 8;
-    if (id[8] == '\0') {
-      length = std::strlen(id);
-    }
-    info.GetReturnValue().Set(Nan::New(id, length).ToLocalChecked());
+    info.GetReturnValue().Set(Nan::New(prop->id().str()).ToLocalChecked());
   }
 }
 
 NAN_SETTER(PropertyWrapper::setId) {
   PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
   if (auto prop = wrapper->prop) {
-    prop->setId(*Nan::Utf8String(value));
+    prop->setId(strid(*Nan::Utf8String(value)));
   }
 }
 
@@ -191,7 +186,8 @@ NAN_GETTER(PropertyWrapper::properties) {
 NAN_METHOD(PropertyWrapper::propertyFromId) {
   PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
   if (auto prop = wrapper->constProp) {
-    if (const auto &child = prop->propertyFromId(*Nan::Utf8String(info[0]))) {
+    if (const auto &child =
+            prop->propertyFromId(strid(*Nan::Utf8String(info[0])))) {
       info.GetReturnValue().Set(PropertyWrapper::wrap(child));
     } else {
       info.GetReturnValue().Set(Nan::Null());

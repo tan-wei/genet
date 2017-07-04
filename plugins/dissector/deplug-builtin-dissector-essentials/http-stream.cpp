@@ -24,8 +24,8 @@ public:
     LayerPtr analyze(const ChunkConstPtr &chunk) override {
       Layer child(chunk->streamNs() + " http", "HTTP");
       const auto &layer = chunk->layer();
-      uint16_t srcPort = layer->propertyFromId("src")->value().uint64Value();
-      uint16_t dstPort = layer->propertyFromId("dst")->value().uint64Value();
+      uint16_t srcPort = layer->propertyFromId(PK_STRID("src"))->value().uint64Value();
+      uint16_t dstPort = layer->propertyFromId(PK_STRID("dst"))->value().uint64Value();
       if (ports.find(srcPort) == ports.end() && ports.find(dstPort) == ports.end()) {
         return LayerPtr();
       }

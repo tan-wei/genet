@@ -49,8 +49,8 @@ FrameView::FrameView(FrameUniquePtr &&frame) : d(new Private()) {
     }
   }
 
-  propertyFromId("src");
-  propertyFromId("dst");
+  propertyFromId(PK_STRID("src"));
+  propertyFromId(PK_STRID("src"));
 }
 
 FrameView::~FrameView() {}
@@ -63,13 +63,7 @@ const std::vector<LayerConstPtr> &FrameView::leafLayers() const {
   return d->leafLayers;
 }
 
-PropertyConstPtr FrameView::propertyFromId(const std::string &id) const {
-  std::lock_guard<std::mutex> lock(d->mutex);
-  const auto &it = d->properties.find(id);
-  if (it != d->properties.end()) {
-    return it->second;
-  }
-
+PropertyConstPtr FrameView::propertyFromId(strid id) const {
   PropertyConstPtr prop;
   for (auto layer = primaryLayer(); layer; layer = layer->parent()) {
     if (const auto &layerProp = layer->propertyFromId(id)) {
@@ -77,7 +71,6 @@ PropertyConstPtr FrameView::propertyFromId(const std::string &id) const {
       break;
     }
   }
-  d->properties[id] = prop;
   return prop;
 }
 

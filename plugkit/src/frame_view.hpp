@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include "strid.hpp"
 
 namespace plugkit {
 
@@ -26,7 +27,7 @@ public:
   FrameConstPtr frame() const;
   LayerConstPtr primaryLayer() const;
   const std::vector<LayerConstPtr> &leafLayers() const;
-  PropertyConstPtr propertyFromId(const std::string &id) const;
+  PropertyConstPtr propertyFromId(strid id) const;
   LayerConstPtr layerFromId(const std::string &id) const;
   bool hasError() const;
 

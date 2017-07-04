@@ -80,10 +80,10 @@ FilterFunc Filter::Private::makeFilter(const json11::Json &json) const {
       if (value->IsObject()) {
         PropertyConstPtr child;
         if (const auto &layer = LayerWrapper::unwrapConst(value.As<Object>())) {
-          child = layer->propertyFromId(name);
+          child = layer->propertyFromId(strid(name.c_str()));
         } else if (const auto &prop =
                        PropertyWrapper::unwrap(value.As<Object>())) {
-          child = prop->propertyFromId(name.c_str());
+          child = prop->propertyFromId(strid(name.c_str()));
         }
         if (child) {
           result = PropertyWrapper::wrap(child);
@@ -304,7 +304,7 @@ FilterFunc Filter::Private::makeFilter(const json11::Json &json) const {
       Local<Value> key = Nan::New(name).ToLocalChecked();
       Local<Object> frameObject = FrameWrapper::wrap(view);
 
-      if (const auto &prop = view->propertyFromId(name)) {
+      if (const auto &prop = view->propertyFromId(strid(name.c_str()))) {
         return Filter::Result(PropertyWrapper::wrap(prop));
       }
 

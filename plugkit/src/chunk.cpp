@@ -2,7 +2,6 @@
 #include "property.hpp"
 #include "slice.hpp"
 #include "wrapper/chunk.hpp"
-#include <unordered_map>
 
 namespace plugkit {
 
@@ -42,16 +41,15 @@ const Slice &Chunk::payload() const { return d->payload; }
 void Chunk::setPayload(const Slice &payload) { d->payload = payload; }
 
 PropertyConstPtr Chunk::propertyFromId(const std::string &id) const {
-  auto it = d->idMap.find(id);
-  if (it != d->idMap.end()) {
-    return d->properties[it->second];
-  } else {
-    return PropertyConstPtr();
+  for (const auto &child : d->properties) {
+    if (child->id() == strid(id.c_str())) {
+      return child;
+    }
   }
+  return PropertyConstPtr();
 }
 
 void Chunk::addProperty(const PropertyConstPtr &prop) {
-  d->idMap[prop->id()] = d->properties.size();
   d->properties.push_back(prop);
 }
 

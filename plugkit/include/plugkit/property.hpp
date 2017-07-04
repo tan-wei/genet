@@ -3,6 +3,7 @@
 
 #include "variant.hpp"
 #include "export.hpp"
+#include "strid.hpp"
 #include <memory>
 #include <vector>
 
@@ -14,15 +15,14 @@ using PropertyConstPtr = std::shared_ptr<const Property>;
 class PLUGKIT_EXPORT Property final {
 public:
   Property();
-  Property(const char *id, const std::string &name,
-           const Variant &value = Variant());
+  Property(strid id, const std::string &name, const Variant &value = Variant());
   Property(Property &&prop);
   ~Property();
 
+  strid id() const;
+  void setId(strid id);
   std::string name() const;
   void setName(const std::string &name);
-  const char *id() const;
-  void setId(const char *id);
   std::pair<uint32_t, uint32_t> range() const;
   void setRange(const std::pair<uint32_t, uint32_t> &range);
   std::string summary() const;
@@ -33,7 +33,7 @@ public:
   void setValue(const Variant &value);
 
   const std::vector<PropertyConstPtr> &properties() const;
-  PropertyConstPtr propertyFromId(const char *id) const;
+  PropertyConstPtr propertyFromId(strid id) const;
   void addProperty(const PropertyConstPtr &prop);
   void addProperty(Property &&prop);
 

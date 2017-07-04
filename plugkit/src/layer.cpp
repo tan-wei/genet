@@ -5,7 +5,6 @@
 #include "wrapper/layer.hpp"
 #include <functional>
 #include <regex>
-#include <unordered_map>
 
 namespace plugkit {
 
@@ -24,7 +23,6 @@ public:
   std::vector<LayerConstPtr> children;
   std::vector<ChunkConstPtr> chunks;
   std::vector<PropertyConstPtr> properties;
-  std::unordered_map<std::string, size_t> idMap;
 };
 
 Layer::Layer() : d(new Private()) {}
@@ -104,17 +102,16 @@ FrameConstPtr Layer::frame() const { return d->frame.lock(); }
 
 void Layer::setFrame(const FrameConstWeakPtr &frame) { d->frame = frame; }
 
-PropertyConstPtr Layer::propertyFromId(const std::string &id) const {
-  auto it = d->idMap.find(id);
-  if (it != d->idMap.end()) {
-    return d->properties[it->second];
-  } else {
-    return PropertyConstPtr();
+PropertyConstPtr Layer::propertyFromId(strid id) const {
+  for (const auto &child : d->properties) {
+    if (child->id() == id) {
+      return child;
+    }
   }
+  return PropertyConstPtr();
 }
 
 void Layer::addProperty(const PropertyConstPtr &prop) {
-  d->idMap[prop->id()] = d->properties.size();
   d->properties.push_back(prop);
 }
 

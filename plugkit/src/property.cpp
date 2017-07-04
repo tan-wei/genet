@@ -1,14 +1,13 @@
 #include "property.hpp"
 #include "wrapper/property.hpp"
 #include <iostream>
-#include <unordered_map>
 
 namespace plugkit {
 
 class Property::Private {
 public:
-  Private(const char *id, const std::string &name, const Variant &value);
-  char id[8];
+  Private(strid id, const std::string &name, const Variant &value);
+  strid id;
   std::string name;
   std::pair<uint32_t, uint32_t> range;
   std::string summary;
@@ -17,17 +16,13 @@ public:
   std::vector<PropertyConstPtr> children;
 };
 
-Property::Private::Private(const char *id, const std::string &name,
+Property::Private::Private(strid id, const std::string &name,
                            const Variant &value)
-    : name(name), value(value) {
-  std::memset(this->id, '\0', sizeof(this->id));
-  std::strncpy(this->id, id, sizeof(this->id));
-}
+    : id(id), name(name), value(value) {}
 
-Property::Property() : d(new Private("", "", Variant())) {}
+Property::Property() : d(new Private(PK_STRID(""), "", Variant())) {}
 
-Property::Property(const char *id, const std::string &name,
-                   const Variant &value)
+Property::Property(strid id, const std::string &name, const Variant &value)
     : d(new Private(id, name, value)) {}
 
 Property::~Property() {}
@@ -38,12 +33,9 @@ std::string Property::name() const { return d->name; }
 
 void Property::setName(const std::string &name) { d->name = name; }
 
-const char *Property::id() const { return d->id; }
+strid Property::id() const { return d->id; }
 
-void Property::setId(const char *id) {
-  std::memset(d->id, '\0', sizeof(d->id));
-  std::strncpy(d->id, id, sizeof(d->id));
-}
+void Property::setId(strid id) { d->id = id; }
 
 std::pair<uint32_t, uint32_t> Property::range() const { return d->range; }
 
@@ -67,14 +59,9 @@ const std::vector<PropertyConstPtr> &Property::properties() const {
   return d->children;
 }
 
-PropertyConstPtr Property::propertyFromId(const char *id) const {
-  char idbuf[8] = {0};
-  for (int i = 0; i < 8 && id[i] != '\0'; ++i) {
-    idbuf[i] = id[i];
-  }
+PropertyConstPtr Property::propertyFromId(strid id) const {
   for (const auto &child : d->children) {
-    if (*reinterpret_cast<const uint64_t *>(child->id()) ==
-        *reinterpret_cast<const uint64_t *>(idbuf)) {
+    if (child->id() == id) {
       return child;
     }
   }
