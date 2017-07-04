@@ -129,7 +129,8 @@ NAN_METHOD(FrameWrapper::propertyFromId) {
 NAN_METHOD(FrameWrapper::layerFromId) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
   if (const auto &view = wrapper->view.lock()) {
-    if (const auto &layer = view->layerFromId(*Nan::Utf8String(info[0]))) {
+    if (const auto &layer =
+            view->layerFromId(strid(*Nan::Utf8String(info[0])))) {
       info.GetReturnValue().Set(LayerWrapper::wrap(layer));
     } else {
       info.GetReturnValue().Set(Nan::Null());

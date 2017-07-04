@@ -7,6 +7,7 @@
 struct strid {
   uint64_t id;
 
+  constexpr strid() : id(0) {}
   constexpr strid(uint64_t num) : id(num) {}
   explicit strid(const char str[8]);
   std::string str() const;

@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "export.hpp"
+#include "strid.hpp"
 
 namespace plugkit {
 
@@ -32,7 +33,7 @@ public:
   void setPayload(const Slice &payload);
 
   const std::vector<PropertyConstPtr> &properties() const;
-  PropertyConstPtr propertyFromId(const std::string &id) const;
+  PropertyConstPtr propertyFromId(strid id) const;
   void addProperty(const PropertyConstPtr &prop);
 
   LayerConstPtr layer() const;

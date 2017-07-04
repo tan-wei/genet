@@ -312,7 +312,7 @@ FilterFunc Filter::Private::makeFilter(const json11::Json &json) const {
         return Filter::Result(frameObject->Get(key));
       }
 
-      if (const auto &layer = view->layerFromId(name)) {
+      if (const auto &layer = view->layerFromId(strid(name.c_str()))) {
         Local<Object> layerObject = LayerWrapper::wrap(layer);
         return Filter::Result(layerObject);
       }

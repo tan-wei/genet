@@ -70,7 +70,7 @@ PropertyConstPtr FrameView::propertyFromId(strid id) const {
   return PropertyConstPtr();
 }
 
-LayerConstPtr FrameView::layerFromId(const std::string &id) const {
+LayerConstPtr FrameView::layerFromId(strid id) const {
   for (const auto &layer : d->layers) {
     if (layer->id() == id) {
       return layer;

@@ -20,7 +20,7 @@ Property::Private::Private(strid id, const std::string &name,
                            const Variant &value)
     : id(id), name(name), value(value) {}
 
-Property::Property() : d(new Private(PK_STRID(""), "", Variant())) {}
+Property::Property() : d(new Private(strid(), "", Variant())) {}
 
 Property::Property(strid id, const std::string &name, const Variant &value)
     : d(new Private(id, name, value)) {}

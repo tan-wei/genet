@@ -12,7 +12,7 @@ class Layer::Private {
 public:
   std::string ns;
   std::string name;
-  std::string id;
+  strid id;
   std::string summary;
   std::string error;
   std::pair<uint32_t, uint32_t> range;
@@ -37,7 +37,7 @@ Layer::~Layer() {}
 
 Layer::Layer(Layer &&layer) { this->d.reset(layer.d.release()); }
 
-std::string Layer::id() const { return d->id; }
+strid Layer::id() const { return d->id; }
 
 std::string Layer::ns() const { return d->ns; }
 
@@ -45,7 +45,7 @@ void Layer::setNs(const std::string &ns) {
   std::smatch match;
   static const std::regex regex(".*(?:[^<]|^)\\b(\\w+)\\b");
   if (std::regex_search(ns, match, regex)) {
-    d->id = match[1].str();
+    d->id = strid(match[1].str().c_str());
   }
   d->ns = ns;
 }

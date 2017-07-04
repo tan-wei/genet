@@ -109,7 +109,8 @@ NAN_GETTER(ChunkWrapper::properties) {
 NAN_METHOD(ChunkWrapper::propertyFromId) {
   ChunkWrapper *wrapper = ObjectWrap::Unwrap<ChunkWrapper>(info.Holder());
   if (auto chunk = wrapper->constChunk) {
-    if (const auto &prop = chunk->propertyFromId(*Nan::Utf8String(info[0]))) {
+    if (const auto &prop =
+            chunk->propertyFromId(strid(*Nan::Utf8String(info[0])))) {
       info.GetReturnValue().Set(PropertyWrapper::wrap(prop));
     } else {
       info.GetReturnValue().Set(Nan::Null());

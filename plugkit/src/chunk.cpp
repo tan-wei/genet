@@ -40,9 +40,9 @@ const Slice &Chunk::payload() const { return d->payload; }
 
 void Chunk::setPayload(const Slice &payload) { d->payload = payload; }
 
-PropertyConstPtr Chunk::propertyFromId(const std::string &id) const {
+PropertyConstPtr Chunk::propertyFromId(strid id) const {
   for (const auto &child : d->properties) {
-    if (child->id() == strid(id.c_str())) {
+    if (child->id() == id) {
       return child;
     }
   }

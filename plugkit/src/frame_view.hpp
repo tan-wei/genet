@@ -28,7 +28,7 @@ public:
   LayerConstPtr primaryLayer() const;
   const std::vector<LayerConstPtr> &leafLayers() const;
   PropertyConstPtr propertyFromId(strid id) const;
-  LayerConstPtr layerFromId(const std::string &id) const;
+  LayerConstPtr layerFromId(strid id) const;
   bool hasError() const;
 
 private:

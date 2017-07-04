@@ -94,7 +94,7 @@ NAN_METHOD(LayerWrapper::New) {
 NAN_GETTER(LayerWrapper::id) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->weakLayer.lock()) {
-    info.GetReturnValue().Set(Nan::New(layer->id()).ToLocalChecked());
+    info.GetReturnValue().Set(Nan::New(layer->id().str()).ToLocalChecked());
   }
 }
 
