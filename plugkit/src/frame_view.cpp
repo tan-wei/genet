@@ -4,7 +4,6 @@
 #include "property.hpp"
 #include <functional>
 #include <mutex>
-#include <unordered_map>
 
 namespace plugkit {
 
@@ -13,8 +12,7 @@ public:
   FrameConstPtr frame;
   LayerConstPtr primaryLayer;
   std::vector<LayerConstPtr> leafLayers;
-  std::unordered_map<std::string, PropertyConstPtr> properties;
-  std::unordered_map<std::string, LayerConstPtr> layers;
+  std::vector<LayerConstPtr> layers;
   bool hasError = false;
   std::mutex mutex;
 };
@@ -24,7 +22,7 @@ FrameView::FrameView(FrameUniquePtr &&frame) : d(new Private()) {
 
   std::function<void(const LayerConstPtr &)> findLeafLayers =
       [this, &findLeafLayers](const LayerConstPtr &layer) {
-        d->layers[layer->id()] = layer;
+        d->layers.push_back(layer);
         if (layer->children().empty()) {
           d->leafLayers.push_back(layer);
         } else {
@@ -64,20 +62,19 @@ const std::vector<LayerConstPtr> &FrameView::leafLayers() const {
 }
 
 PropertyConstPtr FrameView::propertyFromId(strid id) const {
-  PropertyConstPtr prop;
   for (auto layer = primaryLayer(); layer; layer = layer->parent()) {
     if (const auto &layerProp = layer->propertyFromId(id)) {
-      prop = layerProp;
-      break;
+      return layerProp;
     }
   }
-  return prop;
+  return PropertyConstPtr();
 }
 
 LayerConstPtr FrameView::layerFromId(const std::string &id) const {
-  const auto &it = d->layers.find(id);
-  if (it != d->layers.end()) {
-    return it->second;
+  for (const auto &layer : d->layers) {
+    if (layer->id() == id) {
+      return layer;
+    }
   }
   return LayerConstPtr();
 }

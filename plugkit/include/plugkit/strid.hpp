@@ -25,7 +25,9 @@ inline std::string strid::str() const {
   return std::string(data, sizeof(data));
 }
 
-inline bool strid::operator==(strid other) const { return this->id == other.id; }
+inline bool strid::operator==(strid other) const {
+  return this->id == other.id;
+}
 
 inline bool strid::operator<(strid other) const { return this->id < other.id; }
 
