@@ -5,6 +5,7 @@ import Plugin from './plugin'
 import Session from './session'
 import StreamDissectorComponent from './components/stream-dissector'
 import path from 'path'
+import prettyBytes from 'pretty-bytes';
 
 Plugin.listPlugins()
 .then((list) => {
@@ -33,7 +34,13 @@ Plugin.listPlugins()
   const mean = results.reduce((sum, value) => sum +
     (value.frames / (value.duration / 1000000000)), 0) / results.length
   console.log('------------------------')
-  console.log(`${mean.toFixed(3)} frames/sec`)
+  console.log(`     mean:\t${mean.toFixed(3)} frames/sec`)
+
+  const usage = process.memoryUsage()
+  console.log('      rss:\t' + prettyBytes(usage.rss))
+  console.log('heapTotal:\t' + prettyBytes(usage.heapTotal))
+  console.log(' heapUsed:\t' + prettyBytes(usage.heapUsed))
+  console.log(' external:\t' + prettyBytes(usage.external))
 
   process.exit(0)
 })
