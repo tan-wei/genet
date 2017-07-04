@@ -7,24 +7,26 @@ namespace plugkit {
 
 class Property::Private {
 public:
-  Private(const std::string &id, const std::string &name, const Variant &value);
-  std::string id;
+  Private(const char *id, const std::string &name, const Variant &value);
+  char id[8];
   std::string name;
   std::pair<uint32_t, uint32_t> range;
   std::string summary;
   std::string error;
   Variant value;
   std::vector<PropertyConstPtr> children;
-  std::unordered_map<std::string, size_t> idMap;
 };
 
-Property::Private::Private(const std::string &id, const std::string &name,
+Property::Private::Private(const char *id, const std::string &name,
                            const Variant &value)
-    : id(id), name(name), value(value) {}
+    : name(name), value(value) {
+  std::memset(this->id, '\0', sizeof(this->id));
+  std::strncpy(this->id, id, sizeof(this->id));
+}
 
 Property::Property() : d(new Private("", "", Variant())) {}
 
-Property::Property(const std::string &id, const std::string &name,
+Property::Property(const char *id, const std::string &name,
                    const Variant &value)
     : d(new Private(id, name, value)) {}
 
@@ -36,9 +38,12 @@ std::string Property::name() const { return d->name; }
 
 void Property::setName(const std::string &name) { d->name = name; }
 
-std::string Property::id() const { return d->id; }
+const char *Property::id() const { return d->id; }
 
-void Property::setId(const std::string &id) { d->id = id; }
+void Property::setId(const char *id) {
+  std::memset(d->id, '\0', sizeof(d->id));
+  std::strncpy(d->id, id, sizeof(d->id));
+}
 
 std::pair<uint32_t, uint32_t> Property::range() const { return d->range; }
 
@@ -62,17 +67,21 @@ const std::vector<PropertyConstPtr> &Property::properties() const {
   return d->children;
 }
 
-PropertyConstPtr Property::propertyFromId(const std::string &id) const {
-  auto it = d->idMap.find(id);
-  if (it != d->idMap.end()) {
-    return d->children[it->second];
-  } else {
-    return PropertyConstPtr();
+PropertyConstPtr Property::propertyFromId(const char *id) const {
+  char idbuf[8] = {0};
+  for (int i = 0; i < 8 && id[i] != '\0'; ++i) {
+    idbuf[i] = id[i];
   }
+  for (const auto &child : d->children) {
+    if (*reinterpret_cast<const uint64_t *>(child->id()) ==
+        *reinterpret_cast<const uint64_t *>(idbuf)) {
+      return child;
+    }
+  }
+  return PropertyConstPtr();
 }
 
 void Property::addProperty(const PropertyConstPtr &prop) {
-  d->idMap[prop->id()] = d->children.size();
   d->children.push_back(prop);
 }
 

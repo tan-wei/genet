@@ -93,7 +93,12 @@ NAN_SETTER(PropertyWrapper::setName) {
 NAN_GETTER(PropertyWrapper::id) {
   PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
   if (auto prop = wrapper->constProp) {
-    info.GetReturnValue().Set(Nan::New(prop->id()).ToLocalChecked());
+    const char *id = prop->id();
+    size_t length = 8;
+    if (id[8] == '\0') {
+      length = std::strlen(id);
+    }
+    info.GetReturnValue().Set(Nan::New(id, length).ToLocalChecked());
   }
 }
 

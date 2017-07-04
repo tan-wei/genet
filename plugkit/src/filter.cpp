@@ -83,7 +83,7 @@ FilterFunc Filter::Private::makeFilter(const json11::Json &json) const {
           child = layer->propertyFromId(name);
         } else if (const auto &prop =
                        PropertyWrapper::unwrap(value.As<Object>())) {
-          child = prop->propertyFromId(name);
+          child = prop->propertyFromId(name.c_str());
         }
         if (child) {
           result = PropertyWrapper::wrap(child);
