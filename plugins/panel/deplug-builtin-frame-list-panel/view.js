@@ -36,7 +36,7 @@ class FrameItem {
       }}
     >
       <div class="frame-column">{seq}</div>
-      <div class="frame-column">{this.frame.primaryLayer.name}</div>
+      <div class="frame-column">{Session.descriptors[this.frame.primaryLayer.id].name}</div>
       <div class="frame-column">{src ? src.summary : ''}</div>
       <div class="frame-column">{dst ? dst.summary : ''}</div>
       <div class="frame-column">{this.frame.length}</div>

@@ -21,7 +21,6 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
   Nan::SetAccessor(otl, Nan::New("namespace").ToLocalChecked(), ns, setNs);
-  Nan::SetAccessor(otl, Nan::New("name").ToLocalChecked(), name, setName);
   Nan::SetAccessor(otl, Nan::New("summary").ToLocalChecked(), summary,
                    setSummary);
   Nan::SetAccessor(otl, Nan::New("range").ToLocalChecked(), range, setRange);
@@ -109,20 +108,6 @@ NAN_SETTER(LayerWrapper::setNs) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
     layer->setNs(*Nan::Utf8String(value));
-  }
-}
-
-NAN_GETTER(LayerWrapper::name) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer.lock()) {
-    info.GetReturnValue().Set(Nan::New(layer->name()).ToLocalChecked());
-  }
-}
-
-NAN_SETTER(LayerWrapper::setName) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->layer) {
-    layer->setName(*Nan::Utf8String(value));
   }
 }
 

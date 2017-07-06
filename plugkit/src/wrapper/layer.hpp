@@ -21,8 +21,6 @@ public:
   static NAN_GETTER(id);
   static NAN_GETTER(ns);
   static NAN_SETTER(setNs);
-  static NAN_GETTER(name);
-  static NAN_SETTER(setName);
   static NAN_GETTER(summary);
   static NAN_SETTER(setSummary);
   static NAN_GETTER(range);

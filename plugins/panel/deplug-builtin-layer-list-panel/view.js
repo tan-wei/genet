@@ -1,6 +1,6 @@
 import m from 'mithril'
 import moment from 'moment'
-import { Channel, Profile } from 'deplug'
+import { Channel, Profile, Session } from 'deplug'
 import Buffer from 'buffer'
 
 class BooleanValueItem {
@@ -118,7 +118,7 @@ class LayerItem {
           data-layer={layer.namespace}
           data-layer-error={layer.hasError}
           onclick={ () => this.expanded = !this.expanded }
-        ><i class={faClass}></i> { layer.name } { layer.summary }
+        ><i class={faClass}></i> { Session.descriptors[layer.id].name } { layer.summary }
         <span
         style={{ display: layer.confidence < 1.0 ? 'inline' : 'none' }}
         ><i class="fa fa-question-circle"></i> { layer.confidence * 100 }%</span>
