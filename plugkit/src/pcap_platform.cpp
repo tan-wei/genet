@@ -215,7 +215,6 @@ bool PcapPlatform::start() {
           if (self.d->callback) {
             auto layer = std::make_shared<Layer>();
             layer->setNs(self.d->ns);
-            layer->setName(self.d->name);
             layer->setPayload(
                 Slice(reinterpret_cast<const char *>(bytes), h->caplen));
 

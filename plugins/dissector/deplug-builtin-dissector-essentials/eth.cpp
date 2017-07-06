@@ -14,7 +14,7 @@ public:
   public:
     LayerPtr analyze(const LayerConstPtr &layer) override {
       fmt::Reader<Slice> reader(layer->payload());
-      Layer child("eth", "Ethernet");
+      Layer child("eth");
 
       const auto &srcSlice = reader.slice(6);
       Property src(PK_STRID("src"), "Source", srcSlice);

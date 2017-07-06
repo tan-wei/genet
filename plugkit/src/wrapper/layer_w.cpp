@@ -56,16 +56,12 @@ NAN_METHOD(LayerWrapper::New) {
   if (info[0]->IsObject()) {
     auto options = info[0].As<v8::Object>();
     auto nsValue = options->Get(Nan::New("namespace").ToLocalChecked());
-    auto nameValue = options->Get(Nan::New("name").ToLocalChecked());
     auto summaryValue = options->Get(Nan::New("summary").ToLocalChecked());
     auto rangeValue = options->Get(Nan::New("range").ToLocalChecked());
     auto confValue = options->Get(Nan::New("confidence").ToLocalChecked());
     auto errorValue = options->Get(Nan::New("error").ToLocalChecked());
     if (nsValue->IsString()) {
       layer->setNs(*Nan::Utf8String(nsValue));
-    }
-    if (nameValue->IsString()) {
-      layer->setName(*Nan::Utf8String(nameValue));
     }
     if (summaryValue->IsString()) {
       layer->setSummary(*Nan::Utf8String(summaryValue));

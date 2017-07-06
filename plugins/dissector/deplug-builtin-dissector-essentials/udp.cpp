@@ -14,7 +14,7 @@ public:
   public:
     LayerPtr analyze(const LayerConstPtr &layer) override {
       fmt::Reader<Slice> reader(layer->payload());
-      Layer child(fmt::replace(layer->ns(), "<udp>", "udp"), "UDP");
+      Layer child(fmt::replace(layer->ns(), "<udp>", "udp"));
 
       const auto& parentSrc = layer->propertyFromId(PK_STRID("src"));
       const auto& parentDst = layer->propertyFromId(PK_STRID("dst"));

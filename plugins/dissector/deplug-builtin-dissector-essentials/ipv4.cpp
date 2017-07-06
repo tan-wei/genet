@@ -14,7 +14,7 @@ public:
   public:
     LayerPtr analyze(const LayerConstPtr &layer) override {
       fmt::Reader<Slice> reader(layer->payload());
-      Layer child(fmt::replace(layer->ns(), "<ipv4>", "ipv4"), "IPv4");
+      Layer child(fmt::replace(layer->ns(), "<ipv4>", "ipv4"));
 
       uint8_t header = reader.readBE<uint8_t>();
       int version = header >> 4;

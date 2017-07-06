@@ -253,10 +253,8 @@ void Session::analyze(const std::vector<RawFrame> &rawFrames) {
     const auto &linkLayer = d->linkLayers.find(raw.link);
     if (linkLayer != d->linkLayers.end()) {
       rootLayer->setNs(linkLayer->second.first);
-      rootLayer->setName(linkLayer->second.second);
     } else {
       rootLayer->setNs("<link:" + std::to_string(raw.link) + ">");
-      rootLayer->setName("Unknown Link Layer: " + std::to_string(raw.link));
     }
     rootLayer->setPayload(raw.payload);
 

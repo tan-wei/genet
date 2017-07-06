@@ -81,7 +81,6 @@ bool PcapDummy::start() {
         if (d->callback) {
           auto layer = std::make_shared<Layer>();
           layer->setNs(ns);
-          layer->setName(name);
           layer->setPayload(Slice());
 
           auto frame = Frame::Private::create();

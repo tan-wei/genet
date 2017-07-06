@@ -11,7 +11,6 @@ namespace plugkit {
 class Layer::Private {
 public:
   std::string ns;
-  std::string name;
   strid id;
   std::string summary;
   std::string error;
@@ -27,11 +26,7 @@ public:
 
 Layer::Layer() : d(new Private()) {}
 
-Layer::Layer(const std::string &ns, const std::string &name)
-    : d(new Private()) {
-  setNs(ns);
-  d->name = name;
-}
+Layer::Layer(const std::string &ns) : d(new Private()) { setNs(ns); }
 
 Layer::~Layer() {}
 
@@ -49,10 +44,6 @@ void Layer::setNs(const std::string &ns) {
   }
   d->ns = ns;
 }
-
-std::string Layer::name() const { return d->name; }
-
-void Layer::setName(const std::string &name) { d->name = name; }
 
 std::pair<uint32_t, uint32_t> Layer::range() const { return d->range; }
 

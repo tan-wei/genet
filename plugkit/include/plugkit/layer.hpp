@@ -29,15 +29,13 @@ class Slice;
 class PLUGKIT_EXPORT Layer final {
 public:
   Layer();
-  Layer(const std::string &ns, const std::string &name);
+  Layer(const std::string &ns);
   Layer(Layer &&layer);
   ~Layer();
 
   strid id() const;
   std::string ns() const;
   void setNs(const std::string &ns);
-  std::string name() const;
-  void setName(const std::string &name);
   std::string summary() const;
   void setSummary(const std::string &summary);
   std::pair<uint32_t, uint32_t> range() const;
