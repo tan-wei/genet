@@ -20,16 +20,36 @@ struct strns {
 };
 
 inline std::string strns::str() const {
-  return (id[0].empty() ? "" : id[0].str() + " ") +
-         (id[1].empty() ? "" : id[1].str() + " ") +
-         (id[2].empty() ? "" : id[2].str());
+  std::string buf;
+  for (size_t i = 0; i < id.size(); ++i) {
+    if (!id[i].empty()) {
+      if (id[i].tag())
+        buf += "*";
+      buf += id[i].str();
+      if (i < id.size() - 1)
+        buf += " ";
+    }
+  }
+  return buf;
 }
 
 inline bool strns::match(const strns &other) const {
-  return (other.id[2].empty() || other.id[2] == id[2]) &&
-         (other.id[1].empty() || other.id[1] == id[1]) &&
-         (other.id[0].empty() || other.id[0] == id[0]);
+  for (int i = id.size() - 1; i >= 0; --i) {
+    if (!other.id[i].empty() && other.id[i].id != id[i].id)
+      return false;
+  }
+  return true;
 }
+
+template <size_t len> constexpr strid strid_ns_(const char *str) {
+  return (str[0] == '*' ? strid_<len - 1, 1>(str) : strid_<len, 0>(str));
+}
+
+#define PK_STRNS(id1, id2, id3)                                                \
+  strns {                                                                      \
+    strid_ns_<sizeof(id1) - 2>(id1), strid_ns_<sizeof(id2) - 2>(id2),          \
+        strid_ns_<sizeof(id3) - 2>(id3)                                        \
+  }
 }
 
 #endif

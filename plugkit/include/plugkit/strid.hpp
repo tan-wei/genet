@@ -60,6 +60,8 @@ template <size_t len> constexpr uint64_t strid__(const char *str) {
 
 template <> constexpr uint64_t strid__<size_t(-1)>(const char *) { return 0; }
 
+template <> constexpr uint64_t strid__<size_t(-2)>(const char *) { return 0; }
+
 template <size_t len, uint8_t tag> constexpr strid strid_(const char *str) {
   return strid{(strid__<len>(str) & PK_STRID_MASK) | PK_CMP_TAG(tag, 0) |
                PK_CMP_TAG(tag, 1) | PK_CMP_TAG(tag, 2) | PK_CMP_TAG(tag, 3) |
