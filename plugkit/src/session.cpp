@@ -251,11 +251,14 @@ void Session::analyze(const std::vector<RawFrame> &rawFrames) {
   for (const RawFrame &raw : rawFrames) {
     auto rootLayer = std::make_shared<Layer>();
     const auto &linkLayer = d->linkLayers.find(raw.link);
+    /*
     if (linkLayer != d->linkLayers.end()) {
       rootLayer->setNs(linkLayer->second.first);
     } else {
       rootLayer->setNs("<link:" + std::to_string(raw.link) + ">");
     }
+    */
+    // TODO:NS
     rootLayer->setPayload(raw.payload);
 
     FrameUniquePtr frame = Frame::Private::create();

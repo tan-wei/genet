@@ -10,8 +10,10 @@ namespace plugkit {
 
 class Layer::Private {
 public:
-  std::string ns;
-  strid id;
+  Private(const strns &ns);
+
+public:
+  strns ns;
   std::string summary;
   std::string error;
   std::pair<uint32_t, uint32_t> range;
@@ -24,26 +26,21 @@ public:
   std::vector<PropertyConstPtr> properties;
 };
 
-Layer::Layer() : d(new Private()) {}
+Layer::Private::Private(const strns &ns) : ns(ns) {}
 
-Layer::Layer(const std::string &ns) : d(new Private()) { setNs(ns); }
+Layer::Layer() : d(new Private(strns())) {}
+
+Layer::Layer(const strns &ns) : d(new Private(ns)) {}
 
 Layer::~Layer() {}
 
 Layer::Layer(Layer &&layer) { this->d.reset(layer.d.release()); }
 
-strid Layer::id() const { return d->id; }
+strid Layer::id() const { return d->ns.primary(); }
 
-std::string Layer::ns() const { return d->ns; }
+strns Layer::ns() const { return d->ns; }
 
-void Layer::setNs(const std::string &ns) {
-  std::smatch match;
-  static const std::regex regex(".*(?:[^<]|^)\\b(\\w+)\\b");
-  if (std::regex_search(ns, match, regex)) {
-    d->id = strid(match[1].str().c_str());
-  }
-  d->ns = ns;
-}
+void Layer::setNs(const strns &ns) { d->ns = ns; }
 
 std::pair<uint32_t, uint32_t> Layer::range() const { return d->range; }
 

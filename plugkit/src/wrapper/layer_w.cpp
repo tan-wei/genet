@@ -61,7 +61,8 @@ NAN_METHOD(LayerWrapper::New) {
     auto confValue = options->Get(Nan::New("confidence").ToLocalChecked());
     auto errorValue = options->Get(Nan::New("error").ToLocalChecked());
     if (nsValue->IsString()) {
-      layer->setNs(*Nan::Utf8String(nsValue));
+      // layer->setNs(*Nan::Utf8String(nsValue));
+      // TODO:NS
     }
     if (summaryValue->IsString()) {
       layer->setSummary(*Nan::Utf8String(summaryValue));
@@ -96,14 +97,15 @@ NAN_GETTER(LayerWrapper::id) {
 NAN_GETTER(LayerWrapper::ns) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->weakLayer.lock()) {
-    info.GetReturnValue().Set(Nan::New(layer->ns()).ToLocalChecked());
+    info.GetReturnValue().Set(Nan::New(layer->ns().str()).ToLocalChecked());
   }
 }
 
 NAN_SETTER(LayerWrapper::setNs) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
-    layer->setNs(*Nan::Utf8String(value));
+    // layer->setNs(*Nan::Utf8String(value));
+    // TODO:NS
   }
 }
 

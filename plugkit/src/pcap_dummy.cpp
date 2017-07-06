@@ -64,15 +64,14 @@ bool PcapDummy::start() {
   if (d->thread.joinable())
     return false;
 
-  std::string ns = "<unknown>";
-  std::string name = "Unknown";
+  strns ns = PK_STRNS("", "", "?");
   const auto &link = d->linkLayers.find(d->link);
   if (link != d->linkLayers.end()) {
-    ns = link->second.first;
-    name = link->second.second;
+    // ns = link->second.first;
+    // TODO:NS
   }
 
-  d->thread = std::thread([this, ns, name]() {
+  d->thread = std::thread([this, ns]() {
     while (true) {
       {
         std::lock_guard<std::mutex> lock(d->mutex);

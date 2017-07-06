@@ -19,7 +19,7 @@ public:
   Callback callback;
   std::vector<DissectorFactoryConstPtr> factories;
   std::unordered_map<Dissector::WorkerPtr, std::vector<std::regex>> workers;
-  std::unordered_map<std::string, std::vector<Dissector::Worker *>> workerMap;
+  std::unordered_map<strns, std::vector<Dissector::Worker *>> workerMap;
   Variant options;
   std::atomic<uint32_t> queuedFrames;
   double confidenceThreshold;
@@ -64,7 +64,7 @@ bool DissectorThread::loop() {
     return false;
 
   for (size_t i = 0; i < size; ++i) {
-    std::unordered_set<std::string> dissectedNamespaces;
+    std::unordered_set<strns> dissectedNamespaces;
 
     FrameUniquePtr &frame = frames[i];
     const auto &rootLayer = frame->rootLayer();
@@ -75,7 +75,7 @@ bool DissectorThread::loop() {
     while (!layers.empty()) {
       std::vector<LayerPtr> nextlayers;
       for (const auto &layer : layers) {
-        const std::string &ns = layer->ns();
+        const strns &ns = layer->ns();
         dissectedNamespaces.insert(ns);
 
         std::vector<Dissector::Worker *> *workers;
@@ -86,9 +86,12 @@ bool DissectorThread::loop() {
           workers = &d->workerMap[ns];
           for (const auto &pair : d->workers) {
             for (const auto &regex : pair.second) {
+              /*
               if (std::regex_search(ns, regex)) {
                 workers->push_back(pair.first.get());
               }
+              */
+              // TODO:NS
             }
           }
         }
