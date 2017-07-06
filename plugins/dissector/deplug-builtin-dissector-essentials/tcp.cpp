@@ -149,7 +149,7 @@ public:
           case 5:
             {
               uint8_t length = fmt::readBE<uint8_t>(layer->payload(), optionOffset + 1);
-              Property opt(PK_STRID("selectiveAck"), "Selective ACK", layer->payload().slice(optionOffset + 2, length));
+              Property opt(PK_STRID("selAck"), "Selective ACK", layer->payload().slice(optionOffset + 2, length));
               opt.setRange(std::make_pair(optionOffset, optionOffset + length));
               opt.setError(reader.lastError());
               options.addProperty(std::move(opt));
@@ -160,7 +160,7 @@ public:
             {
               uint32_t mt = fmt::readBE<uint32_t>(layer->payload(), optionOffset + 2);
               uint32_t et = fmt::readBE<uint32_t>(layer->payload(), optionOffset + 2 + sizeof(uint32_t));
-              Property opt(PK_STRID("timestamps"), "Timestamps", std::to_string(mt) + " - " + std::to_string(et));
+              Property opt(PK_STRID("ts"), "Timestamps", std::to_string(mt) + " - " + std::to_string(et));
               opt.setRange(std::make_pair(optionOffset, optionOffset + 10));
               opt.setError(reader.lastError());
 

@@ -68,7 +68,7 @@ public:
       flags.setError(reader.lastError());
 
       uint16_t fgOffset = ((flagAndOffset & 0b00011111) << 8) | reader.readBE<uint8_t>();
-      Property fragmentOffset(PK_STRID("fragmentOffset"), "Fragment Offset", fgOffset);
+      Property fragmentOffset(PK_STRID("fOffset"), "Fragment Offset", fgOffset);
       fragmentOffset.setRange(std::make_pair(6, 8));
       fragmentOffset.setError(reader.lastError());
 

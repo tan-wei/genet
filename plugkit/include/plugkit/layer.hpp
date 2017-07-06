@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include "export.hpp"
-#include "strid.hpp"
+#include "strns.hpp"
 
 namespace plugkit {
 
