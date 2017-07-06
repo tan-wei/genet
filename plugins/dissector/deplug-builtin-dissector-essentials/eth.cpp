@@ -17,13 +17,13 @@ public:
       Layer child("eth");
 
       const auto &srcSlice = reader.slice(6);
-      Property src(PK_STRID("src"), "Source", srcSlice);
+      Property src(PK_STRID("src"), srcSlice);
       src.setSummary(fmt::toHex(srcSlice, 1));
       src.setRange(reader.lastRange());
       src.setError(reader.lastError());
 
       const auto &dstSlice = reader.slice(6);
-      Property dst(PK_STRID("dst"), "Destination", dstSlice);
+      Property dst(PK_STRID("dst"), dstSlice);
       dst.setSummary(fmt::toHex(dstSlice, 1));
       dst.setRange(reader.lastRange());
       dst.setError(reader.lastError());
@@ -34,7 +34,7 @@ public:
 
       auto protocolType = reader.readBE<uint16_t>();
       if (protocolType <= 1500) {
-        Property length(PK_STRID("len"), "Length", protocolType);
+        Property length(PK_STRID("len"), protocolType);
         length.setRange(reader.lastRange());
         length.setError(reader.lastError());
         child.addProperty(std::move(length));
@@ -49,7 +49,7 @@ public:
           {0x86DD, std::make_pair("IPv6", "ipv6")},
         };
 
-        Property etherType(PK_STRID("ethType"), "EtherType", protocolType);
+        Property etherType(PK_STRID("ethType"), protocolType);
         const auto &type = fmt::enums(typeTable, protocolType, std::make_pair("Unknown", ""));
         etherType.setSummary(type.first);
         if (!type.second.empty()) {

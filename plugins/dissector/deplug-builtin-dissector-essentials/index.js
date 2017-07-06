@@ -67,7 +67,7 @@ export default {
           'ipv4.flags.moreFrag': {
             name: 'More Fragments'
           },
-          'ipv4.fragment': {
+          'ipv4.fOffset': {
             name: 'Fragment Offset'
           },
           'ipv4.ttl': {
@@ -182,13 +182,13 @@ export default {
           'tcp.options.nop': {
             name: 'NOP'
           },
-          'tcp.options.timestam': {
+          'tcp.options.ts': {
             name: 'Timestamps'
           },
-          'tcp.options.timestam.mt': {
+          'tcp.options.ts.mt': {
             name: 'My timestamp'
           },
-          'tcp.options.timestam.et': {
+          'tcp.options.ts.et': {
             name: 'Echo reply timestamp'
           }
         }

@@ -63,6 +63,8 @@ class PropertyItem {
       prop.range[0] + vnode.attrs.dataOffset,
       prop.range[1] + vnode.attrs.dataOffset
     ]
+    const name = (vnode.attrs.path in Session.descriptors) ?
+      Session.descriptors[vnode.attrs.path].name : prop.id
     return <li
         data-range={ `${range[0]}:${range[1]}` }
         onmouseover={ () => selectRange(range) }
@@ -70,7 +72,7 @@ class PropertyItem {
       >
       <label
         onclick={ () => this.expanded = !this.expanded }
-      ><i class={faClass}></i> { prop.name }: </label>
+      ><i class={faClass}></i> { name }: </label>
       { m(PropertyValueItem, {prop}) }
       <label
       class="summary"
@@ -83,7 +85,10 @@ class PropertyItem {
       <ul style={{ display: this.expanded ? 'block' : 'none' }}>
         {
           prop.properties.map((prop) => {
-            return m(PropertyItem, {property: prop})
+            return m(PropertyItem, {
+              property: prop,
+              path: vnode.attrs.path + '.' + prop.id
+            })
           })
         }
       </ul>
@@ -108,6 +113,8 @@ class LayerItem {
       dataOffset,
       dataOffset + dataLength
     ]
+    const name = (layer.id in Session.descriptors) ?
+      Session.descriptors[layer.id].name : layer.id
     return <ul>
       <li
         data-range={ `${range[0]}:${range[1]}` }
@@ -118,7 +125,7 @@ class LayerItem {
           data-layer={layer.namespace}
           data-layer-error={layer.hasError}
           onclick={ () => this.expanded = !this.expanded }
-        ><i class={faClass}></i> { Session.descriptors[layer.id].name } { layer.summary }
+        ><i class={faClass}></i> { name } { layer.summary }
         <span
         style={{ display: layer.confidence < 1.0 ? 'inline' : 'none' }}
         ><i class="fa fa-question-circle"></i> { layer.confidence * 100 }%</span>
@@ -127,7 +134,11 @@ class LayerItem {
       <div style={{ display: this.expanded ? 'block' : 'none' }}>
       {
         layer.properties.map((prop) => {
-          return m(PropertyItem, {property: prop, dataOffset})
+          return m(PropertyItem, {
+            property: prop,
+            dataOffset,
+            path: layer.id + '.' + prop.id
+          })
         })
       }
       </div>

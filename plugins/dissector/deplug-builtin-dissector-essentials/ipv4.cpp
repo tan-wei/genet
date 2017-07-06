@@ -20,24 +20,24 @@ public:
       int version = header >> 4;
       int headerLength = header & 0b00001111;
 
-      Property ver(PK_STRID("version"), "Version", version);
+      Property ver(PK_STRID("version"), version);
       ver.setRange(reader.lastRange());
       ver.setError(reader.lastError());
 
-      Property hlen(PK_STRID("hLen"), "Internet Header Length", headerLength);
+      Property hlen(PK_STRID("hLen"), headerLength);
       hlen.setRange(reader.lastRange());
       hlen.setError(reader.lastError());
 
-      Property tos(PK_STRID("type"), "Type Of Service", reader.readBE<uint8_t>());
+      Property tos(PK_STRID("type"), reader.readBE<uint8_t>());
       tos.setRange(reader.lastRange());
       tos.setError(reader.lastError());
 
       uint16_t totalLength = reader.readBE<uint16_t>();
-      Property tlen(PK_STRID("tLen"), "Total Length", totalLength);
+      Property tlen(PK_STRID("tLen"), totalLength);
       tlen.setRange(reader.lastRange());
       tlen.setError(reader.lastError());
 
-      Property id(PK_STRID("id"), "Identification", reader.readBE<uint16_t>());
+      Property id(PK_STRID("id"), reader.readBE<uint16_t>());
       id.setRange(reader.lastRange());
       id.setError(reader.lastError());
 
@@ -50,11 +50,11 @@ public:
         std::make_tuple(0x4, "More Fragments", PK_STRID("moreFrag") ),
       };
 
-      Property flags(PK_STRID("flags"), "Flags", flag);
+      Property flags(PK_STRID("flags"), flag);
       std::string flagSummary;
       for (const auto& bit : flagTable) {
         bool on = std::get<0>(bit) & flag;
-        Property flagBit(std::get<2>(bit), std::get<1>(bit), on);
+        Property flagBit(std::get<2>(bit), on);
         flagBit.setRange(reader.lastRange());
         flagBit.setError(reader.lastError());
         flags.addProperty(std::move(flagBit));
@@ -68,11 +68,11 @@ public:
       flags.setError(reader.lastError());
 
       uint16_t fgOffset = ((flagAndOffset & 0b00011111) << 8) | reader.readBE<uint8_t>();
-      Property fragmentOffset(PK_STRID("fOffset"), "Fragment Offset", fgOffset);
+      Property fragmentOffset(PK_STRID("fOffset"), fgOffset);
       fragmentOffset.setRange(std::make_pair(6, 8));
       fragmentOffset.setError(reader.lastError());
 
-      Property ttl(PK_STRID("ttl"), "TTL", reader.readBE<uint8_t>());
+      Property ttl(PK_STRID("ttl"), reader.readBE<uint8_t>());
       ttl.setRange(reader.lastRange());
       ttl.setError(reader.lastError());
 
@@ -85,7 +85,7 @@ public:
       };
 
       uint8_t protocolNumber = reader.readBE<uint8_t>();
-      Property proto(PK_STRID("protocol"), "Protocol", protocolNumber);
+      Property proto(PK_STRID("protocol"), protocolNumber);
       const auto &type = fmt::enums(protoTable, protocolNumber, std::make_pair("Unknown", ""));
       proto.setSummary(type.first);
       if (!type.second.empty()) {
@@ -94,18 +94,18 @@ public:
       proto.setRange(reader.lastRange());
       proto.setError(reader.lastError());
 
-      Property checksum(PK_STRID("checksum"), "Header Checksum", reader.readBE<uint16_t>());
+      Property checksum(PK_STRID("checksum"), reader.readBE<uint16_t>());
       checksum.setRange(reader.lastRange());
       checksum.setError(reader.lastError());
 
       const auto &srcSlice = reader.slice(4);
-      Property src(PK_STRID("src"), "Source", srcSlice);
+      Property src(PK_STRID("src"), srcSlice);
       src.setSummary(fmt::toDec(srcSlice, 1));
       src.setRange(reader.lastRange());
       src.setError(reader.lastError());
 
       const auto &dstSlice = reader.slice(4);
-      Property dst(PK_STRID("dst"), "Destination", dstSlice);
+      Property dst(PK_STRID("dst"), dstSlice);
       dst.setSummary(fmt::toDec(dstSlice, 1));
       dst.setRange(reader.lastRange());
       dst.setError(reader.lastError());

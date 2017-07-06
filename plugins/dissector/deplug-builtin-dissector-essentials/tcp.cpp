@@ -21,13 +21,13 @@ public:
       const auto& parentDst = layer->propertyFromId(PK_STRID("dst"));
 
       uint16_t sourcePort = reader.readBE<uint16_t>();
-      Property src(PK_STRID("src"), "Source", sourcePort);
+      Property src(PK_STRID("src"), sourcePort);
       src.setSummary(parentSrc->summary() + ":" + std::to_string(sourcePort));
       src.setRange(reader.lastRange());
       src.setError(reader.lastError());
 
       uint16_t dstPort = reader.readBE<uint16_t>();
-      Property dst(PK_STRID("dst"), "Destination", dstPort);
+      Property dst(PK_STRID("dst"), dstPort);
       dst.setSummary(parentDst->summary() + ":" + std::to_string(dstPort));
       dst.setRange(reader.lastRange());
       dst.setError(reader.lastError());
@@ -35,18 +35,18 @@ public:
       child.setSummary(src.summary() + " -> " + dst.summary());
 
       uint32_t seqNumber = reader.readBE<uint32_t>();
-      Property seq(PK_STRID("seq"), "Sequence number", seqNumber);
+      Property seq(PK_STRID("seq"), seqNumber);
       seq.setRange(reader.lastRange());
       seq.setError(reader.lastError());
 
       uint32_t ackNumber = reader.readBE<uint32_t>();
-      Property ack(PK_STRID("ack"), "Acknowledgment number", ackNumber);
+      Property ack(PK_STRID("ack"), ackNumber);
       ack.setRange(reader.lastRange());
       ack.setError(reader.lastError());
 
       uint8_t offsetAndFlag = reader.readBE<uint8_t>();
       int dataOffset = offsetAndFlag >> 4;
-      Property offset(PK_STRID("dOffset"), "Data offset", dataOffset);
+      Property offset(PK_STRID("dOffset"), dataOffset);
       offset.setRange(reader.lastRange());
       offset.setError(reader.lastError());
 
@@ -65,11 +65,11 @@ public:
         std::make_tuple(0x1 << 0, "FIN", PK_STRID("fin") ),
       };
 
-      Property flags(PK_STRID("flags"), "Flags", flag);
+      Property flags(PK_STRID("flags"), flag);
       std::string flagSummary;
       for (const auto& bit : flagTable) {
         bool on = std::get<0>(bit) & flag;
-        Property flagBit(std::get<2>(bit), std::get<1>(bit), on);
+        Property flagBit(std::get<2>(bit), on);
         flagBit.setRange(reader.lastRange());
         flagBit.setError(reader.lastError());
         flags.addProperty(std::move(flagBit));
@@ -82,19 +82,19 @@ public:
       flags.setRange(std::make_pair(12, 14));
       flags.setError(reader.lastError());
 
-      Property window(PK_STRID("window"), "Window size", reader.readBE<uint16_t>());
+      Property window(PK_STRID("window"), reader.readBE<uint16_t>());
       window.setRange(reader.lastRange());
       window.setError(reader.lastError());
 
-      Property checksum(PK_STRID("checksum"), "Checksum", reader.readBE<uint16_t>());
+      Property checksum(PK_STRID("checksum"), reader.readBE<uint16_t>());
       checksum.setRange(reader.lastRange());
       checksum.setError(reader.lastError());
 
-      Property urgent(PK_STRID("urgent"), "Urgent pointer", reader.readBE<uint16_t>());
+      Property urgent(PK_STRID("urgent"), reader.readBE<uint16_t>());
       urgent.setRange(reader.lastRange());
       urgent.setError(reader.lastError());
 
-      Property options(PK_STRID("options"), "Options");
+      Property options(PK_STRID("options"));
       options.setRange(reader.lastRange());
       options.setError(reader.lastError());
 
@@ -107,7 +107,7 @@ public:
             break;
           case 1:
             {
-              Property opt(PK_STRID("nop"), "NOP");
+              Property opt(PK_STRID("nop"));
               opt.setRange(std::make_pair(optionOffset, optionOffset + 1));
               opt.setError(reader.lastError());
               options.addProperty(std::move(opt));
@@ -117,7 +117,7 @@ public:
           case 2:
             {
               uint16_t size = fmt::readBE<uint16_t>(layer->payload(), optionOffset + 2);
-              Property opt(PK_STRID("mss"), "Maximum segment size", size);
+              Property opt(PK_STRID("mss"), size);
               opt.setRange(std::make_pair(optionOffset, optionOffset + 4));
               opt.setError(reader.lastError());
               options.addProperty(std::move(opt));
@@ -127,7 +127,7 @@ public:
           case 3:
             {
               uint8_t scale = fmt::readBE<uint8_t>(layer->payload(), optionOffset + 2);
-              Property opt(PK_STRID("scale"), "Window scale", scale);
+              Property opt(PK_STRID("scale"), scale);
               opt.setRange(std::make_pair(optionOffset, optionOffset + 2));
               opt.setError(reader.lastError());
               options.addProperty(std::move(opt));
@@ -137,7 +137,7 @@ public:
 
           case 4:
             {
-              Property opt(PK_STRID("ackPerm"), "Selective ACK permitted", true);
+              Property opt(PK_STRID("ackPerm"), true);
               opt.setRange(std::make_pair(optionOffset, optionOffset + 2));
               opt.setError(reader.lastError());
               options.addProperty(std::move(opt));
@@ -149,7 +149,7 @@ public:
           case 5:
             {
               uint8_t length = fmt::readBE<uint8_t>(layer->payload(), optionOffset + 1);
-              Property opt(PK_STRID("selAck"), "Selective ACK", layer->payload().slice(optionOffset + 2, length));
+              Property opt(PK_STRID("selAck"), layer->payload().slice(optionOffset + 2, length));
               opt.setRange(std::make_pair(optionOffset, optionOffset + length));
               opt.setError(reader.lastError());
               options.addProperty(std::move(opt));
@@ -160,15 +160,15 @@ public:
             {
               uint32_t mt = fmt::readBE<uint32_t>(layer->payload(), optionOffset + 2);
               uint32_t et = fmt::readBE<uint32_t>(layer->payload(), optionOffset + 2 + sizeof(uint32_t));
-              Property opt(PK_STRID("ts"), "Timestamps", std::to_string(mt) + " - " + std::to_string(et));
+              Property opt(PK_STRID("ts"), std::to_string(mt) + " - " + std::to_string(et));
               opt.setRange(std::make_pair(optionOffset, optionOffset + 10));
               opt.setError(reader.lastError());
 
-              Property optmt(PK_STRID("mt"), "My timestamp", mt);
+              Property optmt(PK_STRID("mt"), mt);
               optmt.setRange(std::make_pair(optionOffset + 2, optionOffset + 6));
               optmt.setError(reader.lastError());
 
-              Property optet(PK_STRID("et"), "Echo reply timestamp", et);
+              Property optet(PK_STRID("et"), et);
               optet.setRange(std::make_pair(optionOffset + 6, optionOffset + 01));
               optet.setError(reader.lastError());
 

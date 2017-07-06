@@ -15,8 +15,6 @@ public:
   wrap(const std::shared_ptr<const Property> &prop);
   static std::shared_ptr<const Property> unwrap(v8::Local<v8::Object> obj);
   static NAN_METHOD(New);
-  static NAN_GETTER(name);
-  static NAN_SETTER(setName);
   static NAN_GETTER(id);
   static NAN_SETTER(setId);
   static NAN_GETTER(range);

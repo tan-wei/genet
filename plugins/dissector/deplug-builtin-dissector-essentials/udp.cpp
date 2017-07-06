@@ -20,24 +20,24 @@ public:
       const auto& parentDst = layer->propertyFromId(PK_STRID("dst"));
 
       uint16_t sourcePort = reader.readBE<uint16_t>();
-      Property src(PK_STRID("src"), "Source", sourcePort);
+      Property src(PK_STRID("src"), sourcePort);
       src.setSummary(parentSrc->summary() + ":" + std::to_string(sourcePort));
       src.setRange(reader.lastRange());
       src.setError(reader.lastError());
 
       uint16_t dstPort = reader.readBE<uint16_t>();
-      Property dst(PK_STRID("dst"), "Destination", dstPort);
+      Property dst(PK_STRID("dst"), dstPort);
       dst.setSummary(parentDst->summary() + ":" + std::to_string(dstPort));
       dst.setRange(reader.lastRange());
       dst.setError(reader.lastError());
 
       uint32_t lengthNumber = reader.readBE<uint16_t>();
-      Property length(PK_STRID("length"), "Length", lengthNumber);
+      Property length(PK_STRID("length"), lengthNumber);
       length.setRange(reader.lastRange());
       length.setError(reader.lastError());
 
       uint32_t checksumNumber = reader.readBE<uint16_t>();
-      Property checksum(PK_STRID("checksum"), "Checksum", checksumNumber);
+      Property checksum(PK_STRID("checksum"), checksumNumber);
       checksum.setRange(reader.lastRange());
       checksum.setError(reader.lastError());
 

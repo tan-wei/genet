@@ -6,9 +6,8 @@ namespace plugkit {
 
 class Property::Private {
 public:
-  Private(strid id, const std::string &name, const Variant &value);
+  Private(strid id, const Variant &value);
   strid id;
-  std::string name;
   std::pair<uint32_t, uint32_t> range;
   std::string summary;
   std::string error;
@@ -16,22 +15,17 @@ public:
   std::vector<PropertyConstPtr> children;
 };
 
-Property::Private::Private(strid id, const std::string &name,
-                           const Variant &value)
-    : id(id), name(name), value(value) {}
+Property::Private::Private(strid id, const Variant &value)
+    : id(id), value(value) {}
 
-Property::Property() : d(new Private(strid(), "", Variant())) {}
+Property::Property() : d(new Private(strid(), Variant())) {}
 
-Property::Property(strid id, const std::string &name, const Variant &value)
-    : d(new Private(id, name, value)) {}
+Property::Property(strid id, const Variant &value)
+    : d(new Private(id, value)) {}
 
 Property::~Property() {}
 
 Property::Property(Property &&prop) { this->d.reset(prop.d.release()); }
-
-std::string Property::name() const { return d->name; }
-
-void Property::setName(const std::string &name) { d->name = name; }
 
 strid Property::id() const { return d->id; }
 

@@ -15,7 +15,6 @@ void PropertyWrapper::init(v8::Isolate *isolate,
   SetPrototypeMethod(tpl, "addProperty", addProperty);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
-  Nan::SetAccessor(otl, Nan::New("name").ToLocalChecked(), name, setName);
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id, setId);
   Nan::SetAccessor(otl, Nan::New("summary").ToLocalChecked(), summary,
                    setSummary);
@@ -44,15 +43,11 @@ NAN_METHOD(PropertyWrapper::New) {
   auto prop = std::make_shared<Property>();
   if (info[0]->IsObject()) {
     auto options = info[0].As<v8::Object>();
-    auto nameValue = options->Get(Nan::New("name").ToLocalChecked());
     auto idValue = options->Get(Nan::New("id").ToLocalChecked());
     auto rangeValue = options->Get(Nan::New("range").ToLocalChecked());
     auto summaryValue = options->Get(Nan::New("summary").ToLocalChecked());
     auto errorValue = options->Get(Nan::New("error").ToLocalChecked());
     auto value = options->Get(Nan::New("value").ToLocalChecked());
-    if (nameValue->IsString()) {
-      prop->setName(*Nan::Utf8String(nameValue));
-    }
     if (idValue->IsString()) {
       prop->setId(strid(*Nan::Utf8String(idValue)));
     }
@@ -74,20 +69,6 @@ NAN_METHOD(PropertyWrapper::New) {
   PropertyWrapper *obj = new PropertyWrapper(prop);
   obj->Wrap(info.This());
   info.GetReturnValue().Set(info.This());
-}
-
-NAN_GETTER(PropertyWrapper::name) {
-  PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
-  if (auto prop = wrapper->constProp) {
-    info.GetReturnValue().Set(Nan::New(prop->name()).ToLocalChecked());
-  }
-}
-
-NAN_SETTER(PropertyWrapper::setName) {
-  PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
-  if (auto prop = wrapper->prop) {
-    prop->setName(*Nan::Utf8String(value));
-  }
 }
 
 NAN_GETTER(PropertyWrapper::id) {
