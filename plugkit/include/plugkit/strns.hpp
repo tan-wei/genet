@@ -11,7 +11,7 @@ struct strns {
 
   std::array<strid, 3> id;
 
-  constexpr strns() : id() {}
+  constexpr strns() : id{{strid(), strid(), strid()}} {}
   constexpr strns(strid id1, strid id2, strid id3) : id{{id1, id2, id3}} {}
   constexpr strns(strid id1, strid id2) : id{{strid(), id1, id2}} {}
   constexpr strns(strid id1) : id{{strid(), strid(), id1}} {}
