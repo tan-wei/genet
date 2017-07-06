@@ -22,6 +22,9 @@ export default class DissectorComponent extends Component {
       Session.registerLinkLayer(layer)
     }
 
+    const descriptors = objpath.get(this.comp, 'dissector.descriptors', {})
+    Session.addDescriptors(descriptors)
+
     const samples = objpath.get(this.comp, 'dissector.samples', [])
     for (const item of samples) {
       const sample = { pcap: path.join(this.rootDir, item.pcap) }

@@ -14,18 +14,13 @@ export default class FilterView {
     Channel.on('core:display-filter:set', (filter) => {
       vnode.dom.value = filter
     })
-    Session.runSampleAnalysis(Profile.current.$$object).then((frames) => {
-      for (const frame of frames) {
-        this.candidatesFromLayer(frame.rootLayer)
-      }
-      for (const propPaths in this.layerCandidates) {
-        this.candidates.push({
-          propPaths,
-          name:  this.layerCandidates[propPaths].name
-        })
-      }
-      m.redraw()
-    })
+    const descriptors = Session.descriptors
+    for (const key in descriptors) {
+      this.candidates.push({
+        propPaths: key,
+        name: descriptors[key].name
+      })
+    }
     this.input = vnode.dom.parentNode.querySelector('input')
     this.list = vnode.dom.parentNode.querySelector('.candidates')
   }

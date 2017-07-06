@@ -13,7 +13,7 @@ export default {
             assert: 'test/eth.json'
           }
         ],
-        items: {
+        descriptors: {
           eth: {
             name: 'Ethernet'
           },
@@ -36,7 +36,7 @@ export default {
         samples: [
           { pcap: 'samples/tcp-ipv4.pcap' }
         ],
-        items: {
+        descriptors: {
           ipv4: {
             name: 'IPv4'
           },
@@ -95,7 +95,7 @@ export default {
         samples: [
           { pcap: 'samples/ntp.pcap' }
         ],
-        items: {
+        descriptors: {
           udp: {
             name: 'UDP'
           },
@@ -118,7 +118,7 @@ export default {
       type: 'dissector',
       dissector: {
         main: 'build/Release/tcp.node',
-        items: {
+        descriptors: {
           tcp: {
             name: 'TCP'
           },
