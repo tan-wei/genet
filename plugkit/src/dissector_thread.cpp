@@ -8,6 +8,7 @@
 #include <atomic>
 #include <unordered_map>
 #include <unordered_set>
+#include <algorithm>
 #include <v8.h>
 
 namespace plugkit {
