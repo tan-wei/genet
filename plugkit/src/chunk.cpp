@@ -9,7 +9,7 @@ Chunk::Private::Private(const strns &ns, const std::string &id,
                         const Slice &payload)
     : streamNs(ns), streamId(id), payload(payload) {}
 
-LayerConstPtr Chunk::Private::layer() const { return layer_.lock(); }
+LayerConstPtr Chunk::Private::layer() const { return layer_; }
 
 void Chunk::Private::setLayer(const LayerConstWeakPtr &layer) {
   layer_ = layer;

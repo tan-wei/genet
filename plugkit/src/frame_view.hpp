@@ -8,21 +8,21 @@
 namespace plugkit {
 
 class Frame;
-using FrameConstPtr = std::shared_ptr<const Frame>;
-using FrameUniquePtr = std::unique_ptr<Frame>;
+using FrameConstPtr = const Frame *;
+using FrameUniquePtr = Frame *;
 
 class FrameView;
-using FrameViewConstPtr = std::shared_ptr<const FrameView>;
+using FrameViewConstPtr = const FrameView *;
 
 class Layer;
-using LayerConstPtr = std::shared_ptr<const Layer>;
+using LayerConstPtr = const Layer *;
 
 class Property;
-using PropertyConstPtr = std::shared_ptr<const Property>;
+using PropertyConstPtr = const Property *;
 
 class FrameView final {
 public:
-  explicit FrameView(FrameUniquePtr &&frame);
+  explicit FrameView(FrameConstPtr frame);
   ~FrameView();
   FrameConstPtr frame() const;
   LayerConstPtr primaryLayer() const;

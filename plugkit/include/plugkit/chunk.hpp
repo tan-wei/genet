@@ -12,10 +12,10 @@ namespace plugkit {
 class Slice;
 
 class Property;
-using PropertyConstPtr = std::shared_ptr<const Property>;
+using PropertyConstPtr = const Property *;
 
 class Layer;
-using LayerConstPtr = std::shared_ptr<const Layer>;
+using LayerConstPtr = const Layer *;
 
 class PLUGKIT_EXPORT Chunk final {
 public:

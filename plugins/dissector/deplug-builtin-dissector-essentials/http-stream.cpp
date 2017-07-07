@@ -30,7 +30,9 @@ public:
         return LayerPtr();
       }
       child.setPayload(chunk->payload());
-      return std::make_shared<Layer>(std::move(child));
+
+      // TODO:ALLOC
+      return new Layer(std::move(child));
     }
 
   private:

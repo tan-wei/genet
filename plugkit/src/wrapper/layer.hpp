@@ -7,9 +7,9 @@
 namespace plugkit {
 
 class Layer;
-using LayerPtr = std::shared_ptr<Layer>;
-using LayerConstPtr = std::shared_ptr<const Layer>;
-using LayerConstWeakPtr = std::weak_ptr<const Layer>;
+using LayerPtr = Layer *;
+using LayerConstPtr = const Layer *;
+using LayerConstWeakPtr = const Layer *;
 
 class LayerWrapper final : public Nan::ObjectWrap {
 public:

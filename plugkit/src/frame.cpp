@@ -4,8 +4,8 @@
 namespace plugkit {
 
 FrameUniquePtr Frame::Private::create() {
-  FrameUniquePtr frame(new Frame());
-  return frame;
+  // TODO:ALLOC
+  return new Frame();
 }
 
 Frame::Frame() : d(new Private()) {}

@@ -78,7 +78,7 @@ FilterFunc Filter::Private::makeFilter(const json11::Json &json) const {
         return result;
 
       if (value->IsObject()) {
-        PropertyConstPtr child;
+        PropertyConstPtr child = nullptr;
         if (const auto &layer = LayerWrapper::unwrapConst(value.As<Object>())) {
           child = layer->propertyFromId(strid(name.c_str()));
         } else if (const auto &prop =

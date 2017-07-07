@@ -7,10 +7,10 @@
 namespace plugkit {
 
 class Frame;
-using FrameUniquePtr = std::unique_ptr<Frame>;
+using FrameUniquePtr = Frame *;
 
 class Layer;
-using LayerPtr = std::shared_ptr<Layer>;
+using LayerPtr = Layer *;
 
 class Frame::Private final {
 public:

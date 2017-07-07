@@ -33,14 +33,15 @@ void PropertyWrapper::init(v8::Isolate *isolate,
   Nan::Set(exports, Nan::New("Property").ToLocalChecked(), func);
 }
 
-PropertyWrapper::PropertyWrapper(const std::shared_ptr<Property> &prop)
+PropertyWrapper::PropertyWrapper(Property *prop)
     : prop(prop), constProp(prop) {}
 
-PropertyWrapper::PropertyWrapper(const std::shared_ptr<const Property> &prop)
+PropertyWrapper::PropertyWrapper(const PropertyConstPtr &prop)
     : constProp(prop) {}
 
 NAN_METHOD(PropertyWrapper::New) {
-  auto prop = std::make_shared<Property>();
+  // TODO:ALLOC
+  auto prop = new Property();
   if (info[0]->IsObject()) {
     auto options = info[0].As<v8::Object>();
     auto idValue = options->Get(Nan::New("id").ToLocalChecked());
@@ -188,8 +189,7 @@ NAN_METHOD(PropertyWrapper::addProperty) {
   }
 }
 
-v8::Local<v8::Object>
-PropertyWrapper::wrap(const std::shared_ptr<const Property> &prop) {
+v8::Local<v8::Object> PropertyWrapper::wrap(const PropertyConstPtr &prop) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
       isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
@@ -203,8 +203,7 @@ PropertyWrapper::wrap(const std::shared_ptr<const Property> &prop) {
   return obj;
 }
 
-std::shared_ptr<const Property>
-PropertyWrapper::unwrap(v8::Local<v8::Object> obj) {
+PropertyConstPtr PropertyWrapper::unwrap(v8::Local<v8::Object> obj) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
       isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
@@ -214,6 +213,6 @@ PropertyWrapper::unwrap(v8::Local<v8::Object> obj) {
       return wrapper->constProp;
     }
   }
-  return std::shared_ptr<Property>();
+  return nullptr;
 }
 }

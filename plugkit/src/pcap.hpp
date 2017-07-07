@@ -25,7 +25,7 @@ struct strns;
 
 class Pcap {
 public:
-  using Callback = std::function<void(std::unique_ptr<Frame> &&)>;
+  using Callback = std::function<void(Frame *)>;
 
 public:
   virtual ~Pcap();

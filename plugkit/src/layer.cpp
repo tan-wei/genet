@@ -71,7 +71,8 @@ const std::vector<ChunkConstPtr> &Layer::chunks() const { return d->chunks; }
 void Layer::addChunk(const ChunkConstPtr &chunk) { d->chunks.push_back(chunk); }
 
 void Layer::addChunk(Chunk &&chunk) {
-  addChunk(std::make_shared<Chunk>(std::move(chunk)));
+  // TODO:ALLOC
+  addChunk(new Chunk(std::move(chunk)));
 }
 
 const Slice &Layer::payload() const { return d->payload; }
@@ -82,11 +83,11 @@ const std::vector<PropertyConstPtr> &Layer::properties() const {
   return d->properties;
 }
 
-LayerConstPtr Layer::parent() const { return d->parent.lock(); }
+LayerConstPtr Layer::parent() const { return d->parent; }
 
 void Layer::setParent(const LayerConstWeakPtr &layer) { d->parent = layer; }
 
-FrameConstPtr Layer::frame() const { return d->frame.lock(); }
+FrameConstPtr Layer::frame() const { return d->frame; }
 
 void Layer::setFrame(const FrameConstWeakPtr &frame) { d->frame = frame; }
 
@@ -104,7 +105,8 @@ void Layer::addProperty(const PropertyConstPtr &prop) {
 }
 
 void Layer::addProperty(Property &&prop) {
-  addProperty(std::make_shared<Property>(std::move(prop)));
+  // TODO:ALLOC
+  addProperty(new Property(std::move(prop)));
 }
 
 bool Layer::hasError() const {

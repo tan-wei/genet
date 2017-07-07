@@ -202,7 +202,9 @@ public:
         parentDst->summary() + ":" + std::to_string(dstPort);
       child.setPayload(payload);
       child.addChunk(Chunk(layer->ns(), streamId, payload));
-      return std::make_shared<Layer>(std::move(child));
+
+      // TODO:ALLOC
+      return new Layer(std::move(child));
     }
   };
 

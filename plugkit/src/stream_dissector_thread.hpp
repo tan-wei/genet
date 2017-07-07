@@ -8,10 +8,10 @@
 namespace plugkit {
 
 class Frame;
-using FrameUniquePtr = std::unique_ptr<Frame>;
+using FrameUniquePtr = Frame *;
 
 class Chunk;
-using ChunkConstPtr = std::shared_ptr<const Chunk>;
+using ChunkConstPtr = const Chunk *;
 
 class StreamDissectorFactory;
 using StreamDissectorFactoryConstPtr =

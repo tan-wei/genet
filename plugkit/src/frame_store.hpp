@@ -9,14 +9,14 @@
 namespace plugkit {
 
 class Frame;
-using FrameConstPtr = std::shared_ptr<const Frame>;
-using FrameUniquePtr = std::unique_ptr<Frame>;
+using FrameConstPtr = const Frame *;
+using FrameUniquePtr = Frame *;
 
 class FrameStore;
 using FrameStorePtr = std::shared_ptr<FrameStore>;
 
 class FrameView;
-using FrameViewConstPtr = std::shared_ptr<const FrameView>;
+using FrameViewConstPtr = const FrameView *;
 
 class FrameStore {
 public:

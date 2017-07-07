@@ -210,7 +210,8 @@ bool PcapPlatform::start() {
         0, [](u_char *user, const struct pcap_pkthdr *h, const u_char *bytes) {
           PcapPlatform &self = *reinterpret_cast<PcapPlatform *>(user);
           if (self.d->callback) {
-            auto layer = std::make_shared<Layer>();
+            // TODO:ALLOC
+            auto layer = new Layer();
             layer->setNs(self.d->ns);
             layer->setPayload(
                 Slice(reinterpret_cast<const char *>(bytes), h->caplen));

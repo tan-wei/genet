@@ -8,7 +8,7 @@
 namespace plugkit {
 
 class Layer;
-using LayerConstWeakPtr = std::weak_ptr<const Layer>;
+using LayerConstWeakPtr = const Layer *;
 
 class Chunk::Private {
 public:

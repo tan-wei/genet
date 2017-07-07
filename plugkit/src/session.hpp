@@ -14,7 +14,7 @@ struct strns;
 class Frame;
 
 class FrameView;
-using FrameViewConstPtr = std::shared_ptr<const FrameView>;
+using FrameViewConstPtr = const FrameView *;
 
 class DissectorFactory;
 using DissectorFactoryConstPtr = std::shared_ptr<const DissectorFactory>;

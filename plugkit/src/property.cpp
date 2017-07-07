@@ -67,6 +67,7 @@ void Property::addProperty(const PropertyConstPtr &prop) {
 }
 
 void Property::addProperty(Property &&prop) {
-  addProperty(std::make_shared<Property>(std::move(prop)));
+  // TODO:ALLOC
+  addProperty(new Property(std::move(prop)));
 }
 }

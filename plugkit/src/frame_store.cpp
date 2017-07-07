@@ -47,7 +47,8 @@ void FrameStore::insert(FrameUniquePtr *begin, size_t size) {
   auto end = d->sequence.begin();
   for (auto it = d->sequence.find(maxSeq + 1); it != d->sequence.end();
        end = it, it = d->sequence.find(++maxSeq + 1)) {
-    d->frames.push_back(std::make_shared<FrameView>(std::move(it->second)));
+    // TODO:ALLOC
+    d->frames.push_back(new FrameView(it->second));
   }
   if (d->maxSeq < maxSeq) {
     std::atomic_store_explicit(&d->size, d->frames.size(),

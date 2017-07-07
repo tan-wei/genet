@@ -17,8 +17,8 @@ public:
   std::mutex mutex;
 };
 
-FrameView::FrameView(FrameUniquePtr &&frame) : d(new Private()) {
-  d->frame.reset(frame.release());
+FrameView::FrameView(FrameConstPtr frame) : d(new Private()) {
+  d->frame = frame; // FIXME
 
   std::function<void(const LayerConstPtr &)> findLeafLayers =
       [this, &findLeafLayers](const LayerConstPtr &layer) {

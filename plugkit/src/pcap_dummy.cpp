@@ -77,7 +77,8 @@ bool PcapDummy::start() {
         if (d->closed)
           return;
         if (d->callback) {
-          auto layer = std::make_shared<Layer>();
+          // TODO:ALLOC
+          auto layer = new Layer();
           layer->setNs(ns);
           layer->setPayload(Slice());
 

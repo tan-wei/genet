@@ -10,7 +10,7 @@
 namespace plugkit {
 
 class Property;
-using PropertyConstPtr = std::shared_ptr<const Property>;
+using PropertyConstPtr = const Property *;
 
 class PLUGKIT_EXPORT Property final {
 public:

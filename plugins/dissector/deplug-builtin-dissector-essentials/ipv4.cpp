@@ -127,7 +127,9 @@ public:
       child.addProperty(std::move(dst));
 
       child.setPayload(reader.slice(totalLength - 20));
-      return std::make_shared<Layer>(std::move(child));
+
+      // TODO:ALLOC
+      return new Layer(std::move(child));
     }
   };
 

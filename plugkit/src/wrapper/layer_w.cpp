@@ -51,7 +51,8 @@ LayerWrapper::LayerWrapper(const LayerPtr &layer)
     : weakLayer(layer), layer(layer) {}
 
 NAN_METHOD(LayerWrapper::New) {
-  auto layer = std::make_shared<Layer>();
+  // TODO:ALLOC
+  auto layer = new Layer();
 
   if (info[0]->IsObject()) {
     auto options = info[0].As<v8::Object>();
@@ -88,14 +89,14 @@ NAN_METHOD(LayerWrapper::New) {
 
 NAN_GETTER(LayerWrapper::id) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer.lock()) {
+  if (auto layer = wrapper->weakLayer) {
     info.GetReturnValue().Set(Nan::New(layer->id().str()).ToLocalChecked());
   }
 }
 
 NAN_GETTER(LayerWrapper::ns) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer.lock()) {
+  if (auto layer = wrapper->weakLayer) {
     info.GetReturnValue().Set(Nan::New(layer->ns().str()).ToLocalChecked());
   }
 }
@@ -109,7 +110,7 @@ NAN_SETTER(LayerWrapper::setNs) {
 
 NAN_GETTER(LayerWrapper::summary) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer.lock()) {
+  if (auto layer = wrapper->weakLayer) {
     info.GetReturnValue().Set(Nan::New(layer->summary()).ToLocalChecked());
   }
 }
@@ -123,7 +124,7 @@ NAN_SETTER(LayerWrapper::setSummary) {
 
 NAN_GETTER(LayerWrapper::range) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer.lock()) {
+  if (auto layer = wrapper->weakLayer) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
     auto array = v8::Array::New(isolate, 2);
     array->Set(0, Nan::New(layer->range().first));
@@ -147,7 +148,7 @@ NAN_SETTER(LayerWrapper::setRange) {
 
 NAN_GETTER(LayerWrapper::confidence) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer.lock()) {
+  if (auto layer = wrapper->weakLayer) {
     info.GetReturnValue().Set(layer->confidence());
   }
 }
@@ -161,7 +162,7 @@ NAN_SETTER(LayerWrapper::setConfidence) {
 
 NAN_GETTER(LayerWrapper::error) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer.lock()) {
+  if (auto layer = wrapper->weakLayer) {
     info.GetReturnValue().Set(Nan::New(layer->error()).ToLocalChecked());
   }
 }
@@ -175,7 +176,7 @@ NAN_SETTER(LayerWrapper::setError) {
 
 NAN_GETTER(LayerWrapper::parent) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer.lock()) {
+  if (auto layer = wrapper->weakLayer) {
     if (auto parent = layer->parent()) {
       info.GetReturnValue().Set(LayerWrapper::wrap(parent));
     } else {
@@ -186,7 +187,7 @@ NAN_GETTER(LayerWrapper::parent) {
 
 NAN_GETTER(LayerWrapper::payload) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer.lock()) {
+  if (auto layer = wrapper->weakLayer) {
     info.GetReturnValue().Set(
         Variant::Private::getNodeBuffer(layer->payload()));
   }
@@ -203,7 +204,7 @@ NAN_SETTER(LayerWrapper::setPayload) {
 
 NAN_GETTER(LayerWrapper::children) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer.lock()) {
+  if (auto layer = wrapper->weakLayer) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
     const auto &children = layer->children();
     auto array = v8::Array::New(isolate, children.size());
@@ -216,7 +217,7 @@ NAN_GETTER(LayerWrapper::children) {
 
 NAN_GETTER(LayerWrapper::chunks) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer.lock()) {
+  if (auto layer = wrapper->weakLayer) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
     const auto &chunks = layer->chunks();
     auto array = v8::Array::New(isolate, chunks.size());
@@ -229,7 +230,7 @@ NAN_GETTER(LayerWrapper::chunks) {
 
 NAN_GETTER(LayerWrapper::properties) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer.lock()) {
+  if (auto layer = wrapper->weakLayer) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
     const auto &properties = layer->properties();
     auto array = v8::Array::New(isolate, properties.size());
@@ -242,7 +243,7 @@ NAN_GETTER(LayerWrapper::properties) {
 
 NAN_METHOD(LayerWrapper::propertyFromId) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer.lock()) {
+  if (auto layer = wrapper->weakLayer) {
     if (const auto &prop =
             layer->propertyFromId(strid(*Nan::Utf8String(info[0])))) {
       info.GetReturnValue().Set(PropertyWrapper::wrap(prop));
@@ -300,7 +301,7 @@ NAN_METHOD(LayerWrapper::toJSON) {
 
 NAN_GETTER(LayerWrapper::hasError) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer.lock()) {
+  if (auto layer = wrapper->weakLayer) {
     info.GetReturnValue().Set(layer->hasError());
   }
 }
@@ -326,10 +327,10 @@ LayerConstPtr LayerWrapper::unwrapConst(v8::Local<v8::Object> obj) {
   if (obj->GetPrototype() ==
       v8::Local<v8::Value>::New(isolate, module->layer.proto)) {
     if (auto wrapper = ObjectWrap::Unwrap<LayerWrapper>(obj)) {
-      return wrapper->weakLayer.lock();
+      return wrapper->weakLayer;
     }
   }
-  return std::shared_ptr<Layer>();
+  return nullptr;
 }
 
 LayerPtr LayerWrapper::unwrap(v8::Local<v8::Object> obj) {
@@ -342,6 +343,6 @@ LayerPtr LayerWrapper::unwrap(v8::Local<v8::Object> obj) {
       return wrapper->layer;
     }
   }
-  return std::shared_ptr<Layer>();
+  return nullptr;
 }
 }

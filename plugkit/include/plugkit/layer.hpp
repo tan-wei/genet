@@ -10,19 +10,19 @@
 namespace plugkit {
 
 class Layer;
-using LayerPtr = std::shared_ptr<Layer>;
-using LayerConstPtr = std::shared_ptr<const Layer>;
-using LayerConstWeakPtr = std::weak_ptr<const Layer>;
+using LayerPtr = Layer *;
+using LayerConstPtr = const Layer *;
+using LayerConstWeakPtr = const Layer *;
 
 class Property;
-using PropertyConstPtr = std::shared_ptr<const Property>;
+using PropertyConstPtr = const Property *;
 
 class Frame;
-using FrameConstPtr = std::shared_ptr<const Frame>;
-using FrameConstWeakPtr = std::weak_ptr<const Frame>;
+using FrameConstPtr = const Frame *;
+using FrameConstWeakPtr = const Frame *;
 
 class Chunk;
-using ChunkConstPtr = std::shared_ptr<const Chunk>;
+using ChunkConstPtr = const Chunk *;
 
 class Slice;
 

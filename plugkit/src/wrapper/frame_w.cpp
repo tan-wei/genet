@@ -32,14 +32,13 @@ void FrameWrapper::init(v8::Isolate *isolate) {
   module->frame.ctor.Reset(isolate, Nan::GetFunction(tpl).ToLocalChecked());
 }
 
-FrameWrapper::FrameWrapper(const std::weak_ptr<const FrameView> &view)
-    : view(view) {}
+FrameWrapper::FrameWrapper(const FrameViewConstPtr &view) : view(view) {}
 
 NAN_METHOD(FrameWrapper::New) { info.GetReturnValue().Set(info.This()); }
 
 NAN_GETTER(FrameWrapper::timestamp) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
-  if (const auto &view = wrapper->view.lock()) {
+  if (const auto &view = wrapper->view) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
     auto nano = std::chrono::duration_cast<std::chrono::nanoseconds>(
                     view->frame()->timestamp().time_since_epoch())
@@ -53,21 +52,21 @@ NAN_GETTER(FrameWrapper::timestamp) {
 
 NAN_GETTER(FrameWrapper::length) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
-  if (const auto &view = wrapper->view.lock()) {
+  if (const auto &view = wrapper->view) {
     info.GetReturnValue().Set(static_cast<uint32_t>(view->frame()->length()));
   }
 }
 
 NAN_GETTER(FrameWrapper::index) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
-  if (const auto &view = wrapper->view.lock()) {
+  if (const auto &view = wrapper->view) {
     info.GetReturnValue().Set(view->frame()->index());
   }
 }
 
 NAN_GETTER(FrameWrapper::rootLayer) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
-  if (const auto &view = wrapper->view.lock()) {
+  if (const auto &view = wrapper->view) {
     if (const auto &layer = view->frame()->rootLayer()) {
       info.GetReturnValue().Set(LayerWrapper::wrap(layer));
     } else {
@@ -78,7 +77,7 @@ NAN_GETTER(FrameWrapper::rootLayer) {
 
 NAN_GETTER(FrameWrapper::primaryLayer) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
-  if (const auto &view = wrapper->view.lock()) {
+  if (const auto &view = wrapper->view) {
     if (const auto &layer = view->primaryLayer()) {
       info.GetReturnValue().Set(LayerWrapper::wrap(layer));
     } else {
@@ -89,7 +88,7 @@ NAN_GETTER(FrameWrapper::primaryLayer) {
 
 NAN_GETTER(FrameWrapper::leafLayers) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
-  if (const auto &view = wrapper->view.lock()) {
+  if (const auto &view = wrapper->view) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
     const auto &layers = view->leafLayers();
     auto array = v8::Array::New(isolate, layers.size());
@@ -102,21 +101,21 @@ NAN_GETTER(FrameWrapper::leafLayers) {
 
 NAN_GETTER(FrameWrapper::hasError) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
-  if (const auto &view = wrapper->view.lock()) {
+  if (const auto &view = wrapper->view) {
     info.GetReturnValue().Set(view->hasError());
   }
 }
 
 NAN_GETTER(FrameWrapper::sourceId) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
-  if (const auto &view = wrapper->view.lock()) {
+  if (const auto &view = wrapper->view) {
     info.GetReturnValue().Set(view->frame()->sourceId());
   }
 }
 
 NAN_METHOD(FrameWrapper::propertyFromId) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
-  if (const auto &view = wrapper->view.lock()) {
+  if (const auto &view = wrapper->view) {
     if (const auto &prop =
             view->propertyFromId(strid(*Nan::Utf8String(info[0])))) {
       info.GetReturnValue().Set(PropertyWrapper::wrap(prop));
@@ -128,7 +127,7 @@ NAN_METHOD(FrameWrapper::propertyFromId) {
 
 NAN_METHOD(FrameWrapper::layerFromId) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
-  if (const auto &view = wrapper->view.lock()) {
+  if (const auto &view = wrapper->view) {
     if (const auto &layer =
             view->layerFromId(strid(*Nan::Utf8String(info[0])))) {
       info.GetReturnValue().Set(LayerWrapper::wrap(layer));
@@ -138,8 +137,7 @@ NAN_METHOD(FrameWrapper::layerFromId) {
   }
 }
 
-v8::Local<v8::Object>
-FrameWrapper::wrap(const std::weak_ptr<const FrameView> &view) {
+v8::Local<v8::Object> FrameWrapper::wrap(const FrameViewConstPtr &view) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
       isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
@@ -153,11 +151,10 @@ FrameWrapper::wrap(const std::weak_ptr<const FrameView> &view) {
   return obj;
 }
 
-std::shared_ptr<const FrameView>
-FrameWrapper::unwrap(v8::Local<v8::Object> obj) {
+const FrameView *FrameWrapper::unwrap(v8::Local<v8::Object> obj) {
   if (auto wrapper = ObjectWrap::Unwrap<FrameWrapper>(obj)) {
-    return wrapper->view.lock();
+    return wrapper->view;
   }
-  return std::shared_ptr<FrameView>();
+  return nullptr;
 }
 }

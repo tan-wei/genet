@@ -9,7 +9,7 @@
 namespace plugkit {
 
 class FrameView;
-using FrameViewConstPtr = std::shared_ptr<const FrameView>;
+using FrameViewConstPtr = const FrameView *;
 
 class Filter {
 public:

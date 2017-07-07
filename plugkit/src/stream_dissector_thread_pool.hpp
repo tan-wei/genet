@@ -12,7 +12,7 @@ class Logger;
 using LoggerPtr = std::shared_ptr<Logger>;
 
 class Frame;
-using FrameUniquePtr = std::unique_ptr<Frame>;
+using FrameUniquePtr = Frame *;
 
 class FrameStore;
 using FrameStorePtr = std::shared_ptr<FrameStore>;

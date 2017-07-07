@@ -9,7 +9,7 @@
 namespace plugkit {
 
 class Layer;
-using LayerPtr = std::shared_ptr<Layer>;
+using LayerPtr = Layer *;
 
 class PLUGKIT_EXPORT Frame final {
 public:

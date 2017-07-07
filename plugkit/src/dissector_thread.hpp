@@ -8,8 +8,8 @@
 namespace plugkit {
 
 class Frame;
-using FrameConstPtr = std::shared_ptr<const Frame>;
-using FrameUniquePtr = std::unique_ptr<Frame>;
+using FrameConstPtr = const Frame *;
+using FrameUniquePtr = Frame *;
 
 using FrameUniqueQueue = Queue<FrameUniquePtr>;
 using FrameUniqueQueuePtr = std::shared_ptr<FrameUniqueQueue>;

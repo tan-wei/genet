@@ -11,11 +11,11 @@
 namespace plugkit {
 
 class Layer;
-using LayerPtr = std::shared_ptr<Layer>;
-using LayerConstPtr = std::shared_ptr<const Layer>;
+using LayerPtr = Layer *;
+using LayerConstPtr = const Layer *;
 
 class Chunk;
-using ChunkConstPtr = std::shared_ptr<const Chunk>;
+using ChunkConstPtr = const Chunk *;
 
 struct SessionContext;
 

@@ -36,14 +36,13 @@ void ChunkWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   Nan::Set(exports, Nan::New("Chunk").ToLocalChecked(), func);
 }
 
-ChunkWrapper::ChunkWrapper(const std::shared_ptr<Chunk> &chunk)
-    : chunk(chunk), constChunk(chunk) {}
+ChunkWrapper::ChunkWrapper(Chunk *chunk) : chunk(chunk), constChunk(chunk) {}
 
-ChunkWrapper::ChunkWrapper(const std::shared_ptr<const Chunk> &chunk)
-    : constChunk(chunk) {}
+ChunkWrapper::ChunkWrapper(const ChunkConstPtr &chunk) : constChunk(chunk) {}
 
 NAN_METHOD(ChunkWrapper::New) {
-  ChunkWrapper *obj = new ChunkWrapper(std::make_shared<Chunk>());
+  // TODO:ALLOC
+  ChunkWrapper *obj = new ChunkWrapper(new Chunk());
   obj->Wrap(info.This());
   info.GetReturnValue().Set(info.This());
 }
@@ -154,8 +153,7 @@ NAN_METHOD(ChunkWrapper::toJSON) {
   info.GetReturnValue().Set(obj);
 }
 
-v8::Local<v8::Object>
-ChunkWrapper::wrap(const std::shared_ptr<const Chunk> &chunk) {
+v8::Local<v8::Object> ChunkWrapper::wrap(const ChunkConstPtr &chunk) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
       isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
@@ -169,7 +167,7 @@ ChunkWrapper::wrap(const std::shared_ptr<const Chunk> &chunk) {
   return obj;
 }
 
-std::shared_ptr<const Chunk> ChunkWrapper::unwrap(v8::Local<v8::Object> obj) {
+ChunkConstPtr ChunkWrapper::unwrap(v8::Local<v8::Object> obj) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
       isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
@@ -179,6 +177,6 @@ std::shared_ptr<const Chunk> ChunkWrapper::unwrap(v8::Local<v8::Object> obj) {
       return wrapper->constChunk;
     }
   }
-  return std::shared_ptr<Chunk>();
+  return nullptr;
 }
 }
