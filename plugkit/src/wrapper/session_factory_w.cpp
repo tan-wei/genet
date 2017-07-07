@@ -138,9 +138,8 @@ NAN_METHOD(SessionFactoryWrapper::registerLinkLayer) {
       ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
   if (const auto &factory = wrapper->factory) {
     int link = info[0]->IntegerValue();
-    const std::string &ns = *Nan::Utf8String(info[1]);
-    const std::string &name = *Nan::Utf8String(info[2]);
-    factory->registerLinkLayer(link, ns, name);
+    const char *ns = *Nan::Utf8String(info[1]);
+    factory->registerLinkLayer(link, strns(ns));
   }
 }
 

@@ -21,7 +21,7 @@ struct Session::Config {
   bool promiscuous = false;
   int snaplen = 2048;
   std::string bpf;
-  std::unordered_map<int, std::pair<std::string, std::string>> linkLayers;
+  std::unordered_map<int, strns> linkLayers;
   std::vector<DissectorFactoryConstPtr> dissectors;
   std::vector<StreamDissectorFactoryConstPtr> streamDissectors;
   Variant options;
@@ -47,7 +47,7 @@ public:
   std::unique_ptr<DissectorThreadPool> dissectorPool;
   std::unique_ptr<StreamDissectorThreadPool> streamDissectorPool;
   std::unordered_map<std::string, std::unique_ptr<FilterThreadPool>> filters;
-  std::unordered_map<int, std::pair<std::string, std::string>> linkLayers;
+  std::unordered_map<int, strns> linkLayers;
   std::shared_ptr<FrameStore> frameStore;
   std::unique_ptr<Pcap> pcap;
   StatusCallback statusCallback;
@@ -152,8 +152,7 @@ Session::Session(const Config &config) : d(new Private()) {
 
   d->linkLayers = config.linkLayers;
   for (const auto &pair : config.linkLayers) {
-    d->pcap->registerLinkLayer(pair.first, pair.second.first,
-                               pair.second.second);
+    d->pcap->registerLinkLayer(pair.first, pair.second);
   }
   for (const auto &factory : config.dissectors) {
     d->dissectorPool->registerDissector(factory);
@@ -252,9 +251,9 @@ void Session::analyze(const std::vector<RawFrame> &rawFrames) {
     auto rootLayer = std::make_shared<Layer>();
     const auto &linkLayer = d->linkLayers.find(raw.link);
     if (linkLayer != d->linkLayers.end()) {
-      rootLayer->setNs(strns(linkLayer->second.first.c_str()));
+      rootLayer->setNs(linkLayer->second);
     } else {
-      rootLayer->setNs(strns(PK_STRNS("?")));
+      rootLayer->setNs(PK_STRNS("?"));
     }
     rootLayer->setPayload(raw.payload);
 
@@ -319,9 +318,8 @@ void SessionFactory::setOptions(const Variant &options) {
 
 Variant SessionFactory::options() const { return d->options; }
 
-void SessionFactory::registerLinkLayer(int link, const std::string &ns,
-                                       const std::string &name) {
-  d->linkLayers[link] = std::make_pair(ns, name);
+void SessionFactory::registerLinkLayer(int link, const strns &ns) {
+  d->linkLayers[link] = ns;
 }
 
 void SessionFactory::registerDissector(

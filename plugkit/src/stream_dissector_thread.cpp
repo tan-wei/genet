@@ -133,13 +133,12 @@ StreamDissectorThread::processChunk(const ChunkConstPtr &chunk) {
       dissectors = &d->dissectorMap[ns];
       for (const auto &pair : d->dissectors) {
         /*
-        for (const auto &regex : pair.second) {
-          if (std::regex_search(ns, regex)) {
-            dissectors->push_back(pair.first.get());
+        for (const auto &filter : pair.second) {
+          if (ns.match(filter)) {
+            workers->push_back(pair.first.get());
           }
         }
         */
-        // TODO:NS
       }
     }
 

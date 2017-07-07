@@ -21,6 +21,8 @@ class Frame;
 class Logger;
 using LoggerPtr = std::shared_ptr<Logger>;
 
+struct strns;
+
 class Pcap {
 public:
   using Callback = std::function<void(std::unique_ptr<Frame> &&)>;
@@ -41,8 +43,7 @@ public:
   virtual bool hasPermission() const = 0;
   virtual bool running() const = 0;
 
-  virtual void registerLinkLayer(int link, const std::string &ns,
-                                 const std::string &name) = 0;
+  virtual void registerLinkLayer(int link, const strns &ns) = 0;
 
   virtual bool start() = 0;
   virtual bool stop() = 0;

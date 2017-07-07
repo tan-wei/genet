@@ -37,14 +37,13 @@ public:
 public:
   LoggerPtr logger = std::make_shared<StreamLogger>();
   Callback callback;
-  std::unordered_map<int, std::pair<std::string, std::string>> linkLayers;
+  std::unordered_map<int, strns> linkLayers;
 
   std::mutex mutex;
   std::thread thread;
   pcap_t *pcap = nullptr;
 
-  std::string ns;
-  std::string name;
+  strns ns;
 
   bpf_program bpf = {0, nullptr};
   std::string networkInterface;
@@ -200,11 +199,9 @@ bool PcapPlatform::start() {
   int link = d->pcapDatalink(d->pcap);
   const auto &linkLayer = d->linkLayers.find(link);
   if (linkLayer != d->linkLayers.end()) {
-    d->ns = linkLayer->second.first;
-    d->name = linkLayer->second.second;
+    d->ns = linkLayer->second;
   } else {
-    d->ns = "<link:" + std::to_string(link) + ">";
-    d->name = "Unknown Link Layer: " + std::to_string(link);
+    d->ns = PK_STRNS("?");
   }
 
   d->thread = std::thread([this]() {
@@ -214,7 +211,7 @@ bool PcapPlatform::start() {
           PcapPlatform &self = *reinterpret_cast<PcapPlatform *>(user);
           if (self.d->callback) {
             auto layer = std::make_shared<Layer>();
-            layer->setNs(strns(self.d->ns.c_str()));
+            layer->setNs(self.d->ns);
             layer->setPayload(
                 Slice(reinterpret_cast<const char *>(bytes), h->caplen));
 
@@ -254,9 +251,8 @@ bool PcapPlatform::stop() {
   return true;
 }
 
-void PcapPlatform::registerLinkLayer(int link, const std::string &ns,
-                                     const std::string &name) {
-  d->linkLayers[link] = std::make_pair(ns, name);
+void PcapPlatform::registerLinkLayer(int link, const strns &ns) {
+  d->linkLayers[link] = ns;
 }
 
 std::vector<NetworkInterface> PcapPlatform::devices() const {

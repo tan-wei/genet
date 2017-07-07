@@ -28,10 +28,11 @@ struct strns {
 inline strns::strns(const char *str) {
   size_t len = std::strlen(str);
   size_t index = id.size();
-  for (int cursor = len - 1; cursor >= 0 && index > 0; --cursor) {
-    if (str[cursor] == ' ') {
+  // TODO:NS space
+  for (int cursor = len - 1; cursor > -2 && index > 0; --cursor) {
+    if (cursor < 0 || str[cursor] == ' ') {
       if (str[cursor + 1] == '*') {
-        id[index - 1] = strid(str + cursor + 2);
+        id[index - 1] = strid(str + cursor + 2, 1);
       } else {
         id[index - 1] = strid(str + cursor + 1);
       }
@@ -87,7 +88,7 @@ inline bool strns::operator==(const strns &other) const {
 }
 
 template <size_t len> constexpr strid strid_ns_(const char *str) {
-  return (str[0] == '*' ? strid_<len - 1, 1>(str) : strid_<len, 0>(str));
+  return (str[0] == '*' ? strid_<len - 1, 1>(str + 1) : strid_<len, 0>(str));
 }
 
 #define PK_STRNS(id) strid_ns_<sizeof(id) - 2>(id)
