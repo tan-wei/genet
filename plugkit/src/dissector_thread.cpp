@@ -18,7 +18,6 @@ public:
   Callback callback;
   std::vector<DissectorFactoryConstPtr> factories;
   std::unordered_map<Dissector::WorkerPtr, std::vector<strns>> workers;
-  std::unordered_map<strns, std::vector<Dissector::Worker *>> workerMap;
   Variant options;
   std::atomic<uint32_t> queuedFrames;
   double confidenceThreshold;
@@ -70,6 +69,7 @@ bool DissectorThread::loop() {
     if (!rootLayer)
       continue;
 
+    std::vector<Dissector::Worker *> workers;
     std::vector<LayerPtr> layers = {rootLayer};
     while (!layers.empty()) {
       std::vector<LayerPtr> nextlayers;
@@ -77,22 +77,17 @@ bool DissectorThread::loop() {
         const strns &ns = layer->ns();
         dissectedNamespaces.insert(ns);
 
-        std::vector<Dissector::Worker *> *workers;
-        auto it = d->workerMap.find(ns);
-        if (it != d->workerMap.end()) {
-          workers = &it->second;
-        } else {
-          workers = &d->workerMap[ns];
-          for (const auto &pair : d->workers) {
-            for (const auto &filter : pair.second) {
-              if (ns.match(filter)) {
-                workers->push_back(pair.first.get());
-              }
+        workers.clear();
+        for (const auto &pair : d->workers) {
+          for (const auto &filter : pair.second) {
+            if (ns.match(filter)) {
+              workers.push_back(pair.first.get());
             }
           }
         }
+
         std::vector<LayerPtr> childLayers;
-        for (auto *worker : *workers) {
+        for (auto *worker : workers) {
           if (const LayerPtr &childLayer = worker->analyze(layer)) {
             if (childLayer->confidence() >= d->confidenceThreshold) {
               childLayer->setParent(layer);
@@ -122,10 +117,7 @@ bool DissectorThread::loop() {
   return true;
 }
 
-void DissectorThread::exit() {
-  d->workers.clear();
-  d->workerMap.clear();
-}
+void DissectorThread::exit() { d->workers.clear(); }
 
 uint32_t DissectorThread::queue() const {
   return d->queuedFrames.load(std::memory_order_relaxed);
