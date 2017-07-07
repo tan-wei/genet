@@ -107,8 +107,8 @@ public:
   StreamDissector::WorkerPtr createWorker() override {
     return StreamDissector::WorkerPtr(new TCPStreamDissector::Worker());
   }
-  std::vector<std::regex> namespaces() const override {
-    return std::vector<std::regex>{std::regex("<tcp>$")};
+  std::vector<strns> namespaces() const override {
+    return std::vector<strns>{PK_STRNS("*tcp")};
   }
 };
 

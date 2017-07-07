@@ -70,8 +70,8 @@ public:
   Dissector::WorkerPtr createWorker() override {
     return Dissector::WorkerPtr(new EthernetDissector::Worker());
   }
-  std::vector<std::regex> namespaces() const override {
-    return std::vector<std::regex>{std::regex("<eth>$")};
+  std::vector<strns> namespaces() const override {
+    return std::vector<strns>{PK_STRNS("*eth")};
   }
 };
 

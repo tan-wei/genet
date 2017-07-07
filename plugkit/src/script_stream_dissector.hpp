@@ -31,7 +31,7 @@ public:
                         const std::string &path);
   ~ScriptStreamDissector();
   WorkerPtr createWorker() override;
-  std::vector<std::regex> namespaces() const override;
+  std::vector<strns> namespaces() const override;
 
 private:
   class Private;

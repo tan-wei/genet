@@ -6,7 +6,6 @@
 #include "variant.hpp"
 #include <array>
 #include <atomic>
-#include <regex>
 #include <unordered_map>
 #include <unordered_set>
 #include <v8.h>
@@ -18,7 +17,7 @@ public:
   FrameUniqueQueuePtr queue;
   Callback callback;
   std::vector<DissectorFactoryConstPtr> factories;
-  std::unordered_map<Dissector::WorkerPtr, std::vector<std::regex>> workers;
+  std::unordered_map<Dissector::WorkerPtr, std::vector<strns>> workers;
   std::unordered_map<strns, std::vector<Dissector::Worker *>> workerMap;
   Variant options;
   std::atomic<uint32_t> queuedFrames;

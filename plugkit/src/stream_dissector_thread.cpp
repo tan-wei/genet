@@ -7,7 +7,6 @@
 #include "stream_dissector.hpp"
 #include "variant.hpp"
 #include <atomic>
-#include <regex>
 #include <unordered_map>
 #include <unordered_set>
 #include <v8.h>
@@ -23,7 +22,7 @@ public:
   Callback callback;
   Queue<ChunkConstPtr> queue;
   std::vector<StreamDissectorFactoryConstPtr> factories;
-  std::unordered_map<StreamDissectorPtr, std::vector<std::regex>> dissectors;
+  std::unordered_map<StreamDissectorPtr, std::vector<strns>> dissectors;
   std::unordered_map<std::string, std::vector<StreamDissector *>> dissectorMap;
   std::atomic<uint32_t> queuedFrames;
   size_t count = 0;
@@ -133,11 +132,14 @@ StreamDissectorThread::processChunk(const ChunkConstPtr &chunk) {
     } else {
       dissectors = &d->dissectorMap[ns];
       for (const auto &pair : d->dissectors) {
+        /*
         for (const auto &regex : pair.second) {
           if (std::regex_search(ns, regex)) {
             dissectors->push_back(pair.first.get());
           }
         }
+        */
+        // TODO:NS
       }
     }
 

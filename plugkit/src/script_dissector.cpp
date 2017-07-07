@@ -7,13 +7,6 @@
 
 namespace plugkit {
 
-namespace {
-std::regex constantRegex(const std::string &str) {
-  static const std::regex meta("[-\\/\\\\^$*+?.()|[\\]{}]");
-  return std::regex(std::regex_replace(str, meta, "\\$&"));
-}
-}
-
 class ScriptDissector::Worker::Private {
 public:
   v8::UniquePersistent<v8::Object> workerObj;
@@ -75,7 +68,7 @@ public:
             const std::string &path, v8::TryCatch *tryCatch);
 
 public:
-  std::vector<std::regex> namespaces;
+  std::vector<strns> namespaces;
   v8::UniquePersistent<v8::Object> workerObj;
   SessionContext ctx;
 };
@@ -131,11 +124,8 @@ void ScriptDissector::Private::init(const SessionContext &ctx,
   auto nsArray = nsValue.As<Array>();
   for (uint32_t i = 0; i < nsArray->Length(); ++i) {
     auto itemValue = nsArray->Get(i);
-    if (itemValue->IsRegExp()) {
-      namespaces.emplace_back(
-          *Nan::Utf8String(itemValue.As<v8::RegExp>()->GetSource()));
-    } else if (itemValue->IsString()) {
-      namespaces.push_back(constantRegex(*Nan::Utf8String(itemValue)));
+    if (itemValue->IsString()) {
+      namespaces.emplace_back(*Nan::Utf8String(itemValue));
     }
   }
   auto sess = Nan::New<v8::Object>();
@@ -179,9 +169,7 @@ Dissector::WorkerPtr ScriptDissector::createWorker() {
       new ScriptDissector::Worker(d->ctx, d->workerObj));
 }
 
-std::vector<std::regex> ScriptDissector::namespaces() const {
-  return d->namespaces;
-}
+std::vector<strns> ScriptDissector::namespaces() const { return d->namespaces; }
 
 class ScriptDissectorFactory::Private {
 public:
