@@ -17,7 +17,7 @@ struct strid {
 
   constexpr strid() : id(0) {}
   constexpr strid(uint64_t num) : id(num) {}
-  explicit strid(const char str[8], uint8_t tag = 0);
+  explicit strid(const char str[8], uint8_t tag = 0, size_t len = 8);
   std::string str() const;
   uint8_t tag() const;
   bool empty() const;
@@ -25,8 +25,8 @@ struct strid {
   bool operator<(strid other) const;
 };
 
-inline strid::strid(const char str[8], uint8_t tag) : id(0) {
-  std::strncpy(reinterpret_cast<char *>(&id), str, sizeof(id));
+inline strid::strid(const char str[8], uint8_t tag, size_t len) : id(0) {
+  std::strncpy(reinterpret_cast<char *>(&id), str, len);
   id &= PK_STRID_MASK;
   id |= PK_CMP_TAG(tag, 0) | PK_CMP_TAG(tag, 1) | PK_CMP_TAG(tag, 2) |
         PK_CMP_TAG(tag, 3) | PK_CMP_TAG(tag, 4) | PK_CMP_TAG(tag, 5) |

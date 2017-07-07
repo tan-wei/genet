@@ -28,15 +28,17 @@ struct strns {
 inline strns::strns(const char *str) {
   size_t len = std::strlen(str);
   size_t index = id.size();
-  // TODO:NS space
+  size_t idlen = 0;
   for (int cursor = len - 1; cursor > -2 && index > 0; --cursor) {
+    ++idlen;
     if (cursor < 0 || str[cursor] == ' ') {
       if (str[cursor + 1] == '*') {
-        id[index - 1] = strid(str + cursor + 2, 1);
+        id[index - 1] = strid(str + cursor + 2, 1, idlen - 2);
       } else {
-        id[index - 1] = strid(str + cursor + 1);
+        id[index - 1] = strid(str + cursor + 1, 0, idlen - 1);
       }
       --index;
+      idlen = 0;
     }
   }
 }

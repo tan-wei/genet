@@ -23,7 +23,6 @@ public:
   Queue<ChunkConstPtr> queue;
   std::vector<StreamDissectorFactoryConstPtr> factories;
   std::unordered_map<StreamDissectorPtr, std::vector<strns>> dissectors;
-  std::unordered_map<std::string, std::vector<StreamDissector *>> dissectorMap;
   std::atomic<uint32_t> queuedFrames;
   size_t count = 0;
 
@@ -33,7 +32,7 @@ public:
   };
 
   using IdMap = std::unordered_map<std::string, WorkerList>;
-  std::unordered_map<std::string, IdMap> workers;
+  std::unordered_map<strns, IdMap> workers;
 };
 
 void StreamDissectorThread::Private::cleanup() {
@@ -121,28 +120,21 @@ void StreamDissectorThread::stop() { d->queue.close(); }
 
 std::vector<ChunkConstPtr>
 StreamDissectorThread::processChunk(const ChunkConstPtr &chunk) {
-  const std::string &ns = chunk->streamNs();
+  const strns &ns = strns(chunk->streamNs().c_str()); // TODO:NS
   auto &workers = d->workers[ns][chunk->streamId()];
 
   if (workers.list.empty()) {
-    std::vector<StreamDissector *> *dissectors;
-    auto it = d->dissectorMap.find(ns);
-    if (it != d->dissectorMap.end()) {
-      dissectors = &it->second;
-    } else {
-      dissectors = &d->dissectorMap[ns];
-      for (const auto &pair : d->dissectors) {
-        /*
-        for (const auto &filter : pair.second) {
-          if (ns.match(filter)) {
-            workers->push_back(pair.first.get());
-          }
+    std::vector<StreamDissector *> dissectors;
+
+    for (const auto &pair : d->dissectors) {
+      for (const auto &filter : pair.second) {
+        if (ns.match(filter)) {
+          dissectors.push_back(pair.first.get());
         }
-        */
       }
     }
 
-    for (auto dissector : *dissectors) {
+    for (auto dissector : dissectors) {
       if (auto worker = dissector->createWorker()) {
         workers.list.push_back(std::move(worker));
       }
