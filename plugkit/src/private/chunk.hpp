@@ -12,13 +12,13 @@ using LayerConstWeakPtr = std::weak_ptr<const Layer>;
 
 class Chunk::Private {
 public:
-  Private(const std::string &ns, const std::string &id, const Slice &payload);
+  Private(const strns &ns, const std::string &id, const Slice &payload);
 
   LayerConstPtr layer() const;
   void setLayer(const LayerConstWeakPtr &layer);
 
 public:
-  std::string streamNs;
+  strns streamNs;
   std::string streamId;
   Slice payload;
   std::vector<PropertyConstPtr> properties;

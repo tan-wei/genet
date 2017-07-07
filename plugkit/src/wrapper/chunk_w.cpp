@@ -51,14 +51,15 @@ NAN_METHOD(ChunkWrapper::New) {
 NAN_GETTER(ChunkWrapper::streamNs) {
   ChunkWrapper *wrapper = ObjectWrap::Unwrap<ChunkWrapper>(info.Holder());
   if (auto chunk = wrapper->constChunk) {
-    info.GetReturnValue().Set(Nan::New(chunk->streamNs()).ToLocalChecked());
+    info.GetReturnValue().Set(
+        Nan::New(chunk->streamNs().str()).ToLocalChecked());
   }
 }
 
 NAN_SETTER(ChunkWrapper::setStreamNs) {
   ChunkWrapper *wrapper = ObjectWrap::Unwrap<ChunkWrapper>(info.Holder());
   if (auto chunk = wrapper->chunk) {
-    chunk->setStreamNs(*Nan::Utf8String(value));
+    chunk->setStreamNs(strns(*Nan::Utf8String(value)));
   }
 }
 

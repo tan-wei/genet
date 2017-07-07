@@ -89,8 +89,7 @@ public:
 
       const auto &sequence = ring.fetch();
       for (const auto& slice : sequence) {
-        Chunk subChunk(fmt::replace(chunk->streamNs(), "<tcp>", "tcp"),
-                             chunk->streamId(), slice);
+        Chunk subChunk(PK_STRNS("tcp"), chunk->streamId(), slice);
         child.addChunk(std::move(subChunk));
       }
 

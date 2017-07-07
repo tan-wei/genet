@@ -120,7 +120,7 @@ void StreamDissectorThread::stop() { d->queue.close(); }
 
 std::vector<ChunkConstPtr>
 StreamDissectorThread::processChunk(const ChunkConstPtr &chunk) {
-  const strns &ns = strns(chunk->streamNs().c_str()); // TODO:NS
+  const strns &ns = strns(chunk->streamNs());
   auto &workers = d->workers[ns][chunk->streamId()];
 
   if (workers.list.empty()) {

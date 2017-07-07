@@ -5,7 +5,7 @@
 
 namespace plugkit {
 
-Chunk::Private::Private(const std::string &ns, const std::string &id,
+Chunk::Private::Private(const strns &ns, const std::string &id,
                         const Slice &payload)
     : streamNs(ns), streamId(id), payload(payload) {}
 
@@ -15,18 +15,18 @@ void Chunk::Private::setLayer(const LayerConstWeakPtr &layer) {
   layer_ = layer;
 }
 
-Chunk::Chunk() : d(new Private("", "", Slice())) {}
+Chunk::Chunk() : d(new Private(strns(), "", Slice())) {}
 
-Chunk::Chunk(const std::string &ns, const std::string &id, const Slice &payload)
+Chunk::Chunk(const strns &ns, const std::string &id, const Slice &payload)
     : d(new Private(ns, id, payload)) {}
 
 Chunk::Chunk(Chunk &&chunk) { this->d.reset(chunk.d.release()); }
 
 Chunk::~Chunk() {}
 
-std::string Chunk::streamNs() const { return d->streamNs; }
+strns Chunk::streamNs() const { return d->streamNs; }
 
-void Chunk::setStreamNs(const std::string &ns) { d->streamNs = ns; }
+void Chunk::setStreamNs(const strns &ns) { d->streamNs = ns; }
 
 std::string Chunk::streamId() const { return d->streamId; }
 

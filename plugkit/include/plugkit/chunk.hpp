@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include "export.hpp"
-#include "strid.hpp"
+#include "strns.hpp"
 
 namespace plugkit {
 
@@ -20,12 +20,12 @@ using LayerConstPtr = std::shared_ptr<const Layer>;
 class PLUGKIT_EXPORT Chunk final {
 public:
   Chunk();
-  Chunk(const std::string &ns, const std::string &id, const Slice &payload);
+  Chunk(const strns &ns, const std::string &id, const Slice &payload);
   Chunk(Chunk &&chunk);
   ~Chunk();
 
-  std::string streamNs() const;
-  void setStreamNs(const std::string &ns);
+  strns streamNs() const;
+  void setStreamNs(const strns &ns);
   std::string streamId() const;
   void setStreamId(const std::string &id);
 
