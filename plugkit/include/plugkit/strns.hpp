@@ -90,11 +90,7 @@ template <size_t len> constexpr strid strid_ns_(const char *str) {
   return (str[0] == '*' ? strid_<len - 1, 1>(str) : strid_<len, 0>(str));
 }
 
-#define PK_STRNS(id1, id2, id3)                                                \
-  strns {                                                                      \
-    strid_ns_<sizeof(id1) - 2>(id1), strid_ns_<sizeof(id2) - 2>(id2),          \
-        strid_ns_<sizeof(id3) - 2>(id3)                                        \
-  }
+#define PK_STRNS(id) strid_ns_<sizeof(id) - 2>(id)
 }
 
 namespace std {

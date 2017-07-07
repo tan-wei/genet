@@ -64,11 +64,10 @@ bool PcapDummy::start() {
   if (d->thread.joinable())
     return false;
 
-  strns ns = PK_STRNS("", "", "?");
+  strns ns(PK_STRNS("?"));
   const auto &link = d->linkLayers.find(d->link);
   if (link != d->linkLayers.end()) {
-    // ns = link->second.first;
-    // TODO:NS
+    ns = strns(link->second.first.c_str());
   }
 
   d->thread = std::thread([this, ns]() {

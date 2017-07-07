@@ -40,20 +40,20 @@ public:
         child.addProperty(std::move(length));
       } else {
         const std::unordered_map<
-          uint16_t, std::pair<std::string,std::string>> typeTable = {
-          {0x0800, std::make_pair("IPv4", "ipv4")},
-          {0x0806, std::make_pair("ARP", "arp")},
-          {0x0842, std::make_pair("WoL", "wol")},
-          {0x809B, std::make_pair("AppleTalk", "appleTalk")},
-          {0x80F3, std::make_pair("AARP", "aarp")},
-          {0x86DD, std::make_pair("IPv6", "ipv6")},
+          uint16_t, std::pair<std::string,strid>> typeTable = {
+          {0x0800, std::make_pair("IPv4", PK_STRNS("*ipv4"))},
+          {0x0806, std::make_pair("ARP", PK_STRNS("*arp"))},
+          {0x0842, std::make_pair("WoL", PK_STRNS("*wol"))},
+          {0x809B, std::make_pair("AppleTalk", PK_STRNS("*aTalk"))},
+          {0x80F3, std::make_pair("AARP", PK_STRNS("*aarp"))},
+          {0x86DD, std::make_pair("IPv6", PK_STRNS("*ipv6"))},
         };
 
         Property etherType(PK_STRID("ethType"), protocolType);
-        const auto &type = fmt::enums(typeTable, protocolType, std::make_pair("Unknown", ""));
+        const auto &type = fmt::enums(typeTable, protocolType, std::make_pair("Unknown", PK_STRNS("?")));
         etherType.setSummary(type.first);
         if (!type.second.empty()) {
-          child.setNs(child.ns() + " <" + type.second + ">");
+          child.setNs(strns(PK_STRNS("eth"), type.second));
         }
         etherType.setRange(reader.lastRange());
         etherType.setError(reader.lastError());

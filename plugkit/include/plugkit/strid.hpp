@@ -36,7 +36,7 @@ inline strid::strid(const char str[8], uint8_t tag) : id(0) {
 inline std::string strid::str() const {
   uint64_t masked = id & PK_STRID_MASK;
   const char *data = reinterpret_cast<const char *>(&masked);
-  if (data[sizeof(data) - 1] & 0x7f == '\0')
+  if (data[sizeof(data) - 1] == '\0')
     return std::string(data);
   return std::string(data, sizeof(data));
 }

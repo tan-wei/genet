@@ -15,7 +15,7 @@ public:
   public:
     LayerPtr analyze(const LayerConstPtr &layer) override {
       fmt::Reader<Slice> reader(layer->payload());
-      Layer child(fmt::replace(layer->ns(), "<tcp>", "tcp"));
+      Layer child(PK_STRNS("tcp"));
 
       const auto& parentSrc = layer->propertyFromId(PK_STRID("src"));
       const auto& parentDst = layer->propertyFromId(PK_STRID("dst"));
@@ -201,7 +201,7 @@ public:
         ":" + std::to_string(sourcePort) + "/" +
         parentDst->summary() + ":" + std::to_string(dstPort);
       child.setPayload(payload);
-      child.addChunk(Chunk(layer->ns(), streamId, payload));
+      child.addChunk(Chunk(layer->ns().str(), streamId, payload));
       return std::make_shared<Layer>(std::move(child));
     }
   };

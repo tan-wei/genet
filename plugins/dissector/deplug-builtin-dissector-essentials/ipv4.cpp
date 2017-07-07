@@ -14,7 +14,7 @@ public:
   public:
     LayerPtr analyze(const LayerConstPtr &layer) override {
       fmt::Reader<Slice> reader(layer->payload());
-      Layer child(fmt::replace(layer->ns(), "<ipv4>", "ipv4"));
+      Layer child(PK_STRNS("ipv4"));
 
       uint8_t header = reader.readBE<uint8_t>();
       int version = header >> 4;
@@ -77,19 +77,19 @@ public:
       ttl.setError(reader.lastError());
 
       const std::unordered_map<
-        uint16_t, std::pair<std::string,std::string>> protoTable = {
-        {0x01, std::make_pair("ICMP", "icmp")},
-        {0x02, std::make_pair("IGMP", "igmp")},
-        {0x06, std::make_pair("TCP", "tcp")},
-        {0x11, std::make_pair("UDP", "udp")},
+        uint16_t, std::pair<std::string,strid>> protoTable = {
+        {0x01, std::make_pair("ICMP", PK_STRNS("*icmp"))},
+        {0x02, std::make_pair("IGMP", PK_STRNS("*igmp"))},
+        {0x06, std::make_pair("TCP", PK_STRNS("*tcp"))},
+        {0x11, std::make_pair("UDP", PK_STRNS("*udp"))},
       };
 
       uint8_t protocolNumber = reader.readBE<uint8_t>();
       Property proto(PK_STRID("protocol"), protocolNumber);
-      const auto &type = fmt::enums(protoTable, protocolNumber, std::make_pair("Unknown", ""));
+      const auto &type = fmt::enums(protoTable, protocolNumber, std::make_pair("Unknown", PK_STRNS("?")));
       proto.setSummary(type.first);
       if (!type.second.empty()) {
-        child.setNs(child.ns() + " <" + type.second + ">");
+        child.setNs(strns(PK_STRNS("ipv4"), type.second));
       }
       proto.setRange(reader.lastRange());
       proto.setError(reader.lastError());

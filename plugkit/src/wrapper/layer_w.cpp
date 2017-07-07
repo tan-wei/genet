@@ -103,8 +103,7 @@ NAN_GETTER(LayerWrapper::ns) {
 NAN_SETTER(LayerWrapper::setNs) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
-    // layer->setNs(*Nan::Utf8String(value));
-    // TODO:NS
+    layer->setNs(strns(*Nan::Utf8String(value)));
   }
 }
 
