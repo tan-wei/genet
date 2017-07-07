@@ -16,12 +16,29 @@ struct strns {
   constexpr strns(strid id1, strid id2, strid id3) : id{{id1, id2, id3}} {}
   constexpr strns(strid id1, strid id2) : id{{strid(), id1, id2}} {}
   constexpr strns(strid id1) : id{{strid(), strid(), id1}} {}
+  strns(const char *str);
+
   std::string str() const;
   strid primary() const;
   bool empty() const;
   bool match(const strns &other) const;
   bool operator==(const strns &other) const;
 };
+
+inline strns::strns(const char *str) {
+  size_t len = std::strlen(str);
+  size_t index = id.size();
+  for (int cursor = len - 1; cursor >= 0 && index > 0; --cursor) {
+    if (str[cursor] == ' ') {
+      if (str[cursor + 1] == '*') {
+        id[index - 1] = strid(str + cursor + 2);
+      } else {
+        id[index - 1] = strid(str + cursor + 1);
+      }
+      --index;
+    }
+  }
+}
 
 inline std::string strns::str() const {
   std::string buf;

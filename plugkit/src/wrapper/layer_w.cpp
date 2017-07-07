@@ -61,8 +61,7 @@ NAN_METHOD(LayerWrapper::New) {
     auto confValue = options->Get(Nan::New("confidence").ToLocalChecked());
     auto errorValue = options->Get(Nan::New("error").ToLocalChecked());
     if (nsValue->IsString()) {
-      // layer->setNs(*Nan::Utf8String(nsValue));
-      // TODO:NS
+      layer->setNs(strns(*Nan::Utf8String(nsValue)));
     }
     if (summaryValue->IsString()) {
       layer->setSummary(*Nan::Utf8String(summaryValue));
