@@ -162,7 +162,7 @@ StreamDissectorThread::processChunk(const Chunk *chunk) {
         auto frame = Frame::Private::create();
         frame->d->setLength(layer->payload().size());
         frame->d->setRootLayer(layer);
-        frames.push_back(std::move(frame));
+        frames.push_back(frame);
       }
       subChunks = findChunks(layer);
     }

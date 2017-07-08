@@ -226,7 +226,7 @@ bool PcapPlatform::start() {
             frame->d->setRootLayer(layer);
             frame->d->setLength(h->len);
 
-            self.d->callback(std::move(frame));
+            self.d->callback(frame);
           }
         }, reinterpret_cast<u_char *>(this));
     {

@@ -86,7 +86,7 @@ bool PcapDummy::start() {
           frame->d->setLength(125);
           frame->d->setRootLayer(layer);
 
-          d->callback(std::move(frame));
+          d->callback(frame);
         }
         std::this_thread::sleep_for(std::chrono::microseconds(1));
       }

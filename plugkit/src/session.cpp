@@ -264,7 +264,7 @@ void Session::analyze(const std::vector<RawFrame> &rawFrames) {
                                                           : raw.length);
     frame->d->setRootLayer(rootLayer);
     frame->d->setIndex(d->getSeq());
-    frames.push_back(std::move(frame));
+    frames.push_back(frame);
   }
   d->dissectorPool->push(&frames[0], frames.size());
 }
