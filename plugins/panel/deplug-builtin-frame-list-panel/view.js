@@ -21,6 +21,8 @@ class FrameItem {
     const itemHeight = vnode.attrs.itemHeight
     const src = this.frame.propertyFromId('src')
     const dst = this.frame.propertyFromId('dst')
+    const id = this.frame.primaryLayer.id
+    const name = (id in Session.descriptors) ? Session.descriptors[id].name : 'Unknown'
     return <div
       class="frame-item"
       data-layer={this.frame.primaryLayer.namespace}
@@ -36,7 +38,7 @@ class FrameItem {
       }}
     >
       <div class="frame-column">{seq}</div>
-      <div class="frame-column">{Session.descriptors[this.frame.primaryLayer.id].name}</div>
+      <div class="frame-column">{name}</div>
       <div class="frame-column">{src ? src.summary : ''}</div>
       <div class="frame-column">{dst ? dst.summary : ''}</div>
       <div class="frame-column">{this.frame.length}</div>
