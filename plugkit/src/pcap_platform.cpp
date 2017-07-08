@@ -3,6 +3,7 @@
 #include "private/frame.hpp"
 #include "slice.hpp"
 #include "stream_logger.hpp"
+#include "memory_pool.hpp"
 #include <mutex>
 #include <pcap.h>
 #include <signal.h>
@@ -49,6 +50,8 @@ public:
   std::string networkInterface;
   bool promiscuous = false;
   int snaplen = 2048;
+
+  MemoryPool<Layer> layerPool;
 
   std::function<decltype(::pcap_freecode)> pcapFreecode;
   std::function<decltype(::pcap_open_live)> pcapOpenLive;
@@ -211,7 +214,7 @@ bool PcapPlatform::start() {
           PcapPlatform &self = *reinterpret_cast<PcapPlatform *>(user);
           if (self.d->callback) {
             // TODO:ALLOC
-            auto layer = new Layer();
+            auto layer = new (self.d->layerPool.alloc()) Layer();
             layer->setNs(self.d->ns);
             layer->setPayload(
                 Slice(reinterpret_cast<const char *>(bytes), h->caplen));
