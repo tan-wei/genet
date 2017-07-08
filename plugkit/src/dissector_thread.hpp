@@ -9,8 +9,8 @@ namespace plugkit {
 
 class Frame;
 
-using FrameUniqueQueue = Queue<Frame *>;
-using FrameUniqueQueuePtr = std::shared_ptr<FrameUniqueQueue>;
+using FrameQueue = Queue<Frame *>;
+using FrameQueuePtr = std::shared_ptr<FrameQueue>;
 
 class DissectorFactory;
 using DissectorFactoryConstPtr = std::shared_ptr<const DissectorFactory>;
@@ -22,7 +22,7 @@ public:
   using Callback = std::function<void(Frame **, size_t)>;
 
 public:
-  DissectorThread(const Variant &options, const FrameUniqueQueuePtr &queue,
+  DissectorThread(const Variant &options, const FrameQueuePtr &queue,
                   const Callback &callback);
   ~DissectorThread() override;
   void pushDissectorFactory(const DissectorFactoryConstPtr &factory);

@@ -17,7 +17,7 @@ public:
   std::vector<std::unique_ptr<DissectorThread>> threads;
   std::vector<DissectorFactoryConstPtr> dissectorFactories;
   LoggerPtr logger = std::make_shared<StreamLogger>();
-  FrameUniqueQueuePtr queue = std::make_shared<FrameUniqueQueue>();
+  FrameQueuePtr queue = std::make_shared<FrameQueue>();
   Callback callback;
   Variant options;
 };

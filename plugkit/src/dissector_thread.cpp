@@ -15,7 +15,7 @@ namespace plugkit {
 
 class DissectorThread::Private {
 public:
-  FrameUniqueQueuePtr queue;
+  FrameQueuePtr queue;
   Callback callback;
   std::vector<DissectorFactoryConstPtr> factories;
   std::unordered_map<Dissector::WorkerPtr, std::vector<strns>> workers;
@@ -25,7 +25,7 @@ public:
 };
 
 DissectorThread::DissectorThread(const Variant &options,
-                                 const FrameUniqueQueuePtr &queue,
+                                 const FrameQueuePtr &queue,
                                  const Callback &callback)
     : d(new Private()) {
   d->options = options;
@@ -65,7 +65,7 @@ bool DissectorThread::loop() {
   for (size_t i = 0; i < size; ++i) {
     std::unordered_set<strns> dissectedNamespaces;
 
-    Frame *&frame = frames[i];
+    Frame *frame = frames[i];
     const auto &rootLayer = frame->rootLayer();
     if (!rootLayer)
       continue;
