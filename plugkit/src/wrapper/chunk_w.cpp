@@ -38,7 +38,7 @@ void ChunkWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
 
 ChunkWrapper::ChunkWrapper(Chunk *chunk) : chunk(chunk), constChunk(chunk) {}
 
-ChunkWrapper::ChunkWrapper(const ChunkConstPtr &chunk) : constChunk(chunk) {}
+ChunkWrapper::ChunkWrapper(const Chunk *chunk) : constChunk(chunk) {}
 
 NAN_METHOD(ChunkWrapper::New) {
   // TODO:ALLOC
@@ -153,7 +153,7 @@ NAN_METHOD(ChunkWrapper::toJSON) {
   info.GetReturnValue().Set(obj);
 }
 
-v8::Local<v8::Object> ChunkWrapper::wrap(const ChunkConstPtr &chunk) {
+v8::Local<v8::Object> ChunkWrapper::wrap(const Chunk *chunk) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
       isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
@@ -167,7 +167,7 @@ v8::Local<v8::Object> ChunkWrapper::wrap(const ChunkConstPtr &chunk) {
   return obj;
 }
 
-ChunkConstPtr ChunkWrapper::unwrap(v8::Local<v8::Object> obj) {
+const Chunk *ChunkWrapper::unwrap(v8::Local<v8::Object> obj) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
       isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);

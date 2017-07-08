@@ -7,12 +7,11 @@
 namespace plugkit {
 
 class FrameView;
-using FrameViewConstPtr = const FrameView *;
 
 class FrameWrapper final : public Nan::ObjectWrap {
 public:
   static void init(v8::Isolate *isolate);
-  static v8::Local<v8::Object> wrap(const FrameViewConstPtr &view);
+  static v8::Local<v8::Object> wrap(const FrameView *view);
   static const FrameView *unwrap(v8::Local<v8::Object> obj);
   static NAN_METHOD(New);
   static NAN_GETTER(timestamp);
@@ -27,12 +26,12 @@ public:
   static NAN_METHOD(layerFromId);
 
 private:
-  FrameWrapper(const FrameViewConstPtr &view);
+  FrameWrapper(const FrameView *view);
   FrameWrapper(const FrameWrapper &) = delete;
   FrameWrapper &operator=(const FrameWrapper &) = delete;
 
 private:
-  FrameViewConstPtr view;
+  const FrameView *view;
 };
 }
 

@@ -10,12 +10,8 @@
 namespace plugkit {
 
 class Slice;
-
 class Property;
-using PropertyConstPtr = const Property *;
-
 class Layer;
-using LayerConstPtr = const Layer *;
 
 class PLUGKIT_EXPORT Chunk final {
 public:
@@ -32,11 +28,11 @@ public:
   const Slice &payload() const;
   void setPayload(const Slice &payload);
 
-  const std::vector<PropertyConstPtr> &properties() const;
-  PropertyConstPtr propertyFromId(strid id) const;
-  void addProperty(const PropertyConstPtr &prop);
+  const std::vector<const Property *> &properties() const;
+  const Property *propertyFromId(strid id) const;
+  void addProperty(const Property *prop);
 
-  LayerConstPtr layer() const;
+  const Layer *layer() const;
 
 private:
   Chunk(const Chunk &chunk) = delete;

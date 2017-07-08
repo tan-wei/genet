@@ -8,22 +8,21 @@
 namespace plugkit {
 
 class Layer;
-using LayerConstWeakPtr = const Layer *;
 
 class Chunk::Private {
 public:
   Private(const strns &ns, const std::string &id, const Slice &payload);
 
-  LayerConstPtr layer() const;
-  void setLayer(const LayerConstWeakPtr &layer);
+  const Layer *layer() const;
+  void setLayer(const Layer *layer);
 
 public:
   strns streamNs;
   std::string streamId;
   Slice payload;
-  std::vector<PropertyConstPtr> properties;
+  std::vector<const Property *> properties;
   std::unordered_map<std::string, size_t> idMap;
-  LayerConstWeakPtr layer_;
+  const Layer *layer_;
 };
 }
 

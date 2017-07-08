@@ -45,10 +45,9 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   Nan::Set(exports, Nan::New("Layer").ToLocalChecked(), func);
 }
 
-LayerWrapper::LayerWrapper(const LayerConstWeakPtr &layer) : weakLayer(layer) {}
+LayerWrapper::LayerWrapper(const Layer *layer) : weakLayer(layer) {}
 
-LayerWrapper::LayerWrapper(const LayerPtr &layer)
-    : weakLayer(layer), layer(layer) {}
+LayerWrapper::LayerWrapper(Layer *layer) : weakLayer(layer), layer(layer) {}
 
 NAN_METHOD(LayerWrapper::New) {
   // TODO:ALLOC
@@ -306,7 +305,7 @@ NAN_GETTER(LayerWrapper::hasError) {
   }
 }
 
-v8::Local<v8::Object> LayerWrapper::wrap(const LayerConstWeakPtr &layer) {
+v8::Local<v8::Object> LayerWrapper::wrap(const Layer *layer) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
       isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
@@ -320,7 +319,7 @@ v8::Local<v8::Object> LayerWrapper::wrap(const LayerConstWeakPtr &layer) {
   return obj;
 }
 
-LayerConstPtr LayerWrapper::unwrapConst(v8::Local<v8::Object> obj) {
+const Layer *LayerWrapper::unwrapConst(v8::Local<v8::Object> obj) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
       isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
@@ -333,7 +332,7 @@ LayerConstPtr LayerWrapper::unwrapConst(v8::Local<v8::Object> obj) {
   return nullptr;
 }
 
-LayerPtr LayerWrapper::unwrap(v8::Local<v8::Object> obj) {
+Layer *LayerWrapper::unwrap(v8::Local<v8::Object> obj) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
       isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);

@@ -7,13 +7,12 @@
 namespace plugkit {
 
 class Chunk;
-using ChunkConstPtr = const Chunk *;
 
 class ChunkWrapper final : public Nan::ObjectWrap {
 public:
   static void init(v8::Isolate *isolate, v8::Local<v8::Object> exports);
-  static v8::Local<v8::Object> wrap(const ChunkConstPtr &chunk);
-  static ChunkConstPtr unwrap(v8::Local<v8::Object> obj);
+  static v8::Local<v8::Object> wrap(const Chunk *chunk);
+  static const Chunk *unwrap(v8::Local<v8::Object> obj);
   static NAN_METHOD(New);
   static NAN_GETTER(streamNs);
   static NAN_SETTER(setStreamNs);
@@ -29,13 +28,13 @@ public:
 
 private:
   ChunkWrapper(Chunk *chunk);
-  ChunkWrapper(const ChunkConstPtr &chunk);
+  ChunkWrapper(const Chunk *chunk);
   ChunkWrapper(const ChunkWrapper &) = delete;
   ChunkWrapper &operator=(const ChunkWrapper &) = delete;
 
 private:
   std::shared_ptr<Chunk> chunk;
-  ChunkConstPtr constChunk;
+  const Chunk *constChunk;
 };
 }
 

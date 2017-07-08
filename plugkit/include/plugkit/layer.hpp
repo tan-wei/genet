@@ -10,20 +10,9 @@
 namespace plugkit {
 
 class Layer;
-using LayerPtr = Layer *;
-using LayerConstPtr = const Layer *;
-using LayerConstWeakPtr = const Layer *;
-
 class Property;
-using PropertyConstPtr = const Property *;
-
 class Frame;
-using FrameConstPtr = const Frame *;
-using FrameConstWeakPtr = const Frame *;
-
 class Chunk;
-using ChunkConstPtr = const Chunk *;
-
 class Slice;
 
 class PLUGKIT_EXPORT Layer final {
@@ -45,26 +34,26 @@ public:
   std::string error() const;
   void setError(const std::string &error);
 
-  const std::vector<LayerConstPtr> &children() const;
-  void addChild(const LayerPtr &child);
+  const std::vector<const Layer *> &children() const;
+  void addChild(const Layer *child);
 
-  const std::vector<PropertyConstPtr> &properties() const;
-  PropertyConstPtr propertyFromId(strid id) const;
-  void addProperty(const PropertyConstPtr &prop);
+  const std::vector<const Property *> &properties() const;
+  const Property *propertyFromId(strid id) const;
+  void addProperty(const Property *prop);
   void addProperty(Property &&prop);
 
-  const std::vector<ChunkConstPtr> &chunks() const;
-  void addChunk(const ChunkConstPtr &chunk);
+  const std::vector<const Chunk *> &chunks() const;
+  void addChunk(const Chunk *chunk);
   void addChunk(Chunk &&chunk);
 
   const Slice &payload() const;
   void setPayload(const Slice &payload);
 
-  LayerConstPtr parent() const;
-  void setParent(const LayerConstWeakPtr &layer);
+  const Layer *parent() const;
+  void setParent(const Layer *layer);
 
-  FrameConstPtr frame() const;
-  void setFrame(const FrameConstWeakPtr &frame);
+  const Frame *frame() const;
+  void setFrame(const Frame *frame);
 
   bool hasError() const;
 

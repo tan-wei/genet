@@ -32,7 +32,7 @@ void FrameWrapper::init(v8::Isolate *isolate) {
   module->frame.ctor.Reset(isolate, Nan::GetFunction(tpl).ToLocalChecked());
 }
 
-FrameWrapper::FrameWrapper(const FrameViewConstPtr &view) : view(view) {}
+FrameWrapper::FrameWrapper(const FrameView *view) : view(view) {}
 
 NAN_METHOD(FrameWrapper::New) { info.GetReturnValue().Set(info.This()); }
 
@@ -137,7 +137,7 @@ NAN_METHOD(FrameWrapper::layerFromId) {
   }
 }
 
-v8::Local<v8::Object> FrameWrapper::wrap(const FrameViewConstPtr &view) {
+v8::Local<v8::Object> FrameWrapper::wrap(const FrameView *view) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
       isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);

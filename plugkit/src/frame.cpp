@@ -3,7 +3,7 @@
 
 namespace plugkit {
 
-FrameUniquePtr Frame::Private::create() {
+Frame *Frame::Private::create() {
   // TODO:ALLOC
   return new Frame();
 }
@@ -32,11 +32,11 @@ uint32_t Frame::Private::index() const { return seq_; }
 
 void Frame::Private::setIndex(uint32_t index) { seq_ = index; }
 
-LayerPtr Frame::rootLayer() const { return d->rootLayer(); }
+Layer *Frame::rootLayer() const { return d->rootLayer(); }
 
-LayerPtr Frame::Private::rootLayer() const { return layer_; }
+Layer *Frame::Private::rootLayer() const { return layer_; }
 
-void Frame::Private::setRootLayer(const LayerPtr &layer) { layer_ = layer; }
+void Frame::Private::setRootLayer(Layer *layer) { layer_ = layer; }
 
 uint32_t Frame::sourceId() const { return d->sourceId(); }
 

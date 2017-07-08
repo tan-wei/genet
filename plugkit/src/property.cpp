@@ -12,7 +12,7 @@ public:
   std::string summary;
   std::string error;
   Variant value;
-  std::vector<PropertyConstPtr> children;
+  std::vector<const Property *> children;
 };
 
 Property::Private::Private(strid id, const Variant &value)
@@ -49,20 +49,20 @@ Variant Property::value() const { return d->value; }
 
 void Property::setValue(const Variant &value) { d->value = value; }
 
-const std::vector<PropertyConstPtr> &Property::properties() const {
+const std::vector<const Property *> &Property::properties() const {
   return d->children;
 }
 
-PropertyConstPtr Property::propertyFromId(strid id) const {
+const Property *Property::propertyFromId(strid id) const {
   for (const auto &child : d->children) {
     if (child->id() == id) {
       return child;
     }
   }
-  return PropertyConstPtr();
+  return nullptr;
 }
 
-void Property::addProperty(const PropertyConstPtr &prop) {
+void Property::addProperty(const Property *prop) {
   d->children.push_back(prop);
 }
 

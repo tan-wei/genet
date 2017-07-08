@@ -9,11 +9,9 @@ Chunk::Private::Private(const strns &ns, const std::string &id,
                         const Slice &payload)
     : streamNs(ns), streamId(id), payload(payload) {}
 
-LayerConstPtr Chunk::Private::layer() const { return layer_; }
+const Layer *Chunk::Private::layer() const { return layer_; }
 
-void Chunk::Private::setLayer(const LayerConstWeakPtr &layer) {
-  layer_ = layer;
-}
+void Chunk::Private::setLayer(const Layer *layer) { layer_ = layer; }
 
 Chunk::Chunk() : d(new Private(strns(), "", Slice())) {}
 
@@ -32,7 +30,7 @@ std::string Chunk::streamId() const { return d->streamId; }
 
 void Chunk::setStreamId(const std::string &id) { d->streamId = id; }
 
-const std::vector<PropertyConstPtr> &Chunk::properties() const {
+const std::vector<const Property *> &Chunk::properties() const {
   return d->properties;
 }
 
@@ -40,18 +38,16 @@ const Slice &Chunk::payload() const { return d->payload; }
 
 void Chunk::setPayload(const Slice &payload) { d->payload = payload; }
 
-PropertyConstPtr Chunk::propertyFromId(strid id) const {
+const Property *Chunk::propertyFromId(strid id) const {
   for (const auto &child : d->properties) {
     if (child->id() == id) {
       return child;
     }
   }
-  return PropertyConstPtr();
+  return nullptr;
 }
 
-void Chunk::addProperty(const PropertyConstPtr &prop) {
-  d->properties.push_back(prop);
-}
+void Chunk::addProperty(const Property *prop) { d->properties.push_back(prop); }
 
-LayerConstPtr Chunk::layer() const { return d->layer(); }
+const Layer *Chunk::layer() const { return d->layer(); }
 }

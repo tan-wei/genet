@@ -9,7 +9,6 @@
 namespace plugkit {
 
 class Layer;
-using LayerPtr = Layer *;
 
 class PLUGKIT_EXPORT Frame final {
 public:
@@ -21,7 +20,7 @@ public:
   Timestamp timestamp() const;
   size_t length() const;
   uint32_t index() const;
-  LayerPtr rootLayer() const;
+  Layer *rootLayer() const;
 
   uint32_t sourceId() const;
 

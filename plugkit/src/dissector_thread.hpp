@@ -8,10 +8,8 @@
 namespace plugkit {
 
 class Frame;
-using FrameConstPtr = const Frame *;
-using FrameUniquePtr = Frame *;
 
-using FrameUniqueQueue = Queue<FrameUniquePtr>;
+using FrameUniqueQueue = Queue<Frame *>;
 using FrameUniqueQueuePtr = std::shared_ptr<FrameUniqueQueue>;
 
 class DissectorFactory;
@@ -21,7 +19,7 @@ class Variant;
 
 class DissectorThread final : public WorkerThread {
 public:
-  using Callback = std::function<void(FrameUniquePtr *, size_t)>;
+  using Callback = std::function<void(Frame **, size_t)>;
 
 public:
   DissectorThread(const Variant &options, const FrameUniqueQueuePtr &queue,

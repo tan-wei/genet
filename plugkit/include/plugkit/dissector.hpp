@@ -11,11 +11,7 @@
 namespace plugkit {
 
 class Layer;
-using LayerPtr = Layer *;
-using LayerConstPtr = const Layer *;
-
 class Frame;
-using FrameConstPtr = const Frame *;
 
 struct SessionContext;
 
@@ -27,7 +23,7 @@ public:
   class PLUGKIT_EXPORT Worker {
   public:
     virtual ~Worker();
-    virtual LayerPtr analyze(const LayerConstPtr &layer) = 0;
+    virtual Layer *analyze(const Layer *layer) = 0;
   };
   using WorkerPtr = std::unique_ptr<Worker>;
 
@@ -44,8 +40,8 @@ using DissectorFactoryConstPtr = std::shared_ptr<const DissectorFactory>;
 class PLUGKIT_EXPORT DissectorFactory {
 public:
   struct TestData {
-    LayerConstPtr parent;
-    LayerConstPtr result;
+    const Layer *parent;
+    const Layer *result;
   };
 
 public:

@@ -36,14 +36,14 @@ ScriptDissector::Worker::~Worker() {
   d->workerFunc.Reset();
 }
 
-LayerPtr ScriptDissector::Worker::analyze(const LayerConstPtr &layer) {
+Layer *ScriptDissector::Worker::analyze(const Layer *layer) {
   using namespace v8;
   Isolate *isolate = Isolate::GetCurrent();
   v8::TryCatch tryCatch(isolate);
   auto func = Local<Function>::New(isolate, d->workerFunc);
   auto obj = Local<Object>::New(isolate, d->workerObj);
   if (func.IsEmpty() || obj.IsEmpty()) {
-    return LayerPtr();
+    return nullptr;
   }
 
   Local<Value> args[1] = {LayerWrapper::wrap(layer)};
@@ -52,14 +52,14 @@ LayerPtr ScriptDissector::Worker::analyze(const LayerConstPtr &layer) {
     auto msg = Logger::Private::fromV8Message(
         tryCatch.Message(), Logger::LEVEL_ERROR, "script_dissector");
     d->ctx.logger->log(std::move(msg));
-    return LayerPtr();
+    return nullptr;
   }
   if (result->IsObject()) {
-    if (const LayerPtr &child = LayerWrapper::unwrap(result.As<Object>())) {
+    if (Layer *child = LayerWrapper::unwrap(result.As<Object>())) {
       return child;
     }
   }
-  return LayerPtr();
+  return nullptr;
 }
 
 class ScriptDissector::Private {

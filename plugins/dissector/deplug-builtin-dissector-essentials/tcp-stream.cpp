@@ -53,7 +53,7 @@ class TCPStreamDissector final : public StreamDissector {
 public:
   class Worker final : public StreamDissector::Worker {
   public:
-    LayerPtr analyze(const ChunkConstPtr &chunk) override {
+    Layer* analyze(const Chunk *chunk) override {
       Layer child;
       const auto &layer = chunk->layer();
       const auto &payload = chunk->payload();

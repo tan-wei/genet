@@ -12,9 +12,7 @@ namespace plugkit {
 struct strns;
 
 class Frame;
-
 class FrameView;
-using FrameViewConstPtr = const FrameView *;
 
 class DissectorFactory;
 using DissectorFactoryConstPtr = std::shared_ptr<const DissectorFactory>;
@@ -74,7 +72,7 @@ public:
   std::vector<uint32_t> getFilteredFrames(const std::string &name,
                                           uint32_t offset,
                                           uint32_t length) const;
-  std::vector<FrameViewConstPtr> getFrames(uint32_t offset,
+  std::vector<const FrameView *> getFrames(uint32_t offset,
                                            uint32_t length) const;
 
   void analyze(const std::vector<RawFrame> &rawFrames);

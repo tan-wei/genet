@@ -9,7 +9,6 @@
 namespace plugkit {
 
 class FrameView;
-using FrameViewConstPtr = const FrameView *;
 
 class Filter {
 public:
@@ -24,7 +23,7 @@ public:
 public:
   Filter(const std::string &body);
   ~Filter();
-  bool test(const FrameViewConstPtr &frame) const;
+  bool test(const FrameView *frame) const;
 
 private:
   class Private;

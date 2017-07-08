@@ -12,7 +12,7 @@ class EthernetDissector final : public Dissector {
 public:
   class Worker final : public Dissector::Worker {
   public:
-    LayerPtr analyze(const LayerConstPtr &layer) override {
+    Layer* analyze(const Layer*layer) override {
       fmt::Reader<Slice> reader(layer->payload());
       Layer child("eth");
 

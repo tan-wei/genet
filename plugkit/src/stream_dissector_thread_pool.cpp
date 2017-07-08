@@ -82,17 +82,16 @@ void StreamDissectorThreadPool::start() {
 
   d->thread = std::thread([this, threads]() {
     size_t offset = 0;
-    std::array<FrameViewConstPtr, 128> views;
+    std::array<const FrameView *, 128> views;
     while (true) {
       size_t size = d->store->dequeue(offset, views.size(), &views.front());
       if (size == 0)
         return;
       offset += size;
 
-      std::function<std::vector<ChunkConstPtr>(const LayerConstPtr &)>
-          findChunks = [&findChunks](
-              const LayerConstPtr &layer) -> std::vector<ChunkConstPtr> {
-        std::vector<ChunkConstPtr> chunks;
+      std::function<std::vector<const Chunk *>(const Layer *)> findChunks =
+          [&findChunks](const Layer *layer) -> std::vector<const Chunk *> {
+        std::vector<const Chunk *> chunks;
         const auto &list = layer->chunks();
         for (const auto &chunk : list) {
           chunk->d->setLayer(layer);
@@ -105,7 +104,7 @@ void StreamDissectorThreadPool::start() {
         return chunks;
       };
 
-      std::vector<std::vector<ChunkConstPtr>> chunkMap;
+      std::vector<std::vector<const Chunk *>> chunkMap;
       chunkMap.resize(threads);
       for (size_t i = 0; i < size; ++i) {
         const auto &view = views[i];

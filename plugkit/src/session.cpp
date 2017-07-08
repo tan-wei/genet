@@ -130,19 +130,18 @@ Session::Session(const Config &config) : d(new Private()) {
       [this]() { d->notifyStatus(Private::UPDATE_FRAME); });
 
   d->dissectorPool.reset(new DissectorThreadPool(
-      config.options, [this](FrameUniquePtr *begin, size_t size) {
+      config.options, [this](Frame **begin, size_t size) {
         d->frameStore->insert(begin, size);
       }));
   d->dissectorPool->setLogger(d->logger);
 
-  d->streamDissectorPool.reset(
-      new StreamDissectorThreadPool(config.options, d->frameStore,
-                                    [this](FrameUniquePtr *begin, size_t size) {
-                                      for (size_t i = 0; i < size; ++i) {
-                                        begin[i]->d->setIndex(d->getSeq());
-                                      }
-                                      d->frameStore->insert(begin, size);
-                                    }));
+  d->streamDissectorPool.reset(new StreamDissectorThreadPool(
+      config.options, d->frameStore, [this](Frame **begin, size_t size) {
+        for (size_t i = 0; i < size; ++i) {
+          begin[i]->d->setIndex(d->getSeq());
+        }
+        d->frameStore->insert(begin, size);
+      }));
   d->streamDissectorPool->setLogger(d->logger);
 
   d->pcap->setCallback([this](Frame *frame) {
@@ -240,13 +239,13 @@ std::vector<uint32_t> Session::getFilteredFrames(const std::string &name,
   return std::vector<uint32_t>();
 }
 
-std::vector<FrameViewConstPtr> Session::getFrames(uint32_t offset,
+std::vector<const FrameView *> Session::getFrames(uint32_t offset,
                                                   uint32_t length) const {
   return d->frameStore->get(offset, length);
 }
 
 void Session::analyze(const std::vector<RawFrame> &rawFrames) {
-  std::vector<FrameUniquePtr> frames;
+  std::vector<Frame *> frames;
   for (const RawFrame &raw : rawFrames) {
     // TODO:ALLOC
     auto rootLayer = new Layer();
@@ -258,7 +257,7 @@ void Session::analyze(const std::vector<RawFrame> &rawFrames) {
     }
     rootLayer->setPayload(raw.payload);
 
-    FrameUniquePtr frame = Frame::Private::create();
+    Frame *frame = Frame::Private::create();
     frame->d->setSourceId(raw.sourceId);
     frame->d->setTimestamp(raw.timestamp);
     frame->d->setLength((raw.length < raw.payload.size()) ? raw.payload.size()

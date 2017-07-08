@@ -20,7 +20,7 @@ public:
 public:
   Variant options;
   Callback callback;
-  Queue<ChunkConstPtr> queue;
+  Queue<const Chunk *> queue;
   std::vector<StreamDissectorFactoryConstPtr> factories;
   std::unordered_map<StreamDissectorPtr, std::vector<strns>> dissectors;
   std::atomic<uint32_t> queuedFrames;
@@ -79,7 +79,7 @@ void StreamDissectorThread::enter() {
 }
 
 bool StreamDissectorThread::loop() {
-  std::vector<ChunkConstPtr> chunks;
+  std::vector<const Chunk *> chunks;
   chunks.resize(128);
   d->queuedFrames.store(0, std::memory_order_relaxed);
   size_t size = d->queue.dequeue(std::begin(chunks), chunks.capacity());
@@ -112,14 +112,14 @@ void StreamDissectorThread::exit() {
   d->workers.clear();
 }
 
-void StreamDissectorThread::push(const ChunkConstPtr *begin, size_t size) {
+void StreamDissectorThread::push(const Chunk *const *begin, size_t size) {
   d->queue.enqueue(begin, begin + size);
 }
 
 void StreamDissectorThread::stop() { d->queue.close(); }
 
-std::vector<ChunkConstPtr>
-StreamDissectorThread::processChunk(const ChunkConstPtr &chunk) {
+std::vector<const Chunk *>
+StreamDissectorThread::processChunk(const Chunk *chunk) {
   const strns &ns = strns(chunk->streamNs());
   auto &workers = d->workers[ns][chunk->streamId()];
 
@@ -141,11 +141,11 @@ StreamDissectorThread::processChunk(const ChunkConstPtr &chunk) {
     }
   }
 
-  std::vector<ChunkConstPtr> subChunks;
+  std::vector<const Chunk *> subChunks;
 
-  std::function<std::vector<ChunkConstPtr>(const LayerConstPtr &)> findChunks =
-      [&findChunks](const LayerConstPtr &layer) -> std::vector<ChunkConstPtr> {
-    std::vector<ChunkConstPtr> chunks;
+  std::function<std::vector<const Chunk *>(const Layer *)> findChunks =
+      [&findChunks](const Layer *layer) -> std::vector<const Chunk *> {
+    std::vector<const Chunk *> chunks;
     const auto &list = layer->chunks();
     chunks.insert(chunks.begin(), list.begin(), list.end());
     for (const auto &child : layer->children()) {
@@ -155,7 +155,7 @@ StreamDissectorThread::processChunk(const ChunkConstPtr &chunk) {
     return chunks;
   };
 
-  std::vector<FrameUniquePtr> frames;
+  std::vector<Frame *> frames;
   for (const auto &worker : workers.list) {
     if (const auto &layer = worker->analyze(chunk)) {
       if (!layer->ns().empty()) {

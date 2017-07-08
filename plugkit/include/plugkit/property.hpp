@@ -10,7 +10,6 @@
 namespace plugkit {
 
 class Property;
-using PropertyConstPtr = const Property *;
 
 class PLUGKIT_EXPORT Property final {
 public:
@@ -30,9 +29,9 @@ public:
   Variant value() const;
   void setValue(const Variant &value);
 
-  const std::vector<PropertyConstPtr> &properties() const;
-  PropertyConstPtr propertyFromId(strid id) const;
-  void addProperty(const PropertyConstPtr &prop);
+  const std::vector<const Property *> &properties() const;
+  const Property *propertyFromId(strid id) const;
+  void addProperty(const Property *prop);
   void addProperty(Property &&prop);
 
 private:

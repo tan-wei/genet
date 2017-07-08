@@ -55,7 +55,7 @@ void DissectorThread::enter() {
 }
 
 bool DissectorThread::loop() {
-  std::array<FrameUniquePtr, 128> frames;
+  std::array<Frame *, 128> frames;
   d->queuedFrames.store(0, std::memory_order_relaxed);
   size_t size = d->queue->dequeue(std::begin(frames), frames.size());
   d->queuedFrames.store(size, std::memory_order_relaxed);
@@ -65,15 +65,15 @@ bool DissectorThread::loop() {
   for (size_t i = 0; i < size; ++i) {
     std::unordered_set<strns> dissectedNamespaces;
 
-    FrameUniquePtr &frame = frames[i];
+    Frame *&frame = frames[i];
     const auto &rootLayer = frame->rootLayer();
     if (!rootLayer)
       continue;
 
     std::vector<Dissector::Worker *> workers;
-    std::vector<LayerPtr> layers = {rootLayer};
+    std::vector<Layer *> layers = {rootLayer};
     while (!layers.empty()) {
-      std::vector<LayerPtr> nextlayers;
+      std::vector<Layer *> nextlayers;
       for (const auto &layer : layers) {
         const strns &ns = layer->ns();
         dissectedNamespaces.insert(ns);
@@ -87,9 +87,9 @@ bool DissectorThread::loop() {
           }
         }
 
-        std::vector<LayerPtr> childLayers;
+        std::vector<Layer *> childLayers;
         for (auto *worker : workers) {
-          if (const LayerPtr &childLayer = worker->analyze(layer)) {
+          if (Layer *childLayer = worker->analyze(layer)) {
             if (childLayer->confidence() >= d->confidenceThreshold) {
               childLayer->setParent(layer);
               childLayers.push_back(childLayer);
@@ -100,10 +100,10 @@ bool DissectorThread::loop() {
           }
         }
         std::sort(childLayers.begin(), childLayers.end(),
-                  [](const LayerConstPtr &a, const LayerConstPtr &b) {
+                  [](const Layer *a, const Layer *b) {
                     return b->confidence() < a->confidence();
                   });
-        for (const LayerPtr &child : childLayers) {
+        for (const Layer *child : childLayers) {
           layer->addChild(child);
         }
       }

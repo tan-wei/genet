@@ -17,8 +17,8 @@ public:
 
 public:
   std::atomic<size_t> size;
-  std::map<uint32_t, FrameUniquePtr> sequence;
-  std::vector<FrameViewConstPtr> frames;
+  std::map<uint32_t, Frame *> sequence;
+  std::vector<const FrameView *> frames;
   uint32_t maxSeq = 0;
   std::mutex mutex;
   std::condition_variable cond;
@@ -38,7 +38,7 @@ FrameStore::FrameStore(const Callback &callback) : d(new Private()) {
 
 FrameStore::~FrameStore() { close(); }
 
-void FrameStore::insert(FrameUniquePtr *begin, size_t size) {
+void FrameStore::insert(Frame **begin, size_t size) {
   std::lock_guard<std::mutex> lock(d->mutex);
   for (size_t i = 0; i < size; ++i) {
     d->sequence[begin[i]->index()] = std::move(begin[i]);
@@ -60,7 +60,7 @@ void FrameStore::insert(FrameUniquePtr *begin, size_t size) {
   }
 }
 
-size_t FrameStore::dequeue(size_t offset, size_t max, FrameViewConstPtr *dst,
+size_t FrameStore::dequeue(size_t offset, size_t max, const FrameView **dst,
                            std::thread::id id) const {
   std::unique_lock<std::mutex> lock(d->mutex);
   size_t read = 0;
@@ -84,9 +84,9 @@ size_t FrameStore::dequeue(size_t offset, size_t max, FrameViewConstPtr *dst,
   return read;
 }
 
-std::vector<FrameViewConstPtr> FrameStore::get(uint32_t offset,
+std::vector<const FrameView *> FrameStore::get(uint32_t offset,
                                                uint32_t length) const {
-  std::vector<FrameViewConstPtr> frames;
+  std::vector<const FrameView *> frames;
   std::unique_lock<std::mutex> lock(d->mutex);
   for (size_t i = offset; i < offset + length && i < d->frames.size(); ++i) {
     frames.push_back(d->frames[i]);

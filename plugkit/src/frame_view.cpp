@@ -9,28 +9,28 @@ namespace plugkit {
 
 class FrameView::Private {
 public:
-  FrameConstPtr frame;
-  LayerConstPtr primaryLayer;
-  std::vector<LayerConstPtr> leafLayers;
-  std::vector<LayerConstPtr> layers;
+  const Frame *frame;
+  const Layer *primaryLayer;
+  std::vector<const Layer *> leafLayers;
+  std::vector<const Layer *> layers;
   bool hasError = false;
   std::mutex mutex;
 };
 
-FrameView::FrameView(FrameConstPtr frame) : d(new Private()) {
+FrameView::FrameView(const Frame *frame) : d(new Private()) {
   d->frame = frame; // FIXME
 
-  std::function<void(const LayerConstPtr &)> findLeafLayers =
-      [this, &findLeafLayers](const LayerConstPtr &layer) {
-        d->layers.push_back(layer);
-        if (layer->children().empty()) {
-          d->leafLayers.push_back(layer);
-        } else {
-          for (const LayerConstPtr &child : layer->children()) {
-            findLeafLayers(child);
-          }
-        }
-      };
+  std::function<void(const Layer *)> findLeafLayers = [this, &findLeafLayers](
+      const Layer *layer) {
+    d->layers.push_back(layer);
+    if (layer->children().empty()) {
+      d->leafLayers.push_back(layer);
+    } else {
+      for (const Layer *child : layer->children()) {
+        findLeafLayers(child);
+      }
+    }
+  };
   findLeafLayers(d->frame->rootLayer());
 
   if (!d->leafLayers.empty()) {
@@ -38,7 +38,7 @@ FrameView::FrameView(FrameConstPtr frame) : d(new Private()) {
     if (d->primaryLayer->error().size()) {
       d->hasError = true;
     } else {
-      for (const PropertyConstPtr &prop : d->primaryLayer->properties()) {
+      for (const Property *prop : d->primaryLayer->properties()) {
         if (prop->error().size()) {
           d->hasError = true;
           break;
@@ -53,30 +53,30 @@ FrameView::FrameView(FrameConstPtr frame) : d(new Private()) {
 
 FrameView::~FrameView() {}
 
-FrameConstPtr FrameView::frame() const { return d->frame; }
+const Frame *FrameView::frame() const { return d->frame; }
 
-LayerConstPtr FrameView::primaryLayer() const { return d->primaryLayer; }
+const Layer *FrameView::primaryLayer() const { return d->primaryLayer; }
 
-const std::vector<LayerConstPtr> &FrameView::leafLayers() const {
+const std::vector<const Layer *> &FrameView::leafLayers() const {
   return d->leafLayers;
 }
 
-PropertyConstPtr FrameView::propertyFromId(strid id) const {
+const Property *FrameView::propertyFromId(strid id) const {
   for (auto layer = primaryLayer(); layer; layer = layer->parent()) {
     if (const auto &layerProp = layer->propertyFromId(id)) {
       return layerProp;
     }
   }
-  return PropertyConstPtr();
+  return nullptr;
 }
 
-LayerConstPtr FrameView::layerFromId(strid id) const {
+const Layer *FrameView::layerFromId(strid id) const {
   for (const auto &layer : d->layers) {
     if (layer->id() == id) {
       return layer;
     }
   }
-  return LayerConstPtr();
+  return nullptr;
 }
 
 bool FrameView::hasError() const { return d->hasError; }

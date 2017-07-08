@@ -8,27 +8,19 @@
 namespace plugkit {
 
 class Frame;
-using FrameConstPtr = const Frame *;
-using FrameUniquePtr = Frame *;
-
 class FrameView;
-using FrameViewConstPtr = const FrameView *;
-
 class Layer;
-using LayerConstPtr = const Layer *;
-
 class Property;
-using PropertyConstPtr = const Property *;
 
 class FrameView final {
 public:
-  explicit FrameView(FrameConstPtr frame);
+  explicit FrameView(const Frame *frame);
   ~FrameView();
-  FrameConstPtr frame() const;
-  LayerConstPtr primaryLayer() const;
-  const std::vector<LayerConstPtr> &leafLayers() const;
-  PropertyConstPtr propertyFromId(strid id) const;
-  LayerConstPtr layerFromId(strid id) const;
+  const Frame *frame() const;
+  const Layer *primaryLayer() const;
+  const std::vector<const Layer *> &leafLayers() const;
+  const Property *propertyFromId(strid id) const;
+  const Layer *layerFromId(strid id) const;
   bool hasError() const;
 
 private:

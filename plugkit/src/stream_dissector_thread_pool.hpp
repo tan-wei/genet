@@ -12,7 +12,6 @@ class Logger;
 using LoggerPtr = std::shared_ptr<Logger>;
 
 class Frame;
-using FrameUniquePtr = Frame *;
 
 class FrameStore;
 using FrameStorePtr = std::shared_ptr<FrameStore>;
@@ -25,7 +24,7 @@ class Variant;
 
 class StreamDissectorThreadPool final {
 public:
-  using Callback = std::function<void(FrameUniquePtr *, size_t)>;
+  using Callback = std::function<void(Frame **, size_t)>;
 
 public:
   StreamDissectorThreadPool(const Variant &options, const FrameStorePtr &store,

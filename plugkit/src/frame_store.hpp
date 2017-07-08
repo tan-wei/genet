@@ -9,14 +9,11 @@
 namespace plugkit {
 
 class Frame;
-using FrameConstPtr = const Frame *;
-using FrameUniquePtr = Frame *;
 
 class FrameStore;
 using FrameStorePtr = std::shared_ptr<FrameStore>;
 
 class FrameView;
-using FrameViewConstPtr = const FrameView *;
 
 class FrameStore {
 public:
@@ -25,11 +22,11 @@ public:
 public:
   FrameStore(const Callback &callback);
   ~FrameStore();
-  void insert(FrameUniquePtr *, size_t size);
-  size_t dequeue(size_t offset, size_t max, FrameViewConstPtr *dst,
+  void insert(Frame **, size_t size);
+  size_t dequeue(size_t offset, size_t max, const FrameView **dst,
                  std::thread::id id = std::thread::id()) const;
   size_t size() const;
-  std::vector<FrameViewConstPtr> get(uint32_t offset, uint32_t length) const;
+  std::vector<const FrameView *> get(uint32_t offset, uint32_t length) const;
   void close(std::thread::id id = std::thread::id());
 
 private:

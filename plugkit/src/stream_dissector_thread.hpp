@@ -8,10 +8,7 @@
 namespace plugkit {
 
 class Frame;
-using FrameUniquePtr = Frame *;
-
 class Chunk;
-using ChunkConstPtr = const Chunk *;
 
 class StreamDissectorFactory;
 using StreamDissectorFactoryConstPtr =
@@ -21,7 +18,7 @@ class Variant;
 
 class StreamDissectorThread final : public WorkerThread {
 public:
-  using Callback = std::function<void(FrameUniquePtr *, size_t)>;
+  using Callback = std::function<void(Frame **, size_t)>;
 
 public:
   StreamDissectorThread(const Variant &options, const Callback &callback);
@@ -31,12 +28,12 @@ public:
   void enter() override;
   bool loop() override;
   void exit() override;
-  void push(const ChunkConstPtr *begin, size_t size);
+  void push(const Chunk *const *begin, size_t size);
   void stop();
   uint32_t queue() const;
 
 private:
-  std::vector<ChunkConstPtr> processChunk(const ChunkConstPtr &chunk);
+  std::vector<const Chunk *> processChunk(const Chunk *chunk);
 
 private:
   class Private;

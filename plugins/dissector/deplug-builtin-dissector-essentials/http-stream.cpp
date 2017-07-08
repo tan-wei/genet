@@ -21,13 +21,13 @@ public:
       }
     }
 
-    LayerPtr analyze(const ChunkConstPtr &chunk) override {
+    Layer* analyze(const Chunk *chunk) override {
       Layer child(PK_STRNS("http"));
       const auto &layer = chunk->layer();
       uint16_t srcPort = layer->propertyFromId(PK_STRID("src"))->value().uint64Value();
       uint16_t dstPort = layer->propertyFromId(PK_STRID("dst"))->value().uint64Value();
       if (ports.find(srcPort) == ports.end() && ports.find(dstPort) == ports.end()) {
-        return LayerPtr();
+        return nullptr;
       }
       child.setPayload(chunk->payload());
 

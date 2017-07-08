@@ -63,14 +63,14 @@ ScriptStreamDissector::Worker::~Worker() {
   d->expiredFunc.Reset();
 }
 
-LayerPtr ScriptStreamDissector::Worker::analyze(const ChunkConstPtr &chunk) {
+Layer *ScriptStreamDissector::Worker::analyze(const Chunk *chunk) {
   using namespace v8;
   Isolate *isolate = Isolate::GetCurrent();
   v8::TryCatch tryCatch(isolate);
   auto func = Local<Function>::New(isolate, d->analyzeFunc);
   auto obj = Local<Object>::New(isolate, d->workerObj);
   if (func.IsEmpty() || obj.IsEmpty()) {
-    return LayerPtr();
+    return nullptr;
   }
 
   Local<Value> args[1] = {ChunkWrapper::wrap(chunk)};
@@ -80,15 +80,15 @@ LayerPtr ScriptStreamDissector::Worker::analyze(const ChunkConstPtr &chunk) {
     auto msg = Logger::Private::fromV8Message(
         tryCatch.Message(), Logger::LEVEL_ERROR, "script_stream_dissector");
     d->ctx.logger->log(std::move(msg));
-    return LayerPtr();
+    return nullptr;
   }
 
   if (result->IsObject()) {
-    if (const LayerPtr &layer = LayerWrapper::unwrap(result.As<Object>())) {
+    if (Layer *layer = LayerWrapper::unwrap(result.As<Object>())) {
       return layer;
     }
   }
-  return LayerPtr();
+  return nullptr;
 }
 
 bool ScriptStreamDissector::Worker::expired(

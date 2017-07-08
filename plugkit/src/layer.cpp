@@ -19,11 +19,11 @@ public:
   std::pair<uint32_t, uint32_t> range;
   double confidence = 1.0;
   Slice payload;
-  LayerConstWeakPtr parent;
-  FrameConstWeakPtr frame;
-  std::vector<LayerConstPtr> children;
-  std::vector<ChunkConstPtr> chunks;
-  std::vector<PropertyConstPtr> properties;
+  const Layer *parent;
+  const Frame *frame;
+  std::vector<const Layer *> children;
+  std::vector<const Chunk *> chunks;
+  std::vector<const Property *> properties;
 };
 
 Layer::Private::Private(const strns &ns) : ns(ns) {}
@@ -60,15 +60,15 @@ std::string Layer::error() const { return d->error; }
 
 void Layer::setError(const std::string &error) { d->error = error; }
 
-const std::vector<LayerConstPtr> &Layer::children() const {
+const std::vector<const Layer *> &Layer::children() const {
   return d->children;
 }
 
-void Layer::addChild(const LayerPtr &child) { d->children.push_back(child); }
+void Layer::addChild(const Layer *child) { d->children.push_back(child); }
 
-const std::vector<ChunkConstPtr> &Layer::chunks() const { return d->chunks; }
+const std::vector<const Chunk *> &Layer::chunks() const { return d->chunks; }
 
-void Layer::addChunk(const ChunkConstPtr &chunk) { d->chunks.push_back(chunk); }
+void Layer::addChunk(const Chunk *chunk) { d->chunks.push_back(chunk); }
 
 void Layer::addChunk(Chunk &&chunk) {
   // TODO:ALLOC
@@ -79,30 +79,28 @@ const Slice &Layer::payload() const { return d->payload; }
 
 void Layer::setPayload(const Slice &payload) { d->payload = payload; }
 
-const std::vector<PropertyConstPtr> &Layer::properties() const {
+const std::vector<const Property *> &Layer::properties() const {
   return d->properties;
 }
 
-LayerConstPtr Layer::parent() const { return d->parent; }
+const Layer *Layer::parent() const { return d->parent; }
 
-void Layer::setParent(const LayerConstWeakPtr &layer) { d->parent = layer; }
+void Layer::setParent(const Layer *layer) { d->parent = layer; }
 
-FrameConstPtr Layer::frame() const { return d->frame; }
+const Frame *Layer::frame() const { return d->frame; }
 
-void Layer::setFrame(const FrameConstWeakPtr &frame) { d->frame = frame; }
+void Layer::setFrame(const Frame *frame) { d->frame = frame; }
 
-PropertyConstPtr Layer::propertyFromId(strid id) const {
+const Property *Layer::propertyFromId(strid id) const {
   for (const auto &child : d->properties) {
     if (child->id() == id) {
       return child;
     }
   }
-  return PropertyConstPtr();
+  return nullptr;
 }
 
-void Layer::addProperty(const PropertyConstPtr &prop) {
-  d->properties.push_back(prop);
-}
+void Layer::addProperty(const Property *prop) { d->properties.push_back(prop); }
 
 void Layer::addProperty(Property &&prop) {
   // TODO:ALLOC
@@ -110,8 +108,8 @@ void Layer::addProperty(Property &&prop) {
 }
 
 bool Layer::hasError() const {
-  std::function<bool(const std::vector<PropertyConstPtr> &)> checkError =
-      [&checkError](const std::vector<PropertyConstPtr> &properties) {
+  std::function<bool(const std::vector<const Property *> &)> checkError =
+      [&checkError](const std::vector<const Property *> &properties) {
         for (const auto &prop : properties) {
           if (!prop->error().empty()) {
             return true;

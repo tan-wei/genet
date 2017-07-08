@@ -7,16 +7,13 @@
 namespace plugkit {
 
 class Layer;
-using LayerPtr = Layer *;
-using LayerConstPtr = const Layer *;
-using LayerConstWeakPtr = const Layer *;
 
 class LayerWrapper final : public Nan::ObjectWrap {
 public:
   static void init(v8::Isolate *isolate, v8::Local<v8::Object> exports);
-  static v8::Local<v8::Object> wrap(const LayerConstWeakPtr &layer);
-  static LayerConstPtr unwrapConst(v8::Local<v8::Object> obj);
-  static LayerPtr unwrap(v8::Local<v8::Object> obj);
+  static v8::Local<v8::Object> wrap(const Layer *layer);
+  static const Layer *unwrapConst(v8::Local<v8::Object> obj);
+  static Layer *unwrap(v8::Local<v8::Object> obj);
   static NAN_METHOD(New);
   static NAN_GETTER(id);
   static NAN_GETTER(ns);
@@ -43,14 +40,14 @@ public:
   static NAN_GETTER(hasError);
 
 private:
-  LayerWrapper(const LayerPtr &layer);
-  LayerWrapper(const LayerConstWeakPtr &layer);
+  LayerWrapper(const Layer *layer);
+  LayerWrapper(Layer *layer);
   LayerWrapper(const LayerWrapper &) = delete;
   LayerWrapper &operator=(const LayerWrapper &) = delete;
 
 private:
-  LayerConstWeakPtr weakLayer;
-  LayerPtr layer;
+  const Layer *weakLayer;
+  Layer *layer;
 };
 }
 

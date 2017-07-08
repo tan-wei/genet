@@ -12,7 +12,6 @@ class Logger;
 using LoggerPtr = std::shared_ptr<Logger>;
 
 class Frame;
-using FrameUniquePtr = Frame *;
 
 class DissectorFactory;
 using DissectorFactoryConstPtr = std::shared_ptr<const DissectorFactory>;
@@ -21,7 +20,7 @@ class Variant;
 
 class DissectorThreadPool final {
 public:
-  using Callback = std::function<void(FrameUniquePtr *, size_t)>;
+  using Callback = std::function<void(Frame **, size_t)>;
 
 public:
   DissectorThreadPool(const Variant &options, const Callback &callback);
@@ -31,7 +30,7 @@ public:
   void start();
   void registerDissector(const DissectorFactoryConstPtr &factory);
   void setLogger(const LoggerPtr &logger);
-  void push(FrameUniquePtr *begin, size_t length);
+  void push(Frame **begin, size_t length);
   uint32_t queue() const;
 
 private:

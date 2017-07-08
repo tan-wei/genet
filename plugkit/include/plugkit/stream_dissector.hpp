@@ -11,11 +11,7 @@
 namespace plugkit {
 
 class Layer;
-using LayerPtr = Layer *;
-using LayerConstPtr = const Layer *;
-
 class Chunk;
-using ChunkConstPtr = const Chunk *;
 
 struct SessionContext;
 
@@ -32,7 +28,7 @@ public:
   public:
     Worker();
     virtual ~Worker();
-    virtual LayerPtr analyze(const ChunkConstPtr &chunk) = 0;
+    virtual Layer *analyze(const Chunk *chunk) = 0;
     virtual bool expired(const Timestamp &lastUpdated) const;
 
   private:
@@ -55,8 +51,8 @@ using StreamDissectorFactoryConstPtr =
 class PLUGKIT_EXPORT StreamDissectorFactory {
 public:
   struct TestData {
-    std::vector<ChunkConstPtr> chunks;
-    LayerConstPtr result;
+    std::vector<const Chunk *> chunks;
+    const Layer *result;
   };
 
 public:

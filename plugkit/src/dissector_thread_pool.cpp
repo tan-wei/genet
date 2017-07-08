@@ -44,7 +44,7 @@ void DissectorThreadPool::start() {
   if (!d->threads.empty())
     return;
 
-  auto threadCallback = [this](FrameUniquePtr *begin, size_t size) {
+  auto threadCallback = [this](Frame **begin, size_t size) {
     d->callback(begin, size);
   };
 
@@ -72,7 +72,7 @@ void DissectorThreadPool::setLogger(const LoggerPtr &logger) {
   d->logger = logger;
 }
 
-void DissectorThreadPool::push(FrameUniquePtr *begin, size_t length) {
+void DissectorThreadPool::push(Frame **begin, size_t length) {
   d->queue->enqueue(begin, begin + length);
 }
 

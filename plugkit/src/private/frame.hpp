@@ -7,10 +7,7 @@
 namespace plugkit {
 
 class Frame;
-using FrameUniquePtr = Frame *;
-
 class Layer;
-using LayerPtr = Layer *;
 
 class Frame::Private final {
 public:
@@ -20,20 +17,20 @@ public:
   void setLength(size_t length);
   uint32_t index() const;
   void setIndex(uint32_t index);
-  LayerPtr rootLayer() const;
-  void setRootLayer(const LayerPtr &layer);
+  Layer *rootLayer() const;
+  void setRootLayer(Layer *layer);
 
   uint32_t sourceId() const;
   void setSourceId(uint32_t id);
 
 public:
-  static FrameUniquePtr create();
+  static Frame *create();
 
 private:
   Timestamp timestamp_ = std::chrono::system_clock::now();
   size_t length_ = 0;
   uint32_t seq_ = 0;
-  LayerPtr layer_;
+  Layer *layer_;
   uint32_t sourceId_ = 0;
 };
 }
