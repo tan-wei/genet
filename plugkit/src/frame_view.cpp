@@ -9,8 +9,8 @@ namespace plugkit {
 
 class FrameView::Private {
 public:
-  const Frame *frame;
-  const Layer *primaryLayer;
+  const Frame *frame = nullptr;
+  const Layer *primaryLayer = nullptr;
   std::vector<const Layer *> leafLayers;
   std::vector<const Layer *> layers;
   bool hasError = false;

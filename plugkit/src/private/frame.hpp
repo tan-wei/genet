@@ -30,7 +30,7 @@ private:
   Timestamp timestamp_ = std::chrono::system_clock::now();
   size_t length_ = 0;
   uint32_t seq_ = 0;
-  Layer *layer_;
+  Layer *layer_ = nullptr;
   uint32_t sourceId_ = 0;
 };
 }

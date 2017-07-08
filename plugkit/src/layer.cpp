@@ -19,8 +19,8 @@ public:
   std::pair<uint32_t, uint32_t> range;
   double confidence = 1.0;
   Slice payload;
-  const Layer *parent;
-  const Frame *frame;
+  const Layer *parent = nullptr;
+  const Frame *frame = nullptr;
   std::vector<const Layer *> children;
   std::vector<const Chunk *> chunks;
   std::vector<const Property *> properties;

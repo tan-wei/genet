@@ -22,7 +22,7 @@ public:
   Slice payload;
   std::vector<const Property *> properties;
   std::unordered_map<std::string, size_t> idMap;
-  const Layer *layer_;
+  const Layer *layer_ = nullptr;
 };
 }
 

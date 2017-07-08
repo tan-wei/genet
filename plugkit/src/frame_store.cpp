@@ -41,7 +41,7 @@ FrameStore::~FrameStore() { close(); }
 void FrameStore::insert(Frame **begin, size_t size) {
   std::lock_guard<std::mutex> lock(d->mutex);
   for (size_t i = 0; i < size; ++i) {
-    d->sequence[begin[i]->index()] = std::move(begin[i]);
+    d->sequence[begin[i]->index()] = begin[i];
   }
   uint32_t maxSeq = d->maxSeq;
   auto end = d->sequence.begin();
