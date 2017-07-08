@@ -19,9 +19,7 @@ private:
 
 template <class T, size_t initSize, int maxScale>
 MemoryPool<T, initSize, maxScale>::MemoryPool()
-    : used(0), block(initSize), scale(1) {
-  pool.push_back(new char[block * sizeof(T)]);
-}
+    : used(0), block(initSize), scale(1) {}
 
 template <class T, size_t initSize, int maxScale>
 MemoryPool<T, initSize, maxScale>::~MemoryPool() {
@@ -32,7 +30,9 @@ MemoryPool<T, initSize, maxScale>::~MemoryPool() {
 
 template <class T, size_t initSize, int maxScale>
 void *MemoryPool<T, initSize, maxScale>::alloc() {
-  if (used >= block) {
+  if (pool.empty()) {
+    pool.push_back(new char[block * sizeof(T)]);
+  } else if (used >= block) {
     if (scale < maxScale) {
       ++scale;
       block *= 2;
