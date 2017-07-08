@@ -4,7 +4,6 @@
 #include "extended_slot.hpp"
 #include "slice.hpp"
 #include <iomanip>
-#include <mutex>
 #include <nan.h>
 #include <sstream>
 #include <unordered_map>

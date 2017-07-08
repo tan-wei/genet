@@ -3,7 +3,6 @@
 #include "layer.hpp"
 #include "property.hpp"
 #include <functional>
-#include <mutex>
 
 namespace plugkit {
 
@@ -17,7 +16,6 @@ public:
   std::vector<const Layer *> leafLayers;
   std::vector<const Layer *> layers;
   bool hasError = false;
-  std::mutex mutex;
 };
 
 FrameView::Private::Private(const Frame *frame) : frame(frame) {}
