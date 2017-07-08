@@ -47,9 +47,6 @@ FrameView::FrameView(const Frame *frame) : d(new Private(frame)) {
       }
     }
   }
-
-  propertyFromId(PK_STRID("src"));
-  propertyFromId(PK_STRID("src"));
 }
 
 FrameView::~FrameView() {}
