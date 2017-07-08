@@ -1,7 +1,6 @@
 #include "frame_store.hpp"
 #include "frame.hpp"
 #include "frame_view.hpp"
-#include "memory_pool.hpp"
 #include <atomic>
 #include <condition_variable>
 #include <map>
@@ -26,7 +25,6 @@ public:
   std::unordered_set<std::thread::id> closedThreads;
   bool closed = false;
   Callback callback;
-  MemoryPool<FrameView> viewPool;
 };
 
 FrameStore::Private::Private() {}
@@ -49,7 +47,7 @@ void FrameStore::insert(Frame **begin, size_t size) {
   auto end = d->sequence.begin();
   for (auto it = d->sequence.find(maxSeq + 1); it != d->sequence.end();
        end = it, it = d->sequence.find(++maxSeq + 1)) {
-    d->frames.push_back(new (d->viewPool.alloc()) FrameView(it->second));
+    d->frames.push_back(new FrameView(it->second));
   }
   if (d->maxSeq < maxSeq) {
     std::atomic_store_explicit(&d->size, d->frames.size(),

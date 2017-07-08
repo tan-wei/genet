@@ -9,7 +9,6 @@
 #include "private/frame.hpp"
 #include "stream_dissector_thread_pool.hpp"
 #include "uvloop_logger.hpp"
-#include "memory_pool.hpp"
 #include "variant.hpp"
 #include <atomic>
 #include <unordered_map>
@@ -59,8 +58,6 @@ public:
   std::unique_ptr<Status> status;
   std::unique_ptr<FilterStatusMap> filterStatus;
   std::unique_ptr<FrameStatus> frameStatus;
-
-  MemoryPool<Layer> layerPool;
 
   Variant options;
   uv_async_t async;
@@ -250,7 +247,7 @@ std::vector<const FrameView *> Session::getFrames(uint32_t offset,
 void Session::analyze(const std::vector<RawFrame> &rawFrames) {
   std::vector<Frame *> frames;
   for (const RawFrame &raw : rawFrames) {
-    auto rootLayer = new (d->layerPool.alloc()) Layer();
+    auto rootLayer = new Layer();
     const auto &linkLayer = d->linkLayers.find(raw.link);
     if (linkLayer != d->linkLayers.end()) {
       rootLayer->setNs(linkLayer->second);
