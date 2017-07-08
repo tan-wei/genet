@@ -9,6 +9,9 @@ namespace plugkit {
 
 class FrameView::Private {
 public:
+  Private(const Frame *frame);
+
+public:
   const Frame *frame = nullptr;
   const Layer *primaryLayer = nullptr;
   std::vector<const Layer *> leafLayers;
@@ -17,9 +20,9 @@ public:
   std::mutex mutex;
 };
 
-FrameView::FrameView(const Frame *frame) : d(new Private()) {
-  d->frame = frame; // FIXME
+FrameView::Private::Private(const Frame *frame) : frame(frame) {}
 
+FrameView::FrameView(const Frame *frame) : d(new Private(frame)) {
   std::function<void(const Layer *)> findLeafLayers = [this, &findLeafLayers](
       const Layer *layer) {
     d->layers.push_back(layer);
