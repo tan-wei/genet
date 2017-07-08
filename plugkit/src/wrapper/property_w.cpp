@@ -1,6 +1,5 @@
 #include "property.hpp"
 #include "../plugkit/property.hpp"
-#include "extended_slot.hpp"
 #include "plugkit_module.hpp"
 #include "private/variant.hpp"
 
@@ -23,8 +22,7 @@ void PropertyWrapper::init(v8::Isolate *isolate,
   Nan::SetAccessor(otl, Nan::New("value").ToLocalChecked(), value, setValue);
   Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
 
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
   module->property.proto.Reset(
       isolate, ctor->Get(Nan::New("prototype").ToLocalChecked()));
@@ -190,8 +188,7 @@ NAN_METHOD(PropertyWrapper::addProperty) {
 
 v8::Local<v8::Object> PropertyWrapper::wrap(const Property *prop) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
   auto cons = v8::Local<v8::Function>::New(isolate, module->property.ctor);
   v8::Local<v8::Object> obj =
       cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,
@@ -204,8 +201,7 @@ v8::Local<v8::Object> PropertyWrapper::wrap(const Property *prop) {
 
 const Property *PropertyWrapper::unwrap(v8::Local<v8::Object> obj) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
   if (obj->GetPrototype() ==
       v8::Local<v8::Value>::New(isolate, module->property.proto)) {
     if (auto wrapper = ObjectWrap::Unwrap<PropertyWrapper>(obj)) {

@@ -1,6 +1,5 @@
 #include "frame.hpp"
 #include "../plugkit/frame.hpp"
-#include "extended_slot.hpp"
 #include "frame_view.hpp"
 #include "layer.hpp"
 #include "plugkit_module.hpp"
@@ -27,8 +26,7 @@ void FrameWrapper::init(v8::Isolate *isolate) {
   Nan::SetAccessor(otl, Nan::New("hasError").ToLocalChecked(), hasError);
   Nan::SetAccessor(otl, Nan::New("sourceId").ToLocalChecked(), sourceId);
 
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
   module->frame.ctor.Reset(isolate, Nan::GetFunction(tpl).ToLocalChecked());
 }
 
@@ -139,8 +137,7 @@ NAN_METHOD(FrameWrapper::layerFromId) {
 
 v8::Local<v8::Object> FrameWrapper::wrap(const FrameView *view) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
   auto cons = v8::Local<v8::Function>::New(isolate, module->frame.ctor);
   v8::Local<v8::Object> obj =
       cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,

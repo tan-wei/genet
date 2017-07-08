@@ -1,6 +1,5 @@
 #include "chunk.hpp"
 #include "../plugkit/chunk.hpp"
-#include "extended_slot.hpp"
 #include "plugkit_module.hpp"
 #include "private/variant.hpp"
 #include "wrapper/layer.hpp"
@@ -26,8 +25,7 @@ void ChunkWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
   Nan::SetAccessor(otl, Nan::New("layer").ToLocalChecked(), layer);
 
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
   module->chunk.proto.Reset(isolate,
                             ctor->Get(Nan::New("prototype").ToLocalChecked()));
@@ -155,8 +153,7 @@ NAN_METHOD(ChunkWrapper::toJSON) {
 
 v8::Local<v8::Object> ChunkWrapper::wrap(const Chunk *chunk) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
   auto cons = v8::Local<v8::Function>::New(isolate, module->chunk.ctor);
   v8::Local<v8::Object> obj =
       cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,
@@ -169,8 +166,7 @@ v8::Local<v8::Object> ChunkWrapper::wrap(const Chunk *chunk) {
 
 const Chunk *ChunkWrapper::unwrap(v8::Local<v8::Object> obj) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
   if (obj->GetPrototype() ==
       v8::Local<v8::Value>::New(isolate, module->chunk.proto)) {
     if (auto wrapper = ObjectWrap::Unwrap<ChunkWrapper>(obj)) {

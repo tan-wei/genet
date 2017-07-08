@@ -9,8 +9,7 @@ void DissectorFactoryWrapper::init(v8::Isolate *isolate) {
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("DissectorFactory").ToLocalChecked());
 
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
 
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
   module->dissectorFactory.proto.Reset(
@@ -29,8 +28,7 @@ NAN_METHOD(DissectorFactoryWrapper::New) {
 v8::Local<v8::Object>
 DissectorFactoryWrapper::wrap(const DissectorFactoryConstPtr &factory) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
   auto cons =
       v8::Local<v8::Function>::New(isolate, module->dissectorFactory.ctor);
   v8::Local<v8::Object> obj =
@@ -45,8 +43,7 @@ DissectorFactoryWrapper::wrap(const DissectorFactoryConstPtr &factory) {
 DissectorFactoryConstPtr
 DissectorFactoryWrapper::unwrap(v8::Local<v8::Object> obj) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
   if (obj->GetPrototype() ==
       v8::Local<v8::Value>::New(isolate, module->dissectorFactory.proto)) {
     if (auto wrapper = ObjectWrap::Unwrap<DissectorFactoryWrapper>(obj)) {

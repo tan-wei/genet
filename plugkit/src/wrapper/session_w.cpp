@@ -1,7 +1,6 @@
 #include "session.hpp"
 #include "../src/session.hpp"
 #include "dissector_factory.hpp"
-#include "extended_slot.hpp"
 #include "plugkit_module.hpp"
 #include "private/variant.hpp"
 #include "script_dissector.hpp"
@@ -25,8 +24,7 @@ void SessionWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   SetPrototypeMethod(tpl, "setFrameCallback", setFrameCallback);
   SetPrototypeMethod(tpl, "setLoggerCallback", setLoggerCallback);
 
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
   module->session.ctor.Reset(isolate, Nan::GetFunction(tpl).ToLocalChecked());
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
@@ -273,8 +271,7 @@ NAN_METHOD(SessionWrapper::setLoggerCallback) {
 v8::Local<v8::Object>
 SessionWrapper::wrap(const std::shared_ptr<Session> &session) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
   auto cons = v8::Local<v8::Function>::New(isolate, module->session.ctor);
   v8::Local<v8::Object> obj =
       cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,

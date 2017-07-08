@@ -29,4 +29,9 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
     StreamDissectorFactoryWrapper::init(isolate);
   }
 }
+
+PlugkitModule *PlugkitModule::get(v8::Isolate *isolate) {
+  return ExtendedSlot::get<PlugkitModule>(isolate,
+                                          ExtendedSlot::SLOT_PLUGKIT_MODULE);
+}
 }

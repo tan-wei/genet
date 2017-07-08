@@ -12,6 +12,7 @@ public:
                 bool mainThread);
   PlugkitModule(const PlugkitModule &) = delete;
   PlugkitModule &operator=(const PlugkitModule &) = delete;
+  static PlugkitModule *get(v8::Isolate *isolate);
 
 public:
   using Function = v8::UniquePersistent<v8::Function>;

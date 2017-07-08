@@ -1,6 +1,5 @@
 #include "layer.hpp"
 #include "../plugkit/layer.hpp"
-#include "extended_slot.hpp"
 #include "plugkit_module.hpp"
 #include "private/variant.hpp"
 #include "wrapper/chunk.hpp"
@@ -35,8 +34,7 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   Nan::SetAccessor(otl, Nan::New("children").ToLocalChecked(), children);
   Nan::SetAccessor(otl, Nan::New("hasError").ToLocalChecked(), hasError);
 
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
   module->layer.proto.Reset(isolate,
                             ctor->Get(Nan::New("prototype").ToLocalChecked()));
@@ -307,8 +305,7 @@ NAN_GETTER(LayerWrapper::hasError) {
 
 v8::Local<v8::Object> LayerWrapper::wrap(const Layer *layer) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
   auto cons = v8::Local<v8::Function>::New(isolate, module->layer.ctor);
   v8::Local<v8::Object> obj =
       cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,
@@ -321,8 +318,7 @@ v8::Local<v8::Object> LayerWrapper::wrap(const Layer *layer) {
 
 const Layer *LayerWrapper::unwrapConst(v8::Local<v8::Object> obj) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
   if (obj->GetPrototype() ==
       v8::Local<v8::Value>::New(isolate, module->layer.proto)) {
     if (auto wrapper = ObjectWrap::Unwrap<LayerWrapper>(obj)) {
@@ -334,8 +330,7 @@ const Layer *LayerWrapper::unwrapConst(v8::Local<v8::Object> obj) {
 
 Layer *LayerWrapper::unwrap(v8::Local<v8::Object> obj) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
   if (obj->GetPrototype() ==
       v8::Local<v8::Value>::New(isolate, module->layer.proto)) {
     if (auto wrapper = ObjectWrap::Unwrap<LayerWrapper>(obj)) {

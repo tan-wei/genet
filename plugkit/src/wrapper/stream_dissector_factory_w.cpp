@@ -1,6 +1,5 @@
 #include "stream_dissector_factory.hpp"
 #include "../plugkit/stream_dissector.hpp"
-#include "extended_slot.hpp"
 #include "plugkit_module.hpp"
 
 namespace plugkit {
@@ -9,8 +8,7 @@ void StreamDissectorFactoryWrapper::init(v8::Isolate *isolate) {
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("StreamDissectorFactory").ToLocalChecked());
 
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
 
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
   module->streamDissectorFactory.proto.Reset(
@@ -29,8 +27,7 @@ NAN_METHOD(StreamDissectorFactoryWrapper::New) {
 v8::Local<v8::Object> StreamDissectorFactoryWrapper::wrap(
     const StreamDissectorFactoryConstPtr &factory) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
   auto cons = v8::Local<v8::Function>::New(isolate,
                                            module->streamDissectorFactory.ctor);
   v8::Local<v8::Object> obj =
@@ -46,8 +43,7 @@ v8::Local<v8::Object> StreamDissectorFactoryWrapper::wrap(
 StreamDissectorFactoryConstPtr
 StreamDissectorFactoryWrapper::unwrap(v8::Local<v8::Object> obj) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
   if (obj->GetPrototype() ==
       v8::Local<v8::Value>::New(isolate,
                                 module->streamDissectorFactory.proto)) {

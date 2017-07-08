@@ -32,7 +32,7 @@ private:
 public:
   friend class Private;
   class Private;
-  std::unique_ptr<Private> d;
+  Private *d;
 };
 }
 

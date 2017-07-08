@@ -27,8 +27,7 @@ void Init(v8::Local<v8::Object> exports) {
 
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   ExtendedSlot::init(isolate);
-  ExtendedSlot::set(isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE,
-                    new PlugkitModule(isolate, exports, true));
+  new PlugkitModule(isolate, exports, true);
 }
 }
 

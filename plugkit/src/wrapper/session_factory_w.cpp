@@ -1,7 +1,6 @@
 #include "session_factory.hpp"
 #include "../src/session.hpp"
 #include "dissector_factory.hpp"
-#include "extended_slot.hpp"
 #include "plugkit_module.hpp"
 #include "private/variant.hpp"
 #include "script_dissector.hpp"
@@ -21,8 +20,7 @@ void SessionFactoryWrapper::init(v8::Isolate *isolate,
   SetPrototypeMethod(tpl, "registerLinkLayer", registerLinkLayer);
   SetPrototypeMethod(tpl, "create", create);
 
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
   module->sessionFactory.ctor.Reset(isolate,
                                     Nan::GetFunction(tpl).ToLocalChecked());
 
@@ -195,8 +193,7 @@ NAN_METHOD(SessionFactoryWrapper::create) {
 v8::Local<v8::Object>
 SessionFactoryWrapper::wrap(const SessionFactoryPtr &factory) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
   auto cons =
       v8::Local<v8::Function>::New(isolate, module->sessionFactory.ctor);
   v8::Local<v8::Object> obj =

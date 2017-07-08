@@ -1,7 +1,6 @@
 #include "private/variant.hpp"
 #include "private/stream_buffer.hpp"
 #include "plugkit_module.hpp"
-#include "extended_slot.hpp"
 #include "slice.hpp"
 #include <iomanip>
 #include <nan.h>
@@ -66,8 +65,7 @@ SharedBufferStore bufferStore;
 }
 
 void Variant::Private::init(v8::Isolate *isolate) {
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
 
   auto script =
       Nan::CompileScript(Nan::New("(function (buf) { return "
@@ -372,8 +370,7 @@ v8::Local<v8::Object> Variant::Private::getNodeBuffer(const Slice &slice) {
     return array;
   }
 
-  PlugkitModule *module = ExtendedSlot::get<PlugkitModule>(
-      isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE);
+  PlugkitModule *module = PlugkitModule::get(isolate);
 
   auto func = v8::Local<v8::Function>::New(isolate, module->arrayToBuffer);
 
