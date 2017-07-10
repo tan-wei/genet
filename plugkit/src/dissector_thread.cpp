@@ -103,7 +103,7 @@ bool DissectorThread::loop() {
                   [](const Layer *a, const Layer *b) {
                     return b->confidence() < a->confidence();
                   });
-        for (const Layer *child : childLayers) {
+        for (Layer *child : childLayers) {
           layer->addChild(child);
         }
       }

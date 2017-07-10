@@ -34,8 +34,8 @@ public:
   std::string error() const;
   void setError(const std::string &error);
 
-  const std::vector<const Layer *> &children() const;
-  void addChild(const Layer *child);
+  const std::vector<Layer *> &children() const;
+  void addChild(Layer *child);
 
   const std::vector<const Property *> &properties() const;
   const Property *propertyFromId(strid id) const;
@@ -45,6 +45,9 @@ public:
   const std::vector<const Chunk *> &chunks() const;
   void addChunk(const Chunk *chunk);
   void addChunk(Chunk &&chunk);
+
+  std::string streamId() const;
+  void setStreamId(const std::string &id);
 
   const Slice &payload() const;
   void setPayload(const Slice &payload);

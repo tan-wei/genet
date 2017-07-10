@@ -14,6 +14,7 @@ public:
 
 public:
   strns ns;
+  std::string streamId;
   std::string summary;
   std::string error;
   std::pair<uint32_t, uint32_t> range;
@@ -21,7 +22,7 @@ public:
   Slice payload;
   const Layer *parent = nullptr;
   const Frame *frame = nullptr;
-  std::vector<const Layer *> children;
+  std::vector<Layer *> children;
   std::vector<const Chunk *> chunks;
   std::vector<const Property *> properties;
 };
@@ -60,11 +61,9 @@ std::string Layer::error() const { return d->error; }
 
 void Layer::setError(const std::string &error) { d->error = error; }
 
-const std::vector<const Layer *> &Layer::children() const {
-  return d->children;
-}
+const std::vector<Layer *> &Layer::children() const { return d->children; }
 
-void Layer::addChild(const Layer *child) { d->children.push_back(child); }
+void Layer::addChild(Layer *child) { d->children.push_back(child); }
 
 const std::vector<const Chunk *> &Layer::chunks() const { return d->chunks; }
 
@@ -74,6 +73,10 @@ void Layer::addChunk(Chunk &&chunk) {
   // TODO:ALLOC
   addChunk(new Chunk(std::move(chunk)));
 }
+
+std::string Layer::streamId() const { return d->streamId; }
+
+void Layer::setStreamId(const std::string &id) { d->streamId = id; }
 
 const Slice &Layer::payload() const { return d->payload; }
 

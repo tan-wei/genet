@@ -200,8 +200,9 @@ public:
       const std::string &streamId = parentSrc->summary() +
         ":" + std::to_string(sourcePort) + "/" +
         parentDst->summary() + ":" + std::to_string(dstPort);
+        
       child.setPayload(payload);
-      child.addChunk(Chunk(layer->ns(), streamId, payload));
+      child.setStreamId(streamId);
 
       // TODO:ALLOC
       return new Layer(std::move(child));

@@ -89,6 +89,23 @@ void StreamDissectorThreadPool::start() {
         return;
       offset += size;
 
+      std::function<std::vector<Layer *>(Layer *)> findStreamedLayers =
+          [&findStreamedLayers](Layer *layer) -> std::vector<Layer *> {
+
+        std::vector<Layer *> layers;
+        if (layer->children().empty()) {
+          if (!layer->streamId().empty()) {
+            layers.push_back(layer);
+          }
+        } else {
+          for (const auto &child : layer->children()) {
+            const auto &childList = findStreamedLayers(child);
+            layers.insert(layers.begin(), childList.begin(), childList.end());
+          }
+        }
+        return layers;
+      };
+
       std::function<std::vector<const Chunk *>(const Layer *)> findChunks =
           [&findChunks](const Layer *layer) -> std::vector<const Chunk *> {
         std::vector<const Chunk *> chunks;
@@ -108,6 +125,12 @@ void StreamDissectorThreadPool::start() {
       chunkMap.resize(threads);
       for (size_t i = 0; i < size; ++i) {
         const auto &view = views[i];
+
+        const auto &layers = findStreamedLayers(view->frame()->rootLayer());
+        for (const Layer *layer : layers) {
+          printf("%s\n", layer->streamId().c_str());
+        }
+
         for (const auto &chunk : findChunks(view->frame()->rootLayer())) {
           int thread =
               std::hash<std::string>{}(chunk->streamId()) % d->threads.size();
