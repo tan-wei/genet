@@ -106,40 +106,23 @@ void StreamDissectorThreadPool::start() {
         return layers;
       };
 
-      std::function<std::vector<const Chunk *>(const Layer *)> findChunks =
-          [&findChunks](const Layer *layer) -> std::vector<const Chunk *> {
-        std::vector<const Chunk *> chunks;
-        const auto &list = layer->chunks();
-        for (const auto &chunk : list) {
-          chunk->d->setLayer(layer);
-        }
-        chunks.insert(chunks.begin(), list.begin(), list.end());
-        for (const auto &child : layer->children()) {
-          const auto &childList = findChunks(child);
-          chunks.insert(chunks.begin(), childList.begin(), childList.end());
-        }
-        return chunks;
-      };
-
-      std::vector<std::vector<const Chunk *>> chunkMap;
-      chunkMap.resize(threads);
+      std::vector<std::vector<Layer *>> layerMap;
+      layerMap.resize(threads);
       for (size_t i = 0; i < size; ++i) {
         const auto &view = views[i];
-
         const auto &layers = findStreamedLayers(view->frame()->rootLayer());
-        for (const Layer *layer : layers) {
+        for (Layer *layer : layers) {
           printf("%s\n", layer->streamId().c_str());
-        }
-
-        for (const auto &chunk : findChunks(view->frame()->rootLayer())) {
           int thread =
-              std::hash<std::string>{}(chunk->streamId()) % d->threads.size();
-          chunkMap[thread].push_back(chunk);
+              std::hash<std::string>{}(layer->streamId()) % d->threads.size();
+          layerMap[thread].push_back(layer);
         }
       }
-      for (size_t i = 0; i < chunkMap.size(); ++i) {
-        const auto &chunks = chunkMap[i];
-        d->threads[i]->push(&chunks.front(), chunks.size());
+      for (size_t i = 0; i < layerMap.size(); ++i) {
+        auto &layer = layerMap[i];
+        if (!layer.empty()) {
+          d->threads[i]->push(&layer.front(), layer.size());
+        }
       }
     }
   });

@@ -20,7 +20,7 @@ public:
 public:
   Variant options;
   Callback callback;
-  Queue<const Chunk *> queue;
+  Queue<Layer *> queue;
   std::vector<StreamDissectorFactoryConstPtr> factories;
   std::unordered_map<StreamDissectorPtr, std::vector<strns>> dissectors;
   std::atomic<uint32_t> queuedFrames;
@@ -79,25 +79,27 @@ void StreamDissectorThread::enter() {
 }
 
 bool StreamDissectorThread::loop() {
-  std::vector<const Chunk *> chunks;
-  chunks.resize(128);
+  std::vector<Layer *> layers;
+  layers.resize(128);
   d->queuedFrames.store(0, std::memory_order_relaxed);
-  size_t size = d->queue.dequeue(std::begin(chunks), chunks.capacity());
+  size_t size = d->queue.dequeue(std::begin(layers), layers.capacity());
   d->queuedFrames.store(size, std::memory_order_relaxed);
   if (size == 0)
     return false;
 
-  chunks.resize(size);
+  layers.resize(size);
 
-  for (size_t i = 0; i < chunks.size(); ++i) {
-    const auto chunk = chunks[i];
-    const auto &subChunks = processChunk(chunk);
-    for (const auto &sub : subChunks) {
+  for (size_t i = 0; i < layers.size(); ++i) {
+    const auto chunk = layers[i];
+    /*
+    const auto &sublayers = processChunk(chunk);
+    for (const auto &sub : sublayers) {
       sub->d->setLayer(chunk->layer());
     }
-    chunks.insert(chunks.end(), subChunks.begin(), subChunks.end());
-    d->queuedFrames.store(chunks.size(), std::memory_order_relaxed);
+    layers.insert(layers.end(), sublayers.begin(), sublayers.end());
+    d->queuedFrames.store(layers.size(), std::memory_order_relaxed);
     d->count++;
+    */
   }
 
   if (d->count % 1024 == 0) {
@@ -112,7 +114,7 @@ void StreamDissectorThread::exit() {
   d->workers.clear();
 }
 
-void StreamDissectorThread::push(const Chunk *const *begin, size_t size) {
+void StreamDissectorThread::push(Layer **begin, size_t size) {
   d->queue.enqueue(begin, begin + size);
 }
 
@@ -141,18 +143,18 @@ StreamDissectorThread::processChunk(const Chunk *chunk) {
     }
   }
 
-  std::vector<const Chunk *> subChunks;
-
-  std::function<std::vector<const Chunk *>(const Layer *)> findChunks =
-      [&findChunks](const Layer *layer) -> std::vector<const Chunk *> {
-    std::vector<const Chunk *> chunks;
-    const auto &list = layer->chunks();
-    chunks.insert(chunks.begin(), list.begin(), list.end());
+  std::vector<const Chunk *> sublayers;
+  /*
+  std::function<std::vector<const Chunk *>(const Layer *)> findlayers =
+      [&findlayers](const Layer *layer) -> std::vector<const Chunk *> {
+    std::vector<const Chunk *> layers;
+    const auto &list = layer->layers();
+    layers.insert(layers.begin(), list.begin(), list.end());
     for (const auto &child : layer->children()) {
-      const auto &childList = findChunks(child);
-      chunks.insert(chunks.begin(), childList.begin(), childList.end());
+      const auto &childList = findlayers(child);
+      layers.insert(layers.begin(), childList.begin(), childList.end());
     }
-    return chunks;
+    return layers;
   };
 
   std::vector<Frame *> frames;
@@ -164,7 +166,7 @@ StreamDissectorThread::processChunk(const Chunk *chunk) {
         frame->d->setRootLayer(layer);
         frames.push_back(frame);
       }
-      subChunks = findChunks(layer);
+      sublayers = findlayers(layer);
     }
   }
 
@@ -173,7 +175,8 @@ StreamDissectorThread::processChunk(const Chunk *chunk) {
   }
 
   d->callback(&frames.front(), frames.size());
-  return subChunks;
+  */
+  return sublayers;
 }
 
 uint32_t StreamDissectorThread::queue() const {

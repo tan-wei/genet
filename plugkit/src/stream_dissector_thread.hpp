@@ -9,6 +9,7 @@ namespace plugkit {
 
 class Frame;
 class Chunk;
+class Layer;
 
 class StreamDissectorFactory;
 using StreamDissectorFactoryConstPtr =
@@ -28,7 +29,7 @@ public:
   void enter() override;
   bool loop() override;
   void exit() override;
-  void push(const Chunk *const *begin, size_t size);
+  void push(Layer **begin, size_t size);
   void stop();
   uint32_t queue() const;
 
