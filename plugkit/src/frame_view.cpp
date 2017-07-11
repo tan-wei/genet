@@ -61,7 +61,7 @@ const std::vector<const Layer *> &FrameView::leafLayers() const {
 
 const Property *FrameView::propertyFromId(strid id) const {
   for (auto layer = primaryLayer(); layer; layer = layer->parent()) {
-    if (const auto &layerProp = layer->propertyFromId(id)) {
+    if (const Property *layerProp = layer->propertyFromId(id)) {
       return layerProp;
     }
   }

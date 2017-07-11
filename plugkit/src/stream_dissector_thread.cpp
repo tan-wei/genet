@@ -23,6 +23,7 @@ public:
   Queue<Layer *> queue;
   std::vector<StreamDissectorFactoryConstPtr> factories;
   std::unordered_map<StreamDissectorPtr, std::vector<strns>> dissectors;
+  double confidenceThreshold;
   std::atomic<uint32_t> queuedFrames;
   size_t count = 0;
 
@@ -58,6 +59,8 @@ StreamDissectorThread::StreamDissectorThread(const Variant &options,
     : d(new Private()) {
   d->options = options;
   d->callback = callback;
+  d->confidenceThreshold =
+      options["_"]["confidenceThreshold"].uint64Value(0) / 100.0;
 }
 
 StreamDissectorThread::~StreamDissectorThread() {}
@@ -89,35 +92,71 @@ bool StreamDissectorThread::loop() {
 
   layers.resize(size);
 
-  for (size_t i = 0; i < layers.size(); ++i) {
-    const auto layer = layers[i];
-    const strns &ns = layer->ns();
-    auto &workers = d->workers[ns][layer->streamId()];
+  while (!layers.empty()) {
+    std::vector<Layer *> nextlayers;
 
-    for (const auto &worker : workers.list) {
-      if (Layer *childLayer = worker->analyze(layer)) {
-        if (childLayer->confidence() >= d->confidenceThreshold) {
-          childLayer->setParent(layer);
+    for (size_t i = 0; i < layers.size(); ++i) {
+      std::unordered_set<strns> dissectedNamespaces;
 
-          /*
-          childLayers.push_back(childLayer);
-          if (dissectedNamespaces.count(childLayer->ns()) == 0) {
-            nextlayers.push_back(childLayer);
+      const auto layer = layers[i];
+      const strns &ns = layer->ns();
+      dissectedNamespaces.insert(ns);
+      auto &workers = d->workers[ns][layer->streamId()];
+
+      if (workers.list.empty()) {
+        std::vector<StreamDissector *> dissectors;
+
+        for (const auto &pair : d->dissectors) {
+          for (const auto &filter : pair.second) {
+            if (ns.match(filter)) {
+              dissectors.push_back(pair.first.get());
+            }
           }
-          */
+        }
+
+        for (auto dissector : dissectors) {
+          if (auto worker = dissector->createWorker()) {
+            workers.list.push_back(std::move(worker));
+          }
         }
       }
+
+      std::vector<Layer *> childLayers;
+      for (const auto &worker : workers.list) {
+        printf("%s\n", layer->streamId().c_str());
+        if (Layer *childLayer = worker->analyze(layer)) {
+          if (childLayer->confidence() >= d->confidenceThreshold) {
+            childLayer->setParent(layer);
+
+            childLayers.push_back(childLayer);
+            if (!childLayer->streamId().empty()) {
+              if (dissectedNamespaces.count(childLayer->ns()) == 0) {
+                nextlayers.push_back(childLayer);
+              }
+            }
+          }
+        }
+      }
+      std::sort(childLayers.begin(), childLayers.end(),
+                [](const Layer *a, const Layer *b) {
+                  return b->confidence() < a->confidence();
+                });
+      for (Layer *child : childLayers) {
+        layer->addChild(child);
+      }
+
+      /*
+      const auto &sublayers = processChunk(chunk);
+      for (const auto &sub : sublayers) {
+        sub->d->setLayer(chunk->layer());
+      }
+      layers.insert(layers.end(), sublayers.begin(), sublayers.end());
+      d->queuedFrames.store(layers.size(), std::memory_order_relaxed);
+      */
+      d->count++;
     }
 
-    /*
-    const auto &sublayers = processChunk(chunk);
-    for (const auto &sub : sublayers) {
-      sub->d->setLayer(chunk->layer());
-    }
-    layers.insert(layers.end(), sublayers.begin(), sublayers.end());
-    d->queuedFrames.store(layers.size(), std::memory_order_relaxed);
-    d->count++;
-    */
+    layers.swap(nextlayers);
   }
 
   if (d->count % 1024 == 0) {
@@ -137,65 +176,6 @@ void StreamDissectorThread::push(Layer **begin, size_t size) {
 }
 
 void StreamDissectorThread::stop() { d->queue.close(); }
-
-std::vector<const Chunk *>
-StreamDissectorThread::processChunk(const Chunk *chunk) {
-  const strns &ns = strns(chunk->streamNs());
-  auto &workers = d->workers[ns][chunk->streamId()];
-
-  if (workers.list.empty()) {
-    std::vector<StreamDissector *> dissectors;
-
-    for (const auto &pair : d->dissectors) {
-      for (const auto &filter : pair.second) {
-        if (ns.match(filter)) {
-          dissectors.push_back(pair.first.get());
-        }
-      }
-    }
-
-    for (auto dissector : dissectors) {
-      if (auto worker = dissector->createWorker()) {
-        workers.list.push_back(std::move(worker));
-      }
-    }
-  }
-
-  std::vector<const Chunk *> sublayers;
-  /*
-  std::function<std::vector<const Chunk *>(const Layer *)> findlayers =
-      [&findlayers](const Layer *layer) -> std::vector<const Chunk *> {
-    std::vector<const Chunk *> layers;
-    const auto &list = layer->layers();
-    layers.insert(layers.begin(), list.begin(), list.end());
-    for (const auto &child : layer->children()) {
-      const auto &childList = findlayers(child);
-      layers.insert(layers.begin(), childList.begin(), childList.end());
-    }
-    return layers;
-  };
-
-  std::vector<Frame *> frames;
-  for (const auto &worker : workers.list) {
-    if (const auto &layer = worker->analyze(chunk)) {
-      if (!layer->ns().empty()) {
-        auto frame = Frame::Private::create();
-        frame->d->setLength(layer->payload().size());
-        frame->d->setRootLayer(layer);
-        frames.push_back(frame);
-      }
-      sublayers = findlayers(layer);
-    }
-  }
-
-  if (!workers.list.empty()) {
-    workers.lastUpdated = std::chrono::system_clock::now();
-  }
-
-  d->callback(&frames.front(), frames.size());
-  */
-  return sublayers;
-}
 
 uint32_t StreamDissectorThread::queue() const {
   return d->queuedFrames.load(std::memory_order_relaxed);

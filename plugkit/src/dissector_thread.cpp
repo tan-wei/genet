@@ -71,10 +71,10 @@ bool DissectorThread::loop() {
       continue;
 
     std::vector<Dissector::Worker *> workers;
-    std::vector<Layer *> layers = {rootLayer};
-    while (!layers.empty()) {
+    std::vector<Layer *> leafLayers = {rootLayer};
+    while (!leafLayers.empty()) {
       std::vector<Layer *> nextlayers;
-      for (const auto &layer : layers) {
+      for (const auto &layer : leafLayers) {
         const strns &ns = layer->ns();
         dissectedNamespaces.insert(ns);
 
@@ -107,7 +107,7 @@ bool DissectorThread::loop() {
           layer->addChild(child);
         }
       }
-      layers.swap(nextlayers);
+      leafLayers.swap(nextlayers);
     }
   }
 

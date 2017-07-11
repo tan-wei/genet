@@ -53,7 +53,8 @@ class TCPStreamDissector final : public StreamDissector {
 public:
   class Worker final : public StreamDissector::Worker {
   public:
-    Layer* analyze(const Chunk *chunk) override {
+    Layer* analyze(const Layer *layer) override {
+      /*
       Layer child;
       const auto &layer = chunk->layer();
       const auto &payload = chunk->payload();
@@ -95,6 +96,8 @@ public:
 
       // TODO:ALLOC
       return new Layer(std::move(child));
+      */
+      return nullptr;
     }
 
   private:

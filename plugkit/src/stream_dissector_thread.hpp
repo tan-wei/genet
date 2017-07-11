@@ -34,9 +34,6 @@ public:
   uint32_t queue() const;
 
 private:
-  std::vector<const Chunk *> processChunk(const Chunk *chunk);
-
-private:
   class Private;
   std::unique_ptr<Private> d;
 };

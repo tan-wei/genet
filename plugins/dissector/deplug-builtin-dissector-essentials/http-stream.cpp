@@ -21,7 +21,8 @@ public:
       }
     }
 
-    Layer* analyze(const Chunk *chunk) override {
+    Layer* analyze(const Layer *layer) override {
+      /*
       Layer child(PK_STRNS("http"));
       const auto &layer = chunk->layer();
       uint16_t srcPort = layer->propertyFromId(PK_STRID("src"))->value().uint64Value();
@@ -33,6 +34,8 @@ public:
 
       // TODO:ALLOC
       return new Layer(std::move(child));
+      */
+      return nullptr;
     }
 
   private:

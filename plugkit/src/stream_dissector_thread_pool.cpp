@@ -112,7 +112,6 @@ void StreamDissectorThreadPool::start() {
         const auto &view = views[i];
         const auto &layers = findStreamedLayers(view->frame()->rootLayer());
         for (Layer *layer : layers) {
-          printf("%s\n", layer->streamId().c_str());
           int thread =
               std::hash<std::string>{}(layer->streamId()) % d->threads.size();
           layerMap[thread].push_back(layer);
