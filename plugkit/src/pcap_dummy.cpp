@@ -85,6 +85,7 @@ bool PcapDummy::start() {
           auto frame = Frame::Private::create();
           frame->d->setLength(125);
           frame->d->setRootLayer(layer);
+          layer->setFrame(frame);
 
           d->callback(frame);
         }

@@ -92,6 +92,15 @@ bool StreamDissectorThread::loop() {
 
   layers.resize(size);
 
+  uint32_t maxFrameIndex = 0;
+  for (const Layer *layer : layers) {
+    if (const Frame *frame = layer->frame()) {
+      maxFrameIndex = std::max(maxFrameIndex, frame->index());
+    }
+  }
+
+  // printf("%s\n", layer->streamId().c_str());
+
   while (!layers.empty()) {
     std::vector<Layer *> nextlayers;
 
@@ -123,7 +132,6 @@ bool StreamDissectorThread::loop() {
 
       std::vector<Layer *> childLayers;
       for (const auto &worker : workers.list) {
-        printf("%s\n", layer->streamId().c_str());
         if (Layer *childLayer = worker->analyze(layer)) {
           if (childLayer->confidence() >= d->confidenceThreshold) {
             childLayer->setParent(layer);
@@ -158,6 +166,8 @@ bool StreamDissectorThread::loop() {
 
     layers.swap(nextlayers);
   }
+
+  d->callback(maxFrameIndex);
 
   if (d->count % 1024 == 0) {
     d->cleanup();

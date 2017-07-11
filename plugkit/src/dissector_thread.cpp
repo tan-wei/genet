@@ -92,6 +92,7 @@ bool DissectorThread::loop() {
           if (Layer *childLayer = worker->analyze(layer)) {
             if (childLayer->confidence() >= d->confidenceThreshold) {
               childLayer->setParent(layer);
+              childLayer->setFrame(frame);
               childLayers.push_back(childLayer);
               if (dissectedNamespaces.count(childLayer->ns()) == 0) {
                 nextlayers.push_back(childLayer);

@@ -19,7 +19,7 @@ class Variant;
 
 class StreamDissectorThread final : public WorkerThread {
 public:
-  using Callback = std::function<void(Frame **, size_t)>;
+  using Callback = std::function<void(uint32_t)>;
 
 public:
   StreamDissectorThread(const Variant &options, const Callback &callback);

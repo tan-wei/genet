@@ -225,6 +225,7 @@ bool PcapPlatform::start() {
             frame->d->setTimestamp(ts);
             frame->d->setRootLayer(layer);
             frame->d->setLength(h->len);
+            layer->setFrame(frame);
 
             self.d->callback(frame);
           }

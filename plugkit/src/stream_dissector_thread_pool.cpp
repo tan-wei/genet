@@ -18,6 +18,8 @@ class StreamDissectorThreadPool::Private {
 public:
   Private();
   ~Private();
+  uint32_t updateIndex(int thread, uint32_t pushed = 0,
+                       uint32_t dissected = 0);
 
 public:
   LoggerPtr logger = std::make_shared<StreamLogger>();
@@ -27,11 +29,44 @@ public:
   Callback callback;
   std::thread thread;
   Variant options;
+
+  std::vector<std::pair<uint32_t, uint32_t>> threadStats;
+  std::mutex mutex;
 };
 
 StreamDissectorThreadPool::Private::Private() {}
 
 StreamDissectorThreadPool::Private::~Private() {}
+
+uint32_t StreamDissectorThreadPool::Private::updateIndex(int thread,
+                                                         uint32_t pushed,
+                                                         uint32_t dissected) {
+  std::lock_guard<std::mutex> lock(mutex);
+
+  uint32_t min = 0;
+  if (threadStats[thread].first < pushed) {
+    threadStats[thread].first = pushed;
+  }
+  if (threadStats[thread].second < dissected) {
+    threadStats[thread].second = dissected;
+  }
+
+  for (const auto &pair : threadStats) {
+    if (min < pair.first) {
+      min = pair.first;
+    }
+  }
+
+  for (const auto &pair : threadStats) {
+    if (pair.first > pair.second) {
+      if (min > pair.second) {
+        min = pair.second;
+      }
+    }
+  }
+
+  return min;
+}
 
 StreamDissectorThreadPool::StreamDissectorThreadPool(const Variant &options,
                                                      const FrameStorePtr &store,
@@ -69,13 +104,20 @@ void StreamDissectorThreadPool::start() {
 
   int threads = std::thread::hardware_concurrency();
   for (int i = 0; i < threads; ++i) {
-    auto dissectorThread = new StreamDissectorThread(d->options, d->callback);
+    auto dissectorThread = new StreamDissectorThread(
+        d->options, [this, i](uint32_t maxFrameIndex) {
+          uint32_t index = d->updateIndex(i, 0, maxFrameIndex);
+          printf(">> %d\n", index);
+        });
     for (const auto &factory : d->dissectorFactories) {
       dissectorThread->pushStreamDissectorFactory(factory);
     }
     dissectorThread->setLogger(d->logger);
     d->threads.emplace_back(dissectorThread);
   }
+
+  d->threadStats.resize(d->threads.size());
+
   for (const auto &thread : d->threads) {
     thread->start();
   }
@@ -115,6 +157,9 @@ void StreamDissectorThreadPool::start() {
           int thread =
               std::hash<std::string>{}(layer->streamId()) % d->threads.size();
           layerMap[thread].push_back(layer);
+          if (const Frame *frame = layer->frame()) {
+            d->updateIndex(thread, frame->index(), 0);
+          }
         }
       }
       for (size_t i = 0; i < layerMap.size(); ++i) {
