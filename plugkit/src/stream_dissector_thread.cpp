@@ -90,7 +90,25 @@ bool StreamDissectorThread::loop() {
   layers.resize(size);
 
   for (size_t i = 0; i < layers.size(); ++i) {
-    const auto chunk = layers[i];
+    const auto layer = layers[i];
+    const strns &ns = layer->ns();
+    auto &workers = d->workers[ns][layer->streamId()];
+
+    for (const auto &worker : workers.list) {
+      if (Layer *childLayer = worker->analyze(layer)) {
+        if (childLayer->confidence() >= d->confidenceThreshold) {
+          childLayer->setParent(layer);
+
+          /*
+          childLayers.push_back(childLayer);
+          if (dissectedNamespaces.count(childLayer->ns()) == 0) {
+            nextlayers.push_back(childLayer);
+          }
+          */
+        }
+      }
+    }
+
     /*
     const auto &sublayers = processChunk(chunk);
     for (const auto &sub : sublayers) {

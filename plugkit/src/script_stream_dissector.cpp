@@ -63,7 +63,7 @@ ScriptStreamDissector::Worker::~Worker() {
   d->expiredFunc.Reset();
 }
 
-Layer *ScriptStreamDissector::Worker::analyze(const Chunk *chunk) {
+Layer *ScriptStreamDissector::Worker::analyze(const Layer *layer) {
   using namespace v8;
   Isolate *isolate = Isolate::GetCurrent();
   v8::TryCatch tryCatch(isolate);
@@ -73,7 +73,7 @@ Layer *ScriptStreamDissector::Worker::analyze(const Chunk *chunk) {
     return nullptr;
   }
 
-  Local<Value> args[1] = {ChunkWrapper::wrap(chunk)};
+  Local<Value> args[1] = {LayerWrapper::wrap(layer)};
   auto result = func->Call(obj, 1, args);
 
   if (tryCatch.HasCaught()) {
