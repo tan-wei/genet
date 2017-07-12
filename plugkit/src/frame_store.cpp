@@ -59,21 +59,14 @@ void FrameStore::insert(Frame **begin, size_t size) {
   }
 }
 
-size_t FrameStore::dequeue(size_t offset, size_t max, const Frame **dst,
-                           std::thread::id id) const {
+size_t FrameStore::dequeue(size_t offset, size_t max, const Frame **dst) const {
   std::unique_lock<std::mutex> lock(d->mutex);
   size_t read = 0;
   uint32_t size = d->frames.size();
   if (size <= offset) {
-    d->cond.wait(lock, [this, offset, id, &size]() -> bool {
-      bool closed =
-          ((id != std::thread::id()) && d->closedThreads.count(id) > 0);
-      return d->closed || closed || ((size = d->frames.size()) > offset);
+    d->cond.wait(lock, [this, offset, &size]() -> bool {
+      return d->closed || ((size = d->frames.size()) > offset);
     });
-  }
-  if (id != std::thread::id() && d->closedThreads.count(id) > 0) {
-    d->closedThreads.erase(id);
-    return 0;
   }
   if (d->closed)
     return 0;
@@ -117,7 +110,7 @@ std::vector<const FrameView *> FrameStore::get(uint32_t offset,
   return frames;
 }
 
-size_t FrameStore::size() const {
+size_t FrameStore::dissectedSize() const {
   return std::atomic_load_explicit(&d->size, std::memory_order_relaxed);
 }
 

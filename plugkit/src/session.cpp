@@ -87,7 +87,7 @@ void Session::Private::updateStatus() {
   }
   if (flags & Private::UPDATE_FRAME) {
     FrameStatus status;
-    status.frames = frameStore->size();
+    status.frames = frameStore->dissectedSize();
     status.queue = dissectorPool->queue() + streamDissectorPool->queue();
     frameCallback(status);
   }
