@@ -12,7 +12,6 @@ namespace plugkit {
 class Layer;
 class Property;
 class Frame;
-class Chunk;
 class Slice;
 
 class PLUGKIT_EXPORT Layer final {
@@ -41,10 +40,6 @@ public:
   const Property *propertyFromId(strid id) const;
   void addProperty(const Property *prop);
   void addProperty(Property &&prop);
-
-  const std::vector<const Chunk *> &chunks() const;
-  void addChunk(const Chunk *chunk);
-  void addChunk(Chunk &&chunk);
 
   std::string streamId() const;
   void setStreamId(const std::string &id);

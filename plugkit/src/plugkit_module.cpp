@@ -1,6 +1,5 @@
 #include "plugkit_module.hpp"
 #include "extended_slot.hpp"
-#include "wrapper/chunk.hpp"
 #include "wrapper/dissector_factory.hpp"
 #include "wrapper/frame.hpp"
 #include "wrapper/layer.hpp"
@@ -20,7 +19,6 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
   PropertyWrapper::init(isolate, exports);
   LayerWrapper::init(isolate, exports);
   FrameWrapper::init(isolate);
-  ChunkWrapper::init(isolate, exports);
   if (mainThread) {
     PcapWrapper::init(isolate, exports);
     SessionFactoryWrapper::init(isolate, exports);

@@ -4,7 +4,6 @@
 #include <plugkit/stream_dissector.hpp>
 #include <plugkit/layer.hpp>
 #include <plugkit/property.hpp>
-#include <plugkit/chunk.hpp>
 #include <plugkit/fmt.hpp>
 
 using namespace plugkit;
@@ -89,13 +88,6 @@ public:
       const auto &sequence = ring.fetch();
       Property chunks(PK_STRID("seq"), static_cast<int64_t>(sequence.size()));
       child.addProperty(std::move(chunks));
-
-      /*
-      for (const auto& slice : sequence) {
-        Chunk subChunk(PK_STRNS("tcp"), chunk->streamId(), slice);
-        child.addChunk(std::move(subChunk));
-      }
-      */
 
       return new Layer(std::move(child));
     }

@@ -1,5 +1,4 @@
 #include "layer.hpp"
-#include "chunk.hpp"
 #include "property.hpp"
 #include "slice.hpp"
 #include "wrapper/layer.hpp"
@@ -23,7 +22,6 @@ public:
   const Layer *parent = nullptr;
   const Frame *frame = nullptr;
   std::vector<Layer *> children;
-  std::vector<const Chunk *> chunks;
   std::vector<const Property *> properties;
 };
 
@@ -64,15 +62,6 @@ void Layer::setError(const std::string &error) { d->error = error; }
 const std::vector<Layer *> &Layer::children() const { return d->children; }
 
 void Layer::addChild(Layer *child) { d->children.push_back(child); }
-
-const std::vector<const Chunk *> &Layer::chunks() const { return d->chunks; }
-
-void Layer::addChunk(const Chunk *chunk) { d->chunks.push_back(chunk); }
-
-void Layer::addChunk(Chunk &&chunk) {
-  // TODO:ALLOC
-  addChunk(new Chunk(std::move(chunk)));
-}
 
 std::string Layer::streamId() const { return d->streamId; }
 

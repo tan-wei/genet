@@ -11,7 +11,6 @@
 namespace plugkit {
 
 class Layer;
-class Chunk;
 
 struct SessionContext;
 
@@ -51,7 +50,6 @@ using StreamDissectorFactoryConstPtr =
 class PLUGKIT_EXPORT StreamDissectorFactory {
 public:
   struct TestData {
-    std::vector<const Chunk *> chunks;
     const Layer *result;
   };
 

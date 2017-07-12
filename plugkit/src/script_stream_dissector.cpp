@@ -2,7 +2,6 @@
 #include "private/logger.hpp"
 #include "private/variant.hpp"
 #include "session_context.hpp"
-#include "wrapper/chunk.hpp"
 #include "wrapper/layer.hpp"
 #include <nan.h>
 

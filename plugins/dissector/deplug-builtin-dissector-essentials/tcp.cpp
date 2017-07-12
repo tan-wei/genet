@@ -3,7 +3,6 @@
 #include <plugkit/stream_dissector.hpp>
 #include <plugkit/layer.hpp>
 #include <plugkit/property.hpp>
-#include <plugkit/chunk.hpp>
 #include <plugkit/fmt.hpp>
 #include <unordered_map>
 
@@ -200,7 +199,7 @@ public:
       const std::string &streamId = parentSrc->summary() +
         ":" + std::to_string(sourcePort) + "/" +
         parentDst->summary() + ":" + std::to_string(dstPort);
-        
+
       child.setPayload(payload);
       child.setStreamId(streamId);
 

@@ -3,7 +3,6 @@
 #include "frame_store.hpp"
 #include "frame_view.hpp"
 #include "layer.hpp"
-#include "private/chunk.hpp"
 #include "stream_dissector_thread.hpp"
 #include "stream_logger.hpp"
 #include "variant.hpp"

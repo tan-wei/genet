@@ -34,7 +34,6 @@
       "src/wrapper/session_w.cpp",
       "src/wrapper/frame_w.cpp",
       "src/wrapper/property_w.cpp",
-      "src/wrapper/chunk_w.cpp",
       "src/wrapper/layer_w.cpp",
       "src/wrapper/dissector_factory_w.cpp",
       "src/wrapper/stream_dissector_factory_w.cpp",
@@ -42,7 +41,6 @@
       "src/session.cpp",
       "src/frame.cpp",
       "src/property.cpp",
-      "src/chunk.cpp",
       "src/layer.cpp",
       "vendor/json11/json11.cpp"
     ]

@@ -2,7 +2,6 @@
 #include "../plugkit/layer.hpp"
 #include "plugkit_module.hpp"
 #include "private/variant.hpp"
-#include "wrapper/chunk.hpp"
 #include "wrapper/property.hpp"
 
 namespace plugkit {
@@ -14,7 +13,6 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   SetPrototypeMethod(tpl, "propertyFromId", propertyFromId);
   SetPrototypeMethod(tpl, "addProperty", addProperty);
   SetPrototypeMethod(tpl, "addChild", addChild);
-  SetPrototypeMethod(tpl, "addChunk", addChunk);
   SetPrototypeMethod(tpl, "toJSON", toJSON);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
@@ -30,7 +28,6 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   Nan::SetAccessor(otl, Nan::New("payload").ToLocalChecked(), payload,
                    setPayload);
   Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
-  Nan::SetAccessor(otl, Nan::New("chunks").ToLocalChecked(), chunks);
   Nan::SetAccessor(otl, Nan::New("children").ToLocalChecked(), children);
   Nan::SetAccessor(otl, Nan::New("hasError").ToLocalChecked(), hasError);
 
@@ -212,19 +209,6 @@ NAN_GETTER(LayerWrapper::children) {
   }
 }
 
-NAN_GETTER(LayerWrapper::chunks) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer) {
-    v8::Isolate *isolate = v8::Isolate::GetCurrent();
-    const auto &chunks = layer->chunks();
-    auto array = v8::Array::New(isolate, chunks.size());
-    for (size_t i = 0; i < chunks.size(); ++i) {
-      array->Set(i, ChunkWrapper::wrap(chunks[i]));
-    }
-    info.GetReturnValue().Set(array);
-  }
-}
-
 NAN_GETTER(LayerWrapper::properties) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->weakLayer) {
@@ -246,17 +230,6 @@ NAN_METHOD(LayerWrapper::propertyFromId) {
       info.GetReturnValue().Set(PropertyWrapper::wrap(prop));
     } else {
       info.GetReturnValue().Set(Nan::Null());
-    }
-  }
-}
-
-NAN_METHOD(LayerWrapper::addChunk) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->layer) {
-    if (info[0]->IsObject()) {
-      if (const auto &chunk = ChunkWrapper::unwrap(info[0].As<v8::Object>())) {
-        layer->addChunk(chunk);
-      }
     }
   }
 }

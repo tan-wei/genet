@@ -8,7 +8,6 @@
 namespace plugkit {
 
 class Frame;
-class Chunk;
 class Layer;
 
 class StreamDissectorFactory;

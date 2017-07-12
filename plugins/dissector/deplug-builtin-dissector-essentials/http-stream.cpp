@@ -3,7 +3,6 @@
 #include <plugkit/layer.hpp>
 #include <plugkit/property.hpp>
 #include <plugkit/session_context.hpp>
-#include <plugkit/chunk.hpp>
 #include <plugkit/fmt.hpp>
 #include <unordered_set>
 

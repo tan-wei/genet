@@ -1,6 +1,5 @@
 #include "stream_dissector_thread.hpp"
 #include "layer.hpp"
-#include "private/chunk.hpp"
 #include "private/frame.hpp"
 #include "queue.hpp"
 #include "session_context.hpp"
@@ -152,14 +151,6 @@ bool StreamDissectorThread::loop() {
         layer->addChild(child);
       }
 
-      /*
-      const auto &sublayers = processChunk(chunk);
-      for (const auto &sub : sublayers) {
-        sub->d->setLayer(chunk->layer());
-      }
-      layers.insert(layers.end(), sublayers.begin(), sublayers.end());
-      d->queuedFrames.store(layers.size(), std::memory_order_relaxed);
-      */
       d->count++;
     }
 

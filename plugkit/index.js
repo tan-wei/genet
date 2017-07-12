@@ -174,7 +174,6 @@ class SessionFactory extends kit.SessionFactory {
 
 module.exports = {
   Layer: kit.Layer,
-  Chunk: kit.Chunk,
   Pcap: kit.Pcap,
   SessionFactory: SessionFactory
 }
