@@ -54,10 +54,8 @@ public:
   class Worker final : public StreamDissector::Worker {
   public:
     Layer* analyze(const Layer *layer) override {
-      /*
-      Layer child;
-      const auto &layer = chunk->layer();
-      const auto &payload = chunk->payload();
+      Layer child(PK_STRNS("tcp_st"));
+      const auto &payload = layer->payload();
       uint32_t seq = layer->propertyFromId(PK_STRID("seq"))->value().uint64Value();
       uint16_t window = layer->propertyFromId(PK_STRID("window"))->value().uint64Value();
       uint8_t flags = layer->propertyFromId(PK_STRID("flags"))->value().uint64Value();
@@ -89,15 +87,17 @@ public:
       }
 
       const auto &sequence = ring.fetch();
+      Property chunks(PK_STRID("seq"), static_cast<int64_t>(sequence.size()));
+      child.addProperty(std::move(chunks));
+
+      /*
       for (const auto& slice : sequence) {
         Chunk subChunk(PK_STRNS("tcp"), chunk->streamId(), slice);
         child.addChunk(std::move(subChunk));
       }
-
-      // TODO:ALLOC
-      return new Layer(std::move(child));
       */
-      return nullptr;
+
+      return new Layer(std::move(child));
     }
 
   private:
@@ -111,7 +111,7 @@ public:
     return StreamDissector::WorkerPtr(new TCPStreamDissector::Worker());
   }
   std::vector<strns> namespaces() const override {
-    return std::vector<strns>{PK_STRNS("*tcp")};
+    return std::vector<strns>{PK_STRNS("tcp")};
   }
 };
 

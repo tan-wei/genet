@@ -197,7 +197,12 @@ export default {
     {
       type: 'stream-dissector',
       stream_dissector: {
-        main: 'build/Release/tcp-stream.node'
+        main: 'build/Release/tcp-stream.node',
+        descriptors: {
+          'tcp_st': {
+            name: 'TCP Stream'
+          },
+        }
       }
     },
     {

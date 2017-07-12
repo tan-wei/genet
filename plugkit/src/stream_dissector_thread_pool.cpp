@@ -18,8 +18,7 @@ class StreamDissectorThreadPool::Private {
 public:
   Private();
   ~Private();
-  uint32_t updateIndex(int thread, uint32_t pushed = 0,
-                       uint32_t dissected = 0);
+  uint32_t updateIndex(int thread, uint32_t pushed = 0, uint32_t dissected = 0);
 
 public:
   LoggerPtr logger = std::make_shared<StreamLogger>();
@@ -107,7 +106,7 @@ void StreamDissectorThreadPool::start() {
     auto dissectorThread = new StreamDissectorThread(
         d->options, [this, i](uint32_t maxFrameIndex) {
           uint32_t index = d->updateIndex(i, 0, maxFrameIndex);
-          printf(">> %d\n", index);
+          d->callback(index);
         });
     for (const auto &factory : d->dissectorFactories) {
       dissectorThread->pushStreamDissectorFactory(factory);
@@ -124,9 +123,9 @@ void StreamDissectorThreadPool::start() {
 
   d->thread = std::thread([this, threads]() {
     size_t offset = 0;
-    std::array<const FrameView *, 128> views;
+    std::array<const Frame *, 128> frames;
     while (true) {
-      size_t size = d->store->dequeue(offset, views.size(), &views.front());
+      size_t size = d->store->dequeue(offset, frames.size(), &frames.front());
       if (size == 0)
         return;
       offset += size;
@@ -151,8 +150,7 @@ void StreamDissectorThreadPool::start() {
       std::vector<std::vector<Layer *>> layerMap;
       layerMap.resize(threads);
       for (size_t i = 0; i < size; ++i) {
-        const auto &view = views[i];
-        const auto &layers = findStreamedLayers(view->frame()->rootLayer());
+        const auto &layers = findStreamedLayers(frames[i]->rootLayer());
         for (Layer *layer : layers) {
           int thread =
               std::hash<std::string>{}(layer->streamId()) % d->threads.size();

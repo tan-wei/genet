@@ -99,8 +99,6 @@ bool StreamDissectorThread::loop() {
     }
   }
 
-  // printf("%s\n", layer->streamId().c_str());
-
   while (!layers.empty()) {
     std::vector<Layer *> nextlayers;
 

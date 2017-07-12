@@ -136,12 +136,8 @@ Session::Session(const Config &config) : d(new Private()) {
   d->dissectorPool->setLogger(d->logger);
 
   d->streamDissectorPool.reset(new StreamDissectorThreadPool(
-      config.options, d->frameStore, [this](Frame **begin, size_t size) {
-        for (size_t i = 0; i < size; ++i) {
-          begin[i]->d->setIndex(d->getSeq());
-        }
-        d->frameStore->insert(begin, size);
-      }));
+      config.options, d->frameStore,
+      [this](uint32_t maxSeq) { printf("* %d\n", maxSeq); }));
   d->streamDissectorPool->setLogger(d->logger);
 
   d->pcap->setCallback([this](Frame *frame) {

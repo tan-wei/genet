@@ -24,7 +24,7 @@ class Variant;
 
 class StreamDissectorThreadPool final {
 public:
-  using Callback = std::function<void(Frame **, size_t)>;
+  using Callback = std::function<void(uint32_t)>;
 
 public:
   StreamDissectorThreadPool(const Variant &options, const FrameStorePtr &store,

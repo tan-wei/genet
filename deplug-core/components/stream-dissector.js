@@ -9,6 +9,10 @@ export default class StreamDissectorComponent extends Component {
     if (main === '') {
       throw new Error('stream_dissector.main field required')
     }
+
+    const descriptors = objpath.get(this.comp, 'stream_dissector.descriptors', {})
+    Session.addDescriptors(descriptors)
+
     const mainFile = path.join(this.rootDir, main)
     if (path.extname(mainFile) === '.node') {
       Session.registerNativeStreamDissector(mainFile)
