@@ -16,9 +16,9 @@ public:
   ~Private();
 
 public:
-  std::atomic<size_t> size;
   std::map<uint32_t, Frame *> sequence;
   std::vector<const Frame *> frames;
+  std::vector<const FrameView *> views;
   uint32_t maxSeq = 0;
   std::mutex mutex;
   std::condition_variable cond;
@@ -32,7 +32,6 @@ FrameStore::Private::Private() {}
 FrameStore::Private::~Private() {}
 
 FrameStore::FrameStore(const Callback &callback) : d(new Private()) {
-  std::atomic_init(&d->size, 0lu);
   d->callback = callback;
 }
 
@@ -50,8 +49,6 @@ void FrameStore::insert(Frame **begin, size_t size) {
     d->frames.push_back(it->second);
   }
   if (d->maxSeq < maxSeq) {
-    std::atomic_store_explicit(&d->size, d->frames.size(),
-                               std::memory_order_relaxed);
     d->callback();
     d->maxSeq = maxSeq;
     d->sequence.erase(d->sequence.begin(), end);
@@ -80,12 +77,12 @@ size_t FrameStore::dequeue(size_t offset, size_t max, const FrameView **dst,
                            std::thread::id id) const {
   std::unique_lock<std::mutex> lock(d->mutex);
   size_t read = 0;
-  uint32_t size = d->frames.size();
+  uint32_t size = d->views.size();
   if (size <= offset) {
     d->cond.wait(lock, [this, offset, id, &size]() -> bool {
       bool closed =
           ((id != std::thread::id()) && d->closedThreads.count(id) > 0);
-      return d->closed || closed || ((size = d->frames.size()) > offset);
+      return d->closed || closed || ((size = d->views.size()) > offset);
     });
   }
   if (id != std::thread::id() && d->closedThreads.count(id) > 0) {
@@ -95,23 +92,37 @@ size_t FrameStore::dequeue(size_t offset, size_t max, const FrameView **dst,
   if (d->closed)
     return 0;
   for (size_t i = 0; i + offset < size && i < max; ++i, ++read) {
-    dst[i] = new FrameView(d->frames[i + offset]);
+    dst[i] = d->views[i + offset];
   }
   return read;
 }
 
 std::vector<const FrameView *> FrameStore::get(uint32_t offset,
                                                uint32_t length) const {
-  std::vector<const FrameView *> frames;
+  std::vector<const FrameView *> views;
   std::unique_lock<std::mutex> lock(d->mutex);
-  for (size_t i = offset; i < offset + length && i < d->frames.size(); ++i) {
-    frames.push_back(new FrameView(d->frames[i]));
+  for (size_t i = offset; i < offset + length && i < d->views.size(); ++i) {
+    views.push_back(d->views[i]);
   }
-  return frames;
+  return views;
 }
 
 size_t FrameStore::dissectedSize() const {
-  return std::atomic_load_explicit(&d->size, std::memory_order_relaxed);
+  std::unique_lock<std::mutex> lock(d->mutex);
+  return d->views.size();
+}
+
+void FrameStore::update(uint32_t index) {
+  {
+    std::unique_lock<std::mutex> lock(d->mutex);
+    size_t size = d->views.size();
+    d->views.resize(index);
+    for (size_t i = size; i < index; ++i) {
+      d->views[i] = new FrameView(d->frames[i]);
+    }
+  }
+  d->callback();
+  d->cond.notify_all();
 }
 
 void FrameStore::close(std::thread::id id) {

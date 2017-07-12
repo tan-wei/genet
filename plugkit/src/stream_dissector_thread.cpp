@@ -7,6 +7,7 @@
 #include "stream_dissector.hpp"
 #include "variant.hpp"
 #include <atomic>
+#include <algorithm>
 #include <unordered_map>
 #include <unordered_set>
 #include <v8.h>

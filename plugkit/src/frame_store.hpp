@@ -27,6 +27,7 @@ public:
                  std::thread::id id = std::thread::id()) const;
   size_t dequeue(size_t offset, size_t max, const Frame **dst) const;
   size_t dissectedSize() const;
+  void update(uint32_t index);
   std::vector<const FrameView *> get(uint32_t offset, uint32_t length) const;
   void close(std::thread::id id = std::thread::id());
 
