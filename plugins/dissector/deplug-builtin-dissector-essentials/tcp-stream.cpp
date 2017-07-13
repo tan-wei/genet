@@ -87,7 +87,11 @@ public:
 
       const auto &sequence = ring.fetch();
       Property chunks(PK_STRID("seq"), static_cast<int64_t>(sequence.size()));
+      Property curSeq(PK_STRID("curSeq"), currentSeq);
+      Property length(PK_STRID("length"), receivedLength);
       child.addProperty(std::move(chunks));
+      child.addProperty(std::move(curSeq));
+      child.addProperty(std::move(length));
 
       return new Layer(std::move(child));
     }
