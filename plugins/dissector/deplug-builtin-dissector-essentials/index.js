@@ -199,9 +199,18 @@ export default {
       stream_dissector: {
         main: 'build/Release/tcp-stream.node',
         descriptors: {
-          'tcp_st': {
-            name: 'TCP Stream'
+          'tcp.stream': {
+            name: 'Stream'
           },
+          'tcp.stream.length': {
+            name: 'Total Received Length'
+          },
+          'tcp.stream.payloads': {
+            name: 'Reassembled Payloads'
+          },
+          'tcp.stream.lastSeq': {
+            name: 'Last Sequence Number'
+          }
         }
       }
     },

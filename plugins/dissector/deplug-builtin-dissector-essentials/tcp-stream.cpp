@@ -86,15 +86,20 @@ public:
       }
 
       const auto &sequence = ring.fetch();
+      std::vector<Variant> chunks(sequence.begin(), sequence.end());
 
       Property stream(PK_STRID("stream"));
 
-      Property chunks(PK_STRID("_seq"), static_cast<int64_t>(sequence.size()));
-      Property curSeq(PK_STRID("_curSeq"), currentSeq);
-      Property length(PK_STRID("_len"), receivedLength);
-      stream.addProperty(std::move(chunks));
-      stream.addProperty(std::move(curSeq));
+      Property payloads(PK_STRID("payloads"), chunks);
+      stream.addProperty(std::move(payloads));
+
+      Property length(PK_STRID("length"), receivedLength);
       stream.addProperty(std::move(length));
+
+      if (currentSeq >= 0) {
+        Property curSeq(PK_STRID("lastSeq"), currentSeq);
+        stream.addProperty(std::move(curSeq));
+      }
 
       layer->addProperty(std::move(stream));
       return nullptr;
