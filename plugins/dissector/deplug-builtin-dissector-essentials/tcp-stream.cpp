@@ -52,7 +52,7 @@ class TCPStreamDissector final : public StreamDissector {
 public:
   class Worker final : public StreamDissector::Worker {
   public:
-    Layer* analyze(const Layer *layer) override {
+    Layer* analyze(Layer *layer) override {
       Layer child(PK_STRNS("tcp_st"));
       const auto &payload = layer->payload();
       uint32_t seq = layer->propertyFromId(PK_STRID("seq"))->value().uint64Value();
@@ -86,14 +86,18 @@ public:
       }
 
       const auto &sequence = ring.fetch();
-      Property chunks(PK_STRID("seq"), static_cast<int64_t>(sequence.size()));
-      Property curSeq(PK_STRID("curSeq"), currentSeq);
-      Property length(PK_STRID("length"), receivedLength);
-      child.addProperty(std::move(chunks));
-      child.addProperty(std::move(curSeq));
-      child.addProperty(std::move(length));
 
-      return new Layer(std::move(child));
+      Property stream(PK_STRID("stream"));
+
+      Property chunks(PK_STRID("_seq"), static_cast<int64_t>(sequence.size()));
+      Property curSeq(PK_STRID("_curSeq"), currentSeq);
+      Property length(PK_STRID("_len"), receivedLength);
+      stream.addProperty(std::move(chunks));
+      stream.addProperty(std::move(curSeq));
+      stream.addProperty(std::move(length));
+
+      layer->addProperty(std::move(stream));
+      return nullptr;
     }
 
   private:

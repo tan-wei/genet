@@ -20,7 +20,7 @@ public:
       }
     }
 
-    Layer* analyze(const Layer *layer) override {
+    Layer* analyze(Layer *layer) override {
       /*
       Layer child(PK_STRNS("http"));
       const auto &layer = chunk->layer();

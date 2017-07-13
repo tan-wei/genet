@@ -27,7 +27,7 @@ public:
   public:
     Worker();
     virtual ~Worker();
-    virtual Layer *analyze(const Layer *layer) = 0;
+    virtual Layer *analyze(Layer *layer) = 0;
     virtual bool expired(const Timestamp &lastUpdated) const;
 
   private:

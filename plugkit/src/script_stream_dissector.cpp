@@ -62,7 +62,7 @@ ScriptStreamDissector::Worker::~Worker() {
   d->expiredFunc.Reset();
 }
 
-Layer *ScriptStreamDissector::Worker::analyze(const Layer *layer) {
+Layer *ScriptStreamDissector::Worker::analyze(Layer *layer) {
   using namespace v8;
   Isolate *isolate = Isolate::GetCurrent();
   v8::TryCatch tryCatch(isolate);
