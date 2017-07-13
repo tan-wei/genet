@@ -97,7 +97,7 @@ export default class Session {
 
     return new Promise((res) => {
       sess.on('frame', (stat) => {
-        if (stat.frames >= frames.length && stat.queue === 0) {
+        if (stat.frames === frames.length) {
           res(sess.getFrames(0, stat.frames))
         }
       })
@@ -152,7 +152,7 @@ export default class Session {
       // eslint-disable-next-line no-await-in-loop
       const result = await new Promise((res) => {
         sess.on('frame', (stat) => {
-          if (stat.frames >= frames.length && stat.queue === 0) {
+          if (stat.frames === frames.length) {
             const diff = process.hrtime(start)
             res({
               frames: stat.frames,
