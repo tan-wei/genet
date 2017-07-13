@@ -157,6 +157,7 @@ bool StreamDissectorThread::loop() {
     layers.swap(nextlayers);
   }
 
+  d->queuedFrames.store(0, std::memory_order_relaxed);
   d->callback(maxFrameIndex);
 
   if (d->count % 1024 == 0) {

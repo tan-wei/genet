@@ -134,9 +134,7 @@ void StreamDissectorThreadPool::start() {
 
         std::vector<Layer *> layers;
         if (layer->children().empty()) {
-          if (!layer->streamId().empty()) {
-            layers.push_back(layer);
-          }
+          layers.push_back(layer);
         } else {
           for (const auto &child : layer->children()) {
             const auto &childList = findStreamedLayers(child);
