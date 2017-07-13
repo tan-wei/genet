@@ -10,7 +10,8 @@ export default class StreamDissectorComponent extends Component {
       throw new Error('stream_dissector.main field required')
     }
 
-    const descriptors = objpath.get(this.comp, 'stream_dissector.descriptors', {})
+    const descriptors = objpath.get(
+      this.comp, 'stream_dissector.descriptors', {})
     Session.addDescriptors(descriptors)
 
     const mainFile = path.join(this.rootDir, main)
