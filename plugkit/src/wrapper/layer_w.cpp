@@ -18,6 +18,8 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
   Nan::SetAccessor(otl, Nan::New("namespace").ToLocalChecked(), ns, setNs);
+  Nan::SetAccessor(otl, Nan::New("streamId").ToLocalChecked(), streamId,
+                   setStreamId);
   Nan::SetAccessor(otl, Nan::New("summary").ToLocalChecked(), summary,
                    setSummary);
   Nan::SetAccessor(otl, Nan::New("range").ToLocalChecked(), range, setRange);
@@ -99,6 +101,20 @@ NAN_SETTER(LayerWrapper::setNs) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
     layer->setNs(strns(*Nan::Utf8String(value)));
+  }
+}
+
+NAN_GETTER(LayerWrapper::streamId) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->weakLayer) {
+    info.GetReturnValue().Set(Nan::New(layer->streamId()).ToLocalChecked());
+  }
+}
+
+NAN_SETTER(LayerWrapper::setStreamId) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->layer) {
+    layer->setStreamId(*Nan::Utf8String(value));
   }
 }
 
