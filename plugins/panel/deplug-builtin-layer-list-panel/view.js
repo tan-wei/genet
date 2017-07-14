@@ -38,6 +38,17 @@ class ArrayValueItem {
   }
 }
 
+class ObjectValueItem {
+  view(vnode) {
+    const obj = vnode.attrs.value
+    return <ul>{Object.keys(obj).map((key) => {
+      return <li><label>{ key }</label>{m(PropertyValueItem, {
+        prop: {value: obj[key]}
+      })}</li>
+    })}</ul>
+  }
+}
+
 class PropertyValueItem {
   view(vnode) {
     const prop = vnode.attrs.prop
@@ -49,6 +60,10 @@ class PropertyValueItem {
       return m(BufferValueItem, {value: prop.value})
     } else if (Array.isArray(prop.value)) {
       return m(ArrayValueItem, {value: prop.value})
+    } else if (typeof prop.value === 'object' &&
+        prop.value != null &&
+        Reflect.getPrototypeOf(prop.value) === Object.prototype) {
+      return m(ObjectValueItem, {value: prop.value})
     }
     const value = (prop.value == null ? '' : prop.value.toString())
     return <span> { value } </span>
