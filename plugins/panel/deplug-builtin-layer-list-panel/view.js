@@ -24,7 +24,7 @@ class BufferValueItem {
     const buffer = vnode.attrs.value
     const hex = buffer.slice(0, 16).toString('hex') +
       (buffer.length > 16 ? '...' : '')
-    return <span>0x{ hex }</span>
+    return <span>[{buffer.length} bytes] 0x{ hex }</span>
   }
 }
 
