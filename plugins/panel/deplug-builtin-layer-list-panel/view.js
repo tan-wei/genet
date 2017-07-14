@@ -28,6 +28,16 @@ class BufferValueItem {
   }
 }
 
+class ArrayValueItem {
+  view(vnode) {
+    return <ul>{vnode.attrs.value.map((value) => {
+      return <li>{m(PropertyValueItem, {
+        prop: {value}
+      })}</li>
+    })}</ul>
+  }
+}
+
 class PropertyValueItem {
   view(vnode) {
     const prop = vnode.attrs.prop
@@ -37,6 +47,8 @@ class PropertyValueItem {
       return m(DateValueItem, {value: prop.value})
     } else if (prop.value instanceof Uint8Array) {
       return m(BufferValueItem, {value: prop.value})
+    } else if (Array.isArray(prop.value)) {
+      return m(ArrayValueItem, {value: prop.value})
     }
     const value = (prop.value == null ? '' : prop.value.toString())
     return <span> { value } </span>
