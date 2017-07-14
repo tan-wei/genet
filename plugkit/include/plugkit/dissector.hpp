@@ -23,7 +23,7 @@ public:
   class PLUGKIT_EXPORT Worker {
   public:
     virtual ~Worker();
-    virtual Layer *analyze(const Layer *layer) = 0;
+    virtual Layer *analyze(Layer *layer) = 0;
   };
   using WorkerPtr = std::unique_ptr<Worker>;
 

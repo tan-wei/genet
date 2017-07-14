@@ -12,7 +12,7 @@ class IPv4Dissector final : public Dissector {
 public:
   class Worker final : public Dissector::Worker {
   public:
-    Layer* analyze(const Layer*layer) override {
+    Layer* analyze(Layer *layer) override {
       fmt::Reader<Slice> reader(layer->payload());
       Layer child(PK_STRNS("ipv4"));
 

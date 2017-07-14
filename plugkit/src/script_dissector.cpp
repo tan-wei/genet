@@ -36,7 +36,7 @@ ScriptDissector::Worker::~Worker() {
   d->workerFunc.Reset();
 }
 
-Layer *ScriptDissector::Worker::analyze(const Layer *layer) {
+Layer *ScriptDissector::Worker::analyze(Layer *layer) {
   using namespace v8;
   Isolate *isolate = Isolate::GetCurrent();
   v8::TryCatch tryCatch(isolate);

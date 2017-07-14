@@ -18,7 +18,7 @@ public:
     Worker(const SessionContext &ctx,
            const v8::UniquePersistent<v8::Object> &workerObj);
     ~Worker();
-    Layer *analyze(const Layer *layer) override;
+    Layer *analyze(Layer *layer) override;
 
   private:
     class Private;
