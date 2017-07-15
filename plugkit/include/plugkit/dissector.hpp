@@ -1,7 +1,6 @@
 #ifndef PLUGKIT_DISSECTOR_H
 #define PLUGKIT_DISSECTOR_H
 
-#include "variant.hpp"
 #include "export.hpp"
 #include "strns.hpp"
 #include <memory>

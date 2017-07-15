@@ -1,9 +1,9 @@
 #ifndef PLUGKIT_STREAM_DISSECTOR_H
 #define PLUGKIT_STREAM_DISSECTOR_H
 
-#include "variant.hpp"
 #include "export.hpp"
 #include "strns.hpp"
+#include <chrono>
 #include <memory>
 #include <v8.h>
 #include <vector>
