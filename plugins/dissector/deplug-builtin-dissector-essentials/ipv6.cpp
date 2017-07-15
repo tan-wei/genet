@@ -45,10 +45,10 @@ public:
       int nextHeader = reader.readBE<uint8_t>();
       auto nextHeaderRange = reader.lastRange();
 
-      Property *hHeader = new Property(PK_STRID("hHeader"), nextHeader);
-      hHeader->setRange(nextHeaderRange);
-      hHeader->setError(reader.lastError());
-      child->addProperty(hHeader);
+      Property *nHeader = new Property(PK_STRID("nHeader"), nextHeader);
+      nHeader->setRange(nextHeaderRange);
+      nHeader->setError(reader.lastError());
+      child->addProperty(nHeader);
 
       Property *hLimit = new Property(PK_STRID("hLimit"), reader.readBE<uint8_t>());
       hLimit->setRange(reader.lastRange());

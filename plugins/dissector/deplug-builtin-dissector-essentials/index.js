@@ -95,6 +95,33 @@ export default {
         descriptors: {
           ipv6: {
             name: 'IPv6'
+          },
+          'ipv6.version': {
+            name: 'Version'
+          },
+          'ipv6.tClass': {
+            name: 'Traffic Class'
+          },
+          'ipv6.fLevel': {
+            name: 'Flow Level'
+          },
+          'ipv6.pLen': {
+            name: 'Payload Length'
+          },
+          'ipv6.nHeader': {
+            name: 'Next Header'
+          },
+          'ipv6.hLimit': {
+            name: 'Hop Limit'
+          },
+          'ipv6.src': {
+            name: 'Source'
+          },
+          'ipv6.dst': {
+            name: 'Destination'
+          },
+          'ipv6.protocol': {
+            name: 'Protocol'
           }
         }
       }
