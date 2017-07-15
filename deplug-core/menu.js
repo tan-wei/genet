@@ -146,7 +146,7 @@ export default class Menu extends EventEmitter {
     if (process.platform === 'darwin') {
       remote.Menu.setApplicationMenu(root)
     } else {
-    remote.getCurrentWindow().setMenu(root)
+      remote.getCurrentWindow().setMenu(root)
     }
   }
 
@@ -163,4 +163,8 @@ export default class Menu extends EventEmitter {
       menu.popup(browserWindow, option.x, option.y)
     }
   }
+}
+
+if (process.platform === 'darwin') {
+  remote.getCurrentWindow().on('focus', reload)
 }
