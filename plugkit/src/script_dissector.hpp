@@ -30,7 +30,7 @@ public:
                   const std::string &path);
   ~ScriptDissector();
   WorkerPtr createWorker() override;
-  std::vector<strns> namespaces() const override;
+  std::vector<minins> namespaces() const override;
 
 private:
   class Private;

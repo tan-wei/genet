@@ -9,7 +9,7 @@
 
 namespace plugkit {
 
-struct strns;
+struct minins;
 
 class Frame;
 class FrameView;
@@ -108,7 +108,7 @@ public:
   void setOptions(const Variant &options);
   Variant options() const;
 
-  void registerLinkLayer(int link, const strns &ns);
+  void registerLinkLayer(int link, const minins &ns);
   void registerDissector(const DissectorFactoryConstPtr &factory);
   void registerStreamDissector(const StreamDissectorFactoryConstPtr &factory);
 

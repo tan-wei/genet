@@ -136,7 +136,7 @@ NAN_METHOD(SessionFactoryWrapper::registerLinkLayer) {
       ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
   if (const auto &factory = wrapper->factory) {
     int link = info[0]->IntegerValue();
-    factory->registerLinkLayer(link, strns(*Nan::Utf8String(info[1])));
+    factory->registerLinkLayer(link, minins(*Nan::Utf8String(info[1])));
   }
 }
 

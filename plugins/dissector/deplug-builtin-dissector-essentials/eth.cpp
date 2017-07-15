@@ -17,14 +17,14 @@ public:
       Layer *child = new Layer("eth");
 
       const auto &srcSlice = reader.slice(6);
-      Property *src = new Property(PK_STRID("src"), srcSlice);
+      Property *src = new Property(MID("src"), srcSlice);
       src->setSummary(fmt::toHex(srcSlice, 1));
       src->setRange(reader.lastRange());
       src->setError(reader.lastError());
       child->addProperty(src);
 
       const auto &dstSlice = reader.slice(6);
-      Property *dst = new Property(PK_STRID("dst"), dstSlice);
+      Property *dst = new Property(MID("dst"), dstSlice);
       dst->setSummary(fmt::toHex(dstSlice, 1));
       dst->setRange(reader.lastRange());
       dst->setError(reader.lastError());
@@ -34,26 +34,26 @@ public:
 
       auto protocolType = reader.readBE<uint16_t>();
       if (protocolType <= 1500) {
-        Property *length = new Property(PK_STRID("len"), protocolType);
+        Property *length = new Property(MID("len"), protocolType);
         length->setRange(reader.lastRange());
         length->setError(reader.lastError());
         child->addProperty(length);
       } else {
         const std::unordered_map<
-          uint16_t, std::pair<std::string,strid>> typeTable = {
-          {0x0800, std::make_pair("IPv4", PK_STRNS("*ipv4"))},
-          {0x0806, std::make_pair("ARP", PK_STRNS("*arp"))},
-          {0x0842, std::make_pair("WoL", PK_STRNS("*wol"))},
-          {0x809B, std::make_pair("AppleTalk", PK_STRNS("*aTalk"))},
-          {0x80F3, std::make_pair("AARP", PK_STRNS("*aarp"))},
-          {0x86DD, std::make_pair("IPv6", PK_STRNS("*ipv6"))},
+          uint16_t, std::pair<std::string,miniid>> typeTable = {
+          {0x0800, std::make_pair("IPv4", MNS("*ipv4"))},
+          {0x0806, std::make_pair("ARP", MNS("*arp"))},
+          {0x0842, std::make_pair("WoL", MNS("*wol"))},
+          {0x809B, std::make_pair("AppleTalk", MNS("*aTalk"))},
+          {0x80F3, std::make_pair("AARP", MNS("*aarp"))},
+          {0x86DD, std::make_pair("IPv6", MNS("*ipv6"))},
         };
 
-        Property *etherType = new Property(PK_STRID("ethType"), protocolType);
-        const auto &type = fmt::enums(typeTable, protocolType, std::make_pair("Unknown", PK_STRNS("?")));
+        Property *etherType = new Property(MID("ethType"), protocolType);
+        const auto &type = fmt::enums(typeTable, protocolType, std::make_pair("Unknown", MNS("?")));
         etherType->setSummary(type.first);
         if (!type.second.empty()) {
-          child->setNs(strns(PK_STRNS("eth"), type.second));
+          child->setNs(minins(MNS("eth"), type.second));
         }
         etherType->setRange(reader.lastRange());
         etherType->setError(reader.lastError());
@@ -70,8 +70,8 @@ public:
   Dissector::WorkerPtr createWorker() override {
     return Dissector::WorkerPtr(new EthernetDissector::Worker());
   }
-  std::vector<strns> namespaces() const override {
-    return std::vector<strns>{PK_STRNS("*eth")};
+  std::vector<minins> namespaces() const override {
+    return std::vector<minins>{MNS("*eth")};
   }
 };
 

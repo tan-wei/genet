@@ -21,7 +21,7 @@ struct Session::Config {
   bool promiscuous = false;
   int snaplen = 2048;
   std::string bpf;
-  std::unordered_map<int, strns> linkLayers;
+  std::unordered_map<int, minins> linkLayers;
   std::vector<DissectorFactoryConstPtr> dissectors;
   std::vector<StreamDissectorFactoryConstPtr> streamDissectors;
   Variant options;
@@ -47,7 +47,7 @@ public:
   std::unique_ptr<DissectorThreadPool> dissectorPool;
   std::unique_ptr<StreamDissectorThreadPool> streamDissectorPool;
   std::unordered_map<std::string, std::unique_ptr<FilterThreadPool>> filters;
-  std::unordered_map<int, strns> linkLayers;
+  std::unordered_map<int, minins> linkLayers;
   std::shared_ptr<FrameStore> frameStore;
   std::unique_ptr<Pcap> pcap;
   StatusCallback statusCallback;
@@ -248,7 +248,7 @@ void Session::analyze(const std::vector<RawFrame> &rawFrames) {
     if (linkLayer != d->linkLayers.end()) {
       rootLayer->setNs(linkLayer->second);
     } else {
-      rootLayer->setNs(PK_STRNS("?"));
+      rootLayer->setNs(MNS("?"));
     }
     rootLayer->setPayload(raw.payload);
 
@@ -314,7 +314,7 @@ void SessionFactory::setOptions(const Variant &options) {
 
 Variant SessionFactory::options() const { return d->options; }
 
-void SessionFactory::registerLinkLayer(int link, const strns &ns) {
+void SessionFactory::registerLinkLayer(int link, const minins &ns) {
   d->linkLayers[link] = ns;
 }
 

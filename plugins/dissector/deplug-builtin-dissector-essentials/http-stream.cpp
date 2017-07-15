@@ -22,10 +22,10 @@ public:
 
     Layer* analyze(Layer *layer) override {
       /*
-      Layer child(PK_STRNS("http"));
+      Layer child(MNS("http"));
       const auto &layer = chunk->layer();
-      uint16_t srcPort = layer->propertyFromId(PK_STRID("src"))->value().uint64Value();
-      uint16_t dstPort = layer->propertyFromId(PK_STRID("dst"))->value().uint64Value();
+      uint16_t srcPort = layer->propertyFromId(MID("src"))->value().uint64Value();
+      uint16_t dstPort = layer->propertyFromId(MID("dst"))->value().uint64Value();
       if (ports.find(srcPort) == ports.end() && ports.find(dstPort) == ports.end()) {
         return nullptr;
       }
@@ -47,8 +47,8 @@ public:
   StreamDissector::WorkerPtr createWorker() override {
     return StreamDissector::WorkerPtr(new HTTPDissector::Worker(ctx));
   }
-  std::vector<strns> namespaces() const override {
-    return std::vector<strns>{PK_STRNS("tcp")};
+  std::vector<minins> namespaces() const override {
+    return std::vector<minins>{MNS("tcp")};
   }
 
 private:

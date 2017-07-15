@@ -27,7 +27,7 @@ public:
   bool hasPermission() const override;
   bool running() const override;
 
-  void registerLinkLayer(int link, const strns &ns) override;
+  void registerLinkLayer(int link, const minins &ns) override;
 
   bool start() override;
   bool stop() override;

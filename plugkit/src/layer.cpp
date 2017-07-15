@@ -9,11 +9,11 @@ namespace plugkit {
 
 class Layer::Private {
 public:
-  Private(const strns &ns);
+  Private(const minins &ns);
 
 public:
-  strns ns;
-  strns streamId;
+  minins ns;
+  minins streamId;
   std::string summary;
   std::string error;
   std::pair<uint32_t, uint32_t> range;
@@ -25,21 +25,21 @@ public:
   std::vector<const Property *> properties;
 };
 
-Layer::Private::Private(const strns &ns) : ns(ns) {}
+Layer::Private::Private(const minins &ns) : ns(ns) {}
 
-Layer::Layer() : d(new Private(strns())) {}
+Layer::Layer() : d(new Private(minins())) {}
 
-Layer::Layer(const strns &ns) : d(new Private(ns)) {}
+Layer::Layer(const minins &ns) : d(new Private(ns)) {}
 
 Layer::~Layer() {}
 
 Layer::Layer(Layer &&layer) { this->d.reset(layer.d.release()); }
 
-strid Layer::id() const { return d->ns.primary(); }
+miniid Layer::id() const { return d->ns.primary(); }
 
-strns Layer::ns() const { return d->ns; }
+minins Layer::ns() const { return d->ns; }
 
-void Layer::setNs(const strns &ns) { d->ns = ns; }
+void Layer::setNs(const minins &ns) { d->ns = ns; }
 
 std::pair<uint32_t, uint32_t> Layer::range() const { return d->range; }
 
@@ -63,9 +63,9 @@ const std::vector<Layer *> &Layer::children() const { return d->children; }
 
 void Layer::addChild(Layer *child) { d->children.push_back(child); }
 
-strns Layer::streamId() const { return d->streamId; }
+minins Layer::streamId() const { return d->streamId; }
 
-void Layer::setStreamId(const strns &id) { d->streamId = id; }
+void Layer::setStreamId(const minins &id) { d->streamId = id; }
 
 const Slice &Layer::payload() const { return d->payload; }
 
@@ -83,7 +83,7 @@ const Frame *Layer::frame() const { return d->frame; }
 
 void Layer::setFrame(const Frame *frame) { d->frame = frame; }
 
-const Property *Layer::propertyFromId(strid id) const {
+const Property *Layer::propertyFromId(miniid id) const {
   for (const auto &child : d->properties) {
     if (child->id() == id) {
       return child;

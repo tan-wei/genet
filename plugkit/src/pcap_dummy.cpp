@@ -18,7 +18,7 @@ public:
 public:
   LoggerPtr logger = std::make_shared<StreamLogger>();
   Callback callback;
-  std::unordered_map<int, strns> linkLayers;
+  std::unordered_map<int, minins> linkLayers;
   int link;
 
   std::mutex mutex;
@@ -64,7 +64,7 @@ bool PcapDummy::start() {
   if (d->thread.joinable())
     return false;
 
-  strns ns(PK_STRNS("?"));
+  minins ns(MNS("?"));
   const auto &link = d->linkLayers.find(d->link);
   if (link != d->linkLayers.end()) {
     ns = link->second;
@@ -119,7 +119,7 @@ bool PcapDummy::hasPermission() const { return true; }
 
 bool PcapDummy::running() const { return d->thread.joinable(); }
 
-void PcapDummy::registerLinkLayer(int link, const strns &ns) {
+void PcapDummy::registerLinkLayer(int link, const minins &ns) {
   d->linkLayers[link] = ns;
 }
 }

@@ -14,33 +14,33 @@ public:
   public:
     Layer* analyze(Layer *layer) override {
       fmt::Reader<Slice> reader(layer->payload());
-      Layer *child = new Layer(PK_STRNS("udp"));
+      Layer *child = new Layer(MNS("udp"));
 
-      const auto& parentSrc = layer->propertyFromId(PK_STRID("src"));
-      const auto& parentDst = layer->propertyFromId(PK_STRID("dst"));
+      const auto& parentSrc = layer->propertyFromId(MID("src"));
+      const auto& parentDst = layer->propertyFromId(MID("dst"));
 
       uint16_t sourcePort = reader.readBE<uint16_t>();
-      Property *src = new Property(PK_STRID("src"), sourcePort);
+      Property *src = new Property(MID("src"), sourcePort);
       src->setSummary(parentSrc->summary() + ":" + std::to_string(sourcePort));
       src->setRange(reader.lastRange());
       src->setError(reader.lastError());
       child->addProperty(src);
 
       uint16_t dstPort = reader.readBE<uint16_t>();
-      Property *dst = new Property(PK_STRID("dst"), dstPort);
+      Property *dst = new Property(MID("dst"), dstPort);
       dst->setSummary(parentDst->summary() + ":" + std::to_string(dstPort));
       dst->setRange(reader.lastRange());
       dst->setError(reader.lastError());
       child->addProperty(dst);
 
       uint32_t lengthNumber = reader.readBE<uint16_t>();
-      Property *length = new Property(PK_STRID("length"), lengthNumber);
+      Property *length = new Property(MID("length"), lengthNumber);
       length->setRange(reader.lastRange());
       length->setError(reader.lastError());
       child->addProperty(length);
 
       uint32_t checksumNumber = reader.readBE<uint16_t>();
-      Property *checksum = new Property(PK_STRID("checksum"), checksumNumber);
+      Property *checksum = new Property(MID("checksum"), checksumNumber);
       checksum->setRange(reader.lastRange());
       checksum->setError(reader.lastError());
       child->addProperty(checksum);
@@ -55,8 +55,8 @@ public:
   Dissector::WorkerPtr createWorker() override {
     return Dissector::WorkerPtr(new UDPDissector::Worker());
   }
-  std::vector<strns> namespaces() const override {
-    return std::vector<strns>{PK_STRNS("*udp")};
+  std::vector<minins> namespaces() const override {
+    return std::vector<minins>{MNS("*udp")};
   }
 };
 

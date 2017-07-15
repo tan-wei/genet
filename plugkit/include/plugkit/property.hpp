@@ -3,7 +3,7 @@
 
 #include "variant.hpp"
 #include "export.hpp"
-#include "strid.hpp"
+#include "miniid.hpp"
 #include <memory>
 #include <vector>
 
@@ -14,12 +14,12 @@ class Property;
 class PLUGKIT_EXPORT Property final {
 public:
   Property();
-  Property(strid id, const Variant &value = Variant());
+  Property(miniid id, const Variant &value = Variant());
   Property(Property &&prop);
   ~Property();
 
-  strid id() const;
-  void setId(strid id);
+  miniid id() const;
+  void setId(miniid id);
   std::pair<uint32_t, uint32_t> range() const;
   void setRange(const std::pair<uint32_t, uint32_t> &range);
   std::string summary() const;
@@ -30,7 +30,7 @@ public:
   void setValue(const Variant &value);
 
   const std::vector<const Property *> &properties() const;
-  const Property *propertyFromId(strid id) const;
+  const Property *propertyFromId(miniid id) const;
   void addProperty(const Property *prop);
   void addProperty(Property &&prop);
 

@@ -68,7 +68,7 @@ public:
             const std::string &path, v8::TryCatch *tryCatch);
 
 public:
-  std::vector<strns> namespaces;
+  std::vector<minins> namespaces;
   v8::UniquePersistent<v8::Object> workerObj;
   SessionContext ctx;
 };
@@ -169,7 +169,7 @@ Dissector::WorkerPtr ScriptDissector::createWorker() {
       new ScriptDissector::Worker(d->ctx, d->workerObj));
 }
 
-std::vector<strns> ScriptDissector::namespaces() const { return d->namespaces; }
+std::vector<minins> ScriptDissector::namespaces() const { return d->namespaces; }
 
 class ScriptDissectorFactory::Private {
 public:

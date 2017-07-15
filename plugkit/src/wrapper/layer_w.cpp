@@ -58,7 +58,7 @@ NAN_METHOD(LayerWrapper::New) {
     auto confValue = options->Get(Nan::New("confidence").ToLocalChecked());
     auto errorValue = options->Get(Nan::New("error").ToLocalChecked());
     if (nsValue->IsString()) {
-      layer->setNs(strns(*Nan::Utf8String(nsValue)));
+      layer->setNs(minins(*Nan::Utf8String(nsValue)));
     }
     if (summaryValue->IsString()) {
       layer->setSummary(*Nan::Utf8String(summaryValue));
@@ -100,7 +100,7 @@ NAN_GETTER(LayerWrapper::ns) {
 NAN_SETTER(LayerWrapper::setNs) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
-    layer->setNs(strns(*Nan::Utf8String(value)));
+    layer->setNs(minins(*Nan::Utf8String(value)));
   }
 }
 
@@ -243,7 +243,7 @@ NAN_METHOD(LayerWrapper::propertyFromId) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->weakLayer) {
     if (const auto &prop =
-            layer->propertyFromId(strid(*Nan::Utf8String(info[0])))) {
+            layer->propertyFromId(miniid(*Nan::Utf8String(info[0])))) {
       info.GetReturnValue().Set(PropertyWrapper::wrap(prop));
     } else {
       info.GetReturnValue().Set(Nan::Null());

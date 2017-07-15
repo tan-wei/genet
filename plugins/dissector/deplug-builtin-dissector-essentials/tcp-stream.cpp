@@ -53,11 +53,11 @@ public:
   class Worker final : public StreamDissector::Worker {
   public:
     Layer* analyze(Layer *layer) override {
-      Layer child(PK_STRNS("tcp_st"));
+      Layer child(MNS("tcp_st"));
       const auto &payload = layer->payload();
-      uint32_t seq = layer->propertyFromId(PK_STRID("seq"))->value().uint64Value();
-      uint16_t window = layer->propertyFromId(PK_STRID("window"))->value().uint64Value();
-      uint8_t flags = layer->propertyFromId(PK_STRID("flags"))->value().uint64Value();
+      uint32_t seq = layer->propertyFromId(MID("seq"))->value().uint64Value();
+      uint16_t window = layer->propertyFromId(MID("window"))->value().uint64Value();
+      uint8_t flags = layer->propertyFromId(MID("flags"))->value().uint64Value();
       bool syn = (flags & (0x1 << 1));
 
       if (syn) {
@@ -88,16 +88,16 @@ public:
       const auto &sequence = ring.fetch();
       std::vector<Variant> chunks(sequence.begin(), sequence.end());
 
-      Property *stream = new Property(PK_STRID("stream"));
+      Property *stream = new Property(MID("stream"));
 
-      Property *payloads = new Property(PK_STRID("payloads"), chunks);
+      Property *payloads = new Property(MID("payloads"), chunks);
       stream->addProperty(payloads);
 
-      Property *length = new Property(PK_STRID("length"), receivedLength);
+      Property *length = new Property(MID("length"), receivedLength);
       stream->addProperty(length);
 
       if (currentSeq >= 0) {
-        Property *curSeq = new Property(PK_STRID("lastSeq"), currentSeq);
+        Property *curSeq = new Property(MID("lastSeq"), currentSeq);
         stream->addProperty(curSeq);
       }
 
@@ -115,8 +115,8 @@ public:
   StreamDissector::WorkerPtr createWorker() override {
     return StreamDissector::WorkerPtr(new TCPStreamDissector::Worker());
   }
-  std::vector<strns> namespaces() const override {
-    return std::vector<strns>{PK_STRNS("tcp")};
+  std::vector<minins> namespaces() const override {
+    return std::vector<minins>{MNS("tcp")};
   }
 };
 

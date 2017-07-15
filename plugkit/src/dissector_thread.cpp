@@ -18,7 +18,7 @@ public:
   FrameQueuePtr queue;
   Callback callback;
   std::vector<DissectorFactoryConstPtr> factories;
-  std::unordered_map<Dissector::WorkerPtr, std::vector<strns>> workers;
+  std::unordered_map<Dissector::WorkerPtr, std::vector<minins>> workers;
   Variant options;
   std::atomic<uint32_t> queuedFrames;
   double confidenceThreshold;
@@ -63,7 +63,7 @@ bool DissectorThread::loop() {
     return false;
 
   for (size_t i = 0; i < size; ++i) {
-    std::unordered_set<strns> dissectedNamespaces;
+    std::unordered_set<minins> dissectedNamespaces;
 
     Frame *frame = frames[i];
     const auto &rootLayer = frame->rootLayer();
@@ -75,7 +75,7 @@ bool DissectorThread::loop() {
     while (!leafLayers.empty()) {
       std::vector<Layer *> nextlayers;
       for (const auto &layer : leafLayers) {
-        const strns &ns = layer->ns();
+        const minins &ns = layer->ns();
         dissectedNamespaces.insert(ns);
 
         workers.clear();

@@ -22,7 +22,7 @@ public:
   Callback callback;
   Queue<Layer *> queue;
   std::vector<StreamDissectorFactoryConstPtr> factories;
-  std::unordered_map<StreamDissectorPtr, std::vector<strns>> dissectors;
+  std::unordered_map<StreamDissectorPtr, std::vector<minins>> dissectors;
   double confidenceThreshold;
   std::atomic<uint32_t> queuedFrames;
   size_t count = 0;
@@ -32,8 +32,8 @@ public:
     StreamDissector::Worker::Timestamp lastUpdated;
   };
 
-  using IdMap = std::unordered_map<strns, WorkerList>;
-  std::unordered_map<strns, IdMap> workers;
+  using IdMap = std::unordered_map<minins, WorkerList>;
+  std::unordered_map<minins, IdMap> workers;
 };
 
 void StreamDissectorThread::Private::cleanup() {
@@ -103,10 +103,10 @@ bool StreamDissectorThread::loop() {
     std::vector<Layer *> nextlayers;
 
     for (size_t i = 0; i < layers.size(); ++i) {
-      std::unordered_set<strns> dissectedNamespaces;
+      std::unordered_set<minins> dissectedNamespaces;
 
       const auto layer = layers[i];
-      const strns &ns = layer->ns();
+      const minins &ns = layer->ns();
       dissectedNamespaces.insert(ns);
       auto &workers = d->workers[ns][layer->streamId()];
 

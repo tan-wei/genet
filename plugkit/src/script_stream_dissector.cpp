@@ -120,7 +120,7 @@ public:
             const std::string &path, v8::TryCatch *tryCatch);
 
 public:
-  std::vector<strns> namespaces;
+  std::vector<minins> namespaces;
   v8::UniquePersistent<v8::Object> workerObj;
   SessionContext ctx;
 };
@@ -212,7 +212,7 @@ StreamDissector::WorkerPtr ScriptStreamDissector::createWorker() {
       new ScriptStreamDissector::Worker(d->ctx, d->workerObj));
 }
 
-std::vector<strns> ScriptStreamDissector::namespaces() const {
+std::vector<minins> ScriptStreamDissector::namespaces() const {
   return d->namespaces;
 }
 

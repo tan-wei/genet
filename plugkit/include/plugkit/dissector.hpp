@@ -2,7 +2,7 @@
 #define PLUGKIT_DISSECTOR_H
 
 #include "export.hpp"
-#include "strns.hpp"
+#include "minins.hpp"
 #include <memory>
 #include <v8.h>
 #include <vector>
@@ -27,7 +27,7 @@ public:
 
 public:
   virtual WorkerPtr createWorker() = 0;
-  virtual std::vector<strns> namespaces() const = 0;
+  virtual std::vector<minins> namespaces() const = 0;
 };
 
 using DissectorPtr = std::unique_ptr<Dissector>;

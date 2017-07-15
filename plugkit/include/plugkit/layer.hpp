@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include "export.hpp"
-#include "strns.hpp"
+#include "minins.hpp"
 
 namespace plugkit {
 
@@ -17,13 +17,13 @@ class Slice;
 class PLUGKIT_EXPORT Layer final {
 public:
   Layer();
-  Layer(const strns &ns);
+  Layer(const minins &ns);
   Layer(Layer &&layer);
   ~Layer();
 
-  strid id() const;
-  strns ns() const;
-  void setNs(const strns &ns);
+  miniid id() const;
+  minins ns() const;
+  void setNs(const minins &ns);
   std::string summary() const;
   void setSummary(const std::string &summary);
   std::pair<uint32_t, uint32_t> range() const;
@@ -37,12 +37,12 @@ public:
   void addChild(Layer *child);
 
   const std::vector<const Property *> &properties() const;
-  const Property *propertyFromId(strid id) const;
+  const Property *propertyFromId(miniid id) const;
   void addProperty(const Property *prop);
   void addProperty(Property &&prop);
 
-  strns streamId() const;
-  void setStreamId(const strns &id);
+  minins streamId() const;
+  void setStreamId(const minins &id);
 
   const Slice &payload() const;
   void setPayload(const Slice &payload);

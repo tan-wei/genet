@@ -37,13 +37,13 @@ public:
 public:
   LoggerPtr logger = std::make_shared<StreamLogger>();
   Callback callback;
-  std::unordered_map<int, strns> linkLayers;
+  std::unordered_map<int, minins> linkLayers;
 
   std::mutex mutex;
   std::thread thread;
   pcap_t *pcap = nullptr;
 
-  strns ns;
+  minins ns;
 
   bpf_program bpf = {0, nullptr};
   std::string networkInterface;
@@ -201,7 +201,7 @@ bool PcapPlatform::start() {
   if (linkLayer != d->linkLayers.end()) {
     d->ns = linkLayer->second;
   } else {
-    d->ns = PK_STRNS("?");
+    d->ns = MNS("?");
   }
 
   d->thread = std::thread([this]() {
@@ -253,7 +253,7 @@ bool PcapPlatform::stop() {
   return true;
 }
 
-void PcapPlatform::registerLinkLayer(int link, const strns &ns) {
+void PcapPlatform::registerLinkLayer(int link, const minins &ns) {
   d->linkLayers[link] = ns;
 }
 

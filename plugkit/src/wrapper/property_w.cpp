@@ -47,7 +47,7 @@ NAN_METHOD(PropertyWrapper::New) {
     auto errorValue = options->Get(Nan::New("error").ToLocalChecked());
     auto value = options->Get(Nan::New("value").ToLocalChecked());
     if (idValue->IsString()) {
-      prop->setId(strid(*Nan::Utf8String(idValue)));
+      prop->setId(miniid(*Nan::Utf8String(idValue)));
     }
     if (rangeValue->IsArray()) {
       auto array = rangeValue.As<v8::Array>();
@@ -79,7 +79,7 @@ NAN_GETTER(PropertyWrapper::id) {
 NAN_SETTER(PropertyWrapper::setId) {
   PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
   if (auto prop = wrapper->prop) {
-    prop->setId(strid(*Nan::Utf8String(value)));
+    prop->setId(miniid(*Nan::Utf8String(value)));
   }
 }
 
@@ -166,7 +166,7 @@ NAN_METHOD(PropertyWrapper::propertyFromId) {
   PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
   if (auto prop = wrapper->constProp) {
     if (const auto &child =
-            prop->propertyFromId(strid(*Nan::Utf8String(info[0])))) {
+            prop->propertyFromId(miniid(*Nan::Utf8String(info[0])))) {
       info.GetReturnValue().Set(PropertyWrapper::wrap(child));
     } else {
       info.GetReturnValue().Set(Nan::Null());

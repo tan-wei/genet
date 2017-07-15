@@ -6,8 +6,8 @@ namespace plugkit {
 
 class Property::Private {
 public:
-  Private(strid id, const Variant &value);
-  strid id;
+  Private(miniid id, const Variant &value);
+  miniid id;
   std::pair<uint32_t, uint32_t> range;
   std::string summary;
   std::string error;
@@ -15,21 +15,21 @@ public:
   std::vector<const Property *> children;
 };
 
-Property::Private::Private(strid id, const Variant &value)
+Property::Private::Private(miniid id, const Variant &value)
     : id(id), value(value) {}
 
-Property::Property() : d(new Private(strid(), Variant())) {}
+Property::Property() : d(new Private(miniid(), Variant())) {}
 
-Property::Property(strid id, const Variant &value)
+Property::Property(miniid id, const Variant &value)
     : d(new Private(id, value)) {}
 
 Property::~Property() {}
 
 Property::Property(Property &&prop) { this->d.reset(prop.d.release()); }
 
-strid Property::id() const { return d->id; }
+miniid Property::id() const { return d->id; }
 
-void Property::setId(strid id) { d->id = id; }
+void Property::setId(miniid id) { d->id = id; }
 
 std::pair<uint32_t, uint32_t> Property::range() const { return d->range; }
 
@@ -53,7 +53,7 @@ const std::vector<const Property *> &Property::properties() const {
   return d->children;
 }
 
-const Property *Property::propertyFromId(strid id) const {
+const Property *Property::propertyFromId(miniid id) const {
   for (const auto &child : d->children) {
     if (child->id() == id) {
       return child;

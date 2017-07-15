@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <vector>
-#include "strid.hpp"
+#include "miniid.hpp"
 
 namespace plugkit {
 
@@ -19,8 +19,8 @@ public:
   const Frame *frame() const;
   const Layer *primaryLayer() const;
   const std::vector<const Layer *> &leafLayers() const;
-  const Property *propertyFromId(strid id) const;
-  const Layer *layerFromId(strid id) const;
+  const Property *propertyFromId(miniid id) const;
+  const Layer *layerFromId(miniid id) const;
   bool hasError() const;
 
 private:
