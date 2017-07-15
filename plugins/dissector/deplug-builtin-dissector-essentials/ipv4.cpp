@@ -14,32 +14,37 @@ public:
   public:
     Layer* analyze(Layer *layer) override {
       fmt::Reader<Slice> reader(layer->payload());
-      Layer child(PK_STRNS("ipv4"));
+      Layer *child = new Layer(PK_STRNS("ipv4"));
 
       uint8_t header = reader.readBE<uint8_t>();
       int version = header >> 4;
       int headerLength = header & 0b00001111;
 
-      Property ver(PK_STRID("version"), version);
-      ver.setRange(reader.lastRange());
-      ver.setError(reader.lastError());
+      Property *ver = new Property(PK_STRID("version"), version);
+      ver->setRange(reader.lastRange());
+      ver->setError(reader.lastError());
+      child->addProperty(ver);
 
-      Property hlen(PK_STRID("hLen"), headerLength);
-      hlen.setRange(reader.lastRange());
-      hlen.setError(reader.lastError());
+      Property *hlen = new Property(PK_STRID("hLen"), headerLength);
+      hlen->setRange(reader.lastRange());
+      hlen->setError(reader.lastError());
+      child->addProperty(hlen);
 
-      Property tos(PK_STRID("type"), reader.readBE<uint8_t>());
-      tos.setRange(reader.lastRange());
-      tos.setError(reader.lastError());
+      Property *tos = new Property(PK_STRID("type"), reader.readBE<uint8_t>());
+      tos->setRange(reader.lastRange());
+      tos->setError(reader.lastError());
+      child->addProperty(tos);
 
       uint16_t totalLength = reader.readBE<uint16_t>();
-      Property tlen(PK_STRID("tLen"), totalLength);
-      tlen.setRange(reader.lastRange());
-      tlen.setError(reader.lastError());
+      Property *tlen = new Property(PK_STRID("tLen"), totalLength);
+      tlen->setRange(reader.lastRange());
+      tlen->setError(reader.lastError());
+      child->addProperty(tlen);
 
-      Property id(PK_STRID("id"), reader.readBE<uint16_t>());
-      id.setRange(reader.lastRange());
-      id.setError(reader.lastError());
+      Property *id = new Property(PK_STRID("id"), reader.readBE<uint16_t>());
+      id->setRange(reader.lastRange());
+      id->setError(reader.lastError());
+      child->addProperty(id);
 
       uint8_t flagAndOffset = reader.readBE<uint8_t>();
       uint8_t flag = (flagAndOffset >> 5) & 0b00000111;
@@ -50,31 +55,34 @@ public:
         std::make_tuple(0x4, "More Fragments", PK_STRID("moreFrag") ),
       };
 
-      Property flags(PK_STRID("flags"), flag);
+      Property *flags = new Property(PK_STRID("flags"), flag);
       std::string flagSummary;
       for (const auto& bit : flagTable) {
         bool on = std::get<0>(bit) & flag;
-        Property flagBit(std::get<2>(bit), on);
-        flagBit.setRange(reader.lastRange());
-        flagBit.setError(reader.lastError());
-        flags.addProperty(std::move(flagBit));
+        Property *flagBit = new Property(std::get<2>(bit), on);
+        flagBit->setRange(reader.lastRange());
+        flagBit->setError(reader.lastError());
+        flags->addProperty(flagBit);
         if (on) {
           if (!flagSummary.empty()) flagSummary += ", ";
           flagSummary += std::get<1>(bit);
         }
       }
-      flags.setSummary(flagSummary);
-      flags.setRange(reader.lastRange());
-      flags.setError(reader.lastError());
+      flags->setSummary(flagSummary);
+      flags->setRange(reader.lastRange());
+      flags->setError(reader.lastError());
+      child->addProperty(flags);
 
       uint16_t fgOffset = ((flagAndOffset & 0b00011111) << 8) | reader.readBE<uint8_t>();
-      Property fragmentOffset(PK_STRID("fOffset"), fgOffset);
-      fragmentOffset.setRange(std::make_pair(6, 8));
-      fragmentOffset.setError(reader.lastError());
+      Property *fragmentOffset = new Property(PK_STRID("fOffset"), fgOffset);
+      fragmentOffset->setRange(std::make_pair(6, 8));
+      fragmentOffset->setError(reader.lastError());
+      child->addProperty(fragmentOffset);
 
-      Property ttl(PK_STRID("ttl"), reader.readBE<uint8_t>());
-      ttl.setRange(reader.lastRange());
-      ttl.setError(reader.lastError());
+      Property *ttl = new Property(PK_STRID("ttl"), reader.readBE<uint8_t>());
+      ttl->setRange(reader.lastRange());
+      ttl->setError(reader.lastError());
+      child->addProperty(ttl);
 
       const std::unordered_map<
         uint16_t, std::pair<std::string,strid>> protoTable = {
@@ -85,51 +93,40 @@ public:
       };
 
       uint8_t protocolNumber = reader.readBE<uint8_t>();
-      Property proto(PK_STRID("protocol"), protocolNumber);
+      Property *proto = new Property(PK_STRID("protocol"), protocolNumber);
       const auto &type = fmt::enums(protoTable, protocolNumber, std::make_pair("Unknown", PK_STRNS("?")));
-      proto.setSummary(type.first);
+      proto->setSummary(type.first);
       if (!type.second.empty()) {
-        child.setNs(strns(PK_STRNS("ipv4"), type.second));
+        child->setNs(strns(PK_STRNS("ipv4"), type.second));
       }
-      proto.setRange(reader.lastRange());
-      proto.setError(reader.lastError());
+      proto->setRange(reader.lastRange());
+      proto->setError(reader.lastError());
+      child->addProperty(proto);
 
-      Property checksum(PK_STRID("checksum"), reader.readBE<uint16_t>());
-      checksum.setRange(reader.lastRange());
-      checksum.setError(reader.lastError());
+      Property *checksum = new Property(PK_STRID("checksum"), reader.readBE<uint16_t>());
+      checksum->setRange(reader.lastRange());
+      checksum->setError(reader.lastError());
+      child->addProperty(checksum);
 
       const auto &srcSlice = reader.slice(4);
-      Property src(PK_STRID("src"), srcSlice);
-      src.setSummary(fmt::toDec(srcSlice, 1));
-      src.setRange(reader.lastRange());
-      src.setError(reader.lastError());
+      Property *src = new Property(PK_STRID("src"), srcSlice);
+      src->setSummary(fmt::toDec(srcSlice, 1));
+      src->setRange(reader.lastRange());
+      src->setError(reader.lastError());
+      child->addProperty(src);
 
       const auto &dstSlice = reader.slice(4);
-      Property dst(PK_STRID("dst"), dstSlice);
-      dst.setSummary(fmt::toDec(dstSlice, 1));
-      dst.setRange(reader.lastRange());
-      dst.setError(reader.lastError());
+      Property *dst = new Property(PK_STRID("dst"), dstSlice);
+      dst->setSummary(fmt::toDec(dstSlice, 1));
+      dst->setRange(reader.lastRange());
+      dst->setError(reader.lastError());
+      child->addProperty(dst);
 
-      child.setSummary("[" + proto.summary() + "] " +
-        src.summary() + " -> " + dst.summary());
+      child->setSummary("[" + proto->summary() + "] " +
+        src->summary() + " -> " + dst->summary());
 
-      child.addProperty(std::move(ver));
-      child.addProperty(std::move(hlen));
-      child.addProperty(std::move(tos));
-      child.addProperty(std::move(tlen));
-      child.addProperty(std::move(id));
-      child.addProperty(std::move(flags));
-      child.addProperty(std::move(fragmentOffset));
-      child.addProperty(std::move(ttl));
-      child.addProperty(std::move(proto));
-      child.addProperty(std::move(checksum));
-      child.addProperty(std::move(src));
-      child.addProperty(std::move(dst));
-
-      child.setPayload(reader.slice(totalLength - 20));
-
-      // TODO:ALLOC
-      return new Layer(std::move(child));
+      child->setPayload(reader.slice(totalLength - 20));
+      return child;
     }
   };
 

@@ -88,20 +88,20 @@ public:
       const auto &sequence = ring.fetch();
       std::vector<Variant> chunks(sequence.begin(), sequence.end());
 
-      Property stream(PK_STRID("stream"));
+      Property *stream = new Property(PK_STRID("stream"));
 
-      Property payloads(PK_STRID("payloads"), chunks);
-      stream.addProperty(std::move(payloads));
+      Property *payloads = new Property(PK_STRID("payloads"), chunks);
+      stream->addProperty(payloads);
 
-      Property length(PK_STRID("length"), receivedLength);
-      stream.addProperty(std::move(length));
+      Property *length = new Property(PK_STRID("length"), receivedLength);
+      stream->addProperty(length);
 
       if (currentSeq >= 0) {
-        Property curSeq(PK_STRID("lastSeq"), currentSeq);
-        stream.addProperty(std::move(curSeq));
+        Property *curSeq = new Property(PK_STRID("lastSeq"), currentSeq);
+        stream->addProperty(curSeq);
       }
 
-      layer->addProperty(std::move(stream));
+      layer->addProperty(stream);
       return nullptr;
     }
 

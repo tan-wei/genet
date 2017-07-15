@@ -14,40 +14,45 @@ public:
   public:
     Layer* analyze(Layer *layer) override {
       fmt::Reader<Slice> reader(layer->payload());
-      Layer child(PK_STRNS("tcp"));
+      Layer *child = new Layer(PK_STRNS("tcp"));
 
       const auto& parentSrc = layer->propertyFromId(PK_STRID("src"));
       const auto& parentDst = layer->propertyFromId(PK_STRID("dst"));
 
       uint16_t sourcePort = reader.readBE<uint16_t>();
-      Property src(PK_STRID("src"), sourcePort);
-      src.setSummary(parentSrc->summary() + ":" + std::to_string(sourcePort));
-      src.setRange(reader.lastRange());
-      src.setError(reader.lastError());
+      Property *src = new Property(PK_STRID("src"), sourcePort);
+      src->setSummary(parentSrc->summary() + ":" + std::to_string(sourcePort));
+      src->setRange(reader.lastRange());
+      src->setError(reader.lastError());
+      child->addProperty(src);
 
       uint16_t dstPort = reader.readBE<uint16_t>();
-      Property dst(PK_STRID("dst"), dstPort);
-      dst.setSummary(parentDst->summary() + ":" + std::to_string(dstPort));
-      dst.setRange(reader.lastRange());
-      dst.setError(reader.lastError());
+      Property *dst = new Property(PK_STRID("dst"), dstPort);
+      dst->setSummary(parentDst->summary() + ":" + std::to_string(dstPort));
+      dst->setRange(reader.lastRange());
+      dst->setError(reader.lastError());
+      child->addProperty(dst);
 
-      child.setSummary(src.summary() + " -> " + dst.summary());
+      child->setSummary(src->summary() + " -> " + dst->summary());
 
       uint32_t seqNumber = reader.readBE<uint32_t>();
-      Property seq(PK_STRID("seq"), seqNumber);
-      seq.setRange(reader.lastRange());
-      seq.setError(reader.lastError());
+      Property *seq = new Property(PK_STRID("seq"), seqNumber);
+      seq->setRange(reader.lastRange());
+      seq->setError(reader.lastError());
+      child->addProperty(seq);
 
       uint32_t ackNumber = reader.readBE<uint32_t>();
-      Property ack(PK_STRID("ack"), ackNumber);
-      ack.setRange(reader.lastRange());
-      ack.setError(reader.lastError());
+      Property *ack = new Property(PK_STRID("ack"), ackNumber);
+      ack->setRange(reader.lastRange());
+      ack->setError(reader.lastError());
+      child->addProperty(ack);
 
       uint8_t offsetAndFlag = reader.readBE<uint8_t>();
       int dataOffset = offsetAndFlag >> 4;
-      Property offset(PK_STRID("dOffset"), dataOffset);
-      offset.setRange(reader.lastRange());
-      offset.setError(reader.lastError());
+      Property *offset = new Property(PK_STRID("dOffset"), dataOffset);
+      offset->setRange(reader.lastRange());
+      offset->setError(reader.lastError());
+      child->addProperty(offset);
 
       uint8_t flag = reader.readBE<uint8_t>() |
         ((offsetAndFlag & 0x1) << 8);
@@ -64,38 +69,43 @@ public:
         std::make_tuple(0x1 << 0, "FIN", PK_STRID("fin") ),
       };
 
-      Property flags(PK_STRID("flags"), flag);
+      Property *flags = new Property(PK_STRID("flags"), flag);
       std::string flagSummary;
       for (const auto& bit : flagTable) {
         bool on = std::get<0>(bit) & flag;
-        Property flagBit(std::get<2>(bit), on);
-        flagBit.setRange(reader.lastRange());
-        flagBit.setError(reader.lastError());
-        flags.addProperty(std::move(flagBit));
+        Property *flagBit = new Property(std::get<2>(bit), on);
+        flagBit->setRange(reader.lastRange());
+        flagBit->setError(reader.lastError());
+        flags->addProperty(flagBit);
         if (on) {
           if (!flagSummary.empty()) flagSummary += ", ";
           flagSummary += std::get<1>(bit);
         }
       }
-      flags.setSummary(flagSummary);
-      flags.setRange(std::make_pair(12, 14));
-      flags.setError(reader.lastError());
+      flags->setSummary(flagSummary);
+      flags->setRange(std::make_pair(12, 14));
+      flags->setError(reader.lastError());
+      child->addProperty(flags);
 
-      Property window(PK_STRID("window"), reader.readBE<uint16_t>());
-      window.setRange(reader.lastRange());
-      window.setError(reader.lastError());
+      Property *window = new Property(PK_STRID("window"), reader.readBE<uint16_t>());
+      window->setRange(reader.lastRange());
+      window->setError(reader.lastError());
+      child->addProperty(window);
 
-      Property checksum(PK_STRID("checksum"), reader.readBE<uint16_t>());
-      checksum.setRange(reader.lastRange());
-      checksum.setError(reader.lastError());
+      Property *checksum = new Property(PK_STRID("checksum"), reader.readBE<uint16_t>());
+      checksum->setRange(reader.lastRange());
+      checksum->setError(reader.lastError());
+      child->addProperty(checksum);
 
-      Property urgent(PK_STRID("urgent"), reader.readBE<uint16_t>());
-      urgent.setRange(reader.lastRange());
-      urgent.setError(reader.lastError());
+      Property *urgent = new Property(PK_STRID("urgent"), reader.readBE<uint16_t>());
+      urgent->setRange(reader.lastRange());
+      urgent->setError(reader.lastError());
+      child->addProperty(urgent);
 
-      Property options(PK_STRID("options"));
-      options.setRange(reader.lastRange());
-      options.setError(reader.lastError());
+      Property *options = new Property(PK_STRID("options"));
+      options->setRange(reader.lastRange());
+      options->setError(reader.lastError());
+      child->addProperty(options);
 
       size_t optionDataOffset = dataOffset * 4;
       size_t optionOffset = 20;
@@ -106,40 +116,40 @@ public:
             break;
           case 1:
             {
-              Property opt(PK_STRID("nop"));
-              opt.setRange(std::make_pair(optionOffset, optionOffset + 1));
-              opt.setError(reader.lastError());
-              options.addProperty(std::move(opt));
+              Property *opt = new Property(PK_STRID("nop"));
+              opt->setRange(std::make_pair(optionOffset, optionOffset + 1));
+              opt->setError(reader.lastError());
+              options->addProperty(opt);
               optionOffset++;
             }
             break;
           case 2:
             {
               uint16_t size = fmt::readBE<uint16_t>(layer->payload(), optionOffset + 2);
-              Property opt(PK_STRID("mss"), size);
-              opt.setRange(std::make_pair(optionOffset, optionOffset + 4));
-              opt.setError(reader.lastError());
-              options.addProperty(std::move(opt));
+              Property *opt = new Property(PK_STRID("mss"), size);
+              opt->setRange(std::make_pair(optionOffset, optionOffset + 4));
+              opt->setError(reader.lastError());
+              options->addProperty(opt);
               optionOffset += 4;
             }
             break;
           case 3:
             {
               uint8_t scale = fmt::readBE<uint8_t>(layer->payload(), optionOffset + 2);
-              Property opt(PK_STRID("scale"), scale);
-              opt.setRange(std::make_pair(optionOffset, optionOffset + 2));
-              opt.setError(reader.lastError());
-              options.addProperty(std::move(opt));
+              Property *opt = new Property(PK_STRID("scale"), scale);
+              opt->setRange(std::make_pair(optionOffset, optionOffset + 2));
+              opt->setError(reader.lastError());
+              options->addProperty(opt);
               optionOffset += 3;
             }
             break;
 
           case 4:
             {
-              Property opt(PK_STRID("ackPerm"), true);
-              opt.setRange(std::make_pair(optionOffset, optionOffset + 2));
-              opt.setError(reader.lastError());
-              options.addProperty(std::move(opt));
+              Property *opt = new Property(PK_STRID("ackPerm"), true);
+              opt->setRange(std::make_pair(optionOffset, optionOffset + 2));
+              opt->setError(reader.lastError());
+              options->addProperty(opt);
               optionOffset += 2;
             }
             break;
@@ -148,10 +158,10 @@ public:
           case 5:
             {
               uint8_t length = fmt::readBE<uint8_t>(layer->payload(), optionOffset + 1);
-              Property opt(PK_STRID("selAck"), layer->payload().slice(optionOffset + 2, length));
-              opt.setRange(std::make_pair(optionOffset, optionOffset + length));
-              opt.setError(reader.lastError());
-              options.addProperty(std::move(opt));
+              Property *opt = new Property(PK_STRID("selAck"), layer->payload().slice(optionOffset + 2, length));
+              opt->setRange(std::make_pair(optionOffset, optionOffset + length));
+              opt->setError(reader.lastError());
+              options->addProperty(opt);
               optionOffset += length;
             }
             break;
@@ -159,52 +169,40 @@ public:
             {
               uint32_t mt = fmt::readBE<uint32_t>(layer->payload(), optionOffset + 2);
               uint32_t et = fmt::readBE<uint32_t>(layer->payload(), optionOffset + 2 + sizeof(uint32_t));
-              Property opt(PK_STRID("ts"), std::to_string(mt) + " - " + std::to_string(et));
-              opt.setRange(std::make_pair(optionOffset, optionOffset + 10));
-              opt.setError(reader.lastError());
+              Property *opt = new Property(PK_STRID("ts"), std::to_string(mt) + " - " + std::to_string(et));
+              opt->setRange(std::make_pair(optionOffset, optionOffset + 10));
+              opt->setError(reader.lastError());
 
-              Property optmt(PK_STRID("mt"), mt);
-              optmt.setRange(std::make_pair(optionOffset + 2, optionOffset + 6));
-              optmt.setError(reader.lastError());
+              Property *optmt = new Property(PK_STRID("mt"), mt);
+              optmt->setRange(std::make_pair(optionOffset + 2, optionOffset + 6));
+              optmt->setError(reader.lastError());
 
-              Property optet(PK_STRID("et"), et);
-              optet.setRange(std::make_pair(optionOffset + 6, optionOffset + 01));
-              optet.setError(reader.lastError());
+              Property *optet = new Property(PK_STRID("et"), et);
+              optet->setRange(std::make_pair(optionOffset + 6, optionOffset + 01));
+              optet->setError(reader.lastError());
 
-              opt.addProperty(std::move(optmt));
-              opt.addProperty(std::move(optet));
-              options.addProperty(std::move(opt));
+              opt->addProperty(optmt);
+              opt->addProperty(optet);
+              options->addProperty(opt);
               optionOffset += 10;
             }
             break;
           default:
-            options.setError("Unknown option type");
+            options->setError("Unknown option type");
             optionOffset = optionDataOffset;
             break;
         }
       }
-
-      child.addProperty(std::move(src));
-      child.addProperty(std::move(dst));
-      child.addProperty(std::move(seq));
-      child.addProperty(std::move(ack));
-      child.addProperty(std::move(offset));
-      child.addProperty(std::move(flags));
-      child.addProperty(std::move(window));
-      child.addProperty(std::move(checksum));
-      child.addProperty(std::move(urgent));
-      child.addProperty(std::move(options));
 
       const auto& payload = layer->payload().slice(optionDataOffset);
       const std::string &streamId = parentSrc->summary() +
         ":" + std::to_string(sourcePort) + "/" +
         parentDst->summary() + ":" + std::to_string(dstPort);
 
-      child.setPayload(payload);
-      child.setStreamId(streamId);
+      child->setPayload(payload);
+      child->setStreamId(streamId);
 
-      // TODO:ALLOC
-      return new Layer(std::move(child));
+      return child;
     }
   };
 

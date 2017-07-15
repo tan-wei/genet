@@ -14,30 +14,30 @@ public:
   public:
     Layer* analyze(Layer *layer) override {
       fmt::Reader<Slice> reader(layer->payload());
-      Layer child("eth");
+      Layer *child = new Layer("eth");
 
       const auto &srcSlice = reader.slice(6);
-      Property src(PK_STRID("src"), srcSlice);
-      src.setSummary(fmt::toHex(srcSlice, 1));
-      src.setRange(reader.lastRange());
-      src.setError(reader.lastError());
+      Property *src = new Property(PK_STRID("src"), srcSlice);
+      src->setSummary(fmt::toHex(srcSlice, 1));
+      src->setRange(reader.lastRange());
+      src->setError(reader.lastError());
+      child->addProperty(src);
 
       const auto &dstSlice = reader.slice(6);
-      Property dst(PK_STRID("dst"), dstSlice);
-      dst.setSummary(fmt::toHex(dstSlice, 1));
-      dst.setRange(reader.lastRange());
-      dst.setError(reader.lastError());
+      Property *dst = new Property(PK_STRID("dst"), dstSlice);
+      dst->setSummary(fmt::toHex(dstSlice, 1));
+      dst->setRange(reader.lastRange());
+      dst->setError(reader.lastError());
+      child->addProperty(dst);
 
-      child.setSummary(src.summary() + " -> " + dst.summary());
-      child.addProperty(std::move(src));
-      child.addProperty(std::move(dst));
+      child->setSummary(src->summary() + " -> " + dst->summary());
 
       auto protocolType = reader.readBE<uint16_t>();
       if (protocolType <= 1500) {
-        Property length(PK_STRID("len"), protocolType);
-        length.setRange(reader.lastRange());
-        length.setError(reader.lastError());
-        child.addProperty(std::move(length));
+        Property *length = new Property(PK_STRID("len"), protocolType);
+        length->setRange(reader.lastRange());
+        length->setError(reader.lastError());
+        child->addProperty(length);
       } else {
         const std::unordered_map<
           uint16_t, std::pair<std::string,strid>> typeTable = {
@@ -49,22 +49,20 @@ public:
           {0x86DD, std::make_pair("IPv6", PK_STRNS("*ipv6"))},
         };
 
-        Property etherType(PK_STRID("ethType"), protocolType);
+        Property *etherType = new Property(PK_STRID("ethType"), protocolType);
         const auto &type = fmt::enums(typeTable, protocolType, std::make_pair("Unknown", PK_STRNS("?")));
-        etherType.setSummary(type.first);
+        etherType->setSummary(type.first);
         if (!type.second.empty()) {
-          child.setNs(strns(PK_STRNS("eth"), type.second));
+          child->setNs(strns(PK_STRNS("eth"), type.second));
         }
-        etherType.setRange(reader.lastRange());
-        etherType.setError(reader.lastError());
-        child.setSummary("[" + etherType.summary() + "] " + child.summary());
-        child.addProperty(std::move(etherType));
+        etherType->setRange(reader.lastRange());
+        etherType->setError(reader.lastError());
+        child->setSummary("[" + etherType->summary() + "] " + child->summary());
+        child->addProperty(etherType);
       }
 
-      child.setPayload(reader.slice());
-
-      // TODO:ALLOC
-      return new Layer(std::move(child));
+      child->setPayload(reader.slice());
+      return child;
     }
   };
 
