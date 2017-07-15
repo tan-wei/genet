@@ -143,6 +143,7 @@ class LayerItem {
     ]
     const name = (layer.id in Session.descriptors) ?
       Session.descriptors[layer.id].name : layer.id
+    const streamId = layer.streamId ? layer.streamId.slice(0, 6).toString('hex') : ''
     return <ul>
       <li
         data-range={ `${range[0]}:${range[1]}` }
@@ -155,8 +156,8 @@ class LayerItem {
           onclick={ () => this.expanded = !this.expanded }
         ><i class={faClass}></i> { name } { layer.summary }
         <span
-        style={{ display: layer.streamId ? 'inline' : 'none' }}
-        ><i class="fa fa-exchange"></i> { layer.streamId }</span>
+        style={{ display: streamId ? 'inline' : 'none' }}
+        ><i class="fa fa-exchange"></i> { streamId }</span>
         <span
         style={{ display: layer.confidence < 1.0 ? 'inline' : 'none' }}
         ><i class="fa fa-question-circle"></i> { layer.confidence * 100 }%</span>
