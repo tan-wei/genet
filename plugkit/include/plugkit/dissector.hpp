@@ -39,15 +39,8 @@ using DissectorFactoryConstPtr = std::shared_ptr<const DissectorFactory>;
 
 class PLUGKIT_EXPORT DissectorFactory {
 public:
-  struct TestData {
-    const Layer *parent;
-    const Layer *result;
-  };
-
-public:
   virtual ~DissectorFactory();
   virtual DissectorPtr create(const SessionContext &context) const = 0;
-  virtual std::vector<TestData> testData() const;
   static v8::Local<v8::Object> wrap(const DissectorFactoryConstPtr &factory);
 };
 }

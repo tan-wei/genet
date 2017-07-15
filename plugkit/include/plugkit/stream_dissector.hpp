@@ -49,14 +49,8 @@ using StreamDissectorFactoryConstPtr =
 
 class PLUGKIT_EXPORT StreamDissectorFactory {
 public:
-  struct TestData {
-    const Layer *result;
-  };
-
-public:
   virtual ~StreamDissectorFactory();
   virtual StreamDissectorPtr create(const SessionContext &context) const = 0;
-  virtual std::vector<TestData> testData() const;
   static v8::Local<v8::Object>
   wrap(const StreamDissectorFactoryConstPtr &factory);
 };

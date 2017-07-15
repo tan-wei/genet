@@ -19,9 +19,4 @@ bool StreamDissector::Worker::expired(const Timestamp &lastUpdated) const {
 }
 
 StreamDissectorFactory::~StreamDissectorFactory() {}
-
-std::vector<StreamDissectorFactory::TestData>
-StreamDissectorFactory::testData() const {
-  return std::vector<TestData>();
-}
 }

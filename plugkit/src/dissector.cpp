@@ -8,8 +8,4 @@ Dissector::~Dissector() {}
 Dissector::Worker::~Worker() {}
 
 DissectorFactory::~DissectorFactory() {}
-
-std::vector<DissectorFactory::TestData> DissectorFactory::testData() const {
-  return std::vector<TestData>();
-}
 }
