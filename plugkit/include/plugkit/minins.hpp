@@ -23,6 +23,7 @@ struct minins {
   bool empty() const;
   bool match(const minins &other) const;
   bool operator==(const minins &other) const;
+  bool operator!=(const minins &other) const;
 };
 
 inline minins::minins(const char *str) {
@@ -87,6 +88,14 @@ inline bool minins::operator==(const minins &other) const {
       return false;
   }
   return true;
+}
+
+inline bool minins::operator!=(const minins &other) const {
+  for (size_t i = 0; i < id.size(); ++i) {
+    if (id[i].id != other.id[i].id)
+      return true;
+  }
+  return false;
 }
 
 template <size_t len> constexpr miniid miniid_ns_(const char *str) {

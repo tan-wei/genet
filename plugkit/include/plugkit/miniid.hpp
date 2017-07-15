@@ -5,9 +5,9 @@
 #include <string>
 
 #define MID_MASK 0x7f7f7f7f7f7f7f7f
-#define CMP_TAG(data, bit)                                                  \
+#define CMP_TAG(data, bit)                                                     \
   (static_cast<uint64_t>(data & (1 << bit)) << (7 * (bit + 1)))
-#define EXP_TAG(data, bit)                                                  \
+#define EXP_TAG(data, bit)                                                     \
   (static_cast<uint8_t>(data >> (7 * (bit + 1))) & (1 << bit))
 
 namespace plugkit {
@@ -22,15 +22,15 @@ struct miniid {
   uint8_t tag() const;
   bool empty() const;
   bool operator==(miniid other) const;
+  bool operator!=(miniid other) const;
   bool operator<(miniid other) const;
 };
 
 inline miniid::miniid(const char str[8], uint8_t tag, size_t len) : id(0) {
   std::strncpy(reinterpret_cast<char *>(&id), str, len);
   id &= MID_MASK;
-  id |= CMP_TAG(tag, 0) | CMP_TAG(tag, 1) | CMP_TAG(tag, 2) |
-        CMP_TAG(tag, 3) | CMP_TAG(tag, 4) | CMP_TAG(tag, 5) |
-        CMP_TAG(tag, 6) | CMP_TAG(tag, 7);
+  id |= CMP_TAG(tag, 0) | CMP_TAG(tag, 1) | CMP_TAG(tag, 2) | CMP_TAG(tag, 3) |
+        CMP_TAG(tag, 4) | CMP_TAG(tag, 5) | CMP_TAG(tag, 6) | CMP_TAG(tag, 7);
 }
 
 inline std::string miniid::str() const {
@@ -43,18 +43,20 @@ inline std::string miniid::str() const {
 
 inline bool miniid::operator==(miniid other) const { return id == other.id; }
 
+inline bool miniid::operator!=(miniid other) const { return id != other.id; }
+
 inline bool miniid::operator<(miniid other) const { return id < other.id; }
 
 inline uint8_t miniid::tag() const {
-  return EXP_TAG(id, 0) | EXP_TAG(id, 1) | EXP_TAG(id, 2) |
-         EXP_TAG(id, 3) | EXP_TAG(id, 4) | EXP_TAG(id, 5) |
-         EXP_TAG(id, 6) | EXP_TAG(id, 7);
+  return EXP_TAG(id, 0) | EXP_TAG(id, 1) | EXP_TAG(id, 2) | EXP_TAG(id, 3) |
+         EXP_TAG(id, 4) | EXP_TAG(id, 5) | EXP_TAG(id, 6) | EXP_TAG(id, 7);
 }
 
 inline bool miniid::empty() const { return id == 0; }
 
 template <size_t len> constexpr uint64_t miniid__(const char *str) {
-  return (static_cast<uint64_t>(str[len]) << (8 * len)) | miniid__<len - 1>(str);
+  return (static_cast<uint64_t>(str[len]) << (8 * len)) |
+         miniid__<len - 1>(str);
 }
 
 template <> constexpr uint64_t miniid__<size_t(-1)>(const char *) { return 0; }
@@ -63,9 +65,9 @@ template <> constexpr uint64_t miniid__<size_t(-2)>(const char *) { return 0; }
 
 template <size_t len, uint8_t tag> constexpr miniid miniid_(const char *str) {
   return miniid{(miniid__<len>(str) & MID_MASK) | CMP_TAG(tag, 0) |
-               CMP_TAG(tag, 1) | CMP_TAG(tag, 2) | CMP_TAG(tag, 3) |
-               CMP_TAG(tag, 4) | CMP_TAG(tag, 5) | CMP_TAG(tag, 6) |
-               CMP_TAG(tag, 7)};
+                CMP_TAG(tag, 1) | CMP_TAG(tag, 2) | CMP_TAG(tag, 3) |
+                CMP_TAG(tag, 4) | CMP_TAG(tag, 5) | CMP_TAG(tag, 6) |
+                CMP_TAG(tag, 7)};
 }
 }
 

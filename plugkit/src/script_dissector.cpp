@@ -169,7 +169,9 @@ Dissector::WorkerPtr ScriptDissector::createWorker() {
       new ScriptDissector::Worker(d->ctx, d->workerObj));
 }
 
-std::vector<minins> ScriptDissector::namespaces() const { return d->namespaces; }
+std::vector<minins> ScriptDissector::namespaces() const {
+  return d->namespaces;
+}
 
 class ScriptDissectorFactory::Private {
 public:

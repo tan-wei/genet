@@ -109,9 +109,8 @@ NAN_GETTER(LayerWrapper::streamId) {
   if (auto layer = wrapper->weakLayer) {
     minins ns = layer->streamId();
     if (!ns.empty()) {
-      Slice id(reinterpret_cast<const char*>(ns.id.data()), sizeof(ns.id));
-      info.GetReturnValue().Set(
-          Variant::Private::getNodeBuffer(id));
+      Slice id(reinterpret_cast<const char *>(ns.id.data()), sizeof(ns.id));
+      info.GetReturnValue().Set(Variant::Private::getNodeBuffer(id));
     } else {
       info.GetReturnValue().Set(Nan::Null());
     }
