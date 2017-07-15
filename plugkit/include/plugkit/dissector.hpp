@@ -10,7 +10,6 @@
 namespace plugkit {
 
 class Layer;
-class Frame;
 
 struct SessionContext;
 
