@@ -91,6 +91,17 @@ export default {
     {
       type: 'dissector',
       dissector: {
+        main: 'build/Release/ipv6.node',
+        descriptors: {
+          ipv6: {
+            name: 'IPv6'
+          }
+        }
+      }
+    },
+    {
+      type: 'dissector',
+      dissector: {
         main: 'build/Release/udp.node',
         samples: [
           { pcap: 'samples/ntp.pcap' }

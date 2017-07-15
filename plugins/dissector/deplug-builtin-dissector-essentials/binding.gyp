@@ -45,6 +45,12 @@
       ]
     },
     {
+      "target_name":"ipv6",
+      "sources":[
+        "ipv6.cpp"
+      ]
+    },
+    {
       "target_name":"udp",
       "sources":[
         "udp.cpp"
