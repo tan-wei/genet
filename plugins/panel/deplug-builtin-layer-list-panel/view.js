@@ -21,9 +21,10 @@ class DateValueItem {
 
 class BufferValueItem {
   view(vnode) {
+    const maxLen = 6
     const buffer = vnode.attrs.value
-    const hex = buffer.slice(0, 16).toString('hex') +
-      (buffer.length > 16 ? '...' : '')
+    const hex = buffer.slice(0, maxLen).toString('hex') +
+      (buffer.length > maxLen ? '...' : '')
     return <span>[{buffer.length} bytes] 0x{ hex }</span>
   }
 }
