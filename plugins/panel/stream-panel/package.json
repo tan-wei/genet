@@ -1,8 +1,8 @@
 {
-  "name": "deplug-builtin-default-theme",
+  "name": "stream-panel",
   "version": "0.1.0",
   "license": "MIT",
-  "description": "Deplug default theme",
+  "description": "Deplug stream panel",
   "engines": {
     "deplug": "*"
   },

@@ -55,7 +55,7 @@ export default class Plugin {
   constructor (rootDir, pkg, compList, options) {
     this.pkg = pkg
     this.rootDir = rootDir
-    this.builtin = this.pkg.name.startsWith('deplug-builtin-')
+    this.builtin = !this.pkg.name.startsWith('deplugin-')
     this.compList = compList
     this.options = options
   }

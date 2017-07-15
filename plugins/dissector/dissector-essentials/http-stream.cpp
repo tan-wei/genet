@@ -14,7 +14,7 @@ public:
   public:
     Worker(const SessionContext &ctx) : ctx(ctx) {
       const auto array =
-        ctx.options["deplug-builtin-dissector-essentials"]["httpPorts"].array();
+        ctx.options["dissector-essentials"]["httpPorts"].array();
       for (const auto& port : array) {
         ports.insert(port.uint64Value());
       }

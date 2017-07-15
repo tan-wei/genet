@@ -1,8 +1,8 @@
 {
-  "name": "deplug-builtin-preferances-tab",
+  "name": "pcap-tool-panel",
   "version": "0.1.0",
   "license": "MIT",
-  "description": "Deplug preferences tab",
+  "description": "Deplug pcap tools panel",
   "engines": {
     "deplug": "*"
   },

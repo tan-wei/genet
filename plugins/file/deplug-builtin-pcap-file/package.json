@@ -1,5 +1,5 @@
 {
-  "name": "deplug-builtin-pcap-file",
+  "name": "pcap-file",
   "version": "0.1.0",
   "license": "MIT",
   "description": "Deplug pcap file",

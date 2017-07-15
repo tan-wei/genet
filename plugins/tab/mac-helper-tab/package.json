@@ -1,8 +1,8 @@
 {
-  "name": "deplug-builtin-binary-panel",
+  "name": "mac-helper-tab",
   "version": "0.1.0",
   "license": "MIT",
-  "description": "Deplug binary panel",
+  "description": "Deplug helper tab",
   "engines": {
     "deplug": "*"
   },

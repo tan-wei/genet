@@ -49,7 +49,7 @@ class FrameItem {
 
 export default class FrameListView {
   constructor() {
-    const profile = Profile.current['$deplug-builtin-frame-list-panel']
+    const profile = Profile.current['$frame-list-panel']
     this.frame = {frames: 0}
     this.session = null
     this.viewScrollTop = 0

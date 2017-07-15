@@ -15,9 +15,8 @@ export default class PluginCard {
     const pkg = vnode.attrs.pkg
     const options = vnode.attrs.options || []
     const enabled = Profile.current[`$${pkg.name}`].enabled
-    const name = pkg.name
-      .replace(/^(deplug-builtin-|deplugin-)/, '')
-    const builtin = pkg.name.startsWith('deplug-builtin-')
+    const name = pkg.name.replace(/^deplugin-/, '')
+    const builtin = !pkg.name.startsWith('deplugin-')
     return <div class="card" enabled={enabled}>
       <div class="title">
         <span>{ name } <small>({ pkg.version })</small></span>
