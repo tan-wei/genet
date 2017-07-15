@@ -42,11 +42,11 @@ inline std::string strid::str() const {
 }
 
 inline bool strid::operator==(strid other) const {
-  return (id & PK_STRID_MASK) == (other.id & PK_STRID_MASK);
+  return id == other.id;
 }
 
 inline bool strid::operator<(strid other) const {
-  return (id & PK_STRID_MASK) < (other.id & PK_STRID_MASK);
+  return id < other.id;
 }
 
 inline uint8_t strid::tag() const {
@@ -55,7 +55,7 @@ inline uint8_t strid::tag() const {
          PK_EXP_TAG(id, 6) | PK_EXP_TAG(id, 7);
 }
 
-inline bool strid::empty() const { return (id & PK_STRID_MASK) == 0; }
+inline bool strid::empty() const { return id == 0; }
 
 template <size_t len> constexpr uint64_t strid__(const char *str) {
   return (static_cast<uint64_t>(str[len]) << (8 * len)) | strid__<len - 1>(str);
