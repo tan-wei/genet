@@ -107,7 +107,8 @@ NAN_SETTER(LayerWrapper::setNs) {
 NAN_GETTER(LayerWrapper::streamId) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->weakLayer) {
-    info.GetReturnValue().Set(Nan::New(layer->streamId()).ToLocalChecked());
+    info.GetReturnValue().Set(
+        Nan::New(layer->streamId().str()).ToLocalChecked());
   }
 }
 

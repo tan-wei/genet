@@ -41,8 +41,8 @@ public:
   void addProperty(const Property *prop);
   void addProperty(Property &&prop);
 
-  std::string streamId() const;
-  void setStreamId(const std::string &id);
+  strns streamId() const;
+  void setStreamId(const strns &id);
 
   const Slice &payload() const;
   void setPayload(const Slice &payload);

@@ -32,7 +32,7 @@ public:
     StreamDissector::Worker::Timestamp lastUpdated;
   };
 
-  using IdMap = std::unordered_map<std::string, WorkerList>;
+  using IdMap = std::unordered_map<strns, WorkerList>;
   std::unordered_map<strns, IdMap> workers;
 };
 

@@ -13,7 +13,7 @@ public:
 
 public:
   strns ns;
-  std::string streamId;
+  strns streamId;
   std::string summary;
   std::string error;
   std::pair<uint32_t, uint32_t> range;
@@ -63,9 +63,9 @@ const std::vector<Layer *> &Layer::children() const { return d->children; }
 
 void Layer::addChild(Layer *child) { d->children.push_back(child); }
 
-std::string Layer::streamId() const { return d->streamId; }
+strns Layer::streamId() const { return d->streamId; }
 
-void Layer::setStreamId(const std::string &id) { d->streamId = id; }
+void Layer::setStreamId(const strns &id) { d->streamId = id; }
 
 const Slice &Layer::payload() const { return d->payload; }
 

@@ -41,13 +41,9 @@ inline std::string strid::str() const {
   return std::string(data, sizeof(data));
 }
 
-inline bool strid::operator==(strid other) const {
-  return id == other.id;
-}
+inline bool strid::operator==(strid other) const { return id == other.id; }
 
-inline bool strid::operator<(strid other) const {
-  return id < other.id;
-}
+inline bool strid::operator<(strid other) const { return id < other.id; }
 
 inline uint8_t strid::tag() const {
   return PK_EXP_TAG(id, 0) | PK_EXP_TAG(id, 1) | PK_EXP_TAG(id, 2) |

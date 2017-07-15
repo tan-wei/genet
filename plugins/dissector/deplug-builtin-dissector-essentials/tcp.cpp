@@ -195,9 +195,11 @@ public:
       }
 
       const auto& payload = layer->payload().slice(optionDataOffset);
-      const std::string &streamId = parentSrc->summary() +
-        ":" + std::to_string(sourcePort) + "/" +
-        parentDst->summary() + ":" + std::to_string(dstPort);
+      strns streamId(
+        (static_cast<uint32_t>(sourcePort) << 16)| dstPort,
+        *reinterpret_cast<const uint32_t*>(parentSrc->value().slice().data()),
+        *reinterpret_cast<const uint32_t*>(parentDst->value().slice().data())
+      );
 
       child->setPayload(payload);
       child->setStreamId(streamId);
