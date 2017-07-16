@@ -5,6 +5,7 @@ import fs from 'fs'
 
 const dissectors = []
 const streamDissectors = []
+const listeners = {}
 const linkLayers = []
 const samples = []
 const descriptors = {}
@@ -17,12 +18,20 @@ export default class Session {
     streamDissectors.push(require(file).factory)
   }
 
+  static registerNativeListener (name, file) {
+    listeners[name] = require(file).factory
+  }
+
   static registerDissector (file) {
     dissectors.push(file)
   }
 
   static registerStreamDissector (file) {
     streamDissectors.push(file)
+  }
+
+  static registerListener (name, file) {
+    listeners[name] = file
   }
 
   static registerLinkLayer (layer) {

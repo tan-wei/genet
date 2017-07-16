@@ -73,6 +73,12 @@
       "sources":[
         "http-stream.cpp"
       ]
+    },
+    {
+      "target_name":"stream-listener",
+      "sources":[
+        "stream-listener.cpp"
+      ]
     }
   ]
 }

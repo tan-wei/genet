@@ -46,6 +46,7 @@ export default class ConfigView {
   async load() {
     await PluginLoader.loadComponents('dissector')
     await PluginLoader.loadComponents('stream-dissector')
+    await PluginLoader.loadComponents('listener')
     this.loaded = true
     m.redraw()
   }

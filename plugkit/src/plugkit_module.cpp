@@ -8,6 +8,7 @@
 #include "wrapper/session.hpp"
 #include "wrapper/session_factory.hpp"
 #include "wrapper/stream_dissector_factory.hpp"
+#include "wrapper/listener_factory.hpp"
 #include "private/variant.hpp"
 
 namespace plugkit {
@@ -25,6 +26,7 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
     SessionWrapper::init(isolate, exports);
     DissectorFactoryWrapper::init(isolate);
     StreamDissectorFactoryWrapper::init(isolate);
+    ListenerFactoryWrapper::init(isolate);
   }
 }
 
