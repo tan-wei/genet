@@ -2,9 +2,6 @@
 #define PLUGKIT_LISTENER_H
 
 #include "export.hpp"
-#include "strns.hpp"
-#include "property.hpp"
-#include "chunk.hpp"
 #include <memory>
 #include <v8.h>
 #include <vector>
@@ -12,26 +9,28 @@
 namespace plugkit {
 
 class FrameView;
+class Property;
+class Chunk;
 struct SessionContext;
 
 class PLUGKIT_EXPORT Listener {
 public:
   virtual ~Listener();
   virtual bool analyze(const FrameView *frame) = 0;
-  virtual std::vector<Property *> properties() = 0;
-  virtual std::vector<Chunk *> chunks() = 0;
+  virtual std::vector<Property *> properties() const;
+  virtual std::vector<Chunk *> chunks() const;
 };
 
-using DissectorPtr = std::unique_ptr<Dissector>;
+using ListenerPtr = std::unique_ptr<Listener>;
 
-class DissectorFactory;
-using DissectorFactoryConstPtr = std::shared_ptr<const DissectorFactory>;
+class ListenerFactory;
+using ListenerFactoryConstPtr = std::shared_ptr<const ListenerFactory>;
 
-class PLUGKIT_EXPORT DissectorFactory {
+class PLUGKIT_EXPORT ListenerFactory {
 public:
-  virtual ~DissectorFactory();
-  virtual DissectorPtr create(const SessionContext &context) const = 0;
-  static v8::Local<v8::Object> wrap(const DissectorFactoryConstPtr &factory);
+  virtual ~ListenerFactory();
+  virtual ListenerPtr create(const SessionContext &context) const = 0;
+  static v8::Local<v8::Object> wrap(const ListenerFactoryConstPtr &factory);
 };
 }
 
