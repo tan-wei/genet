@@ -76,6 +76,9 @@ export default class ConfigView {
       for (const diss of Session.streamDissectors) {
         factory.registerStreamDissector(diss)
       }
+      for (const name in Session.listeners) {
+        factory.registerListener(name, Session.listeners[name])
+      }
       factory.create().then((sess) => {
         if (Tab.options.ifs) {
           sess.startPcap()
@@ -105,6 +108,9 @@ export default class ConfigView {
         }
         for (const diss of Session.streamDissectors) {
           factory.registerStreamDissector(diss)
+        }
+        for (const name in Session.listeners) {
+          factory.registerListener(name, Session.listeners[name])
         }
         File.loadFrames(Tab.options.files).then((results) => {
           factory.create().then((sess) => {

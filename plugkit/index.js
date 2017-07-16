@@ -170,6 +170,20 @@ class SessionFactory extends kit.SessionFactory {
       super.registerStreamDissector(dissector)
     }
   }
+
+  registerListener(name, listener) {
+    if (typeof listener === 'string') {
+      let task = roll(listener).then((script) => {
+        super.registerListener(name, script, listener)
+        return Promise.resolve()
+      }).catch((err) => {
+        return Promise.reject(err)
+      })
+      internal(this).tasks.push(task)
+    } else {
+      super.registerListener(name, listener)
+    }
+  }
 }
 
 module.exports = {

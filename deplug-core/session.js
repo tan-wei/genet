@@ -66,6 +66,10 @@ export default class Session {
     return descriptors
   }
 
+  static get listeners () {
+    return listeners
+  }
+
   static async runSampleAnalysis (options = {}) {
     const pcapData = []
     for (const samp of samples) {

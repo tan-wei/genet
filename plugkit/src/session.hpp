@@ -22,6 +22,9 @@ class StreamDissectorFactory;
 using StreamDissectorFactoryConstPtr =
     std::shared_ptr<const StreamDissectorFactory>;
 
+class ListenerFactory;
+using ListenerFactoryConstPtr = std::shared_ptr<const ListenerFactory>;
+
 class Session final {
   friend class SessionFactory;
 
@@ -112,6 +115,8 @@ public:
   void registerLinkLayer(int link, const minins &ns);
   void registerDissector(const DissectorFactoryConstPtr &factory);
   void registerStreamDissector(const StreamDissectorFactoryConstPtr &factory);
+  void registerListener(const std::string &name,
+                        const ListenerFactoryConstPtr &factory);
 
 private:
   std::unique_ptr<Session::Config> d;

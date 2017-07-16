@@ -28,6 +28,7 @@ public:
   static NAN_METHOD(registerLinkLayer);
   static NAN_METHOD(registerDissector);
   static NAN_METHOD(registerStreamDissector);
+  static NAN_METHOD(registerListener);
   static NAN_METHOD(create);
 
 private:

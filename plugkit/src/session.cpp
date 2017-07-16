@@ -24,6 +24,7 @@ struct Session::Config {
   std::unordered_map<int, minins> linkLayers;
   std::vector<DissectorFactoryConstPtr> dissectors;
   std::vector<StreamDissectorFactoryConstPtr> streamDissectors;
+  std::unordered_map<std::string, ListenerFactoryConstPtr> listeners;
   Variant options;
 };
 
@@ -326,5 +327,10 @@ void SessionFactory::registerDissector(
 void SessionFactory::registerStreamDissector(
     const StreamDissectorFactoryConstPtr &factory) {
   d->streamDissectors.push_back(factory);
+}
+
+void SessionFactory::registerListener(const std::string &name,
+                                      const ListenerFactoryConstPtr &factory) {
+  d->listeners[name] = factory;
 }
 }
