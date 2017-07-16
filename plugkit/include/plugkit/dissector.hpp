@@ -3,15 +3,12 @@
 
 #include "export.hpp"
 #include "minins.hpp"
+#include "types.hpp"
 #include <memory>
 #include <v8.h>
 #include <vector>
 
 namespace plugkit {
-
-class Layer;
-
-struct SessionContext;
 
 class PLUGKIT_EXPORT Dissector {
 public:

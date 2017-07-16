@@ -3,12 +3,10 @@
 
 #include "slice.hpp"
 #include "export.hpp"
-#include "timestamp.hpp"
+#include "types.hpp"
 #include <memory>
 
 namespace plugkit {
-
-class Layer;
 
 class PLUGKIT_EXPORT Frame final {
 public:

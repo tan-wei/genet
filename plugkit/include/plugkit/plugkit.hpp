@@ -6,8 +6,6 @@
 
 namespace plugkit {
 
-class Plugin;
-
 class PLUGKIT_EXPORT PlugKit {
 public:
   static PlugKit &getInstance();

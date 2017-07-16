@@ -9,8 +9,6 @@
 
 namespace plugkit {
 
-class Property;
-
 class PLUGKIT_EXPORT Property final {
 public:
   Property(miniid id, const Variant &value = Variant());

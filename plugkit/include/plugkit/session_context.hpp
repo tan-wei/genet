@@ -5,9 +5,6 @@
 
 namespace plugkit {
 
-class Logger;
-using LoggerPtr = std::shared_ptr<Logger>;
-
 struct SessionContext {
   LoggerPtr logger;
   Variant options;

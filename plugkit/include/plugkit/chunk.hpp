@@ -2,13 +2,12 @@
 #define PLUGKIT_CHUNK_H
 
 #include "export.hpp"
+#include "types.hpp"
 #include <memory>
 
 namespace plugkit {
 
 class Layer;
-
-using Range = std::pair<uint32_t, uint32_t>;
 
 class PLUGKIT_EXPORT Chunk final {
 public:

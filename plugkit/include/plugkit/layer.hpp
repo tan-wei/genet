@@ -6,13 +6,9 @@
 #include <vector>
 #include "export.hpp"
 #include "minins.hpp"
+#include "types.hpp"
 
 namespace plugkit {
-
-class Layer;
-class Property;
-class Frame;
-class Slice;
 
 class PLUGKIT_EXPORT Layer final {
 public:

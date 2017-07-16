@@ -2,16 +2,12 @@
 #define PLUGKIT_LISTENER_H
 
 #include "export.hpp"
+#include "types.hpp"
 #include <memory>
 #include <v8.h>
 #include <vector>
 
 namespace plugkit {
-
-class FrameView;
-class Property;
-class Chunk;
-struct SessionContext;
 
 class PLUGKIT_EXPORT Listener {
 public:
