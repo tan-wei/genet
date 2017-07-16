@@ -171,17 +171,17 @@ class SessionFactory extends kit.SessionFactory {
     }
   }
 
-  registerListener(name, listener) {
+  registerListener(id, listener) {
     if (typeof listener === 'string') {
       let task = roll(listener).then((script) => {
-        super.registerListener(name, script, listener)
+        super.registerListener(id, script, listener)
         return Promise.resolve()
       }).catch((err) => {
         return Promise.reject(err)
       })
       internal(this).tasks.push(task)
     } else {
-      super.registerListener(name, listener)
+      super.registerListener(id, listener)
     }
   }
 }

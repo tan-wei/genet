@@ -262,7 +262,7 @@ export default {
       type: 'listener',
       listener: {
         main: 'build/Release/stream-listener.node',
-        name: 'stream'
+        id: 'stream'
       }
     }
   ],

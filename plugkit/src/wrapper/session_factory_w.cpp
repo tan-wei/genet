@@ -189,7 +189,7 @@ NAN_METHOD(SessionFactoryWrapper::registerListener) {
   if (const auto &factory = wrapper->factory) {
     ListenerFactoryConstPtr listenerFactory;
 
-    const std::string &name = *Nan::Utf8String(info[0]);
+    const std::string &id = *Nan::Utf8String(info[0]);
     if (info[1]->IsString()) {
       /*
       const std::string &script = *Nan::Utf8String(info[1]);
@@ -200,7 +200,7 @@ NAN_METHOD(SessionFactoryWrapper::registerListener) {
           ListenerFactoryWrapper::unwrap(info[1].As<v8::Object>());
     }
     if (listenerFactory) {
-      factory->registerListener(name, listenerFactory);
+      factory->registerListener(id, listenerFactory);
     }
   }
 }

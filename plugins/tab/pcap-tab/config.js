@@ -76,8 +76,8 @@ export default class ConfigView {
       for (const diss of Session.streamDissectors) {
         factory.registerStreamDissector(diss)
       }
-      for (const name in Session.listeners) {
-        factory.registerListener(name, Session.listeners[name])
+      for (const id in Session.listeners) {
+        factory.registerListener(id, Session.listeners[id])
       }
       factory.create().then((sess) => {
         if (Tab.options.ifs) {
@@ -109,8 +109,8 @@ export default class ConfigView {
         for (const diss of Session.streamDissectors) {
           factory.registerStreamDissector(diss)
         }
-        for (const name in Session.listeners) {
-          factory.registerListener(name, Session.listeners[name])
+        for (const id in Session.listeners) {
+          factory.registerListener(id, Session.listeners[id])
         }
         File.loadFrames(Tab.options.files).then((results) => {
           factory.create().then((sess) => {

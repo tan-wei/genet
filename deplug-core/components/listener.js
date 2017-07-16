@@ -10,9 +10,9 @@ export default class ListenerComponent extends Component {
       throw new Error('listener.main field required')
     }
 
-    const name = objpath.get(this.comp, 'listener.name', '')
-    if (name === '') {
-      throw new Error('listener.name field required')
+    const id = objpath.get(this.comp, 'listener.id', '')
+    if (id === '') {
+      throw new Error('listener.id field required')
     }
 
     const descriptors = objpath.get(
@@ -21,9 +21,9 @@ export default class ListenerComponent extends Component {
 
     const mainFile = path.join(this.rootDir, main)
     if (path.extname(mainFile) === '.node') {
-      Session.registerNativeListener(name, mainFile)
+      Session.registerNativeListener(id, mainFile)
     } else {
-      Session.registerListener(name, mainFile)
+      Session.registerListener(id, mainFile)
     }
   }
 }

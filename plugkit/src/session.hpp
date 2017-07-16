@@ -115,7 +115,7 @@ public:
   void registerLinkLayer(int link, const minins &ns);
   void registerDissector(const DissectorFactoryConstPtr &factory);
   void registerStreamDissector(const StreamDissectorFactoryConstPtr &factory);
-  void registerListener(const std::string &name,
+  void registerListener(const std::string &id,
                         const ListenerFactoryConstPtr &factory);
 
 private:
