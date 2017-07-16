@@ -23,8 +23,6 @@ Property::Property(miniid id, const Variant &value)
 
 Property::~Property() {}
 
-Property::Property(Property &&prop) { this->d.reset(prop.d.release()); }
-
 miniid Property::id() const { return d->id; }
 
 void Property::setId(miniid id) { d->id = id; }
@@ -64,7 +62,4 @@ void Property::addProperty(const Property *prop) {
   d->children.push_back(prop);
 }
 
-void Property::addProperty(Property &&prop) {
-  addProperty(new Property(std::move(prop)));
-}
 }

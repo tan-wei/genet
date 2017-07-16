@@ -18,7 +18,6 @@ class PLUGKIT_EXPORT Layer final {
 public:
   Layer();
   Layer(const minins &ns);
-  Layer(Layer &&layer);
   ~Layer();
 
   miniid id() const;
@@ -39,7 +38,6 @@ public:
   const std::vector<const Property *> &properties() const;
   const Property *propertyFromId(miniid id) const;
   void addProperty(const Property *prop);
-  void addProperty(Property &&prop);
 
   minins streamId() const;
   void setStreamId(const minins &id);

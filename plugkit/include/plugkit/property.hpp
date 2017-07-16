@@ -14,7 +14,6 @@ class Property;
 class PLUGKIT_EXPORT Property final {
 public:
   Property(miniid id, const Variant &value = Variant());
-  Property(Property &&prop);
   ~Property();
 
   miniid id() const;
@@ -31,7 +30,6 @@ public:
   const std::vector<const Property *> &properties() const;
   const Property *propertyFromId(miniid id) const;
   void addProperty(const Property *prop);
-  void addProperty(Property &&prop);
 
 private:
   Property(const Property &prop) = delete;

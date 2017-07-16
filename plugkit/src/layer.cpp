@@ -33,8 +33,6 @@ Layer::Layer(const minins &ns) : d(new Private(ns)) {}
 
 Layer::~Layer() {}
 
-Layer::Layer(Layer &&layer) { this->d.reset(layer.d.release()); }
-
 miniid Layer::id() const { return d->ns.primary(); }
 
 minins Layer::ns() const { return d->ns; }
@@ -93,10 +91,6 @@ const Property *Layer::propertyFromId(miniid id) const {
 }
 
 void Layer::addProperty(const Property *prop) { d->properties.push_back(prop); }
-
-void Layer::addProperty(Property &&prop) {
-  addProperty(new Property(std::move(prop)));
-}
 
 bool Layer::hasError() const {
   std::function<bool(const std::vector<const Property *> &)> checkError =
