@@ -13,16 +13,16 @@ using LoggerPtr = std::shared_ptr<Logger>;
 class FrameStore;
 using FrameStorePtr = std::shared_ptr<FrameStore>;
 
-class Listener;
-using ListenerPtr = std::unique_ptr<Listener>;
+class ListenerFactory;
+using ListenerFactoryConstPtr = std::shared_ptr<const ListenerFactory>;
 
 class ListenerThreadPool final {
 public:
   using Callback = std::function<void()>;
 
 public:
-  ListenerThreadPool(ListenerPtr &&listener, const FrameStorePtr &store,
-                     const Callback &callback);
+  ListenerThreadPool(const ListenerFactoryConstPtr &factory,
+                     const FrameStorePtr &store, const Callback &callback);
   ~ListenerThreadPool();
   void start();
   void setLogger(const LoggerPtr &logger);

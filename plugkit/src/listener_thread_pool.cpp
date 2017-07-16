@@ -8,16 +8,17 @@ namespace plugkit {
 class ListenerThreadPool::Private {
 public:
   LoggerPtr logger = std::make_shared<StreamLogger>();
+  ListenerFactoryConstPtr factory;
   ListenerPtr listener;
   FrameStorePtr store;
   Callback callback;
 };
 
-ListenerThreadPool::ListenerThreadPool(ListenerPtr &&listener,
+ListenerThreadPool::ListenerThreadPool(const ListenerFactoryConstPtr &factory,
                                        const FrameStorePtr &store,
                                        const Callback &callback)
     : d(new Private()) {
-  d->listener = std::move(listener);
+  d->factory = factory;
   d->store = store;
   d->callback = callback;
 }

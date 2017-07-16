@@ -3,6 +3,7 @@
 #include "dissector_thread_pool.hpp"
 #include "filter_thread.hpp"
 #include "filter_thread_pool.hpp"
+#include "listener_thread_pool.hpp"
 #include "session_context.hpp"
 #include "listener.hpp"
 #include "frame_store.hpp"
@@ -26,7 +27,7 @@ struct Session::Config {
   std::unordered_map<int, minins> linkLayers;
   std::vector<DissectorFactoryConstPtr> dissectors;
   std::vector<StreamDissectorFactoryConstPtr> streamDissectors;
-  std::unordered_map<std::string, ListenerFactoryConstPtr> listeners;
+  std::unordered_map<std::string, ListenerFactoryConstPtr> listenerFactories;
   Variant options;
 };
 
@@ -49,8 +50,10 @@ public:
   std::shared_ptr<UvLoopLogger> logger;
   std::unique_ptr<DissectorThreadPool> dissectorPool;
   std::unique_ptr<StreamDissectorThreadPool> streamDissectorPool;
-  std::unordered_map<std::string, ListenerFactoryConstPtr> listeners;
+  std::unordered_map<std::string, ListenerFactoryConstPtr> listenerFactories;
   std::unordered_map<std::string, std::unique_ptr<FilterThreadPool>> filters;
+  std::unordered_map<std::string, std::unique_ptr<ListenerThreadPool>>
+      listeners;
   std::unordered_map<int, minins> linkLayers;
   std::shared_ptr<FrameStore> frameStore;
   std::unique_ptr<Pcap> pcap;
@@ -158,7 +161,7 @@ Session::Session(const Config &config) : d(new Private()) {
   for (const auto &factory : config.streamDissectors) {
     d->streamDissectorPool->registerDissector(factory);
   }
-  d->listeners = config.listeners;
+  d->listenerFactories = config.listenerFactories;
   d->streamDissectorPool->start();
   d->dissectorPool->start();
 }
@@ -168,6 +171,7 @@ Session::~Session() {
   d->updateStatus();
   d->frameStore->close();
   d->filters.clear();
+  d->listeners.clear();
   d->pcap.reset();
   d->dissectorPool.reset();
   d->streamDissectorPool.reset();
@@ -230,12 +234,20 @@ void Session::setDisplayFilter(const std::string &name,
 }
 
 void Session::setListener(const std::string &id, const std::string &name) {
-  auto filter = d->listeners.find(id);
-  if (filter != d->listeners.end()) {
-    SessionContext ctx;
-    ctx.logger = d->logger;
-    ctx.options = d->options;
-    filter->second->create(ctx);
+  auto listener = d->listeners.find(name);
+  if (id.empty()) {
+    if (listener != d->listeners.end()) {
+      d->listeners.erase(listener);
+    }
+  } else {
+    auto factory = d->listenerFactories.find(id);
+    if (factory != d->listenerFactories.end()) {
+      auto pool = std::unique_ptr<ListenerThreadPool>(
+          new ListenerThreadPool(factory->second, d->frameStore, []() {}));
+      pool->setLogger(d->logger);
+      pool->start();
+      d->listeners[name] = std::move(pool);
+    }
   }
 }
 
@@ -344,6 +356,6 @@ void SessionFactory::registerStreamDissector(
 
 void SessionFactory::registerListener(const std::string &id,
                                       const ListenerFactoryConstPtr &factory) {
-  d->listeners[id] = factory;
+  d->listenerFactories[id] = factory;
 }
 }
