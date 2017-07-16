@@ -27,8 +27,6 @@ public:
 
 Layer::Private::Private(const minins &ns) : ns(ns) {}
 
-Layer::Layer() : d(new Private(minins())) {}
-
 Layer::Layer(const minins &ns) : d(new Private(ns)) {}
 
 Layer::~Layer() {}

@@ -243,12 +243,12 @@ std::vector<const FrameView *> Session::getFrames(uint32_t offset,
 void Session::analyze(const std::vector<RawFrame> &rawFrames) {
   std::vector<Frame *> frames;
   for (const RawFrame &raw : rawFrames) {
-    auto rootLayer = new Layer();
+    Layer *rootLayer;
     const auto &linkLayer = d->linkLayers.find(raw.link);
     if (linkLayer != d->linkLayers.end()) {
-      rootLayer->setNs(linkLayer->second);
+      rootLayer = new Layer(linkLayer->second);
     } else {
-      rootLayer->setNs(MNS("?"));
+      rootLayer = new Layer(MNS("?"));
     }
     rootLayer->setPayload(raw.payload);
 

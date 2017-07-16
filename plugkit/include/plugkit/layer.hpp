@@ -16,7 +16,6 @@ class Slice;
 
 class PLUGKIT_EXPORT Layer final {
 public:
-  Layer();
   Layer(const minins &ns);
   ~Layer();
 

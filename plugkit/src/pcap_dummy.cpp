@@ -77,8 +77,7 @@ bool PcapDummy::start() {
         if (d->closed)
           return;
         if (d->callback) {
-          auto layer = new Layer();
-          layer->setNs(ns);
+          auto layer = new Layer(ns);
           layer->setPayload(Slice());
 
           auto frame = Frame::Private::create();

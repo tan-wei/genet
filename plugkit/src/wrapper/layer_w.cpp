@@ -47,34 +47,34 @@ LayerWrapper::LayerWrapper(const Layer *layer) : weakLayer(layer) {}
 LayerWrapper::LayerWrapper(Layer *layer) : weakLayer(layer), layer(layer) {}
 
 NAN_METHOD(LayerWrapper::New) {
-  auto layer = new Layer();
-
-  if (info[0]->IsObject()) {
-    auto options = info[0].As<v8::Object>();
-    auto nsValue = options->Get(Nan::New("namespace").ToLocalChecked());
-    auto summaryValue = options->Get(Nan::New("summary").ToLocalChecked());
-    auto rangeValue = options->Get(Nan::New("range").ToLocalChecked());
-    auto confValue = options->Get(Nan::New("confidence").ToLocalChecked());
-    auto errorValue = options->Get(Nan::New("error").ToLocalChecked());
-    if (nsValue->IsString()) {
-      layer->setNs(minins(*Nan::Utf8String(nsValue)));
+  if (!info[0]->IsObject()) {
+    return;
+  }
+  auto options = info[0].As<v8::Object>();
+  auto nsValue = options->Get(Nan::New("namespace").ToLocalChecked());
+  auto summaryValue = options->Get(Nan::New("summary").ToLocalChecked());
+  auto rangeValue = options->Get(Nan::New("range").ToLocalChecked());
+  auto confValue = options->Get(Nan::New("confidence").ToLocalChecked());
+  auto errorValue = options->Get(Nan::New("error").ToLocalChecked());
+  if (!nsValue->IsString()) {
+    return;
+  }
+  auto layer = new Layer(minins(*Nan::Utf8String(nsValue)));
+  if (summaryValue->IsString()) {
+    layer->setSummary(*Nan::Utf8String(summaryValue));
+  }
+  if (rangeValue->IsArray()) {
+    auto array = rangeValue.As<v8::Array>();
+    if (array->Length() >= 2) {
+      layer->setRange(std::make_pair(array->Get(0)->Uint32Value(),
+                                     array->Get(1)->Uint32Value()));
     }
-    if (summaryValue->IsString()) {
-      layer->setSummary(*Nan::Utf8String(summaryValue));
-    }
-    if (rangeValue->IsArray()) {
-      auto array = rangeValue.As<v8::Array>();
-      if (array->Length() >= 2) {
-        layer->setRange(std::make_pair(array->Get(0)->Uint32Value(),
-                                       array->Get(1)->Uint32Value()));
-      }
-    }
-    if (confValue->IsNumber()) {
-      layer->setConfidence(confValue->NumberValue());
-    }
-    if (errorValue->IsString()) {
-      layer->setError(*Nan::Utf8String(errorValue));
-    }
+  }
+  if (confValue->IsNumber()) {
+    layer->setConfidence(confValue->NumberValue());
+  }
+  if (errorValue->IsString()) {
+    layer->setError(*Nan::Utf8String(errorValue));
   }
 
   LayerWrapper *obj = new LayerWrapper(layer);
