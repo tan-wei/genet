@@ -65,7 +65,6 @@ void Property::addProperty(const Property *prop) {
 }
 
 void Property::addProperty(Property &&prop) {
-  // TODO:ALLOC
   addProperty(new Property(std::move(prop)));
 }
 }

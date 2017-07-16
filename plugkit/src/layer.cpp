@@ -95,7 +95,6 @@ const Property *Layer::propertyFromId(miniid id) const {
 void Layer::addProperty(const Property *prop) { d->properties.push_back(prop); }
 
 void Layer::addProperty(Property &&prop) {
-  // TODO:ALLOC
   addProperty(new Property(std::move(prop)));
 }
 

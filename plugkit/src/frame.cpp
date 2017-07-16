@@ -3,10 +3,7 @@
 
 namespace plugkit {
 
-Frame *Frame::Private::create() {
-  // TODO:ALLOC
-  return new Frame();
-}
+Frame *Frame::Private::create() { return new Frame(); }
 
 Frame::Frame() : d(new Private()) {}
 

@@ -47,7 +47,6 @@ LayerWrapper::LayerWrapper(const Layer *layer) : weakLayer(layer) {}
 LayerWrapper::LayerWrapper(Layer *layer) : weakLayer(layer), layer(layer) {}
 
 NAN_METHOD(LayerWrapper::New) {
-  // TODO:ALLOC
   auto layer = new Layer();
 
   if (info[0]->IsObject()) {

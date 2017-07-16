@@ -77,7 +77,6 @@ bool PcapDummy::start() {
         if (d->closed)
           return;
         if (d->callback) {
-          // TODO:ALLOC
           auto layer = new Layer();
           layer->setNs(ns);
           layer->setPayload(Slice());

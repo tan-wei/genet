@@ -210,7 +210,6 @@ bool PcapPlatform::start() {
         0, [](u_char *user, const struct pcap_pkthdr *h, const u_char *bytes) {
           PcapPlatform &self = *reinterpret_cast<PcapPlatform *>(user);
           if (self.d->callback) {
-            // TODO:ALLOC
             auto layer = new Layer();
             layer->setNs(self.d->ns);
             layer->setPayload(
