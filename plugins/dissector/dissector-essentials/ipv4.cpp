@@ -12,7 +12,7 @@ class IPv4Dissector final : public Dissector {
 public:
   class Worker final : public Dissector::Worker {
   public:
-    Layer* analyze(Layer *layer) override {
+    Layer *analyze(Layer *layer) override {
       fmt::Reader<Slice> reader(layer->payload());
       Layer *child = new Layer(MNS("ipv4"));
 
@@ -49,22 +49,23 @@ public:
       uint8_t flagAndOffset = reader.readBE<uint8_t>();
       uint8_t flag = (flagAndOffset >> 5) & 0b00000111;
 
-      const std::tuple<uint16_t, const char*, miniid> flagTable[] = {
-        std::make_tuple(0x1, "Reserved", MID("reserved") ),
-        std::make_tuple(0x2, "Don\'t Fragment", MID("dontFrag") ),
-        std::make_tuple(0x4, "More Fragments", MID("moreFrag") ),
+      const std::tuple<uint16_t, const char *, miniid> flagTable[] = {
+          std::make_tuple(0x1, "Reserved", MID("reserved")),
+          std::make_tuple(0x2, "Don\'t Fragment", MID("dontFrag")),
+          std::make_tuple(0x4, "More Fragments", MID("moreFrag")),
       };
 
       Property *flags = new Property(MID("flags"), flag);
       std::string flagSummary;
-      for (const auto& bit : flagTable) {
+      for (const auto &bit : flagTable) {
         bool on = std::get<0>(bit) & flag;
         Property *flagBit = new Property(std::get<2>(bit), on);
         flagBit->setRange(reader.lastRange());
         flagBit->setError(reader.lastError());
         flags->addProperty(flagBit);
         if (on) {
-          if (!flagSummary.empty()) flagSummary += ", ";
+          if (!flagSummary.empty())
+            flagSummary += ", ";
           flagSummary += std::get<1>(bit);
         }
       }
@@ -73,7 +74,8 @@ public:
       flags->setError(reader.lastError());
       child->addProperty(flags);
 
-      uint16_t fgOffset = ((flagAndOffset & 0b00011111) << 8) | reader.readBE<uint8_t>();
+      uint16_t fgOffset =
+          ((flagAndOffset & 0b00011111) << 8) | reader.readBE<uint8_t>();
       Property *fragmentOffset = new Property(MID("fOffset"), fgOffset);
       fragmentOffset->setRange(std::make_pair(6, 8));
       fragmentOffset->setError(reader.lastError());
@@ -84,17 +86,18 @@ public:
       ttl->setError(reader.lastError());
       child->addProperty(ttl);
 
-      const std::unordered_map<
-        uint16_t, std::pair<std::string,miniid>> protoTable = {
-        {0x01, std::make_pair("ICMP", MNS("*icmp"))},
-        {0x02, std::make_pair("IGMP", MNS("*igmp"))},
-        {0x06, std::make_pair("TCP", MNS("*tcp"))},
-        {0x11, std::make_pair("UDP", MNS("*udp"))},
-      };
+      const std::unordered_map<uint16_t, std::pair<std::string, miniid>>
+          protoTable = {
+              {0x01, std::make_pair("ICMP", MNS("*icmp"))},
+              {0x02, std::make_pair("IGMP", MNS("*igmp"))},
+              {0x06, std::make_pair("TCP", MNS("*tcp"))},
+              {0x11, std::make_pair("UDP", MNS("*udp"))},
+          };
 
       uint8_t protocolNumber = reader.readBE<uint8_t>();
       Property *proto = new Property(MID("protocol"), protocolNumber);
-      const auto &type = fmt::enums(protoTable, protocolNumber, std::make_pair("Unknown", MNS("?")));
+      const auto &type = fmt::enums(protoTable, protocolNumber,
+                                    std::make_pair("Unknown", MNS("?")));
       proto->setSummary(type.first);
       if (type.second != MNS("?")) {
         child->setNs(minins(MNS("ipv4"), type.second));
@@ -103,7 +106,8 @@ public:
       proto->setError(reader.lastError());
       child->addProperty(proto);
 
-      Property *checksum = new Property(MID("checksum"), reader.readBE<uint16_t>());
+      Property *checksum =
+          new Property(MID("checksum"), reader.readBE<uint16_t>());
       checksum->setRange(reader.lastRange());
       checksum->setError(reader.lastError());
       child->addProperty(checksum);
@@ -122,8 +126,8 @@ public:
       dst->setError(reader.lastError());
       child->addProperty(dst);
 
-      child->setSummary("[" + proto->summary() + "] " +
-        src->summary() + " -> " + dst->summary());
+      child->setSummary("[" + proto->summary() + "] " + src->summary() +
+                        " -> " + dst->summary());
 
       child->setPayload(reader.slice(totalLength - 20));
       return child;
@@ -141,14 +145,15 @@ public:
 
 class IPv4DissectorFactory final : public DissectorFactory {
 public:
-  DissectorPtr create(const SessionContext& ctx) const override {
+  DissectorPtr create(const SessionContext &ctx) const override {
     return DissectorPtr(new IPv4Dissector());
   }
 };
 
 void Init(v8::Local<v8::Object> exports) {
-  exports->Set(Nan::New("factory").ToLocalChecked(),
-    DissectorFactory::wrap(std::make_shared<IPv4DissectorFactory>()));
+  exports->Set(
+      Nan::New("factory").ToLocalChecked(),
+      DissectorFactory::wrap(std::make_shared<IPv4DissectorFactory>()));
 }
 
 NODE_MODULE(dissectorEssentials, Init);

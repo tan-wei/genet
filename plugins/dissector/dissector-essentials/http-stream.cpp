@@ -14,19 +14,22 @@ public:
   public:
     Worker(const SessionContext &ctx) : ctx(ctx) {
       const auto array =
-        ctx.options["dissector-essentials"]["httpPorts"].array();
-      for (const auto& port : array) {
+          ctx.options["dissector-essentials"]["httpPorts"].array();
+      for (const auto &port : array) {
         ports.insert(port.uint64Value());
       }
     }
 
-    Layer* analyze(Layer *layer) override {
+    Layer *analyze(Layer *layer) override {
       /*
       Layer child(MNS("http"));
       const auto &layer = chunk->layer();
-      uint16_t srcPort = layer->propertyFromId(MID("src"))->value().uint64Value();
-      uint16_t dstPort = layer->propertyFromId(MID("dst"))->value().uint64Value();
-      if (ports.find(srcPort) == ports.end() && ports.find(dstPort) == ports.end()) {
+      uint16_t srcPort =
+      layer->propertyFromId(MID("src"))->value().uint64Value();
+      uint16_t dstPort =
+      layer->propertyFromId(MID("dst"))->value().uint64Value();
+      if (ports.find(srcPort) == ports.end() && ports.find(dstPort) ==
+      ports.end()) {
         return nullptr;
       }
       child.setPayload(chunk->payload());
@@ -63,9 +66,9 @@ public:
 };
 
 void Init(v8::Local<v8::Object> exports) {
-  exports->Set(Nan::New("factory").ToLocalChecked(),
-               StreamDissectorFactory::wrap(
-                   std::make_shared<HTTPDissectorFactory>()));
+  exports->Set(
+      Nan::New("factory").ToLocalChecked(),
+      StreamDissectorFactory::wrap(std::make_shared<HTTPDissectorFactory>()));
 }
 
 NODE_MODULE(dissectorEssentials, Init);

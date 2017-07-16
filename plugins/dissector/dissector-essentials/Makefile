@@ -20,4 +20,7 @@ $(CONFIG):
 clean:
 	@$(GYP) clean
 
-.PHONY: all clean
+fmt:
+	@clang-format -i *.cpp
+
+.PHONY: all clean fmt

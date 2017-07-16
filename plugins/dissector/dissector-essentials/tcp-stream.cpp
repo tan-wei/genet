@@ -52,12 +52,14 @@ class TCPStreamDissector final : public StreamDissector {
 public:
   class Worker final : public StreamDissector::Worker {
   public:
-    Layer* analyze(Layer *layer) override {
+    Layer *analyze(Layer *layer) override {
       Layer child(MNS("tcp_st"));
       const auto &payload = layer->payload();
       uint32_t seq = layer->propertyFromId(MID("seq"))->value().uint64Value();
-      uint16_t window = layer->propertyFromId(MID("window"))->value().uint64Value();
-      uint8_t flags = layer->propertyFromId(MID("flags"))->value().uint64Value();
+      uint16_t window =
+          layer->propertyFromId(MID("window"))->value().uint64Value();
+      uint8_t flags =
+          layer->propertyFromId(MID("flags"))->value().uint64Value();
       bool syn = (flags & (0x1 << 1));
 
       if (syn) {

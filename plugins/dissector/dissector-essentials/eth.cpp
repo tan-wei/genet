@@ -12,7 +12,7 @@ class EthernetDissector final : public Dissector {
 public:
   class Worker final : public Dissector::Worker {
   public:
-    Layer* analyze(Layer *layer) override {
+    Layer *analyze(Layer *layer) override {
       fmt::Reader<Slice> reader(layer->payload());
       Layer *child = new Layer("eth");
 
@@ -39,18 +39,19 @@ public:
         length->setError(reader.lastError());
         child->addProperty(length);
       } else {
-        const std::unordered_map<
-          uint16_t, std::pair<std::string,miniid>> typeTable = {
-          {0x0800, std::make_pair("IPv4", MNS("*ipv4"))},
-          {0x0806, std::make_pair("ARP", MNS("*arp"))},
-          {0x0842, std::make_pair("WoL", MNS("*wol"))},
-          {0x809B, std::make_pair("AppleTalk", MNS("*aTalk"))},
-          {0x80F3, std::make_pair("AARP", MNS("*aarp"))},
-          {0x86DD, std::make_pair("IPv6", MNS("*ipv6"))},
-        };
+        const std::unordered_map<uint16_t, std::pair<std::string, miniid>>
+            typeTable = {
+                {0x0800, std::make_pair("IPv4", MNS("*ipv4"))},
+                {0x0806, std::make_pair("ARP", MNS("*arp"))},
+                {0x0842, std::make_pair("WoL", MNS("*wol"))},
+                {0x809B, std::make_pair("AppleTalk", MNS("*aTalk"))},
+                {0x80F3, std::make_pair("AARP", MNS("*aarp"))},
+                {0x86DD, std::make_pair("IPv6", MNS("*ipv6"))},
+            };
 
         Property *etherType = new Property(MID("ethType"), protocolType);
-        const auto &type = fmt::enums(typeTable, protocolType, std::make_pair("Unknown", MNS("?")));
+        const auto &type = fmt::enums(typeTable, protocolType,
+                                      std::make_pair("Unknown", MNS("?")));
         etherType->setSummary(type.first);
         if (!type.second.empty()) {
           child->setNs(minins(MNS("eth"), type.second));
@@ -77,14 +78,15 @@ public:
 
 class EthernetDissectorFactory final : public DissectorFactory {
 public:
-  DissectorPtr create(const SessionContext& ctx) const override {
+  DissectorPtr create(const SessionContext &ctx) const override {
     return DissectorPtr(new EthernetDissector());
   }
 };
 
 void Init(v8::Local<v8::Object> exports) {
-  exports->Set(Nan::New("factory").ToLocalChecked(),
-    DissectorFactory::wrap(std::make_shared<EthernetDissectorFactory>()));
+  exports->Set(
+      Nan::New("factory").ToLocalChecked(),
+      DissectorFactory::wrap(std::make_shared<EthernetDissectorFactory>()));
 }
 
 NODE_MODULE(dissectorEssentials, Init);

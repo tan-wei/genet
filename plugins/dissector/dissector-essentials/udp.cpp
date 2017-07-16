@@ -12,12 +12,12 @@ class UDPDissector final : public Dissector {
 public:
   class Worker final : public Dissector::Worker {
   public:
-    Layer* analyze(Layer *layer) override {
+    Layer *analyze(Layer *layer) override {
       fmt::Reader<Slice> reader(layer->payload());
       Layer *child = new Layer(MNS("udp"));
 
-      const auto& parentSrc = layer->propertyFromId(MID("src"));
-      const auto& parentDst = layer->propertyFromId(MID("dst"));
+      const auto &parentSrc = layer->propertyFromId(MID("src"));
+      const auto &parentDst = layer->propertyFromId(MID("dst"));
 
       uint16_t sourcePort = reader.readBE<uint16_t>();
       Property *src = new Property(MID("src"), sourcePort);
@@ -62,14 +62,14 @@ public:
 
 class UDPDissectorFactory final : public DissectorFactory {
 public:
-  DissectorPtr create(const SessionContext& ctx) const override {
+  DissectorPtr create(const SessionContext &ctx) const override {
     return DissectorPtr(new UDPDissector());
   }
 };
 
 void Init(v8::Local<v8::Object> exports) {
   exports->Set(Nan::New("factory").ToLocalChecked(),
-    DissectorFactory::wrap(std::make_shared<UDPDissectorFactory>()));
+               DissectorFactory::wrap(std::make_shared<UDPDissectorFactory>()));
 }
 
 NODE_MODULE(dissectorEssentials, Init);
