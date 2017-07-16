@@ -327,9 +327,10 @@ Variant Variant::operator[](size_t index) const {
 
 Variant Variant::operator[](const std::string &key) const {
   if (type() == TYPE_MAP) {
-    auto it = d.map->find(key);
-    if (it != d.map->end()) {
-      return it->second;
+    for (const auto &pair : *d.map) {
+      if (pair.first == key) {
+        return pair.second;
+      }
     }
   }
   return Variant();
@@ -551,8 +552,10 @@ Variant Variant::Private::getVariant(v8::Local<v8::Value> var) {
     auto keys = obj->GetOwnPropertyNames();
     Variant::Map map;
     for (size_t i = 0; i < keys->Length(); ++i) {
-      auto key = keys->Get(i);
-      map[*Nan::Utf8String(key)] = getVariant(obj->Get(key));
+      const auto keyObj = keys->Get(i);
+      const std::string &key = *Nan::Utf8String(keyObj);
+      const Variant &value = getVariant(obj->Get(keyObj));
+      map.emplace_back(key, value);
     }
     return map;
   }

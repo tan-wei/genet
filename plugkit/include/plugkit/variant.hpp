@@ -7,7 +7,6 @@
 #include "export.hpp"
 #include <memory>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 namespace plugkit {
@@ -28,7 +27,7 @@ public:
     TYPE_MAP
   };
   using Array = std::vector<Variant>;
-  using Map = std::unordered_map<std::string, Variant>;
+  using Map = std::vector<std::pair<std::string, Variant>>;
 
 public:
   Variant();
