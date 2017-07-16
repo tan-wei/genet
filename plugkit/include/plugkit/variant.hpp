@@ -2,7 +2,7 @@
 #define PLUGKIT_VARIANT_H
 
 #include "slice.hpp"
-#include "timestamp.hpp"
+#include "types.hpp"
 #include "export.hpp"
 #include <memory>
 #include <string>
