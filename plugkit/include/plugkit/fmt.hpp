@@ -7,7 +7,6 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
-#include <string>
 
 namespace plugkit {
 namespace fmt {
@@ -28,15 +27,15 @@ private:
   S slice_;
   size_t offset_;
   std::pair<uint32_t, uint32_t> lastRange_;
-  std::string lastError_;
+  const char *lastError_;
 };
 
 template <class S>
 Reader<S>::Reader(const S &slice)
-    : slice_(slice), offset_(0), lastRange_(), lastError_() {}
+    : slice_(slice), offset_(0), lastRange_(), lastError_(nullptr) {}
 
 template <class S> S Reader<S>::slice(size_t length) {
-  if (!lastError_.empty())
+  if (lastError_)
     return S();
   if (offset_ + length > slice_.size()) {
     lastRange_.first = 0;
@@ -57,7 +56,7 @@ template <class S> S Reader<S>::slice() {
 
 template <class S> template <class T> T Reader<S>::readLE() {
   static_assert(std::is_arithmetic<T>::value, "T must be arithmetic");
-  if (!lastError_.empty())
+  if (lastError_)
     return T();
   if (offset_ + sizeof(T) > slice_.size()) {
     lastRange_.first = 0;
@@ -74,7 +73,7 @@ template <class S> template <class T> T Reader<S>::readLE() {
 
 template <class S> template <class T> T Reader<S>::readBE() {
   static_assert(std::is_arithmetic<T>::value, "T must be arithmetic");
-  if (!lastError_.empty())
+  if (lastError_)
     return T();
   if (offset_ + sizeof(T) > slice_.size()) {
     lastRange_.first = 0;
@@ -96,7 +95,7 @@ template <class S> template <class T> T Reader<S>::readBE() {
 template <class S> template <class T> void Reader<S>::skip() { readLE<T>(); }
 
 template <class S> void Reader<S>::skip(size_t length) {
-  if (!lastError_.empty())
+  if (lastError_)
     return;
   if (offset_ + length > slice_.size()) {
     lastRange_.first = 0;
@@ -117,7 +116,7 @@ template <class S> std::pair<uint32_t, uint32_t> Reader<S>::lastRange() const {
 }
 
 template <class S> std::string Reader<S>::lastError() const {
-  return lastError_;
+  return lastError_ ? lastError_ : std::string();
 }
 
 template <class T, class S> T readLE(const S &slice, size_t offset = 0) {
