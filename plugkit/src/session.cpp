@@ -3,6 +3,8 @@
 #include "dissector_thread_pool.hpp"
 #include "filter_thread.hpp"
 #include "filter_thread_pool.hpp"
+#include "session_context.hpp"
+#include "listener.hpp"
 #include "frame_store.hpp"
 #include "layer.hpp"
 #include "pcap.hpp"
@@ -228,6 +230,16 @@ void Session::setDisplayFilter(const std::string &name,
   d->notifyStatus(Private::UPDATE_FILTER);
 }
 
+void Session::setListener(const std::string &id, const std::string &name) {
+  auto filter = d->listeners.find(id);
+  if (filter != d->listeners.end()) {
+    SessionContext ctx;
+    ctx.logger = d->logger;
+    ctx.options = d->options;
+    filter->second->create(ctx);
+  }
+}
+
 std::vector<uint32_t> Session::getFilteredFrames(const std::string &name,
                                                  uint32_t offset,
                                                  uint32_t length) const {
@@ -333,6 +345,6 @@ void SessionFactory::registerStreamDissector(
 
 void SessionFactory::registerListener(const std::string &id,
                                       const ListenerFactoryConstPtr &factory) {
-  d->listeners[name] = factory;
+  d->listeners[id] = factory;
 }
 }

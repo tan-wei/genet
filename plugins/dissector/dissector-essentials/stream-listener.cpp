@@ -5,8 +5,11 @@ using namespace plugkit;
 
 class StreamListener : public Listener {
 public:
+  StreamListener();
   bool analyze(const FrameView *frame) override;
 };
+
+StreamListener::StreamListener() {}
 
 bool StreamListener::analyze(const FrameView *frame) { return true; }
 

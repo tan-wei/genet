@@ -2,6 +2,8 @@
 
 namespace plugkit {
 
+Listener::~Listener() {}
+
 std::vector<Property *> Listener::properties() const {
   return std::vector<Property *>();
 }

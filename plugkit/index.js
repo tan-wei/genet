@@ -121,6 +121,10 @@ class Session extends EventEmitter {
     }
     return internal(this).sess.setDisplayFilter(name, body)
   }
+
+  setListener(id, name) {
+    return internal(this).sess.setListener(id, name)
+  }
 }
 
 class SessionFactory extends kit.SessionFactory {
