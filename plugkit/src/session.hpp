@@ -29,7 +29,7 @@ public:
     int link = 0;
     Slice payload;
     size_t length = 0;
-    Variant::Timestamp timestamp = std::chrono::system_clock::now();
+    Timestamp timestamp = std::chrono::system_clock::now();
     uint32_t sourceId = 0;
   };
 

@@ -29,7 +29,7 @@ public:
 
   struct WorkerList {
     std::vector<StreamDissector::WorkerPtr> list;
-    StreamDissector::Worker::Timestamp lastUpdated;
+    Timestamp lastUpdated;
   };
 
   using IdMap = std::unordered_map<minins, WorkerList>;

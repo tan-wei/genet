@@ -216,9 +216,8 @@ bool PcapPlatform::start() {
                 Slice(reinterpret_cast<const char *>(bytes), h->caplen));
 
             using namespace std::chrono;
-            const Frame::Timestamp &ts =
-                system_clock::from_time_t(h->ts.tv_sec) +
-                nanoseconds(h->ts.tv_usec * 1000);
+            const Timestamp &ts = system_clock::from_time_t(h->ts.tv_sec) +
+                                  nanoseconds(h->ts.tv_usec * 1000);
 
             auto frame = Frame::Private::create();
             frame->d->setTimestamp(ts);

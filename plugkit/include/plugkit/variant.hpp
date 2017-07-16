@@ -3,8 +3,8 @@
 
 #include "slice.hpp"
 #include "stream_buffer.hpp"
+#include "timestamp.hpp"
 #include "export.hpp"
-#include <chrono>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -29,8 +29,6 @@ public:
   };
   using Array = std::vector<Variant>;
   using Map = std::unordered_map<std::string, Variant>;
-  using Timestamp = std::chrono::time_point<std::chrono::system_clock,
-                                            std::chrono::nanoseconds>;
 
 public:
   Variant();

@@ -3,7 +3,7 @@
 
 #include "slice.hpp"
 #include "export.hpp"
-#include <chrono>
+#include "timestamp.hpp"
 #include <memory>
 
 namespace plugkit {
@@ -11,10 +11,6 @@ namespace plugkit {
 class Layer;
 
 class PLUGKIT_EXPORT Frame final {
-public:
-  using Timestamp = std::chrono::time_point<std::chrono::system_clock,
-                                            std::chrono::nanoseconds>;
-
 public:
   virtual ~Frame();
   Timestamp timestamp() const;

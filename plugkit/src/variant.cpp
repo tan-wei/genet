@@ -277,7 +277,7 @@ std::string Variant::string(const std::string &defaultValue) const {
   }
 }
 
-Variant::Timestamp Variant::timestamp(const Timestamp &defaultValue) const {
+Timestamp Variant::timestamp(const Timestamp &defaultValue) const {
   if (isTimestamp()) {
     return *d.ts;
   } else {
@@ -535,7 +535,7 @@ Variant Variant::Private::getVariant(v8::Local<v8::Value> var) {
     if (nsec->IsNumber()) {
       ts += var->NumberValue();
     }
-    return Variant::Timestamp(std::chrono::nanoseconds(ts));
+    return Timestamp(std::chrono::nanoseconds(ts));
   } else if (node::Buffer::HasInstance(var)) {
     return getSlice(var.As<v8::Object>());
   } else if (var->IsArray()) {

@@ -9,9 +9,9 @@ Frame::Frame() : d(new Private()) {}
 
 Frame::~Frame() {}
 
-Frame::Timestamp Frame::timestamp() const { return d->timestamp(); }
+Timestamp Frame::timestamp() const { return d->timestamp(); }
 
-Frame::Timestamp Frame::Private::timestamp() const { return timestamp_; }
+Timestamp Frame::Private::timestamp() const { return timestamp_; }
 
 void Frame::Private::setTimestamp(const Timestamp &timestamp) {
   timestamp_ = timestamp;

@@ -61,5 +61,4 @@ const Property *Property::propertyFromId(miniid id) const {
 void Property::addProperty(const Property *prop) {
   d->children.push_back(prop);
 }
-
 }

@@ -3,7 +3,7 @@
 
 #include "export.hpp"
 #include "minins.hpp"
-#include <chrono>
+#include "timestamp.hpp"
 #include <memory>
 #include <v8.h>
 #include <vector>
@@ -20,10 +20,6 @@ public:
 
 public:
   class PLUGKIT_EXPORT Worker {
-  public:
-    using Timestamp = std::chrono::time_point<std::chrono::system_clock,
-                                              std::chrono::nanoseconds>;
-
   public:
     Worker();
     virtual ~Worker();
