@@ -13,7 +13,6 @@ class Property;
 
 class PLUGKIT_EXPORT Property final {
 public:
-  Property();
   Property(miniid id, const Variant &value = Variant());
   Property(Property &&prop);
   ~Property();

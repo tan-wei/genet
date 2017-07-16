@@ -37,33 +37,34 @@ PropertyWrapper::PropertyWrapper(Property *prop)
 PropertyWrapper::PropertyWrapper(const Property *prop) : constProp(prop) {}
 
 NAN_METHOD(PropertyWrapper::New) {
-  // TODO:ALLOC
-  auto prop = new Property();
-  if (info[0]->IsObject()) {
-    auto options = info[0].As<v8::Object>();
-    auto idValue = options->Get(Nan::New("id").ToLocalChecked());
-    auto rangeValue = options->Get(Nan::New("range").ToLocalChecked());
-    auto summaryValue = options->Get(Nan::New("summary").ToLocalChecked());
-    auto errorValue = options->Get(Nan::New("error").ToLocalChecked());
-    auto value = options->Get(Nan::New("value").ToLocalChecked());
-    if (idValue->IsString()) {
-      prop->setId(miniid(*Nan::Utf8String(idValue)));
-    }
-    if (rangeValue->IsArray()) {
-      auto array = rangeValue.As<v8::Array>();
-      if (array->Length() >= 2) {
-        prop->setRange(std::make_pair(array->Get(0)->Uint32Value(),
-                                      array->Get(1)->Uint32Value()));
-      }
-    }
-    if (summaryValue->IsString()) {
-      prop->setSummary(*Nan::Utf8String(summaryValue));
-    }
-    if (errorValue->IsString()) {
-      prop->setError(*Nan::Utf8String(errorValue));
-    }
-    prop->setValue(Variant::Private::getVariant(value));
+  if (!info[0]->IsObject()) {
+    return;
   }
+  auto options = info[0].As<v8::Object>();
+  auto idValue = options->Get(Nan::New("id").ToLocalChecked());
+  auto rangeValue = options->Get(Nan::New("range").ToLocalChecked());
+  auto summaryValue = options->Get(Nan::New("summary").ToLocalChecked());
+  auto errorValue = options->Get(Nan::New("error").ToLocalChecked());
+  auto value = options->Get(Nan::New("value").ToLocalChecked());
+  if (idValue->IsString()) {
+    return;
+  }
+  auto prop = new Property(miniid(*Nan::Utf8String(idValue)));
+  if (rangeValue->IsArray()) {
+    auto array = rangeValue.As<v8::Array>();
+    if (array->Length() >= 2) {
+      prop->setRange(std::make_pair(array->Get(0)->Uint32Value(),
+                                    array->Get(1)->Uint32Value()));
+    }
+  }
+  if (summaryValue->IsString()) {
+    prop->setSummary(*Nan::Utf8String(summaryValue));
+  }
+  if (errorValue->IsString()) {
+    prop->setError(*Nan::Utf8String(errorValue));
+  }
+  prop->setValue(Variant::Private::getVariant(value));
+
   PropertyWrapper *obj = new PropertyWrapper(prop);
   obj->Wrap(info.This());
   info.GetReturnValue().Set(info.This());

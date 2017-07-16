@@ -18,8 +18,6 @@ public:
 Property::Private::Private(miniid id, const Variant &value)
     : id(id), value(value) {}
 
-Property::Property() : d(new Private(miniid(), Variant())) {}
-
 Property::Property(miniid id, const Variant &value)
     : d(new Private(id, value)) {}
 
