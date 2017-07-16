@@ -31,7 +31,6 @@ public:
   void registerDissector(const DissectorFactoryConstPtr &factory);
   void setLogger(const LoggerPtr &logger);
   void push(Frame **begin, size_t length);
-  uint32_t queue() const;
 
 private:
   class Private;

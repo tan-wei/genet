@@ -166,12 +166,4 @@ void StreamDissectorThreadPool::start() {
     }
   });
 }
-
-uint32_t StreamDissectorThreadPool::queue() const {
-  uint32_t size = 0;
-  for (const auto &thread : d->threads) {
-    thread->queue();
-  }
-  return size;
-}
 }

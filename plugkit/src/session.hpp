@@ -50,7 +50,6 @@ public:
 
   struct FrameStatus {
     uint32_t frames = 0;
-    uint32_t queue = 0;
   };
   using FrameCallback = std::function<void(const FrameStatus &)>;
 

@@ -5,7 +5,6 @@
 #include "session_context.hpp"
 #include "variant.hpp"
 #include <array>
-#include <atomic>
 #include <unordered_map>
 #include <unordered_set>
 #include <algorithm>
@@ -20,7 +19,6 @@ public:
   std::vector<DissectorFactoryConstPtr> factories;
   std::unordered_map<Dissector::WorkerPtr, std::vector<minins>> workers;
   Variant options;
-  std::atomic<uint32_t> queuedFrames;
   double confidenceThreshold;
 };
 
@@ -56,9 +54,7 @@ void DissectorThread::enter() {
 
 bool DissectorThread::loop() {
   std::array<Frame *, 128> frames;
-  d->queuedFrames.store(0, std::memory_order_relaxed);
   size_t size = d->queue->dequeue(std::begin(frames), frames.size());
-  d->queuedFrames.store(size, std::memory_order_relaxed);
   if (size == 0)
     return false;
 
@@ -120,8 +116,4 @@ bool DissectorThread::loop() {
 }
 
 void DissectorThread::exit() { d->workers.clear(); }
-
-uint32_t DissectorThread::queue() const {
-  return d->queuedFrames.load(std::memory_order_relaxed);
-}
 }

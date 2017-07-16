@@ -75,12 +75,4 @@ void DissectorThreadPool::setLogger(const LoggerPtr &logger) {
 void DissectorThreadPool::push(Frame **begin, size_t length) {
   d->queue->enqueue(begin, begin + length);
 }
-
-uint32_t DissectorThreadPool::queue() const {
-  uint32_t size = d->queue->size();
-  for (const auto &thread : d->threads) {
-    thread->queue();
-  }
-  return size;
-}
 }

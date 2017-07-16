@@ -1,7 +1,6 @@
 #include "frame_store.hpp"
 #include "frame.hpp"
 #include "frame_view.hpp"
-#include <atomic>
 #include <condition_variable>
 #include <map>
 #include <mutex>

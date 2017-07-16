@@ -5,7 +5,6 @@
 #include "session_context.hpp"
 #include "stream_dissector.hpp"
 #include "variant.hpp"
-#include <atomic>
 #include <algorithm>
 #include <unordered_map>
 #include <unordered_set>
@@ -24,7 +23,6 @@ public:
   std::vector<StreamDissectorFactoryConstPtr> factories;
   std::unordered_map<StreamDissectorPtr, std::vector<minins>> dissectors;
   double confidenceThreshold;
-  std::atomic<uint32_t> queuedFrames;
   size_t count = 0;
 
   struct WorkerList {
@@ -84,9 +82,7 @@ void StreamDissectorThread::enter() {
 bool StreamDissectorThread::loop() {
   std::vector<Layer *> layers;
   layers.resize(128);
-  d->queuedFrames.store(0, std::memory_order_relaxed);
   size_t size = d->queue.dequeue(std::begin(layers), layers.capacity());
-  d->queuedFrames.store(size, std::memory_order_relaxed);
   if (size == 0)
     return false;
 
@@ -157,7 +153,6 @@ bool StreamDissectorThread::loop() {
     layers.swap(nextlayers);
   }
 
-  d->queuedFrames.store(0, std::memory_order_relaxed);
   d->callback(maxFrameIndex);
 
   if (d->count % 1024 == 0) {
@@ -177,8 +172,4 @@ void StreamDissectorThread::push(Layer **begin, size_t size) {
 }
 
 void StreamDissectorThread::stop() { d->queue.close(); }
-
-uint32_t StreamDissectorThread::queue() const {
-  return d->queuedFrames.load(std::memory_order_relaxed);
-}
 }

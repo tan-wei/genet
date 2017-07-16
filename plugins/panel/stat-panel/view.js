@@ -21,11 +21,6 @@ export default class StatView {
           <label> Dissected Frames: </label>
           <span> { this.stat.frames } </span>
         </li>
-        <li>
-          <i class="fa fa-hourglass"></i>
-          <label> Queued Frames: </label>
-          <span> { this.stat.queue } </span>
-        </li>
       </ul>
     </div>
   }

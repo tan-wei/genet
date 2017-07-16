@@ -30,7 +30,6 @@ public:
   void exit() override;
   void push(Layer **begin, size_t size);
   void stop();
-  uint32_t queue() const;
 
 private:
   class Private;

@@ -247,7 +247,6 @@ NAN_METHOD(SessionWrapper::setFrameCallback) {
           auto obj = Nan::New<v8::Object>();
           obj->Set(Nan::New("frames").ToLocalChecked(),
                    Nan::New(status.frames));
-          obj->Set(Nan::New("queue").ToLocalChecked(), Nan::New(status.queue));
           v8::Local<v8::Value> args[1] = {obj};
           func->Call(obj, 1, args);
         }
