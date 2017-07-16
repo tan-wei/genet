@@ -21,7 +21,6 @@
       "src/slice.cpp",
       "src/frame_view.cpp",
       "src/frame_store.cpp",
-      "src/stream_buffer.cpp",
       "src/filter.cpp",
       "src/fmt.cpp",
       "src/logger.cpp",
