@@ -2,7 +2,6 @@
 #define PLUGKIT_VARIANT_H
 
 #include "slice.hpp"
-#include "stream_buffer.hpp"
 #include "timestamp.hpp"
 #include "export.hpp"
 #include <memory>
@@ -44,7 +43,6 @@ public:
   Variant(const std::string &str);
   Variant(std::string &&str);
   Variant(const Slice &slice);
-  Variant(const StreamBuffer &stream);
   Variant(const Array &array);
   Variant(const Map &map);
   Variant(Array &&array);
@@ -77,7 +75,6 @@ public:
   Timestamp timestamp(const Timestamp &defaultValue = Timestamp()) const;
   std::string string(const std::string &defaultValue = std::string()) const;
   Slice slice() const;
-  StreamBuffer stream() const;
   const Array &array() const;
   const Map &map() const;
   uint8_t tag() const;

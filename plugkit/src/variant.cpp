@@ -1,5 +1,4 @@
 #include "private/variant.hpp"
-#include "private/stream_buffer.hpp"
 #include "plugkit_module.hpp"
 #include "slice.hpp"
 #include <iomanip>
@@ -121,10 +120,6 @@ Variant::Variant(Map &&map) : type_(TYPE_MAP) { d.map = new Map(map); }
 
 Variant::Variant(const Slice &slice) : type_(TYPE_BUFFER) {
   d.slice = new Slice(slice);
-}
-
-Variant::Variant(const StreamBuffer &stream) : type_(TYPE_STREAM) {
-  d.uint_ = stream.id();
 }
 
 Variant::Variant(const Timestamp &ts) : type_(TYPE_TIMESTAMP) {
@@ -290,14 +285,6 @@ Slice Variant::slice() const {
     return *d.slice;
   } else {
     return Slice();
-  }
-}
-
-StreamBuffer Variant::stream() const {
-  if (isStream()) {
-    return StreamBuffer::Private::create(uint64Value());
-  } else {
-    return StreamBuffer();
   }
 }
 
