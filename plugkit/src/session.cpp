@@ -4,7 +4,6 @@
 #include "filter_thread.hpp"
 #include "filter_thread_pool.hpp"
 #include "listener_thread_pool.hpp"
-#include "session_context.hpp"
 #include "listener.hpp"
 #include "frame_store.hpp"
 #include "layer.hpp"
