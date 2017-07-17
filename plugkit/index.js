@@ -122,8 +122,8 @@ class Session extends EventEmitter {
     return internal(this).sess.setDisplayFilter(name, body)
   }
 
-  setListener(id, name) {
-    return internal(this).sess.setListener(id, name)
+  setListener(id, name, args) {
+    return internal(this).sess.setListener(id, name, args)
   }
 }
 

@@ -72,7 +72,7 @@ public:
   bool stopPcap();
 
   void setDisplayFilter(const std::string &name, const std::string &body);
-  void setListener(const std::string &id, const std::string &name);
+  void setListener(const std::string &id, const std::string &name, const Variant& args);
   std::vector<uint32_t> getFilteredFrames(const std::string &name,
                                           uint32_t offset,
                                           uint32_t length) const;

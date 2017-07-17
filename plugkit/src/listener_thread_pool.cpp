@@ -14,13 +14,16 @@ public:
   std::unique_ptr<ListenerThread> thread;
   FrameStorePtr store;
   Callback callback;
+  Variant args;
 };
 
 ListenerThreadPool::ListenerThreadPool(const ListenerFactoryConstPtr &factory,
+                                      const Variant& args,
                                        const FrameStorePtr &store,
                                        const Callback &callback)
     : d(new Private()) {
   d->factory = factory;
+  d->args = args;
   d->store = store;
   d->callback = callback;
 }
@@ -32,8 +35,8 @@ ListenerThreadPool::~ListenerThreadPool() {
 }
 
 void ListenerThreadPool::start() {
-  auto listener = d->factory->create(SessionContext());
-  auto thread = new ListenerThread(std::move(listener), d->store, []() {});
+  auto listener = d->factory->create(d->args, SessionContext());
+  auto thread = new ListenerThread(std::move(listener), d->store, d->callback);
   thread->setLogger(d->logger);
   thread->start();
   d->thread.reset(std::move(thread));

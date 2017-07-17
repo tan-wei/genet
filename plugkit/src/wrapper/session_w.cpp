@@ -177,7 +177,7 @@ NAN_METHOD(SessionWrapper::setListener) {
   if (const auto &session = wrapper->session) {
     const std::string &id = *Nan::Utf8String(info[0]);
     const std::string &name = *Nan::Utf8String(info[1]);
-    session->setListener(id, name);
+    session->setListener(id, name, Variant::Private::getVariant(info[2]));
   }
 }
 
