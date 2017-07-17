@@ -35,7 +35,7 @@ private:
   PropertyWrapper &operator=(const PropertyWrapper &) = delete;
 
 private:
-  std::shared_ptr<Property> prop;
+  Property *prop;
   const Property *constProp;
 };
 }
