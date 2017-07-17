@@ -15,10 +15,12 @@ bool StreamListener::analyze(const FrameView *frame) { return true; }
 
 class StreamListenerFactory : public ListenerFactory {
 public:
-  ListenerPtr create(const Variant &args, const SessionContext &context) const override;
+  ListenerPtr create(const Variant &args,
+                     const SessionContext &context) const override;
 };
 
-ListenerPtr StreamListenerFactory::create(const Variant &args, const SessionContext &context) const {
+ListenerPtr StreamListenerFactory::create(const Variant &args,
+                                          const SessionContext &context) const {
   return ListenerPtr(new StreamListener());
 }
 

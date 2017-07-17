@@ -15,6 +15,7 @@
       "src/stream_dissector_thread_pool.cpp",
       "src/listener_thread.cpp",
       "src/listener_thread_pool.cpp",
+      "src/listener_status.cpp",
       "src/script_dissector.cpp",
       "src/script_stream_dissector.cpp",
       "src/stream_dissector.cpp",

@@ -232,7 +232,8 @@ void Session::setDisplayFilter(const std::string &name,
   d->notifyStatus(Private::UPDATE_FILTER);
 }
 
-void Session::setListener(const std::string &id, const std::string &name, const Variant& args) {
+void Session::setListener(const std::string &id, const std::string &name,
+                          const Variant &args) {
   auto listener = d->listeners.find(name);
   if (id.empty()) {
     if (listener != d->listeners.end()) {
@@ -241,8 +242,8 @@ void Session::setListener(const std::string &id, const std::string &name, const 
   } else {
     auto factory = d->listenerFactories.find(id);
     if (factory != d->listenerFactories.end()) {
-      auto pool = std::unique_ptr<ListenerThreadPool>(
-          new ListenerThreadPool(factory->second, args, d->frameStore, []() {}));
+      auto pool = std::unique_ptr<ListenerThreadPool>(new ListenerThreadPool(
+          factory->second, args, d->frameStore, []() {}));
       pool->setLogger(d->logger);
       pool->start();
       d->listeners[name] = std::move(pool);

@@ -7,11 +7,13 @@
 namespace plugkit {
 
 class Property;
+using PropertyConstPtr = std::shared_ptr<Property>;
 
 class PropertyWrapper final : public Nan::ObjectWrap {
 public:
   static void init(v8::Isolate *isolate, v8::Local<v8::Object> exports);
-  static v8::Local<v8::Object> wrap(const Property *prop);
+  static v8::Local<v8::Object>
+  wrap(const Property *prop, const PropertyConstPtr &root = PropertyConstPtr());
   static const Property *unwrap(v8::Local<v8::Object> obj);
   static NAN_METHOD(New);
   static NAN_GETTER(id);
@@ -30,13 +32,14 @@ public:
 
 private:
   PropertyWrapper(Property *prop);
-  PropertyWrapper(const Property *prop);
+  PropertyWrapper(const Property *prop, const PropertyConstPtr &root);
   PropertyWrapper(const PropertyWrapper &) = delete;
   PropertyWrapper &operator=(const PropertyWrapper &) = delete;
 
 private:
   std::shared_ptr<Property> prop;
   const Property *constProp;
+  PropertyConstPtr root;
 };
 }
 

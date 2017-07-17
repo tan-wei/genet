@@ -23,8 +23,9 @@ public:
   using Callback = std::function<void()>;
 
 public:
-  ListenerThreadPool(const ListenerFactoryConstPtr &factory, const Variant& args,
-                     const FrameStorePtr &store, const Callback &callback);
+  ListenerThreadPool(const ListenerFactoryConstPtr &factory,
+                     const Variant &args, const FrameStorePtr &store,
+                     const Callback &callback);
   ~ListenerThreadPool();
   void start();
   void setLogger(const LoggerPtr &logger);

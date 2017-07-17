@@ -27,7 +27,8 @@ class Variant;
 class PLUGKIT_EXPORT ListenerFactory {
 public:
   virtual ~ListenerFactory();
-  virtual ListenerPtr create(const Variant &args, const SessionContext &context) const = 0;
+  virtual ListenerPtr create(const Variant &args,
+                             const SessionContext &context) const = 0;
   static v8::Local<v8::Object> wrap(const ListenerFactoryConstPtr &factory);
 };
 }

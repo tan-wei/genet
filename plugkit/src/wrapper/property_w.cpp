@@ -34,7 +34,9 @@ void PropertyWrapper::init(v8::Isolate *isolate,
 PropertyWrapper::PropertyWrapper(Property *prop)
     : prop(prop), constProp(prop) {}
 
-PropertyWrapper::PropertyWrapper(const Property *prop) : constProp(prop) {}
+PropertyWrapper::PropertyWrapper(const Property *prop,
+                                 const PropertyConstPtr &root)
+    : constProp(prop), root(root) {}
 
 NAN_METHOD(PropertyWrapper::New) {
   if (!info[0]->IsObject()) {
@@ -157,7 +159,7 @@ NAN_GETTER(PropertyWrapper::properties) {
     const auto &properties = prop->properties();
     auto array = v8::Array::New(isolate, properties.size());
     for (size_t i = 0; i < properties.size(); ++i) {
-      array->Set(i, PropertyWrapper::wrap(properties[i]));
+      array->Set(i, PropertyWrapper::wrap(properties[i], wrapper->root));
     }
     info.GetReturnValue().Set(array);
   }
@@ -168,7 +170,7 @@ NAN_METHOD(PropertyWrapper::propertyFromId) {
   if (auto prop = wrapper->constProp) {
     if (const auto &child =
             prop->propertyFromId(miniid(*Nan::Utf8String(info[0])))) {
-      info.GetReturnValue().Set(PropertyWrapper::wrap(child));
+      info.GetReturnValue().Set(PropertyWrapper::wrap(child, wrapper->root));
     } else {
       info.GetReturnValue().Set(Nan::Null());
     }
@@ -187,7 +189,8 @@ NAN_METHOD(PropertyWrapper::addProperty) {
   }
 }
 
-v8::Local<v8::Object> PropertyWrapper::wrap(const Property *prop) {
+v8::Local<v8::Object> PropertyWrapper::wrap(const Property *prop,
+                                            const PropertyConstPtr &root) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto cons = v8::Local<v8::Function>::New(isolate, module->property.ctor);
@@ -195,7 +198,7 @@ v8::Local<v8::Object> PropertyWrapper::wrap(const Property *prop) {
       cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,
                         nullptr)
           .ToLocalChecked();
-  PropertyWrapper *wrapper = new PropertyWrapper(prop);
+  PropertyWrapper *wrapper = new PropertyWrapper(prop, root);
   wrapper->Wrap(obj);
   return obj;
 }

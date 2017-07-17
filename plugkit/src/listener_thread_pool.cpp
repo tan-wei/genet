@@ -18,7 +18,7 @@ public:
 };
 
 ListenerThreadPool::ListenerThreadPool(const ListenerFactoryConstPtr &factory,
-                                      const Variant& args,
+                                       const Variant &args,
                                        const FrameStorePtr &store,
                                        const Callback &callback)
     : d(new Private()) {
