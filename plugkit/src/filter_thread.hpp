@@ -3,6 +3,7 @@
 
 #include "worker_thread.hpp"
 #include <memory>
+#include <vector>
 
 namespace plugkit {
 
