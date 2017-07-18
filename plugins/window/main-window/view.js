@@ -83,6 +83,9 @@ export default class TabView {
         let content = document.querySelector(`#tab-content-${index}`)
         if (content) content.closeDevTools()
         this.tabs.splice(index, 1)
+        if (this.tabs.length === 0) {
+          remote.getCurrentWindow().close()
+        }
         m.redraw()
       }
     })
