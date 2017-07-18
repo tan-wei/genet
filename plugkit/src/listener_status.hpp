@@ -25,6 +25,9 @@ public:
   AttributeConstPtr getAttribute(size_t index) const;
   ChunkConstPtr getChunk(size_t index) const;
 
+  void addAttribute(const AttributeConstPtr &attr);
+  void addChunk(const ChunkConstPtr &chunk);
+
 private:
   class Private;
   std::unique_ptr<Private> d;

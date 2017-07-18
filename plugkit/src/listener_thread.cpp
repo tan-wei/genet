@@ -1,4 +1,5 @@
 #include "listener_thread.hpp"
+#include "listener_status.hpp"
 #include "listener.hpp"
 #include "frame_store.hpp"
 #include "frame_view.hpp"
@@ -9,16 +10,19 @@ namespace plugkit {
 class ListenerThread::Private {
 public:
   FrameStorePtr store;
+  ListenerStatusPtr status;
   Callback callback;
   ListenerPtr listener;
   size_t offset = 0;
 };
 
 ListenerThread::ListenerThread(ListenerPtr &&listener,
+                               const ListenerStatusPtr &status,
                                const FrameStorePtr &store,
                                const Callback &callback)
     : d(new Private()) {
   d->store = store;
+  d->status = status;
   d->callback = callback;
   d->listener = (std::move(listener));
 }
@@ -38,10 +42,16 @@ bool ListenerThread::loop() {
   for (size_t i = 0; i < size; ++i) {
     const auto &view = views[i];
     if (d->listener->analyze(view)) {
-      const std::vector<AttributeConstPtr> &properties =
-          d->listener->properties();
+      const std::vector<AttributeConstPtr> &attributes =
+          d->listener->attributes();
       const std::vector<ChunkConstPtr> &chunks = d->listener->chunks();
-      if (!properties.empty() || !chunks.empty()) {
+      for (const auto &attr : attributes) {
+        d->status->addAttribute(attr);
+      }
+      for (const auto &chunk : chunks) {
+        d->status->addChunk(chunk);
+      }
+      if (!attributes.empty() || !chunks.empty()) {
         updated = true;
       }
     }

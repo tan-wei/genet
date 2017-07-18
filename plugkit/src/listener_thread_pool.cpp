@@ -11,6 +11,7 @@ class ListenerThreadPool::Private {
 public:
   LoggerPtr logger = std::make_shared<StreamLogger>();
   ListenerFactoryConstPtr factory;
+  ListenerStatusPtr status;
   std::unique_ptr<ListenerThread> thread;
   FrameStorePtr store;
   Callback callback;
@@ -18,11 +19,13 @@ public:
 };
 
 ListenerThreadPool::ListenerThreadPool(const ListenerFactoryConstPtr &factory,
+                                       const ListenerStatusPtr &status,
                                        const Variant &args,
                                        const FrameStorePtr &store,
                                        const Callback &callback)
     : d(new Private()) {
   d->factory = factory;
+  d->status = status;
   d->args = args;
   d->store = store;
   d->callback = callback;
@@ -36,7 +39,8 @@ ListenerThreadPool::~ListenerThreadPool() {
 
 void ListenerThreadPool::start() {
   auto listener = d->factory->create(d->args, SessionContext());
-  auto thread = new ListenerThread(std::move(listener), d->store, d->callback);
+  auto thread =
+      new ListenerThread(std::move(listener), d->status, d->store, d->callback);
   thread->setLogger(d->logger);
   thread->start();
   d->thread.reset(std::move(thread));

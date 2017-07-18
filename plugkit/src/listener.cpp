@@ -4,7 +4,7 @@ namespace plugkit {
 
 Listener::~Listener() {}
 
-std::vector<AttributeConstPtr> Listener::properties() const {
+std::vector<AttributeConstPtr> Listener::attributes() const {
   return std::vector<AttributeConstPtr>();
 }
 

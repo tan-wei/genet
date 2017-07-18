@@ -12,13 +12,16 @@ using FrameStorePtr = std::shared_ptr<FrameStore>;
 class Listener;
 using ListenerPtr = std::unique_ptr<Listener>;
 
+class ListenerStatus;
+using ListenerStatusPtr = std::shared_ptr<ListenerStatus>;
+
 class ListenerThread final : public WorkerThread {
 public:
   using Callback = std::function<void()>;
 
 public:
-  ListenerThread(ListenerPtr &&listener, const FrameStorePtr &store,
-                 const Callback &callback);
+  ListenerThread(ListenerPtr &&listener, const ListenerStatusPtr &status,
+                 const FrameStorePtr &store, const Callback &callback);
   ~ListenerThread() override;
   void enter() override;
   bool loop() override;

@@ -16,6 +16,9 @@ using FrameStorePtr = std::shared_ptr<FrameStore>;
 class ListenerFactory;
 using ListenerFactoryConstPtr = std::shared_ptr<const ListenerFactory>;
 
+class ListenerStatus;
+using ListenerStatusPtr = std::shared_ptr<ListenerStatus>;
+
 class Variant;
 
 class ListenerThreadPool final {
@@ -24,8 +27,8 @@ public:
 
 public:
   ListenerThreadPool(const ListenerFactoryConstPtr &factory,
-                     const Variant &args, const FrameStorePtr &store,
-                     const Callback &callback);
+                     const ListenerStatusPtr &status, const Variant &args,
+                     const FrameStorePtr &store, const Callback &callback);
   ~ListenerThreadPool();
   void start();
   void setLogger(const LoggerPtr &logger);

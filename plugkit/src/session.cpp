@@ -4,6 +4,7 @@
 #include "filter_thread.hpp"
 #include "filter_thread_pool.hpp"
 #include "listener_thread_pool.hpp"
+#include "listener_status.hpp"
 #include "listener.hpp"
 #include "frame_store.hpp"
 #include "layer.hpp"
@@ -35,7 +36,8 @@ public:
   enum UpdateType {
     UPDATE_STATUS = 1,
     UPDATE_FILTER = 2,
-    UPDATE_FRAME = 4,
+    UPDATE_LISTENER = 4,
+    UPDATE_FRAME = 8,
   };
 
 public:
@@ -53,6 +55,7 @@ public:
   std::unordered_map<std::string, std::unique_ptr<FilterThreadPool>> filters;
   std::unordered_map<std::string, std::unique_ptr<ListenerThreadPool>>
       listeners;
+  std::unordered_map<std::string, ListenerStatusConstPtr> listenerStatuses;
   std::unordered_map<int, minins> linkLayers;
   std::shared_ptr<FrameStore> frameStore;
   std::unique_ptr<Pcap> pcap;
@@ -239,11 +242,14 @@ void Session::setListener(const std::string &id, const std::string &name,
     if (listener != d->listeners.end()) {
       d->listeners.erase(listener);
     }
+    d->listenerStatuses.erase(name);
   } else {
+    auto status = std::make_shared<ListenerStatus>();
+    d->listenerStatuses[name] = status;
     auto factory = d->listenerFactories.find(id);
     if (factory != d->listenerFactories.end()) {
       auto pool = std::unique_ptr<ListenerThreadPool>(new ListenerThreadPool(
-          factory->second, args, d->frameStore, []() {}));
+          factory->second, status, args, d->frameStore, []() {}));
       pool->setLogger(d->logger);
       pool->start();
       d->listeners[name] = std::move(pool);
@@ -264,6 +270,15 @@ std::vector<uint32_t> Session::getFilteredFrames(const std::string &name,
 std::vector<const FrameView *> Session::getFrames(uint32_t offset,
                                                   uint32_t length) const {
   return d->frameStore->get(offset, length);
+}
+
+ListenerStatusConstPtr
+Session::getListenerStatus(const std::string &name) const {
+  auto it = d->listenerStatuses.find(name);
+  if (it != d->listenerStatuses.end()) {
+    return it->second;
+  }
+  return ListenerStatusConstPtr();
 }
 
 void Session::analyze(const std::vector<RawFrame> &rawFrames) {

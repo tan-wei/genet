@@ -25,6 +25,9 @@ using StreamDissectorFactoryConstPtr =
 class ListenerFactory;
 using ListenerFactoryConstPtr = std::shared_ptr<const ListenerFactory>;
 
+class ListenerStatus;
+using ListenerStatusConstPtr = std::shared_ptr<const ListenerStatus>;
+
 class Session final {
   friend class SessionFactory;
 
@@ -79,6 +82,7 @@ public:
                                           uint32_t length) const;
   std::vector<const FrameView *> getFrames(uint32_t offset,
                                            uint32_t length) const;
+  ListenerStatusConstPtr getListenerStatus(const std::string &name) const;
 
   void analyze(const std::vector<RawFrame> &rawFrames);
 
