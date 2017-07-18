@@ -11,4 +11,6 @@ std::vector<AttributeConstPtr> Listener::attributes() const {
 std::vector<ChunkConstPtr> Listener::chunks() const {
   return std::vector<ChunkConstPtr>();
 }
+
+ListenerFactory::~ListenerFactory() {}
 }
