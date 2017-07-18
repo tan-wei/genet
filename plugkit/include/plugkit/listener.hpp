@@ -13,8 +13,8 @@ class PLUGKIT_EXPORT Listener {
 public:
   virtual ~Listener();
   virtual bool analyze(const FrameView *frame) = 0;
-  virtual std::vector<Property *> properties() const;
-  virtual std::vector<Chunk *> chunks() const;
+  virtual std::vector<AttributeConstPtr> properties() const;
+  virtual std::vector<ChunkConstPtr> chunks() const;
 };
 
 using ListenerPtr = std::unique_ptr<Listener>;

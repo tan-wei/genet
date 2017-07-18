@@ -23,6 +23,7 @@ public:
   };
 
   Class property;
+  Class attribute;
   Class layer;
   Class frame;
   Class session;

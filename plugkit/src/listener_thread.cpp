@@ -38,8 +38,9 @@ bool ListenerThread::loop() {
   for (size_t i = 0; i < size; ++i) {
     const auto &view = views[i];
     if (d->listener->analyze(view)) {
-      const std::vector<Property *> &properties = d->listener->properties();
-      const std::vector<Chunk *> &chunks = d->listener->chunks();
+      const std::vector<AttributeConstPtr> &properties =
+          d->listener->properties();
+      const std::vector<ChunkConstPtr> &chunks = d->listener->chunks();
       if (!properties.empty() || !chunks.empty()) {
         updated = true;
       }

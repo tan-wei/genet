@@ -17,9 +17,9 @@ void AttributeWrapper::init(v8::Isolate *isolate,
 
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
-  module->property.proto.Reset(
+  module->attribute.proto.Reset(
       isolate, ctor->Get(Nan::New("prototype").ToLocalChecked()));
-  module->property.ctor.Reset(isolate, ctor);
+  module->attribute.ctor.Reset(isolate, ctor);
   v8::Local<v8::Object> func = Nan::GetFunction(tpl).ToLocalChecked();
   Nan::Set(exports, Nan::New("Attribute").ToLocalChecked(), func);
 }
@@ -84,7 +84,7 @@ v8::Local<v8::Object>
 AttributeWrapper::wrap(const std::shared_ptr<Attribute> &attr) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
-  auto cons = v8::Local<v8::Function>::New(isolate, module->property.ctor);
+  auto cons = v8::Local<v8::Function>::New(isolate, module->attribute.ctor);
   v8::Local<v8::Object> obj =
       cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,
                         nullptr)
@@ -98,7 +98,7 @@ std::shared_ptr<Attribute> AttributeWrapper::unwrap(v8::Local<v8::Object> obj) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
   if (obj->GetPrototype() ==
-      v8::Local<v8::Value>::New(isolate, module->property.proto)) {
+      v8::Local<v8::Value>::New(isolate, module->attribute.proto)) {
     if (auto wrapper = ObjectWrap::Unwrap<AttributeWrapper>(obj)) {
       return wrapper->weakAttr.lock();
     }

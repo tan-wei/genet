@@ -4,9 +4,11 @@ namespace plugkit {
 
 Listener::~Listener() {}
 
-std::vector<Property *> Listener::properties() const {
-  return std::vector<Property *>();
+std::vector<AttributeConstPtr> Listener::properties() const {
+  return std::vector<AttributeConstPtr>();
 }
 
-std::vector<Chunk *> Listener::chunks() const { return std::vector<Chunk *>(); }
+std::vector<ChunkConstPtr> Listener::chunks() const {
+  return std::vector<ChunkConstPtr>();
+}
 }
