@@ -8,16 +8,22 @@
 
 namespace plugkit {
 
+class Attribute;
+using AttributeConstPtr = std::shared_ptr<const Attribute>;
+
 class Chunk;
-class Property;
+using ChunkConstPtr = std::shared_ptr<const Chunk>;
 
 class ListenerStatus {
 public:
   ListenerStatus();
   ~ListenerStatus();
 
-  size_t properties() const;
+  size_t attributes() const;
   size_t chunks() const;
+
+  AttributeConstPtr getAttribute(size_t index) const;
+  ChunkConstPtr getChunk(size_t index) const;
 
 private:
   class Private;
