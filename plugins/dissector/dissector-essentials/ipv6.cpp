@@ -8,6 +8,60 @@
 
 using namespace plugkit;
 
+namespace {
+int maxZeroSequence(const Slice &data) {
+  int start = -1;
+  int pos = -1;
+  int length = 0;
+  int maxLength = 0;
+  for (size_t i = 0; i < data.size() / 2; ++i) {
+    if (data[i * 2] == 0 && data[i * 2 + 1] == 0) {
+      if (pos < 0) {
+        pos = i;
+      }
+      ++length;
+    } else {
+      if (length > maxLength) {
+        maxLength = length;
+        start = pos;
+      }
+      pos = -1;
+      length = 0;
+    }
+  }
+  if (length > maxLength) {
+    maxLength = length;
+    start = pos;
+  }
+  return start;
+}
+
+std::string ipv6Addr(const Slice &data) {
+  int zeroPos = maxZeroSequence(data);
+  std::stringstream stream;
+  stream << std::hex;
+  int length = data.size() / 2;
+  for (int i = 0; i < length; ++i) {
+    if (zeroPos >= 0 && i >= zeroPos) {
+      if (data[i * 2] == 0 && data[i * 2 + 1] == 0) {
+        continue;
+      } else {
+        zeroPos = -1;
+        stream << "::";
+      }
+    } else if (i > 0) {
+      stream << ':';
+    }
+    stream << (static_cast<uint16_t>(data[i * 2] << 8) |
+               static_cast<uint8_t>(data[i * 2 + 1]));
+  }
+  if (zeroPos >= 0) {
+    stream << "::";
+  }
+  return stream.str();
+}
+}
+
 class IPv6Dissector final : public Dissector {
 public:
   class Worker final : public Dissector::Worker {
@@ -59,14 +113,14 @@ public:
 
       const auto &srcSlice = reader.slice(16);
       Property *src = new Property(MID("src"), srcSlice);
-      src->setSummary(fmt::toHex(srcSlice, 2, 2));
+      src->setSummary(ipv6Addr(srcSlice));
       src->setRange(reader.lastRange());
       src->setError(reader.lastError());
       child->addProperty(src);
 
       const auto &dstSlice = reader.slice(16);
       Property *dst = new Property(MID("dst"), dstSlice);
-      dst->setSummary(fmt::toHex(dstSlice, 2, 2));
+      dst->setSummary(ipv6Addr(dstSlice));
       dst->setRange(reader.lastRange());
       dst->setError(reader.lastError());
       child->addProperty(dst);
