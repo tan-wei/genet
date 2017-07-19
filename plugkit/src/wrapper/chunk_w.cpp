@@ -3,7 +3,7 @@
 #include "plugkit_module.hpp"
 #include "private/variant.hpp"
 #include "wrapper/layer.hpp"
-#include "wrapper/property.hpp"
+#include "wrapper/chunk.hpp"
 
 namespace plugkit {
 
@@ -11,19 +11,10 @@ void ChunkWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Chunk").ToLocalChecked());
-  SetPrototypeMethod(tpl, "propertyFromId", propertyFromId);
-  SetPrototypeMethod(tpl, "addProperty", addProperty);
-  SetPrototypeMethod(tpl, "toJSON", toJSON);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
-  Nan::SetAccessor(otl, Nan::New("streamNamespace").ToLocalChecked(), streamNs,
-                   setStreamNs);
-  Nan::SetAccessor(otl, Nan::New("streamId").ToLocalChecked(), streamId,
-                   setStreamId);
-  Nan::SetAccessor(otl, Nan::New("payload").ToLocalChecked(), payload,
-                   setPayload);
-  Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
-  Nan::SetAccessor(otl, Nan::New("layer").ToLocalChecked(), layer);
+  Nan::SetAccessor(otl, Nan::New("layer").ToLocalChecked(), layer, setLayer);
+  Nan::SetAccessor(otl, Nan::New("range").ToLocalChecked(), range, setRange);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
@@ -34,124 +25,73 @@ void ChunkWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   Nan::Set(exports, Nan::New("Chunk").ToLocalChecked(), func);
 }
 
-ChunkWrapper::ChunkWrapper(Chunk *chunk) : chunk(chunk), constChunk(chunk) {}
+ChunkWrapper::ChunkWrapper(const std::shared_ptr<Chunk> &chunk)
+    : chunk(chunk), weakChunk(chunk) {}
 
-ChunkWrapper::ChunkWrapper(const Chunk *chunk) : constChunk(chunk) {}
+ChunkWrapper::ChunkWrapper(const std::weak_ptr<Chunk> &chunk)
+    : weakChunk(chunk) {}
 
 NAN_METHOD(ChunkWrapper::New) {
-  // TODO:ALLOC
-  ChunkWrapper *obj = new ChunkWrapper(new Chunk());
+  const Layer *layer = LayerWrapper::unwrap(info[0].As<v8::Object>());
+  if (!layer)
+    return;
+
+  auto chunk = std::make_shared<Chunk>(layer);
+
+  if (info[1]->IsArray()) {
+    auto array = info[1].As<v8::Array>();
+    if (array->Length() >= 2) {
+      chunk->setRange(std::make_pair(array->Get(0)->Uint32Value(),
+                                     array->Get(1)->Uint32Value()));
+    }
+  }
+
+  ChunkWrapper *obj = new ChunkWrapper(chunk);
   obj->Wrap(info.This());
   info.GetReturnValue().Set(info.This());
 }
 
-NAN_GETTER(ChunkWrapper::streamNs) {
+NAN_GETTER(ChunkWrapper::layer) {
   ChunkWrapper *wrapper = ObjectWrap::Unwrap<ChunkWrapper>(info.Holder());
-  if (auto chunk = wrapper->constChunk) {
-    info.GetReturnValue().Set(
-        Nan::New(chunk->streamNs().str()).ToLocalChecked());
+  if (auto chunk = wrapper->weakChunk.lock()) {
+    info.GetReturnValue().Set(LayerWrapper::wrap(chunk->layer()));
   }
 }
 
-NAN_SETTER(ChunkWrapper::setStreamNs) {
+NAN_SETTER(ChunkWrapper::setLayer) {
   ChunkWrapper *wrapper = ObjectWrap::Unwrap<ChunkWrapper>(info.Holder());
   if (auto chunk = wrapper->chunk) {
-    chunk->setStreamNs(strns(*Nan::Utf8String(value)));
-  }
-}
-
-NAN_GETTER(ChunkWrapper::streamId) {
-  ChunkWrapper *wrapper = ObjectWrap::Unwrap<ChunkWrapper>(info.Holder());
-  if (auto chunk = wrapper->constChunk) {
-    info.GetReturnValue().Set(Nan::New(chunk->streamId()).ToLocalChecked());
-  }
-}
-
-NAN_SETTER(ChunkWrapper::setStreamId) {
-  ChunkWrapper *wrapper = ObjectWrap::Unwrap<ChunkWrapper>(info.Holder());
-  if (auto chunk = wrapper->chunk) {
-    chunk->setStreamId(*Nan::Utf8String(value));
-  }
-}
-
-NAN_GETTER(ChunkWrapper::payload) {
-  ChunkWrapper *wrapper = ObjectWrap::Unwrap<ChunkWrapper>(info.Holder());
-  if (auto chunk = wrapper->constChunk) {
-    info.GetReturnValue().Set(
-        Variant::Private::getNodeBuffer(chunk->payload()));
-  }
-}
-
-NAN_SETTER(ChunkWrapper::setPayload) {
-  ChunkWrapper *wrapper = ObjectWrap::Unwrap<ChunkWrapper>(info.Holder());
-  if (auto chunk = wrapper->chunk) {
-    if (value->IsObject()) {
-      chunk->setPayload(Variant::Private::getSlice(value.As<v8::Object>()));
+    if (const Layer *layer = LayerWrapper::unwrap(value.As<v8::Object>())) {
+      chunk->setLayer(layer);
     }
   }
 }
 
-NAN_GETTER(ChunkWrapper::properties) {
+NAN_GETTER(ChunkWrapper::range) {
   ChunkWrapper *wrapper = ObjectWrap::Unwrap<ChunkWrapper>(info.Holder());
-  if (auto chunk = wrapper->constChunk) {
+  if (auto chunk = wrapper->weakChunk.lock()) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
-    const auto &properties = chunk->properties();
-    auto array = v8::Array::New(isolate, properties.size());
-    for (size_t i = 0; i < properties.size(); ++i) {
-      array->Set(i, PropertyWrapper::wrap(properties[i]));
-    }
+    auto array = v8::Array::New(isolate, 2);
+    array->Set(0, Nan::New(chunk->range().first));
+    array->Set(1, Nan::New(chunk->range().second));
     info.GetReturnValue().Set(array);
   }
 }
 
-NAN_METHOD(ChunkWrapper::propertyFromId) {
-  ChunkWrapper *wrapper = ObjectWrap::Unwrap<ChunkWrapper>(info.Holder());
-  if (auto chunk = wrapper->constChunk) {
-    if (const auto &prop =
-            chunk->propertyFromId(strid(*Nan::Utf8String(info[0])))) {
-      info.GetReturnValue().Set(PropertyWrapper::wrap(prop));
-    } else {
-      info.GetReturnValue().Set(Nan::Null());
-    }
-  }
-}
-
-NAN_METHOD(ChunkWrapper::addProperty) {
+NAN_SETTER(ChunkWrapper::setRange) {
   ChunkWrapper *wrapper = ObjectWrap::Unwrap<ChunkWrapper>(info.Holder());
   if (auto chunk = wrapper->chunk) {
-    if (info[0]->IsObject()) {
-      if (const auto &prop =
-              PropertyWrapper::unwrap(info[0].As<v8::Object>())) {
-        chunk->addProperty(prop);
+    if (value->IsArray()) {
+      auto array = value.As<v8::Array>();
+      if (array->Length() >= 2) {
+        chunk->setRange(std::make_pair(array->Get(0)->Uint32Value(),
+                                       array->Get(1)->Uint32Value()));
       }
     }
   }
 }
 
-NAN_GETTER(ChunkWrapper::layer) {
-  ChunkWrapper *wrapper = ObjectWrap::Unwrap<ChunkWrapper>(info.Holder());
-  if (auto chunk = wrapper->constChunk) {
-    if (const auto &layer = chunk->layer()) {
-      info.GetReturnValue().Set(LayerWrapper::wrap(layer));
-    } else {
-      info.GetReturnValue().Set(Nan::Null());
-    }
-  }
-}
-
-NAN_METHOD(ChunkWrapper::toJSON) {
-  auto keys = info.This()->GetOwnPropertyNames();
-  auto obj = Nan::New<v8::Object>();
-  for (size_t i = 0; i < keys->Length(); ++i) {
-    auto key = keys->Get(i).As<v8::String>();
-    if (strcmp(*Nan::Utf8String(key), "layer") != 0) {
-      obj->Set(key, info.This()->Get(key));
-    }
-  }
-  info.GetReturnValue().Set(obj);
-}
-
-v8::Local<v8::Object> ChunkWrapper::wrap(const Chunk *chunk) {
+v8::Local<v8::Object> ChunkWrapper::wrap(const std::shared_ptr<Chunk> &chunk) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto cons = v8::Local<v8::Function>::New(isolate, module->chunk.ctor);
@@ -164,13 +104,26 @@ v8::Local<v8::Object> ChunkWrapper::wrap(const Chunk *chunk) {
   return obj;
 }
 
-const Chunk *ChunkWrapper::unwrap(v8::Local<v8::Object> obj) {
+std::shared_ptr<Chunk> ChunkWrapper::unwrap(v8::Local<v8::Object> obj) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
   if (obj->GetPrototype() ==
       v8::Local<v8::Value>::New(isolate, module->chunk.proto)) {
     if (auto wrapper = ObjectWrap::Unwrap<ChunkWrapper>(obj)) {
-      return wrapper->constChunk;
+      return wrapper->chunk;
+    }
+  }
+  return nullptr;
+}
+
+std::shared_ptr<const Chunk>
+ChunkWrapper::unwrapConst(v8::Local<v8::Object> obj) {
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
+  PlugkitModule *module = PlugkitModule::get(isolate);
+  if (obj->GetPrototype() ==
+      v8::Local<v8::Value>::New(isolate, module->chunk.proto)) {
+    if (auto wrapper = ObjectWrap::Unwrap<ChunkWrapper>(obj)) {
+      return wrapper->weakChunk.lock();
     }
   }
   return nullptr;

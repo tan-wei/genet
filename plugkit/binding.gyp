@@ -33,6 +33,7 @@
       "src/uvloop_logger.cpp",
       "src/pcap_platform.cpp",
       "src/pcap_dummy.cpp",
+      "src/wrapper/chunk_w.cpp",
       "src/wrapper/pcap_w.cpp",
       "src/wrapper/session_w.cpp",
       "src/wrapper/frame_w.cpp",
