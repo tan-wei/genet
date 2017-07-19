@@ -43,6 +43,7 @@
       "src/wrapper/stream_dissector_factory_w.cpp",
       "src/wrapper/session_factory_w.cpp",
       "src/wrapper/listener_factory_w.cpp",
+      "src/wrapper/listener_status_w.cpp",
       "src/session.cpp",
       "src/frame.cpp",
       "src/property.cpp",

@@ -31,6 +31,7 @@ public:
   Class dissectorFactory;
   Class streamDissectorFactory;
   Class listenerFactory;
+  Class listenerStatus;
 
   Function arrayToBuffer;
 };
