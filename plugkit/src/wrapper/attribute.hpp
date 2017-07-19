@@ -14,6 +14,8 @@ public:
   static v8::Local<v8::Object> wrap(const std::shared_ptr<Attribute> &attr);
   static v8::Local<v8::Object> wrap(const std::weak_ptr<const Attribute> &attr);
   static std::shared_ptr<Attribute> unwrap(v8::Local<v8::Object> obj);
+  static std::shared_ptr<const Attribute>
+  unwrapConst(v8::Local<v8::Object> obj);
   static NAN_METHOD(New);
   static NAN_GETTER(id);
   static NAN_SETTER(setId);
@@ -28,7 +30,7 @@ private:
 
 private:
   std::shared_ptr<Attribute> attr;
-  std::weak_ptr<Attribute> weakAttr;
+  std::weak_ptr<const Attribute> weakAttr;
 };
 }
 

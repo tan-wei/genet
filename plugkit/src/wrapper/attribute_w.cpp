@@ -100,6 +100,19 @@ std::shared_ptr<Attribute> AttributeWrapper::unwrap(v8::Local<v8::Object> obj) {
   if (obj->GetPrototype() ==
       v8::Local<v8::Value>::New(isolate, module->attribute.proto)) {
     if (auto wrapper = ObjectWrap::Unwrap<AttributeWrapper>(obj)) {
+      return wrapper->attr;
+    }
+  }
+  return nullptr;
+}
+
+std::shared_ptr<const Attribute>
+AttributeWrapper::unwrapConst(v8::Local<v8::Object> obj) {
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
+  PlugkitModule *module = PlugkitModule::get(isolate);
+  if (obj->GetPrototype() ==
+      v8::Local<v8::Value>::New(isolate, module->attribute.proto)) {
+    if (auto wrapper = ObjectWrap::Unwrap<AttributeWrapper>(obj)) {
       return wrapper->weakAttr.lock();
     }
   }
