@@ -62,6 +62,7 @@ public:
   StatusCallback statusCallback;
   FilterCallback filterCallback;
   FrameCallback frameCallback;
+  ListenerCallback listenerCallback;
   LoggerCallback loggerCallback;
 
   std::unique_ptr<Status> status;
@@ -249,7 +250,8 @@ void Session::setListener(const std::string &id, const std::string &name,
     auto factory = d->listenerFactories.find(id);
     if (factory != d->listenerFactories.end()) {
       auto pool = std::unique_ptr<ListenerThreadPool>(new ListenerThreadPool(
-          factory->second, status, args, d->frameStore, []() {}));
+          factory->second, status, args, d->frameStore,
+          [this]() { d->notifyStatus(Private::UPDATE_LISTENER); }));
       pool->setLogger(d->logger);
       pool->start();
       d->listeners[name] = std::move(pool);
@@ -316,6 +318,10 @@ void Session::setFilterCallback(const FilterCallback &callback) {
 
 void Session::setFrameCallback(const FrameCallback &callback) {
   d->frameCallback = callback;
+}
+
+void Session::setListenerCallback(const ListenerCallback &callback) {
+  d->listenerCallback = callback;
 }
 
 void Session::setLoggerCallback(const LoggerCallback &callback) {
