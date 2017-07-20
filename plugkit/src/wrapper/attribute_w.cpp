@@ -27,7 +27,7 @@ void AttributeWrapper::init(v8::Isolate *isolate,
 AttributeWrapper::AttributeWrapper(const std::shared_ptr<Attribute> &attr)
     : attr(attr), weakAttr(attr) {}
 
-AttributeWrapper::AttributeWrapper(const std::weak_ptr<Attribute> &attr)
+AttributeWrapper::AttributeWrapper(const std::weak_ptr<const Attribute> &attr)
     : weakAttr(attr) {}
 
 NAN_METHOD(AttributeWrapper::New) {
@@ -82,6 +82,20 @@ NAN_SETTER(AttributeWrapper::setValue) {
 
 v8::Local<v8::Object>
 AttributeWrapper::wrap(const std::shared_ptr<Attribute> &attr) {
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
+  PlugkitModule *module = PlugkitModule::get(isolate);
+  auto cons = v8::Local<v8::Function>::New(isolate, module->attribute.ctor);
+  v8::Local<v8::Object> obj =
+      cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,
+                        nullptr)
+          .ToLocalChecked();
+  AttributeWrapper *wrapper = new AttributeWrapper(attr);
+  wrapper->Wrap(obj);
+  return obj;
+}
+
+v8::Local<v8::Object>
+AttributeWrapper::wrap(const std::weak_ptr<const Attribute> &attr) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto cons = v8::Local<v8::Function>::New(isolate, module->attribute.ctor);

@@ -24,7 +24,7 @@ public:
 
 private:
   AttributeWrapper(const std::shared_ptr<Attribute> &attr);
-  AttributeWrapper(const std::weak_ptr<Attribute> &attr);
+  AttributeWrapper(const std::weak_ptr<const Attribute> &attr);
   AttributeWrapper(const AttributeWrapper &) = delete;
   AttributeWrapper &operator=(const AttributeWrapper &) = delete;
 
