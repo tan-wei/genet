@@ -1,5 +1,6 @@
 #include "wrapper/listener_status.hpp"
 #include "wrapper/attribute.hpp"
+#include "wrapper/chunk.hpp"
 #include "../listener_status.hpp"
 #include "plugkit_module.hpp"
 
@@ -11,6 +12,7 @@ void ListenerStatusWrapper::init(v8::Isolate *isolate,
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("ListenerStatus").ToLocalChecked());
   SetPrototypeMethod(tpl, "getAttribute", getAttribute);
+  SetPrototypeMethod(tpl, "getChunk", getChunk);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("attributes").ToLocalChecked(), attributes);
@@ -55,6 +57,18 @@ NAN_METHOD(ListenerStatusWrapper::getAttribute) {
   if (auto status = wrapper->status) {
     if (const auto &attr = status->getAttribute(info[0]->NumberValue())) {
       info.GetReturnValue().Set(AttributeWrapper::wrap(attr));
+    } else {
+      info.GetReturnValue().Set(Nan::Null());
+    }
+  }
+}
+
+NAN_METHOD(ListenerStatusWrapper::getChunk) {
+  ListenerStatusWrapper *wrapper =
+      ObjectWrap::Unwrap<ListenerStatusWrapper>(info.Holder());
+  if (auto status = wrapper->status) {
+    if (const auto &chunk = status->getChunk(info[0]->NumberValue())) {
+      info.GetReturnValue().Set(ChunkWrapper::wrap(chunk));
     } else {
       info.GetReturnValue().Set(Nan::Null());
     }
