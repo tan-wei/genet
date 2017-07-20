@@ -6,8 +6,7 @@
 
 namespace plugkit {
 
-void ListenerStatusWrapper::init(v8::Isolate *isolate,
-                                 v8::Local<v8::Object> exports) {
+void ListenerStatusWrapper::init(v8::Isolate *isolate) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("ListenerStatus").ToLocalChecked());
@@ -23,13 +22,15 @@ void ListenerStatusWrapper::init(v8::Isolate *isolate,
   module->listenerStatus.proto.Reset(
       isolate, ctor->Get(Nan::New("prototype").ToLocalChecked()));
   module->listenerStatus.ctor.Reset(isolate, ctor);
-  v8::Local<v8::Object> func = Nan::GetFunction(tpl).ToLocalChecked();
-  Nan::Set(exports, Nan::New("ListenerStatus").ToLocalChecked(), func);
 }
 
 ListenerStatusWrapper::ListenerStatusWrapper(
     const std::shared_ptr<ListenerStatus> &status)
-    : status(status) {}
+    : status(status), weakStatus(status) {}
+
+ListenerStatusWrapper::ListenerStatusWrapper(
+    const std::weak_ptr<const ListenerStatus> &status)
+    : weakStatus(status) {}
 
 NAN_METHOD(ListenerStatusWrapper::New) {
   info.GetReturnValue().Set(info.This());
@@ -38,7 +39,7 @@ NAN_METHOD(ListenerStatusWrapper::New) {
 NAN_GETTER(ListenerStatusWrapper::attributes) {
   ListenerStatusWrapper *wrapper =
       ObjectWrap::Unwrap<ListenerStatusWrapper>(info.Holder());
-  if (auto status = wrapper->status) {
+  if (auto status = wrapper->weakStatus.lock()) {
     info.GetReturnValue().Set(static_cast<uint32_t>(status->attributes()));
   }
 }
@@ -46,7 +47,7 @@ NAN_GETTER(ListenerStatusWrapper::attributes) {
 NAN_GETTER(ListenerStatusWrapper::chunks) {
   ListenerStatusWrapper *wrapper =
       ObjectWrap::Unwrap<ListenerStatusWrapper>(info.Holder());
-  if (auto status = wrapper->status) {
+  if (auto status = wrapper->weakStatus.lock()) {
     info.GetReturnValue().Set(static_cast<uint32_t>(status->chunks()));
   }
 }
@@ -54,7 +55,7 @@ NAN_GETTER(ListenerStatusWrapper::chunks) {
 NAN_METHOD(ListenerStatusWrapper::getAttribute) {
   ListenerStatusWrapper *wrapper =
       ObjectWrap::Unwrap<ListenerStatusWrapper>(info.Holder());
-  if (auto status = wrapper->status) {
+  if (auto status = wrapper->weakStatus.lock()) {
     if (const auto &attr = status->getAttribute(info[0]->NumberValue())) {
       info.GetReturnValue().Set(AttributeWrapper::wrap(attr));
     } else {
@@ -66,7 +67,7 @@ NAN_METHOD(ListenerStatusWrapper::getAttribute) {
 NAN_METHOD(ListenerStatusWrapper::getChunk) {
   ListenerStatusWrapper *wrapper =
       ObjectWrap::Unwrap<ListenerStatusWrapper>(info.Holder());
-  if (auto status = wrapper->status) {
+  if (auto status = wrapper->weakStatus.lock()) {
     if (const auto &chunk = status->getChunk(info[0]->NumberValue())) {
       info.GetReturnValue().Set(ChunkWrapper::wrap(chunk));
     } else {
@@ -77,6 +78,21 @@ NAN_METHOD(ListenerStatusWrapper::getChunk) {
 
 v8::Local<v8::Object>
 ListenerStatusWrapper::wrap(const std::shared_ptr<ListenerStatus> &status) {
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
+  PlugkitModule *module = PlugkitModule::get(isolate);
+  auto cons =
+      v8::Local<v8::Function>::New(isolate, module->listenerStatus.ctor);
+  v8::Local<v8::Object> obj =
+      cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,
+                        nullptr)
+          .ToLocalChecked();
+  ListenerStatusWrapper *wrapper = new ListenerStatusWrapper(status);
+  wrapper->Wrap(obj);
+  return obj;
+}
+
+v8::Local<v8::Object>
+ListenerStatusWrapper::wrap(const std::weak_ptr<const ListenerStatus> &status) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto cons =

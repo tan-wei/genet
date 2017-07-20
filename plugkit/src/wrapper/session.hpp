@@ -25,12 +25,14 @@ public:
   static NAN_METHOD(destroy);
   static NAN_METHOD(getFilteredFrames);
   static NAN_METHOD(getFrames);
+  static NAN_METHOD(getListenerStatus);
   static NAN_METHOD(analyze);
   static NAN_METHOD(setDisplayFilter);
   static NAN_METHOD(setListener);
   static NAN_METHOD(setStatusCallback);
   static NAN_METHOD(setFilterCallback);
   static NAN_METHOD(setFrameCallback);
+  static NAN_METHOD(setListenerCallback);
   static NAN_METHOD(setLoggerCallback);
 
 private:
@@ -43,6 +45,7 @@ private:
   v8::UniquePersistent<v8::Function> statusCallback;
   v8::UniquePersistent<v8::Function> filterCallback;
   v8::UniquePersistent<v8::Function> frameCallback;
+  v8::UniquePersistent<v8::Function> listenerCallback;
   v8::UniquePersistent<v8::Function> loggerCallback;
 };
 }

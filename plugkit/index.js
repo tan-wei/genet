@@ -55,6 +55,10 @@ class Session extends EventEmitter {
       this.frame = frame;
       this.emit('frame', frame)
     })
+    sess.setListenerCallback((listener) => {
+      this.listener = listener;
+      this.emit('listener', listener)
+    })
     sess.setLoggerCallback((log) => {
       this.emit('log', log)
     })
@@ -98,6 +102,10 @@ class Session extends EventEmitter {
 
   getFrames(offset, length) {
     return internal(this).sess.getFrames(offset, length)
+  }
+
+  getListenerStatus(name) {
+    return internal(this).sess.getListenerStatus(name)
   }
 
   analyze(frames) {

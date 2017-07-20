@@ -18,6 +18,7 @@ class ListenerStatus {
 public:
   ListenerStatus();
   ~ListenerStatus();
+  uint32_t revision() const;
 
   size_t attributes() const;
   size_t chunks() const;

@@ -95,6 +95,15 @@ void Session::Private::updateStatus() {
     }
     filterCallback(status);
   }
+  if (flags & Private::UPDATE_LISTENER) {
+    ListenerRevStatusMap map;
+    for (const auto &pair : listenerStatuses) {
+      ListenerRevStatus status;
+      status.revision = pair.second->revision();
+      map[pair.first] = status;
+    }
+    listenerCallback(map);
+  }
   if (flags & Private::UPDATE_FRAME) {
     FrameStatus status;
     status.frames = frameStore->dissectedSize();

@@ -9,6 +9,7 @@ namespace plugkit {
 class ListenerStatus::Private {
 public:
   std::mutex mutex;
+  uint32_t revision = 0;
   std::vector<AttributeConstPtr> attributes;
   std::vector<ChunkConstPtr> chunks;
 };
@@ -16,6 +17,11 @@ public:
 ListenerStatus::ListenerStatus() : d(new Private()) {}
 
 ListenerStatus::~ListenerStatus() {}
+
+uint32_t ListenerStatus::revision() const {
+  std::lock_guard<std::mutex> lock(d->mutex);
+  return d->revision;
+}
 
 size_t ListenerStatus::attributes() const {
   std::lock_guard<std::mutex> lock(d->mutex);
@@ -52,10 +58,12 @@ void ListenerStatus::addAttribute(const AttributeConstPtr &attr) {
   } else {
     d->attributes.push_back(attr);
   }
+  ++d->revision;
 }
 
 void ListenerStatus::addChunk(const ChunkConstPtr &chunk) {
   std::lock_guard<std::mutex> lock(d->mutex);
   d->chunks.push_back(chunk);
+  ++d->revision;
 }
 }
