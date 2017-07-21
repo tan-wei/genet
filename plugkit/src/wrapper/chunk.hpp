@@ -23,7 +23,7 @@ public:
 
 private:
   ChunkWrapper(const std::shared_ptr<Chunk> &chunk);
-  ChunkWrapper(const std::weak_ptr<Chunk> &chunk);
+  ChunkWrapper(const std::weak_ptr<const Chunk> &chunk);
   ChunkWrapper(const ChunkWrapper &) = delete;
   ChunkWrapper &operator=(const ChunkWrapper &) = delete;
 

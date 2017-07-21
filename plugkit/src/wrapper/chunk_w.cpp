@@ -28,7 +28,7 @@ void ChunkWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
 ChunkWrapper::ChunkWrapper(const std::shared_ptr<Chunk> &chunk)
     : chunk(chunk), weakChunk(chunk) {}
 
-ChunkWrapper::ChunkWrapper(const std::weak_ptr<Chunk> &chunk)
+ChunkWrapper::ChunkWrapper(const std::weak_ptr<const Chunk> &chunk)
     : weakChunk(chunk) {}
 
 NAN_METHOD(ChunkWrapper::New) {
@@ -92,6 +92,20 @@ NAN_SETTER(ChunkWrapper::setRange) {
 }
 
 v8::Local<v8::Object> ChunkWrapper::wrap(const std::shared_ptr<Chunk> &chunk) {
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
+  PlugkitModule *module = PlugkitModule::get(isolate);
+  auto cons = v8::Local<v8::Function>::New(isolate, module->chunk.ctor);
+  v8::Local<v8::Object> obj =
+      cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,
+                        nullptr)
+          .ToLocalChecked();
+  ChunkWrapper *wrapper = new ChunkWrapper(chunk);
+  wrapper->Wrap(obj);
+  return obj;
+}
+
+v8::Local<v8::Object>
+ChunkWrapper::wrap(const std::weak_ptr<const Chunk> &chunk) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto cons = v8::Local<v8::Function>::New(isolate, module->chunk.ctor);

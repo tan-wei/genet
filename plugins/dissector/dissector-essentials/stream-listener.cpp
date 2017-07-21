@@ -2,6 +2,7 @@
 #include <plugkit/listener.hpp>
 #include <plugkit/chunk.hpp>
 #include <plugkit/frame_view.hpp>
+#include <plugkit/layer.hpp>
 
 using namespace plugkit;
 
@@ -18,8 +19,10 @@ public:
 StreamListener::StreamListener() {}
 
 bool StreamListener::analyze(const FrameView *frame) {
-  layer = frame->primaryLayer();
-  return true;
+  if (frame->primaryLayer()->ns() == MNS("tcp")) {
+    layer = frame->primaryLayer();
+  }
+  return layer;
 }
 
 std::vector<ChunkConstPtr> StreamListener::chunks() const {
