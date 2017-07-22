@@ -353,7 +353,7 @@ v8::Local<v8::Object> Variant::Private::getNodeBuffer(const Slice &slice) {
 
   auto abuf = ArrayBuffer::New(isolate, const_cast<char *>(buffer->data()),
                                buffer->size());
-  auto array = Uint8Array::New(abuf, slice.offset(), slice.size());
+  auto array = Uint8Array::New(abuf, slice.offset(), slice.length());
   if (!isolate->GetData(1)) { // Node.js is not installed
     return array;
   }
@@ -474,7 +474,7 @@ json11::Json Variant::Private::getJson(const Variant &var) {
       stream << std::hex << std::setfill('0') << std::setw(2);
       const auto &slice = var.slice();
       const uint8_t *data = reinterpret_cast<const uint8_t *>(slice.data());
-      for (size_t i = 0; i < slice.size(); ++i) {
+      for (size_t i = 0; i < slice.length(); ++i) {
         stream << static_cast<int>(data[i]);
       }
       json["value"] = stream.str();

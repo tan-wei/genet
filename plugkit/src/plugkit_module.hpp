@@ -27,6 +27,7 @@ public:
   Class layer;
   Class frame;
   Class chunk;
+  Class slice;
   Class session;
   Class sessionFactory;
   Class dissectorFactory;

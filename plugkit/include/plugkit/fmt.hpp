@@ -37,7 +37,7 @@ Reader<S>::Reader(const S &slice)
 template <class S> S Reader<S>::slice(size_t length) {
   if (lastError_)
     return S();
-  if (offset_ + length > slice_.size()) {
+  if (offset_ + length > slice_.length()) {
     lastRange_.first = 0;
     lastRange_.second = 0;
     lastError_ = "unexpected EOS";
@@ -51,14 +51,14 @@ template <class S> S Reader<S>::slice(size_t length) {
 }
 
 template <class S> S Reader<S>::slice() {
-  return slice_.slice(offset_, slice_.size() - offset_);
+  return slice_.slice(offset_, slice_.length() - offset_);
 }
 
 template <class S> template <class T> T Reader<S>::readLE() {
   static_assert(std::is_arithmetic<T>::value, "T must be arithmetic");
   if (lastError_)
     return T();
-  if (offset_ + sizeof(T) > slice_.size()) {
+  if (offset_ + sizeof(T) > slice_.length()) {
     lastRange_.first = 0;
     lastRange_.second = 0;
     lastError_ = "unexpected EOS";
@@ -75,7 +75,7 @@ template <class S> template <class T> T Reader<S>::readBE() {
   static_assert(std::is_arithmetic<T>::value, "T must be arithmetic");
   if (lastError_)
     return T();
-  if (offset_ + sizeof(T) > slice_.size()) {
+  if (offset_ + sizeof(T) > slice_.length()) {
     lastRange_.first = 0;
     lastRange_.second = 0;
     lastError_ = "unexpected EOS";
@@ -97,7 +97,7 @@ template <class S> template <class T> void Reader<S>::skip() { readLE<T>(); }
 template <class S> void Reader<S>::skip(size_t length) {
   if (lastError_)
     return;
-  if (offset_ + length > slice_.size()) {
+  if (offset_ + length > slice_.length()) {
     lastRange_.first = 0;
     lastRange_.second = 0;
     lastError_ = "unexpected EOS";
@@ -138,9 +138,9 @@ std::string toHex(const S &slice, int group = 0, int width = 2,
                   char sep = ':') {
   std::stringstream stream;
   stream << std::hex << std::setfill('0');
-  for (size_t i = 0; i < slice.size(); ++i) {
+  for (size_t i = 0; i < slice.length(); ++i) {
     stream << std::setw(width) << +static_cast<uint8_t>(slice[i]);
-    if (group > 0 && (i + 1) % group == 0 && i < slice.size() - 1) {
+    if (group > 0 && (i + 1) % group == 0 && i < slice.length() - 1) {
       stream << sep;
     }
   }
@@ -152,9 +152,9 @@ std::string toDec(const S &slice, int group = 0, int width = 0,
                   char sep = '.') {
   std::stringstream stream;
   stream << std::dec << std::setfill('0');
-  for (size_t i = 0; i < slice.size(); ++i) {
+  for (size_t i = 0; i < slice.length(); ++i) {
     stream << std::setw(width) << +static_cast<uint8_t>(slice[i]);
-    if (group > 0 && (i + 1) % group == 0 && i < slice.size() - 1) {
+    if (group > 0 && (i + 1) % group == 0 && i < slice.length() - 1) {
       stream << sep;
     }
   }
@@ -165,7 +165,7 @@ template <class S> std::string range(const S &base, const S &slice) {
   const char *baseBegin = base.data();
   const char *baseEnd = baseBegin + base.size();
   const char *sliceBegin = slice.data();
-  const char *sliceEnd = sliceBegin + slice.size();
+  const char *sliceEnd = sliceBegin + slice.length();
   if (baseBegin <= sliceBegin && sliceBegin < baseEnd && baseBegin < sliceEnd &&
       sliceEnd <= baseEnd) {
     std::string begin;
@@ -174,7 +174,7 @@ template <class S> std::string range(const S &base, const S &slice) {
       begin = std::to_string(sliceBegin - baseBegin);
     }
     if (baseEnd != sliceEnd) {
-      end = std::to_string(sliceBegin - baseBegin + slice.size());
+      end = std::to_string(sliceBegin - baseBegin + slice.length());
     }
     return begin + ":" + end;
   }

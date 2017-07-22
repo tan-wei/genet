@@ -307,8 +307,9 @@ void Session::analyze(const std::vector<RawFrame> &rawFrames) {
     Frame *frame = Frame::Private::create();
     frame->d->setSourceId(raw.sourceId);
     frame->d->setTimestamp(raw.timestamp);
-    frame->d->setLength((raw.length < raw.payload.size()) ? raw.payload.size()
-                                                          : raw.length);
+    frame->d->setLength((raw.length < raw.payload.length())
+                            ? raw.payload.length()
+                            : raw.length);
     frame->d->setRootLayer(rootLayer);
     frame->d->setIndex(d->getSeq());
     rootLayer->setFrame(frame);

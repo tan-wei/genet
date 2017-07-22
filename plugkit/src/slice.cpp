@@ -38,7 +38,7 @@ const char *Slice::data() const {
   return nullptr;
 }
 
-size_t Slice::size() const { return d->length; }
+size_t Slice::length() const { return d->length; }
 
 char Slice::operator[](size_t index) const {
   return (*d->buf)[d->offset + index];
@@ -54,13 +54,13 @@ Slice Slice::slice(size_t offset, size_t length) const {
   auto clip = [](size_t value, size_t max) {
     return value > max ? max : value;
   };
-  size_t s = size();
+  size_t s = this->length();
   size_t newOffset = clip(d->offset + offset, d->offset + s);
   size_t newLength = clip(clip(length, d->buf->size() - newOffset), s);
   return Slice(d->buf, newOffset, newLength);
 }
 
 Slice Slice::slice(size_t offset) const {
-  return slice(offset, size() - offset);
+  return slice(offset, length() - offset);
 }
 }

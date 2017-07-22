@@ -20,7 +20,7 @@ public:
   Slice(const Slice &slice);
   Slice &operator=(const Slice &slice);
   const char *data() const;
-  size_t size() const;
+  size_t length() const;
   size_t offset() const;
   char operator[](size_t index) const;
   Buffer buffer() const;

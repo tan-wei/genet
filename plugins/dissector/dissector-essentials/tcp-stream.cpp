@@ -25,10 +25,10 @@ public:
         pair.second = pair.second.slice(end - pair.first);
         pair.first = end;
       }
-      end = pair.first + pair.second.size();
+      end = pair.first + pair.second.length();
     }
     slices.remove_if([](const std::pair<size_t, Slice> &pair) {
-      return pair.second.size() == 0;
+      return pair.second.length() == 0;
     });
   }
 
@@ -37,7 +37,7 @@ public:
     auto it = slices.begin();
     for (; it != slices.end() && it->first == offset; ++it) {
       sequence.push_back(it->second);
-      offset += it->second.size();
+      offset += it->second.length();
     }
     slices.erase(slices.begin(), it);
     return sequence;
@@ -66,21 +66,21 @@ public:
         if (currentSeq < 0) {
           currentSeq = seq;
           ring.put(receivedLength, payload);
-          receivedLength += payload.size();
+          receivedLength += payload.length();
         }
       } else if (currentSeq >= 0) {
-        if (payload.size() > 0) {
+        if (payload.length() > 0) {
           uint64_t start = receivedLength;
           if (seq >= currentSeq) {
             start += seq - currentSeq;
             currentSeq = seq;
             ring.put(receivedLength, payload);
-            receivedLength += payload.size();
+            receivedLength += payload.length();
           } else if (currentSeq - seq > window) {
             start += (UINT32_MAX - currentSeq) + seq;
             currentSeq = seq;
             ring.put(receivedLength, payload);
-            receivedLength += payload.size();
+            receivedLength += payload.length();
           }
         } else if ((currentSeq + 1) % UINT32_MAX == seq) {
           currentSeq = seq;

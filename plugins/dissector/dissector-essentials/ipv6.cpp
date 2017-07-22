@@ -14,7 +14,7 @@ int maxZeroSequence(const Slice &data) {
   int pos = -1;
   int length = 0;
   int maxLength = 0;
-  for (size_t i = 0; i < data.size() / 2; ++i) {
+  for (size_t i = 0; i < data.length() / 2; ++i) {
     if (data[i * 2] == 0 && data[i * 2 + 1] == 0) {
       if (pos < 0) {
         pos = i;
@@ -40,7 +40,7 @@ std::string ipv6Addr(const Slice &data) {
   int zeroPos = maxZeroSequence(data);
   std::stringstream stream;
   stream << std::hex;
-  int length = data.size() / 2;
+  int length = data.length() / 2;
   for (int i = 0; i < length; ++i) {
     if (zeroPos >= 0 && i >= zeroPos) {
       if (data[i * 2] == 0 && data[i * 2 + 1] == 0) {
