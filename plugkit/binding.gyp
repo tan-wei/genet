@@ -37,6 +37,7 @@
       "src/wrapper/pcap_w.cpp",
       "src/wrapper/session_w.cpp",
       "src/wrapper/frame_w.cpp",
+      "src/wrapper/slice_w.cpp",
       "src/wrapper/property_w.cpp",
       "src/wrapper/attribute_w.cpp",
       "src/wrapper/layer_w.cpp",
