@@ -21,7 +21,7 @@ public:
 
 FilterThread::FilterThread(const std::string &body, const FrameStorePtr &store,
                            const Callback &callback)
-    : WorkerThread(false), d(new Private()) {
+    : d(new Private()) {
   d->store = store;
   d->callback = callback;
   d->body = body;

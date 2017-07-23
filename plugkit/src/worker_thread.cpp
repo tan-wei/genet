@@ -26,7 +26,7 @@ public:
   void Free(void *data, size_t) override { free(data); }
 };
 
-WorkerThread::WorkerThread(bool node) : nodeIntegration(node) {}
+WorkerThread::WorkerThread() {}
 
 WorkerThread::~WorkerThread() { join(); }
 
@@ -83,17 +83,6 @@ void WorkerThread::start() {
       uv_loop_s uvloop;
       uv_loop_init(&uvloop);
 
-      auto idata = node::CreateIsolateData(isolate, &uvloop);
-      const char *args[2] = {"node", fileName.c_str()};
-
-      static std::mutex nodeLock;
-      node::Environment *env = nullptr;
-      if (nodeIntegration) {
-        std::lock_guard<std::mutex> lock(nodeLock);
-        env = node::CreateEnvironment(idata, context, 2, args, 0, nullptr);
-        node::LoadEnvironment(env);
-        isolate->SetData(1, this);
-      }
       ExtendedSlot::init(isolate);
       {
         v8::Local<v8::Object> exports = Nan::New<v8::Object>();
@@ -106,11 +95,6 @@ void WorkerThread::start() {
         }
       }
       exit();
-      if (nodeIntegration) {
-        std::lock_guard<std::mutex> lock(nodeLock);
-        node::FreeEnvironment(env);
-        node::FreeIsolateData(idata);
-      }
       ExtendedSlot::destroy(isolate);
     }
     isolate->Dispose();

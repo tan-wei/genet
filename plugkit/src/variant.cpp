@@ -1,4 +1,5 @@
 #include "private/variant.hpp"
+#include "wrapper/slice.hpp"
 #include "plugkit_module.hpp"
 #include "slice.hpp"
 #include <iomanip>
@@ -350,21 +351,17 @@ v8::Local<v8::Object> Variant::Private::getNodeBuffer(const Slice &slice) {
   if (!buffer) {
     buffer = std::make_shared<std::string>();
   }
-
-  auto abuf = ArrayBuffer::New(isolate, const_cast<char *>(buffer->data()),
-                               buffer->size());
-  auto array = Uint8Array::New(abuf, slice.offset(), slice.length());
   if (!isolate->GetData(1)) { // Node.js is not installed
-    return array;
+    return SliceWrapper::wrap(slice);
   }
-
-  PlugkitModule *module = PlugkitModule::get(isolate);
-
-  auto func = v8::Local<v8::Function>::New(isolate, module->arrayToBuffer);
-
-  v8::Local<v8::Value> args[1] = {array};
-  auto nodeBufObj = func->Call(func, 1, args);
-  auto nodeBuf = nodeBufObj.As<v8::Object>();
+  void *hint = new Slice::Buffer(buffer);
+  auto nodeBuf = node::Buffer::New(isolate, const_cast<char *>(slice.data()),
+                                   slice.length(),
+                                   [](char *data, void *hint) {
+                                     delete static_cast<Slice::Buffer *>(hint);
+                                   },
+                                   hint)
+                     .ToLocalChecked();
   nodeBuf->Set(Nan::New("dataOffset").ToLocalChecked(),
                Nan::New(static_cast<uint32_t>(slice.offset())));
   return nodeBuf;

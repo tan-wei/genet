@@ -8,7 +8,7 @@ namespace plugkit {
 
 class WorkerThread {
 public:
-  WorkerThread(bool node = true);
+  WorkerThread();
   virtual ~WorkerThread();
   WorkerThread(const WorkerThread &) = delete;
   WorkerThread &operator=(const WorkerThread &) = delete;
@@ -22,9 +22,6 @@ public:
 protected:
   LoggerPtr logger = std::make_shared<StreamLogger>();
   std::thread thread;
-
-private:
-  bool nodeIntegration;
 
 private:
   class ArrayBufferAllocator;

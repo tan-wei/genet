@@ -8,6 +8,7 @@
 #include "wrapper/attribute.hpp"
 #include "wrapper/listener_status.hpp"
 #include "wrapper/chunk.hpp"
+#include "wrapper/slice.hpp"
 #include "wrapper/session.hpp"
 #include "wrapper/session_factory.hpp"
 #include "wrapper/stream_dissector_factory.hpp"
@@ -24,6 +25,7 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
   LayerWrapper::init(isolate, exports);
   AttributeWrapper::init(isolate, exports);
   ChunkWrapper::init(isolate, exports);
+  SliceWrapper::init(isolate, exports);
   FrameWrapper::init(isolate);
   ListenerStatusWrapper::init(isolate);
   if (mainThread) {
