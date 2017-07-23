@@ -49,12 +49,13 @@ class FrameItem {
 
 export default class FrameListView {
   constructor() {
-    const profile = Profile.current['$frame-list-panel']
+    const mapResolution = Profile.current.get('frame-list-panel', 'mapResolution')
+
     this.frame = {frames: 0}
     this.session = null
     this.viewScrollTop = 0
     this.viewHeight = 0
-    this.mapHeight = profile.mapResolution
+    this.mapHeight = mapResolution
     this.previousScrollTop = 0
     this.selectedFrames = []
 
@@ -63,17 +64,17 @@ export default class FrameListView {
       m.redraw()
     })
 
-    this.columns = profile.columns || [
+    this.columns = [
       {name: 'No', value: 'seq'},
       {name: 'Protocol', value: 'primaryLayer.name'},
       {name: 'Length', value: 'length'},
       {name: 'Summary', value: 'primaryLayer.summary'},
     ]
-    this.attrs = Object.assign({
+    this.attrs = {
       'layer-confidence': 'primaryLayer.confidence',
       'frame-length': 'length',
       'frame-capture-length': 'rootLayer.payload.length',
-    }, profile.attrs)
+    }
 
     this.updateMapThrottle = throttle((vnode) => {
       this.updateMap(vnode)

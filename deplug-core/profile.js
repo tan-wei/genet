@@ -12,12 +12,11 @@ import options from './options'
 import path from 'path'
 
 const profileRegistory = {}
-const globalDefaults = {}
-const pluginDefaults = {}
+const defaults = {}
 let currentProfile = 'default'
 
-const { webContents } = remote
-function createHandler (plugin = null) {
+/*
+Function createHandler (plugin = null) {
   const proto =
     Object.keys(EventEmitter.prototype).concat(Object.keys(Object.prototype))
   return {
@@ -25,8 +24,8 @@ function createHandler (plugin = null) {
       if (name === '$$dir') {
         return target.profileDir
       } else if (name === '$$object') {
-        return merge(Object.assign({ '_': globalDefaults }, pluginDefaults),
-          target.pluginObject)
+        return merge(Object.assign({ '_': globalDefaults }, defaults),
+          target.configObject)
       } else if (name.startsWith('$')) {
         return new Proxy(target, createHandler(name.substr(1)))
       } else if (proto.includes(name)) {
@@ -66,40 +65,32 @@ function createHandler (plugin = null) {
     },
   }
 }
+*/
 
+const { webContents } = remote
 export default class Profile extends EventEmitter {
   constructor (profile) {
     super()
     this.profileDir = path.join(config.userProfilePath, profile)
     this.configFile = path.join(this.profileDir, 'config.json')
-    this.globalObject = {}
-    this.pluginObject = {}
+    this.configObject = {}
 
     try {
-      this.pluginObject = jsonfile.readFileSync(this.configFile)
-      this.globalObject = this.pluginObject._ || {}
+      this.configObject = jsonfile.readFileSync(this.configFile)
     } catch (err) {
       log.warn(err)
     }
 
-    ipcRenderer.on('global-updated', (event, opath, value) => {
-      if (typeof value === 'undefined') {
-        objpath.del(this.globalObject, opath)
-      } else {
-        objpath.set(this.globalObject, opath, value)
-      }
-      this.emit('global-updated', opath, value)
-    })
-    ipcRenderer.on('plugin-updated', (event, id, opath, value) => {
-      if (!(id in this.pluginObject)) {
-        this.pluginObject[id] = {}
+    ipcRenderer.on('updated', (event, id, opath, value) => {
+      if (typeof this.configObject[id] === 'undefined') {
+        this.configObject[id] = {}
       }
       if (typeof value === 'undefined') {
-        objpath.del(this.pluginObject[id], opath)
+        objpath.del(this.configObject[id], opath)
       } else {
-        objpath.set(this.pluginObject[id], opath, value)
+        objpath.set(this.configObject[id], opath, value)
       }
-      this.emit('plugin-updated', id, opath, value)
+      this.emit('updated', id, opath, value)
     })
   }
 
@@ -129,46 +120,24 @@ export default class Profile extends EventEmitter {
     if (!(id in profileRegistory)) {
       profileRegistory[id] = new Profile(id)
     }
-    return new Proxy(profileRegistory[id], createHandler())
+    return profileRegistory[id]
   }
 
-  getGlobal (opath) {
-    const value = objpath.get(this.globalObject, opath)
+  get dir () {
+    return this.profileDir
+  }
+
+  get object () {
+    return merge(defaults, this.configObject)
+  }
+
+  get (id, opath, defaultValue) {
+    const value = objpath.get(this.configObject[id] || {}, opath)
     if (typeof value === 'undefined') {
-      return objpath.get(globalDefaults, opath, null)
-    }
-    return value
-  }
-
-  hasGlobal (opath) {
-    return objpath.has(this.globalObject, opath)
-  }
-
-  deleteGlobal (opath) {
-    objpath.del(this.globalObject, opath)
-    for (const wc of webContents.getAllWebContents()) {
-      wc.send('global-updated', opath)
-    }
-    this.writeSync()
-  }
-
-  setGlobal (opath, value) {
-    if (typeof value === 'undefined') {
-      objpath.del(this.globalObject, opath)
-    } else {
-      objpath.set(this.globalObject, opath, value)
-    }
-    for (const wc of webContents.getAllWebContents()) {
-      wc.send('global-updated', opath, value)
-    }
-    this.writeSync()
-  }
-
-  getPlugin (id, opath) {
-    const value = objpath.get(this.pluginObject[id] || {}, opath)
-    if (typeof value === 'undefined') {
-      if (id in pluginDefaults) {
-        return objpath.get(pluginDefaults[id], opath, null)
+      if (typeof defaultValue !== 'undefined') {
+        return defaultValue
+      } else if (id in defaults) {
+        return objpath.get(defaults[id], opath, null)
       }
     } else {
       return value
@@ -176,47 +145,36 @@ export default class Profile extends EventEmitter {
     return null
   }
 
-  hasPlugin (id, opath) {
-    if (id in this.pluginObject) {
-      return objpath.has(this.pluginObject[id], opath)
-    }
-    return false
-  }
-
-  deletePlugin (id, opath) {
-    if (id in this.pluginObject) {
-      objpath.del(this.pluginObject[id], opath)
+  delete (id, opath) {
+    if (id in this.configObject) {
+      objpath.del(this.configObject[id], opath)
       for (const wc of webContents.getAllWebContents()) {
-        wc.send('plugin-updated', id, opath)
+        wc.send('updated', id, opath)
       }
     }
     this.writeSync()
   }
 
-  setPlugin (id, opath, value) {
-    if (!(id in this.pluginObject)) {
-      this.pluginObject[id] = {}
+  set (id, opath, value) {
+    if (typeof this.configObject[id] === 'undefined') {
+      this.configObject[id] = {}
     }
     if (typeof value === 'undefined') {
-      objpath.del(this.pluginObject[id], opath)
+      objpath.del(this.configObject[id], opath)
     } else {
-      objpath.set(this.pluginObject[id], opath, value)
+      objpath.set(this.configObject[id], opath, value)
     }
     for (const wc of webContents.getAllWebContents()) {
-      wc.send('plugin-updated', id, opath, value)
+      wc.send('updated', id, opath, value)
     }
     this.writeSync()
   }
 
-  static setPluginDefault (id, opath, value) {
-    if (!(id in pluginDefaults)) {
-      pluginDefaults[id] = {}
+  static setDefault (id, opath, value) {
+    if (!(id in defaults)) {
+      defaults[id] = {}
     }
-    objpath.set(pluginDefaults[id], opath, value)
-  }
-
-  static setGlobalDefault (opath, value) {
-    objpath.set(globalDefaults, opath, value)
+    objpath.set(defaults[id], opath, value)
   }
 
   static get globalOptions () {
@@ -224,15 +182,14 @@ export default class Profile extends EventEmitter {
   }
 
   writeSync () {
-    const object = Object.assign(this.pluginObject, { '_': this.globalObject })
     mkpath.sync(path.dirname(this.configFile))
     fs.writeFileSync(this.configFile,
-      JSON.stringify(object, null, ' '))
+      JSON.stringify(this.configObject, null, ' '))
   }
 }
 
 for (const opt of options) {
   if ('default' in opt) {
-    Profile.setGlobalDefault(opt.id, opt.default)
+    Profile.setDefault('_', opt.id, opt.default)
   }
 }

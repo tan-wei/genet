@@ -4,7 +4,7 @@ import { Channel, Profile } from 'deplug'
 
 class BinaryItem {
   view(vnode) {
-    const { layout } = Profile.current['$binary-panel']
+    const layout = Profile.current.get('binary-panel', 'layout')
     const hex = layout.includes('hex')
     const ascii = layout.includes('ascii')
     const payload = vnode.attrs.payload

@@ -52,7 +52,7 @@ export default class Theme {
         path.dirname(lessFile),
         path.join(__dirname, 'theme'),
         path.join(__dirname, '../font-awesome/less'),
-        Profile.current.$$dir
+        Profile.current.dir
       ],
       plugins: [new LessPlugin()],
       filename: lessFile,
@@ -76,7 +76,7 @@ export default class Theme {
   }
 
   static get currentId () {
-    return Profile.current.theme || 'default'
+    return Profile.current.get('_', 'theme', 'default')
   }
 
   static register (theme) {
@@ -93,9 +93,9 @@ export default class Theme {
 }
 
 GlobalChannel.on('core:theme:set', (event, id) => {
-  if (id in globalRegistry && Profile.current.theme !== id) {
+  if (id in globalRegistry && Profile.current.get('_', 'theme') !== id) {
     globalCache = {}
-    Profile.current.theme = id
+    Profile.current.set('_', 'theme', id)
     GlobalChannel.emit('core:theme:updated', id)
   }
 })

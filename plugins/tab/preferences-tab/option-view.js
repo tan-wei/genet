@@ -41,24 +41,18 @@ export default class OptionView {
 
   updateValue(value, vnode) {
     const { pkg, option } = vnode.attrs
+    const id = pkg ? pkg.name : '_'
     if (value === option.default) {
-      if (pkg) {
-        delete Profile.current[`$${pkg.name}`][option.id]
-      } else {
-        delete Profile.current[option.id]
-      }
+      Profile.current.delete(id, option.id)
     } else {
-      if (pkg) {
-        Profile.current[`$${pkg.name}`][option.id] = value
-      } else {
-        Profile.current[option.id] = value
-      }
+      Profile.current.set(id, option.id, value)
     }
   }
 
   view(vnode) {
     const { pkg, option } = vnode.attrs
-    let value = pkg ? Profile.current[`$${pkg.name}`][option.id] : Profile.current[option.id]
+    const id = pkg ? pkg.name : '_'
+    let value = Profile.current.get(id, option.id)
     const defaultValue = ('default' in option) ? `Default: ${option.default}` : ''
     if (option.hasOwnProperty('toString')) {
       value = option.toString(value)

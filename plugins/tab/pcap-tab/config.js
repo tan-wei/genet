@@ -64,9 +64,9 @@ export default class ConfigView {
 
     setTimeout(() => {
       const factory = new SessionFactory()
-      factory.options = Profile.current.$$object
+      factory.options = Profile.current.object
       factory.networkInterface = Tab.options.ifs || ''
-      factory.snaplen = Profile.current.snaplen
+      factory.snaplen = Profile.current.get('_', 'snaplen')
       for (const layer of Session.linkLayers) {
         factory.registerLinkLayer(layer)
       }
@@ -99,7 +99,7 @@ export default class ConfigView {
 
       setTimeout(() => {
         const factory = new SessionFactory()
-        factory.options = Profile.current.$$object
+        factory.options = Profile.current.object
         factory.networkInterface = Tab.options.ifs || ''
         for (const layer of Session.linkLayers) {
           factory.registerLinkLayer(layer)
