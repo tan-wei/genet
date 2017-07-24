@@ -129,7 +129,7 @@
          "xcode_settings":{
             "GCC_ENABLE_CPP_EXCEPTIONS":"YES"
          },
-         "cflags!":[
+         "cflags_cc!":[
             "-fno-exceptions"
          ],
          "defines":[
