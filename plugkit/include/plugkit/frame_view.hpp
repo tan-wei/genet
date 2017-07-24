@@ -12,7 +12,7 @@ class FrameView;
 class Layer;
 class Property;
 
-class FrameView final {
+class PLUGKIT_EXPORT FrameView final {
 public:
   explicit FrameView(const Frame *frame);
   ~FrameView();
