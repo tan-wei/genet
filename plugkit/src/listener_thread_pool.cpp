@@ -34,6 +34,7 @@ ListenerThreadPool::ListenerThreadPool(const ListenerFactoryConstPtr &factory,
 ListenerThreadPool::~ListenerThreadPool() {
   if (d->thread) {
     d->thread->close();
+    d->thread->join();
   }
 }
 

@@ -28,7 +28,7 @@ public:
 
 WorkerThread::WorkerThread() {}
 
-WorkerThread::~WorkerThread() { join(); }
+WorkerThread::~WorkerThread() {}
 
 void WorkerThread::join() {
   if (thread.joinable())
