@@ -19,6 +19,7 @@ public:
   static NAN_METHOD(New);
   static NAN_GETTER(attributes);
   static NAN_GETTER(chunks);
+  static NAN_GETTER(chunkLength);
   static NAN_METHOD(getAttribute);
   static NAN_METHOD(getChunk);
 

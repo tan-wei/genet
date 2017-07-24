@@ -1,27 +1,30 @@
 #include "listener_status.hpp"
 #include "attribute.hpp"
+#include "chunk.hpp"
 #include <mutex>
 #include <algorithm>
 #include <vector>
+#include <atomic>
 
 namespace plugkit {
 
 class ListenerStatus::Private {
 public:
   std::mutex mutex;
-  uint32_t revision = 0;
   std::vector<AttributeConstPtr> attributes;
   std::vector<ChunkConstPtr> chunks;
+  std::atomic<uint32_t> revision;
+  std::atomic<size_t> chunkLength;
 };
 
-ListenerStatus::ListenerStatus() : d(new Private()) {}
+ListenerStatus::ListenerStatus() : d(new Private()) {
+  std::atomic_init(&d->revision, 0u);
+  std::atomic_init(&d->chunkLength, 0ul);
+}
 
 ListenerStatus::~ListenerStatus() {}
 
-uint32_t ListenerStatus::revision() const {
-  std::lock_guard<std::mutex> lock(d->mutex);
-  return d->revision;
-}
+uint32_t ListenerStatus::revision() const { return d->revision.load(); }
 
 size_t ListenerStatus::attributes() const {
   std::lock_guard<std::mutex> lock(d->mutex);
@@ -47,6 +50,8 @@ ChunkConstPtr ListenerStatus::getChunk(size_t index) const {
   return d->chunks[index];
 }
 
+size_t ListenerStatus::chunkLength() const { return d->chunkLength.load(); }
+
 void ListenerStatus::addAttribute(const AttributeConstPtr &attr) {
   std::lock_guard<std::mutex> lock(d->mutex);
   miniid id = attr->id();
@@ -64,6 +69,8 @@ void ListenerStatus::addAttribute(const AttributeConstPtr &attr) {
 void ListenerStatus::addChunk(const ChunkConstPtr &chunk) {
   std::lock_guard<std::mutex> lock(d->mutex);
   d->chunks.push_back(chunk);
+  const auto &range = chunk->range();
+  d->chunkLength += range.second - range.first;
   ++d->revision;
 }
 }

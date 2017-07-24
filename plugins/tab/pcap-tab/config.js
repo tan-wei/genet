@@ -84,7 +84,6 @@ export default class ConfigView {
           sess.startPcap()
         }
         Channel.emit('core:pcap:session-created', sess)
-        sess.setListener('stream', 'stream')
       }, (err) => {
         console.log(err)
       })

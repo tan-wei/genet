@@ -26,7 +26,9 @@ bool StreamListener::analyze(const FrameView *frame) {
 }
 
 std::vector<ChunkConstPtr> StreamListener::chunks() const {
-  return std::vector<ChunkConstPtr>{{std::make_shared<Chunk>(layer)}};
+  auto chunk = std::make_shared<Chunk>(layer);
+  chunk->setRange(std::make_pair(0ul, 100ul));
+  return std::vector<ChunkConstPtr>{{chunk}};
 }
 
 class StreamListenerFactory : public ListenerFactory {

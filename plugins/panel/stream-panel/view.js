@@ -4,19 +4,38 @@ import { Channel, Profile } from 'deplug'
 
 export default class StreamView {
   constructor() {
-    this.stat = {frames: 0, queue: 0}
+    this.streamId = ''
+    this.status = null
+    this.chunks = 0
     Channel.on('core:pcap:session-created', (sess) => {
-      sess.on('frame', (stat) => {
-        this.stat = stat
-        m.redraw()
+      this.sess = sess
+      this.sess.on('listener', (stat) => {
+        if (this.chunks < this.status.chunks) {
+          for (; this.chunks < this.status.chunks; this.chunks += 1) {
+
+          }
+        }
       })
+    })
+    Channel.on('core:frame:selected', (frames) => {
+      if (frames.length > 0) {
+        this.streamId = frames[0].primaryLayer.streamId.toString('hex')
+        this.sess.setListener('stream', `stream-${this.streamId}`)
+        this.status = this.sess.getListenerStatus(`stream-${this.streamId}`)
+      } else {
+        this.sess.setListener('', `stream-${this.streamId}`)
+        this.streamId = ''
+        this.status = null
+      }
+      m.redraw()
     })
   }
 
   view(vnode) {
     return <div class="stream-view">
-      <ul>
-
+      <ul style={{display: this.streamId ? 'block' : 'none'}}>
+        <li>Stream ID: { this.streamId }</li>
+        <li>Stream Length: { this.status ? this.status.chunkLength : 0 }</li>
       </ul>
     </div>
   }

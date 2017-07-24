@@ -26,6 +26,8 @@ public:
   AttributeConstPtr getAttribute(size_t index) const;
   ChunkConstPtr getChunk(size_t index) const;
 
+  size_t chunkLength() const;
+
   void addAttribute(const AttributeConstPtr &attr);
   void addChunk(const ChunkConstPtr &chunk);
 

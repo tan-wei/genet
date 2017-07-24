@@ -16,6 +16,7 @@ void ListenerStatusWrapper::init(v8::Isolate *isolate) {
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("attributes").ToLocalChecked(), attributes);
   Nan::SetAccessor(otl, Nan::New("chunks").ToLocalChecked(), chunks);
+  Nan::SetAccessor(otl, Nan::New("chunkLength").ToLocalChecked(), chunkLength);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
@@ -41,6 +42,14 @@ NAN_GETTER(ListenerStatusWrapper::attributes) {
       ObjectWrap::Unwrap<ListenerStatusWrapper>(info.Holder());
   if (auto status = wrapper->weakStatus.lock()) {
     info.GetReturnValue().Set(static_cast<uint32_t>(status->attributes()));
+  }
+}
+
+NAN_GETTER(ListenerStatusWrapper::chunkLength) {
+  ListenerStatusWrapper *wrapper =
+      ObjectWrap::Unwrap<ListenerStatusWrapper>(info.Holder());
+  if (auto status = wrapper->weakStatus.lock()) {
+    info.GetReturnValue().Set(static_cast<uint32_t>(status->chunkLength()));
   }
 }
 
