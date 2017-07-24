@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include "miniid.hpp"
+#include "export.hpp"
 
 namespace plugkit {
 
