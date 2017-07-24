@@ -5,9 +5,9 @@ init:
 environment:
   CL: -DDELAYIMP_INSECURE_WRITABLE_HOOKS
 install:
-- ps: make clean
 - ps: git submodule update --init --recursive; true
 - ps: yarn
+- ps: make clean
 build_script:
 - ps: make build; true
 test_script:
