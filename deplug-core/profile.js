@@ -15,58 +15,6 @@ const profileRegistory = {}
 const defaults = {}
 let currentProfile = 'default'
 
-/*
-Function createHandler (plugin = null) {
-  const proto =
-    Object.keys(EventEmitter.prototype).concat(Object.keys(Object.prototype))
-  return {
-    get: (target, name) => {
-      if (name === '$$dir') {
-        return target.profileDir
-      } else if (name === '$$object') {
-        return merge(Object.assign({ '_': globalDefaults }, defaults),
-          target.configObject)
-      } else if (name.startsWith('$')) {
-        return new Proxy(target, createHandler(name.substr(1)))
-      } else if (proto.includes(name)) {
-        return target[name]
-      } else if (plugin === null) {
-        return target.getGlobal(name)
-      }
-      return target.getPlugin(plugin, name)
-    },
-    has: (target, name) => {
-      if (proto.includes(name)) {
-        return true
-      } else if (plugin === null) {
-        return target.hasGlobal(name)
-      }
-      return target.hasPlugin(plugin, name)
-    },
-    deleteProperty: (target, name) => {
-      if (proto.includes(name)) {
-        Reflect.deleteProperty(target, name)
-      } else if (plugin === null) {
-        target.deleteGlobal(name)
-      } else {
-        target.deletePlugin(plugin, name)
-      }
-      return true
-    },
-    set: (target, name, value) => {
-      if (proto.includes(name)) {
-        target[name] = value
-      } else if (plugin === null) {
-        target.setGlobal(name, value)
-      } else {
-        target.setPlugin(plugin, name, value)
-      }
-      return true
-    },
-  }
-}
-*/
-
 const { webContents } = remote
 export default class Profile extends EventEmitter {
   constructor (profile) {
@@ -98,10 +46,6 @@ export default class Profile extends EventEmitter {
     return glob.sync(path.join(config.userProfilePath, '*/config.json'))
       .map(path.dirname)
       .map((dir) => path.basename(dir))
-  }
-
-  static get default () {
-    return this.fromId('default')
   }
 
   static get current () {
