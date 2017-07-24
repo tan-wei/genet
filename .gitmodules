@@ -10,3 +10,6 @@
 [submodule "plugkit/vendor/winpcap"]
 	path = plugkit/vendor/winpcap
 	url = https://github.com/deplug/winpcap.git
+[submodule "plugkit/vendor/Catch"]
+	path = plugkit/vendor/Catch
+	url = https://github.com/philsquared/Catch.git

@@ -1,3 +1,8 @@
+#ifdef PLUGKIT_CATCH_TEST
+#define CATCH_CONFIG_RUNNER
+#include "catch.hpp"
+#endif
+
 #include "extended_slot.hpp"
 #include "plugkit_module.hpp"
 #include "private/variant.hpp"
@@ -28,6 +33,11 @@ void Init(v8::Local<v8::Object> exports) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   ExtendedSlot::init(isolate);
   new PlugkitModule(isolate, exports, true);
+
+#ifdef PLUGKIT_CATCH_TEST
+  int result = Catch::Session().run();
+  exit(result < 0xff ? result : 0xff);
+#endif
 }
 }
 

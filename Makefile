@@ -51,6 +51,7 @@ plugkit:
 	$(MAKE) -C $(DISSECTOR_ESS)
 
 plugtest:
+	node ci/run-as-node.js $(ELECTRON) $(PLUGKIT_DST)/build/Release/plugkit_test.node
 	node ci/run-as-node.js $(ELECTRON) node_modules/deplug-core/plugtest.main.js
 
 plugbench:
