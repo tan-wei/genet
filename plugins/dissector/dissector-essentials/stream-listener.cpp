@@ -3,23 +3,29 @@
 #include <plugkit/chunk.hpp>
 #include <plugkit/frame_view.hpp>
 #include <plugkit/layer.hpp>
+#include <plugkit/variant.hpp>
 
 using namespace plugkit;
 
 class StreamListener : public Listener {
 public:
-  StreamListener();
+  StreamListener(const minins &ns, const minins &streamId);
   bool analyze(const FrameView *frame) override;
   std::vector<ChunkConstPtr> chunks() const override;
 
 public:
   const Layer *layer;
+  minins ns;
+  minins streamId;
 };
 
-StreamListener::StreamListener() {}
+StreamListener::StreamListener(const minins &ns, const minins &streamId)
+    : ns(ns), streamId(streamId) {}
 
 bool StreamListener::analyze(const FrameView *frame) {
-  if (frame->primaryLayer()->ns() == MNS("tcp")) {
+  layer = nullptr;
+  if (frame->primaryLayer()->ns() == ns &&
+      frame->primaryLayer()->streamId() == streamId) {
     layer = frame->primaryLayer();
   }
   return layer;
@@ -27,7 +33,7 @@ bool StreamListener::analyze(const FrameView *frame) {
 
 std::vector<ChunkConstPtr> StreamListener::chunks() const {
   auto chunk = std::make_shared<Chunk>(layer);
-  chunk->setRange(std::make_pair(0ul, 100ul));
+  chunk->setRange(std::make_pair(0ul, layer->payload().length()));
   return std::vector<ChunkConstPtr>{{chunk}};
 }
 
@@ -39,7 +45,11 @@ public:
 
 ListenerPtr StreamListenerFactory::create(const Variant &args,
                                           const SessionContext &context) const {
-  return ListenerPtr(new StreamListener());
+  minins ns(args["namespace"].string().c_str());
+  minins streamId;
+  const auto &slice = args["streamId"].slice();
+  std::memcpy((char *)&streamId.id[0], slice.data(), slice.length());
+  return ListenerPtr(new StreamListener(ns, streamId));
 }
 
 void Init(v8::Local<v8::Object> exports) {

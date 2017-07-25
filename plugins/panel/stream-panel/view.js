@@ -19,14 +19,18 @@ export default class StreamView {
     })
     Channel.on('core:frame:selected', (frames) => {
       this.streamId = ''
+      this.namespace = ''
       if (frames.length > 0) {
-        const streamId = frames[0].primaryLayer.streamId
+        const layer = frames[0].primaryLayer
+        const streamId = layer.streamId
         if (streamId) {
           this.streamId = streamId.toString('hex')
+          this.namespace = layer.namespace
         }
       }
       if (this.streamId) {
-        this.sess.setListener('stream', `stream-${this.streamId}`)
+        const args = {namespace: this.namespace, streamId: frames[0].primaryLayer.streamId}
+        this.sess.setListener('stream', `stream-${this.streamId}`, args)
         this.status = this.sess.getListenerStatus(`stream-${this.streamId}`)
       } else {
         this.sess.setListener('', `stream-${this.streamId}`)
