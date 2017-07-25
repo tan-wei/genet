@@ -21,8 +21,7 @@ class Variant;
 
 class DissectorThread final : public WorkerThread {
 public:
-  using StreamIdMap =
-      std::unordered_map<Layer *, std::pair<const char *, size_t>>;
+  using StreamIdMap = std::unordered_map<Layer *, std::string>;
   using Callback = std::function<void(Frame **, size_t)>;
 
 public:

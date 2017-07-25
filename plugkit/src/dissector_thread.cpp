@@ -80,7 +80,7 @@ bool DissectorThread::loop() {
     if (!rootLayer)
       continue;
 
-    std::vector<Dissector::Worker *> workers;
+    std::vector<const WorkerData *> workers;
     std::vector<Layer *> leafLayers = {rootLayer};
     while (!leafLayers.empty()) {
       std::vector<Layer *> nextlayers;
@@ -92,15 +92,19 @@ bool DissectorThread::loop() {
         for (const auto &data : d->workers) {
           for (const auto &filter : data.namespaces) {
             if (ns.match(filter)) {
-              workers.push_back(data.worker.get());
+              workers.push_back(&data);
             }
           }
         }
 
         std::vector<Layer *> childLayers;
-        for (auto *worker : workers) {
-          if (Layer *childLayer = worker->analyze(layer)) {
+        for (const WorkerData *data : workers) {
+          if (Layer *childLayer = data->worker->analyze(layer)) {
             if (childLayer->confidence() >= d->confidenceThreshold) {
+              if (data->streamIdLength > 0) {
+                streamIdMap[childLayer] =
+                    std::string(data->worker->streamId(), data->streamIdLength);
+              }
               childLayer->setParent(layer);
               childLayer->setFrame(frame);
               childLayers.push_back(childLayer);

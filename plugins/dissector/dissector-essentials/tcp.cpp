@@ -197,11 +197,20 @@ public:
                       *reinterpret_cast<const uint32_t *>(
                           parentDst->value().slice().data()));
 
+      streamIdData = (static_cast<uint32_t>(sourcePort) << 16) | dstPort;
+
       child->setPayload(payload);
       child->setStreamId(streamId);
 
       return child;
     }
+
+    const char *streamId() override {
+      return reinterpret_cast<const char *>(&streamIdData);
+    }
+
+  public:
+    uint32_t streamIdData;
   };
 
 public:
@@ -211,6 +220,7 @@ public:
   std::vector<minins> namespaces() const override {
     return std::vector<minins>{MNS("*tcp")};
   }
+  size_t streamIdLength() const override { return sizeof(uint32_t); }
 };
 
 class TCPDissectorFactory final : public DissectorFactory {
