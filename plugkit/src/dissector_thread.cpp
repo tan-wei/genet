@@ -12,12 +12,20 @@
 
 namespace plugkit {
 
+namespace {
+struct WorkerData {
+  Dissector::WorkerPtr worker;
+  std::vector<minins> namespaces;
+  size_t streamIdLength = 0;
+};
+}
+
 class DissectorThread::Private {
 public:
   FrameQueuePtr queue;
   Callback callback;
   std::vector<DissectorFactoryConstPtr> factories;
-  std::unordered_map<Dissector::WorkerPtr, std::vector<minins>> workers;
+  std::vector<WorkerData> workers;
   Variant options;
   double confidenceThreshold;
 };
@@ -47,7 +55,11 @@ void DissectorThread::enter() {
   for (const auto &factory : d->factories) {
     auto diss = factory->create(ctx);
     if (auto worker = diss->createWorker()) {
-      d->workers[std::move(worker)] = diss->namespaces();
+      WorkerData data;
+      data.worker = std::move(worker);
+      data.namespaces = diss->namespaces();
+      data.streamIdLength = diss->streamIdLength();
+      d->workers.emplace_back(std::move(data));
     }
   }
 }
@@ -77,10 +89,10 @@ bool DissectorThread::loop() {
         dissectedNamespaces.insert(ns);
 
         workers.clear();
-        for (const auto &pair : d->workers) {
-          for (const auto &filter : pair.second) {
+        for (const auto &data : d->workers) {
+          for (const auto &filter : data.namespaces) {
             if (ns.match(filter)) {
-              workers.push_back(pair.first.get());
+              workers.push_back(data.worker.get());
             }
           }
         }
