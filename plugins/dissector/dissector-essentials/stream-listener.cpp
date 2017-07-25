@@ -3,6 +3,7 @@
 #include <plugkit/chunk.hpp>
 #include <plugkit/frame_view.hpp>
 #include <plugkit/layer.hpp>
+#include <plugkit/property.hpp>
 #include <plugkit/variant.hpp>
 
 using namespace plugkit;
@@ -32,9 +33,18 @@ bool StreamListener::analyze(const FrameView *frame) {
 }
 
 std::vector<ChunkConstPtr> StreamListener::chunks() const {
-  auto chunk = std::make_shared<Chunk>(layer);
-  chunk->setRange(std::make_pair(0ul, layer->payload().length()));
-  return std::vector<ChunkConstPtr>{{chunk}};
+  std::vector<ChunkConstPtr> chunks;
+  const auto array = layer->propertyFromId(MID("stream"))
+                         ->propertyFromId(MID("payloads"))
+                         ->value()
+                         .array();
+  for (const auto &item : array) {
+    const auto &payload = item.slice();
+    auto chunk = std::make_shared<Chunk>(layer);
+    chunk->setRange(std::make_pair(0ul, payload.length()));
+    chunks.push_back(chunk);
+  }
+  return chunks;
 }
 
 class StreamListenerFactory : public ListenerFactory {
