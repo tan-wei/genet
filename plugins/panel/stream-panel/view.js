@@ -18,13 +18,18 @@ export default class StreamView {
       })
     })
     Channel.on('core:frame:selected', (frames) => {
+      this.streamId = ''
       if (frames.length > 0) {
-        this.streamId = frames[0].primaryLayer.streamId.toString('hex')
+        const streamId = frames[0].primaryLayer.streamId
+        if (streamId) {
+          this.streamId = streamId.toString('hex')
+        }
+      }
+      if (this.streamId) {
         this.sess.setListener('stream', `stream-${this.streamId}`)
         this.status = this.sess.getListenerStatus(`stream-${this.streamId}`)
       } else {
         this.sess.setListener('', `stream-${this.streamId}`)
-        this.streamId = ''
         this.status = null
       }
       m.redraw()
