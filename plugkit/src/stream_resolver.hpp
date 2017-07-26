@@ -5,11 +5,14 @@
 #include <string>
 
 namespace plugkit {
+
+class Layer;
+
 class StreamResolver {
 public:
   StreamResolver();
   ~StreamResolver();
-  void resolve(std::pair<Layer *, std::string>* begin, size_t size);
+  void resolve(std::pair<Layer *, std::string> *begin, size_t size);
   StreamResolver(const StreamResolver &) = delete;
   StreamResolver &operator=(const StreamResolver &) = delete;
 
