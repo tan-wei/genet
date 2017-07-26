@@ -102,8 +102,9 @@ bool DissectorThread::loop() {
           if (Layer *childLayer = data->worker->analyze(layer)) {
             if (childLayer->confidence() >= d->confidenceThreshold) {
               if (data->streamIdLength > 0) {
-                streamIdMap[childLayer] =
-                    std::string(data->worker->streamId(), data->streamIdLength);
+                streamIdMap.push_back(std::make_pair(
+                    childLayer, std::string(data->worker->streamId(),
+                                            data->streamIdLength)));
               }
               childLayer->setParent(layer);
               childLayer->setFrame(frame);
