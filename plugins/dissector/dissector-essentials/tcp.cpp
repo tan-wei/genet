@@ -12,7 +12,7 @@ class TCPDissector final : public Dissector {
 public:
   class Worker final : public Dissector::Worker {
   public:
-    Layer *analyze(Layer *layer) override {
+    Layer *analyze(Layer *layer, MetaData *meta) override {
       fmt::Reader<Slice> reader(layer->payload());
       Layer *child = new Layer(MNS("tcp"));
 
@@ -33,7 +33,11 @@ public:
       dst->setError(reader.lastError());
       child->addProperty(dst);
 
-      child->setSummary(src->summary() + " -> " + dst->summary());
+      const std::string &summary = src->summary() + " -> " + dst->summary();
+      child->setSummary(summary);
+      size_t size = summary.copy(meta->streamIdentifier,
+                                 sizeof(meta->streamIdentifier) - 1);
+      meta->streamIdentifier[size] = '\0';
 
       uint32_t seqNumber = reader.readBE<uint32_t>();
       Property *seq = new Property(MID("seq"), seqNumber);
@@ -197,20 +201,11 @@ public:
                       *reinterpret_cast<const uint32_t *>(
                           parentDst->value().slice().data()));
 
-      streamIdData = (static_cast<uint32_t>(sourcePort) << 16) | dstPort;
-
       child->setPayload(payload);
       child->setStreamId(streamId);
 
       return child;
     }
-
-    const char *streamId() override {
-      return reinterpret_cast<const char *>(&streamIdData);
-    }
-
-  public:
-    uint32_t streamIdData;
   };
 
 public:
@@ -220,7 +215,6 @@ public:
   std::vector<minins> namespaces() const override {
     return std::vector<minins>{MNS("*tcp")};
   }
-  size_t streamIdLength() const override { return sizeof(uint32_t); }
 };
 
 class TCPDissectorFactory final : public DissectorFactory {

@@ -12,7 +12,7 @@ class UDPDissector final : public Dissector {
 public:
   class Worker final : public Dissector::Worker {
   public:
-    Layer *analyze(Layer *layer) override {
+    Layer *analyze(Layer *layer, MetaData *meta) override {
       fmt::Reader<Slice> reader(layer->payload());
       Layer *child = new Layer(MNS("udp"));
 

@@ -16,7 +16,6 @@ namespace {
 struct WorkerData {
   Dissector::WorkerPtr worker;
   std::vector<minins> namespaces;
-  size_t streamIdLength = 0;
 };
 }
 
@@ -58,7 +57,6 @@ void DissectorThread::enter() {
       WorkerData data;
       data.worker = std::move(worker);
       data.namespaces = diss->namespaces();
-      data.streamIdLength = diss->streamIdLength();
       d->workers.emplace_back(std::move(data));
     }
   }
@@ -97,14 +95,14 @@ bool DissectorThread::loop() {
           }
         }
 
+        Dissector::Worker::MetaData meta;
         std::vector<Layer *> childLayers;
         for (const WorkerData *data : workers) {
-          if (Layer *childLayer = data->worker->analyze(layer)) {
+          if (Layer *childLayer = data->worker->analyze(layer, &meta)) {
             if (childLayer->confidence() >= d->confidenceThreshold) {
-              if (data->streamIdLength > 0) {
+              if (meta.streamIdentifier[0] != '\0') {
                 streamIdMap.push_back(std::make_pair(
-                    childLayer, std::string(data->worker->streamId(),
-                                            data->streamIdLength)));
+                    childLayer, std::string(meta.streamIdentifier)));
               }
               childLayer->setParent(layer);
               childLayer->setFrame(frame);

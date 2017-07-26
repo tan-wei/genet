@@ -17,16 +17,19 @@ public:
 public:
   class PLUGKIT_EXPORT Worker {
   public:
+    struct MetaData {
+      char streamIdentifier[256] = {0};
+    };
+
+  public:
     virtual ~Worker();
-    virtual Layer *analyze(Layer *layer) = 0;
-    virtual const char *streamId();
+    virtual Layer *analyze(Layer *layer, MetaData *meta) = 0;
   };
   using WorkerPtr = std::unique_ptr<Worker>;
 
 public:
   virtual WorkerPtr createWorker() = 0;
   virtual std::vector<minins> namespaces() const = 0;
-  virtual size_t streamIdLength() const;
 };
 
 using DissectorPtr = std::unique_ptr<Dissector>;
