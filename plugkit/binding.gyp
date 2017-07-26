@@ -19,6 +19,7 @@
          "src/script_dissector.cpp",
          "src/script_stream_dissector.cpp",
          "src/stream_dissector.cpp",
+         "src/stream_resolver.cpp",
          "src/listener.cpp",
          "src/plugkit_module.cpp",
          "src/variant.cpp",
