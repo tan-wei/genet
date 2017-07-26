@@ -126,8 +126,12 @@ public:
       dst->setError(reader.lastError());
       child->addProperty(dst);
 
-      child->setSummary("[" + proto->summary() + "] " + src->summary() +
-                        " -> " + dst->summary());
+      const std::string &summary =
+          (src->summary() > dst->summary())
+              ? src->summary() + " -> " + dst->summary()
+              : dst->summary() + " <- " + src->summary();
+
+      child->setSummary("[" + proto->summary() + "] " + summary);
 
       child->setPayload(reader.slice(totalLength - 20));
       return child;

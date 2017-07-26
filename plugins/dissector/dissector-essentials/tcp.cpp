@@ -33,10 +33,19 @@ public:
       dst->setError(reader.lastError());
       child->addProperty(dst);
 
-      const std::string &summary = src->summary() + " -> " + dst->summary();
+      const std::string &summary =
+          (src->summary() > dst->summary())
+              ? src->summary() + " -> " + dst->summary()
+              : dst->summary() + " <- " + src->summary();
       child->setSummary(summary);
       size_t size = summary.copy(meta->streamIdentifier,
                                  sizeof(meta->streamIdentifier) - 1);
+
+      for (size_t i = 0; i < size; ++i) {
+        char &c = meta->streamIdentifier[i];
+        if (c == '<' || c == '>' || c == '-')
+          c = ' ';
+      }
       meta->streamIdentifier[size] = '\0';
 
       uint32_t seqNumber = reader.readBE<uint32_t>();

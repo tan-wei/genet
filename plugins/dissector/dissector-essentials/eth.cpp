@@ -30,7 +30,11 @@ public:
       dst->setError(reader.lastError());
       child->addProperty(dst);
 
-      child->setSummary(src->summary() + " -> " + dst->summary());
+      const std::string &summary =
+          (src->summary() > dst->summary())
+              ? src->summary() + " -> " + dst->summary()
+              : dst->summary() + " <- " + src->summary();
+      child->setSummary(summary);
 
       auto protocolType = reader.readBE<uint16_t>();
       if (protocolType <= 1500) {
