@@ -10,17 +10,17 @@ using namespace plugkit;
 
 class StreamListener : public Listener {
 public:
-  StreamListener(const minins &ns, const minins &streamId);
+  StreamListener(const minins &ns, uint32_t streamId);
   bool analyze(const FrameView *frame) override;
   std::vector<ChunkConstPtr> chunks() const override;
 
 public:
   const Layer *layer;
   minins ns;
-  minins streamId;
+  uint32_t streamId;
 };
 
-StreamListener::StreamListener(const minins &ns, const minins &streamId)
+StreamListener::StreamListener(const minins &ns, uint32_t streamId)
     : ns(ns), streamId(streamId) {}
 
 bool StreamListener::analyze(const FrameView *frame) {
@@ -56,10 +56,7 @@ public:
 ListenerPtr StreamListenerFactory::create(const Variant &args,
                                           const SessionContext &context) const {
   minins ns(args["namespace"].string().c_str());
-  minins streamId;
-  const auto &slice = args["streamId"].slice();
-  std::memcpy((char *)&streamId.id[0], slice.data(), slice.length());
-  return ListenerPtr(new StreamListener(ns, streamId));
+  return ListenerPtr(new StreamListener(ns, args["streamId"].uint64Value()));
 }
 
 void Init(v8::Local<v8::Object> exports) {

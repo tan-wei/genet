@@ -106,20 +106,14 @@ NAN_SETTER(LayerWrapper::setNs) {
 NAN_GETTER(LayerWrapper::streamId) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->weakLayer) {
-    minins ns = layer->streamId();
-    if (!ns.empty()) {
-      Slice id(reinterpret_cast<const char *>(ns.id.data()), sizeof(ns.id));
-      info.GetReturnValue().Set(Variant::Private::getNodeBuffer(id));
-    } else {
-      info.GetReturnValue().Set(Nan::Null());
-    }
+    info.GetReturnValue().Set(layer->streamId());
   }
 }
 
 NAN_SETTER(LayerWrapper::setStreamId) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
-    layer->setStreamId(*Nan::Utf8String(value));
+    layer->setStreamId(value->NumberValue());
   }
 }
 

@@ -30,7 +30,7 @@ public:
     Timestamp lastUpdated;
   };
 
-  using IdMap = std::unordered_map<minins, WorkerList>;
+  using IdMap = std::unordered_map<uint32_t, WorkerList>;
   std::unordered_map<minins, IdMap> workers;
 };
 
@@ -131,7 +131,7 @@ bool StreamDissectorThread::loop() {
             childLayer->setParent(layer);
 
             childLayers.push_back(childLayer);
-            if (!childLayer->streamId().empty()) {
+            if (childLayer->streamId() > 0) {
               if (dissectedNamespaces.count(childLayer->ns()) == 0) {
                 nextlayers.push_back(childLayer);
               }

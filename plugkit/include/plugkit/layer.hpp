@@ -34,8 +34,8 @@ public:
   const Property *propertyFromId(miniid id) const;
   void addProperty(const Property *prop);
 
-  minins streamId() const;
-  void setStreamId(const minins &id);
+  uint32_t streamId() const;
+  void setStreamId(uint32_t id);
 
   const Slice &payload() const;
   void setPayload(const Slice &payload);

@@ -155,7 +155,7 @@ class LayerItem {
           onclick={ () => this.expanded = !this.expanded }
         ><i class={faClass}></i> { name } { layer.summary }
         <span
-        style={{ display: layer.streamId ? 'inline' : 'none' }}
+        style={{ display: layer.streamId > 0 ? 'inline' : 'none' }}
         ><i class="fa fa-exchange"></i> Stream</span>
         <span
         style={{ display: layer.confidence < 1.0 ? 'inline' : 'none' }}

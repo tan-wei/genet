@@ -4,7 +4,7 @@ import { Channel, Profile } from 'deplug'
 
 export default class StreamView {
   constructor() {
-    this.streamId = ''
+    this.streamId = 0
     this.status = null
     this.chunks = 0
     Channel.on('core:pcap:session-created', (sess) => {
@@ -18,18 +18,15 @@ export default class StreamView {
       })
     })
     Channel.on('core:frame:selected', (frames) => {
-      this.streamId = ''
+      this.streamId = 0
       this.namespace = ''
       if (frames.length > 0) {
         const layer = frames[0].primaryLayer
-        const streamId = layer.streamId
-        if (streamId) {
-          this.streamId = streamId.toString('hex')
-          this.namespace = layer.namespace
-        }
+        this.streamId = layer.streamId
+        this.namespace = layer.namespace
       }
       if (this.streamId) {
-        const args = {namespace: this.namespace, streamId: frames[0].primaryLayer.streamId}
+        const args = {namespace: this.namespace, streamId: this.streamId}
         this.sess.setListener('stream', `stream-${this.streamId}`, args)
         this.status = this.sess.getListenerStatus(`stream-${this.streamId}`)
       } else {
@@ -42,7 +39,7 @@ export default class StreamView {
 
   view(vnode) {
     return <div class="stream-view">
-      <ul style={{display: this.streamId ? 'block' : 'none'}}>
+      <ul style={{display: this.streamId > 0 ? 'block' : 'none'}}>
         <li>Stream ID: { this.streamId }</li>
         <li>Stream Length: { this.status ? this.status.chunkLength : 0 }</li>
       </ul>

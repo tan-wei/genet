@@ -13,7 +13,7 @@ public:
 
 public:
   minins ns;
-  minins streamId;
+  uint32_t streamId = 0;
   std::string summary;
   std::string error;
   std::pair<uint32_t, uint32_t> range;
@@ -59,9 +59,9 @@ const std::vector<Layer *> &Layer::children() const { return d->children; }
 
 void Layer::addChild(Layer *child) { d->children.push_back(child); }
 
-minins Layer::streamId() const { return d->streamId; }
+uint32_t Layer::streamId() const { return d->streamId; }
 
-void Layer::setStreamId(const minins &id) { d->streamId = id; }
+void Layer::setStreamId(uint32_t id) { d->streamId = id; }
 
 const Slice &Layer::payload() const { return d->payload; }
 

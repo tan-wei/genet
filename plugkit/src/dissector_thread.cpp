@@ -3,6 +3,7 @@
 #include "frame.hpp"
 #include "layer.hpp"
 #include "session_context.hpp"
+#include "stream_resolver.hpp"
 #include "variant.hpp"
 #include <array>
 #include <unordered_map>
@@ -22,6 +23,7 @@ struct WorkerData {
 class DissectorThread::Private {
 public:
   FrameQueuePtr queue;
+  StreamResolverPtr resolver;
   Callback callback;
   std::vector<DissectorFactoryConstPtr> factories;
   std::vector<WorkerData> workers;
@@ -31,10 +33,12 @@ public:
 
 DissectorThread::DissectorThread(const Variant &options,
                                  const FrameQueuePtr &queue,
+                                 const StreamResolverPtr &resolver,
                                  const Callback &callback)
     : d(new Private()) {
   d->options = options;
   d->queue = queue;
+  d->resolver = resolver;
   d->callback = callback;
   d->confidenceThreshold =
       options["_"]["confidenceThreshold"].uint64Value(0) / 100.0;
@@ -68,7 +72,7 @@ bool DissectorThread::loop() {
   if (size == 0)
     return false;
 
-  StreamIdMap streamIdMap;
+  std::vector<std::pair<Layer *, std::string>> streamedLayers;
 
   for (size_t i = 0; i < size; ++i) {
     std::unordered_set<minins> dissectedNamespaces;
@@ -101,8 +105,9 @@ bool DissectorThread::loop() {
           if (Layer *childLayer = data->worker->analyze(layer, &meta)) {
             if (childLayer->confidence() >= d->confidenceThreshold) {
               if (meta.streamIdentifier[0] != '\0') {
-                streamIdMap.push_back(std::make_pair(
+                streamedLayers.push_back(std::make_pair(
                     childLayer, std::string(meta.streamIdentifier)));
+                meta.streamIdentifier[0] = '\0';
               }
               childLayer->setParent(layer);
               childLayer->setFrame(frame);
@@ -124,6 +129,8 @@ bool DissectorThread::loop() {
       leafLayers.swap(nextlayers);
     }
   }
+
+  d->resolver->resolve(streamedLayers.data(), streamedLayers.size());
 
   if (d->callback) {
     d->callback(&frames.front(), size);

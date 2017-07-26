@@ -195,14 +195,7 @@ public:
       }
 
       const auto &payload = layer->payload().slice(optionDataOffset);
-      minins streamId((static_cast<uint32_t>(sourcePort) << 16) | dstPort,
-                      *reinterpret_cast<const uint32_t *>(
-                          parentSrc->value().slice().data()),
-                      *reinterpret_cast<const uint32_t *>(
-                          parentDst->value().slice().data()));
-
       child->setPayload(payload);
-      child->setStreamId(streamId);
 
       return child;
     }
