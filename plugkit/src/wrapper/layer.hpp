@@ -22,8 +22,6 @@ public:
   static NAN_SETTER(setStreamId);
   static NAN_GETTER(summary);
   static NAN_SETTER(setSummary);
-  static NAN_GETTER(range);
-  static NAN_SETTER(setRange);
   static NAN_GETTER(confidence);
   static NAN_SETTER(setConfidence);
   static NAN_GETTER(error);

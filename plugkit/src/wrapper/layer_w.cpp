@@ -22,7 +22,6 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
                    setStreamId);
   Nan::SetAccessor(otl, Nan::New("summary").ToLocalChecked(), summary,
                    setSummary);
-  Nan::SetAccessor(otl, Nan::New("range").ToLocalChecked(), range, setRange);
   Nan::SetAccessor(otl, Nan::New("confidence").ToLocalChecked(), confidence,
                    setConfidence);
   Nan::SetAccessor(otl, Nan::New("error").ToLocalChecked(), error, setError);
@@ -53,7 +52,6 @@ NAN_METHOD(LayerWrapper::New) {
   auto options = info[0].As<v8::Object>();
   auto nsValue = options->Get(Nan::New("namespace").ToLocalChecked());
   auto summaryValue = options->Get(Nan::New("summary").ToLocalChecked());
-  auto rangeValue = options->Get(Nan::New("range").ToLocalChecked());
   auto confValue = options->Get(Nan::New("confidence").ToLocalChecked());
   auto errorValue = options->Get(Nan::New("error").ToLocalChecked());
   if (!nsValue->IsString()) {
@@ -62,13 +60,6 @@ NAN_METHOD(LayerWrapper::New) {
   auto layer = new Layer(minins(*Nan::Utf8String(nsValue)));
   if (summaryValue->IsString()) {
     layer->setSummary(*Nan::Utf8String(summaryValue));
-  }
-  if (rangeValue->IsArray()) {
-    auto array = rangeValue.As<v8::Array>();
-    if (array->Length() >= 2) {
-      layer->setRange(std::make_pair(array->Get(0)->Uint32Value(),
-                                     array->Get(1)->Uint32Value()));
-    }
   }
   if (confValue->IsNumber()) {
     layer->setConfidence(confValue->NumberValue());
@@ -128,30 +119,6 @@ NAN_SETTER(LayerWrapper::setSummary) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
     layer->setSummary(*Nan::Utf8String(value));
-  }
-}
-
-NAN_GETTER(LayerWrapper::range) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer) {
-    v8::Isolate *isolate = v8::Isolate::GetCurrent();
-    auto array = v8::Array::New(isolate, 2);
-    array->Set(0, Nan::New(layer->range().first));
-    array->Set(1, Nan::New(layer->range().second));
-    info.GetReturnValue().Set(array);
-  }
-}
-
-NAN_SETTER(LayerWrapper::setRange) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->layer) {
-    if (value->IsArray()) {
-      auto array = value.As<v8::Array>();
-      if (array->Length() >= 2) {
-        layer->setRange(std::make_pair(array->Get(0)->Uint32Value(),
-                                       array->Get(1)->Uint32Value()));
-      }
-    }
   }
 }
 

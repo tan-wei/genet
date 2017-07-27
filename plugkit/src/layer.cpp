@@ -16,7 +16,6 @@ public:
   uint32_t streamId = 0;
   std::string summary;
   std::string error;
-  std::pair<uint32_t, uint32_t> range;
   double confidence = 1.0;
   Slice payload;
   const Layer *parent = nullptr;
@@ -36,12 +35,6 @@ miniid Layer::id() const { return d->ns.primary(); }
 minins Layer::ns() const { return d->ns; }
 
 void Layer::setNs(const minins &ns) { d->ns = ns; }
-
-std::pair<uint32_t, uint32_t> Layer::range() const { return d->range; }
-
-void Layer::setRange(const std::pair<uint32_t, uint32_t> &range) {
-  d->range = range;
-}
 
 std::string Layer::summary() const { return d->summary; }
 
