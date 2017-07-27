@@ -18,7 +18,7 @@ public:
   class PLUGKIT_EXPORT Worker {
   public:
     struct MetaData {
-      char streamIdentifier[256] = {0};
+      char streamIdentifier[256];
     };
 
   public:

@@ -102,12 +102,12 @@ bool DissectorThread::loop() {
         Dissector::Worker::MetaData meta;
         std::vector<Layer *> childLayers;
         for (const WorkerData *data : workers) {
+          meta.streamIdentifier[0] = '\0';
           if (Layer *childLayer = data->worker->analyze(layer, &meta)) {
             if (childLayer->confidence() >= d->confidenceThreshold) {
               if (meta.streamIdentifier[0] != '\0') {
                 streamedLayers.push_back(std::make_pair(
                     childLayer, std::string(meta.streamIdentifier)));
-                meta.streamIdentifier[0] = '\0';
               }
               childLayer->setParent(layer);
               childLayer->setFrame(frame);
