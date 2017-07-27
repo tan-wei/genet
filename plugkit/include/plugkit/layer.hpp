@@ -38,6 +38,11 @@ public:
   const Slice &payload() const;
   void setPayload(const Slice &payload);
 
+  Slice payloadSlice(size_t index = 0) const;
+  const Layer *payloadLayer(size_t index = 0) const;
+  size_t payloadCount() const;
+  void addPayload(const Range &range, const Layer *layer = nullptr);
+
   const Layer *parent() const;
   void setParent(const Layer *layer);
 
