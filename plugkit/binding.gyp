@@ -51,6 +51,7 @@
          "src/frame.cpp",
          "src/property.cpp",
          "src/attribute.cpp",
+         "src/payload.cpp",
          "src/layer.cpp",
          "src/chunk.cpp",
          "vendor/json11/json11.cpp"
