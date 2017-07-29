@@ -122,12 +122,12 @@ public:
 
       child->addProperty(dst);
 
-/*
-      const std::string &summary =
-          (src->summary() > dst->summary())
-              ? src->summary() + " -> " + dst->summary()
-              : dst->summary() + " <- " + src->summary();
-*/
+      /*
+            const std::string &summary =
+                (src->summary() > dst->summary())
+                    ? src->summary() + " -> " + dst->summary()
+                    : dst->summary() + " <- " + src->summary();
+      */
       // child->setSummary("[" + proto->summary() + "] " + summary);
 
       child->setPayload(reader.slice(totalLength - 20));
