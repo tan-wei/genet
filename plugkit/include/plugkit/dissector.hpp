@@ -4,6 +4,7 @@
 #include "export.hpp"
 #include "minins.hpp"
 #include "types.hpp"
+#include "token.h"
 #include <memory>
 #include <v8.h>
 #include <vector>
@@ -19,6 +20,7 @@ public:
   public:
     struct MetaData {
       char streamIdentifier[256];
+      Token layerHints[8];
     };
 
   public:

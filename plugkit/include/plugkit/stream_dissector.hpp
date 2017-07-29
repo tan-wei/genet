@@ -4,6 +4,7 @@
 #include "export.hpp"
 #include "minins.hpp"
 #include "types.hpp"
+#include "token.h"
 #include <memory>
 #include <v8.h>
 #include <vector>
@@ -16,6 +17,12 @@ public:
 
 public:
   class PLUGKIT_EXPORT Worker {
+  public:
+    struct MetaData {
+      char streamIdentifier[256];
+      Token layerHints[8];
+    };
+
   public:
     Worker();
     virtual ~Worker();

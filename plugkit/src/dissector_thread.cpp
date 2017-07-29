@@ -103,6 +103,7 @@ bool DissectorThread::loop() {
         std::vector<Layer *> childLayers;
         for (const WorkerData *data : workers) {
           meta.streamIdentifier[0] = '\0';
+          std::memset(meta.layerHints, 0, sizeof(meta.layerHints));
           if (Layer *childLayer = data->worker->analyze(layer, &meta)) {
             if (childLayer->confidence() >= d->confidenceThreshold) {
               if (meta.streamIdentifier[0] != '\0') {
