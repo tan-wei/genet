@@ -22,7 +22,7 @@ clean:
 
 fmt:
 	@clang-format -i src/*.cpp src/*.hpp \
-		include/plugkit/*.hpp src/private/*.hpp \
+		include/plugkit/*.hpp include/plugkit/*.h src/private/*.hpp \
 		src/wrapper/*.hpp src/wrapper/*.cpp \
 		**/*.hpp **/*.cpp
 

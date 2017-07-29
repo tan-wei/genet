@@ -28,6 +28,7 @@
          "src/frame_store.cpp",
          "src/filter.cpp",
          "src/fmt.cpp",
+         "src/token.cpp",
          "src/logger.cpp",
          "src/null_logger.cpp",
          "src/stream_logger.cpp",
@@ -126,6 +127,7 @@
          ],
          "sources":[
             "<@(plugkit_sources)",
+            "test/token_test.cpp",
             "test/listener_status_test.cpp"
          ],
          "xcode_settings":{
