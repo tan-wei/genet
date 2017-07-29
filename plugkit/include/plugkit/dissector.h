@@ -11,13 +11,15 @@ class DissectionResult;
 
 typedef void Worker;
 
+enum DissectorType { DISSECTOR_PACKET = 0, DISSECTOR_STREAM = 1 };
+
 struct Dissector {
   void (*analyze)(Worker *worker, Layer *layer, DissectionResult *result);
   Worker *(*createWorker)(const Context *ctx);
+  bool *(*expired)(int elapsed);
   Token layerHints[8];
+  DissectorType type;
 };
-
-void Dissector_init(Dissector *diss);
 }
 
 #endif

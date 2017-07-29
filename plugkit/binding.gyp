@@ -26,6 +26,7 @@
          "src/fmt.cpp",
          "src/token.cpp",
          "src/logger.cpp",
+         "src/context.cpp",
          "src/null_logger.cpp",
          "src/stream_logger.cpp",
          "src/uvloop_logger.cpp",
