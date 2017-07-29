@@ -1,3 +1,4 @@
+/// @file
 #ifndef PLUGKIT_TOKEN_H
 #define PLUGKIT_TOKEN_H
 
@@ -5,9 +6,20 @@
 
 extern "C" {
 
+/// Global ID corresponded with a string
 typedef uint32_t Token;
 
-Token Token_get(const char *token);
+/// Returns a token corresponded with a given string.
+///
+/// @remarks This function is thread-safe.
+Token Token_get(const char *str);
+
+/// Returns the null token.
+///
+/// @code
+/// Token_null() == Token_get(nullptr) == Token_get("")
+/// @endcode
+/// @remarks This function is thread-safe.
 Token Token_null();
 }
 

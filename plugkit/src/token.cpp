@@ -9,12 +9,12 @@ std::unordered_map<std::string, Token> map = {{"", 0}};
 std::mutex mutex;
 }
 
-Token Token_get(const char *token) {
-  if (token == nullptr || token[0] == '\0') {
+Token Token_get(const char *str) {
+  if (str == nullptr || str[0] == '\0') {
     return Token_null();
   }
   std::lock_guard<std::mutex> lock(mutex);
-  const std::string &key = token;
+  const std::string &key = str;
   auto it = map.find(key);
   if (it != map.end()) {
     return it->second;
