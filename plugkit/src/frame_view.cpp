@@ -15,7 +15,6 @@ public:
   const Layer *primaryLayer = nullptr;
   std::vector<const Layer *> leafLayers;
   std::vector<const Layer *> layers;
-  bool hasError = false;
 };
 
 FrameView::Private::Private(const Frame *frame) : frame(frame) {}
@@ -36,16 +35,6 @@ FrameView::FrameView(const Frame *frame) : d(new Private(frame)) {
 
   if (!d->leafLayers.empty()) {
     d->primaryLayer = d->leafLayers.front();
-    if (d->primaryLayer->error().size()) {
-      d->hasError = true;
-    } else {
-      for (const Property *prop : d->primaryLayer->properties()) {
-        if (prop->error().size()) {
-          d->hasError = true;
-          break;
-        }
-      }
-    }
   }
 }
 
@@ -76,6 +65,4 @@ const Layer *FrameView::layerFromId(miniid id) const {
   }
   return nullptr;
 }
-
-bool FrameView::hasError() const { return d->hasError; }
 }

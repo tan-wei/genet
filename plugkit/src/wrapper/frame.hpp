@@ -20,7 +20,6 @@ public:
   static NAN_GETTER(rootLayer);
   static NAN_GETTER(primaryLayer);
   static NAN_GETTER(leafLayers);
-  static NAN_GETTER(hasError);
   static NAN_GETTER(sourceId);
   static NAN_METHOD(propertyFromId);
   static NAN_METHOD(layerFromId);

@@ -22,8 +22,6 @@ public:
   void setSummary(const std::string &summary);
   double confidence() const;
   void setConfidence(double confidence);
-  std::string error() const;
-  void setError(const std::string &error);
 
   const std::vector<Layer *> &children() const;
   void addChild(Layer *child);
@@ -46,8 +44,6 @@ public:
 
   const Frame *frame() const;
   void setFrame(const Frame *frame);
-
-  bool hasError() const;
 
 private:
   Layer(const Layer &layer) = delete;

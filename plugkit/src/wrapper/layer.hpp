@@ -24,8 +24,6 @@ public:
   static NAN_SETTER(setSummary);
   static NAN_GETTER(confidence);
   static NAN_SETTER(setConfidence);
-  static NAN_GETTER(error);
-  static NAN_SETTER(setError);
   static NAN_GETTER(parent);
   static NAN_GETTER(children);
   static NAN_GETTER(properties);
@@ -35,7 +33,6 @@ public:
   static NAN_METHOD(addChild);
   static NAN_METHOD(addProperty);
   static NAN_METHOD(toJSON);
-  static NAN_GETTER(hasError);
 
 private:
   LayerWrapper(const Layer *layer);

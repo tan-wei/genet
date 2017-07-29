@@ -22,28 +22,28 @@ public:
 
       Property *ver = new Property(MID("version"), version);
       ver->setRange(reader.lastRange());
-      ver->setError(reader.lastError());
+
       child->addProperty(ver);
 
       Property *hlen = new Property(MID("hLen"), headerLength);
       hlen->setRange(reader.lastRange());
-      hlen->setError(reader.lastError());
+
       child->addProperty(hlen);
 
       Property *tos = new Property(MID("type"), reader.readBE<uint8_t>());
       tos->setRange(reader.lastRange());
-      tos->setError(reader.lastError());
+
       child->addProperty(tos);
 
       uint16_t totalLength = reader.readBE<uint16_t>();
       Property *tlen = new Property(MID("tLen"), totalLength);
       tlen->setRange(reader.lastRange());
-      tlen->setError(reader.lastError());
+
       child->addProperty(tlen);
 
       Property *id = new Property(MID("id"), reader.readBE<uint16_t>());
       id->setRange(reader.lastRange());
-      id->setError(reader.lastError());
+
       child->addProperty(id);
 
       uint8_t flagAndOffset = reader.readBE<uint8_t>();
@@ -61,7 +61,7 @@ public:
         bool on = std::get<0>(bit) & flag;
         Property *flagBit = new Property(std::get<2>(bit), on);
         flagBit->setRange(reader.lastRange());
-        flagBit->setError(reader.lastError());
+
         flags->addProperty(flagBit);
         if (on) {
           if (!flagSummary.empty())
@@ -71,19 +71,19 @@ public:
       }
       flags->setSummary(flagSummary);
       flags->setRange(reader.lastRange());
-      flags->setError(reader.lastError());
+
       child->addProperty(flags);
 
       uint16_t fgOffset =
           ((flagAndOffset & 0b00011111) << 8) | reader.readBE<uint8_t>();
       Property *fragmentOffset = new Property(MID("fOffset"), fgOffset);
       fragmentOffset->setRange(std::make_pair(6, 8));
-      fragmentOffset->setError(reader.lastError());
+
       child->addProperty(fragmentOffset);
 
       Property *ttl = new Property(MID("ttl"), reader.readBE<uint8_t>());
       ttl->setRange(reader.lastRange());
-      ttl->setError(reader.lastError());
+
       child->addProperty(ttl);
 
       const std::unordered_map<uint16_t, std::pair<std::string, miniid>>
@@ -103,27 +103,27 @@ public:
         child->setNs(minins(MNS("ipv4"), type.second));
       }
       proto->setRange(reader.lastRange());
-      proto->setError(reader.lastError());
+
       child->addProperty(proto);
 
       Property *checksum =
           new Property(MID("checksum"), reader.readBE<uint16_t>());
       checksum->setRange(reader.lastRange());
-      checksum->setError(reader.lastError());
+
       child->addProperty(checksum);
 
       const auto &srcSlice = reader.slice(4);
       Property *src = new Property(MID("src"), srcSlice);
       src->setSummary(fmt::toDec(srcSlice, 1));
       src->setRange(reader.lastRange());
-      src->setError(reader.lastError());
+
       child->addProperty(src);
 
       const auto &dstSlice = reader.slice(4);
       Property *dst = new Property(MID("dst"), dstSlice);
       dst->setSummary(fmt::toDec(dstSlice, 1));
       dst->setRange(reader.lastRange());
-      dst->setError(reader.lastError());
+
       child->addProperty(dst);
 
       const std::string &summary =

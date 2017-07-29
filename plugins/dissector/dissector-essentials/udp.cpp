@@ -23,26 +23,26 @@ public:
       Property *src = new Property(MID("src"), sourcePort);
       src->setSummary(parentSrc->summary() + ":" + std::to_string(sourcePort));
       src->setRange(reader.lastRange());
-      src->setError(reader.lastError());
+
       child->addProperty(src);
 
       uint16_t dstPort = reader.readBE<uint16_t>();
       Property *dst = new Property(MID("dst"), dstPort);
       dst->setSummary(parentDst->summary() + ":" + std::to_string(dstPort));
       dst->setRange(reader.lastRange());
-      dst->setError(reader.lastError());
+
       child->addProperty(dst);
 
       uint32_t lengthNumber = reader.readBE<uint16_t>();
       Property *length = new Property(MID("length"), lengthNumber);
       length->setRange(reader.lastRange());
-      length->setError(reader.lastError());
+
       child->addProperty(length);
 
       uint32_t checksumNumber = reader.readBE<uint16_t>();
       Property *checksum = new Property(MID("checksum"), checksumNumber);
       checksum->setRange(reader.lastRange());
-      checksum->setError(reader.lastError());
+
       child->addProperty(checksum);
 
       child->setSummary(src->summary() + " -> " + dst->summary());

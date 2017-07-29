@@ -20,14 +20,14 @@ public:
       Property *src = new Property(MID("src"), srcSlice);
       src->setSummary(fmt::toHex(srcSlice, 1));
       src->setRange(reader.lastRange());
-      src->setError(reader.lastError());
+
       child->addProperty(src);
 
       const auto &dstSlice = reader.slice(6);
       Property *dst = new Property(MID("dst"), dstSlice);
       dst->setSummary(fmt::toHex(dstSlice, 1));
       dst->setRange(reader.lastRange());
-      dst->setError(reader.lastError());
+
       child->addProperty(dst);
 
       const std::string &summary =
@@ -40,7 +40,7 @@ public:
       if (protocolType <= 1500) {
         Property *length = new Property(MID("len"), protocolType);
         length->setRange(reader.lastRange());
-        length->setError(reader.lastError());
+
         child->addProperty(length);
       } else {
         const std::unordered_map<uint16_t, std::pair<std::string, miniid>>
@@ -61,7 +61,7 @@ public:
           child->setNs(minins(MNS("eth"), type.second));
         }
         etherType->setRange(reader.lastRange());
-        etherType->setError(reader.lastError());
+
         child->setSummary("[" + etherType->summary() + "] " + child->summary());
         child->addProperty(etherType);
       }

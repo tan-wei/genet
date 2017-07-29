@@ -24,13 +24,11 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
                    setSummary);
   Nan::SetAccessor(otl, Nan::New("confidence").ToLocalChecked(), confidence,
                    setConfidence);
-  Nan::SetAccessor(otl, Nan::New("error").ToLocalChecked(), error, setError);
   Nan::SetAccessor(otl, Nan::New("parent").ToLocalChecked(), parent);
   Nan::SetAccessor(otl, Nan::New("payload").ToLocalChecked(), payload,
                    setPayload);
   Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
   Nan::SetAccessor(otl, Nan::New("children").ToLocalChecked(), children);
-  Nan::SetAccessor(otl, Nan::New("hasError").ToLocalChecked(), hasError);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
@@ -53,7 +51,6 @@ NAN_METHOD(LayerWrapper::New) {
   auto nsValue = options->Get(Nan::New("namespace").ToLocalChecked());
   auto summaryValue = options->Get(Nan::New("summary").ToLocalChecked());
   auto confValue = options->Get(Nan::New("confidence").ToLocalChecked());
-  auto errorValue = options->Get(Nan::New("error").ToLocalChecked());
   if (!nsValue->IsString()) {
     return;
   }
@@ -63,9 +60,6 @@ NAN_METHOD(LayerWrapper::New) {
   }
   if (confValue->IsNumber()) {
     layer->setConfidence(confValue->NumberValue());
-  }
-  if (errorValue->IsString()) {
-    layer->setError(*Nan::Utf8String(errorValue));
   }
 
   LayerWrapper *obj = new LayerWrapper(layer);
@@ -133,20 +127,6 @@ NAN_SETTER(LayerWrapper::setConfidence) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
     layer->setConfidence(value->NumberValue());
-  }
-}
-
-NAN_GETTER(LayerWrapper::error) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer) {
-    info.GetReturnValue().Set(Nan::New(layer->error()).ToLocalChecked());
-  }
-}
-
-NAN_SETTER(LayerWrapper::setError) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->layer) {
-    layer->setError(*Nan::Utf8String(value));
   }
 }
 
@@ -249,13 +229,6 @@ NAN_METHOD(LayerWrapper::toJSON) {
     }
   }
   info.GetReturnValue().Set(obj);
-}
-
-NAN_GETTER(LayerWrapper::hasError) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer) {
-    info.GetReturnValue().Set(layer->hasError());
-  }
 }
 
 v8::Local<v8::Object> LayerWrapper::wrap(const Layer *layer) {

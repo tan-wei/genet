@@ -29,7 +29,6 @@ class FrameItem {
       data-layer-confidence={1}
       data-frame-length={this.frame.length}
       data-frame-capture-length={this.frame.rootLayer.payload.length}
-      data-layer-error={this.frame.hasError}
       data-selected={ vnode.attrs.selected }
       onmousedown={() => {this.select()}}
       style={{
@@ -142,11 +141,6 @@ export default class FrameListView {
           }
           const frame = this.session.getFrames(index, 1)[0]
           dummy.setAttribute('data-layer', frame.primaryLayer.namespace)
-          if (frame.hasError) {
-            dummy.setAttribute('data-layer-error', '')
-          } else {
-            dummy.removeAttribute('data-layer-error')
-          }
           ctx.fillStyle = getComputedStyle(dummy, null).getPropertyValue("background-color")
           ctx.fillRect(0, i, 1, 1)
         }

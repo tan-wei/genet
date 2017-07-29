@@ -10,7 +10,6 @@ public:
   miniid id;
   std::pair<uint32_t, uint32_t> range;
   std::string summary;
-  std::string error;
   Variant value;
   std::vector<const Property *> children;
 };
@@ -36,10 +35,6 @@ void Property::setRange(const std::pair<uint32_t, uint32_t> &range) {
 std::string Property::summary() const { return d->summary; }
 
 void Property::setSummary(const std::string &summary) { d->summary = summary; }
-
-std::string Property::error() const { return d->error; }
-
-void Property::setError(const std::string &error) { d->error = error; }
 
 Variant Property::value() const { return d->value; }
 

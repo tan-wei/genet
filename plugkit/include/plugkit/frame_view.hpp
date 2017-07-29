@@ -22,7 +22,6 @@ public:
   const std::vector<const Layer *> &leafLayers() const;
   const Property *propertyFromId(miniid id) const;
   const Layer *layerFromId(miniid id) const;
-  bool hasError() const;
 
 private:
   class Private;

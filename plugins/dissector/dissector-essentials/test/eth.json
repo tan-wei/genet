@@ -5,8 +5,7 @@
       "namespace": "eth *ipv4",
       "confidence": 1,
       "summary": "[IPv4] ac:bc:32:bc:2a:87 -> 80:13:82:62:a2:45",
-      "id": "eth",
-      "error": ""
+      "id": "eth"
     }
   }
 ]

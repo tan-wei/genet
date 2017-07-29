@@ -80,22 +80,22 @@ public:
 
       Property *ver = new Property(MID("version"), version);
       ver->setRange(std::make_pair(0, 1));
-      ver->setError(reader.lastError());
+
       child->addProperty(ver);
 
       Property *tClass = new Property(MID("tClass"), trafficClass);
       tClass->setRange(std::make_pair(0, 2));
-      tClass->setError(reader.lastError());
+
       child->addProperty(tClass);
 
       Property *fLevel = new Property(MID("fLevel"), flowLevel);
       fLevel->setRange(std::make_pair(1, 4));
-      fLevel->setError(reader.lastError());
+
       child->addProperty(fLevel);
 
       Property *pLen = new Property(MID("pLen"), reader.readBE<uint16_t>());
       pLen->setRange(reader.lastRange());
-      pLen->setError(reader.lastError());
+
       child->addProperty(pLen);
 
       int nextHeader = reader.readBE<uint8_t>();
@@ -103,26 +103,26 @@ public:
 
       Property *nHeader = new Property(MID("nHeader"), nextHeader);
       nHeader->setRange(nextHeaderRange);
-      nHeader->setError(reader.lastError());
+
       child->addProperty(nHeader);
 
       Property *hLimit = new Property(MID("hLimit"), reader.readBE<uint8_t>());
       hLimit->setRange(reader.lastRange());
-      hLimit->setError(reader.lastError());
+
       child->addProperty(hLimit);
 
       const auto &srcSlice = reader.slice(16);
       Property *src = new Property(MID("src"), srcSlice);
       src->setSummary(ipv6Addr(srcSlice));
       src->setRange(reader.lastRange());
-      src->setError(reader.lastError());
+
       child->addProperty(src);
 
       const auto &dstSlice = reader.slice(16);
       Property *dst = new Property(MID("dst"), dstSlice);
       dst->setSummary(ipv6Addr(dstSlice));
       dst->setRange(reader.lastRange());
-      dst->setError(reader.lastError());
+
       child->addProperty(dst);
 
       bool ext = true;
@@ -175,7 +175,7 @@ public:
         child->setNs(minins(MNS("ipv6"), type.second));
       }
       proto->setRange(reader.lastRange());
-      proto->setError(reader.lastError());
+
       child->addProperty(proto);
 
       const std::string &summary =

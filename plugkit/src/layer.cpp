@@ -15,7 +15,6 @@ public:
   minins ns;
   uint32_t streamId = 0;
   std::string summary;
-  std::string error;
   double confidence = 1.0;
   Slice payload;
   const Layer *parent = nullptr;
@@ -43,10 +42,6 @@ void Layer::setSummary(const std::string &summary) { d->summary = summary; }
 double Layer::confidence() const { return d->confidence; }
 
 void Layer::setConfidence(double confidence) { d->confidence = confidence; }
-
-std::string Layer::error() const { return d->error; }
-
-void Layer::setError(const std::string &error) { d->error = error; }
 
 const std::vector<Layer *> &Layer::children() const { return d->children; }
 
@@ -82,20 +77,4 @@ const Property *Layer::propertyFromId(miniid id) const {
 }
 
 void Layer::addProperty(const Property *prop) { d->properties.push_back(prop); }
-
-bool Layer::hasError() const {
-  std::function<bool(const std::vector<const Property *> &)> checkError =
-      [&checkError](const std::vector<const Property *> &properties) {
-        for (const auto &prop : properties) {
-          if (!prop->error().empty()) {
-            return true;
-          }
-          if (checkError(prop->properties())) {
-            return true;
-          }
-        }
-        return false;
-      };
-  return checkError(d->properties);
-}
 }
