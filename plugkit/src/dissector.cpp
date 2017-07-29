@@ -1,4 +1,5 @@
 #include "dissector.hpp"
+#include "dissector.h"
 #include <chrono>
 
 namespace plugkit {

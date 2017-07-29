@@ -1,5 +1,5 @@
-#ifndef PLUGKIT_DISSECTOR_H
-#define PLUGKIT_DISSECTOR_H
+#ifndef PLUGKIT_DISSECTOR_HPP
+#define PLUGKIT_DISSECTOR_HPP
 
 #include "export.hpp"
 #include "minins.hpp"

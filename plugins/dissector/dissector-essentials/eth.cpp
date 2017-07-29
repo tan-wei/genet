@@ -1,11 +1,8 @@
 #include <nan.h>
-#include <plugkit/dissector.hpp>
-#include <plugkit/stream_dissector.hpp>
-#include <plugkit/layer.hpp>
-#include <plugkit/property.hpp>
-#include <plugkit/fmt.hpp>
+#include <plugkit/dissector.h>
 #include <unordered_map>
 
+#if 0
 using namespace plugkit;
 
 class EthernetDissector final : public Dissector {
@@ -89,11 +86,17 @@ public:
     return DissectorPtr(new EthernetDissector());
   }
 };
+#endif
 
 void Init(v8::Local<v8::Object> exports) {
+  /*
   exports->Set(
       Nan::New("factory").ToLocalChecked(),
       DissectorFactory::wrap(std::make_shared<EthernetDissectorFactory>()));
+      */
+  static Dissector diss;
+  exports->Set(Nan::New("dissector").ToLocalChecked(),
+               Nan::New<v8::External>(&diss));
 }
 
 NODE_MODULE(dissectorEssentials, Init);
