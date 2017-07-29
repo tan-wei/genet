@@ -5,7 +5,6 @@
 #include "private/variant.hpp"
 #include "script_dissector.hpp"
 #include "wrapper/frame.hpp"
-#include "wrapper/listener_status.hpp"
 
 namespace plugkit {
 
@@ -18,14 +17,11 @@ void SessionWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   SetPrototypeMethod(tpl, "destroy", destroy);
   SetPrototypeMethod(tpl, "getFilteredFrames", getFilteredFrames);
   SetPrototypeMethod(tpl, "getFrames", getFrames);
-  SetPrototypeMethod(tpl, "getListenerStatus", getListenerStatus);
   SetPrototypeMethod(tpl, "analyze", analyze);
   SetPrototypeMethod(tpl, "setDisplayFilter", setDisplayFilter);
-  SetPrototypeMethod(tpl, "setListener", setListener);
   SetPrototypeMethod(tpl, "setStatusCallback", setStatusCallback);
   SetPrototypeMethod(tpl, "setFilterCallback", setFilterCallback);
   SetPrototypeMethod(tpl, "setFrameCallback", setFrameCallback);
-  SetPrototypeMethod(tpl, "setListenerCallback", setListenerCallback);
   SetPrototypeMethod(tpl, "setLoggerCallback", setLoggerCallback);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
@@ -138,16 +134,6 @@ NAN_METHOD(SessionWrapper::getFrames) {
   }
 }
 
-NAN_METHOD(SessionWrapper::getListenerStatus) {
-  SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
-  if (const auto &session = wrapper->session) {
-    const std::string &name = *Nan::Utf8String(info[0]);
-    if (const auto &status = session->getListenerStatus(name)) {
-      info.GetReturnValue().Set(ListenerStatusWrapper::wrap(status));
-    }
-  }
-}
-
 NAN_METHOD(SessionWrapper::analyze) {
   SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
   if (const auto &session = wrapper->session) {
@@ -182,15 +168,6 @@ NAN_METHOD(SessionWrapper::setDisplayFilter) {
     const std::string &name = *Nan::Utf8String(info[0]);
     const std::string &body = *Nan::Utf8String(info[1]);
     session->setDisplayFilter(name, body);
-  }
-}
-
-NAN_METHOD(SessionWrapper::setListener) {
-  SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
-  if (const auto &session = wrapper->session) {
-    const std::string &id = *Nan::Utf8String(info[0]);
-    const std::string &name = *Nan::Utf8String(info[1]);
-    session->setListener(id, name, Variant::Private::getVariant(info[2]));
   }
 }
 
@@ -235,35 +212,6 @@ NAN_METHOD(SessionWrapper::setFilterCallback) {
                 auto filter = Nan::New<v8::Object>();
                 filter->Set(Nan::New("frames").ToLocalChecked(),
                             Nan::New(pair.second.frames));
-                obj->Set(Nan::New(pair.first).ToLocalChecked(), filter);
-              }
-
-              v8::Local<v8::Value> args[1] = {obj};
-              func->Call(obj, 1, args);
-            }
-          });
-    }
-  }
-}
-
-NAN_METHOD(SessionWrapper::setListenerCallback) {
-  SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
-  if (const auto &session = wrapper->session) {
-    if (info[0]->IsFunction()) {
-      wrapper->listenerCallback.Reset(v8::Isolate::GetCurrent(),
-                                      info[0].As<v8::Function>());
-      session->setListenerCallback(
-          [wrapper](const Session::ListenerRevStatusMap &status) {
-            v8::Isolate *isolate = v8::Isolate::GetCurrent();
-            auto func = v8::Local<v8::Function>::New(isolate,
-                                                     wrapper->listenerCallback);
-            if (!func.IsEmpty()) {
-              auto obj = Nan::New<v8::Object>();
-
-              for (const auto &pair : status) {
-                auto filter = Nan::New<v8::Object>();
-                filter->Set(Nan::New("revision").ToLocalChecked(),
-                            Nan::New(pair.second.revision));
                 obj->Set(Nan::New(pair.first).ToLocalChecked(), filter);
               }
 

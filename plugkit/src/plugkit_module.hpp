@@ -23,17 +23,13 @@ public:
   };
 
   Class property;
-  Class attribute;
   Class layer;
   Class frame;
-  Class chunk;
   Class slice;
   Class session;
   Class sessionFactory;
   Class dissectorFactory;
   Class streamDissectorFactory;
-  Class listenerFactory;
-  Class listenerStatus;
 
   Function arrayToBuffer;
 };

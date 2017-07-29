@@ -3,9 +3,6 @@
 #include "dissector_thread_pool.hpp"
 #include "filter_thread.hpp"
 #include "filter_thread_pool.hpp"
-#include "listener_thread_pool.hpp"
-#include "listener_status.hpp"
-#include "listener.hpp"
 #include "frame_store.hpp"
 #include "layer.hpp"
 #include "pcap.hpp"
@@ -27,7 +24,6 @@ struct Session::Config {
   std::unordered_map<int, minins> linkLayers;
   std::vector<DissectorFactoryConstPtr> dissectors;
   std::vector<StreamDissectorFactoryConstPtr> streamDissectors;
-  std::unordered_map<std::string, ListenerFactoryConstPtr> listenerFactories;
   Variant options;
 };
 
@@ -36,8 +32,7 @@ public:
   enum UpdateType {
     UPDATE_STATUS = 1,
     UPDATE_FILTER = 2,
-    UPDATE_LISTENER = 4,
-    UPDATE_FRAME = 8,
+    UPDATE_FRAME = 4,
   };
 
 public:
@@ -51,18 +46,13 @@ public:
   std::shared_ptr<UvLoopLogger> logger;
   std::unique_ptr<DissectorThreadPool> dissectorPool;
   std::unique_ptr<StreamDissectorThreadPool> streamDissectorPool;
-  std::unordered_map<std::string, ListenerFactoryConstPtr> listenerFactories;
   std::unordered_map<std::string, std::unique_ptr<FilterThreadPool>> filters;
-  std::unordered_map<std::string, std::unique_ptr<ListenerThreadPool>>
-      listeners;
-  std::unordered_map<std::string, ListenerStatusConstPtr> listenerStatuses;
   std::unordered_map<int, minins> linkLayers;
   std::shared_ptr<FrameStore> frameStore;
   std::unique_ptr<Pcap> pcap;
   StatusCallback statusCallback;
   FilterCallback filterCallback;
   FrameCallback frameCallback;
-  ListenerCallback listenerCallback;
   LoggerCallback loggerCallback;
 
   std::unique_ptr<Status> status;
@@ -94,15 +84,6 @@ void Session::Private::updateStatus() {
       status[pair.first] = filter;
     }
     filterCallback(status);
-  }
-  if (flags & Private::UPDATE_LISTENER) {
-    ListenerRevStatusMap map;
-    for (const auto &pair : listenerStatuses) {
-      ListenerRevStatus status;
-      status.revision = pair.second->revision();
-      map[pair.first] = status;
-    }
-    listenerCallback(map);
   }
   if (flags & Private::UPDATE_FRAME) {
     FrameStatus status;
@@ -173,7 +154,6 @@ Session::Session(const Config &config) : d(new Private()) {
   for (const auto &factory : config.streamDissectors) {
     d->streamDissectorPool->registerDissector(factory);
   }
-  d->listenerFactories = config.listenerFactories;
   d->streamDissectorPool->start();
   d->dissectorPool->start();
 }
@@ -183,7 +163,6 @@ Session::~Session() {
   d->updateStatus();
   d->frameStore->close();
   d->filters.clear();
-  d->listeners.clear();
   d->pcap.reset();
   d->dissectorPool.reset();
   d->streamDissectorPool.reset();
@@ -245,29 +224,6 @@ void Session::setDisplayFilter(const std::string &name,
   d->notifyStatus(Private::UPDATE_FILTER);
 }
 
-void Session::setListener(const std::string &id, const std::string &name,
-                          const Variant &args) {
-  auto listener = d->listeners.find(name);
-  if (id.empty()) {
-    if (listener != d->listeners.end()) {
-      d->listeners.erase(listener);
-    }
-    d->listenerStatuses.erase(name);
-  } else {
-    auto status = std::make_shared<ListenerStatus>();
-    d->listenerStatuses[name] = status;
-    auto factory = d->listenerFactories.find(id);
-    if (factory != d->listenerFactories.end()) {
-      auto pool = std::unique_ptr<ListenerThreadPool>(new ListenerThreadPool(
-          factory->second, status, args, d->frameStore,
-          [this]() { d->notifyStatus(Private::UPDATE_LISTENER); }));
-      pool->setLogger(d->logger);
-      pool->start();
-      d->listeners[name] = std::move(pool);
-    }
-  }
-}
-
 std::vector<uint32_t> Session::getFilteredFrames(const std::string &name,
                                                  uint32_t offset,
                                                  uint32_t length) const {
@@ -281,15 +237,6 @@ std::vector<uint32_t> Session::getFilteredFrames(const std::string &name,
 std::vector<const FrameView *> Session::getFrames(uint32_t offset,
                                                   uint32_t length) const {
   return d->frameStore->get(offset, length);
-}
-
-ListenerStatusConstPtr
-Session::getListenerStatus(const std::string &name) const {
-  auto it = d->listenerStatuses.find(name);
-  if (it != d->listenerStatuses.end()) {
-    return it->second;
-  }
-  return ListenerStatusConstPtr();
 }
 
 void Session::analyze(const std::vector<RawFrame> &rawFrames) {
@@ -328,10 +275,6 @@ void Session::setFilterCallback(const FilterCallback &callback) {
 
 void Session::setFrameCallback(const FrameCallback &callback) {
   d->frameCallback = callback;
-}
-
-void Session::setListenerCallback(const ListenerCallback &callback) {
-  d->listenerCallback = callback;
 }
 
 void Session::setLoggerCallback(const LoggerCallback &callback) {
@@ -383,10 +326,5 @@ void SessionFactory::registerDissector(
 void SessionFactory::registerStreamDissector(
     const StreamDissectorFactoryConstPtr &factory) {
   d->streamDissectors.push_back(factory);
-}
-
-void SessionFactory::registerListener(const std::string &id,
-                                      const ListenerFactoryConstPtr &factory) {
-  d->listenerFactories[id] = factory;
 }
 }

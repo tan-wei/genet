@@ -22,12 +22,6 @@ class StreamDissectorFactory;
 using StreamDissectorFactoryConstPtr =
     std::shared_ptr<const StreamDissectorFactory>;
 
-class ListenerFactory;
-using ListenerFactoryConstPtr = std::shared_ptr<const ListenerFactory>;
-
-class ListenerStatus;
-using ListenerStatusConstPtr = std::shared_ptr<const ListenerStatus>;
-
 class Session final {
   friend class SessionFactory;
 
@@ -56,13 +50,6 @@ public:
   };
   using FrameCallback = std::function<void(const FrameStatus &)>;
 
-  struct ListenerRevStatus {
-    uint32_t revision = 0;
-  };
-  using ListenerRevStatusMap =
-      std::unordered_map<std::string, ListenerRevStatus>;
-  using ListenerCallback = std::function<void(const ListenerRevStatusMap &)>;
-
   using LoggerCallback = std::function<void(Logger::MessagePtr &&msg)>;
 
 private:
@@ -82,21 +69,17 @@ public:
   bool stopPcap();
 
   void setDisplayFilter(const std::string &name, const std::string &body);
-  void setListener(const std::string &id, const std::string &name,
-                   const Variant &args);
   std::vector<uint32_t> getFilteredFrames(const std::string &name,
                                           uint32_t offset,
                                           uint32_t length) const;
   std::vector<const FrameView *> getFrames(uint32_t offset,
                                            uint32_t length) const;
-  ListenerStatusConstPtr getListenerStatus(const std::string &name) const;
 
   void analyze(const std::vector<RawFrame> &rawFrames);
 
   void setStatusCallback(const StatusCallback &callback);
   void setFilterCallback(const FilterCallback &callback);
   void setFrameCallback(const FrameCallback &callback);
-  void setListenerCallback(const ListenerCallback &callback);
   void setLoggerCallback(const LoggerCallback &callback);
 
   int id() const;
@@ -128,8 +111,6 @@ public:
   void registerLinkLayer(int link, const minins &ns);
   void registerDissector(const DissectorFactoryConstPtr &factory);
   void registerStreamDissector(const StreamDissectorFactoryConstPtr &factory);
-  void registerListener(const std::string &id,
-                        const ListenerFactoryConstPtr &factory);
 
 private:
   std::unique_ptr<Session::Config> d;

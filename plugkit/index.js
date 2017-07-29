@@ -55,10 +55,6 @@ class Session extends EventEmitter {
       this.frame = frame;
       this.emit('frame', frame)
     })
-    sess.setListenerCallback((listener) => {
-      this.listener = listener;
-      this.emit('listener', listener)
-    })
     sess.setLoggerCallback((log) => {
       this.emit('log', log)
     })
@@ -104,10 +100,6 @@ class Session extends EventEmitter {
     return internal(this).sess.getFrames(offset, length)
   }
 
-  getListenerStatus(name) {
-    return internal(this).sess.getListenerStatus(name)
-  }
-
   analyze(frames) {
     return internal(this).sess.analyze(frames)
   }
@@ -128,10 +120,6 @@ class Session extends EventEmitter {
         throw new SyntaxError()
     }
     return internal(this).sess.setDisplayFilter(name, body)
-  }
-
-  setListener(id, name, args) {
-    return internal(this).sess.setListener(id, name, args)
   }
 }
 
@@ -180,20 +168,6 @@ class SessionFactory extends kit.SessionFactory {
       internal(this).tasks.push(task)
     } else {
       super.registerStreamDissector(dissector)
-    }
-  }
-
-  registerListener(id, listener) {
-    if (typeof listener === 'string') {
-      let task = roll(listener).then((script) => {
-        super.registerListener(id, script, listener)
-        return Promise.resolve()
-      }).catch((err) => {
-        return Promise.reject(err)
-      })
-      internal(this).tasks.push(task)
-    } else {
-      super.registerListener(id, listener)
     }
   }
 }

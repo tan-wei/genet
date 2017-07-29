@@ -13,14 +13,10 @@
          "src/dissector_thread_pool.cpp",
          "src/stream_dissector_thread.cpp",
          "src/stream_dissector_thread_pool.cpp",
-         "src/listener_thread.cpp",
-         "src/listener_thread_pool.cpp",
-         "src/listener_status.cpp",
          "src/script_dissector.cpp",
          "src/script_stream_dissector.cpp",
          "src/stream_dissector.cpp",
          "src/stream_resolver.cpp",
-         "src/listener.cpp",
          "src/plugkit_module.cpp",
          "src/variant.cpp",
          "src/slice.cpp",
@@ -35,26 +31,20 @@
          "src/uvloop_logger.cpp",
          "src/pcap_platform.cpp",
          "src/pcap_dummy.cpp",
-         "src/wrapper/chunk_w.cpp",
          "src/wrapper/pcap_w.cpp",
          "src/wrapper/session_w.cpp",
          "src/wrapper/frame_w.cpp",
          "src/wrapper/slice_w.cpp",
          "src/wrapper/property_w.cpp",
-         "src/wrapper/attribute_w.cpp",
          "src/wrapper/layer_w.cpp",
          "src/wrapper/dissector_factory_w.cpp",
          "src/wrapper/stream_dissector_factory_w.cpp",
          "src/wrapper/session_factory_w.cpp",
-         "src/wrapper/listener_factory_w.cpp",
-         "src/wrapper/listener_status_w.cpp",
          "src/session.cpp",
          "src/frame.cpp",
          "src/property.cpp",
-         "src/attribute.cpp",
          "src/payload.cpp",
          "src/layer.cpp",
-         "src/chunk.cpp",
          "vendor/json11/json11.cpp"
       ]
    },
@@ -127,8 +117,7 @@
          ],
          "sources":[
             "<@(plugkit_sources)",
-            "test/token_test.cpp",
-            "test/listener_status_test.cpp"
+            "test/token_test.cpp"
          ],
          "xcode_settings":{
             "GCC_ENABLE_CPP_EXCEPTIONS":"YES"

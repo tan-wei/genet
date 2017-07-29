@@ -5,14 +5,10 @@
 #include "wrapper/layer.hpp"
 #include "wrapper/pcap.hpp"
 #include "wrapper/property.hpp"
-#include "wrapper/attribute.hpp"
-#include "wrapper/listener_status.hpp"
-#include "wrapper/chunk.hpp"
 #include "wrapper/slice.hpp"
 #include "wrapper/session.hpp"
 #include "wrapper/session_factory.hpp"
 #include "wrapper/stream_dissector_factory.hpp"
-#include "wrapper/listener_factory.hpp"
 #include "private/variant.hpp"
 
 namespace plugkit {
@@ -23,18 +19,14 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
   Variant::Private::init(isolate);
   PropertyWrapper::init(isolate, exports);
   LayerWrapper::init(isolate, exports);
-  AttributeWrapper::init(isolate, exports);
-  ChunkWrapper::init(isolate, exports);
   SliceWrapper::init(isolate, exports);
   FrameWrapper::init(isolate);
-  ListenerStatusWrapper::init(isolate);
   if (mainThread) {
     PcapWrapper::init(isolate, exports);
     SessionFactoryWrapper::init(isolate, exports);
     SessionWrapper::init(isolate, exports);
     DissectorFactoryWrapper::init(isolate);
     StreamDissectorFactoryWrapper::init(isolate);
-    ListenerFactoryWrapper::init(isolate);
   }
 }
 

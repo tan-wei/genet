@@ -7,7 +7,6 @@
 #include "script_stream_dissector.hpp"
 #include "session.hpp"
 #include "stream_dissector_factory.hpp"
-#include "listener_factory.hpp"
 
 namespace plugkit {
 
@@ -18,7 +17,6 @@ void SessionFactoryWrapper::init(v8::Isolate *isolate,
   tpl->SetClassName(Nan::New("SessionFactory").ToLocalChecked());
   SetPrototypeMethod(tpl, "registerDissector", registerDissector);
   SetPrototypeMethod(tpl, "registerStreamDissector", registerStreamDissector);
-  SetPrototypeMethod(tpl, "registerListener", registerListener);
   SetPrototypeMethod(tpl, "registerLinkLayer", registerLinkLayer);
   SetPrototypeMethod(tpl, "create", create);
 
@@ -179,28 +177,6 @@ NAN_METHOD(SessionFactoryWrapper::registerStreamDissector) {
     }
     if (dissectorFactory) {
       factory->registerStreamDissector(dissectorFactory);
-    }
-  }
-}
-
-NAN_METHOD(SessionFactoryWrapper::registerListener) {
-  SessionFactoryWrapper *wrapper =
-      ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
-  if (const auto &factory = wrapper->factory) {
-    ListenerFactoryConstPtr listenerFactory;
-
-    const std::string &id = *Nan::Utf8String(info[0]);
-    if (info[1]->IsString()) {
-      /*
-      const std::string &script = *Nan::Utf8String(info[1]);
-      const std::string &path = *Nan::Utf8String(info[2]);
-      */
-    } else if (info[1]->IsObject()) {
-      listenerFactory =
-          ListenerFactoryWrapper::unwrap(info[1].As<v8::Object>());
-    }
-    if (listenerFactory) {
-      factory->registerListener(id, listenerFactory);
     }
   }
 }

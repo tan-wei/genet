@@ -1,6 +1,5 @@
 import DissectorComponent from './dissector'
 import FileComponent from './file'
-import ListenerComponent from './listener'
 import MenuComponent from './menu'
 import PanelComponent from './panel'
 import ScriptComponent from './script'
@@ -24,8 +23,6 @@ export default class ComponentFactory {
         return new DissectorComponent(rootDir, pkg, comp)
       case 'stream-dissector':
         return new StreamDissectorComponent(rootDir, pkg, comp)
-      case 'listener':
-        return new ListenerComponent(rootDir, pkg, comp)
       case 'menu':
         return new MenuComponent(rootDir, pkg, comp)
       case 'script':

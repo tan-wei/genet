@@ -46,7 +46,6 @@ export default class ConfigView {
   async load() {
     await PluginLoader.loadComponents('dissector')
     await PluginLoader.loadComponents('stream-dissector')
-    await PluginLoader.loadComponents('listener')
     this.loaded = true
     m.redraw()
   }
@@ -75,9 +74,6 @@ export default class ConfigView {
       }
       for (const diss of Session.streamDissectors) {
         factory.registerStreamDissector(diss)
-      }
-      for (const id in Session.listeners) {
-        factory.registerListener(id, Session.listeners[id])
       }
       factory.create().then((sess) => {
         if (Tab.options.ifs) {
@@ -108,9 +104,6 @@ export default class ConfigView {
         }
         for (const diss of Session.streamDissectors) {
           factory.registerStreamDissector(diss)
-        }
-        for (const id in Session.listeners) {
-          factory.registerListener(id, Session.listeners[id])
         }
         File.loadFrames(Tab.options.files).then((results) => {
           factory.create().then((sess) => {

@@ -257,13 +257,6 @@ export default {
       stream_dissector: {
         main: 'build/Release/http-stream.node'
       }
-    },
-    {
-      type: 'listener',
-      listener: {
-        main: 'build/Release/stream-listener.node',
-        id: 'stream'
-      }
     }
   ],
   options: [
