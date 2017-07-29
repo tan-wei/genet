@@ -18,24 +18,25 @@ public:
 
       const auto &srcSlice = reader.slice(6);
       Property *src = new Property(MID("src"), srcSlice);
-      src->setSummary(fmt::toHex(srcSlice, 1));
+      //       src->setSummary(fmt::toHex(srcSlice, 1));
       src->setRange(reader.lastRange());
 
       child->addProperty(src);
 
       const auto &dstSlice = reader.slice(6);
       Property *dst = new Property(MID("dst"), dstSlice);
-      dst->setSummary(fmt::toHex(dstSlice, 1));
+      //       dst->setSummary(fmt::toHex(dstSlice, 1));
       dst->setRange(reader.lastRange());
 
       child->addProperty(dst);
 
-      const std::string &summary =
-          (src->summary() > dst->summary())
-              ? src->summary() + " -> " + dst->summary()
-              : dst->summary() + " <- " + src->summary();
-      child->setSummary(summary);
-
+      /*
+            const std::string &summary =
+                (src->summary() > dst->summary())
+                    ? src->summary() + " -> " + dst->summary()
+                    : dst->summary() + " <- " + src->summary();
+            child->setSummary(summary);
+      */
       auto protocolType = reader.readBE<uint16_t>();
       if (protocolType <= 1500) {
         Property *length = new Property(MID("len"), protocolType);
@@ -56,13 +57,15 @@ public:
         Property *etherType = new Property(MID("ethType"), protocolType);
         const auto &type = fmt::enums(typeTable, protocolType,
                                       std::make_pair("Unknown", MNS("?")));
-        etherType->setSummary(type.first);
+        //         etherType->setSummary(type.first);
         if (!type.second.empty()) {
           child->setNs(minins(MNS("eth"), type.second));
         }
         etherType->setRange(reader.lastRange());
-
-        child->setSummary("[" + etherType->summary() + "] " + child->summary());
+        /*
+                child->setSummary("[" + type.first + "] " +
+                                    child->summary());
+                                    */
         child->addProperty(etherType);
       }
 

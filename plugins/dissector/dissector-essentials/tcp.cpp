@@ -21,23 +21,26 @@ public:
 
       uint16_t sourcePort = reader.readBE<uint16_t>();
       Property *src = new Property(MID("src"), sourcePort);
-      src->setSummary(parentSrc->summary() + ":" + std::to_string(sourcePort));
+      //       src->setSummary(parentSrc->summary() + ":" +
+      //       std::to_string(sourcePort));
       src->setRange(reader.lastRange());
 
       child->addProperty(src);
 
       uint16_t dstPort = reader.readBE<uint16_t>();
       Property *dst = new Property(MID("dst"), dstPort);
-      dst->setSummary(parentDst->summary() + ":" + std::to_string(dstPort));
+      //       dst->setSummary(parentDst->summary() + ":" +
+      //       std::to_string(dstPort));
       dst->setRange(reader.lastRange());
 
       child->addProperty(dst);
 
-      const std::string &summary =
-          (src->summary() > dst->summary())
-              ? src->summary() + " -> " + dst->summary()
-              : dst->summary() + " <- " + src->summary();
-      child->setSummary(summary);
+      /*
+            const std::string &summary =
+                (src->summary() > dst->summary())
+                    ? src->summary() + " -> " + dst->summary()
+                    : dst->summary() + " <- " + src->summary();
+            child->setSummary(summary);
       size_t size = summary.copy(meta->streamIdentifier,
                                  sizeof(meta->streamIdentifier) - 1);
 
@@ -47,6 +50,7 @@ public:
           c = ' ';
       }
       meta->streamIdentifier[size] = '\0';
+      */
 
       uint32_t seqNumber = reader.readBE<uint32_t>();
       Property *seq = new Property(MID("seq"), seqNumber);
@@ -95,7 +99,7 @@ public:
           flagSummary += std::get<1>(bit);
         }
       }
-      flags->setSummary(flagSummary);
+      //       flags->setSummary(flagSummary);
       flags->setRange(std::make_pair(12, 14));
 
       child->addProperty(flags);

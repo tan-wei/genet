@@ -69,7 +69,6 @@ public:
           flagSummary += std::get<1>(bit);
         }
       }
-      flags->setSummary(flagSummary);
       flags->setRange(reader.lastRange());
 
       child->addProperty(flags);
@@ -98,7 +97,6 @@ public:
       Property *proto = new Property(MID("protocol"), protocolNumber);
       const auto &type = fmt::enums(protoTable, protocolNumber,
                                     std::make_pair("Unknown", MNS("?")));
-      proto->setSummary(type.first);
       if (type.second != MNS("?")) {
         child->setNs(minins(MNS("ipv4"), type.second));
       }
@@ -114,24 +112,23 @@ public:
 
       const auto &srcSlice = reader.slice(4);
       Property *src = new Property(MID("src"), srcSlice);
-      src->setSummary(fmt::toDec(srcSlice, 1));
       src->setRange(reader.lastRange());
 
       child->addProperty(src);
 
       const auto &dstSlice = reader.slice(4);
       Property *dst = new Property(MID("dst"), dstSlice);
-      dst->setSummary(fmt::toDec(dstSlice, 1));
       dst->setRange(reader.lastRange());
 
       child->addProperty(dst);
 
+/*
       const std::string &summary =
           (src->summary() > dst->summary())
               ? src->summary() + " -> " + dst->summary()
               : dst->summary() + " <- " + src->summary();
-
-      child->setSummary("[" + proto->summary() + "] " + summary);
+*/
+      // child->setSummary("[" + proto->summary() + "] " + summary);
 
       child->setPayload(reader.slice(totalLength - 20));
       return child;

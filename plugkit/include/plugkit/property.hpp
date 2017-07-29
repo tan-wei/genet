@@ -18,8 +18,6 @@ public:
   void setId(miniid id);
   std::pair<uint32_t, uint32_t> range() const;
   void setRange(const std::pair<uint32_t, uint32_t> &range);
-  std::string summary() const;
-  void setSummary(const std::string &summary);
   Variant value() const;
   void setValue(const Variant &value);
 

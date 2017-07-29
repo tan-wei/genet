@@ -15,8 +15,6 @@ void PropertyWrapper::init(v8::Isolate *isolate,
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id, setId);
-  Nan::SetAccessor(otl, Nan::New("summary").ToLocalChecked(), summary,
-                   setSummary);
   Nan::SetAccessor(otl, Nan::New("range").ToLocalChecked(), range, setRange);
   Nan::SetAccessor(otl, Nan::New("value").ToLocalChecked(), value, setValue);
   Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
@@ -42,7 +40,6 @@ NAN_METHOD(PropertyWrapper::New) {
   auto options = info[0].As<v8::Object>();
   auto idValue = options->Get(Nan::New("id").ToLocalChecked());
   auto rangeValue = options->Get(Nan::New("range").ToLocalChecked());
-  auto summaryValue = options->Get(Nan::New("summary").ToLocalChecked());
   auto value = options->Get(Nan::New("value").ToLocalChecked());
   if (idValue->IsString()) {
     return;
@@ -54,9 +51,6 @@ NAN_METHOD(PropertyWrapper::New) {
       prop->setRange(std::make_pair(array->Get(0)->Uint32Value(),
                                     array->Get(1)->Uint32Value()));
     }
-  }
-  if (summaryValue->IsString()) {
-    prop->setSummary(*Nan::Utf8String(summaryValue));
   }
   prop->setValue(Variant::Private::getVariant(value));
 
@@ -100,20 +94,6 @@ NAN_SETTER(PropertyWrapper::setRange) {
                                       array->Get(1)->Uint32Value()));
       }
     }
-  }
-}
-
-NAN_GETTER(PropertyWrapper::summary) {
-  PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
-  if (auto prop = wrapper->constProp) {
-    info.GetReturnValue().Set(Nan::New(prop->summary()).ToLocalChecked());
-  }
-}
-
-NAN_SETTER(PropertyWrapper::setSummary) {
-  PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
-  if (auto prop = wrapper->prop) {
-    prop->setSummary(*Nan::Utf8String(value));
   }
 }
 

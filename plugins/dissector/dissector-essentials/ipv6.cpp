@@ -113,14 +113,14 @@ public:
 
       const auto &srcSlice = reader.slice(16);
       Property *src = new Property(MID("src"), srcSlice);
-      src->setSummary(ipv6Addr(srcSlice));
+      //       src->setSummary(ipv6Addr(srcSlice));
       src->setRange(reader.lastRange());
 
       child->addProperty(src);
 
       const auto &dstSlice = reader.slice(16);
       Property *dst = new Property(MID("dst"), dstSlice);
-      dst->setSummary(ipv6Addr(dstSlice));
+      //       dst->setSummary(ipv6Addr(dstSlice));
       dst->setRange(reader.lastRange());
 
       child->addProperty(dst);
@@ -170,7 +170,7 @@ public:
       Property *proto = new Property(MID("protocol"), protocolNumber);
       const auto &type = fmt::enums(protoTable, protocolNumber,
                                     std::make_pair("Unknown", MNS("?")));
-      proto->setSummary(type.first);
+      //       proto->setSummary(type.first);
       if (type.second != MNS("?")) {
         child->setNs(minins(MNS("ipv6"), type.second));
       }
@@ -178,12 +178,14 @@ public:
 
       child->addProperty(proto);
 
-      const std::string &summary =
-          (src->summary() > dst->summary())
-              ? src->summary() + " -> " + dst->summary()
-              : dst->summary() + " <- " + src->summary();
+      /*
+            const std::string &summary =
+                (src->summary() > dst->summary())
+                    ? src->summary() + " -> " + dst->summary()
+                    : dst->summary() + " <- " + src->summary();
 
-      child->setSummary("[" + proto->summary() + "] " + summary);
+            child->setSummary("[" + proto->summary() + "] " + summary);
+            */
       child->setPayload(reader.slice());
       return child;
     }

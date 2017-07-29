@@ -21,14 +21,16 @@ public:
 
       uint16_t sourcePort = reader.readBE<uint16_t>();
       Property *src = new Property(MID("src"), sourcePort);
-      src->setSummary(parentSrc->summary() + ":" + std::to_string(sourcePort));
+      //       src->setSummary(parentSrc->summary() + ":" +
+      //       std::to_string(sourcePort));
       src->setRange(reader.lastRange());
 
       child->addProperty(src);
 
       uint16_t dstPort = reader.readBE<uint16_t>();
       Property *dst = new Property(MID("dst"), dstPort);
-      dst->setSummary(parentDst->summary() + ":" + std::to_string(dstPort));
+      //       dst->setSummary(parentDst->summary() + ":" +
+      //       std::to_string(dstPort));
       dst->setRange(reader.lastRange());
 
       child->addProperty(dst);
@@ -45,7 +47,9 @@ public:
 
       child->addProperty(checksum);
 
-      child->setSummary(src->summary() + " -> " + dst->summary());
+      /*
+            child->setSummary(src->summary() + " -> " + dst->summary());
+            */
       child->setPayload(reader.slice(lengthNumber - 8));
       return child;
     }

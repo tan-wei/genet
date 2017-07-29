@@ -18,8 +18,6 @@ public:
   static NAN_SETTER(setId);
   static NAN_GETTER(range);
   static NAN_SETTER(setRange);
-  static NAN_GETTER(summary);
-  static NAN_SETTER(setSummary);
   static NAN_GETTER(value);
   static NAN_SETTER(setValue);
   static NAN_GETTER(properties);

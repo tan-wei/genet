@@ -103,10 +103,6 @@ class PropertyItem {
       ><i class={faClass}></i> { name }: </label>
       { m(PropertyValueItem, {prop}) }
       <label
-      class="summary"
-      style={{ display: prop.summary.length && prop.summary != prop.value ? 'inline' : 'none' }}
-      >{ prop.summary }</label>
-      <label
       class="error"
       style={{ display: prop.error ? 'inline' : 'none' }}
       ><i class="fa fa-exclamation-triangle"></i> { prop.error }</label>
