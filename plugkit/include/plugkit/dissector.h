@@ -5,17 +5,21 @@
 
 extern "C" {
 
+namespace plugkit {
 class Layer;
+}
+using namespace plugkit;
+
 class Context;
-class DissectionResult;
+struct DissectionResult;
 
 typedef void Worker;
 
 enum DissectorType { DISSECTOR_PACKET = 0, DISSECTOR_STREAM = 1 };
 
-struct Dissector {
+struct XDissector {
   void (*analyze)(Worker *worker, Layer *layer, DissectionResult *result);
-  Worker *(*createWorker)(const Context *ctx);
+  Worker *(*createWorker)(Context *ctx);
   bool *(*expired)(int elapsed);
   Token layerHints[8];
   DissectorType type;

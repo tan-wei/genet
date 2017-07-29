@@ -10,7 +10,7 @@ const samples = []
 const descriptors = {}
 export default class Session {
   static registerNativeDissector (file) {
-    dissectors.push(require(file).factory)
+    dissectors.push(require(file).dissector)
   }
 
   static registerNativeStreamDissector (file) {
