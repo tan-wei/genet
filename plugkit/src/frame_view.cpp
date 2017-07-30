@@ -57,7 +57,7 @@ const Property *FrameView::propertyFromId(miniid id) const {
   return nullptr;
 }
 
-const Layer *FrameView::layerFromId(miniid id) const {
+const Layer *FrameView::layerFromId(Token id) const {
   for (const auto &layer : d->layers) {
     if (layer->id() == id) {
       return layer;

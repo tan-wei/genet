@@ -13,10 +13,10 @@ namespace plugkit {
 
 class PLUGKIT_EXPORT Layer final {
 public:
-  Layer();
+  Layer(Token id);
   ~Layer();
 
-  miniid id() const;
+  Token id() const;
   minins ns() const;
   void setNs(const minins &ns);
   std::string summary() const;

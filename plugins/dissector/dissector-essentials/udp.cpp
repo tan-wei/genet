@@ -14,7 +14,7 @@ public:
   public:
     Layer *analyze(Layer *layer, MetaData *meta) override {
       fmt::Reader<Slice> reader(layer->payload());
-      Layer *child = new Layer();
+      Layer *child = new Layer(Token_get("udp"));
 
       const auto &parentSrc = layer->propertyFromId(MID("src"));
       const auto &parentDst = layer->propertyFromId(MID("dst"));

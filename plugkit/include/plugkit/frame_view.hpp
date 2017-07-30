@@ -5,6 +5,7 @@
 #include <vector>
 #include "miniid.hpp"
 #include "export.hpp"
+#include "token.h"
 
 namespace plugkit {
 
@@ -21,7 +22,7 @@ public:
   const Layer *primaryLayer() const;
   const std::vector<const Layer *> &leafLayers() const;
   const Property *propertyFromId(miniid id) const;
-  const Layer *layerFromId(miniid id) const;
+  const Layer *layerFromId(Token id) const;
 
 private:
   class Private;

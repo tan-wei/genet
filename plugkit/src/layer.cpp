@@ -9,9 +9,10 @@ namespace plugkit {
 
 class Layer::Private {
 public:
-  Private();
+  Private(Token id);
 
 public:
+  Token id;
   minins ns;
   uint32_t streamId = 0;
   std::string summary;
@@ -24,13 +25,13 @@ public:
   std::vector<const Property *> properties;
 };
 
-Layer::Private::Private() {}
+Layer::Private::Private(Token id) : id(id) {}
 
-Layer::Layer() : d(new Private()) {}
+Layer::Layer(Token id) : d(new Private(id)) {}
 
 Layer::~Layer() {}
 
-miniid Layer::id() const { return d->ns.primary(); }
+Token Layer::id() const { return d->id; }
 
 minins Layer::ns() const { return d->ns; }
 

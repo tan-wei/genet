@@ -68,7 +68,7 @@ public:
   public:
     Layer *analyze(Layer *layer, MetaData *meta) override {
       fmt::Reader<Slice> reader(layer->payload());
-      Layer *child = new Layer();
+      Layer *child = new Layer(Token_get("ipv6"));
 
       uint8_t header = reader.readBE<uint8_t>();
       uint8_t header2 = reader.readBE<uint8_t>();

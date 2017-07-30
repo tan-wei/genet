@@ -49,14 +49,13 @@ NAN_METHOD(LayerWrapper::New) {
     return;
   }
   auto options = info[0].As<v8::Object>();
-  auto nsValue = options->Get(Nan::New("namespace").ToLocalChecked());
+  auto idValue = options->Get(Nan::New("id").ToLocalChecked());
   auto summaryValue = options->Get(Nan::New("summary").ToLocalChecked());
   auto confValue = options->Get(Nan::New("confidence").ToLocalChecked());
-  if (!nsValue->IsString()) {
+  if (!idValue->IsString()) {
     return;
   }
-  auto layer = new Layer();
-  layer->setNs(minins(*Nan::Utf8String(nsValue)));
+  auto layer = new Layer(Token_get(*Nan::Utf8String(idValue)));
   if (summaryValue->IsString()) {
     layer->setSummary(*Nan::Utf8String(summaryValue));
   }
@@ -72,7 +71,8 @@ NAN_METHOD(LayerWrapper::New) {
 NAN_GETTER(LayerWrapper::id) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->weakLayer) {
-    info.GetReturnValue().Set(Nan::New(layer->id().str()).ToLocalChecked());
+    info.GetReturnValue().Set(
+        Nan::New(Token_string(layer->id())).ToLocalChecked());
   }
 }
 

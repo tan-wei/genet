@@ -311,7 +311,7 @@ FilterFunc Filter::Private::makeFilter(const json11::Json &json) const {
         return Filter::Result(frameObject->Get(key));
       }
 
-      if (const auto &layer = view->layerFromId(miniid(name.c_str()))) {
+      if (const auto &layer = view->layerFromId(Token_get(name.c_str()))) {
         Local<Object> layerObject = LayerWrapper::wrap(layer);
         return Filter::Result(layerObject);
       }

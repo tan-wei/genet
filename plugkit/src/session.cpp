@@ -241,16 +241,17 @@ std::vector<const FrameView *> Session::getFrames(uint32_t offset,
 }
 
 void Session::analyze(const std::vector<RawFrame> &rawFrames) {
+  Token unknown = Token_get("[unknown]");
   std::vector<Frame *> frames;
   for (const RawFrame &raw : rawFrames) {
     Layer *rootLayer;
     const auto &linkLayer = d->linkLayers.find(raw.link);
     if (linkLayer != d->linkLayers.end()) {
-      rootLayer = new Layer();
+      rootLayer = new Layer(linkLayer->second);
       rootLayer->addTag(linkLayer->second);
     } else {
-      rootLayer = new Layer();
-      rootLayer->addTag(Token_get("[unknown]"));
+      rootLayer = new Layer(unknown);
+      rootLayer->addTag(unknown);
     }
     rootLayer->setPayload(raw.payload);
 

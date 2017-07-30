@@ -15,7 +15,7 @@ struct WorkerContext {};
 
 void analyze(Worker *data, Layer *layer, DissectionResult *result) {
   fmt::Reader<Slice> reader(layer->payload());
-  Layer *child = new Layer();
+  Layer *child = new Layer(Token_get("eth"));
 
   const auto &srcSlice = reader.slice(6);
   Property *src = new Property(MID("src"), srcSlice);

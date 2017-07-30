@@ -77,7 +77,7 @@ bool PcapDummy::start() {
         if (d->closed)
           return;
         if (d->callback) {
-          auto layer = new Layer();
+          auto layer = new Layer(tag);
           layer->addTag(tag);
           layer->setPayload(Slice());
 
