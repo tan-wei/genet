@@ -330,5 +330,4 @@ void SessionFactory::registerDissector(const XDissector &diss) {
   default:;
   }
 }
-
 }

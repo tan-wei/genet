@@ -1,11 +1,14 @@
 #include "dissector_thread.hpp"
 #include "dissector.hpp"
-#include "dissector.h"
 #include "frame.hpp"
 #include "layer.hpp"
 #include "session_context.hpp"
 #include "stream_resolver.hpp"
 #include "variant.hpp"
+
+#include "dissection_result.h"
+#include "dissector.h"
+#include "context.hpp"
 #include <array>
 #include <unordered_map>
 #include <unordered_set>
@@ -16,8 +19,8 @@ namespace plugkit {
 
 namespace {
 struct WorkerData {
-  Dissector::WorkerPtr worker;
-  std::vector<minins> namespaces;
+  const XDissector *dissector;
+  Worker *worker;
 };
 }
 
@@ -53,17 +56,11 @@ void DissectorThread::pushDissector(const XDissector &diss) {
 }
 
 void DissectorThread::enter() {
-  SessionContext ctx;
-  ctx.logger = logger;
-  ctx.options = d->options;
-  for (const auto &factory : d->factories) {
-    auto diss = factory->create(ctx);
-    if (auto worker = diss->createWorker()) {
-      WorkerData data;
-      data.worker = std::move(worker);
-      data.namespaces = diss->namespaces();
-      d->workers.emplace_back(std::move(data));
-    }
+  Context ctx;
+  for (const auto &diss : d->dissectors) {
+    WorkerData data;
+    data.dissector = &diss;
+    data.worker = diss.createWorker(&ctx);
   }
 }
 
@@ -93,23 +90,19 @@ bool DissectorThread::loop() {
 
         workers.clear();
         for (const auto &data : d->workers) {
-          for (const auto &filter : data.namespaces) {
-            if (ns.match(filter)) {
-              workers.push_back(&data);
-            }
-          }
+          workers.push_back(&data);
         }
 
-        Dissector::Worker::MetaData meta;
+        DissectionResult result;
         std::vector<Layer *> childLayers;
         for (const WorkerData *data : workers) {
-          meta.streamIdentifier[0] = '\0';
-          std::memset(meta.layerHints, 0, sizeof(meta.layerHints));
-          if (Layer *childLayer = data->worker->analyze(layer, &meta)) {
+          std::memset(&result, 0, sizeof(result));
+          data->dissector->analyze(data->worker, layer, &result);
+          if (Layer *childLayer = result.child) {
             if (childLayer->confidence() >= d->confidenceThreshold) {
-              if (meta.streamIdentifier[0] != '\0') {
+              if (result.streamIdentifier[0] != '\0') {
                 streamedLayers.push_back(std::make_pair(
-                    childLayer, std::string(meta.streamIdentifier)));
+                    childLayer, std::string(result.streamIdentifier)));
               }
               childLayer->setParent(layer);
               childLayer->setFrame(frame);

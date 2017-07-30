@@ -50,7 +50,6 @@ void analyze(Worker *data, Layer *layer, DissectionResult *result) {
     child->addProperty(etherType);
 
     result->child = child;
-    result->layerHints[0] = type.second;
   }
 
   child->setPayload(reader.slice());

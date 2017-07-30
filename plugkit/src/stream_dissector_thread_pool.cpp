@@ -89,8 +89,7 @@ StreamDissectorThreadPool::~StreamDissectorThreadPool() {
     d->thread.join();
 }
 
-void StreamDissectorThreadPool::registerDissector(
-    const XDissector &diss) {
+void StreamDissectorThreadPool::registerDissector(const XDissector &diss) {
   d->dissectors.push_back(diss);
 }
 
