@@ -10,7 +10,7 @@ class Layer;
 }
 using namespace plugkit;
 
-class Context;
+struct Context;
 struct DissectionResult;
 
 typedef void Worker;
