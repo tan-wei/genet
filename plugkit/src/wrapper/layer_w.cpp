@@ -29,6 +29,7 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
                    setPayload);
   Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
   Nan::SetAccessor(otl, Nan::New("children").ToLocalChecked(), children);
+  Nan::SetAccessor(otl, Nan::New("tags").ToLocalChecked(), tags);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
@@ -180,6 +181,19 @@ NAN_GETTER(LayerWrapper::properties) {
     auto array = v8::Array::New(isolate, properties.size());
     for (size_t i = 0; i < properties.size(); ++i) {
       array->Set(i, PropertyWrapper::wrap(properties[i]));
+    }
+    info.GetReturnValue().Set(array);
+  }
+}
+
+NAN_GETTER(LayerWrapper::tags) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->weakLayer) {
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    const auto &tags = layer->tags();
+    auto array = v8::Array::New(isolate, tags.size());
+    for (size_t i = 0; i < tags.size(); ++i) {
+      array->Set(i, Nan::New(Token_string(tags[i])).ToLocalChecked());
     }
     info.GetReturnValue().Set(array);
   }
