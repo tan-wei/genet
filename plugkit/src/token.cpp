@@ -1,11 +1,13 @@
 #include "token.h"
 #include <string>
 #include <unordered_map>
+#include <vector>
 #include <mutex>
 
 namespace {
 
 std::unordered_map<std::string, Token> map = {{"", 0}};
+std::unordered_map<Token, const char *> reverseMap;
 std::mutex mutex;
 }
 
@@ -21,7 +23,22 @@ Token Token_get(const char *str) {
   }
   Token id = map.size();
   map.insert(std::make_pair(key, id));
+  char *data = new char[key.size() + 1]();
+  key.copy(data, key.size());
+  reverseMap.insert(std::make_pair(id, data));
   return id;
 }
 
 Token Token_null() { return Token{0}; }
+
+const char *Token_string(Token token) {
+  if (token == Token_null()) {
+    return "";
+  }
+  std::lock_guard<std::mutex> lock(mutex);
+  auto it = reverseMap.find(token);
+  if (it != reverseMap.end()) {
+    return it->second;
+  }
+  return "";
+}

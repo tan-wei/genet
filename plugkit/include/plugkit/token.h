@@ -21,6 +21,11 @@ Token Token_get(const char *str);
 /// @endcode
 /// @remarks This function is thread-safe.
 Token Token_null();
+
+/// Returns a string corresponded with a given token.
+///
+/// @remarks This function is thread-safe.
+const char *Token_string(Token token);
 }
 
 #endif
