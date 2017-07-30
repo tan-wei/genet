@@ -1,13 +1,18 @@
 #include <list>
 #include <algorithm>
 #include <nan.h>
-#include <plugkit/stream_dissector.hpp>
+#include <plugkit/dissector.h>
+#include <plugkit/dissection_result.h>
+#include <plugkit/context.h>
+#include <plugkit/token.h>
+
 #include <plugkit/layer.hpp>
 #include <plugkit/property.hpp>
 #include <plugkit/fmt.hpp>
 
 using namespace plugkit;
 
+/*
 class Ring {
 public:
   Ring() {}
@@ -125,11 +130,15 @@ public:
     return StreamDissectorPtr(new TCPStreamDissector());
   };
 };
+*/
 
 void Init(v8::Local<v8::Object> exports) {
-  exports->Set(Nan::New("factory").ToLocalChecked(),
-               StreamDissectorFactory::wrap(
-                   std::make_shared<TCPStreamDissectorFactory>()));
+  static XDissector diss;
+  diss.layerHints[0] = Token_get("[tcp-stream]");
+  diss.type = DISSECTOR_STREAM;
+  // diss.analyze = analyze;
+  exports->Set(Nan::New("dissector").ToLocalChecked(),
+               Nan::New<v8::External>(&diss));
 }
 
 NODE_MODULE(dissectorEssentials, Init);

@@ -3,6 +3,7 @@
 #include <plugkit/dissection_result.h>
 #include <plugkit/context.h>
 #include <plugkit/token.h>
+
 #include <plugkit/layer.hpp>
 #include <plugkit/property.hpp>
 #include <plugkit/fmt.hpp>
@@ -11,7 +12,6 @@
 using namespace plugkit;
 
 namespace {
-struct WorkerContext {};
 
 void analyze(Worker *data, Layer *layer, DissectionResult *result) {
   fmt::Reader<Slice> reader(layer->payload());
@@ -44,17 +44,17 @@ void analyze(Worker *data, Layer *layer, DissectionResult *result) {
         };
 
     Property *etherType = new Property(Token_get("ethType"), protocolType);
-    const auto &type = fmt::enums(typeTable, protocolType,
-                                  std::make_pair("Unknown", Token_null()));
+    const auto &type =
+        fmt::enums(typeTable, protocolType,
+                   std::make_pair("Unknown", Token_get("[unknown]")));
 
     etherType->setRange(reader.lastRange());
     child->addProperty(etherType);
     child->addTag(type.second);
-
-    result->child = child;
   }
 
   child->setPayload(reader.slice());
+  result->child = child;
 }
 }
 

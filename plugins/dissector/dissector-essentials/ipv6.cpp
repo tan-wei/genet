@@ -1,6 +1,9 @@
 #include <nan.h>
-#include <plugkit/dissector.hpp>
-#include <plugkit/stream_dissector.hpp>
+#include <plugkit/dissector.h>
+#include <plugkit/dissection_result.h>
+#include <plugkit/context.h>
+#include <plugkit/token.h>
+
 #include <plugkit/layer.hpp>
 #include <plugkit/property.hpp>
 #include <plugkit/fmt.hpp>
@@ -62,152 +65,136 @@ std::string ipv6Addr(const Slice &data) {
 }
 }
 
-class IPv6Dissector final : public Dissector {
-public:
-  class Worker final : public Dissector::Worker {
-  public:
-    Layer *analyze(Layer *layer, MetaData *meta) override {
-      fmt::Reader<Slice> reader(layer->payload());
-      Layer *child = new Layer(Token_get("ipv6"));
+namespace {
+void analyze(Worker *data, Layer *layer, DissectionResult *result) {
+  fmt::Reader<Slice> reader(layer->payload());
+  Layer *child = new Layer(Token_get("ipv6"));
+  child->addTag(Token_get("ipv6"));
 
-      uint8_t header = reader.readBE<uint8_t>();
-      uint8_t header2 = reader.readBE<uint8_t>();
-      int version = header >> 4;
-      int trafficClass =
-          (header & 0b00001111 << 4) | ((header2 & 0b11110000) >> 4);
-      int flowLevel =
-          reader.readBE<uint16_t>() | ((header2 & 0b00001111) << 16);
+  uint8_t header = reader.readBE<uint8_t>();
+  uint8_t header2 = reader.readBE<uint8_t>();
+  int version = header >> 4;
+  int trafficClass = (header & 0b00001111 << 4) | ((header2 & 0b11110000) >> 4);
+  int flowLevel = reader.readBE<uint16_t>() | ((header2 & 0b00001111) << 16);
 
-      Property *ver = new Property(Token_get("version"), version);
-      ver->setRange(std::make_pair(0, 1));
+  Property *ver = new Property(Token_get("version"), version);
+  ver->setRange(std::make_pair(0, 1));
 
-      child->addProperty(ver);
+  child->addProperty(ver);
 
-      Property *tClass = new Property(Token_get("tClass"), trafficClass);
-      tClass->setRange(std::make_pair(0, 2));
+  Property *tClass = new Property(Token_get("tClass"), trafficClass);
+  tClass->setRange(std::make_pair(0, 2));
 
-      child->addProperty(tClass);
+  child->addProperty(tClass);
 
-      Property *fLevel = new Property(Token_get("fLevel"), flowLevel);
-      fLevel->setRange(std::make_pair(1, 4));
+  Property *fLevel = new Property(Token_get("fLevel"), flowLevel);
+  fLevel->setRange(std::make_pair(1, 4));
 
-      child->addProperty(fLevel);
+  child->addProperty(fLevel);
 
-      Property *pLen =
-          new Property(Token_get("pLen"), reader.readBE<uint16_t>());
-      pLen->setRange(reader.lastRange());
+  Property *pLen = new Property(Token_get("pLen"), reader.readBE<uint16_t>());
+  pLen->setRange(reader.lastRange());
 
-      child->addProperty(pLen);
+  child->addProperty(pLen);
 
-      int nextHeader = reader.readBE<uint8_t>();
-      auto nextHeaderRange = reader.lastRange();
+  int nextHeader = reader.readBE<uint8_t>();
+  auto nextHeaderRange = reader.lastRange();
 
-      Property *nHeader = new Property(Token_get("nHeader"), nextHeader);
-      nHeader->setRange(nextHeaderRange);
+  Property *nHeader = new Property(Token_get("nHeader"), nextHeader);
+  nHeader->setRange(nextHeaderRange);
 
-      child->addProperty(nHeader);
+  child->addProperty(nHeader);
 
-      Property *hLimit =
-          new Property(Token_get("hLimit"), reader.readBE<uint8_t>());
-      hLimit->setRange(reader.lastRange());
+  Property *hLimit =
+      new Property(Token_get("hLimit"), reader.readBE<uint8_t>());
+  hLimit->setRange(reader.lastRange());
 
-      child->addProperty(hLimit);
+  child->addProperty(hLimit);
 
-      const auto &srcSlice = reader.slice(16);
-      Property *src = new Property(Token_get("src"), srcSlice);
-      //       src->setSummary(ipv6Addr(srcSlice));
-      src->setRange(reader.lastRange());
+  const auto &srcSlice = reader.slice(16);
+  Property *src = new Property(Token_get("src"), srcSlice);
+  //       src->setSummary(ipv6Addr(srcSlice));
+  src->setRange(reader.lastRange());
 
-      child->addProperty(src);
+  child->addProperty(src);
 
-      const auto &dstSlice = reader.slice(16);
-      Property *dst = new Property(Token_get("dst"), dstSlice);
-      //       dst->setSummary(ipv6Addr(dstSlice));
-      dst->setRange(reader.lastRange());
+  const auto &dstSlice = reader.slice(16);
+  Property *dst = new Property(Token_get("dst"), dstSlice);
+  //       dst->setSummary(ipv6Addr(dstSlice));
+  dst->setRange(reader.lastRange());
 
-      child->addProperty(dst);
+  child->addProperty(dst);
 
-      bool ext = true;
-      while (ext) {
-        Property *item = nullptr;
-        int header = 0;
-        switch (nextHeader) {
-        case 0:
-        case 60: // Hop-by-Hop Options, Destination Options
-        {
-          header = reader.readBE<uint8_t>();
-          size_t extLen = reader.readBE<uint8_t>();
-          size_t byteLen = (extLen + 1) * 8;
-          reader.slice(byteLen);
-          Token id = (nextHeader == 0) ? Token_get("hbyh") : Token_get("dst");
-          item = new Property(id);
-        }
-
-        break;
-        // TODO:
-        // case 43  # Routing
-        // case 44  # Fragment
-        // case 51  # Authentication Header
-        // case 50  # Encapsulating Security Payload
-        // case 135 # Mobility
-        case 59: // No Next Header
-        default:
-          ext = false;
-          continue;
-        }
-
-        child->addProperty(item);
-        nextHeader = header;
-      }
-
-      const std::unordered_map<uint16_t, std::pair<std::string, Token>>
-          protoTable = {
-              {0x01, std::make_pair("ICMP", Token_get("[icmp]"))},
-              {0x02, std::make_pair("IGMP", Token_get("[igmp]"))},
-              {0x06, std::make_pair("TCP", Token_get("[tcp]"))},
-              {0x11, std::make_pair("UDP", Token_get("[udp]"))},
-          };
-
-      uint8_t protocolNumber = nextHeader;
-      Property *proto = new Property(Token_get("protocol"), protocolNumber);
-      const auto &type =
-          fmt::enums(protoTable, protocolNumber,
-                     std::make_pair("Unknown", Token_get("[unknown]")));
-      //       proto->setSummary(type.first);
-      proto->setRange(reader.lastRange());
-
-      child->addProperty(proto);
-
-      /*
-            const std::string &summary =
-                (src->summary() > dst->summary())
-                    ? src->summary() + " -> " + dst->summary()
-                    : dst->summary() + " <- " + src->summary();
-
-            child->setSummary("[" + proto->summary() + "] " + summary);
-            */
-      child->setPayload(reader.slice());
-      return child;
+  bool ext = true;
+  while (ext) {
+    Property *item = nullptr;
+    int header = 0;
+    switch (nextHeader) {
+    case 0:
+    case 60: // Hop-by-Hop Options, Destination Options
+    {
+      header = reader.readBE<uint8_t>();
+      size_t extLen = reader.readBE<uint8_t>();
+      size_t byteLen = (extLen + 1) * 8;
+      reader.slice(byteLen);
+      Token id = (nextHeader == 0) ? Token_get("hbyh") : Token_get("dst");
+      item = new Property(id);
     }
-  };
 
-public:
-  Dissector::WorkerPtr createWorker() override {
-    return Dissector::WorkerPtr(new IPv6Dissector::Worker());
-  }
-};
+    break;
+    // TODO:
+    // case 43  # Routing
+    // case 44  # Fragment
+    // case 51  # Authentication Header
+    // case 50  # Encapsulating Security Payload
+    // case 135 # Mobility
+    case 59: // No Next Header
+    default:
+      ext = false;
+      continue;
+    }
 
-class IPv6DissectorFactory final : public DissectorFactory {
-public:
-  DissectorPtr create(const SessionContext &ctx) const override {
-    return DissectorPtr(new IPv6Dissector());
+    child->addProperty(item);
+    nextHeader = header;
   }
-};
+
+  const std::unordered_map<uint16_t, std::pair<std::string, Token>> protoTable =
+      {
+          {0x01, std::make_pair("ICMP", Token_get("[icmp]"))},
+          {0x02, std::make_pair("IGMP", Token_get("[igmp]"))},
+          {0x06, std::make_pair("TCP", Token_get("[tcp]"))},
+          {0x11, std::make_pair("UDP", Token_get("[udp]"))},
+      };
+
+  uint8_t protocolNumber = nextHeader;
+  Property *proto = new Property(Token_get("protocol"), protocolNumber);
+  const auto &type =
+      fmt::enums(protoTable, protocolNumber,
+                 std::make_pair("Unknown", Token_get("[unknown]")));
+  //       proto->setSummary(type.first);
+  proto->setRange(reader.lastRange());
+
+  child->addProperty(proto);
+
+  /*
+        const std::string &summary =
+            (src->summary() > dst->summary())
+                ? src->summary() + " -> " + dst->summary()
+                : dst->summary() + " <- " + src->summary();
+
+        child->setSummary("[" + proto->summary() + "] " + summary);
+        */
+  child->setPayload(reader.slice());
+  result->child = child;
+}
+}
 
 void Init(v8::Local<v8::Object> exports) {
-  exports->Set(
-      Nan::New("factory").ToLocalChecked(),
-      DissectorFactory::wrap(std::make_shared<IPv6DissectorFactory>()));
+  static XDissector diss;
+  diss.layerHints[0] = Token_get("[ipv6]");
+  diss.analyze = analyze;
+  exports->Set(Nan::New("dissector").ToLocalChecked(),
+               Nan::New<v8::External>(&diss));
 }
 
 NODE_MODULE(dissectorEssentials, Init);

@@ -251,12 +251,6 @@ export default {
           }
         }
       }
-    },
-    {
-      type: 'stream-dissector',
-      stream_dissector: {
-        main: 'build/Release/http-stream.node'
-      }
     }
   ],
   options: [
