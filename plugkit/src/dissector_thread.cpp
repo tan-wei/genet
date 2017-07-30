@@ -63,6 +63,7 @@ void DissectorThread::enter() {
     if (diss.createWorker) {
       data.worker = diss.createWorker(&ctx);
     }
+    d->workers.push_back(data);
   }
 }
 
@@ -89,9 +90,26 @@ bool DissectorThread::loop() {
       for (const auto &layer : leafLayers) {
         dissectedIds.insert(layer->id());
 
+        std::unordered_set<Token> tags;
+        for (const Token &token : layer->tags()) {
+          tags.insert(token);
+        }
+
         workers.clear();
         for (const auto &data : d->workers) {
-          workers.push_back(&data);
+          bool match = true;
+          for (const Token &token : data.dissector->layerHints) {
+            if (token != Token_null()) {
+              auto it = tags.find(token);
+              if (it == tags.end()) {
+                match = false;
+                break;
+              }
+            }
+          }
+          if (match) {
+            workers.push_back(&data);
+          }
         }
 
         DissectionResult result;

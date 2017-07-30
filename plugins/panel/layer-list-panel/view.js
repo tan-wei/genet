@@ -203,7 +203,7 @@ export default class LayerListView {
         length += ` (actual: ${frame.length})`
       }
       let layers = [ frame.rootLayer ]
-      if (frame.rootLayer.id === '') {
+      if (frame.rootLayer.id.startsWith('[')) {
         layers = frame.rootLayer.children
       }
       return <div class="layer-list-view">
