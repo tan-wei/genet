@@ -1,13 +1,8 @@
 #include "session_factory.hpp"
 #include "../src/session.hpp"
-#include "dissector_factory.hpp"
-#include "dissector.hpp"
 #include "plugkit_module.hpp"
 #include "private/variant.hpp"
-#include "script_dissector.hpp"
-#include "script_stream_dissector.hpp"
 #include "session.hpp"
-#include "stream_dissector_factory.hpp"
 
 namespace plugkit {
 
@@ -144,11 +139,11 @@ NAN_METHOD(SessionFactoryWrapper::registerDissector) {
   SessionFactoryWrapper *wrapper =
       ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
   if (const auto &factory = wrapper->factory) {
-    const XDissector *dissector = nullptr;
+    const Dissector *dissector = nullptr;
 
     if (info[0]->IsExternal()) {
       dissector =
-          static_cast<const XDissector *>(info[0].As<v8::External>()->Value());
+          static_cast<const Dissector *>(info[0].As<v8::External>()->Value());
     }
     if (dissector) {
       factory->registerDissector(*dissector);

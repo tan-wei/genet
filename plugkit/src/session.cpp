@@ -23,8 +23,8 @@ struct Session::Config {
   int snaplen = 2048;
   std::string bpf;
   std::unordered_map<int, Token> linkLayers;
-  std::vector<XDissector> dissectors;
-  std::vector<XDissector> streamDissectors;
+  std::vector<Dissector> dissectors;
+  std::vector<Dissector> streamDissectors;
   Variant options;
 };
 
@@ -322,7 +322,7 @@ void SessionFactory::registerLinkLayer(int link, Token token) {
   d->linkLayers[link] = token;
 }
 
-void SessionFactory::registerDissector(const XDissector &diss) {
+void SessionFactory::registerDissector(const Dissector &diss) {
   switch (diss.type) {
   case DISSECTOR_PACKET:
     d->dissectors.push_back(diss);

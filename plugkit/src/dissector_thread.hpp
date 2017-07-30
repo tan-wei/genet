@@ -12,15 +12,12 @@ class Frame;
 using FrameQueue = Queue<Frame *>;
 using FrameQueuePtr = std::shared_ptr<FrameQueue>;
 
-class DissectorFactory;
-using DissectorFactoryConstPtr = std::shared_ptr<const DissectorFactory>;
-
 class StreamResolver;
 using StreamResolverPtr = std::shared_ptr<StreamResolver>;
 
 class Variant;
 
-struct XDissector;
+struct Dissector;
 
 class DissectorThread final : public WorkerThread {
 public:
@@ -30,7 +27,7 @@ public:
   DissectorThread(const Variant &options, const FrameQueuePtr &queue,
                   const StreamResolverPtr &resolver, const Callback &callback);
   ~DissectorThread() override;
-  void pushDissector(const XDissector &diss);
+  void pushDissector(const Dissector &diss);
   void enter() override;
   bool loop() override;
   void exit() override;

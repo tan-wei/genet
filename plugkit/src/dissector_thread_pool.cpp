@@ -1,5 +1,4 @@
 #include "dissector_thread_pool.hpp"
-#include "dissector.hpp"
 #include "dissector_thread.hpp"
 #include "dissector.h"
 #include "stream_resolver.hpp"
@@ -17,7 +16,7 @@ public:
 
 public:
   std::vector<std::unique_ptr<DissectorThread>> threads;
-  std::vector<XDissector> dissectors;
+  std::vector<Dissector> dissectors;
   LoggerPtr logger = std::make_shared<StreamLogger>();
   FrameQueuePtr queue = std::make_shared<FrameQueue>();
   StreamResolverPtr resolver = std::make_shared<StreamResolver>();
@@ -66,7 +65,7 @@ void DissectorThreadPool::start() {
   }
 }
 
-void DissectorThreadPool::registerDissector(const XDissector &diss) {
+void DissectorThreadPool::registerDissector(const Dissector &diss) {
   d->dissectors.push_back(diss);
 }
 

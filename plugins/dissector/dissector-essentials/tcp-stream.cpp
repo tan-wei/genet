@@ -133,7 +133,7 @@ public:
 */
 
 void Init(v8::Local<v8::Object> exports) {
-  static XDissector diss;
+  static Dissector diss;
   diss.layerHints[0] = Token_get("[tcp-stream]");
   diss.type = DISSECTOR_STREAM;
   // diss.analyze = analyze;

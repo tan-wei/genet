@@ -59,7 +59,7 @@ void analyze(Worker *data, Layer *layer, DissectionResult *result) {
 }
 
 void Init(v8::Local<v8::Object> exports) {
-  static XDissector diss;
+  static Dissector diss;
   diss.layerHints[0] = Token_get("[eth]");
   diss.analyze = analyze;
   exports->Set(Nan::New("dissector").ToLocalChecked(),

@@ -1,6 +1,5 @@
 #include "plugkit_module.hpp"
 #include "extended_slot.hpp"
-#include "wrapper/dissector_factory.hpp"
 #include "wrapper/frame.hpp"
 #include "wrapper/layer.hpp"
 #include "wrapper/pcap.hpp"
@@ -8,7 +7,6 @@
 #include "wrapper/slice.hpp"
 #include "wrapper/session.hpp"
 #include "wrapper/session_factory.hpp"
-#include "wrapper/stream_dissector_factory.hpp"
 #include "private/variant.hpp"
 
 namespace plugkit {
@@ -25,8 +23,6 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
     PcapWrapper::init(isolate, exports);
     SessionFactoryWrapper::init(isolate, exports);
     SessionWrapper::init(isolate, exports);
-    DissectorFactoryWrapper::init(isolate);
-    StreamDissectorFactoryWrapper::init(isolate);
   }
 }
 

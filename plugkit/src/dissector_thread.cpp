@@ -1,8 +1,6 @@
 #include "dissector_thread.hpp"
-#include "dissector.hpp"
 #include "frame.hpp"
 #include "layer.hpp"
-#include "session_context.hpp"
 #include "stream_resolver.hpp"
 #include "variant.hpp"
 
@@ -19,7 +17,7 @@ namespace plugkit {
 
 namespace {
 struct WorkerData {
-  const XDissector *dissector;
+  const Dissector *dissector;
   Worker *worker;
 };
 }
@@ -29,7 +27,7 @@ public:
   FrameQueuePtr queue;
   StreamResolverPtr resolver;
   Callback callback;
-  std::vector<XDissector> dissectors;
+  std::vector<Dissector> dissectors;
   std::vector<WorkerData> workers;
   Variant options;
   double confidenceThreshold;
@@ -50,7 +48,7 @@ DissectorThread::DissectorThread(const Variant &options,
 
 DissectorThread::~DissectorThread() {}
 
-void DissectorThread::pushDissector(const XDissector &diss) {
+void DissectorThread::pushDissector(const Dissector &diss) {
   d->dissectors.push_back(diss);
 }
 

@@ -10,13 +10,9 @@ namespace plugkit {
 class Frame;
 class Layer;
 
-class StreamDissectorFactory;
-using StreamDissectorFactoryConstPtr =
-    std::shared_ptr<const StreamDissectorFactory>;
-
 class Variant;
 
-struct XDissector;
+struct Dissector;
 
 class StreamDissectorThread final : public WorkerThread {
 public:
@@ -25,7 +21,7 @@ public:
 public:
   StreamDissectorThread(const Variant &options, const Callback &callback);
   ~StreamDissectorThread() override;
-  void pushStreamDissector(const XDissector &diss);
+  void pushStreamDissector(const Dissector &diss);
   void enter() override;
   bool loop() override;
   void exit() override;

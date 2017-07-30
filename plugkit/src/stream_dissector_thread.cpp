@@ -2,8 +2,6 @@
 #include "layer.hpp"
 #include "private/frame.hpp"
 #include "queue.hpp"
-#include "session_context.hpp"
-#include "stream_dissector.hpp"
 #include "variant.hpp"
 
 #include "dissection_result.h"
@@ -19,7 +17,7 @@ namespace plugkit {
 
 namespace {
 struct WorkerList {
-  std::vector<std::pair<const XDissector *, Worker *>> list;
+  std::vector<std::pair<const Dissector *, Worker *>> list;
   std::chrono::system_clock::time_point lastUpdated =
       std::chrono::system_clock::now();
 };
@@ -33,7 +31,7 @@ public:
   Variant options;
   Callback callback;
   Queue<Layer *> queue;
-  std::vector<XDissector> dissectors;
+  std::vector<Dissector> dissectors;
   double confidenceThreshold;
   size_t count = 0;
 
@@ -75,7 +73,7 @@ StreamDissectorThread::StreamDissectorThread(const Variant &options,
 
 StreamDissectorThread::~StreamDissectorThread() {}
 
-void StreamDissectorThread::pushStreamDissector(const XDissector &diss) {
+void StreamDissectorThread::pushStreamDissector(const Dissector &diss) {
   d->dissectors.push_back(diss);
 }
 
@@ -109,7 +107,7 @@ bool StreamDissectorThread::loop() {
       auto &workers = d->workers[id][layer->streamId()];
 
       if (workers.list.empty()) {
-        std::vector<const XDissector *> dissectors;
+        std::vector<const Dissector *> dissectors;
 
         std::unordered_set<Token> tags;
         for (const Token &token : layer->tags()) {
@@ -132,7 +130,7 @@ bool StreamDissectorThread::loop() {
           }
         }
 
-        for (const XDissector *diss : dissectors) {
+        for (const Dissector *diss : dissectors) {
           Context ctx;
           Worker *worker = nullptr;
           if (diss->createWorker) {

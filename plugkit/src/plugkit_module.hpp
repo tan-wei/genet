@@ -28,8 +28,6 @@ public:
   Class slice;
   Class session;
   Class sessionFactory;
-  Class dissectorFactory;
-  Class streamDissectorFactory;
 
   Function arrayToBuffer;
 };

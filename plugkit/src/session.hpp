@@ -14,14 +14,7 @@ namespace plugkit {
 class Frame;
 class FrameView;
 
-class DissectorFactory;
-using DissectorFactoryConstPtr = std::shared_ptr<const DissectorFactory>;
-
-struct XDissector;
-
-class StreamDissectorFactory;
-using StreamDissectorFactoryConstPtr =
-    std::shared_ptr<const StreamDissectorFactory>;
+struct Dissector;
 
 class Session final {
   friend class SessionFactory;
@@ -110,7 +103,7 @@ public:
   Variant options() const;
 
   void registerLinkLayer(int link, Token token);
-  void registerDissector(const XDissector &diss);
+  void registerDissector(const Dissector &diss);
 
 private:
   std::unique_ptr<Session::Config> d;

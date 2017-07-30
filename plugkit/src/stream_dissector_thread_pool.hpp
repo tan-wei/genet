@@ -16,13 +16,9 @@ class Frame;
 class FrameStore;
 using FrameStorePtr = std::shared_ptr<FrameStore>;
 
-class StreamDissectorFactory;
-using StreamDissectorFactoryConstPtr =
-    std::shared_ptr<const StreamDissectorFactory>;
-
 class Variant;
 
-struct XDissector;
+struct Dissector;
 
 class StreamDissectorThreadPool final {
 public:
@@ -32,7 +28,7 @@ public:
   StreamDissectorThreadPool(const Variant &options, const FrameStorePtr &store,
                             const Callback &callback);
   ~StreamDissectorThreadPool();
-  void registerDissector(const XDissector &diss);
+  void registerDissector(const Dissector &diss);
   void start();
   void setLogger(const LoggerPtr &logger);
 
