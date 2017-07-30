@@ -12,8 +12,7 @@ public:
   Private(Token id);
 
 public:
-  Token id;
-  minins ns;
+  Token id = 0;
   uint32_t streamId = 0;
   std::string summary;
   double confidence = 1.0;
@@ -32,10 +31,6 @@ Layer::Layer(Token id) : d(new Private(id)) {}
 Layer::~Layer() {}
 
 Token Layer::id() const { return d->id; }
-
-minins Layer::ns() const { return d->ns; }
-
-void Layer::setNs(const minins &ns) { d->ns = ns; }
 
 std::string Layer::summary() const { return d->summary; }
 

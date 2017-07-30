@@ -31,7 +31,7 @@ public:
   };
 
   using IdMap = std::unordered_map<uint32_t, WorkerList>;
-  std::unordered_map<minins, IdMap> workers;
+  std::unordered_map<Token, IdMap> workers;
 };
 
 void StreamDissectorThread::Private::cleanup() {
@@ -99,21 +99,23 @@ bool StreamDissectorThread::loop() {
     std::vector<Layer *> nextlayers;
 
     for (size_t i = 0; i < layers.size(); ++i) {
-      std::unordered_set<minins> dissectedNamespaces;
+      std::unordered_set<Token> dissectedIds;
 
       const auto layer = layers[i];
-      const minins &ns = layer->ns();
-      dissectedNamespaces.insert(ns);
-      auto &workers = d->workers[ns][layer->streamId()];
+      Token id = layer->id();
+      dissectedIds.insert(id);
+      auto &workers = d->workers[id][layer->streamId()];
 
       if (workers.list.empty()) {
         std::vector<StreamDissector *> dissectors;
 
         for (const auto &pair : d->dissectors) {
           for (const auto &filter : pair.second) {
+            /*
             if (ns.match(filter)) {
               dissectors.push_back(pair.first.get());
             }
+            */
           }
         }
 
@@ -132,7 +134,8 @@ bool StreamDissectorThread::loop() {
 
             childLayers.push_back(childLayer);
             if (childLayer->streamId() > 0) {
-              if (dissectedNamespaces.count(childLayer->ns()) == 0) {
+              auto it = dissectedIds.find(childLayer->id());
+              if (it == dissectedIds.end()) {
                 nextlayers.push_back(childLayer);
               }
             }

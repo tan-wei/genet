@@ -146,7 +146,7 @@ class LayerItem {
         onmouseout= { () => selectRange() }
       >
         <h4
-          data-layer={layer.namespace}
+          data-layer={layer.tags.join(' ')}
           onclick={ () => this.expanded = !this.expanded }
         ><i class={faClass}></i> { name } { layer.summary }
         <span

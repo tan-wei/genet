@@ -17,8 +17,6 @@ public:
   ~Layer();
 
   Token id() const;
-  minins ns() const;
-  void setNs(const minins &ns);
   std::string summary() const;
   void setSummary(const std::string &summary);
   double confidence() const;

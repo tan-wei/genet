@@ -97,9 +97,7 @@ public:
       Property *proto = new Property(MID("protocol"), protocolNumber);
       const auto &type = fmt::enums(protoTable, protocolNumber,
                                     std::make_pair("Unknown", MNS("?")));
-      if (type.second != MNS("?")) {
-        child->setNs(minins(MNS("ipv4"), type.second));
-      }
+
       proto->setRange(reader.lastRange());
 
       child->addProperty(proto);

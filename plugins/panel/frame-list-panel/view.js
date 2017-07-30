@@ -25,7 +25,7 @@ class FrameItem {
     const name = (id in Session.descriptors) ? Session.descriptors[id].name : 'Unknown'
     return <div
       class="frame-item"
-      data-layer={this.frame.primaryLayer.namespace}
+      data-layer={this.frame.primaryLayer.tags.join(' ')}
       data-layer-confidence={1}
       data-frame-length={this.frame.length}
       data-frame-capture-length={this.frame.rootLayer.payload.length}
@@ -140,7 +140,7 @@ export default class FrameListView {
             index = this.session.getFilteredFrames('main', index, 1)[0] - 1
           }
           const frame = this.session.getFrames(index, 1)[0]
-          dummy.setAttribute('data-layer', frame.primaryLayer.namespace)
+          dummy.setAttribute('data-layer', frame.primaryLayer.tags.join(' '))
           ctx.fillStyle = getComputedStyle(dummy, null).getPropertyValue("background-color")
           ctx.fillRect(0, i, 1, 1)
         }

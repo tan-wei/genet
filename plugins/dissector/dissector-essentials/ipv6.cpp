@@ -171,9 +171,6 @@ public:
       const auto &type = fmt::enums(protoTable, protocolNumber,
                                     std::make_pair("Unknown", MNS("?")));
       //       proto->setSummary(type.first);
-      if (type.second != MNS("?")) {
-        child->setNs(minins(MNS("ipv6"), type.second));
-      }
       proto->setRange(reader.lastRange());
 
       child->addProperty(proto);

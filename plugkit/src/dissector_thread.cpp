@@ -75,7 +75,7 @@ bool DissectorThread::loop() {
   std::vector<std::pair<Layer *, std::string>> streamedLayers;
 
   for (size_t i = 0; i < size; ++i) {
-    std::unordered_set<minins> dissectedNamespaces;
+    std::unordered_set<Token> dissectedIds;
 
     Frame *frame = frames[i];
     const auto &rootLayer = frame->rootLayer();
@@ -87,8 +87,7 @@ bool DissectorThread::loop() {
     while (!leafLayers.empty()) {
       std::vector<Layer *> nextlayers;
       for (const auto &layer : leafLayers) {
-        const minins &ns = layer->ns();
-        dissectedNamespaces.insert(ns);
+        dissectedIds.insert(layer->id());
 
         workers.clear();
         for (const auto &data : d->workers) {
@@ -109,7 +108,9 @@ bool DissectorThread::loop() {
               childLayer->setParent(layer);
               childLayer->setFrame(frame);
               childLayers.push_back(childLayer);
-              if (dissectedNamespaces.count(childLayer->ns()) == 0) {
+
+              auto it = dissectedIds.find(childLayer->id());
+              if (it == dissectedIds.end()) {
                 nextlayers.push_back(childLayer);
               }
             }
