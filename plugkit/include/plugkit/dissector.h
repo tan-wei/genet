@@ -18,7 +18,7 @@ enum DissectorType { DISSECTOR_PACKET = 0, DISSECTOR_STREAM = 1 };
 struct XDissector {
   void (*analyze)(Worker *worker, Layer *layer, DissectionResult *result);
   Worker *(*createWorker)(Context *ctx);
-  bool *(*expired)(int elapsed);
+  bool (*expired)(Worker *worker, uint32_t elapsed);
   Token layerHints[8];
   DissectorType type;
 };

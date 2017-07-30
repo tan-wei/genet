@@ -5,12 +5,25 @@
 #include "session_context.hpp"
 #include "stream_dissector.hpp"
 #include "variant.hpp"
+
+#include "dissection_result.h"
+#include "dissector.h"
+#include "context.hpp"
+
 #include <algorithm>
 #include <unordered_map>
 #include <unordered_set>
 #include <v8.h>
 
 namespace plugkit {
+
+namespace {
+struct WorkerList {
+  std::vector<std::pair<const XDissector *, Worker *>> list;
+  std::chrono::system_clock::time_point lastUpdated =
+      std::chrono::system_clock::now();
+};
+}
 
 class StreamDissectorThread::Private {
 public:
@@ -20,14 +33,9 @@ public:
   Variant options;
   Callback callback;
   Queue<Layer *> queue;
-  std::vector<StreamDissectorFactoryConstPtr> factories;
+  std::vector<XDissector> dissectors;
   double confidenceThreshold;
   size_t count = 0;
-
-  struct WorkerList {
-    std::vector<StreamDissector::WorkerPtr> list;
-    Timestamp lastUpdated;
-  };
 
   using IdMap = std::unordered_map<uint32_t, WorkerList>;
   std::unordered_map<Token, IdMap> workers;
@@ -37,8 +45,13 @@ void StreamDissectorThread::Private::cleanup() {
   for (auto &pair : workers) {
     for (auto it = pair.second.begin(); it != pair.second.end();) {
       bool alive = false;
-      for (auto &worker : it->second.list) {
-        if (!worker->expired(it->second.lastUpdated)) {
+      uint32_t elapsed =
+          std::chrono::duration_cast<std::chrono::milliseconds>(
+              std::chrono::system_clock::now() - it->second.lastUpdated)
+              .count();
+      for (const auto &pair : it->second.list) {
+        auto expired = pair.first->expired;
+        if ((!expired && elapsed < 30000) || !expired(pair.second, elapsed)) {
           alive = true;
         }
       }
@@ -62,23 +75,11 @@ StreamDissectorThread::StreamDissectorThread(const Variant &options,
 
 StreamDissectorThread::~StreamDissectorThread() {}
 
-void StreamDissectorThread::pushStreamDissectorFactory(
-    const StreamDissectorFactoryConstPtr &factory) {
-  d->factories.push_back(factory);
+void StreamDissectorThread::pushStreamDissector(const XDissector &diss) {
+  d->dissectors.push_back(diss);
 }
 
-void StreamDissectorThread::enter() {
-  SessionContext ctx;
-  ctx.logger = logger;
-  ctx.options = d->options;
-  for (const auto &factory : d->factories) {
-    StreamDissectorPtr diss = factory->create(ctx);
-    /*
-    const auto &namespaces = diss->namespaces();
-    d->dissectors[std::move(diss)] = namespaces;
-    */
-  }
-}
+void StreamDissectorThread::enter() {}
 
 bool StreamDissectorThread::loop() {
   std::vector<Layer *> layers;
@@ -108,28 +109,46 @@ bool StreamDissectorThread::loop() {
       auto &workers = d->workers[id][layer->streamId()];
 
       if (workers.list.empty()) {
-        std::vector<StreamDissector *> dissectors;
+        std::vector<const XDissector *> dissectors;
 
-        /*
-        for (const auto &pair : d->dissectors) {
-          for (const auto &filter : pair.second) {
-            if (ns.match(filter)) {
-              dissectors.push_back(pair.first.get());
+        std::unordered_set<Token> tags;
+        for (const Token &token : layer->tags()) {
+          tags.insert(token);
+        }
+
+        for (const auto &diss : d->dissectors) {
+          bool match = true;
+          for (const Token &token : diss.layerHints) {
+            if (token != Token_null()) {
+              auto it = tags.find(token);
+              if (it == tags.end()) {
+                match = false;
+                break;
+              }
             }
           }
-        }
-        */
-
-        for (auto dissector : dissectors) {
-          if (auto worker = dissector->createWorker()) {
-            workers.list.push_back(std::move(worker));
+          if (match) {
+            dissectors.push_back(&diss);
           }
+        }
+
+        for (const XDissector *diss : dissectors) {
+          Context ctx;
+          Worker *worker = nullptr;
+          if (diss->createWorker) {
+            worker = diss->createWorker(&ctx);
+          }
+          workers.list.push_back(std::make_pair(diss, worker));
         }
       }
 
+      DissectionResult result;
       std::vector<Layer *> childLayers;
-      for (const auto &worker : workers.list) {
-        if (Layer *childLayer = worker->analyze(layer)) {
+      for (const auto &pair : workers.list) {
+        std::memset(&result, 0, sizeof(result));
+        pair.first->analyze(pair.second, layer, &result);
+
+        if (Layer *childLayer = result.child) {
           if (childLayer->confidence() >= d->confidenceThreshold) {
             childLayer->setParent(layer);
 
@@ -166,8 +185,7 @@ bool StreamDissectorThread::loop() {
 }
 
 void StreamDissectorThread::exit() {
-  d->factories.clear();
-  // d->dissectors.clear();
+  d->dissectors.clear();
   d->workers.clear();
 }
 

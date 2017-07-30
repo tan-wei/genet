@@ -29,7 +29,6 @@ public:
   FrameQueuePtr queue;
   StreamResolverPtr resolver;
   Callback callback;
-  std::vector<DissectorFactoryConstPtr> factories;
   std::vector<XDissector> dissectors;
   std::vector<WorkerData> workers;
   Variant options;

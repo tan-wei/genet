@@ -23,7 +23,6 @@ public:
 public:
   LoggerPtr logger = std::make_shared<StreamLogger>();
   std::vector<std::unique_ptr<StreamDissectorThread>> threads;
-  std::vector<StreamDissectorFactoryConstPtr> dissectorFactories;
   std::vector<XDissector> dissectors;
   FrameStorePtr store;
   Callback callback;
@@ -108,8 +107,8 @@ void StreamDissectorThreadPool::start() {
           uint32_t index = d->updateIndex(i, 0, maxFrameIndex);
           d->callback(index);
         });
-    for (const auto &factory : d->dissectorFactories) {
-      dissectorThread->pushStreamDissectorFactory(factory);
+    for (const auto &diss : d->dissectors) {
+      dissectorThread->pushStreamDissector(diss);
     }
     dissectorThread->setLogger(d->logger);
     d->threads.emplace_back(dissectorThread);

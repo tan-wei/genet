@@ -16,6 +16,8 @@ using StreamDissectorFactoryConstPtr =
 
 class Variant;
 
+struct XDissector;
+
 class StreamDissectorThread final : public WorkerThread {
 public:
   using Callback = std::function<void(uint32_t)>;
@@ -23,8 +25,7 @@ public:
 public:
   StreamDissectorThread(const Variant &options, const Callback &callback);
   ~StreamDissectorThread() override;
-  void
-  pushStreamDissectorFactory(const StreamDissectorFactoryConstPtr &factory);
+  void pushStreamDissector(const XDissector &diss);
   void enter() override;
   bool loop() override;
   void exit() override;
