@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "token.h"
 
 namespace plugkit {
 
@@ -43,7 +44,7 @@ public:
   virtual bool hasPermission() const = 0;
   virtual bool running() const = 0;
 
-  virtual void registerLinkLayer(int link, const minins &ns) = 0;
+  virtual void registerLinkLayer(int link, Token token) = 0;
 
   virtual bool start() = 0;
   virtual bool stop() = 0;

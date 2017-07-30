@@ -35,7 +35,7 @@ public:
       child.setPayload(chunk->payload());
 
       // TODO:ALLOC
-      return new Layer(std::move(child));
+      return new Layer();
       */
       return nullptr;
     }

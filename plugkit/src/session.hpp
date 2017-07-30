@@ -3,6 +3,7 @@
 
 #include "logger.hpp"
 #include "variant.hpp"
+#include "token.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -110,7 +111,7 @@ public:
   void setOptions(const Variant &options);
   Variant options() const;
 
-  void registerLinkLayer(int link, const minins &ns);
+  void registerLinkLayer(int link, Token token);
   void registerDissector(const XDissector &diss);
 
 private:

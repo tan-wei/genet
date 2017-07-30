@@ -14,7 +14,7 @@ public:
   public:
     Layer *analyze(Layer *layer, MetaData *meta) override {
       fmt::Reader<Slice> reader(layer->payload());
-      Layer *child = new Layer(MNS("ipv4"));
+      Layer *child = new Layer();
 
       uint8_t header = reader.readBE<uint8_t>();
       int version = header >> 4;

@@ -60,7 +60,9 @@ void DissectorThread::enter() {
   for (const auto &diss : d->dissectors) {
     WorkerData data;
     data.dissector = &diss;
-    data.worker = diss.createWorker(&ctx);
+    if (diss.createWorker) {
+      data.worker = diss.createWorker(&ctx);
+    }
   }
 }
 

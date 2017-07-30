@@ -53,7 +53,7 @@ public:
   class Worker final : public StreamDissector::Worker {
   public:
     Layer *analyze(Layer *layer) override {
-      Layer child(MNS("tcp_st"));
+      Layer child;
       const auto &payload = layer->payload();
       uint32_t seq = layer->propertyFromId(MID("seq"))->value().uint64Value();
       uint16_t window =

@@ -15,7 +15,7 @@ struct WorkerContext {};
 
 void analyze(Worker *data, Layer *layer, DissectionResult *result) {
   fmt::Reader<Slice> reader(layer->payload());
-  Layer *child = new Layer("eth");
+  Layer *child = new Layer();
 
   const auto &srcSlice = reader.slice(6);
   Property *src = new Property(MID("src"), srcSlice);
@@ -48,6 +48,7 @@ void analyze(Worker *data, Layer *layer, DissectionResult *result) {
 
     etherType->setRange(reader.lastRange());
     child->addProperty(etherType);
+    child->addTag(type.second);
 
     result->child = child;
   }

@@ -7,12 +7,13 @@
 #include "export.hpp"
 #include "minins.hpp"
 #include "types.hpp"
+#include "token.h"
 
 namespace plugkit {
 
 class PLUGKIT_EXPORT Layer final {
 public:
-  Layer(const minins &ns);
+  Layer();
   ~Layer();
 
   miniid id() const;
@@ -35,6 +36,9 @@ public:
 
   const Slice &payload() const;
   void setPayload(const Slice &payload);
+
+  const std::vector<Token> &tags() const;
+  void addTag(Token token);
 
   const std::vector<const Payload *> &payloads() const;
   void addPayload(const Payload *payload);

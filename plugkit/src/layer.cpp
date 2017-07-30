@@ -9,7 +9,7 @@ namespace plugkit {
 
 class Layer::Private {
 public:
-  Private(const minins &ns);
+  Private();
 
 public:
   minins ns;
@@ -19,13 +19,14 @@ public:
   Slice payload;
   const Layer *parent = nullptr;
   const Frame *frame = nullptr;
+  std::vector<Token> tags;
   std::vector<Layer *> children;
   std::vector<const Property *> properties;
 };
 
-Layer::Private::Private(const minins &ns) : ns(ns) {}
+Layer::Private::Private() {}
 
-Layer::Layer(const minins &ns) : d(new Private(ns)) {}
+Layer::Layer() : d(new Private()) {}
 
 Layer::~Layer() {}
 
@@ -52,6 +53,10 @@ uint32_t Layer::streamId() const { return d->streamId; }
 void Layer::setStreamId(uint32_t id) { d->streamId = id; }
 
 const Slice &Layer::payload() const { return d->payload; }
+
+const std::vector<Token> &Layer::tags() const { return d->tags; }
+
+void Layer::addTag(Token token) { d->tags.push_back(token); }
 
 void Layer::setPayload(const Slice &payload) { d->payload = payload; }
 

@@ -54,7 +54,8 @@ NAN_METHOD(LayerWrapper::New) {
   if (!nsValue->IsString()) {
     return;
   }
-  auto layer = new Layer(minins(*Nan::Utf8String(nsValue)));
+  auto layer = new Layer();
+  layer->setNs(minins(*Nan::Utf8String(nsValue)));
   if (summaryValue->IsString()) {
     layer->setSummary(*Nan::Utf8String(summaryValue));
   }
