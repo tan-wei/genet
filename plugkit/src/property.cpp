@@ -6,24 +6,24 @@ namespace plugkit {
 
 class Property::Private {
 public:
-  Private(miniid id, const Variant &value);
-  miniid id;
+  Private(Token id, const Variant &value);
+  Token id;
   std::pair<uint32_t, uint32_t> range;
   Variant value;
   std::vector<const Property *> children;
 };
 
-Property::Private::Private(miniid id, const Variant &value)
+Property::Private::Private(Token id, const Variant &value)
     : id(id), value(value) {}
 
-Property::Property(miniid id, const Variant &value)
+Property::Property(Token id, const Variant &value)
     : d(new Private(id, value)) {}
 
 Property::~Property() {}
 
-miniid Property::id() const { return d->id; }
+Token Property::id() const { return d->id; }
 
-void Property::setId(miniid id) { d->id = id; }
+void Property::setId(Token id) { d->id = id; }
 
 std::pair<uint32_t, uint32_t> Property::range() const { return d->range; }
 
@@ -39,7 +39,7 @@ const std::vector<const Property *> &Property::properties() const {
   return d->children;
 }
 
-const Property *Property::propertyFromId(miniid id) const {
+const Property *Property::propertyFromId(Token id) const {
   for (const auto &child : d->children) {
     if (child->id() == id) {
       return child;

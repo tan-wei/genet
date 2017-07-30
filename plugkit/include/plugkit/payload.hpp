@@ -2,7 +2,7 @@
 #define PLUGKIT_PAYLOAD_H
 
 #include "types.hpp"
-#include "miniid.hpp"
+#include "token.hpp"
 #include <vector>
 
 namespace plugkit {
@@ -16,7 +16,7 @@ public:
   Range range() const;
 
   const std::vector<const Property *> &properties() const;
-  const Property *propertyFromId(miniid id) const;
+  const Property *propertyFromId(Token id) const;
   void addProperty(const Property *prop);
 };
 }

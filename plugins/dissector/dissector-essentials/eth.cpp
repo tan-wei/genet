@@ -18,20 +18,20 @@ void analyze(Worker *data, Layer *layer, DissectionResult *result) {
   Layer *child = new Layer(Token_get("eth"));
 
   const auto &srcSlice = reader.slice(6);
-  Property *src = new Property(MID("src"), srcSlice);
+  Property *src = new Property(Token_get("src"), srcSlice);
   src->setRange(reader.lastRange());
 
   child->addProperty(src);
 
   const auto &dstSlice = reader.slice(6);
-  Property *dst = new Property(MID("dst"), dstSlice);
+  Property *dst = new Property(Token_get("dst"), dstSlice);
 
   dst->setRange(reader.lastRange());
   child->addProperty(dst);
 
   auto protocolType = reader.readBE<uint16_t>();
   if (protocolType <= 1500) {
-    Property *length = new Property(MID("len"), protocolType);
+    Property *length = new Property(Token_get("len"), protocolType);
     length->setRange(reader.lastRange());
 
     child->addProperty(length);
@@ -42,7 +42,7 @@ void analyze(Worker *data, Layer *layer, DissectionResult *result) {
             {0x86DD, std::make_pair("IPv6", Token_get("[ipv6]"))},
         };
 
-    Property *etherType = new Property(MID("ethType"), protocolType);
+    Property *etherType = new Property(Token_get("ethType"), protocolType);
     const auto &type = fmt::enums(typeTable, protocolType,
                                   std::make_pair("Unknown", Token_null()));
 

@@ -68,7 +68,7 @@ const Frame *Layer::frame() const { return d->frame; }
 
 void Layer::setFrame(const Frame *frame) { d->frame = frame; }
 
-const Property *Layer::propertyFromId(miniid id) const {
+const Property *Layer::propertyFromId(Token id) const {
   for (const auto &child : d->properties) {
     if (child->id() == id) {
       return child;

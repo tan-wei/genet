@@ -16,11 +16,11 @@ public:
       fmt::Reader<Slice> reader(layer->payload());
       Layer *child = new Layer(Token_get("udp"));
 
-      const auto &parentSrc = layer->propertyFromId(MID("src"));
-      const auto &parentDst = layer->propertyFromId(MID("dst"));
+      const auto &parentSrc = layer->propertyFromId(Token_get("src"));
+      const auto &parentDst = layer->propertyFromId(Token_get("dst"));
 
       uint16_t sourcePort = reader.readBE<uint16_t>();
-      Property *src = new Property(MID("src"), sourcePort);
+      Property *src = new Property(Token_get("src"), sourcePort);
       //       src->setSummary(parentSrc->summary() + ":" +
       //       std::to_string(sourcePort));
       src->setRange(reader.lastRange());
@@ -28,7 +28,7 @@ public:
       child->addProperty(src);
 
       uint16_t dstPort = reader.readBE<uint16_t>();
-      Property *dst = new Property(MID("dst"), dstPort);
+      Property *dst = new Property(Token_get("dst"), dstPort);
       //       dst->setSummary(parentDst->summary() + ":" +
       //       std::to_string(dstPort));
       dst->setRange(reader.lastRange());
@@ -36,13 +36,13 @@ public:
       child->addProperty(dst);
 
       uint32_t lengthNumber = reader.readBE<uint16_t>();
-      Property *length = new Property(MID("length"), lengthNumber);
+      Property *length = new Property(Token_get("length"), lengthNumber);
       length->setRange(reader.lastRange());
 
       child->addProperty(length);
 
       uint32_t checksumNumber = reader.readBE<uint16_t>();
-      Property *checksum = new Property(MID("checksum"), checksumNumber);
+      Property *checksum = new Property(Token_get("checksum"), checksumNumber);
       checksum->setRange(reader.lastRange());
 
       child->addProperty(checksum);
@@ -58,9 +58,6 @@ public:
 public:
   Dissector::WorkerPtr createWorker() override {
     return Dissector::WorkerPtr(new UDPDissector::Worker());
-  }
-  std::vector<minins> namespaces() const override {
-    return std::vector<minins>{MNS("*udp")};
   }
 };
 

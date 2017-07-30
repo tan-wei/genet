@@ -22,8 +22,6 @@ class Frame;
 class Logger;
 using LoggerPtr = std::shared_ptr<Logger>;
 
-struct minins;
-
 class Pcap {
 public:
   using Callback = std::function<void(Frame *)>;

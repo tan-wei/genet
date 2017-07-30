@@ -188,7 +188,7 @@ NAN_METHOD(LayerWrapper::propertyFromId) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->weakLayer) {
     if (const auto &prop =
-            layer->propertyFromId(miniid(*Nan::Utf8String(info[0])))) {
+            layer->propertyFromId(Token_get(*Nan::Utf8String(info[0])))) {
       info.GetReturnValue().Set(PropertyWrapper::wrap(prop));
     } else {
       info.GetReturnValue().Set(Nan::Null());

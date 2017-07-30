@@ -31,7 +31,6 @@ public:
                         const std::string &path);
   ~ScriptStreamDissector();
   WorkerPtr createWorker() override;
-  std::vector<minins> namespaces() const override;
 
 private:
   class Private;

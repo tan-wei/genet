@@ -25,9 +25,9 @@ public:
       Layer child(MNS("http"));
       const auto &layer = chunk->layer();
       uint16_t srcPort =
-      layer->propertyFromId(MID("src"))->value().uint64Value();
+      layer->propertyFromId(Token_get("src"))->value().uint64Value();
       uint16_t dstPort =
-      layer->propertyFromId(MID("dst"))->value().uint64Value();
+      layer->propertyFromId(Token_get("dst"))->value().uint64Value();
       if (ports.find(srcPort) == ports.end() && ports.find(dstPort) ==
       ports.end()) {
         return nullptr;
@@ -49,9 +49,6 @@ public:
   HTTPDissector(const SessionContext &ctx) : ctx(ctx) {}
   StreamDissector::WorkerPtr createWorker() override {
     return StreamDissector::WorkerPtr(new HTTPDissector::Worker(ctx));
-  }
-  std::vector<minins> namespaces() const override {
-    return std::vector<minins>{MNS("tcp")};
   }
 
 private:

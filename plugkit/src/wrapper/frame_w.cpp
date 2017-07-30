@@ -107,7 +107,7 @@ NAN_METHOD(FrameWrapper::propertyFromId) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
   if (const auto &view = wrapper->view) {
     if (const auto &prop =
-            view->propertyFromId(miniid(*Nan::Utf8String(info[0])))) {
+            view->propertyFromId(Token_get(*Nan::Utf8String(info[0])))) {
       info.GetReturnValue().Set(PropertyWrapper::wrap(prop));
     } else {
       info.GetReturnValue().Set(Nan::Null());

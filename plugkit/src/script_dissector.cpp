@@ -68,7 +68,6 @@ public:
             const std::string &path, v8::TryCatch *tryCatch);
 
 public:
-  std::vector<minins> namespaces;
   v8::UniquePersistent<v8::Object> workerObj;
   SessionContext ctx;
 };
@@ -124,9 +123,11 @@ void ScriptDissector::Private::init(const SessionContext &ctx,
   auto nsArray = nsValue.As<Array>();
   for (uint32_t i = 0; i < nsArray->Length(); ++i) {
     auto itemValue = nsArray->Get(i);
+    /*
     if (itemValue->IsString()) {
       namespaces.emplace_back(*Nan::Utf8String(itemValue));
     }
+    */
   }
   auto sess = Nan::New<v8::Object>();
   sess->Set(Nan::New("options").ToLocalChecked(),
@@ -167,10 +168,6 @@ Dissector::WorkerPtr ScriptDissector::createWorker() {
   }
   return Dissector::WorkerPtr(
       new ScriptDissector::Worker(d->ctx, d->workerObj));
-}
-
-std::vector<minins> ScriptDissector::namespaces() const {
-  return d->namespaces;
 }
 
 class ScriptDissectorFactory::Private {

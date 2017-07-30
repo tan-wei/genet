@@ -3,7 +3,6 @@
 
 #include <memory>
 #include <vector>
-#include "miniid.hpp"
 #include "export.hpp"
 #include "token.h"
 
@@ -21,7 +20,7 @@ public:
   const Frame *frame() const;
   const Layer *primaryLayer() const;
   const std::vector<const Layer *> &leafLayers() const;
-  const Property *propertyFromId(miniid id) const;
+  const Property *propertyFromId(Token id) const;
   const Layer *layerFromId(Token id) const;
 
 private:

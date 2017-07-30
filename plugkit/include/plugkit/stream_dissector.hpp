@@ -2,7 +2,6 @@
 #define PLUGKIT_STREAM_DISSECTOR_H
 
 #include "export.hpp"
-#include "minins.hpp"
 #include "types.hpp"
 #include "token.h"
 #include <memory>
@@ -37,7 +36,6 @@ public:
 
 public:
   virtual WorkerPtr createWorker() = 0;
-  virtual std::vector<minins> namespaces() const = 0;
 };
 
 using StreamDissectorPtr = std::unique_ptr<StreamDissector>;

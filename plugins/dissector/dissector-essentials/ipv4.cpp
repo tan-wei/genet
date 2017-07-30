@@ -20,28 +20,28 @@ public:
       int version = header >> 4;
       int headerLength = header & 0b00001111;
 
-      Property *ver = new Property(MID("version"), version);
+      Property *ver = new Property(Token_get("version"), version);
       ver->setRange(reader.lastRange());
 
       child->addProperty(ver);
 
-      Property *hlen = new Property(MID("hLen"), headerLength);
+      Property *hlen = new Property(Token_get("hLen"), headerLength);
       hlen->setRange(reader.lastRange());
 
       child->addProperty(hlen);
 
-      Property *tos = new Property(MID("type"), reader.readBE<uint8_t>());
+      Property *tos = new Property(Token_get("type"), reader.readBE<uint8_t>());
       tos->setRange(reader.lastRange());
 
       child->addProperty(tos);
 
       uint16_t totalLength = reader.readBE<uint16_t>();
-      Property *tlen = new Property(MID("tLen"), totalLength);
+      Property *tlen = new Property(Token_get("tLen"), totalLength);
       tlen->setRange(reader.lastRange());
 
       child->addProperty(tlen);
 
-      Property *id = new Property(MID("id"), reader.readBE<uint16_t>());
+      Property *id = new Property(Token_get("id"), reader.readBE<uint16_t>());
       id->setRange(reader.lastRange());
 
       child->addProperty(id);
@@ -49,13 +49,13 @@ public:
       uint8_t flagAndOffset = reader.readBE<uint8_t>();
       uint8_t flag = (flagAndOffset >> 5) & 0b00000111;
 
-      const std::tuple<uint16_t, const char *, miniid> flagTable[] = {
-          std::make_tuple(0x1, "Reserved", MID("reserved")),
-          std::make_tuple(0x2, "Don\'t Fragment", MID("dontFrag")),
-          std::make_tuple(0x4, "More Fragments", MID("moreFrag")),
+      const std::tuple<uint16_t, const char *, Token> flagTable[] = {
+          std::make_tuple(0x1, "Reserved", Token_get("reserved")),
+          std::make_tuple(0x2, "Don\'t Fragment", Token_get("dontFrag")),
+          std::make_tuple(0x4, "More Fragments", Token_get("moreFrag")),
       };
 
-      Property *flags = new Property(MID("flags"), flag);
+      Property *flags = new Property(Token_get("flags"), flag);
       std::string flagSummary;
       for (const auto &bit : flagTable) {
         bool on = std::get<0>(bit) & flag;
@@ -75,47 +75,48 @@ public:
 
       uint16_t fgOffset =
           ((flagAndOffset & 0b00011111) << 8) | reader.readBE<uint8_t>();
-      Property *fragmentOffset = new Property(MID("fOffset"), fgOffset);
+      Property *fragmentOffset = new Property(Token_get("fOffset"), fgOffset);
       fragmentOffset->setRange(std::make_pair(6, 8));
 
       child->addProperty(fragmentOffset);
 
-      Property *ttl = new Property(MID("ttl"), reader.readBE<uint8_t>());
+      Property *ttl = new Property(Token_get("ttl"), reader.readBE<uint8_t>());
       ttl->setRange(reader.lastRange());
 
       child->addProperty(ttl);
 
-      const std::unordered_map<uint16_t, std::pair<std::string, miniid>>
+      const std::unordered_map<uint16_t, std::pair<std::string, Token>>
           protoTable = {
-              {0x01, std::make_pair("ICMP", MNS("*icmp"))},
-              {0x02, std::make_pair("IGMP", MNS("*igmp"))},
-              {0x06, std::make_pair("TCP", MNS("*tcp"))},
-              {0x11, std::make_pair("UDP", MNS("*udp"))},
+              {0x01, std::make_pair("ICMP", Token_get("[icmp]"))},
+              {0x02, std::make_pair("IGMP", Token_get("[igmp]"))},
+              {0x06, std::make_pair("TCP", Token_get("[tcp]"))},
+              {0x11, std::make_pair("UDP", Token_get("[udp]"))},
           };
 
       uint8_t protocolNumber = reader.readBE<uint8_t>();
-      Property *proto = new Property(MID("protocol"), protocolNumber);
-      const auto &type = fmt::enums(protoTable, protocolNumber,
-                                    std::make_pair("Unknown", MNS("?")));
+      Property *proto = new Property(Token_get("protocol"), protocolNumber);
+      const auto &type =
+          fmt::enums(protoTable, protocolNumber,
+                     std::make_pair("Unknown", Token_get("[unknown]")));
 
       proto->setRange(reader.lastRange());
 
       child->addProperty(proto);
 
       Property *checksum =
-          new Property(MID("checksum"), reader.readBE<uint16_t>());
+          new Property(Token_get("checksum"), reader.readBE<uint16_t>());
       checksum->setRange(reader.lastRange());
 
       child->addProperty(checksum);
 
       const auto &srcSlice = reader.slice(4);
-      Property *src = new Property(MID("src"), srcSlice);
+      Property *src = new Property(Token_get("src"), srcSlice);
       src->setRange(reader.lastRange());
 
       child->addProperty(src);
 
       const auto &dstSlice = reader.slice(4);
-      Property *dst = new Property(MID("dst"), dstSlice);
+      Property *dst = new Property(Token_get("dst"), dstSlice);
       dst->setRange(reader.lastRange());
 
       child->addProperty(dst);
@@ -136,9 +137,6 @@ public:
 public:
   Dissector::WorkerPtr createWorker() override {
     return Dissector::WorkerPtr(new IPv4Dissector::Worker());
-  }
-  std::vector<minins> namespaces() const override {
-    return std::vector<minins>{MNS("*ipv4")};
   }
 };
 

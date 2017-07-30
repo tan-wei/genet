@@ -3,7 +3,7 @@
 
 #include "variant.hpp"
 #include "export.hpp"
-#include "miniid.hpp"
+#include "token.h"
 #include <memory>
 #include <vector>
 
@@ -11,18 +11,18 @@ namespace plugkit {
 
 class PLUGKIT_EXPORT Property final {
 public:
-  Property(miniid id, const Variant &value = Variant());
+  Property(Token id, const Variant &value = Variant());
   ~Property();
 
-  miniid id() const;
-  void setId(miniid id);
+  Token id() const;
+  void setId(Token id);
   std::pair<uint32_t, uint32_t> range() const;
   void setRange(const std::pair<uint32_t, uint32_t> &range);
   Variant value() const;
   void setValue(const Variant &value);
 
   const std::vector<const Property *> &properties() const;
-  const Property *propertyFromId(miniid id) const;
+  const Property *propertyFromId(Token id) const;
   void addProperty(const Property *prop);
 
 private:

@@ -78,22 +78,23 @@ public:
       int flowLevel =
           reader.readBE<uint16_t>() | ((header2 & 0b00001111) << 16);
 
-      Property *ver = new Property(MID("version"), version);
+      Property *ver = new Property(Token_get("version"), version);
       ver->setRange(std::make_pair(0, 1));
 
       child->addProperty(ver);
 
-      Property *tClass = new Property(MID("tClass"), trafficClass);
+      Property *tClass = new Property(Token_get("tClass"), trafficClass);
       tClass->setRange(std::make_pair(0, 2));
 
       child->addProperty(tClass);
 
-      Property *fLevel = new Property(MID("fLevel"), flowLevel);
+      Property *fLevel = new Property(Token_get("fLevel"), flowLevel);
       fLevel->setRange(std::make_pair(1, 4));
 
       child->addProperty(fLevel);
 
-      Property *pLen = new Property(MID("pLen"), reader.readBE<uint16_t>());
+      Property *pLen =
+          new Property(Token_get("pLen"), reader.readBE<uint16_t>());
       pLen->setRange(reader.lastRange());
 
       child->addProperty(pLen);
@@ -101,25 +102,26 @@ public:
       int nextHeader = reader.readBE<uint8_t>();
       auto nextHeaderRange = reader.lastRange();
 
-      Property *nHeader = new Property(MID("nHeader"), nextHeader);
+      Property *nHeader = new Property(Token_get("nHeader"), nextHeader);
       nHeader->setRange(nextHeaderRange);
 
       child->addProperty(nHeader);
 
-      Property *hLimit = new Property(MID("hLimit"), reader.readBE<uint8_t>());
+      Property *hLimit =
+          new Property(Token_get("hLimit"), reader.readBE<uint8_t>());
       hLimit->setRange(reader.lastRange());
 
       child->addProperty(hLimit);
 
       const auto &srcSlice = reader.slice(16);
-      Property *src = new Property(MID("src"), srcSlice);
+      Property *src = new Property(Token_get("src"), srcSlice);
       //       src->setSummary(ipv6Addr(srcSlice));
       src->setRange(reader.lastRange());
 
       child->addProperty(src);
 
       const auto &dstSlice = reader.slice(16);
-      Property *dst = new Property(MID("dst"), dstSlice);
+      Property *dst = new Property(Token_get("dst"), dstSlice);
       //       dst->setSummary(ipv6Addr(dstSlice));
       dst->setRange(reader.lastRange());
 
@@ -137,7 +139,7 @@ public:
           size_t extLen = reader.readBE<uint8_t>();
           size_t byteLen = (extLen + 1) * 8;
           reader.slice(byteLen);
-          miniid id = (nextHeader == 0) ? MID("hbyh") : MID("dst");
+          Token id = (nextHeader == 0) ? Token_get("hbyh") : Token_get("dst");
           item = new Property(id);
         }
 
@@ -158,18 +160,19 @@ public:
         nextHeader = header;
       }
 
-      const std::unordered_map<uint16_t, std::pair<std::string, miniid>>
+      const std::unordered_map<uint16_t, std::pair<std::string, Token>>
           protoTable = {
-              {0x01, std::make_pair("ICMP", MNS("*icmp"))},
-              {0x02, std::make_pair("IGMP", MNS("*igmp"))},
-              {0x06, std::make_pair("TCP", MNS("*tcp"))},
-              {0x11, std::make_pair("UDP", MNS("*udp"))},
+              {0x01, std::make_pair("ICMP", Token_get("[icmp]"))},
+              {0x02, std::make_pair("IGMP", Token_get("[igmp]"))},
+              {0x06, std::make_pair("TCP", Token_get("[tcp]"))},
+              {0x11, std::make_pair("UDP", Token_get("[udp]"))},
           };
 
       uint8_t protocolNumber = nextHeader;
-      Property *proto = new Property(MID("protocol"), protocolNumber);
-      const auto &type = fmt::enums(protoTable, protocolNumber,
-                                    std::make_pair("Unknown", MNS("?")));
+      Property *proto = new Property(Token_get("protocol"), protocolNumber);
+      const auto &type =
+          fmt::enums(protoTable, protocolNumber,
+                     std::make_pair("Unknown", Token_get("[unknown]")));
       //       proto->setSummary(type.first);
       proto->setRange(reader.lastRange());
 
@@ -191,9 +194,6 @@ public:
 public:
   Dissector::WorkerPtr createWorker() override {
     return Dissector::WorkerPtr(new IPv6Dissector::Worker());
-  }
-  std::vector<minins> namespaces() const override {
-    return std::vector<minins>{MNS("*ipv6")};
   }
 };
 

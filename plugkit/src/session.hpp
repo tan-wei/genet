@@ -11,8 +11,6 @@
 
 namespace plugkit {
 
-struct minins;
-
 class Frame;
 class FrameView;
 

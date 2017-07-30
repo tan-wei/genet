@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 #include "export.hpp"
-#include "minins.hpp"
 #include "types.hpp"
 #include "token.h"
 
@@ -26,7 +25,7 @@ public:
   void addChild(Layer *child);
 
   const std::vector<const Property *> &properties() const;
-  const Property *propertyFromId(miniid id) const;
+  const Property *propertyFromId(Token id) const;
   void addProperty(const Property *prop);
 
   uint32_t streamId() const;

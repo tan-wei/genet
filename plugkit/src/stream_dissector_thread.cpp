@@ -21,7 +21,6 @@ public:
   Callback callback;
   Queue<Layer *> queue;
   std::vector<StreamDissectorFactoryConstPtr> factories;
-  std::unordered_map<StreamDissectorPtr, std::vector<minins>> dissectors;
   double confidenceThreshold;
   size_t count = 0;
 
@@ -74,8 +73,10 @@ void StreamDissectorThread::enter() {
   ctx.options = d->options;
   for (const auto &factory : d->factories) {
     StreamDissectorPtr diss = factory->create(ctx);
+    /*
     const auto &namespaces = diss->namespaces();
     d->dissectors[std::move(diss)] = namespaces;
+    */
   }
 }
 
@@ -109,15 +110,15 @@ bool StreamDissectorThread::loop() {
       if (workers.list.empty()) {
         std::vector<StreamDissector *> dissectors;
 
+        /*
         for (const auto &pair : d->dissectors) {
           for (const auto &filter : pair.second) {
-            /*
             if (ns.match(filter)) {
               dissectors.push_back(pair.first.get());
             }
-            */
           }
         }
+        */
 
         for (auto dissector : dissectors) {
           if (auto worker = dissector->createWorker()) {
@@ -166,7 +167,7 @@ bool StreamDissectorThread::loop() {
 
 void StreamDissectorThread::exit() {
   d->factories.clear();
-  d->dissectors.clear();
+  // d->dissectors.clear();
   d->workers.clear();
 }
 
