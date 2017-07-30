@@ -21,10 +21,6 @@ export default class Session {
     dissectors.push(file)
   }
 
-  static registerStreamDissector (file) {
-    streamDissectors.push(file)
-  }
-
   static registerLinkLayer (layer) {
     linkLayers.push(layer)
   }
@@ -74,10 +70,7 @@ export default class Session {
     for (const diss of Session.dissectors) {
       factory.registerDissector(diss)
     }
-    for (const diss of Session.streamDissectors) {
-      factory.registerStreamDissector(diss)
-    }
-
+    
     const sess = await factory.create()
 
     const frames = []
@@ -139,9 +132,6 @@ export default class Session {
       }
       for (const diss of Session.dissectors) {
         factory.registerDissector(diss)
-      }
-      for (const diss of Session.streamDissectors) {
-        factory.registerStreamDissector(diss)
       }
 
       // eslint-disable-next-line no-await-in-loop

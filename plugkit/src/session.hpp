@@ -18,6 +18,8 @@ class FrameView;
 class DissectorFactory;
 using DissectorFactoryConstPtr = std::shared_ptr<const DissectorFactory>;
 
+struct XDissector;
+
 class StreamDissectorFactory;
 using StreamDissectorFactoryConstPtr =
     std::shared_ptr<const StreamDissectorFactory>;
@@ -109,8 +111,7 @@ public:
   Variant options() const;
 
   void registerLinkLayer(int link, const minins &ns);
-  void registerDissector(const DissectorFactoryConstPtr &factory);
-  void registerStreamDissector(const StreamDissectorFactoryConstPtr &factory);
+  void registerDissector(const XDissector &diss);
 
 private:
   std::unique_ptr<Session::Config> d;

@@ -72,9 +72,6 @@ export default class ConfigView {
       for (const diss of Session.dissectors) {
         factory.registerDissector(diss)
       }
-      for (const diss of Session.streamDissectors) {
-        factory.registerStreamDissector(diss)
-      }
       factory.create().then((sess) => {
         if (Tab.options.ifs) {
           sess.startPcap()
@@ -101,9 +98,6 @@ export default class ConfigView {
         }
         for (const diss of Session.dissectors) {
           factory.registerDissector(diss)
-        }
-        for (const diss of Session.streamDissectors) {
-          factory.registerStreamDissector(diss)
         }
         File.loadFrames(Tab.options.files).then((results) => {
           factory.create().then((sess) => {

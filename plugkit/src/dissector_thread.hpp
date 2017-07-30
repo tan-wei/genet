@@ -20,6 +20,8 @@ using StreamResolverPtr = std::shared_ptr<StreamResolver>;
 
 class Variant;
 
+struct XDissector;
+
 class DissectorThread final : public WorkerThread {
 public:
   using Callback = std::function<void(Frame **, size_t)>;
@@ -28,7 +30,7 @@ public:
   DissectorThread(const Variant &options, const FrameQueuePtr &queue,
                   const StreamResolverPtr &resolver, const Callback &callback);
   ~DissectorThread() override;
-  void pushDissectorFactory(const DissectorFactoryConstPtr &factory);
+  void pushDissector(const XDissector &diss);
   void enter() override;
   bool loop() override;
   void exit() override;

@@ -1,6 +1,7 @@
 #include "session_factory.hpp"
 #include "../src/session.hpp"
 #include "dissector_factory.hpp"
+#include "dissector.hpp"
 #include "plugkit_module.hpp"
 #include "private/variant.hpp"
 #include "script_dissector.hpp"
@@ -16,7 +17,6 @@ void SessionFactoryWrapper::init(v8::Isolate *isolate,
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("SessionFactory").ToLocalChecked());
   SetPrototypeMethod(tpl, "registerDissector", registerDissector);
-  SetPrototypeMethod(tpl, "registerStreamDissector", registerStreamDissector);
   SetPrototypeMethod(tpl, "registerLinkLayer", registerLinkLayer);
   SetPrototypeMethod(tpl, "create", create);
 
@@ -144,39 +144,14 @@ NAN_METHOD(SessionFactoryWrapper::registerDissector) {
   SessionFactoryWrapper *wrapper =
       ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
   if (const auto &factory = wrapper->factory) {
-    DissectorFactoryConstPtr dissectorFactory;
+    const XDissector *dissector = nullptr;
 
-    if (info[0]->IsString()) {
-      const std::string &script = *Nan::Utf8String(info[0]);
-      const std::string &path = *Nan::Utf8String(info[1]);
-      dissectorFactory = std::make_shared<ScriptDissectorFactory>(script, path);
-    } else if (info[0]->IsObject()) {
-      dissectorFactory =
-          DissectorFactoryWrapper::unwrap(info[0].As<v8::Object>());
+    if (info[0]->IsExternal()) {
+      dissector =
+          static_cast<const XDissector *>(info[0].As<v8::External>()->Value());
     }
-    if (dissectorFactory) {
-      factory->registerDissector(dissectorFactory);
-    }
-  }
-}
-
-NAN_METHOD(SessionFactoryWrapper::registerStreamDissector) {
-  SessionFactoryWrapper *wrapper =
-      ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
-  if (const auto &factory = wrapper->factory) {
-    StreamDissectorFactoryConstPtr dissectorFactory;
-
-    if (info[0]->IsString()) {
-      const std::string &script = *Nan::Utf8String(info[0]);
-      const std::string &path = *Nan::Utf8String(info[1]);
-      dissectorFactory =
-          std::make_shared<ScriptStreamDissectorFactory>(script, path);
-    } else if (info[0]->IsObject()) {
-      dissectorFactory =
-          StreamDissectorFactoryWrapper::unwrap(info[0].As<v8::Object>());
-    }
-    if (dissectorFactory) {
-      factory->registerStreamDissector(dissectorFactory);
+    if (dissector) {
+      factory->registerDissector(*dissector);
     }
   }
 }

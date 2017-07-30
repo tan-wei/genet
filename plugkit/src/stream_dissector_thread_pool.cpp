@@ -6,6 +6,7 @@
 #include "stream_dissector_thread.hpp"
 #include "stream_logger.hpp"
 #include "variant.hpp"
+#include "dissector.h"
 #include <array>
 #include <thread>
 #include <uv.h>
@@ -23,6 +24,7 @@ public:
   LoggerPtr logger = std::make_shared<StreamLogger>();
   std::vector<std::unique_ptr<StreamDissectorThread>> threads;
   std::vector<StreamDissectorFactoryConstPtr> dissectorFactories;
+  std::vector<XDissector> dissectors;
   FrameStorePtr store;
   Callback callback;
   std::thread thread;
@@ -88,8 +90,8 @@ StreamDissectorThreadPool::~StreamDissectorThreadPool() {
 }
 
 void StreamDissectorThreadPool::registerDissector(
-    const StreamDissectorFactoryConstPtr &factory) {
-  d->dissectorFactories.push_back(factory);
+    const XDissector &diss) {
+  d->dissectors.push_back(diss);
 }
 
 void StreamDissectorThreadPool::setLogger(const LoggerPtr &logger) {

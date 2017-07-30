@@ -22,6 +22,8 @@ using StreamDissectorFactoryConstPtr =
 
 class Variant;
 
+struct XDissector;
+
 class StreamDissectorThreadPool final {
 public:
   using Callback = std::function<void(uint32_t)>;
@@ -30,7 +32,7 @@ public:
   StreamDissectorThreadPool(const Variant &options, const FrameStorePtr &store,
                             const Callback &callback);
   ~StreamDissectorThreadPool();
-  void registerDissector(const StreamDissectorFactoryConstPtr &factory);
+  void registerDissector(const XDissector &diss);
   void start();
   void setLogger(const LoggerPtr &logger);
 

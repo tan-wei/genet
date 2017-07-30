@@ -1,5 +1,6 @@
 #include "dissector_thread.hpp"
 #include "dissector.hpp"
+#include "dissector.h"
 #include "frame.hpp"
 #include "layer.hpp"
 #include "session_context.hpp"
@@ -26,6 +27,7 @@ public:
   StreamResolverPtr resolver;
   Callback callback;
   std::vector<DissectorFactoryConstPtr> factories;
+  std::vector<XDissector> dissectors;
   std::vector<WorkerData> workers;
   Variant options;
   double confidenceThreshold;
@@ -46,9 +48,8 @@ DissectorThread::DissectorThread(const Variant &options,
 
 DissectorThread::~DissectorThread() {}
 
-void DissectorThread::pushDissectorFactory(
-    const DissectorFactoryConstPtr &factory) {
-  d->factories.push_back(factory);
+void DissectorThread::pushDissector(const XDissector &diss) {
+  d->dissectors.push_back(diss);
 }
 
 void DissectorThread::enter() {

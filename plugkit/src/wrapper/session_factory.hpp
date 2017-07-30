@@ -27,7 +27,6 @@ public:
   static NAN_SETTER(setOptions);
   static NAN_METHOD(registerLinkLayer);
   static NAN_METHOD(registerDissector);
-  static NAN_METHOD(registerStreamDissector);
   static NAN_METHOD(create);
 
 private:

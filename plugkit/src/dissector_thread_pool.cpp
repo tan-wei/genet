@@ -1,6 +1,7 @@
 #include "dissector_thread_pool.hpp"
 #include "dissector.hpp"
 #include "dissector_thread.hpp"
+#include "dissector.h"
 #include "stream_resolver.hpp"
 #include "frame.hpp"
 #include "variant.hpp"
@@ -16,7 +17,7 @@ public:
 
 public:
   std::vector<std::unique_ptr<DissectorThread>> threads;
-  std::vector<DissectorFactoryConstPtr> dissectorFactories;
+  std::vector<XDissector> dissectors;
   LoggerPtr logger = std::make_shared<StreamLogger>();
   FrameQueuePtr queue = std::make_shared<FrameQueue>();
   StreamResolverPtr resolver = std::make_shared<StreamResolver>();
@@ -54,8 +55,8 @@ void DissectorThreadPool::start() {
   for (int i = 0; i < threads; ++i) {
     auto dissectorThread =
         new DissectorThread(d->options, d->queue, d->resolver, threadCallback);
-    for (const auto &factory : d->dissectorFactories) {
-      dissectorThread->pushDissectorFactory(factory);
+    for (const auto &diss : d->dissectors) {
+      dissectorThread->pushDissector(diss);
     }
     dissectorThread->setLogger(d->logger);
     d->threads.emplace_back(dissectorThread);
@@ -65,9 +66,8 @@ void DissectorThreadPool::start() {
   }
 }
 
-void DissectorThreadPool::registerDissector(
-    const DissectorFactoryConstPtr &factory) {
-  d->dissectorFactories.push_back(factory);
+void DissectorThreadPool::registerDissector(const XDissector &diss) {
+  d->dissectors.push_back(diss);
 }
 
 void DissectorThreadPool::setLogger(const LoggerPtr &logger) {

@@ -13,8 +13,7 @@ using LoggerPtr = std::shared_ptr<Logger>;
 
 class Frame;
 
-class DissectorFactory;
-using DissectorFactoryConstPtr = std::shared_ptr<const DissectorFactory>;
+struct XDissector;
 
 class Variant;
 
@@ -28,7 +27,7 @@ public:
   DissectorThreadPool(const DissectorThreadPool &) = delete;
   DissectorThreadPool &operator=(const DissectorThreadPool &) = delete;
   void start();
-  void registerDissector(const DissectorFactoryConstPtr &factory);
+  void registerDissector(const XDissector &diss);
   void setLogger(const LoggerPtr &logger);
   void push(Frame **begin, size_t length);
 

@@ -1,4 +1,5 @@
 #include "session.hpp"
+#include "dissector.h"
 #include "dissector_thread.hpp"
 #include "dissector_thread_pool.hpp"
 #include "filter_thread.hpp"
@@ -22,8 +23,8 @@ struct Session::Config {
   int snaplen = 2048;
   std::string bpf;
   std::unordered_map<int, minins> linkLayers;
-  std::vector<DissectorFactoryConstPtr> dissectors;
-  std::vector<StreamDissectorFactoryConstPtr> streamDissectors;
+  std::vector<XDissector> dissectors;
+  std::vector<XDissector> streamDissectors;
   Variant options;
 };
 
@@ -148,11 +149,11 @@ Session::Session(const Config &config) : d(new Private()) {
   for (const auto &pair : config.linkLayers) {
     d->pcap->registerLinkLayer(pair.first, pair.second);
   }
-  for (const auto &factory : config.dissectors) {
-    d->dissectorPool->registerDissector(factory);
+  for (const auto &diss : config.dissectors) {
+    d->dissectorPool->registerDissector(diss);
   }
-  for (const auto &factory : config.streamDissectors) {
-    d->streamDissectorPool->registerDissector(factory);
+  for (const auto &diss : config.streamDissectors) {
+    d->streamDissectorPool->registerDissector(diss);
   }
   d->streamDissectorPool->start();
   d->dissectorPool->start();
@@ -318,13 +319,16 @@ void SessionFactory::registerLinkLayer(int link, const minins &ns) {
   d->linkLayers[link] = ns;
 }
 
-void SessionFactory::registerDissector(
-    const DissectorFactoryConstPtr &factory) {
-  d->dissectors.push_back(factory);
+void SessionFactory::registerDissector(const XDissector &diss) {
+  switch (diss.type) {
+  case DISSECTOR_PACKET:
+    d->dissectors.push_back(diss);
+    break;
+  case DISSECTOR_STREAM:
+    d->streamDissectors.push_back(diss);
+    break;
+  default:;
+  }
 }
 
-void SessionFactory::registerStreamDissector(
-    const StreamDissectorFactoryConstPtr &factory) {
-  d->streamDissectors.push_back(factory);
-}
 }

@@ -6,10 +6,8 @@
 extern "C" {
 
 namespace plugkit {
-class Layer;
-}
-using namespace plugkit;
 
+class Layer;
 struct Context;
 struct DissectionResult;
 
@@ -24,6 +22,7 @@ struct XDissector {
   Token layerHints[8];
   DissectorType type;
 };
+}
 }
 
 #endif
