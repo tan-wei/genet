@@ -33,6 +33,9 @@ public:
   const Slice &payload() const;
   void setPayload(const Slice &payload);
 
+  const std::vector<const Payload *> &payloads() const;
+  void addPayload(const Payload *payload);
+
   const std::vector<Token> &tags() const;
   void addTag(Token token);
 

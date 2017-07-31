@@ -16,6 +16,7 @@ public:
   uint32_t streamId = 0;
   double confidence = 1.0;
   Slice payload;
+  std::vector<const Payload *> payloads;
   const Layer *parent = nullptr;
   const Frame *frame = nullptr;
   std::vector<Token> tags;
@@ -50,6 +51,14 @@ const std::vector<Token> &Layer::tags() const { return d->tags; }
 void Layer::addTag(Token token) { d->tags.push_back(token); }
 
 void Layer::setPayload(const Slice &payload) { d->payload = payload; }
+
+const std::vector<const Payload *> &Layer::payloads() const {
+  return d->payloads;
+}
+
+void Layer::addPayload(const Payload *payload) {
+  d->payloads.push_back(payload);
+}
 
 const std::vector<const Property *> &Layer::properties() const {
   return d->properties;
