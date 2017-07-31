@@ -18,8 +18,6 @@ public:
   static NAN_GETTER(id);
   static NAN_GETTER(streamId);
   static NAN_SETTER(setStreamId);
-  static NAN_GETTER(summary);
-  static NAN_SETTER(setSummary);
   static NAN_GETTER(confidence);
   static NAN_SETTER(setConfidence);
   static NAN_GETTER(parent);

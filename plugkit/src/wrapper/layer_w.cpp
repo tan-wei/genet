@@ -19,8 +19,6 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
   Nan::SetAccessor(otl, Nan::New("streamId").ToLocalChecked(), streamId,
                    setStreamId);
-  Nan::SetAccessor(otl, Nan::New("summary").ToLocalChecked(), summary,
-                   setSummary);
   Nan::SetAccessor(otl, Nan::New("confidence").ToLocalChecked(), confidence,
                    setConfidence);
   Nan::SetAccessor(otl, Nan::New("parent").ToLocalChecked(), parent);
@@ -49,15 +47,11 @@ NAN_METHOD(LayerWrapper::New) {
   }
   auto options = info[0].As<v8::Object>();
   auto idValue = options->Get(Nan::New("id").ToLocalChecked());
-  auto summaryValue = options->Get(Nan::New("summary").ToLocalChecked());
   auto confValue = options->Get(Nan::New("confidence").ToLocalChecked());
   if (!idValue->IsString()) {
     return;
   }
   auto layer = new Layer(Token_get(*Nan::Utf8String(idValue)));
-  if (summaryValue->IsString()) {
-    layer->setSummary(*Nan::Utf8String(summaryValue));
-  }
   if (confValue->IsNumber()) {
     layer->setConfidence(confValue->NumberValue());
   }
@@ -86,20 +80,6 @@ NAN_SETTER(LayerWrapper::setStreamId) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
     layer->setStreamId(value->NumberValue());
-  }
-}
-
-NAN_GETTER(LayerWrapper::summary) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer) {
-    info.GetReturnValue().Set(Nan::New(layer->summary()).ToLocalChecked());
-  }
-}
-
-NAN_SETTER(LayerWrapper::setSummary) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->layer) {
-    layer->setSummary(*Nan::Utf8String(value));
   }
 }
 

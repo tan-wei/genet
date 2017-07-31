@@ -6,6 +6,7 @@
 extern "C" {
 
 namespace plugkit {
+
 class Layer;
 
 struct DissectionResult {

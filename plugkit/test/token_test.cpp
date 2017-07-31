@@ -1,6 +1,8 @@
 #include <catch.hpp>
 #include "token.h"
 
+using namespace plugkit;
+
 namespace {
 
 TEST_CASE("Token_null") {

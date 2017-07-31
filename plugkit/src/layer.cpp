@@ -14,7 +14,6 @@ public:
 public:
   Token id = 0;
   uint32_t streamId = 0;
-  std::string summary;
   double confidence = 1.0;
   Slice payload;
   const Layer *parent = nullptr;
@@ -31,10 +30,6 @@ Layer::Layer(Token id) : d(new Private(id)) {}
 Layer::~Layer() {}
 
 Token Layer::id() const { return d->id; }
-
-std::string Layer::summary() const { return d->summary; }
-
-void Layer::setSummary(const std::string &summary) { d->summary = summary; }
 
 double Layer::confidence() const { return d->confidence; }
 

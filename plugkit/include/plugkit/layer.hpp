@@ -1,9 +1,10 @@
-#ifndef PLUGKIT_LAYER_H
-#define PLUGKIT_LAYER_H
+#ifndef PLUGKIT_LAYER_HPP
+#define PLUGKIT_LAYER_HPP
 
 #include <memory>
 #include <string>
 #include <vector>
+#include "layer.h"
 #include "export.hpp"
 #include "types.hpp"
 #include "token.h"
@@ -16,8 +17,6 @@ public:
   ~Layer();
 
   Token id() const;
-  std::string summary() const;
-  void setSummary(const std::string &summary);
   double confidence() const;
   void setConfidence(double confidence);
 
@@ -36,9 +35,6 @@ public:
 
   const std::vector<Token> &tags() const;
   void addTag(Token token);
-
-  const std::vector<const Payload *> &payloads() const;
-  void addPayload(const Payload *payload);
 
   const Layer *parent() const;
   void setParent(const Layer *layer);

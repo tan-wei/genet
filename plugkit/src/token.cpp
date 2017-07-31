@@ -4,6 +4,8 @@
 #include <vector>
 #include <mutex>
 
+namespace plugkit {
+
 namespace {
 
 std::unordered_map<std::string, Token> map = {{"", 0}};
@@ -41,4 +43,5 @@ const char *Token_string(Token token) {
     return it->second;
   }
   return "";
+}
 }

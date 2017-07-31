@@ -1,4 +1,5 @@
 /// @file
+/// Global ID corresponded with a string
 #ifndef PLUGKIT_TOKEN_H
 #define PLUGKIT_TOKEN_H
 
@@ -6,7 +7,9 @@
 
 extern "C" {
 
-/// Global ID corresponded with a string
+/// plugkit
+namespace plugkit {
+
 typedef uint32_t Token;
 
 /// Returns a token corresponded with a given string.
@@ -26,6 +29,7 @@ Token Token_null();
 ///
 /// @remarks This function is thread-safe.
 const char *Token_string(Token token);
+}
 }
 
 #endif
