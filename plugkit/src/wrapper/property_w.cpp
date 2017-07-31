@@ -48,8 +48,8 @@ NAN_METHOD(PropertyWrapper::New) {
   if (rangeValue->IsArray()) {
     auto array = rangeValue.As<v8::Array>();
     if (array->Length() >= 2) {
-      prop->setRange(std::make_pair(array->Get(0)->Uint32Value(),
-                                    array->Get(1)->Uint32Value()));
+      prop->setRange(
+          Range{array->Get(0)->Uint32Value(), array->Get(1)->Uint32Value()});
     }
   }
   prop->setValue(Variant::Private::getVariant(value));
@@ -79,8 +79,8 @@ NAN_GETTER(PropertyWrapper::range) {
   if (auto prop = wrapper->constProp) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
     auto array = v8::Array::New(isolate, 2);
-    array->Set(0, Nan::New(prop->range().first));
-    array->Set(1, Nan::New(prop->range().second));
+    array->Set(0, Nan::New(prop->range().begin));
+    array->Set(1, Nan::New(prop->range().end));
     info.GetReturnValue().Set(array);
   }
 }
@@ -91,8 +91,8 @@ NAN_SETTER(PropertyWrapper::setRange) {
     if (value->IsArray()) {
       auto array = value.As<v8::Array>();
       if (array->Length() >= 2) {
-        prop->setRange(std::make_pair(array->Get(0)->Uint32Value(),
-                                      array->Get(1)->Uint32Value()));
+        prop->setRange(
+            Range{array->Get(0)->Uint32Value(), array->Get(1)->Uint32Value()});
       }
     }
   }

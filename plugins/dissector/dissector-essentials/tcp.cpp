@@ -102,7 +102,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer,
     }
   }
   //       flags->setSummary(flagSummary);
-  flags->setRange(std::make_pair(12, 14));
+  flags->setRange(Range{12, 14});
 
   child->addProperty(flags);
 
@@ -130,7 +130,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer,
   child->addProperty(options);
 
   size_t optionDataOffset = dataOffset * 4;
-  size_t optionOffset = 20;
+  uint32_t optionOffset = 20;
   while (optionDataOffset > optionOffset) {
     switch (layer->payload()[optionOffset]) {
     case 0:
@@ -138,7 +138,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer,
       break;
     case 1: {
       Property *opt = new Property(Token_get("nop"));
-      opt->setRange(std::make_pair(optionOffset, optionOffset + 1));
+      opt->setRange(Range{optionOffset, optionOffset + 1});
 
       options->addProperty(opt);
       optionOffset++;
@@ -146,7 +146,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer,
     case 2: {
       uint16_t size = fmt::readBE<uint16_t>(layer->payload(), optionOffset + 2);
       Property *opt = new Property(Token_get("mss"), size);
-      opt->setRange(std::make_pair(optionOffset, optionOffset + 4));
+      opt->setRange(Range{optionOffset, optionOffset + 4});
 
       options->addProperty(opt);
       optionOffset += 4;
@@ -154,7 +154,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer,
     case 3: {
       uint8_t scale = fmt::readBE<uint8_t>(layer->payload(), optionOffset + 2);
       Property *opt = new Property(Token_get("scale"), scale);
-      opt->setRange(std::make_pair(optionOffset, optionOffset + 2));
+      opt->setRange(Range{optionOffset, optionOffset + 2});
 
       options->addProperty(opt);
       optionOffset += 3;
@@ -162,7 +162,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer,
 
     case 4: {
       Property *opt = new Property(Token_get("ackPerm"), true);
-      opt->setRange(std::make_pair(optionOffset, optionOffset + 2));
+      opt->setRange(Range{optionOffset, optionOffset + 2});
 
       options->addProperty(opt);
       optionOffset += 2;
@@ -174,7 +174,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer,
       Property *opt =
           new Property(Token_get("selAck"),
                        layer->payload().slice(optionOffset + 2, length));
-      opt->setRange(std::make_pair(optionOffset, optionOffset + length));
+      opt->setRange(Range{optionOffset, optionOffset + length});
 
       options->addProperty(opt);
       optionOffset += length;
@@ -185,13 +185,13 @@ void analyze(Context *ctx, Worker *data, Layer *layer,
                                           optionOffset + 2 + sizeof(uint32_t));
       Property *opt = new Property(Token_get("ts"), std::to_string(mt) + " - " +
                                                         std::to_string(et));
-      opt->setRange(std::make_pair(optionOffset, optionOffset + 10));
+      opt->setRange(Range{optionOffset, optionOffset + 10});
 
       Property *optmt = new Property(Token_get("mt"), mt);
-      optmt->setRange(std::make_pair(optionOffset + 2, optionOffset + 6));
+      optmt->setRange(Range{optionOffset + 2, optionOffset + 6});
 
       Property *optet = new Property(Token_get("et"), et);
-      optet->setRange(std::make_pair(optionOffset + 6, optionOffset + 01));
+      optet->setRange(Range{optionOffset + 6, optionOffset + 10});
 
       opt->addProperty(optmt);
       opt->addProperty(optet);

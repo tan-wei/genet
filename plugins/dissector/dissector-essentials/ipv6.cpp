@@ -79,17 +79,17 @@ void analyze(Context *ctx, Worker *data, Layer *layer,
   int flowLevel = reader.readBE<uint16_t>() | ((header2 & 0b00001111) << 16);
 
   Property *ver = new Property(Token_get("version"), version);
-  ver->setRange(std::make_pair(0, 1));
+  ver->setRange(Range{0, 1});
 
   child->addProperty(ver);
 
   Property *tClass = new Property(Token_get("tClass"), trafficClass);
-  tClass->setRange(std::make_pair(0, 2));
+  tClass->setRange(Range{0, 2});
 
   child->addProperty(tClass);
 
   Property *fLevel = new Property(Token_get("fLevel"), flowLevel);
-  fLevel->setRange(std::make_pair(1, 4));
+  fLevel->setRange(Range{1, 4});
 
   child->addProperty(fLevel);
 

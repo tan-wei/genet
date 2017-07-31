@@ -16,8 +16,8 @@ public:
 
   Token id() const;
   void setId(Token id);
-  std::pair<uint32_t, uint32_t> range() const;
-  void setRange(const std::pair<uint32_t, uint32_t> &range);
+  Range range() const;
+  void setRange(const Range &range);
   Variant value() const;
   void setValue(const Variant &value);
 

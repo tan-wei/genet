@@ -8,7 +8,7 @@ class Property::Private {
 public:
   Private(Token id, const Variant &value);
   Token id;
-  std::pair<uint32_t, uint32_t> range;
+  Range range;
   Variant value;
   std::vector<const Property *> children;
 };
@@ -25,11 +25,9 @@ Token Property::id() const { return d->id; }
 
 void Property::setId(Token id) { d->id = id; }
 
-std::pair<uint32_t, uint32_t> Property::range() const { return d->range; }
+Range Property::range() const { return d->range; }
 
-void Property::setRange(const std::pair<uint32_t, uint32_t> &range) {
-  d->range = range;
-}
+void Property::setRange(const Range &range) { d->range = range; }
 
 Variant Property::value() const { return d->value; }
 

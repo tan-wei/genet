@@ -2,6 +2,7 @@
 #define PLUGKIT_FMT_H
 
 #include "slice.hpp"
+#include "types.hpp"
 #include "export.hpp"
 #include <algorithm>
 #include <iomanip>
@@ -20,13 +21,13 @@ public:
   template <class T> T readBE();
   template <class T> void skip();
   void skip(size_t length);
-  std::pair<uint32_t, uint32_t> lastRange() const;
+  Range lastRange() const;
   std::string lastError() const;
 
 private:
   S slice_;
   size_t offset_;
-  std::pair<uint32_t, uint32_t> lastRange_;
+  Range lastRange_;
   const char *lastError_;
 };
 
@@ -38,14 +39,14 @@ template <class S> S Reader<S>::slice(size_t length) {
   if (lastError_)
     return S();
   if (offset_ + length > slice_.length()) {
-    lastRange_.first = 0;
-    lastRange_.second = 0;
+    lastRange_.begin = 0;
+    lastRange_.end = 0;
     lastError_ = "unexpected EOS";
     return S();
   }
   const S &s = slice_.slice(offset_, length);
-  lastRange_.first = offset_;
-  lastRange_.second = offset_ + length;
+  lastRange_.begin = offset_;
+  lastRange_.end = offset_ + length;
   offset_ += length;
   return s;
 }
@@ -59,14 +60,14 @@ template <class S> template <class T> T Reader<S>::readLE() {
   if (lastError_)
     return T();
   if (offset_ + sizeof(T) > slice_.length()) {
-    lastRange_.first = 0;
-    lastRange_.second = 0;
+    lastRange_.begin = 0;
+    lastRange_.end = 0;
     lastError_ = "unexpected EOS";
     return T();
   }
   const T &value = *reinterpret_cast<const T *>(slice_.data() + offset_);
-  lastRange_.first = offset_;
-  lastRange_.second = offset_ + sizeof(T);
+  lastRange_.begin = offset_;
+  lastRange_.end = offset_ + sizeof(T);
   offset_ += sizeof(T);
   return value;
 }
@@ -76,8 +77,8 @@ template <class S> template <class T> T Reader<S>::readBE() {
   if (lastError_)
     return T();
   if (offset_ + sizeof(T) > slice_.length()) {
-    lastRange_.first = 0;
-    lastRange_.second = 0;
+    lastRange_.begin = 0;
+    lastRange_.end = 0;
     lastError_ = "unexpected EOS";
     return T();
   }
@@ -86,8 +87,8 @@ template <class S> template <class T> T Reader<S>::readBE() {
   std::reverse_copy(begin, begin + sizeof(T), data);
   const char *alias = data;
   const T &value = *reinterpret_cast<const T *>(alias);
-  lastRange_.first = offset_;
-  lastRange_.second = offset_ + sizeof(T);
+  lastRange_.begin = offset_;
+  lastRange_.end = offset_ + sizeof(T);
   offset_ += sizeof(T);
   return value;
 }
@@ -98,12 +99,12 @@ template <class S> void Reader<S>::skip(size_t length) {
   if (lastError_)
     return;
   if (offset_ + length > slice_.length()) {
-    lastRange_.first = 0;
-    lastRange_.second = 0;
+    lastRange_.begin = 0;
+    lastRange_.end = 0;
     lastError_ = "unexpected EOS";
   }
-  lastRange_.first = offset_;
-  lastRange_.second = offset_ + length;
+  lastRange_.begin = offset_;
+  lastRange_.end = offset_ + length;
   offset_ += length;
 }
 
@@ -111,9 +112,7 @@ template <> template <> PLUGKIT_EXPORT uint8_t Reader<Slice>::readBE<uint8_t>();
 
 template <> template <> PLUGKIT_EXPORT int8_t Reader<Slice>::readBE<int8_t>();
 
-template <class S> std::pair<uint32_t, uint32_t> Reader<S>::lastRange() const {
-  return lastRange_;
-}
+template <class S> Range Reader<S>::lastRange() const { return lastRange_; }
 
 template <class S> std::string Reader<S>::lastError() const {
   return lastError_ ? lastError_ : std::string();

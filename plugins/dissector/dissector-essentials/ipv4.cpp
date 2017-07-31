@@ -79,7 +79,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer,
   uint16_t fgOffset =
       ((flagAndOffset & 0b00011111) << 8) | reader.readBE<uint8_t>();
   Property *fragmentOffset = new Property(Token_get("fOffset"), fgOffset);
-  fragmentOffset->setRange(std::make_pair(6, 8));
+  fragmentOffset->setRange(Range{6, 8});
 
   child->addProperty(fragmentOffset);
 
