@@ -11,6 +11,7 @@ namespace plugkit {
 
 class Layer;
 class Frame;
+class Payload;
 class Property;
 
 /// Gets id
@@ -29,31 +30,22 @@ const Layer *Layer_parent(const Layer *layer);
 const Frame *Layer_frame(const Layer *layer);
 
 /// Allocates a new Layer and adds it as a child layer.
-///
-/// @return Added Layer
-Layer *Layer_addLayer(Layer *layer);
-
-/// Returns the first address of an array of the child layers.
-///
-/// The array ends with nullptr.
-const Layer **Layer_layers(const Layer *layer);
+Layer *Layer_addLayer(Layer *layer, Token id);
 
 /// Allocates a new Property and adds it as a layer property.
-///
-/// @return Added Property
 Property *Layer_addProperty(Layer *layer);
 
 /// Finds the first layer property with the given id and returns it.
 ///
 /// If no property is found, returns nullptr.
-///
-/// @return Found Property
 const Property *Layer_propertyFromId(const Layer *layer, Token id);
 
-/// Returns the first address of an array of the layer properties.
-///
-/// The array ends with nullptr.
-const Property **Layer_properties(const Layer *layer);
+/// Allocates a new Payload and adds it as a layer payload.
+Payload *Layer_addPayload(Layer *layer);
+
+/// Returns the number of the layer payloads
+/// and assigns the first address of payloads to begin.
+size_t Layer_payloads(const Layer *layer, const Payload **begin);
 
 /// Adds a layer tag
 void Layer_addTag(Layer *layer, Token tag);
