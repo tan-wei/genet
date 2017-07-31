@@ -1,7 +1,7 @@
 #ifndef PLUGKIT_LOGGER_PRIVATE_H
 #define PLUGKIT_LOGGER_PRIVATE_H
 
-#include "../plugkit/logger.hpp"
+#include "../logger.hpp"
 #include <v8.h>
 
 namespace plugkit {
