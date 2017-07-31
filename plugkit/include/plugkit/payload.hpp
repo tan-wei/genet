@@ -1,6 +1,7 @@
 #ifndef PLUGKIT_PAYLOAD_HPP
 #define PLUGKIT_PAYLOAD_HPP
 
+#include "payload.h"
 #include "types.hpp"
 #include "slice.hpp"
 #include "token.h"
