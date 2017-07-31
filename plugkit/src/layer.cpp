@@ -37,7 +37,7 @@ void Layer::setConfidence(double confidence) { d->confidence = confidence; }
 
 const std::vector<Layer *> &Layer::children() const { return d->children; }
 
-void Layer::addChild(Layer *child) { d->children.push_back(child); }
+void Layer::addLayer(Layer *child) { d->children.push_back(child); }
 
 uint32_t Layer::streamId() const { return d->streamId; }
 
@@ -73,4 +73,26 @@ const Property *Layer::propertyFromId(Token id) const {
 }
 
 void Layer::addProperty(const Property *prop) { d->properties.push_back(prop); }
+
+Token Layer_id(const Layer *layer) { return layer->id(); }
+
+double Layer_confidence(const Layer *layer) { return layer->confidence(); }
+
+void Layer_setConfidence(Layer *layer, double confidence) {
+  layer->setConfidence(confidence);
+}
+
+const Layer *Layer_parent(const Layer *layer) { return layer->parent(); }
+
+const Frame *Layer_frame(const Layer *layer) { return layer->frame(); }
+
+Property *Layer_addProperty(Layer *layer, Token id) {
+  Property *prop = new Property(id);
+  layer->addProperty(prop);
+  return prop;
+}
+
+const Property *Layer_propertyFromId(const Layer *layer, Token id) {
+  return layer->propertyFromId(id);
+}
 }

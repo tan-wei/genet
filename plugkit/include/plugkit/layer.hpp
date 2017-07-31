@@ -21,7 +21,7 @@ public:
   void setConfidence(double confidence);
 
   const std::vector<Layer *> &children() const;
-  void addChild(Layer *child);
+  void addLayer(Layer *child);
 
   const std::vector<const Property *> &properties() const;
   const Property *propertyFromId(Token id) const;

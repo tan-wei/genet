@@ -167,7 +167,7 @@ bool StreamDissectorThread::loop() {
                   return b->confidence() < a->confidence();
                 });
       for (Layer *child : childLayers) {
-        layer->addChild(child);
+        layer->addLayer(child);
       }
 
       d->count++;

@@ -12,7 +12,7 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   tpl->SetClassName(Nan::New("Layer").ToLocalChecked());
   SetPrototypeMethod(tpl, "propertyFromId", propertyFromId);
   SetPrototypeMethod(tpl, "addProperty", addProperty);
-  SetPrototypeMethod(tpl, "addChild", addChild);
+  SetPrototypeMethod(tpl, "addLayer", addLayer);
   SetPrototypeMethod(tpl, "toJSON", toJSON);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
@@ -176,12 +176,12 @@ NAN_METHOD(LayerWrapper::propertyFromId) {
   }
 }
 
-NAN_METHOD(LayerWrapper::addChild) {
+NAN_METHOD(LayerWrapper::addLayer) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
     if (info[0]->IsObject()) {
       if (const auto &child = LayerWrapper::unwrap(info[0].As<v8::Object>())) {
-        layer->addChild(child);
+        layer->addLayer(child);
       }
     }
   }

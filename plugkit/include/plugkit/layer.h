@@ -29,11 +29,8 @@ const Layer *Layer_parent(const Layer *layer);
 /// Gets frame
 const Frame *Layer_frame(const Layer *layer);
 
-/// Allocates a new Layer and adds it as a child layer.
-Layer *Layer_addLayer(Layer *layer, Token id);
-
 /// Allocates a new Property and adds it as a layer property.
-Property *Layer_addProperty(Layer *layer);
+Property *Layer_addProperty(Layer *layer, Token id);
 
 /// Finds the first layer property with the given id and returns it.
 ///
