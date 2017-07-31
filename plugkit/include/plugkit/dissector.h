@@ -16,7 +16,8 @@ typedef void Worker;
 enum DissectorType { DISSECTOR_PACKET = 0, DISSECTOR_STREAM = 1 };
 
 struct Dissector {
-  void (*analyze)(Worker *worker, Layer *layer, DissectionResult *result);
+  void (*analyze)(Context *ctx, Worker *worker, Layer *layer,
+                  DissectionResult *result);
   Worker *(*createWorker)(Context *ctx);
   bool (*expired)(Worker *worker, uint32_t elapsed);
   Token layerHints[8];

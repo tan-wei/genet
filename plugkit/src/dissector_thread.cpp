@@ -109,11 +109,12 @@ bool DissectorThread::loop() {
           }
         }
 
+        Context ctx;
         DissectionResult result;
         std::vector<Layer *> childLayers;
         for (const WorkerData *data : workers) {
           std::memset(&result, 0, sizeof(result));
-          data->dissector->analyze(data->worker, layer, &result);
+          data->dissector->analyze(&ctx, data->worker, layer, &result);
           if (Layer *childLayer = result.child) {
             if (childLayer->confidence() >= d->confidenceThreshold) {
               if (result.streamIdentifier[0] != '\0') {

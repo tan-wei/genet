@@ -13,7 +13,8 @@ using namespace plugkit;
 
 namespace {
 
-void analyze(Worker *data, Layer *layer, DissectionResult *result) {
+void analyze(Context *ctx, Worker *data, Layer *layer,
+             DissectionResult *result) {
   fmt::Reader<Slice> reader(layer->payload());
   Layer *child = new Layer(Token_get("ipv4"));
   child->addTag(Token_get("ipv4"));
