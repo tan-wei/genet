@@ -95,6 +95,14 @@ const Layer *Layer_parent(const Layer *layer) { return layer->parent(); }
 
 const Frame *Layer_frame(const Layer *layer) { return layer->frame(); }
 
+Layer *Layer_addLayer(Layer *layer, Token id) {
+  Layer *child = new Layer(id);
+  child->setParent(layer->parent());
+  child->setFrame(layer->frame());
+  layer->addLayer(child);
+  return child;
+}
+
 Property *Layer_addProperty(Layer *layer, Token id) {
   Property *prop = new Property(id);
   layer->addProperty(prop);
