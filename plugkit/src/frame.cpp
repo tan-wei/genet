@@ -7,21 +7,25 @@ Frame::Frame() {}
 
 Frame::~Frame() {}
 
-void Frame::setTimestamp(const Timestamp &timestamp) { timestamp_ = timestamp; }
+Timestamp Frame::timestamp() const { return data.timestamp; }
 
-size_t Frame::length() const { return length_; }
+void Frame::setTimestamp(const Timestamp &timestamp) {
+  data.timestamp = timestamp;
+}
 
-void Frame::setLength(size_t length) { length_ = length; }
+size_t Frame::length() const { return data.length; }
 
-uint32_t Frame::index() const { return seq_; }
+void Frame::setLength(size_t length) { data.length = length; }
 
-void Frame::setIndex(uint32_t index) { seq_ = index; }
+uint32_t Frame::index() const { return data.seq; }
 
-Layer *Frame::rootLayer() const { return layer_; }
+void Frame::setIndex(uint32_t index) { data.seq = index; }
 
-void Frame::setRootLayer(Layer *layer) { layer_ = layer; }
+Layer *Frame::rootLayer() const { return data.layer; }
 
-uint32_t Frame::sourceId() const { return sourceId_; }
+void Frame::setRootLayer(Layer *layer) { data.layer = layer; }
 
-void Frame::setSourceId(uint32_t id) { sourceId_ = id; }
+uint32_t Frame::sourceId() const { return data.sourceId; }
+
+void Frame::setSourceId(uint32_t id) { data.sourceId = id; }
 }
