@@ -1,7 +1,7 @@
 #ifndef PLUGKIT_FRAME_PRIVATE_H
 #define PLUGKIT_FRAME_PRIVATE_H
 
-#include "../plugkit/frame.hpp"
+#include "../frame.hpp"
 #include <vector>
 
 namespace plugkit {
