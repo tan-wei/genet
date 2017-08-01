@@ -1,6 +1,7 @@
-#ifndef PLUGKIT_PROPERTY_H
-#define PLUGKIT_PROPERTY_H
+#ifndef PLUGKIT_PROPERTY_HPP
+#define PLUGKIT_PROPERTY_HPP
 
+#include "property.h"
 #include "variant.hpp"
 #include "export.hpp"
 #include "token.h"
