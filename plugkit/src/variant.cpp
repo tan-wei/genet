@@ -545,4 +545,35 @@ Variant Variant::Private::getVariant(v8::Local<v8::Value> var) {
   }
   return Variant();
 }
+
+bool Variant_bool(const Variant *var) { return var->boolValue(); }
+void Variant_setBool(Variant *var, bool value) { *var = Variant(value); }
+
+int64_t Variant_int64(const Variant *var) { return var->int64Value(); }
+void Variant_setInt64(Variant *var, int64_t value) { *var = Variant(value); }
+
+uint64_t Variant_uint64(const Variant *var) { return var->uint64Value(); }
+void Variant_setUint64(Variant *var, uint64_t value) { *var = Variant(value); }
+
+double Variant_double(const Variant *var) { return var->doubleValue(); }
+void Variant_setDouble(Variant *var, double value) { *var = Variant(value); }
+
+const char *Variant_string(const Variant *var) {
+  if (hasBuffer(*var)) {
+    return var->d.slice->buffer()->data();
+  }
+  return "";
+}
+void Variant_setString(Variant *var, const char *str) { *var = Variant(str); }
+
+size_t Variant_data(const Variant *var, const char **data) {
+  if (hasBuffer(*var)) {
+    *data = var->d.slice->buffer()->data();
+    return var->d.slice->buffer()->size();
+  }
+  return 0;
+}
+void Variant_setData(Variant *var, const char *data, size_t length) {
+  *var = Variant(Slice(data, length));
+}
 }

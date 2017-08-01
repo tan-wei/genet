@@ -1,6 +1,7 @@
-#ifndef PLUGKIT_VARIANT_H
-#define PLUGKIT_VARIANT_H
+#ifndef PLUGKIT_VARIANT_HPP
+#define PLUGKIT_VARIANT_HPP
 
+#include "variant.h"
 #include "slice.hpp"
 #include "types.hpp"
 #include "export.hpp"
@@ -85,7 +86,7 @@ public:
 public:
   class Private;
 
-private:
+public:
   uint8_t type_;
   int8_t tag_;
   union {

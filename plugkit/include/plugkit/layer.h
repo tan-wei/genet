@@ -10,7 +10,6 @@ extern "C" {
 namespace plugkit {
 
 class Layer;
-class Frame;
 class Payload;
 class Property;
 
@@ -25,9 +24,6 @@ void Layer_setConfidence(Layer *layer, double confidence);
 
 /// Gets parent layer
 const Layer *Layer_parent(const Layer *layer);
-
-/// Gets frame
-const Frame *Layer_frame(const Layer *layer);
 
 /// Allocates a new Property and adds it as a layer property.
 Property *Layer_addProperty(Layer *layer, Token id);
