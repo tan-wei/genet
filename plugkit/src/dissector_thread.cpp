@@ -116,16 +116,12 @@ bool DissectorThread::loop() {
         for (const WorkerData *data : workers) {
           std::memset(&result, 0, sizeof(result));
           data->dissector->analyze(&ctx, data->worker, layer, &result);
-          if (Layer *childLayer = result.child) {
+          for (Layer *childLayer : layer->children()) {
             if (childLayer->confidence() >= d->confidenceThreshold) {
               if (result.streamIdentifier[0] != '\0') {
                 streamedLayers.push_back(std::make_pair(
                     childLayer, std::string(result.streamIdentifier)));
               }
-              childLayer->setParent(layer);
-              childLayer->setFrame(frame);
-              childLayers.push_back(childLayer);
-
               auto it = dissectedIds.find(childLayer->id());
               if (it == dissectedIds.end()) {
                 nextlayers.push_back(childLayer);

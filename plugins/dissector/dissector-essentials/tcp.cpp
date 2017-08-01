@@ -15,7 +15,7 @@ namespace {
 void analyze(Context *ctx, Worker *data, Layer *layer,
              DissectionResult *result) {
   fmt::Reader<Slice> reader(layer->payload());
-  Layer *child = new Layer(Token_get("tcp"));
+  Layer *child = Layer_addLayer(layer, Token_get("tcp"));
   child->addTag(Token_get("tcp"));
 
   const auto &parentSrc = layer->propertyFromId(Token_get("src"));

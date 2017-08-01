@@ -29,7 +29,7 @@ static const std::unordered_map<uint16_t, std::pair<std::string, Token>>
 void analyze(Context *ctx, Worker *data, Layer *layer,
              DissectionResult *result) {
   fmt::Reader<Slice> reader(layer->payload());
-  Layer *child = new Layer(ethToken);
+  Layer *child = Layer_addLayer(layer, ethToken);
   Layer_addTag(child, ethToken);
 
   const auto &srcSlice = reader.slice(6);

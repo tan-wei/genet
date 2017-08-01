@@ -69,7 +69,7 @@ namespace {
 void analyze(Context *ctx, Worker *data, Layer *layer,
              DissectionResult *result) {
   fmt::Reader<Slice> reader(layer->payload());
-  Layer *child = new Layer(Token_get("ipv6"));
+  Layer *child = Layer_addLayer(layer, Token_get("ipv6"));
   child->addTag(Token_get("ipv6"));
 
   uint8_t header = reader.readBE<uint8_t>();
