@@ -7,7 +7,7 @@
 #include "frame_store.hpp"
 #include "layer.hpp"
 #include "pcap.hpp"
-#include "private/frame.hpp"
+#include "frame.hpp"
 #include "stream_dissector_thread_pool.hpp"
 #include "uvloop_logger.hpp"
 #include "variant.hpp"
@@ -141,7 +141,7 @@ Session::Session(const Config &config) : d(new Private()) {
   d->streamDissectorPool->setLogger(d->logger);
 
   d->pcap->setCallback([this](Frame *frame) {
-    frame->d->setIndex(d->getSeq());
+    frame->setIndex(d->getSeq());
     d->dissectorPool->push(&frame, 1);
   });
 
@@ -255,14 +255,13 @@ void Session::analyze(const std::vector<RawFrame> &rawFrames) {
     }
     rootLayer->setPayload(raw.payload);
 
-    Frame *frame = Frame::Private::create();
-    frame->d->setSourceId(raw.sourceId);
-    frame->d->setTimestamp(raw.timestamp);
-    frame->d->setLength((raw.length < raw.payload.length())
-                            ? raw.payload.length()
-                            : raw.length);
-    frame->d->setRootLayer(rootLayer);
-    frame->d->setIndex(d->getSeq());
+    Frame *frame = new Frame();
+    frame->setSourceId(raw.sourceId);
+    frame->setTimestamp(raw.timestamp);
+    frame->setLength((raw.length < raw.payload.length()) ? raw.payload.length()
+                                                         : raw.length);
+    frame->setRootLayer(rootLayer);
+    frame->setIndex(d->getSeq());
     rootLayer->setFrame(frame);
     frames.push_back(frame);
   }

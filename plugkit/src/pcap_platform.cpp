@@ -1,6 +1,6 @@
 #include "pcap_platform.hpp"
 #include "layer.hpp"
-#include "private/frame.hpp"
+#include "frame.hpp"
 #include "slice.hpp"
 #include "stream_logger.hpp"
 #include <mutex>
@@ -219,10 +219,10 @@ bool PcapPlatform::start() {
             const Timestamp &ts = system_clock::from_time_t(h->ts.tv_sec) +
                                   nanoseconds(h->ts.tv_usec * 1000);
 
-            auto frame = Frame::Private::create();
-            frame->d->setTimestamp(ts);
-            frame->d->setRootLayer(layer);
-            frame->d->setLength(h->len);
+            auto frame = new Frame();
+            frame->setTimestamp(ts);
+            frame->setRootLayer(layer);
+            frame->setLength(h->len);
             layer->setFrame(frame);
 
             self.d->callback(frame);

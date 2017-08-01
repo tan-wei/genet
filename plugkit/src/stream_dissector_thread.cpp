@@ -1,6 +1,6 @@
 #include "stream_dissector_thread.hpp"
 #include "layer.hpp"
-#include "private/frame.hpp"
+#include "frame.hpp"
 #include "queue.hpp"
 #include "variant.hpp"
 

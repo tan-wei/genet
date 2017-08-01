@@ -1,6 +1,6 @@
 #include "pcap_dummy.hpp"
 #include "layer.hpp"
-#include "private/frame.hpp"
+#include "frame.hpp"
 #include "slice.hpp"
 #include "stream_logger.hpp"
 #include <chrono>
@@ -81,9 +81,9 @@ bool PcapDummy::start() {
           layer->addTag(tag);
           layer->setPayload(Slice());
 
-          auto frame = Frame::Private::create();
-          frame->d->setLength(125);
-          frame->d->setRootLayer(layer);
+          auto frame = new Frame();
+          frame->setLength(125);
+          frame->setRootLayer(layer);
           layer->setFrame(frame);
 
           d->callback(frame);

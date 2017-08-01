@@ -1,43 +1,27 @@
-#include "private/frame.hpp"
+#include "frame.hpp"
 #include "wrapper/frame.hpp"
 
 namespace plugkit {
 
-Frame *Frame::Private::create() { return new Frame(); }
-
-Frame::Frame() : d(new Private()) {}
+Frame::Frame() {}
 
 Frame::~Frame() {}
 
-Timestamp Frame::timestamp() const { return d->timestamp(); }
+void Frame::setTimestamp(const Timestamp &timestamp) { timestamp_ = timestamp; }
 
-Timestamp Frame::Private::timestamp() const { return timestamp_; }
+size_t Frame::length() const { return length_; }
 
-void Frame::Private::setTimestamp(const Timestamp &timestamp) {
-  timestamp_ = timestamp;
-}
+void Frame::setLength(size_t length) { length_ = length; }
 
-size_t Frame::length() const { return d->length(); }
+uint32_t Frame::index() const { return seq_; }
 
-size_t Frame::Private::length() const { return length_; }
+void Frame::setIndex(uint32_t index) { seq_ = index; }
 
-void Frame::Private::setLength(size_t length) { length_ = length; }
+Layer *Frame::rootLayer() const { return layer_; }
 
-uint32_t Frame::index() const { return d->index(); }
+void Frame::setRootLayer(Layer *layer) { layer_ = layer; }
 
-uint32_t Frame::Private::index() const { return seq_; }
+uint32_t Frame::sourceId() const { return sourceId_; }
 
-void Frame::Private::setIndex(uint32_t index) { seq_ = index; }
-
-Layer *Frame::rootLayer() const { return d->rootLayer(); }
-
-Layer *Frame::Private::rootLayer() const { return layer_; }
-
-void Frame::Private::setRootLayer(Layer *layer) { layer_ = layer; }
-
-uint32_t Frame::sourceId() const { return d->sourceId(); }
-
-uint32_t Frame::Private::sourceId() const { return sourceId_; }
-
-void Frame::Private::setSourceId(uint32_t id) { sourceId_ = id; }
+void Frame::setSourceId(uint32_t id) { sourceId_ = id; }
 }
