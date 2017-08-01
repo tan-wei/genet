@@ -34,6 +34,4 @@ TEST_CASE("Variant_uint64") {
   Variant_setUint64(&variant, -1);
   CHECK(Variant_uint64(&variant) == UINT64_MAX);
 }
-
-
 }

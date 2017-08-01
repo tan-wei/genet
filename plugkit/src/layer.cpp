@@ -104,4 +104,6 @@ Property *Layer_addProperty(Layer *layer, Token id) {
 const Property *Layer_propertyFromId(const Layer *layer, Token id) {
   return layer->propertyFromId(id);
 }
+
+void Layer_addTag(Layer *layer, Token tag) { layer->addTag(tag); }
 }
