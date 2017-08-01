@@ -18,7 +18,7 @@ size_t Payload_data(const Payload *layer, const char **data);
 
 /// Sets data to the payload.
 /// Payload does not take the ownership of data.
-void Payload_setData(Payload *layer, const char *data, size_t length);
+void Payload_setDataRef(Payload *layer, const char *data, size_t length);
 
 /// Allocates a new Property and adds it as a payload property.
 Property *Payload_addProperty(Payload *layer, Token id);

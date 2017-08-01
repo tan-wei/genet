@@ -26,7 +26,7 @@ const char *Variant_string(const Variant *var);
 void Variant_setString(Variant *var, const char *str);
 
 size_t Variant_data(const Variant *var, const char **data);
-void Variant_setData(Variant *var, const char *data, size_t length);
+void Variant_setDataCopy(Variant *var, const char *data, size_t length);
 }
 }
 

@@ -112,7 +112,8 @@
          ],
          "sources":[
             "<@(plugkit_sources)",
-            "test/token_test.cpp"
+            "test/token_test.cpp",
+            "test/variant_test.cpp"
          ],
          "xcode_settings":{
             "GCC_ENABLE_CPP_EXCEPTIONS":"YES"
