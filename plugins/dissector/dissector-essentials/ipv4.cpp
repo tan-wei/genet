@@ -51,24 +51,24 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   int headerLength = header & 0b00001111;
 
   Property *ver = Layer_addProperty(child, versionToken);
-  *Property_valueRef(ver) = version;
+  Variant_setUint64(Property_valueRef(ver), version);
   Property_setRange(ver, reader.lastRange());
 
   Property *hlen = Layer_addProperty(child, hLenToken);
-  *Property_valueRef(hlen) = headerLength;
+  Variant_setUint64(Property_valueRef(hlen), headerLength);
   Property_setRange(hlen, reader.lastRange());
 
   Property *tos = Layer_addProperty(child, typeToken);
-  *Property_valueRef(tos) = reader.readBE<uint8_t>();
+  Variant_setUint64(Property_valueRef(tos), reader.readBE<uint8_t>());
   Property_setRange(tos, reader.lastRange());
 
   uint16_t totalLength = reader.readBE<uint16_t>();
   Property *tlen = Layer_addProperty(child, tLenToken);
-  *Property_valueRef(tlen) = totalLength;
+  Variant_setUint64(Property_valueRef(tlen), totalLength);
   Property_setRange(tlen, reader.lastRange());
 
   Property *id = Layer_addProperty(child, idToken);
-  *Property_valueRef(id) = reader.readBE<uint16_t>();
+  Variant_setUint64(Property_valueRef(id), reader.readBE<uint16_t>());
   Property_setRange(id, reader.lastRange());
 
   uint8_t flagAndOffset = reader.readBE<uint8_t>();
@@ -80,7 +80,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   for (const auto &bit : flagTable) {
     bool on = std::get<0>(bit) & flag;
     Property *flagBit = Property_addProperty(flags, std::get<2>(bit));
-    *Property_valueRef(flagBit) = on;
+    Variant_setBool(Property_valueRef(flagBit), on);
     Property_setRange(flagBit, reader.lastRange());
 
     if (on) {
@@ -94,16 +94,16 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   uint16_t fgOffset =
       ((flagAndOffset & 0b00011111) << 8) | reader.readBE<uint8_t>();
   Property *fragmentOffset = Layer_addProperty(child, fOffsetToken);
-  *Property_valueRef(fragmentOffset) = fgOffset;
+  Variant_setUint64(Property_valueRef(fragmentOffset), fgOffset);
   Property_setRange(fragmentOffset, Range{6, 8});
 
   Property *ttl = Layer_addProperty(child, ttlToken);
-  *Property_valueRef(ttl) = reader.readBE<uint8_t>();
+  Variant_setUint64(Property_valueRef(ttl), reader.readBE<uint8_t>());
   Property_setRange(ttl, reader.lastRange());
 
   uint8_t protocolNumber = reader.readBE<uint8_t>();
   Property *proto = Layer_addProperty(child, protocolToken);
-  *Property_valueRef(proto) = protocolNumber;
+  Variant_setUint64(Property_valueRef(proto), protocolNumber);
   const auto &type = fmt::enums(protoTable, protocolNumber,
                                 std::make_pair("Unknown", unknownToken));
 
@@ -112,7 +112,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   Layer_addTag(child, type.second);
 
   Property *checksum = Layer_addProperty(child, checksumToken);
-  *Property_valueRef(checksum) = reader.readBE<uint16_t>();
+  Variant_setUint64(Property_valueRef(checksum), reader.readBE<uint16_t>());
   Property_setRange(checksum, reader.lastRange());
 
   const auto &srcSlice = reader.slice(4);

@@ -44,7 +44,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   auto protocolType = reader.readBE<uint16_t>();
   if (protocolType <= 1500) {
     Property *length = Layer_addProperty(child, lenToken);
-    *Property_valueRef(length) = protocolType;
+    Variant_setUint64(Property_valueRef(length), protocolType);
     Property_setRange(length, reader.lastRange());
   } else {
 
@@ -52,10 +52,9 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
     const auto &type = fmt::enums(typeTable, protocolType,
                                   std::make_pair("Unknown", unknownToken));
 
-    *Property_valueRef(etherType) = protocolType;
+    Variant_setUint64(Property_valueRef(etherType), protocolType);
     Property_setRange(etherType, reader.lastRange());
     Layer_addTag(child, type.second);
-    ;
   }
 
   child->setPayload(reader.slice());
