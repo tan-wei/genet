@@ -15,26 +15,25 @@ namespace {
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   fmt::Reader<Slice> reader(layer->payload());
   Layer *child = Layer_addLayer(layer, Token_get("tcp"));
-  child->addTag(Token_get("tcp"));
+  Layer_addTag(child, Token_get("tcp"));
+  ;
 
   const auto &parentSrc = layer->propertyFromId(Token_get("src"));
   const auto &parentDst = layer->propertyFromId(Token_get("dst"));
 
   uint16_t sourcePort = reader.readBE<uint16_t>();
-  Property *src = new Property(Token_get("src"), sourcePort);
+  Property *src = Layer_addProperty(child, Token_get("src"));
+  *Property_valueRef(src) = sourcePort;
   //       src->setSummary(parentSrc->summary() + ":" +
   //       std::to_string(sourcePort));
-  src->setRange(reader.lastRange());
-
-  child->addProperty(src);
+  Property_setRange(src, reader.lastRange());
 
   uint16_t dstPort = reader.readBE<uint16_t>();
-  Property *dst = new Property(Token_get("dst"), dstPort);
+  Property *dst = Layer_addProperty(child, Token_get("dst"));
+  *Property_valueRef(dst) = dstPort;
   //       dst->setSummary(parentDst->summary() + ":" +
   //       std::to_string(dstPort));
-  dst->setRange(reader.lastRange());
-
-  child->addProperty(dst);
+  Property_setRange(dst, reader.lastRange());
 
   /*
         const std::string &summary =
@@ -54,23 +53,20 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   */
 
   uint32_t seqNumber = reader.readBE<uint32_t>();
-  Property *seq = new Property(Token_get("seq"), seqNumber);
-  seq->setRange(reader.lastRange());
-
-  child->addProperty(seq);
+  Property *seq = Layer_addProperty(child, Token_get("seq"));
+  *Property_valueRef(seq) = seqNumber;
+  Property_setRange(seq, reader.lastRange());
 
   uint32_t ackNumber = reader.readBE<uint32_t>();
-  Property *ack = new Property(Token_get("ack"), ackNumber);
-  ack->setRange(reader.lastRange());
-
-  child->addProperty(ack);
+  Property *ack = Layer_addProperty(child, Token_get("ack"));
+  *Property_valueRef(ack) = ackNumber;
+  Property_setRange(ack, reader.lastRange());
 
   uint8_t offsetAndFlag = reader.readBE<uint8_t>();
   int dataOffset = offsetAndFlag >> 4;
-  Property *offset = new Property(Token_get("dOffset"), dataOffset);
-  offset->setRange(reader.lastRange());
-
-  child->addProperty(offset);
+  Property *offset = Layer_addProperty(child, Token_get("dOffset"));
+  *Property_valueRef(offset) = dataOffset;
+  Property_setRange(offset, reader.lastRange());
 
   uint8_t flag = reader.readBE<uint8_t>() | ((offsetAndFlag & 0x1) << 8);
 
@@ -86,12 +82,14 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
       std::make_tuple(0x1 << 0, "FIN", Token_get("fin")),
   };
 
-  Property *flags = new Property(Token_get("flags"), flag);
+  Property *flags = Layer_addProperty(child, Token_get("flags"));
+  *Property_valueRef(flags) = flag;
   std::string flagSummary;
   for (const auto &bit : flagTable) {
     bool on = std::get<0>(bit) & flag;
-    Property *flagBit = new Property(std::get<2>(bit), on);
-    flagBit->setRange(reader.lastRange());
+    Property *flagBit = Layer_addProperty(child, std::get<2>(bit));
+    *Property_valueRef(flagBit) = on;
+    Property_setRange(flagBit, reader.lastRange());
 
     flags->addProperty(flagBit);
     if (on) {
@@ -101,32 +99,22 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
     }
   }
   //       flags->setSummary(flagSummary);
-  flags->setRange(Range{12, 14});
-
-  child->addProperty(flags);
+  Property_setRange(flags, Range{12, 14});
 
   Property *window =
       new Property(Token_get("window"), reader.readBE<uint16_t>());
-  window->setRange(reader.lastRange());
-
-  child->addProperty(window);
+  Property_setRange(window, reader.lastRange());
 
   Property *checksum =
       new Property(Token_get("checksum"), reader.readBE<uint16_t>());
-  checksum->setRange(reader.lastRange());
-
-  child->addProperty(checksum);
+  Property_setRange(checksum, reader.lastRange());
 
   Property *urgent =
       new Property(Token_get("urgent"), reader.readBE<uint16_t>());
-  urgent->setRange(reader.lastRange());
-
-  child->addProperty(urgent);
+  Property_setRange(urgent, reader.lastRange());
 
   Property *options = new Property(Token_get("options"));
-  options->setRange(reader.lastRange());
-
-  child->addProperty(options);
+  Property_setRange(options, reader.lastRange());
 
   size_t optionDataOffset = dataOffset * 4;
   uint32_t optionOffset = 20;
@@ -137,31 +125,34 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
       break;
     case 1: {
       Property *opt = new Property(Token_get("nop"));
-      opt->setRange(Range{optionOffset, optionOffset + 1});
+      Property_setRange(opt, Range{optionOffset, optionOffset + 1});
 
       options->addProperty(opt);
       optionOffset++;
     } break;
     case 2: {
       uint16_t size = fmt::readBE<uint16_t>(layer->payload(), optionOffset + 2);
-      Property *opt = new Property(Token_get("mss"), size);
-      opt->setRange(Range{optionOffset, optionOffset + 4});
+      Property *opt = Layer_addProperty(child, Token_get("mss"));
+      *Property_valueRef(opt) = size;
+      Property_setRange(opt, Range{optionOffset, optionOffset + 4});
 
       options->addProperty(opt);
       optionOffset += 4;
     } break;
     case 3: {
       uint8_t scale = fmt::readBE<uint8_t>(layer->payload(), optionOffset + 2);
-      Property *opt = new Property(Token_get("scale"), scale);
-      opt->setRange(Range{optionOffset, optionOffset + 2});
+      Property *opt = Layer_addProperty(child, Token_get("scale"));
+      *Property_valueRef(opt) = scale;
+      Property_setRange(opt, Range{optionOffset, optionOffset + 2});
 
       options->addProperty(opt);
       optionOffset += 3;
     } break;
 
     case 4: {
-      Property *opt = new Property(Token_get("ackPerm"), true);
-      opt->setRange(Range{optionOffset, optionOffset + 2});
+      Property *opt = Layer_addProperty(child, Token_get("ackPerm"));
+      *Property_valueRef(opt) = true;
+      Property_setRange(opt, Range{optionOffset, optionOffset + 2});
 
       options->addProperty(opt);
       optionOffset += 2;
@@ -173,7 +164,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
       Property *opt =
           new Property(Token_get("selAck"),
                        layer->payload().slice(optionOffset + 2, length));
-      opt->setRange(Range{optionOffset, optionOffset + length});
+      Property_setRange(opt, Range{optionOffset, optionOffset + length});
 
       options->addProperty(opt);
       optionOffset += length;
@@ -184,13 +175,15 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
                                           optionOffset + 2 + sizeof(uint32_t));
       Property *opt = new Property(Token_get("ts"), std::to_string(mt) + " - " +
                                                         std::to_string(et));
-      opt->setRange(Range{optionOffset, optionOffset + 10});
+      Property_setRange(opt, Range{optionOffset, optionOffset + 10});
 
-      Property *optmt = new Property(Token_get("mt"), mt);
-      optmt->setRange(Range{optionOffset + 2, optionOffset + 6});
+      Property *optmt = Layer_addProperty(child, Token_get("mt"));
+      *Property_valueRef(optmt) = mt;
+      Property_setRange(optmt, Range{optionOffset + 2, optionOffset + 6});
 
-      Property *optet = new Property(Token_get("et"), et);
-      optet->setRange(Range{optionOffset + 6, optionOffset + 10});
+      Property *optet = Layer_addProperty(child, Token_get("et"));
+      *Property_valueRef(optet) = et;
+      Property_setRange(optet, Range{optionOffset + 6, optionOffset + 10});
 
       opt->addProperty(optmt);
       opt->addProperty(optet);

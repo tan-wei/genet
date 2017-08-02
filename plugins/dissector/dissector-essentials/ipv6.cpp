@@ -69,7 +69,8 @@ namespace {
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   fmt::Reader<Slice> reader(layer->payload());
   Layer *child = Layer_addLayer(layer, Token_get("ipv6"));
-  child->addTag(Token_get("ipv6"));
+  Layer_addTag(child, Token_get("ipv6"));
+  ;
 
   uint8_t header = reader.readBE<uint8_t>();
   uint8_t header2 = reader.readBE<uint8_t>();
@@ -77,53 +78,44 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   int trafficClass = (header & 0b00001111 << 4) | ((header2 & 0b11110000) >> 4);
   int flowLevel = reader.readBE<uint16_t>() | ((header2 & 0b00001111) << 16);
 
-  Property *ver = new Property(Token_get("version"), version);
-  ver->setRange(Range{0, 1});
+  Property *ver = Layer_addProperty(child, Token_get("version"));
+  *Property_valueRef(ver) = version;
+  Property_setRange(ver, Range{0, 1});
 
-  child->addProperty(ver);
+  Property *tClass = Layer_addProperty(child, Token_get("tClass"));
+  *Property_valueRef(tClass) = trafficClass;
+  Property_setRange(tClass, Range{0, 2});
 
-  Property *tClass = new Property(Token_get("tClass"), trafficClass);
-  tClass->setRange(Range{0, 2});
+  Property *fLevel = Layer_addProperty(child, Token_get("fLevel"));
+  *Property_valueRef(fLevel) = flowLevel;
+  Property_setRange(fLevel, Range{1, 4});
 
-  child->addProperty(tClass);
-
-  Property *fLevel = new Property(Token_get("fLevel"), flowLevel);
-  fLevel->setRange(Range{1, 4});
-
-  child->addProperty(fLevel);
-
-  Property *pLen = new Property(Token_get("pLen"), reader.readBE<uint16_t>());
-  pLen->setRange(reader.lastRange());
-
-  child->addProperty(pLen);
+  Property *pLen = Layer_addProperty(child, Token_get("pLen"));
+  *Property_valueRef(pLen) = reader.readBE<uint16_t>();
+  Property_setRange(pLen, reader.lastRange());
 
   int nextHeader = reader.readBE<uint8_t>();
   auto nextHeaderRange = reader.lastRange();
 
-  Property *nHeader = new Property(Token_get("nHeader"), nextHeader);
-  nHeader->setRange(nextHeaderRange);
-
-  child->addProperty(nHeader);
+  Property *nHeader = Layer_addProperty(child, Token_get("nHeader"));
+  *Property_valueRef(nHeader) = nextHeader;
+  Property_setRange(nHeader, nextHeaderRange);
 
   Property *hLimit =
       new Property(Token_get("hLimit"), reader.readBE<uint8_t>());
-  hLimit->setRange(reader.lastRange());
-
-  child->addProperty(hLimit);
+  Property_setRange(hLimit, reader.lastRange());
 
   const auto &srcSlice = reader.slice(16);
-  Property *src = new Property(Token_get("src"), srcSlice);
+  Property *src = Layer_addProperty(child, Token_get("src"));
+  *Property_valueRef(src) = srcSlice;
   //       src->setSummary(ipv6Addr(srcSlice));
-  src->setRange(reader.lastRange());
-
-  child->addProperty(src);
+  Property_setRange(src, reader.lastRange());
 
   const auto &dstSlice = reader.slice(16);
-  Property *dst = new Property(Token_get("dst"), dstSlice);
+  Property *dst = Layer_addProperty(child, Token_get("dst"));
+  *Property_valueRef(dst) = dstSlice;
   //       dst->setSummary(ipv6Addr(dstSlice));
-  dst->setRange(reader.lastRange());
-
-  child->addProperty(dst);
+  Property_setRange(dst, reader.lastRange());
 
   bool ext = true;
   while (ext) {
@@ -154,7 +146,6 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
       continue;
     }
 
-    child->addProperty(item);
     nextHeader = header;
   }
 
@@ -167,14 +158,13 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
       };
 
   uint8_t protocolNumber = nextHeader;
-  Property *proto = new Property(Token_get("protocol"), protocolNumber);
+  Property *proto = Layer_addProperty(child, Token_get("protocol"));
+  *Property_valueRef(proto) = protocolNumber;
   const auto &type =
       fmt::enums(protoTable, protocolNumber,
                  std::make_pair("Unknown", Token_get("[unknown]")));
   //       proto->setSummary(type.first);
-  proto->setRange(reader.lastRange());
-
-  child->addProperty(proto);
+  Property_setRange(proto, reader.lastRange());
 
   /*
         const std::string &summary =

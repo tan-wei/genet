@@ -15,38 +15,35 @@ namespace {
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   fmt::Reader<Slice> reader(layer->payload());
   Layer *child = Layer_addLayer(layer, Token_get("udp"));
-  child->addTag(Token_get("udp"));
+  Layer_addTag(child, Token_get("udp"));
+  ;
 
   const auto &parentSrc = layer->propertyFromId(Token_get("src"));
   const auto &parentDst = layer->propertyFromId(Token_get("dst"));
 
   uint16_t sourcePort = reader.readBE<uint16_t>();
-  Property *src = new Property(Token_get("src"), sourcePort);
+  Property *src = Layer_addProperty(child, Token_get("src"));
+  *Property_valueRef(src) = sourcePort;
   //       src->setSummary(parentSrc->summary() + ":" +
   //       std::to_string(sourcePort));
-  src->setRange(reader.lastRange());
-
-  child->addProperty(src);
+  Property_setRange(src, reader.lastRange());
 
   uint16_t dstPort = reader.readBE<uint16_t>();
-  Property *dst = new Property(Token_get("dst"), dstPort);
+  Property *dst = Layer_addProperty(child, Token_get("dst"));
+  *Property_valueRef(dst) = dstPort;
   //       dst->setSummary(parentDst->summary() + ":" +
   //       std::to_string(dstPort));
-  dst->setRange(reader.lastRange());
-
-  child->addProperty(dst);
+  Property_setRange(dst, reader.lastRange());
 
   uint32_t lengthNumber = reader.readBE<uint16_t>();
-  Property *length = new Property(Token_get("length"), lengthNumber);
-  length->setRange(reader.lastRange());
-
-  child->addProperty(length);
+  Property *length = Layer_addProperty(child, Token_get("length"));
+  *Property_valueRef(length) = lengthNumber;
+  Property_setRange(length, reader.lastRange());
 
   uint32_t checksumNumber = reader.readBE<uint16_t>();
-  Property *checksum = new Property(Token_get("checksum"), checksumNumber);
-  checksum->setRange(reader.lastRange());
-
-  child->addProperty(checksum);
+  Property *checksum = Layer_addProperty(child, Token_get("checksum"));
+  *Property_valueRef(checksum) = checksumNumber;
+  Property_setRange(checksum, reader.lastRange());
 
   /*
         child->setSummary(src->summary() + " -> " + dst->summary());

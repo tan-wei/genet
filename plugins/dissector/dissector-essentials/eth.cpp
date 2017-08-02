@@ -2,10 +2,11 @@
 #include <plugkit/dissector.h>
 #include <plugkit/dissection_result.h>
 #include <plugkit/context.h>
+#include <plugkit/property.h>
 #include <plugkit/token.h>
 
+#include <plugkit/variant.hpp>
 #include <plugkit/layer.hpp>
-#include <plugkit/property.hpp>
 #include <plugkit/fmt.hpp>
 #include <unordered_map>
 
@@ -33,32 +34,29 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
 
   const auto &srcSlice = reader.slice(6);
   Property *src = Layer_addProperty(child, srcToken);
-  src->setValue(srcSlice);
+  *Property_valueRef(src) = srcSlice;
   Property_setRange(src, reader.lastRange());
 
-  child->addProperty(src);
-
   const auto &dstSlice = reader.slice(6);
-  Property *dst = new Property(dstToken, dstSlice);
-
-  dst->setRange(reader.lastRange());
-  child->addProperty(dst);
+  Property *dst = Layer_addProperty(child, dstToken);
+  *Property_valueRef(dst) = dstSlice;
+  Property_setRange(dst, reader.lastRange());
 
   auto protocolType = reader.readBE<uint16_t>();
   if (protocolType <= 1500) {
-    Property *length = new Property(lenToken, protocolType);
-    length->setRange(reader.lastRange());
-
-    child->addProperty(length);
+    Property *length = Layer_addProperty(child, lenToken);
+    *Property_valueRef(length) = protocolType;
+    Property_setRange(length, reader.lastRange());
   } else {
 
-    Property *etherType = new Property(ethTypeToken, protocolType);
+    Property *etherType = Layer_addProperty(child, ethTypeToken);
     const auto &type = fmt::enums(typeTable, protocolType,
                                   std::make_pair("Unknown", unknownToken));
 
-    etherType->setRange(reader.lastRange());
-    child->addProperty(etherType);
-    child->addTag(type.second);
+    *Property_valueRef(etherType) = protocolType;
+    Property_setRange(etherType, reader.lastRange());
+    Layer_addTag(child, type.second);
+    ;
   }
 
   child->setPayload(reader.slice());

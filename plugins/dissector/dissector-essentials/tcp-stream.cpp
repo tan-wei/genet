@@ -97,14 +97,17 @@ public:
 
       Property *stream = new Property(Token_get("stream"));
 
-      Property *payloads = new Property(Token_get("payloads"), chunks);
+      Property *payloads = Layer_addProperty(child, Token_get("payloads"));
+*Property_valueRef(payloads) = chunks;
       stream->addProperty(payloads);
 
-      Property *length = new Property(Token_get("length"), receivedLength);
+      Property *length = Layer_addProperty(child, Token_get("length"));
+*Property_valueRef(length) = receivedLength;
       stream->addProperty(length);
 
       if (currentSeq >= 0) {
-        Property *curSeq = new Property(Token_get("lastSeq"), currentSeq);
+        Property *curSeq = Layer_addProperty(child, Token_get("lastSeq"));
+*Property_valueRef(curSeq) = currentSeq;
         stream->addProperty(curSeq);
       }
 
