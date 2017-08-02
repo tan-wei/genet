@@ -29,13 +29,11 @@ private:
   Frame &operator=(const Frame &) = delete;
 
 private:
-  struct {
-    Timestamp timestamp = std::chrono::system_clock::now();
-    size_t length = 0;
-    uint32_t seq = 0;
-    Layer *layer = nullptr;
-    uint32_t sourceId = 0;
-  } data;
+  Timestamp mTimestamp = std::chrono::system_clock::now();
+  size_t mLength = 0;
+  uint32_t mSeq = 0;
+  Layer *mLayer = nullptr;
+  uint32_t mSourceId = 0;
 };
 }
 

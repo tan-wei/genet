@@ -1,5 +1,5 @@
 #include "property.hpp"
-#include "../plugkit/property.hpp"
+#include "../property.hpp"
 #include "plugkit_module.hpp"
 #include "private/variant.hpp"
 

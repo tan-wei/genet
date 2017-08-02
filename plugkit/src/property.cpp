@@ -4,41 +4,32 @@
 
 namespace plugkit {
 
-class Property::Private {
-public:
-  Private(Token id, const Variant &value);
-  Token id;
-  Range range;
-  Variant value;
-  std::vector<const Property *> children;
-};
-
-Property::Private::Private(Token id, const Variant &value)
-    : id(id), value(value) {}
-
-Property::Property(Token id, const Variant &value)
-    : d(new Private(id, value)) {}
+Property::Property(Token id, const Variant &value) : mId(id), mValue(value) {}
 
 Property::~Property() {}
 
-Token Property::id() const { return d->id; }
+Token Property::id() const { return mId; }
 
-void Property::setId(Token id) { d->id = id; }
+void Property::setId(Token id) { mId = id; }
 
-Range Property::range() const { return d->range; }
+Range Property::range() const { return mRange; }
 
-void Property::setRange(const Range &range) { d->range = range; }
+void Property::setRange(const Range &range) { mRange = range; }
 
-Variant Property::value() const { return d->value; }
+Variant Property::value() const { return mValue; }
 
-void Property::setValue(const Variant &value) { d->value = value; }
+const Variant *Property::valueRef() const { return &mValue; }
+
+Variant *Property::valueRef() { return &mValue; }
+
+void Property::setValue(const Variant &value) { mValue = value; }
 
 const std::vector<const Property *> &Property::properties() const {
-  return d->children;
+  return mChildren;
 }
 
 const Property *Property::propertyFromId(Token id) const {
-  for (const auto &child : d->children) {
+  for (const auto &child : mChildren) {
     if (child->id() == id) {
       return child;
     }
@@ -46,9 +37,7 @@ const Property *Property::propertyFromId(Token id) const {
   return nullptr;
 }
 
-void Property::addProperty(const Property *prop) {
-  d->children.push_back(prop);
-}
+void Property::addProperty(const Property *prop) { mChildren.push_back(prop); }
 
 Token Property_id(const Property *prop) { return prop->id(); }
 
@@ -66,7 +55,7 @@ Range Property_range(const Property *prop) { return prop->range(); }
 
 void Property_setRange(Property *prop, Range range) { prop->setRange(range); }
 
-const Variant *Property_value(const Property *prop) { return &prop->d->value; }
+const Variant *Property_value(const Property *prop) { return prop->valueRef(); }
 
-Variant *Property_valueRef(Property *prop) { return &prop->d->value; }
+Variant *Property_valueRef(Property *prop) { return prop->valueRef(); }
 }

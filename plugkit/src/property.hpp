@@ -20,6 +20,8 @@ public:
   Range range() const;
   void setRange(const Range &range);
   Variant value() const;
+  const Variant *valueRef() const;
+  Variant *valueRef();
   void setValue(const Variant &value);
 
   const std::vector<const Property *> &properties() const;
@@ -30,9 +32,11 @@ private:
   Property(const Property &prop) = delete;
   Property &operator=(const Property &prop) = delete;
 
-public:
-  class Private;
-  std::unique_ptr<Private> d;
+private:
+  Token mId;
+  Variant mValue;
+  Range mRange;
+  std::vector<const Property *> mChildren;
 };
 }
 

@@ -4,7 +4,6 @@
 #include "stream_resolver.hpp"
 #include "variant.hpp"
 
-#include "dissection_result.h"
 #include "dissector.h"
 #include "context.hpp"
 #include <array>

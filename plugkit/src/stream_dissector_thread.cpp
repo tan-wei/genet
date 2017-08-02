@@ -4,7 +4,6 @@
 #include "queue.hpp"
 #include "variant.hpp"
 
-#include "dissection_result.h"
 #include "dissector.h"
 #include "context.hpp"
 
