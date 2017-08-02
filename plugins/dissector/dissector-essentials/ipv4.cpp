@@ -3,9 +3,10 @@
 #include <plugkit/dissection_result.h>
 #include <plugkit/context.h>
 #include <plugkit/token.h>
+#include <plugkit/property.h>
 
+#include <plugkit/variant.hpp>
 #include <plugkit/layer.hpp>
-#include <plugkit/property.hpp>
 #include <plugkit/fmt.hpp>
 #include <unordered_map>
 
@@ -57,11 +58,10 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   std::string flagSummary;
   for (const auto &bit : flagTable) {
     bool on = std::get<0>(bit) & flag;
-    Property *flagBit = Layer_addProperty(child, std::get<2>(bit));
+    Property *flagBit = Property_addProperty(flags, std::get<2>(bit));
     *Property_valueRef(flagBit) = on;
     Property_setRange(flagBit, reader.lastRange());
 
-    flags->addProperty(flagBit);
     if (on) {
       if (!flagSummary.empty())
         flagSummary += ", ";
@@ -98,10 +98,9 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   Property_setRange(proto, reader.lastRange());
 
   Layer_addTag(child, type.second);
-  ;
 
-  Property *checksum =
-      new Property(Token_get("checksum"), reader.readBE<uint16_t>());
+  Property *checksum = Layer_addProperty(child, Token_get("checksum"));
+  *Property_valueRef(checksum) = reader.readBE<uint16_t>();
   Property_setRange(checksum, reader.lastRange());
 
   const auto &srcSlice = reader.slice(4);

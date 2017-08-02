@@ -3,9 +3,10 @@
 #include <plugkit/dissection_result.h>
 #include <plugkit/context.h>
 #include <plugkit/token.h>
+#include <plugkit/property.h>
 
+#include <plugkit/variant.hpp>
 #include <plugkit/layer.hpp>
-#include <plugkit/property.hpp>
 #include <plugkit/fmt.hpp>
 #include <unordered_map>
 
@@ -70,7 +71,6 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   fmt::Reader<Slice> reader(layer->payload());
   Layer *child = Layer_addLayer(layer, Token_get("ipv6"));
   Layer_addTag(child, Token_get("ipv6"));
-  ;
 
   uint8_t header = reader.readBE<uint8_t>();
   uint8_t header2 = reader.readBE<uint8_t>();
@@ -101,8 +101,8 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   *Property_valueRef(nHeader) = nextHeader;
   Property_setRange(nHeader, nextHeaderRange);
 
-  Property *hLimit =
-      new Property(Token_get("hLimit"), reader.readBE<uint8_t>());
+  Property *hLimit = Layer_addProperty(child, Token_get("hLimit"));
+  *Property_valueRef(hLimit) = reader.readBE<uint8_t>();
   Property_setRange(hLimit, reader.lastRange());
 
   const auto &srcSlice = reader.slice(16);
@@ -119,7 +119,6 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
 
   bool ext = true;
   while (ext) {
-    Property *item = nullptr;
     int header = 0;
     switch (nextHeader) {
     case 0:
@@ -130,7 +129,6 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
       size_t byteLen = (extLen + 1) * 8;
       reader.slice(byteLen);
       Token id = (nextHeader == 0) ? Token_get("hbyh") : Token_get("dst");
-      item = new Property(id);
     }
 
     break;

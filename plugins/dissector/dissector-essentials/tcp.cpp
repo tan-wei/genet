@@ -3,9 +3,10 @@
 #include <plugkit/dissection_result.h>
 #include <plugkit/context.h>
 #include <plugkit/token.h>
+#include <plugkit/property.h>
 
+#include <plugkit/variant.hpp>
 #include <plugkit/layer.hpp>
-#include <plugkit/property.hpp>
 #include <plugkit/fmt.hpp>
 #include <unordered_map>
 
@@ -87,11 +88,10 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   std::string flagSummary;
   for (const auto &bit : flagTable) {
     bool on = std::get<0>(bit) & flag;
-    Property *flagBit = Layer_addProperty(child, std::get<2>(bit));
+    Property *flagBit = Property_addProperty(flags, std::get<2>(bit));
     *Property_valueRef(flagBit) = on;
     Property_setRange(flagBit, reader.lastRange());
 
-    flags->addProperty(flagBit);
     if (on) {
       if (!flagSummary.empty())
         flagSummary += ", ";
@@ -101,19 +101,19 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   //       flags->setSummary(flagSummary);
   Property_setRange(flags, Range{12, 14});
 
-  Property *window =
-      new Property(Token_get("window"), reader.readBE<uint16_t>());
+  Property *window = Layer_addProperty(child, Token_get("window"));
+  *Property_valueRef(window) = reader.readBE<uint16_t>();
   Property_setRange(window, reader.lastRange());
 
-  Property *checksum =
-      new Property(Token_get("checksum"), reader.readBE<uint16_t>());
+  Property *checksum = Layer_addProperty(child, Token_get("checksum"));
+  *Property_valueRef(checksum) = reader.readBE<uint16_t>();
   Property_setRange(checksum, reader.lastRange());
 
-  Property *urgent =
-      new Property(Token_get("urgent"), reader.readBE<uint16_t>());
+  Property *urgent = Layer_addProperty(child, Token_get("urgent"));
+  *Property_valueRef(urgent) = reader.readBE<uint16_t>();
   Property_setRange(urgent, reader.lastRange());
 
-  Property *options = new Property(Token_get("options"));
+  Property *options = Layer_addProperty(child, Token_get("options"));
   Property_setRange(options, reader.lastRange());
 
   size_t optionDataOffset = dataOffset * 4;
@@ -124,70 +124,57 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
       optionOffset = optionDataOffset;
       break;
     case 1: {
-      Property *opt = new Property(Token_get("nop"));
+      Property *opt = Property_addProperty(options, Token_get("nop"));
       Property_setRange(opt, Range{optionOffset, optionOffset + 1});
-
-      options->addProperty(opt);
       optionOffset++;
     } break;
     case 2: {
       uint16_t size = fmt::readBE<uint16_t>(layer->payload(), optionOffset + 2);
-      Property *opt = Layer_addProperty(child, Token_get("mss"));
+      Property *opt = Property_addProperty(options, Token_get("mss"));
       *Property_valueRef(opt) = size;
       Property_setRange(opt, Range{optionOffset, optionOffset + 4});
-
-      options->addProperty(opt);
       optionOffset += 4;
     } break;
     case 3: {
       uint8_t scale = fmt::readBE<uint8_t>(layer->payload(), optionOffset + 2);
-      Property *opt = Layer_addProperty(child, Token_get("scale"));
+      Property *opt = Property_addProperty(options, Token_get("scale"));
       *Property_valueRef(opt) = scale;
       Property_setRange(opt, Range{optionOffset, optionOffset + 2});
-
-      options->addProperty(opt);
       optionOffset += 3;
     } break;
 
     case 4: {
-      Property *opt = Layer_addProperty(child, Token_get("ackPerm"));
+      Property *opt = Property_addProperty(options, Token_get("ackPerm"));
       *Property_valueRef(opt) = true;
       Property_setRange(opt, Range{optionOffset, optionOffset + 2});
-
-      options->addProperty(opt);
       optionOffset += 2;
     } break;
 
     // TODO: https://tools.ietf.org/html/rfc2018
     case 5: {
       uint8_t length = fmt::readBE<uint8_t>(layer->payload(), optionOffset + 1);
-      Property *opt =
-          new Property(Token_get("selAck"),
-                       layer->payload().slice(optionOffset + 2, length));
+      Property *opt = Property_addProperty(options, Token_get("selAck"));
+      *Property_valueRef(opt) =
+          layer->payload().slice(optionOffset + 2, length);
       Property_setRange(opt, Range{optionOffset, optionOffset + length});
-
-      options->addProperty(opt);
       optionOffset += length;
     } break;
     case 8: {
       uint32_t mt = fmt::readBE<uint32_t>(layer->payload(), optionOffset + 2);
       uint32_t et = fmt::readBE<uint32_t>(layer->payload(),
                                           optionOffset + 2 + sizeof(uint32_t));
-      Property *opt = new Property(Token_get("ts"), std::to_string(mt) + " - " +
-                                                        std::to_string(et));
+      Property *opt = Property_addProperty(options, Token_get("ts"));
+      *Property_valueRef(opt) = std::to_string(mt) + " - " + std::to_string(et);
       Property_setRange(opt, Range{optionOffset, optionOffset + 10});
 
-      Property *optmt = Layer_addProperty(child, Token_get("mt"));
+      Property *optmt = Property_addProperty(opt, Token_get("mt"));
       *Property_valueRef(optmt) = mt;
       Property_setRange(optmt, Range{optionOffset + 2, optionOffset + 6});
 
-      Property *optet = Layer_addProperty(child, Token_get("et"));
+      Property *optet = Property_addProperty(opt, Token_get("et"));
       *Property_valueRef(optet) = et;
       Property_setRange(optet, Range{optionOffset + 6, optionOffset + 10});
 
-      opt->addProperty(optmt);
-      opt->addProperty(optet);
-      options->addProperty(opt);
       optionOffset += 10;
     } break;
     default:

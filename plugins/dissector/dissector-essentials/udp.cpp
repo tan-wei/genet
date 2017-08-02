@@ -3,9 +3,10 @@
 #include <plugkit/dissection_result.h>
 #include <plugkit/context.h>
 #include <plugkit/token.h>
+#include <plugkit/property.h>
 
+#include <plugkit/variant.hpp>
 #include <plugkit/layer.hpp>
-#include <plugkit/property.hpp>
 #include <plugkit/fmt.hpp>
 #include <unordered_map>
 
