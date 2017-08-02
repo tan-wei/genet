@@ -12,8 +12,7 @@
 using namespace plugkit;
 
 namespace {
-void analyze(Context *ctx, Worker *data, Layer *layer,
-             DissectionResult *result) {
+void analyze(Context *ctx, Worker *data, Layer *layer) {
   fmt::Reader<Slice> reader(layer->payload());
   Layer *child = Layer_addLayer(layer, Token_get("udp"));
   child->addTag(Token_get("udp"));
@@ -53,7 +52,6 @@ void analyze(Context *ctx, Worker *data, Layer *layer,
         child->setSummary(src->summary() + " -> " + dst->summary());
         */
   child->setPayload(reader.slice(lengthNumber - 8));
-  result->child = child;
 }
 }
 

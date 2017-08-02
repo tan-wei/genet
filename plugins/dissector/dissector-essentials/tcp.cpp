@@ -12,8 +12,7 @@
 using namespace plugkit;
 
 namespace {
-void analyze(Context *ctx, Worker *data, Layer *layer,
-             DissectionResult *result) {
+void analyze(Context *ctx, Worker *data, Layer *layer) {
   fmt::Reader<Slice> reader(layer->payload());
   Layer *child = Layer_addLayer(layer, Token_get("tcp"));
   child->addTag(Token_get("tcp"));
@@ -207,8 +206,6 @@ void analyze(Context *ctx, Worker *data, Layer *layer,
 
   const auto &payload = layer->payload().slice(optionDataOffset);
   child->setPayload(payload);
-
-  result->child = child;
 }
 }
 

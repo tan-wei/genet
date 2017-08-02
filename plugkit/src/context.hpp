@@ -3,7 +3,8 @@
 
 namespace plugkit {
 
-struct Context {
+class Context {
+public:
   Variant options;
 };
 }

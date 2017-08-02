@@ -9,16 +9,14 @@ namespace plugkit {
 
 class Layer;
 
-struct Context;
-struct DissectionResult;
+class Context;
 
 typedef void Worker;
 
 enum DissectorType { DISSECTOR_PACKET = 0, DISSECTOR_STREAM = 1 };
 
 struct Dissector {
-  void (*analyze)(Context *ctx, Worker *worker, Layer *layer,
-                  DissectionResult *result);
+  void (*analyze)(Context *ctx, Worker *worker, Layer *layer);
   Worker *(*createWorker)(Context *ctx);
   bool (*expired)(Worker *worker, uint32_t elapsed);
   Token layerHints[8];

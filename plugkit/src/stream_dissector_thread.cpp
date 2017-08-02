@@ -142,17 +142,12 @@ bool StreamDissectorThread::loop() {
       }
 
       Context ctx;
-      DissectionResult result;
       std::vector<Layer *> childLayers;
       for (const auto &pair : workers.list) {
-        std::memset(&result, 0, sizeof(result));
-        pair.first->analyze(&ctx, pair.second, layer, &result);
+        pair.first->analyze(&ctx, pair.second, layer);
 
-        if (Layer *childLayer = result.child) {
+        for (Layer *childLayer : layer->children()) {
           if (childLayer->confidence() >= d->confidenceThreshold) {
-            childLayer->setParent(layer);
-
-            childLayers.push_back(childLayer);
             if (childLayer->streamId() > 0) {
               auto it = dissectedIds.find(childLayer->id());
               if (it == dissectedIds.end()) {

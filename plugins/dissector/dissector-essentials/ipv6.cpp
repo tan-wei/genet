@@ -66,8 +66,7 @@ std::string ipv6Addr(const Slice &data) {
 }
 
 namespace {
-void analyze(Context *ctx, Worker *data, Layer *layer,
-             DissectionResult *result) {
+void analyze(Context *ctx, Worker *data, Layer *layer) {
   fmt::Reader<Slice> reader(layer->payload());
   Layer *child = Layer_addLayer(layer, Token_get("ipv6"));
   child->addTag(Token_get("ipv6"));
@@ -186,7 +185,6 @@ void analyze(Context *ctx, Worker *data, Layer *layer,
         child->setSummary("[" + proto->summary() + "] " + summary);
         */
   child->setPayload(reader.slice());
-  result->child = child;
 }
 }
 

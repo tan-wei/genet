@@ -26,8 +26,7 @@ static const std::unordered_map<uint16_t, std::pair<std::string, Token>>
         {0x86DD, std::make_pair("IPv6", Token_get("[ipv6]"))},
 };
 
-void analyze(Context *ctx, Worker *data, Layer *layer,
-             DissectionResult *result) {
+void analyze(Context *ctx, Worker *data, Layer *layer) {
   fmt::Reader<Slice> reader(layer->payload());
   Layer *child = Layer_addLayer(layer, ethToken);
   Layer_addTag(child, ethToken);
@@ -62,7 +61,6 @@ void analyze(Context *ctx, Worker *data, Layer *layer,
   }
 
   child->setPayload(reader.slice());
-  result->child = child;
 }
 }
 
