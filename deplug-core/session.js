@@ -70,7 +70,7 @@ export default class Session {
     for (const diss of Session.dissectors) {
       factory.registerDissector(diss)
     }
-    
+
     const sess = await factory.create()
 
     const frames = []
