@@ -2,12 +2,11 @@
 #include <algorithm>
 #include <nan.h>
 #include <plugkit/dissector.h>
-#include <plugkit/dissection_result.h>
 #include <plugkit/context.h>
 #include <plugkit/token.h>
+#include <plugkit/property.h>
 
 #include <plugkit/layer.hpp>
-#include <plugkit/property.hpp>
 #include <plugkit/fmt.hpp>
 
 using namespace plugkit;

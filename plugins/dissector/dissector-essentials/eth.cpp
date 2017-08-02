@@ -1,6 +1,5 @@
 #include <nan.h>
 #include <plugkit/dissector.h>
-#include <plugkit/dissection_result.h>
 #include <plugkit/context.h>
 #include <plugkit/property.h>
 #include <plugkit/token.h>
