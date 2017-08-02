@@ -32,8 +32,9 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   Layer_addTag(child, ethToken);
 
   const auto &srcSlice = reader.slice(6);
-  Property *src = new Property(srcToken, srcSlice);
-  src->setRange(reader.lastRange());
+  Property *src = Layer_addProperty(child, srcToken);
+  src->setValue(srcSlice);
+  Property_setRange(src, reader.lastRange());
 
   child->addProperty(src);
 

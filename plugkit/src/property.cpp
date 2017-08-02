@@ -49,4 +49,24 @@ const Property *Property::propertyFromId(Token id) const {
 void Property::addProperty(const Property *prop) {
   d->children.push_back(prop);
 }
+
+Token Property_id(const Property *prop) { return prop->id(); }
+
+Property *Property_addProperty(Property *prop, Token id) {
+  Property *child = new Property(id);
+  prop->addProperty(child);
+  return child;
+}
+
+const Property *Property_propertyFromId(const Property *prop, Token id) {
+  return prop->propertyFromId(id);
+}
+
+Range Property_range(const Property *prop) { return prop->range(); }
+
+void Property_setRange(Property *prop, Range range) { prop->setRange(range); }
+
+const Variant *Property_value(const Property *prop) { return &prop->d->value; }
+
+Variant *Property_valueRef(Property *prop) { return &prop->d->value; }
 }

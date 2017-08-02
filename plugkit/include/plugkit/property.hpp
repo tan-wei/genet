@@ -30,7 +30,7 @@ private:
   Property(const Property &prop) = delete;
   Property &operator=(const Property &prop) = delete;
 
-private:
+public:
   class Private;
   std::unique_ptr<Private> d;
 };
