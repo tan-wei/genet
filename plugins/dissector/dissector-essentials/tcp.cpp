@@ -1,6 +1,5 @@
 #include <nan.h>
 #include <plugkit/dissector.h>
-#include <plugkit/dissection_result.h>
 #include <plugkit/context.h>
 #include <plugkit/token.h>
 #include <plugkit/property.h>
@@ -13,24 +12,57 @@
 using namespace plugkit;
 
 namespace {
+
+const std::tuple<uint16_t, const char *, Token> flagTable[] = {
+    std::make_tuple(0x1 << 8, "NS", Token_get("ns")),
+    std::make_tuple(0x1 << 7, "CWR", Token_get("cwr")),
+    std::make_tuple(0x1 << 6, "ECE", Token_get("ece")),
+    std::make_tuple(0x1 << 5, "URG", Token_get("urg")),
+    std::make_tuple(0x1 << 4, "ACK", Token_get("ack")),
+    std::make_tuple(0x1 << 3, "PSH", Token_get("psh")),
+    std::make_tuple(0x1 << 2, "RST", Token_get("rst")),
+    std::make_tuple(0x1 << 1, "SYN", Token_get("syn")),
+    std::make_tuple(0x1 << 0, "FIN", Token_get("fin")),
+};
+
+const auto tcpToken = Token_get("tcp");
+const auto srcToken = Token_get("src");
+const auto dstToken = Token_get("dst");
+const auto seqToken = Token_get("seq");
+const auto ackToken = Token_get("ack");
+const auto dOffsetToken = Token_get("dOffset");
+const auto flagsToken = Token_get("flags");
+const auto windowToken = Token_get("window");
+const auto checksumToken = Token_get("checksum");
+const auto urgentToken = Token_get("urgent");
+const auto optionsToken = Token_get("options");
+const auto nopToken = Token_get("nop");
+const auto mssToken = Token_get("mss");
+const auto scaleToken = Token_get("scale");
+const auto ackPermToken = Token_get("ackPerm");
+const auto selAckToken = Token_get("selAck");
+const auto tsToken = Token_get("ts");
+const auto mtToken = Token_get("mt");
+const auto etToken = Token_get("et");
+
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   fmt::Reader<Slice> reader(layer->payload());
-  Layer *child = Layer_addLayer(layer, Token_get("tcp"));
-  Layer_addTag(child, Token_get("tcp"));
+  Layer *child = Layer_addLayer(layer, tcpToken);
+  Layer_addTag(child, tcpToken);
   ;
 
-  const auto &parentSrc = layer->propertyFromId(Token_get("src"));
-  const auto &parentDst = layer->propertyFromId(Token_get("dst"));
+  const auto &parentSrc = layer->propertyFromId(srcToken);
+  const auto &parentDst = layer->propertyFromId(dstToken);
 
   uint16_t sourcePort = reader.readBE<uint16_t>();
-  Property *src = Layer_addProperty(child, Token_get("src"));
+  Property *src = Layer_addProperty(child, srcToken);
   *Property_valueRef(src) = sourcePort;
   //       src->setSummary(parentSrc->summary() + ":" +
   //       std::to_string(sourcePort));
   Property_setRange(src, reader.lastRange());
 
   uint16_t dstPort = reader.readBE<uint16_t>();
-  Property *dst = Layer_addProperty(child, Token_get("dst"));
+  Property *dst = Layer_addProperty(child, dstToken);
   *Property_valueRef(dst) = dstPort;
   //       dst->setSummary(parentDst->summary() + ":" +
   //       std::to_string(dstPort));
@@ -54,36 +86,24 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   */
 
   uint32_t seqNumber = reader.readBE<uint32_t>();
-  Property *seq = Layer_addProperty(child, Token_get("seq"));
+  Property *seq = Layer_addProperty(child, seqToken);
   *Property_valueRef(seq) = seqNumber;
   Property_setRange(seq, reader.lastRange());
 
   uint32_t ackNumber = reader.readBE<uint32_t>();
-  Property *ack = Layer_addProperty(child, Token_get("ack"));
+  Property *ack = Layer_addProperty(child, ackToken);
   *Property_valueRef(ack) = ackNumber;
   Property_setRange(ack, reader.lastRange());
 
   uint8_t offsetAndFlag = reader.readBE<uint8_t>();
   int dataOffset = offsetAndFlag >> 4;
-  Property *offset = Layer_addProperty(child, Token_get("dOffset"));
+  Property *offset = Layer_addProperty(child, dOffsetToken);
   *Property_valueRef(offset) = dataOffset;
   Property_setRange(offset, reader.lastRange());
 
   uint8_t flag = reader.readBE<uint8_t>() | ((offsetAndFlag & 0x1) << 8);
 
-  const std::tuple<uint16_t, const char *, Token> flagTable[] = {
-      std::make_tuple(0x1 << 8, "NS", Token_get("ns")),
-      std::make_tuple(0x1 << 7, "CWR", Token_get("cwr")),
-      std::make_tuple(0x1 << 6, "ECE", Token_get("ece")),
-      std::make_tuple(0x1 << 5, "URG", Token_get("urg")),
-      std::make_tuple(0x1 << 4, "ACK", Token_get("ack")),
-      std::make_tuple(0x1 << 3, "PSH", Token_get("psh")),
-      std::make_tuple(0x1 << 2, "RST", Token_get("rst")),
-      std::make_tuple(0x1 << 1, "SYN", Token_get("syn")),
-      std::make_tuple(0x1 << 0, "FIN", Token_get("fin")),
-  };
-
-  Property *flags = Layer_addProperty(child, Token_get("flags"));
+  Property *flags = Layer_addProperty(child, flagsToken);
   *Property_valueRef(flags) = flag;
   std::string flagSummary;
   for (const auto &bit : flagTable) {
@@ -101,19 +121,19 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   //       flags->setSummary(flagSummary);
   Property_setRange(flags, Range{12, 14});
 
-  Property *window = Layer_addProperty(child, Token_get("window"));
+  Property *window = Layer_addProperty(child, windowToken);
   *Property_valueRef(window) = reader.readBE<uint16_t>();
   Property_setRange(window, reader.lastRange());
 
-  Property *checksum = Layer_addProperty(child, Token_get("checksum"));
+  Property *checksum = Layer_addProperty(child, checksumToken);
   *Property_valueRef(checksum) = reader.readBE<uint16_t>();
   Property_setRange(checksum, reader.lastRange());
 
-  Property *urgent = Layer_addProperty(child, Token_get("urgent"));
+  Property *urgent = Layer_addProperty(child, urgentToken);
   *Property_valueRef(urgent) = reader.readBE<uint16_t>();
   Property_setRange(urgent, reader.lastRange());
 
-  Property *options = Layer_addProperty(child, Token_get("options"));
+  Property *options = Layer_addProperty(child, optionsToken);
   Property_setRange(options, reader.lastRange());
 
   size_t optionDataOffset = dataOffset * 4;
@@ -124,27 +144,27 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
       optionOffset = optionDataOffset;
       break;
     case 1: {
-      Property *opt = Property_addProperty(options, Token_get("nop"));
+      Property *opt = Property_addProperty(options, nopToken);
       Property_setRange(opt, Range{optionOffset, optionOffset + 1});
       optionOffset++;
     } break;
     case 2: {
       uint16_t size = fmt::readBE<uint16_t>(layer->payload(), optionOffset + 2);
-      Property *opt = Property_addProperty(options, Token_get("mss"));
+      Property *opt = Property_addProperty(options, mssToken);
       *Property_valueRef(opt) = size;
       Property_setRange(opt, Range{optionOffset, optionOffset + 4});
       optionOffset += 4;
     } break;
     case 3: {
       uint8_t scale = fmt::readBE<uint8_t>(layer->payload(), optionOffset + 2);
-      Property *opt = Property_addProperty(options, Token_get("scale"));
+      Property *opt = Property_addProperty(options, scaleToken);
       *Property_valueRef(opt) = scale;
       Property_setRange(opt, Range{optionOffset, optionOffset + 2});
       optionOffset += 3;
     } break;
 
     case 4: {
-      Property *opt = Property_addProperty(options, Token_get("ackPerm"));
+      Property *opt = Property_addProperty(options, ackPermToken);
       *Property_valueRef(opt) = true;
       Property_setRange(opt, Range{optionOffset, optionOffset + 2});
       optionOffset += 2;
@@ -153,7 +173,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
     // TODO: https://tools.ietf.org/html/rfc2018
     case 5: {
       uint8_t length = fmt::readBE<uint8_t>(layer->payload(), optionOffset + 1);
-      Property *opt = Property_addProperty(options, Token_get("selAck"));
+      Property *opt = Property_addProperty(options, selAckToken);
       *Property_valueRef(opt) =
           layer->payload().slice(optionOffset + 2, length);
       Property_setRange(opt, Range{optionOffset, optionOffset + length});
@@ -163,15 +183,15 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
       uint32_t mt = fmt::readBE<uint32_t>(layer->payload(), optionOffset + 2);
       uint32_t et = fmt::readBE<uint32_t>(layer->payload(),
                                           optionOffset + 2 + sizeof(uint32_t));
-      Property *opt = Property_addProperty(options, Token_get("ts"));
+      Property *opt = Property_addProperty(options, tsToken);
       *Property_valueRef(opt) = std::to_string(mt) + " - " + std::to_string(et);
       Property_setRange(opt, Range{optionOffset, optionOffset + 10});
 
-      Property *optmt = Property_addProperty(opt, Token_get("mt"));
+      Property *optmt = Property_addProperty(opt, mtToken);
       *Property_valueRef(optmt) = mt;
       Property_setRange(optmt, Range{optionOffset + 2, optionOffset + 6});
 
-      Property *optet = Property_addProperty(opt, Token_get("et"));
+      Property *optet = Property_addProperty(opt, etToken);
       *Property_valueRef(optet) = et;
       Property_setRange(optet, Range{optionOffset + 6, optionOffset + 10});
 

@@ -1,6 +1,5 @@
 #include <nan.h>
 #include <plugkit/dissector.h>
-#include <plugkit/dissection_result.h>
 #include <plugkit/context.h>
 #include <plugkit/token.h>
 #include <plugkit/property.h>
@@ -64,13 +63,31 @@ std::string ipv6Addr(const Slice &data) {
   }
   return stream.str();
 }
-}
 
-namespace {
+const std::unordered_map<uint16_t, std::pair<std::string, Token>> protoTable = {
+    {0x01, std::make_pair("ICMP", Token_get("[icmp]"))},
+    {0x02, std::make_pair("IGMP", Token_get("[igmp]"))},
+    {0x06, std::make_pair("TCP", Token_get("[tcp]"))},
+    {0x11, std::make_pair("UDP", Token_get("[udp]"))},
+};
+
+const auto ipv6Token = Token_get("ipv6");
+const auto versionToken = Token_get("version");
+const auto tClassToken = Token_get("tClass");
+const auto fLevelToken = Token_get("fLevel");
+const auto pLenToken = Token_get("pLen");
+const auto nHeaderToken = Token_get("nHeader");
+const auto hLimitToken = Token_get("hLimit");
+const auto srcToken = Token_get("src");
+const auto dstToken = Token_get("dst");
+const auto hbyhToken = Token_get("hbyh");
+const auto protocolToken = Token_get("protocol");
+const auto unknownToken = Token_get("[unknown]");
+
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   fmt::Reader<Slice> reader(layer->payload());
-  Layer *child = Layer_addLayer(layer, Token_get("ipv6"));
-  Layer_addTag(child, Token_get("ipv6"));
+  Layer *child = Layer_addLayer(layer, ipv6Token);
+  Layer_addTag(child, ipv6Token);
 
   uint8_t header = reader.readBE<uint8_t>();
   uint8_t header2 = reader.readBE<uint8_t>();
@@ -78,41 +95,41 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   int trafficClass = (header & 0b00001111 << 4) | ((header2 & 0b11110000) >> 4);
   int flowLevel = reader.readBE<uint16_t>() | ((header2 & 0b00001111) << 16);
 
-  Property *ver = Layer_addProperty(child, Token_get("version"));
+  Property *ver = Layer_addProperty(child, versionToken);
   *Property_valueRef(ver) = version;
   Property_setRange(ver, Range{0, 1});
 
-  Property *tClass = Layer_addProperty(child, Token_get("tClass"));
+  Property *tClass = Layer_addProperty(child, tClassToken);
   *Property_valueRef(tClass) = trafficClass;
   Property_setRange(tClass, Range{0, 2});
 
-  Property *fLevel = Layer_addProperty(child, Token_get("fLevel"));
+  Property *fLevel = Layer_addProperty(child, fLevelToken);
   *Property_valueRef(fLevel) = flowLevel;
   Property_setRange(fLevel, Range{1, 4});
 
-  Property *pLen = Layer_addProperty(child, Token_get("pLen"));
+  Property *pLen = Layer_addProperty(child, pLenToken);
   *Property_valueRef(pLen) = reader.readBE<uint16_t>();
   Property_setRange(pLen, reader.lastRange());
 
   int nextHeader = reader.readBE<uint8_t>();
   auto nextHeaderRange = reader.lastRange();
 
-  Property *nHeader = Layer_addProperty(child, Token_get("nHeader"));
+  Property *nHeader = Layer_addProperty(child, nHeaderToken);
   *Property_valueRef(nHeader) = nextHeader;
   Property_setRange(nHeader, nextHeaderRange);
 
-  Property *hLimit = Layer_addProperty(child, Token_get("hLimit"));
+  Property *hLimit = Layer_addProperty(child, hLimitToken);
   *Property_valueRef(hLimit) = reader.readBE<uint8_t>();
   Property_setRange(hLimit, reader.lastRange());
 
   const auto &srcSlice = reader.slice(16);
-  Property *src = Layer_addProperty(child, Token_get("src"));
+  Property *src = Layer_addProperty(child, srcToken);
   *Property_valueRef(src) = srcSlice;
   //       src->setSummary(ipv6Addr(srcSlice));
   Property_setRange(src, reader.lastRange());
 
   const auto &dstSlice = reader.slice(16);
-  Property *dst = Layer_addProperty(child, Token_get("dst"));
+  Property *dst = Layer_addProperty(child, dstToken);
   *Property_valueRef(dst) = dstSlice;
   //       dst->setSummary(ipv6Addr(dstSlice));
   Property_setRange(dst, reader.lastRange());
@@ -128,7 +145,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
       size_t extLen = reader.readBE<uint8_t>();
       size_t byteLen = (extLen + 1) * 8;
       reader.slice(byteLen);
-      Token id = (nextHeader == 0) ? Token_get("hbyh") : Token_get("dst");
+      Token id = (nextHeader == 0) ? hbyhToken : dstToken;
     }
 
     break;
@@ -147,20 +164,11 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
     nextHeader = header;
   }
 
-  const std::unordered_map<uint16_t, std::pair<std::string, Token>> protoTable =
-      {
-          {0x01, std::make_pair("ICMP", Token_get("[icmp]"))},
-          {0x02, std::make_pair("IGMP", Token_get("[igmp]"))},
-          {0x06, std::make_pair("TCP", Token_get("[tcp]"))},
-          {0x11, std::make_pair("UDP", Token_get("[udp]"))},
-      };
-
   uint8_t protocolNumber = nextHeader;
-  Property *proto = Layer_addProperty(child, Token_get("protocol"));
+  Property *proto = Layer_addProperty(child, protocolToken);
   *Property_valueRef(proto) = protocolNumber;
-  const auto &type =
-      fmt::enums(protoTable, protocolNumber,
-                 std::make_pair("Unknown", Token_get("[unknown]")));
+  const auto &type = fmt::enums(protoTable, protocolNumber,
+                                std::make_pair("Unknown", unknownToken));
   //       proto->setSummary(type.first);
   Property_setRange(proto, reader.lastRange());
 
