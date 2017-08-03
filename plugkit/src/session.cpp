@@ -8,6 +8,7 @@
 #include "layer.hpp"
 #include "pcap.hpp"
 #include "frame.hpp"
+#include "payload.hpp"
 #include "stream_dissector_thread_pool.hpp"
 #include "uvloop_logger.hpp"
 #include "variant.hpp"
@@ -254,6 +255,7 @@ void Session::analyze(const std::vector<RawFrame> &rawFrames) {
       rootLayer->addTag(unknown);
     }
     rootLayer->setPayload(raw.payload);
+    rootLayer->addPayload(new Payload(raw.payload));
 
     Frame *frame = new Frame();
     frame->setSourceId(raw.sourceId);

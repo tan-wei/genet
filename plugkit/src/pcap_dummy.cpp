@@ -1,7 +1,7 @@
 #include "pcap_dummy.hpp"
 #include "layer.hpp"
 #include "frame.hpp"
-#include "slice.hpp"
+#include "payload.hpp"
 #include "stream_logger.hpp"
 #include <chrono>
 #include <mutex>
@@ -80,6 +80,7 @@ bool PcapDummy::start() {
           auto layer = new Layer(tag);
           layer->addTag(tag);
           layer->setPayload(Slice());
+          layer->addPayload(new Payload(Slice()));
 
           auto frame = new Frame();
           frame->setLength(125);

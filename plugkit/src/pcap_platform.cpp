@@ -1,7 +1,7 @@
 #include "pcap_platform.hpp"
 #include "layer.hpp"
 #include "frame.hpp"
-#include "slice.hpp"
+#include "payload.hpp"
 #include "stream_logger.hpp"
 #include <mutex>
 #include <pcap.h>
@@ -215,6 +215,7 @@ bool PcapPlatform::start() {
             char *payload = new char[h->caplen];
             std::memcpy(payload, bytes, h->caplen);
             layer->setPayload(Slice(payload, h->caplen));
+            layer->addPayload(new Payload(Slice(payload, h->caplen)));
 
             using namespace std::chrono;
             const Timestamp &ts = system_clock::from_time_t(h->ts.tv_sec) +

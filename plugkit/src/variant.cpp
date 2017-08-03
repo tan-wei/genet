@@ -360,7 +360,11 @@ Slice Variant::Private::getSlice(v8::Local<v8::Object> obj) {
     return Slice();
   }
 
-  return Slice(node::Buffer::Data(obj), node::Buffer::Length(obj));
+  size_t len = node::Buffer::Length(obj);
+  char *data = new char[len];
+  std::memcpy(data, node::Buffer::Data(obj), len);
+
+  return Slice(data, len);
 }
 
 v8::Local<v8::Value> Variant::Private::getValue(const Variant &var) {
