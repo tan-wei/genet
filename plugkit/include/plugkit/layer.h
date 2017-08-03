@@ -38,11 +38,11 @@ Property *Layer_addProperty(Layer *layer, Token id);
 const Property *Layer_propertyFromId(const Layer *layer, Token id);
 
 /// Allocates a new Payload and adds it as a layer payload.
-Payload *Layer_addPayload(Layer *layer);
+Payload *Layer_addPayload(Layer *layer, View view);
 
 /// Returns the number of the layer payloads
 /// and assigns the first address of payloads to begin.
-size_t Layer_payloads(const Layer *layer, const Payload **begin);
+size_t Layer_payloads(const Layer *layer, const Payload *const **begin);
 
 /// Adds a layer tag
 void Layer_addTag(Layer *layer, Token tag);

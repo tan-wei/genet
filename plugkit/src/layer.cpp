@@ -1,6 +1,7 @@
 #include "layer.hpp"
 #include "property.hpp"
 #include "slice.hpp"
+#include "payload.hpp"
 #include "wrapper/layer.hpp"
 #include <functional>
 #include <regex>
@@ -111,6 +112,18 @@ Property *Layer_addProperty(Layer *layer, Token id) {
 
 const Property *Layer_propertyFromId(const Layer *layer, Token id) {
   return layer->propertyFromId(id);
+}
+
+Payload *Layer_addPayload(Layer *layer, View view) {
+  Payload *payload = new Payload(Slice(view.begin, view.end - view.begin));
+  layer->addPayload(payload);
+  return payload;
+}
+
+size_t Layer_payloads(const Layer *layer, const Payload *const **begin) {
+  const auto &payloads = layer->payloads();
+  *begin = payloads.data();
+  return payloads.size();
 }
 
 void Layer_addTag(Layer *layer, Token tag) { layer->addTag(tag); }

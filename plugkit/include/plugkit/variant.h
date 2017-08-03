@@ -1,8 +1,8 @@
 #ifndef PLUGKIT_VARIANT_H
 #define PLUGKIT_VARIANT_H
 
+#include "view.h"
 #include <cstdint>
-#include <cstddef>
 
 extern "C" {
 
@@ -25,8 +25,8 @@ void Variant_setDouble(Variant *var, double value);
 const char *Variant_string(const Variant *var);
 void Variant_setString(Variant *var, const char *str);
 
-size_t Variant_data(const Variant *var, const char **data);
-void Variant_setDataCopy(Variant *var, const char *data, size_t length);
+View Variant_data(const Variant *var);
+void Variant_setData(Variant *var, View view);
 }
 }
 

@@ -3,6 +3,8 @@
 #ifndef PLUGKIT_VIEW_H
 #define PLUGKIT_VIEW_H
 
+#include <cstddef>
+
 extern "C" {
 
 namespace plugkit {
