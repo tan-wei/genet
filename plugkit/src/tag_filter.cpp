@@ -6,16 +6,18 @@ TagFilter::TagFilter() {}
 
 TagFilter::TagFilter(const std::vector<Token> &tags) : filters(tags) {
   for (Token tag : filters) {
-    hash |= (0x1 << (tag % 64));
+    filterHash |= hash(tag);
   }
 }
+
+uint64_t TagFilter::hash(Token tag) const { return (1ull << (tag % 64)); }
 
 bool TagFilter::match(const std::vector<Token> &tags) const {
   uint64_t bloom = 0;
   for (Token tag : tags) {
-    bloom |= (0x1 << (tag % 64));
+    bloom |= hash(tag);
   }
-  if ((hash & bloom) != hash) {
+  if ((filterHash & bloom) != filterHash) {
     return false;
   }
   for (Token filter : filters) {

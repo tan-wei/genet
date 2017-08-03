@@ -13,7 +13,10 @@ public:
   bool match(const std::vector<Token> &tags) const;
 
 private:
-  uint64_t hash = 0;
+  uint64_t hash(Token tag) const;
+
+private:
+  uint64_t filterHash = 0;
   std::vector<Token> filters;
 };
 }
