@@ -4,6 +4,7 @@
 #define PLUGKIT_LAYER_H
 
 #include "token.h"
+#include "view.h"
 
 extern "C" {
 
