@@ -8,7 +8,7 @@ namespace plugkit {
 
 namespace {
 
-std::unordered_map<std::string, Token> map = {{"", 0}};
+std::unordered_map<std::string, Token> map;
 std::unordered_map<Token, const char *> reverseMap;
 std::mutex mutex;
 }
@@ -23,7 +23,7 @@ Token Token_get(const char *str) {
   if (it != map.end()) {
     return it->second;
   }
-  Token id = map.size();
+  Token id = map.size() + 1;
   map.insert(std::make_pair(key, id));
   char *data = new char[key.size() + 1]();
   key.copy(data, key.size());

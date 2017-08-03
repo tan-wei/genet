@@ -14,9 +14,7 @@ struct View {
 
 size_t View_length(View view);
 View View_slice(View view, size_t offset, size_t length);
-
 }
-
 }
 
 #endif
