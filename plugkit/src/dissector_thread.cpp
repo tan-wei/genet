@@ -3,7 +3,7 @@
 #include "layer.hpp"
 #include "stream_resolver.hpp"
 #include "variant.hpp"
-
+#include "tag_filter.hpp"
 #include "dissector.h"
 #include "context.hpp"
 #include <array>
@@ -16,51 +16,6 @@
 namespace plugkit {
 
 namespace {
-
-class TagFilter {
-public:
-  TagFilter();
-  TagFilter(const Token *begin, size_t size);
-  bool match(const Token *begin, size_t size) const;
-
-private:
-  uint64_t bloom = 0;
-  std::vector<Token> filters;
-};
-
-TagFilter::TagFilter() {}
-
-TagFilter::TagFilter(const Token *begin, size_t size) {
-  for (size_t i = 0; i < size; ++i) {
-    if (begin[i] != Token_null()) {
-      filters.push_back(begin[i]);
-      bloom |= (0x1 << (begin[i] % 64));
-    }
-  }
-}
-
-bool TagFilter::match(const Token *begin, size_t size) const {
-  uint64_t hash = 0;
-  for (size_t i = 0; i < size; ++i) {
-    hash |= (0x1 << (begin[i] % 64));
-  }
-  if ((hash & bloom) != bloom) {
-    return false;
-  }
-  for (Token t : filters) {
-    bool found = false;
-    for (size_t i = 0; i < size; ++i) {
-      if (t == begin[i]) {
-        found = true;
-        break;
-      }
-    }
-    if (!found) {
-      return false;
-    }
-  }
-  return true;
-}
 
 struct WorkerData {
   const Dissector *dissector;
@@ -104,9 +59,14 @@ void DissectorThread::enter() {
   for (const auto &diss : d->dissectors) {
     WorkerData data;
     data.dissector = &diss;
-    data.filter = TagFilter(data.dissector->layerHints,
-                            sizeof(data.dissector->layerHints) /
-                                sizeof(data.dissector->layerHints[0]));
+
+    std::vector<Token> tags;
+    for (Token tag : data.dissector->layerHints) {
+      if (tag != Token_null()) {
+        tags.push_back(tag);
+      }
+    }
+    data.filter = TagFilter(tags);
     if (diss.createWorker) {
       data.worker = diss.createWorker(&ctx);
     }
@@ -137,11 +97,9 @@ bool DissectorThread::loop() {
       for (const auto &layer : leafLayers) {
         dissectedIds.insert(layer->id());
 
-        const auto &tags = layer->tags();
-
         workers.clear();
         for (const auto &data : d->workers) {
-          if (data.filter.match(tags.data(), tags.size())) {
+          if (data.filter.match(layer->tags())) {
             workers.push_back(&data);
           }
         }

@@ -40,6 +40,7 @@
          "src/property.cpp",
          "src/payload.cpp",
          "src/layer.cpp",
+         "src/tag_filter.cpp",
          "vendor/json11/json11.cpp"
       ]
    },
@@ -113,7 +114,8 @@
          "sources":[
             "<@(plugkit_sources)",
             "test/token_test.cpp",
-            "test/variant_test.cpp"
+            "test/variant_test.cpp",
+            "test/tag_filter_test.cpp"
          ],
          "xcode_settings":{
             "GCC_ENABLE_CPP_EXCEPTIONS":"YES"
