@@ -15,16 +15,6 @@ namespace {
 const Variant::Array nullArray;
 const Variant::Map nullMap;
 
-bool hasBuffer(const Variant &var) {
-  switch (var.type()) {
-  case Variant::TYPE_STRING:
-  case Variant::TYPE_BUFFER:
-    return true;
-  default:
-    return false;
-  }
-}
-
 struct SharedBufferStore {
   uv_rwlock_t rwlock;
   std::unordered_map<const char *, std::weak_ptr<std::string>> map;
@@ -100,11 +90,11 @@ Variant::Variant(uint64_t value) : type_(TYPE_UINT64) { d.uint_ = value; }
 Variant::Variant(double value) : type_(TYPE_DOUBLE) { d.double_ = value; }
 
 Variant::Variant(const std::string &str) : type_(TYPE_STRING) {
-  d.slice = new Slice(std::make_shared<std::string>(str));
+  d.str = new std::string(str);
 }
 
 Variant::Variant(std::string &&str) : type_(TYPE_STRING) {
-  d.slice = new Slice(std::make_shared<std::string>(str));
+  d.str = new std::string(str);
 }
 
 Variant::Variant(const Array &array) : type_(TYPE_ARRAY) {
@@ -133,6 +123,8 @@ Variant::~Variant() {
     delete d.ts;
     break;
   case Variant::TYPE_STRING:
+    delete d.str;
+    break;
   case Variant::TYPE_BUFFER:
     delete d.slice;
     break;
@@ -156,6 +148,8 @@ Variant &Variant::operator=(const Variant &value) {
     this->d.ts = new Timestamp(*value.d.ts);
     break;
   case Variant::TYPE_STRING:
+    this->d.str = new std::string(*value.d.str);
+    break;
   case Variant::TYPE_BUFFER:
     this->d.slice = new Slice(*value.d.slice);
     break;
@@ -247,8 +241,8 @@ double Variant::doubleValue(double defaultValue) const {
 }
 
 std::string Variant::string(const std::string &defaultValue) const {
-  if (hasBuffer(*this)) {
-    return *d.slice->buffer();
+  if (isBuffer()) {
+    return d.slice->data();
   } else {
     switch (type()) {
     case TYPE_BOOL:
@@ -282,7 +276,7 @@ Timestamp Variant::timestamp(const Timestamp &defaultValue) const {
 }
 
 Slice Variant::slice() const {
-  if (hasBuffer(*this)) {
+  if (isBuffer()) {
     return *d.slice;
   } else {
     return Slice();
@@ -347,21 +341,13 @@ v8::Local<v8::Object> Variant::Private::getNodeBuffer(const Slice &slice) {
   using namespace v8;
 
   Isolate *isolate = Isolate::GetCurrent();
-  Slice::Buffer buffer = slice.buffer();
-  if (!buffer) {
-    buffer = std::make_shared<std::string>();
-  }
   if (!isolate->GetData(1)) { // Node.js is not installed
     return SliceWrapper::wrap(slice);
   }
-  void *hint = new Slice::Buffer(buffer);
-  auto nodeBuf = node::Buffer::New(isolate, const_cast<char *>(slice.data()),
-                                   slice.length(),
-                                   [](char *data, void *hint) {
-                                     delete static_cast<Slice::Buffer *>(hint);
-                                   },
-                                   hint)
-                     .ToLocalChecked();
+  auto nodeBuf =
+      node::Buffer::New(isolate, const_cast<char *>(slice.data()),
+                        slice.length(), [](char *data, void *hint) {}, nullptr)
+          .ToLocalChecked();
   nodeBuf->Set(Nan::New("dataOffset").ToLocalChecked(),
                Nan::New(static_cast<uint32_t>(slice.offset())));
   return nodeBuf;
@@ -374,17 +360,7 @@ Slice Variant::Private::getSlice(v8::Local<v8::Object> obj) {
     return Slice();
   }
 
-  v8::Local<v8::Uint8Array> ui = obj.As<v8::Uint8Array>();
-  v8::ArrayBuffer::Contents contents = ui->Buffer()->GetContents();
-
-  if (auto shared =
-          bufferStore.find(static_cast<const char *>(contents.Data()))) {
-    return Slice(shared, ui->ByteOffset(), ui->ByteLength());
-  } else {
-    return Slice(node::Buffer::Data(obj), node::Buffer::Length(obj));
-  }
-
-  return Slice();
+  return Slice(node::Buffer::Data(obj), node::Buffer::Length(obj));
 }
 
 v8::Local<v8::Value> Variant::Private::getValue(const Variant &var) {
@@ -559,17 +535,17 @@ double Variant_double(const Variant *var) { return var->doubleValue(); }
 void Variant_setDouble(Variant *var, double value) { *var = Variant(value); }
 
 const char *Variant_string(const Variant *var) {
-  if (hasBuffer(*var)) {
-    return var->d.slice->buffer()->data();
+  if (var->isString()) {
+    return var->d.str->c_str();
   }
   return "";
 }
 void Variant_setString(Variant *var, const char *str) { *var = Variant(str); }
 
 size_t Variant_data(const Variant *var, const char **data) {
-  if (hasBuffer(*var)) {
-    *data = var->d.slice->buffer()->data();
-    return var->d.slice->buffer()->size();
+  if (var->isBuffer()) {
+    *data = var->d.slice->data();
+    return var->d.slice->length();
   }
   return 0;
 }

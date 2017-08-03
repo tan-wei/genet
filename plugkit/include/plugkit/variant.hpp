@@ -95,6 +95,7 @@ public:
     int64_t int_;
     uint64_t uint_;
     Timestamp *ts;
+    std::string *str;
     Slice *slice;
     Array *array;
     Map *map;
