@@ -40,6 +40,7 @@
          "src/property.cpp",
          "src/payload.cpp",
          "src/layer.cpp",
+         "src/view.cpp",
          "src/tag_filter.cpp",
          "vendor/json11/json11.cpp"
       ]
