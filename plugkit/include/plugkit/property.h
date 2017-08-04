@@ -2,7 +2,7 @@
 #define PLUGKIT_PROPERTY_H
 
 #include "token.h"
-#include "types.hpp"
+#include "range.h"
 
 extern "C" {
 

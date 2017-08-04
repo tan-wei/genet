@@ -4,6 +4,7 @@
 #include "slice.hpp"
 #include "types.hpp"
 #include "export.hpp"
+#include "range.h"
 #include <algorithm>
 #include <iomanip>
 #include <sstream>

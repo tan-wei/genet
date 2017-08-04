@@ -5,14 +5,6 @@
 #include <memory>
 
 namespace plugkit {
-
-extern "C" {
-struct Range {
-  uint32_t begin;
-  uint32_t end;
-};
-}
-
 class Layer;
 class Property;
 class Frame;

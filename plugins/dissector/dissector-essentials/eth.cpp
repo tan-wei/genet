@@ -3,6 +3,7 @@
 #include <plugkit/context.h>
 #include <plugkit/property.h>
 #include <plugkit/token.h>
+#include <plugkit/reader.h>
 
 #include <plugkit/variant.hpp>
 #include <plugkit/layer.hpp>

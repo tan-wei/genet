@@ -41,6 +41,7 @@
          "src/payload.cpp",
          "src/layer.cpp",
          "src/view.cpp",
+         "src/reader.cpp",
          "src/tag_filter.cpp",
          "vendor/json11/json11.cpp"
       ]
