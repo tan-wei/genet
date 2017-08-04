@@ -8,6 +8,7 @@
 #include <signal.h>
 #include <thread>
 #include <unordered_map>
+#include <cstring>
 
 #if defined(PLUGKIT_OS_MAC)
 #include <SystemConfiguration/SystemConfiguration.h>

@@ -1,5 +1,6 @@
 #include "reader.h"
 #include <algorithm>
+#include <cstring>
 
 namespace plugkit {
 

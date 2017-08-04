@@ -1,4 +1,5 @@
 #include <catch.hpp>
+#include <cstring>
 #include "view.h"
 #include "error.h"
 

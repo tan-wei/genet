@@ -60,6 +60,9 @@
                "libraries":[
                   "-Wl,-dn,-lpcap,-lcap,-lrt,-dy,-lpthread,-ldl"
                ],
+               "cflags_cc":[
+                  "-fno-strict-aliasing"
+               ],
                "defines":[
                   "PLUGKIT_OS_LINUX"
                ]
