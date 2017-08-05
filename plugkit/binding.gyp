@@ -121,7 +121,8 @@
             "test/token_test.cpp",
             "test/variant_test.cpp",
             "test/tag_filter_test.cpp",
-            "test/view_test.cpp"
+            "test/view_test.cpp",
+            "test/reader_test.cpp"
          ],
          "xcode_settings":{
             "GCC_ENABLE_CPP_EXCEPTIONS":"YES"
