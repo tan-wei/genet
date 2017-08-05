@@ -1,7 +1,7 @@
 #ifndef PLUGKIT_VARIANT_PRIVATE_H
 #define PLUGKIT_VARIANT_PRIVATE_H
 
-#include "../plugkit/variant.hpp"
+#include "../variant.hpp"
 #include <json11.hpp>
 #include <v8.h>
 

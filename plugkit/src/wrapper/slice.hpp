@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <nan.h>
-#include "../plugkit/slice.hpp"
+#include "../slice.hpp"
 
 namespace plugkit {
 

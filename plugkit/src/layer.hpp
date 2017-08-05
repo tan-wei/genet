@@ -6,8 +6,8 @@
 #include <vector>
 #include "layer.h"
 #include "export.h"
-#include "types.hpp"
 #include "token.h"
+#include "types.hpp"
 
 namespace plugkit {
 
