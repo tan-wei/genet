@@ -3,9 +3,11 @@
 #include <plugkit/context.h>
 #include <plugkit/token.h>
 #include <plugkit/property.h>
+#include <plugkit/variant.h>
+#include <plugkit/layer.h>
+#include <plugkit/payload.h>
+#include <plugkit/reader.h>
 
-#include <plugkit/variant.hpp>
-#include <plugkit/layer.hpp>
 #include <plugkit/fmt.hpp>
 #include <unordered_map>
 
@@ -19,42 +21,44 @@ const auto checksumToken = Token_get("checksum");
 
 namespace {
 void analyze(Context *ctx, Worker *data, Layer *layer) {
-  fmt::Reader<Slice> reader(layer->payload());
+  Reader reader;
+  Reader_reset(&reader);
+  reader.view = Payload_data(Layer_payloads(layer, nullptr)[0]);
+
   Layer *child = Layer_addLayer(layer, udpToken);
   Layer_addTag(child, udpToken);
-  ;
 
-  const auto &parentSrc = layer->propertyFromId(srcToken);
-  const auto &parentDst = layer->propertyFromId(dstToken);
+  const auto &parentSrc = Layer_propertyFromId(layer, srcToken);
+  const auto &parentDst = Layer_propertyFromId(layer, dstToken);
 
-  uint16_t sourcePort = reader.readBE<uint16_t>();
+  uint16_t sourcePort = Reader_readUint16BE(&reader);
   Property *src = Layer_addProperty(child, srcToken);
-  *Property_valueRef(src) = sourcePort;
+  Variant_setUint64(Property_valueRef(src), sourcePort);
   //       src->setSummary(parentSrc->summary() + ":" +
   //       std::to_string(sourcePort));
-  Property_setRange(src, reader.lastRange());
+  Property_setRange(src, reader.lastRange);
 
-  uint16_t dstPort = reader.readBE<uint16_t>();
+  uint16_t dstPort = Reader_readUint16BE(&reader);
   Property *dst = Layer_addProperty(child, dstToken);
-  *Property_valueRef(dst) = dstPort;
+  Variant_setUint64(Property_valueRef(dst), dstPort);
   //       dst->setSummary(parentDst->summary() + ":" +
   //       std::to_string(dstPort));
-  Property_setRange(dst, reader.lastRange());
+  Property_setRange(dst, reader.lastRange);
 
-  uint32_t lengthNumber = reader.readBE<uint16_t>();
+  uint32_t lengthNumber = Reader_readUint16BE(&reader);
   Property *length = Layer_addProperty(child, lengthToken);
-  *Property_valueRef(length) = lengthNumber;
-  Property_setRange(length, reader.lastRange());
+  Variant_setUint64(Property_valueRef(length), lengthNumber);
+  Property_setRange(length, reader.lastRange);
 
-  uint32_t checksumNumber = reader.readBE<uint16_t>();
+  uint32_t checksumNumber = Reader_readUint16BE(&reader);
   Property *checksum = Layer_addProperty(child, checksumToken);
-  *Property_valueRef(checksum) = checksumNumber;
-  Property_setRange(checksum, reader.lastRange());
+  Variant_setUint64(Property_valueRef(checksum), checksumNumber);
+  Property_setRange(checksum, reader.lastRange);
 
   /*
         child->setSummary(src->summary() + " -> " + dst->summary());
         */
-  child->setPayload(reader.slice(lengthNumber - 8));
+  Layer_addPayload(child, Reader_slice(&reader, 0, lengthNumber - 8));
 }
 }
 

@@ -6,8 +6,8 @@
 #include <plugkit/reader.h>
 #include <plugkit/variant.h>
 #include <plugkit/payload.h>
+#include <plugkit/layer.h>
 
-#include <plugkit/layer.hpp>
 #include <plugkit/fmt.hpp>
 #include <unordered_map>
 
@@ -62,8 +62,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
     Layer_addTag(child, type.second);
   }
 
-  View sub = Reader_sliceAll(&reader, 0);
-  child->setPayload(Slice(sub.begin, View_length(sub)));
+  Layer_addPayload(child, Reader_sliceAll(&reader, 0));
 }
 }
 
