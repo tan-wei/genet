@@ -4,8 +4,8 @@
 #include <plugkit/property.h>
 #include <plugkit/token.h>
 #include <plugkit/reader.h>
+#include <plugkit/variant.h>
 
-#include <plugkit/variant.hpp>
 #include <plugkit/layer.hpp>
 #include <plugkit/fmt.hpp>
 #include <unordered_map>
@@ -28,25 +28,29 @@ static const std::unordered_map<uint16_t, std::pair<std::string, Token>>
 };
 
 void analyze(Context *ctx, Worker *data, Layer *layer) {
-  fmt::Reader<Slice> reader(layer->payload());
+  Reader reader;
+  Reader_reset(&reader);
+  const auto &payload = layer->payload();
+  reader.view = {payload.data(), payload.data() + payload.length()};
+
   Layer *child = Layer_addLayer(layer, ethToken);
   Layer_addTag(child, ethToken);
 
-  const auto &srcSlice = reader.slice(6);
+  const auto &srcSlice = Reader_slice(&reader, 0, 6);
   Property *src = Layer_addProperty(child, srcToken);
-  *Property_valueRef(src) = srcSlice;
-  Property_setRange(src, reader.lastRange());
+  Variant_setData(Property_valueRef(src), srcSlice);
+  Property_setRange(src, reader.lastRange);
 
-  const auto &dstSlice = reader.slice(6);
+  const auto &dstSlice = Reader_slice(&reader, 0, 6);
   Property *dst = Layer_addProperty(child, dstToken);
-  *Property_valueRef(dst) = dstSlice;
-  Property_setRange(dst, reader.lastRange());
+  Variant_setData(Property_valueRef(dst), dstSlice);
+  Property_setRange(dst, reader.lastRange);
 
-  auto protocolType = reader.readBE<uint16_t>();
+  auto protocolType = Reader_readUint16BE(&reader);
   if (protocolType <= 1500) {
     Property *length = Layer_addProperty(child, lenToken);
     Variant_setUint64(Property_valueRef(length), protocolType);
-    Property_setRange(length, reader.lastRange());
+    Property_setRange(length, reader.lastRange);
   } else {
 
     Property *etherType = Layer_addProperty(child, ethTypeToken);
@@ -54,11 +58,12 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
                                   std::make_pair("Unknown", unknownToken));
 
     Variant_setUint64(Property_valueRef(etherType), protocolType);
-    Property_setRange(etherType, reader.lastRange());
+    Property_setRange(etherType, reader.lastRange);
     Layer_addTag(child, type.second);
   }
 
-  child->setPayload(reader.slice());
+  View sub = {reader.view.begin + reader.lastRange.end, reader.view.end};
+  child->setPayload(Slice(sub.begin, View_length(sub)));
 }
 }
 

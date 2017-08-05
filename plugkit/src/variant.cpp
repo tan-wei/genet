@@ -553,7 +553,7 @@ size_t Variant_data(const Variant *var, const char **data) {
   }
   return 0;
 }
-void Variant_setDataCopy(Variant *var, const char *data, size_t length) {
-  *var = Variant(Slice(data, length));
+void Variant_setData(Variant *var, View view) {
+  *var = Variant(Slice(view.begin, View_length(view)));
 }
 }
