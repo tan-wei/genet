@@ -7,24 +7,22 @@
 #include <plugkit/layer.h>
 #include <plugkit/payload.h>
 #include <plugkit/reader.h>
-
-#include <plugkit/fmt.hpp>
 #include <unordered_map>
 
 using namespace plugkit;
 
 namespace {
 
-const std::tuple<uint16_t, const char *, Token> flagTable[] = {
-    std::make_tuple(0x1 << 8, "NS", Token_get("ns")),
-    std::make_tuple(0x1 << 7, "CWR", Token_get("cwr")),
-    std::make_tuple(0x1 << 6, "ECE", Token_get("ece")),
-    std::make_tuple(0x1 << 5, "URG", Token_get("urg")),
-    std::make_tuple(0x1 << 4, "ACK", Token_get("ack")),
-    std::make_tuple(0x1 << 3, "PSH", Token_get("psh")),
-    std::make_tuple(0x1 << 2, "RST", Token_get("rst")),
-    std::make_tuple(0x1 << 1, "SYN", Token_get("syn")),
-    std::make_tuple(0x1 << 0, "FIN", Token_get("fin")),
+const std::tuple<uint16_t, Token> flagTable[] = {
+    std::make_tuple(0x1 << 8, Token_get("ns")),
+    std::make_tuple(0x1 << 7, Token_get("cwr")),
+    std::make_tuple(0x1 << 6, Token_get("ece")),
+    std::make_tuple(0x1 << 5, Token_get("urg")),
+    std::make_tuple(0x1 << 4, Token_get("ack")),
+    std::make_tuple(0x1 << 3, Token_get("psh")),
+    std::make_tuple(0x1 << 2, Token_get("rst")),
+    std::make_tuple(0x1 << 1, Token_get("syn")),
+    std::make_tuple(0x1 << 0, Token_get("fin")),
 };
 
 const auto tcpToken = Token_get("tcp");
@@ -109,20 +107,12 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
 
   Property *flags = Layer_addProperty(child, flagsToken);
   Variant_setUint64(Property_valueRef(flags), flag);
-  std::string flagSummary;
   for (const auto &bit : flagTable) {
     bool on = std::get<0>(bit) & flag;
-    Property *flagBit = Property_addProperty(flags, std::get<2>(bit));
+    Property *flagBit = Property_addProperty(flags, std::get<1>(bit));
     Variant_setBool(Property_valueRef(flagBit), on);
     Property_setRange(flagBit, reader.lastRange);
-
-    if (on) {
-      if (!flagSummary.empty())
-        flagSummary += ", ";
-      flagSummary += std::get<1>(bit);
-    }
   }
-  //       flags->setSummary(flagSummary);
   Property_setRange(flags, Range{12, 14});
 
   Property *window = Layer_addProperty(child, windowToken);

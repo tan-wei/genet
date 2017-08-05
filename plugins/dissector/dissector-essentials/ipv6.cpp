@@ -7,70 +7,17 @@
 #include <plugkit/layer.h>
 #include <plugkit/payload.h>
 #include <plugkit/reader.h>
-
-#include <plugkit/fmt.hpp>
 #include <unordered_map>
 
 using namespace plugkit;
 
 namespace {
-int maxZeroSequence(const Slice &data) {
-  int start = -1;
-  int pos = -1;
-  int length = 0;
-  int maxLength = 0;
-  for (size_t i = 0; i < data.length() / 2; ++i) {
-    if (data[i * 2] == 0 && data[i * 2 + 1] == 0) {
-      if (pos < 0) {
-        pos = i;
-      }
-      ++length;
-    } else {
-      if (length > maxLength) {
-        maxLength = length;
-        start = pos;
-      }
-      pos = -1;
-      length = 0;
-    }
-  }
-  if (length > maxLength) {
-    maxLength = length;
-    start = pos;
-  }
-  return start;
-}
 
-std::string ipv6Addr(const Slice &data) {
-  int zeroPos = maxZeroSequence(data);
-  std::stringstream stream;
-  stream << std::hex;
-  int length = data.length() / 2;
-  for (int i = 0; i < length; ++i) {
-    if (zeroPos >= 0 && i >= zeroPos) {
-      if (data[i * 2] == 0 && data[i * 2 + 1] == 0) {
-        continue;
-      } else {
-        zeroPos = -1;
-        stream << "::";
-      }
-    } else if (i > 0) {
-      stream << ':';
-    }
-    stream << (static_cast<uint16_t>(data[i * 2] << 8) |
-               static_cast<uint8_t>(data[i * 2 + 1]));
-  }
-  if (zeroPos >= 0) {
-    stream << "::";
-  }
-  return stream.str();
-}
-
-const std::unordered_map<uint16_t, std::pair<std::string, Token>> protoTable = {
-    {0x01, std::make_pair("ICMP", Token_get("[icmp]"))},
-    {0x02, std::make_pair("IGMP", Token_get("[igmp]"))},
-    {0x06, std::make_pair("TCP", Token_get("[tcp]"))},
-    {0x11, std::make_pair("UDP", Token_get("[udp]"))},
+const std::unordered_map<uint16_t, Token> protoTable = {
+    {0x01, Token_get("[icmp]")},
+    {0x02, Token_get("[igmp]")},
+    {0x06, Token_get("[tcp]")},
+    {0x11, Token_get("[udp]")},
 };
 
 const auto ipv6Token = Token_get("ipv6");
@@ -84,7 +31,6 @@ const auto srcToken = Token_get("src");
 const auto dstToken = Token_get("dst");
 const auto hbyhToken = Token_get("hbyh");
 const auto protocolToken = Token_get("protocol");
-const auto unknownToken = Token_get("[unknown]");
 
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   Reader reader;
@@ -172,11 +118,11 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   uint8_t protocolNumber = nextHeader;
   Property *proto = Layer_addProperty(child, protocolToken);
   Variant_setUint64(Property_valueRef(proto), protocolNumber);
-  const auto &type = fmt::enums(protoTable, protocolNumber,
-                                std::make_pair("Unknown", unknownToken));
-  //       proto->setSummary(type.first);
   Property_setRange(proto, reader.lastRange);
-  Layer_addTag(child, type.second);
+  const auto &it = protoTable.find(protocolNumber);
+  if (it != protoTable.end()) {
+    Layer_addTag(child, it->second);
+  }
 
   /*
         const std::string &summary =

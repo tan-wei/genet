@@ -19,7 +19,6 @@
          "src/frame_view.cpp",
          "src/frame_store.cpp",
          "src/filter.cpp",
-         "src/fmt.cpp",
          "src/token.cpp",
          "src/logger.cpp",
          "src/context.cpp",

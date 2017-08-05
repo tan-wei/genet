@@ -7,8 +7,6 @@
 #include <plugkit/variant.h>
 #include <plugkit/payload.h>
 #include <plugkit/layer.h>
-
-#include <plugkit/fmt.hpp>
 #include <unordered_map>
 
 using namespace plugkit;
@@ -20,12 +18,9 @@ const auto srcToken = Token_get("src");
 const auto dstToken = Token_get("dst");
 const auto lenToken = Token_get("len");
 const auto ethTypeToken = Token_get("ethType");
-const auto unknownToken = Token_get("[unknown]");
 
-static const std::unordered_map<uint16_t, std::pair<std::string, Token>>
-    typeTable = {
-        {0x0800, std::make_pair("IPv4", Token_get("[ipv4]"))},
-        {0x86DD, std::make_pair("IPv6", Token_get("[ipv6]"))},
+static const std::unordered_map<uint16_t, Token> typeTable = {
+    {0x0800, Token_get("[ipv4]")}, {0x86DD, Token_get("[ipv6]")},
 };
 
 void analyze(Context *ctx, Worker *data, Layer *layer) {
@@ -54,12 +49,12 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   } else {
 
     Property *etherType = Layer_addProperty(child, ethTypeToken);
-    const auto &type = fmt::enums(typeTable, protocolType,
-                                  std::make_pair("Unknown", unknownToken));
-
     Variant_setUint64(Property_valueRef(etherType), protocolType);
     Property_setRange(etherType, reader.lastRange);
-    Layer_addTag(child, type.second);
+    const auto &it = typeTable.find(protocolType);
+    if (it != typeTable.end()) {
+      Layer_addTag(child, it->second);
+    }
   }
 
   Layer_addPayload(child, Reader_sliceAll(&reader, 0));

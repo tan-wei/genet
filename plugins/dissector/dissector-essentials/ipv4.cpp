@@ -7,8 +7,6 @@
 #include <plugkit/layer.h>
 #include <plugkit/payload.h>
 #include <plugkit/reader.h>
-
-#include <plugkit/fmt.hpp>
 #include <unordered_map>
 
 using namespace plugkit;
@@ -21,11 +19,11 @@ const std::tuple<uint16_t, const char *, Token> flagTable[] = {
     std::make_tuple(0x4, "More Fragments", Token_get("moreFrag")),
 };
 
-const std::unordered_map<uint16_t, std::pair<std::string, Token>> protoTable = {
-    {0x01, std::make_pair("ICMP", Token_get("[icmp]"))},
-    {0x02, std::make_pair("IGMP", Token_get("[igmp]"))},
-    {0x06, std::make_pair("TCP", Token_get("[tcp]"))},
-    {0x11, std::make_pair("UDP", Token_get("[udp]"))},
+const std::unordered_map<uint16_t, Token> protoTable = {
+    {0x01, Token_get("[icmp]")},
+    {0x02, Token_get("[igmp]")},
+    {0x06, Token_get("[tcp]")},
+    {0x11, Token_get("[udp]")},
 };
 
 const auto ipv4Token = Token_get("ipv4");
@@ -38,7 +36,6 @@ const auto flagsToken = Token_get("flags");
 const auto fOffsetToken = Token_get("fOffset");
 const auto ttlToken = Token_get("ttl");
 const auto protocolToken = Token_get("protocol");
-const auto unknownToken = Token_get("[unknown]");
 const auto checksumToken = Token_get("checksum");
 const auto srcToken = Token_get("src");
 const auto dstToken = Token_get("dst");
@@ -109,11 +106,11 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   uint8_t protocolNumber = Reader_readUint8(&reader);
   Property *proto = Layer_addProperty(child, protocolToken);
   Variant_setUint64(Property_valueRef(proto), protocolNumber);
-  const auto &type = fmt::enums(protoTable, protocolNumber,
-                                std::make_pair("Unknown", unknownToken));
-
   Property_setRange(proto, reader.lastRange);
-  Layer_addTag(child, type.second);
+  const auto &it = protoTable.find(protocolNumber);
+  if (it != protoTable.end()) {
+    Layer_addTag(child, it->second);
+  }
 
   Property *checksum = Layer_addProperty(child, checksumToken);
   Variant_setUint64(Property_valueRef(checksum), Reader_readUint16BE(&reader));

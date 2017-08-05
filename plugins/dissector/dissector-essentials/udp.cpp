@@ -7,8 +7,6 @@
 #include <plugkit/layer.h>
 #include <plugkit/payload.h>
 #include <plugkit/reader.h>
-
-#include <plugkit/fmt.hpp>
 #include <unordered_map>
 
 using namespace plugkit;
