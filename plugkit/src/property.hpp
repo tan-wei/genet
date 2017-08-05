@@ -3,7 +3,7 @@
 
 #include "property.h"
 #include "variant.hpp"
-#include "export.hpp"
+#include "export.h"
 #include "token.h"
 #include <memory>
 #include <vector>

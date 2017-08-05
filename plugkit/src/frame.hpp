@@ -2,7 +2,7 @@
 #define PLUGKIT_FRAME_H
 
 #include "slice.hpp"
-#include "export.hpp"
+#include "export.h"
 #include "types.hpp"
 #include <memory>
 

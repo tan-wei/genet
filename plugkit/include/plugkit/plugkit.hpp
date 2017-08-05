@@ -2,7 +2,7 @@
 #define PLUGKIT_H
 
 #include <memory>
-#include "export.hpp"
+#include "export.h"
 
 namespace plugkit {
 

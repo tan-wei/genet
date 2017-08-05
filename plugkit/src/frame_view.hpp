@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <vector>
-#include "export.hpp"
+#include "export.h"
 #include "token.h"
 
 namespace plugkit {

@@ -6,7 +6,7 @@
 #include <memory>
 #include <string>
 #include <thread>
-#include "export.hpp"
+#include "export.h"
 
 namespace plugkit {
 
