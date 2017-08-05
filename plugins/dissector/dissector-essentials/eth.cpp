@@ -62,7 +62,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
     Layer_addTag(child, type.second);
   }
 
-  View sub = {reader.view.begin + reader.lastRange.end, reader.view.end};
+  View sub = Reader_sliceAll(&reader, 0);
   child->setPayload(Slice(sub.begin, View_length(sub)));
 }
 }

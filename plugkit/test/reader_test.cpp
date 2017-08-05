@@ -49,6 +49,28 @@ TEST_CASE("Reader_slice", "[Reader]") {
   CHECK(reader.lastError.type == outOfBoundError());
 }
 
+TEST_CASE("Reader_sliceAll", "[Reader]") {
+  Reader reader;
+  Reader_reset(&reader);
+  char data[256];
+  View view = {data, data + sizeof(data)};
+  reader.view = view;
+
+  View subview = Reader_sliceAll(&reader, 12);
+  CHECK(subview.begin == data + 12);
+  CHECK(subview.end == data + sizeof(data));
+  CHECK(reader.lastRange.begin == 12);
+  CHECK(reader.lastRange.end == sizeof(data));
+  CHECK(reader.lastError.type == Token_null());
+
+  subview = Reader_sliceAll(&reader, 12);
+  CHECK(subview.begin == nullptr);
+  CHECK(subview.end == nullptr);
+  CHECK(reader.lastRange.begin == 12);
+  CHECK(reader.lastRange.end == sizeof(data));
+  CHECK(reader.lastError.type == outOfBoundError());
+}
+
 TEST_CASE("Reader_readUint8", "[Reader]") {
   Reader reader;
   Reader_reset(&reader);

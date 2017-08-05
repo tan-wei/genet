@@ -54,6 +54,19 @@ View Reader_slice(Reader *reader, size_t offset, size_t length) {
   return subview;
 }
 
+View Reader_sliceAll(Reader *reader, size_t offset) {
+  View *view = &reader->view;
+  if (view->begin + reader->lastRange.end + offset > view->end) {
+    static const Token outOfBoundError = Token_get("Out of bound");
+    reader->lastError.type = outOfBoundError;
+    return View();
+  }
+  View subview{view->begin + reader->lastRange.end + offset, view->end};
+  reader->lastRange.begin = reader->lastRange.end + offset;
+  reader->lastRange.end = View_length(*view);
+  return subview;
+}
+
 uint8_t Reader_readUint8(Reader *reader) { return readLE<uint8_t>(reader); }
 int8_t Reader_readInt8(Reader *reader) { return readLE<int8_t>(reader); }
 
