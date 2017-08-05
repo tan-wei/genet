@@ -37,4 +37,9 @@ const Property *Payload::propertyFromId(Token id) const {
 void Payload::addProperty(const Property *prop) {
   d->properties.push_back(prop);
 }
+
+View Payload_data(const Payload *payload) {
+  const auto &slice = payload->slice();
+  return View{slice.data(), slice.data() + slice.length()};
+}
 }

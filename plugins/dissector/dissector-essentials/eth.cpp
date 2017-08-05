@@ -5,6 +5,7 @@
 #include <plugkit/token.h>
 #include <plugkit/reader.h>
 #include <plugkit/variant.h>
+#include <plugkit/payload.h>
 
 #include <plugkit/layer.hpp>
 #include <plugkit/fmt.hpp>
@@ -30,8 +31,7 @@ static const std::unordered_map<uint16_t, std::pair<std::string, Token>>
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
-  const auto &payload = layer->payload();
-  reader.view = {payload.data(), payload.data() + payload.length()};
+  reader.view = Payload_data(Layer_payloads(layer, nullptr)[0]);
 
   Layer *child = Layer_addLayer(layer, ethToken);
   Layer_addTag(child, ethToken);

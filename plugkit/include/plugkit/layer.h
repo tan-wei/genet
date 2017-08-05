@@ -40,9 +40,9 @@ const Property *Layer_propertyFromId(const Layer *layer, Token id);
 /// Allocates a new Payload and adds it as a layer payload.
 Payload *Layer_addPayload(Layer *layer, View view);
 
-/// Returns the number of the layer payloads
-/// and assigns the first address of payloads to begin.
-size_t Layer_payloads(const Layer *layer, const Payload *const **begin);
+/// Returns the first address of payloads
+/// and assigns the number of the layer payloads to size.
+const Payload *const *Layer_payloads(const Layer *layer, size_t *size);
 
 /// Adds a layer tag
 void Layer_addTag(Layer *layer, Token tag);

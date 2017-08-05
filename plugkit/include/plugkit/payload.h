@@ -15,13 +15,10 @@ class Payload;
 class Property;
 
 /// Returns the payload data.
-View Payload_data(const Payload *layer);
-
-/// Sets data to the payload.
-void Payload_setData(Payload *layer, View view);
+View Payload_data(const Payload *payload);
 
 /// Allocates a new Property and adds it as a payload property.
-Property *Payload_addProperty(Payload *layer, Token id);
+Property *Payload_addProperty(Payload *payload, Token id);
 }
 }
 

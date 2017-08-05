@@ -120,10 +120,11 @@ Payload *Layer_addPayload(Layer *layer, View view) {
   return payload;
 }
 
-size_t Layer_payloads(const Layer *layer, const Payload *const **begin) {
+const Payload *const *Layer_payloads(const Layer *layer, size_t *size) {
   const auto &payloads = layer->payloads();
-  *begin = payloads.data();
-  return payloads.size();
+  if (size)
+    *size = payloads.size();
+  return payloads.data();
 }
 
 void Layer_addTag(Layer *layer, Token tag) { layer->addTag(tag); }
