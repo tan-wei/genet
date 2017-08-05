@@ -6,11 +6,15 @@ namespace plugkit {
 
 namespace {
 
+Token outOfBoundError() {
+  thread_local const Token token = Token_get("Out of bound");
+  return token;
+}
+
 template <class T> T readLE(const View &view, Error *err) {
   if (View_length(view) < sizeof(T)) {
     if (err) {
-      static const Token outOfBoundError = Token_get("Out of bound");
-      err->type = outOfBoundError;
+      err->type = outOfBoundError();
     }
     return T();
   }
@@ -20,8 +24,7 @@ template <class T> T readLE(const View &view, Error *err) {
 template <class T> T readBE(const View &view, Error *err) {
   if (View_length(view) < sizeof(T)) {
     if (err) {
-      static const Token outOfBoundError = Token_get("Out of bound");
-      err->type = outOfBoundError;
+      err->type = outOfBoundError();
     }
     return T();
   }

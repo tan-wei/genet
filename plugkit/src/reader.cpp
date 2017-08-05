@@ -6,10 +6,14 @@ namespace plugkit {
 
 namespace {
 
+Token outOfBoundError() {
+  thread_local const Token token = Token_get("Out of bound");
+  return token;
+}
+
 template <class T> T readLE(Reader *reader) {
   if (View_length(reader->view) - reader->lastRange.begin < sizeof(T)) {
-    static const Token outOfBoundError = Token_get("Out of bound");
-    reader->lastError.type = outOfBoundError;
+    reader->lastError.type = outOfBoundError();
     return T();
   }
   reader->lastRange.begin += sizeof(T);
@@ -20,8 +24,7 @@ template <class T> T readLE(Reader *reader) {
 
 template <class T> T readBE(Reader *reader) {
   if (View_length(reader->view) - reader->lastRange.begin < sizeof(T)) {
-    static const Token outOfBoundError = Token_get("Out of bound");
-    reader->lastError.type = outOfBoundError;
+    reader->lastError.type = outOfBoundError();
     return T();
   }
   char data[sizeof(T)];
