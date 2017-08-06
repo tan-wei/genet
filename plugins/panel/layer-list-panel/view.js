@@ -131,8 +131,8 @@ class LayerItem {
     if (layer.children.length + layer.properties.length) {
       faClass = this.expanded ? 'fa fa-arrow-circle-down' : 'fa fa-arrow-circle-right'
     }
-    const dataOffset = layer.parent ? layer.parent.payload.dataOffset : 0
-    const dataLength = layer.parent ? layer.parent.payload.length : 0
+    const dataOffset = layer.parent ? layer.parent.payloads[0].data.dataOffset : 0
+    const dataLength = layer.parent ? layer.parent.payloads[0].data.length : 0
     const range = [
       dataOffset,
       dataOffset + dataLength
@@ -198,8 +198,8 @@ export default class LayerListView {
       const tsformat = Profile.current.get('layer-list-panel', 'tsformat')
       const ts = moment(frame.timestamp)
       const tsString = ts.format(tsformat)
-      let length = `${frame.rootLayer.payload.length}`
-      if (frame.length > frame.rootLayer.payload.length) {
+      let length = `${frame.rootLayer.payloads[0].data.length}`
+      if (frame.length > frame.rootLayer.payloads[0].data.length) {
         length += ` (actual: ${frame.length})`
       }
       let layers = [ frame.rootLayer ]

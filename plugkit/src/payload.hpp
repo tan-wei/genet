@@ -14,7 +14,7 @@ class Payload {
 public:
   Payload(const View &view);
   ~Payload();
-  View view() const;
+  View data() const;
 
   const std::vector<const Property *> &properties() const;
   const Property *propertyFromId(Token id) const;
@@ -25,7 +25,7 @@ private:
   Payload &operator=(const Payload &payload) = delete;
 
 private:
-  View mView;
+  View mData;
   std::vector<const Property *> mProperties;
 };
 }

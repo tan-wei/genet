@@ -4,11 +4,11 @@
 
 namespace plugkit {
 
-Payload::Payload(const View &view) : mView(view) {}
+Payload::Payload(const View &view) : mData(view) {}
 
 Payload::~Payload() {}
 
-View Payload::view() const { return mView; }
+View Payload::data() const { return mData; }
 
 const std::vector<const Property *> &Payload::properties() const {
   return mProperties;
@@ -25,5 +25,5 @@ const Property *Payload::propertyFromId(Token id) const {
 
 void Payload::addProperty(const Property *prop) { mProperties.push_back(prop); }
 
-View Payload_data(const Payload *payload) { return payload->view(); }
+View Payload_data(const Payload *payload) { return payload->data(); }
 }

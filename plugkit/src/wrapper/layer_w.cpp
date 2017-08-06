@@ -1,5 +1,6 @@
 #include "layer.hpp"
 #include "../layer.hpp"
+#include "payload.hpp"
 #include "plugkit_module.hpp"
 #include "private/variant.hpp"
 #include "wrapper/property.hpp"
@@ -22,6 +23,7 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   Nan::SetAccessor(otl, Nan::New("confidence").ToLocalChecked(), confidence,
                    setConfidence);
   Nan::SetAccessor(otl, Nan::New("parent").ToLocalChecked(), parent);
+  Nan::SetAccessor(otl, Nan::New("payloads").ToLocalChecked(), payloads);
   Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
   Nan::SetAccessor(otl, Nan::New("children").ToLocalChecked(), children);
   Nan::SetAccessor(otl, Nan::New("tags").ToLocalChecked(), tags);
@@ -103,6 +105,19 @@ NAN_GETTER(LayerWrapper::parent) {
     } else {
       info.GetReturnValue().Set(Nan::Null());
     }
+  }
+}
+
+NAN_GETTER(LayerWrapper::payloads) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->weakLayer) {
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    const auto &payloads = layer->payloads();
+    auto array = v8::Array::New(isolate, payloads.size());
+    for (size_t i = 0; i < payloads.size(); ++i) {
+      array->Set(i, PayloadWrapper::wrap(payloads[i]));
+    }
+    info.GetReturnValue().Set(array);
   }
 }
 

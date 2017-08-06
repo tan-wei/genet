@@ -25,6 +25,7 @@ public:
   Class property;
   Class layer;
   Class frame;
+  Class payload;
   Class session;
   Class sessionFactory;
 
