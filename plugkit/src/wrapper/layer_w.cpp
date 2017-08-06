@@ -2,7 +2,7 @@
 #include "../layer.hpp"
 #include "payload.hpp"
 #include "plugkit_module.hpp"
-#include "private/variant.hpp"
+
 #include "wrapper/property.hpp"
 
 namespace plugkit {

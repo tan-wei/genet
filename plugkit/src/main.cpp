@@ -5,7 +5,7 @@
 
 #include "extended_slot.hpp"
 #include "plugkit_module.hpp"
-#include "private/variant.hpp"
+
 #include "session.hpp"
 #include <nan.h>
 
@@ -15,9 +15,7 @@
 
 using namespace plugkit;
 
-NAN_GC_CALLBACK(gcPrologueCallback) {
-  Variant::Private::cleanupSharedBuffers();
-}
+NAN_GC_CALLBACK(gcPrologueCallback) { Variant::cleanupSharedBuffers(); }
 
 namespace {
 void Init(v8::Local<v8::Object> exports) {

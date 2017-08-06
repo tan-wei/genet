@@ -2,7 +2,7 @@
 #include "frame.hpp"
 #include "frame_view.hpp"
 #include "layer.hpp"
-#include "private/variant.hpp"
+
 #include "property.hpp"
 #include "wrapper/frame.hpp"
 #include "wrapper/layer.hpp"
@@ -35,7 +35,7 @@ Local<Value> Filter::Private::fetchValue(Local<Value> value) const {
     auto resultObj = result.As<Object>();
     auto resultKey = Nan::New("_filter").ToLocalChecked();
     if (const auto &prop = PropertyWrapper::unwrap(resultObj)) {
-      result = Variant::Private::getValue(prop->value());
+      result = Variant::getValue(prop->value());
     } else if (resultObj->Has(resultKey)) {
       result = resultObj->Get(resultKey);
     }

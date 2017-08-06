@@ -1,7 +1,7 @@
 #include "session.hpp"
 #include "../src/session.hpp"
 #include "plugkit_module.hpp"
-#include "private/variant.hpp"
+
 #include "wrapper/frame.hpp"
 
 namespace plugkit {
@@ -90,7 +90,7 @@ NAN_GETTER(SessionWrapper::id) {
 NAN_GETTER(SessionWrapper::options) {
   SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
   if (const auto &session = wrapper->session) {
-    info.GetReturnValue().Set(Variant::Private::getValue(session->options()));
+    info.GetReturnValue().Set(Variant::getValue(session->options()));
   }
 }
 
@@ -142,11 +142,11 @@ NAN_METHOD(SessionWrapper::analyze) {
         auto obj = array->Get(i).As<v8::Object>();
         Session::RawFrame frame;
         frame.link = obj->Get(Nan::New("link").ToLocalChecked())->Uint32Value();
-        frame.payload = Variant::Private::getView(
+        frame.payload = Variant::getView(
             obj->Get(Nan::New("payload").ToLocalChecked()).As<v8::Object>());
         frame.length =
             obj->Get(Nan::New("length").ToLocalChecked())->Uint32Value();
-        const Variant &tsVariant = Variant::Private::getVariant(
+        const Variant &tsVariant = Variant::getVariant(
             obj->Get(Nan::New("timestamp").ToLocalChecked()));
         frame.timestamp = tsVariant.isTimestamp()
                               ? tsVariant.timestamp()

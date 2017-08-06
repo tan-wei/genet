@@ -1,7 +1,6 @@
 #include "property.hpp"
 #include "../property.hpp"
 #include "plugkit_module.hpp"
-#include "private/variant.hpp"
 
 namespace plugkit {
 
@@ -52,7 +51,7 @@ NAN_METHOD(PropertyWrapper::New) {
           Range{array->Get(0)->Uint32Value(), array->Get(1)->Uint32Value()});
     }
   }
-  prop->setValue(Variant::Private::getVariant(value));
+  prop->setValue(Variant::getVariant(value));
 
   PropertyWrapper *obj = new PropertyWrapper(prop);
   obj->Wrap(info.This());
@@ -101,14 +100,14 @@ NAN_SETTER(PropertyWrapper::setRange) {
 NAN_GETTER(PropertyWrapper::value) {
   PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
   if (auto prop = wrapper->constProp) {
-    info.GetReturnValue().Set(Variant::Private::getValue(prop->value()));
+    info.GetReturnValue().Set(Variant::getValue(prop->value()));
   }
 }
 
 NAN_SETTER(PropertyWrapper::setValue) {
   PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
   if (auto prop = wrapper->prop) {
-    prop->setValue(Variant::Private::getVariant(value));
+    prop->setValue(Variant::getVariant(value));
   }
 }
 

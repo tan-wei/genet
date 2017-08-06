@@ -1,4 +1,4 @@
-#include "private/variant.hpp"
+#include "variant.hpp"
 #include "plugkit_module.hpp"
 #include <iomanip>
 #include <nan.h>
@@ -52,7 +52,7 @@ struct SharedBufferStore {
 SharedBufferStore bufferStore;
 }
 
-void Variant::Private::init(v8::Isolate *isolate) {
+void Variant::init(v8::Isolate *isolate) {
   PlugkitModule *module = PlugkitModule::get(isolate);
 
   auto script =
@@ -162,7 +162,7 @@ Variant &Variant::operator=(const Variant &value) {
   return *this;
 }
 
-void Variant::Private::cleanupSharedBuffers() { bufferStore.cleanup(); }
+void Variant::cleanupSharedBuffers() { bufferStore.cleanup(); }
 
 Variant::Type Variant::type() const { return static_cast<Type>(type_); }
 
@@ -328,7 +328,7 @@ bool Variant::isTimestamp() const { return type() == TYPE_TIMESTAMP; }
 
 bool Variant::isView() const { return type() == TYPE_VIEW; }
 
-v8::Local<v8::Object> Variant::Private::getNodeBuffer(const View &view) {
+v8::Local<v8::Object> Variant::getNodeBuffer(const View &view) {
   using namespace v8;
 
   Isolate *isolate = Isolate::GetCurrent();
@@ -345,7 +345,7 @@ v8::Local<v8::Object> Variant::Private::getNodeBuffer(const View &view) {
   return nodeBuf;
 }
 
-View Variant::Private::getView(v8::Local<v8::Object> obj) {
+View Variant::getView(v8::Local<v8::Object> obj) {
   using namespace v8;
 
   if (!node::Buffer::HasInstance(obj)) {
@@ -359,7 +359,7 @@ View Variant::Private::getView(v8::Local<v8::Object> obj) {
   return View{data, data + len};
 }
 
-v8::Local<v8::Value> Variant::Private::getValue(const Variant &var) {
+v8::Local<v8::Value> Variant::getValue(const Variant &var) {
   switch (var.type()) {
   case TYPE_BOOL:
     return Nan::New(var.boolValue());
@@ -404,7 +404,7 @@ v8::Local<v8::Value> Variant::Private::getValue(const Variant &var) {
   }
 }
 
-json11::Json Variant::Private::getJson(const Variant &var) {
+json11::Json Variant::getJson(const Variant &var) {
   using namespace json11;
   Json::object json;
   switch (var.type()) {
@@ -475,7 +475,7 @@ json11::Json Variant::Private::getJson(const Variant &var) {
   return json;
 }
 
-Variant Variant::Private::getVariant(v8::Local<v8::Value> var) {
+Variant Variant::getVariant(v8::Local<v8::Value> var) {
   if (var->IsBoolean()) {
     return var->BooleanValue();
   } else if (var->IsNumber()) {

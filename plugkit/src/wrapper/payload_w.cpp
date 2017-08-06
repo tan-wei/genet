@@ -1,8 +1,8 @@
 #include "payload.hpp"
 #include "../payload.hpp"
+#include "variant.hpp"
 #include "property.hpp"
 #include "plugkit_module.hpp"
-#include "private/variant.hpp"
 
 namespace plugkit {
 
@@ -35,7 +35,7 @@ NAN_METHOD(PayloadWrapper::New) { info.GetReturnValue().Set(info.This()); }
 NAN_GETTER(PayloadWrapper::data) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->constPayload) {
-    info.GetReturnValue().Set(Variant::Private::getNodeBuffer(payload->data()));
+    info.GetReturnValue().Set(Variant::getNodeBuffer(payload->data()));
   }
 }
 

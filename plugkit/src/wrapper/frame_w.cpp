@@ -3,7 +3,7 @@
 #include "frame_view.hpp"
 #include "layer.hpp"
 #include "plugkit_module.hpp"
-#include "private/variant.hpp"
+
 #include "wrapper/property.hpp"
 
 namespace plugkit {

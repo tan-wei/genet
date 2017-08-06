@@ -1,4 +1,4 @@
-#include "private/logger.hpp"
+#include "logger.hpp"
 #include <iomanip>
 #include <mutex>
 #include <nan.h>
@@ -56,9 +56,9 @@ void Logger::logTrivial(Level level, const std::string &message,
   log(std::move(msg));
 }
 
-Logger::MessagePtr Logger::Private::fromV8Message(v8::Local<v8::Message> msg,
-                                                  Logger::Level level,
-                                                  const std::string &domain) {
+Logger::MessagePtr Logger::fromV8Message(v8::Local<v8::Message> msg,
+                                         Logger::Level level,
+                                         const std::string &domain) {
 
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   auto context = isolate->GetCurrentContext();

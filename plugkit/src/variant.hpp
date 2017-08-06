@@ -7,6 +7,8 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <v8.h>
+#include <json11.hpp>
 
 namespace plugkit {
 
@@ -81,7 +83,13 @@ public:
   size_t length() const;
 
 public:
-  class Private;
+  static v8::Local<v8::Object> getNodeBuffer(const View &slice);
+  static View getView(v8::Local<v8::Object> obj);
+  static v8::Local<v8::Value> getValue(const Variant &var);
+  static Variant getVariant(v8::Local<v8::Value> var);
+  static json11::Json getJson(const Variant &var);
+  static void cleanupSharedBuffers();
+  static void init(v8::Isolate *isolate);
 
 public:
   uint8_t type_;

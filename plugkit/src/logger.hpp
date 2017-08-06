@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <thread>
+#include <v8.h>
 #include "export.h"
 
 namespace plugkit {
@@ -46,6 +47,10 @@ public:
   virtual void logTrivial(Level level, const std::string &message,
                           const std::string &domain = "global",
                           const std::string &resourceName = "");
+
+  static Logger::MessagePtr fromV8Message(v8::Local<v8::Message> msg,
+                                          Logger::Level level,
+                                          const std::string &domain = "global");
 
 public:
   class Private;

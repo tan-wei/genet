@@ -1,7 +1,7 @@
 #include "session_factory.hpp"
 #include "../src/session.hpp"
 #include "plugkit_module.hpp"
-#include "private/variant.hpp"
+
 #include "session.hpp"
 
 namespace plugkit {
@@ -114,7 +114,7 @@ NAN_GETTER(SessionFactoryWrapper::options) {
   SessionFactoryWrapper *wrapper =
       ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
   if (auto factory = wrapper->factory) {
-    info.GetReturnValue().Set(Variant::Private::getValue(factory->options()));
+    info.GetReturnValue().Set(Variant::getValue(factory->options()));
   }
 }
 
@@ -122,7 +122,7 @@ NAN_SETTER(SessionFactoryWrapper::setOptions) {
   SessionFactoryWrapper *wrapper =
       ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
   if (auto factory = wrapper->factory) {
-    factory->setOptions(Variant::Private::getVariant(value));
+    factory->setOptions(Variant::getVariant(value));
   }
 }
 
