@@ -254,7 +254,8 @@ void Session::analyze(const std::vector<RawFrame> &rawFrames) {
       rootLayer = new Layer(unknown);
       rootLayer->addTag(unknown);
     }
-    rootLayer->addPayload(new Payload(raw.payload));
+    rootLayer->addPayload(new Payload(
+        View{raw.payload.data(), raw.payload.data() + raw.payload.length()}));
 
     Frame *frame = new Frame();
     frame->setSourceId(raw.sourceId);

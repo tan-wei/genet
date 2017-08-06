@@ -3,7 +3,7 @@
 
 #include "payload.h"
 #include "types.hpp"
-#include "slice.hpp"
+#include "view.h"
 #include "token.h"
 #include <memory>
 #include <vector>
@@ -12,9 +12,9 @@ namespace plugkit {
 
 class Payload {
 public:
-  Payload(const Slice &range);
+  Payload(const View &view);
   ~Payload();
-  Slice slice() const;
+  View view() const;
 
   const std::vector<const Property *> &properties() const;
   const Property *propertyFromId(Token id) const;
@@ -25,7 +25,7 @@ private:
   Payload &operator=(const Payload &payload) = delete;
 
 private:
-  Slice mSlice;
+  View mView;
   std::vector<const Property *> mProperties;
 };
 }
