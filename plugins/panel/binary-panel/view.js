@@ -69,7 +69,7 @@ export default class BinaryView {
       return <div class="binary-view">No frames selected</div>
     }
     return this.frames.map((frame) => {
-      return m(BinaryItem, {payload: frame.rootLayer.payloas[0].data, range: this.range})
+      return m(BinaryItem, {payload: frame.rootLayer.payloads[0].data, range: this.range})
     })
   }
 }
