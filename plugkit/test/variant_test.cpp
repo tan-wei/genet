@@ -1,4 +1,5 @@
 #include <catch.hpp>
+#include <cfloat>
 #include "variant.hpp"
 
 using namespace plugkit;
@@ -32,5 +33,38 @@ TEST_CASE("Variant_uint64", "[variant]") {
   CHECK(Variant_uint64(&variant) == INT64_MAX);
   Variant_setUint64(&variant, -1);
   CHECK(Variant_uint64(&variant) == UINT64_MAX);
+}
+
+TEST_CASE("Variant_double", "[variant]") {
+  Variant variant;
+  CHECK(Variant_double(&variant) == 0.0);
+  Variant_setDouble(&variant, DBL_MAX);
+  CHECK(Variant_double(&variant) == DBL_MAX);
+  Variant_setDouble(&variant, DBL_MIN);
+  CHECK(Variant_double(&variant) == DBL_MIN);
+  Variant_setDouble(&variant, DBL_TRUE_MIN);
+  CHECK(Variant_double(&variant) == DBL_TRUE_MIN);
+  Variant_setDouble(&variant, DBL_EPSILON);
+  CHECK(Variant_double(&variant) == DBL_EPSILON);
+}
+
+TEST_CASE("Variant_string", "[variant]") {
+  Variant variant;
+  CHECK(strcmp(Variant_string(&variant), "") == 0);
+  Variant_setString(&variant, "HELLO");
+  CHECK(strcmp(Variant_string(&variant), "HELLO") == 0);
+}
+
+TEST_CASE("Variant_data", "[variant]") {
+  Variant variant;
+  char data[256];
+  View view = {data, data + sizeof(data)};
+  View view2 = Variant_data(&variant);
+  CHECK(view2.begin == nullptr);
+  CHECK(view2.end == nullptr);
+  Variant_setData(&variant, view);
+  view2 = Variant_data(&variant);
+  CHECK(view2.begin == view.begin);
+  CHECK(view2.end == view.end);
 }
 }

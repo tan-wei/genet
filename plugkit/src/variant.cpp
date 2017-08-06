@@ -544,14 +544,16 @@ const char *Variant_string(const Variant *var) {
   }
   return "";
 }
-void Variant_setString(Variant *var, const char *str) { *var = Variant(str); }
+void Variant_setString(Variant *var, const char *str) {
+  *var = Variant(std::string(str));
+}
 
-size_t Variant_data(const Variant *var, const char **data) {
+View Variant_data(const Variant *var) {
   if (var->isBuffer()) {
-    *data = var->d.slice->data();
-    return var->d.slice->length();
+    return View{var->d.slice->data(),
+                var->d.slice->data() + var->d.slice->length()};
   }
-  return 0;
+  return View{nullptr, nullptr};
 }
 void Variant_setData(Variant *var, View view) {
   *var = Variant(Slice(view.begin, View_length(view)));
