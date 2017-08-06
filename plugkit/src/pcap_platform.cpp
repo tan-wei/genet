@@ -215,7 +215,6 @@ bool PcapPlatform::start() {
             layer->addTag(self.d->tag);
             char *payload = new char[h->caplen];
             std::memcpy(payload, bytes, h->caplen);
-            layer->setPayload(Slice(payload, h->caplen));
             layer->addPayload(new Payload(Slice(payload, h->caplen)));
 
             using namespace std::chrono;

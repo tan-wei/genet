@@ -22,8 +22,6 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   Nan::SetAccessor(otl, Nan::New("confidence").ToLocalChecked(), confidence,
                    setConfidence);
   Nan::SetAccessor(otl, Nan::New("parent").ToLocalChecked(), parent);
-  Nan::SetAccessor(otl, Nan::New("payload").ToLocalChecked(), payload,
-                   setPayload);
   Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
   Nan::SetAccessor(otl, Nan::New("children").ToLocalChecked(), children);
   Nan::SetAccessor(otl, Nan::New("tags").ToLocalChecked(), tags);
@@ -104,23 +102,6 @@ NAN_GETTER(LayerWrapper::parent) {
       info.GetReturnValue().Set(LayerWrapper::wrap(parent));
     } else {
       info.GetReturnValue().Set(Nan::Null());
-    }
-  }
-}
-
-NAN_GETTER(LayerWrapper::payload) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer) {
-    info.GetReturnValue().Set(
-        Variant::Private::getNodeBuffer(layer->payload()));
-  }
-}
-
-NAN_SETTER(LayerWrapper::setPayload) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->layer) {
-    if (value->IsObject()) {
-      layer->setPayload(Variant::Private::getSlice(value.As<v8::Object>()));
     }
   }
 }

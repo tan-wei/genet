@@ -23,8 +23,6 @@ public:
   static NAN_GETTER(parent);
   static NAN_GETTER(children);
   static NAN_GETTER(properties);
-  static NAN_GETTER(payload);
-  static NAN_SETTER(setPayload);
   static NAN_GETTER(tags);
   static NAN_METHOD(propertyFromId);
   static NAN_METHOD(addLayer);

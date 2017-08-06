@@ -8,73 +8,44 @@
 
 namespace plugkit {
 
-class Layer::Private {
-public:
-  Private(Token id);
-
-public:
-  Token id = 0;
-  uint32_t streamId = 0;
-  double confidence = 1.0;
-  Slice payload;
-  std::vector<const Payload *> payloads;
-  const Layer *parent = nullptr;
-  const Frame *frame = nullptr;
-  std::vector<Token> tags;
-  std::vector<Layer *> children;
-  std::vector<const Property *> properties;
-};
-
-Layer::Private::Private(Token id) : id(id) {}
-
-Layer::Layer(Token id) : d(new Private(id)) {}
+Layer::Layer(Token id) : mId(id) {}
 
 Layer::~Layer() {}
 
-Token Layer::id() const { return d->id; }
+Token Layer::id() const { return mId; }
 
-double Layer::confidence() const { return d->confidence; }
+double Layer::confidence() const { return mConfidence; }
 
-void Layer::setConfidence(double confidence) { d->confidence = confidence; }
+void Layer::setConfidence(double confidence) { mConfidence = confidence; }
 
-const std::vector<Layer *> &Layer::children() const { return d->children; }
+const std::vector<Layer *> &Layer::children() const { return mChildren; }
 
-void Layer::addLayer(Layer *child) { d->children.push_back(child); }
+void Layer::addLayer(Layer *child) { mChildren.push_back(child); }
 
-uint32_t Layer::streamId() const { return d->streamId; }
+uint32_t Layer::streamId() const { return mStreamId; }
 
-void Layer::setStreamId(uint32_t id) { d->streamId = id; }
+void Layer::setStreamId(uint32_t id) { mStreamId = id; }
 
-const Slice &Layer::payload() const { return d->payload; }
+const std::vector<Token> &Layer::tags() const { return mTags; }
 
-const std::vector<Token> &Layer::tags() const { return d->tags; }
+void Layer::addTag(Token token) { mTags.push_back(token); }
 
-void Layer::addTag(Token token) { d->tags.push_back(token); }
-
-void Layer::setPayload(const Slice &payload) { d->payload = payload; }
-
-const std::vector<const Payload *> &Layer::payloads() const {
-  return d->payloads;
-}
-
-void Layer::addPayload(const Payload *payload) {
-  d->payloads.push_back(payload);
-}
+void Layer::addPayload(const Payload *payload) { mPayloads.push_back(payload); }
 
 const std::vector<const Property *> &Layer::properties() const {
-  return d->properties;
+  return mProperties;
 }
 
-const Layer *Layer::parent() const { return d->parent; }
+const Layer *Layer::parent() const { return mParent; }
 
-void Layer::setParent(const Layer *layer) { d->parent = layer; }
+void Layer::setParent(const Layer *layer) { mParent = layer; }
 
-const Frame *Layer::frame() const { return d->frame; }
+const Frame *Layer::frame() const { return mFrame; }
 
-void Layer::setFrame(const Frame *frame) { d->frame = frame; }
+void Layer::setFrame(const Frame *frame) { mFrame = frame; }
 
 const Property *Layer::propertyFromId(Token id) const {
-  for (const auto &child : d->properties) {
+  for (const auto &child : mProperties) {
     if (child->id() == id) {
       return child;
     }
@@ -82,7 +53,7 @@ const Property *Layer::propertyFromId(Token id) const {
   return nullptr;
 }
 
-void Layer::addProperty(const Property *prop) { d->properties.push_back(prop); }
+void Layer::addProperty(const Property *prop) { mProperties.push_back(prop); }
 
 Token Layer_id(const Layer *layer) { return layer->id(); }
 

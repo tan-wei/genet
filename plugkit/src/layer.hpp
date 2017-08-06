@@ -30,9 +30,6 @@ public:
   uint32_t streamId() const;
   void setStreamId(uint32_t id);
 
-  const Slice &payload() const;
-  void setPayload(const Slice &payload);
-
   const std::vector<const Payload *> &payloads() const;
   void addPayload(const Payload *payload);
 
@@ -50,8 +47,15 @@ private:
   Layer &operator=(const Layer &layer) = delete;
 
 private:
-  class Private;
-  std::unique_ptr<Private> d;
+  Token mId = 0;
+  uint32_t mStreamId = 0;
+  double mConfidence = 1.0;
+  std::vector<const Payload *> mPayloads;
+  const Layer *mParent = nullptr;
+  const Frame *mFrame = nullptr;
+  std::vector<Token> mTags;
+  std::vector<Layer *> mChildren;
+  std::vector<const Property *> mProperties;
 };
 }
 
