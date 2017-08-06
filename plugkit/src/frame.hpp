@@ -1,7 +1,6 @@
 #ifndef PLUGKIT_FRAME_H
 #define PLUGKIT_FRAME_H
 
-#include "slice.hpp"
 #include "export.h"
 #include "types.hpp"
 #include <memory>

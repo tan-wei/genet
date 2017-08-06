@@ -4,7 +4,6 @@
 #include "wrapper/layer.hpp"
 #include "wrapper/pcap.hpp"
 #include "wrapper/property.hpp"
-#include "wrapper/slice.hpp"
 #include "wrapper/session.hpp"
 #include "wrapper/session_factory.hpp"
 #include "private/variant.hpp"
@@ -17,7 +16,6 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
   Variant::Private::init(isolate);
   PropertyWrapper::init(isolate, exports);
   LayerWrapper::init(isolate, exports);
-  SliceWrapper::init(isolate, exports);
   FrameWrapper::init(isolate);
   if (mainThread) {
     PcapWrapper::init(isolate, exports);

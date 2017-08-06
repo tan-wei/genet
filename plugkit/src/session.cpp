@@ -254,14 +254,14 @@ void Session::analyze(const std::vector<RawFrame> &rawFrames) {
       rootLayer = new Layer(unknown);
       rootLayer->addTag(unknown);
     }
-    rootLayer->addPayload(new Payload(
-        View{raw.payload.data(), raw.payload.data() + raw.payload.length()}));
+    rootLayer->addPayload(new Payload(raw.payload));
 
     Frame *frame = new Frame();
     frame->setSourceId(raw.sourceId);
     frame->setTimestamp(raw.timestamp);
-    frame->setLength((raw.length < raw.payload.length()) ? raw.payload.length()
-                                                         : raw.length);
+
+    size_t length = View_length(raw.payload);
+    frame->setLength((raw.length < length) ? length : raw.length);
     frame->setRootLayer(rootLayer);
     frame->setIndex(d->getSeq());
     rootLayer->setFrame(frame);

@@ -1,7 +1,5 @@
 #include "private/variant.hpp"
-#include "wrapper/slice.hpp"
 #include "plugkit_module.hpp"
-#include "slice.hpp"
 #include <iomanip>
 #include <nan.h>
 #include <sstream>
@@ -109,8 +107,8 @@ Variant::Variant(Array &&array) : type_(TYPE_ARRAY) {
 
 Variant::Variant(Map &&map) : type_(TYPE_MAP) { d.map = new Map(map); }
 
-Variant::Variant(const Slice &slice) : type_(TYPE_BUFFER) {
-  d.slice = new Slice(slice);
+Variant::Variant(const View &view) : type_(TYPE_VIEW) {
+  d.view = new View(view);
 }
 
 Variant::Variant(const Timestamp &ts) : type_(TYPE_TIMESTAMP) {
@@ -125,8 +123,8 @@ Variant::~Variant() {
   case Variant::TYPE_STRING:
     delete d.str;
     break;
-  case Variant::TYPE_BUFFER:
-    delete d.slice;
+  case Variant::TYPE_VIEW:
+    delete d.view;
     break;
   case Variant::TYPE_ARRAY:
     delete d.array;
@@ -150,8 +148,8 @@ Variant &Variant::operator=(const Variant &value) {
   case Variant::TYPE_STRING:
     this->d.str = new std::string(*value.d.str);
     break;
-  case Variant::TYPE_BUFFER:
-    this->d.slice = new Slice(*value.d.slice);
+  case Variant::TYPE_VIEW:
+    this->d.view = new View(*value.d.view);
     break;
   case Variant::TYPE_ARRAY:
     this->d.array = new Array(*value.d.array);
@@ -213,7 +211,6 @@ uint64_t Variant::uint64Value(uint64_t defaultValue) const {
   case TYPE_INT64:
     return d.int_;
   case TYPE_UINT64:
-  case TYPE_STREAM:
     return d.uint_;
   case TYPE_DOUBLE:
     return d.double_;
@@ -231,7 +228,6 @@ double Variant::doubleValue(double defaultValue) const {
   case TYPE_INT64:
     return d.int_;
   case TYPE_UINT64:
-  case TYPE_STREAM:
     return d.uint_;
   case TYPE_DOUBLE:
     return d.double_;
@@ -241,29 +237,26 @@ double Variant::doubleValue(double defaultValue) const {
 }
 
 std::string Variant::string(const std::string &defaultValue) const {
-  if (isBuffer()) {
-    return d.slice->data();
-  } else {
-    switch (type()) {
-    case TYPE_BOOL:
-      return boolValue() ? "true" : "false";
-    case TYPE_INT64:
-      return std::to_string(int64Value());
-    case TYPE_UINT64:
-    case TYPE_STREAM:
-      return std::to_string(uint64Value());
-    case TYPE_DOUBLE:
-      return std::to_string(doubleValue());
-    case TYPE_TIMESTAMP: {
-      auto tp = std::chrono::time_point_cast<std::chrono::seconds>(timestamp());
-      std::time_t ts = std::chrono::system_clock::to_time_t(tp);
-      std::stringstream stream;
-      stream << std::put_time(std::localtime(&ts), "%FT%T%z");
-      return stream.str();
-    }
-    default:
-      return defaultValue;
-    }
+  switch (type()) {
+  case TYPE_STRING:
+    return d.str->c_str();
+  case TYPE_BOOL:
+    return boolValue() ? "true" : "false";
+  case TYPE_INT64:
+    return std::to_string(int64Value());
+  case TYPE_UINT64:
+    return std::to_string(uint64Value());
+  case TYPE_DOUBLE:
+    return std::to_string(doubleValue());
+  case TYPE_TIMESTAMP: {
+    auto tp = std::chrono::time_point_cast<std::chrono::seconds>(timestamp());
+    std::time_t ts = std::chrono::system_clock::to_time_t(tp);
+    std::stringstream stream;
+    stream << std::put_time(std::localtime(&ts), "%FT%T%z");
+    return stream.str();
+  }
+  default:
+    return defaultValue;
   }
 }
 
@@ -275,11 +268,11 @@ Timestamp Variant::timestamp(const Timestamp &defaultValue) const {
   }
 }
 
-Slice Variant::slice() const {
-  if (isBuffer()) {
-    return *d.slice;
+View Variant::view() const {
+  if (isView()) {
+    return *d.view;
   } else {
-    return Slice();
+    return View();
   }
 }
 
@@ -333,38 +326,37 @@ bool Variant::isString() const { return type() == TYPE_STRING; }
 
 bool Variant::isTimestamp() const { return type() == TYPE_TIMESTAMP; }
 
-bool Variant::isBuffer() const { return type() == TYPE_BUFFER; }
+bool Variant::isView() const { return type() == TYPE_VIEW; }
 
-bool Variant::isStream() const { return type() == TYPE_STREAM; }
-
-v8::Local<v8::Object> Variant::Private::getNodeBuffer(const Slice &slice) {
+v8::Local<v8::Object> Variant::Private::getNodeBuffer(const View &view) {
   using namespace v8;
 
   Isolate *isolate = Isolate::GetCurrent();
   if (!isolate->GetData(1)) { // Node.js is not installed
-    return SliceWrapper::wrap(slice);
+    return v8::ArrayBuffer::New(isolate, const_cast<char *>(view.begin),
+                                View_length(view));
   }
-  auto nodeBuf =
-      node::Buffer::New(isolate, const_cast<char *>(slice.data()),
-                        slice.length(), [](char *data, void *hint) {}, nullptr)
-          .ToLocalChecked();
-  nodeBuf->Set(Nan::New("dataOffset").ToLocalChecked(),
-               Nan::New(static_cast<uint32_t>(slice.offset())));
+  auto nodeBuf = node::Buffer::New(isolate, const_cast<char *>(view.begin),
+                                   View_length(view),
+                                   [](char *data, void *hint) {}, nullptr)
+                     .ToLocalChecked();
+  // TODO: nodeBuf->Set(Nan::New("dataOffset").ToLocalChecked(),
+  //             Nan::New(static_cast<uint32_t>(view.offset())));
   return nodeBuf;
 }
 
-Slice Variant::Private::getSlice(v8::Local<v8::Object> obj) {
+View Variant::Private::getView(v8::Local<v8::Object> obj) {
   using namespace v8;
 
   if (!node::Buffer::HasInstance(obj)) {
-    return Slice();
+    return View();
   }
 
   size_t len = node::Buffer::Length(obj);
   char *data = new char[len];
   std::memcpy(data, node::Buffer::Data(obj), len);
 
-  return Slice(data, len);
+  return View{data, data + len};
 }
 
 v8::Local<v8::Value> Variant::Private::getValue(const Variant &var) {
@@ -405,8 +397,8 @@ v8::Local<v8::Value> Variant::Private::getValue(const Variant &var) {
     }
     return obj;
   }
-  case TYPE_BUFFER:
-    return getNodeBuffer(var.slice());
+  case TYPE_VIEW:
+    return getNodeBuffer(var.view());
   default:
     return Nan::Null();
   }
@@ -444,22 +436,19 @@ json11::Json Variant::Private::getJson(const Variant &var) {
     json["type"] = "timestamp";
     json["value"] = var.string();
     break;
-  case Variant::TYPE_BUFFER:
-    json["type"] = "buffer";
+  case Variant::TYPE_VIEW:
+    json["type"] = "view";
     {
       std::stringstream stream;
       stream << std::hex << std::setfill('0') << std::setw(2);
-      const auto &slice = var.slice();
-      const uint8_t *data = reinterpret_cast<const uint8_t *>(slice.data());
-      for (size_t i = 0; i < slice.length(); ++i) {
+      const auto &view = var.view();
+      const uint8_t *data = reinterpret_cast<const uint8_t *>(view.begin);
+      size_t length = View_length(view);
+      for (size_t i = 0; i < length; ++i) {
         stream << static_cast<int>(data[i]);
       }
       json["value"] = stream.str();
     }
-    break;
-  case Variant::TYPE_STREAM:
-    json["type"] = "stream";
-    json["value"] = var.string();
     break;
   case Variant::TYPE_ARRAY:
     json["type"] = "array";
@@ -502,7 +491,7 @@ Variant Variant::Private::getVariant(v8::Local<v8::Value> var) {
     }
     return Timestamp(std::chrono::nanoseconds(ts));
   } else if (node::Buffer::HasInstance(var)) {
-    return getSlice(var.As<v8::Object>());
+    return getView(var.As<v8::Object>());
   } else if (var->IsArray()) {
     auto obj = var.As<v8::Array>();
     Variant::Array array;
@@ -549,13 +538,10 @@ void Variant_setString(Variant *var, const char *str) {
 }
 
 View Variant_data(const Variant *var) {
-  if (var->isBuffer()) {
-    return View{var->d.slice->data(),
-                var->d.slice->data() + var->d.slice->length()};
+  if (var->isView()) {
+    return var->view();
   }
   return View{nullptr, nullptr};
 }
-void Variant_setData(Variant *var, View view) {
-  *var = Variant(Slice(view.begin, View_length(view)));
-}
+void Variant_setData(Variant *var, View view) { *var = Variant(view); }
 }

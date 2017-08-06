@@ -142,7 +142,7 @@ NAN_METHOD(SessionWrapper::analyze) {
         auto obj = array->Get(i).As<v8::Object>();
         Session::RawFrame frame;
         frame.link = obj->Get(Nan::New("link").ToLocalChecked())->Uint32Value();
-        frame.payload = Variant::Private::getSlice(
+        frame.payload = Variant::Private::getView(
             obj->Get(Nan::New("payload").ToLocalChecked()).As<v8::Object>());
         frame.length =
             obj->Get(Nan::New("length").ToLocalChecked())->Uint32Value();

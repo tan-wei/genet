@@ -9,8 +9,8 @@ namespace plugkit {
 
 class Variant::Private {
 public:
-  static v8::Local<v8::Object> getNodeBuffer(const Slice &slice);
-  static Slice getSlice(v8::Local<v8::Object> obj);
+  static v8::Local<v8::Object> getNodeBuffer(const View &slice);
+  static View getView(v8::Local<v8::Object> obj);
   static v8::Local<v8::Value> getValue(const Variant &var);
   static Variant getVariant(v8::Local<v8::Value> var);
   static json11::Json getJson(const Variant &var);

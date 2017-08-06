@@ -2,7 +2,6 @@
 #define PLUGKIT_VARIANT_HPP
 
 #include "variant.h"
-#include "slice.hpp"
 #include "types.hpp"
 #include "export.h"
 #include <memory>
@@ -21,8 +20,7 @@ public:
     TYPE_DOUBLE,
     TYPE_STRING,
     TYPE_TIMESTAMP,
-    TYPE_BUFFER,
-    TYPE_STREAM,
+    TYPE_VIEW,
     TYPE_ARRAY,
     TYPE_MAP
   };
@@ -43,7 +41,7 @@ public:
   Variant(double value);
   Variant(const std::string &str);
   Variant(std::string &&str);
-  Variant(const Slice &slice);
+  Variant(const View &view);
   Variant(const Array &array);
   Variant(const Map &map);
   Variant(Array &&array);
@@ -63,8 +61,7 @@ public:
   bool isDouble() const;
   bool isString() const;
   bool isTimestamp() const;
-  bool isBuffer() const;
-  bool isStream() const;
+  bool isView() const;
   bool isArray() const;
   bool isMap() const;
 
@@ -75,7 +72,7 @@ public:
   double doubleValue(double defaultValue = double()) const;
   Timestamp timestamp(const Timestamp &defaultValue = Timestamp()) const;
   std::string string(const std::string &defaultValue = std::string()) const;
-  Slice slice() const;
+  View view() const;
   const Array &array() const;
   const Map &map() const;
   uint8_t tag() const;
@@ -96,7 +93,7 @@ public:
     uint64_t uint_;
     Timestamp *ts;
     std::string *str;
-    Slice *slice;
+    View *view;
     Array *array;
     Map *map;
   } d;

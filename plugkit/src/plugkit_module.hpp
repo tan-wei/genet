@@ -25,7 +25,6 @@ public:
   Class property;
   Class layer;
   Class frame;
-  Class slice;
   Class session;
   Class sessionFactory;
 

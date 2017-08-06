@@ -22,7 +22,7 @@ class Session final {
 public:
   struct RawFrame {
     int link = 0;
-    Slice payload;
+    View payload;
     size_t length = 0;
     Timestamp timestamp = std::chrono::system_clock::now();
     uint32_t sourceId = 0;

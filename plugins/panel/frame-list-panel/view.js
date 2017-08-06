@@ -28,7 +28,6 @@ class FrameItem {
       data-layer={this.frame.primaryLayer.tags.join(' ')}
       data-layer-confidence={1}
       data-frame-length={this.frame.length}
-      data-frame-capture-length={this.frame.rootLayer.payload.length}
       data-selected={ vnode.attrs.selected }
       onmousedown={() => {this.select()}}
       style={{

@@ -1,6 +1,5 @@
 #include "layer.hpp"
 #include "property.hpp"
-#include "slice.hpp"
 #include "payload.hpp"
 #include "wrapper/layer.hpp"
 #include <functional>

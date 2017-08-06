@@ -9,7 +9,6 @@ class Layer;
 class Property;
 class Frame;
 class FrameView;
-class Slice;
 class Payload;
 class Plugin;
 struct SessionContext;
