@@ -21,8 +21,12 @@ public:
   void addProperty(const Property *prop);
 
 private:
-  class Private;
-  std::unique_ptr<Private> d;
+  Payload(const Payload &payload) = delete;
+  Payload &operator=(const Payload &payload) = delete;
+
+private:
+  Slice mSlice;
+  std::vector<const Property *> mProperties;
 };
 }
 

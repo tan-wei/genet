@@ -4,29 +4,18 @@
 
 namespace plugkit {
 
-class Payload::Private {
-public:
-  Private(const Slice &slice);
-
-public:
-  Slice slice;
-  std::vector<const Property *> properties;
-};
-
-Payload::Private::Private(const Slice &slice) : slice(slice) {}
-
-Payload::Payload(const Slice &slice) : d(new Private(slice)) {}
+Payload::Payload(const Slice &slice) : mSlice(slice) {}
 
 Payload::~Payload() {}
 
-Slice Payload::slice() const { return d->slice; }
+Slice Payload::slice() const { return mSlice; }
 
 const std::vector<const Property *> &Payload::properties() const {
-  return d->properties;
+  return mProperties;
 }
 
 const Property *Payload::propertyFromId(Token id) const {
-  for (const auto &prop : d->properties) {
+  for (const auto &prop : mProperties) {
     if (prop->id() == id) {
       return prop;
     }
@@ -34,9 +23,7 @@ const Property *Payload::propertyFromId(Token id) const {
   return nullptr;
 }
 
-void Payload::addProperty(const Property *prop) {
-  d->properties.push_back(prop);
-}
+void Payload::addProperty(const Property *prop) { mProperties.push_back(prop); }
 
 View Payload_data(const Payload *payload) {
   const auto &slice = payload->slice();
