@@ -30,6 +30,10 @@ const std::vector<Token> &Layer::tags() const { return mTags; }
 
 void Layer::addTag(Token token) { mTags.push_back(token); }
 
+const std::vector<const Payload *> &Layer::payloads() const {
+  return mPayloads;
+}
+
 void Layer::addPayload(const Payload *payload) { mPayloads.push_back(payload); }
 
 const std::vector<const Property *> &Layer::properties() const {
