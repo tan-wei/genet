@@ -1,5 +1,6 @@
 import m from 'mithril'
 import moment from 'moment'
+import { Token } from 'plugkit'
 import { Channel, Profile, Session } from 'deplug'
 import Buffer from 'buffer'
 
@@ -92,7 +93,7 @@ class PropertyItem {
       prop.range[1] + vnode.attrs.dataOffset
     ]
     const name = (vnode.attrs.path in Session.descriptors) ?
-      Session.descriptors[vnode.attrs.path].name : prop.id
+      Session.descriptors[vnode.attrs.path].name : Token.string(prop.id)
     return <li
         data-range={ `${range[0]}:${range[1]}` }
         onmouseover={ () => selectRange(range) }
@@ -111,7 +112,7 @@ class PropertyItem {
           prop.properties.map((prop) => {
             return m(PropertyItem, {
               property: prop,
-              path: vnode.attrs.path + '.' + prop.id
+              path: vnode.attrs.path + '.' + Token.string(prop.id)
             })
           })
         }
@@ -148,8 +149,9 @@ class LayerItem {
       dataOffset,
       dataOffset + dataLength
     ]
-    const name = (layer.id in Session.descriptors) ?
-      Session.descriptors[layer.id].name : layer.id
+    const layerId = Token.string(layer.id)
+    const name = (layerId in Session.descriptors) ?
+      Session.descriptors[layerId].name : layerId
     return <ul>
       <li
         data-range={ `${range[0]}:${range[1]}` }
@@ -174,7 +176,7 @@ class LayerItem {
           return m(PropertyItem, {
             property: prop,
             dataOffset,
-            path: layer.id + '.' + prop.id
+            path: Token.string(layer.id) + '.' + Token.string(prop.id)
           })
         })
       }
@@ -214,7 +216,8 @@ export default class LayerListView {
         length += ` (actual: ${frame.length})`
       }
       let layers = [ frame.rootLayer ]
-      if (frame.rootLayer.id.startsWith('[')) {
+      const rootId = Token.string(frame.rootLayer.id)
+      if (rootId.startsWith('[')) {
         layers = frame.rootLayer.children
       }
       return <div class="layer-list-view">

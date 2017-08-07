@@ -1,5 +1,6 @@
 import throttle from 'lodash.throttle'
 import m from 'mithril'
+import { Token } from 'plugkit'
 import { Channel, Panel, Profile, Session, Tab } from 'deplug'
 
 class FrameItem {
@@ -21,7 +22,7 @@ class FrameItem {
     const itemHeight = vnode.attrs.itemHeight
     const src = this.frame.propertyFromId('src')
     const dst = this.frame.propertyFromId('dst')
-    const id = this.frame.primaryLayer.id
+    const id = Token.string(this.frame.primaryLayer.id)
     const name = (id in Session.descriptors) ? Session.descriptors[id].name : 'Unknown'
     return <div
       class="frame-item"

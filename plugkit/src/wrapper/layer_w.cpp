@@ -48,10 +48,10 @@ NAN_METHOD(LayerWrapper::New) {
   auto options = info[0].As<v8::Object>();
   auto idValue = options->Get(Nan::New("id").ToLocalChecked());
   auto confValue = options->Get(Nan::New("confidence").ToLocalChecked());
-  if (!idValue->IsString()) {
+  if (!idValue->IsNumber()) {
     return;
   }
-  auto layer = new Layer(Token_get(*Nan::Utf8String(idValue)));
+  auto layer = new Layer(static_cast<Token>(idValue->NumberValue()));
   if (confValue->IsNumber()) {
     layer->setConfidence(confValue->NumberValue());
   }
@@ -64,8 +64,7 @@ NAN_METHOD(LayerWrapper::New) {
 NAN_GETTER(LayerWrapper::id) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->weakLayer) {
-    info.GetReturnValue().Set(
-        Nan::New(Token_string(layer->id())).ToLocalChecked());
+    info.GetReturnValue().Set(Nan::New(layer->id()));
   }
 }
 
