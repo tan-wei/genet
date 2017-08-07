@@ -36,14 +36,16 @@ PLUGKIT_EXPORT Property *Layer_addProperty(Layer *layer, Token id);
 /// Finds the first layer property with the given id and returns it.
 ///
 /// If no property is found, returns nullptr.
-PLUGKIT_EXPORT const Property *Layer_propertyFromId(const Layer *layer, Token id);
+PLUGKIT_EXPORT const Property *Layer_propertyFromId(const Layer *layer,
+                                                    Token id);
 
 /// Allocates a new Payload and adds it as a layer payload.
 PLUGKIT_EXPORT Payload *Layer_addPayload(Layer *layer, Slice slice);
 
 /// Returns the first address of payloads
 /// and assigns the number of the layer payloads to size.
-PLUGKIT_EXPORT const Payload *const *Layer_payloads(const Layer *layer, size_t *size);
+PLUGKIT_EXPORT const Payload *const *Layer_payloads(const Layer *layer,
+                                                    size_t *size);
 
 /// Adds a layer tag
 PLUGKIT_EXPORT void Layer_addTag(Layer *layer, Token tag);

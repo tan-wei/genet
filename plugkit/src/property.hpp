@@ -16,7 +16,6 @@ public:
   ~Property();
 
   Token id() const;
-  void setId(Token id);
   Range range() const;
   void setRange(const Range &range);
   Variant value() const;

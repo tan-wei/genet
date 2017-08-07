@@ -10,8 +10,6 @@ Property::~Property() {}
 
 Token Property::id() const { return mId; }
 
-void Property::setId(Token id) { mId = id; }
-
 Range Property::range() const { return mRange; }
 
 void Property::setRange(const Range &range) { mRange = range; }

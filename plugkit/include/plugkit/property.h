@@ -21,7 +21,8 @@ PLUGKIT_EXPORT Property *Property_addProperty(Property *prop, Token id);
 /// Finds the first child property with the given id and returns it.
 ///
 /// If no property is found, returns nullptr.
-PLUGKIT_EXPORT const Property *Property_propertyFromId(const Property *prop, Token id);
+PLUGKIT_EXPORT const Property *Property_propertyFromId(const Property *prop,
+                                                       Token id);
 
 /// Gets range
 PLUGKIT_EXPORT Range Property_range(const Property *prop);

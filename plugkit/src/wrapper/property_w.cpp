@@ -13,7 +13,7 @@ void PropertyWrapper::init(v8::Isolate *isolate,
   SetPrototypeMethod(tpl, "addProperty", addProperty);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
-  Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id, setId);
+  Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
   Nan::SetAccessor(otl, Nan::New("range").ToLocalChecked(), range, setRange);
   Nan::SetAccessor(otl, Nan::New("value").ToLocalChecked(), value, setValue);
   Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
@@ -63,13 +63,6 @@ NAN_GETTER(PropertyWrapper::id) {
   if (auto prop = wrapper->constProp) {
     info.GetReturnValue().Set(
         Nan::New(Token_string(prop->id())).ToLocalChecked());
-  }
-}
-
-NAN_SETTER(PropertyWrapper::setId) {
-  PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
-  if (auto prop = wrapper->prop) {
-    prop->setId(Token_get(*Nan::Utf8String(value)));
   }
 }
 
