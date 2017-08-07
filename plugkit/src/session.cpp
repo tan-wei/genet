@@ -260,7 +260,7 @@ void Session::analyze(const std::vector<RawFrame> &rawFrames) {
     frame->setSourceId(raw.sourceId);
     frame->setTimestamp(raw.timestamp);
 
-    size_t length = View_length(raw.payload);
+    size_t length = Slice_length(raw.payload);
     frame->setLength((raw.length < length) ? length : raw.length);
     frame->setRootLayer(rootLayer);
     frame->setIndex(d->getSeq());

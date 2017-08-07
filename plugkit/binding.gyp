@@ -38,7 +38,7 @@
          "src/property.cpp",
          "src/payload.cpp",
          "src/layer.cpp",
-         "src/view.cpp",
+         "src/slice.cpp",
          "src/reader.cpp",
          "src/tag_filter.cpp",
          "vendor/json11/json11.cpp"
@@ -119,7 +119,7 @@
             "test/token_test.cpp",
             "test/variant_test.cpp",
             "test/tag_filter_test.cpp",
-            "test/view_test.cpp",
+            "test/slice_test.cpp",
             "test/reader_test.cpp"
          ],
          "xcode_settings":{

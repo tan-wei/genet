@@ -107,8 +107,8 @@ Variant::Variant(Array &&array) : type_(TYPE_ARRAY) {
 
 Variant::Variant(Map &&map) : type_(TYPE_MAP) { d.map = new Map(map); }
 
-Variant::Variant(const View &view) : type_(TYPE_VIEW) {
-  d.view = new View(view);
+Variant::Variant(const Slice &view) : type_(TYPE_VIEW) {
+  d.view = new Slice(view);
 }
 
 Variant::Variant(const Timestamp &ts) : type_(TYPE_TIMESTAMP) {
@@ -149,7 +149,7 @@ Variant &Variant::operator=(const Variant &value) {
     this->d.str = new std::string(*value.d.str);
     break;
   case Variant::TYPE_VIEW:
-    this->d.view = new View(*value.d.view);
+    this->d.view = new Slice(*value.d.view);
     break;
   case Variant::TYPE_ARRAY:
     this->d.array = new Array(*value.d.array);
@@ -268,11 +268,11 @@ Timestamp Variant::timestamp(const Timestamp &defaultValue) const {
   }
 }
 
-View Variant::view() const {
+Slice Variant::view() const {
   if (isView()) {
     return *d.view;
   } else {
-    return View();
+    return Slice();
   }
 }
 
@@ -328,16 +328,16 @@ bool Variant::isTimestamp() const { return type() == TYPE_TIMESTAMP; }
 
 bool Variant::isView() const { return type() == TYPE_VIEW; }
 
-v8::Local<v8::Object> Variant::getNodeBuffer(const View &view) {
+v8::Local<v8::Object> Variant::getNodeBuffer(const Slice &view) {
   using namespace v8;
 
   Isolate *isolate = Isolate::GetCurrent();
   if (!isolate->GetData(1)) { // Node.js is not installed
     return v8::ArrayBuffer::New(isolate, const_cast<char *>(view.begin),
-                                View_length(view));
+                                Slice_length(view));
   }
   auto nodeBuf = node::Buffer::New(isolate, const_cast<char *>(view.begin),
-                                   View_length(view),
+                                   Slice_length(view),
                                    [](char *data, void *hint) {}, nullptr)
                      .ToLocalChecked();
   // TODO: nodeBuf->Set(Nan::New("dataOffset").ToLocalChecked(),
@@ -345,18 +345,18 @@ v8::Local<v8::Object> Variant::getNodeBuffer(const View &view) {
   return nodeBuf;
 }
 
-View Variant::getView(v8::Local<v8::Object> obj) {
+Slice Variant::getView(v8::Local<v8::Object> obj) {
   using namespace v8;
 
   if (!node::Buffer::HasInstance(obj)) {
-    return View();
+    return Slice();
   }
 
   size_t len = node::Buffer::Length(obj);
   char *data = new char[len];
   std::memcpy(data, node::Buffer::Data(obj), len);
 
-  return View{data, data + len};
+  return Slice{data, data + len};
 }
 
 v8::Local<v8::Value> Variant::getValue(const Variant &var) {
@@ -443,7 +443,7 @@ json11::Json Variant::getJson(const Variant &var) {
       stream << std::hex << std::setfill('0') << std::setw(2);
       const auto &view = var.view();
       const uint8_t *data = reinterpret_cast<const uint8_t *>(view.begin);
-      size_t length = View_length(view);
+      size_t length = Slice_length(view);
       for (size_t i = 0; i < length; ++i) {
         stream << static_cast<int>(data[i]);
       }
@@ -537,11 +537,11 @@ void Variant_setString(Variant *var, const char *str) {
   *var = Variant(std::string(str));
 }
 
-View Variant_data(const Variant *var) {
+Slice Variant_data(const Variant *var) {
   if (var->isView()) {
     return var->view();
   }
-  return View{nullptr, nullptr};
+  return Slice{nullptr, nullptr};
 }
-void Variant_setData(Variant *var, View view) { *var = Variant(view); }
+void Variant_setData(Variant *var, Slice view) { *var = Variant(view); }
 }

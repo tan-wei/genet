@@ -5,7 +5,7 @@
 #include <plugkit/context.h>
 #include <plugkit/token.h>
 #include <plugkit/property.h>
-#include <plugkit/layer.hpp>
+#include <plugkit/layer.h>
 
 using namespace plugkit;
 

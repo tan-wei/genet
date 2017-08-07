@@ -88,7 +88,7 @@ const Property *Layer_propertyFromId(const Layer *layer, Token id) {
   return layer->propertyFromId(id);
 }
 
-Payload *Layer_addPayload(Layer *layer, View view) {
+Payload *Layer_addPayload(Layer *layer, Slice view) {
   Payload *payload = new Payload(view);
   layer->addPayload(payload);
   return payload;

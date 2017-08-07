@@ -43,7 +43,7 @@ const auto dstToken = Token_get("dst");
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
-  reader.view = Payload_data(Layer_payloads(layer, nullptr)[0]);
+  reader.slice = Payload_data(Layer_payloads(layer, nullptr)[0]);
 
   Layer *child = Layer_addLayer(layer, ipv4Token);
   Layer_addTag(child, ipv4Token);

@@ -4,7 +4,7 @@
 #define PLUGKIT_LAYER_H
 
 #include "token.h"
-#include "view.h"
+#include "slice.h"
 
 extern "C" {
 
@@ -38,7 +38,7 @@ Property *Layer_addProperty(Layer *layer, Token id);
 const Property *Layer_propertyFromId(const Layer *layer, Token id);
 
 /// Allocates a new Payload and adds it as a layer payload.
-Payload *Layer_addPayload(Layer *layer, View view);
+Payload *Layer_addPayload(Layer *layer, Slice slice);
 
 /// Returns the first address of payloads
 /// and assigns the number of the layer payloads to size.

@@ -1,7 +1,7 @@
 #ifndef PLUGKIT_READER_H
 #define PLUGKIT_READER_H
 
-#include "view.h"
+#include "slice.h"
 #include "range.h"
 #include "error.h"
 
@@ -10,15 +10,15 @@ extern "C" {
 namespace plugkit {
 
 struct Reader {
-  View view;
+  Slice slice;
   Range lastRange;
   Error lastError;
 };
 
 /// Clears Reader's state
 void Reader_reset(Reader *reader);
-View Reader_slice(Reader *reader, size_t offset, size_t length);
-View Reader_sliceAll(Reader *reader, size_t offset);
+Slice Reader_slice(Reader *reader, size_t offset, size_t length);
+Slice Reader_sliceAll(Reader *reader, size_t offset);
 
 uint8_t Reader_readUint8(Reader *reader);
 int8_t Reader_readInt8(Reader *reader);

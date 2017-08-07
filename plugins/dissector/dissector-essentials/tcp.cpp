@@ -48,7 +48,7 @@ const auto etToken = Token_get("et");
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
-  reader.view = Payload_data(Layer_payloads(layer, nullptr)[0]);
+  reader.slice = Payload_data(Layer_payloads(layer, nullptr)[0]);
 
   Layer *child = Layer_addLayer(layer, tcpToken);
   Layer_addTag(child, tcpToken);
@@ -133,7 +133,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   size_t optionDataOffset = dataOffset * 4;
   uint32_t optionOffset = 20;
   while (optionDataOffset > optionOffset) {
-    switch (reader.view.begin[optionOffset]) {
+    switch (reader.slice.begin[optionOffset]) {
     case 0:
       optionOffset = optionDataOffset;
       break;
@@ -143,14 +143,15 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
       optionOffset++;
     } break;
     case 2: {
-      uint16_t size = View_readUint16BE(reader.view, optionOffset + 2, nullptr);
+      uint16_t size =
+          Slice_readUint16BE(reader.slice, optionOffset + 2, nullptr);
       Property *opt = Property_addProperty(options, mssToken);
       Variant_setUint64(Property_valueRef(opt), size);
       Property_setRange(opt, Range{optionOffset, optionOffset + 4});
       optionOffset += 4;
     } break;
     case 3: {
-      uint8_t scale = View_readUint8(reader.view, optionOffset + 2, nullptr);
+      uint8_t scale = Slice_readUint8(reader.slice, optionOffset + 2, nullptr);
       Property *opt = Property_addProperty(options, scaleToken);
       Variant_setUint64(Property_valueRef(opt), scale);
       Property_setRange(opt, Range{optionOffset, optionOffset + 2});
@@ -165,17 +166,17 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
 
     // TODO: https://tools.ietf.org/html/rfc2018
     case 5: {
-      uint8_t length = View_readUint8(reader.view, optionOffset + 1, nullptr);
+      uint8_t length = Slice_readUint8(reader.slice, optionOffset + 1, nullptr);
       Property *opt = Property_addProperty(options, selAckToken);
       Variant_setData(Property_valueRef(opt),
-                      View_slice(reader.view, optionOffset + 2, length));
+                      Slice_slice(reader.slice, optionOffset + 2, length));
       Property_setRange(opt, Range{optionOffset, optionOffset + length});
       optionOffset += length;
     } break;
     case 8: {
-      uint32_t mt = View_readUint32BE(reader.view, optionOffset + 2, nullptr);
-      uint32_t et = View_readUint32BE(
-          reader.view, optionOffset + 2 + sizeof(uint32_t), nullptr);
+      uint32_t mt = Slice_readUint32BE(reader.slice, optionOffset + 2, nullptr);
+      uint32_t et = Slice_readUint32BE(
+          reader.slice, optionOffset + 2 + sizeof(uint32_t), nullptr);
       Property *opt = Property_addProperty(options, tsToken);
       Variant_setString(
           Property_valueRef(opt),
@@ -199,7 +200,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
     }
   }
 
-  Layer_addPayload(child, View_sliceAll(reader.view, optionDataOffset));
+  Layer_addPayload(child, Slice_sliceAll(reader.slice, optionDataOffset));
 }
 }
 

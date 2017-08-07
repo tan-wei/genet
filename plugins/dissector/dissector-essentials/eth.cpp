@@ -26,7 +26,7 @@ static const std::unordered_map<uint16_t, Token> typeTable = {
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
-  reader.view = Payload_data(Layer_payloads(layer, nullptr)[0]);
+  reader.slice = Payload_data(Layer_payloads(layer, nullptr)[0]);
 
   Layer *child = Layer_addLayer(layer, ethToken);
   Layer_addTag(child, ethToken);

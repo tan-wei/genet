@@ -12,25 +12,25 @@ Token outOfBoundError() {
 }
 
 template <class T> T readLE(Reader *reader) {
-  if (View_length(reader->view) - reader->lastRange.end < sizeof(T)) {
+  if (Slice_length(reader->slice) - reader->lastRange.end < sizeof(T)) {
     reader->lastError.type = outOfBoundError();
     return T();
   }
   T value =
-      *reinterpret_cast<const T *>(reader->view.begin + reader->lastRange.end);
+      *reinterpret_cast<const T *>(reader->slice.begin + reader->lastRange.end);
   reader->lastRange.end += sizeof(T);
   reader->lastRange.begin = reader->lastRange.end - sizeof(T);
   return value;
 }
 
 template <class T> T readBE(Reader *reader) {
-  if (View_length(reader->view) - reader->lastRange.end < sizeof(T)) {
+  if (Slice_length(reader->slice) - reader->lastRange.end < sizeof(T)) {
     reader->lastError.type = outOfBoundError();
     return T();
   }
   char data[sizeof(T)];
-  std::reverse_copy(reader->view.begin + reader->lastRange.end,
-                    reader->view.begin + reader->lastRange.end + sizeof(T),
+  std::reverse_copy(reader->slice.begin + reader->lastRange.end,
+                    reader->slice.begin + reader->lastRange.end + sizeof(T),
                     data);
   T value = *reinterpret_cast<const T *>(data);
   reader->lastRange.end += sizeof(T);
@@ -40,30 +40,30 @@ template <class T> T readBE(Reader *reader) {
 }
 void Reader_reset(Reader *reader) { std::memset(reader, 0, sizeof(Reader)); }
 
-View Reader_slice(Reader *reader, size_t offset, size_t length) {
-  View *view = &reader->view;
-  if (view->begin + reader->lastRange.end + offset + length > view->end) {
+Slice Reader_slice(Reader *reader, size_t offset, size_t length) {
+  Slice *slice = &reader->slice;
+  if (slice->begin + reader->lastRange.end + offset + length > slice->end) {
     static const Token outOfBoundError = Token_get("Out of bound");
     reader->lastError.type = outOfBoundError;
-    return View();
+    return Slice();
   }
-  View subview{view->begin + reader->lastRange.end, view->end};
-  subview = View_slice(subview, offset, length);
+  Slice subview{slice->begin + reader->lastRange.end, slice->end};
+  subview = Slice_slice(subview, offset, length);
   reader->lastRange.end += offset + length;
   reader->lastRange.begin = reader->lastRange.end - length;
   return subview;
 }
 
-View Reader_sliceAll(Reader *reader, size_t offset) {
-  View *view = &reader->view;
-  if (view->begin + reader->lastRange.end + offset > view->end) {
+Slice Reader_sliceAll(Reader *reader, size_t offset) {
+  Slice *slice = &reader->slice;
+  if (slice->begin + reader->lastRange.end + offset > slice->end) {
     static const Token outOfBoundError = Token_get("Out of bound");
     reader->lastError.type = outOfBoundError;
-    return View();
+    return Slice();
   }
-  View subview{view->begin + reader->lastRange.end + offset, view->end};
+  Slice subview{slice->begin + reader->lastRange.end + offset, slice->end};
   reader->lastRange.begin = reader->lastRange.end + offset;
-  reader->lastRange.end = View_length(*view);
+  reader->lastRange.end = Slice_length(*slice);
   return subview;
 }
 

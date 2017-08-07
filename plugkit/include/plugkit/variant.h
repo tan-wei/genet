@@ -1,7 +1,7 @@
 #ifndef PLUGKIT_VARIANT_H
 #define PLUGKIT_VARIANT_H
 
-#include "view.h"
+#include "slice.h"
 #include <cstdint>
 
 extern "C" {
@@ -40,8 +40,8 @@ const char *Variant_string(const Variant *var);
 /// Sets a string value
 void Variant_setString(Variant *var, const char *str);
 
-View Variant_data(const Variant *var);
-void Variant_setData(Variant *var, View view);
+Slice Variant_data(const Variant *var);
+void Variant_setData(Variant *var, Slice slice);
 }
 }
 

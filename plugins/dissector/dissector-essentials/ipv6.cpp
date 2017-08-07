@@ -35,7 +35,7 @@ const auto protocolToken = Token_get("protocol");
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
-  reader.view = Payload_data(Layer_payloads(layer, nullptr)[0]);
+  reader.slice = Payload_data(Layer_payloads(layer, nullptr)[0]);
 
   Layer *child = Layer_addLayer(layer, ipv6Token);
   Layer_addTag(child, ipv6Token);

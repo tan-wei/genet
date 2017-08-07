@@ -79,7 +79,7 @@ bool PcapDummy::start() {
         if (d->callback) {
           auto layer = new Layer(tag);
           layer->addTag(tag);
-          layer->addPayload(new Payload(View{nullptr, nullptr}));
+          layer->addPayload(new Payload(Slice{nullptr, nullptr}));
 
           auto frame = new Frame();
           frame->setLength(125);

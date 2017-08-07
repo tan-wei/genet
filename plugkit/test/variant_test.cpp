@@ -1,5 +1,6 @@
 #include <catch.hpp>
 #include <cfloat>
+#include <cstring>
 #include "variant.hpp"
 
 using namespace plugkit;
@@ -42,8 +43,6 @@ TEST_CASE("Variant_double", "[variant]") {
   CHECK(Variant_double(&variant) == DBL_MAX);
   Variant_setDouble(&variant, DBL_MIN);
   CHECK(Variant_double(&variant) == DBL_MIN);
-  Variant_setDouble(&variant, DBL_TRUE_MIN);
-  CHECK(Variant_double(&variant) == DBL_TRUE_MIN);
   Variant_setDouble(&variant, DBL_EPSILON);
   CHECK(Variant_double(&variant) == DBL_EPSILON);
 }
@@ -58,13 +57,13 @@ TEST_CASE("Variant_string", "[variant]") {
 TEST_CASE("Variant_data", "[variant]") {
   Variant variant;
   char data[256];
-  View view = {data, data + sizeof(data)};
-  View view2 = Variant_data(&variant);
+  Slice slice = {data, data + sizeof(data)};
+  Slice view2 = Variant_data(&variant);
   CHECK(view2.begin == nullptr);
   CHECK(view2.end == nullptr);
-  Variant_setData(&variant, view);
+  Variant_setData(&variant, slice);
   view2 = Variant_data(&variant);
-  CHECK(view2.begin == view.begin);
-  CHECK(view2.end == view.end);
+  CHECK(view2.begin == slice.begin);
+  CHECK(view2.end == slice.end);
 }
 }
