@@ -5,6 +5,7 @@
 
 #include "token.h"
 #include "slice.h"
+#include "export.h"
 
 extern "C" {
 
@@ -15,37 +16,37 @@ class Payload;
 class Property;
 
 /// Gets id
-Token Layer_id(const Layer *layer);
+PLUGKIT_EXPORT Token Layer_id(const Layer *layer);
 
 /// Gets confidence
-double Layer_confidence(const Layer *layer);
+PLUGKIT_EXPORT double Layer_confidence(const Layer *layer);
 
 /// Sets confidence
-void Layer_setConfidence(Layer *layer, double confidence);
+PLUGKIT_EXPORT void Layer_setConfidence(Layer *layer, double confidence);
 
 /// Gets parent layer
-const Layer *Layer_parent(const Layer *layer);
+PLUGKIT_EXPORT const Layer *Layer_parent(const Layer *layer);
 
 /// Allocates a new Layer and adds it as a child layer.
-Layer *Layer_addLayer(Layer *layer, Token id);
+PLUGKIT_EXPORT Layer *Layer_addLayer(Layer *layer, Token id);
 
 /// Allocates a new Property and adds it as a layer property.
-Property *Layer_addProperty(Layer *layer, Token id);
+PLUGKIT_EXPORT Property *Layer_addProperty(Layer *layer, Token id);
 
 /// Finds the first layer property with the given id and returns it.
 ///
 /// If no property is found, returns nullptr.
-const Property *Layer_propertyFromId(const Layer *layer, Token id);
+PLUGKIT_EXPORT const Property *Layer_propertyFromId(const Layer *layer, Token id);
 
 /// Allocates a new Payload and adds it as a layer payload.
-Payload *Layer_addPayload(Layer *layer, Slice slice);
+PLUGKIT_EXPORT Payload *Layer_addPayload(Layer *layer, Slice slice);
 
 /// Returns the first address of payloads
 /// and assigns the number of the layer payloads to size.
-const Payload *const *Layer_payloads(const Layer *layer, size_t *size);
+PLUGKIT_EXPORT const Payload *const *Layer_payloads(const Layer *layer, size_t *size);
 
 /// Adds a layer tag
-void Layer_addTag(Layer *layer, Token tag);
+PLUGKIT_EXPORT void Layer_addTag(Layer *layer, Token tag);
 }
 }
 

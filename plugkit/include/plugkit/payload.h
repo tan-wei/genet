@@ -3,9 +3,10 @@
 #ifndef PLUGKIT_PAYLOAD_H
 #define PLUGKIT_PAYLOAD_H
 
+#include <cstddef>
 #include "token.h"
 #include "slice.h"
-#include <cstddef>
+#include "export.h"
 
 extern "C" {
 
@@ -15,10 +16,10 @@ class Payload;
 class Property;
 
 /// Returns the payload data.
-Slice Payload_data(const Payload *payload);
+PLUGKIT_EXPORT Slice Payload_data(const Payload *payload);
 
 /// Allocates a new Property and adds it as a payload property.
-Property *Payload_addProperty(Payload *payload, Token id);
+PLUGKIT_EXPORT Property *Payload_addProperty(Payload *payload, Token id);
 }
 }
 

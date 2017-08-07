@@ -3,6 +3,7 @@
 
 #include "token.h"
 #include "range.h"
+#include "export.h"
 
 extern "C" {
 
@@ -12,27 +13,27 @@ class Variant;
 class Property;
 
 /// Gets id
-Token Property_id(const Property *prop);
+PLUGKIT_EXPORT Token Property_id(const Property *prop);
 
 /// Allocates a new Property and adds it as a child property.
-Property *Property_addProperty(Property *prop, Token id);
+PLUGKIT_EXPORT Property *Property_addProperty(Property *prop, Token id);
 
 /// Finds the first child property with the given id and returns it.
 ///
 /// If no property is found, returns nullptr.
-const Property *Property_propertyFromId(const Property *prop, Token id);
+PLUGKIT_EXPORT const Property *Property_propertyFromId(const Property *prop, Token id);
 
 /// Gets range
-Range Property_range(const Property *prop);
+PLUGKIT_EXPORT Range Property_range(const Property *prop);
 
 /// Sets range
-void Property_setRange(Property *prop, Range range);
+PLUGKIT_EXPORT void Property_setRange(Property *prop, Range range);
 
 /// Gets value as a const pointer
-const Variant *Property_value(const Property *prop);
+PLUGKIT_EXPORT const Variant *Property_value(const Property *prop);
 
 /// Gets value as a mutable pointer
-Variant *Property_valueRef(Property *prop);
+PLUGKIT_EXPORT Variant *Property_valueRef(Property *prop);
 }
 }
 

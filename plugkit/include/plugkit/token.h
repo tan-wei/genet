@@ -4,6 +4,7 @@
 #define PLUGKIT_TOKEN_H
 
 #include <cstdint>
+#include "export.h"
 
 extern "C" {
 
@@ -15,7 +16,7 @@ typedef uint32_t Token;
 /// Returns a token corresponded with a given string.
 ///
 /// @remarks This function is thread-safe.
-Token Token_get(const char *str);
+PLUGKIT_EXPORT Token Token_get(const char *str);
 
 /// Returns the null token.
 ///
@@ -23,12 +24,12 @@ Token Token_get(const char *str);
 /// Token_null() == Token_get(nullptr) == Token_get("")
 /// @endcode
 /// @remarks This function is thread-safe.
-Token Token_null();
+PLUGKIT_EXPORT Token Token_null();
 
 /// Returns a string corresponded with a given token.
 ///
 /// @remarks This function is thread-safe.
-const char *Token_string(Token token);
+PLUGKIT_EXPORT const char *Token_string(Token token);
 }
 }
 
