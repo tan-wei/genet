@@ -22,6 +22,10 @@ Variant *Property::valueRef() { return &mValue; }
 
 void Property::setValue(const Variant &value) { mValue = value; }
 
+Token Property::type() const { return mType; }
+
+void Property::setType(Token type) { mType = type; }
+
 const std::vector<const Property *> &Property::properties() const {
   return mChildren;
 }
@@ -52,6 +56,10 @@ const Property *Property_propertyFromId(const Property *prop, Token id) {
 Range Property_range(const Property *prop) { return prop->range(); }
 
 void Property_setRange(Property *prop, Range range) { prop->setRange(range); }
+
+Token Property_type(const Property *prop) { return prop->type(); }
+
+void Property_setType(Property *prop, Token type) { prop->setType(type); }
 
 const Variant *Property_value(const Property *prop) { return prop->valueRef(); }
 

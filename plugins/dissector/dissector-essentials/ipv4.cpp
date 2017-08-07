@@ -39,6 +39,7 @@ const auto protocolToken = Token_get("protocol");
 const auto checksumToken = Token_get("checksum");
 const auto srcToken = Token_get("src");
 const auto dstToken = Token_get("dst");
+const auto ipv4AddrToken = Token_get("ipv4:addr");
 
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   Reader reader;
@@ -119,11 +120,13 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   const auto &srcSlice = Reader_slice(&reader, 0, 4);
   Property *src = Layer_addProperty(child, srcToken);
   Variant_setSlice(Property_valueRef(src), srcSlice);
+  Property_setType(src, ipv4AddrToken);
   Property_setRange(src, reader.lastRange);
 
   const auto &dstSlice = Reader_slice(&reader, 0, 4);
   Property *dst = Layer_addProperty(child, dstToken);
   Variant_setSlice(Property_valueRef(dst), dstSlice);
+  Property_setType(dst, ipv4AddrToken);
   Property_setRange(dst, reader.lastRange);
 
   Layer_addPayload(child, Reader_sliceAll(&reader, 0));

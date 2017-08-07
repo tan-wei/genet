@@ -30,6 +30,12 @@ PLUGKIT_EXPORT Range Property_range(const Property *prop);
 /// Sets range
 PLUGKIT_EXPORT void Property_setRange(Property *prop, Range range);
 
+/// Gets type
+PLUGKIT_EXPORT Token Property_type(const Property *prop);
+
+/// Sets type
+PLUGKIT_EXPORT void Property_setType(Property *prop, Token type);
+
 /// Gets value as a const pointer
 PLUGKIT_EXPORT const Variant *Property_value(const Property *prop);
 

@@ -22,6 +22,8 @@ public:
   const Variant *valueRef() const;
   Variant *valueRef();
   void setValue(const Variant &value);
+  Token type() const;
+  void setType(Token type);
 
   const std::vector<const Property *> &properties() const;
   const Property *propertyFromId(Token id) const;
@@ -32,9 +34,10 @@ private:
   Property &operator=(const Property &prop) = delete;
 
 private:
-  Token mId;
+  Token mId = 0;
   Variant mValue;
-  Range mRange;
+  Range mRange = {0, 0};
+  Token mType = 0;
   std::vector<const Property *> mChildren;
 };
 }
