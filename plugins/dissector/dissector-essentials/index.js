@@ -89,6 +89,13 @@ export default {
       }
     },
     {
+      type: 'property',
+      property: {
+        type: 'ipv4:addr',
+        root: 'ipv4-addr.js'
+      }
+    },
+    {
       type: 'dissector',
       dissector: {
         main: 'build/Release/ipv6.node',

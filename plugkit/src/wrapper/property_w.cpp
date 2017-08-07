@@ -16,6 +16,7 @@ void PropertyWrapper::init(v8::Isolate *isolate,
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
   Nan::SetAccessor(otl, Nan::New("range").ToLocalChecked(), range, setRange);
   Nan::SetAccessor(otl, Nan::New("value").ToLocalChecked(), value, setValue);
+  Nan::SetAccessor(otl, Nan::New("type").ToLocalChecked(), type, setType);
   Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
@@ -100,6 +101,20 @@ NAN_SETTER(PropertyWrapper::setValue) {
   PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
   if (auto prop = wrapper->prop) {
     prop->setValue(Variant::getVariant(value));
+  }
+}
+
+NAN_GETTER(PropertyWrapper::type) {
+  PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
+  if (auto prop = wrapper->constProp) {
+    info.GetReturnValue().Set(prop->type());
+  }
+}
+
+NAN_SETTER(PropertyWrapper::setType) {
+  PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
+  if (auto prop = wrapper->prop) {
+    prop->setType(static_cast<Token>(value->NumberValue()));
   }
 }
 

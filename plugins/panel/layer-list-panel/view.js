@@ -94,6 +94,7 @@ class PropertyItem {
     ]
     const name = (vnode.attrs.path in Session.descriptors) ?
       Session.descriptors[vnode.attrs.path].name : Token.string(prop.id)
+    const propRenderer = Session.properties[Token.string(prop.type)]
     return <li
         data-range={ `${range[0]}:${range[1]}` }
         onmouseover={ () => selectRange(range) }
@@ -102,7 +103,7 @@ class PropertyItem {
       <label
         onclick={ () => this.expanded = !this.expanded }
       ><i class={faClass}></i> { name }: </label>
-      { m(PropertyValueItem, {prop}) }
+      { m(propRenderer ? propRenderer : PropertyValueItem, {prop}) }
       <label
       class="error"
       style={{ display: prop.error ? 'inline' : 'none' }}

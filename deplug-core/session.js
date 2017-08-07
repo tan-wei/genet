@@ -8,6 +8,7 @@ const streamDissectors = []
 const linkLayers = []
 const samples = []
 const descriptors = {}
+const properties = {}
 export default class Session {
   static registerNativeDissector (file) {
     dissectors.push(require(file).dissector)
@@ -33,6 +34,10 @@ export default class Session {
     samples.push(samp)
   }
 
+  static registerProperty (type, func) {
+    properties[type] = func
+  }
+
   static get dissectors () {
     return dissectors
   }
@@ -51,6 +56,10 @@ export default class Session {
 
   static get descriptors () {
     return descriptors
+  }
+
+  static get properties () {
+    return properties
   }
 
   static async runSampleAnalysis (options = {}) {

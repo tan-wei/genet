@@ -2,6 +2,7 @@ import DissectorComponent from './dissector'
 import FileComponent from './file'
 import MenuComponent from './menu'
 import PanelComponent from './panel'
+import PropertyComponent from './property'
 import ScriptComponent from './script'
 import StreamDissectorComponent from './stream-dissector'
 import TabComponent from './tab'
@@ -29,6 +30,8 @@ export default class ComponentFactory {
         return new ScriptComponent(rootDir, pkg, comp)
       case 'file':
         return new FileComponent(rootDir, pkg, comp)
+      case 'property':
+        return new PropertyComponent(rootDir, pkg, comp)
       default:
         throw new Error(`unknown component type: ${comp.type}`)
     }
