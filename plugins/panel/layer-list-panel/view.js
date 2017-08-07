@@ -131,8 +131,19 @@ class LayerItem {
     if (layer.children.length + layer.properties.length) {
       faClass = this.expanded ? 'fa fa-arrow-circle-down' : 'fa fa-arrow-circle-right'
     }
-    const dataOffset = layer.parent ? layer.parent.payloads[0].data.dataOffset : 0
-    const dataLength = layer.parent ? layer.parent.payloads[0].data.length : 0
+    let dataOffset = 0
+    let dataLength = 0
+    if (layer.parent) {
+      const parentPayload = layer.parent.payloads[0]
+      const parentAddr = parentPayload.data.addr
+      let rootPayload = parentPayload
+      for (let parent = layer.parent.parent; parent; parent = parent.parent) {
+        rootPayload = parent.payloads[0]
+      }
+      const rootAddr = rootPayload.data.addr
+      dataLength = parentPayload.data.length
+      dataOffset = parentAddr[1] - rootAddr[1]
+    }
     const range = [
       dataOffset,
       dataOffset + dataLength

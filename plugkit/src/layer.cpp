@@ -72,7 +72,7 @@ const Frame *Layer_frame(const Layer *layer) { return layer->frame(); }
 
 Layer *Layer_addLayer(Layer *layer, Token id) {
   Layer *child = new Layer(id);
-  child->setParent(layer->parent());
+  child->setParent(layer);
   child->setFrame(layer->frame());
   layer->addLayer(child);
   return child;

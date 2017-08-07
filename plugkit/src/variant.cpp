@@ -340,8 +340,14 @@ v8::Local<v8::Object> Variant::getNodeBuffer(const Slice &view) {
                                    Slice_length(view),
                                    [](char *data, void *hint) {}, nullptr)
                      .ToLocalChecked();
-  // TODO: nodeBuf->Set(Nan::New("dataOffset").ToLocalChecked(),
-  //             Nan::New(static_cast<uint32_t>(view.offset())));
+
+  auto addr = Nan::New<v8::Array>(2);
+  addr->Set(0,
+            Nan::New(static_cast<uint32_t>(
+                0xffffffff & (reinterpret_cast<uint64_t>(view.begin) >> 32))));
+  addr->Set(1, Nan::New(static_cast<uint32_t>(
+                   0xffffffff & reinterpret_cast<uint64_t>(view.begin))));
+  nodeBuf->Set(Nan::New("addr").ToLocalChecked(), addr);
   return nodeBuf;
 }
 
