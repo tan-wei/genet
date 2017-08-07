@@ -33,12 +33,12 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
 
   const auto &srcSlice = Reader_slice(&reader, 0, 6);
   Property *src = Layer_addProperty(child, srcToken);
-  Variant_setData(Property_valueRef(src), srcSlice);
+  Variant_setSlice(Property_valueRef(src), srcSlice);
   Property_setRange(src, reader.lastRange);
 
   const auto &dstSlice = Reader_slice(&reader, 0, 6);
   Property *dst = Layer_addProperty(child, dstToken);
-  Variant_setData(Property_valueRef(dst), dstSlice);
+  Variant_setSlice(Property_valueRef(dst), dstSlice);
   Property_setRange(dst, reader.lastRange);
 
   auto protocolType = Reader_readUint16BE(&reader);

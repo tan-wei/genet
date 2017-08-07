@@ -22,7 +22,7 @@ public:
     TYPE_DOUBLE,
     TYPE_STRING,
     TYPE_TIMESTAMP,
-    TYPE_VIEW,
+    TYPE_SLICE,
     TYPE_ARRAY,
     TYPE_MAP
   };
@@ -63,7 +63,7 @@ public:
   bool isDouble() const;
   bool isString() const;
   bool isTimestamp() const;
-  bool isView() const;
+  bool isSlice() const;
   bool isArray() const;
   bool isMap() const;
 

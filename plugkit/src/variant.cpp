@@ -107,7 +107,7 @@ Variant::Variant(Array &&array) : type_(TYPE_ARRAY) {
 
 Variant::Variant(Map &&map) : type_(TYPE_MAP) { d.map = new Map(map); }
 
-Variant::Variant(const Slice &view) : type_(TYPE_VIEW) {
+Variant::Variant(const Slice &view) : type_(TYPE_SLICE) {
   d.view = new Slice(view);
 }
 
@@ -123,7 +123,7 @@ Variant::~Variant() {
   case Variant::TYPE_STRING:
     delete d.str;
     break;
-  case Variant::TYPE_VIEW:
+  case Variant::TYPE_SLICE:
     delete d.view;
     break;
   case Variant::TYPE_ARRAY:
@@ -148,7 +148,7 @@ Variant &Variant::operator=(const Variant &value) {
   case Variant::TYPE_STRING:
     this->d.str = new std::string(*value.d.str);
     break;
-  case Variant::TYPE_VIEW:
+  case Variant::TYPE_SLICE:
     this->d.view = new Slice(*value.d.view);
     break;
   case Variant::TYPE_ARRAY:
@@ -269,7 +269,7 @@ Timestamp Variant::timestamp(const Timestamp &defaultValue) const {
 }
 
 Slice Variant::view() const {
-  if (isView()) {
+  if (isSlice()) {
     return *d.view;
   } else {
     return Slice();
@@ -326,7 +326,7 @@ bool Variant::isString() const { return type() == TYPE_STRING; }
 
 bool Variant::isTimestamp() const { return type() == TYPE_TIMESTAMP; }
 
-bool Variant::isView() const { return type() == TYPE_VIEW; }
+bool Variant::isSlice() const { return type() == TYPE_SLICE; }
 
 v8::Local<v8::Object> Variant::getNodeBuffer(const Slice &view) {
   using namespace v8;
@@ -397,7 +397,7 @@ v8::Local<v8::Value> Variant::getValue(const Variant &var) {
     }
     return obj;
   }
-  case TYPE_VIEW:
+  case TYPE_SLICE:
     return getNodeBuffer(var.view());
   default:
     return Nan::Null();
@@ -436,7 +436,7 @@ json11::Json Variant::getJson(const Variant &var) {
     json["type"] = "timestamp";
     json["value"] = var.string();
     break;
-  case Variant::TYPE_VIEW:
+  case Variant::TYPE_SLICE:
     json["type"] = "view";
     {
       std::stringstream stream;
@@ -537,11 +537,11 @@ void Variant_setString(Variant *var, const char *str) {
   *var = Variant(std::string(str));
 }
 
-Slice Variant_data(const Variant *var) {
-  if (var->isView()) {
+Slice Variant_slice(const Variant *var) {
+  if (var->isSlice()) {
     return var->view();
   }
   return Slice{nullptr, nullptr};
 }
-void Variant_setData(Variant *var, Slice view) { *var = Variant(view); }
+void Variant_setSlice(Variant *var, Slice view) { *var = Variant(view); }
 }

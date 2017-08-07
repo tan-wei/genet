@@ -54,15 +54,15 @@ TEST_CASE("Variant_string", "[variant]") {
   CHECK(strcmp(Variant_string(&variant), "HELLO") == 0);
 }
 
-TEST_CASE("Variant_data", "[variant]") {
+TEST_CASE("Variant_slice", "[variant]") {
   Variant variant;
   char data[256];
   Slice slice = {data, data + sizeof(data)};
-  Slice view2 = Variant_data(&variant);
+  Slice view2 = Variant_slice(&variant);
   CHECK(view2.begin == nullptr);
   CHECK(view2.end == nullptr);
-  Variant_setData(&variant, slice);
-  view2 = Variant_data(&variant);
+  Variant_setSlice(&variant, slice);
+  view2 = Variant_slice(&variant);
   CHECK(view2.begin == slice.begin);
   CHECK(view2.end == slice.end);
 }

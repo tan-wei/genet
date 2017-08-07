@@ -168,8 +168,8 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
     case 5: {
       uint8_t length = Slice_readUint8(reader.slice, optionOffset + 1, nullptr);
       Property *opt = Property_addProperty(options, selAckToken);
-      Variant_setData(Property_valueRef(opt),
-                      Slice_slice(reader.slice, optionOffset + 2, length));
+      Variant_setSlice(Property_valueRef(opt),
+                       Slice_slice(reader.slice, optionOffset + 2, length));
       Property_setRange(opt, Range{optionOffset, optionOffset + length});
       optionOffset += length;
     } break;

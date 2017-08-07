@@ -40,8 +40,8 @@ const char *Variant_string(const Variant *var);
 /// Sets a string value
 void Variant_setString(Variant *var, const char *str);
 
-Slice Variant_data(const Variant *var);
-void Variant_setData(Variant *var, Slice slice);
+Slice Variant_slice(const Variant *var);
+void Variant_setSlice(Variant *var, Slice slice);
 }
 }
 
