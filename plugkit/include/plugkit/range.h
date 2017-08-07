@@ -1,3 +1,5 @@
+/// @file
+/// Range
 #ifndef PLUGKIT_RANGE_H
 #define PLUGKIT_RANGE_H
 

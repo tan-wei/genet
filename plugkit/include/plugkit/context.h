@@ -11,10 +11,12 @@ class Variant;
 class Layer;
 class Context;
 
-void *Context_alloc(Context *ctx, size_t size);
-void Context_dealloc(Context *ctx, void *ptr);
-
+/// Gets options.
 const Variant *Context_options(Context *ctx);
+
+/// Registers the stream identifier for the given layer.
+///
+/// @remarks This function can be used only in analyze().
 void Context_addStreamIdentifier(Context *ctx, Layer *layer, const char *str);
 }
 }

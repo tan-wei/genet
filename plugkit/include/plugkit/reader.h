@@ -15,6 +15,7 @@ struct Reader {
   Error lastError;
 };
 
+/// Clears Reader's state
 void Reader_reset(Reader *reader);
 View Reader_slice(Reader *reader, size_t offset, size_t length);
 View Reader_sliceAll(Reader *reader, size_t offset);
