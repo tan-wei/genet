@@ -22,10 +22,16 @@ Property *Property_addProperty(Property *prop, Token id);
 /// If no property is found, returns nullptr.
 const Property *Property_propertyFromId(const Property *prop, Token id);
 
+/// Gets range
 Range Property_range(const Property *prop);
+
+/// Sets range
 void Property_setRange(Property *prop, Range range);
 
+/// Gets value as a const pointer
 const Variant *Property_value(const Property *prop);
+
+/// Gets value as a mutable pointer
 Variant *Property_valueRef(Property *prop);
 }
 }
