@@ -31,7 +31,7 @@ const auto srcToken = Token_get("src");
 const auto dstToken = Token_get("dst");
 const auto hbyhToken = Token_get("hbyh");
 const auto protocolToken = Token_get("protocol");
-const auto ipv6AddrToken = Token_get("ipv6:addr");
+const auto ipv6AddrToken = Token_get(":ipv6:addr");
 
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   Reader reader;

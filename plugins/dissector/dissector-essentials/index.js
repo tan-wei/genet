@@ -91,8 +91,15 @@ export default {
     {
       type: 'property',
       property: {
-        type: 'ipv4:addr',
+        type: ':ipv4:addr',
         root: 'ipv4-addr.js'
+      }
+    },
+    {
+      type: 'property',
+      property: {
+        type: ':nested',
+        root: 'nested.js'
       }
     },
     {

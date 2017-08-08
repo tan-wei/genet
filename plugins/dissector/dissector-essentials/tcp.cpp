@@ -44,6 +44,7 @@ const auto selAckToken = Token_get("selAck");
 const auto tsToken = Token_get("ts");
 const auto mtToken = Token_get("mt");
 const auto etToken = Token_get("et");
+const auto nestedToken = Token_get(":nested");
 
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   Reader reader;
@@ -113,6 +114,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
     Variant_setBool(Property_valueRef(flagBit), on);
     Property_setRange(flagBit, reader.lastRange);
   }
+  Property_setType(flags, nestedToken);
   Property_setRange(flags, Range{12, 14});
 
   Property *window = Layer_addProperty(child, windowToken);
@@ -128,6 +130,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   Property_setRange(urgent, reader.lastRange);
 
   Property *options = Layer_addProperty(child, optionsToken);
+  Property_setType(options, nestedToken);
   Property_setRange(options, reader.lastRange);
 
   size_t optionDataOffset = dataOffset * 4;

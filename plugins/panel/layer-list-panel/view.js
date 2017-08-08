@@ -103,7 +103,7 @@ class PropertyItem {
       <label
         onclick={ () => this.expanded = !this.expanded }
       ><i class={faClass}></i> { name }: </label>
-      { m(propRenderer ? propRenderer : PropertyValueItem, {prop}) }
+      { m(propRenderer ? propRenderer : PropertyValueItem, {prop, path: vnode.attrs.path}) }
       <label
       class="error"
       style={{ display: prop.error ? 'inline' : 'none' }}
