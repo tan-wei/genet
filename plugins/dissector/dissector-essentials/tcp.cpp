@@ -60,33 +60,12 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   uint16_t sourcePort = Reader_readUint16BE(&reader);
   Property *src = Layer_addProperty(child, srcToken);
   Variant_setUint64(Property_valueRef(src), sourcePort);
-  //       src->setSummary(parentSrc->summary() + ":" +
-  //       std::to_string(sourcePort));
   Property_setRange(src, reader.lastRange);
 
   uint16_t dstPort = Reader_readUint16BE(&reader);
   Property *dst = Layer_addProperty(child, dstToken);
   Variant_setUint64(Property_valueRef(dst), dstPort);
-  //       dst->setSummary(parentDst->summary() + ":" +
-  //       std::to_string(dstPort));
   Property_setRange(dst, reader.lastRange);
-
-  /*
-        const std::string &summary =
-            (src->summary() > dst->summary())
-                ? src->summary() + " -> " + dst->summary()
-                : dst->summary() + " <- " + src->summary();
-        child->setSummary(summary);
-  size_t size = summary.copy(meta->streamIdentifier,
-                             sizeof(meta->streamIdentifier) - 1);
-
-  for (size_t i = 0; i < size; ++i) {
-    char &c = meta->streamIdentifier[i];
-    if (c == '<' || c == '>' || c == '-')
-      c = ' ';
-  }
-  meta->streamIdentifier[size] = '\0';
-  */
 
   uint32_t seqNumber = Reader_readUint32BE(&reader);
   Property *seq = Layer_addProperty(child, seqToken);

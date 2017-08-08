@@ -32,15 +32,11 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   uint16_t sourcePort = Reader_readUint16BE(&reader);
   Property *src = Layer_addProperty(child, srcToken);
   Variant_setUint64(Property_valueRef(src), sourcePort);
-  //       src->setSummary(parentSrc->summary() + ":" +
-  //       std::to_string(sourcePort));
   Property_setRange(src, reader.lastRange);
 
   uint16_t dstPort = Reader_readUint16BE(&reader);
   Property *dst = Layer_addProperty(child, dstToken);
   Variant_setUint64(Property_valueRef(dst), dstPort);
-  //       dst->setSummary(parentDst->summary() + ":" +
-  //       std::to_string(dstPort));
   Property_setRange(dst, reader.lastRange);
 
   uint32_t lengthNumber = Reader_readUint16BE(&reader);
@@ -53,9 +49,6 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   Variant_setUint64(Property_valueRef(checksum), checksumNumber);
   Property_setRange(checksum, reader.lastRange);
 
-  /*
-        child->setSummary(src->summary() + " -> " + dst->summary());
-        */
   Layer_addPayload(child, Reader_slice(&reader, 0, lengthNumber - 8));
 }
 }

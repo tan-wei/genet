@@ -130,14 +130,6 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
     Layer_addTag(child, it->second);
   }
 
-  /*
-        const std::string &summary =
-            (src->summary() > dst->summary())
-                ? src->summary() + " -> " + dst->summary()
-                : dst->summary() + " <- " + src->summary();
-
-        child->setSummary("[" + proto->summary() + "] " + summary);
-        */
   Layer_addPayload(child, Reader_sliceAll(&reader, 0));
 }
 }
