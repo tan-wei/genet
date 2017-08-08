@@ -12,11 +12,11 @@ Plugin.listPlugins()
   const tasks = []
   for (const plugin of list) {
     for (const comp of plugin.compList) {
-      if (comp.type === 'dissector') {
+      if (comp.type === 'core:dissector') {
         const dissector =
           new DissectorComponent(plugin.rootDir, plugin.pkg, comp)
         tasks.push(dissector.load())
-      } else if (comp.type === 'stream-dissector') {
+      } else if (comp.type === 'core:stream-dissector') {
         const dissector =
           new StreamDissectorComponent(plugin.rootDir, plugin.pkg, comp)
         tasks.push(dissector.load())

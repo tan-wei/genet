@@ -1,7 +1,7 @@
 export default {
   components: [
     {
-      type: 'theme',
+      type: 'core:theme',
       theme: {
         less: 'theme.less',
         id: 'default',

@@ -1,7 +1,7 @@
 export default {
   components: [
     {
-      type: 'file',
+      type: 'core:file',
       file: {
         name: 'Pcap',
         extensions: ['pcap'],

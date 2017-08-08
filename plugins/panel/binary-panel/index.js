@@ -1,7 +1,7 @@
 export default {
   components: [
     {
-      type: 'panel',
+      type: 'core:panel',
       panel: {
         name: 'Binary',
         slot: 'core:pcap:bottom',

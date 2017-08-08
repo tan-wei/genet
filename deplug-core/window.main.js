@@ -6,11 +6,11 @@ const { dialog } = remote
 export default async function (profile, argv) {
   try {
     const { File, PluginLoader, GlobalChannel } = await deplug(profile, argv)
-    await PluginLoader.loadComponents('theme')
-    await PluginLoader.loadComponents('file')
-    await PluginLoader.loadComponents('window')
-    await PluginLoader.loadComponents('menu')
-    await PluginLoader.loadComponents('tab')
+    await PluginLoader.loadComponents('core:theme')
+    await PluginLoader.loadComponents('core:file')
+    await PluginLoader.loadComponents('core:window')
+    await PluginLoader.loadComponents('core:menu')
+    await PluginLoader.loadComponents('core:tab')
     GlobalChannel.emit('core:window:loaded')
     process.nextTick(() => {
       if (process.platform === 'darwin' && !Pcap.permission) {

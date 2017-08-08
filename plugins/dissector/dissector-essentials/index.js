@@ -1,7 +1,7 @@
 export default {
   components: [
     {
-      type: 'dissector',
+      type: 'core:dissector',
       dissector: {
         main: 'build/Release/ethernet.node',
         linkLayers: [
@@ -30,7 +30,7 @@ export default {
       }
     },
     {
-      type: 'dissector',
+      type: 'core:dissector',
       dissector: {
         main: 'build/Release/ipv4.node',
         samples: [
@@ -89,21 +89,21 @@ export default {
       }
     },
     {
-      type: 'property',
+      type: 'core:property',
       property: {
         type: ':ipv4:addr',
         root: 'ipv4-addr.js'
       }
     },
     {
-      type: 'property',
+      type: 'core:property',
       property: {
         type: ':nested',
         root: 'nested.js'
       }
     },
     {
-      type: 'dissector',
+      type: 'core:dissector',
       dissector: {
         main: 'build/Release/ipv6.node',
         descriptors: {
@@ -141,7 +141,7 @@ export default {
       }
     },
     {
-      type: 'dissector',
+      type: 'core:dissector',
       dissector: {
         main: 'build/Release/udp.node',
         samples: [
@@ -167,7 +167,7 @@ export default {
       }
     },
     {
-      type: 'dissector',
+      type: 'core:dissector',
       dissector: {
         main: 'build/Release/tcp.node',
         descriptors: {
@@ -247,7 +247,7 @@ export default {
       }
     },
     {
-      type: 'stream-dissector',
+      type: 'core:stream-dissector',
       stream_dissector: {
         main: 'build/Release/tcp-stream.node',
         descriptors: {

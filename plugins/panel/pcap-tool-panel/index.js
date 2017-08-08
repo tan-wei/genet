@@ -1,7 +1,7 @@
 export default {
   components: [
     {
-      type: 'panel',
+      type: 'core:panel',
       panel: {
         name: 'Pcap tools',
         slot: 'core:pcap:tool',

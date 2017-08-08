@@ -12,25 +12,25 @@ import WindowComponent from './window'
 export default class ComponentFactory {
   static create (rootDir, pkg, comp) {
     switch (comp.type) {
-      case 'panel':
+      case 'core:panel':
         return new PanelComponent(rootDir, pkg, comp)
-      case 'tab':
+      case 'core:tab':
         return new TabComponent(rootDir, pkg, comp)
-      case 'theme':
+      case 'core:theme':
         return new ThemeComponent(rootDir, pkg, comp)
-      case 'window':
+      case 'core:window':
         return new WindowComponent(rootDir, pkg, comp)
-      case 'dissector':
+      case 'core:dissector':
         return new DissectorComponent(rootDir, pkg, comp)
-      case 'stream-dissector':
+      case 'core:stream-dissector':
         return new StreamDissectorComponent(rootDir, pkg, comp)
-      case 'menu':
+      case 'core:menu':
         return new MenuComponent(rootDir, pkg, comp)
-      case 'script':
+      case 'core:script':
         return new ScriptComponent(rootDir, pkg, comp)
-      case 'file':
+      case 'core:file':
         return new FileComponent(rootDir, pkg, comp)
-      case 'property':
+      case 'core:property':
         return new PropertyComponent(rootDir, pkg, comp)
       default:
         throw new Error(`unknown component type: ${comp.type}`)

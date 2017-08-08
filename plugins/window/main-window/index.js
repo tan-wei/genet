@@ -1,14 +1,14 @@
 export default {
   components: [
     {
-      type: 'window',
+      type: 'core:window',
       window: {
         less: 'theme.less',
         root: 'view.js'
       }
     },
     {
-      type: 'menu',
+      type: 'core:menu',
       menu: {
         root: 'menu.js'
       }

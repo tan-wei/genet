@@ -40,6 +40,6 @@ export default async function (profile, argv) {
   }
   /* eslint-enable no-underscore-dangle */
 
-  await PluginLoader.loadComponents('theme')
+  await PluginLoader.loadComponents('core:theme')
   return deplug
 }

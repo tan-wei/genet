@@ -41,8 +41,8 @@ async function init (profile, argv, tab) {
     const { options, id } = tab
     const { rootDir } = tab.tab
     await Promise.all([
-      PluginLoader.loadComponents('theme'),
-      PluginLoader.loadComponents('file')
+      PluginLoader.loadComponents('core:theme'),
+      PluginLoader.loadComponents('core:file')
     ])
 
     const less = tab.tab.less || ''
@@ -66,8 +66,8 @@ async function init (profile, argv, tab) {
     Reflect.defineProperty(Tab, 'options', { value: options })
     Reflect.defineProperty(Tab, 'id', { value: id })
 
-    await PluginLoader.loadComponents('property')
-    await PluginLoader.loadComponents('panel')
+    await PluginLoader.loadComponents('core:property')
+    await PluginLoader.loadComponents('core:panel')
 
     const root = tab.tab.root || ''
     if (root !== '') {
@@ -78,7 +78,7 @@ async function init (profile, argv, tab) {
       mithril.mount(document.body, module.exports)
     }
 
-    await PluginLoader.loadComponents('script')
+    await PluginLoader.loadComponents('core:script')
 
   } catch (err) {
     remote.getCurrentWebContents().openDevTools()

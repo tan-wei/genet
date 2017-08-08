@@ -1,7 +1,7 @@
 export default {
   components: [
     {
-      type: 'tab',
+      type: 'core:tab',
       tab: {
         name: 'Preferences',
         template: 'Preferences',
