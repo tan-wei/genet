@@ -109,9 +109,13 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   uint8_t protocolNumber = Reader_readUint8(&reader);
   Property *proto = Layer_addProperty(child, protocolToken);
   Variant_setUint64(Property_valueRef(proto), protocolNumber);
+  Property_setType(proto, nestedToken);
   Property_setRange(proto, reader.lastRange);
   const auto &it = protoTable.find(protocolNumber);
   if (it != protoTable.end()) {
+    Property *sub = Property_addProperty(proto, it->second);
+    Variant_setBool(Property_valueRef(sub), true);
+    Property_setRange(sub, reader.lastRange);
     Layer_addTag(child, it->second);
   }
 

@@ -32,6 +32,7 @@ const auto dstToken = Token_get("dst");
 const auto hbyhToken = Token_get("hbyh");
 const auto protocolToken = Token_get("protocol");
 const auto ipv6AddrToken = Token_get(":ipv6:addr");
+const auto nestedToken = Token_get(":nested");
 
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   Reader reader;
@@ -119,9 +120,13 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   uint8_t protocolNumber = nextHeader;
   Property *proto = Layer_addProperty(child, protocolToken);
   Variant_setUint64(Property_valueRef(proto), protocolNumber);
+  Property_setType(proto, nestedToken);
   Property_setRange(proto, reader.lastRange);
   const auto &it = protoTable.find(protocolNumber);
   if (it != protoTable.end()) {
+    Property *sub = Property_addProperty(proto, it->second);
+    Variant_setBool(Property_valueRef(sub), true);
+    Property_setRange(sub, reader.lastRange);
     Layer_addTag(child, it->second);
   }
 
