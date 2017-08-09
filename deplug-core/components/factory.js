@@ -4,7 +4,6 @@ import MenuComponent from './menu'
 import PanelComponent from './panel'
 import RendererComponent from './renderer'
 import ScriptComponent from './script'
-import StreamDissectorComponent from './stream-dissector'
 import TabComponent from './tab'
 import ThemeComponent from './theme'
 import WindowComponent from './window'
@@ -22,8 +21,6 @@ export default class ComponentFactory {
         return new WindowComponent(rootDir, pkg, comp)
       case 'core:dissector':
         return new DissectorComponent(rootDir, pkg, comp)
-      case 'core:stream-dissector':
-        return new StreamDissectorComponent(rootDir, pkg, comp)
       case 'core:menu':
         return new MenuComponent(rootDir, pkg, comp)
       case 'core:script':

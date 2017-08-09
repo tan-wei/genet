@@ -1,7 +1,6 @@
 import DissectorComponent from './components/dissector'
 import Plugin from './plugin'
 import Session from './session'
-import StreamDissectorComponent from './components/stream-dissector'
 import assert from 'assert'
 import objpath from 'object-path'
 
@@ -13,10 +12,6 @@ Plugin.listPlugins()
       if (comp.type === 'core:dissector') {
         const dissector =
           new DissectorComponent(plugin.rootDir, plugin.pkg, comp)
-        tasks.push(dissector.load())
-      } else if (comp.type === 'core:stream-dissector') {
-        const dissector =
-          new StreamDissectorComponent(plugin.rootDir, plugin.pkg, comp)
         tasks.push(dissector.load())
       }
     }
