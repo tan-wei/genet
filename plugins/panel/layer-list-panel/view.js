@@ -124,6 +124,14 @@ class PropertyItem {
   }
 }
 
+class LayerDefaultItem {
+  view (vnode) {
+    return <span> {vnode.attrs.layer.id} </span>
+  }
+}
+
+Renderer.registerLayer('', LayerDefaultItem)
+
 class LayerItem {
   constructor() {
     this.expanded = false
@@ -165,7 +173,7 @@ class LayerItem {
         <h4
           data-layer={layer.tags.join(' ')}
           onclick={ () => this.expanded = !this.expanded }
-        ><i class={faClass}></i> { name } { layerRenderer ? m(layerRenderer, {layer}) : '' }
+        ><i class={faClass}></i> { name } { m(layerRenderer, {layer}) }
         <span
         style={{ display: layer.streamId > 0 ? 'inline' : 'none' }}
         ><i class="fa fa-exchange"></i> Stream</span>

@@ -89,23 +89,26 @@ export default {
       }
     },
     {
-      type: 'core:property',
-      property: {
-        type: ':ipv4:addr',
+      type: 'core:renderer',
+      renderer: {
+        type: 'property',
+        id: ':ipv4:addr',
         root: 'ipv4-addr.js'
       }
     },
     {
-      type: 'core:property',
-      property: {
-        type: ':nested',
+      type: 'core:renderer',
+      renderer: {
+        type: 'property',
+        id: ':nested',
         root: 'nested.js'
       }
     },
     {
-      type: 'core:property',
-      property: {
-        type: 'ipv4',
+      type: 'core:renderer',
+      renderer: {
+        type: 'layer',
+        id: 'ipv4',
         root: 'ipv4-summary.js'
       }
     },

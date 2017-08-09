@@ -32,7 +32,7 @@ export default class Session {
   static addSample (samp) {
     samples.push(samp)
   }
-  
+
   static get dissectors () {
     return dissectors
   }

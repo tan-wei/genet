@@ -43,7 +43,7 @@ class FrameItem {
       <div class="frame-column">{src ? src.summary : ''}</div>
       <div class="frame-column">{dst ? dst.summary : ''}</div>
       <div class="frame-column">{this.frame.length}</div>
-      <div class="frame-column">{ layerRenderer ? m(layerRenderer, {layer: this.frame.primaryLayer}) : '' }</div>
+      <div class="frame-column">{ m(layerRenderer, {layer: this.frame.primaryLayer}) }</div>
     </div>
   }
 }
