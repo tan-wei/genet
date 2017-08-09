@@ -1,5 +1,5 @@
 import Component from './base'
-import Session from '../session'
+import Renderer from '../renderer'
 import objpath from 'object-path'
 import path from 'path'
 import roll from '../roll'
@@ -20,6 +20,6 @@ export default class PropertyComponent extends Component {
     const func = await roll(rootFile, this.rootDir, this.localExtern)
     const module = {}
     func(module)
-    Session.registerProperty(type, module.exports)
+    Renderer.registerProperty(type, module.exports)
   }
 }

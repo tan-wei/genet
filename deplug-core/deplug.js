@@ -6,6 +6,7 @@ import Panel from './panel'
 import Plugin from './plugin'
 import PluginLoader from './plugin-loader'
 import Profile from './profile'
+import Renderer from './renderer'
 import Session from './session'
 import Tab from './tab'
 import Theme from './theme'
@@ -25,6 +26,7 @@ export default async function (profile, argv) {
     PluginLoader,
     Plugin,
     Profile,
+    Renderer,
     Session,
     Tab,
     Theme,

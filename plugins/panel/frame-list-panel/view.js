@@ -1,7 +1,7 @@
 import throttle from 'lodash.throttle'
 import m from 'mithril'
 import { Token } from 'plugkit'
-import { Channel, Panel, Profile, Session, Tab } from 'deplug'
+import { Channel, Panel, Profile, Session, Renderer, Tab } from 'deplug'
 
 class FrameItem {
   constructor() {
@@ -24,7 +24,7 @@ class FrameItem {
     const dst = this.frame.propertyFromId('dst')
     const id = Token.string(this.frame.primaryLayer.id)
     const name = (id in Session.descriptors) ? Session.descriptors[id].name : 'Unknown'
-    const layerRenderer = Session.properties[id]
+    const layerRenderer = Renderer.forLayer(id)
     return <div
       class="frame-item"
       data-layer={this.frame.primaryLayer.tags.join(' ')}

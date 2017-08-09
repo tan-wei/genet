@@ -1,7 +1,7 @@
 import m from 'mithril'
 import moment from 'moment'
 import { Token } from 'plugkit'
-import { Channel, Profile, Session } from 'deplug'
+import { Channel, Profile, Session, Renderer } from 'deplug'
 import Buffer from 'buffer'
 
 class BooleanValueItem {
@@ -72,6 +72,8 @@ class PropertyValueItem {
   }
 }
 
+Renderer.registerProperty('', PropertyValueItem)
+
 function selectRange(range = []) {
   Channel.emit('core:frame:range-selected', range)
 }
@@ -94,7 +96,7 @@ class PropertyItem {
     ]
     const name = (vnode.attrs.path in Session.descriptors) ?
       Session.descriptors[vnode.attrs.path].name : Token.string(prop.id)
-    const propRenderer = Session.properties[Token.string(prop.type)]
+    const propRenderer = Renderer.forProperty(Token.string(prop.type))
     return <li
         data-range={ `${range[0]}:${range[1]}` }
         onmouseover={ () => selectRange(range) }
@@ -103,7 +105,7 @@ class PropertyItem {
       <label
         onclick={ () => this.expanded = !this.expanded }
       ><i class={faClass}></i> { name }: </label>
-      { m(propRenderer ? propRenderer : PropertyValueItem, {prop, path: vnode.attrs.path}) }
+      { m(propRenderer, {prop, path: vnode.attrs.path}) }
       <label
       class="error"
       style={{ display: prop.error ? 'inline' : 'none' }}
@@ -153,7 +155,7 @@ class LayerItem {
     const layerId = Token.string(layer.id)
     const name = (layerId in Session.descriptors) ?
       Session.descriptors[layerId].name : layerId
-    const layerRenderer = Session.properties[layerId]
+    const layerRenderer = Renderer.forLayer(layerId)
     return <ul>
       <li
         data-range={ `${range[0]}:${range[1]}` }
