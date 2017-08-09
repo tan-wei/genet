@@ -153,6 +153,7 @@ class LayerItem {
     const layerId = Token.string(layer.id)
     const name = (layerId in Session.descriptors) ?
       Session.descriptors[layerId].name : layerId
+    const layerRenderer = Session.properties[layerId]
     return <ul>
       <li
         data-range={ `${range[0]}:${range[1]}` }
@@ -162,7 +163,7 @@ class LayerItem {
         <h4
           data-layer={layer.tags.join(' ')}
           onclick={ () => this.expanded = !this.expanded }
-        ><i class={faClass}></i> { name } { layer.summary }
+        ><i class={faClass}></i> { name } { layerRenderer ? m(layerRenderer, {layer}) : '' }
         <span
         style={{ display: layer.streamId > 0 ? 'inline' : 'none' }}
         ><i class="fa fa-exchange"></i> Stream</span>

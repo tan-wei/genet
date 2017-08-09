@@ -103,6 +103,13 @@ export default {
       }
     },
     {
+      type: 'core:property',
+      property: {
+        type: 'ipv4',
+        root: 'ipv4-summary.js'
+      }
+    },
+    {
       type: 'core:dissector',
       dissector: {
         main: 'build/Release/ipv6.node',

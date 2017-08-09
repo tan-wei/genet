@@ -24,6 +24,7 @@ class FrameItem {
     const dst = this.frame.propertyFromId('dst')
     const id = Token.string(this.frame.primaryLayer.id)
     const name = (id in Session.descriptors) ? Session.descriptors[id].name : 'Unknown'
+    const layerRenderer = Session.properties[id]
     return <div
       class="frame-item"
       data-layer={this.frame.primaryLayer.tags.join(' ')}
@@ -42,7 +43,7 @@ class FrameItem {
       <div class="frame-column">{src ? src.summary : ''}</div>
       <div class="frame-column">{dst ? dst.summary : ''}</div>
       <div class="frame-column">{this.frame.length}</div>
-      <div class="frame-column">{this.frame.primaryLayer.summary}</div>
+      <div class="frame-column">{ layerRenderer ? m(layerRenderer, {layer: this.frame.primaryLayer}) : '' }</div>
     </div>
   }
 }
