@@ -126,7 +126,12 @@ class PropertyItem {
 
 class LayerDefaultItem {
   view (vnode) {
-    return <span> {vnode.attrs.layer.id} </span>
+    const layer = vnode.attrs.layer
+    const src = layer.propertyFromId('src')
+    const dst = layer.propertyFromId('dst')
+    const srcRenderer = Renderer.forProperty(Token.string(src.type))
+    const dstRenderer = Renderer.forProperty(Token.string(dst.type))
+    return <span> { m(srcRenderer, {prop: src}) } -> { m(dstRenderer, {prop: dst}) } </span>
   }
 }
 
