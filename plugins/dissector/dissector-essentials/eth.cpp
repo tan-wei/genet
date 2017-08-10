@@ -18,6 +18,7 @@ const auto srcToken = Token_get("src");
 const auto dstToken = Token_get("dst");
 const auto lenToken = Token_get("len");
 const auto ethTypeToken = Token_get("ethType");
+const auto macToken = Token_get(":mac");
 
 static const std::unordered_map<uint16_t, Token> typeTable = {
     {0x0800, Token_get("[ipv4]")}, {0x86DD, Token_get("[ipv6]")},
@@ -34,11 +35,13 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   const auto &srcSlice = Reader_slice(&reader, 0, 6);
   Property *src = Layer_addProperty(child, srcToken);
   Variant_setSlice(Property_valueRef(src), srcSlice);
+  Property_setType(src, macToken);
   Property_setRange(src, reader.lastRange);
 
   const auto &dstSlice = Reader_slice(&reader, 0, 6);
   Property *dst = Layer_addProperty(child, dstToken);
   Variant_setSlice(Property_valueRef(dst), dstSlice);
+  Property_setType(dst, macToken);
   Property_setRange(dst, reader.lastRange);
 
   auto protocolType = Reader_readUint16BE(&reader);
