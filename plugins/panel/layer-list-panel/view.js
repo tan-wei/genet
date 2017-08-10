@@ -51,7 +51,7 @@ class ObjectValueItem {
   }
 }
 
-struct PropertyValueItem {
+class PropertyValueItem {
   view(vnode) {
     const prop = vnode.attrs.prop
     if (typeof prop.value === 'boolean') {
@@ -78,7 +78,7 @@ function selectRange(range = []) {
   Channel.emit('core:frame:range-selected', range)
 }
 
-struct PropertyItem {
+class PropertyItem {
   constructor() {
     this.expanded = false
   }
@@ -124,7 +124,7 @@ struct PropertyItem {
   }
 }
 
-struct LayerDefaultItem {
+class LayerDefaultItem {
   view (vnode) {
     const layer = vnode.attrs.layer
     const src = layer.propertyFromId('src')
@@ -137,7 +137,7 @@ struct LayerDefaultItem {
 
 Renderer.registerLayer('', LayerDefaultItem)
 
-struct LayerItem {
+class LayerItem {
   constructor() {
     this.expanded = false
   }
@@ -211,7 +211,7 @@ struct LayerItem {
   }
 }
 
-export default struct LayerListView {
+export default class LayerListView {
   constructor() {
     this.frames = []
     Channel.on('core:frame:selected', (frames) => {
