@@ -20,10 +20,21 @@ Token Token_get(const char *str) {
   if (str == nullptr || str[0] == '\0') {
     return Token_null();
   }
+
   size_t len = std::strlen(str);
-  if (in_word_set(str, len)) {
-    return hash(str, len) + 1;
+  if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH) {
+    unsigned int key = hash(str, len);
+    if (key <= MAX_HASH_VALUE) {
+      const char *s = wordlist[key];
+      if (strcmp(str, s) == 0) {
+        return key + 1;
+      }
+    }
   }
+  if (false) {
+    in_word_set(nullptr, 0);
+  }
+
   std::lock_guard<std::mutex> lock(mutex);
   const std::string &key = str;
   auto it = map.find(key);
