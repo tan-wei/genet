@@ -31,6 +31,14 @@ export default {
       }
     },
     {
+      type: 'core:renderer',
+      renderer: {
+        type: 'property',
+        id: ':eth:mac',
+        root: 'mac-addr.js'
+      }
+    },
+    {
       type: 'core:dissector',
       dissector: {
         main: 'build/Release/ipv4.node',
