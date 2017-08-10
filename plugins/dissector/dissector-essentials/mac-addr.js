@@ -7,7 +7,7 @@ export default class MACAddr {
 
   view(vnode) {
     const value = vnode.attrs.prop.value
-    const addr = value.map((byte) => {
+    const addr = value.toJSON().data.map((byte) => {
       return ("0" + byte.toString(16)).slice(-2)
     }).join(':')
     return <span>{ addr }</span>
