@@ -8,9 +8,9 @@
 namespace plugkit {
 
 class Frame;
-class Layer;
+struct Layer;
 
-class Variant;
+struct Variant;
 
 struct Dissector;
 

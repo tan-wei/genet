@@ -5,12 +5,13 @@
 #include "range.h"
 #include "export.h"
 
-extern "C" {
+PLUGKIT_NAMESPACE_BEGIN
 
-namespace plugkit {
+struct Variant;
+typedef struct Variant Variant;
 
-class Variant;
-class Property;
+struct Property;
+typedef struct Property Property;
 
 /// Gets id
 PLUGKIT_EXPORT Token Property_id(const Property *prop);
@@ -41,7 +42,7 @@ PLUGKIT_EXPORT const Variant *Property_value(const Property *prop);
 
 /// Gets value as a mutable pointer
 PLUGKIT_EXPORT Variant *Property_valueRef(Property *prop);
-}
-}
+
+PLUGKIT_NAMESPACE_END
 
 #endif

@@ -6,7 +6,7 @@
 
 namespace plugkit {
 
-class Layer;
+struct Layer;
 
 class LayerWrapper final : public Nan::ObjectWrap {
 public:

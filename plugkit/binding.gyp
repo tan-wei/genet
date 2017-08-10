@@ -41,6 +41,7 @@
          "src/slice.cpp",
          "src/reader.cpp",
          "src/tag_filter.cpp",
+         "src/dummy.c",
          "vendor/json11/json11.cpp"
       ]
    },

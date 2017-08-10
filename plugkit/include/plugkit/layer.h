@@ -7,13 +7,16 @@
 #include "slice.h"
 #include "export.h"
 
-extern "C" {
+PLUGKIT_NAMESPACE_BEGIN
 
-namespace plugkit {
+struct Layer;
+typedef struct Layer Layer;
 
-class Layer;
-class Payload;
-class Property;
+struct Payload;
+typedef struct Payload Payload;
+
+struct Property;
+typedef struct Property Property;
 
 /// Gets id
 PLUGKIT_EXPORT Token Layer_id(const Layer *layer);
@@ -49,7 +52,7 @@ PLUGKIT_EXPORT const Payload *const *Layer_payloads(const Layer *layer,
 
 /// Adds a layer tag
 PLUGKIT_EXPORT void Layer_addTag(Layer *layer, Token tag);
-}
-}
+
+PLUGKIT_NAMESPACE_END
 
 #endif

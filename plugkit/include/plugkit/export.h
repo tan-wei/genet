@@ -7,3 +7,15 @@
 #else
 #define PLUGKIT_EXPORT
 #endif
+
+#ifdef __cplusplus
+#define PLUGKIT_NAMESPACE_BEGIN                                                \
+  extern "C" {                                                                 \
+  namespace plugkit {
+#define PLUGKIT_NAMESPACE_END                                                  \
+  }                                                                            \
+  }
+#else
+#define PLUGKIT_NAMESPACE_BEGIN
+#define PLUGKIT_NAMESPACE_END
+#endif

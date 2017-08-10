@@ -3,13 +3,10 @@
 #ifndef PLUGKIT_TOKEN_H
 #define PLUGKIT_TOKEN_H
 
-#include <cstdint>
+#include <stdint.h>
 #include "export.h"
 
-extern "C" {
-
-/// plugkit
-namespace plugkit {
+PLUGKIT_NAMESPACE_BEGIN
 
 typedef uint32_t Token;
 
@@ -30,7 +27,7 @@ PLUGKIT_EXPORT Token Token_null();
 ///
 /// @remarks This function is thread-safe.
 PLUGKIT_EXPORT const char *Token_string(Token token);
-}
-}
+
+PLUGKIT_NAMESPACE_END
 
 #endif

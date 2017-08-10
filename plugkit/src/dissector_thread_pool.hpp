@@ -15,7 +15,7 @@ class Frame;
 
 struct Dissector;
 
-class Variant;
+struct Variant;
 
 class DissectorThreadPool final {
 public:

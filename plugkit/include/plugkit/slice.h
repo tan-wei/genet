@@ -3,20 +3,19 @@
 #ifndef PLUGKIT_VIEW_H
 #define PLUGKIT_VIEW_H
 
-#include <cstddef>
-#include <cstdint>
+#include <stddef.h>
+#include <stdint.h>
 #include "export.h"
 
-extern "C" {
-
-namespace plugkit {
+PLUGKIT_NAMESPACE_BEGIN
 
 struct Error;
+typedef struct Error Error;
 
-struct Slice {
+typedef struct Slice {
   const char *begin;
   const char *end;
-};
+} Slice;
 
 PLUGKIT_EXPORT size_t Slice_length(Slice slice);
 PLUGKIT_EXPORT Slice Slice_slice(Slice slice, size_t offset, size_t length);
@@ -62,7 +61,7 @@ PLUGKIT_EXPORT float Slice_readFloat32LE(Slice slice, size_t offset,
                                          Error *err);
 PLUGKIT_EXPORT double Slice_readFloat64LE(Slice slice, size_t offset,
                                           Error *err);
-}
-}
+
+PLUGKIT_NAMESPACE_END
 
 #endif

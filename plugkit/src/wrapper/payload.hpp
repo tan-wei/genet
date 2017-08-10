@@ -6,9 +6,9 @@
 
 namespace plugkit {
 
-class Payload;
+struct Payload;
 
-class PayloadWrapper final : public Nan::ObjectWrap {
+struct PayloadWrapper final : public Nan::ObjectWrap {
 public:
   static void init(v8::Isolate *isolate);
   static v8::Local<v8::Object> wrap(const Payload *prop);

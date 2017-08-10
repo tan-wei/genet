@@ -6,15 +6,13 @@
 #include "error.h"
 #include "export.h"
 
-extern "C" {
+PLUGKIT_NAMESPACE_BEGIN
 
-namespace plugkit {
-
-struct Reader {
+typedef struct Reader {
   Slice slice;
   Range lastRange;
   Error lastError;
-};
+} Reader;
 
 /// Clears Reader's state
 PLUGKIT_EXPORT void Reader_reset(Reader *reader);
@@ -45,7 +43,7 @@ PLUGKIT_EXPORT int64_t Reader_readInt64LE(Reader *reader);
 
 PLUGKIT_EXPORT float Reader_readFloat32LE(Reader *reader);
 PLUGKIT_EXPORT double Reader_readFloat64LE(Reader *reader);
-}
-}
+
+PLUGKIT_NAMESPACE_END
 
 #endif

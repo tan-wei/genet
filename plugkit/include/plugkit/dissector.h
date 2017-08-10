@@ -2,18 +2,22 @@
 #define PLUGKIT_DISSECTOR_H
 
 #include "token.h"
+#include <stdbool.h>
 
-extern "C" {
+PLUGKIT_NAMESPACE_BEGIN
 
-namespace plugkit {
+struct Layer;
+typedef struct Layer Layer;
 
-class Layer;
-
-class Context;
+struct Context;
+typedef struct Context Context;
 
 typedef void Worker;
 
-enum DissectorType { DISSECTOR_PACKET = 0, DISSECTOR_STREAM = 1 };
+typedef enum DissectorType {
+  DISSECTOR_PACKET = 0,
+  DISSECTOR_STREAM = 1
+} DissectorType;
 
 struct Dissector {
   void (*analyze)(Context *ctx, Worker *worker, Layer *layer);
@@ -22,7 +26,7 @@ struct Dissector {
   Token layerHints[8];
   DissectorType type;
 };
-}
-}
+
+PLUGKIT_NAMESPACE_END
 
 #endif

@@ -10,8 +10,8 @@ namespace plugkit {
 
 class Frame;
 class FrameView;
-class Layer;
-class Property;
+struct Layer;
+struct Property;
 
 class PLUGKIT_EXPORT FrameView final {
 public:

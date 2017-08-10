@@ -12,7 +12,7 @@
 
 namespace plugkit {
 
-class PLUGKIT_EXPORT Variant final {
+struct PLUGKIT_EXPORT Variant final {
 public:
   enum Type {
     TYPE_NIL,

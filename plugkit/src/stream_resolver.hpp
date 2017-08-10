@@ -6,7 +6,7 @@
 
 namespace plugkit {
 
-class Layer;
+struct Layer;
 
 class StreamResolver {
 public:

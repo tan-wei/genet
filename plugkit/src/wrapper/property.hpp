@@ -6,9 +6,9 @@
 
 namespace plugkit {
 
-class Property;
+struct Property;
 
-class PropertyWrapper final : public Nan::ObjectWrap {
+struct PropertyWrapper final : public Nan::ObjectWrap {
 public:
   static void init(v8::Isolate *isolate, v8::Local<v8::Object> exports);
   static v8::Local<v8::Object> wrap(const Property *prop);

@@ -11,7 +11,7 @@
 
 namespace plugkit {
 
-class PLUGKIT_EXPORT Layer final {
+struct PLUGKIT_EXPORT Layer final {
 public:
   Layer(Token id);
   ~Layer();

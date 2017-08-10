@@ -16,7 +16,7 @@ class Frame;
 class FrameStore;
 using FrameStorePtr = std::shared_ptr<FrameStore>;
 
-class Variant;
+struct Variant;
 
 struct Dissector;
 

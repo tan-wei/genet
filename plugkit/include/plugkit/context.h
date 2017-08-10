@@ -1,16 +1,19 @@
 #ifndef PLUGKIT_CONTEXT_H
 #define PLUGKIT_CONTEXT_H
 
-#include <cstddef>
+#include <stddef.h>
 #include "export.h"
 
-extern "C" {
+PLUGKIT_NAMESPACE_BEGIN
 
-namespace plugkit {
+struct Variant;
+typedef struct Variant Variant;
 
-class Variant;
-class Layer;
-class Context;
+struct Layer;
+typedef struct Layer Layer;
+
+struct Context;
+typedef struct Context Context;
 
 /// Gets options.
 PLUGKIT_EXPORT const Variant *Context_options(Context *ctx);
@@ -20,7 +23,7 @@ PLUGKIT_EXPORT const Variant *Context_options(Context *ctx);
 /// @remarks This function can be used only in analyze().
 PLUGKIT_EXPORT void Context_addStreamIdentifier(Context *ctx, Layer *layer,
                                                 const char *str);
-}
-}
+
+PLUGKIT_NAMESPACE_END
 
 #endif

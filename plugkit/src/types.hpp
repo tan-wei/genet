@@ -5,11 +5,11 @@
 #include <memory>
 
 namespace plugkit {
-class Layer;
-class Property;
+struct Layer;
+struct Property;
 class Frame;
 class FrameView;
-class Payload;
+struct Payload;
 class Plugin;
 struct SessionContext;
 

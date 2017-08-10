@@ -15,7 +15,7 @@ using FrameQueuePtr = std::shared_ptr<FrameQueue>;
 class StreamResolver;
 using StreamResolverPtr = std::shared_ptr<StreamResolver>;
 
-class Variant;
+struct Variant;
 
 struct Dissector;
 

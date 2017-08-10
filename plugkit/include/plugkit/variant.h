@@ -1,15 +1,15 @@
 #ifndef PLUGKIT_VARIANT_H
 #define PLUGKIT_VARIANT_H
 
-#include <cstdint>
+#include <stdint.h>
+#include <stdbool.h>
 #include "slice.h"
 #include "export.h"
 
-extern "C" {
+PLUGKIT_NAMESPACE_BEGIN
 
-namespace plugkit {
-
-class Variant;
+struct Variant;
+typedef struct Variant Variant;
 
 /// Gets a boolean value
 PLUGKIT_EXPORT bool Variant_bool(const Variant *var);
@@ -46,7 +46,7 @@ PLUGKIT_EXPORT Slice Variant_slice(const Variant *var);
 
 /// Sets a slice value
 PLUGKIT_EXPORT void Variant_setSlice(Variant *var, Slice slice);
-}
-}
+
+PLUGKIT_NAMESPACE_END
 
 #endif

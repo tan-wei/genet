@@ -10,7 +10,7 @@
 
 namespace plugkit {
 
-class PLUGKIT_EXPORT Property final {
+struct PLUGKIT_EXPORT Property final {
 public:
   Property(Token id, const Variant &value = Variant());
   ~Property();

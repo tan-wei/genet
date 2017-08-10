@@ -5,15 +5,13 @@
 
 #include "token.h"
 
-extern "C" {
-
-namespace plugkit {
+PLUGKIT_NAMESPACE_BEGIN
 
 struct Error {
   /// Predefined error type
   Token type;
 };
-}
-}
+
+PLUGKIT_NAMESPACE_END
 
 #endif
