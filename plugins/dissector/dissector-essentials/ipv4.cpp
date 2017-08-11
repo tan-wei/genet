@@ -13,32 +13,34 @@ using namespace plugkit;
 
 namespace {
 
-const std::tuple<uint16_t, const char *, Token> flagTable[] = {
-    std::make_tuple(0x1, "Reserved", Token_get("reserved")),
-    std::make_tuple(0x2, "Don\'t Fragment", Token_get("dontFrag")),
-    std::make_tuple(0x4, "More Fragments", Token_get("moreFrag")),
+const std::pair<uint16_t, Token> flagTable[] = {
+    std::make_tuple(0x1, Token_get("ipv4.flags.reserved")),
+    std::make_tuple(0x2, Token_get("ipv4.flags.dontFrag")),
+    std::make_tuple(0x4, Token_get("ipv4.flags.moreFrag")),
 };
 
-const std::unordered_map<uint16_t, Token> protoTable = {
-    {0x01, Token_get("[icmp]")},
-    {0x02, Token_get("[igmp]")},
-    {0x06, Token_get("[tcp]")},
-    {0x11, Token_get("[udp]")},
+const std::unordered_map<uint16_t, std::pair<Token, Token>> protoTable = {
+    {0x01,
+     std::make_pair(Token_get("[icmp]"), Token_get("ipv4.protocol.icmp"))},
+    {0x02,
+     std::make_pair(Token_get("[igmp]"), Token_get("ipv4.protocol.igmp"))},
+    {0x06, std::make_pair(Token_get("[tcp]"), Token_get("ipv4.protocol.tcp"))},
+    {0x11, std::make_pair(Token_get("[udp]"), Token_get("ipv4.protocol.udp"))},
 };
 
 const auto ipv4Token = Token_get("ipv4");
-const auto versionToken = Token_get("version");
-const auto hLenToken = Token_get("hLen");
-const auto typeToken = Token_get("type");
-const auto tLenToken = Token_get("tLen");
-const auto idToken = Token_get("id");
-const auto flagsToken = Token_get("flags");
-const auto fOffsetToken = Token_get("fOffset");
-const auto ttlToken = Token_get("ttl");
-const auto protocolToken = Token_get("protocol");
-const auto checksumToken = Token_get("checksum");
-const auto srcToken = Token_get("src");
-const auto dstToken = Token_get("dst");
+const auto versionToken = Token_get("ipv4.version");
+const auto hLenToken = Token_get("ipv4.hLen");
+const auto typeToken = Token_get("ipv4.type");
+const auto tLenToken = Token_get("ipv4.tLen");
+const auto idToken = Token_get("ipv4.id");
+const auto flagsToken = Token_get("ipv4.flags");
+const auto fOffsetToken = Token_get("ipv4.fOffset");
+const auto ttlToken = Token_get("ipv4.ttl");
+const auto protocolToken = Token_get("ipv4.protocol");
+const auto checksumToken = Token_get("ipv4.checksum");
+const auto srcToken = Token_get("ipv4.src");
+const auto dstToken = Token_get("ipv4.dst");
 const auto ipv4AddrToken = Token_get("@ipv4:addr");
 const auto nestedToken = Token_get("@nested");
 
@@ -82,8 +84,8 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   Variant_setUint64(Property_valueRef(flags), flag);
   std::string flagSummary;
   for (const auto &bit : flagTable) {
-    bool on = std::get<0>(bit) & flag;
-    Property *flagBit = Property_addProperty(flags, std::get<2>(bit));
+    bool on = bit.first & flag;
+    Property *flagBit = Layer_addProperty(child, bit.second);
     Variant_setBool(Property_valueRef(flagBit), on);
     Property_setRange(flagBit, reader.lastRange);
 
@@ -113,10 +115,10 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   Property_setRange(proto, reader.lastRange);
   const auto &it = protoTable.find(protocolNumber);
   if (it != protoTable.end()) {
-    Property *sub = Property_addProperty(proto, it->second);
+    Property *sub = Layer_addProperty(child, it->second.second);
     Variant_setBool(Property_valueRef(sub), true);
     Property_setRange(sub, reader.lastRange);
-    Layer_addTag(child, it->second);
+    Layer_addTag(child, it->second.first);
   }
 
   Property *checksum = Layer_addProperty(child, checksumToken);

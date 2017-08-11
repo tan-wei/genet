@@ -6,7 +6,6 @@
 #include "export.h"
 #include "token.h"
 #include <memory>
-#include <vector>
 
 namespace plugkit {
 
@@ -25,10 +24,6 @@ public:
   Token type() const;
   void setType(Token type);
 
-  const std::vector<const Property *> &properties() const;
-  const Property *propertyFromId(Token id) const;
-  void addProperty(const Property *prop);
-
 private:
   Property(const Property &prop) = delete;
   Property &operator=(const Property &prop) = delete;
@@ -38,7 +33,6 @@ private:
   Variant mValue;
   Range mRange = {0, 0};
   Token mType = 0;
-  std::vector<const Property *> mChildren;
 };
 }
 

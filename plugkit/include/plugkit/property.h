@@ -16,9 +16,6 @@ typedef struct Property Property;
 /// Gets id
 PLUGKIT_EXPORT Token Property_id(const Property *prop);
 
-/// Allocates a new Property and adds it as a child property.
-PLUGKIT_EXPORT Property *Property_addProperty(Property *prop, Token id);
-
 /// Finds the first child property with the given id and returns it.
 ///
 /// If no property is found, returns nullptr.

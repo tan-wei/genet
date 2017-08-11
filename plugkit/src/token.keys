@@ -1,13 +1,16 @@
-[eth]
-[ipv4]
-[ipv6]
 Out of bound
-len
-ethType
 @eth:mac
 @ipv4:addr
 @ipv6:addr
 @nested
+[eth]
+eth
+eth.src
+eth.dst
+eth.len
+eth.type
+[ipv4]
+[ipv6]
 reserved
 dontFrag
 moreFrag

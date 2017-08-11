@@ -24,8 +24,14 @@ export default {
           'eth.dst': {
             name: 'Destination'
           },
-          'eth.ethType': {
+          'eth.type': {
             name: 'EtherType'
+          },
+          'eth.type.ipv4': {
+            name: 'IPv4'
+          },
+          'eth.type.ipv6': {
+            name: 'IPv6'
           }
         }
       }
@@ -85,6 +91,18 @@ export default {
           },
           'ipv4.protocol': {
             name: 'Protocol'
+          },
+          'ipv4.protocol.icmp': {
+            name: 'ICMP'
+          },
+          'ipv4.protocol.igmp': {
+            name: 'IGMP'
+          },
+          'ipv4.protocol.tcp': {
+            name: 'TCP'
+          },
+          'ipv4.protocol.udp': {
+            name: 'UDP'
           },
           'ipv4.checksum': {
             name: 'Header Checksum'
@@ -157,6 +175,18 @@ export default {
           },
           'ipv6.protocol': {
             name: 'Protocol'
+          },
+          'ipv6.protocol.icmp': {
+            name: 'ICMP'
+          },
+          'ipv6.protocol.igmp': {
+            name: 'IGMP'
+          },
+          'ipv6.protocol.tcp': {
+            name: 'TCP'
+          },
+          'ipv6.protocol.udp': {
+            name: 'UDP'
           }
         }
       }

@@ -9,15 +9,12 @@ void PropertyWrapper::init(v8::Isolate *isolate,
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Property").ToLocalChecked());
-  SetPrototypeMethod(tpl, "propertyFromId", propertyFromId);
-  SetPrototypeMethod(tpl, "addProperty", addProperty);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
   Nan::SetAccessor(otl, Nan::New("range").ToLocalChecked(), range, setRange);
   Nan::SetAccessor(otl, Nan::New("value").ToLocalChecked(), value, setValue);
   Nan::SetAccessor(otl, Nan::New("type").ToLocalChecked(), type, setType);
-  Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
@@ -121,43 +118,6 @@ NAN_SETTER(PropertyWrapper::setType) {
   PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
   if (auto prop = wrapper->prop) {
     prop->setType(Token_get(*Nan::Utf8String(value)));
-  }
-}
-
-NAN_GETTER(PropertyWrapper::properties) {
-  PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
-  if (auto prop = wrapper->constProp) {
-    v8::Isolate *isolate = v8::Isolate::GetCurrent();
-    const auto &properties = prop->properties();
-    auto array = v8::Array::New(isolate, properties.size());
-    for (size_t i = 0; i < properties.size(); ++i) {
-      array->Set(i, PropertyWrapper::wrap(properties[i]));
-    }
-    info.GetReturnValue().Set(array);
-  }
-}
-
-NAN_METHOD(PropertyWrapper::propertyFromId) {
-  PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
-  if (auto prop = wrapper->constProp) {
-    if (const auto &child =
-            prop->propertyFromId(Token_get(*Nan::Utf8String(info[0])))) {
-      info.GetReturnValue().Set(PropertyWrapper::wrap(child));
-    } else {
-      info.GetReturnValue().Set(Nan::Null());
-    }
-  }
-}
-
-NAN_METHOD(PropertyWrapper::addProperty) {
-  PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
-  if (auto prop = wrapper->prop) {
-    if (info[0]->IsObject()) {
-      if (const auto &child =
-              PropertyWrapper::unwrap(info[0].As<v8::Object>())) {
-        prop->addProperty(child);
-      }
-    }
   }
 }
 

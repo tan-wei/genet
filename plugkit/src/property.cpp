@@ -26,32 +26,7 @@ Token Property::type() const { return mType; }
 
 void Property::setType(Token type) { mType = type; }
 
-const std::vector<const Property *> &Property::properties() const {
-  return mChildren;
-}
-
-const Property *Property::propertyFromId(Token id) const {
-  for (const auto &child : mChildren) {
-    if (child->id() == id) {
-      return child;
-    }
-  }
-  return nullptr;
-}
-
-void Property::addProperty(const Property *prop) { mChildren.push_back(prop); }
-
 Token Property_id(const Property *prop) { return prop->id(); }
-
-Property *Property_addProperty(Property *prop, Token id) {
-  Property *child = new Property(id);
-  prop->addProperty(child);
-  return child;
-}
-
-const Property *Property_propertyFromId(const Property *prop, Token id) {
-  return prop->propertyFromId(id);
-}
 
 Range Property_range(const Property *prop) { return prop->range(); }
 

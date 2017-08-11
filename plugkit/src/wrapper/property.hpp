@@ -21,9 +21,6 @@ public:
   static NAN_SETTER(setValue);
   static NAN_GETTER(type);
   static NAN_SETTER(setType);
-  static NAN_GETTER(properties);
-  static NAN_METHOD(propertyFromId);
-  static NAN_METHOD(addProperty);
 
 private:
   PropertyWrapper(Property *prop);

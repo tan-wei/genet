@@ -14,14 +14,15 @@ using namespace plugkit;
 namespace {
 
 const auto ethToken = Token_get("eth");
-const auto srcToken = Token_get("src");
-const auto dstToken = Token_get("dst");
-const auto lenToken = Token_get("len");
-const auto ethTypeToken = Token_get("ethType");
+const auto srcToken = Token_get("eth.src");
+const auto dstToken = Token_get("eth.dst");
+const auto lenToken = Token_get("eth.len");
+const auto ethTypeToken = Token_get("eth.type");
 const auto macToken = Token_get("@eth:mac");
 
-static const std::unordered_map<uint16_t, Token> typeTable = {
-    {0x0800, Token_get("[ipv4]")}, {0x86DD, Token_get("[ipv6]")},
+static const std::unordered_map<uint16_t, std::pair<Token, Token>> typeTable = {
+    {0x0800, std::make_pair(Token_get("[ipv4]"), Token_get("eth.type.ipv4"))},
+    {0x86DD, std::make_pair(Token_get("[ipv6]"), Token_get("eth.type.ipv6"))},
 };
 
 void analyze(Context *ctx, Worker *data, Layer *layer) {
@@ -50,13 +51,15 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
     Variant_setUint64(Property_valueRef(length), protocolType);
     Property_setRange(length, reader.lastRange);
   } else {
-
     Property *etherType = Layer_addProperty(child, ethTypeToken);
     Variant_setUint64(Property_valueRef(etherType), protocolType);
     Property_setRange(etherType, reader.lastRange);
     const auto &it = typeTable.find(protocolType);
     if (it != typeTable.end()) {
-      Layer_addTag(child, it->second);
+      Property *type = Layer_addProperty(child, it->second.second);
+      Variant_setBool(Property_valueRef(type), true);
+      Property_setRange(type, reader.lastRange);
+      Layer_addTag(child, it->second.first);
     }
   }
 

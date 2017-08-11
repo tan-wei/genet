@@ -13,24 +13,26 @@ using namespace plugkit;
 
 namespace {
 
-const std::unordered_map<uint16_t, Token> protoTable = {
-    {0x01, Token_get("[icmp]")},
-    {0x02, Token_get("[igmp]")},
-    {0x06, Token_get("[tcp]")},
-    {0x11, Token_get("[udp]")},
+const std::unordered_map<uint16_t, std::pair<Token, Token>> protoTable = {
+    {0x01,
+     std::make_pair(Token_get("[icmp]"), Token_get("ipv4.protocol.icmp"))},
+    {0x02,
+     std::make_pair(Token_get("[igmp]"), Token_get("ipv4.protocol.igmp"))},
+    {0x06, std::make_pair(Token_get("[tcp]"), Token_get("ipv4.protocol.tcp"))},
+    {0x11, std::make_pair(Token_get("[udp]"), Token_get("ipv4.protocol.udp"))},
 };
 
 const auto ipv6Token = Token_get("ipv6");
-const auto versionToken = Token_get("version");
-const auto tClassToken = Token_get("tClass");
-const auto fLevelToken = Token_get("fLevel");
-const auto pLenToken = Token_get("pLen");
-const auto nHeaderToken = Token_get("nHeader");
-const auto hLimitToken = Token_get("hLimit");
-const auto srcToken = Token_get("src");
-const auto dstToken = Token_get("dst");
-const auto hbyhToken = Token_get("hbyh");
-const auto protocolToken = Token_get("protocol");
+const auto versionToken = Token_get("ipv6.version");
+const auto tClassToken = Token_get("ipv6.tClass");
+const auto fLevelToken = Token_get("ipv6.fLevel");
+const auto pLenToken = Token_get("ipv6.pLen");
+const auto nHeaderToken = Token_get("ipv6.nHeader");
+const auto hLimitToken = Token_get("ipv6.hLimit");
+const auto srcToken = Token_get("ipv6.src");
+const auto dstToken = Token_get("ipv6.dst");
+const auto hbyhToken = Token_get("ipv6.hbyh");
+const auto protocolToken = Token_get("ipv6.protocol");
 const auto ipv6AddrToken = Token_get("@ipv6:addr");
 const auto nestedToken = Token_get("@nested");
 
@@ -124,10 +126,10 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   Property_setRange(proto, reader.lastRange);
   const auto &it = protoTable.find(protocolNumber);
   if (it != protoTable.end()) {
-    Property *sub = Property_addProperty(proto, it->second);
+    Property *sub = Layer_addProperty(child, it->second.second);
     Variant_setBool(Property_valueRef(sub), true);
     Property_setRange(sub, reader.lastRange);
-    Layer_addTag(child, it->second);
+    Layer_addTag(child, it->second.first);
   }
 
   Layer_addPayload(child, Reader_sliceAll(&reader, 0));

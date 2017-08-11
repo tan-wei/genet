@@ -87,15 +87,15 @@ class PropertyItem {
     const prop = vnode.attrs.property
     const value = (prop.value == null ? '' : prop.value.toString())
     let faClass = 'fa fa-circle-o'
-    if (prop.properties.length) {
+    if ([].length) {
       faClass = this.expanded ? 'fa fa-arrow-circle-down' : 'fa fa-arrow-circle-right'
     }
     const range = [
       prop.range[0] + vnode.attrs.dataOffset,
       prop.range[1] + vnode.attrs.dataOffset
     ]
-    const name = (vnode.attrs.path in Session.descriptors) ?
-      Session.descriptors[vnode.attrs.path].name : prop.id
+    const name = (prop.id in Session.descriptors) ?
+      Session.descriptors[prop.id].name : prop.id
     const propRenderer = Renderer.forProperty(prop.type)
     return <li
         data-range={ `${range[0]}:${range[1]}` }
@@ -105,14 +105,14 @@ class PropertyItem {
       <label
         onclick={ () => this.expanded = !this.expanded }
       ><i class={faClass}></i> { name }: </label>
-      { m(propRenderer, {prop, path: vnode.attrs.path}) }
+      { m(propRenderer, {prop}) }
       <label
       class="error"
       style={{ display: prop.error ? 'inline' : 'none' }}
       ><i class="fa fa-exclamation-triangle"></i> { prop.error }</label>
       <ul style={{ display: this.expanded ? 'block' : 'none' }}>
         {
-          prop.properties.map((prop) => {
+          [].map((prop) => {
             return m(PropertyItem, {
               property: prop,
               path: vnode.attrs.path + '.' + prop.id
@@ -127,8 +127,11 @@ class PropertyItem {
 class LayerDefaultItem {
   view (vnode) {
     const layer = vnode.attrs.layer
-    const src = layer.propertyFromId('src')
-    const dst = layer.propertyFromId('dst')
+    const src = layer.propertyFromId(layer.id + '.src')
+    const dst = layer.propertyFromId(layer.id + '.dst')
+    if (src == null) {
+      return <span></span>
+    }
     const srcRenderer = Renderer.forProperty(src.type)
     const dstRenderer = Renderer.forProperty(dst.type)
     return <span> { m(srcRenderer, {prop: src}) } -> { m(dstRenderer, {prop: dst}) } </span>
