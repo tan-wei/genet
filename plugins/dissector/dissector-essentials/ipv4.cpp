@@ -39,8 +39,8 @@ const auto protocolToken = Token_get("protocol");
 const auto checksumToken = Token_get("checksum");
 const auto srcToken = Token_get("src");
 const auto dstToken = Token_get("dst");
-const auto ipv4AddrToken = Token_get(":ipv4:addr");
-const auto nestedToken = Token_get(":nested");
+const auto ipv4AddrToken = Token_get("@ipv4:addr");
+const auto nestedToken = Token_get("@nested");
 
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   Reader reader;

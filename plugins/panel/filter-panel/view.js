@@ -16,6 +16,7 @@ export default class FilterView {
     })
     const descriptors = Session.descriptors
     for (const key in descriptors) {
+      console.log(key)
       this.candidates.push({
         propPaths: key,
         name: descriptors[key].name

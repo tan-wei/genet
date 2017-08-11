@@ -34,7 +34,7 @@ export default {
       type: 'core:renderer',
       renderer: {
         type: 'property',
-        id: ':eth:mac',
+        id: '@eth:mac',
         root: 'mac-addr.js'
       }
     },
@@ -102,7 +102,7 @@ export default {
       type: 'core:renderer',
       renderer: {
         type: 'property',
-        id: ':ipv4:addr',
+        id: '@ipv4:addr',
         root: 'ipv4-addr.js'
       }
     },

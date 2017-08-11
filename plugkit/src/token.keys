@@ -4,7 +4,10 @@
 Out of bound
 len
 ethType
-:eth:mac
+@eth:mac
+@ipv4:addr
+@ipv6:addr
+@nested
 reserved
 dontFrag
 moreFrag
@@ -14,7 +17,6 @@ pLen
 nHeader
 hLimit
 hbyh
-:ipv6:addr
 length
 ns
 cwr

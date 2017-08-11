@@ -44,7 +44,7 @@ const auto selAckToken = Token_get("selAck");
 const auto tsToken = Token_get("ts");
 const auto mtToken = Token_get("mt");
 const auto etToken = Token_get("et");
-const auto nestedToken = Token_get(":nested");
+const auto nestedToken = Token_get("@nested");
 
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   Reader reader;
