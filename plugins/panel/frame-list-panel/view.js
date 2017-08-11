@@ -22,7 +22,7 @@ class FrameItem {
     const itemHeight = vnode.attrs.itemHeight
     const src = this.frame.propertyFromId('src')
     const dst = this.frame.propertyFromId('dst')
-    const id = Token.string(this.frame.primaryLayer.id)
+    const id = this.frame.primaryLayer.id
     const name = (id in Session.descriptors) ? Session.descriptors[id].name : 'Unknown'
     const layerRenderer = Renderer.forLayer(id)
     return <div

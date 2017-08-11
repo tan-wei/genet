@@ -13,7 +13,7 @@ export default class Nested {
       properties.filter((prop)=>{
         return prop.value
       }).map((prop) => {
-        const str = Token.string(prop.id)
+        const str = prop.id
         const path = vnode.attrs.path + '.' + str
         const name = (path in Session.descriptors) ?
           Session.descriptors[path].name : str

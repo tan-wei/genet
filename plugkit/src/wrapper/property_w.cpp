@@ -40,17 +40,21 @@ NAN_METHOD(PropertyWrapper::New) {
   auto options = info[0].As<v8::Object>();
   auto idValue = options->Get(Nan::New("id").ToLocalChecked());
   auto rangeValue = options->Get(Nan::New("range").ToLocalChecked());
+  auto typeValue = options->Get(Nan::New("type").ToLocalChecked());
   auto value = options->Get(Nan::New("value").ToLocalChecked());
   if (idValue->IsNumber()) {
     return;
   }
-  auto prop = new Property(idValue->NumberValue());
+  auto prop = new Property(Token_get(*Nan::Utf8String(idValue)));
   if (rangeValue->IsArray()) {
     auto array = rangeValue.As<v8::Array>();
     if (array->Length() >= 2) {
       prop->setRange(
           Range{array->Get(0)->Uint32Value(), array->Get(1)->Uint32Value()});
     }
+  }
+  if (typeValue->IsString()) {
+    prop->setType(Token_get(*Nan::Utf8String(typeValue)));
   }
   prop->setValue(Variant::getVariant(value));
 
@@ -62,7 +66,8 @@ NAN_METHOD(PropertyWrapper::New) {
 NAN_GETTER(PropertyWrapper::id) {
   PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
   if (auto prop = wrapper->constProp) {
-    info.GetReturnValue().Set(Nan::New(prop->id()));
+    info.GetReturnValue().Set(
+        Nan::New(Token_string(prop->id())).ToLocalChecked());
   }
 }
 
@@ -107,14 +112,15 @@ NAN_SETTER(PropertyWrapper::setValue) {
 NAN_GETTER(PropertyWrapper::type) {
   PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
   if (auto prop = wrapper->constProp) {
-    info.GetReturnValue().Set(prop->type());
+    info.GetReturnValue().Set(
+        Nan::New(Token_string(prop->type())).ToLocalChecked());
   }
 }
 
 NAN_SETTER(PropertyWrapper::setType) {
   PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
   if (auto prop = wrapper->prop) {
-    prop->setType(static_cast<Token>(value->NumberValue()));
+    prop->setType(Token_get(*Nan::Utf8String(value)));
   }
 }
 

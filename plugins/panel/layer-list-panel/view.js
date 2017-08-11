@@ -95,8 +95,8 @@ class PropertyItem {
       prop.range[1] + vnode.attrs.dataOffset
     ]
     const name = (vnode.attrs.path in Session.descriptors) ?
-      Session.descriptors[vnode.attrs.path].name : Token.string(prop.id)
-    const propRenderer = Renderer.forProperty(Token.string(prop.type))
+      Session.descriptors[vnode.attrs.path].name : prop.id
+    const propRenderer = Renderer.forProperty(prop.type)
     return <li
         data-range={ `${range[0]}:${range[1]}` }
         onmouseover={ () => selectRange(range) }
@@ -115,7 +115,7 @@ class PropertyItem {
           prop.properties.map((prop) => {
             return m(PropertyItem, {
               property: prop,
-              path: vnode.attrs.path + '.' + Token.string(prop.id)
+              path: vnode.attrs.path + '.' + prop.id
             })
           })
         }
@@ -129,8 +129,8 @@ class LayerDefaultItem {
     const layer = vnode.attrs.layer
     const src = layer.propertyFromId('src')
     const dst = layer.propertyFromId('dst')
-    const srcRenderer = Renderer.forProperty(Token.string(src.type))
-    const dstRenderer = Renderer.forProperty(Token.string(dst.type))
+    const srcRenderer = Renderer.forProperty(src.type)
+    const dstRenderer = Renderer.forProperty(dst.type)
     return <span> { m(srcRenderer, {prop: src}) } -> { m(dstRenderer, {prop: dst}) } </span>
   }
 }
@@ -165,7 +165,7 @@ class LayerItem {
       dataOffset,
       dataOffset + dataLength
     ]
-    const layerId = Token.string(layer.id)
+    const layerId = layer.id
     const name = (layerId in Session.descriptors) ?
       Session.descriptors[layerId].name : layerId
     const layerRenderer = Renderer.forLayer(layerId)
@@ -193,7 +193,7 @@ class LayerItem {
           return m(PropertyItem, {
             property: prop,
             dataOffset,
-            path: Token.string(layer.id) + '.' + Token.string(prop.id)
+            path: layer.id + '.' + prop.id
           })
         })
       }
@@ -233,7 +233,7 @@ export default class LayerListView {
         length += ` (actual: ${frame.length})`
       }
       let layers = [ frame.rootLayer ]
-      const rootId = Token.string(frame.rootLayer.id)
+      const rootId = frame.rootLayer.id
       if (rootId.startsWith('[')) {
         layers = frame.rootLayer.children
       }
