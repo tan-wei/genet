@@ -15,11 +15,11 @@ namespace {
 
 const std::unordered_map<uint16_t, std::pair<Token, Token>> protoTable = {
     {0x01,
-     std::make_pair(Token_get("[icmp]"), Token_get("ipv4.protocol.icmp"))},
+     std::make_pair(Token_get("[icmp]"), Token_get("ipv6.protocol.icmp"))},
     {0x02,
-     std::make_pair(Token_get("[igmp]"), Token_get("ipv4.protocol.igmp"))},
-    {0x06, std::make_pair(Token_get("[tcp]"), Token_get("ipv4.protocol.tcp"))},
-    {0x11, std::make_pair(Token_get("[udp]"), Token_get("ipv4.protocol.udp"))},
+     std::make_pair(Token_get("[igmp]"), Token_get("ipv6.protocol.igmp"))},
+    {0x06, std::make_pair(Token_get("[tcp]"), Token_get("ipv6.protocol.tcp"))},
+    {0x11, std::make_pair(Token_get("[udp]"), Token_get("ipv6.protocol.udp"))},
 };
 
 const auto ipv6Token = Token_get("ipv6");

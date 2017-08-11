@@ -1,5 +1,6 @@
 import m from 'mithril'
 import moment from 'moment'
+import objpath from 'object-path'
 import { Token } from 'plugkit'
 import { Channel, Profile, Session, Renderer } from 'deplug'
 import Buffer from 'buffer'
@@ -78,16 +79,26 @@ function selectRange(range = []) {
   Channel.emit('core:frame:range-selected', range)
 }
 
+const propSymbol = Symbol('prop')
+const orderSymbol = Symbol('order')
+
+function orderedProperties(obj) {
+  return Object.values(obj)
+    .sort((a, b) => { return a[orderSymbol] - b[orderSymbol] })
+    .map((item) => {return item })
+}
+
 class PropertyItem {
   constructor() {
     this.expanded = false
   }
 
   view(vnode) {
-    const prop = vnode.attrs.property
+    const prop = vnode.attrs.property[propSymbol]
     const value = (prop.value == null ? '' : prop.value.toString())
+    const children = orderedProperties(vnode.attrs.property)
     let faClass = 'fa fa-circle-o'
-    if ([].length) {
+    if (children.length) {
       faClass = this.expanded ? 'fa fa-arrow-circle-down' : 'fa fa-arrow-circle-right'
     }
     const range = [
@@ -97,6 +108,7 @@ class PropertyItem {
     const name = (prop.id in Session.descriptors) ?
       Session.descriptors[prop.id].name : prop.id
     const propRenderer = Renderer.forProperty(prop.type)
+
     return <li
         data-range={ `${range[0]}:${range[1]}` }
         onmouseover={ () => selectRange(range) }
@@ -112,10 +124,9 @@ class PropertyItem {
       ><i class="fa fa-exclamation-triangle"></i> { prop.error }</label>
       <ul style={{ display: this.expanded ? 'block' : 'none' }}>
         {
-          [].map((prop) => {
+          children.map((prop) => {
             return m(PropertyItem, {
-              property: prop,
-              path: vnode.attrs.path + '.' + prop.id
+              property: prop
             })
           })
         }
@@ -172,6 +183,17 @@ class LayerItem {
     const name = (layerId in Session.descriptors) ?
       Session.descriptors[layerId].name : layerId
     const layerRenderer = Renderer.forLayer(layerId)
+
+    const propObject = {}
+    const properties = layer.properties
+    for (let i = 0; i < properties.length; ++i) {
+      const prop = properties[i]
+      objpath.ensureExists(propObject, prop.id, {})
+      const item = objpath.get(propObject, prop.id)
+      item[propSymbol] = prop
+      item[orderSymbol] = i
+    }
+
     return <ul>
       <li
         data-range={ `${range[0]}:${range[1]}` }
@@ -192,11 +214,10 @@ class LayerItem {
       </li>
       <div style={{ display: this.expanded ? 'block' : 'none' }}>
       {
-        layer.properties.map((prop) => {
+        orderedProperties(propObject[layerId]).map((prop) => {
           return m(PropertyItem, {
             property: prop,
-            dataOffset,
-            path: layer.id + '.' + prop.id
+            dataOffset
           })
         })
       }
