@@ -5,10 +5,7 @@ using namespace plugkit;
 
 namespace {
 
-Token outOfBoundError() {
-  static const Token token = Token_get("Out of bound");
-  return token;
-}
+const Token outOfBoundError = Token_get("Out of bound");
 
 TEST_CASE("Reader_reset", "[Reader]") {
   Reader reader;
@@ -46,7 +43,7 @@ TEST_CASE("Reader_slice", "[Reader]") {
   CHECK(subview.end == nullptr);
   CHECK(reader.lastRange.begin == 1 + 54 + 10);
   CHECK(reader.lastRange.end == 1 + 54 + 10 + 64);
-  CHECK(reader.lastError.type == outOfBoundError());
+  CHECK(reader.lastError.type == outOfBoundError);
 }
 
 TEST_CASE("Reader_sliceAll", "[Reader]") {
@@ -68,7 +65,7 @@ TEST_CASE("Reader_sliceAll", "[Reader]") {
   CHECK(subview.end == nullptr);
   CHECK(reader.lastRange.begin == 12);
   CHECK(reader.lastRange.end == sizeof(data));
-  CHECK(reader.lastError.type == outOfBoundError());
+  CHECK(reader.lastError.type == outOfBoundError);
 }
 
 TEST_CASE("Reader_readUint8", "[Reader]") {
@@ -86,7 +83,7 @@ TEST_CASE("Reader_readUint8", "[Reader]") {
   CHECK(Reader_readUint8(&reader) == uint8_t());
   CHECK(reader.lastRange.begin == 0);
   CHECK(reader.lastRange.end == sizeof(uint8_t));
-  CHECK(reader.lastError.type == outOfBoundError());
+  CHECK(reader.lastError.type == outOfBoundError);
 }
 
 TEST_CASE("Reader_readInt8", "[Reader]") {
@@ -104,7 +101,7 @@ TEST_CASE("Reader_readInt8", "[Reader]") {
   CHECK(Reader_readInt8(&reader) == int8_t());
   CHECK(reader.lastRange.begin == 0);
   CHECK(reader.lastRange.end == sizeof(int8_t));
-  CHECK(reader.lastError.type == outOfBoundError());
+  CHECK(reader.lastError.type == outOfBoundError);
 }
 
 TEST_CASE("Reader_readUint16BE", "[Reader]") {
@@ -122,7 +119,7 @@ TEST_CASE("Reader_readUint16BE", "[Reader]") {
   CHECK(Reader_readUint16BE(&reader) == uint16_t());
   CHECK(reader.lastRange.begin == 0);
   CHECK(reader.lastRange.end == sizeof(uint16_t));
-  CHECK(reader.lastError.type == outOfBoundError());
+  CHECK(reader.lastError.type == outOfBoundError);
 }
 
 TEST_CASE("Reader_readUint32BE", "[Reader]") {
@@ -140,7 +137,7 @@ TEST_CASE("Reader_readUint32BE", "[Reader]") {
   CHECK(Reader_readUint32BE(&reader) == uint32_t());
   CHECK(reader.lastRange.begin == 0);
   CHECK(reader.lastRange.end == sizeof(uint32_t));
-  CHECK(reader.lastError.type == outOfBoundError());
+  CHECK(reader.lastError.type == outOfBoundError);
 }
 
 TEST_CASE("Reader_readUint64BE", "[Reader]") {
@@ -158,7 +155,7 @@ TEST_CASE("Reader_readUint64BE", "[Reader]") {
   CHECK(Reader_readUint64BE(&reader) == uint64_t());
   CHECK(reader.lastRange.begin == 0);
   CHECK(reader.lastRange.end == sizeof(uint64_t));
-  CHECK(reader.lastError.type == outOfBoundError());
+  CHECK(reader.lastError.type == outOfBoundError);
 }
 
 TEST_CASE("Reader_readInt16BE", "[Reader]") {
@@ -176,7 +173,7 @@ TEST_CASE("Reader_readInt16BE", "[Reader]") {
   CHECK(Reader_readInt16BE(&reader) == int16_t());
   CHECK(reader.lastRange.begin == 0);
   CHECK(reader.lastRange.end == sizeof(int16_t));
-  CHECK(reader.lastError.type == outOfBoundError());
+  CHECK(reader.lastError.type == outOfBoundError);
 }
 
 TEST_CASE("Reader_readInt32BE", "[Reader]") {
@@ -195,7 +192,7 @@ TEST_CASE("Reader_readInt32BE", "[Reader]") {
   CHECK(Reader_readInt32BE(&reader) == int32_t());
   CHECK(reader.lastRange.begin == 0);
   CHECK(reader.lastRange.end == sizeof(int32_t));
-  CHECK(reader.lastError.type == outOfBoundError());
+  CHECK(reader.lastError.type == outOfBoundError);
 }
 
 TEST_CASE("Reader_readInt64BE", "[Reader]") {
@@ -216,7 +213,7 @@ TEST_CASE("Reader_readInt64BE", "[Reader]") {
   CHECK(Reader_readInt64BE(&reader) == int64_t());
   CHECK(reader.lastRange.begin == 0);
   CHECK(reader.lastRange.end == sizeof(int64_t));
-  CHECK(reader.lastError.type == outOfBoundError());
+  CHECK(reader.lastError.type == outOfBoundError);
 }
 
 TEST_CASE("Reader_readFloat32BE", "[Reader]") {
@@ -234,7 +231,7 @@ TEST_CASE("Reader_readFloat32BE", "[Reader]") {
   CHECK(Reader_readFloat32BE(&reader) == float());
   CHECK(reader.lastRange.begin == 0);
   CHECK(reader.lastRange.end == sizeof(float));
-  CHECK(reader.lastError.type == outOfBoundError());
+  CHECK(reader.lastError.type == outOfBoundError);
 }
 
 TEST_CASE("Reader_readFloat64BE", "[Reader]") {
@@ -252,7 +249,7 @@ TEST_CASE("Reader_readFloat64BE", "[Reader]") {
   CHECK(Reader_readFloat64BE(&reader) == double());
   CHECK(reader.lastRange.begin == 0);
   CHECK(reader.lastRange.end == sizeof(double));
-  CHECK(reader.lastError.type == outOfBoundError());
+  CHECK(reader.lastError.type == outOfBoundError);
 }
 
 TEST_CASE("Reader_readUint16LE", "[Reader]") {
@@ -270,7 +267,7 @@ TEST_CASE("Reader_readUint16LE", "[Reader]") {
   CHECK(Reader_readUint16LE(&reader) == uint16_t());
   CHECK(reader.lastRange.begin == 0);
   CHECK(reader.lastRange.end == sizeof(uint16_t));
-  CHECK(reader.lastError.type == outOfBoundError());
+  CHECK(reader.lastError.type == outOfBoundError);
 }
 
 TEST_CASE("Reader_readUint32LE", "[Reader]") {
@@ -288,7 +285,7 @@ TEST_CASE("Reader_readUint32LE", "[Reader]") {
   CHECK(Reader_readUint32LE(&reader) == uint32_t());
   CHECK(reader.lastRange.begin == 0);
   CHECK(reader.lastRange.end == sizeof(uint32_t));
-  CHECK(reader.lastError.type == outOfBoundError());
+  CHECK(reader.lastError.type == outOfBoundError);
 }
 
 TEST_CASE("Reader_readUint64LE", "[Reader]") {
@@ -306,7 +303,7 @@ TEST_CASE("Reader_readUint64LE", "[Reader]") {
   CHECK(Reader_readUint64LE(&reader) == uint64_t());
   CHECK(reader.lastRange.begin == 0);
   CHECK(reader.lastRange.end == sizeof(uint64_t));
-  CHECK(reader.lastError.type == outOfBoundError());
+  CHECK(reader.lastError.type == outOfBoundError);
 }
 
 TEST_CASE("Reader_readInt16LE", "[Reader]") {
@@ -324,7 +321,7 @@ TEST_CASE("Reader_readInt16LE", "[Reader]") {
   CHECK(Reader_readInt16LE(&reader) == int16_t());
   CHECK(reader.lastRange.begin == 0);
   CHECK(reader.lastRange.end == sizeof(int16_t));
-  CHECK(reader.lastError.type == outOfBoundError());
+  CHECK(reader.lastError.type == outOfBoundError);
 }
 
 TEST_CASE("Reader_readInt32LE", "[Reader]") {
@@ -343,7 +340,7 @@ TEST_CASE("Reader_readInt32LE", "[Reader]") {
   CHECK(Reader_readInt32LE(&reader) == int32_t());
   CHECK(reader.lastRange.begin == 0);
   CHECK(reader.lastRange.end == sizeof(int32_t));
-  CHECK(reader.lastError.type == outOfBoundError());
+  CHECK(reader.lastError.type == outOfBoundError);
 }
 
 TEST_CASE("Reader_readInt64LE", "[Reader]") {
@@ -368,7 +365,7 @@ TEST_CASE("Reader_readInt64LE", "[Reader]") {
   CHECK(Reader_readInt64LE(&reader) == int64_t());
   CHECK(reader.lastRange.begin == 0);
   CHECK(reader.lastRange.end == sizeof(int64_t));
-  CHECK(reader.lastError.type == outOfBoundError());
+  CHECK(reader.lastError.type == outOfBoundError);
 }
 
 TEST_CASE("Reader_readFloat32LE", "[Reader]") {
@@ -386,7 +383,7 @@ TEST_CASE("Reader_readFloat32LE", "[Reader]") {
   CHECK(Reader_readFloat32LE(&reader) == float());
   CHECK(reader.lastRange.begin == 0);
   CHECK(reader.lastRange.end == sizeof(float));
-  CHECK(reader.lastError.type == outOfBoundError());
+  CHECK(reader.lastError.type == outOfBoundError);
 }
 
 TEST_CASE("Reader_readFloat64LE", "[Reader]") {
@@ -404,6 +401,6 @@ TEST_CASE("Reader_readFloat64LE", "[Reader]") {
   CHECK(Reader_readFloat64LE(&reader) == double());
   CHECK(reader.lastRange.begin == 0);
   CHECK(reader.lastRange.end == sizeof(double));
-  CHECK(reader.lastError.type == outOfBoundError());
+  CHECK(reader.lastError.type == outOfBoundError);
 }
 }

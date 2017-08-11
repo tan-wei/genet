@@ -1,4 +1,5 @@
 #include "token.h"
+#include <cstring>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -11,6 +12,8 @@ namespace {
 #include "token_hash.h"
 #undef register
 
+thread_local std::unordered_map<std::string, Token> localMap;
+thread_local std::unordered_map<Token, const char *> localReverseMap;
 std::unordered_map<std::string, Token> map;
 std::unordered_map<Token, const char *> reverseMap;
 std::mutex mutex;
@@ -35,10 +38,19 @@ Token Token_get(const char *str) {
     in_word_set(nullptr, 0);
   }
 
+  {
+    const std::string &key = str;
+    auto it = localMap.find(key);
+    if (it != localMap.end()) {
+      return it->second;
+    }
+  }
+
   std::lock_guard<std::mutex> lock(mutex);
   const std::string &key = str;
   auto it = map.find(key);
   if (it != map.end()) {
+    localMap.insert(*it);
     return it->second;
   }
   Token id = map.size() + 1 + MAX_HASH_VALUE + 1;
@@ -58,9 +70,16 @@ const char *Token_string(Token token) {
   if (token <= MAX_HASH_VALUE + 1) {
     return wordlist[token - 1];
   }
+  {
+    auto it = localReverseMap.find(token);
+    if (it != localReverseMap.end()) {
+      return it->second;
+    }
+  }
   std::lock_guard<std::mutex> lock(mutex);
   auto it = reverseMap.find(token);
   if (it != reverseMap.end()) {
+    localReverseMap.insert(*it);
     return it->second;
   }
   return "";

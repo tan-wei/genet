@@ -7,10 +7,7 @@ using namespace plugkit;
 
 namespace {
 
-Token outOfBoundError() {
-  static const Token token = Token_get("Out of bound");
-  return token;
-}
+const Token outOfBoundError = Token_get("Out of bound");
 
 TEST_CASE("Slice_length", "[Slice]") {
   char data[256];
@@ -82,7 +79,7 @@ TEST_CASE("Slice_readUint8", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_readUint8(view, 1, &err) == uint8_t());
-  CHECK(err.type == outOfBoundError());
+  CHECK(err.type == outOfBoundError);
 }
 
 TEST_CASE("Slice_readInt8", "[Slice]") {
@@ -94,7 +91,7 @@ TEST_CASE("Slice_readInt8", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_readInt8(view, 1, &err) == int8_t());
-  CHECK(err.type == outOfBoundError());
+  CHECK(err.type == outOfBoundError);
 }
 
 TEST_CASE("Slice_readUint16BE", "[Slice]") {
@@ -106,7 +103,7 @@ TEST_CASE("Slice_readUint16BE", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_readUint16BE(view, 1, &err) == uint16_t());
-  CHECK(err.type == outOfBoundError());
+  CHECK(err.type == outOfBoundError);
 }
 
 TEST_CASE("Slice_readUint32BE", "[Slice]") {
@@ -118,7 +115,7 @@ TEST_CASE("Slice_readUint32BE", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_readUint32BE(view, 3, &err) == uint32_t());
-  CHECK(err.type == outOfBoundError());
+  CHECK(err.type == outOfBoundError);
 }
 
 TEST_CASE("Slice_readUint64BE", "[Slice]") {
@@ -130,7 +127,7 @@ TEST_CASE("Slice_readUint64BE", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_readUint64BE(view, 7, &err) == uint64_t());
-  CHECK(err.type == outOfBoundError());
+  CHECK(err.type == outOfBoundError);
 }
 
 TEST_CASE("Slice_readInt16BE", "[Slice]") {
@@ -142,7 +139,7 @@ TEST_CASE("Slice_readInt16BE", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_readInt16BE(view, 1, &err) == int16_t());
-  CHECK(err.type == outOfBoundError());
+  CHECK(err.type == outOfBoundError);
 }
 
 TEST_CASE("Slice_readInt32BE", "[Slice]") {
@@ -155,7 +152,7 @@ TEST_CASE("Slice_readInt32BE", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_readInt32BE(view, 3, &err) == int32_t());
-  CHECK(err.type == outOfBoundError());
+  CHECK(err.type == outOfBoundError);
 }
 
 TEST_CASE("Slice_readInt64BE", "[Slice]") {
@@ -170,7 +167,7 @@ TEST_CASE("Slice_readInt64BE", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_readInt64BE(view, 7, &err) == int64_t());
-  CHECK(err.type == outOfBoundError());
+  CHECK(err.type == outOfBoundError);
 }
 
 TEST_CASE("Slice_readFloat32BE", "[Slice]") {
@@ -182,7 +179,7 @@ TEST_CASE("Slice_readFloat32BE", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_readFloat32BE(view, 3, &err) == float());
-  CHECK(err.type == outOfBoundError());
+  CHECK(err.type == outOfBoundError);
 }
 
 TEST_CASE("Slice_readFloat64BE", "[Slice]") {
@@ -194,7 +191,7 @@ TEST_CASE("Slice_readFloat64BE", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_readFloat64BE(view, 7, &err) == double());
-  CHECK(err.type == outOfBoundError());
+  CHECK(err.type == outOfBoundError);
 }
 
 TEST_CASE("Slice_readUint16LE", "[Slice]") {
@@ -206,7 +203,7 @@ TEST_CASE("Slice_readUint16LE", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_readUint16LE(view, 1, &err) == uint16_t());
-  CHECK(err.type == outOfBoundError());
+  CHECK(err.type == outOfBoundError);
 }
 
 TEST_CASE("Slice_readUint32LE", "[Slice]") {
@@ -218,7 +215,7 @@ TEST_CASE("Slice_readUint32LE", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_readUint32LE(view, 3, &err) == uint32_t());
-  CHECK(err.type == outOfBoundError());
+  CHECK(err.type == outOfBoundError);
 }
 
 TEST_CASE("Slice_readUint64LE", "[Slice]") {
@@ -230,7 +227,7 @@ TEST_CASE("Slice_readUint64LE", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_readUint64LE(view, 7, &err) == uint64_t());
-  CHECK(err.type == outOfBoundError());
+  CHECK(err.type == outOfBoundError);
 }
 
 TEST_CASE("Slice_readInt16LE", "[Slice]") {
@@ -242,7 +239,7 @@ TEST_CASE("Slice_readInt16LE", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_readInt16LE(view, 1, &err) == int16_t());
-  CHECK(err.type == outOfBoundError());
+  CHECK(err.type == outOfBoundError);
 }
 
 TEST_CASE("Slice_readInt32LE", "[Slice]") {
@@ -255,7 +252,7 @@ TEST_CASE("Slice_readInt32LE", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_readInt32LE(view, 3, &err) == int32_t());
-  CHECK(err.type == outOfBoundError());
+  CHECK(err.type == outOfBoundError);
 }
 
 TEST_CASE("Slice_readInt64LE", "[Slice]") {
@@ -274,7 +271,7 @@ TEST_CASE("Slice_readInt64LE", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_readInt64LE(view, 7, &err) == int64_t());
-  CHECK(err.type == outOfBoundError());
+  CHECK(err.type == outOfBoundError);
 }
 
 TEST_CASE("Slice_readFloat32LE", "[Slice]") {
@@ -286,7 +283,7 @@ TEST_CASE("Slice_readFloat32LE", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_readFloat32LE(view, 3, &err) == float());
-  CHECK(err.type == outOfBoundError());
+  CHECK(err.type == outOfBoundError);
 }
 
 TEST_CASE("Slice_readFloat64LE", "[Slice]") {
@@ -298,5 +295,5 @@ TEST_CASE("Slice_readFloat64LE", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_readFloat64LE(view, 7, &err) == double());
-  CHECK(err.type == outOfBoundError());
+  CHECK(err.type == outOfBoundError);
 }
