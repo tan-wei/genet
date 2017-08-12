@@ -14,7 +14,7 @@ PLUGKIT_DST = node_modules/plugkit
 DISSECTOR_ESS = plugins/dissector/dissector-essentials
 
 ROOLUP_EXTERN_BUILTIN = electron,deplug,$(shell node -p -e 'require("builtin-modules").join(",")')
-ROOLUP_EXTERN = $(ROOLUP_EXTERN_BUILTIN),$(shell jq '.dependencies | keys | join(",")' package.json -r)
+ROOLUP_EXTERN = $(ROOLUP_EXTERN_BUILTIN),$(shell jq '.dependencies + .devDependencies | keys | join(",")' package.json -r)
 
 ELECTRON_VERSION = $(shell jq '.devDependencies."negatron"' package.json -r)
 ELECTRON_MIRROR = https://s3-ap-northeast-1.amazonaws.com/deplug-build-junk/electron/v
