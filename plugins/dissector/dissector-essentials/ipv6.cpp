@@ -34,7 +34,7 @@ const auto dstToken = Token_get("ipv6.dst");
 const auto hbyhToken = Token_get("ipv6.hbyh");
 const auto protocolToken = Token_get("ipv6.protocol");
 const auto ipv6AddrToken = Token_get("@ipv6:addr");
-const auto nestedToken = Token_get("@nested");
+const auto nestedToken = Token_get("@flags");
 
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   Reader reader;

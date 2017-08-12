@@ -128,8 +128,8 @@ export default {
       type: 'core:renderer',
       renderer: {
         type: 'property',
-        id: ':nested',
-        root: 'nested.js'
+        id: '@flags',
+        root: 'flags.js'
       }
     },
     {

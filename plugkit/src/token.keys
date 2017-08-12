@@ -2,7 +2,7 @@ Out of bound
 @eth:mac
 @ipv4:addr
 @ipv6:addr
-@nested
+@flags
 [eth]
 eth
 eth.src

@@ -44,7 +44,7 @@ const auto selAckToken = Token_get("tcp.options.selAck");
 const auto tsToken = Token_get("tcp.options.ts");
 const auto mtToken = Token_get("tcp.options.ts.mt");
 const auto etToken = Token_get("tcp.options.ts.et");
-const auto nestedToken = Token_get("@nested");
+const auto nestedToken = Token_get("@flags");
 
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   Reader reader;

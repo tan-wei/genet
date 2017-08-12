@@ -42,7 +42,7 @@ const auto checksumToken = Token_get("ipv4.checksum");
 const auto srcToken = Token_get("ipv4.src");
 const auto dstToken = Token_get("ipv4.dst");
 const auto ipv4AddrToken = Token_get("@ipv4:addr");
-const auto nestedToken = Token_get("@nested");
+const auto nestedToken = Token_get("@flags");
 
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   Reader reader;
