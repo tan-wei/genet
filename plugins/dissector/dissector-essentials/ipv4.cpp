@@ -14,9 +14,9 @@ using namespace plugkit;
 namespace {
 
 const std::pair<uint16_t, Token> flagTable[] = {
-    std::make_tuple(0x1, Token_get("ipv4.flags.reserved")),
-    std::make_tuple(0x2, Token_get("ipv4.flags.dontFrag")),
-    std::make_tuple(0x4, Token_get("ipv4.flags.moreFrag")),
+    std::make_pair(0x1, Token_get("ipv4.flags.reserved")),
+    std::make_pair(0x2, Token_get("ipv4.flags.dontFrag")),
+    std::make_pair(0x4, Token_get("ipv4.flags.moreFrag")),
 };
 
 const std::unordered_map<uint16_t, std::pair<Token, Token>> protoTable = {

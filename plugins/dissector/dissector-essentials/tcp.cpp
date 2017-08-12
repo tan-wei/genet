@@ -14,15 +14,15 @@ using namespace plugkit;
 namespace {
 
 const std::pair<uint16_t, Token> flagTable[] = {
-    std::make_tuple(0x1 << 8, Token_get("tcp.flags.ns")),
-    std::make_tuple(0x1 << 7, Token_get("tcp.flags.cwr")),
-    std::make_tuple(0x1 << 6, Token_get("tcp.flags.ece")),
-    std::make_tuple(0x1 << 5, Token_get("tcp.flags.urg")),
-    std::make_tuple(0x1 << 4, Token_get("tcp.flags.ack")),
-    std::make_tuple(0x1 << 3, Token_get("tcp.flags.psh")),
-    std::make_tuple(0x1 << 2, Token_get("tcp.flags.rst")),
-    std::make_tuple(0x1 << 1, Token_get("tcp.flags.syn")),
-    std::make_tuple(0x1 << 0, Token_get("tcp.flags.fin")),
+    std::make_pair(0x1 << 8, Token_get("tcp.flags.ns")),
+    std::make_pair(0x1 << 7, Token_get("tcp.flags.cwr")),
+    std::make_pair(0x1 << 6, Token_get("tcp.flags.ece")),
+    std::make_pair(0x1 << 5, Token_get("tcp.flags.urg")),
+    std::make_pair(0x1 << 4, Token_get("tcp.flags.ack")),
+    std::make_pair(0x1 << 3, Token_get("tcp.flags.psh")),
+    std::make_pair(0x1 << 2, Token_get("tcp.flags.rst")),
+    std::make_pair(0x1 << 1, Token_get("tcp.flags.syn")),
+    std::make_pair(0x1 << 0, Token_get("tcp.flags.fin")),
 };
 
 const auto tcpToken = Token_get("tcp");
