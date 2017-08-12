@@ -5,13 +5,12 @@
 #include <string>
 #include <vector>
 #include "layer.h"
-#include "export.h"
 #include "token.h"
 #include "types.hpp"
 
 namespace plugkit {
 
-struct PLUGKIT_EXPORT Layer final {
+struct Layer final {
 public:
   Layer(Token id);
   ~Layer();

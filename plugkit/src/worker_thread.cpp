@@ -7,12 +7,10 @@
 #include <map>
 #include <mutex>
 #include <nan.h>
-#include <node.h>
 #include <sstream>
 #include <string>
 #include <thread>
 #include <uv.h>
-#include <v8.h>
 
 namespace plugkit {
 

@@ -2,6 +2,7 @@
 #define PLUGKIT_FRAME_VIEW_H
 
 #include <memory>
+#include <vector>
 #include "token.h"
 
 namespace plugkit {

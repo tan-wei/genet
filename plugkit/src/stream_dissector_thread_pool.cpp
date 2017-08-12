@@ -7,10 +7,8 @@
 #include "stream_logger.hpp"
 #include "variant.hpp"
 #include "dissector.h"
-#include <array>
 #include <thread>
 #include <uv.h>
-#include <v8.h>
 
 namespace plugkit {
 

@@ -3,13 +3,12 @@
 
 #include "property.h"
 #include "variant.hpp"
-#include "export.h"
 #include "token.h"
 #include <memory>
 
 namespace plugkit {
 
-struct PLUGKIT_EXPORT Property final {
+struct Property final {
 public:
   Property(Token id, const Variant &value = Variant());
   ~Property();

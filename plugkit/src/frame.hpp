@@ -1,13 +1,12 @@
 #ifndef PLUGKIT_FRAME_H
 #define PLUGKIT_FRAME_H
 
-#include "export.h"
 #include "types.hpp"
 #include <memory>
 
 namespace plugkit {
 
-class PLUGKIT_EXPORT Frame final {
+class Frame final {
 public:
   Frame();
   virtual ~Frame();

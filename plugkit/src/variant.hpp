@@ -3,7 +3,6 @@
 
 #include "variant.h"
 #include "types.hpp"
-#include "export.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -12,7 +11,7 @@
 
 namespace plugkit {
 
-struct PLUGKIT_EXPORT Variant final {
+struct Variant final {
 public:
   enum Type {
     TYPE_NIL,
