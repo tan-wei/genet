@@ -2,13 +2,11 @@
 #include "frame.hpp"
 #include "frame_view.hpp"
 #include "layer.hpp"
-
 #include "property.hpp"
 #include "wrapper/frame.hpp"
 #include "wrapper/layer.hpp"
 #include "wrapper/property.hpp"
 #include <json11.hpp>
-#include <nan.h>
 
 namespace plugkit {
 

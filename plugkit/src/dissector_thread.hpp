@@ -3,7 +3,6 @@
 
 #include "queue.hpp"
 #include "worker_thread.hpp"
-#include <memory>
 
 namespace plugkit {
 

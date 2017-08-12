@@ -2,8 +2,6 @@
 #define PLUGKIT_FRAME_VIEW_H
 
 #include <memory>
-#include <vector>
-#include "export.h"
 #include "token.h"
 
 namespace plugkit {
@@ -13,7 +11,7 @@ class FrameView;
 struct Layer;
 struct Property;
 
-class PLUGKIT_EXPORT FrameView final {
+class FrameView final {
 public:
   explicit FrameView(const Frame *frame);
   ~FrameView();

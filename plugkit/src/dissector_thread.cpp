@@ -2,7 +2,6 @@
 #include "frame.hpp"
 #include "layer.hpp"
 #include "stream_resolver.hpp"
-#include "variant.hpp"
 #include "tag_filter.hpp"
 #include "dissector.h"
 #include "context.hpp"
@@ -11,7 +10,6 @@
 #include <unordered_set>
 #include <algorithm>
 #include <cstring>
-#include <v8.h>
 
 namespace plugkit {
 

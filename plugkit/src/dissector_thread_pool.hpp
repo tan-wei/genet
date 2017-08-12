@@ -4,7 +4,6 @@
 #include "queue.hpp"
 #include <functional>
 #include <memory>
-#include <vector>
 
 namespace plugkit {
 

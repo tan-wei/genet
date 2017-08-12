@@ -4,8 +4,8 @@
 #include <condition_variable>
 #include <map>
 #include <mutex>
+#include <vector>
 #include <unordered_set>
-#include <uv.h>
 
 namespace plugkit {
 

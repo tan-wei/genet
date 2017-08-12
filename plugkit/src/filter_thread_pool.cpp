@@ -2,7 +2,6 @@
 #include "filter_thread.hpp"
 #include <map>
 #include <uv.h>
-#include <vector>
 
 namespace plugkit {
 

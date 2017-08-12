@@ -3,8 +3,8 @@
 #include "frame_view.hpp"
 #include "layer.hpp"
 #include "plugkit_module.hpp"
-
 #include "wrapper/property.hpp"
+#include <vector>
 
 namespace plugkit {
 

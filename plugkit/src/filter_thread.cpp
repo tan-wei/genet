@@ -5,8 +5,6 @@
 #include "frame_view.hpp"
 #include "null_logger.hpp"
 #include <array>
-#include <uv.h>
-#include <v8.h>
 
 namespace plugkit {
 

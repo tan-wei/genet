@@ -2,7 +2,7 @@
 #include "frame.hpp"
 #include "layer.hpp"
 #include "property.hpp"
-#include <functional>
+#include <vector>
 
 namespace plugkit {
 
