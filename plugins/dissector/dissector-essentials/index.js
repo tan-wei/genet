@@ -192,6 +192,14 @@ export default {
       }
     },
     {
+      type: 'core:renderer',
+      renderer: {
+        type: 'property',
+        id: '@ipv6:addr',
+        root: 'ipv6-addr.js'
+      }
+    },
+    {
       type: 'core:dissector',
       dissector: {
         main: 'build/Release/udp.node',
