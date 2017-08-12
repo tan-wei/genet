@@ -142,11 +142,11 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
 }
 
 void Init(v8::Local<v8::Object> exports) {
-  static Dissector diss;
-  diss.layerHints[0] = Token_get("[ipv4]");
-  diss.analyze = analyze;
+  Dissector *diss = Dissector_create(DISSECTOR_PACKET);
+  Dissector_addLayerHint(diss, Token_get("[ipv4]"));
+  Dissector_setAnalyzer(diss, analyze);
   exports->Set(Nan::New("dissector").ToLocalChecked(),
-               Nan::New<v8::External>(&diss));
+               Nan::New<v8::External>(diss));
 }
 
 NODE_MODULE(dissectorEssentials, Init);

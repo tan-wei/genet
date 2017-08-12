@@ -1,7 +1,7 @@
 #include "dissector_thread_pool.hpp"
 #include "dissector_thread.hpp"
 #include "stream_resolver.hpp"
-#include "dissector.h"
+#include "dissector.hpp"
 #include "variant.hpp"
 #include <array>
 

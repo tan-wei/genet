@@ -133,12 +133,10 @@ public:
 */
 
 void Init(v8::Local<v8::Object> exports) {
-  static Dissector diss;
-  diss.layerHints[0] = Token_get("[tcp-stream]");
-  diss.type = DISSECTOR_STREAM;
-  // diss.analyze = analyze;
+  Dissector *diss = Dissector_create(DISSECTOR_STREAM);
+  Dissector_addLayerHint(diss, Token_get("[tcp-stream]"));
   exports->Set(Nan::New("dissector").ToLocalChecked(),
-               Nan::New<v8::External>(&diss));
+               Nan::New<v8::External>(diss));
 }
 
 NODE_MODULE(dissectorEssentials, Init);

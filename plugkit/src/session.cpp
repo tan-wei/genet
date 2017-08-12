@@ -1,5 +1,5 @@
 #include "session.hpp"
-#include "dissector.h"
+#include "dissector.hpp"
 #include "dissector_thread.hpp"
 #include "dissector_thread_pool.hpp"
 #include "filter_thread.hpp"
@@ -11,7 +11,6 @@
 #include "payload.hpp"
 #include "stream_dissector_thread_pool.hpp"
 #include "uvloop_logger.hpp"
-#include "variant.hpp"
 #include <atomic>
 #include <unordered_map>
 #include <uv.h>

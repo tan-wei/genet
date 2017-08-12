@@ -3,7 +3,7 @@
 #include "layer.hpp"
 #include "stream_resolver.hpp"
 #include "tag_filter.hpp"
-#include "dissector.h"
+#include "dissector.hpp"
 #include "context.hpp"
 #include <array>
 #include <unordered_map>

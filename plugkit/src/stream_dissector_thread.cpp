@@ -4,7 +4,7 @@
 #include "queue.hpp"
 #include "variant.hpp"
 
-#include "dissector.h"
+#include "dissector.hpp"
 #include "context.hpp"
 
 #include <algorithm>
@@ -40,6 +40,7 @@ public:
 };
 
 void StreamDissectorThread::Private::cleanup() {
+  Context ctx;
   for (auto &pair : workers) {
     for (auto it = pair.second.begin(); it != pair.second.end();) {
       bool alive = false;
@@ -49,7 +50,8 @@ void StreamDissectorThread::Private::cleanup() {
               .count();
       for (const auto &pair : it->second.list) {
         auto expired = pair.first->expired;
-        if ((!expired && elapsed < 30000) || !expired(pair.second, elapsed)) {
+        if ((!expired && elapsed < 30000) ||
+            !expired(&ctx, pair.second, elapsed)) {
           alive = true;
         }
       }
