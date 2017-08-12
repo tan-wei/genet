@@ -13,12 +13,6 @@ struct Payload;
 class Plugin;
 struct SessionContext;
 
-class Attribute;
-using AttributeConstPtr = std::shared_ptr<const Attribute>;
-
-class Chunk;
-using ChunkConstPtr = std::shared_ptr<const Chunk>;
-
 class Logger;
 using LoggerPtr = std::shared_ptr<Logger>;
 
