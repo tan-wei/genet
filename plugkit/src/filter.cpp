@@ -6,6 +6,7 @@
 #include "wrapper/frame.hpp"
 #include "wrapper/layer.hpp"
 #include "wrapper/property.hpp"
+#include <functional>
 #include <json11.hpp>
 
 namespace plugkit {
