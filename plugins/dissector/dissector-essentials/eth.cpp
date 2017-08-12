@@ -7,7 +7,6 @@
 #include <plugkit/variant.h>
 #include <plugkit/payload.h>
 #include <plugkit/layer.h>
-#include <plugkit/logger.h>
 #include <unordered_map>
 
 using namespace plugkit;
