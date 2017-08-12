@@ -3,6 +3,7 @@
 #include "stream_resolver.hpp"
 #include "dissector.h"
 #include "variant.hpp"
+#include <array>
 
 namespace plugkit {
 

@@ -15,7 +15,7 @@ class Logger {
 public:
   enum Level { LEVEL_DEBUG, LEVEL_INFO, LEVEL_WARN, LEVEL_ERROR };
 
-  struct Message {
+  struct Message final {
     Level level = LEVEL_INFO;
     std::chrono::system_clock::time_point timestamp =
         std::chrono::system_clock::now();

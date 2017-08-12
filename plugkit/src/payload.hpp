@@ -10,7 +10,7 @@
 
 namespace plugkit {
 
-struct Payload {
+struct Payload final {
 public:
   Payload(const Slice &view);
   ~Payload();

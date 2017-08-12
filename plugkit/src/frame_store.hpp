@@ -15,7 +15,7 @@ using FrameStorePtr = std::shared_ptr<FrameStore>;
 
 class FrameView;
 
-class FrameStore {
+class FrameStore final {
 public:
   using Callback = std::function<void()>;
 

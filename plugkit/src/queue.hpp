@@ -8,7 +8,7 @@
 
 namespace plugkit {
 
-template <class T> class Queue {
+template <class T> class Queue final {
 public:
   Queue();
   ~Queue();

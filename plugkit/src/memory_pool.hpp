@@ -5,7 +5,7 @@
 namespace plugkit {
 
 template <class T, class P, size_t initSize = 2048, int maxScale = 5>
-class MemoryPool {
+class MemoryPool final {
 public:
   MemoryPool();
   ~MemoryPool();

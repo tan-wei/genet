@@ -8,9 +8,9 @@ namespace plugkit {
 
 class FrameView;
 
-class Filter {
+class Filter final {
 public:
-  struct Result {
+  struct Result final {
     using Value = v8::Local<v8::Value>;
     Result(Value value, Value parent = Value())
         : value(value), parent(parent) {}

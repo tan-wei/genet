@@ -8,7 +8,7 @@ namespace plugkit {
 
 struct Layer;
 
-class StreamResolver {
+class StreamResolver final {
 public:
   StreamResolver();
   ~StreamResolver();

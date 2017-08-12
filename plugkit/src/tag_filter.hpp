@@ -6,7 +6,7 @@
 
 namespace plugkit {
 
-class TagFilter {
+class TagFilter final {
 public:
   TagFilter();
   TagFilter(const std::vector<Token> &tags);

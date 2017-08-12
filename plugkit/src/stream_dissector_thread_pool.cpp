@@ -7,6 +7,8 @@
 #include "stream_logger.hpp"
 #include "variant.hpp"
 #include "dissector.h"
+#include "variant.hpp"
+#include <array>
 #include <thread>
 #include <uv.h>
 
