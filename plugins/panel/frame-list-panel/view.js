@@ -1,6 +1,5 @@
 import throttle from 'lodash.throttle'
 import m from 'mithril'
-import { Token } from 'plugkit'
 import { Channel, Panel, Profile, Session, Renderer, Tab } from 'deplug'
 
 class FrameItem {

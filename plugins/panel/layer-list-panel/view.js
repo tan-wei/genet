@@ -1,7 +1,6 @@
 import m from 'mithril'
 import moment from 'moment'
 import objpath from 'object-path'
-import { Token } from 'plugkit'
 import { Channel, Profile, Session, Renderer } from 'deplug'
 import Buffer from 'buffer'
 
@@ -117,7 +116,7 @@ class PropertyItem {
       <label
         onclick={ () => this.expanded = !this.expanded }
       ><i class={faClass}></i> { name }: </label>
-      { m(propRenderer, {prop}) }
+      { m(propRenderer, {prop, layer: vnode.attrs.layer}) }
       <label
       class="error"
       style={{ display: prop.error ? 'inline' : 'none' }}
@@ -126,7 +125,8 @@ class PropertyItem {
         {
           children.map((prop) => {
             return m(PropertyItem, {
-              property: prop
+              property: prop,
+              layer: vnode.attrs.layer
             })
           })
         }
@@ -217,6 +217,7 @@ class LayerItem {
         orderedProperties(propObject[layerId]).map((prop) => {
           return m(PropertyItem, {
             property: prop,
+            layer: layer,
             dataOffset
           })
         })

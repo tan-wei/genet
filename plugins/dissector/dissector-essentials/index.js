@@ -133,6 +133,22 @@ export default {
       }
     },
     {
+      type: 'core:renderer',
+      renderer: {
+        type: 'property',
+        id: '@enum',
+        root: 'enum.js'
+      }
+    },
+    {
+      type: 'core:renderer',
+      renderer: {
+        type: 'property',
+        id: '@nested',
+        root: 'nested.js'
+      }
+    },
+    {
       type: 'core:dissector',
       dissector: {
         main: 'build/Release/ipv6.node',

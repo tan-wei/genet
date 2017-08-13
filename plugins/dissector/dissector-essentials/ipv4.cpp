@@ -42,7 +42,8 @@ const auto checksumToken = Token_get("ipv4.checksum");
 const auto srcToken = Token_get("ipv4.src");
 const auto dstToken = Token_get("ipv4.dst");
 const auto ipv4AddrToken = Token_get("@ipv4:addr");
-const auto nestedToken = Token_get("@flags");
+const auto flagsTypeToken = Token_get("@flags");
+const auto enumToken = Token_get("@enum");
 
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   Reader reader;
@@ -95,7 +96,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
       flagSummary += std::get<1>(bit);
     }
   }
-  Property_setType(flags, nestedToken);
+  Property_setType(flags, flagsTypeToken);
   Property_setRange(flags, reader.lastRange);
 
   uint16_t fgOffset =
@@ -111,7 +112,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   uint8_t protocolNumber = Reader_readUint8(&reader);
   Property *proto = Layer_addProperty(child, protocolToken);
   Variant_setUint64(Property_valueRef(proto), protocolNumber);
-  Property_setType(proto, nestedToken);
+  Property_setType(proto, enumToken);
   Property_setRange(proto, reader.lastRange);
   const auto &it = protoTable.find(protocolNumber);
   if (it != protoTable.end()) {

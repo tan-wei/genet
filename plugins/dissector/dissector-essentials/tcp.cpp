@@ -44,7 +44,8 @@ const auto selAckToken = Token_get("tcp.options.selAck");
 const auto tsToken = Token_get("tcp.options.ts");
 const auto mtToken = Token_get("tcp.options.ts.mt");
 const auto etToken = Token_get("tcp.options.ts.et");
-const auto nestedToken = Token_get("@flags");
+const auto flagsTypeToken = Token_get("@flags");
+const auto nestedToken = Token_get("@nested");
 
 void analyze(Context *ctx, Worker *data, Layer *layer) {
   Reader reader;
@@ -93,7 +94,7 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
     Variant_setBool(Property_valueRef(flagBit), on);
     Property_setRange(flagBit, reader.lastRange);
   }
-  Property_setType(flags, nestedToken);
+  Property_setType(flags, flagsTypeToken);
   Property_setRange(flags, Range{12, 14});
 
   Property *window = Layer_addProperty(child, windowToken);
