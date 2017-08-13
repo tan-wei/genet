@@ -3,6 +3,7 @@
 #include "layer.hpp"
 #include "property.hpp"
 #include <vector>
+#include <functional>
 
 namespace plugkit {
 
