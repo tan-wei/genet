@@ -50,9 +50,11 @@ const std::vector<const Layer *> &FrameView::leafLayers() const {
 }
 
 const Property *FrameView::propertyFromId(Token id) const {
-  for (auto layer = primaryLayer(); layer; layer = layer->parent()) {
-    if (const Property *layerProp = layer->propertyFromId(id)) {
-      return layerProp;
+  for (const Layer *leaf : leafLayers()) {
+    for (const Layer *layer = leaf; layer; layer = layer->parent()) {
+      if (const Property *layerProp = layer->propertyFromId(id)) {
+        return layerProp;
+      }
     }
   }
   return nullptr;
