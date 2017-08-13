@@ -133,14 +133,6 @@ export default {
       }
     },
     {
-      type: 'core:renderer',
-      renderer: {
-        type: 'layer',
-        id: 'ipv4',
-        root: 'ipv4-summary.js'
-      }
-    },
-    {
       type: 'core:dissector',
       dissector: {
         main: 'build/Release/ipv6.node',
@@ -308,6 +300,14 @@ export default {
             name: 'Echo reply timestamp'
           }
         }
+      }
+    },
+    {
+      type: 'core:renderer',
+      renderer: {
+        type: 'layer',
+        id: 'tcp',
+        root: 'tcp-summary.js'
       }
     },
     {
