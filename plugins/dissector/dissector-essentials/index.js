@@ -292,6 +292,9 @@ export default {
           'tcp.options': {
             name: 'Options'
           },
+          'tcp.options.selAck': {
+            name: 'Selective ACK'
+          },
           'tcp.options.nop': {
             name: 'NOP'
           },
