@@ -20,7 +20,9 @@ public:
 
 FrameView::Private::Private(const Frame *frame) : frame(frame) {}
 
-FrameView::FrameView(const Frame *frame) : d(new Private(frame)) {
+FrameView::FrameView(Frame *frame) : d(new Private(frame)) {
+  frame->setView(this);
+
   std::function<void(const Layer *)> findLeafLayers = [this, &findLeafLayers](
       const Layer *layer) {
     d->layers.push_back(layer);

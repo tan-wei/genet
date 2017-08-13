@@ -21,6 +21,7 @@ public:
   static NAN_GETTER(confidence);
   static NAN_SETTER(setConfidence);
   static NAN_GETTER(parent);
+  static NAN_GETTER(frame);
   static NAN_GETTER(children);
   static NAN_GETTER(properties);
   static NAN_GETTER(payloads);

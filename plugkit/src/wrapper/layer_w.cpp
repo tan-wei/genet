@@ -1,8 +1,9 @@
 #include "layer.hpp"
 #include "../layer.hpp"
+#include "../frame.hpp"
 #include "payload.hpp"
 #include "plugkit_module.hpp"
-
+#include "wrapper/frame.hpp"
 #include "wrapper/property.hpp"
 
 namespace plugkit {
@@ -23,6 +24,7 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   Nan::SetAccessor(otl, Nan::New("confidence").ToLocalChecked(), confidence,
                    setConfidence);
   Nan::SetAccessor(otl, Nan::New("parent").ToLocalChecked(), parent);
+  Nan::SetAccessor(otl, Nan::New("frame").ToLocalChecked(), frame);
   Nan::SetAccessor(otl, Nan::New("payloads").ToLocalChecked(), payloads);
   Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
   Nan::SetAccessor(otl, Nan::New("children").ToLocalChecked(), children);
@@ -105,6 +107,19 @@ NAN_GETTER(LayerWrapper::parent) {
     } else {
       info.GetReturnValue().Set(Nan::Null());
     }
+  }
+}
+
+NAN_GETTER(LayerWrapper::frame) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->weakLayer) {
+    if (auto frame = layer->frame()) {
+      if (auto view = frame->view()) {
+        info.GetReturnValue().Set(FrameWrapper::wrap(view));
+        return;
+      }
+    }
+    info.GetReturnValue().Set(Nan::Null());
   }
 }
 

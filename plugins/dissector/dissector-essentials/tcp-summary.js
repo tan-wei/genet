@@ -7,8 +7,8 @@ export default class TCPSummary {
     const parent = layer.parent
     const srcAddr = parent.propertyFromId(parent.id + '.src')
     const dstAddr = parent.propertyFromId(parent.id + '.dst')
-    const srcPort = layer.propertyFromId('tcp.src').value
-    const dstPort = layer.propertyFromId('tcp.dst').value
+    const srcPort = layer.frame.propertyFromId('tcp.src').value
+    const dstPort = layer.frame.propertyFromId('tcp.dst').value
     const renderer = Renderer.forProperty(srcAddr.type)
     if (srcAddr.type === '@ipv6:addr') {
       return <span> [{ m(renderer, {prop: srcAddr}) }]:<b>{ srcPort }</b> ->

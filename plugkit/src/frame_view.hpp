@@ -14,13 +14,17 @@ struct Property;
 
 class FrameView final {
 public:
-  explicit FrameView(const Frame *frame);
+  explicit FrameView(Frame *frame);
   ~FrameView();
   const Frame *frame() const;
   const Layer *primaryLayer() const;
   const std::vector<const Layer *> &leafLayers() const;
   const Property *propertyFromId(Token id) const;
   const Layer *layerFromId(Token id) const;
+
+private:
+  FrameView(const FrameView &view) = delete;
+  FrameView &operator=(const FrameView &view) = delete;
 
 private:
   class Private;

@@ -16,7 +16,7 @@ public:
 
 public:
   std::map<uint32_t, Frame *> sequence;
-  std::vector<const Frame *> frames;
+  std::vector<Frame *> frames;
   std::vector<const FrameView *> views;
   uint32_t maxSeq = 0;
   std::mutex mutex;
