@@ -54,6 +54,7 @@ void DissectorThread::pushDissector(const Dissector &diss) {
 
 void DissectorThread::enter() {
   Context ctx;
+  ctx.options = d->options;
   for (const auto &diss : d->dissectors) {
     WorkerData data;
     data.dissector = &diss;
@@ -78,8 +79,8 @@ bool DissectorThread::loop() {
   if (size == 0)
     return false;
 
-  std::vector<std::pair<Layer *, std::string>> streamedLayers;
-
+  Context ctx;
+  ctx.options = d->options;
   for (size_t i = 0; i < size; ++i) {
     std::unordered_set<Token> dissectedIds;
 
@@ -102,18 +103,11 @@ bool DissectorThread::loop() {
           }
         }
 
-        Context ctx;
         std::vector<Layer *> childLayers;
         for (const WorkerData *data : workers) {
           data->dissector->analyze(&ctx, data->worker, layer);
           for (Layer *childLayer : layer->children()) {
             if (childLayer->confidence() >= d->confidenceThreshold) {
-              /*
-              if (result.streamIdentifier[0] != '\0') {
-                streamedLayers.push_back(std::make_pair(
-                    childLayer, std::string(result.streamIdentifier)));
-              }
-              */
               auto it = dissectedIds.find(childLayer->id());
               if (it == dissectedIds.end()) {
                 nextlayers.push_back(childLayer);
@@ -133,7 +127,7 @@ bool DissectorThread::loop() {
     }
   }
 
-  d->resolver->resolve(streamedLayers.data(), streamedLayers.size());
+  d->resolver->resolve(ctx.streamedLayers.data(), ctx.streamedLayers.size());
 
   if (d->callback) {
     d->callback(&frames.front(), size);

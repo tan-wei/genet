@@ -6,6 +6,10 @@ namespace plugkit {
 
 const Variant *Context_options(Context *ctx) { return &ctx->options; }
 
+void Context_addStreamIdentifier(Context *ctx, Layer *layer, const char *str) {
+  ctx->streamedLayers.push_back(std::make_pair(layer, str));
+}
+
 namespace {
 void Log(Context *ctx, const char *file, int line, Logger::Level level,
          const char *message) {

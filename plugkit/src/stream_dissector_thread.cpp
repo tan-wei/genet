@@ -41,6 +41,7 @@ public:
 
 void StreamDissectorThread::Private::cleanup() {
   Context ctx;
+  ctx.options = options;
   for (auto &pair : workers) {
     for (auto it = pair.second.begin(); it != pair.second.end();) {
       bool alive = false;
@@ -108,6 +109,9 @@ bool StreamDissectorThread::loop() {
       dissectedIds.insert(id);
       auto &workers = d->workers[id][layer->streamId()];
 
+      Context ctx;
+      ctx.options = d->options;
+
       if (workers.list.empty()) {
         std::vector<const Dissector *> dissectors;
 
@@ -133,7 +137,6 @@ bool StreamDissectorThread::loop() {
         }
 
         for (const Dissector *diss : dissectors) {
-          Context ctx;
           Worker *worker = nullptr;
           if (diss->createWorker) {
             worker = diss->createWorker(&ctx);
@@ -142,7 +145,6 @@ bool StreamDissectorThread::loop() {
         }
       }
 
-      Context ctx;
       std::vector<Layer *> childLayers;
       for (const auto &pair : workers.list) {
         pair.first->analyze(&ctx, pair.second, layer);
