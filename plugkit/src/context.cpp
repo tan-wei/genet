@@ -6,8 +6,10 @@ namespace plugkit {
 
 const Variant *Context_options(Context *ctx) { return &ctx->options; }
 
-void Context_addStreamIdentifier(Context *ctx, Layer *layer, const char *str) {
-  ctx->streamedLayers.push_back(std::make_pair(layer, str));
+void Context_addStreamIdentifier(Context *ctx, Layer *layer, const char *data,
+                                 size_t length) {
+  ctx->streamedLayers.push_back(
+      std::make_pair(layer, std::string(data, length)));
 }
 
 namespace {

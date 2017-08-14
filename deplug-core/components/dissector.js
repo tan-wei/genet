@@ -6,33 +6,15 @@ import path from 'path'
 
 export default class DissectorComponent extends Component {
   async load () {
-    const type = objpath.get(this.comp, 'dissector.type', '')
-    if (type === '') {
-      throw new Error('dissector.type field required')
-    }
-
     const main = objpath.get(this.comp, 'dissector.main', '')
     if (main === '') {
       throw new Error('dissector.main field required')
     }
     const mainFile = path.join(this.rootDir, main)
-    switch (type) {
-      case 'packet':
-        if (path.extname(mainFile) === '.node') {
-          Session.registerNativeDissector(mainFile)
-        } else {
-          Session.registerDissector(mainFile)
-        }
-        break
-      case 'stream':
-        if (path.extname(mainFile) === '.node') {
-          Session.registerNativeStreamDissector(mainFile)
-        } else {
-          Session.registerStreamDissector(mainFile)
-        }
-        break
-      default:
-        throw new Error('unknown dissector.type')
+    if (path.extname(mainFile) === '.node') {
+      Session.registerNativeDissector(mainFile)
+    } else {
+      Session.registerDissector(mainFile)
     }
 
     const linkLayers = objpath.get(this.comp, 'dissector.linkLayers', [])

@@ -4,17 +4,12 @@ import denodeify from 'denodeify'
 import fs from 'fs'
 
 const dissectors = []
-const streamDissectors = []
 const linkLayers = []
 const samples = []
 const descriptors = {}
 export default class Session {
   static registerNativeDissector (file) {
     dissectors.push(require(file).dissector)
-  }
-
-  static registerNativeStreamDissector (file) {
-    streamDissectors.push(require(file).factory)
   }
 
   static registerDissector (file) {
@@ -35,10 +30,6 @@ export default class Session {
 
   static get dissectors () {
     return dissectors
-  }
-
-  static get streamDissectors () {
-    return streamDissectors
   }
 
   static get linkLayers () {

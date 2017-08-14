@@ -5,7 +5,13 @@
 #include <plugkit/context.h>
 #include <plugkit/token.h>
 #include <plugkit/property.h>
+#include <plugkit/variant.h>
 #include <plugkit/layer.h>
+#include <plugkit/payload.h>
+#include <plugkit/reader.h>
+
+#define PLUGKIT_ENABLE_LOGGING
+#include <plugkit/logger.h>
 
 using namespace plugkit;
 
@@ -132,9 +138,19 @@ public:
 };
 */
 
+namespace {
+void analyze(Context *ctx, Worker *data, Layer *layer) {
+  Reader reader;
+  Reader_reset(&reader);
+  reader.slice = Payload_data(Layer_payloads(layer, nullptr)[0]);
+  Log_debug(ctx, "ANALYZE");
+}
+}
+
 void Init(v8::Local<v8::Object> exports) {
   Dissector *diss = Dissector_create(DISSECTOR_STREAM);
-  Dissector_addLayerHint(diss, Token_get("[tcp-stream]"));
+  Dissector_addLayerHint(diss, Token_get("tcp"));
+  Dissector_setAnalyzer(diss, analyze);
   exports->Set(Nan::New("dissector").ToLocalChecked(),
                Nan::New<v8::External>(diss));
 }

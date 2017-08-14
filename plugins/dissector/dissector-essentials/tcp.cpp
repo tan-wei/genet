@@ -68,6 +68,13 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   Variant_setUint64(Property_valueRef(dst), dstPort);
   Property_setRange(dst, reader.lastRange);
 
+  std::string streamId;
+  streamId += std::string(reinterpret_cast<const char *>(&sourcePort),
+                          sizeof(uint16_t));
+  streamId +=
+      std::string(reinterpret_cast<const char *>(&dstPort), sizeof(uint16_t));
+  Context_addStreamIdentifier(ctx, child, streamId.data(), streamId.size());
+
   uint32_t seqNumber = Reader_readUint32BE(&reader);
   Property *seq = Layer_addProperty(child, seqToken);
   Variant_setUint64(Property_valueRef(seq), seqNumber);

@@ -156,20 +156,6 @@ class SessionFactory extends kit.SessionFactory {
       super.registerDissector(dissector)
     }
   }
-
-  registerStreamDissector(dissector) {
-    if (typeof dissector === 'string') {
-      let task = roll(dissector).then((script) => {
-        super.registerDissector(script, dissector)
-        return Promise.resolve()
-      }).catch((err) => {
-        return Promise.reject(err)
-      })
-      internal(this).tasks.push(task)
-    } else {
-      super.registerDissector(dissector)
-    }
-  }
 }
 
 const tokenMap = {}
