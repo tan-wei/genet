@@ -17,10 +17,10 @@ export default {
           eth: {
             name: 'Ethernet'
           },
-          'eth.src': {
+          '.src': {
             name: 'Source'
           },
-          'eth.dst': {
+          '.dst': {
             name: 'Destination'
           },
           'eth.type': {

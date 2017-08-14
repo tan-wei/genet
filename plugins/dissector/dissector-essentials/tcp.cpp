@@ -26,8 +26,8 @@ const std::pair<uint16_t, Token> flagTable[] = {
 };
 
 const auto tcpToken = Token_get("tcp");
-const auto srcToken = Token_get("tcp.src");
-const auto dstToken = Token_get("tcp.dst");
+const auto srcToken = Token_get(".src");
+const auto dstToken = Token_get(".dst");
 const auto seqToken = Token_get("tcp.seq");
 const auto ackToken = Token_get("tcp.ack");
 const auto dOffsetToken = Token_get("tcp.dOffset");

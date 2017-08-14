@@ -5,10 +5,10 @@ export default class TCPSummary {
   view(vnode) {
     const layer = vnode.attrs.layer
     const parent = layer.parent
-    const srcAddr = parent.propertyFromId(parent.id + '.src')
-    const dstAddr = parent.propertyFromId(parent.id + '.dst')
-    const srcPort = layer.frame.propertyFromId('tcp.src').value
-    const dstPort = layer.frame.propertyFromId('tcp.dst').value
+    const srcAddr = parent.propertyFromId('.src')
+    const dstAddr = parent.propertyFromId('.dst')
+    const srcPort = layer.propertyFromId('.src').value
+    const dstPort = layer.propertyFromId('.dst').value
     const renderer = Renderer.forProperty(srcAddr.type)
     if (srcAddr.type === '@ipv6:addr') {
       return <span> [{ m(renderer, {prop: srcAddr}) }]:<b>{ srcPort }</b> ->

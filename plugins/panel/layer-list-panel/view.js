@@ -138,8 +138,8 @@ class PropertyItem {
 class LayerDefaultItem {
   view (vnode) {
     const layer = vnode.attrs.layer
-    const src = layer.propertyFromId(layer.id + '.src')
-    const dst = layer.propertyFromId(layer.id + '.dst')
+    const src = layer.propertyFromId('.src')
+    const dst = layer.propertyFromId('.dst')
     if (src == null) {
       return <span></span>
     }
@@ -188,8 +188,12 @@ class LayerItem {
     const properties = layer.properties
     for (let i = 0; i < properties.length; ++i) {
       const prop = properties[i]
-      objpath.ensureExists(propObject, prop.id, {})
-      const item = objpath.get(propObject, prop.id)
+      let id = prop.id
+      if (id.startsWith('.')) {
+        id = layer.id + id
+      }
+      objpath.ensureExists(propObject, id, {})
+      const item = objpath.get(propObject, id)
       item[propSymbol] = prop
       item[orderSymbol] = i
     }
