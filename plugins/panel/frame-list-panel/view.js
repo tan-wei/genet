@@ -19,10 +19,11 @@ class FrameItem {
     const seq = vnode.attrs.seq
     const index = vnode.attrs.index
     const itemHeight = vnode.attrs.itemHeight
-    const src = this.frame.propertyFromId('src')
-    const dst = this.frame.propertyFromId('dst')
+    const src = this.frame.propertyFromId('.src')
+    const dst = this.frame.propertyFromId('.dst')
     const id = this.frame.primaryLayer.id
     const name = (id in Session.descriptors) ? Session.descriptors[id].name : 'Unknown'
+    const addrRenderer = Renderer.forProperty(src.id)
     const layerRenderer = Renderer.forLayer(id)
     return <div
       class="frame-item"
@@ -39,8 +40,8 @@ class FrameItem {
     >
       <div class="frame-column">{seq}</div>
       <div class="frame-column">{name}</div>
-      <div class="frame-column">{src ? src.summary : ''}</div>
-      <div class="frame-column">{dst ? dst.summary : ''}</div>
+      <div class="frame-column">{ m(addrRenderer, {prop: src}) }</div>
+      <div class="frame-column">{ m(addrRenderer, {prop: dst}) }</div>
       <div class="frame-column">{this.frame.length}</div>
       <div class="frame-column">{ m(layerRenderer, {layer: this.frame.primaryLayer}) }</div>
     </div>
