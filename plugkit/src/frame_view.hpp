@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include "token.h"
+#include "property.hpp"
 
 namespace plugkit {
 
@@ -27,8 +28,11 @@ private:
   FrameView &operator=(const FrameView &view) = delete;
 
 private:
-  class Private;
-  std::unique_ptr<Private> d;
+  const Frame *mFrame;
+  const Layer *mPrimaryLayer;
+  std::vector<const Layer *> mLeafLayers;
+  std::vector<const Layer *> mLayers;
+  Property mPropLength;
 };
 }
 

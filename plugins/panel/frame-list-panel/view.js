@@ -21,7 +21,7 @@ class FrameItem {
     const itemHeight = vnode.attrs.itemHeight
     const src = this.frame.propertyFromId('.src')
     const dst = this.frame.propertyFromId('.dst')
-    const len = this.frame.propertyFromId('._length')
+    const len = this.frame.propertyFromId('.length')
     console.log(len)
     const id = this.frame.primaryLayer.id
     const name = (id in Session.descriptors) ? Session.descriptors[id].name : 'Unknown'
