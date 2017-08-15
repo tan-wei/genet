@@ -21,6 +21,7 @@ public:
     TYPE_DOUBLE,
     TYPE_STRING,
     TYPE_TIMESTAMP,
+    TYPE_LAYER,
     TYPE_SLICE,
     TYPE_ARRAY,
     TYPE_MAP
@@ -48,6 +49,7 @@ public:
   Variant(Array &&array);
   Variant(Map &&map);
   Variant(const Timestamp &ts);
+  Variant(const Layer *layer);
   Variant(void *) = delete;
   ~Variant();
   Variant(const Variant &value);
@@ -62,6 +64,7 @@ public:
   bool isDouble() const;
   bool isString() const;
   bool isTimestamp() const;
+  bool isLayer() const;
   bool isSlice() const;
   bool isArray() const;
   bool isMap() const;
@@ -99,6 +102,7 @@ public:
     int64_t int_;
     uint64_t uint_;
     Timestamp *ts;
+    const Layer *layer;
     std::string *str;
     Slice *view;
     Array *array;

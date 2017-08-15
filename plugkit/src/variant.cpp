@@ -1,5 +1,6 @@
 #include "variant.hpp"
 #include "plugkit_module.hpp"
+#include "wrapper/layer.hpp"
 #include <iomanip>
 #include <nan.h>
 #include <sstream>
@@ -114,6 +115,8 @@ Variant::Variant(const Slice &view) : type_(TYPE_SLICE) {
 Variant::Variant(const Timestamp &ts) : type_(TYPE_TIMESTAMP) {
   d.ts = new Timestamp(ts);
 }
+
+Variant::Variant(const Layer *layer) : type_(TYPE_LAYER) { d.layer = layer; }
 
 Variant::~Variant() {
   switch (type()) {
@@ -326,6 +329,8 @@ bool Variant::isString() const { return type() == TYPE_STRING; }
 
 bool Variant::isTimestamp() const { return type() == TYPE_TIMESTAMP; }
 
+bool Variant::isLayer() const { return type() == TYPE_LAYER; }
+
 bool Variant::isSlice() const { return type() == TYPE_SLICE; }
 
 v8::Local<v8::Object> Variant::getNodeBuffer(const Slice &view) {
@@ -387,6 +392,8 @@ v8::Local<v8::Value> Variant::getValue(const Variant &var) {
               Nan::New(static_cast<double>(nano % 1000000)));
     return date;
   }
+  // case TYPE_LAYER:
+  //  return LayerWrapper::wrap(const Layer *layer);
   case TYPE_ARRAY: {
     const auto &array = var.array();
     auto obj = Nan::New<v8::Array>(array.size());
@@ -441,6 +448,9 @@ json11::Json Variant::getJson(const Variant &var) {
   case Variant::TYPE_TIMESTAMP:
     json["type"] = "timestamp";
     json["value"] = var.string();
+    break;
+  case Variant::TYPE_LAYER:
+    json["type"] = "layer";
     break;
   case Variant::TYPE_SLICE:
     json["type"] = "view";
@@ -498,6 +508,9 @@ Variant Variant::getVariant(v8::Local<v8::Value> var) {
     return Timestamp(std::chrono::nanoseconds(ts));
   } else if (node::Buffer::HasInstance(var)) {
     return getView(var.As<v8::Object>());
+  } else if (const Layer *layer =
+                 LayerWrapper::unwrapConst(var.As<v8::Object>())) {
+    return layer;
   } else if (var->IsArray()) {
     auto obj = var.As<v8::Array>();
     Variant::Array array;
