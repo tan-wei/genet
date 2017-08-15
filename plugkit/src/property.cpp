@@ -4,7 +4,8 @@
 
 namespace plugkit {
 
-Property::Property(Token id, const Variant &value) : mId(id), mValue(value) {}
+Property::Property(Token id, const Variant &value, Token type)
+    : mId(id), mValue(value), mType(type) {}
 
 Property::~Property() {}
 

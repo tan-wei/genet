@@ -10,7 +10,7 @@ namespace plugkit {
 
 struct Property final {
 public:
-  Property(Token id, const Variant &value = Variant());
+  Property(Token id, const Variant &value = Variant(), Token type = Token());
   ~Property();
 
   Token id() const;
