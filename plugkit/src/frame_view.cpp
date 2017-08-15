@@ -7,6 +7,10 @@
 
 namespace plugkit {
 
+namespace {
+const Token lengthToken = Token_get("._length");
+}
+
 class FrameView::Private {
 public:
   Private(const Frame *frame);
@@ -16,9 +20,12 @@ public:
   const Layer *primaryLayer = nullptr;
   std::vector<const Layer *> leafLayers;
   std::vector<const Layer *> layers;
+  Property propLength;
 };
 
-FrameView::Private::Private(const Frame *frame) : frame(frame) {}
+FrameView::Private::Private(const Frame *frame)
+    : frame(frame),
+      propLength(lengthToken, static_cast<uint32_t>(frame->length())) {}
 
 FrameView::FrameView(Frame *frame) : d(new Private(frame)) {
   frame->setView(this);
@@ -52,6 +59,9 @@ const std::vector<const Layer *> &FrameView::leafLayers() const {
 }
 
 const Property *FrameView::propertyFromId(Token id) const {
+  if (id == lengthToken) {
+    return &d->propLength;
+  }
   for (const Layer *leaf : leafLayers()) {
     for (const Layer *layer = leaf; layer; layer = layer->parent()) {
       if (const Property *layerProp = layer->propertyFromId(id)) {

@@ -76,6 +76,7 @@ public:
   double doubleValue(double defaultValue = double()) const;
   Timestamp timestamp(const Timestamp &defaultValue = Timestamp()) const;
   std::string string(const std::string &defaultValue = std::string()) const;
+  const Layer *layer() const;
   Slice view() const;
   const Array &array() const;
   const Map &map() const;

@@ -271,6 +271,14 @@ Timestamp Variant::timestamp(const Timestamp &defaultValue) const {
   }
 }
 
+const Layer *Variant::layer() const {
+  if (isLayer()) {
+    return d.layer;
+  } else {
+    return nullptr;
+  }
+}
+
 Slice Variant::view() const {
   if (isSlice()) {
     return *d.view;
@@ -392,8 +400,8 @@ v8::Local<v8::Value> Variant::getValue(const Variant &var) {
               Nan::New(static_cast<double>(nano % 1000000)));
     return date;
   }
-  // case TYPE_LAYER:
-  //  return LayerWrapper::wrap(const Layer *layer);
+  case TYPE_LAYER:
+    return LayerWrapper::wrap(var.layer());
   case TYPE_ARRAY: {
     const auto &array = var.array();
     auto obj = Nan::New<v8::Array>(array.size());

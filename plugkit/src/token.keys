@@ -1,3 +1,6 @@
+._length
+.dst
+.src
 Out of bound
 @eth:mac
 @ipv4:addr
