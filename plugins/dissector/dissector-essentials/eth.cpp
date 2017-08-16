@@ -57,7 +57,6 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
     const auto &it = typeTable.find(protocolType);
     if (it != typeTable.end()) {
       Property *type = Layer_addProperty(child, it->second.second);
-      Variant_setBool(Property_valueRef(type), true);
       Property_setRange(type, reader.lastRange);
       Layer_addTag(child, it->second.first);
     }

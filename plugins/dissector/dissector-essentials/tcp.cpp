@@ -149,7 +149,6 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
     } break;
     case 4: {
       Property *opt = Layer_addProperty(child, ackPermToken);
-      Variant_setBool(Property_valueRef(opt), true);
       Property_setRange(opt, Range{optionOffset, optionOffset + 2});
       optionOffset += 2;
     } break;

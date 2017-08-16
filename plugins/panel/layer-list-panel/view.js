@@ -62,7 +62,7 @@ class PropertyValueItem {
   view(vnode) {
     const prop = vnode.attrs.prop
     if (prop.value === null) {
-      return <span> (null) </span>
+      return <span></span>
     } else if (typeof prop.value === 'boolean') {
       return m(BooleanValueItem, {value: prop.value})
     } else if (prop.value instanceof Date) {
