@@ -15,7 +15,12 @@
 
 using namespace plugkit;
 
-/*
+namespace {
+const auto seqToken = Token_get("tcp.seq");
+const auto windowToken = Token_get("tcp.window");
+const auto flagsToken = Token_get("tcp.flags");
+}
+
 class Ring {
 public:
   Ring() {}
@@ -30,13 +35,13 @@ public:
     size_t end = offset;
     for (auto &pair : slices) {
       if (pair.first < end) {
-        pair.second = pair.second.slice(end - pair.first);
+        pair.second = Slice_sliceAll(pair.second, end - pair.first);
         pair.first = end;
       }
-      end = pair.first + pair.second.length();
+      end = pair.first + Slice_length(pair.second);
     }
     slices.remove_if([](const std::pair<size_t, Slice> &pair) {
-      return pair.second.length() == 0;
+      return Slice_length(pair.second) == 0;
     });
   }
 
@@ -45,7 +50,7 @@ public:
     auto it = slices.begin();
     for (; it != slices.end() && it->first == offset; ++it) {
       sequence.push_back(it->second);
-      offset += it->second.length();
+      offset += Slice_length(it->second);
     }
     slices.erase(slices.begin(), it);
     return sequence;
@@ -55,7 +60,7 @@ private:
   size_t offset = 0;
   std::list<std::pair<size_t, Slice>> slices;
 };
-
+/*
 class TCPStreamDissector final : public StreamDissector {
 public:
   class Worker final : public StreamDissector::Worker {
@@ -143,7 +148,13 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
   reader.slice = Payload_data(Layer_payloads(layer, nullptr)[0]);
-  Log_debug(ctx, "ANALYZE");
+
+  uint32_t seq =
+      Variant_uint64(Property_value(Layer_propertyFromId(layer, seqToken)));
+  uint16_t window =
+      Variant_uint64(Property_value(Layer_propertyFromId(layer, windowToken)));
+  uint8_t flags =
+      Variant_uint64(Property_value(Layer_propertyFromId(layer, flagsToken)));
 }
 }
 
