@@ -26,10 +26,6 @@ export default class RendererComponent extends Component {
     const module = {}
     func(module)
 
-    if (type === 'property') {
-      Renderer.registerProperty(id, module.exports)
-    } else if (type === 'layer') {
-      Renderer.registerLayer(id, module.exports)
-    }
+    Renderer.registerProperty(id, module.exports)
   }
 }

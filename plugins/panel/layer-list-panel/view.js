@@ -51,10 +51,19 @@ class ObjectValueItem {
   }
 }
 
+class LayerValueItem {
+  view (vnode) {
+    const layer = vnode.attrs.value
+    return <span> { Renderer.query(layer, '.src') } -> { Renderer.query(layer, '.dst') } </span>
+  }
+}
+
 class PropertyValueItem {
   view(vnode) {
     const prop = vnode.attrs.prop
-    if (typeof prop.value === 'boolean') {
+    if (prop.value === null) {
+      return <span> (null) </span>
+    } else if (typeof prop.value === 'boolean') {
       return m(BooleanValueItem, {value: prop.value})
     } else if (prop.value instanceof Date) {
       return m(DateValueItem, {value: prop.value})
@@ -62,6 +71,9 @@ class PropertyValueItem {
       return m(BufferValueItem, {value: prop.value})
     } else if (Array.isArray(prop.value)) {
       return m(ArrayValueItem, {value: prop.value})
+    } else if (typeof prop.value === 'object' &&
+        prop.value.constructor.name === 'Layer') {
+      return m(LayerValueItem, {value: prop.value})
     } else if (typeof prop.value === 'object' &&
         prop.value != null &&
         Reflect.getPrototypeOf(prop.value) === Object.prototype) {
@@ -135,22 +147,6 @@ class PropertyItem {
   }
 }
 
-class LayerDefaultItem {
-  view (vnode) {
-    const layer = vnode.attrs.layer
-    const src = layer.propertyFromId('.src')
-    const dst = layer.propertyFromId('.dst')
-    if (src == null) {
-      return <span></span>
-    }
-    const srcRenderer = Renderer.forProperty(src.type)
-    const dstRenderer = Renderer.forProperty(dst.type)
-    return <span> { m(srcRenderer, {prop: src}) } -> { m(dstRenderer, {prop: dst}) } </span>
-  }
-}
-
-Renderer.registerLayer('', LayerDefaultItem)
-
 class LayerItem {
   constructor() {
     this.expanded = false
@@ -182,7 +178,6 @@ class LayerItem {
     const layerId = layer.id
     const name = (layerId in Session.descriptors) ?
       Session.descriptors[layerId].name : layerId
-    const layerRenderer = Renderer.forLayer(layerId)
 
     const propObject = {}
     const properties = layer.properties
@@ -207,7 +202,7 @@ class LayerItem {
         <h4
           data-layer={layer.tags.join(' ')}
           onclick={ () => this.expanded = !this.expanded }
-        ><i class={faClass}></i> { name } { m(layerRenderer, {layer}) }
+        ><i class={faClass}></i> { name } { Renderer.query(layer, '.') }
         <span
         style={{ display: layer.streamId > 0 ? 'inline' : 'none' }}
         ><i class="fa fa-exchange"></i> Stream</span>

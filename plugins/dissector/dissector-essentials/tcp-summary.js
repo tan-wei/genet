@@ -3,7 +3,7 @@ import { Renderer } from 'deplug';
 
 export default class TCPSummary {
   view(vnode) {
-    const layer = vnode.attrs.layer
+    const layer = vnode.attrs.prop.value
     const parent = layer.parent
     const srcAddr = parent.propertyFromId('.src')
     const dstAddr = parent.propertyFromId('.dst')

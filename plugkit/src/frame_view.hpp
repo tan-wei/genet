@@ -32,7 +32,6 @@ private:
   const Layer *mPrimaryLayer;
   std::vector<const Layer *> mLeafLayers;
   std::vector<const Layer *> mLayers;
-  Property mPropLength;
 };
 }
 

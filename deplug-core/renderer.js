@@ -1,12 +1,10 @@
+import mithril from 'mithril'
+
 const properties = {}
 const layers = {}
 export default class Renderer {
   static registerProperty (type, renderer) {
     properties[type] = renderer
-  }
-
-  static registerLayer (id, renderer) {
-    layers[id] = renderer
   }
 
   static forProperty (type) {
@@ -16,10 +14,50 @@ export default class Renderer {
     return properties['']
   }
 
-  static forLayer (id) {
-    if (id in layers) {
-      return layers[id]
+  static query (object, query) {
+    let type = ''
+    let value = null
+
+    if (query === '.') {
+      value = object
+    } else if (query.startsWith('.')) {
+      const key = query.substr(1)
+      if (key in object) {
+        value = object[key]
+      }
     }
-    return layers['']
+
+    if (value === null) {
+      if (query === '.id' && typeof object === 'object'
+        && object.constructor.name === 'Frame') {
+        value = object.primaryLayer.id
+      } else if (typeof object.propertyFromId === 'function') {
+        const prop = object.propertyFromId(query)
+        if (prop) {
+          type = prop.type
+          value = prop.value
+        }
+      }
+    }
+
+    if (query === '.id') {
+      type = '@id'
+    }
+
+    if (typeof value === 'object' && value.constructor.name === 'Layer') {
+      type = value.id
+    }
+
+    let renderer = properties['']
+    if (type in properties) {
+      renderer = properties[type]
+    }
+
+    return mithril(renderer, {
+      prop: {
+        type,
+        value,
+      },
+    })
   }
 }
