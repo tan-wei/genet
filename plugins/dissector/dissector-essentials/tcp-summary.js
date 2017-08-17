@@ -12,9 +12,9 @@ export default class TCPSummary {
     const renderer = Renderer.forProperty(srcAddr.type)
     if (srcAddr.type === '@ipv6:addr') {
       return <span> [{ m(renderer, {prop: srcAddr}) }]:<b>{ srcPort }</b> ->
-        [{ m(renderer, {prop: dstAddr}) }]:<b>{ dstPort }</b> </span>
+        [{ m(renderer, {prop: dstAddr}) }]:<b>{ dstPort }</b> [{ layer.payloads.length }] </span>
     }
     return <span> { m(renderer, {prop: srcAddr}) }:<b>{ srcPort }</b> ->
-      { m(renderer, {prop: dstAddr}) }:<b>{ dstPort }</b> </span>
+      { m(renderer, {prop: dstAddr}) }:<b>{ dstPort }</b> [{ layer.payloads.length }] </span>
   }
 }

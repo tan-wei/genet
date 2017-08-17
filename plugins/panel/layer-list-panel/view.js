@@ -212,15 +212,25 @@ class LayerItem {
         </h4>
       </li>
       <div style={{ display: this.expanded ? 'block' : 'none' }}>
-      {
-        orderedProperties(propObject[layerId]).map((prop) => {
-          return m(PropertyItem, {
-            property: prop,
-            layer: layer,
-            dataOffset
+        {
+          orderedProperties(propObject[layerId]).map((prop) => {
+            return m(PropertyItem, {
+              property: prop,
+              layer: layer,
+              dataOffset
+            })
           })
-        })
-      }
+        }
+        <a>Payloads</a>
+        <ul>
+        {
+          layer.payloads.map((payload) => {
+            return <li>
+              { m(BufferValueItem, {value: payload.data}) } : { payload.type }
+            </li>
+          })
+        }
+        </ul>
       </div>
       <li>
         <ul>
