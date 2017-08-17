@@ -4,7 +4,7 @@
 
 namespace plugkit {
 
-Payload::Payload(const Slice &slice) : mData(slice) {}
+Payload::Payload(const Slice &slice) : mData(slice), mType() {}
 
 Payload::~Payload() {}
 
@@ -25,5 +25,13 @@ const Property *Payload::propertyFromId(Token id) const {
 
 void Payload::addProperty(const Property *prop) { mProperties.push_back(prop); }
 
+Token Payload::type() const { return mType; }
+
+void Payload::setType(Token type) { mType = type; }
+
 Slice Payload_data(const Payload *payload) { return payload->data(); }
+
+Token Payload_type(const Payload *payload) { return payload->type(); }
+
+void Payload_setType(Payload *payload, Token type) { payload->setType(type); }
 }

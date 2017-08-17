@@ -18,6 +18,8 @@ public:
   static NAN_METHOD(addProperty);
   static NAN_GETTER(properties);
   static NAN_METHOD(propertyFromId);
+  static NAN_GETTER(type);
+  static NAN_SETTER(setType);
 
 private:
   PayloadWrapper(Payload *prop);

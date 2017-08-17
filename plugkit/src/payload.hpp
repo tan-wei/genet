@@ -16,6 +16,9 @@ public:
   ~Payload();
   Slice data() const;
 
+  Token type() const;
+  void setType(Token type);
+
   const std::vector<const Property *> &properties() const;
   const Property *propertyFromId(Token id) const;
   void addProperty(const Property *prop);
@@ -26,6 +29,7 @@ private:
 
 private:
   Slice mData;
+  Token mType;
   std::vector<const Property *> mProperties;
 };
 }

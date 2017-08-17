@@ -16,6 +16,7 @@ void PayloadWrapper::init(v8::Isolate *isolate) {
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("data").ToLocalChecked(), data);
   Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
+  Nan::SetAccessor(otl, Nan::New("type").ToLocalChecked(), type, setType);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
@@ -73,6 +74,21 @@ NAN_METHOD(PayloadWrapper::addProperty) {
         payload->addProperty(child);
       }
     }
+  }
+}
+
+NAN_GETTER(PayloadWrapper::type) {
+  PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
+  if (auto payload = wrapper->constPayload) {
+    info.GetReturnValue().Set(
+        Nan::New(Token_string(payload->type())).ToLocalChecked());
+  }
+}
+
+NAN_SETTER(PayloadWrapper::setType) {
+  PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
+  if (auto payload = wrapper->payload) {
+    payload->setType(Token_get(*Nan::Utf8String(value)));
   }
 }
 

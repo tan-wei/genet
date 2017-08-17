@@ -19,6 +19,7 @@ namespace {
 const auto seqToken = Token_get("tcp.seq");
 const auto windowToken = Token_get("tcp.window");
 const auto flagsToken = Token_get("tcp.flags");
+const auto chunkToken = Token_get("@chunk");
 }
 
 class Ring {
@@ -188,8 +189,10 @@ void analyze(Context *ctx, void *data, Layer *layer) {
     }
   }
 
-  const auto &sequence = worker->ring.fetch();
-  printf("%d\n", sequence.size());
+  for (const auto &slice : worker->ring.fetch()) {
+    Payload *chunk = Layer_addPayload(layer, slice);
+    Payload_setType(chunk, chunkToken);
+  }
 }
 }
 

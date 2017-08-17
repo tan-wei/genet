@@ -22,6 +22,12 @@ PLUGKIT_EXPORT Slice Payload_data(const Payload *payload);
 /// Allocates a new Property and adds it as a payload property.
 PLUGKIT_EXPORT Property *Payload_addProperty(Payload *payload, Token id);
 
+/// Gets type
+PLUGKIT_EXPORT Token Payload_type(const Payload *payload);
+
+/// Sets type
+PLUGKIT_EXPORT void Payload_setType(Payload *payload, Token type);
+
 PLUGKIT_NAMESPACE_END
 
 #endif
