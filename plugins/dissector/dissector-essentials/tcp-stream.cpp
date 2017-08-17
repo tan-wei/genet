@@ -19,7 +19,7 @@ namespace {
 const auto seqToken = Token_get("tcp.seq");
 const auto windowToken = Token_get("tcp.window");
 const auto flagsToken = Token_get("tcp.flags");
-const auto chunkToken = Token_get("@chunk");
+const auto reassembledToken = Token_get("@reassembled");
 }
 
 class Ring {
@@ -191,7 +191,7 @@ void analyze(Context *ctx, void *data, Layer *layer) {
 
   for (const auto &slice : worker->ring.fetch()) {
     Payload *chunk = Layer_addPayload(layer, slice);
-    Payload_setType(chunk, chunkToken);
+    Payload_setType(chunk, reassembledToken);
   }
 }
 }
