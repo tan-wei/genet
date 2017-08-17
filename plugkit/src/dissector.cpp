@@ -10,8 +10,10 @@ Dissector *Dissector_create(DissectorType type) {
 void Dissector_setAnalyzer(Dissector *diss, AnalyzerFunc *func) {
   diss->analyze = func;
 }
-void Dissector_setWorkerFactory(Dissector *diss, WokerFactoryFunc *func) {
-  diss->createWorker = func;
+void Dissector_setWorkerFactory(Dissector *diss, WokerFactoryAllocFunc *alloc,
+                                WokerFactoryDeallocFunc *dealloc) {
+  diss->createWorker = alloc;
+  diss->destroyWorker = dealloc;
 }
 void Dissector_setExpiry(Dissector *diss, ExpiryFunc *func) {
   diss->expired = func;

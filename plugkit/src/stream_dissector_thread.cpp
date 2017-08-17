@@ -17,7 +17,7 @@ namespace plugkit {
 
 namespace {
 struct WorkerList {
-  std::vector<std::pair<const Dissector *, Worker *>> list;
+  std::vector<std::pair<const Dissector *, void *>> list;
   std::chrono::system_clock::time_point lastUpdated =
       std::chrono::system_clock::now();
 };
@@ -59,6 +59,12 @@ void StreamDissectorThread::Private::cleanup() {
       if (alive) {
         ++it;
       } else {
+        for (const auto &pair : it->second.list) {
+          auto destroy = pair.first->destroyWorker;
+          if (destroy) {
+            destroy(&ctx, pair.second);
+          }
+        }
         it = pair.second.erase(it);
       }
     }
@@ -137,7 +143,7 @@ bool StreamDissectorThread::loop() {
         }
 
         for (const Dissector *diss : dissectors) {
-          Worker *worker = nullptr;
+          void *worker = nullptr;
           if (diss->createWorker) {
             worker = diss->createWorker(&ctx);
           }

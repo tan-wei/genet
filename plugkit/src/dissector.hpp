@@ -8,7 +8,8 @@ namespace plugkit {
 
 struct Dissector {
   AnalyzerFunc *analyze;
-  WokerFactoryFunc *createWorker;
+  WokerFactoryAllocFunc *createWorker;
+  WokerFactoryDeallocFunc *destroyWorker;
   ExpiryFunc *expired;
   std::vector<Token> layerHints;
   DissectorType type;

@@ -18,7 +18,7 @@ namespace {
 struct WorkerData {
   const Dissector *dissector;
   TagFilter filter;
-  Worker *worker;
+  void *worker;
 };
 }
 

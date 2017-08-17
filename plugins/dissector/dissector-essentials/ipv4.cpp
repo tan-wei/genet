@@ -45,7 +45,7 @@ const auto ipv4AddrToken = Token_get("@ipv4:addr");
 const auto flagsTypeToken = Token_get("@flags");
 const auto enumToken = Token_get("@enum");
 
-void analyze(Context *ctx, Worker *data, Layer *layer) {
+void analyze(Context *ctx, void *data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
   reader.slice = Payload_data(Layer_payloads(layer, nullptr)[0]);

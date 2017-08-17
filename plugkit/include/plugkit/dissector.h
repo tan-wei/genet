@@ -13,8 +13,6 @@ typedef struct Layer Layer;
 struct Context;
 typedef struct Context Context;
 
-typedef void Worker;
-
 typedef struct Dissector Dissector;
 
 typedef enum DissectorType {
@@ -22,14 +20,16 @@ typedef enum DissectorType {
   DISSECTOR_STREAM = 1
 } DissectorType;
 
-typedef void(AnalyzerFunc)(Context *ctx, Worker *worker, Layer *layer);
-typedef Worker *(WokerFactoryFunc)(Context *ctx);
-typedef bool(ExpiryFunc)(Context *ctx, Worker *worker, uint32_t elapsed);
+typedef void(AnalyzerFunc)(Context *ctx, void *worker, Layer *layer);
+typedef void *(WokerFactoryAllocFunc)(Context *ctx);
+typedef void(WokerFactoryDeallocFunc)(Context *ctx, void *);
+typedef bool(ExpiryFunc)(Context *ctx, void *worker, uint32_t elapsed);
 
 PLUGKIT_EXPORT Dissector *Dissector_create(DissectorType type);
 PLUGKIT_EXPORT void Dissector_setAnalyzer(Dissector *diss, AnalyzerFunc *func);
-PLUGKIT_EXPORT void Dissector_setWorkerFactory(Dissector *diss,
-                                               WokerFactoryFunc *func);
+PLUGKIT_EXPORT void
+Dissector_setWorkerFactory(Dissector *diss, WokerFactoryAllocFunc *alloc,
+                           WokerFactoryDeallocFunc *dealloc);
 PLUGKIT_EXPORT void Dissector_setExpiry(Dissector *diss, ExpiryFunc *func);
 PLUGKIT_EXPORT void Dissector_addLayerHint(Dissector *diss, Token hint);
 

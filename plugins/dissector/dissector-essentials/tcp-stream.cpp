@@ -144,7 +144,7 @@ public:
 */
 
 namespace {
-void analyze(Context *ctx, Worker *data, Layer *layer) {
+void analyze(Context *ctx, void *data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
   reader.slice = Payload_data(Layer_payloads(layer, nullptr)[0]);
@@ -168,10 +168,9 @@ void Init(v8::Local<v8::Object> exports) {
   Dissector *diss = Dissector_create(DISSECTOR_STREAM);
   Dissector_addLayerHint(diss, Token_get("tcp"));
   Dissector_setAnalyzer(diss, analyze);
-  Dissector_setWorkerFactory(diss, [](Context *ctx) -> void * {
-    void *data = Context_alloc(ctx, sizeof(Wroker));
-    return new (data) Wroker;
-  });
+  Dissector_setWorkerFactory(
+      diss, [](Context *ctx) -> void * { return new Wroker(); },
+      [](Context *ctx, void *data) { delete static_cast<Wroker *>(data); });
   exports->Set(Nan::New("dissector").ToLocalChecked(),
                Nan::New<v8::External>(diss));
 }

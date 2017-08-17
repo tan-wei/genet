@@ -25,7 +25,7 @@ static const std::unordered_map<uint16_t, std::pair<Token, Token>> typeTable = {
     {0x86DD, std::make_pair(Token_get("[ipv6]"), Token_get("eth.type.ipv6"))},
 };
 
-void analyze(Context *ctx, Worker *data, Layer *layer) {
+void analyze(Context *ctx, void *data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
   reader.slice = Payload_data(Layer_payloads(layer, nullptr)[0]);

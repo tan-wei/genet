@@ -18,7 +18,7 @@ const auto lengthToken = Token_get("udp.length");
 const auto checksumToken = Token_get("udp.checksum");
 
 namespace {
-void analyze(Context *ctx, Worker *data, Layer *layer) {
+void analyze(Context *ctx, void *data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
   reader.slice = Payload_data(Layer_payloads(layer, nullptr)[0]);
