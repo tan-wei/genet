@@ -144,10 +144,17 @@ public:
 */
 
 namespace {
+
+struct Worker {
+  int64_t currentSeq = -1;
+  uint64_t receivedLength = 0;
+  Ring ring;
+};
+
 void analyze(Context *ctx, void *data, Layer *layer) {
-  Reader reader;
-  Reader_reset(&reader);
-  reader.slice = Payload_data(Layer_payloads(layer, nullptr)[0]);
+  Worker *worker = static_cast<Worker *>(data);
+
+  const Slice payload = Payload_data(Layer_payloads(layer, nullptr)[0]);
 
   uint32_t seq =
       Variant_uint64(Property_value(Layer_propertyFromId(layer, seqToken)));
@@ -155,13 +162,35 @@ void analyze(Context *ctx, void *data, Layer *layer) {
       Variant_uint64(Property_value(Layer_propertyFromId(layer, windowToken)));
   uint8_t flags =
       Variant_uint64(Property_value(Layer_propertyFromId(layer, flagsToken)));
-}
+  bool syn = (flags & (0x1 << 1));
+  if (syn) {
+    if (worker->currentSeq < 0) {
+      worker->currentSeq = seq;
+      worker->ring.put(worker->receivedLength, payload);
+      worker->receivedLength += Slice_length(payload);
+    }
+  } else if (worker->currentSeq >= 0) {
+    if (Slice_length(payload)) {
+      uint64_t start = worker->receivedLength;
+      if (seq >= worker->currentSeq) {
+        start += seq - worker->currentSeq;
+        worker->currentSeq = seq;
+        worker->ring.put(worker->receivedLength, payload);
+        worker->receivedLength += Slice_length(payload);
+      } else if (worker->currentSeq - seq > window) {
+        start += (UINT32_MAX - worker->currentSeq) + seq;
+        worker->currentSeq = seq;
+        worker->ring.put(worker->receivedLength, payload);
+        worker->receivedLength += Slice_length(payload);
+      }
+    } else if ((worker->currentSeq + 1) % UINT32_MAX == seq) {
+      worker->currentSeq = seq;
+    }
+  }
 
-struct Wroker {
-  int64_t currentSeq = -1;
-  uint64_t receivedLength = 0;
-  Ring ring;
-};
+  const auto &sequence = worker->ring.fetch();
+  printf("%d\n", sequence.size());
+}
 }
 
 void Init(v8::Local<v8::Object> exports) {
@@ -169,8 +198,8 @@ void Init(v8::Local<v8::Object> exports) {
   Dissector_addLayerHint(diss, Token_get("tcp"));
   Dissector_setAnalyzer(diss, analyze);
   Dissector_setWorkerFactory(
-      diss, [](Context *ctx) -> void * { return new Wroker(); },
-      [](Context *ctx, void *data) { delete static_cast<Wroker *>(data); });
+      diss, [](Context *ctx) -> void * { return new Worker(); },
+      [](Context *ctx, void *data) { delete static_cast<Worker *>(data); });
   exports->Set(Nan::New("dissector").ToLocalChecked(),
                Nan::New<v8::External>(diss));
 }
