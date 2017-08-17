@@ -15,6 +15,10 @@ typedef struct Layer Layer;
 struct Context;
 typedef struct Context Context;
 
+PLUGKIT_EXPORT void *Context_alloc(Context *ctx, size_t size);
+
+PLUGKIT_EXPORT void Context_dealloc(Context *ctx, void *ptr);
+
 /// Gets options.
 PLUGKIT_EXPORT const Variant *Context_options(Context *ctx);
 

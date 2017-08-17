@@ -156,12 +156,22 @@ void analyze(Context *ctx, Worker *data, Layer *layer) {
   uint8_t flags =
       Variant_uint64(Property_value(Layer_propertyFromId(layer, flagsToken)));
 }
+
+struct Wroker {
+  int64_t currentSeq = -1;
+  uint64_t receivedLength = 0;
+  Ring ring;
+};
 }
 
 void Init(v8::Local<v8::Object> exports) {
   Dissector *diss = Dissector_create(DISSECTOR_STREAM);
   Dissector_addLayerHint(diss, Token_get("tcp"));
   Dissector_setAnalyzer(diss, analyze);
+  Dissector_setWorkerFactory(diss, [](Context *ctx) -> void * {
+    void *data = Context_alloc(ctx, sizeof(Wroker));
+    return new (data) Wroker;
+  });
   exports->Set(Nan::New("dissector").ToLocalChecked(),
                Nan::New<v8::External>(diss));
 }
