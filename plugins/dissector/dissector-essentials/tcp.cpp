@@ -55,8 +55,10 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   Layer *child = Layer_addLayer(layer, tcpToken);
   Layer_addTag(child, tcpToken);
 
-  const auto &parentSrc = Layer_propertyFromId(layer, srcToken);
-  const auto &parentDst = Layer_propertyFromId(layer, dstToken);
+  const auto &parentSrc =
+      Variant_slice(Property_value(Layer_propertyFromId(layer, srcToken)));
+  const auto &parentDst =
+      Variant_slice(Property_value(Layer_propertyFromId(layer, dstToken)));
 
   uint16_t srcPort = Reader_readUint16BE(&reader);
   Property *src = Layer_addProperty(child, srcToken);
@@ -72,6 +74,10 @@ void analyze(Context *ctx, void *data, Layer *layer) {
       ctx, child, reinterpret_cast<const char *>(&srcPort), sizeof(uint16_t));
   Context_addStreamIdentifier(
       ctx, child, reinterpret_cast<const char *>(&dstPort), sizeof(uint16_t));
+  Context_addStreamIdentifier(ctx, child, parentSrc.begin,
+                              Slice_length(parentSrc));
+  Context_addStreamIdentifier(ctx, child, parentDst.begin,
+                              Slice_length(parentDst));
 
   uint32_t seqNumber = Reader_readUint32BE(&reader);
   Property *seq = Layer_addProperty(child, seqToken);
