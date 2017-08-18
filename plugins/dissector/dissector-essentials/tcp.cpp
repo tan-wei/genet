@@ -58,9 +58,9 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   const auto &parentSrc = Layer_propertyFromId(layer, srcToken);
   const auto &parentDst = Layer_propertyFromId(layer, dstToken);
 
-  uint16_t sourcePort = Reader_readUint16BE(&reader);
+  uint16_t srcPort = Reader_readUint16BE(&reader);
   Property *src = Layer_addProperty(child, srcToken);
-  Variant_setUint64(Property_valueRef(src), sourcePort);
+  Variant_setUint64(Property_valueRef(src), srcPort);
   Property_setRange(src, reader.lastRange);
 
   uint16_t dstPort = Reader_readUint16BE(&reader);
@@ -68,12 +68,10 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   Variant_setUint64(Property_valueRef(dst), dstPort);
   Property_setRange(dst, reader.lastRange);
 
-  std::string streamId;
-  streamId += std::string(reinterpret_cast<const char *>(&sourcePort),
-                          sizeof(uint16_t));
-  streamId +=
-      std::string(reinterpret_cast<const char *>(&dstPort), sizeof(uint16_t));
-  Context_addStreamIdentifier(ctx, child, streamId.data(), streamId.size());
+  Context_addStreamIdentifier(
+      ctx, child, reinterpret_cast<const char *>(&srcPort), sizeof(uint16_t));
+  Context_addStreamIdentifier(
+      ctx, child, reinterpret_cast<const char *>(&dstPort), sizeof(uint16_t));
 
   uint32_t seqNumber = Reader_readUint32BE(&reader);
   Property *seq = Layer_addProperty(child, seqToken);

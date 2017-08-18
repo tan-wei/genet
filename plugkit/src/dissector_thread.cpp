@@ -127,7 +127,9 @@ bool DissectorThread::loop() {
     }
   }
 
-  d->resolver->resolve(ctx.streamedLayers.data(), ctx.streamedLayers.size());
+  std::vector<std::pair<Layer *, std::string>> streamedLayers(
+      ctx.streamedLayers.begin(), ctx.streamedLayers.end());
+  d->resolver->resolve(streamedLayers.data(), streamedLayers.size());
 
   if (d->callback) {
     d->callback(&frames.front(), size);
