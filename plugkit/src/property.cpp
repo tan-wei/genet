@@ -40,4 +40,40 @@ void Property_setType(Property *prop, Token type) { prop->setType(type); }
 const Variant *Property_value(const Property *prop) { return prop->valueRef(); }
 
 Variant *Property_valueRef(Property *prop) { return prop->valueRef(); }
+
+bool Property_bool(const Property *prop) { return prop->value().boolValue(); }
+
+void Property_setBool(Property *prop, bool value) { prop->setValue(value); }
+
+int64_t Property_int64(const Property *prop) {
+  return prop->value().int64Value();
+}
+
+void Property_setInt64(Property *prop, int64_t value) { prop->setValue(value); }
+
+uint64_t Property_uint64(const Property *prop) {
+  return prop->value().uint64Value();
+}
+
+void Property_setUint64(Property *prop, uint64_t value) {
+  prop->setValue(value);
+}
+
+double Property_double(const Property *prop) {
+  return prop->value().doubleValue();
+}
+
+void Property_setDouble(Property *prop, double value) { prop->setValue(value); }
+
+const char *Property_string(const Property *prop) {
+  return prop->value().string().c_str();
+}
+
+void Property_setString(Property *prop, const char *str) {
+  prop->setValue(str);
+}
+
+Slice Property_slice(const Property *prop) { return prop->value().slice(); }
+
+void Property_setSlice(Property *prop, Slice slice) { prop->setValue(slice); }
 }

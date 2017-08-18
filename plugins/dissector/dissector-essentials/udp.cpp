@@ -31,22 +31,22 @@ void analyze(Context *ctx, void *data, Layer *layer) {
 
   uint16_t sourcePort = Reader_readUint16BE(&reader);
   Property *src = Layer_addProperty(child, srcToken);
-  Variant_setUint64(Property_valueRef(src), sourcePort);
+  Property_setUint64(src, sourcePort);
   Property_setRange(src, reader.lastRange);
 
   uint16_t dstPort = Reader_readUint16BE(&reader);
   Property *dst = Layer_addProperty(child, dstToken);
-  Variant_setUint64(Property_valueRef(dst), dstPort);
+  Property_setUint64(dst, dstPort);
   Property_setRange(dst, reader.lastRange);
 
   uint32_t lengthNumber = Reader_readUint16BE(&reader);
   Property *length = Layer_addProperty(child, lengthToken);
-  Variant_setUint64(Property_valueRef(length), lengthNumber);
+  Property_setUint64(length, lengthNumber);
   Property_setRange(length, reader.lastRange);
 
   uint32_t checksumNumber = Reader_readUint16BE(&reader);
   Property *checksum = Layer_addProperty(child, checksumToken);
-  Variant_setUint64(Property_valueRef(checksum), checksumNumber);
+  Property_setUint64(checksum, checksumNumber);
   Property_setRange(checksum, reader.lastRange);
 
   Layer_addPayload(child, Reader_slice(&reader, 0, lengthNumber - 8));

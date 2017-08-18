@@ -108,8 +108,8 @@ Variant::Variant(Array &&array) : type_(TYPE_ARRAY) {
 
 Variant::Variant(Map &&map) : type_(TYPE_MAP) { d.map = new Map(map); }
 
-Variant::Variant(const Slice &view) : type_(TYPE_SLICE) {
-  d.view = new Slice(view);
+Variant::Variant(const Slice &slice) : type_(TYPE_SLICE) {
+  d.slice = new Slice(slice);
 }
 
 Variant::Variant(const Timestamp &ts) : type_(TYPE_TIMESTAMP) {
@@ -127,7 +127,7 @@ Variant::~Variant() {
     delete d.str;
     break;
   case Variant::TYPE_SLICE:
-    delete d.view;
+    delete d.slice;
     break;
   case Variant::TYPE_ARRAY:
     delete d.array;
@@ -152,7 +152,7 @@ Variant &Variant::operator=(const Variant &value) {
     this->d.str = new std::string(*value.d.str);
     break;
   case Variant::TYPE_SLICE:
-    this->d.view = new Slice(*value.d.view);
+    this->d.slice = new Slice(*value.d.slice);
     break;
   case Variant::TYPE_ARRAY:
     this->d.array = new Array(*value.d.array);
@@ -279,9 +279,9 @@ const Layer *Variant::layer() const {
   }
 }
 
-Slice Variant::view() const {
+Slice Variant::slice() const {
   if (isSlice()) {
-    return *d.view;
+    return *d.slice;
   } else {
     return Slice();
   }
@@ -341,30 +341,30 @@ bool Variant::isLayer() const { return type() == TYPE_LAYER; }
 
 bool Variant::isSlice() const { return type() == TYPE_SLICE; }
 
-v8::Local<v8::Object> Variant::getNodeBuffer(const Slice &view) {
+v8::Local<v8::Object> Variant::getNodeBuffer(const Slice &slice) {
   using namespace v8;
 
   Isolate *isolate = Isolate::GetCurrent();
   if (!isolate->GetData(1)) { // Node.js is not installed
-    return v8::ArrayBuffer::New(isolate, const_cast<char *>(view.begin),
-                                Slice_length(view));
+    return v8::ArrayBuffer::New(isolate, const_cast<char *>(slice.begin),
+                                Slice_length(slice));
   }
-  auto nodeBuf = node::Buffer::New(isolate, const_cast<char *>(view.begin),
-                                   Slice_length(view),
+  auto nodeBuf = node::Buffer::New(isolate, const_cast<char *>(slice.begin),
+                                   Slice_length(slice),
                                    [](char *data, void *hint) {}, nullptr)
                      .ToLocalChecked();
 
   auto addr = Nan::New<v8::Array>(2);
   addr->Set(0,
             Nan::New(static_cast<uint32_t>(
-                0xffffffff & (reinterpret_cast<uint64_t>(view.begin) >> 32))));
+                0xffffffff & (reinterpret_cast<uint64_t>(slice.begin) >> 32))));
   addr->Set(1, Nan::New(static_cast<uint32_t>(
-                   0xffffffff & reinterpret_cast<uint64_t>(view.begin))));
+                   0xffffffff & reinterpret_cast<uint64_t>(slice.begin))));
   nodeBuf->Set(Nan::New("addr").ToLocalChecked(), addr);
   return nodeBuf;
 }
 
-Slice Variant::getView(v8::Local<v8::Object> obj) {
+Slice Variant::getSlice(v8::Local<v8::Object> obj) {
   using namespace v8;
 
   if (!node::Buffer::HasInstance(obj)) {
@@ -419,7 +419,7 @@ v8::Local<v8::Value> Variant::getValue(const Variant &var) {
     return obj;
   }
   case TYPE_SLICE:
-    return getNodeBuffer(var.view());
+    return getNodeBuffer(var.slice());
   default:
     return Nan::Null();
   }
@@ -461,13 +461,13 @@ json11::Json Variant::getJson(const Variant &var) {
     json["type"] = "layer";
     break;
   case Variant::TYPE_SLICE:
-    json["type"] = "view";
+    json["type"] = "slice";
     {
       std::stringstream stream;
       stream << std::hex << std::setfill('0') << std::setw(2);
-      const auto &view = var.view();
-      const uint8_t *data = reinterpret_cast<const uint8_t *>(view.begin);
-      size_t length = Slice_length(view);
+      const auto &slice = var.slice();
+      const uint8_t *data = reinterpret_cast<const uint8_t *>(slice.begin);
+      size_t length = Slice_length(slice);
       for (size_t i = 0; i < length; ++i) {
         stream << static_cast<int>(data[i]);
       }
@@ -515,7 +515,7 @@ Variant Variant::getVariant(v8::Local<v8::Value> var) {
     }
     return Timestamp(std::chrono::nanoseconds(ts));
   } else if (node::Buffer::HasInstance(var)) {
-    return getView(var.As<v8::Object>());
+    return getSlice(var.As<v8::Object>());
   } else if (const Layer *layer =
                  LayerWrapper::unwrapConst(var.As<v8::Object>())) {
     return layer;
@@ -566,9 +566,9 @@ void Variant_setString(Variant *var, const char *str) {
 
 Slice Variant_slice(const Variant *var) {
   if (var->isSlice()) {
-    return var->view();
+    return var->slice();
   }
   return Slice{nullptr, nullptr};
 }
-void Variant_setSlice(Variant *var, Slice view) { *var = Variant(view); }
+void Variant_setSlice(Variant *var, Slice slice) { *var = Variant(slice); }
 }

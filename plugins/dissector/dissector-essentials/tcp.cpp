@@ -55,19 +55,17 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   Layer *child = Layer_addLayer(layer, tcpToken);
   Layer_addTag(child, tcpToken);
 
-  const auto &parentSrc =
-      Variant_slice(Property_value(Layer_propertyFromId(layer, srcToken)));
-  const auto &parentDst =
-      Variant_slice(Property_value(Layer_propertyFromId(layer, dstToken)));
+  const auto &parentSrc = Property_slice(Layer_propertyFromId(layer, srcToken));
+  const auto &parentDst = Property_slice(Layer_propertyFromId(layer, dstToken));
 
   uint16_t srcPort = Reader_readUint16BE(&reader);
   Property *src = Layer_addProperty(child, srcToken);
-  Variant_setUint64(Property_valueRef(src), srcPort);
+  Property_setUint64(src, srcPort);
   Property_setRange(src, reader.lastRange);
 
   uint16_t dstPort = Reader_readUint16BE(&reader);
   Property *dst = Layer_addProperty(child, dstToken);
-  Variant_setUint64(Property_valueRef(dst), dstPort);
+  Property_setUint64(dst, dstPort);
   Property_setRange(dst, reader.lastRange);
 
   Context_addStreamIdentifier(
@@ -81,43 +79,43 @@ void analyze(Context *ctx, void *data, Layer *layer) {
 
   uint32_t seqNumber = Reader_readUint32BE(&reader);
   Property *seq = Layer_addProperty(child, seqToken);
-  Variant_setUint64(Property_valueRef(seq), seqNumber);
+  Property_setUint64(seq, seqNumber);
   Property_setRange(seq, reader.lastRange);
 
   uint32_t ackNumber = Reader_readUint32BE(&reader);
   Property *ack = Layer_addProperty(child, ackToken);
-  Variant_setUint64(Property_valueRef(ack), ackNumber);
+  Property_setUint64(ack, ackNumber);
   Property_setRange(ack, reader.lastRange);
 
   uint8_t offsetAndFlag = Reader_readUint8(&reader);
   int dataOffset = offsetAndFlag >> 4;
   Property *offset = Layer_addProperty(child, dOffsetToken);
-  Variant_setUint64(Property_valueRef(offset), dataOffset);
+  Property_setUint64(offset, dataOffset);
   Property_setRange(offset, reader.lastRange);
 
   uint8_t flag = Reader_readUint8(&reader) | ((offsetAndFlag & 0x1) << 8);
 
   Property *flags = Layer_addProperty(child, flagsToken);
-  Variant_setUint64(Property_valueRef(flags), flag);
+  Property_setUint64(flags, flag);
   for (const auto &bit : flagTable) {
     bool on = bit.first & flag;
     Property *flagBit = Layer_addProperty(child, bit.second);
-    Variant_setBool(Property_valueRef(flagBit), on);
+    Property_setBool(flagBit, on);
     Property_setRange(flagBit, reader.lastRange);
   }
   Property_setType(flags, flagsTypeToken);
   Property_setRange(flags, Range{12, 14});
 
   Property *window = Layer_addProperty(child, windowToken);
-  Variant_setUint64(Property_valueRef(window), Reader_readUint16BE(&reader));
+  Property_setUint64(window, Reader_readUint16BE(&reader));
   Property_setRange(window, reader.lastRange);
 
   Property *checksum = Layer_addProperty(child, checksumToken);
-  Variant_setUint64(Property_valueRef(checksum), Reader_readUint16BE(&reader));
+  Property_setUint64(checksum, Reader_readUint16BE(&reader));
   Property_setRange(checksum, reader.lastRange);
 
   Property *urgent = Layer_addProperty(child, urgentToken);
-  Variant_setUint64(Property_valueRef(urgent), Reader_readUint16BE(&reader));
+  Property_setUint64(urgent, Reader_readUint16BE(&reader));
   Property_setRange(urgent, reader.lastRange);
 
   Property *options = Layer_addProperty(child, optionsToken);
@@ -140,14 +138,14 @@ void analyze(Context *ctx, void *data, Layer *layer) {
       uint16_t size =
           Slice_readUint16BE(reader.slice, optionOffset + 2, nullptr);
       Property *opt = Layer_addProperty(child, mssToken);
-      Variant_setUint64(Property_valueRef(opt), size);
+      Property_setUint64(opt, size);
       Property_setRange(opt, Range{optionOffset, optionOffset + 4});
       optionOffset += 4;
     } break;
     case 3: {
       uint8_t scale = Slice_readUint8(reader.slice, optionOffset + 2, nullptr);
       Property *opt = Layer_addProperty(child, scaleToken);
-      Variant_setUint64(Property_valueRef(opt), scale);
+      Property_setUint64(opt, scale);
       Property_setRange(opt, Range{optionOffset, optionOffset + 2});
       optionOffset += 3;
     } break;
@@ -161,8 +159,8 @@ void analyze(Context *ctx, void *data, Layer *layer) {
     case 5: {
       uint8_t length = Slice_readUint8(reader.slice, optionOffset + 1, nullptr);
       Property *opt = Layer_addProperty(child, selAckToken);
-      Variant_setSlice(Property_valueRef(opt),
-                       Slice_slice(reader.slice, optionOffset + 2, length));
+      Property_setSlice(opt,
+                        Slice_slice(reader.slice, optionOffset + 2, length));
       Property_setRange(opt, Range{optionOffset, optionOffset + length});
       optionOffset += length;
     } break;
@@ -171,17 +169,16 @@ void analyze(Context *ctx, void *data, Layer *layer) {
       uint32_t et = Slice_readUint32BE(
           reader.slice, optionOffset + 2 + sizeof(uint32_t), nullptr);
       Property *opt = Layer_addProperty(child, tsToken);
-      Variant_setString(
-          Property_valueRef(opt),
-          (std::to_string(mt) + " - " + std::to_string(et)).c_str());
+      Property_setString(
+          opt, (std::to_string(mt) + " - " + std::to_string(et)).c_str());
       Property_setRange(opt, Range{optionOffset, optionOffset + 10});
 
       Property *optmt = Layer_addProperty(child, mtToken);
-      Variant_setUint64(Property_valueRef(optmt), mt);
+      Property_setUint64(optmt, mt);
       Property_setRange(optmt, Range{optionOffset + 2, optionOffset + 6});
 
       Property *optet = Layer_addProperty(child, etToken);
-      Variant_setUint64(Property_valueRef(optet), et);
+      Property_setUint64(optet, et);
       Property_setRange(optet, Range{optionOffset + 6, optionOffset + 10});
 
       optionOffset += 10;

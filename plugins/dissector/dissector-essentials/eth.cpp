@@ -35,24 +35,24 @@ void analyze(Context *ctx, void *data, Layer *layer) {
 
   const auto &srcSlice = Reader_slice(&reader, 0, 6);
   Property *src = Layer_addProperty(child, srcToken);
-  Variant_setSlice(Property_valueRef(src), srcSlice);
+  Property_setSlice(src, srcSlice);
   Property_setType(src, macToken);
   Property_setRange(src, reader.lastRange);
 
   const auto &dstSlice = Reader_slice(&reader, 0, 6);
   Property *dst = Layer_addProperty(child, dstToken);
-  Variant_setSlice(Property_valueRef(dst), dstSlice);
+  Property_setSlice(dst, dstSlice);
   Property_setType(dst, macToken);
   Property_setRange(dst, reader.lastRange);
 
   auto protocolType = Reader_readUint16BE(&reader);
   if (protocolType <= 1500) {
     Property *length = Layer_addProperty(child, lenToken);
-    Variant_setUint64(Property_valueRef(length), protocolType);
+    Property_setUint64(length, protocolType);
     Property_setRange(length, reader.lastRange);
   } else {
     Property *etherType = Layer_addProperty(child, ethTypeToken);
-    Variant_setUint64(Property_valueRef(etherType), protocolType);
+    Property_setUint64(etherType, protocolType);
     Property_setRange(etherType, reader.lastRange);
     const auto &it = typeTable.find(protocolType);
     if (it != typeTable.end()) {

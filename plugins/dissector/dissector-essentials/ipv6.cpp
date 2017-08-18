@@ -52,41 +52,41 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   int flowLevel = Reader_readUint16BE(&reader) | ((header2 & 0b00001111) << 16);
 
   Property *ver = Layer_addProperty(child, versionToken);
-  Variant_setUint64(Property_valueRef(ver), version);
+  Property_setUint64(ver, version);
   Property_setRange(ver, Range{0, 1});
 
   Property *tClass = Layer_addProperty(child, tClassToken);
-  Variant_setUint64(Property_valueRef(tClass), trafficClass);
+  Property_setUint64(tClass, trafficClass);
   Property_setRange(tClass, Range{0, 2});
 
   Property *fLevel = Layer_addProperty(child, fLevelToken);
-  Variant_setUint64(Property_valueRef(fLevel), flowLevel);
+  Property_setUint64(fLevel, flowLevel);
   Property_setRange(fLevel, Range{1, 4});
 
   Property *pLen = Layer_addProperty(child, pLenToken);
-  Variant_setUint64(Property_valueRef(pLen), Reader_readUint16BE(&reader));
+  Property_setUint64(pLen, Reader_readUint16BE(&reader));
   Property_setRange(pLen, reader.lastRange);
 
   int nextHeader = Reader_readUint8(&reader);
   auto nextHeaderRange = reader.lastRange;
 
   Property *nHeader = Layer_addProperty(child, nHeaderToken);
-  Variant_setUint64(Property_valueRef(nHeader), nextHeader);
+  Property_setUint64(nHeader, nextHeader);
   Property_setRange(nHeader, nextHeaderRange);
 
   Property *hLimit = Layer_addProperty(child, hLimitToken);
-  Variant_setUint64(Property_valueRef(hLimit), Reader_readUint8(&reader));
+  Property_setUint64(hLimit, Reader_readUint8(&reader));
   Property_setRange(hLimit, reader.lastRange);
 
   const auto &srcSlice = Reader_slice(&reader, 0, 16);
   Property *src = Layer_addProperty(child, srcToken);
-  Variant_setSlice(Property_valueRef(src), srcSlice);
+  Property_setSlice(src, srcSlice);
   Property_setType(src, ipv6AddrToken);
   Property_setRange(src, reader.lastRange);
 
   const auto &dstSlice = Reader_slice(&reader, 0, 16);
   Property *dst = Layer_addProperty(child, dstToken);
-  Variant_setSlice(Property_valueRef(dst), dstSlice);
+  Property_setSlice(dst, dstSlice);
   Property_setType(dst, ipv6AddrToken);
   Property_setRange(dst, reader.lastRange);
 
@@ -122,7 +122,7 @@ void analyze(Context *ctx, void *data, Layer *layer) {
 
   uint8_t protocolNumber = nextHeader;
   Property *proto = Layer_addProperty(child, protocolToken);
-  Variant_setUint64(Property_valueRef(proto), protocolNumber);
+  Property_setUint64(proto, protocolNumber);
   Property_setType(proto, enumToken);
   Property_setRange(proto, reader.lastRange);
   const auto &it = protoTable.find(protocolNumber);

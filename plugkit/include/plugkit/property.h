@@ -3,6 +3,7 @@
 
 #include "token.h"
 #include "range.h"
+#include "slice.h"
 #include "export.h"
 
 PLUGKIT_NAMESPACE_BEGIN
@@ -39,6 +40,42 @@ PLUGKIT_EXPORT const Variant *Property_value(const Property *prop);
 
 /// Gets value as a mutable pointer
 PLUGKIT_EXPORT Variant *Property_valueRef(Property *prop);
+
+/// Gets a boolean value
+PLUGKIT_EXPORT bool Property_bool(const Property *prop);
+
+/// Sets a boolean value
+PLUGKIT_EXPORT void Property_setBool(Property *prop, bool value);
+
+/// Gets an integer value
+PLUGKIT_EXPORT int64_t Property_int64(const Property *prop);
+
+/// Sets an integer value
+PLUGKIT_EXPORT void Property_setInt64(Property *prop, int64_t value);
+
+/// Gets an unsigned integer value
+PLUGKIT_EXPORT uint64_t Property_uint64(const Property *prop);
+
+/// Gets an unsigned integer value
+PLUGKIT_EXPORT void Property_setUint64(Property *prop, uint64_t value);
+
+/// Gets a floating number value
+PLUGKIT_EXPORT double Property_double(const Property *prop);
+
+/// Sets a floating number value
+PLUGKIT_EXPORT void Property_setDouble(Property *prop, double value);
+
+/// Gets a string value
+PLUGKIT_EXPORT const char *Property_string(const Property *prop);
+
+/// Sets a string value
+PLUGKIT_EXPORT void Property_setString(Property *prop, const char *str);
+
+/// Sets a slice value
+PLUGKIT_EXPORT Slice Property_slice(const Property *prop);
+
+/// Sets a slice value
+PLUGKIT_EXPORT void Property_setSlice(Property *prop, Slice slice);
 
 PLUGKIT_NAMESPACE_END
 

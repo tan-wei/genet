@@ -43,7 +43,7 @@ public:
   Variant(double value);
   Variant(const std::string &str);
   Variant(std::string &&str);
-  Variant(const Slice &view);
+  Variant(const Slice &slice);
   Variant(const Array &array);
   Variant(const Map &map);
   Variant(Array &&array);
@@ -77,7 +77,7 @@ public:
   Timestamp timestamp(const Timestamp &defaultValue = Timestamp()) const;
   std::string string(const std::string &defaultValue = std::string()) const;
   const Layer *layer() const;
-  Slice view() const;
+  Slice slice() const;
   const Array &array() const;
   const Map &map() const;
   uint8_t tag() const;
@@ -87,7 +87,7 @@ public:
 
 public:
   static v8::Local<v8::Object> getNodeBuffer(const Slice &slice);
-  static Slice getView(v8::Local<v8::Object> obj);
+  static Slice getSlice(v8::Local<v8::Object> obj);
   static v8::Local<v8::Value> getValue(const Variant &var);
   static Variant getVariant(v8::Local<v8::Value> var);
   static json11::Json getJson(const Variant &var);
@@ -105,7 +105,7 @@ public:
     Timestamp *ts;
     const Layer *layer;
     std::string *str;
-    Slice *view;
+    Slice *slice;
     Array *array;
     Map *map;
   } d;
