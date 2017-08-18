@@ -205,7 +205,7 @@ class LayerItem {
         ><i class={faClass}></i> { name } { Renderer.query(layer, '.') }
         <span
         style={{ display: layer.streamId > 0 ? 'inline' : 'none' }}
-        ><i class="fa fa-exchange"></i> Stream</span>
+        ><i class="fa fa-exchange"></i> Stream #{ layer.streamId }</span>
         <span
         style={{ display: layer.confidence < 1.0 ? 'inline' : 'none' }}
         ><i class="fa fa-question-circle"></i> { layer.confidence * 100 }%</span>
