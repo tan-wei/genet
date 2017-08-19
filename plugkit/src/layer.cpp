@@ -82,6 +82,10 @@ Layer *Layer_addLayer(Layer *layer, Token id) {
   return child;
 }
 
+Layer *Layer_addDummyLayer(Layer *layer) {
+  return Layer_addLayer(layer, Token_null());
+}
+
 Property *Layer_addProperty(Layer *layer, Token id) {
   Property *prop = new Property(id);
   layer->addProperty(prop);

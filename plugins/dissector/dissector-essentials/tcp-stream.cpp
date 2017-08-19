@@ -19,6 +19,7 @@ namespace {
 const auto seqToken = Token_get("tcp.seq");
 const auto windowToken = Token_get("tcp.window");
 const auto flagsToken = Token_get("tcp.flags");
+const auto tcpStreamToken = Token_get("tcp-stream");
 const auto reassembledToken = Token_get("@reassembled");
 
 class Ring {
@@ -109,6 +110,9 @@ void analyze(Context *ctx, void *data, Layer *layer) {
       Payload_addSlice(chunk, slice);
     }
   }
+
+  Layer *dummy = Layer_addDummyLayer(layer);
+  Layer_addTag(dummy, tcpStreamToken);
 }
 }
 
