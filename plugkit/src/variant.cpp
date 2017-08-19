@@ -341,6 +341,10 @@ bool Variant::isLayer() const { return type() == TYPE_LAYER; }
 
 bool Variant::isSlice() const { return type() == TYPE_SLICE; }
 
+bool Variant::isArray() const { return type() == TYPE_ARRAY; }
+
+bool Variant::isMap() const { return type() == TYPE_MAP; }
+
 v8::Local<v8::Object> Variant::getNodeBuffer(const Slice &slice) {
   using namespace v8;
 
@@ -571,4 +575,23 @@ Slice Variant_slice(const Variant *var) {
   return Slice{nullptr, nullptr};
 }
 void Variant_setSlice(Variant *var, Slice slice) { *var = Variant(slice); }
+
+const Variant *Variant_array(const Variant *var, size_t *size) {
+  const auto &array = var->array();
+  if (size)
+    *size = array.size();
+  return array.data();
+}
+
+const Variant *Variant_mapValue(const Variant *var, const char *key) {
+  if (var->isMap()) {
+    for (const auto &pair : var->map()) {
+      if (pair.first == key) {
+        return &pair.second;
+      }
+    }
+  }
+  static const Variant null;
+  return &null;
+}
 }

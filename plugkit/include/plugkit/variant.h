@@ -41,11 +41,19 @@ PLUGKIT_EXPORT const char *Variant_string(const Variant *var);
 /// Sets a string value
 PLUGKIT_EXPORT void Variant_setString(Variant *var, const char *str);
 
-/// Sets a slice value
+/// Gets a slice value
 PLUGKIT_EXPORT Slice Variant_slice(const Variant *var);
 
 /// Sets a slice value
 PLUGKIT_EXPORT void Variant_setSlice(Variant *var, Slice slice);
+
+/// Returns the first address of arrays
+/// and assigns the length of arrays to size.
+PLUGKIT_EXPORT const Variant *Variant_array(const Variant *var, size_t *size);
+
+/// Gets a value associated with a given key
+PLUGKIT_EXPORT const Variant *Variant_mapValue(const Variant *var,
+                                               const char *key);
 
 PLUGKIT_NAMESPACE_END
 

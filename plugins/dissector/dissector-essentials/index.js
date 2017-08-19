@@ -340,6 +340,12 @@ export default {
           }
         }
       }
+    },
+    {
+      type: 'core:dissector',
+      dissector: {
+        main: 'build/Release/http.node'
+      }
     }
   ],
   options: [
