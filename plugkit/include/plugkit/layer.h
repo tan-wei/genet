@@ -50,6 +50,9 @@ PLUGKIT_EXPORT Payload *Layer_addPayload(Layer *layer, Slice slice);
 PLUGKIT_EXPORT const Payload *const *Layer_payloads(const Layer *layer,
                                                     size_t *size);
 
+/// Returns the first payload
+PLUGKIT_EXPORT const Payload *Layer_payload(const Layer *layer);
+
 /// Adds a layer tag
 PLUGKIT_EXPORT void Layer_addTag(Layer *layer, Token tag);
 

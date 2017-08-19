@@ -88,8 +88,8 @@ const Property *Layer_propertyFromId(const Layer *layer, Token id) {
   return layer->propertyFromId(id);
 }
 
-Payload *Layer_addPayload(Layer *layer, Slice view) {
-  Payload *payload = new Payload(view);
+Payload *Layer_addPayload(Layer *layer, Slice slice) {
+  Payload *payload = new Payload(slice);
   layer->addPayload(payload);
   return payload;
 }
@@ -99,6 +99,15 @@ const Payload *const *Layer_payloads(const Layer *layer, size_t *size) {
   if (size)
     *size = payloads.size();
   return payloads.data();
+}
+
+const Payload *Layer_payload(const Layer *layer) {
+  static const Payload emptyPayload(Slice{nullptr, nullptr});
+  const auto &payloads = layer->payloads();
+  if (payloads.size() > 0) {
+    return payloads.front();
+  }
+  return &emptyPayload;
 }
 
 void Layer_addTag(Layer *layer, Token tag) { layer->addTag(tag); }

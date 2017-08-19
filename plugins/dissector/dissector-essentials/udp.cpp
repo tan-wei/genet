@@ -21,7 +21,7 @@ namespace {
 void analyze(Context *ctx, void *data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
-  reader.slice = Payload_data(Layer_payloads(layer, nullptr)[0]);
+  reader.slice = Payload_data(Layer_payload(layer));
 
   Layer *child = Layer_addLayer(layer, udpToken);
   Layer_addTag(child, udpToken);

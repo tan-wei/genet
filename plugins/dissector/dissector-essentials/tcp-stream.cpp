@@ -155,7 +155,7 @@ struct Worker {
 void analyze(Context *ctx, void *data, Layer *layer) {
   Worker *worker = static_cast<Worker *>(data);
 
-  const Slice payload = Payload_data(Layer_payloads(layer, nullptr)[0]);
+  const Slice payload = Payload_data(Layer_payload(layer));
 
   uint32_t seq = Property_uint64(Layer_propertyFromId(layer, seqToken));
   uint16_t window = Property_uint64(Layer_propertyFromId(layer, windowToken));
