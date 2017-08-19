@@ -103,7 +103,6 @@ bool DissectorThread::loop() {
           }
         }
 
-        std::vector<Layer *> childLayers;
         for (const WorkerData *data : workers) {
           data->dissector->analyze(&ctx, data->worker, layer);
           for (Layer *childLayer : layer->children()) {
@@ -114,13 +113,6 @@ bool DissectorThread::loop() {
               }
             }
           }
-        }
-        std::sort(childLayers.begin(), childLayers.end(),
-                  [](const Layer *a, const Layer *b) {
-                    return b->confidence() < a->confidence();
-                  });
-        for (Layer *child : childLayers) {
-          layer->addLayer(child);
         }
       }
       leafLayers.swap(nextlayers);

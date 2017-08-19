@@ -16,7 +16,7 @@
 namespace plugkit {
 
 namespace {
-struct WorkerList {
+struct WorkerContext {
   std::vector<std::pair<const Dissector *, void *>> list;
   std::chrono::system_clock::time_point lastUpdated =
       std::chrono::system_clock::now();
@@ -35,7 +35,7 @@ public:
   double confidenceThreshold;
   size_t count = 0;
 
-  using IdMap = std::unordered_map<uint32_t, WorkerList>;
+  using IdMap = std::unordered_map<uint32_t, WorkerContext>;
   std::unordered_map<Token, IdMap> workers;
 };
 
@@ -151,7 +151,6 @@ bool StreamDissectorThread::loop() {
         }
       }
 
-      std::vector<Layer *> childLayers;
       for (const auto &pair : workers.list) {
         pair.first->analyze(&ctx, pair.second, layer);
 
@@ -165,13 +164,6 @@ bool StreamDissectorThread::loop() {
             }
           }
         }
-      }
-      std::sort(childLayers.begin(), childLayers.end(),
-                [](const Layer *a, const Layer *b) {
-                  return b->confidence() < a->confidence();
-                });
-      for (Layer *child : childLayers) {
-        layer->addLayer(child);
       }
 
       d->count++;
