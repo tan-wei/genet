@@ -8,7 +8,9 @@
 PLUGKIT_NAMESPACE_BEGIN
 
 struct Error {
-  /// Predefined error type
+  /// Target ID
+  Token target;
+  /// Error type
   Token type;
 };
 

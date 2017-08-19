@@ -6,6 +6,7 @@
 #include <vector>
 #include "layer.h"
 #include "token.h"
+#include "error.h"
 #include "types.hpp"
 
 namespace plugkit {
@@ -35,6 +36,9 @@ public:
   const std::vector<Token> &tags() const;
   void addTag(Token token);
 
+  const std::vector<Error> &errors() const;
+  void addError(Error err);
+
   const Layer *parent() const;
   void setParent(const Layer *layer);
 
@@ -55,6 +59,7 @@ private:
   std::vector<Token> mTags;
   std::vector<Layer *> mChildren;
   std::vector<const Property *> mProperties;
+  std::vector<Error> mErrors;
 };
 }
 

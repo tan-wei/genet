@@ -33,6 +33,10 @@ const std::vector<const Payload *> &Layer::payloads() const {
   return mPayloads;
 }
 
+const std::vector<Error> &Layer::errors() const { return mErrors; }
+
+void Layer::addError(Error err) { mErrors.push_back(err); }
+
 void Layer::addPayload(const Payload *payload) { mPayloads.push_back(payload); }
 
 const std::vector<const Property *> &Layer::properties() const {
@@ -111,4 +115,6 @@ const Payload *Layer_payload(const Layer *layer) {
 }
 
 void Layer_addTag(Layer *layer, Token tag) { layer->addTag(tag); }
+
+void Layer_addError(Layer *layer, Error err) { layer->addError(err); }
 }
