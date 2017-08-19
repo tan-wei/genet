@@ -14,7 +14,7 @@ void PayloadWrapper::init(v8::Isolate *isolate) {
   SetPrototypeMethod(tpl, "addProperty", addProperty);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
-  Nan::SetAccessor(otl, Nan::New("data").ToLocalChecked(), data);
+  Nan::SetAccessor(otl, Nan::New("slices").ToLocalChecked(), slices);
   Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
   Nan::SetAccessor(otl, Nan::New("type").ToLocalChecked(), type, setType);
 
@@ -33,10 +33,16 @@ PayloadWrapper::PayloadWrapper(const Payload *payload)
 
 NAN_METHOD(PayloadWrapper::New) { info.GetReturnValue().Set(info.This()); }
 
-NAN_GETTER(PayloadWrapper::data) {
+NAN_GETTER(PayloadWrapper::slices) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->constPayload) {
-    info.GetReturnValue().Set(Variant::getNodeBuffer(payload->data()));
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    const auto &slices = payload->slices();
+    auto array = v8::Array::New(isolate, slices.size());
+    for (size_t i = 0; i < slices.size(); ++i) {
+      array->Set(i, Variant::getNodeBuffer(slices[i]));
+    }
+    info.GetReturnValue().Set(array);
   }
 }
 

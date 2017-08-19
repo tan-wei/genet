@@ -50,7 +50,7 @@ const auto nestedToken = Token_get("@nested");
 void analyze(Context *ctx, void *data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
-  reader.slice = Payload_data(Layer_payload(layer));
+  reader.slice = Payload_slice(Layer_payload(layer));
 
   Layer *child = Layer_addLayer(layer, tcpToken);
   Layer_addTag(child, tcpToken);
@@ -190,7 +190,8 @@ void analyze(Context *ctx, void *data, Layer *layer) {
     }
   }
 
-  Layer_addPayload(child, Slice_sliceAll(reader.slice, optionDataOffset));
+  Payload *chunk = Layer_addPayload(child);
+  Payload_addSlice(chunk, Slice_sliceAll(reader.slice, optionDataOffset));
 }
 }
 

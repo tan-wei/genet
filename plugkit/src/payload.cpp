@@ -4,11 +4,13 @@
 
 namespace plugkit {
 
-Payload::Payload(const Slice &slice) : mData(slice), mType() {}
+Payload::Payload() : mType() {}
 
 Payload::~Payload() {}
 
-Slice Payload::data() const { return mData; }
+void Payload::addSlice(const Slice &slice) { mSlices.push_back(slice); }
+
+const std::vector<Slice> &Payload::slices() const { return mSlices; }
 
 const std::vector<const Property *> &Payload::properties() const {
   return mProperties;
@@ -29,7 +31,24 @@ Token Payload::type() const { return mType; }
 
 void Payload::setType(Token type) { mType = type; }
 
-Slice Payload_data(const Payload *payload) { return payload->data(); }
+void Payload_addSlice(Payload *payload, Slice slice) {
+  payload->addSlice(slice);
+}
+
+Slice Payload_slice(const Payload *payload) {
+  const auto &slices = payload->slices();
+  if (slices.size() > 0) {
+    return slices.front();
+  }
+  return Slice{nullptr, nullptr};
+}
+
+const Slice *Payload_slices(const Payload *payload, size_t *size) {
+  const auto &slices = payload->slices();
+  if (size)
+    *size = slices.size();
+  return slices.data();
+}
 
 Token Payload_type(const Payload *payload) { return payload->type(); }
 

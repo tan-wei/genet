@@ -12,9 +12,11 @@ namespace plugkit {
 
 struct Payload final {
 public:
-  Payload(const Slice &view);
+  Payload();
   ~Payload();
-  Slice data() const;
+
+  void addSlice(const Slice &slice);
+  const std::vector<Slice> &slices() const;
 
   Token type() const;
   void setType(Token type);
@@ -28,8 +30,8 @@ private:
   Payload &operator=(const Payload &payload) = delete;
 
 private:
-  Slice mData;
   Token mType;
+  std::vector<Slice> mSlices;
   std::vector<const Property *> mProperties;
 };
 }

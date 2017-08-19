@@ -16,8 +16,15 @@ typedef struct Payload Payload;
 struct Property;
 typedef struct Property Property;
 
-/// Returns the payload data.
-PLUGKIT_EXPORT Slice Payload_data(const Payload *payload);
+/// Returns the the first payload data.
+PLUGKIT_EXPORT Slice Payload_slice(const Payload *payload);
+
+PLUGKIT_EXPORT void Payload_addSlice(Payload *payload, Slice slice);
+
+/// Returns the first address of slices
+/// and assigns the number of slices to size.
+PLUGKIT_EXPORT const Slice *Payload_slices(const Payload *payload,
+                                           size_t *size);
 
 /// Allocates a new Property and adds it as a payload property.
 PLUGKIT_EXPORT Property *Payload_addProperty(Payload *payload, Token id);

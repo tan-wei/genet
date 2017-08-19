@@ -162,13 +162,13 @@ class LayerItem {
     let dataLength = 0
     if (layer.parent) {
       const parentPayload = layer.parent.payloads[0]
-      const parentAddr = parentPayload.data.addr
+      const parentAddr = parentPayload.slices[0].addr
       let rootPayload = parentPayload
       for (let parent = layer.parent.parent; parent; parent = parent.parent) {
         rootPayload = parent.payloads[0]
       }
-      const rootAddr = rootPayload.data.addr
-      dataLength = parentPayload.data.length
+      const rootAddr = rootPayload.slices[0].addr
+      dataLength = parentPayload.slices[0].length
       dataOffset = parentAddr[1] - rootAddr[1]
     }
     const range = [
@@ -226,7 +226,7 @@ class LayerItem {
         {
           layer.payloads.map((payload) => {
             return <li>
-              { m(BufferValueItem, {value: payload.data}) } : { payload.type }
+              { m(BufferValueItem, {value: payload.slices[0]}) } : { payload.type }
             </li>
           })
         }
@@ -262,8 +262,8 @@ export default class LayerListView {
       const tsformat = Profile.current.get('layer-list-panel', 'tsformat')
       const ts = moment(frame.timestamp)
       const tsString = ts.format(tsformat)
-      let length = `${frame.rootLayer.payloads[0].data.length}`
-      if (frame.length > frame.rootLayer.payloads[0].data.length) {
+      let length = `${frame.rootLayer.payloads[0].slices[0].length}`
+      if (frame.length > frame.rootLayer.payloads[0].slices[0].length) {
         length += ` (actual: ${frame.length})`
       }
       let layers = [ frame.rootLayer ]

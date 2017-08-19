@@ -213,9 +213,11 @@ bool PcapPlatform::start() {
           if (self.d->callback) {
             auto layer = new Layer(self.d->tag);
             layer->addTag(self.d->tag);
-            char *payload = new char[h->caplen];
-            std::memcpy(payload, bytes, h->caplen);
-            layer->addPayload(new Payload(Slice{payload, payload + h->caplen}));
+            char *data = new char[h->caplen];
+            std::memcpy(data, bytes, h->caplen);
+            auto payload = new Payload();
+            payload->addSlice(Slice{data, data + h->caplen});
+            layer->addPayload(payload);
 
             using namespace std::chrono;
             const Timestamp &ts = system_clock::from_time_t(h->ts.tv_sec) +

@@ -20,7 +20,6 @@ const auto seqToken = Token_get("tcp.seq");
 const auto windowToken = Token_get("tcp.window");
 const auto flagsToken = Token_get("tcp.flags");
 const auto reassembledToken = Token_get("@reassembled");
-}
 
 class Ring {
 public:
@@ -61,90 +60,6 @@ private:
   size_t offset = 0;
   std::list<std::pair<size_t, Slice>> slices;
 };
-/*
-class TCPStreamDissector final : public StreamDissector {
-public:
-  class Worker final : public StreamDissector::Worker {
-  public:
-    Layer *analyze(Layer *layer) override {
-      const auto &payload = layer->payload();
-      uint32_t seq =
-          layer->propertyFromId(Token_get("seq"))->value().uint64Value();
-      uint16_t window =
-          layer->propertyFromId(Token_get("window"))->value().uint64Value();
-      uint8_t flags =
-          layer->propertyFromId(Token_get("flags"))->value().uint64Value();
-      bool syn = (flags & (0x1 << 1));
-
-      if (syn) {
-        if (currentSeq < 0) {
-          currentSeq = seq;
-          ring.put(receivedLength, payload);
-          receivedLength += payload.length();
-        }
-      } else if (currentSeq >= 0) {
-        if (payload.length() > 0) {
-          uint64_t start = receivedLength;
-          if (seq >= currentSeq) {
-            start += seq - currentSeq;
-            currentSeq = seq;
-            ring.put(receivedLength, payload);
-            receivedLength += payload.length();
-          } else if (currentSeq - seq > window) {
-            start += (UINT32_MAX - currentSeq) + seq;
-            currentSeq = seq;
-            ring.put(receivedLength, payload);
-            receivedLength += payload.length();
-          }
-        } else if ((currentSeq + 1) % UINT32_MAX == seq) {
-          currentSeq = seq;
-        }
-      }
-
-      const auto &sequence = ring.fetch();
-      std::vector<Variant> chunks(sequence.begin(), sequence.end());
-
-      Property *stream = new Property(Token_get("stream"));
-
-      Property *payloads = Layer_addProperty(child, Token_get("payloads"));
-*Property_valueRef(payloads) = chunks;
-      stream->addProperty(payloads);
-
-      Property *length = Layer_addProperty(child, Token_get("length"));
-*Property_valueRef(length) = receivedLength;
-      stream->addProperty(length);
-
-      if (currentSeq >= 0) {
-        Property *curSeq = Layer_addProperty(child, Token_get("lastSeq"));
-*Property_valueRef(curSeq) = currentSeq;
-        stream->addProperty(curSeq);
-      }
-
-      layer->addProperty(stream);
-      return nullptr;
-    }
-
-  private:
-    int64_t currentSeq = -1;
-    uint64_t receivedLength = 0;
-    Ring ring;
-  };
-
-public:
-  StreamDissector::WorkerPtr createWorker() override {
-    return StreamDissector::WorkerPtr(new TCPStreamDissector::Worker());
-  }
-};
-
-class TCPStreamDissectorFactory final : public StreamDissectorFactory {
-public:
-  StreamDissectorPtr create(const SessionContext &ctx) const override {
-    return StreamDissectorPtr(new TCPStreamDissector());
-  };
-};
-*/
-
-namespace {
 
 struct Worker {
   int64_t currentSeq = -1;
@@ -155,7 +70,7 @@ struct Worker {
 void analyze(Context *ctx, void *data, Layer *layer) {
   Worker *worker = static_cast<Worker *>(data);
 
-  const Slice payload = Payload_data(Layer_payload(layer));
+  const Slice payload = Payload_slice(Layer_payload(layer));
 
   uint32_t seq = Property_uint64(Layer_propertyFromId(layer, seqToken));
   uint16_t window = Property_uint64(Layer_propertyFromId(layer, windowToken));
@@ -187,7 +102,8 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   }
 
   for (const auto &slice : worker->ring.fetch()) {
-    Payload *chunk = Layer_addPayload(layer, slice);
+    Payload *chunk = Layer_addPayload(layer);
+    Payload_addSlice(chunk, slice);
     Payload_setType(chunk, reassembledToken);
   }
 }

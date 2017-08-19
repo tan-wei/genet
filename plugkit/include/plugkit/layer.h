@@ -43,7 +43,7 @@ PLUGKIT_EXPORT const Property *Layer_propertyFromId(const Layer *layer,
                                                     Token id);
 
 /// Allocates a new Payload and adds it as a layer payload.
-PLUGKIT_EXPORT Payload *Layer_addPayload(Layer *layer, Slice slice);
+PLUGKIT_EXPORT Payload *Layer_addPayload(Layer *layer);
 
 /// Returns the first address of payloads
 /// and assigns the number of the layer payloads to size.
