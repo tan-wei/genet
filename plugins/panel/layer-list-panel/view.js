@@ -225,9 +225,9 @@ class LayerItem {
         <ul>
         {
           layer.payloads.map((payload) => {
-            return <li>
-              { m(BufferValueItem, {value: payload.slices[0]}) } : { payload.type }
-            </li>
+            return payload.slices.map((slice) => {
+              return <li> { m(BufferValueItem, {value: slice}) } : { payload.type } </li>
+            })
           })
         }
         </ul>

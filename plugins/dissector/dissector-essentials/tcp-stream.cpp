@@ -101,10 +101,13 @@ void analyze(Context *ctx, void *data, Layer *layer) {
     }
   }
 
-  for (const auto &slice : worker->ring.fetch()) {
+  const auto slices = worker->ring.fetch();
+  if (slices.size() > 0) {
     Payload *chunk = Layer_addPayload(layer);
-    Payload_addSlice(chunk, slice);
     Payload_setType(chunk, reassembledToken);
+    for (const auto &slice : slices) {
+      Payload_addSlice(chunk, slice);
+    }
   }
 }
 }

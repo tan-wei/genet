@@ -17,7 +17,6 @@ export default class Renderer {
   static query (object, query) {
     let type = ''
     let value = null
-
     if (query === '.') {
       value = object
     } else if (query.startsWith('.')) {
@@ -28,8 +27,8 @@ export default class Renderer {
     }
 
     if (value === null) {
-      if (query === '.id' && typeof object === 'object'
-        && object.constructor.name === 'Frame') {
+      if (query === '.id' && typeof object === 'object' &&
+        object.constructor.name === 'Frame') {
         value = object.primaryLayer.id
       } else if (typeof object.propertyFromId === 'function') {
         const prop = object.propertyFromId(query)
