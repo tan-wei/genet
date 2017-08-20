@@ -26,7 +26,7 @@ struct WorkerContext {
 class StreamDissectorThread::Private {
 public:
   void cleanup();
-  void analyze(Layer *layer, std::vector<Layer *> *nextLayers,
+  void analyze(Layer *layer, bool subLayer, std::vector<Layer *> *nextLayers,
                std::vector<Layer *> *nextSubLayers);
 
 public:
@@ -96,7 +96,7 @@ void StreamDissectorThread::pushStreamDissector(const Dissector &diss) {
 void StreamDissectorThread::enter() {}
 
 void StreamDissectorThread::Private::analyze(
-    Layer *layer, std::vector<Layer *> *nextLayers,
+    Layer *layer, bool subLayer, std::vector<Layer *> *nextLayers,
     std::vector<Layer *> *nextSubLayers) {
   std::unordered_set<Token> dissectedIds;
 
@@ -140,15 +140,23 @@ void StreamDissectorThread::Private::analyze(
     }
   }
 
-  for (const auto &pair : streamWorkers.list) {
-    pair.first->analyze(&ctx, pair.second, layer);
+  if (subLayer) {
+    for (const auto &pair : streamWorkers.list) {
+      if (Layer *parent = layer->parent()) {
+        pair.first->analyze(&ctx, pair.second, parent);
+      }
+    }
+  } else {
+    for (const auto &pair : streamWorkers.list) {
+      pair.first->analyze(&ctx, pair.second, layer);
 
-    for (Layer *childLayer : layer->children()) {
-      if (childLayer->confidence() >= confidenceThreshold) {
-        if (childLayer->streamId() > 0) {
-          auto it = dissectedIds.find(childLayer->id());
-          if (it == dissectedIds.end()) {
-            nextLayers->push_back(childLayer);
+      for (Layer *childLayer : layer->children()) {
+        if (childLayer->confidence() >= confidenceThreshold) {
+          if (childLayer->streamId() > 0) {
+            auto it = dissectedIds.find(childLayer->id());
+            if (it == dissectedIds.end()) {
+              nextLayers->push_back(childLayer);
+            }
           }
         }
       }
@@ -172,14 +180,21 @@ bool StreamDissectorThread::loop() {
     }
   }
 
-  while (!layers.empty()) {
-    std::vector<Layer *> nextlayers;
+  std::vector<Layer *> subLayers;
+  while (!layers.empty() && !subLayers.empty()) {
+    std::vector<Layer *> nextLayers;
+    std::vector<Layer *> nextSubLayers;
 
-    for (size_t i = 0; i < layers.size(); ++i) {
-      d->analyze(layers[i], &nextlayers, nullptr);
+    for (size_t i = 0; i < subLayers.size(); ++i) {
+      d->analyze(subLayers[i], true, &nextLayers, &nextSubLayers);
     }
 
-    layers.swap(nextlayers);
+    for (size_t i = 0; i < layers.size(); ++i) {
+      d->analyze(layers[i], false, &nextLayers, &nextSubLayers);
+    }
+
+    layers.swap(nextLayers);
+    subLayers.swap(nextSubLayers);
   }
 
   d->callback(maxFrameIndex);

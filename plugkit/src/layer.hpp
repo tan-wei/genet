@@ -39,8 +39,8 @@ public:
   const std::vector<Error> &errors() const;
   void addError(Error err);
 
-  const Layer *parent() const;
-  void setParent(const Layer *layer);
+  Layer *parent() const;
+  void setParent(Layer *layer);
 
   const Frame *frame() const;
   void setFrame(const Frame *frame);
@@ -53,7 +53,7 @@ private:
   Token mId = 0;
   uint32_t mStreamId = 0;
   float mConfidence = 1.0f;
-  const Layer *mParent = nullptr;
+  Layer *mParent = nullptr;
   const Frame *mFrame = nullptr;
   std::vector<const Payload *> mPayloads;
   std::vector<Token> mTags;

@@ -43,9 +43,9 @@ const std::vector<const Property *> &Layer::properties() const {
   return mProperties;
 }
 
-const Layer *Layer::parent() const { return mParent; }
+Layer *Layer::parent() const { return mParent; }
 
-void Layer::setParent(const Layer *layer) { mParent = layer; }
+void Layer::setParent(Layer *layer) { mParent = layer; }
 
 const Frame *Layer::frame() const { return mFrame; }
 
