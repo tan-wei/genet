@@ -26,6 +26,8 @@ struct WorkerContext {
 class StreamDissectorThread::Private {
 public:
   void cleanup();
+  void analyze(Layer *layer, std::vector<Layer *> *nextLayers,
+               std::vector<Layer *> *nextSubLayers);
 
 public:
   Variant options;
@@ -88,6 +90,67 @@ void StreamDissectorThread::pushStreamDissector(const Dissector &diss) {
 
 void StreamDissectorThread::enter() {}
 
+void StreamDissectorThread::Private::analyze(
+    Layer *layer, std::vector<Layer *> *nextLayers,
+    std::vector<Layer *> *nextSubLayers) {
+  std::unordered_set<Token> dissectedIds;
+
+  Token id = layer->id();
+  dissectedIds.insert(id);
+  auto &streamWorkers = workers[id][layer->streamId()];
+
+  Context ctx;
+  ctx.options = options;
+
+  if (streamWorkers.list.empty()) {
+    std::vector<const Dissector *> workerDissectors;
+
+    std::unordered_set<Token> tags;
+    for (const Token &token : layer->tags()) {
+      tags.insert(token);
+    }
+
+    for (const auto &diss : dissectors) {
+      bool match = true;
+      for (const Token &token : diss.layerHints) {
+        if (token != Token_null()) {
+          auto it = tags.find(token);
+          if (it == tags.end()) {
+            match = false;
+            break;
+          }
+        }
+      }
+      if (match) {
+        workerDissectors.push_back(&diss);
+      }
+
+      for (const Dissector *diss : workerDissectors) {
+        void *worker = nullptr;
+        if (diss->createWorker) {
+          worker = diss->createWorker(&ctx);
+        }
+        streamWorkers.list.push_back(std::make_pair(diss, worker));
+      }
+    }
+  }
+
+  for (const auto &pair : streamWorkers.list) {
+    pair.first->analyze(&ctx, pair.second, layer);
+
+    for (Layer *childLayer : layer->children()) {
+      if (childLayer->confidence() >= confidenceThreshold) {
+        if (childLayer->streamId() > 0) {
+          auto it = dissectedIds.find(childLayer->id());
+          if (it == dissectedIds.end()) {
+            nextLayers->push_back(childLayer);
+          }
+        }
+      }
+    }
+  }
+}
+
 bool StreamDissectorThread::loop() {
   std::vector<Layer *> layers;
   layers.resize(128);
@@ -108,63 +171,7 @@ bool StreamDissectorThread::loop() {
     std::vector<Layer *> nextlayers;
 
     for (size_t i = 0; i < layers.size(); ++i) {
-      std::unordered_set<Token> dissectedIds;
-
-      const auto layer = layers[i];
-      Token id = layer->id();
-      dissectedIds.insert(id);
-      auto &workers = d->workers[id][layer->streamId()];
-
-      Context ctx;
-      ctx.options = d->options;
-
-      if (workers.list.empty()) {
-        std::vector<const Dissector *> dissectors;
-
-        std::unordered_set<Token> tags;
-        for (const Token &token : layer->tags()) {
-          tags.insert(token);
-        }
-
-        for (const auto &diss : d->dissectors) {
-          bool match = true;
-          for (const Token &token : diss.layerHints) {
-            if (token != Token_null()) {
-              auto it = tags.find(token);
-              if (it == tags.end()) {
-                match = false;
-                break;
-              }
-            }
-          }
-          if (match) {
-            dissectors.push_back(&diss);
-          }
-        }
-
-        for (const Dissector *diss : dissectors) {
-          void *worker = nullptr;
-          if (diss->createWorker) {
-            worker = diss->createWorker(&ctx);
-          }
-          workers.list.push_back(std::make_pair(diss, worker));
-        }
-      }
-
-      for (const auto &pair : workers.list) {
-        pair.first->analyze(&ctx, pair.second, layer);
-
-        for (Layer *childLayer : layer->children()) {
-          if (childLayer->confidence() >= d->confidenceThreshold) {
-            if (childLayer->streamId() > 0) {
-              auto it = dissectedIds.find(childLayer->id());
-              if (it == dissectedIds.end()) {
-                nextlayers.push_back(childLayer);
-              }
-            }
-          }
-        }
-      }
+      d->analyze(layers[i], &nextlayers, nullptr);
     }
 
     layers.swap(nextlayers);
