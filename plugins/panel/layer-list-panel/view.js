@@ -54,7 +54,7 @@ class ObjectValueItem {
 class LayerValueItem {
   view (vnode) {
     const layer = vnode.attrs.value
-    return <span> { Renderer.query(layer, '.src') } -> { Renderer.query(layer, '.dst') } </span>
+    return <span> [{ layer.id }] </span>
   }
 }
 
@@ -179,7 +179,7 @@ class LayerItem {
     const name = (layerId in Session.descriptors) ?
       Session.descriptors[layerId].name : layerId
 
-    const propObject = {}
+    const propObject = {[layerId]: {}}
     const properties = layer.properties
     for (let i = 0; i < properties.length; ++i) {
       const prop = properties[i]
