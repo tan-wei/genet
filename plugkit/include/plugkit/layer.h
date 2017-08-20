@@ -22,10 +22,10 @@ typedef struct Property Property;
 PLUGKIT_EXPORT Token Layer_id(const Layer *layer);
 
 /// Gets confidence
-PLUGKIT_EXPORT double Layer_confidence(const Layer *layer);
+PLUGKIT_EXPORT float Layer_confidence(const Layer *layer);
 
 /// Sets confidence
-PLUGKIT_EXPORT void Layer_setConfidence(Layer *layer, double confidence);
+PLUGKIT_EXPORT void Layer_setConfidence(Layer *layer, float confidence);
 
 /// Gets parent layer
 PLUGKIT_EXPORT const Layer *Layer_parent(const Layer *layer);

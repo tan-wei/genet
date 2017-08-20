@@ -17,8 +17,8 @@ public:
   ~Layer();
 
   Token id() const;
-  double confidence() const;
-  void setConfidence(double confidence);
+  float confidence() const;
+  void setConfidence(float confidence);
 
   const std::vector<Layer *> &children() const;
   void addLayer(Layer *child);
@@ -52,10 +52,10 @@ private:
 private:
   Token mId = 0;
   uint32_t mStreamId = 0;
-  double mConfidence = 1.0;
-  std::vector<const Payload *> mPayloads;
+  float mConfidence = 1.0f;
   const Layer *mParent = nullptr;
   const Frame *mFrame = nullptr;
+  std::vector<const Payload *> mPayloads;
   std::vector<Token> mTags;
   std::vector<Layer *> mChildren;
   std::vector<const Property *> mProperties;

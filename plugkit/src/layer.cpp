@@ -13,9 +13,9 @@ Layer::~Layer() {}
 
 Token Layer::id() const { return mId; }
 
-double Layer::confidence() const { return mConfidence; }
+float Layer::confidence() const { return mConfidence; }
 
-void Layer::setConfidence(double confidence) { mConfidence = confidence; }
+void Layer::setConfidence(float confidence) { mConfidence = confidence; }
 
 const std::vector<Layer *> &Layer::children() const { return mChildren; }
 
@@ -64,9 +64,9 @@ void Layer::addProperty(const Property *prop) { mProperties.push_back(prop); }
 
 Token Layer_id(const Layer *layer) { return layer->id(); }
 
-double Layer_confidence(const Layer *layer) { return layer->confidence(); }
+float Layer_confidence(const Layer *layer) { return layer->confidence(); }
 
-void Layer_setConfidence(Layer *layer, double confidence) {
+void Layer_setConfidence(Layer *layer, float confidence) {
   layer->setConfidence(confidence);
 }
 
