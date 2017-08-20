@@ -53,9 +53,14 @@ void StreamDissectorThread::Private::cleanup() {
               .count();
       for (const auto &pair : it->second.list) {
         auto expired = pair.first->expired;
-        if ((!expired && elapsed < 30000) ||
-            !expired(&ctx, pair.second, elapsed)) {
+        if (expired) {
+          if (!expired(&ctx, pair.second, elapsed)) {
+            alive = true;
+            break;
+          }
+        } else if (elapsed < 30000) {
           alive = true;
+          break;
         }
       }
       if (alive) {
