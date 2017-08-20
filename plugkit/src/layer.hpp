@@ -20,8 +20,11 @@ public:
   float confidence() const;
   void setConfidence(float confidence);
 
-  const std::vector<Layer *> &children() const;
+  const std::vector<Layer *> &layers() const;
   void addLayer(Layer *child);
+
+  const std::vector<Layer *> &subLayers() const;
+  void addSubLayer(Layer *child);
 
   const std::vector<const Property *> &properties() const;
   const Property *propertyFromId(Token id) const;
@@ -57,7 +60,8 @@ private:
   const Frame *mFrame = nullptr;
   std::vector<const Payload *> mPayloads;
   std::vector<Token> mTags;
-  std::vector<Layer *> mChildren;
+  std::vector<Layer *> mLayers;
+  std::vector<Layer *> mSubLayers;
   std::vector<const Property *> mProperties;
   std::vector<Error> mErrors;
 };

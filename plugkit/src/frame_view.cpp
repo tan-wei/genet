@@ -16,10 +16,10 @@ FrameView::FrameView(Frame *frame) : mFrame(frame), mPrimaryLayer(nullptr) {
   std::function<void(const Layer *)> findLeafLayers = [this, &findLeafLayers](
       const Layer *layer) {
     mLayers.push_back(layer);
-    if (layer->children().empty()) {
+    if (layer->layers().empty()) {
       mLeafLayers.push_back(layer);
     } else {
-      for (const Layer *child : layer->children()) {
+      for (const Layer *child : layer->layers()) {
         findLeafLayers(child);
       }
     }

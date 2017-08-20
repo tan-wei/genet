@@ -33,8 +33,8 @@ PLUGKIT_EXPORT const Layer *Layer_parent(const Layer *layer);
 /// Allocates a new Layer and adds it as a child layer.
 PLUGKIT_EXPORT Layer *Layer_addLayer(Layer *layer, Token id);
 
-/// Allocates a new dummy Layer and adds it as a child layer.
-PLUGKIT_EXPORT Layer *Layer_addDummyLayer(Layer *layer);
+/// Allocates a new Layer and adds it as a sub layer.
+PLUGKIT_EXPORT Layer *Layer_addSubLayer(Layer *layer, Token id);
 
 /// Allocates a new Property and adds it as a layer property.
 PLUGKIT_EXPORT Property *Layer_addProperty(Layer *layer, Token id);

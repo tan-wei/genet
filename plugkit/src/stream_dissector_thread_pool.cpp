@@ -133,10 +133,10 @@ void StreamDissectorThreadPool::start() {
           [&findStreamedLayers](Layer *layer) -> std::vector<Layer *> {
 
         std::vector<Layer *> layers;
-        if (layer->children().empty()) {
+        if (layer->layers().empty()) {
           layers.push_back(layer);
         } else {
-          for (const auto &child : layer->children()) {
+          for (const auto &child : layer->layers()) {
             const auto &childList = findStreamedLayers(child);
             layers.insert(layers.begin(), childList.begin(), childList.end());
           }

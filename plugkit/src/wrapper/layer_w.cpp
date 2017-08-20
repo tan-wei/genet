@@ -140,7 +140,7 @@ NAN_GETTER(LayerWrapper::children) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->weakLayer) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
-    const auto &children = layer->children();
+    const auto &children = layer->layers();
     auto array = v8::Array::New(isolate, children.size());
     for (size_t i = 0; i < children.size(); ++i) {
       array->Set(i, LayerWrapper::wrap(children[i]));

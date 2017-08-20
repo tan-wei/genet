@@ -17,9 +17,13 @@ float Layer::confidence() const { return mConfidence; }
 
 void Layer::setConfidence(float confidence) { mConfidence = confidence; }
 
-const std::vector<Layer *> &Layer::children() const { return mChildren; }
+const std::vector<Layer *> &Layer::layers() const { return mLayers; }
 
-void Layer::addLayer(Layer *child) { mChildren.push_back(child); }
+void Layer::addLayer(Layer *child) { mLayers.push_back(child); }
+
+const std::vector<Layer *> &Layer::subLayers() const { return mSubLayers; }
+
+void Layer::addSubLayer(Layer *child) { mSubLayers.push_back(child); }
 
 uint32_t Layer::streamId() const { return mStreamId; }
 
@@ -82,8 +86,12 @@ Layer *Layer_addLayer(Layer *layer, Token id) {
   return child;
 }
 
-Layer *Layer_addDummyLayer(Layer *layer) {
-  return Layer_addLayer(layer, Token_null());
+Layer *Layer_addSubLayer(Layer *layer, Token id) {
+  Layer *child = new Layer(id);
+  child->setParent(layer);
+  child->setFrame(layer->frame());
+  layer->addSubLayer(child);
+  return child;
 }
 
 Property *Layer_addProperty(Layer *layer, Token id) {

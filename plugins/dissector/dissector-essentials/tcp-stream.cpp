@@ -110,6 +110,9 @@ void analyze(Context *ctx, void *data, Layer *layer) {
       Payload_addSlice(chunk, slice);
     }
   }
+
+  Layer *sub = Layer_addSubLayer(layer, tcpStreamToken);
+  Layer_addTag(sub, tcpStreamToken);
 }
 }
 
