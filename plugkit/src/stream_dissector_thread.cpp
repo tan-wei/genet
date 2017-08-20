@@ -165,8 +165,6 @@ bool StreamDissectorThread::loop() {
           }
         }
       }
-
-      d->count++;
     }
 
     layers.swap(nextlayers);
@@ -174,6 +172,7 @@ bool StreamDissectorThread::loop() {
 
   d->callback(maxFrameIndex);
 
+  d->count++;
   if (d->count % 1024 == 0) {
     d->cleanup();
   }
