@@ -129,28 +129,24 @@ void StreamDissectorThread::Private::analyze(
       if (match) {
         workerDissectors.push_back(&diss);
       }
-
-      for (const Dissector *diss : workerDissectors) {
-        void *worker = nullptr;
-        if (diss->createWorker) {
-          worker = diss->createWorker(&ctx);
-        }
-        streamWorkers.list.push_back(std::make_pair(diss, worker));
+    }
+    for (const Dissector *diss : workerDissectors) {
+      void *worker = nullptr;
+      if (diss->createWorker) {
+        worker = diss->createWorker(&ctx);
       }
+      streamWorkers.list.push_back(std::make_pair(diss, worker));
     }
   }
 
   if (subLayer) {
-    /*
     for (const auto &pair : streamWorkers.list) {
       if (Layer *parent = layer->parent()) {
         pair.first->analyze(&ctx, pair.second, parent);
       }
     }
-    */
   } else {
     for (const auto &pair : streamWorkers.list) {
-      printf("%p %p\n", pair.first->analyze, layer);
       pair.first->analyze(&ctx, pair.second, layer);
       for (Layer *childLayer : layer->layers()) {
         if (childLayer->confidence() >= confidenceThreshold) {
@@ -193,12 +189,10 @@ bool StreamDissectorThread::loop() {
   }
 
   std::vector<Layer *> subLayers;
-  /*
   for (const Layer *layer : layers) {
     subLayers.insert(subLayers.end(), layer->subLayers().begin(),
                      layer->subLayers().end());
   }
-  */
 
   while (!layers.empty() || !subLayers.empty()) {
     std::vector<Layer *> nextLayers;
