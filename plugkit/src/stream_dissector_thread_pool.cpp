@@ -100,8 +100,13 @@ void StreamDissectorThreadPool::start() {
   if (d->thread.joinable() || !d->threads.empty())
     return;
 
-  int threads = std::thread::hardware_concurrency();
-  for (int i = 0; i < threads; ++i) {
+  int concurrency = d->options["_"]["concurrency"].uint64Value(0);
+  if (concurrency == 0)
+    concurrency = std::thread::hardware_concurrency();
+  if (concurrency == 0)
+    concurrency = 1;
+
+  for (int i = 0; i < concurrency; ++i) {
     auto dissectorThread = new StreamDissectorThread(
         d->options, [this, i](uint32_t maxFrameIndex) {
           uint32_t index = d->updateIndex(i, 0, maxFrameIndex);
@@ -120,7 +125,7 @@ void StreamDissectorThreadPool::start() {
     thread->start();
   }
 
-  d->thread = std::thread([this, threads]() {
+  d->thread = std::thread([this, concurrency]() {
     size_t offset = 0;
     std::array<const Frame *, 128> frames;
     while (true) {
@@ -145,7 +150,7 @@ void StreamDissectorThreadPool::start() {
       };
 
       std::vector<std::vector<Layer *>> layerMap;
-      layerMap.resize(threads);
+      layerMap.resize(concurrency);
       for (size_t i = 0; i < size; ++i) {
         const auto &layers = findStreamedLayers(frames[i]->rootLayer());
         for (Layer *layer : layers) {

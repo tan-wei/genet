@@ -1,5 +1,6 @@
 #include "filter_thread_pool.hpp"
 #include "filter_thread.hpp"
+#include "variant.hpp"
 #include <map>
 #include <uv.h>
 
@@ -13,6 +14,7 @@ public:
 public:
   FrameStorePtr store;
   std::string body;
+  Variant options;
   std::vector<std::unique_ptr<FilterThread>> threads;
   std::map<uint32_t, bool> sequence;
   std::vector<uint32_t> frames;
@@ -27,10 +29,12 @@ FilterThreadPool::Private::Private() { uv_rwlock_init(&rwlock); }
 FilterThreadPool::Private::~Private() { uv_rwlock_destroy(&rwlock); }
 
 FilterThreadPool::FilterThreadPool(const std::string &body,
+                                   const Variant &options,
                                    const FrameStorePtr &store,
                                    const Callback &callback)
     : d(new Private()) {
   d->body = body;
+  d->options = options;
   d->store = store;
   d->callback = callback;
 }
@@ -67,8 +71,13 @@ void FilterThreadPool::start() {
     uv_rwlock_wrunlock(&d->rwlock);
   };
 
-  int threads = std::thread::hardware_concurrency();
-  for (int i = 0; i < threads; ++i) {
+  int concurrency = d->options["_"]["concurrency"].uint64Value(0);
+  if (concurrency == 0)
+    concurrency = std::thread::hardware_concurrency();
+  if (concurrency == 0)
+    concurrency = 1;
+
+  for (int i = 0; i < concurrency; ++i) {
     auto thread = new FilterThread(d->body, d->store, threadCallback);
     thread->setLogger(d->logger);
     d->threads.emplace_back(thread);

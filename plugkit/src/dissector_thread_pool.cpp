@@ -48,8 +48,13 @@ void DissectorThreadPool::start() {
     d->callback(begin, size);
   };
 
-  int threads = std::thread::hardware_concurrency();
-  for (int i = 0; i < threads; ++i) {
+  int concurrency = d->options["_"]["concurrency"].uint64Value(0);
+  if (concurrency == 0)
+    concurrency = std::thread::hardware_concurrency();
+  if (concurrency == 0)
+    concurrency = 1;
+
+  for (int i = 0; i < concurrency; ++i) {
     auto dissectorThread =
         new DissectorThread(d->options, d->queue, d->resolver, threadCallback);
     for (const auto &diss : d->dissectors) {

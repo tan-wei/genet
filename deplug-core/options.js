@@ -13,5 +13,12 @@ export default [
     min: 0,
     max: 100,
     default: 100,
+  },
+  {
+    id: 'concurrency',
+    name: 'Concurrency',
+    type: 'integer',
+    min: 0,
+    default: 0,
   }
 ]

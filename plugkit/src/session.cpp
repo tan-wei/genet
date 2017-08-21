@@ -215,7 +215,7 @@ void Session::setDisplayFilter(const std::string &name,
     }
   } else {
     auto pool = std::unique_ptr<FilterThreadPool>(
-        new FilterThreadPool(body, d->frameStore, [this]() {
+        new FilterThreadPool(body, d->options, d->frameStore, [this]() {
           d->notifyStatus(Private::UPDATE_FILTER);
         }));
     pool->setLogger(d->logger);
