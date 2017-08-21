@@ -576,11 +576,12 @@ Slice Variant_slice(const Variant *var) {
 }
 void Variant_setSlice(Variant *var, Slice slice) { *var = Variant(slice); }
 
-const Variant *Variant_array(const Variant *var, size_t *size) {
+const Variant *Variant_valueAt(const Variant *var, size_t index) {
   const auto &array = var->array();
-  if (size)
-    *size = array.size();
-  return array.data();
+  if (index < array.size()) {
+    return &array[index];
+  }
+  return nullptr;
 }
 
 const Variant *Variant_mapValue(const Variant *var, const char *key) {

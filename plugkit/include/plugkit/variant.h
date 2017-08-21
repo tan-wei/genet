@@ -49,7 +49,7 @@ PLUGKIT_EXPORT void Variant_setSlice(Variant *var, Slice slice);
 
 /// Returns the first address of arrays
 /// and assigns the length of arrays to size.
-PLUGKIT_EXPORT const Variant *Variant_array(const Variant *var, size_t *size);
+PLUGKIT_EXPORT const Variant *Variant_valueAt(const Variant *var, size_t index);
 
 /// Gets a value associated with a given key
 PLUGKIT_EXPORT const Variant *Variant_mapValue(const Variant *var,

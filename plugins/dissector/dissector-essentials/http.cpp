@@ -1,5 +1,4 @@
-#include <list>
-#include <algorithm>
+#include <unordered_set>
 #include <nan.h>
 #include <plugkit/dissector.h>
 #include <plugkit/context.h>
@@ -17,9 +16,27 @@ using namespace plugkit;
 
 namespace {
 
-struct Worker {};
+const auto httpToken = Token_get("http");
+const auto srcToken = Token_get(".src");
+const auto dstToken = Token_get(".dst");
 
-void analyze(Context *ctx, void *data, Layer *layer) {}
+struct Worker {
+  std::unordered_set<uint16_t> ports;
+};
+
+void analyze(Context *ctx, void *data, Layer *layer) {
+  Worker *worker = static_cast<Worker *>(data);
+  uint16_t srcPort = Property_uint64(Layer_propertyFromId(layer, srcToken));
+  uint16_t dstPort = Property_uint64(Layer_propertyFromId(layer, dstToken));
+
+  const auto &ports = worker->ports;
+  if (!ports.empty() && ports.find(srcPort) == ports.end() &&
+      ports.find(dstPort) == ports.end()) {
+    return;
+  }
+  Layer *child = Layer_addLayer(layer, httpToken);
+  Layer_addTag(child, httpToken);
+}
 
 void Init(v8::Local<v8::Object> exports) {
   Dissector *diss = Dissector_create(DISSECTOR_STREAM);
@@ -31,10 +48,13 @@ void Init(v8::Local<v8::Object> exports) {
         auto httpPorts = Variant_mapValue(
             Variant_mapValue(Context_options(ctx), "dissector-essentials"),
             "httpPorts");
-        size_t len;
-        Variant_array(httpPorts, &len);
-        printf("XXX %d\n", len);
-        return new Worker();
+
+        const Variant *value = nullptr;
+        Worker *worker = new Worker();
+        for (size_t i = 0; (value = Variant_valueAt(httpPorts, i)); ++i) {
+          worker->ports.insert(Variant_uint64(value));
+        }
+        return worker;
       },
       [](Context *ctx, void *data) { delete static_cast<Worker *>(data); });
   exports->Set(Nan::New("dissector").ToLocalChecked(),

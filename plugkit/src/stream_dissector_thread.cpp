@@ -141,15 +141,17 @@ void StreamDissectorThread::Private::analyze(
   }
 
   if (subLayer) {
+    /*
     for (const auto &pair : streamWorkers.list) {
       if (Layer *parent = layer->parent()) {
         pair.first->analyze(&ctx, pair.second, parent);
       }
     }
+    */
   } else {
     for (const auto &pair : streamWorkers.list) {
+      printf("%p %p\n", pair.first->analyze, layer);
       pair.first->analyze(&ctx, pair.second, layer);
-
       for (Layer *childLayer : layer->layers()) {
         if (childLayer->confidence() >= confidenceThreshold) {
           if (childLayer->streamId() > 0) {
@@ -191,10 +193,12 @@ bool StreamDissectorThread::loop() {
   }
 
   std::vector<Layer *> subLayers;
+  /*
   for (const Layer *layer : layers) {
     subLayers.insert(subLayers.end(), layer->subLayers().begin(),
                      layer->subLayers().end());
   }
+  */
 
   while (!layers.empty() || !subLayers.empty()) {
     std::vector<Layer *> nextLayers;
