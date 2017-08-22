@@ -22,10 +22,15 @@ const auto dstToken = Token_get(".dst");
 
 struct Worker {
   std::unordered_set<uint16_t> ports;
+  bool closed = false;
 };
 
 void analyze(Context *ctx, void *data, Layer *layer) {
   Worker *worker = static_cast<Worker *>(data);
+  if (worker->closed) {
+    return;
+  }
+
   uint16_t srcPort = Property_uint64(Layer_propertyFromId(layer, srcToken));
   uint16_t dstPort = Property_uint64(Layer_propertyFromId(layer, dstToken));
 
