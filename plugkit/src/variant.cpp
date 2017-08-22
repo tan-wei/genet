@@ -546,20 +546,36 @@ Variant Variant::getVariant(v8::Local<v8::Value> var) {
   return Variant();
 }
 
-bool Variant_bool(const Variant *var) { return var->boolValue(); }
+bool Variant_bool(const Variant *var) {
+  if (!var)
+    return false;
+  return var->boolValue();
+}
 void Variant_setBool(Variant *var, bool value) { *var = Variant(value); }
 
-int64_t Variant_int64(const Variant *var) { return var->int64Value(); }
+int64_t Variant_int64(const Variant *var) {
+  if (!var)
+    return 0;
+  return var->int64Value();
+}
 void Variant_setInt64(Variant *var, int64_t value) { *var = Variant(value); }
 
-uint64_t Variant_uint64(const Variant *var) { return var->uint64Value(); }
+uint64_t Variant_uint64(const Variant *var) {
+  if (!var)
+    return 0;
+  return var->uint64Value();
+}
 void Variant_setUint64(Variant *var, uint64_t value) { *var = Variant(value); }
 
-double Variant_double(const Variant *var) { return var->doubleValue(); }
+double Variant_double(const Variant *var) {
+  if (!var)
+    return 0.0;
+  return var->doubleValue();
+}
 void Variant_setDouble(Variant *var, double value) { *var = Variant(value); }
 
 const char *Variant_string(const Variant *var) {
-  if (var->isString()) {
+  if (var && var->isString()) {
     return var->d.str->c_str();
   }
   return "";
@@ -569,7 +585,7 @@ void Variant_setString(Variant *var, const char *str) {
 }
 
 Slice Variant_slice(const Variant *var) {
-  if (var->isSlice()) {
+  if (var && var->isSlice()) {
     return var->slice();
   }
   return Slice{nullptr, nullptr};
@@ -577,6 +593,8 @@ Slice Variant_slice(const Variant *var) {
 void Variant_setSlice(Variant *var, Slice slice) { *var = Variant(slice); }
 
 const Variant *Variant_valueAt(const Variant *var, size_t index) {
+  if (!var)
+    return nullptr;
   const auto &array = var->array();
   if (index < array.size()) {
     return &array[index];
@@ -585,6 +603,8 @@ const Variant *Variant_valueAt(const Variant *var, size_t index) {
 }
 
 const Variant *Variant_mapValue(const Variant *var, const char *key) {
+  if (!var)
+    return nullptr;
   if (var->isMap()) {
     for (const auto &pair : var->map()) {
       if (pair.first == key) {
