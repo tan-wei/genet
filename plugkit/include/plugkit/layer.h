@@ -9,13 +9,8 @@
 
 PLUGKIT_NAMESPACE_BEGIN
 
-struct Layer;
 typedef struct Layer Layer;
-
-struct Payload;
 typedef struct Payload Payload;
-
-struct Property;
 typedef struct Property Property;
 
 /// Gets id

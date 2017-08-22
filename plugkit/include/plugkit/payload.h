@@ -10,10 +10,7 @@
 
 PLUGKIT_NAMESPACE_BEGIN
 
-struct Payload;
 typedef struct Payload Payload;
-
-struct Property;
 typedef struct Property Property;
 
 /// Returns the the first payload data.

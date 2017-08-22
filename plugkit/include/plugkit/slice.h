@@ -9,7 +9,6 @@
 
 PLUGKIT_NAMESPACE_BEGIN
 
-struct Error;
 typedef struct Error Error;
 
 typedef struct Slice {

@@ -8,7 +8,6 @@
 
 PLUGKIT_NAMESPACE_BEGIN
 
-struct Variant;
 typedef struct Variant Variant;
 
 /// Gets a boolean value

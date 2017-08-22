@@ -7,12 +7,8 @@
 
 PLUGKIT_NAMESPACE_BEGIN
 
-struct Layer;
 typedef struct Layer Layer;
-
-struct Context;
 typedef struct Context Context;
-
 typedef struct Dissector Dissector;
 
 typedef enum DissectorType {

@@ -6,7 +6,6 @@
 
 PLUGKIT_NAMESPACE_BEGIN
 
-struct Context;
 typedef struct Context Context;
 
 #ifdef PLUGKIT_ENABLE_LOGGING

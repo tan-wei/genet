@@ -8,10 +8,7 @@
 
 PLUGKIT_NAMESPACE_BEGIN
 
-struct Variant;
 typedef struct Variant Variant;
-
-struct Property;
 typedef struct Property Property;
 
 /// Gets id
