@@ -44,6 +44,19 @@ PLUGKIT_EXPORT int64_t Reader_readInt64LE(Reader *reader);
 PLUGKIT_EXPORT float Reader_readFloat32LE(Reader *reader);
 PLUGKIT_EXPORT double Reader_readFloat64LE(Reader *reader);
 
+typedef struct Payload Payload;
+typedef struct StreamReader StreamReader;
+
+PLUGKIT_EXPORT StreamReader *StreamReader_create();
+PLUGKIT_EXPORT void StreamReader_destroy(StreamReader *reader);
+PLUGKIT_EXPORT void StreamReader_addSlice(StreamReader *reader, Slice slice);
+PLUGKIT_EXPORT void StreamReader_addPayload(StreamReader *reader,
+                                            const Payload *payload);
+PLUGKIT_EXPORT bool StreamReader_search(StreamReader *reader, const char *data,
+                                        size_t length, size_t *offset);
+PLUGKIT_EXPORT const char *StreamReader_read(StreamReader *reader, char *buffer,
+                                             size_t offset, size_t *length);
+
 PLUGKIT_NAMESPACE_END
 
 #endif
