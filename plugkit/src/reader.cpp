@@ -128,6 +128,24 @@ void StreamReader_addPayload(StreamReader *reader, const Payload *payload) {
 
 Slice StreamReader_search(StreamReader *reader, const char *data, size_t length,
                           size_t offset) {
+  if (reader->slices.empty() || length == 0) {
+    return Slice{nullptr, nullptr};
+  }
+  size_t beginOffset = 0;
+  size_t begin = 0;
+  for (; begin <= reader->slices.size() &&
+         (beginOffset += Slice_length(reader->slices[begin])) <= offset;
+       ++begin)
+    ;
+  size_t beginLen = Slice_length(reader->slices[begin]);
+  beginOffset -= beginLen;
+  size_t front = 0;
+  for (size_t i = offset - beginOffset; i < beginLen; ++i) {
+    if (reader->slices[begin].begin[i] == data[0]) {
+      front = i + beginOffset;
+      break;
+    }
+  }
   return Slice{nullptr, nullptr};
 }
 
