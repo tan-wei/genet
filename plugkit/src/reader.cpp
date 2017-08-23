@@ -126,10 +126,10 @@ void StreamReader_addPayload(StreamReader *reader, const Payload *payload) {
   }
 }
 
-Slice StreamReader_search(StreamReader *reader, const char *data, size_t length,
+Range StreamReader_search(StreamReader *reader, const char *data, size_t length,
                           size_t *offset) {
   if (reader->slices.empty() || length == 0) {
-    return Slice{nullptr, nullptr};
+    return Range{0, 0};
   }
   size_t beginOffset = 0;
   size_t begin = 0;
@@ -139,43 +139,34 @@ Slice StreamReader_search(StreamReader *reader, const char *data, size_t length,
     ;
   size_t beginLen = Slice_length(reader->slices[begin]);
   beginOffset -= beginLen;
-  size_t front = 0;
-  bool found = false;
+  size_t front = beginOffset;
 
-  for (size_t i = *offset - beginOffset; i < beginLen; ++i) {
-    if (reader->slices[begin].begin[i] == data[0]) {
-      front = i;
-      found = true;
-      break;
+  std::unique_ptr<char[]> buf(new char[length]);
+
+  for (size_t i = begin; i < reader->slices.size(); ++i) {
+    const Slice &slice = reader->slices[i];
+    size_t sliceLen = Slice_length(slice);
+    size_t index = 0;
+    if (i == begin) {
+      index = *offset - beginOffset;
     }
-  }
-
-  if (!found) {
-    front = beginLen;
-    for (int i = begin + 1; i < reader->slices.size(); ++i) {
-      const Slice &slice = reader->slices[i];
-      size_t sliceLen = Slice_length(slice);
-      for (int index = 0; index < sliceLen; ++index) {
-        if (slice.begin[index] == data[0]) {
+    for (; index < sliceLen; ++index) {
+      if (slice.begin[index] == data[0]) {
+        const Slice &window =
+            StreamReader_read(reader, &buf[0], front + index, length);
+        if (Slice_length(window) == length &&
+            std::memcmp(window.begin, data, length) == 0) {
           front += index;
-          found = true;
-          goto end;
+          *offset = front + length;
+          return Range{static_cast<uint32_t>(front),
+                       static_cast<uint32_t>(front + length)};
         }
       }
-      front += sliceLen;
     }
-  end:;
+    front += sliceLen;
   }
-  printf(">>> %lu\n", front);
 
-  char *buf = new char[length];
-  const Slice &window = StreamReader_read(reader, buf, front, length);
-  if (Slice_length(window) == length) {
-    printf(">>> %d\n", std::memcmp(window.begin, data, length));
-  }
-  delete[] buf;
-
-  return Slice{nullptr, nullptr};
+  return Range{0, 0};
 }
 
 Slice StreamReader_read(StreamReader *reader, char *buffer, size_t offset,

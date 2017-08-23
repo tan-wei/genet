@@ -449,8 +449,9 @@ TEST_CASE("StreamReader_read", "[StreamReader]") {
 
 TEST_CASE("StreamReader_search", "[StreamReader]") {
   StreamReader *reader = StreamReader_create();
-  char data[256] = {0};
+  char data[256] = {'a', 'x', 'f', 'y'};
   char data2[] = {'a', 'x', 'd'};
+  StreamReader_addSlice(reader, Slice{data2, data + sizeof(data2)});
   StreamReader_addSlice(reader, Slice{data, data + 50});
   StreamReader_addSlice(reader, Slice{data + 16, data + 100});
   StreamReader_addSlice(reader, Slice{data + 100, data + sizeof(data)});
@@ -460,6 +461,17 @@ TEST_CASE("StreamReader_search", "[StreamReader]") {
   StreamReader_addSlice(reader, Slice{data + 100, data + sizeof(data)});
 
   size_t offset = 0;
-  Slice slice = StreamReader_search(reader, "xd", 2, &offset);
+  Range range = StreamReader_search(reader, "xd", 2, &offset);
+  CHECK(range.begin == 1);
+  CHECK(range.end == 3);
+  range = StreamReader_search(reader, "xd", 2, &offset);
+  CHECK(range.begin == 322);
+  CHECK(range.end == 324);
+  range = StreamReader_search(reader, "xfy", 3, &offset);
+  CHECK(range.begin == 353);
+  CHECK(range.end == 356);
+  range = StreamReader_search(reader, "xfy", 3, &offset);
+  CHECK(range.begin == 0);
+  CHECK(range.end == 0);
 }
 }
