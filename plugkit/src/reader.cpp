@@ -153,7 +153,7 @@ Range StreamReader_search(StreamReader *reader, const char *data, size_t length,
     for (; index < sliceLen; ++index) {
       if (slice.begin[index] == data[0]) {
         const Slice &window =
-            StreamReader_read(reader, &buf[0], front + index, length);
+            StreamReader_read(reader, &buf[0], length, front + index);
         if (Slice_length(window) == length &&
             std::memcmp(window.begin, data, length) == 0) {
           front += index;
@@ -169,21 +169,21 @@ Range StreamReader_search(StreamReader *reader, const char *data, size_t length,
   return Range{0, 0};
 }
 
-Slice StreamReader_read(StreamReader *reader, char *buffer, size_t offset,
-                        size_t length) {
+Slice StreamReader_read(StreamReader *reader, char *buffer, size_t length,
+                        size_t offset) {
   if (reader->slices.empty()) {
     return Slice{buffer, buffer};
   }
   size_t beginOffset = 0;
   size_t begin = 0;
-  for (; begin <= reader->slices.size() &&
+  for (; begin < reader->slices.size() &&
          (beginOffset += Slice_length(reader->slices[begin])) <= offset;
        ++begin)
     ;
   beginOffset -= Slice_length(reader->slices[begin]);
   size_t endOffset = beginOffset;
   size_t end = begin;
-  for (; end <= reader->slices.size() &&
+  for (; end < reader->slices.size() &&
          (endOffset += Slice_length(reader->slices[end])) < offset + length;
        ++end)
     ;

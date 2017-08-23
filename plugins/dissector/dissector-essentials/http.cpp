@@ -24,6 +24,7 @@ const auto reassembledToken = Token_get("@reassembled");
 struct Worker {
   std::unordered_set<uint16_t> ports;
   bool closed = false;
+  bool header = false;
   size_t offset = 0;
   StreamReader *reader;
 };
@@ -51,19 +52,34 @@ void analyze(Context *ctx, void *data, Layer *layer) {
     }
   }
 
-  size_t offset = worker->offset;
-  Range range = StreamReader_search(worker->reader, "\r\n", 2, &worker->offset);
+  if (worker->header)
+    return;
 
-  if (range.end > 0) {
-    size_t length = range.begin - offset;
-    std::unique_ptr<char[]> buf(new char[length]);
-    const Slice &slice =
-        StreamReader_read(worker->reader, &buf[0], length, offset);
-    printf("@@ %s\n", std::string(slice.begin, Slice_length(slice)).c_str());
+  while (1) {
+    size_t offset = worker->offset;
+    Range range =
+        StreamReader_search(worker->reader, "\r\n", 2, &worker->offset);
+
+    if (range.end > 0) {
+      size_t length = range.begin - offset;
+      if (length == 0) {
+        worker->header = true;
+        break;
+      }
+      std::unique_ptr<char[]> buf(new char[length]);
+      const Slice &slice =
+          StreamReader_read(worker->reader, &buf[0], length, offset);
+      printf("@@ %p %d %d %d @@\n", slice.begin, Slice_length(slice), length,
+             offset);
+      printf("@@ %s @@\n",
+             std::string(slice.begin, Slice_length(slice)).c_str());
+    } else {
+      break;
+    }
   }
 
-  Layer *child = Layer_addLayer(layer, httpToken);
-  Layer_addTag(child, httpToken);
+  // Layer *child = Layer_addLayer(layer, httpToken);
+  // Layer_addTag(child, httpToken);
 }
 
 void Init(v8::Local<v8::Object> exports) {

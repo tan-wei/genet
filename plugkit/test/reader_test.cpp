@@ -416,15 +416,15 @@ TEST_CASE("StreamReader_read", "[StreamReader]") {
 
   char buf[256] = {0};
 
-  Slice slice = StreamReader_read(reader, buf, 0, 16);
+  Slice slice = StreamReader_read(reader, buf, 16, 0);
   CHECK(slice.begin == data);
   CHECK(slice.end == data + 16);
 
-  slice = StreamReader_read(reader, buf, 0, 128);
+  slice = StreamReader_read(reader, buf, 128, 0);
   CHECK(slice.begin == data);
   CHECK(slice.end == data + 128);
 
-  slice = StreamReader_read(reader, buf, 0, 256);
+  slice = StreamReader_read(reader, buf, 256, 0);
   CHECK(slice.begin == data);
   CHECK(slice.end == data + 256);
 
@@ -432,15 +432,15 @@ TEST_CASE("StreamReader_read", "[StreamReader]") {
   CHECK(slice.begin == data + 16);
   CHECK(slice.end == data + 16 + 16);
 
-  slice = StreamReader_read(reader, buf, 32, 200);
+  slice = StreamReader_read(reader, buf, 200, 32);
   CHECK(slice.begin == data + 32);
   CHECK(slice.end == data + 32 + 200);
 
-  slice = StreamReader_read(reader, buf, 200, sizeof(data) - 200);
+  slice = StreamReader_read(reader, buf, sizeof(data) - 200, 200);
   CHECK(slice.begin == data + 200);
   CHECK(slice.end == data + sizeof(data));
 
-  slice = StreamReader_read(reader, buf, 128, 256);
+  slice = StreamReader_read(reader, buf, 256, 12);
   CHECK(slice.begin == buf);
   CHECK(slice.end == buf + 256);
 
