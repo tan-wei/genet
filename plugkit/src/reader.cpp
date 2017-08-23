@@ -126,8 +126,10 @@ void StreamReader_addPayload(StreamReader *reader, const Payload *payload) {
   }
 }
 
-bool StreamReader_search(StreamReader *reader, const char *data, size_t length,
-                         size_t *offset);
+Slice StreamReader_search(StreamReader *reader, const char *data, size_t length,
+                          size_t offset) {
+  return Slice{nullptr, nullptr};
+}
 
 Slice StreamReader_read(StreamReader *reader, char *buffer, size_t offset,
                         size_t length) {
