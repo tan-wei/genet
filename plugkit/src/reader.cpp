@@ -1,5 +1,7 @@
 #include "reader.h"
+#include "payload.hpp"
 #include <algorithm>
+#include <vector>
 #include <cstring>
 
 namespace plugkit {
@@ -103,4 +105,67 @@ int64_t Reader_readInt64LE(Reader *reader) { return readLE<int64_t>(reader); }
 
 float Reader_readFloat32LE(Reader *reader) { return readLE<float>(reader); }
 double Reader_readFloat64LE(Reader *reader) { return readLE<double>(reader); }
+
+struct StreamReader {
+  std::vector<Slice> slices;
+  size_t length = 0;
+};
+
+StreamReader *StreamReader_create() { return new StreamReader(); }
+
+void StreamReader_destroy(StreamReader *reader) { delete reader; }
+
+void StreamReader_addSlice(StreamReader *reader, Slice slice) {
+  reader->slices.push_back(slice);
+  reader->length += Slice_length(slice);
+}
+
+void StreamReader_addPayload(StreamReader *reader, const Payload *payload) {
+  for (const Slice &slice : payload->slices()) {
+    StreamReader_addSlice(reader, slice);
+  }
+}
+
+bool StreamReader_search(StreamReader *reader, const char *data, size_t length,
+                         size_t *offset);
+
+Slice StreamReader_read(StreamReader *reader, char *buffer, size_t offset,
+                        size_t length) {
+  if (reader->slices.empty()) {
+    return Slice{buffer, buffer};
+  }
+  size_t beginOffset = 0;
+  size_t begin = 0;
+  for (; begin <= reader->slices.size() &&
+         (beginOffset += Slice_length(reader->slices[begin])) <= offset;
+       ++begin)
+    ;
+  beginOffset -= Slice_length(reader->slices[begin]);
+  size_t endOffset = beginOffset;
+  size_t end = begin;
+  for (; end <= reader->slices.size() &&
+         (endOffset += Slice_length(reader->slices[end])) < offset + length;
+       ++end)
+    ;
+  bool continuous = true;
+  for (size_t i = begin; i < end; ++i) {
+    if (reader->slices[i].end != reader->slices[i + 1].begin) {
+      continuous = false;
+      break;
+    }
+  }
+  size_t buflen = std::min(length, endOffset - beginOffset);
+  if (continuous) {
+    const char *data = reader->slices[begin].begin + (offset - beginOffset);
+    return Slice{data, data + buflen};
+  }
+  char *dst = buffer;
+  for (size_t i = begin; i <= end; ++i) {
+    const Slice &slice = reader->slices[i];
+    size_t sliceLen = Slice_length(slice);
+    std::memcpy(dst, slice.begin, sliceLen);
+    dst += sliceLen;
+  }
+  return Slice{buffer, buffer + buflen};
+}
 }

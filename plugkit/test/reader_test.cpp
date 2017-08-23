@@ -403,4 +403,47 @@ TEST_CASE("Reader_readFloat64LE", "[Reader]") {
   CHECK(reader.lastRange.end == sizeof(double));
   CHECK(reader.lastError.type == outOfBoundError);
 }
+
+TEST_CASE("StreamReader_read", "[StreamReader]") {
+  StreamReader *reader = StreamReader_create();
+  char data[256] = {0};
+  StreamReader_addSlice(reader, Slice{data, data + 16});
+  StreamReader_addSlice(reader, Slice{data + 16, data + 100});
+  StreamReader_addSlice(reader, Slice{data + 100, data + sizeof(data)});
+  StreamReader_addSlice(reader, Slice{data, data + 16});
+  StreamReader_addSlice(reader, Slice{data + 16, data + 100});
+  StreamReader_addSlice(reader, Slice{data + 100, data + sizeof(data)});
+
+  char buf[256] = {0};
+
+  Slice slice = StreamReader_read(reader, buf, 0, 16);
+  CHECK(slice.begin == data);
+  CHECK(slice.end == data + 16);
+
+  slice = StreamReader_read(reader, buf, 0, 128);
+  CHECK(slice.begin == data);
+  CHECK(slice.end == data + 128);
+
+  slice = StreamReader_read(reader, buf, 0, 256);
+  CHECK(slice.begin == data);
+  CHECK(slice.end == data + 256);
+
+  slice = StreamReader_read(reader, buf, 16, 16);
+  CHECK(slice.begin == data + 16);
+  CHECK(slice.end == data + 16 + 16);
+
+  slice = StreamReader_read(reader, buf, 32, 200);
+  CHECK(slice.begin == data + 32);
+  CHECK(slice.end == data + 32 + 200);
+
+  slice = StreamReader_read(reader, buf, 200, sizeof(data) - 200);
+  CHECK(slice.begin == data + 200);
+  CHECK(slice.end == data + sizeof(data));
+
+  slice = StreamReader_read(reader, buf, 128, 256);
+  CHECK(slice.begin == buf);
+  CHECK(slice.end == buf + 256);
+
+  StreamReader_destroy(reader);
+}
 }

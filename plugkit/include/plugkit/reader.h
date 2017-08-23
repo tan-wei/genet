@@ -54,8 +54,8 @@ PLUGKIT_EXPORT void StreamReader_addPayload(StreamReader *reader,
                                             const Payload *payload);
 PLUGKIT_EXPORT bool StreamReader_search(StreamReader *reader, const char *data,
                                         size_t length, size_t *offset);
-PLUGKIT_EXPORT const char *StreamReader_read(StreamReader *reader, char *buffer,
-                                             size_t offset, size_t *length);
+PLUGKIT_EXPORT Slice StreamReader_read(StreamReader *reader, char *buffer,
+                                       size_t offset, size_t length);
 
 PLUGKIT_NAMESPACE_END
 
