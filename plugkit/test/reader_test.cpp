@@ -446,4 +446,20 @@ TEST_CASE("StreamReader_read", "[StreamReader]") {
 
   StreamReader_destroy(reader);
 }
+
+TEST_CASE("StreamReader_search", "[StreamReader]") {
+  StreamReader *reader = StreamReader_create();
+  char data[256] = {0};
+  char data2[] = {'a', 'x', 'd'};
+  StreamReader_addSlice(reader, Slice{data, data + 50});
+  StreamReader_addSlice(reader, Slice{data + 16, data + 100});
+  StreamReader_addSlice(reader, Slice{data + 100, data + sizeof(data)});
+  StreamReader_addSlice(reader, Slice{data2, data + sizeof(data2)});
+  StreamReader_addSlice(reader, Slice{data, data + 16});
+  StreamReader_addSlice(reader, Slice{data + 16, data + 100});
+  StreamReader_addSlice(reader, Slice{data + 100, data + sizeof(data)});
+
+  size_t offset = 0;
+  Slice slice = StreamReader_search(reader, "xd", 2, &offset);
+}
 }
