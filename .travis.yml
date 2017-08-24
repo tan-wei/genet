@@ -27,7 +27,6 @@ before_install:
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source ci/linux-before-install.sh; fi
 install:
 - yarn
-- rm -rf node_modules/plugkit/src
 - make build
 script:
 - make lint

@@ -7,7 +7,6 @@ environment:
 install:
 - ps: git submodule update --init --recursive; true
 - ps: yarn
-- ps: make clean
 build_script:
 - ps: make build; true
 test_script:
