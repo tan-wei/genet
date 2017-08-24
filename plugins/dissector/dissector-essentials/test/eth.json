@@ -2,7 +2,6 @@
   {
     "layer": "eth",
     "properties": {
-      "namespace": "eth *ipv4",
       "confidence": 1,
       "id": "eth"
     }
