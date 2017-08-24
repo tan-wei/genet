@@ -6,8 +6,8 @@
 PLUGKIT_NAMESPACE_BEGIN
 
 typedef struct Range {
-  uint32_t begin;
-  uint32_t end;
+  uint64_t begin;
+  uint64_t end;
 } Range;
 
 PLUGKIT_NAMESPACE_END

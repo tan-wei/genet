@@ -127,14 +127,14 @@ void StreamReader_addPayload(StreamReader *reader, const Payload *payload) {
 }
 
 Range StreamReader_search(StreamReader *reader, const char *data, size_t length,
-                          size_t *offset) {
+                          size_t offset) {
   if (reader->slices.empty() || length == 0) {
     return Range{0, 0};
   }
   size_t beginOffset = 0;
   size_t begin = 0;
   for (; begin <= reader->slices.size() &&
-         (beginOffset += Slice_length(reader->slices[begin])) <= *offset;
+         (beginOffset += Slice_length(reader->slices[begin])) <= offset;
        ++begin)
     ;
   size_t beginLen = Slice_length(reader->slices[begin]);
@@ -148,7 +148,7 @@ Range StreamReader_search(StreamReader *reader, const char *data, size_t length,
     size_t sliceLen = Slice_length(slice);
     size_t index = 0;
     if (i == begin) {
-      index = *offset - beginOffset;
+      index = offset - beginOffset;
     }
     for (; index < sliceLen; ++index) {
       if (slice.begin[index] == data[0]) {
@@ -157,9 +157,7 @@ Range StreamReader_search(StreamReader *reader, const char *data, size_t length,
         if (Slice_length(window) == length &&
             std::memcmp(window.begin, data, length) == 0) {
           front += index;
-          *offset = front + length;
-          return Range{static_cast<uint32_t>(front),
-                       static_cast<uint32_t>(front + length)};
+          return Range{front, front + length};
         }
       }
     }

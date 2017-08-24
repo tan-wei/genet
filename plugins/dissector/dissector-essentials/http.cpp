@@ -56,23 +56,24 @@ void analyze(Context *ctx, void *data, Layer *layer) {
     return;
 
   while (1) {
-    size_t offset = worker->offset;
     Range range =
-        StreamReader_search(worker->reader, "\r\n", 2, &worker->offset);
+        StreamReader_search(worker->reader, "\r\n", 2, worker->offset);
 
     if (range.end > 0) {
-      size_t length = range.begin - offset;
+      size_t length = range.begin - worker->offset;
       if (length == 0) {
         worker->header = true;
         break;
       }
       std::unique_ptr<char[]> buf(new char[length]);
       const Slice &slice =
-          StreamReader_read(worker->reader, &buf[0], length, offset);
+          StreamReader_read(worker->reader, &buf[0], length, worker->offset);
       printf("@@ %p %d %d %d @@\n", slice.begin, Slice_length(slice), length,
-             offset);
+             worker->offset);
       printf("@@ %s @@\n",
              std::string(slice.begin, Slice_length(slice)).c_str());
+
+      worker->offset = range.end;
     } else {
       break;
     }

@@ -73,8 +73,8 @@ NAN_GETTER(PropertyWrapper::range) {
   if (auto prop = wrapper->constProp) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
     auto array = v8::Array::New(isolate, 2);
-    array->Set(0, Nan::New(prop->range().begin));
-    array->Set(1, Nan::New(prop->range().end));
+    array->Set(0, Nan::New(static_cast<uint32_t>(prop->range().begin)));
+    array->Set(1, Nan::New(static_cast<uint32_t>(prop->range().end)));
     info.GetReturnValue().Set(array);
   }
 }
