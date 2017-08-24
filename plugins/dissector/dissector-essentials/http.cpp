@@ -68,10 +68,40 @@ void analyze(Context *ctx, void *data, Layer *layer) {
       std::unique_ptr<char[]> buf(new char[length]);
       const Slice &slice =
           StreamReader_read(worker->reader, &buf[0], length, worker->offset);
-      printf("@@ %p %d %d %d @@\n", slice.begin, Slice_length(slice), length,
-             worker->offset);
-      printf("@@ %s @@\n",
-             std::string(slice.begin, Slice_length(slice)).c_str());
+
+      const char *keyBegin = nullptr;
+      const char *keyEnd = nullptr;
+      const char *valueBegin = nullptr;
+      const char *valueEnd = nullptr;
+      for (const char *ptr = slice.begin; ptr < slice.end; ++ptr) {
+        char c = *ptr;
+        if (!keyBegin && c != ' ') {
+          keyBegin = ptr;
+          continue;
+        }
+        if (!keyEnd && c == ':') {
+          keyEnd = ptr;
+          continue;
+        }
+        if (keyEnd && !valueBegin && c != ' ') {
+          valueBegin = ptr;
+          continue;
+        }
+      }
+      if (valueBegin) {
+        for (const char *ptr = slice.end - 1; ptr >= valueBegin; --ptr) {
+          char c = *ptr;
+          if (c != ' ') {
+            valueEnd = ptr + 1;
+            break;
+          }
+        }
+      }
+
+      if (keyBegin && keyEnd && valueBegin) {
+        printf("%s: %s\n", std::string(keyBegin, keyEnd - keyBegin).c_str(),
+               std::string(valueBegin, valueEnd - valueBegin).c_str());
+      }
 
       worker->offset = range.end;
     } else {
