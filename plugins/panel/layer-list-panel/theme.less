@@ -18,13 +18,49 @@ ul {
   list-style: none;
   padding-left: 10px;
 
-  h4 {
+  summary.property {
+    &::-webkit-details-marker {
+      display: none;
+    }
+  }
+
+  summary.layer {
     font-size: 1em;
     border-radius: 2px;
     padding: 5px;
     margin: 10px 0;
     transform: translateX(-5px);
     cursor: default;
+    &::-webkit-details-marker {
+      display: none;
+    }
+  }
+
+  details > summary {
+    i.fa-circle-o {
+      display: inline;
+    }
+    i.fa-arrow-circle-down, i.fa-arrow-circle-right {
+      display: none;
+    }
+  }
+
+  details > summary.children {
+    i.fa-arrow-circle-right {
+      display: inline;
+    }
+    i.fa-arrow-circle-down, i.fa-circle-o {
+      display: none;
+    }
+  }
+
+  details[open] > summary.children {
+    i.fa-arrow-circle-right, i.fa-circle-o {
+      display: none;
+    }
+    i.fa-arrow-circle-down {
+      display: inline;
+    }
   }
 
   li {

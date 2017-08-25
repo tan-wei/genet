@@ -108,9 +108,9 @@ class PropertyItem {
     const prop = vnode.attrs.property[propSymbol]
     const value = (prop.value == null ? '' : prop.value.toString())
     const children = orderedProperties(vnode.attrs.property)
-    let faClass = 'fa fa-circle-o'
+    let faClass = 'property'
     if (children.length) {
-      faClass = this.expanded ? 'fa fa-arrow-circle-down' : 'fa fa-arrow-circle-right'
+      faClass = 'property children'
     }
     const range = [
       prop.range[0] + vnode.attrs.dataOffset,
@@ -125,24 +125,30 @@ class PropertyItem {
         onmouseover={ () => selectRange(range) }
         onmouseout= { () => selectRange() }
       >
-      <label
-        onclick={ () => this.expanded = !this.expanded }
-      ><i class={faClass}></i> { name }: </label>
-      { m(propRenderer, {prop, layer: vnode.attrs.layer}) }
-      <label
-      class="error"
-      style={{ display: prop.error ? 'inline' : 'none' }}
-      ><i class="fa fa-exclamation-triangle"></i> { prop.error }</label>
-      <ul style={{ display: this.expanded ? 'block' : 'none' }}>
-        {
-          children.map((prop) => {
-            return m(PropertyItem, {
-              property: prop,
-              layer: vnode.attrs.layer
+      <details>
+        <summary class={ faClass }>
+          <label>
+          <i class="fa fa-circle-o"> </i>
+          <i class="fa fa-arrow-circle-right"> </i>
+          <i class="fa fa-arrow-circle-down"> </i>
+           { name }: </label>
+          { m(propRenderer, {prop, layer: vnode.attrs.layer}) }
+          <label
+          class="error"
+          style={{ display: prop.error ? 'inline' : 'none' }}
+          ><i class="fa fa-exclamation-triangle"></i> { prop.error }</label>
+        </summary>
+        <ul>
+          {
+            children.map((prop) => {
+              return m(PropertyItem, {
+                property: prop,
+                layer: vnode.attrs.layer
+              })
             })
-          })
-        }
-      </ul>
+          }
+        </ul>
+      </details>
     </li>
   }
 }
@@ -154,10 +160,6 @@ class LayerItem {
 
   view(vnode) {
     const layer = vnode.attrs.layer
-    let faClass = 'fa fa-circle-o'
-    if (layer.children.length + layer.properties.length) {
-      faClass = this.expanded ? 'fa fa-arrow-circle-down' : 'fa fa-arrow-circle-right'
-    }
     let dataOffset = 0
     let dataLength = 0
     if (layer.parent) {
@@ -199,19 +201,18 @@ class LayerItem {
         onmouseover={ () => selectRange(range) }
         onmouseout= { () => selectRange() }
       >
-        <h4
-          data-layer={layer.tags.join(' ')}
-          onclick={ () => this.expanded = !this.expanded }
-        ><i class={faClass}></i> { name } { Renderer.query(layer, '.') }
-        <span
-        style={{ display: layer.streamId > 0 ? 'inline' : 'none' }}
-        ><i class="fa fa-exchange"></i> Stream #{ layer.streamId }</span>
-        <span
-        style={{ display: layer.confidence < 1.0 ? 'inline' : 'none' }}
-        ><i class="fa fa-question-circle"></i> { layer.confidence * 100 }%</span>
-        </h4>
-      </li>
-      <div style={{ display: this.expanded ? 'block' : 'none' }}>
+      <details>
+        <summary class="layer children" data-layer={layer.tags.join(' ')}>
+          <i class="fa fa-arrow-circle-right"> </i>
+          <i class="fa fa-arrow-circle-down"> </i>
+          { name } { Renderer.query(layer, '.') }
+          <span
+          style={{ display: layer.streamId > 0 ? 'inline' : 'none' }}
+          ><i class="fa fa-exchange"></i> Stream #{ layer.streamId }</span>
+          <span
+          style={{ display: layer.confidence < 1.0 ? 'inline' : 'none' }}
+          ><i class="fa fa-question-circle"></i> { layer.confidence * 100 }%</span>
+        </summary>
         {
           orderedProperties(propObject[layerId]).map((prop) => {
             return m(PropertyItem, {
@@ -231,7 +232,8 @@ class LayerItem {
           })
         }
         </ul>
-      </div>
+      </details>
+      </li>
       <li>
         <ul>
           {
