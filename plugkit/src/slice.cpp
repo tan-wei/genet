@@ -35,8 +35,6 @@ template <class T> T readBE(const Slice &slice, size_t offset, Error *err) {
 }
 }
 
-size_t Slice_length(Slice slice) { return slice.end - slice.begin; }
-
 Slice Slice_slice(Slice slice, size_t offset, size_t length) {
   Slice subview;
   subview.begin = std::min(slice.begin + offset, slice.end);

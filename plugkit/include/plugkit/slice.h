@@ -16,7 +16,7 @@ typedef struct Slice {
   const char *end;
 } Slice;
 
-PLUGKIT_EXPORT size_t Slice_length(Slice slice);
+inline size_t Slice_length(Slice slice) { return slice.end - slice.begin; }
 PLUGKIT_EXPORT Slice Slice_slice(Slice slice, size_t offset, size_t length);
 PLUGKIT_EXPORT Slice Slice_sliceAll(Slice slice, size_t offset);
 
