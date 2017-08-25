@@ -21,7 +21,7 @@ PLUGKIT_EXPORT Token Token_get(const char *str);
 /// Token_null() == Token_get(nullptr) == Token_get("")
 /// @endcode
 /// @remarks This function is thread-safe.
-PLUGKIT_EXPORT Token Token_null();
+inline Token Token_null() { return (Token)0; }
 
 /// Returns a string corresponded with a given token.
 ///

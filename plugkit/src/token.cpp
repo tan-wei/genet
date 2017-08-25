@@ -43,30 +43,30 @@ Token Token_get(const char *str) {
     in_word_set(nullptr, 0);
   }
 
-  {
-    const std::string &key = str;
-    auto it = localMap.find(key);
-    if (it != localMap.end()) {
-      return it->second;
-    }
-  }
-
-  std::lock_guard<std::mutex> lock(mutex);
-  const std::string &key = str;
-  auto it = map.find(key);
-  if (it != map.end()) {
-    localMap.insert(*it);
+  auto it = localMap.find(str);
+  if (it != localMap.end()) {
     return it->second;
   }
-  Token id = map.size() + 1 + MAX_HASH_VALUE + 1;
-  map.insert(std::make_pair(key, id));
-  char *data = new char[key.size() + 1]();
-  key.copy(data, key.size());
-  reverseMap.insert(std::make_pair(id, data));
+
+  Token id;
+  char *data = new char[len + 1]();
+  {
+    std::lock_guard<std::mutex> lock(mutex);
+    const std::string &key = str;
+    auto it = map.find(key);
+    if (it != map.end()) {
+      localMap.insert(*it);
+      return it->second;
+    }
+    id = map.size() + 1 + MAX_HASH_VALUE + 1;
+    map.emplace(key, id);
+    key.copy(data, len);
+    reverseMap.emplace(id, data);
+  }
+  localMap.emplace(data, id);
+  localReverseMap.emplace(id, data);
   return id;
 }
-
-Token Token_null() { return Token{0}; }
 
 const char *Token_string(Token token) {
   if (token == Token_null()) {
