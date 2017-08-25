@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include <v8.h>
 #include <json11.hpp>
 
@@ -27,7 +28,7 @@ public:
     TYPE_MAP
   };
   using Array = std::vector<Variant>;
-  using Map = std::vector<std::pair<std::string, Variant>>;
+  using Map = std::unordered_map<std::string, Variant>;
 
 public:
   Variant();
@@ -83,6 +84,7 @@ public:
   uint8_t tag() const;
   Variant operator[](size_t index) const;
   Variant operator[](const std::string &key) const;
+  Variant &operator[](const std::string &key);
   size_t length() const;
 
 public:

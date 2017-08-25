@@ -313,13 +313,20 @@ Variant Variant::operator[](size_t index) const {
 
 Variant Variant::operator[](const std::string &key) const {
   if (type() == TYPE_MAP) {
-    for (const auto &pair : *d.map) {
-      if (pair.first == key) {
-        return pair.second;
-      }
+    auto it = d.map->find(key);
+    if (it != d.map->end()) {
+      return it->second;
     }
   }
   return Variant();
+}
+
+Variant &Variant::operator[](const std::string &key) {
+  if (type() == TYPE_MAP) {
+    return (*d.map)[key];
+  }
+  static Variant null;
+  return null;
 }
 
 size_t Variant::length() const {
@@ -539,7 +546,7 @@ Variant Variant::getVariant(v8::Local<v8::Value> var) {
       const auto keyObj = keys->Get(i);
       const std::string &key = *Nan::Utf8String(keyObj);
       const Variant &value = getVariant(obj->Get(keyObj));
-      map.emplace_back(key, value);
+      map.emplace(key, value);
     }
     return map;
   }
@@ -606,13 +613,21 @@ const Variant *Variant_mapValue(const Variant *var, const char *key) {
   if (!var)
     return nullptr;
   if (var->isMap()) {
-    for (const auto &pair : var->map()) {
-      if (pair.first == key) {
-        return &pair.second;
-      }
+    const auto &map = var->map();
+    auto it = map.find(key);
+    if (it != map.end()) {
+      return &it->second;
     }
   }
-  static const Variant null;
-  return &null;
+  return nullptr;
+}
+
+Variant *Variant_mapValueRef(Variant *var, const char *key) {
+  if (!var)
+    return nullptr;
+  if (var->isMap()) {
+    return &(*var)[key];
+  }
+  return nullptr;
 }
 }
