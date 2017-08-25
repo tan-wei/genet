@@ -9,6 +9,8 @@ if (require('electron-squirrel-startup')) {
 
 mkpath.sync(config.userPluginPath)
 
+app.commandLine.appendSwitch('--enable-experimental-web-platform-features')
+
 app.on('window-all-closed', () => {
   for (const wc of webContents.getAllWebContents()) {
     wc.closeDevTools()
