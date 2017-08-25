@@ -133,7 +133,7 @@ Range StreamReader_search(StreamReader *reader, const char *data, size_t length,
   }
   size_t beginOffset = 0;
   size_t begin = 0;
-  for (; begin <= reader->slices.size() &&
+  for (; begin < reader->slices.size() &&
          (beginOffset += Slice_length(reader->slices[begin])) <= offset;
        ++begin)
     ;
