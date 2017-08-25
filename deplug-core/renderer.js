@@ -1,7 +1,6 @@
 import mithril from 'mithril'
 
 const properties = {}
-const layers = {}
 export default class Renderer {
   static registerProperty (type, renderer) {
     properties[type] = renderer
@@ -33,8 +32,7 @@ export default class Renderer {
       } else if (typeof object.propertyFromId === 'function') {
         const prop = object.propertyFromId(query)
         if (prop) {
-          type = prop.type
-          value = prop.value
+          ({ type, value } = prop)
         }
       }
     }
