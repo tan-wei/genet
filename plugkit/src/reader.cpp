@@ -198,7 +198,7 @@ Slice StreamReader_read(StreamReader *reader, char *buffer, size_t length,
     return Slice{data, data + buflen};
   }
   char *dst = buffer;
-  for (size_t i = begin; i <= end; ++i) {
+  for (size_t i = begin; i < end; ++i) {
     const Slice &slice = reader->slices[i];
     size_t sliceLen = Slice_length(slice);
     std::memcpy(dst, slice.begin, sliceLen);
