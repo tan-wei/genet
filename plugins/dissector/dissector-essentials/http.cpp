@@ -121,8 +121,8 @@ void Init(v8::Local<v8::Object> exports) {
       diss,
       [](Context *ctx) -> void * {
         auto httpPorts = Variant_mapValue(
-            Variant_mapValue(Context_options(ctx), "dissector-essentials"),
-            "httpPorts");
+            Variant_mapValue(Context_options(ctx), "dissector-essentials", -1),
+            "httpPorts", -1);
 
         const Variant *value = nullptr;
         Worker *worker = new Worker();

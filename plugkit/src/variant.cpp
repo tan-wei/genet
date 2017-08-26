@@ -609,12 +609,14 @@ const Variant *Variant_arrayValue(const Variant *var, size_t index) {
   return nullptr;
 }
 
-const Variant *Variant_mapValue(const Variant *var, const char *key) {
+const Variant *Variant_mapValue(const Variant *var, const char *key,
+                                int length) {
   if (!var)
     return nullptr;
   if (var->isMap()) {
     const auto &map = var->map();
-    auto it = map.find(key);
+    auto it =
+        map.find(length < 0 ? std::string(key) : std::string(key, length));
     if (it != map.end()) {
       return &it->second;
     }
@@ -622,11 +624,9 @@ const Variant *Variant_mapValue(const Variant *var, const char *key) {
   return nullptr;
 }
 
-Variant *Variant_mapValueRef(Variant *var, const char *key) {
-  if (!var)
-    return nullptr;
+Variant *Variant_mapValueRef(Variant *var, const char *key, int length) {
   if (var->isMap()) {
-    return &(*var)[key];
+    return &(*var)[length < 0 ? std::string(key) : std::string(key, length)];
   }
   return nullptr;
 }
