@@ -599,7 +599,7 @@ Slice Variant_slice(const Variant *var) {
 }
 void Variant_setSlice(Variant *var, Slice slice) { *var = Variant(slice); }
 
-const Variant *Variant_valueAt(const Variant *var, size_t index) {
+const Variant *Variant_arrayValue(const Variant *var, size_t index) {
   if (!var)
     return nullptr;
   const auto &array = var->array();

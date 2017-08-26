@@ -126,7 +126,7 @@ void Init(v8::Local<v8::Object> exports) {
 
         const Variant *value = nullptr;
         Worker *worker = new Worker();
-        for (size_t i = 0; (value = Variant_valueAt(httpPorts, i)); ++i) {
+        for (size_t i = 0; (value = Variant_arrayValue(httpPorts, i)); ++i) {
           worker->ports.insert(Variant_uint64(value));
         }
         worker->reader = StreamReader_create();
