@@ -587,8 +587,8 @@ const char *Variant_string(const Variant *var) {
   }
   return "";
 }
-void Variant_setString(Variant *var, const char *str) {
-  *var = Variant(std::string(str));
+void Variant_setString(Variant *var, const char *str, int length) {
+  *var = Variant(length < 0 ? std::string(str) : std::string(str, length));
 }
 
 Slice Variant_slice(const Variant *var) {
@@ -625,9 +625,9 @@ const Variant *Variant_mapValue(const Variant *var, const char *key,
 }
 
 Variant *Variant_mapValueRef(Variant *var, const char *key, int length) {
-  if (var->isMap()) {
-    return &(*var)[length < 0 ? std::string(key) : std::string(key, length)];
+  if (!var->isMap()) {
+    *var = Variant::Map();
   }
-  return nullptr;
+  return &(*var)[length < 0 ? std::string(key) : std::string(key, length)];
 }
 }

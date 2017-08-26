@@ -74,6 +74,17 @@ PLUGKIT_EXPORT Slice Property_slice(const Property *prop);
 /// Sets a slice value
 PLUGKIT_EXPORT void Property_setSlice(Property *prop, Slice slice);
 
+PLUGKIT_EXPORT const Variant *Property_arrayValue(const Property *prop,
+                                                  size_t index);
+
+/// Gets a value associated with a given key
+PLUGKIT_EXPORT const Variant *Property_mapValue(const Property *prop,
+                                                const char *key, int length);
+
+/// Gets a mutable value associated with a given key
+PLUGKIT_EXPORT Variant *Property_mapValueRef(Property *prop, const char *key,
+                                             int length);
+
 PLUGKIT_NAMESPACE_END
 
 #endif

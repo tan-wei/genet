@@ -54,7 +54,7 @@ TEST_CASE("Variant_double", "[variant]") {
 TEST_CASE("Variant_string", "[variant]") {
   Variant variant;
   CHECK(strcmp(Variant_string(&variant), "") == 0);
-  Variant_setString(&variant, "HELLO");
+  Variant_setString(&variant, "HELLO", -1);
   CHECK(strcmp(Variant_string(&variant), "HELLO") == 0);
   CHECK(strcmp(Variant_string(nullptr), "") == 0);
 }

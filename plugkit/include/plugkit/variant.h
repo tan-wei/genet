@@ -38,7 +38,8 @@ PLUGKIT_EXPORT void Variant_setDouble(Variant *var, double value);
 PLUGKIT_EXPORT const char *Variant_string(const Variant *var);
 
 /// Sets a string value
-PLUGKIT_EXPORT void Variant_setString(Variant *var, const char *str);
+PLUGKIT_EXPORT void Variant_setString(Variant *var, const char *str,
+                                      int length);
 
 /// Gets a slice value
 PLUGKIT_EXPORT Slice Variant_slice(const Variant *var);

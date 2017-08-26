@@ -104,4 +104,25 @@ Slice Property_slice(const Property *prop) {
 }
 
 void Property_setSlice(Property *prop, Slice slice) { prop->setValue(slice); }
+
+const Variant *Property_arrayValue(const Property *prop, size_t index) {
+  if (!prop) {
+    static const Variant null;
+    return &null;
+  }
+  return Variant_arrayValue(prop->valueRef(), index);
+}
+
+const Variant *Property_mapValue(const Property *prop, const char *key,
+                                 int length) {
+  if (!prop) {
+    static const Variant null;
+    return &null;
+  }
+  return Variant_mapValue(prop->valueRef(), key, length);
+}
+
+Variant *Property_mapValueRef(Property *prop, const char *key, int length) {
+  return Variant_mapValueRef(prop->valueRef(), key, length);
+}
 }

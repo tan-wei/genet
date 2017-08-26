@@ -19,6 +19,7 @@ namespace {
 const auto httpToken = Token_get("http");
 const auto srcToken = Token_get(".src");
 const auto dstToken = Token_get(".dst");
+const auto headersToken = Token_get("http.headers");
 const auto reassembledToken = Token_get("@reassembled");
 
 struct Worker {
@@ -54,6 +55,11 @@ void analyze(Context *ctx, void *data, Layer *layer) {
 
   if (worker->header)
     return;
+
+  Layer *child = Layer_addLayer(layer, httpToken);
+  Layer_addTag(child, httpToken);
+
+  Property *headers = Layer_addProperty(child, headersToken);
 
   while (1) {
     Range range =
@@ -99,6 +105,9 @@ void analyze(Context *ctx, void *data, Layer *layer) {
       }
 
       if (keyBegin && keyEnd && valueBegin) {
+        Variant *value =
+            Property_mapValueRef(headers, keyBegin, keyEnd - keyBegin);
+        Variant_setString(value, valueBegin, valueEnd - valueBegin);
         printf("%s: %s\n", std::string(keyBegin, keyEnd - keyBegin).c_str(),
                std::string(valueBegin, valueEnd - valueBegin).c_str());
       }
@@ -108,9 +117,6 @@ void analyze(Context *ctx, void *data, Layer *layer) {
       break;
     }
   }
-
-  // Layer *child = Layer_addLayer(layer, httpToken);
-  // Layer_addTag(child, httpToken);
 }
 
 void Init(v8::Local<v8::Object> exports) {
