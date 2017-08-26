@@ -115,6 +115,13 @@ export default {
       }
     },
     {
+      type: 'core:filter:literal',
+      renderer: {
+        id: 'ipv4',
+        root: 'ipv4-literal.js'
+      }
+    },
+    {
       type: 'core:renderer',
       renderer: {
         type: 'property',

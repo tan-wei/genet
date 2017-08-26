@@ -31,9 +31,10 @@ function roll(script) {
 }
 
 class Session extends EventEmitter {
-  constructor(sess) {
+  constructor(sess, literals) {
     super()
     internal(this).sess = sess
+    internal(this).literals = literals
 
     this.status = {
       capture: false
@@ -106,7 +107,40 @@ class Session extends EventEmitter {
 
   setDisplayFilter(name, filter) {
     let body = ''
-    const ast = esprima.parse(filter)
+    const tokens = esprima.tokenize(filter)
+
+    function replaceLiterals(tokens) {
+      let array = []
+      for (let i = 0; i < tokens.length; ++i) {
+        if (tokens[i].type === 'Template') {
+          if (i > 0 && tokens[i - 1].type === 'Identifier') {
+            tokens[i].id = tokens[i - 1].value
+            array.pop()
+            array.push(tokens[i])
+          } else {
+            array.push(tokens[i])
+          }
+        } else {
+          array.push(tokens[i])
+        }
+      }
+      return array.map((token) => {
+        if (token.type !== 'Template') return token
+        const literals = internal(this).literals
+        if (token.id && token.id in literals) {
+          const value = token.value.substr(1, token.value.length - 2)
+          const code = literals[token.id].parse(value)
+          return esprima.tokenize(code)[0]
+        }
+        return token
+      })
+    }
+
+    console.log(replaceLiterals(tokens))
+
+    const ast = esprima.parse(
+      replaceLiterals(tokens).map(t => t.value).join(' '))
+
     switch (ast.body.length) {
       case 0:
         break
@@ -128,6 +162,7 @@ class SessionFactory extends kit.SessionFactory {
     super()
     internal(this).tasks = []
     internal(this).linkLayers = []
+    internal(this).literals = {}
   }
 
   create() {
@@ -135,12 +170,16 @@ class SessionFactory extends kit.SessionFactory {
       for (let link of internal(this).linkLayers) {
         super.registerLinkLayer(link.link, link.id, link.name)
       }
-      return new Session(super.create())
+      return new Session(super.create(), internal(this).literals)
     })
   }
 
   registerLinkLayer(layer) {
     internal(this).linkLayers.push(layer)
+  }
+
+  registerFilterLiteral(literal) {
+    internal(this).literals[literal.id] = literal
   }
 
   registerDissector(dissector) {
