@@ -8,23 +8,30 @@ namespace plugkit {
 
 class FilterThreadPool::Private {
 public:
-  Private();
+  Private(const std::string &body, const Variant &options,
+          const FrameStorePtr &store, const Callback &callback);
   ~Private();
 
 public:
-  FrameStorePtr store;
-  std::string body;
-  Variant options;
   std::vector<std::unique_ptr<FilterThread>> threads;
   std::map<uint32_t, bool> sequence;
   std::vector<uint32_t> frames;
   uint32_t maxSeq = 0;
   LoggerPtr logger = std::make_shared<StreamLogger>();
   uv_rwlock_t rwlock;
-  Callback callback;
+  const std::string body;
+  const Variant options;
+  const FrameStorePtr store;
+  const Callback callback;
 };
 
-FilterThreadPool::Private::Private() { uv_rwlock_init(&rwlock); }
+FilterThreadPool::Private::Private(const std::string &body,
+                                   const Variant &options,
+                                   const FrameStorePtr &store,
+                                   const Callback &callback)
+    : body(body), options(options), store(store), callback(callback) {
+  uv_rwlock_init(&rwlock);
+}
 
 FilterThreadPool::Private::~Private() { uv_rwlock_destroy(&rwlock); }
 
@@ -32,12 +39,7 @@ FilterThreadPool::FilterThreadPool(const std::string &body,
                                    const Variant &options,
                                    const FrameStorePtr &store,
                                    const Callback &callback)
-    : d(new Private()) {
-  d->body = body;
-  d->options = options;
-  d->store = store;
-  d->callback = callback;
-}
+    : d(new Private(body, options, store, callback)) {}
 
 FilterThreadPool::~FilterThreadPool() {
   for (const auto &thread : d->threads) {

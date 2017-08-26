@@ -9,7 +9,7 @@ namespace plugkit {
 
 class DissectorThreadPool::Private {
 public:
-  Private();
+  Private(const Variant &options, const Callback &callback);
   ~Private();
 
 public:
@@ -18,20 +18,19 @@ public:
   LoggerPtr logger = std::make_shared<StreamLogger>();
   FrameQueuePtr queue = std::make_shared<FrameQueue>();
   StreamResolverPtr resolver = std::make_shared<StreamResolver>();
-  Callback callback;
-  Variant options;
+  const Variant options;
+  const Callback callback;
 };
 
-DissectorThreadPool::Private::Private() {}
+DissectorThreadPool::Private::Private(const Variant &options,
+                                      const Callback &callback)
+    : options(options), callback(callback) {}
 
 DissectorThreadPool::Private::~Private() {}
 
 DissectorThreadPool::DissectorThreadPool(const Variant &options,
                                          const Callback &callback)
-    : d(new Private()) {
-  d->options = options;
-  d->callback = callback;
-}
+    : d(new Private(options, callback)) {}
 
 DissectorThreadPool::~DissectorThreadPool() {
   d->queue->close();

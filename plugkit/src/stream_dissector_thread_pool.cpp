@@ -16,7 +16,8 @@ namespace plugkit {
 
 class StreamDissectorThreadPool::Private {
 public:
-  Private();
+  Private(const Variant &options, const FrameStorePtr &store,
+          const Callback &callback);
   ~Private();
   uint32_t updateIndex(int thread, uint32_t pushed = 0, uint32_t dissected = 0);
 
@@ -24,16 +25,18 @@ public:
   LoggerPtr logger = std::make_shared<StreamLogger>();
   std::vector<std::unique_ptr<StreamDissectorThread>> threads;
   std::vector<Dissector> dissectors;
-  FrameStorePtr store;
-  Callback callback;
   std::thread thread;
-  Variant options;
-
   std::vector<std::pair<uint32_t, uint32_t>> threadStats;
   std::mutex mutex;
+  const Variant options;
+  const FrameStorePtr store;
+  const Callback callback;
 };
 
-StreamDissectorThreadPool::Private::Private() {}
+StreamDissectorThreadPool::Private::Private(const Variant &options,
+                                            const FrameStorePtr &store,
+                                            const Callback &callback)
+    : options(options), store(store), callback(callback) {}
 
 StreamDissectorThreadPool::Private::~Private() {}
 
@@ -70,11 +73,7 @@ uint32_t StreamDissectorThreadPool::Private::updateIndex(int thread,
 StreamDissectorThreadPool::StreamDissectorThreadPool(const Variant &options,
                                                      const FrameStorePtr &store,
                                                      const Callback &callback)
-    : d(new Private()) {
-  d->options = options;
-  d->store = store;
-  d->callback = callback;
-}
+    : d(new Private(options, store, callback)) {}
 
 StreamDissectorThreadPool::~StreamDissectorThreadPool() {
   for (const auto &thread : d->threads) {

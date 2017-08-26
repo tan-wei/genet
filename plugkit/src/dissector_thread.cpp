@@ -24,24 +24,33 @@ struct WorkerData {
 
 class DissectorThread::Private {
 public:
-  FrameQueuePtr queue;
-  StreamResolverPtr resolver;
-  Callback callback;
+  Private(const Variant &options, const FrameQueuePtr &queue,
+          const StreamResolverPtr &resolver, const Callback &callback);
+  ~Private();
+
+public:
   std::vector<Dissector> dissectors;
   std::vector<WorkerData> workers;
-  Variant options;
   double confidenceThreshold;
+  const Variant options;
+  const FrameQueuePtr queue;
+  const StreamResolverPtr resolver;
+  const Callback callback;
 };
+
+DissectorThread::Private::Private(const Variant &options,
+                                  const FrameQueuePtr &queue,
+                                  const StreamResolverPtr &resolver,
+                                  const Callback &callback)
+    : options(options), queue(queue), resolver(resolver), callback(callback) {}
+
+DissectorThread::Private::~Private() {}
 
 DissectorThread::DissectorThread(const Variant &options,
                                  const FrameQueuePtr &queue,
                                  const StreamResolverPtr &resolver,
                                  const Callback &callback)
-    : d(new Private()) {
-  d->options = options;
-  d->queue = queue;
-  d->resolver = resolver;
-  d->callback = callback;
+    : d(new Private(options, queue, resolver, callback)) {
   d->confidenceThreshold =
       options["_"]["confidenceThreshold"].uint64Value(0) / 100.0;
 }

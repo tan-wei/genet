@@ -25,21 +25,28 @@ struct WorkerContext {
 
 class StreamDissectorThread::Private {
 public:
+  Private(const Variant &options, const Callback &callback);
+  ~Private();
   void cleanup();
   void analyze(Layer *layer, bool subLayer, std::vector<Layer *> *nextLayers,
                std::vector<Layer *> *nextSubLayers);
 
 public:
-  Variant options;
-  Callback callback;
   Queue<Layer *> queue;
   std::vector<Dissector> dissectors;
   double confidenceThreshold;
   size_t count = 0;
-
   using IdMap = std::unordered_map<uint32_t, WorkerContext>;
   std::unordered_map<Token, IdMap> workers;
+
+  const Variant options;
+  const Callback callback;
 };
+
+StreamDissectorThread::Private::Private(const Variant &options,
+                                        const Callback &callback)
+    : options(options), callback(callback) {}
+StreamDissectorThread::Private::~Private() {}
 
 void StreamDissectorThread::Private::cleanup() {
   Context ctx;
@@ -80,9 +87,7 @@ void StreamDissectorThread::Private::cleanup() {
 
 StreamDissectorThread::StreamDissectorThread(const Variant &options,
                                              const Callback &callback)
-    : d(new Private()) {
-  d->options = options;
-  d->callback = callback;
+    : d(new Private(options, callback)) {
   d->confidenceThreshold =
       options["_"]["confidenceThreshold"].uint64Value(0) / 100.0;
 }
