@@ -118,6 +118,7 @@ export default {
       type: 'core:filter:literal',
       literal: {
         id: 'ipv4',
+        regexp: /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/,
         root: 'ipv4-literal.js'
       }
     },

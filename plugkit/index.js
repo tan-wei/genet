@@ -113,20 +113,31 @@ class Session extends EventEmitter {
       let array = []
       for (let i = 0; i < tokens.length; ++i) {
         if (tokens[i].type === 'Template') {
+          let id = null
           if (i > 0 && tokens[i - 1].type === 'Identifier') {
-            const id = tokens[i - 1].value
+            id = tokens[i - 1].value
             array.pop()
-            const token = tokens[i]
-            const literals = internal(this).literals
-            if (id && id in literals) {
-              const value = token.value.substr(1, token.value.length - 2)
-              const code = literals[id].parse(value)
-              if (typeof code === 'string') {
-                array = array.concat(esprima.tokenize(code))
+          }
+          const token = tokens[i]
+          const literals = internal(this).literals
+          const value = token.value.substr(1, token.value.length - 2)
+          let parser = null
+          if (id && id in literals) {
+            parser = literals[id]
+          } else {
+            for (const key in literals) {
+              const lit = literals[key]
+              if (lit.regexp && lit.regexp.test(value)) {
+                parser = lit
+                break
               }
             }
-          } else {
-            array.push(tokens[i])
+          }
+          if (parser !== null) {
+            const code = parser.parse(value)
+            if (typeof code === 'string') {
+              array = array.concat(esprima.tokenize(code))
+            }
           }
         } else {
           array.push(tokens[i])

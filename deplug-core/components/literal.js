@@ -16,14 +16,17 @@ export default class literalComponent extends Component {
       throw new Error('literal.root field required')
     }
 
+    const regexp = objpath.get(this.comp, 'literal.regexp')
+
     const rootFile = path.join(this.rootDir, root)
     const func = await roll(rootFile, this.rootDir, this.localExtern)
     const module = {}
     func(module)
 
     Session.registerFilterLiteral({
-id,
-parse: module.exports,
+      id,
+      regexp,
+      parse: module.exports,
     })
   }
 }
