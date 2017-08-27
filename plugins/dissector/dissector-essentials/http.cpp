@@ -71,6 +71,7 @@ void analyze(Context *ctx, void *data, Layer *layer) {
         worker->header = true;
         break;
       }
+
       std::unique_ptr<char[]> buf(new char[length]);
       const Slice &slice =
           StreamReader_read(worker->reader, &buf[0], length, worker->offset);
@@ -108,8 +109,6 @@ void analyze(Context *ctx, void *data, Layer *layer) {
         Variant *value =
             Property_mapValueRef(headers, keyBegin, keyEnd - keyBegin);
         Variant_setString(value, valueBegin, valueEnd - valueBegin);
-        printf("%s: %s\n", std::string(keyBegin, keyEnd - keyBegin).c_str(),
-               std::string(valueBegin, valueEnd - valueBegin).c_str());
       }
 
       worker->offset = range.end;

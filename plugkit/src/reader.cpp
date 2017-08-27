@@ -176,8 +176,11 @@ Slice StreamReader_read(StreamReader *reader, char *buffer, size_t length,
   size_t begin = 0;
   for (; begin < reader->slices.size() &&
          (beginOffset += Slice_length(reader->slices[begin])) <= offset;
-       ++begin)
-    ;
+       ++begin) {
+  };
+  if (beginOffset <= offset) {
+    return Slice{buffer, buffer};
+  }
   beginOffset -= Slice_length(reader->slices[begin]);
   size_t endOffset = beginOffset;
   size_t end = begin;
@@ -198,8 +201,11 @@ Slice StreamReader_read(StreamReader *reader, char *buffer, size_t length,
     return Slice{data, data + buflen};
   }
   char *dst = buffer;
-  for (size_t i = begin; i < end; ++i) {
-    const Slice &slice = reader->slices[i];
+  for (size_t i = begin; i <= end; ++i) {
+    Slice slice = reader->slices[i];
+    if (i == begin) {
+      slice.begin += (offset - beginOffset);
+    }
     size_t sliceLen = Slice_length(slice);
     std::memcpy(dst, slice.begin, sliceLen);
     dst += sliceLen;
