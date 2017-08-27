@@ -14,7 +14,7 @@ namespace plugkit {
 
 namespace {
 NAN_METHOD(Token_get_wrap) {
-  Token token = Token_from(*Nan::Utf8String(info[0]));
+  Token token = Token_get(*Nan::Utf8String(info[0]));
   info.GetReturnValue().Set(token);
 }
 NAN_METHOD(Token_string_wrap) {

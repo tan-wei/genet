@@ -67,13 +67,6 @@ Token Token_literal_(const char *str, size_t length) {
   return id;
 }
 
-Token Token_from(const char *str) {
-  if (str == nullptr || str[0] == '\0') {
-    return Token_null();
-  }
-  return Token_literal_(str, std::strlen(str));
-}
-
 const char *Token_string(Token token) {
   if (token == Token_null()) {
     return "";

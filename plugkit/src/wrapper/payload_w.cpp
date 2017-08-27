@@ -63,7 +63,7 @@ NAN_METHOD(PayloadWrapper::propertyFromId) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->constPayload) {
     if (const auto &child =
-            payload->propertyFromId(Token_from(*Nan::Utf8String(info[0])))) {
+            payload->propertyFromId(Token_get(*Nan::Utf8String(info[0])))) {
       info.GetReturnValue().Set(PropertyWrapper::wrap(child));
     } else {
       info.GetReturnValue().Set(Nan::Null());
@@ -94,7 +94,7 @@ NAN_GETTER(PayloadWrapper::type) {
 NAN_SETTER(PayloadWrapper::setType) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->payload) {
-    payload->setType(Token_from(*Nan::Utf8String(value)));
+    payload->setType(Token_get(*Nan::Utf8String(value)));
   }
 }
 
