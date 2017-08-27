@@ -195,6 +195,10 @@ Slice StreamReader_read(StreamReader *reader, char *buffer, size_t length,
   bool continuous = true;
   for (size_t i = begin; i < end; ++i) {
     if (reader->slices[i].end != reader->slices[i + 1].begin) {
+      if (!buffer) {
+        const char *data = reader->slices[begin].begin + (offset - beginOffset);
+        return Slice{data, reader->slices[i].end};
+      }
       continuous = false;
       break;
     }

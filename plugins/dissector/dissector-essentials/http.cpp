@@ -123,15 +123,19 @@ bool Worker::analyze_header(Context *ctx, Layer *layer, Layer *child,
 
 bool Worker::analyze_body(Context *ctx, Layer *layer, Layer *child,
                           Property *headers) {
-  if (contentLength >= 0 &&
-      StreamReader_length(reader) >= contentLength + headerLength) {
-    std::unique_ptr<char[]> buf(new char[contentLength]);
-    const Slice &slice =
-        StreamReader_read(reader, &buf[0], contentLength, headerLength);
+  size_t httpLength = contentLength + headerLength;
+  if (contentLength >= 0 && StreamReader_length(reader) >= httpLength) {
 
+    size_t bodyOffset = headerLength;
     Payload *chunk = Layer_addPayload(child);
     Payload_setType(chunk, Token_get(("@mime:" + contentType).c_str()));
-    Payload_addSlice(chunk, slice);
+
+    while (bodyOffset < httpLength) {
+      const Slice &slice = StreamReader_read(
+          reader, nullptr, httpLength - bodyOffset, bodyOffset);
+      Payload_addSlice(chunk, slice);
+      bodyOffset += Slice_length(slice);
+    }
 
     offset = headerLength + contentLength;
     headers = nullptr;

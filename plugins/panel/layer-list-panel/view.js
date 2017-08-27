@@ -54,6 +54,9 @@ class ObjectValueItem {
 class LayerValueItem {
   view (vnode) {
     const layer = vnode.attrs.value
+    if (layer.payloads.length) {
+      return <span> [{ layer.id }] Payloads </span>
+    }
     return <span> [{ layer.id }] </span>
   }
 }
