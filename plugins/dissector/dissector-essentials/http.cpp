@@ -22,32 +22,126 @@ const auto dstToken = Token_get(".dst");
 const auto headersToken = Token_get("http.headers");
 const auto reassembledToken = Token_get("@reassembled");
 
-enum State { STATE_HEADER, STATE_BODY, STATE_CLOSED };
+enum State { STATE_START, STATE_HEADER, STATE_BODY, STATE_CLOSED };
 
-struct Worker {
-  std::unordered_set<uint16_t> ports;
+class Worker {
+public:
+  Worker(const std::unordered_set<uint16_t> &ports);
+  void analyze(Context *ctx, Layer *layer);
+  bool analyze_start(Context *ctx, Layer *layer);
+  bool analyze_header(Context *ctx, Layer *layer, Layer *child,
+                      Property *headers);
+  bool analyze_body(Context *ctx, Layer *layer, Layer *child,
+                    Property *headers);
+
+public:
+  const std::unordered_set<uint16_t> ports;
   size_t offset = 0;
   StreamReader *reader;
 
-  State state = STATE_HEADER;
+  State state = STATE_START;
   size_t headerLength = 0;
   int64_t contentLength = -1;
   std::string contentType;
 };
 
-void analyze(Context *ctx, void *data, Layer *layer) {
-  Worker *worker = static_cast<Worker *>(data);
-  if (worker->state == STATE_CLOSED) {
-    return;
-  }
+Worker::Worker(const std::unordered_set<uint16_t> &ports) : ports(ports) {}
 
+bool Worker::analyze_start(Context *ctx, Layer *layer) {
   uint16_t srcPort = Property_uint64(Layer_propertyFromId(layer, srcToken));
   uint16_t dstPort = Property_uint64(Layer_propertyFromId(layer, dstToken));
 
-  const auto &ports = worker->ports;
   if (!ports.empty() && ports.find(srcPort) == ports.end() &&
       ports.find(dstPort) == ports.end()) {
-    worker->state = STATE_CLOSED;
+    state = STATE_CLOSED;
+  } else {
+    state = STATE_HEADER;
+  }
+  return false;
+}
+
+bool Worker::analyze_header(Context *ctx, Layer *layer, Layer *child,
+                            Property *headers) {
+  Range range = StreamReader_search(reader, "\r\n", 2, offset);
+
+  if (range.end == 0)
+    return false;
+  size_t length = range.begin - offset;
+
+  if (length == 0) {
+    headerLength = range.end;
+    state = STATE_BODY;
+    return false;
+  }
+
+  std::unique_ptr<char[]> buf(new char[length]);
+  const Slice &slice = StreamReader_read(reader, &buf[0], length, offset);
+
+  const char *keyBegin = nullptr;
+  const char *keyEnd = nullptr;
+  const char *valueBegin = nullptr;
+  const char *valueEnd = nullptr;
+  for (const char *ptr = slice.begin; ptr < slice.end; ++ptr) {
+    char c = *ptr;
+    if (!keyBegin && c != ' ') {
+      keyBegin = ptr;
+      continue;
+    }
+    if (!keyEnd && c == ':') {
+      keyEnd = ptr;
+      continue;
+    }
+    if (keyEnd && !valueBegin && c != ' ') {
+      valueBegin = ptr;
+      continue;
+    }
+  }
+  if (valueBegin) {
+    for (const char *ptr = slice.end - 1; ptr >= valueBegin; --ptr) {
+      char c = *ptr;
+      if (c != ' ') {
+        valueEnd = ptr + 1;
+        break;
+      }
+    }
+  }
+
+  if (keyBegin && keyEnd && valueBegin) {
+    Variant *value = Property_mapValueRef(headers, keyBegin, keyEnd - keyBegin);
+    Variant_setString(value, valueBegin, valueEnd - valueBegin);
+    if (strncmp("Content-Length", keyBegin, keyEnd - keyBegin) == 0) {
+      contentLength =
+          std::stoll(std::string(valueBegin, valueEnd - valueBegin));
+    } else if (strncmp("Content-Type", keyBegin, keyEnd - keyBegin) == 0) {
+      contentType = std::string(valueBegin, valueEnd - valueBegin);
+    }
+  }
+
+  offset = range.end;
+  return true;
+}
+
+bool Worker::analyze_body(Context *ctx, Layer *layer, Layer *child,
+                          Property *headers) {
+  if (contentLength >= 0 &&
+      StreamReader_length(reader) >= contentLength + headerLength) {
+    std::unique_ptr<char[]> buf(new char[contentLength]);
+    const Slice &slice =
+        StreamReader_read(reader, &buf[0], contentLength, headerLength);
+
+    Payload *chunk = Layer_addPayload(child);
+    Payload_setType(chunk, Token_get(("@mime:" + contentType).c_str()));
+    Payload_addSlice(chunk, slice);
+
+    offset = headerLength + contentLength;
+    headers = nullptr;
+    state = STATE_HEADER;
+  }
+  return false;
+}
+
+void Worker::analyze(Context *ctx, Layer *layer) {
+  if (state == STATE_CLOSED) {
     return;
   }
 
@@ -55,95 +149,45 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   auto begin = Layer_payloads(layer, &payloads);
   for (size_t i = 0; i < payloads; ++i) {
     if (Payload_type(begin[i]) == reassembledToken) {
-      StreamReader_addPayload(worker->reader, begin[i]);
+      StreamReader_addPayload(reader, begin[i]);
     }
   }
 
-  if (worker->state == STATE_HEADER) {
-    Layer *child = Layer_addLayer(layer, httpToken);
-    Layer_addTag(child, httpToken);
+  Layer *child = Layer_addLayer(layer, httpToken);
+  Layer_addTag(child, httpToken);
+  Property *headers = Layer_addProperty(child, headersToken);
 
-    Property *headers = Layer_addProperty(child, headersToken);
+  State prevState = state;
+  while (1) {
+    bool next = false;
 
-    while (1) {
-      Range range =
-          StreamReader_search(worker->reader, "\r\n", 2, worker->offset);
-
-      if (range.end > 0) {
-        size_t length = range.begin - worker->offset;
-        if (length == 0) {
-          worker->headerLength = range.end;
-          worker->state = STATE_BODY;
-
-          if (worker->contentLength >= 0) {
-            std::unique_ptr<char[]> buf(new char[worker->contentLength]);
-            const Slice &slice = StreamReader_read(
-                worker->reader, &buf[0], length, worker->headerLength);
-            puts(std::string(slice.begin, worker->contentLength).c_str());
-          }
-
-          break;
-        }
-
-        std::unique_ptr<char[]> buf(new char[length]);
-        const Slice &slice =
-            StreamReader_read(worker->reader, &buf[0], length, worker->offset);
-
-        const char *keyBegin = nullptr;
-        const char *keyEnd = nullptr;
-        const char *valueBegin = nullptr;
-        const char *valueEnd = nullptr;
-        for (const char *ptr = slice.begin; ptr < slice.end; ++ptr) {
-          char c = *ptr;
-          if (!keyBegin && c != ' ') {
-            keyBegin = ptr;
-            continue;
-          }
-          if (!keyEnd && c == ':') {
-            keyEnd = ptr;
-            continue;
-          }
-          if (keyEnd && !valueBegin && c != ' ') {
-            valueBegin = ptr;
-            continue;
-          }
-        }
-        if (valueBegin) {
-          for (const char *ptr = slice.end - 1; ptr >= valueBegin; --ptr) {
-            char c = *ptr;
-            if (c != ' ') {
-              valueEnd = ptr + 1;
-              break;
-            }
-          }
-        }
-
-        if (keyBegin && keyEnd && valueBegin) {
-          Variant *value =
-              Property_mapValueRef(headers, keyBegin, keyEnd - keyBegin);
-          Variant_setString(value, valueBegin, valueEnd - valueBegin);
-          if (strncmp("Content-Length", keyBegin, keyEnd - keyBegin) == 0) {
-            worker->contentLength =
-                std::stoll(std::string(valueBegin, valueEnd - valueBegin));
-          } else if (strncmp("Content-Type", keyBegin, keyEnd - keyBegin) ==
-                     0) {
-            worker->contentType =
-                std::string(valueBegin, valueEnd - valueBegin);
-          }
-        }
-
-        worker->offset = range.end;
-      } else {
-        break;
-      }
+    switch (state) {
+    case STATE_START:
+      next = analyze_start(ctx, layer);
+      break;
+    case STATE_HEADER:
+      next = analyze_header(ctx, layer, child, headers);
+      break;
+    case STATE_BODY:
+      next = analyze_body(ctx, layer, child, headers);
+      break;
+    case STATE_CLOSED:
+      return;
     }
+
+    if (!next && prevState == state)
+      return;
+    prevState = state;
   }
 }
 
 void Init(v8::Local<v8::Object> exports) {
   Dissector *diss = Dissector_create(DISSECTOR_STREAM);
   Dissector_addLayerHint(diss, Token_get("tcp-stream"));
-  Dissector_setAnalyzer(diss, analyze);
+  Dissector_setAnalyzer(diss, [](Context *ctx, void *data, Layer *layer) {
+    Worker *worker = static_cast<Worker *>(data);
+    worker->analyze(ctx, layer);
+  });
   Dissector_setWorkerFactory(
       diss,
       [](Context *ctx) -> void * {
@@ -152,10 +196,11 @@ void Init(v8::Local<v8::Object> exports) {
             "httpPorts", -1);
 
         const Variant *value = nullptr;
-        Worker *worker = new Worker();
+        std::unordered_set<uint16_t> ports;
         for (size_t i = 0; (value = Variant_arrayValue(httpPorts, i)); ++i) {
-          worker->ports.insert(Variant_uint64(value));
+          ports.insert(Variant_uint64(value));
         }
+        Worker *worker = new Worker(ports);
         worker->reader = StreamReader_create();
         return worker;
       },

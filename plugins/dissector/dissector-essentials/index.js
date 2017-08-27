@@ -352,7 +352,15 @@ export default {
     {
       type: 'core:dissector',
       dissector: {
-        main: 'build/Release/http.node'
+        main: 'build/Release/http.node',
+        descriptors: {
+          http: {
+            name: 'Hypertext Transfer Protocol'
+          },
+          'http.headers': {
+            name: 'Headers'
+          }
+        }
       }
     }
   ],
