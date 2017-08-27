@@ -145,9 +145,7 @@ class Session extends EventEmitter {
       }
       return array
     }
-
-    console.log(replaceLiterals(tokens).map(t => t.value).join(' '))
-
+    
     const ast = esprima.parse(
       replaceLiterals(tokens).map(t => t.value).join(' '))
 
