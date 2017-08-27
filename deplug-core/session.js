@@ -7,6 +7,7 @@ const dissectors = []
 const linkLayers = []
 const samples = []
 const descriptors = {}
+const filterLiterals = []
 export default class Session {
   static registerNativeDissector (file) {
     dissectors.push(require(file).dissector)
@@ -18,6 +19,10 @@ export default class Session {
 
   static registerLinkLayer (layer) {
     linkLayers.push(layer)
+  }
+
+  static registerFilterLiteral (literal) {
+    filterLiterals.push(literal)
   }
 
   static addDescriptors (desc) {
@@ -42,6 +47,10 @@ export default class Session {
 
   static get descriptors () {
     return descriptors
+  }
+
+  static get filterLiterals () {
+    return filterLiterals
   }
 
   static async runSampleAnalysis (options = {}) {

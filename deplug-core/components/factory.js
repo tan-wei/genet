@@ -1,5 +1,6 @@
 import DissectorComponent from './dissector'
 import FileComponent from './file'
+import LiteralComponent from './literal'
 import MenuComponent from './menu'
 import PanelComponent from './panel'
 import RendererComponent from './renderer'
@@ -29,6 +30,8 @@ export default class ComponentFactory {
         return new FileComponent(rootDir, pkg, comp)
       case 'core:renderer':
         return new RendererComponent(rootDir, pkg, comp)
+      case 'core:filter:literal':
+        return new LiteralComponent(rootDir, pkg, comp)
       default:
         throw new Error(`unknown component type: ${comp.type}`)
     }

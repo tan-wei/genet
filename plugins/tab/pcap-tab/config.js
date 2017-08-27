@@ -71,6 +71,9 @@ export default class ConfigView {
       for (const diss of Session.dissectors) {
         factory.registerDissector(diss)
       }
+      for (const lit of Session.filterLiterals) {
+        factory.registerFilterLiteral(lit)
+      }
       factory.create().then((sess) => {
         if (Tab.options.ifs) {
           sess.startPcap()
@@ -97,6 +100,9 @@ export default class ConfigView {
         }
         for (const diss of Session.dissectors) {
           factory.registerDissector(diss)
+        }
+        for (const lit of Session.filterLiterals) {
+          factory.registerFilterLiteral(lit)
         }
         File.loadFrames(Tab.options.files).then((results) => {
           factory.create().then((sess) => {

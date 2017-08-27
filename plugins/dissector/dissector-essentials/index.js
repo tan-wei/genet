@@ -116,7 +116,7 @@ export default {
     },
     {
       type: 'core:filter:literal',
-      renderer: {
+      literal: {
         id: 'ipv4',
         root: 'ipv4-literal.js'
       }

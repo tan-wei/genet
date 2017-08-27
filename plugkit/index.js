@@ -109,14 +109,22 @@ class Session extends EventEmitter {
     let body = ''
     const tokens = esprima.tokenize(filter)
 
-    function replaceLiterals(tokens) {
+    const replaceLiterals = (tokens) => {
       let array = []
       for (let i = 0; i < tokens.length; ++i) {
         if (tokens[i].type === 'Template') {
           if (i > 0 && tokens[i - 1].type === 'Identifier') {
-            tokens[i].id = tokens[i - 1].value
+            const id = tokens[i - 1].value
             array.pop()
-            array.push(tokens[i])
+            const token = tokens[i]
+            const literals = internal(this).literals
+            if (id && id in literals) {
+              const value = token.value.substr(1, token.value.length - 2)
+              const code = literals[id].parse(value)
+              if (typeof code === 'string') {
+                array = array.concat(esprima.tokenize(code))
+              }
+            }
           } else {
             array.push(tokens[i])
           }
@@ -124,19 +132,10 @@ class Session extends EventEmitter {
           array.push(tokens[i])
         }
       }
-      return array.map((token) => {
-        if (token.type !== 'Template') return token
-        const literals = internal(this).literals
-        if (token.id && token.id in literals) {
-          const value = token.value.substr(1, token.value.length - 2)
-          const code = literals[token.id].parse(value)
-          return esprima.tokenize(code)[0]
-        }
-        return token
-      })
+      return array
     }
 
-    console.log(replaceLiterals(tokens))
+    console.log(replaceLiterals(tokens).map(t => t.value).join(' '))
 
     const ast = esprima.parse(
       replaceLiterals(tokens).map(t => t.value).join(' '))
