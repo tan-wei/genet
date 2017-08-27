@@ -22,17 +22,22 @@ const auto dstToken = Token_get(".dst");
 const auto headersToken = Token_get("http.headers");
 const auto reassembledToken = Token_get("@reassembled");
 
+enum State { STATE_HEADER, STATE_BODY, STATE_CLOSED };
+
 struct Worker {
   std::unordered_set<uint16_t> ports;
-  bool closed = false;
-  bool header = false;
   size_t offset = 0;
   StreamReader *reader;
+
+  State state = STATE_HEADER;
+  size_t headerLength = 0;
+  int64_t contentLength = -1;
+  std::string contentType;
 };
 
 void analyze(Context *ctx, void *data, Layer *layer) {
   Worker *worker = static_cast<Worker *>(data);
-  if (worker->closed) {
+  if (worker->state == STATE_CLOSED) {
     return;
   }
 
@@ -42,6 +47,7 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   const auto &ports = worker->ports;
   if (!ports.empty() && ports.find(srcPort) == ports.end() &&
       ports.find(dstPort) == ports.end()) {
+    worker->state = STATE_CLOSED;
     return;
   }
 
@@ -53,67 +59,83 @@ void analyze(Context *ctx, void *data, Layer *layer) {
     }
   }
 
-  if (worker->header)
-    return;
+  if (worker->state == STATE_HEADER) {
+    Layer *child = Layer_addLayer(layer, httpToken);
+    Layer_addTag(child, httpToken);
 
-  Layer *child = Layer_addLayer(layer, httpToken);
-  Layer_addTag(child, httpToken);
+    Property *headers = Layer_addProperty(child, headersToken);
 
-  Property *headers = Layer_addProperty(child, headersToken);
+    while (1) {
+      Range range =
+          StreamReader_search(worker->reader, "\r\n", 2, worker->offset);
 
-  while (1) {
-    Range range =
-        StreamReader_search(worker->reader, "\r\n", 2, worker->offset);
+      if (range.end > 0) {
+        size_t length = range.begin - worker->offset;
+        if (length == 0) {
+          worker->headerLength = range.end;
+          worker->state = STATE_BODY;
 
-    if (range.end > 0) {
-      size_t length = range.begin - worker->offset;
-      if (length == 0) {
-        worker->header = true;
-        break;
-      }
+          if (worker->contentLength >= 0) {
+            std::unique_ptr<char[]> buf(new char[worker->contentLength]);
+            const Slice &slice = StreamReader_read(
+                worker->reader, &buf[0], length, worker->headerLength);
+            puts(std::string(slice.begin, worker->contentLength).c_str());
+          }
 
-      std::unique_ptr<char[]> buf(new char[length]);
-      const Slice &slice =
-          StreamReader_read(worker->reader, &buf[0], length, worker->offset);
-
-      const char *keyBegin = nullptr;
-      const char *keyEnd = nullptr;
-      const char *valueBegin = nullptr;
-      const char *valueEnd = nullptr;
-      for (const char *ptr = slice.begin; ptr < slice.end; ++ptr) {
-        char c = *ptr;
-        if (!keyBegin && c != ' ') {
-          keyBegin = ptr;
-          continue;
+          break;
         }
-        if (!keyEnd && c == ':') {
-          keyEnd = ptr;
-          continue;
-        }
-        if (keyEnd && !valueBegin && c != ' ') {
-          valueBegin = ptr;
-          continue;
-        }
-      }
-      if (valueBegin) {
-        for (const char *ptr = slice.end - 1; ptr >= valueBegin; --ptr) {
+
+        std::unique_ptr<char[]> buf(new char[length]);
+        const Slice &slice =
+            StreamReader_read(worker->reader, &buf[0], length, worker->offset);
+
+        const char *keyBegin = nullptr;
+        const char *keyEnd = nullptr;
+        const char *valueBegin = nullptr;
+        const char *valueEnd = nullptr;
+        for (const char *ptr = slice.begin; ptr < slice.end; ++ptr) {
           char c = *ptr;
-          if (c != ' ') {
-            valueEnd = ptr + 1;
-            break;
+          if (!keyBegin && c != ' ') {
+            keyBegin = ptr;
+            continue;
+          }
+          if (!keyEnd && c == ':') {
+            keyEnd = ptr;
+            continue;
+          }
+          if (keyEnd && !valueBegin && c != ' ') {
+            valueBegin = ptr;
+            continue;
           }
         }
-      }
+        if (valueBegin) {
+          for (const char *ptr = slice.end - 1; ptr >= valueBegin; --ptr) {
+            char c = *ptr;
+            if (c != ' ') {
+              valueEnd = ptr + 1;
+              break;
+            }
+          }
+        }
 
-      if (keyBegin && keyEnd && valueBegin) {
-        Variant *value =
-            Property_mapValueRef(headers, keyBegin, keyEnd - keyBegin);
-        Variant_setString(value, valueBegin, valueEnd - valueBegin);
-      }
+        if (keyBegin && keyEnd && valueBegin) {
+          Variant *value =
+              Property_mapValueRef(headers, keyBegin, keyEnd - keyBegin);
+          Variant_setString(value, valueBegin, valueEnd - valueBegin);
+          if (strncmp("Content-Length", keyBegin, keyEnd - keyBegin) == 0) {
+            worker->contentLength =
+                std::stoll(std::string(valueBegin, valueEnd - valueBegin));
+          } else if (strncmp("Content-Type", keyBegin, keyEnd - keyBegin) ==
+                     0) {
+            worker->contentType =
+                std::string(valueBegin, valueEnd - valueBegin);
+          }
+        }
 
-      worker->offset = range.end;
-    } else {
-      break;
+        worker->offset = range.end;
+      } else {
+        break;
+      }
     }
   }
 }

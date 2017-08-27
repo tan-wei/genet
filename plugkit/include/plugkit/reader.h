@@ -49,6 +49,7 @@ typedef struct StreamReader StreamReader;
 
 PLUGKIT_EXPORT StreamReader *StreamReader_create();
 PLUGKIT_EXPORT void StreamReader_destroy(StreamReader *reader);
+PLUGKIT_EXPORT size_t StreamReader_length(const StreamReader *reader);
 PLUGKIT_EXPORT void StreamReader_addSlice(StreamReader *reader, Slice slice);
 PLUGKIT_EXPORT void StreamReader_addPayload(StreamReader *reader,
                                             const Payload *payload);

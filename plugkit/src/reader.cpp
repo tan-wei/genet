@@ -115,6 +115,10 @@ StreamReader *StreamReader_create() { return new StreamReader(); }
 
 void StreamReader_destroy(StreamReader *reader) { delete reader; }
 
+size_t StreamReader_length(const StreamReader *reader) {
+  return reader->length;
+}
+
 void StreamReader_addSlice(StreamReader *reader, Slice slice) {
   reader->slices.push_back(slice);
   reader->length += Slice_length(slice);
