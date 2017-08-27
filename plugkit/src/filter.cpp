@@ -79,7 +79,7 @@ FilterFunc Filter::Private::makeFilter(const json11::Json &json) const {
       if (value->IsObject()) {
         const Property *child = nullptr;
         if (const auto &layer = LayerWrapper::unwrapConst(value.As<Object>())) {
-          child = layer->propertyFromId(Token_get(name.c_str()));
+          child = layer->propertyFromId(Token_from(name.c_str()));
         }
         if (child) {
           result = PropertyWrapper::wrap(child);
@@ -299,7 +299,7 @@ FilterFunc Filter::Private::makeFilter(const json11::Json &json) const {
       Local<Value> key = Nan::New(name).ToLocalChecked();
       Local<Object> frameObject = FrameWrapper::wrap(view);
 
-      if (const auto &prop = view->propertyFromId(Token_get(name.c_str()))) {
+      if (const auto &prop = view->propertyFromId(Token_from(name.c_str()))) {
         return Filter::Result(PropertyWrapper::wrap(prop));
       }
 
@@ -307,7 +307,7 @@ FilterFunc Filter::Private::makeFilter(const json11::Json &json) const {
         return Filter::Result(frameObject->Get(key));
       }
 
-      if (const auto &layer = view->layerFromId(Token_get(name.c_str()))) {
+      if (const auto &layer = view->layerFromId(Token_from(name.c_str()))) {
         Local<Object> layerObject = LayerWrapper::wrap(layer);
         return Filter::Result(layerObject);
       }

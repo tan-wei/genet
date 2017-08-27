@@ -22,14 +22,13 @@ std::unordered_map<Token, const char *> reverseMap;
 std::mutex mutex;
 }
 
-Token Token_get(const char *str) {
+Token Token_literal_(const char *str, size_t length) {
   if (str == nullptr || str[0] == '\0') {
     return Token_null();
   }
 
-  size_t len = std::strlen(str);
-  if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH) {
-    unsigned int key = hash(str, len);
+  if (length <= MAX_WORD_LENGTH && length >= MIN_WORD_LENGTH) {
+    unsigned int key = hash(str, length);
     if (key <= MAX_HASH_VALUE) {
       const char *s = wordlist[key];
       if (strcmp(str, s) == 0) {
@@ -49,7 +48,7 @@ Token Token_get(const char *str) {
   }
 
   Token id;
-  char *data = new char[len + 1]();
+  char *data = new char[length + 1]();
   {
     std::lock_guard<std::mutex> lock(mutex);
     const std::string &key = str;
@@ -60,12 +59,19 @@ Token Token_get(const char *str) {
     }
     id = map.size() + 1 + MAX_HASH_VALUE + 1;
     map.emplace(key, id);
-    key.copy(data, len);
+    key.copy(data, length);
     reverseMap.emplace(id, data);
   }
   localMap.emplace(data, id);
   localReverseMap.emplace(id, data);
   return id;
+}
+
+Token Token_from(const char *str) {
+  if (str == nullptr || str[0] == '\0') {
+    return Token_null();
+  }
+  return Token_literal_(str, std::strlen(str));
 }
 
 const char *Token_string(Token token) {

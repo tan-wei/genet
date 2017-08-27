@@ -42,7 +42,7 @@ NAN_METHOD(PropertyWrapper::New) {
   if (idValue->IsNumber()) {
     return;
   }
-  auto prop = new Property(Token_get(*Nan::Utf8String(idValue)));
+  auto prop = new Property(Token_from(*Nan::Utf8String(idValue)));
   if (rangeValue->IsArray()) {
     auto array = rangeValue.As<v8::Array>();
     if (array->Length() >= 2) {
@@ -51,7 +51,7 @@ NAN_METHOD(PropertyWrapper::New) {
     }
   }
   if (typeValue->IsString()) {
-    prop->setType(Token_get(*Nan::Utf8String(typeValue)));
+    prop->setType(Token_from(*Nan::Utf8String(typeValue)));
   }
   prop->setValue(Variant::getVariant(value));
 
@@ -117,7 +117,7 @@ NAN_GETTER(PropertyWrapper::type) {
 NAN_SETTER(PropertyWrapper::setType) {
   PropertyWrapper *wrapper = ObjectWrap::Unwrap<PropertyWrapper>(info.Holder());
   if (auto prop = wrapper->prop) {
-    prop->setType(Token_get(*Nan::Utf8String(value)));
+    prop->setType(Token_from(*Nan::Utf8String(value)));
   }
 }
 
