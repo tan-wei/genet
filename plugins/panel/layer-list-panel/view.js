@@ -80,6 +80,14 @@ class PropertyValueItem {
       return m(ObjectValueItem, {value: prop.value})
     }
     const value = (prop.value == null ? '' : prop.value.toString())
+    if (value.length > 1024) {
+      return <span>
+        <details>
+          <summary>{value.substr(0, 64)}... ({value.length})</summary>
+          { value }
+        </details>
+      </span>
+    }
     return <span> { value } </span>
   }
 }
