@@ -107,7 +107,7 @@ class Session extends EventEmitter {
 
   setDisplayFilter(name, filter) {
     let body = ''
-    const tokens = esprima.tokenize(filter)
+    const tokens = esprima.tokenize(filter, {range: true})
 
     const replaceLiterals = (tokens) => {
       let array = []
@@ -145,7 +145,56 @@ class Session extends EventEmitter {
       }
       return array
     }
-    
+
+    const mergeProperties = (tokens) => {
+      let array = []
+      let property = []
+      for (let i = 0; i < tokens.length; ++i) {
+        if (tokens[i].type === 'Identifier') {
+          if (property.length === 0 || property[property.length - 1].range[1] === tokens[i].range[0]) {
+            property.push(tokens[i])
+            continue;
+          }
+        } else if (tokens[i].type === 'Punctuator') {
+          if (property.length && property[property.length - 1].range[1] === tokens[i].range[0]) {
+            property.push(tokens[i])
+            continue;
+          }
+        }
+        if (property.length >= 3) {
+          array.push({type: 'Identifier', value: property[0].value})
+          const name = property
+            .filter(p => p.type === 'Identifier')
+            .map(p => p.value)
+            .join('.')
+          array.push({type: 'Punctuator', value: '['})
+          array.push({type: 'String', value: JSON.stringify(name)})
+          array.push({type: 'Punctuator', value: ']'})
+        } else {
+          for (const prop of property) {
+            array.push(prop)
+          }
+        }
+        property = []
+        array.push(tokens[i])
+      }
+      if (property.length >= 3) {
+        array.push({type: 'Identifier', value: property[0].value})
+        const name = property
+          .filter(p => p.type === 'Identifier')
+          .map(p => p.value)
+          .join('.')
+        array.push({type: 'Punctuator', value: '['})
+        array.push({type: 'String', value: JSON.stringify(name)})
+        array.push({type: 'Punctuator', value: ']'})
+      } else {
+        for (const prop of property) {
+          array.push(prop)
+        }
+      }
+      return array
+    }
+
     const ast = esprima.parse(
       replaceLiterals(tokens).map(t => t.value).join(' '))
 
