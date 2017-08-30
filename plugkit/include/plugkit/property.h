@@ -45,10 +45,22 @@ PLUGKIT_EXPORT bool Property_bool(const Property *prop);
 PLUGKIT_EXPORT void Property_setBool(Property *prop, bool value);
 
 /// Gets an integer value
+PLUGKIT_EXPORT int32_t Property_int32(const Property *prop);
+
+/// Sets an integer value
+PLUGKIT_EXPORT void Property_setInt32(Property *prop, int32_t value);
+
+/// Gets an integer value
 PLUGKIT_EXPORT int64_t Property_int64(const Property *prop);
 
 /// Sets an integer value
 PLUGKIT_EXPORT void Property_setInt64(Property *prop, int64_t value);
+
+/// Gets an unsigned integer value
+PLUGKIT_EXPORT uint32_t Property_uint32(const Property *prop);
+
+/// Gets an unsigned integer value
+PLUGKIT_EXPORT void Property_setUint32(Property *prop, uint32_t value);
 
 /// Gets an unsigned integer value
 PLUGKIT_EXPORT uint64_t Property_uint64(const Property *prop);

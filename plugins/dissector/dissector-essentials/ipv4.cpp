@@ -58,31 +58,31 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   int headerLength = header & 0b00001111;
 
   Property *ver = Layer_addProperty(child, versionToken);
-  Property_setUint64(ver, version);
+  Property_setUint32(ver, version);
   Property_setRange(ver, reader.lastRange);
 
   Property *hlen = Layer_addProperty(child, hLenToken);
-  Property_setUint64(hlen, headerLength);
+  Property_setUint32(hlen, headerLength);
   Property_setRange(hlen, reader.lastRange);
 
   Property *tos = Layer_addProperty(child, typeToken);
-  Property_setUint64(tos, Reader_readUint8(&reader));
+  Property_setUint32(tos, Reader_readUint8(&reader));
   Property_setRange(tos, reader.lastRange);
 
   uint16_t totalLength = Reader_readUint16BE(&reader);
   Property *tlen = Layer_addProperty(child, tLenToken);
-  Property_setUint64(tlen, totalLength);
+  Property_setUint32(tlen, totalLength);
   Property_setRange(tlen, reader.lastRange);
 
   Property *id = Layer_addProperty(child, idToken);
-  Property_setUint64(id, Reader_readUint16BE(&reader));
+  Property_setUint32(id, Reader_readUint16BE(&reader));
   Property_setRange(id, reader.lastRange);
 
   uint8_t flagAndOffset = Reader_readUint8(&reader);
   uint8_t flag = (flagAndOffset >> 5) & 0b00000111;
 
   Property *flags = Layer_addProperty(child, flagsToken);
-  Property_setUint64(flags, flag);
+  Property_setUint32(flags, flag);
   std::string flagSummary;
   for (const auto &bit : flagTable) {
     bool on = bit.first & flag;
@@ -102,16 +102,16 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   uint16_t fgOffset =
       ((flagAndOffset & 0b00011111) << 8) | Reader_readUint8(&reader);
   Property *fragmentOffset = Layer_addProperty(child, fOffsetToken);
-  Property_setUint64(fragmentOffset, fgOffset);
+  Property_setUint32(fragmentOffset, fgOffset);
   Property_setRange(fragmentOffset, Range{6, 8});
 
   Property *ttl = Layer_addProperty(child, ttlToken);
-  Property_setUint64(ttl, Reader_readUint8(&reader));
+  Property_setUint32(ttl, Reader_readUint8(&reader));
   Property_setRange(ttl, reader.lastRange);
 
   uint8_t protocolNumber = Reader_readUint8(&reader);
   Property *proto = Layer_addProperty(child, protocolToken);
-  Property_setUint64(proto, protocolNumber);
+  Property_setUint32(proto, protocolNumber);
   Property_setType(proto, enumToken);
   Property_setRange(proto, reader.lastRange);
   const auto &it = protoTable.find(protocolNumber);
@@ -122,7 +122,7 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   }
 
   Property *checksum = Layer_addProperty(child, checksumToken);
-  Property_setUint64(checksum, Reader_readUint16BE(&reader));
+  Property_setUint32(checksum, Reader_readUint16BE(&reader));
   Property_setRange(checksum, reader.lastRange);
 
   const auto &srcSlice = Reader_slice(&reader, 0, 4);

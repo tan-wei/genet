@@ -17,6 +17,8 @@ public:
   enum Type {
     TYPE_NIL,
     TYPE_BOOL,
+    TYPE_INT32,
+    TYPE_UINT32,
     TYPE_INT64,
     TYPE_UINT64,
     TYPE_DOUBLE,
@@ -60,6 +62,8 @@ public:
   Type type() const;
   bool isNil() const;
   bool isBool() const;
+  bool isInt32() const;
+  bool isUint32() const;
   bool isInt64() const;
   bool isUint64() const;
   bool isDouble() const;
@@ -72,6 +76,8 @@ public:
 
 public:
   bool boolValue(bool defaultValue = bool()) const;
+  int32_t int32Value(int32_t defaultValue = int32_t()) const;
+  uint32_t uint32Value(uint32_t defaultValue = uint32_t()) const;
   int64_t int64Value(int64_t defaultValue = int64_t()) const;
   uint64_t uint64Value(uint64_t defaultValue = uint64_t()) const;
   double doubleValue(double defaultValue = double()) const;

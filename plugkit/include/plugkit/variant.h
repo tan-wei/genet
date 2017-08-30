@@ -17,10 +17,22 @@ PLUGKIT_EXPORT bool Variant_bool(const Variant *var);
 PLUGKIT_EXPORT void Variant_setBool(Variant *var, bool value);
 
 /// Gets an integer value
+PLUGKIT_EXPORT int32_t Variant_int32(const Variant *var);
+
+/// Sets an integer value
+PLUGKIT_EXPORT void Variant_setInt32(Variant *var, int32_t value);
+
+/// Gets an integer value
 PLUGKIT_EXPORT int64_t Variant_int64(const Variant *var);
 
 /// Sets an integer value
 PLUGKIT_EXPORT void Variant_setInt64(Variant *var, int64_t value);
+
+/// Gets an unsigned integer value
+PLUGKIT_EXPORT uint32_t Variant_uint32(const Variant *var);
+
+/// Gets an unsigned integer value
+PLUGKIT_EXPORT void Variant_setUint32(Variant *var, uint32_t value);
 
 /// Gets an unsigned integer value
 PLUGKIT_EXPORT uint64_t Variant_uint64(const Variant *var);

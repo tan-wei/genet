@@ -60,12 +60,12 @@ void analyze(Context *ctx, void *data, Layer *layer) {
 
   uint16_t srcPort = Reader_readUint16BE(&reader);
   Property *src = Layer_addProperty(child, srcToken);
-  Property_setUint64(src, srcPort);
+  Property_setUint32(src, srcPort);
   Property_setRange(src, reader.lastRange);
 
   uint16_t dstPort = Reader_readUint16BE(&reader);
   Property *dst = Layer_addProperty(child, dstToken);
-  Property_setUint64(dst, dstPort);
+  Property_setUint32(dst, dstPort);
   Property_setRange(dst, reader.lastRange);
 
   Context_addStreamIdentifier(
@@ -79,24 +79,24 @@ void analyze(Context *ctx, void *data, Layer *layer) {
 
   uint32_t seqNumber = Reader_readUint32BE(&reader);
   Property *seq = Layer_addProperty(child, seqToken);
-  Property_setUint64(seq, seqNumber);
+  Property_setUint32(seq, seqNumber);
   Property_setRange(seq, reader.lastRange);
 
   uint32_t ackNumber = Reader_readUint32BE(&reader);
   Property *ack = Layer_addProperty(child, ackToken);
-  Property_setUint64(ack, ackNumber);
+  Property_setUint32(ack, ackNumber);
   Property_setRange(ack, reader.lastRange);
 
   uint8_t offsetAndFlag = Reader_readUint8(&reader);
   int dataOffset = offsetAndFlag >> 4;
   Property *offset = Layer_addProperty(child, dOffsetToken);
-  Property_setUint64(offset, dataOffset);
+  Property_setUint32(offset, dataOffset);
   Property_setRange(offset, reader.lastRange);
 
   uint8_t flag = Reader_readUint8(&reader) | ((offsetAndFlag & 0x1) << 8);
 
   Property *flags = Layer_addProperty(child, flagsToken);
-  Property_setUint64(flags, flag);
+  Property_setUint32(flags, flag);
   for (const auto &bit : flagTable) {
     bool on = bit.first & flag;
     Property *flagBit = Layer_addProperty(child, bit.second);
@@ -107,15 +107,15 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   Property_setRange(flags, Range{12, 14});
 
   Property *window = Layer_addProperty(child, windowToken);
-  Property_setUint64(window, Reader_readUint16BE(&reader));
+  Property_setUint32(window, Reader_readUint16BE(&reader));
   Property_setRange(window, reader.lastRange);
 
   Property *checksum = Layer_addProperty(child, checksumToken);
-  Property_setUint64(checksum, Reader_readUint16BE(&reader));
+  Property_setUint32(checksum, Reader_readUint16BE(&reader));
   Property_setRange(checksum, reader.lastRange);
 
   Property *urgent = Layer_addProperty(child, urgentToken);
-  Property_setUint64(urgent, Reader_readUint16BE(&reader));
+  Property_setUint32(urgent, Reader_readUint16BE(&reader));
   Property_setRange(urgent, reader.lastRange);
 
   Property *options = Layer_addProperty(child, optionsToken);
@@ -138,14 +138,14 @@ void analyze(Context *ctx, void *data, Layer *layer) {
       uint16_t size =
           Slice_readUint16BE(reader.slice, optionOffset + 2, nullptr);
       Property *opt = Layer_addProperty(child, mssToken);
-      Property_setUint64(opt, size);
+      Property_setUint32(opt, size);
       Property_setRange(opt, Range{optionOffset, optionOffset + 4});
       optionOffset += 4;
     } break;
     case 3: {
       uint8_t scale = Slice_readUint8(reader.slice, optionOffset + 2, nullptr);
       Property *opt = Layer_addProperty(child, scaleToken);
-      Property_setUint64(opt, scale);
+      Property_setUint32(opt, scale);
       Property_setRange(opt, Range{optionOffset, optionOffset + 2});
       optionOffset += 3;
     } break;
@@ -174,11 +174,11 @@ void analyze(Context *ctx, void *data, Layer *layer) {
       Property_setRange(opt, Range{optionOffset, optionOffset + 10});
 
       Property *optmt = Layer_addProperty(child, mtToken);
-      Property_setUint64(optmt, mt);
+      Property_setUint32(optmt, mt);
       Property_setRange(optmt, Range{optionOffset + 2, optionOffset + 6});
 
       Property *optet = Layer_addProperty(child, etToken);
-      Property_setUint64(optet, et);
+      Property_setUint32(optet, et);
       Property_setRange(optet, Range{optionOffset + 6, optionOffset + 10});
 
       optionOffset += 10;

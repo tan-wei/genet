@@ -61,6 +61,14 @@ bool Property_bool(const Property *prop) {
 
 void Property_setBool(Property *prop, bool value) { prop->setValue(value); }
 
+int32_t Property_int32(const Property *prop) {
+  if (!prop)
+    return 0ll;
+  return prop->value().int32Value();
+}
+
+void Property_setInt32(Property *prop, int32_t value) { prop->setValue(value); }
+
 int64_t Property_int64(const Property *prop) {
   if (!prop)
     return 0ll;
@@ -68,6 +76,16 @@ int64_t Property_int64(const Property *prop) {
 }
 
 void Property_setInt64(Property *prop, int64_t value) { prop->setValue(value); }
+
+uint32_t Property_uint32(const Property *prop) {
+  if (!prop)
+    return 0ull;
+  return prop->value().uint32Value();
+}
+
+void Property_setUint32(Property *prop, uint32_t value) {
+  prop->setValue(value);
+}
 
 uint64_t Property_uint64(const Property *prop) {
   if (!prop)

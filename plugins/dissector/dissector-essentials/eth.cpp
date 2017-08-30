@@ -48,11 +48,11 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   auto protocolType = Reader_readUint16BE(&reader);
   if (protocolType <= 1500) {
     Property *length = Layer_addProperty(child, lenToken);
-    Property_setUint64(length, protocolType);
+    Property_setUint32(length, protocolType);
     Property_setRange(length, reader.lastRange);
   } else {
     Property *etherType = Layer_addProperty(child, ethTypeToken);
-    Property_setUint64(etherType, protocolType);
+    Property_setUint32(etherType, protocolType);
     Property_setRange(etherType, reader.lastRange);
     const auto &it = typeTable.find(protocolType);
     if (it != typeTable.end()) {

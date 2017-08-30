@@ -52,30 +52,30 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   int flowLevel = Reader_readUint16BE(&reader) | ((header2 & 0b00001111) << 16);
 
   Property *ver = Layer_addProperty(child, versionToken);
-  Property_setUint64(ver, version);
+  Property_setUint32(ver, version);
   Property_setRange(ver, Range{0, 1});
 
   Property *tClass = Layer_addProperty(child, tClassToken);
-  Property_setUint64(tClass, trafficClass);
+  Property_setUint32(tClass, trafficClass);
   Property_setRange(tClass, Range{0, 2});
 
   Property *fLevel = Layer_addProperty(child, fLevelToken);
-  Property_setUint64(fLevel, flowLevel);
+  Property_setUint32(fLevel, flowLevel);
   Property_setRange(fLevel, Range{1, 4});
 
   Property *pLen = Layer_addProperty(child, pLenToken);
-  Property_setUint64(pLen, Reader_readUint16BE(&reader));
+  Property_setUint32(pLen, Reader_readUint16BE(&reader));
   Property_setRange(pLen, reader.lastRange);
 
   int nextHeader = Reader_readUint8(&reader);
   auto nextHeaderRange = reader.lastRange;
 
   Property *nHeader = Layer_addProperty(child, nHeaderToken);
-  Property_setUint64(nHeader, nextHeader);
+  Property_setUint32(nHeader, nextHeader);
   Property_setRange(nHeader, nextHeaderRange);
 
   Property *hLimit = Layer_addProperty(child, hLimitToken);
-  Property_setUint64(hLimit, Reader_readUint8(&reader));
+  Property_setUint32(hLimit, Reader_readUint8(&reader));
   Property_setRange(hLimit, reader.lastRange);
 
   const auto &srcSlice = Reader_slice(&reader, 0, 16);
@@ -122,7 +122,7 @@ void analyze(Context *ctx, void *data, Layer *layer) {
 
   uint8_t protocolNumber = nextHeader;
   Property *proto = Layer_addProperty(child, protocolToken);
-  Property_setUint64(proto, protocolNumber);
+  Property_setUint32(proto, protocolNumber);
   Property_setType(proto, enumToken);
   Property_setRange(proto, reader.lastRange);
   const auto &it = protoTable.find(protocolNumber);

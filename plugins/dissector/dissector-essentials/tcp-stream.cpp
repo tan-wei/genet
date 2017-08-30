@@ -73,9 +73,9 @@ void analyze(Context *ctx, void *data, Layer *layer) {
 
   const Slice payload = Payload_slice(Layer_payload(layer));
 
-  uint32_t seq = Property_uint64(Layer_propertyFromId(layer, seqToken));
-  uint16_t window = Property_uint64(Layer_propertyFromId(layer, windowToken));
-  uint8_t flags = Property_uint64(Layer_propertyFromId(layer, flagsToken));
+  uint32_t seq = Property_uint32(Layer_propertyFromId(layer, seqToken));
+  uint16_t window = Property_uint32(Layer_propertyFromId(layer, windowToken));
+  uint8_t flags = Property_uint32(Layer_propertyFromId(layer, flagsToken));
   bool syn = (flags & (0x1 << 1));
   if (syn) {
     if (worker->currentSeq < 0) {

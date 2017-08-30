@@ -17,6 +17,28 @@ TEST_CASE("Variant_bool", "[variant]") {
   CHECK(Variant_bool(nullptr) == false);
 }
 
+TEST_CASE("Variant_int32", "[variant]") {
+  Variant variant;
+  CHECK(Variant_int32(&variant) == 0l);
+  Variant_setInt32(&variant, INT32_MAX);
+  CHECK(Variant_int32(&variant) == INT32_MAX);
+  Variant_setInt32(&variant, UINT32_MAX);
+  CHECK(Variant_int32(&variant) == -1);
+  CHECK(Variant_int32(nullptr) == 0l);
+}
+
+TEST_CASE("Variant_uint32", "[variant]") {
+  Variant variant;
+  CHECK(Variant_uint32(&variant) == 0ul);
+  Variant_setUint32(&variant, UINT32_MAX);
+  CHECK(Variant_uint32(&variant) == UINT32_MAX);
+  Variant_setUint32(&variant, INT32_MAX);
+  CHECK(Variant_uint32(&variant) == INT32_MAX);
+  Variant_setUint32(&variant, -1);
+  CHECK(Variant_uint32(&variant) == UINT32_MAX);
+  CHECK(Variant_int32(nullptr) == 0ul);
+}
+
 TEST_CASE("Variant_int64", "[variant]") {
   Variant variant;
   CHECK(Variant_int64(&variant) == 0ll);

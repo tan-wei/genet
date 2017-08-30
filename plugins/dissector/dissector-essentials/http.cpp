@@ -48,8 +48,8 @@ public:
 Worker::Worker(const std::unordered_set<uint16_t> &ports) : ports(ports) {}
 
 bool Worker::analyze_start(Context *ctx, Layer *layer) {
-  uint16_t srcPort = Property_uint64(Layer_propertyFromId(layer, srcToken));
-  uint16_t dstPort = Property_uint64(Layer_propertyFromId(layer, dstToken));
+  uint16_t srcPort = Property_uint32(Layer_propertyFromId(layer, srcToken));
+  uint16_t dstPort = Property_uint32(Layer_propertyFromId(layer, dstToken));
 
   if (!ports.empty() && ports.find(srcPort) == ports.end() &&
       ports.find(dstPort) == ports.end()) {
@@ -202,7 +202,7 @@ void Init(v8::Local<v8::Object> exports) {
         const Variant *value = nullptr;
         std::unordered_set<uint16_t> ports;
         for (size_t i = 0; (value = Variant_arrayValue(httpPorts, i)); ++i) {
-          ports.insert(Variant_uint64(value));
+          ports.insert(Variant_uint32(value));
         }
         Worker *worker = new Worker(ports);
         worker->reader = StreamReader_create();
