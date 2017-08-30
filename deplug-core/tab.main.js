@@ -11,7 +11,7 @@ const packageWhiteList = [
   'moment',
   'buffer',
   'path',
-  'mithril',
+  'estraverse',
   'deplug',
   'plugkit',
   'object-path',
@@ -66,7 +66,7 @@ async function init (profile, argv, tab) {
     Reflect.defineProperty(Tab, 'options', { value: options })
     Reflect.defineProperty(Tab, 'id', { value: id })
 
-    await PluginLoader.loadComponents('core:filter:literal')
+    await PluginLoader.loadComponents('core:filter:transform')
     await PluginLoader.loadComponents('core:renderer')
     await PluginLoader.loadComponents('core:panel')
 

@@ -1,5 +1,6 @@
 const kit = require('bindings')('plugkit.node')
 const esprima = require('esprima')
+const escodegen = require('escodegen')
 const {rollup} = require('rollup')
 const EventEmitter = require('events')
 
@@ -31,10 +32,10 @@ function roll(script) {
 }
 
 class Session extends EventEmitter {
-  constructor(sess, literals) {
+  constructor(sess, transforms) {
     super()
     internal(this).sess = sess
-    internal(this).literals = literals
+    internal(this).transforms = transforms
 
     this.status = {
       capture: false
@@ -109,45 +110,6 @@ class Session extends EventEmitter {
     let body = ''
     const tokens = esprima.tokenize(filter)
 
-    const replaceLiterals = (tokens) => {
-      let array = []
-      for (let i = 0; i < tokens.length; ++i) {
-        if (tokens[i].type === 'Template') {
-          let id = null
-          if (i > 0 && tokens[i - 1].type === 'Identifier') {
-            id = tokens[i - 1].value
-            array.pop()
-          }
-          const token = tokens[i]
-          const literals = internal(this).literals
-          const value = token.value.substr(1, token.value.length - 2)
-          let parser = null
-          if (id && id in literals) {
-            parser = literals[id]
-          } else {
-            for (const key in literals) {
-              const lit = literals[key]
-              if (lit.regexp && lit.regexp.test(value)) {
-                parser = lit
-                break
-              }
-            }
-          }
-          if (parser !== null) {
-            const code = parser.parse(value)
-            if (typeof code === 'string') {
-              array = array.concat(esprima.tokenize(code))
-            }
-          } else {
-            array.push({type: 'String', value: JSON.stringify(value)})
-          }
-        } else {
-          array.push(tokens[i])
-        }
-      }
-      return array
-    }
-
     const mergeProperties = (tokens) => {
       let array = []
       let property = []
@@ -189,8 +151,13 @@ class Session extends EventEmitter {
       return array
     }
 
-    const ast = esprima.parse(
-      replaceLiterals(mergeProperties(tokens)).map(t => t.value).join(''))
+    let ast = esprima.parse(mergeProperties(tokens).map(t => t.value).join(''))
+
+    for (const trans of internal(this).transforms) {
+      ast = trans.execute(ast)
+    }
+
+    console.log(escodegen.generate(ast))
 
     switch (ast.body.length) {
       case 0:
@@ -213,7 +180,7 @@ class SessionFactory extends kit.SessionFactory {
     super()
     internal(this).tasks = []
     internal(this).linkLayers = []
-    internal(this).literals = {}
+    internal(this).transforms = []
   }
 
   create() {
@@ -221,7 +188,7 @@ class SessionFactory extends kit.SessionFactory {
       for (let link of internal(this).linkLayers) {
         super.registerLinkLayer(link.link, link.id, link.name)
       }
-      return new Session(super.create(), internal(this).literals)
+      return new Session(super.create(), internal(this).transforms)
     })
   }
 
@@ -229,8 +196,8 @@ class SessionFactory extends kit.SessionFactory {
     internal(this).linkLayers.push(layer)
   }
 
-  registerFilterLiteral(literal) {
-    internal(this).literals[literal.id] = literal
+  registerFilterTransform(trans) {
+    internal(this).transforms.push(trans)
   }
 
   registerDissector(dissector) {

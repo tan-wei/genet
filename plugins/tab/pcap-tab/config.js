@@ -71,8 +71,8 @@ export default class ConfigView {
       for (const diss of Session.dissectors) {
         factory.registerDissector(diss)
       }
-      for (const lit of Session.filterLiterals) {
-        factory.registerFilterLiteral(lit)
+      for (const trans of Session.filterTransforms) {
+        factory.registerFilterTransform(trans)
       }
       factory.create().then((sess) => {
         if (Tab.options.ifs) {
@@ -101,8 +101,8 @@ export default class ConfigView {
         for (const diss of Session.dissectors) {
           factory.registerDissector(diss)
         }
-        for (const lit of Session.filterLiterals) {
-          factory.registerFilterLiteral(lit)
+        for (const trans of Session.filterTransforms) {
+          factory.registerFilterTransform(trans)
         }
         File.loadFrames(Tab.options.files).then((results) => {
           factory.create().then((sess) => {

@@ -1,6 +1,11 @@
-export default function(value)
+import estraverse from 'estraverse'
+
+export default function(ast)
 {
-  if(typeof value !== 'string') return null;
-  const array = JSON.stringify(value.split('.').map(octet => parseInt(octet)))
-  return `Uint8Array.from(${array})`
+  return estraverse.replace(ast, {
+    enter: (node) => {
+      if (node.type === 'TemplateLiteral')
+        return {type: 'Literal', value: '"ssss"'}
+    }
+  })
 }
