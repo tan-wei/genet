@@ -117,6 +117,7 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   const auto &it = protoTable.find(protocolNumber);
   if (it != protoTable.end()) {
     Property *sub = Layer_addProperty(child, it->second.second);
+    Property_setBool(sub, true);
     Property_setRange(sub, reader.lastRange);
     Layer_addTag(child, it->second.first);
   }
