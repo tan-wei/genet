@@ -17,6 +17,7 @@
     "deplugin": "^0.0.8",
     "electron-log": "^2.0.2",
     "electron-squirrel-startup": "^1.0.0",
+    "escodegen": "^1.8.1",
     "font-awesome": "^4.7.0",
     "glob": "^7.1.1",
     "i18n4v": "^0.2.2",
