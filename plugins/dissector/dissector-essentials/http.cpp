@@ -21,6 +21,8 @@ const auto srcToken = Token_get(".src");
 const auto dstToken = Token_get(".dst");
 const auto headersToken = Token_get("http.headers");
 const auto reassembledToken = Token_get("@reassembled");
+const auto mimeToken = Token_get("@mime");
+const auto mimeTypeToken = Token_get(".mimeType");
 
 enum State { STATE_START, STATE_HEADER, STATE_BODY, STATE_CLOSED };
 
@@ -128,7 +130,11 @@ bool Worker::analyze_body(Context *ctx, Layer *layer, Layer *child,
 
     size_t bodyOffset = headerLength;
     Payload *chunk = Layer_addPayload(child);
-    Payload_setType(chunk, Token_get(("@mime:" + contentType).c_str()));
+    Payload_setType(chunk, mimeToken);
+    if (!contentType.empty()) {
+      Property *mime = Payload_addProperty(chunk, mimeTypeToken);
+      Property_setString(mime, contentType.c_str());
+    }
 
     while (bodyOffset < httpLength) {
       const Slice &slice = StreamReader_read(

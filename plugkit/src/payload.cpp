@@ -53,4 +53,10 @@ const Slice *Payload_slices(const Payload *payload, size_t *size) {
 Token Payload_type(const Payload *payload) { return payload->type(); }
 
 void Payload_setType(Payload *payload, Token type) { payload->setType(type); }
+
+Property *Payload_addProperty(Payload *payload, Token id) {
+  Property *prop = new Property(id);
+  payload->addProperty(prop);
+  return prop;
+}
 }
