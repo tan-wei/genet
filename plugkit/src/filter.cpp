@@ -2,10 +2,10 @@
 #include "frame.hpp"
 #include "frame_view.hpp"
 #include "layer.hpp"
-#include "property.hpp"
+#include "attribute.hpp"
 #include "wrapper/frame.hpp"
 #include "wrapper/layer.hpp"
-#include "wrapper/property.hpp"
+#include "wrapper/attribute.hpp"
 #include <functional>
 #include <json11.hpp>
 
@@ -33,7 +33,7 @@ Local<Value> Filter::Private::fetchValue(Local<Value> value) const {
   if (result->IsObject()) {
     auto resultObj = result.As<Object>();
     auto resultKey = Nan::New("_filter").ToLocalChecked();
-    if (const auto &prop = PropertyWrapper::unwrap(resultObj)) {
+    if (const auto &prop = AttributeWrapper::unwrap(resultObj)) {
       result = Variant::getValue(prop->value());
     } else if (resultObj->Has(resultKey)) {
       result = resultObj->Get(resultKey);
@@ -51,38 +51,38 @@ FilterFunc Filter::Private::makeFilter(const json11::Json &json) const {
   const std::string &type = json["type"].string_value();
 
   if (type == "MemberExpression") {
-    const json11::Json &property = json["property"];
-    const std::string &propertyType = property["type"].string_value();
-    FilterFunc propertyFunc;
+    const json11::Json &attribute = json["property"];
+    const std::string &attributeType = attribute["type"].string_value();
+    FilterFunc attributeFunc;
 
-    if (propertyType == "Identifier") {
-      const std::string &name = property["name"].string_value();
-      propertyFunc = [this, isolate, name](const FrameView *view) {
+    if (attributeType == "Identifier") {
+      const std::string &name = attribute["name"].string_value();
+      attributeFunc = [this, isolate, name](const FrameView *view) {
         return Filter::Result(Nan::New(name).ToLocalChecked());
       };
     } else {
-      propertyFunc = makeFilter(property);
+      attributeFunc = makeFilter(attribute);
     }
 
     const FilterFunc &objectFunc = makeFilter(json["object"]);
 
     return FilterFunc([this, isolate, objectFunc,
-                       propertyFunc](const FrameView *view) -> Filter::Result {
+                       attributeFunc](const FrameView *view) -> Filter::Result {
       Local<Value> value = objectFunc(view).value;
-      Local<Value> property = propertyFunc(view).value;
+      Local<Value> attribute = attributeFunc(view).value;
       Local<Value> result;
 
-      const std::string &name = *Nan::Utf8String(property);
+      const std::string &name = *Nan::Utf8String(attribute);
       if (name.empty())
         return result;
 
       if (value->IsObject()) {
-        const Property *child = nullptr;
+        const Attr *child = nullptr;
         if (const auto &layer = LayerWrapper::unwrapConst(value.As<Object>())) {
-          child = layer->propertyFromId(Token_get(name.c_str()));
+          child = layer->attr(Token_get(name.c_str()));
         }
         if (child) {
-          result = PropertyWrapper::wrap(child);
+          result = AttributeWrapper::wrap(child);
         }
       }
 
@@ -299,15 +299,15 @@ FilterFunc Filter::Private::makeFilter(const json11::Json &json) const {
       Local<Value> key = Nan::New(name).ToLocalChecked();
       Local<Object> frameObject = FrameWrapper::wrap(view);
 
-      if (const auto &prop = view->propertyFromId(Token_get(name.c_str()))) {
-        return Filter::Result(PropertyWrapper::wrap(prop));
+      if (const auto &prop = view->attr(Token_get(name.c_str()))) {
+        return Filter::Result(AttributeWrapper::wrap(prop));
       }
 
       if (frameObject->Has(key)) {
         return Filter::Result(frameObject->Get(key));
       }
 
-      if (const auto &layer = view->layerFromId(Token_get(name.c_str()))) {
+      if (const auto &layer = view->layer(Token_get(name.c_str()))) {
         Local<Object> layerObject = LayerWrapper::wrap(layer);
         return Filter::Result(layerObject);
       }

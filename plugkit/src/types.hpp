@@ -6,7 +6,7 @@
 
 namespace plugkit {
 struct Layer;
-struct Property;
+struct Attr;
 class Frame;
 class FrameView;
 struct Payload;

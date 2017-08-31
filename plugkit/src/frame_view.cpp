@@ -41,10 +41,10 @@ const std::vector<const Layer *> &FrameView::leafLayers() const {
   return mLeafLayers;
 }
 
-const Property *FrameView::propertyFromId(Token id) const {
+const Attr *FrameView::attr(Token id) const {
   for (const Layer *leaf : leafLayers()) {
     for (const Layer *layer = leaf; layer; layer = layer->parent()) {
-      if (const Property *layerProp = layer->propertyFromId(id)) {
+      if (const Attr *layerProp = layer->attr(id)) {
         return layerProp;
       }
     }
@@ -52,7 +52,7 @@ const Property *FrameView::propertyFromId(Token id) const {
   return nullptr;
 }
 
-const Layer *FrameView::layerFromId(Token id) const {
+const Layer *FrameView::layer(Token id) const {
   for (const auto &layer : mLayers) {
     if (layer->id() == id) {
       return layer;

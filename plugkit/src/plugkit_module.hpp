@@ -22,7 +22,7 @@ public:
     Prototype proto;
   };
 
-  Class property;
+  Class attribute;
   Class layer;
   Class frame;
   Class payload;

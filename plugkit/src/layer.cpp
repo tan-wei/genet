@@ -1,5 +1,5 @@
 #include "layer.hpp"
-#include "property.hpp"
+#include "attribute.hpp"
 #include "payload.hpp"
 #include "wrapper/layer.hpp"
 #include <functional>
@@ -43,7 +43,7 @@ void Layer::addError(Error err) { mErrors.push_back(err); }
 
 void Layer::addPayload(const Payload *payload) { mPayloads.push_back(payload); }
 
-const std::vector<const Property *> &Layer::properties() const {
+const std::vector<const Attr *> &Layer::properties() const {
   return mProperties;
 }
 
@@ -55,7 +55,7 @@ const Frame *Layer::frame() const { return mFrame; }
 
 void Layer::setFrame(const Frame *frame) { mFrame = frame; }
 
-const Property *Layer::propertyFromId(Token id) const {
+const Attr *Layer::attr(Token id) const {
   for (const auto &child : mProperties) {
     if (child->id() == id) {
       return child;
@@ -64,7 +64,7 @@ const Property *Layer::propertyFromId(Token id) const {
   return nullptr;
 }
 
-void Layer::addProperty(const Property *prop) { mProperties.push_back(prop); }
+void Layer::addAttr(const Attr *prop) { mProperties.push_back(prop); }
 
 Token Layer_id(const Layer *layer) { return layer->id(); }
 
@@ -94,15 +94,13 @@ Layer *Layer_addSubLayer(Layer *layer, Token id) {
   return child;
 }
 
-Property *Layer_addProperty(Layer *layer, Token id) {
-  Property *prop = new Property(id);
-  layer->addProperty(prop);
+Attr *Layer_addAttr(Layer *layer, Token id) {
+  Attr *prop = new Attr(id);
+  layer->addAttr(prop);
   return prop;
 }
 
-const Property *Layer_propertyFromId(const Layer *layer, Token id) {
-  return layer->propertyFromId(id);
-}
+const Attr *Layer_attr(const Layer *layer, Token id) { return layer->attr(id); }
 
 Payload *Layer_addPayload(Layer *layer) {
   Payload *payload = new Payload();

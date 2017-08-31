@@ -6,7 +6,7 @@
 #include "wrapper/layer.hpp"
 #include "wrapper/pcap.hpp"
 #include "wrapper/payload.hpp"
-#include "wrapper/property.hpp"
+#include "wrapper/attribute.hpp"
 #include "wrapper/session.hpp"
 #include "wrapper/session_factory.hpp"
 
@@ -27,7 +27,7 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
                              v8::Local<v8::Object> exports, bool mainThread) {
   ExtendedSlot::set(isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE, this);
   Variant::init(isolate);
-  PropertyWrapper::init(isolate, exports);
+  AttributeWrapper::init(isolate, exports);
   LayerWrapper::init(isolate, exports);
   FrameWrapper::init(isolate);
   PayloadWrapper::init(isolate);

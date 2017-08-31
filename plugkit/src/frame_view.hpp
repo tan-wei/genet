@@ -4,14 +4,14 @@
 #include <memory>
 #include <vector>
 #include "token.h"
-#include "property.hpp"
+#include "attribute.hpp"
 
 namespace plugkit {
 
 class Frame;
 class FrameView;
 struct Layer;
-struct Property;
+struct Attr;
 
 class FrameView final {
 public:
@@ -20,8 +20,8 @@ public:
   const Frame *frame() const;
   const Layer *primaryLayer() const;
   const std::vector<const Layer *> &leafLayers() const;
-  const Property *propertyFromId(Token id) const;
-  const Layer *layerFromId(Token id) const;
+  const Attr *attr(Token id) const;
+  const Layer *layer(Token id) const;
 
 private:
   FrameView(const FrameView &view) = delete;

@@ -1,17 +1,17 @@
 #ifndef PLUGKIT_PROPERTY_HPP
 #define PLUGKIT_PROPERTY_HPP
 
-#include "property.h"
+#include "attribute.h"
 #include "variant.hpp"
 #include "token.h"
 #include <memory>
 
 namespace plugkit {
 
-struct Property final {
+struct Attr final {
 public:
-  Property(Token id, const Variant &value = Variant(), Token type = Token());
-  ~Property();
+  Attr(Token id, const Variant &value = Variant(), Token type = Token());
+  ~Attr();
 
   Token id() const;
   Range range() const;
@@ -24,8 +24,8 @@ public:
   void setType(Token type);
 
 private:
-  Property(const Property &prop) = delete;
-  Property &operator=(const Property &prop) = delete;
+  Attr(const Attr &prop) = delete;
+  Attr &operator=(const Attr &prop) = delete;
 
 private:
   Token mId = 0;

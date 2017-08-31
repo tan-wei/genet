@@ -2,7 +2,7 @@
 #include <plugkit/dissector.h>
 #include <plugkit/context.h>
 #include <plugkit/token.h>
-#include <plugkit/property.h>
+#include <plugkit/attribute.h>
 #include <plugkit/variant.h>
 #include <plugkit/layer.h>
 #include <plugkit/payload.h>
@@ -51,44 +51,44 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   int trafficClass = (header & 0b00001111 << 4) | ((header2 & 0b11110000) >> 4);
   int flowLevel = Reader_readUint16BE(&reader) | ((header2 & 0b00001111) << 16);
 
-  Property *ver = Layer_addProperty(child, versionToken);
-  Property_setUint32(ver, version);
-  Property_setRange(ver, Range{0, 1});
+  Attr *ver = Layer_addAttr(child, versionToken);
+  Attr_setUint32(ver, version);
+  Attr_setRange(ver, Range{0, 1});
 
-  Property *tClass = Layer_addProperty(child, tClassToken);
-  Property_setUint32(tClass, trafficClass);
-  Property_setRange(tClass, Range{0, 2});
+  Attr *tClass = Layer_addAttr(child, tClassToken);
+  Attr_setUint32(tClass, trafficClass);
+  Attr_setRange(tClass, Range{0, 2});
 
-  Property *fLevel = Layer_addProperty(child, fLevelToken);
-  Property_setUint32(fLevel, flowLevel);
-  Property_setRange(fLevel, Range{1, 4});
+  Attr *fLevel = Layer_addAttr(child, fLevelToken);
+  Attr_setUint32(fLevel, flowLevel);
+  Attr_setRange(fLevel, Range{1, 4});
 
-  Property *pLen = Layer_addProperty(child, pLenToken);
-  Property_setUint32(pLen, Reader_readUint16BE(&reader));
-  Property_setRange(pLen, reader.lastRange);
+  Attr *pLen = Layer_addAttr(child, pLenToken);
+  Attr_setUint32(pLen, Reader_readUint16BE(&reader));
+  Attr_setRange(pLen, reader.lastRange);
 
   int nextHeader = Reader_readUint8(&reader);
   auto nextHeaderRange = reader.lastRange;
 
-  Property *nHeader = Layer_addProperty(child, nHeaderToken);
-  Property_setUint32(nHeader, nextHeader);
-  Property_setRange(nHeader, nextHeaderRange);
+  Attr *nHeader = Layer_addAttr(child, nHeaderToken);
+  Attr_setUint32(nHeader, nextHeader);
+  Attr_setRange(nHeader, nextHeaderRange);
 
-  Property *hLimit = Layer_addProperty(child, hLimitToken);
-  Property_setUint32(hLimit, Reader_readUint8(&reader));
-  Property_setRange(hLimit, reader.lastRange);
+  Attr *hLimit = Layer_addAttr(child, hLimitToken);
+  Attr_setUint32(hLimit, Reader_readUint8(&reader));
+  Attr_setRange(hLimit, reader.lastRange);
 
   const auto &srcSlice = Reader_slice(&reader, 0, 16);
-  Property *src = Layer_addProperty(child, srcToken);
-  Property_setSlice(src, srcSlice);
-  Property_setType(src, ipv6AddrToken);
-  Property_setRange(src, reader.lastRange);
+  Attr *src = Layer_addAttr(child, srcToken);
+  Attr_setSlice(src, srcSlice);
+  Attr_setType(src, ipv6AddrToken);
+  Attr_setRange(src, reader.lastRange);
 
   const auto &dstSlice = Reader_slice(&reader, 0, 16);
-  Property *dst = Layer_addProperty(child, dstToken);
-  Property_setSlice(dst, dstSlice);
-  Property_setType(dst, ipv6AddrToken);
-  Property_setRange(dst, reader.lastRange);
+  Attr *dst = Layer_addAttr(child, dstToken);
+  Attr_setSlice(dst, dstSlice);
+  Attr_setType(dst, ipv6AddrToken);
+  Attr_setRange(dst, reader.lastRange);
 
   bool ext = true;
   while (ext) {
@@ -121,15 +121,15 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   }
 
   uint8_t protocolNumber = nextHeader;
-  Property *proto = Layer_addProperty(child, protocolToken);
-  Property_setUint32(proto, protocolNumber);
-  Property_setType(proto, enumToken);
-  Property_setRange(proto, reader.lastRange);
+  Attr *proto = Layer_addAttr(child, protocolToken);
+  Attr_setUint32(proto, protocolNumber);
+  Attr_setType(proto, enumToken);
+  Attr_setRange(proto, reader.lastRange);
   const auto &it = protoTable.find(protocolNumber);
   if (it != protoTable.end()) {
-    Property *sub = Layer_addProperty(child, it->second.second);
-    Property_setBool(sub, true);
-    Property_setRange(sub, reader.lastRange);
+    Attr *sub = Layer_addAttr(child, it->second.second);
+    Attr_setBool(sub, true);
+    Attr_setRange(sub, reader.lastRange);
     Layer_addTag(child, it->second.first);
   }
 

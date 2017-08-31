@@ -1,7 +1,7 @@
 #include <nan.h>
 #include <plugkit/dissector.h>
 #include <plugkit/context.h>
-#include <plugkit/property.h>
+#include <plugkit/attribute.h>
 #include <plugkit/token.h>
 #include <plugkit/reader.h>
 #include <plugkit/variant.h>
@@ -34,31 +34,31 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   Layer_addTag(child, ethToken);
 
   const auto &srcSlice = Reader_slice(&reader, 0, 6);
-  Property *src = Layer_addProperty(child, srcToken);
-  Property_setSlice(src, srcSlice);
-  Property_setType(src, macToken);
-  Property_setRange(src, reader.lastRange);
+  Attr *src = Layer_addAttr(child, srcToken);
+  Attr_setSlice(src, srcSlice);
+  Attr_setType(src, macToken);
+  Attr_setRange(src, reader.lastRange);
 
   const auto &dstSlice = Reader_slice(&reader, 0, 6);
-  Property *dst = Layer_addProperty(child, dstToken);
-  Property_setSlice(dst, dstSlice);
-  Property_setType(dst, macToken);
-  Property_setRange(dst, reader.lastRange);
+  Attr *dst = Layer_addAttr(child, dstToken);
+  Attr_setSlice(dst, dstSlice);
+  Attr_setType(dst, macToken);
+  Attr_setRange(dst, reader.lastRange);
 
   auto protocolType = Reader_readUint16BE(&reader);
   if (protocolType <= 1500) {
-    Property *length = Layer_addProperty(child, lenToken);
-    Property_setUint32(length, protocolType);
-    Property_setRange(length, reader.lastRange);
+    Attr *length = Layer_addAttr(child, lenToken);
+    Attr_setUint32(length, protocolType);
+    Attr_setRange(length, reader.lastRange);
   } else {
-    Property *etherType = Layer_addProperty(child, ethTypeToken);
-    Property_setUint32(etherType, protocolType);
-    Property_setRange(etherType, reader.lastRange);
+    Attr *etherType = Layer_addAttr(child, ethTypeToken);
+    Attr_setUint32(etherType, protocolType);
+    Attr_setRange(etherType, reader.lastRange);
     const auto &it = typeTable.find(protocolType);
     if (it != typeTable.end()) {
-      Property *type = Layer_addProperty(child, it->second.second);
-      Property_setBool(type, true);
-      Property_setRange(type, reader.lastRange);
+      Attr *type = Layer_addAttr(child, it->second.second);
+      Attr_setBool(type, true);
+      Attr_setRange(type, reader.lastRange);
       Layer_addTag(child, it->second.first);
     }
   }

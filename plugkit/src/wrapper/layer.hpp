@@ -26,9 +26,9 @@ public:
   static NAN_GETTER(properties);
   static NAN_GETTER(payloads);
   static NAN_GETTER(tags);
-  static NAN_METHOD(propertyFromId);
+  static NAN_METHOD(attr);
   static NAN_METHOD(addLayer);
-  static NAN_METHOD(addProperty);
+  static NAN_METHOD(addAttr);
   static NAN_METHOD(toJSON);
 
 private:

@@ -26,7 +26,7 @@ Plugin.listPlugins()
     if (sample.assert) {
       for (const line of sample.assert) {
         for (const key in line.properties) {
-          const value = objpath.get(frame.layerFromId(line.layer), key)
+          const value = objpath.get(frame.layer(line.layer), key)
           assert.deepEqual(value, line.properties[key])
         }
       }

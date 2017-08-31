@@ -21,8 +21,8 @@ public:
   static NAN_GETTER(primaryLayer);
   static NAN_GETTER(leafLayers);
   static NAN_GETTER(sourceId);
-  static NAN_METHOD(propertyFromId);
-  static NAN_METHOD(layerFromId);
+  static NAN_METHOD(attr);
+  static NAN_METHOD(layer);
 
 private:
   FrameWrapper(const FrameView *view);

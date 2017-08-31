@@ -3,7 +3,7 @@
 #include "frame_view.hpp"
 #include "layer.hpp"
 #include "plugkit_module.hpp"
-#include "wrapper/property.hpp"
+#include "wrapper/attribute.hpp"
 #include <vector>
 
 namespace plugkit {
@@ -12,8 +12,8 @@ void FrameWrapper::init(v8::Isolate *isolate) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Frame").ToLocalChecked());
-  SetPrototypeMethod(tpl, "propertyFromId", propertyFromId);
-  SetPrototypeMethod(tpl, "layerFromId", layerFromId);
+  SetPrototypeMethod(tpl, "attr", attr);
+  SetPrototypeMethod(tpl, "layer", layer);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("timestamp").ToLocalChecked(), timestamp);
@@ -103,23 +103,21 @@ NAN_GETTER(FrameWrapper::sourceId) {
   }
 }
 
-NAN_METHOD(FrameWrapper::propertyFromId) {
+NAN_METHOD(FrameWrapper::attr) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
   if (const auto &view = wrapper->view) {
-    if (const auto &prop =
-            view->propertyFromId(Token_get(*Nan::Utf8String(info[0])))) {
-      info.GetReturnValue().Set(PropertyWrapper::wrap(prop));
+    if (const auto &prop = view->attr(Token_get(*Nan::Utf8String(info[0])))) {
+      info.GetReturnValue().Set(AttributeWrapper::wrap(prop));
     } else {
       info.GetReturnValue().Set(Nan::Null());
     }
   }
 }
 
-NAN_METHOD(FrameWrapper::layerFromId) {
+NAN_METHOD(FrameWrapper::layer) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
   if (const auto &view = wrapper->view) {
-    if (const auto &layer =
-            view->layerFromId(Token_get(*Nan::Utf8String(info[0])))) {
+    if (const auto &layer = view->layer(Token_get(*Nan::Utf8String(info[0])))) {
       info.GetReturnValue().Set(LayerWrapper::wrap(layer));
     } else {
       info.GetReturnValue().Set(Nan::Null());

@@ -29,8 +29,8 @@ export default class Renderer {
       if (query === '.id' && typeof object === 'object' &&
         object.constructor.name === 'Frame') {
         value = object.primaryLayer.id
-      } else if (typeof object.propertyFromId === 'function') {
-        const prop = object.propertyFromId(query)
+      } else if (typeof object.attr === 'function') {
+        const prop = object.attr(query)
         if (prop) {
           ({ type, value } = prop)
         }

@@ -2,7 +2,7 @@
 #include <plugkit/dissector.h>
 #include <plugkit/context.h>
 #include <plugkit/token.h>
-#include <plugkit/property.h>
+#include <plugkit/attribute.h>
 #include <plugkit/variant.h>
 #include <plugkit/layer.h>
 #include <plugkit/payload.h>
@@ -26,28 +26,28 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   Layer *child = Layer_addLayer(layer, udpToken);
   Layer_addTag(child, udpToken);
 
-  const auto &parentSrc = Layer_propertyFromId(layer, srcToken);
-  const auto &parentDst = Layer_propertyFromId(layer, dstToken);
+  const auto &parentSrc = Layer_attr(layer, srcToken);
+  const auto &parentDst = Layer_attr(layer, dstToken);
 
   uint16_t sourcePort = Reader_readUint16BE(&reader);
-  Property *src = Layer_addProperty(child, srcToken);
-  Property_setUint32(src, sourcePort);
-  Property_setRange(src, reader.lastRange);
+  Attr *src = Layer_addAttr(child, srcToken);
+  Attr_setUint32(src, sourcePort);
+  Attr_setRange(src, reader.lastRange);
 
   uint16_t dstPort = Reader_readUint16BE(&reader);
-  Property *dst = Layer_addProperty(child, dstToken);
-  Property_setUint32(dst, dstPort);
-  Property_setRange(dst, reader.lastRange);
+  Attr *dst = Layer_addAttr(child, dstToken);
+  Attr_setUint32(dst, dstPort);
+  Attr_setRange(dst, reader.lastRange);
 
   uint32_t lengthNumber = Reader_readUint16BE(&reader);
-  Property *length = Layer_addProperty(child, lengthToken);
-  Property_setUint32(length, lengthNumber);
-  Property_setRange(length, reader.lastRange);
+  Attr *length = Layer_addAttr(child, lengthToken);
+  Attr_setUint32(length, lengthNumber);
+  Attr_setRange(length, reader.lastRange);
 
   uint32_t checksumNumber = Reader_readUint16BE(&reader);
-  Property *checksum = Layer_addProperty(child, checksumToken);
-  Property_setUint32(checksum, checksumNumber);
-  Property_setRange(checksum, reader.lastRange);
+  Attr *checksum = Layer_addAttr(child, checksumToken);
+  Attr_setUint32(checksum, checksumNumber);
+  Attr_setRange(checksum, reader.lastRange);
 
   Payload *chunk = Layer_addPayload(child);
   Payload_addSlice(chunk, Reader_slice(&reader, 0, lengthNumber - 8));

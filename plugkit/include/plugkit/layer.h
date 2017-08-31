@@ -11,7 +11,7 @@ PLUGKIT_NAMESPACE_BEGIN
 
 typedef struct Layer Layer;
 typedef struct Payload Payload;
-typedef struct Property Property;
+typedef struct Attr Attr;
 
 /// Gets id
 PLUGKIT_EXPORT Token Layer_id(const Layer *layer);
@@ -31,14 +31,13 @@ PLUGKIT_EXPORT Layer *Layer_addLayer(Layer *layer, Token id);
 /// Allocates a new Layer and adds it as a sub layer.
 PLUGKIT_EXPORT Layer *Layer_addSubLayer(Layer *layer, Token id);
 
-/// Allocates a new Property and adds it as a layer property.
-PLUGKIT_EXPORT Property *Layer_addProperty(Layer *layer, Token id);
+/// Allocates a new Attr and adds it as a layer attribute.
+PLUGKIT_EXPORT Attr *Layer_addAttr(Layer *layer, Token id);
 
-/// Finds the first layer property with the given id and returns it.
+/// Finds the first layer attribute with the given id and returns it.
 ///
-/// If no property is found, returns nullptr.
-PLUGKIT_EXPORT const Property *Layer_propertyFromId(const Layer *layer,
-                                                    Token id);
+/// If no attribute is found, returns nullptr.
+PLUGKIT_EXPORT const Attr *Layer_attr(const Layer *layer, Token id);
 
 /// Allocates a new Payload and adds it as a layer payload.
 PLUGKIT_EXPORT Payload *Layer_addPayload(Layer *layer);

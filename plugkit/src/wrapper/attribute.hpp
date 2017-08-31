@@ -6,13 +6,13 @@
 
 namespace plugkit {
 
-struct Property;
+struct Attr;
 
-struct PropertyWrapper final : public Nan::ObjectWrap {
+struct AttributeWrapper final : public Nan::ObjectWrap {
 public:
   static void init(v8::Isolate *isolate, v8::Local<v8::Object> exports);
-  static v8::Local<v8::Object> wrap(const Property *prop);
-  static const Property *unwrap(v8::Local<v8::Object> obj);
+  static v8::Local<v8::Object> wrap(const Attr *prop);
+  static const Attr *unwrap(v8::Local<v8::Object> obj);
   static NAN_METHOD(New);
   static NAN_GETTER(id);
   static NAN_GETTER(range);
@@ -23,14 +23,14 @@ public:
   static NAN_SETTER(setType);
 
 private:
-  PropertyWrapper(Property *prop);
-  PropertyWrapper(const Property *prop);
-  PropertyWrapper(const PropertyWrapper &) = delete;
-  PropertyWrapper &operator=(const PropertyWrapper &) = delete;
+  AttributeWrapper(Attr *prop);
+  AttributeWrapper(const Attr *prop);
+  AttributeWrapper(const AttributeWrapper &) = delete;
+  AttributeWrapper &operator=(const AttributeWrapper &) = delete;
 
 private:
-  Property *prop;
-  const Property *constProp;
+  Attr *prop;
+  const Attr *constProp;
 };
 }
 

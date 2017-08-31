@@ -3,7 +3,7 @@
 #include <plugkit/dissector.h>
 #include <plugkit/context.h>
 #include <plugkit/token.h>
-#include <plugkit/property.h>
+#include <plugkit/attribute.h>
 #include <plugkit/variant.h>
 #include <plugkit/layer.h>
 #include <plugkit/payload.h>
@@ -31,10 +31,8 @@ public:
   Worker(const std::unordered_set<uint16_t> &ports);
   void analyze(Context *ctx, Layer *layer);
   bool analyze_start(Context *ctx, Layer *layer);
-  bool analyze_header(Context *ctx, Layer *layer, Layer *child,
-                      Property *headers);
-  bool analyze_body(Context *ctx, Layer *layer, Layer *child,
-                    Property *headers);
+  bool analyze_header(Context *ctx, Layer *layer, Layer *child, Attr *headers);
+  bool analyze_body(Context *ctx, Layer *layer, Layer *child, Attr *headers);
 
 public:
   const std::unordered_set<uint16_t> ports;
@@ -50,8 +48,8 @@ public:
 Worker::Worker(const std::unordered_set<uint16_t> &ports) : ports(ports) {}
 
 bool Worker::analyze_start(Context *ctx, Layer *layer) {
-  uint16_t srcPort = Property_uint32(Layer_propertyFromId(layer, srcToken));
-  uint16_t dstPort = Property_uint32(Layer_propertyFromId(layer, dstToken));
+  uint16_t srcPort = Attr_uint32(Layer_attr(layer, srcToken));
+  uint16_t dstPort = Attr_uint32(Layer_attr(layer, dstToken));
 
   if (!ports.empty() && ports.find(srcPort) == ports.end() &&
       ports.find(dstPort) == ports.end()) {
@@ -63,7 +61,7 @@ bool Worker::analyze_start(Context *ctx, Layer *layer) {
 }
 
 bool Worker::analyze_header(Context *ctx, Layer *layer, Layer *child,
-                            Property *headers) {
+                            Attr *headers) {
   Range range = StreamReader_search(reader, "\r\n", 2, offset);
 
   if (range.end == 0)
@@ -109,7 +107,7 @@ bool Worker::analyze_header(Context *ctx, Layer *layer, Layer *child,
   }
 
   if (keyBegin && keyEnd && valueBegin) {
-    Variant *value = Property_mapValueRef(headers, keyBegin, keyEnd - keyBegin);
+    Variant *value = Attr_mapValueRef(headers, keyBegin, keyEnd - keyBegin);
     Variant_setString(value, valueBegin, valueEnd - valueBegin);
     if (strncmp("Content-Length", keyBegin, keyEnd - keyBegin) == 0) {
       contentLength =
@@ -124,7 +122,7 @@ bool Worker::analyze_header(Context *ctx, Layer *layer, Layer *child,
 }
 
 bool Worker::analyze_body(Context *ctx, Layer *layer, Layer *child,
-                          Property *headers) {
+                          Attr *headers) {
   size_t httpLength = contentLength + headerLength;
   if (contentLength >= 0 && StreamReader_length(reader) >= httpLength) {
 
@@ -132,8 +130,8 @@ bool Worker::analyze_body(Context *ctx, Layer *layer, Layer *child,
     Payload *chunk = Layer_addPayload(child);
     Payload_setType(chunk, mimeToken);
     if (!contentType.empty()) {
-      Property *mime = Payload_addProperty(chunk, mimeTypeToken);
-      Property_setString(mime, contentType.c_str());
+      Attr *mime = Payload_addAttr(chunk, mimeTypeToken);
+      Attr_setString(mime, contentType.c_str());
     }
 
     while (bodyOffset < httpLength) {
@@ -165,7 +163,7 @@ void Worker::analyze(Context *ctx, Layer *layer) {
 
   Layer *child = Layer_addLayer(layer, httpToken);
   Layer_addTag(child, httpToken);
-  Property *headers = Layer_addProperty(child, headersToken);
+  Attr *headers = Layer_addAttr(child, headersToken);
 
   State prevState = state;
   while (1) {

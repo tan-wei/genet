@@ -1,6 +1,6 @@
 #include "payload.hpp"
 #include "layer.hpp"
-#include "property.hpp"
+#include "attribute.hpp"
 
 namespace plugkit {
 
@@ -12,11 +12,11 @@ void Payload::addSlice(const Slice &slice) { mSlices.push_back(slice); }
 
 const std::vector<Slice> &Payload::slices() const { return mSlices; }
 
-const std::vector<const Property *> &Payload::properties() const {
+const std::vector<const Attr *> &Payload::properties() const {
   return mProperties;
 }
 
-const Property *Payload::propertyFromId(Token id) const {
+const Attr *Payload::attr(Token id) const {
   for (const auto &prop : mProperties) {
     if (prop->id() == id) {
       return prop;
@@ -25,7 +25,7 @@ const Property *Payload::propertyFromId(Token id) const {
   return nullptr;
 }
 
-void Payload::addProperty(const Property *prop) { mProperties.push_back(prop); }
+void Payload::addAttr(const Attr *prop) { mProperties.push_back(prop); }
 
 Token Payload::type() const { return mType; }
 
@@ -54,9 +54,9 @@ Token Payload_type(const Payload *payload) { return payload->type(); }
 
 void Payload_setType(Payload *payload, Token type) { payload->setType(type); }
 
-Property *Payload_addProperty(Payload *payload, Token id) {
-  Property *prop = new Property(id);
-  payload->addProperty(prop);
+Attr *Payload_addAttr(Payload *payload, Token id) {
+  Attr *prop = new Attr(id);
+  payload->addAttr(prop);
   return prop;
 }
 }

@@ -26,9 +26,9 @@ public:
   const std::vector<Layer *> &subLayers() const;
   void addSubLayer(Layer *child);
 
-  const std::vector<const Property *> &properties() const;
-  const Property *propertyFromId(Token id) const;
-  void addProperty(const Property *prop);
+  const std::vector<const Attr *> &properties() const;
+  const Attr *attr(Token id) const;
+  void addAttr(const Attr *prop);
 
   uint32_t streamId() const;
   void setStreamId(uint32_t id);
@@ -62,7 +62,7 @@ private:
   std::vector<Token> mTags;
   std::vector<Layer *> mLayers;
   std::vector<Layer *> mSubLayers;
-  std::vector<const Property *> mProperties;
+  std::vector<const Attr *> mProperties;
   std::vector<Error> mErrors;
 };
 }

@@ -129,7 +129,7 @@ class Session extends EventEmitter {
           array.push({type: 'Punctuator', value: '('})
           array.push({type: 'Identifier', value: '$'})
           array.push({type: 'Punctuator', value: '.'})
-          array.push({type: 'Identifier', value: 'propertyFromId'})
+          array.push({type: 'Identifier', value: 'attr'})
           array.push({type: 'Punctuator', value: '('})
           const name = property
             .filter(p => p.type === 'Identifier')

@@ -4,7 +4,7 @@
 #include "payload.hpp"
 #include "plugkit_module.hpp"
 #include "wrapper/frame.hpp"
-#include "wrapper/property.hpp"
+#include "wrapper/attribute.hpp"
 
 namespace plugkit {
 
@@ -12,8 +12,8 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Layer").ToLocalChecked());
-  SetPrototypeMethod(tpl, "propertyFromId", propertyFromId);
-  SetPrototypeMethod(tpl, "addProperty", addProperty);
+  SetPrototypeMethod(tpl, "attr", attr);
+  SetPrototypeMethod(tpl, "addAttr", addAttr);
   SetPrototypeMethod(tpl, "addLayer", addLayer);
   SetPrototypeMethod(tpl, "toJSON", toJSON);
 
@@ -156,7 +156,7 @@ NAN_GETTER(LayerWrapper::properties) {
     const auto &properties = layer->properties();
     auto array = v8::Array::New(isolate, properties.size());
     for (size_t i = 0; i < properties.size(); ++i) {
-      array->Set(i, PropertyWrapper::wrap(properties[i]));
+      array->Set(i, AttributeWrapper::wrap(properties[i]));
     }
     info.GetReturnValue().Set(array);
   }
@@ -175,12 +175,11 @@ NAN_GETTER(LayerWrapper::tags) {
   }
 }
 
-NAN_METHOD(LayerWrapper::propertyFromId) {
+NAN_METHOD(LayerWrapper::attr) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->weakLayer) {
-    if (const auto &prop =
-            layer->propertyFromId(Token_get(*Nan::Utf8String(info[0])))) {
-      info.GetReturnValue().Set(PropertyWrapper::wrap(prop));
+    if (const auto &prop = layer->attr(Token_get(*Nan::Utf8String(info[0])))) {
+      info.GetReturnValue().Set(AttributeWrapper::wrap(prop));
     } else {
       info.GetReturnValue().Set(Nan::Null());
     }
@@ -198,13 +197,13 @@ NAN_METHOD(LayerWrapper::addLayer) {
   }
 }
 
-NAN_METHOD(LayerWrapper::addProperty) {
+NAN_METHOD(LayerWrapper::addAttr) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
     if (info[0]->IsObject()) {
       if (const auto &prop =
-              PropertyWrapper::unwrap(info[0].As<v8::Object>())) {
-        layer->addProperty(prop);
+              AttributeWrapper::unwrap(info[0].As<v8::Object>())) {
+        layer->addAttr(prop);
       }
     }
   }

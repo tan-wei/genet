@@ -1,7 +1,7 @@
 #include "payload.hpp"
 #include "../payload.hpp"
 #include "variant.hpp"
-#include "property.hpp"
+#include "attribute.hpp"
 #include "plugkit_module.hpp"
 
 namespace plugkit {
@@ -10,8 +10,8 @@ void PayloadWrapper::init(v8::Isolate *isolate) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Payload").ToLocalChecked());
-  SetPrototypeMethod(tpl, "propertyFromId", propertyFromId);
-  SetPrototypeMethod(tpl, "addProperty", addProperty);
+  SetPrototypeMethod(tpl, "attr", attr);
+  SetPrototypeMethod(tpl, "addAttr", addAttr);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("slices").ToLocalChecked(), slices);
@@ -53,31 +53,31 @@ NAN_GETTER(PayloadWrapper::properties) {
     const auto &properties = payload->properties();
     auto array = v8::Array::New(isolate, properties.size());
     for (size_t i = 0; i < properties.size(); ++i) {
-      array->Set(i, PropertyWrapper::wrap(properties[i]));
+      array->Set(i, AttributeWrapper::wrap(properties[i]));
     }
     info.GetReturnValue().Set(array);
   }
 }
 
-NAN_METHOD(PayloadWrapper::propertyFromId) {
+NAN_METHOD(PayloadWrapper::attr) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->constPayload) {
     if (const auto &child =
-            payload->propertyFromId(Token_get(*Nan::Utf8String(info[0])))) {
-      info.GetReturnValue().Set(PropertyWrapper::wrap(child));
+            payload->attr(Token_get(*Nan::Utf8String(info[0])))) {
+      info.GetReturnValue().Set(AttributeWrapper::wrap(child));
     } else {
       info.GetReturnValue().Set(Nan::Null());
     }
   }
 }
 
-NAN_METHOD(PayloadWrapper::addProperty) {
+NAN_METHOD(PayloadWrapper::addAttr) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->payload) {
     if (info[0]->IsObject()) {
       if (const auto &child =
-              PropertyWrapper::unwrap(info[0].As<v8::Object>())) {
-        payload->addProperty(child);
+              AttributeWrapper::unwrap(info[0].As<v8::Object>())) {
+        payload->addAttr(child);
       }
     }
   }

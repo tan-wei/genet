@@ -2,7 +2,7 @@
 #include <plugkit/dissector.h>
 #include <plugkit/context.h>
 #include <plugkit/token.h>
-#include <plugkit/property.h>
+#include <plugkit/attribute.h>
 #include <plugkit/variant.h>
 #include <plugkit/layer.h>
 #include <plugkit/payload.h>
@@ -57,38 +57,38 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   int version = header >> 4;
   int headerLength = header & 0b00001111;
 
-  Property *ver = Layer_addProperty(child, versionToken);
-  Property_setUint32(ver, version);
-  Property_setRange(ver, reader.lastRange);
+  Attr *ver = Layer_addAttr(child, versionToken);
+  Attr_setUint32(ver, version);
+  Attr_setRange(ver, reader.lastRange);
 
-  Property *hlen = Layer_addProperty(child, hLenToken);
-  Property_setUint32(hlen, headerLength);
-  Property_setRange(hlen, reader.lastRange);
+  Attr *hlen = Layer_addAttr(child, hLenToken);
+  Attr_setUint32(hlen, headerLength);
+  Attr_setRange(hlen, reader.lastRange);
 
-  Property *tos = Layer_addProperty(child, typeToken);
-  Property_setUint32(tos, Reader_readUint8(&reader));
-  Property_setRange(tos, reader.lastRange);
+  Attr *tos = Layer_addAttr(child, typeToken);
+  Attr_setUint32(tos, Reader_readUint8(&reader));
+  Attr_setRange(tos, reader.lastRange);
 
   uint16_t totalLength = Reader_readUint16BE(&reader);
-  Property *tlen = Layer_addProperty(child, tLenToken);
-  Property_setUint32(tlen, totalLength);
-  Property_setRange(tlen, reader.lastRange);
+  Attr *tlen = Layer_addAttr(child, tLenToken);
+  Attr_setUint32(tlen, totalLength);
+  Attr_setRange(tlen, reader.lastRange);
 
-  Property *id = Layer_addProperty(child, idToken);
-  Property_setUint32(id, Reader_readUint16BE(&reader));
-  Property_setRange(id, reader.lastRange);
+  Attr *id = Layer_addAttr(child, idToken);
+  Attr_setUint32(id, Reader_readUint16BE(&reader));
+  Attr_setRange(id, reader.lastRange);
 
   uint8_t flagAndOffset = Reader_readUint8(&reader);
   uint8_t flag = (flagAndOffset >> 5) & 0b00000111;
 
-  Property *flags = Layer_addProperty(child, flagsToken);
-  Property_setUint32(flags, flag);
+  Attr *flags = Layer_addAttr(child, flagsToken);
+  Attr_setUint32(flags, flag);
   std::string flagSummary;
   for (const auto &bit : flagTable) {
     bool on = bit.first & flag;
-    Property *flagBit = Layer_addProperty(child, bit.second);
-    Property_setBool(flagBit, on);
-    Property_setRange(flagBit, reader.lastRange);
+    Attr *flagBit = Layer_addAttr(child, bit.second);
+    Attr_setBool(flagBit, on);
+    Attr_setRange(flagBit, reader.lastRange);
 
     if (on) {
       if (!flagSummary.empty())
@@ -96,47 +96,47 @@ void analyze(Context *ctx, void *data, Layer *layer) {
       flagSummary += std::get<1>(bit);
     }
   }
-  Property_setType(flags, flagsTypeToken);
-  Property_setRange(flags, reader.lastRange);
+  Attr_setType(flags, flagsTypeToken);
+  Attr_setRange(flags, reader.lastRange);
 
   uint16_t fgOffset =
       ((flagAndOffset & 0b00011111) << 8) | Reader_readUint8(&reader);
-  Property *fragmentOffset = Layer_addProperty(child, fOffsetToken);
-  Property_setUint32(fragmentOffset, fgOffset);
-  Property_setRange(fragmentOffset, Range{6, 8});
+  Attr *fragmentOffset = Layer_addAttr(child, fOffsetToken);
+  Attr_setUint32(fragmentOffset, fgOffset);
+  Attr_setRange(fragmentOffset, Range{6, 8});
 
-  Property *ttl = Layer_addProperty(child, ttlToken);
-  Property_setUint32(ttl, Reader_readUint8(&reader));
-  Property_setRange(ttl, reader.lastRange);
+  Attr *ttl = Layer_addAttr(child, ttlToken);
+  Attr_setUint32(ttl, Reader_readUint8(&reader));
+  Attr_setRange(ttl, reader.lastRange);
 
   uint8_t protocolNumber = Reader_readUint8(&reader);
-  Property *proto = Layer_addProperty(child, protocolToken);
-  Property_setUint32(proto, protocolNumber);
-  Property_setType(proto, enumToken);
-  Property_setRange(proto, reader.lastRange);
+  Attr *proto = Layer_addAttr(child, protocolToken);
+  Attr_setUint32(proto, protocolNumber);
+  Attr_setType(proto, enumToken);
+  Attr_setRange(proto, reader.lastRange);
   const auto &it = protoTable.find(protocolNumber);
   if (it != protoTable.end()) {
-    Property *sub = Layer_addProperty(child, it->second.second);
-    Property_setBool(sub, true);
-    Property_setRange(sub, reader.lastRange);
+    Attr *sub = Layer_addAttr(child, it->second.second);
+    Attr_setBool(sub, true);
+    Attr_setRange(sub, reader.lastRange);
     Layer_addTag(child, it->second.first);
   }
 
-  Property *checksum = Layer_addProperty(child, checksumToken);
-  Property_setUint32(checksum, Reader_readUint16BE(&reader));
-  Property_setRange(checksum, reader.lastRange);
+  Attr *checksum = Layer_addAttr(child, checksumToken);
+  Attr_setUint32(checksum, Reader_readUint16BE(&reader));
+  Attr_setRange(checksum, reader.lastRange);
 
   const auto &srcSlice = Reader_slice(&reader, 0, 4);
-  Property *src = Layer_addProperty(child, srcToken);
-  Property_setSlice(src, srcSlice);
-  Property_setType(src, ipv4AddrToken);
-  Property_setRange(src, reader.lastRange);
+  Attr *src = Layer_addAttr(child, srcToken);
+  Attr_setSlice(src, srcSlice);
+  Attr_setType(src, ipv4AddrToken);
+  Attr_setRange(src, reader.lastRange);
 
   const auto &dstSlice = Reader_slice(&reader, 0, 4);
-  Property *dst = Layer_addProperty(child, dstToken);
-  Property_setSlice(dst, dstSlice);
-  Property_setType(dst, ipv4AddrToken);
-  Property_setRange(dst, reader.lastRange);
+  Attr *dst = Layer_addAttr(child, dstToken);
+  Attr_setSlice(dst, dstSlice);
+  Attr_setType(dst, ipv4AddrToken);
+  Attr_setRange(dst, reader.lastRange);
 
   Payload *chunk = Layer_addPayload(child);
   Payload_addSlice(chunk, Reader_sliceAll(&reader, 0));

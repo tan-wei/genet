@@ -21,9 +21,9 @@ public:
   Token type() const;
   void setType(Token type);
 
-  const std::vector<const Property *> &properties() const;
-  const Property *propertyFromId(Token id) const;
-  void addProperty(const Property *prop);
+  const std::vector<const Attr *> &properties() const;
+  const Attr *attr(Token id) const;
+  void addAttr(const Attr *prop);
 
 private:
   Payload(const Payload &payload) = delete;
@@ -32,7 +32,7 @@ private:
 private:
   Token mType;
   std::vector<Slice> mSlices;
-  std::vector<const Property *> mProperties;
+  std::vector<const Attr *> mProperties;
 };
 }
 
