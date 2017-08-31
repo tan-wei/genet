@@ -1,5 +1,6 @@
 const kit = require('bindings')('plugkit.node')
 const esprima = require('esprima')
+const estraverse = require('estraverse')
 const escodegen = require('escodegen')
 const {rollup} = require('rollup')
 const EventEmitter = require('events')
@@ -127,7 +128,7 @@ class Session extends EventEmitter {
         }
         if (property.length >= 3) {
           array.push({type: 'Punctuator', value: '('})
-          array.push({type: 'Identifier', value: '$'})
+          array.push({type: 'Identifier', value: '$_frame'})
           array.push({type: 'Punctuator', value: '.'})
           array.push({type: 'Identifier', value: 'attr'})
           array.push({type: 'Punctuator', value: '('})
@@ -156,6 +157,30 @@ class Session extends EventEmitter {
     for (const trans of internal(this).transforms) {
       ast = trans.execute(ast)
     }
+
+    function makeOp(opcode, ...args) {
+      return {
+        type: 'CallExpression',
+        callee: { type: 'Identifier', name: '$_op' },
+        arguments: [ { type: "Literal", value: opcode } ].concat(args)
+      }
+    }
+
+    ast = estraverse.replace(ast, {
+      enter: (node) => {
+        switch (node.type) {
+          case 'BinaryExpression':
+          case 'LogicalExpression':
+            return makeOp(node.operator, node.left, node.right)
+          case 'UnaryExpression':
+            return makeOp(node.operator, node.argument)
+          case 'ConditionalExpression':
+            node.test = makeOp('!', makeOp('!', node.test))
+            return node
+          default:
+        }
+      }
+    })
 
     console.log(escodegen.generate(ast))
 

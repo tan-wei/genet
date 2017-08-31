@@ -11,6 +11,7 @@ const packageWhiteList = [
   'moment',
   'buffer',
   'path',
+  'esprima',
   'estraverse',
   'deplug',
   'plugkit',
