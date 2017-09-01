@@ -12,7 +12,7 @@ using FrameStorePtr = std::shared_ptr<FrameStore>;
 class FilterThread final : public WorkerThread {
 public:
   using Callback =
-      std::function<void(const std::vector<std::pair<uint32_t, bool>> &)>;
+      std::function<void(uint32_t begin, const std::vector<char> &)>;
 
 public:
   FilterThread(const std::string &body, const FrameStorePtr &store,

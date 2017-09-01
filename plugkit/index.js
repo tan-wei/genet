@@ -1,9 +1,13 @@
 const kit = require('bindings')('plugkit.node')
+const fs = require('fs')
+const path = require('path')
 const esprima = require('esprima')
 const estraverse = require('estraverse')
 const escodegen = require('escodegen')
 const {rollup} = require('rollup')
 const EventEmitter = require('events')
+
+const filterScript = fs.readFileSync(path.join(__dirname, 'filter.js'))
 
 const map = new WeakMap()
 function internal (object) {
@@ -193,8 +197,7 @@ class Session extends EventEmitter {
             expression: {
               type: "FunctionExpression",
               params: [
-                { type: "Identifier", name: "$_frame" },
-                { type: "Identifier", name: "$_op" }
+                { type: "Identifier", name: "$_frame" }
               ],
               body: {
                 type: "BlockStatement",
@@ -216,7 +219,7 @@ class Session extends EventEmitter {
       }
     }
 
-    const body = ast.body.length ? escodegen.generate(ast) : ''
+    const body = ast.body.length ? (filterScript + escodegen.generate(ast)) : ''
     console.log(body)
     return internal(this).sess.setDisplayFilter(name, body)
   }

@@ -51,11 +51,12 @@ FilterThreadPool::~FilterThreadPool() {
 }
 
 void FilterThreadPool::start() {
-  auto threadCallback = [this](
-      const std::vector<std::pair<uint32_t, bool>> &results) {
+  auto threadCallback = [this](uint32_t begin,
+                               const std::vector<char> &results) {
     uv_rwlock_wrlock(&d->rwlock);
-    for (const auto &pair : results) {
-      d->sequence.insert(pair);
+    for (const auto &match : results) {
+      d->sequence.insert(std::make_pair(begin, static_cast<bool>(match)));
+      begin++;
     }
     uint32_t maxSeq = d->maxSeq;
     auto end = d->sequence.begin();

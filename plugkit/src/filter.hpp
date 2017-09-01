@@ -21,7 +21,7 @@ public:
 public:
   Filter(const std::string &body);
   ~Filter();
-  bool test(const FrameView *frame) const;
+  void test(char *results, const FrameView **begin, size_t size) const;
 
 private:
   class Private;

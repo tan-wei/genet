@@ -38,14 +38,12 @@ bool FilterThread::loop() {
   if (size == 0)
     return false;
 
-  std::vector<std::pair<uint32_t, bool>> results;
-  for (size_t i = 0; i < size; ++i) {
-    const auto &view = views[i];
-    bool match = d->filter->test(view);
-    results.push_back(std::make_pair(view->frame()->index(), match));
-  }
+  uint32_t begin = views[0]->frame()->index();
+  std::vector<char> results;
+  results.resize(size);
+  d->filter->test(&results[0], &views[0], size);
 
-  d->callback(results);
+  d->callback(begin, results);
   d->offset += size;
   return true;
 }
