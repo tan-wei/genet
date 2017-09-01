@@ -138,8 +138,6 @@ class Session extends EventEmitter {
             .join('.')
           array.push({type: 'String', value: JSON.stringify(name)})
           array.push({type: 'Punctuator', value: ')'})
-          array.push({type: 'Punctuator', value: '.'})
-          array.push({type: 'Identifier', value: 'value'})
           array.push({type: 'Punctuator', value: ')'})
         } else {
           for (const prop of property) {
@@ -175,12 +173,47 @@ class Session extends EventEmitter {
           case 'UnaryExpression':
             return makeOp(node.operator, node.argument)
           case 'ConditionalExpression':
-            node.test = makeOp('!', makeOp('!', node.test))
+            node.test = {
+              type: "UnaryExpression",
+              operator: "!",
+              argument: makeOp('!', node.test),
+              prefix: true
+            }
             return node
           default:
         }
       }
     })
+
+    ast = {
+      type: "Program",
+      body: [
+        {
+          type: "ExpressionStatement",
+          expression: {
+            type: "FunctionExpression",
+            params: [
+              { type: "Identifier", name: "$_frame" },
+              { type: "Identifier", name: "$_op" }
+            ],
+            body: {
+              type: "BlockStatement",
+              body: [
+                {
+                  type: "ReturnStatement",
+                  argument: {
+                    type: "UnaryExpression",
+                    operator: "!",
+                    argument: makeOp('!', ast.body[0].expression),
+                    prefix: true
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
 
     console.log(escodegen.generate(ast))
 
