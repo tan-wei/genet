@@ -49,5 +49,4 @@ void Filter::test(char *results, const FrameView **begin, size_t size) const {
     }
   }
 }
-
 }
