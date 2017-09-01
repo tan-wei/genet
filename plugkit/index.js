@@ -108,7 +108,6 @@ class Session extends EventEmitter {
   }
 
   setDisplayFilter(name, filter) {
-    let body = ''
     const tokens = esprima.tokenize(filter)
 
     const mergeProperties = (tokens) => {
@@ -185,50 +184,40 @@ class Session extends EventEmitter {
       }
     })
 
-    ast = {
-      type: "Program",
-      body: [
-        {
-          type: "ExpressionStatement",
-          expression: {
-            type: "FunctionExpression",
-            params: [
-              { type: "Identifier", name: "$_frame" },
-              { type: "Identifier", name: "$_op" }
-            ],
-            body: {
-              type: "BlockStatement",
-              body: [
-                {
-                  type: "ReturnStatement",
-                  argument: {
-                    type: "UnaryExpression",
-                    operator: "!",
-                    argument: makeOp('!', ast.body[0].expression),
-                    prefix: true
+    if (ast.body.length) {
+      ast = {
+        type: "Program",
+        body: [
+          {
+            type: "ExpressionStatement",
+            expression: {
+              type: "FunctionExpression",
+              params: [
+                { type: "Identifier", name: "$_frame" },
+                { type: "Identifier", name: "$_op" }
+              ],
+              body: {
+                type: "BlockStatement",
+                body: [
+                  {
+                    type: "ReturnStatement",
+                    argument: {
+                      type: "UnaryExpression",
+                      operator: "!",
+                      argument: makeOp('!', ast.body[0].expression),
+                      prefix: true
+                    }
                   }
-                }
-              ]
+                ]
+              }
             }
           }
-        }
-      ]
+        ]
+      }
     }
 
-    console.log(escodegen.generate(ast))
-
-    switch (ast.body.length) {
-      case 0:
-        break
-      case 1:
-        const root = ast.body[0]
-        if (root.type !== "ExpressionStatement")
-          throw new SyntaxError()
-        body = JSON.stringify(root.expression)
-        break
-      default:
-        throw new SyntaxError()
-    }
+    const body = ast.body.length ? escodegen.generate(ast) : ''
+    console.log(body)
     return internal(this).sess.setDisplayFilter(name, body)
   }
 }
