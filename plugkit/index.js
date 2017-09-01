@@ -112,52 +112,52 @@ class Session extends EventEmitter {
   }
 
   setDisplayFilter(name, filter) {
-    const tokens = esprima.tokenize(filter)
-
-    const mergeProperties = (tokens) => {
-      let array = []
-      let property = []
-      for (let i = 0; i <= tokens.length; ++i) {
-        if (i < tokens.length) {
-          if (tokens[i].type === 'Identifier') {
-            property.push(tokens[i])
-            continue;
-          } else if (tokens[i].value === '.') {
-            if (property.length) {
-              property.push(tokens[i])
-              continue;
-            }
-          }
-        }
-        if (property.length >= 3) {
-          array.push({type: 'Punctuator', value: '('})
-          array.push({type: 'Identifier', value: '$_frame'})
-          array.push({type: 'Punctuator', value: '.'})
-          array.push({type: 'Identifier', value: 'attr'})
-          array.push({type: 'Punctuator', value: '('})
-          const name = property
-            .filter(p => p.type === 'Identifier')
-            .map(p => p.value)
-            .join('.')
-          array.push({type: 'String', value: JSON.stringify(name)})
-          array.push({type: 'Punctuator', value: ')'})
-          array.push({type: 'Punctuator', value: ')'})
-        } else {
-          for (const prop of property) {
-            array.push(prop)
-          }
-        }
-        property = []
-        if (i < tokens.length) array.push(tokens[i])
-      }
-      return array
-    }
-
-    let ast = esprima.parse(mergeProperties(tokens).map(t => t.value).join(''))
+    let ast = esprima.parse(filter)
 
     for (const trans of internal(this).transforms) {
       ast = trans.execute(ast)
     }
+
+    ast = estraverse.replace(ast, {
+      enter: (node) => {
+        if (node.type === 'MemberExpression' && !node.computed) {
+          let child = node.object
+          const identifiers = [node.property.name]
+          while (child.type === 'MemberExpression' && !child.computed) {
+            identifiers.unshift(child.property.name)
+            child = child.object
+          }
+          if (child.type === 'Identifier' && child.name !== '$_frame') {
+            identifiers.unshift(child.name)
+            return {
+              type: "CallExpression",
+              callee: {
+                  type: "MemberExpression",
+                  object: { type: "Identifier", name: "$_frame" },
+                  property: { type: "Identifier", name: "attr" }
+              },
+              arguments: [ { type: "Literal", value: identifiers.join('.') } ]
+            }
+          }
+        }
+      }
+    })
+
+    ast = estraverse.replace(ast, {
+      enter: (node, parent) => {
+        if (node.type === 'Identifier' && parent.type !== 'MemberExpression') {
+          return {
+            type: "CallExpression",
+            callee: {
+                type: "MemberExpression",
+                object: { type: "Identifier", name: "$_frame" },
+                property: { type: "Identifier", name: "layer" }
+            },
+            arguments: [ { type: "Literal", value: node.name } ]
+          }
+        }
+      }
+    })
 
     function makeOp(opcode, ...args) {
       return {
