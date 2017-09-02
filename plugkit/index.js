@@ -147,13 +147,29 @@ class Session extends EventEmitter {
       enter: (node, parent) => {
         if (node.type === 'Identifier' && parent.type !== 'MemberExpression') {
           return {
-            type: "CallExpression",
-            callee: {
+            type: "LogicalExpression",
+            operator: "||",
+            left: {
+              type: "CallExpression",
+              callee: {
                 type: "MemberExpression",
                 object: { type: "Identifier", name: "$_frame" },
                 property: { type: "Identifier", name: "layer" }
+              },
+              arguments: [ { type: "Literal", value: node.name } ]
             },
-            arguments: [ { type: "Literal", value: node.name } ]
+            right: {
+              type: "MemberExpression",
+              computed: true,
+              object: {
+                type: "Identifier",
+                name: "this"
+              },
+              property: {
+                type: "Literal",
+                value: node.name
+              }
+            }
           }
         }
       }
@@ -220,7 +236,7 @@ class Session extends EventEmitter {
     }
 
     const body = ast.body.length ? (filterScript + escodegen.generate(ast)) : ''
-    console.log(body)
+    console.log(escodegen.generate(ast))
     return internal(this).sess.setDisplayFilter(name, body)
   }
 }
