@@ -13,44 +13,6 @@ namespace {
 
 const Variant::Array nullArray;
 const Variant::Map nullMap;
-
-struct SharedBufferStore {
-  uv_rwlock_t rwlock;
-  std::unordered_map<const char *, std::weak_ptr<std::string>> map;
-
-  SharedBufferStore() { uv_rwlock_init(&rwlock); }
-
-  ~SharedBufferStore() { uv_rwlock_destroy(&rwlock); }
-
-  std::shared_ptr<std::string> find(const char *addr) {
-    uv_rwlock_rdlock(&rwlock);
-    std::shared_ptr<std::string> buf;
-    auto it = map.find(addr);
-    if (it != map.end()) {
-      buf = it->second.lock();
-    }
-    uv_rwlock_rdunlock(&rwlock);
-    return buf;
-  }
-
-  void add(const std::shared_ptr<std::string> &buf) {
-    uv_rwlock_wrlock(&rwlock);
-    map[buf->data()] = buf;
-    uv_rwlock_wrunlock(&rwlock);
-  }
-
-  void cleanup() {
-    uv_rwlock_wrlock(&rwlock);
-    for (auto it = map.begin(); it != map.end(); ++it) {
-      if (!it->second.lock()) {
-        it = map.erase(it);
-      }
-    }
-    uv_rwlock_wrunlock(&rwlock);
-  }
-};
-
-SharedBufferStore bufferStore;
 }
 
 void Variant::init(v8::Isolate *isolate) {
@@ -164,8 +126,6 @@ Variant &Variant::operator=(const Variant &value) {
   }
   return *this;
 }
-
-void Variant::cleanupSharedBuffers() { bufferStore.cleanup(); }
 
 Variant::Type Variant::type() const { return static_cast<Type>(type_); }
 
