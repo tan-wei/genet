@@ -128,8 +128,13 @@ bool DissectorThread::loop() {
     }
   }
 
-  std::vector<std::pair<Layer *, std::string>> streamedLayers(
-      ctx.streamedLayers.begin(), ctx.streamedLayers.end());
+  std::vector<std::pair<Layer *, Variant>> streamedLayers;
+  streamedLayers.reserve(ctx.streamedLayers.size());
+  for (const auto &pair : ctx.streamedLayers) {
+    if (!pair.second.isNil()) {
+      streamedLayers.push_back(pair);
+    }
+  }
   d->resolver->resolve(streamedLayers.data(), streamedLayers.size());
 
   if (d->callback) {

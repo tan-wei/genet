@@ -7,7 +7,7 @@ namespace plugkit {
 struct Context final {
 public:
   Variant options;
-  std::map<Layer *, std::string> streamedLayers;
+  std::map<Layer *, Variant> streamedLayers;
   LoggerPtr logger = std::make_shared<StreamLogger>();
 };
 }

@@ -15,9 +15,8 @@ void Context_dealloc(Context *ctx, void *ptr) {
 
 const Variant *Context_options(Context *ctx) { return &ctx->options; }
 
-void Context_addStreamIdentifier(Context *ctx, Layer *layer, const char *data,
-                                 size_t length) {
-  ctx->streamedLayers[layer] += std::string(data, length);
+Variant *Context_addStreamIdentifier(Context *ctx, Layer *layer) {
+  return &ctx->streamedLayers[layer];
 }
 
 namespace {
