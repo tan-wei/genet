@@ -43,6 +43,7 @@ public:
   size_t headerLength = 0;
   int64_t contentLength = -1;
   std::string contentType;
+  bool chunked = false;
 };
 
 Worker::Worker(const std::unordered_set<uint16_t> &ports) : ports(ports) {}
@@ -114,6 +115,10 @@ bool Worker::analyze_header(Context *ctx, Layer *layer, Layer *child,
           std::stoll(std::string(valueBegin, valueEnd - valueBegin));
     } else if (strncmp("Content-Type", keyBegin, keyEnd - keyBegin) == 0) {
       contentType = std::string(valueBegin, valueEnd - valueBegin);
+    } else if (strncmp("Transfer-Encoding", keyBegin, keyEnd - keyBegin) == 0) {
+      if (strncmp("chunked", valueBegin, valueEnd - valueBegin) == 0) {
+        chunked = true;
+      }
     }
   }
 
@@ -123,9 +128,23 @@ bool Worker::analyze_header(Context *ctx, Layer *layer, Layer *child,
 
 bool Worker::analyze_body(Context *ctx, Layer *layer, Layer *child,
                           Attr *headers) {
-  size_t httpLength = contentLength + headerLength;
-  if (contentLength >= 0 && StreamReader_length(reader) >= httpLength) {
 
+  size_t httpLength = contentLength + headerLength;
+  if (chunked) {
+    /*
+    Range range = StreamReader_search(reader, "\r\n\r\n", 4, offset);
+    if (range.begin > offset) {
+      size_t length = range.begin - offset;
+      std::unique_ptr<char[]> buf(new char[length]);
+      const Slice &slice = StreamReader_read(reader, &buf[0], length, offset);
+
+      size_t chunkLength =
+          std::stoll(std::string(slice.begin, Slice_length(slice)), nullptr,
+    16);
+      printf("%llu\n", chunkLength);
+    }
+    */
+  } else if (contentLength >= 0 && StreamReader_length(reader) >= httpLength) {
     size_t bodyOffset = headerLength;
     Payload *chunk = Layer_addPayload(child);
     Payload_setType(chunk, mimeToken);
