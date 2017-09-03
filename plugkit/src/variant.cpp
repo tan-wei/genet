@@ -51,11 +51,11 @@ Variant::Variant(uint64_t value) : type_(TYPE_UINT64) { d.uint_ = value; }
 Variant::Variant(double value) : type_(TYPE_DOUBLE) { d.double_ = value; }
 
 Variant::Variant(const std::string &str) : type_(TYPE_STRING) {
-  d.str = new std::string(str);
+  d.str = new std::shared_ptr<std::string>(new std::string(str));
 }
 
 Variant::Variant(std::string &&str) : type_(TYPE_STRING) {
-  d.str = new std::string(str);
+  d.str = new std::shared_ptr<std::string>(new std::string(str));
 }
 
 Variant::Variant(const Array &array) : type_(TYPE_ARRAY) {
@@ -111,7 +111,7 @@ Variant &Variant::operator=(const Variant &value) {
     this->d.ts = new Timestamp(*value.d.ts);
     break;
   case Variant::TYPE_STRING:
-    this->d.str = new std::string(*value.d.str);
+    this->d.str = new std::shared_ptr<std::string>(*value.d.str);
     break;
   case Variant::TYPE_SLICE:
     this->d.slice = new Slice(*value.d.slice);
@@ -248,7 +248,7 @@ double Variant::doubleValue(double defaultValue) const {
 std::string Variant::string(const std::string &defaultValue) const {
   switch (type()) {
   case TYPE_STRING:
-    return d.str->c_str();
+    return (*d.str)->c_str();
   case TYPE_BOOL:
     return boolValue() ? "true" : "false";
   case TYPE_INT32:
@@ -617,7 +617,7 @@ void Variant_setDouble(Variant *var, double value) { *var = Variant(value); }
 
 const char *Variant_string(const Variant *var) {
   if (var && var->isString()) {
-    return var->d.str->c_str();
+    return (*var->d.str)->c_str();
   }
   return "";
 }

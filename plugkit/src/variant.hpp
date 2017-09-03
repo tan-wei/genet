@@ -111,7 +111,7 @@ public:
     uint64_t uint_;
     Timestamp *ts;
     const Layer *layer;
-    std::string *str;
+    std::shared_ptr<std::string> *str;
     Slice *slice;
     Array *array;
     Map *map;
