@@ -248,7 +248,7 @@ double Variant::doubleValue(double defaultValue) const {
 std::string Variant::string(const std::string &defaultValue) const {
   switch (type()) {
   case TYPE_STRING:
-    return (*d.str)->c_str();
+    return **d.str;
   case TYPE_BOOL:
     return boolValue() ? "true" : "false";
   case TYPE_INT32:
