@@ -89,6 +89,7 @@ public:
   const Map &map() const;
   uint8_t tag() const;
   Variant operator[](size_t index) const;
+  Variant &operator[](size_t index);
   Variant operator[](const std::string &key) const;
   Variant &operator[](const std::string &key);
   size_t length() const;

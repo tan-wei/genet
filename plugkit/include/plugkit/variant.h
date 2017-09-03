@@ -64,6 +64,8 @@ PLUGKIT_EXPORT void Variant_setSlice(Variant *var, Slice slice);
 PLUGKIT_EXPORT const Variant *Variant_arrayValue(const Variant *var,
                                                  size_t index);
 
+PLUGKIT_EXPORT Variant *Variant_arrayValueRef(Variant *var, size_t index);
+
 /// Gets a value associated with a given key
 PLUGKIT_EXPORT const Variant *Variant_mapValue(const Variant *var,
                                                const char *key, int length);

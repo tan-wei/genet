@@ -319,6 +319,17 @@ Variant Variant::operator[](size_t index) const {
   }
 }
 
+Variant &Variant::operator[](size_t index) {
+  if (type() == TYPE_ARRAY) {
+    if (index >= d.array->size()) {
+      d.array->resize(index + 1);
+    }
+    return (*d.array)[index];
+  }
+  static Variant null;
+  return null;
+}
+
 Variant Variant::operator[](const std::string &key) const {
   if (type() == TYPE_MAP) {
     auto it = d.map->find(key);
@@ -641,6 +652,13 @@ const Variant *Variant_arrayValue(const Variant *var, size_t index) {
     return &array[index];
   }
   return nullptr;
+}
+
+Variant *Variant_arrayValueRef(Variant *var, size_t index) {
+  if (!var->isArray()) {
+    *var = Variant::Array();
+  }
+  return &(*var)[index];
 }
 
 const Variant *Variant_mapValue(const Variant *var, const char *key,
