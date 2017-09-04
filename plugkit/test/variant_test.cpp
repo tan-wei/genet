@@ -96,4 +96,42 @@ TEST_CASE("Variant_slice", "[variant]") {
   CHECK(slice2.begin == nullptr);
   CHECK(slice2.end == nullptr);
 }
+
+TEST_CASE("Variant_arrayValue", "[variant]") {
+  Variant variant;
+  const Variant *value = Variant_arrayValue(&variant, 0);
+  CHECK(Variant_bool(value) == false);
+  value = Variant_arrayValue(&variant, 1);
+  CHECK(Variant_bool(value) == false);
+
+  Variant *valueRef = Variant_arrayValueRef(&variant, 2);
+  Variant_setBool(valueRef, true);
+  value = Variant_arrayValue(&variant, 0);
+  CHECK(Variant_bool(value) == false);
+  value = Variant_arrayValue(&variant, 1);
+  CHECK(Variant_bool(value) == false);
+  value = Variant_arrayValue(&variant, 2);
+  CHECK(Variant_bool(value) == true);
+  value = Variant_arrayValue(&variant, 3);
+  CHECK(Variant_bool(value) == false);
+}
+
+TEST_CASE("Variant_mapValue", "[variant]") {
+  Variant variant;
+  const Variant *value = Variant_mapValue(&variant, "aaa", -1);
+  CHECK(Variant_bool(value) == false);
+  value = Variant_mapValue(&variant, "bbb", -1);
+  CHECK(Variant_bool(value) == false);
+
+  Variant *valueRef = Variant_mapValueRef(&variant, "ccc", -1);
+  Variant_setBool(valueRef, true);
+  value = Variant_mapValue(&variant, "aaa", 3);
+  CHECK(Variant_bool(value) == false);
+  value = Variant_mapValue(&variant, "bbb", 3);
+  CHECK(Variant_bool(value) == false);
+  value = Variant_mapValue(&variant, "ccc", 3);
+  CHECK(Variant_bool(value) == true);
+  value = Variant_mapValue(&variant, "ddd", 3);
+  CHECK(Variant_bool(value) == false);
+}
 }
