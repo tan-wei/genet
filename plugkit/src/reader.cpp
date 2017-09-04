@@ -154,7 +154,7 @@ Range StreamReader_search(StreamReader *reader, const char *data, size_t length,
     if (i == begin) {
       index = offset - beginOffset;
     }
-    for (; index < sliceLen; ++index) {
+    for (; index < sliceLen - length + 1; ++index) {
       if (slice.begin[index] == data[0]) {
         const Slice &window =
             StreamReader_read(reader, &buf[0], length, front + index);

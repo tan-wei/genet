@@ -473,7 +473,7 @@ TEST_CASE("StreamReader_search", "[StreamReader]") {
   CHECK(range.begin == 297);
   CHECK(range.end == 300);
   offset = range.end;
-  range = StreamReader_search(reader, "xfy", 3, offset);
+  range = StreamReader_search(reader, "xfy", 3, StreamReader_length(reader));
   CHECK(range.begin == 0);
   CHECK(range.end == 0);
 }
