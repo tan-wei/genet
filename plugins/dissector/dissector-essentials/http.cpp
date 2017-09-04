@@ -71,6 +71,7 @@ bool Worker::analyze_header(Context *ctx, Layer *layer, Layer *child,
 
   if (length == 0) {
     headerLength = range.end;
+    offset = range.end;
     state = STATE_BODY;
     return false;
   }
@@ -138,10 +139,13 @@ bool Worker::analyze_body(Context *ctx, Layer *layer, Layer *child,
       std::unique_ptr<char[]> buf(new char[length]);
       const Slice &slice = StreamReader_read(reader, &buf[0], length, offset);
 
-      size_t chunkLength =
-          std::stoll(std::string(slice.begin, Slice_length(slice)), nullptr,
-    16);
+      size_t chunkLength = std::stoll(
+          std::string(slice.begin, Slice_length(slice)), nullptr, 16);
       printf("%llu\n", chunkLength);
+
+      offset = range.end + chunkLength;
+      const Slice &slice2 = StreamReader_read(reader, &buf[0], 2, offset);
+      printf("@ %.2s @\n", slice2.begin);
     }
     */
   } else if (contentLength >= 0 && StreamReader_length(reader) >= httpLength) {
