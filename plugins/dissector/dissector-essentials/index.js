@@ -3,7 +3,7 @@ export default {
     {
       type: 'core:dissector',
       dissector: {
-        main: 'build/Release/ethernet.node',
+        main: 'ethernet.node',
         linkLayers: [
           {link: 1, id: '[eth]'}
         ],
@@ -46,7 +46,7 @@ export default {
     {
       type: 'core:dissector',
       dissector: {
-        main: 'build/Release/ipv4.node',
+        main: 'ipv4.node',
         samples: [
           { pcap: 'samples/tcp-ipv4.pcap' }
         ],
@@ -156,7 +156,7 @@ export default {
     {
       type: 'core:dissector',
       dissector: {
-        main: 'build/Release/ipv6.node',
+        main: 'ipv6.node',
         descriptors: {
           ipv6: {
             name: 'IPv6'
@@ -214,7 +214,7 @@ export default {
     {
       type: 'core:dissector',
       dissector: {
-        main: 'build/Release/udp.node',
+        main: 'udp.node',
         samples: [
           { pcap: 'samples/ntp.pcap' }
         ],
@@ -240,7 +240,7 @@ export default {
     {
       type: 'core:dissector',
       dissector: {
-        main: 'build/Release/tcp.node',
+        main: 'tcp.node',
         descriptors: {
           tcp: {
             name: 'TCP'
@@ -331,7 +331,7 @@ export default {
     {
       type: 'core:dissector',
       dissector: {
-        main: 'build/Release/tcp-stream.node',
+        main: 'tcp-stream.node',
         descriptors: {
           'tcp.stream': {
             name: 'Stream'
@@ -351,7 +351,7 @@ export default {
     {
       type: 'core:dissector',
       dissector: {
-        main: 'build/Release/http.node',
+        main: 'http.node',
         descriptors: {
           http: {
             name: 'Hypertext Transfer Protocol'

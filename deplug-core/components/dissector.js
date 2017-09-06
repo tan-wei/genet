@@ -1,6 +1,8 @@
 import Component from './base'
 import Session from '../session'
+import fs from 'fs'
 import jsonfile from 'jsonfile'
+import log from 'electron-log'
 import objpath from 'object-path'
 import path from 'path'
 
@@ -10,7 +12,29 @@ export default class DissectorComponent extends Component {
     if (main === '') {
       throw new Error('dissector.main field required')
     }
-    const mainFile = path.join(this.rootDir, main)
+
+    const searchPaths = [
+      '.',
+      'build/Debug',
+      'build/Release'
+    ]
+
+    let mainFile = ''
+    for (const spath of searchPaths) {
+      const file = path.join(this.rootDir, spath, main)
+      try {
+        fs.statSync(file)
+        mainFile = file
+        break
+      } catch (err) {
+        log.debug(err)
+      }
+    }
+
+    if (mainFile === '') {
+      throw new Error(`could not resolve ${main}`)
+    }
+
     if (path.extname(mainFile) === '.node') {
       Session.registerNativeDissector(mainFile)
     } else {
