@@ -2025,9 +2025,9 @@ natural-compare@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
 
-negatron@1.7.1:
-  version "1.7.1"
-  resolved "https://registry.yarnpkg.com/negatron/-/negatron-1.7.1.tgz#076d8af56f8fcfe5fa035de250ee3f90b0a5f3e7"
+negatron@1.8.0:
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/negatron/-/negatron-1.8.0.tgz#f1d8109af6dfdd59d6d86cfccb96793977ae3aa3"
   dependencies:
     decompress-zip "^0.3.0"
     mkpath "^1.0.0"
