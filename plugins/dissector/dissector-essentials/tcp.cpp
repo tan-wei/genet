@@ -8,6 +8,7 @@
 #include <plugkit/payload.h>
 #include <plugkit/reader.h>
 #include <unordered_map>
+#include <numeric>
 
 using namespace plugkit;
 
@@ -67,6 +68,11 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   Attr *dst = Layer_addAttr(child, dstToken);
   Attr_setUint32(dst, dstPort);
   Attr_setRange(dst, reader.lastRange);
+
+  int worker = srcPort + dstPort +
+               std::accumulate(parentSrc.begin, parentSrc.end, 0) +
+               std::accumulate(parentDst.begin, parentDst.end, 0);
+  Layer_setWorker(child, worker % 256);
 
   size_t idLength = sizeof(uint16_t) * 2 + Slice_length(parentSrc) * 2;
   std::vector<char> streamId;

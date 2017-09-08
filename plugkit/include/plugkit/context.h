@@ -24,10 +24,6 @@ PLUGKIT_EXPORT const Variant *Context_options(Context *ctx);
 /// @remarks This function can be used only in analyze().
 PLUGKIT_EXPORT Variant *Context_addStreamIdentifier(Context *ctx, Layer *layer);
 
-PLUGKIT_EXPORT uint32_t Context_streamIdFromSlices(Context *ctx,
-                                                   const Slice *begin,
-                                                   size_t size);
-
 PLUGKIT_NAMESPACE_END
 
 #endif

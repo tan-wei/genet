@@ -25,6 +25,10 @@ const std::vector<Layer *> &Layer::subLayers() const { return mSubLayers; }
 
 void Layer::addSubLayer(Layer *child) { mSubLayers.push_back(child); }
 
+uint8_t Layer::worker() const { return mWorker; }
+
+void Layer::setWorker(uint8_t id) { mWorker = id; }
+
 uint32_t Layer::streamId() const { return mStreamId; }
 
 void Layer::setStreamId(uint32_t id) { mStreamId = id; }
@@ -67,6 +71,10 @@ const Attr *Layer::attr(Token id) const {
 void Layer::addAttr(const Attr *prop) { mProperties.push_back(prop); }
 
 Token Layer_id(const Layer *layer) { return layer->id(); }
+
+uint8_t Layer_worker(const Layer *layer) { return layer->worker(); }
+
+void Layer_setWorker(Layer *layer, uint8_t id) { layer->setWorker(id); }
 
 float Layer_confidence(const Layer *layer) { return layer->confidence(); }
 

@@ -30,6 +30,9 @@ public:
   const Attr *attr(Token id) const;
   void addAttr(const Attr *prop);
 
+  uint8_t worker() const;
+  void setWorker(uint8_t id);
+
   uint32_t streamId() const;
   void setStreamId(uint32_t id);
 
@@ -54,6 +57,7 @@ private:
 
 private:
   Token mId = 0;
+  uint8_t mWorker = 0;
   uint32_t mStreamId = 0;
   float mConfidence = 1.0f;
   Layer *mParent = nullptr;

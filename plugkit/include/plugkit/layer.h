@@ -22,6 +22,12 @@ PLUGKIT_EXPORT float Layer_confidence(const Layer *layer);
 /// Sets confidence
 PLUGKIT_EXPORT void Layer_setConfidence(Layer *layer, float confidence);
 
+/// Gets worker
+PLUGKIT_EXPORT uint8_t Layer_worker(const Layer *layer);
+
+/// Sets worker
+PLUGKIT_EXPORT void Layer_setWorker(Layer *layer, uint8_t id);
+
 /// Gets parent layer
 PLUGKIT_EXPORT const Layer *Layer_parent(const Layer *layer);
 
