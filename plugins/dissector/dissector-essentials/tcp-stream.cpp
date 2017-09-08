@@ -1,5 +1,6 @@
 #include <list>
 #include <algorithm>
+#include <unordered_map>
 #include <nan.h>
 #include <plugkit/dissector.h>
 #include <plugkit/context.h>
@@ -15,7 +16,23 @@
 
 using namespace plugkit;
 
+using StreamID = std::tuple<uint16_t, uint16_t, std::string, std::string>;
+
+namespace std {
+template <> struct hash<StreamID> {
+public:
+  size_t operator()(const StreamID &id) const {
+    return hash<uint16_t>()(std::get<0>(id)) ^
+           hash<uint16_t>()(std::get<1>(id)) ^
+           hash<std::string>()(std::get<2>(id)) ^
+           hash<std::string>()(std::get<3>(id));
+  }
+};
+}
+
 namespace {
+const auto srcToken = Token_get(".src");
+const auto dstToken = Token_get(".dst");
 const auto seqToken = Token_get("tcp.seq");
 const auto windowToken = Token_get("tcp.window");
 const auto flagsToken = Token_get("tcp.flags");
@@ -63,6 +80,7 @@ private:
 };
 
 struct Worker {
+  std::unordered_map<StreamID, uint32_t> idMap;
   int64_t currentSeq = -1;
   uint64_t receivedLength = 0;
   Ring ring;
@@ -70,6 +88,27 @@ struct Worker {
 
 void analyze(Context *ctx, void *data, Layer *layer) {
   Worker *worker = static_cast<Worker *>(data);
+
+  uint32_t streamId = 0;
+
+  const auto &parentSrc = Attr_slice(Layer_attr(Layer_parent(layer), srcToken));
+  const auto &parentDst = Attr_slice(Layer_attr(Layer_parent(layer), dstToken));
+
+  const auto &id =
+      StreamID(Attr_uint32(Layer_attr(layer, srcToken)),
+               Attr_uint32(Layer_attr(layer, dstToken)),
+               std::string(parentSrc.begin, Slice_length(parentSrc)),
+               std::string(parentDst.begin, Slice_length(parentDst)));
+
+  auto &map = worker->idMap;
+  auto it = map.find(id);
+  if (it == map.end()) {
+    streamId = map.size();
+    map[id] = streamId;
+  } else {
+    streamId = it->second;
+  }
+  streamId = (streamId << 8) | Layer_worker(layer);
 
   const Slice payload = Payload_slice(Layer_payload(layer));
 
