@@ -153,7 +153,7 @@ void StreamDissectorThreadPool::start() {
       for (size_t i = 0; i < size; ++i) {
         const auto &layers = findStreamedLayers(frames[i]->rootLayer());
         for (Layer *layer : layers) {
-          int thread = layer->streamId() % d->threads.size();
+          int thread = layer->worker() % d->threads.size();
           layerMap[thread].push_back(layer);
           if (const Frame *frame = layer->frame()) {
             d->updateIndex(thread, frame->index(), 0);

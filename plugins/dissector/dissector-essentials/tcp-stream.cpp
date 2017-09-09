@@ -33,6 +33,7 @@ public:
 namespace {
 const auto srcToken = Token_get(".src");
 const auto dstToken = Token_get(".dst");
+const auto streamIdToken = Token_get("tcp.streamId");
 const auto seqToken = Token_get("tcp.seq");
 const auto windowToken = Token_get("tcp.window");
 const auto flagsToken = Token_get("tcp.flags");
@@ -109,6 +110,7 @@ void analyze(Context *ctx, void *data, Layer *layer) {
     streamId = it->second;
   }
   streamId = (streamId << 8) | Layer_worker(layer);
+  Attr_setUint32(Layer_addAttr(layer, streamIdToken), streamId);
 
   const Slice payload = Payload_slice(Layer_payload(layer));
 

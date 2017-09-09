@@ -19,11 +19,6 @@ PLUGKIT_EXPORT void Context_dealloc(Context *ctx, void *ptr);
 /// Gets options.
 PLUGKIT_EXPORT const Variant *Context_options(Context *ctx);
 
-/// Registers the stream identifier for the given layer.
-///
-/// @remarks This function can be used only in analyze().
-PLUGKIT_EXPORT Variant *Context_addStreamIdentifier(Context *ctx, Layer *layer);
-
 PLUGKIT_NAMESPACE_END
 
 #endif

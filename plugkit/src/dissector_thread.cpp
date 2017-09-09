@@ -1,7 +1,6 @@
 #include "dissector_thread.hpp"
 #include "frame.hpp"
 #include "layer.hpp"
-#include "stream_resolver.hpp"
 #include "tag_filter.hpp"
 #include "dissector.hpp"
 #include "context.hpp"
@@ -25,7 +24,7 @@ struct WorkerData {
 class DissectorThread::Private {
 public:
   Private(const Variant &options, const FrameQueuePtr &queue,
-          const StreamResolverPtr &resolver, const Callback &callback);
+          const Callback &callback);
   ~Private();
 
 public:
@@ -34,23 +33,20 @@ public:
   double confidenceThreshold;
   const Variant options;
   const FrameQueuePtr queue;
-  const StreamResolverPtr resolver;
   const Callback callback;
 };
 
 DissectorThread::Private::Private(const Variant &options,
                                   const FrameQueuePtr &queue,
-                                  const StreamResolverPtr &resolver,
                                   const Callback &callback)
-    : options(options), queue(queue), resolver(resolver), callback(callback) {}
+    : options(options), queue(queue), callback(callback) {}
 
 DissectorThread::Private::~Private() {}
 
 DissectorThread::DissectorThread(const Variant &options,
                                  const FrameQueuePtr &queue,
-                                 const StreamResolverPtr &resolver,
                                  const Callback &callback)
-    : d(new Private(options, queue, resolver, callback)) {
+    : d(new Private(options, queue, callback)) {
   d->confidenceThreshold =
       options["_"]["confidenceThreshold"].uint64Value(0) / 100.0;
 }
@@ -127,15 +123,6 @@ bool DissectorThread::loop() {
       leafLayers.swap(nextlayers);
     }
   }
-
-  std::vector<std::pair<Layer *, Variant>> streamedLayers;
-  streamedLayers.reserve(ctx.streamedLayers.size());
-  for (const auto &pair : ctx.streamedLayers) {
-    if (!pair.second.isNil()) {
-      streamedLayers.push_back(pair);
-    }
-  }
-  d->resolver->resolve(streamedLayers.data(), streamedLayers.size());
 
   if (d->callback) {
     d->callback(&frames.front(), size);

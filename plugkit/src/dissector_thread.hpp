@@ -24,7 +24,7 @@ public:
 
 public:
   DissectorThread(const Variant &options, const FrameQueuePtr &queue,
-                  const StreamResolverPtr &resolver, const Callback &callback);
+                  const Callback &callback);
   ~DissectorThread() override;
   void pushDissector(const Dissector &diss);
   void enter() override;

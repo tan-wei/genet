@@ -1,6 +1,5 @@
 #include "dissector_thread_pool.hpp"
 #include "dissector_thread.hpp"
-#include "stream_resolver.hpp"
 #include "dissector.hpp"
 #include "variant.hpp"
 #include <array>
@@ -17,7 +16,6 @@ public:
   std::vector<Dissector> dissectors;
   LoggerPtr logger = std::make_shared<StreamLogger>();
   FrameQueuePtr queue = std::make_shared<FrameQueue>();
-  StreamResolverPtr resolver = std::make_shared<StreamResolver>();
   const Variant options;
   const Callback callback;
 };
@@ -55,7 +53,7 @@ void DissectorThreadPool::start() {
 
   for (int i = 0; i < concurrency; ++i) {
     auto dissectorThread =
-        new DissectorThread(d->options, d->queue, d->resolver, threadCallback);
+        new DissectorThread(d->options, d->queue, threadCallback);
     for (const auto &diss : d->dissectors) {
       dissectorThread->pushDissector(diss);
     }

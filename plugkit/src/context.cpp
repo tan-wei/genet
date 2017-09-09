@@ -15,10 +15,6 @@ void Context_dealloc(Context *ctx, void *ptr) {
 
 const Variant *Context_options(Context *ctx) { return &ctx->options; }
 
-Variant *Context_addStreamIdentifier(Context *ctx, Layer *layer) {
-  return &ctx->streamedLayers[layer];
-}
-
 namespace {
 void Log(Context *ctx, const char *file, int line, Logger::Level level,
          const char *message) {

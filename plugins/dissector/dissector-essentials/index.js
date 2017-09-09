@@ -251,6 +251,9 @@ export default {
           'tcp.dst': {
             name: 'Destination'
           },
+          'tcp.streamId': {
+            name: 'Stream ID'
+          },
           'tcp.seq': {
             name: 'Sequence number'
           },

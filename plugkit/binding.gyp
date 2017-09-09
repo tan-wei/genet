@@ -12,7 +12,6 @@
          "src/dissector_thread_pool.cpp",
          "src/stream_dissector_thread.cpp",
          "src/stream_dissector_thread_pool.cpp",
-         "src/stream_resolver.cpp",
          "src/plugkit_module.cpp",
          "src/variant.cpp",
          "src/frame_view.cpp",

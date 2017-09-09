@@ -74,19 +74,6 @@ void analyze(Context *ctx, void *data, Layer *layer) {
                std::accumulate(parentDst.begin, parentDst.end, 0);
   Layer_setWorker(child, worker % 256);
 
-  size_t idLength = sizeof(uint16_t) * 2 + Slice_length(parentSrc) * 2;
-  std::vector<char> streamId;
-  streamId.reserve(idLength);
-
-  streamId.insert(streamId.end(), reinterpret_cast<const char *>(&srcPort),
-                  reinterpret_cast<const char *>(&srcPort) + sizeof(uint16_t));
-  streamId.insert(streamId.end(), reinterpret_cast<const char *>(&dstPort),
-                  reinterpret_cast<const char *>(&dstPort) + sizeof(uint16_t));
-  streamId.insert(streamId.end(), parentSrc.begin, parentSrc.end);
-  streamId.insert(streamId.end(), parentDst.begin, parentDst.end);
-  Variant_setString(Context_addStreamIdentifier(ctx, child), streamId.data(),
-                    streamId.size());
-
   uint32_t seqNumber = Reader_readUint32BE(&reader);
   Attr *seq = Layer_addAttr(child, seqToken);
   Attr_setUint32(seq, seqNumber);
