@@ -16,8 +16,8 @@ public:
   static Layer *unwrap(v8::Local<v8::Object> obj);
   static NAN_METHOD(New);
   static NAN_GETTER(id);
-  static NAN_GETTER(streamId);
-  static NAN_SETTER(setStreamId);
+  static NAN_GETTER(worker);
+  static NAN_SETTER(setWorker);
   static NAN_GETTER(confidence);
   static NAN_SETTER(setConfidence);
   static NAN_GETTER(parent);

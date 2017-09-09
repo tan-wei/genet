@@ -29,10 +29,6 @@ uint8_t Layer::worker() const { return mWorker; }
 
 void Layer::setWorker(uint8_t id) { mWorker = id; }
 
-uint32_t Layer::streamId() const { return mStreamId; }
-
-void Layer::setStreamId(uint32_t id) { mStreamId = id; }
-
 const std::vector<Token> &Layer::tags() const { return mTags; }
 
 void Layer::addTag(Token token) { mTags.push_back(token); }

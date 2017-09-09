@@ -19,8 +19,8 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
-  Nan::SetAccessor(otl, Nan::New("streamId").ToLocalChecked(), streamId,
-                   setStreamId);
+  Nan::SetAccessor(otl, Nan::New("worker").ToLocalChecked(), worker,
+                   setWorker);
   Nan::SetAccessor(otl, Nan::New("confidence").ToLocalChecked(), confidence,
                    setConfidence);
   Nan::SetAccessor(otl, Nan::New("parent").ToLocalChecked(), parent);
@@ -71,17 +71,17 @@ NAN_GETTER(LayerWrapper::id) {
   }
 }
 
-NAN_GETTER(LayerWrapper::streamId) {
+NAN_GETTER(LayerWrapper::worker) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->weakLayer) {
-    info.GetReturnValue().Set(layer->streamId());
+    info.GetReturnValue().Set(layer->worker());
   }
 }
 
-NAN_SETTER(LayerWrapper::setStreamId) {
+NAN_SETTER(LayerWrapper::setWorker) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
-    layer->setStreamId(value->NumberValue());
+    layer->setWorker(value->NumberValue());
   }
 }
 

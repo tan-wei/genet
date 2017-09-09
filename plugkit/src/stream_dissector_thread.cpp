@@ -107,7 +107,7 @@ void StreamDissectorThread::Private::analyze(
 
   Token id = layer->id();
   dissectedIds.insert(id);
-  auto &streamWorkers = workers[id][layer->streamId()];
+  auto &streamWorkers = workers[id][layer->worker()];
 
   Context ctx;
   ctx.options = options;
@@ -155,11 +155,9 @@ void StreamDissectorThread::Private::analyze(
       pair.first->analyze(&ctx, pair.second, layer);
       for (Layer *childLayer : layer->layers()) {
         if (childLayer->confidence() >= confidenceThreshold) {
-          if (childLayer->streamId() > 0) {
-            auto it = dissectedIds.find(childLayer->id());
-            if (it == dissectedIds.end()) {
-              nextLayers->push_back(childLayer);
-            }
+          auto it = dissectedIds.find(childLayer->id());
+          if (it == dissectedIds.end()) {
+            nextLayers->push_back(childLayer);
           }
         }
       }
@@ -167,7 +165,7 @@ void StreamDissectorThread::Private::analyze(
 
     for (Layer *subLayer : layer->subLayers()) {
       if (subLayer->confidence() >= confidenceThreshold) {
-        subLayer->setStreamId(layer->streamId());
+        subLayer->setWorker(layer->worker());
         auto it = dissectedIds.find(subLayer->id());
         if (it == dissectedIds.end()) {
           nextSubLayers->push_back(subLayer);
