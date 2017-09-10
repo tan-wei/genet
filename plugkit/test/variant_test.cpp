@@ -79,6 +79,8 @@ TEST_CASE("Variant_string", "[variant]") {
   Variant_setString(&variant, "HELLO", -1);
   CHECK(strcmp(Variant_string(&variant), "HELLO") == 0);
   CHECK(strcmp(Variant_string(nullptr), "") == 0);
+  Variant_setString(&variant, "", -1);
+  CHECK(strcmp(Variant_string(&variant), "") == 0);
 }
 
 TEST_CASE("Variant_slice", "[variant]") {

@@ -19,8 +19,7 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
-  Nan::SetAccessor(otl, Nan::New("worker").ToLocalChecked(), worker,
-                   setWorker);
+  Nan::SetAccessor(otl, Nan::New("worker").ToLocalChecked(), worker, setWorker);
   Nan::SetAccessor(otl, Nan::New("confidence").ToLocalChecked(), confidence,
                    setConfidence);
   Nan::SetAccessor(otl, Nan::New("parent").ToLocalChecked(), parent);

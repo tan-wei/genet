@@ -45,12 +45,9 @@ public:
   Variant(uint64_t value);
   Variant(double value);
   Variant(const std::string &str);
-  Variant(std::string &&str);
   Variant(const Slice &slice);
   Variant(const Array &array);
   Variant(const Map &map);
-  Variant(Array &&array);
-  Variant(Map &&map);
   Variant(const Timestamp &ts);
   Variant(const Layer *layer);
   Variant(void *) = delete;
