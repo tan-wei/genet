@@ -57,13 +57,13 @@ export default {
           'ipv4.version': {
             name: 'Version'
           },
-          'ipv4.hLen': {
+          'ipv4.headerLength': {
             name: 'Internet Header Length'
           },
           'ipv4.type': {
             name: 'Type Of Service'
           },
-          'ipv4.tLen': {
+          'ipv4.totalLength': {
             name: 'Total Length'
           },
           'ipv4.id': {
@@ -75,13 +75,13 @@ export default {
           'ipv4.flags.reserved': {
             name: 'Reserved'
           },
-          'ipv4.flags.dontFrag': {
+          'ipv4.flags.dontFragment': {
             name: 'Don\'t Fragment'
           },
-          'ipv4.flags.moreFrag': {
+          'ipv4.flags.moreFragments': {
             name: 'More Fragments'
           },
-          'ipv4.fOffset': {
+          'ipv4.fragmentOffset': {
             name: 'Fragment Offset'
           },
           'ipv4.ttl': {
@@ -164,20 +164,23 @@ export default {
           'ipv6.version': {
             name: 'Version'
           },
-          'ipv6.tClass': {
+          'ipv6.trafficClass': {
             name: 'Traffic Class'
           },
-          'ipv6.fLevel': {
+          'ipv6.flowLevel': {
             name: 'Flow Level'
           },
-          'ipv6.pLen': {
+          'ipv6.payloadLength': {
             name: 'Payload Length'
           },
-          'ipv6.nHeader': {
+          'ipv6.nextHeader': {
             name: 'Next Header'
           },
-          'ipv6.hLimit': {
+          'ipv6.hopLimit': {
             name: 'Hop Limit'
+          },
+          'ipv6.hopByHop': {
+            name: 'Hop-by-Hop Options'
           },
           'ipv6.src': {
             name: 'Source'
@@ -260,7 +263,7 @@ export default {
           'tcp.ack': {
             name: 'Acknowledgment number'
           },
-          'tcp.dOffset': {
+          'tcp.dataOffset': {
             name: 'Data offset'
           },
           'tcp.flags': {
@@ -305,7 +308,7 @@ export default {
           'tcp.options': {
             name: 'Options'
           },
-          'tcp.options.selAck': {
+          'tcp.options.selectiveAck': {
             name: 'Selective ACK'
           },
           'tcp.options.nop': {
@@ -314,10 +317,10 @@ export default {
           'tcp.options.ts': {
             name: 'Timestamps'
           },
-          'tcp.options.ts.mt': {
+          'tcp.options.ts.my': {
             name: 'My timestamp'
           },
-          'tcp.options.ts.et': {
+          'tcp.options.ts.echo': {
             name: 'Echo reply timestamp'
           }
         }

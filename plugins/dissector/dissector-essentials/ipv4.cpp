@@ -15,8 +15,8 @@ namespace {
 
 const std::pair<uint16_t, Token> flagTable[] = {
     std::make_pair(0x1, Token_get("ipv4.flags.reserved")),
-    std::make_pair(0x2, Token_get("ipv4.flags.dontFrag")),
-    std::make_pair(0x4, Token_get("ipv4.flags.moreFrag")),
+    std::make_pair(0x2, Token_get("ipv4.flags.dontFragment")),
+    std::make_pair(0x4, Token_get("ipv4.flags.moreFragments")),
 };
 
 const std::unordered_map<uint16_t, std::pair<Token, Token>> protoTable = {
@@ -30,12 +30,12 @@ const std::unordered_map<uint16_t, std::pair<Token, Token>> protoTable = {
 
 const auto ipv4Token = Token_get("ipv4");
 const auto versionToken = Token_get("ipv4.version");
-const auto hLenToken = Token_get("ipv4.hLen");
+const auto hLenToken = Token_get("ipv4.headerLength");
 const auto typeToken = Token_get("ipv4.type");
-const auto tLenToken = Token_get("ipv4.tLen");
+const auto tLenToken = Token_get("ipv4.totalLength");
 const auto idToken = Token_get("ipv4.id");
 const auto flagsToken = Token_get("ipv4.flags");
-const auto fOffsetToken = Token_get("ipv4.fOffset");
+const auto fOffsetToken = Token_get("ipv4.fragmentOffset");
 const auto ttlToken = Token_get("ipv4.ttl");
 const auto protocolToken = Token_get("ipv4.protocol");
 const auto checksumToken = Token_get("ipv4.checksum");
