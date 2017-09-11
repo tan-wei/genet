@@ -15,6 +15,7 @@ void PayloadWrapper::init(v8::Isolate *isolate) {
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("slices").ToLocalChecked(), slices);
+  Nan::SetAccessor(otl, Nan::New("length").ToLocalChecked(), length);
   Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
   Nan::SetAccessor(otl, Nan::New("type").ToLocalChecked(), type, setType);
 
@@ -43,6 +44,13 @@ NAN_GETTER(PayloadWrapper::slices) {
       array->Set(i, Variant::getNodeBuffer(slices[i]));
     }
     info.GetReturnValue().Set(array);
+  }
+}
+
+NAN_GETTER(PayloadWrapper::length) {
+  PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
+  if (auto payload = wrapper->constPayload) {
+    info.GetReturnValue().Set(static_cast<uint32_t>(payload->length()));
   }
 }
 

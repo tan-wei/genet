@@ -15,6 +15,7 @@ public:
   static const Payload *unwrap(v8::Local<v8::Object> obj);
   static NAN_METHOD(New);
   static NAN_GETTER(slices);
+  static NAN_GETTER(length);
   static NAN_METHOD(addAttr);
   static NAN_GETTER(properties);
   static NAN_METHOD(attr);

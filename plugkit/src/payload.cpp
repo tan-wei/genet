@@ -8,9 +8,14 @@ Payload::Payload() : mType() {}
 
 Payload::~Payload() {}
 
-void Payload::addSlice(const Slice &slice) { mSlices.push_back(slice); }
+void Payload::addSlice(const Slice &slice) {
+  mSlices.push_back(slice);
+  mLength += Slice_length(slice);
+}
 
 const std::vector<Slice> &Payload::slices() const { return mSlices; }
+
+size_t Payload::length() const { return mLength; }
 
 const std::vector<const Attr *> &Payload::properties() const {
   return mProperties;

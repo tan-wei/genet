@@ -17,6 +17,7 @@ public:
 
   void addSlice(const Slice &slice);
   const std::vector<Slice> &slices() const;
+  size_t length() const;
 
   Token type() const;
   void setType(Token type);
@@ -33,6 +34,7 @@ private:
   Token mType;
   std::vector<Slice> mSlices;
   std::vector<const Attr *> mProperties;
+  size_t mLength = 0;
 };
 }
 
