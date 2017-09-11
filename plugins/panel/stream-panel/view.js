@@ -49,14 +49,14 @@ export default class StreamView {
       this.payloads.map((payload) => {
         return <ul class="hex-list">
           {
-            (new Array(Math.ceil(payload.slices[0].length / 16))).fill().map((_, line) => {
-              const slice = payload.slices[0].slice(line * 16, (line + 1) * 16)
+            (new Array(Math.ceil(payload.length / 16))).fill().map((_, line) => {
+              const len = Math.min(16, payload.length - line * 16)
               return <li>
                 {
-                  (new Array(slice.length)).fill().map((_, byte) => {
+                  (new Array(len)).fill().map((_, byte) => {
                     const index = line * 16 + byte
                     return <span
-                    >{ ('0' + payload.slices[0][index].toString(16)).slice(-2) }</span>
+                    >{ ('0' + payload[index].toString(16)).slice(-2) }</span>
                   })
                 }
               </li>

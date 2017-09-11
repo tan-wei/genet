@@ -18,6 +18,7 @@ void PayloadWrapper::init(v8::Isolate *isolate) {
   Nan::SetAccessor(otl, Nan::New("length").ToLocalChecked(), length);
   Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
   Nan::SetAccessor(otl, Nan::New("type").ToLocalChecked(), type, setType);
+  Nan::SetIndexedPropertyHandler(otl, indexGetter);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
@@ -103,6 +104,23 @@ NAN_SETTER(PayloadWrapper::setType) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->payload) {
     payload->setType(Token_get(*Nan::Utf8String(value)));
+  }
+}
+
+NAN_INDEX_GETTER(PayloadWrapper::indexGetter) {
+  PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
+  if (auto payload = wrapper->constPayload) {
+    if (index < payload->length()) {
+      uint32_t offset = 0;
+      for (const Slice &slice : payload->slices()) {
+        size_t len = Slice_length(slice);
+        if (offset + len > index) {
+          info.GetReturnValue().Set(slice.begin[index - offset]);
+          return;
+        }
+        offset += len;
+      }
+    }
   }
 }
 

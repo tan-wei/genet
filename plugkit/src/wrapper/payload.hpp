@@ -21,6 +21,7 @@ public:
   static NAN_METHOD(attr);
   static NAN_GETTER(type);
   static NAN_SETTER(setType);
+  static NAN_INDEX_GETTER(indexGetter);
 
 private:
   PayloadWrapper(Payload *prop);
