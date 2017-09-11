@@ -26,8 +26,6 @@ Filter::Filter(const std::string &body) : d(new Private()) {
       auto func = result.ToLocalChecked();
       if (func->IsFunction()) {
         d->func.Reset(v8::Isolate::GetCurrent(), func.As<v8::Function>());
-        const std::string &name = *Nan::Utf8String(func);
-        printf("%s\n", name.c_str());
       }
     }
   }

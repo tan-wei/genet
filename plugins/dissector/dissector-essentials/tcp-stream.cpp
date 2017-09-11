@@ -11,9 +11,6 @@
 #include <plugkit/payload.h>
 #include <plugkit/reader.h>
 
-#define PLUGKIT_ENABLE_LOGGING
-#include <plugkit/logger.h>
-
 using namespace plugkit;
 
 using StreamID = std::tuple<uint16_t, uint16_t, std::string, std::string>;
@@ -80,17 +77,19 @@ private:
   std::list<std::pair<size_t, Slice>> slices;
 };
 
-struct Worker {
-  std::unordered_map<StreamID, uint32_t> idMap;
+struct Stream {
+  uint32_t id = 0;
   int64_t currentSeq = -1;
   uint64_t receivedLength = 0;
   Ring ring;
 };
 
+struct Worker {
+  std::unordered_map<StreamID, Stream> idMap;
+};
+
 void analyze(Context *ctx, void *data, Layer *layer) {
   Worker *worker = static_cast<Worker *>(data);
-
-  uint32_t streamId = 0;
 
   const auto &parentSrc = Attr_slice(Layer_attr(Layer_parent(layer), srcToken));
   const auto &parentDst = Attr_slice(Layer_attr(Layer_parent(layer), dstToken));
@@ -101,17 +100,11 @@ void analyze(Context *ctx, void *data, Layer *layer) {
                std::string(parentSrc.begin, Slice_length(parentSrc)),
                std::string(parentDst.begin, Slice_length(parentDst)));
 
-  auto &map = worker->idMap;
-  auto it = map.find(id);
-  if (it == map.end()) {
-    streamId = map.size();
-    map[id] = streamId;
-  } else {
-    streamId = it->second;
+  Stream &stream = worker->idMap[id];
+  if (stream.id == 0) {
+    stream.id = (worker->idMap.size() << 8) | Layer_worker(layer);
   }
-  streamId = (streamId << 8) | Layer_worker(layer);
-  Attr_setUint32(Layer_addAttr(layer, streamIdToken), streamId);
-
+  Attr_setUint32(Layer_addAttr(layer, streamIdToken), stream.id);
   const Slice payload = Payload_slice(Layer_payload(layer));
 
   uint32_t seq = Attr_uint32(Layer_attr(layer, seqToken));
@@ -119,31 +112,31 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   uint8_t flags = Attr_uint32(Layer_attr(layer, flagsToken));
   bool syn = (flags & (0x1 << 1));
   if (syn) {
-    if (worker->currentSeq < 0) {
-      worker->currentSeq = seq;
-      worker->ring.put(worker->receivedLength, payload);
-      worker->receivedLength += Slice_length(payload);
+    if (stream.currentSeq < 0) {
+      stream.currentSeq = seq;
+      stream.ring.put(stream.receivedLength, payload);
+      stream.receivedLength += Slice_length(payload);
     }
-  } else if (worker->currentSeq >= 0) {
+  } else if (stream.currentSeq >= 0) {
     if (Slice_length(payload)) {
-      uint64_t start = worker->receivedLength;
-      if (seq >= worker->currentSeq) {
-        start += seq - worker->currentSeq;
-        worker->currentSeq = seq;
-        worker->ring.put(worker->receivedLength, payload);
-        worker->receivedLength += Slice_length(payload);
-      } else if (worker->currentSeq - seq > window) {
-        start += (UINT32_MAX - worker->currentSeq) + seq;
-        worker->currentSeq = seq;
-        worker->ring.put(worker->receivedLength, payload);
-        worker->receivedLength += Slice_length(payload);
+      uint64_t start = stream.receivedLength;
+      if (seq >= stream.currentSeq) {
+        start += seq - stream.currentSeq;
+        stream.currentSeq = seq;
+        stream.ring.put(stream.receivedLength, payload);
+        stream.receivedLength += Slice_length(payload);
+      } else if (stream.currentSeq - seq > window) {
+        start += (UINT32_MAX - stream.currentSeq) + seq;
+        stream.currentSeq = seq;
+        stream.ring.put(stream.receivedLength, payload);
+        stream.receivedLength += Slice_length(payload);
       }
-    } else if ((worker->currentSeq + 1) % UINT32_MAX == seq) {
-      worker->currentSeq = seq;
+    } else if ((stream.currentSeq + 1) % UINT32_MAX == seq) {
+      stream.currentSeq = seq;
     }
   }
 
-  const auto slices = worker->ring.fetch();
+  const auto slices = stream.ring.fetch();
   if (slices.size() > 0) {
     Payload *chunk = Layer_addPayload(layer);
     Payload_setType(chunk, reassembledToken);

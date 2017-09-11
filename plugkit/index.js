@@ -236,7 +236,6 @@ class Session extends EventEmitter {
     }
 
     const body = ast.body.length ? (filterScript + escodegen.generate(ast)) : ''
-    console.log(escodegen.generate(ast))
     return internal(this).sess.setDisplayFilter(name, body)
   }
 }
