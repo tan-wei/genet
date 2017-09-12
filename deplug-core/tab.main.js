@@ -67,6 +67,7 @@ async function init (profile, argv, tab) {
     Reflect.defineProperty(Tab, 'options', { value: options })
     Reflect.defineProperty(Tab, 'id', { value: id })
 
+    await PluginLoader.loadComponents('core:attribute')
     await PluginLoader.loadComponents('core:filter:transform')
     await PluginLoader.loadComponents('core:renderer')
     await PluginLoader.loadComponents('core:panel')

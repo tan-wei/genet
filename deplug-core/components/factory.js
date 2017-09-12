@@ -1,3 +1,4 @@
+import AttributeComponent from './attribute'
 import DissectorComponent from './dissector'
 import FileComponent from './file'
 import MenuComponent from './menu'
@@ -30,6 +31,8 @@ export default class ComponentFactory {
         return new FileComponent(rootDir, pkg, comp)
       case 'core:renderer':
         return new RendererComponent(rootDir, pkg, comp)
+      case 'core:attribute':
+        return new AttributeComponent(rootDir, pkg, comp)
       case 'core:filter:transform':
         return new TransformComponent(rootDir, pkg, comp)
       default:
