@@ -46,8 +46,8 @@ export default class DissectorComponent extends Component {
       Session.registerLinkLayer(layer)
     }
 
-    const descriptors = objpath.get(this.comp, 'dissector.descriptors', {})
-    Session.addDescriptors(descriptors)
+    const attributes = objpath.get(this.comp, 'dissector.attributes', {})
+    Session.addAttributes(attributes)
 
     const samples = objpath.get(this.comp, 'dissector.samples', [])
     for (const item of samples) {

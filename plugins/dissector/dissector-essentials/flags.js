@@ -8,7 +8,7 @@ export default class Flags {
       return prop.value && prop.id.startsWith(vnode.attrs.prop.id + '.')
     }).map((prop) => {
       const id = prop.id
-      const name = (id in Session.descriptors) ? Session.descriptors[id].name : id
+      const name = (id in Session.attributes) ? Session.attributes[id].name : id
       return name
     }).join(', ')
     return <span>{ flags } ({ value })</span>

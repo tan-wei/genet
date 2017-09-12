@@ -127,8 +127,8 @@ class PropertyItem {
       prop.range[0] + vnode.attrs.dataOffset,
       prop.range[1] + vnode.attrs.dataOffset
     ]
-    const name = (prop.id in Session.descriptors) ?
-      Session.descriptors[prop.id].name : prop.id
+    const name = (prop.id in Session.attributes) ?
+      Session.attributes[prop.id].name : prop.id
     const propRenderer = Renderer.forProperty(prop.type)
 
     return <li
@@ -189,8 +189,8 @@ class LayerItem {
       dataOffset + dataLength
     ]
     const layerId = layer.id
-    const name = (layerId in Session.descriptors) ?
-      Session.descriptors[layerId].name : layerId
+    const name = (layerId in Session.attributes) ?
+      Session.attributes[layerId].name : layerId
 
     const propObject = {[layerId]: {}}
     const properties = layer.properties

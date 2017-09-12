@@ -14,11 +14,11 @@ export default class FilterView {
     Channel.on('core:display-filter:set', (filter) => {
       vnode.dom.value = filter
     })
-    const descriptors = Session.descriptors
-    for (const key in descriptors) {
+    const attributes = Session.attributes
+    for (const key in attributes) {
       this.candidates.push({
         propPaths: key,
-        name: descriptors[key].name
+        name: attributes[key].name
       })
     }
     this.input = vnode.dom.parentNode.querySelector('input')

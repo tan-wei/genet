@@ -6,7 +6,7 @@ import fs from 'fs'
 const dissectors = []
 const linkLayers = []
 const samples = []
-const descriptors = {}
+const attributes = {}
 const filterTransforms = []
 export default class Session {
   static registerNativeDissector (file) {
@@ -25,8 +25,8 @@ export default class Session {
     filterTransforms.push(trans)
   }
 
-  static addDescriptors (desc) {
-    Object.assign(descriptors, desc)
+  static addAttributes (desc) {
+    Object.assign(attributes, desc)
   }
 
   static addSample (samp) {
@@ -45,8 +45,8 @@ export default class Session {
     return samples
   }
 
-  static get descriptors () {
-    return descriptors
+  static get attributes () {
+    return attributes
   }
 
   static get filterTransforms () {

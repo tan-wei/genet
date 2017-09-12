@@ -13,7 +13,7 @@ export default {
             assert: 'test/eth.json'
           }
         ],
-        descriptors: {
+        attributes: {
           eth: {
             name: 'Ethernet'
           },
@@ -50,7 +50,7 @@ export default {
         samples: [
           { pcap: 'samples/tcp-ipv4.pcap' }
         ],
-        descriptors: {
+        attributes: {
           ipv4: {
             name: 'IPv4'
           },
@@ -157,7 +157,7 @@ export default {
       type: 'core:dissector',
       dissector: {
         main: 'ipv6.node',
-        descriptors: {
+        attributes: {
           ipv6: {
             name: 'IPv6'
           },
@@ -221,7 +221,7 @@ export default {
         samples: [
           { pcap: 'samples/ntp.pcap' }
         ],
-        descriptors: {
+        attributes: {
           udp: {
             name: 'UDP'
           },
@@ -244,7 +244,7 @@ export default {
       type: 'core:dissector',
       dissector: {
         main: 'tcp.node',
-        descriptors: {
+        attributes: {
           tcp: {
             name: 'TCP'
           },
@@ -338,7 +338,7 @@ export default {
       type: 'core:dissector',
       dissector: {
         main: 'tcp-stream.node',
-        descriptors: {
+        attributes: {
           'tcp.stream': {
             name: 'Stream'
           },
@@ -358,7 +358,7 @@ export default {
       type: 'core:dissector',
       dissector: {
         main: 'http.node',
-        descriptors: {
+        attributes: {
           http: {
             name: 'Hypertext Transfer Protocol'
           },
