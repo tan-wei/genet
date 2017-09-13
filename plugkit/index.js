@@ -37,10 +37,11 @@ function roll(script) {
 }
 
 class Session extends EventEmitter {
-  constructor(sess, transforms) {
+  constructor(sess, options) {
     super()
     internal(this).sess = sess
-    internal(this).transforms = transforms
+    internal(this).transforms = options.transforms
+    internal(this).attributes = options.attributes
 
     this.status = {
       capture: false
@@ -246,6 +247,7 @@ class SessionFactory extends kit.SessionFactory {
     internal(this).tasks = []
     internal(this).linkLayers = []
     internal(this).transforms = []
+    internal(this).attributes = {}
   }
 
   create() {
@@ -253,7 +255,10 @@ class SessionFactory extends kit.SessionFactory {
       for (let link of internal(this).linkLayers) {
         super.registerLinkLayer(link.link, link.id, link.name)
       }
-      return new Session(super.create(), internal(this).transforms)
+      return new Session(super.create(), {
+        transforms: internal(this).transforms,
+        attributes: internal(this).attributes
+      })
     })
   }
 
@@ -263,6 +268,10 @@ class SessionFactory extends kit.SessionFactory {
 
   registerFilterTransform(trans) {
     internal(this).transforms.push(trans)
+  }
+
+  registerAttributes(attrs) {
+    internal(this).attributes = Object.assign(internal(this).attributes, attrs)
   }
 
   registerDissector(dissector) {

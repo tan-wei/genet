@@ -37,6 +37,23 @@ class PermissionMassage {
   }
 }
 
+function prepareSession() {
+  const factory = new SessionFactory()
+  factory.options = Profile.current.object
+  factory.networkInterface = Tab.options.ifs || ''
+  for (const layer of Session.linkLayers) {
+    factory.registerLinkLayer(layer)
+  }
+  for (const diss of Session.dissectors) {
+    factory.registerDissector(diss)
+  }
+  for (const trans of Session.filterTransforms) {
+    factory.registerFilterTransform(trans)
+  }
+  factory.registerAttributes(Session.attributes)
+  return factory
+}
+
 export default class ConfigView {
   constructor() {
     this.loaded = false
@@ -61,19 +78,8 @@ export default class ConfigView {
     Tab.page = 'pcap'
 
     setTimeout(() => {
-      const factory = new SessionFactory()
-      factory.options = Profile.current.object
-      factory.networkInterface = Tab.options.ifs || ''
+      const factory = prepareSession()
       factory.snaplen = Profile.current.get('_', 'snaplen')
-      for (const layer of Session.linkLayers) {
-        factory.registerLinkLayer(layer)
-      }
-      for (const diss of Session.dissectors) {
-        factory.registerDissector(diss)
-      }
-      for (const trans of Session.filterTransforms) {
-        factory.registerFilterTransform(trans)
-      }
       factory.create().then((sess) => {
         if (Tab.options.ifs) {
           sess.startPcap()
@@ -92,19 +98,8 @@ export default class ConfigView {
       m.redraw()
 
       setTimeout(() => {
-        const factory = new SessionFactory()
-        factory.options = Profile.current.object
-        factory.networkInterface = Tab.options.ifs || ''
-        for (const layer of Session.linkLayers) {
-          factory.registerLinkLayer(layer)
-        }
-        for (const diss of Session.dissectors) {
-          factory.registerDissector(diss)
-        }
-        for (const trans of Session.filterTransforms) {
-          factory.registerFilterTransform(trans)
-        }
         File.loadFrames(Tab.options.files).then((results) => {
+          const factory = prepareSession()
           factory.create().then((sess) => {
             Channel.emit('core:pcap:session-created', sess)
             for (const pcap of results) {
