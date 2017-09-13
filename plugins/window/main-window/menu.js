@@ -1,31 +1,26 @@
 import { remote, shell, ipcRenderer } from 'electron'
 import { Config, GlobalChannel, Profile } from 'deplug'
-const contents = remote.getCurrentWebContents()
 
 export default ([
   {
     path: ["Edit", "Cut"],
     accelerator: "Cmd+X",
-    selector: "cut:",
-    click: contents.cut
+    selector: "cut:"
   },
   {
     path: ["Edit", "Copy"],
     accelerator: "Cmd+C",
-    selector: "copy:",
-    click: contents.copy
+    selector: "copy:"
   },
   {
     path: ["Edit", "Paste"],
     accelerator: "Cmd+V",
-    selector: "paste:",
-    click: contents.paste
+    selector: "paste:"
   },
   {
     path: ["Edit", "Select All"],
     accelerator: "Cmd+A",
-    selector: "selectAll:",
-    click: contents.selectAll
+    selector: "selectAll:"
   },
   {
     path: ["Developer", "Toggle Developer Tools"],
