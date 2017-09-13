@@ -5,6 +5,7 @@
 #include "range.h"
 #include "slice.h"
 #include "export.h"
+#include <stdbool.h>
 
 PLUGKIT_NAMESPACE_BEGIN
 
