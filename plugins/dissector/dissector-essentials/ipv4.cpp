@@ -126,15 +126,13 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   Attr_setUint32(checksum, Reader_readUint16BE(&reader));
   Attr_setRange(checksum, reader.lastRange);
 
-  const auto &srcSlice = Reader_slice(&reader, 0, 4);
   Attr *src = Layer_addAttr(child, srcToken);
-  Attr_setSlice(src, srcSlice);
+  Attr_setUint32(src, Reader_readUint32BE(&reader));
   Attr_setType(src, ipv4AddrToken);
   Attr_setRange(src, reader.lastRange);
 
-  const auto &dstSlice = Reader_slice(&reader, 0, 4);
   Attr *dst = Layer_addAttr(child, dstToken);
-  Attr_setSlice(dst, dstSlice);
+  Attr_setUint32(dst, Reader_readUint32BE(&reader));
   Attr_setType(dst, ipv4AddrToken);
   Attr_setRange(dst, reader.lastRange);
 
