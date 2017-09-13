@@ -20,9 +20,9 @@ class PermissionMassage {
         The program does not have enough capabilities to start a live capture.<br></br>
         Please run setcap to the executable and don’t forget to change RPATH.
         <ul>
-          <li>$ DEPLAG_BIN={process.execPath}</li>
-          <li>$ patchelf --set-rpath $(dirname $DEPLAG_BIN) $DEPLAG_BIN</li>
-          <li>$ sudo setcap cap_net_raw,cap_net_admin=p $DEPLAG_BIN</li>
+          <li>$ DEPLUG_BIN={process.execPath}</li>
+          <li>$ patchelf --set-rpath $(dirname $DEPLUG_BIN) $DEPLUG_BIN</li>
+          <li>$ sudo setcap cap_net_raw,cap_net_admin=p $DEPLUG_BIN</li>
         </ul>
         </p>
       case 'win32':
