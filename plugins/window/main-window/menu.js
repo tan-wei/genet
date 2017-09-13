@@ -18,6 +18,16 @@ export default ([
     selector: "paste:"
   },
   {
+    path: ["Edit", "Undo"],
+    accelerator: "CmdOrCtrl+Z",
+    selector: "undo:"
+  },
+  {
+    path: ["Edit", "Redo"],
+    accelerator: "Shift+CmdOrCtrl+Z",
+    selector: "redo:"
+  },
+  {
     path: ["Edit", "Select All"],
     accelerator: "Cmd+A",
     selector: "selectAll:"

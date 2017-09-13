@@ -20,13 +20,7 @@ const reload = throttle(() => {
 
   function crateMenuItem (name, object) {
     if (handlerSymbol in object) {
-      const { accelerator, selector, click } = object[handlerSymbol]
-      const item = {
-        label: name,
-        selector,
-        accelerator,
-        click,
-      }
+      const item = Object.assign({ label: name }, object[handlerSymbol])
       return new remote.MenuItem(item)
     }
 
