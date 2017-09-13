@@ -28,12 +28,11 @@ public:
     int endPosition = -1;
     int startColumn = -1;
     int endColumn = -1;
-    int sessionId = -1;
     std::thread::id threadId = std::this_thread::get_id();
     bool trivial = false;
 
-    std::string levelString() const;
     std::string toString() const;
+    static const char *levelString(Level level);
   };
 
   using MessagePtr = std::unique_ptr<Message>;

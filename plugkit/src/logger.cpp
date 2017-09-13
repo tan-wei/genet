@@ -8,7 +8,7 @@
 
 namespace plugkit {
 
-std::string Logger::Message::levelString() const {
+const char *Logger::Message::levelString(Level level) {
   switch (level) {
   case LEVEL_DEBUG:
     return "debug";
@@ -26,8 +26,8 @@ std::string Logger::Message::toString() const {
   std::stringstream stream;
   std::time_t ts = std::chrono::system_clock::to_time_t(timestamp);
   std::tm tm = *std::localtime(&ts);
-  stream << "[" << levelString() << "] " << std::put_time(&tm, "%T") << " #"
-         << threadId << " (" << domain << ") " << message;
+  stream << "[" << levelString(level) << "] " << std::put_time(&tm, "%T")
+         << " #" << threadId << " (" << domain << ") " << message;
   return stream.str();
 }
 
