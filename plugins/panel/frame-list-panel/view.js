@@ -3,10 +3,6 @@ import m from 'mithril'
 import { Channel, Panel, Profile, Session, Renderer, Tab } from 'deplug'
 
 class FrameItem {
-  constructor() {
-
-  }
-
   oninit(vnode) {
     this.frame = vnode.attrs.session.getFrames(vnode.attrs.seq - 1, 1)[0]
   }

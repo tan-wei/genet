@@ -13,10 +13,6 @@ export default class View {
     })
   }
 
-  oncreate(vnode) {
-
-  }
-
   view(vnode) {
     if (!Tab.options.ifs) {
       return <a style="display: none;"></a>

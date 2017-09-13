@@ -111,10 +111,6 @@ function orderedProperties(obj) {
 }
 
 class PropertyItem {
-  constructor() {
-    this.expanded = false
-  }
-
   view(vnode) {
     const prop = vnode.attrs.property[propSymbol]
     const value = (prop.value == null ? '' : prop.value.toString())
@@ -165,10 +161,6 @@ class PropertyItem {
 }
 
 class LayerItem {
-  constructor() {
-    this.expanded = false
-  }
-
   view(vnode) {
     const layer = vnode.attrs.layer
     let dataOffset = 0
