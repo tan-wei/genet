@@ -1,0 +1,11 @@
+{
+  "name": "dissector-predefined",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Deplug predefined types",
+  "engines": {
+    "deplug": "*"
+  },
+  "gypfile": true,
+  "main": "index.js"
+}

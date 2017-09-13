@@ -6,12 +6,6 @@ export default {
         eth: {
           name: 'Ethernet'
         },
-        '.src': {
-          name: 'Source'
-        },
-        '.dst': {
-          name: 'Destination'
-        },
         'eth.type': {
           name: 'EtherType'
         },
@@ -284,30 +278,6 @@ export default {
         type: 'property',
         id: '@ipv4:addr',
         root: 'ipv4-addr.js'
-      }
-    },
-    {
-      type: 'core:renderer',
-      renderer: {
-        type: 'property',
-        id: '@flags',
-        root: 'flags.js'
-      }
-    },
-    {
-      type: 'core:renderer',
-      renderer: {
-        type: 'property',
-        id: '@enum',
-        root: 'enum.js'
-      }
-    },
-    {
-      type: 'core:renderer',
-      renderer: {
-        type: 'property',
-        id: '@nested',
-        root: 'nested.js'
       }
     },
     {
