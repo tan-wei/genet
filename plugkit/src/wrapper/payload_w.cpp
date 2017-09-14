@@ -71,8 +71,9 @@ NAN_GETTER(PayloadWrapper::properties) {
 NAN_METHOD(PayloadWrapper::attr) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->constPayload) {
-    if (const auto &child =
-            payload->attr(Token_get(*Nan::Utf8String(info[0])))) {
+    Token token = info[0]->IsNumber() ? info[0]->NumberValue()
+                                      : Token_get(*Nan::Utf8String(info[0]));
+    if (const auto &child = payload->attr(token)) {
       info.GetReturnValue().Set(AttributeWrapper::wrap(child));
     } else {
       info.GetReturnValue().Set(Nan::Null());
@@ -103,7 +104,9 @@ NAN_GETTER(PayloadWrapper::type) {
 NAN_SETTER(PayloadWrapper::setType) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->payload) {
-    payload->setType(Token_get(*Nan::Utf8String(value)));
+    Token token = value->IsNumber() ? value->NumberValue()
+                                    : Token_get(*Nan::Utf8String(value));
+    payload->setType(token);
   }
 }
 

@@ -123,7 +123,9 @@ NAN_SETTER(AttributeWrapper::setType) {
   AttributeWrapper *wrapper =
       ObjectWrap::Unwrap<AttributeWrapper>(info.Holder());
   if (auto prop = wrapper->prop) {
-    prop->setType(Token_get(*Nan::Utf8String(value)));
+    Token token = value->IsNumber() ? value->NumberValue()
+                                    : Token_get(*Nan::Utf8String(value));
+    prop->setType(token);
   }
 }
 

@@ -177,7 +177,10 @@ NAN_GETTER(LayerWrapper::tags) {
 NAN_METHOD(LayerWrapper::attr) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->weakLayer) {
-    if (const auto &prop = layer->attr(Token_get(*Nan::Utf8String(info[0])))) {
+
+    Token token = info[0]->IsNumber() ? info[0]->NumberValue()
+                                      : Token_get(*Nan::Utf8String(info[0]));
+    if (const auto &prop = layer->attr(token)) {
       info.GetReturnValue().Set(AttributeWrapper::wrap(prop));
     } else {
       info.GetReturnValue().Set(Nan::Null());
