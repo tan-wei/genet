@@ -9,10 +9,6 @@ function makeOp(opcode, ...args) {
 }
 
 module.exports = function transform(ast, transforms) {
-  for (const trans of transforms) {
-    ast = trans.execute(ast)
-  }
-
   ast = estraverse.replace(ast, {
     enter: (node) => {
       if (node.type === 'MemberExpression' && !node.computed) {
@@ -90,6 +86,10 @@ module.exports = function transform(ast, transforms) {
       }
     }
   })
+
+  for (const trans of transforms) {
+    ast = trans.execute(ast)
+  }
 
   if (ast.body.length) {
     ast = {
