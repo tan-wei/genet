@@ -1,4 +1,5 @@
 const estraverse = require('estraverse')
+const esprima = require('esprima')
 
 function makeOp(opcode, ...args) {
   return {
@@ -8,7 +9,7 @@ function makeOp(opcode, ...args) {
   }
 }
 
-module.exports = function transform(ast, transforms) {
+module.exports = function transform(ast, transforms, attributes) {
   ast = estraverse.replace(ast, {
     enter: (node) => {
       if (node.type === 'MemberExpression' && !node.computed) {
@@ -20,6 +21,46 @@ module.exports = function transform(ast, transforms) {
         }
         if (child.type === 'Identifier' && child.name !== '$_frame') {
           identifiers.unshift(child.name)
+
+          const id = identifiers.join('.') + '.'
+          const attrs = Object.keys(attributes).map((key) => {
+            if (key.startsWith('.')) {
+              return identifiers[0] + key
+            } else {
+              return key
+            }
+          }).filter((key) => id.startsWith(key) && id[key.length] === '.')
+          attrs.sort((a, b) => b.split('.').length - a.split('.').length)
+
+          let property = identifiers.join('.')
+          let attrName = ''
+          if (attrs.length) {
+            const first = attrs[0]
+            if (first in attributes && attributes[first].virtual !== true) {
+              attrName = first
+            } else {
+              attrName = '.' + first.split('.').slice(1).join('.')
+            }
+            property = property.slice(first.length)
+          }
+
+          let layer = identifiers[0]
+          if (!(layer in attributes)) {
+            layer = ''
+          }
+
+          let code = ''
+          if (layer.length) {
+            if (layer === attrName) {
+              code = `$_frame.layer('${layer}')${property}`
+            } else {
+              code = `$_frame.layer('${layer}').attr('${attrName}')${property}`
+            }
+          } else {
+            code = attrName
+          }
+          return esprima.parse(code).body[0].expression
+
           return {
             type: "CallExpression",
             callee: {
@@ -37,30 +78,8 @@ module.exports = function transform(ast, transforms) {
   ast = estraverse.replace(ast, {
     enter: (node, parent) => {
       if (node.type === 'Identifier' && parent.type !== 'MemberExpression') {
-        return {
-          type: "LogicalExpression",
-          operator: "||",
-          left: {
-            type: "CallExpression",
-            callee: {
-              type: "MemberExpression",
-              object: { type: "Identifier", name: "$_frame" },
-              property: { type: "Identifier", name: "layer" }
-            },
-            arguments: [ { type: "Literal", value: node.name } ]
-          },
-          right: {
-            type: "MemberExpression",
-            computed: true,
-            object: {
-              type: "Identifier",
-              name: "this"
-            },
-            property: {
-              type: "Literal",
-              value: node.name
-            }
-          }
+        if (node.name in attributes) {
+          return esprima.parse(`$_frame.layer('${node.name}')`).body[0].expression
         }
       }
     }

@@ -70,10 +70,12 @@ export default {
           name: 'Header Checksum'
         },
         'ipv4.src': {
-          name: 'Source'
+          name: 'Source',
+          virtual: true
         },
         'ipv4.dst': {
-          name: 'Destination'
+          name: 'Destination',
+          virtual: true
         },
         ipv6: {
           name: 'IPv6'
@@ -100,10 +102,12 @@ export default {
           name: 'Hop-by-Hop Options'
         },
         'ipv6.src': {
-          name: 'Source'
+          name: 'Source',
+          virtual: true
         },
         'ipv6.dst': {
-          name: 'Destination'
+          name: 'Destination',
+          virtual: true
         },
         'ipv6.protocol': {
           name: 'Protocol'
@@ -124,10 +128,12 @@ export default {
           name: 'UDP'
         },
         'udp.src': {
-          name: 'Source'
+          name: 'Source',
+          virtual: true
         },
         'udp.dst': {
-          name: 'Destination'
+          name: 'Destination',
+          virtual: true
         },
         'udp.length': {
           name: 'Length'
@@ -139,10 +145,12 @@ export default {
           name: 'TCP'
         },
         'tcp.src': {
-          name: 'Source'
+          name: 'Source',
+          virtual: true
         },
         'tcp.dst': {
-          name: 'Destination'
+          name: 'Destination',
+          virtual: true
         },
         'tcp.streamId': {
           name: 'Stream ID'

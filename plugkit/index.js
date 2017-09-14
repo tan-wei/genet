@@ -113,7 +113,10 @@ class Session extends EventEmitter {
   }
 
   setDisplayFilter(name, filter) {
-    const ast = transform(esprima.parse(filter), internal(this).transforms)
+    const ast = transform(
+      esprima.parse(filter),
+      internal(this).transforms,
+      internal(this).attributes)
     const body = ast.body.length ? (filterScript + escodegen.generate(ast)) : ''
     return internal(this).sess.setDisplayFilter(name, body)
   }
