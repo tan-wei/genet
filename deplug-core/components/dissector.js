@@ -1,8 +1,7 @@
 import Component from './base'
 import Session from '../session'
-import fs from 'fs'
+import exists from 'file-exists'
 import jsonfile from 'jsonfile'
-import log from 'electron-log'
 import objpath from 'object-path'
 import path from 'path'
 
@@ -22,12 +21,9 @@ export default class DissectorComponent extends Component {
     let mainFile = ''
     for (const spath of searchPaths) {
       const file = path.join(this.rootDir, spath, main)
-      try {
-        fs.statSync(file)
+      if (exists.sync(file)) {
         mainFile = file
         break
-      } catch (err) {
-        log.debug(err)
       }
     }
 

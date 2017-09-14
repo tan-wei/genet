@@ -19,15 +19,13 @@ const reload = throttle(() => {
     for (let i = 0; i < handler.path.length; ++i) {
       const path = handler.path.slice(0, -i)
       if (!objpath.has(root, path)) {
-        objpath.set(root, path, {
-          [orderSymbol]: index
-        })
+        objpath.set(root, path, { [orderSymbol]: index })
       }
       index++
     }
     objpath.set(root, handler.path, {
       [handlerSymbol]: handler,
-      [orderSymbol]: index
+      [orderSymbol]: index,
     })
     index++
   }
@@ -39,9 +37,7 @@ const reload = throttle(() => {
     }
 
     const keys = Object.keys(object)
-    keys.sort((a, b) => {
-      return (object[a][orderSymbol] || 0) - (object[b][orderSymbol] || 0)
-    })
+    keys.sort((a, b) => (object[a][orderSymbol] || 0) - (object[b][orderSymbol] || 0))
 
     return new remote.MenuItem({
       label: name,
@@ -52,9 +48,7 @@ const reload = throttle(() => {
 
   const menu = new remote.Menu()
   const keys = Object.keys(root)
-  keys.sort((a, b) => {
-    return (root[a][orderSymbol] || 0) - (root[b][orderSymbol] || 0)
-  })
+  keys.sort((a, b) => (root[a][orderSymbol] || 0) - (root[b][orderSymbol] || 0))
   for (const name of keys) {
     menu.append(crateMenuItem(name, root[name]))
   }
