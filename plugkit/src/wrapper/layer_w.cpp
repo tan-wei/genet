@@ -16,6 +16,7 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   SetPrototypeMethod(tpl, "addLayer", addLayer);
   SetPrototypeMethod(tpl, "addSubLayer", addSubLayer);
   SetPrototypeMethod(tpl, "addAttr", addAttr);
+  SetPrototypeMethod(tpl, "addTag", addTag);
   SetPrototypeMethod(tpl, "toJSON", toJSON);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
@@ -206,6 +207,7 @@ NAN_METHOD(LayerWrapper::addSubLayer) {
         LayerWrapper::wrap(Layer_addSubLayer(layer, token)));
   }
 }
+
 NAN_METHOD(LayerWrapper::addAttr) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
@@ -213,6 +215,15 @@ NAN_METHOD(LayerWrapper::addAttr) {
                                       : Token_get(*Nan::Utf8String(info[0]));
     info.GetReturnValue().Set(
         AttributeWrapper::wrap(Layer_addAttr(layer, token)));
+  }
+}
+
+NAN_METHOD(LayerWrapper::addTag) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->layer) {
+    Token token = info[0]->IsNumber() ? info[0]->NumberValue()
+                                      : Token_get(*Nan::Utf8String(info[0]));
+    layer->addTag(token);
   }
 }
 
