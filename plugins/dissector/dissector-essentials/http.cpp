@@ -7,7 +7,7 @@
 #include <plugkit/variant.h>
 #include <plugkit/layer.h>
 #include <plugkit/payload.h>
-#include <plugkit/reader.h>
+#include <plugkit/stream_reader.h>
 
 #define PLUGKIT_ENABLE_LOGGING
 #include <plugkit/logger.h>

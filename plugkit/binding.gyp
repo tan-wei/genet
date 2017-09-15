@@ -40,6 +40,7 @@
          "src/layer.cpp",
          "src/slice.cpp",
          "src/reader.cpp",
+         "src/stream_reader.cpp",
          "src/tag_filter.cpp",
          "src/capi.c",
          "vendor/json11/json11.cpp"
@@ -122,6 +123,7 @@
             "test/tag_filter_test.cpp",
             "test/slice_test.cpp",
             "test/reader_test.cpp",
+            "test/stream_reader_test.cpp",
             "test/payload_test.cpp"
          ],
          "xcode_settings":{
