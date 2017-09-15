@@ -26,7 +26,8 @@ public:
     TYPE_TIMESTAMP,
     TYPE_SLICE,
     TYPE_ARRAY,
-    TYPE_MAP
+    TYPE_MAP,
+    TYPE_MASK = 0x0f
   };
   using Array = std::vector<Variant>;
   using Map = std::unordered_map<std::string, Variant>;
@@ -97,7 +98,6 @@ public:
 
 public:
   uint8_t type_;
-  int8_t tag_;
   union {
     bool bool_;
     double double_;

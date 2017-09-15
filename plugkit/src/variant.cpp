@@ -52,6 +52,10 @@ Variant::Variant(double value) : type_(TYPE_DOUBLE) { d.double_ = value; }
 Variant::Variant(const std::string &str) : type_(TYPE_STRING) {
   if (str.empty()) {
     d.str = nullptr;
+  } else if (str.size() < sizeof(d.str)) {
+    type_ = TYPE_STRING | (str.size() << 4);
+    d.str = nullptr;
+    str.copy(reinterpret_cast<char *>(&d.str), sizeof(d.str));
   } else {
     d.str = new std::shared_ptr<std::string>(new std::string(str));
   }
@@ -77,7 +81,9 @@ Variant::~Variant() {
     delete d.ts;
     break;
   case Variant::TYPE_STRING:
-    delete d.str;
+    if (tag() == 0) {
+      delete d.str;
+    }
     break;
   case Variant::TYPE_SLICE:
     delete d.slice;
@@ -97,15 +103,15 @@ Variant::Variant(const Variant &value) { *this = value; }
 Variant &Variant::operator=(const Variant &value) {
   this->type_ = value.type_;
   this->d = value.d;
-  switch (this->type_) {
+  switch (this->type()) {
   case Variant::TYPE_TIMESTAMP:
     this->d.ts = new Timestamp(*value.d.ts);
     break;
   case Variant::TYPE_STRING:
-    if (value.d.str) {
+    if (value.d.str && tag() == 0) {
       this->d.str = new std::shared_ptr<std::string>(*value.d.str);
     } else {
-      this->d.str = nullptr;
+      this->d.str = value.d.str;
     }
     break;
   case Variant::TYPE_SLICE:
@@ -122,14 +128,16 @@ Variant &Variant::operator=(const Variant &value) {
   return *this;
 }
 
-Variant::Type Variant::type() const { return static_cast<Type>(type_); }
+Variant::Type Variant::type() const {
+  return static_cast<Type>(type_ & TYPE_MASK);
+}
 
 bool Variant::isNil() const { return type() == TYPE_NIL; }
 
 bool Variant::isBool() const { return type() == TYPE_BOOL; }
 
 bool Variant::boolValue(bool defaultValue) const {
-  switch (type_) {
+  switch (type()) {
   case TYPE_BOOL:
     return d.bool_;
   case TYPE_INT32:
@@ -148,7 +156,7 @@ bool Variant::boolValue(bool defaultValue) const {
 bool Variant::isInt32() const { return type() == TYPE_INT32; }
 
 int32_t Variant::int32Value(int32_t defaultValue) const {
-  switch (type_) {
+  switch (type()) {
   case TYPE_BOOL:
     return d.bool_;
   case TYPE_INT32:
@@ -167,7 +175,7 @@ int32_t Variant::int32Value(int32_t defaultValue) const {
 bool Variant::isInt64() const { return type() == TYPE_INT64; }
 
 int64_t Variant::int64Value(int64_t defaultValue) const {
-  switch (type_) {
+  switch (type()) {
   case TYPE_BOOL:
     return d.bool_;
   case TYPE_INT32:
@@ -186,7 +194,7 @@ int64_t Variant::int64Value(int64_t defaultValue) const {
 bool Variant::isUint32() const { return type() == TYPE_UINT32; }
 
 uint32_t Variant::uint32Value(uint32_t defaultValue) const {
-  switch (type_) {
+  switch (type()) {
   case TYPE_BOOL:
     return d.bool_;
   case TYPE_INT32:
@@ -205,7 +213,7 @@ uint32_t Variant::uint32Value(uint32_t defaultValue) const {
 bool Variant::isUint64() const { return type() == TYPE_UINT64; }
 
 uint64_t Variant::uint64Value(uint64_t defaultValue) const {
-  switch (type_) {
+  switch (type()) {
   case TYPE_BOOL:
     return d.bool_;
   case TYPE_INT32:
@@ -224,7 +232,7 @@ uint64_t Variant::uint64Value(uint64_t defaultValue) const {
 bool Variant::isDouble() const { return type() == TYPE_DOUBLE; }
 
 double Variant::doubleValue(double defaultValue) const {
-  switch (type_) {
+  switch (type()) {
   case TYPE_BOOL:
     return d.bool_;
   case TYPE_INT32:
@@ -244,7 +252,11 @@ std::string Variant::string(const std::string &defaultValue) const {
   switch (type()) {
   case TYPE_STRING:
     if (d.str) {
-      return **d.str;
+      if (tag() == 0) {
+        return **d.str;
+      } else {
+        return std::string(reinterpret_cast<const char *>(&d.str), tag());
+      }
     } else {
       return std::string();
     }
@@ -348,7 +360,7 @@ size_t Variant::length() const {
   return 0;
 }
 
-uint8_t Variant::tag() const { return tag_; }
+uint8_t Variant::tag() const { return type_ >> 4; }
 
 bool Variant::isString() const { return type() == TYPE_STRING; }
 
@@ -520,6 +532,7 @@ json11::Json Variant::getJson(const Variant &var) {
       json["value"] = object;
     }
     break;
+  default:;
   }
   json["tag"] = var.tag();
   return json;
@@ -609,7 +622,11 @@ void Variant_setDouble(Variant *var, double value) { *var = Variant(value); }
 
 const char *Variant_string(const Variant *var) {
   if (var && var->isString() && var->d.str) {
-    return (*var->d.str)->c_str();
+    if (var->tag() == 0) {
+      return (*var->d.str)->c_str();
+    } else {
+      return reinterpret_cast<const char *>(&var->d.str);
+    }
   }
   return "";
 }

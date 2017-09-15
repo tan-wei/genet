@@ -78,6 +78,10 @@ TEST_CASE("Variant_string", "[variant]") {
   CHECK(strcmp(Variant_string(&variant), "") == 0);
   Variant_setString(&variant, "HELLO", -1);
   CHECK(strcmp(Variant_string(&variant), "HELLO") == 0);
+  Variant_setString(&variant, "HELLO___", -1);
+  CHECK(strcmp(Variant_string(&variant), "HELLO___") == 0);
+  Variant_setString(&variant, "HELLO WORLD", -1);
+  CHECK(strcmp(Variant_string(&variant), "HELLO WORLD") == 0);
   CHECK(strcmp(Variant_string(nullptr), "") == 0);
   Variant_setString(&variant, "", -1);
   CHECK(strcmp(Variant_string(&variant), "") == 0);
