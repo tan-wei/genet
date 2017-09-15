@@ -14,6 +14,7 @@ public:
   static v8::Local<v8::Object> wrap(const Payload *prop);
   static const Payload *unwrap(v8::Local<v8::Object> obj);
   static NAN_METHOD(New);
+  static NAN_METHOD(addSlice);
   static NAN_GETTER(slices);
   static NAN_GETTER(length);
   static NAN_METHOD(addAttr);

@@ -35,6 +35,15 @@ PayloadWrapper::PayloadWrapper(const Payload *payload)
 
 NAN_METHOD(PayloadWrapper::New) { info.GetReturnValue().Set(info.This()); }
 
+NAN_METHOD(PayloadWrapper::addSlice) {
+  PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
+  if (auto payload = wrapper->payload) {
+    if (info[0]->IsArrayBufferView()) {
+      payload->addSlice(Variant::getSlice(info[0].As<v8::ArrayBufferView>()));
+    }
+  }
+}
+
 NAN_GETTER(PayloadWrapper::slices) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->constPayload) {
