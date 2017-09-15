@@ -93,12 +93,10 @@ NAN_METHOD(PayloadWrapper::attr) {
 NAN_METHOD(PayloadWrapper::addAttr) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->payload) {
-    if (info[0]->IsObject()) {
-      if (const auto &child =
-              AttributeWrapper::unwrap(info[0].As<v8::Object>())) {
-        payload->addAttr(child);
-      }
-    }
+    Token token = info[0]->IsNumber() ? info[0]->NumberValue()
+                                      : Token_get(*Nan::Utf8String(info[0]));
+    info.GetReturnValue().Set(
+        AttributeWrapper::wrap(Payload_addAttr(payload, token)));
   }
 }
 
