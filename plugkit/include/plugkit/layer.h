@@ -50,11 +50,9 @@ PLUGKIT_EXPORT Payload *Layer_addPayload(Layer *layer);
 
 /// Returns the first address of payloads
 /// and assigns the number of the layer payloads to size.
+/// Returns the address of an empty payload if the layer has no payloads.
 PLUGKIT_EXPORT const Payload *const *Layer_payloads(const Layer *layer,
                                                     size_t *size);
-
-/// Returns the first payload
-PLUGKIT_EXPORT const Payload *Layer_payload(const Layer *layer);
 
 /// Adds a layer tag
 PLUGKIT_EXPORT void Layer_addTag(Layer *layer, Token tag);

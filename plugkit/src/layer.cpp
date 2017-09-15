@@ -116,16 +116,12 @@ const Payload *const *Layer_payloads(const Layer *layer, size_t *size) {
   const auto &payloads = layer->payloads();
   if (size)
     *size = payloads.size();
-  return payloads.data();
-}
-
-const Payload *Layer_payload(const Layer *layer) {
-  static const Payload empty;
-  const auto &payloads = layer->payloads();
-  if (payloads.size() > 0) {
-    return payloads.front();
+  if (payloads.empty()) {
+    static const Payload empty;
+    static const Payload *ptr = &empty;
+    return &ptr;
   }
-  return &empty;
+  return payloads.data();
 }
 
 void Layer_addTag(Layer *layer, Token tag) { layer->addTag(tag); }
