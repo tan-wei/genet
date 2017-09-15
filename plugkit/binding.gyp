@@ -33,6 +33,7 @@
          "src/wrapper/layer_w.cpp",
          "src/wrapper/payload_w.cpp",
          "src/wrapper/session_factory_w.cpp",
+         "src/wrapper/stream_reader_w.cpp",
          "src/session.cpp",
          "src/frame.cpp",
          "src/attribute.cpp",

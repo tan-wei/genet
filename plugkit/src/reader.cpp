@@ -105,5 +105,4 @@ int64_t Reader_readInt64LE(Reader *reader) { return readLE<int64_t>(reader); }
 
 float Reader_readFloat32LE(Reader *reader) { return readLE<float>(reader); }
 double Reader_readFloat64LE(Reader *reader) { return readLE<double>(reader); }
-
 }
