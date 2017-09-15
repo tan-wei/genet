@@ -13,8 +13,9 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Layer").ToLocalChecked());
   SetPrototypeMethod(tpl, "attr", attr);
-  SetPrototypeMethod(tpl, "addAttr", addAttr);
   SetPrototypeMethod(tpl, "addLayer", addLayer);
+  SetPrototypeMethod(tpl, "addSubLayer", addSubLayer);
+  SetPrototypeMethod(tpl, "addAttr", addAttr);
   SetPrototypeMethod(tpl, "toJSON", toJSON);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
@@ -177,7 +178,6 @@ NAN_GETTER(LayerWrapper::tags) {
 NAN_METHOD(LayerWrapper::attr) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->weakLayer) {
-
     Token token = info[0]->IsNumber() ? info[0]->NumberValue()
                                       : Token_get(*Nan::Utf8String(info[0]));
     if (const auto &prop = layer->attr(token)) {
@@ -191,23 +191,28 @@ NAN_METHOD(LayerWrapper::attr) {
 NAN_METHOD(LayerWrapper::addLayer) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
-    if (info[0]->IsObject()) {
-      if (const auto &child = LayerWrapper::unwrap(info[0].As<v8::Object>())) {
-        layer->addLayer(child);
-      }
-    }
+    Token token = info[0]->IsNumber() ? info[0]->NumberValue()
+                                      : Token_get(*Nan::Utf8String(info[0]));
+    info.GetReturnValue().Set(LayerWrapper::wrap(Layer_addLayer(layer, token)));
   }
 }
 
+NAN_METHOD(LayerWrapper::addSubLayer) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->layer) {
+    Token token = info[0]->IsNumber() ? info[0]->NumberValue()
+                                      : Token_get(*Nan::Utf8String(info[0]));
+    info.GetReturnValue().Set(
+        LayerWrapper::wrap(Layer_addSubLayer(layer, token)));
+  }
+}
 NAN_METHOD(LayerWrapper::addAttr) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
-    if (info[0]->IsObject()) {
-      if (const auto &prop =
-              AttributeWrapper::unwrap(info[0].As<v8::Object>())) {
-        layer->addAttr(prop);
-      }
-    }
+    Token token = info[0]->IsNumber() ? info[0]->NumberValue()
+                                      : Token_get(*Nan::Utf8String(info[0]));
+    info.GetReturnValue().Set(
+        AttributeWrapper::wrap(Layer_addAttr(layer, token)));
   }
 }
 
