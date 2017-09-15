@@ -14,29 +14,15 @@ TEST_CASE("Payload_type", "[Payload]") {
   CHECK(Payload_type(&payload) == token);
 }
 
-TEST_CASE("Payload_slice", "[Payload]") {
-  Payload payload;
-  char data[256];
-  Slice slice = Payload_slice(&payload);
-  CHECK(slice.begin == nullptr);
-  CHECK(slice.end == nullptr);
-  Payload_addSlice(&payload, Slice{data, data + sizeof(data)});
-  slice = Payload_slice(&payload);
-  CHECK(slice.begin == data);
-  CHECK(slice.end == data + sizeof(data));
-  Payload_addSlice(&payload, Slice{data, data + 100});
-  slice = Payload_slice(&payload);
-  CHECK(slice.begin == data);
-  CHECK(slice.end == data + sizeof(data));
-}
-
 TEST_CASE("Payload_slices", "[Payload]") {
   Payload payload;
   char data[256];
   size_t size;
   const Slice *slice = Payload_slices(&payload, &size);
-  CHECK(slice == nullptr);
+  CHECK(slice != nullptr);
   CHECK(size == 0);
+  CHECK(slice[0].begin == nullptr);
+  CHECK(slice[0].end == nullptr);
   Payload_addSlice(&payload, Slice{data, data + sizeof(data)});
   slice = Payload_slices(&payload, &size);
   CHECK(slice != nullptr);

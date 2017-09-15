@@ -40,18 +40,14 @@ void Payload_addSlice(Payload *payload, Slice slice) {
   payload->addSlice(slice);
 }
 
-Slice Payload_slice(const Payload *payload) {
-  const auto &slices = payload->slices();
-  if (slices.size() > 0) {
-    return slices.front();
-  }
-  return Slice{nullptr, nullptr};
-}
-
 const Slice *Payload_slices(const Payload *payload, size_t *size) {
   const auto &slices = payload->slices();
   if (size)
     *size = slices.size();
+  if (slices.empty()) {
+    static const Slice nil = {nullptr, nullptr};
+    return &nil;
+  }
   return slices.data();
 }
 

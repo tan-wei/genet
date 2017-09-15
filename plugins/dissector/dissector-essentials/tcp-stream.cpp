@@ -105,7 +105,7 @@ void analyze(Context *ctx, void *data, Layer *layer) {
     stream.id = (worker->idMap.size() << 8) | Layer_worker(layer);
   }
   Attr_setUint32(Layer_addAttr(layer, streamIdToken), stream.id);
-  const Slice payload = Payload_slice(Layer_payload(layer));
+  const Slice payload = Payload_slices(Layer_payload(layer), nullptr)[0];
 
   uint32_t seq = Attr_uint32(Layer_attr(layer, seqToken));
   uint16_t window = Attr_uint32(Layer_attr(layer, windowToken));

@@ -13,13 +13,11 @@ PLUGKIT_NAMESPACE_BEGIN
 typedef struct Payload Payload;
 typedef struct Attr Attr;
 
-/// Returns the the first payload data.
-PLUGKIT_EXPORT Slice Payload_slice(const Payload *payload);
-
 PLUGKIT_EXPORT void Payload_addSlice(Payload *payload, Slice slice);
 
 /// Returns the first address of slices
 /// and assigns the number of slices to size.
+/// Returns the address of an empty slice if the payload has no slices.
 PLUGKIT_EXPORT const Slice *Payload_slices(const Payload *payload,
                                            size_t *size);
 
