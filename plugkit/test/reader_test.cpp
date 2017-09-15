@@ -476,5 +476,28 @@ TEST_CASE("StreamReader_search", "[StreamReader]") {
   range = StreamReader_search(reader, "xfy", 3, StreamReader_length(reader));
   CHECK(range.begin == 0);
   CHECK(range.end == 0);
+
+  StreamReader_destroy(reader);
+}
+
+TEST_CASE("StreamReader_length", "[StreamReader]") {
+  StreamReader *reader = StreamReader_create();
+  CHECK(StreamReader_length(reader) == 0);
+
+  char data[256] = {0};
+  StreamReader_addSlice(reader, Slice{data, data + 16});
+  CHECK(StreamReader_length(reader) == 16);
+  StreamReader_addSlice(reader, Slice{data + 16, data + 100});
+  CHECK(StreamReader_length(reader) == 100);
+  StreamReader_addSlice(reader, Slice{data + 100, data + sizeof(data)});
+  CHECK(StreamReader_length(reader) == 256);
+  StreamReader_addSlice(reader, Slice{data, data + 16});
+  CHECK(StreamReader_length(reader) == 272);
+  StreamReader_addSlice(reader, Slice{data + 16, data + 100});
+  CHECK(StreamReader_length(reader) == 356);
+  StreamReader_addSlice(reader, Slice{data + 100, data + sizeof(data)});
+  CHECK(StreamReader_length(reader) == 512);
+
+  StreamReader_destroy(reader);
 }
 }
