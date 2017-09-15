@@ -142,8 +142,14 @@ NAN_METHOD(SessionWrapper::analyze) {
         auto obj = array->Get(i).As<v8::Object>();
         Session::RawFrame frame;
         frame.link = obj->Get(Nan::New("link").ToLocalChecked())->Uint32Value();
-        frame.payload = Variant::getSlice(
-            obj->Get(Nan::New("payload").ToLocalChecked()).As<v8::Object>());
+
+        auto payload = obj->Get(Nan::New("payload").ToLocalChecked());
+        if (node::Buffer::HasInstance(payload)) {
+          size_t len = node::Buffer::Length(payload);
+          char *data = new char[len];
+          std::memcpy(data, node::Buffer::Data(payload), len);
+          frame.payload = Slice{data, data + len};
+        }
         frame.length =
             obj->Get(Nan::New("length").ToLocalChecked())->Uint32Value();
         const Variant &tsVariant = Variant::getVariant(

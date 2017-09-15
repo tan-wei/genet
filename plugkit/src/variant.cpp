@@ -395,17 +395,15 @@ v8::Local<v8::Object> Variant::getNodeBuffer(const Slice &slice) {
   return nodeBuf;
 }
 
-Slice Variant::getSlice(v8::Local<v8::Object> obj) {
+Slice Variant::getSlice(v8::Local<v8::ArrayBufferView> obj) {
   using namespace v8;
-
-  if (!node::Buffer::HasInstance(obj)) {
-    return Slice();
+  auto buf = obj->Buffer();
+  if (!buf->IsExternal()) {
+    return Slice{nullptr, nullptr};
   }
-
-  size_t len = node::Buffer::Length(obj);
-  char *data = new char[len];
-  std::memcpy(data, node::Buffer::Data(obj), len);
-
+  size_t len = obj->ByteLength();
+  char *data =
+      static_cast<char *>(buf->Externalize().Data()) + obj->ByteOffset();
   return Slice{data, data + len};
 }
 
@@ -553,8 +551,8 @@ Variant Variant::getVariant(v8::Local<v8::Value> var) {
       ts += var->NumberValue();
     }
     return Timestamp(std::chrono::nanoseconds(ts));
-  } else if (node::Buffer::HasInstance(var)) {
-    return getSlice(var.As<v8::Object>());
+  } else if (var->IsArrayBufferView()) {
+    return getSlice(var.As<v8::ArrayBufferView>());
   } else if (var->IsArray()) {
     auto obj = var.As<v8::Array>();
     Variant::Array array;
