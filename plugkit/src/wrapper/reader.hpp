@@ -20,10 +20,8 @@ public:
   static NAN_METHOD(getInt8);
   static NAN_METHOD(getUint16);
   static NAN_METHOD(getUint32);
-  static NAN_METHOD(getUint64);
   static NAN_METHOD(getInt16);
   static NAN_METHOD(getInt32);
-  static NAN_METHOD(getInt64);
   static NAN_METHOD(getFloat32);
   static NAN_METHOD(getFloat64);
 
