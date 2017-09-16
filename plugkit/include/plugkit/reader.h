@@ -19,30 +19,19 @@ PLUGKIT_EXPORT void Reader_reset(Reader *reader);
 PLUGKIT_EXPORT Slice Reader_slice(Reader *reader, size_t offset, size_t length);
 PLUGKIT_EXPORT Slice Reader_sliceAll(Reader *reader, size_t offset);
 
-PLUGKIT_EXPORT uint8_t Reader_readUint8(Reader *reader);
-PLUGKIT_EXPORT int8_t Reader_readInt8(Reader *reader);
+PLUGKIT_EXPORT uint8_t Reader_getUint8(Reader *reader);
+PLUGKIT_EXPORT int8_t Reader_getInt8(Reader *reader);
 
-PLUGKIT_EXPORT uint16_t Reader_readUint16BE(Reader *reader);
-PLUGKIT_EXPORT uint32_t Reader_readUint32BE(Reader *reader);
-PLUGKIT_EXPORT uint64_t Reader_readUint64BE(Reader *reader);
+PLUGKIT_EXPORT uint16_t Reader_getUint16(Reader *reader, bool littleEndian);
+PLUGKIT_EXPORT uint32_t Reader_getUint32(Reader *reader, bool littleEndian);
+PLUGKIT_EXPORT uint64_t Reader_getUint64(Reader *reader, bool littleEndian);
 
-PLUGKIT_EXPORT int16_t Reader_readInt16BE(Reader *reader);
-PLUGKIT_EXPORT int32_t Reader_readInt32BE(Reader *reader);
-PLUGKIT_EXPORT int64_t Reader_readInt64BE(Reader *reader);
+PLUGKIT_EXPORT int16_t Reader_getInt16(Reader *reader, bool littleEndian);
+PLUGKIT_EXPORT int32_t Reader_getInt32(Reader *reader, bool littleEndian);
+PLUGKIT_EXPORT int64_t Reader_getInt64(Reader *reader, bool littleEndian);
 
-PLUGKIT_EXPORT float Reader_readFloat32BE(Reader *reader);
-PLUGKIT_EXPORT double Reader_readFloat64BE(Reader *reader);
-
-PLUGKIT_EXPORT uint16_t Reader_readUint16LE(Reader *reader);
-PLUGKIT_EXPORT uint32_t Reader_readUint32LE(Reader *reader);
-PLUGKIT_EXPORT uint64_t Reader_readUint64LE(Reader *reader);
-
-PLUGKIT_EXPORT int16_t Reader_readInt16LE(Reader *reader);
-PLUGKIT_EXPORT int32_t Reader_readInt32LE(Reader *reader);
-PLUGKIT_EXPORT int64_t Reader_readInt64LE(Reader *reader);
-
-PLUGKIT_EXPORT float Reader_readFloat32LE(Reader *reader);
-PLUGKIT_EXPORT double Reader_readFloat64LE(Reader *reader);
+PLUGKIT_EXPORT float Reader_getFloat32(Reader *reader, bool littleEndian);
+PLUGKIT_EXPORT double Reader_getFloat64(Reader *reader, bool littleEndian);
 
 PLUGKIT_NAMESPACE_END
 

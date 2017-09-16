@@ -45,7 +45,7 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   Attr_setType(dst, macToken);
   Attr_setRange(dst, reader.lastRange);
 
-  auto protocolType = Reader_readUint16BE(&reader);
+  auto protocolType = Reader_getUint16(&reader, false);
   if (protocolType <= 1500) {
     Attr *length = Layer_addAttr(child, lenToken);
     Attr_setUint32(length, protocolType);

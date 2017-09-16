@@ -46,75 +46,59 @@ Slice Slice_sliceAll(Slice slice, size_t offset) {
   return Slice{std::min(slice.begin + offset, slice.end), slice.end};
 }
 
-uint8_t Slice_readUint8(Slice slice, size_t offset, Error *err) {
+uint8_t Slice_getUint8(Slice slice, size_t offset, Error *err) {
   return readLE<uint8_t>(slice, offset, err);
 }
 
-int8_t Slice_readInt8(Slice slice, size_t offset, Error *err) {
+int8_t Slice_getInt8(Slice slice, size_t offset, Error *err) {
   return readLE<int8_t>(slice, offset, err);
 }
 
-uint16_t Slice_readUint16BE(Slice slice, size_t offset, Error *err) {
-  return readBE<uint16_t>(slice, offset, err);
+uint16_t Slice_getUint16(Slice slice, size_t offset, bool littleEndian,
+                         Error *err) {
+  return littleEndian ? readLE<uint16_t>(slice, offset, err)
+                      : readBE<uint16_t>(slice, offset, err);
 }
 
-uint32_t Slice_readUint32BE(Slice slice, size_t offset, Error *err) {
-  return readBE<uint32_t>(slice, offset, err);
+uint32_t Slice_getUint32(Slice slice, size_t offset, bool littleEndian,
+                         Error *err) {
+  return littleEndian ? readLE<uint32_t>(slice, offset, err)
+                      : readBE<uint32_t>(slice, offset, err);
 }
 
-uint64_t Slice_readUint64BE(Slice slice, size_t offset, Error *err) {
-  return readBE<uint64_t>(slice, offset, err);
+uint64_t Slice_getUint64(Slice slice, size_t offset, bool littleEndian,
+                         Error *err) {
+  return littleEndian ? readLE<uint64_t>(slice, offset, err)
+                      : readBE<uint64_t>(slice, offset, err);
 }
 
-int16_t Slice_readInt16BE(Slice slice, size_t offset, Error *err) {
-  return readBE<int16_t>(slice, offset, err);
+int16_t Slice_getInt16(Slice slice, size_t offset, bool littleEndian,
+                       Error *err) {
+  return littleEndian ? readLE<int16_t>(slice, offset, err)
+                      : readBE<int16_t>(slice, offset, err);
 }
 
-int32_t Slice_readInt32BE(Slice slice, size_t offset, Error *err) {
-  return readBE<int32_t>(slice, offset, err);
+int32_t Slice_getInt32(Slice slice, size_t offset, bool littleEndian,
+                       Error *err) {
+  return littleEndian ? readLE<int32_t>(slice, offset, err)
+                      : readBE<int32_t>(slice, offset, err);
 }
 
-int64_t Slice_readInt64BE(Slice slice, size_t offset, Error *err) {
-  return readBE<int64_t>(slice, offset, err);
+int64_t Slice_getInt64(Slice slice, size_t offset, bool littleEndian,
+                       Error *err) {
+  return littleEndian ? readLE<int64_t>(slice, offset, err)
+                      : readBE<int64_t>(slice, offset, err);
 }
 
-float Slice_readFloat32BE(Slice slice, size_t offset, Error *err) {
-  return readBE<float>(slice, offset, err);
+float Slice_getFloat32(Slice slice, size_t offset, bool littleEndian,
+                       Error *err) {
+  return littleEndian ? readLE<float>(slice, offset, err)
+                      : readBE<float>(slice, offset, err);
 }
 
-double Slice_readFloat64BE(Slice slice, size_t offset, Error *err) {
-  return readBE<double>(slice, offset, err);
-}
-
-uint16_t Slice_readUint16LE(Slice slice, size_t offset, Error *err) {
-  return readLE<uint16_t>(slice, offset, err);
-}
-
-uint32_t Slice_readUint32LE(Slice slice, size_t offset, Error *err) {
-  return readLE<uint32_t>(slice, offset, err);
-}
-
-uint64_t Slice_readUint64LE(Slice slice, size_t offset, Error *err) {
-  return readLE<uint64_t>(slice, offset, err);
-}
-
-int16_t Slice_readInt16LE(Slice slice, size_t offset, Error *err) {
-  return readLE<int16_t>(slice, offset, err);
-}
-
-int32_t Slice_readInt32LE(Slice slice, size_t offset, Error *err) {
-  return readLE<int32_t>(slice, offset, err);
-}
-
-int64_t Slice_readInt64LE(Slice slice, size_t offset, Error *err) {
-  return readLE<int64_t>(slice, offset, err);
-}
-
-float Slice_readFloat32LE(Slice slice, size_t offset, Error *err) {
-  return readLE<float>(slice, offset, err);
-}
-
-double Slice_readFloat64LE(Slice slice, size_t offset, Error *err) {
-  return readLE<double>(slice, offset, err);
+double Slice_getFloat64(Slice slice, size_t offset, bool littleEndian,
+                        Error *err) {
+  return littleEndian ? readLE<double>(slice, offset, err)
+                      : readBE<double>(slice, offset, err);
 }
 }

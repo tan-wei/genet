@@ -69,40 +69,33 @@ Slice Reader_sliceAll(Reader *reader, size_t offset) {
   return subview;
 }
 
-uint8_t Reader_readUint8(Reader *reader) { return readLE<uint8_t>(reader); }
-int8_t Reader_readInt8(Reader *reader) { return readLE<int8_t>(reader); }
+uint8_t Reader_getUint8(Reader *reader) { return readLE<uint8_t>(reader); }
+int8_t Reader_getInt8(Reader *reader) { return readLE<int8_t>(reader); }
 
-uint16_t Reader_readUint16BE(Reader *reader) {
-  return readBE<uint16_t>(reader);
+uint16_t Reader_getUint16(Reader *reader, bool littleEndian) {
+  return littleEndian ? readLE<uint16_t>(reader) : readBE<uint16_t>(reader);
 }
-uint32_t Reader_readUint32BE(Reader *reader) {
-  return readBE<uint32_t>(reader);
+uint32_t Reader_getUint32(Reader *reader, bool littleEndian) {
+  return littleEndian ? readLE<uint32_t>(reader) : readBE<uint32_t>(reader);
 }
-uint64_t Reader_readUint64BE(Reader *reader) {
-  return readBE<uint64_t>(reader);
-}
-
-int16_t Reader_readInt16BE(Reader *reader) { return readBE<int16_t>(reader); }
-int32_t Reader_readInt32BE(Reader *reader) { return readBE<int32_t>(reader); }
-int64_t Reader_readInt64BE(Reader *reader) { return readBE<int64_t>(reader); }
-
-float Reader_readFloat32BE(Reader *reader) { return readBE<float>(reader); }
-double Reader_readFloat64BE(Reader *reader) { return readBE<double>(reader); }
-
-uint16_t Reader_readUint16LE(Reader *reader) {
-  return readLE<uint16_t>(reader);
-}
-uint32_t Reader_readUint32LE(Reader *reader) {
-  return readLE<uint32_t>(reader);
-}
-uint64_t Reader_readUint64LE(Reader *reader) {
-  return readLE<uint64_t>(reader);
+uint64_t Reader_getUint64(Reader *reader, bool littleEndian) {
+  return littleEndian ? readLE<uint64_t>(reader) : readBE<uint64_t>(reader);
 }
 
-int16_t Reader_readInt16LE(Reader *reader) { return readLE<int16_t>(reader); }
-int32_t Reader_readInt32LE(Reader *reader) { return readLE<int32_t>(reader); }
-int64_t Reader_readInt64LE(Reader *reader) { return readLE<int64_t>(reader); }
+int16_t Reader_getInt16(Reader *reader, bool littleEndian) {
+  return littleEndian ? readLE<int16_t>(reader) : readBE<int16_t>(reader);
+}
+int32_t Reader_getInt32(Reader *reader, bool littleEndian) {
+  return littleEndian ? readLE<int32_t>(reader) : readBE<int32_t>(reader);
+}
+int64_t Reader_getInt64(Reader *reader, bool littleEndian) {
+  return littleEndian ? readLE<uint64_t>(reader) : readBE<int64_t>(reader);
+}
 
-float Reader_readFloat32LE(Reader *reader) { return readLE<float>(reader); }
-double Reader_readFloat64LE(Reader *reader) { return readLE<double>(reader); }
+float Reader_getFloat32(Reader *reader, bool littleEndian) {
+  return littleEndian ? readLE<float>(reader) : readBE<float>(reader);
+}
+double Reader_getFloat64(Reader *reader, bool littleEndian) {
+  return littleEndian ? readLE<double>(reader) : readBE<double>(reader);
+}
 }

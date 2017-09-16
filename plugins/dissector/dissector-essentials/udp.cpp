@@ -29,22 +29,22 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   const auto &parentSrc = Layer_attr(layer, srcToken);
   const auto &parentDst = Layer_attr(layer, dstToken);
 
-  uint16_t sourcePort = Reader_readUint16BE(&reader);
+  uint16_t sourcePort = Reader_getUint16(&reader, false);
   Attr *src = Layer_addAttr(child, srcToken);
   Attr_setUint32(src, sourcePort);
   Attr_setRange(src, reader.lastRange);
 
-  uint16_t dstPort = Reader_readUint16BE(&reader);
+  uint16_t dstPort = Reader_getUint16(&reader, false);
   Attr *dst = Layer_addAttr(child, dstToken);
   Attr_setUint32(dst, dstPort);
   Attr_setRange(dst, reader.lastRange);
 
-  uint32_t lengthNumber = Reader_readUint16BE(&reader);
+  uint32_t lengthNumber = Reader_getUint16(&reader, false);
   Attr *length = Layer_addAttr(child, lengthToken);
   Attr_setUint32(length, lengthNumber);
   Attr_setRange(length, reader.lastRange);
 
-  uint32_t checksumNumber = Reader_readUint16BE(&reader);
+  uint32_t checksumNumber = Reader_getUint16(&reader, false);
   Attr *checksum = Layer_addAttr(child, checksumToken);
   Attr_setUint32(checksum, checksumNumber);
   Attr_setRange(checksum, reader.lastRange);

@@ -53,7 +53,7 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   Layer *child = Layer_addLayer(layer, ipv4Token);
   Layer_addTag(child, ipv4Token);
 
-  uint8_t header = Reader_readUint8(&reader);
+  uint8_t header = Reader_getUint8(&reader);
   int version = header >> 4;
   int headerLength = header & 0b00001111;
 
@@ -66,19 +66,19 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   Attr_setRange(hlen, reader.lastRange);
 
   Attr *tos = Layer_addAttr(child, typeToken);
-  Attr_setUint32(tos, Reader_readUint8(&reader));
+  Attr_setUint32(tos, Reader_getUint8(&reader));
   Attr_setRange(tos, reader.lastRange);
 
-  uint16_t totalLength = Reader_readUint16BE(&reader);
+  uint16_t totalLength = Reader_getUint16(&reader, false);
   Attr *tlen = Layer_addAttr(child, tLenToken);
   Attr_setUint32(tlen, totalLength);
   Attr_setRange(tlen, reader.lastRange);
 
   Attr *id = Layer_addAttr(child, idToken);
-  Attr_setUint32(id, Reader_readUint16BE(&reader));
+  Attr_setUint32(id, Reader_getUint16(&reader, false));
   Attr_setRange(id, reader.lastRange);
 
-  uint8_t flagAndOffset = Reader_readUint8(&reader);
+  uint8_t flagAndOffset = Reader_getUint8(&reader);
   uint8_t flag = (flagAndOffset >> 5) & 0b00000111;
 
   Attr *flags = Layer_addAttr(child, flagsToken);
@@ -100,16 +100,16 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   Attr_setRange(flags, reader.lastRange);
 
   uint16_t fgOffset =
-      ((flagAndOffset & 0b00011111) << 8) | Reader_readUint8(&reader);
+      ((flagAndOffset & 0b00011111) << 8) | Reader_getUint8(&reader);
   Attr *fragmentOffset = Layer_addAttr(child, fOffsetToken);
   Attr_setUint32(fragmentOffset, fgOffset);
   Attr_setRange(fragmentOffset, Range{6, 8});
 
   Attr *ttl = Layer_addAttr(child, ttlToken);
-  Attr_setUint32(ttl, Reader_readUint8(&reader));
+  Attr_setUint32(ttl, Reader_getUint8(&reader));
   Attr_setRange(ttl, reader.lastRange);
 
-  uint8_t protocolNumber = Reader_readUint8(&reader);
+  uint8_t protocolNumber = Reader_getUint8(&reader);
   Attr *proto = Layer_addAttr(child, protocolToken);
   Attr_setUint32(proto, protocolNumber);
   Attr_setType(proto, enumToken);
@@ -123,7 +123,7 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   }
 
   Attr *checksum = Layer_addAttr(child, checksumToken);
-  Attr_setUint32(checksum, Reader_readUint16BE(&reader));
+  Attr_setUint32(checksum, Reader_getUint16(&reader, false));
   Attr_setRange(checksum, reader.lastRange);
 
   const auto &srcSlice = Reader_slice(&reader, 0, 4);

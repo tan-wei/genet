@@ -70,92 +70,92 @@ TEST_CASE("Slice_sliceAll", "[Slice]") {
   CHECK(view.end == data + 256);
 }
 
-TEST_CASE("Slice_readUint8", "[Slice]") {
+TEST_CASE("Slice_getUint8", "[Slice]") {
   Error err;
   std::memset(&err, 0, sizeof(Error));
   char data[] = {static_cast<char>(128)};
   Slice view = {data, data + sizeof(data)};
-  CHECK(Slice_readUint8(view, 0, &err) == 128);
+  CHECK(Slice_getUint8(view, 0, &err) == 128);
   CHECK(err.type == Token_null());
 
-  CHECK(Slice_readUint8(view, 1, &err) == uint8_t());
+  CHECK(Slice_getUint8(view, 1, &err) == uint8_t());
   CHECK(err.type == outOfBoundError);
 }
 
-TEST_CASE("Slice_readInt8", "[Slice]") {
+TEST_CASE("Slice_getInt8", "[Slice]") {
   Error err;
   std::memset(&err, 0, sizeof(Error));
   char data[] = {-100};
   Slice view = {data, data + sizeof(data)};
-  CHECK(Slice_readInt8(view, 0, &err) == -100);
+  CHECK(Slice_getInt8(view, 0, &err) == -100);
   CHECK(err.type == Token_null());
 
-  CHECK(Slice_readInt8(view, 1, &err) == int8_t());
+  CHECK(Slice_getInt8(view, 1, &err) == int8_t());
   CHECK(err.type == outOfBoundError);
 }
 
-TEST_CASE("Slice_readUint16BE", "[Slice]") {
+TEST_CASE("Slice_getUint16", "[Slice]") {
   Error err;
   std::memset(&err, 0, sizeof(Error));
   char data[] = {0, 5};
   Slice view = {data, data + sizeof(data)};
-  CHECK(Slice_readUint16BE(view, 0, &err) == 5);
+  CHECK(Slice_getUint16(view, 0, false, &err) == 5);
   CHECK(err.type == Token_null());
 
-  CHECK(Slice_readUint16BE(view, 1, &err) == uint16_t());
+  CHECK(Slice_getUint16(view, 1, false, &err) == uint16_t());
   CHECK(err.type == outOfBoundError);
 }
 
-TEST_CASE("Slice_readUint32BE", "[Slice]") {
+TEST_CASE("Slice_getUint32", "[Slice]") {
   Error err;
   std::memset(&err, 0, sizeof(Error));
   char data[] = {0, 0, 0, 5};
   Slice view = {data, data + sizeof(data)};
-  CHECK(Slice_readUint32BE(view, 0, &err) == 5);
+  CHECK(Slice_getUint32(view, 0, false, &err) == 5);
   CHECK(err.type == Token_null());
 
-  CHECK(Slice_readUint32BE(view, 3, &err) == uint32_t());
+  CHECK(Slice_getUint32(view, 3, false, &err) == uint32_t());
   CHECK(err.type == outOfBoundError);
 }
 
-TEST_CASE("Slice_readUint64BE", "[Slice]") {
+TEST_CASE("Slice_getUint64", "[Slice]") {
   Error err;
   std::memset(&err, 0, sizeof(Error));
   char data[] = {0, 0, 0, 0, 0, 0, 0, 5};
   Slice view = {data, data + sizeof(data)};
-  CHECK(Slice_readUint64BE(view, 0, &err) == 5);
+  CHECK(Slice_getUint64(view, 0, false, &err) == 5);
   CHECK(err.type == Token_null());
 
-  CHECK(Slice_readUint64BE(view, 7, &err) == uint64_t());
+  CHECK(Slice_getUint64(view, 7, false, &err) == uint64_t());
   CHECK(err.type == outOfBoundError);
 }
 
-TEST_CASE("Slice_readInt16BE", "[Slice]") {
+TEST_CASE("Slice_getInt16", "[Slice]") {
   Error err;
   std::memset(&err, 0, sizeof(Error));
   char data[] = {static_cast<char>(255), 0};
   Slice view = {data, data + sizeof(data)};
-  CHECK(Slice_readInt16BE(view, 0, &err) == -256);
+  CHECK(Slice_getInt16(view, 0, false, &err) == -256);
   CHECK(err.type == Token_null());
 
-  CHECK(Slice_readInt16BE(view, 1, &err) == int16_t());
+  CHECK(Slice_getInt16(view, 1, false, &err) == int16_t());
   CHECK(err.type == outOfBoundError);
 }
 
-TEST_CASE("Slice_readInt32BE", "[Slice]") {
+TEST_CASE("Slice_getInt32", "[Slice]") {
   Error err;
   std::memset(&err, 0, sizeof(Error));
   char data[] = {static_cast<char>(255), static_cast<char>(255),
                  static_cast<char>(255), 0};
   Slice view = {data, data + sizeof(data)};
-  CHECK(Slice_readInt32BE(view, 0, &err) == -256);
+  CHECK(Slice_getInt32(view, 0, false, &err) == -256);
   CHECK(err.type == Token_null());
 
-  CHECK(Slice_readInt32BE(view, 3, &err) == int32_t());
+  CHECK(Slice_getInt32(view, 3, false, &err) == int32_t());
   CHECK(err.type == outOfBoundError);
 }
 
-TEST_CASE("Slice_readInt64BE", "[Slice]") {
+TEST_CASE("Slice_getInt64", "[Slice]") {
   Error err;
   std::memset(&err, 0, sizeof(Error));
   char data[] = {static_cast<char>(255), static_cast<char>(255),
@@ -163,99 +163,99 @@ TEST_CASE("Slice_readInt64BE", "[Slice]") {
                  static_cast<char>(255), static_cast<char>(255),
                  static_cast<char>(255), 0};
   Slice view = {data, data + sizeof(data)};
-  CHECK(Slice_readInt64BE(view, 0, &err) == -256);
+  CHECK(Slice_getInt64(view, 0, false, &err) == -256);
   CHECK(err.type == Token_null());
 
-  CHECK(Slice_readInt64BE(view, 7, &err) == int64_t());
+  CHECK(Slice_getInt64(view, 7, false, &err) == int64_t());
   CHECK(err.type == outOfBoundError);
 }
 
-TEST_CASE("Slice_readFloat32BE", "[Slice]") {
+TEST_CASE("Slice_getFloat32", "[Slice]") {
   Error err;
   std::memset(&err, 0, sizeof(Error));
   char data[] = {-64, 0, 0, 0};
   Slice view = {data, data + sizeof(data)};
-  CHECK(Slice_readFloat32BE(view, 0, &err) == -2.0f);
+  CHECK(Slice_getFloat32(view, 0, false, &err) == -2.0f);
   CHECK(err.type == Token_null());
 
-  CHECK(Slice_readFloat32BE(view, 3, &err) == float());
+  CHECK(Slice_getFloat32(view, 3, false, &err) == float());
   CHECK(err.type == outOfBoundError);
 }
 
-TEST_CASE("Slice_readFloat64BE", "[Slice]") {
+TEST_CASE("Slice_getFloat64", "[Slice]") {
   Error err;
   std::memset(&err, 0, sizeof(Error));
   char data[] = {-64, 0, 0, 0, 0, 0, 0, 0};
   Slice view = {data, data + sizeof(data)};
-  CHECK(Slice_readFloat64BE(view, 0, &err) == -2.0);
+  CHECK(Slice_getFloat64(view, 0, false, &err) == -2.0);
   CHECK(err.type == Token_null());
 
-  CHECK(Slice_readFloat64BE(view, 7, &err) == double());
+  CHECK(Slice_getFloat64(view, 7, false, &err) == double());
   CHECK(err.type == outOfBoundError);
 }
 
-TEST_CASE("Slice_readUint16LE", "[Slice]") {
+TEST_CASE("Slice_getUint16 (little endian)", "[Slice]") {
   Error err;
   std::memset(&err, 0, sizeof(Error));
   char data[] = {5, 0};
   Slice view = {data, data + sizeof(data)};
-  CHECK(Slice_readUint16LE(view, 0, &err) == 5);
+  CHECK(Slice_getUint16(view, 0, true, &err) == 5);
   CHECK(err.type == Token_null());
 
-  CHECK(Slice_readUint16LE(view, 1, &err) == uint16_t());
+  CHECK(Slice_getUint16(view, 1, true, &err) == uint16_t());
   CHECK(err.type == outOfBoundError);
 }
 
-TEST_CASE("Slice_readUint32LE", "[Slice]") {
+TEST_CASE("Slice_getUint32 (little endian)", "[Slice]") {
   Error err;
   std::memset(&err, 0, sizeof(Error));
   char data[] = {5, 0, 0, 0};
   Slice view = {data, data + sizeof(data)};
-  CHECK(Slice_readUint32LE(view, 0, &err) == 5);
+  CHECK(Slice_getUint32(view, 0, true, &err) == 5);
   CHECK(err.type == Token_null());
 
-  CHECK(Slice_readUint32LE(view, 3, &err) == uint32_t());
+  CHECK(Slice_getUint32(view, 3, true, &err) == uint32_t());
   CHECK(err.type == outOfBoundError);
 }
 
-TEST_CASE("Slice_readUint64LE", "[Slice]") {
+TEST_CASE("Slice_getUint64 (little endian)", "[Slice]") {
   Error err;
   std::memset(&err, 0, sizeof(Error));
   char data[] = {5, 0, 0, 0, 0, 0, 0, 0};
   Slice view = {data, data + sizeof(data)};
-  CHECK(Slice_readUint64LE(view, 0, &err) == 5);
+  CHECK(Slice_getUint64(view, 0, true, &err) == 5);
   CHECK(err.type == Token_null());
 
-  CHECK(Slice_readUint64LE(view, 7, &err) == uint64_t());
+  CHECK(Slice_getUint64(view, 7, true, &err) == uint64_t());
   CHECK(err.type == outOfBoundError);
 }
 
-TEST_CASE("Slice_readInt16LE", "[Slice]") {
+TEST_CASE("Slice_getInt16 (little endian)", "[Slice]") {
   Error err;
   std::memset(&err, 0, sizeof(Error));
   char data[] = {0, static_cast<char>(255)};
   Slice view = {data, data + sizeof(data)};
-  CHECK(Slice_readInt16LE(view, 0, &err) == -256);
+  CHECK(Slice_getInt16(view, 0, true, &err) == -256);
   CHECK(err.type == Token_null());
 
-  CHECK(Slice_readInt16LE(view, 1, &err) == int16_t());
+  CHECK(Slice_getInt16(view, 1, true, &err) == int16_t());
   CHECK(err.type == outOfBoundError);
 }
 
-TEST_CASE("Slice_readInt32LE", "[Slice]") {
+TEST_CASE("Slice_getInt32 (little endian)", "[Slice]") {
   Error err;
   std::memset(&err, 0, sizeof(Error));
   char data[] = {0, static_cast<char>(255), static_cast<char>(255),
                  static_cast<char>(255)};
   Slice view = {data, data + sizeof(data)};
-  CHECK(Slice_readInt32LE(view, 0, &err) == -256);
+  CHECK(Slice_getInt32(view, 0, true, &err) == -256);
   CHECK(err.type == Token_null());
 
-  CHECK(Slice_readInt32LE(view, 3, &err) == int32_t());
+  CHECK(Slice_getInt32(view, 3, true, &err) == int32_t());
   CHECK(err.type == outOfBoundError);
 }
 
-TEST_CASE("Slice_readInt64LE", "[Slice]") {
+TEST_CASE("Slice_getInt64 (little endian)", "[Slice]") {
   Error err;
   std::memset(&err, 0, sizeof(Error));
   char data[] = {0,
@@ -267,33 +267,33 @@ TEST_CASE("Slice_readInt64LE", "[Slice]") {
                  static_cast<char>(255),
                  static_cast<char>(255)};
   Slice view = {data, data + sizeof(data)};
-  CHECK(Slice_readInt64LE(view, 0, &err) == -256);
+  CHECK(Slice_getInt64(view, 0, true, &err) == -256);
   CHECK(err.type == Token_null());
 
-  CHECK(Slice_readInt64LE(view, 7, &err) == int64_t());
+  CHECK(Slice_getInt64(view, 7, true, &err) == int64_t());
   CHECK(err.type == outOfBoundError);
 }
 
-TEST_CASE("Slice_readFloat32LE", "[Slice]") {
+TEST_CASE("Slice_getFloat32 (little endian)", "[Slice]") {
   Error err;
   std::memset(&err, 0, sizeof(Error));
   char data[] = {0, 0, 0, -64};
   Slice view = {data, data + sizeof(data)};
-  CHECK(Slice_readFloat32LE(view, 0, &err) == -2.0f);
+  CHECK(Slice_getFloat32(view, 0, true, &err) == -2.0f);
   CHECK(err.type == Token_null());
 
-  CHECK(Slice_readFloat32LE(view, 3, &err) == float());
+  CHECK(Slice_getFloat32(view, 3, true, &err) == float());
   CHECK(err.type == outOfBoundError);
 }
 
-TEST_CASE("Slice_readFloat64LE", "[Slice]") {
+TEST_CASE("Slice_getFloat64 (little endian)", "[Slice]") {
   Error err;
   std::memset(&err, 0, sizeof(Error));
   char data[] = {0, 0, 0, 0, 0, 0, 0, -64};
   Slice view = {data, data + sizeof(data)};
-  CHECK(Slice_readFloat64LE(view, 0, &err) == -2.0);
+  CHECK(Slice_getFloat64(view, 0, true, &err) == -2.0);
   CHECK(err.type == Token_null());
 
-  CHECK(Slice_readFloat64LE(view, 7, &err) == double());
+  CHECK(Slice_getFloat64(view, 7, true, &err) == double());
   CHECK(err.type == outOfBoundError);
 }

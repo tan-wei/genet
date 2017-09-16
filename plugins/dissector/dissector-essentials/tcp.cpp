@@ -59,12 +59,12 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   const auto &parentSrc = Attr_slice(Layer_attr(layer, srcToken));
   const auto &parentDst = Attr_slice(Layer_attr(layer, dstToken));
 
-  uint16_t srcPort = Reader_readUint16BE(&reader);
+  uint16_t srcPort = Reader_getUint16(&reader, false);
   Attr *src = Layer_addAttr(child, srcToken);
   Attr_setUint32(src, srcPort);
   Attr_setRange(src, reader.lastRange);
 
-  uint16_t dstPort = Reader_readUint16BE(&reader);
+  uint16_t dstPort = Reader_getUint16(&reader, false);
   Attr *dst = Layer_addAttr(child, dstToken);
   Attr_setUint32(dst, dstPort);
   Attr_setRange(dst, reader.lastRange);
@@ -74,23 +74,23 @@ void analyze(Context *ctx, void *data, Layer *layer) {
                std::accumulate(parentDst.begin, parentDst.end, 0);
   Layer_setWorker(child, worker % 256);
 
-  uint32_t seqNumber = Reader_readUint32BE(&reader);
+  uint32_t seqNumber = Reader_getUint32(&reader, false);
   Attr *seq = Layer_addAttr(child, seqToken);
   Attr_setUint32(seq, seqNumber);
   Attr_setRange(seq, reader.lastRange);
 
-  uint32_t ackNumber = Reader_readUint32BE(&reader);
+  uint32_t ackNumber = Reader_getUint32(&reader, false);
   Attr *ack = Layer_addAttr(child, ackToken);
   Attr_setUint32(ack, ackNumber);
   Attr_setRange(ack, reader.lastRange);
 
-  uint8_t offsetAndFlag = Reader_readUint8(&reader);
+  uint8_t offsetAndFlag = Reader_getUint8(&reader);
   int dataOffset = offsetAndFlag >> 4;
   Attr *offset = Layer_addAttr(child, dOffsetToken);
   Attr_setUint32(offset, dataOffset);
   Attr_setRange(offset, reader.lastRange);
 
-  uint8_t flag = Reader_readUint8(&reader) | ((offsetAndFlag & 0x1) << 8);
+  uint8_t flag = Reader_getUint8(&reader) | ((offsetAndFlag & 0x1) << 8);
 
   Attr *flags = Layer_addAttr(child, flagsToken);
   Attr_setUint32(flags, flag);
@@ -104,15 +104,15 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   Attr_setRange(flags, Range{12, 14});
 
   Attr *window = Layer_addAttr(child, windowToken);
-  Attr_setUint32(window, Reader_readUint16BE(&reader));
+  Attr_setUint32(window, Reader_getUint16(&reader, false));
   Attr_setRange(window, reader.lastRange);
 
   Attr *checksum = Layer_addAttr(child, checksumToken);
-  Attr_setUint32(checksum, Reader_readUint16BE(&reader));
+  Attr_setUint32(checksum, Reader_getUint16(&reader, false));
   Attr_setRange(checksum, reader.lastRange);
 
   Attr *urgent = Layer_addAttr(child, urgentToken);
-  Attr_setUint32(urgent, Reader_readUint16BE(&reader));
+  Attr_setUint32(urgent, Reader_getUint16(&reader, false));
   Attr_setRange(urgent, reader.lastRange);
 
   Attr *options = Layer_addAttr(child, optionsToken);
@@ -133,14 +133,14 @@ void analyze(Context *ctx, void *data, Layer *layer) {
     } break;
     case 2: {
       uint16_t size =
-          Slice_readUint16BE(reader.slice, optionOffset + 2, nullptr);
+          Slice_getUint16(reader.slice, optionOffset + 2, false, nullptr);
       Attr *opt = Layer_addAttr(child, mssToken);
       Attr_setUint32(opt, size);
       Attr_setRange(opt, Range{optionOffset, optionOffset + 4});
       optionOffset += 4;
     } break;
     case 3: {
-      uint8_t scale = Slice_readUint8(reader.slice, optionOffset + 2, nullptr);
+      uint8_t scale = Slice_getUint8(reader.slice, optionOffset + 2, nullptr);
       Attr *opt = Layer_addAttr(child, scaleToken);
       Attr_setUint32(opt, scale);
       Attr_setRange(opt, Range{optionOffset, optionOffset + 2});
@@ -154,16 +154,17 @@ void analyze(Context *ctx, void *data, Layer *layer) {
 
     // TODO: https://tools.ietf.org/html/rfc2018
     case 5: {
-      uint8_t length = Slice_readUint8(reader.slice, optionOffset + 1, nullptr);
+      uint8_t length = Slice_getUint8(reader.slice, optionOffset + 1, nullptr);
       Attr *opt = Layer_addAttr(child, selAckToken);
       Attr_setSlice(opt, Slice_slice(reader.slice, optionOffset + 2, length));
       Attr_setRange(opt, Range{optionOffset, optionOffset + length});
       optionOffset += length;
     } break;
     case 8: {
-      uint32_t mt = Slice_readUint32BE(reader.slice, optionOffset + 2, nullptr);
-      uint32_t et = Slice_readUint32BE(
-          reader.slice, optionOffset + 2 + sizeof(uint32_t), nullptr);
+      uint32_t mt =
+          Slice_getUint32(reader.slice, optionOffset + 2, false, nullptr);
+      uint32_t et = Slice_getUint32(
+          reader.slice, optionOffset + 2 + sizeof(uint32_t), false, nullptr);
       Attr *opt = Layer_addAttr(child, tsToken);
       Attr_setString(opt,
                      (std::to_string(mt) + " - " + std::to_string(et)).c_str());

@@ -45,11 +45,12 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   Layer *child = Layer_addLayer(layer, ipv6Token);
   Layer_addTag(child, ipv6Token);
 
-  uint8_t header = Reader_readUint8(&reader);
-  uint8_t header2 = Reader_readUint8(&reader);
+  uint8_t header = Reader_getUint8(&reader);
+  uint8_t header2 = Reader_getUint8(&reader);
   int version = header >> 4;
   int trafficClass = (header & 0b00001111 << 4) | ((header2 & 0b11110000) >> 4);
-  int flowLevel = Reader_readUint16BE(&reader) | ((header2 & 0b00001111) << 16);
+  int flowLevel =
+      Reader_getUint16(&reader, false) | ((header2 & 0b00001111) << 16);
 
   Attr *ver = Layer_addAttr(child, versionToken);
   Attr_setUint32(ver, version);
@@ -64,10 +65,10 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   Attr_setRange(fLevel, Range{1, 4});
 
   Attr *pLen = Layer_addAttr(child, pLenToken);
-  Attr_setUint32(pLen, Reader_readUint16BE(&reader));
+  Attr_setUint32(pLen, Reader_getUint16(&reader, false));
   Attr_setRange(pLen, reader.lastRange);
 
-  int nextHeader = Reader_readUint8(&reader);
+  int nextHeader = Reader_getUint8(&reader);
   auto nextHeaderRange = reader.lastRange;
 
   Attr *nHeader = Layer_addAttr(child, nHeaderToken);
@@ -75,7 +76,7 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   Attr_setRange(nHeader, nextHeaderRange);
 
   Attr *hLimit = Layer_addAttr(child, hLimitToken);
-  Attr_setUint32(hLimit, Reader_readUint8(&reader));
+  Attr_setUint32(hLimit, Reader_getUint8(&reader));
   Attr_setRange(hLimit, reader.lastRange);
 
   const auto &srcSlice = Reader_slice(&reader, 0, 16);
@@ -97,8 +98,8 @@ void analyze(Context *ctx, void *data, Layer *layer) {
     case 0:
     case 60: // Hop-by-Hop Options, Destination Options
     {
-      header = Reader_readUint8(&reader);
-      size_t extLen = Reader_readUint8(&reader);
+      header = Reader_getUint8(&reader);
+      size_t extLen = Reader_getUint8(&reader);
       size_t byteLen = (extLen + 1) * 8;
       Reader_slice(&reader, 0, byteLen);
       Token id = (nextHeader == 0) ? hbyhToken : dstToken;
