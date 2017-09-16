@@ -398,12 +398,9 @@ v8::Local<v8::Object> Variant::getNodeBuffer(const Slice &slice) {
 Slice Variant::getSlice(v8::Local<v8::ArrayBufferView> obj) {
   using namespace v8;
   auto buf = obj->Buffer();
-  if (!buf->IsExternal()) {
-    return Slice{nullptr, nullptr};
-  }
   size_t len = obj->ByteLength();
   char *data =
-      static_cast<char *>(buf->Externalize().Data()) + obj->ByteOffset();
+      static_cast<char *>(buf->GetContents().Data()) + obj->ByteOffset();
   return Slice{data, data + len};
 }
 
