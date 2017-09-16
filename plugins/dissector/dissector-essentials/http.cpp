@@ -63,15 +63,15 @@ bool Worker::analyze_start(Context *ctx, Layer *layer) {
 
 bool Worker::analyze_header(Context *ctx, Layer *layer, Layer *child,
                             Attr *headers) {
-  Range range = StreamReader_search(reader, "\r\n", 2, offset);
+  size_t index = StreamReader_search(reader, "\r\n", 2, offset);
 
-  if (range.end == 0)
+  if (index == 0)
     return false;
-  size_t length = range.begin - offset;
+  size_t length = index - 2 - offset;
 
   if (length == 0) {
-    headerLength = range.end;
-    offset = range.end;
+    headerLength = index;
+    offset = index;
     state = STATE_BODY;
     return false;
   }
@@ -123,7 +123,7 @@ bool Worker::analyze_header(Context *ctx, Layer *layer, Layer *child,
     }
   }
 
-  offset = range.end;
+  offset = index;
   return true;
 }
 
