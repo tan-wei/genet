@@ -15,6 +15,7 @@ void StreamReaderWrapper::init(v8::Isolate *isolate,
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("StreamReader").ToLocalChecked());
+  SetPrototypeMethod(tpl, "search", search);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("length").ToLocalChecked(), length);
@@ -58,6 +59,25 @@ NAN_METHOD(StreamReaderWrapper::addSlice) {
       if (view->Buffer()->IsExternal()) {
         StreamReader_addSlice(reader, Variant::getSlice(view));
       }
+    }
+  }
+}
+
+NAN_METHOD(StreamReaderWrapper::search) {
+  StreamReaderWrapper *wrapper =
+      ObjectWrap::Unwrap<StreamReaderWrapper>(info.Holder());
+  if (auto reader = wrapper->reader) {
+    if (info[0]->IsArrayBufferView()) {
+      auto view = info[0].As<v8::ArrayBufferView>();
+      size_t offset = 0;
+      if (info[1]->IsNumber()) {
+        offset = info[1]->NumberValue();
+      }
+      const char *data =
+          static_cast<const char *>(view->Buffer()->GetContents().Data()) +
+          view->ByteOffset();
+      info.GetReturnValue().Set(static_cast<uint32_t>(
+          StreamReader_search(reader, data, view->ByteLength(), offset)));
     }
   }
 }
