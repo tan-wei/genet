@@ -21,7 +21,7 @@ void ReaderWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   SetPrototypeMethod(tpl, "getFloat64", getFloat64);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
-  Nan::SetAccessor(otl, Nan::New("data").ToLocalChecked(), data, setData);
+  // Nan::SetAccessor(otl, Nan::New("data").ToLocalChecked(), data, setData);
 
   v8::Local<v8::Object> func = Nan::GetFunction(tpl).ToLocalChecked();
   Nan::Set(exports, Nan::New("Reader").ToLocalChecked(), func);

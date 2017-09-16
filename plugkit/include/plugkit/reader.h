@@ -16,8 +16,8 @@ typedef struct Reader {
 
 /// Clears Reader's state
 PLUGKIT_EXPORT void Reader_reset(Reader *reader);
-PLUGKIT_EXPORT Slice Reader_slice(Reader *reader, size_t offset, size_t length);
-PLUGKIT_EXPORT Slice Reader_sliceAll(Reader *reader, size_t offset);
+PLUGKIT_EXPORT Slice Reader_slice(Reader *reader, size_t begin, size_t end);
+PLUGKIT_EXPORT Slice Reader_sliceAll(Reader *reader, size_t begin);
 
 PLUGKIT_EXPORT uint8_t Reader_getUint8(Reader *reader);
 PLUGKIT_EXPORT int8_t Reader_getInt8(Reader *reader);

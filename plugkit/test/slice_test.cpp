@@ -21,13 +21,13 @@ TEST_CASE("Slice_length", "[Slice]") {
 TEST_CASE("Slice_slice", "[Slice]") {
   char data[256];
   Slice view = {data, data + sizeof(data)};
-  view = Slice_slice(view, 1, 1280);
+  view = Slice_slice(view, 1, 1281);
   CHECK(view.begin == data + 1);
   CHECK(view.end == data + 256);
 
   view.begin = data;
   view.end = data + sizeof(data);
-  view = Slice_slice(view, 128, 5);
+  view = Slice_slice(view, 128, 133);
   CHECK(view.begin == data + 128);
   CHECK(view.end == data + 128 + 5);
 
@@ -39,7 +39,7 @@ TEST_CASE("Slice_slice", "[Slice]") {
 
   view.begin = data;
   view.end = data + sizeof(data);
-  view = Slice_slice(view, 1280, 1280);
+  view = Slice_slice(view, 1280, 2560);
   CHECK(view.begin == data + 256);
   CHECK(view.end == data + 256);
 

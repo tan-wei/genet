@@ -18,8 +18,8 @@ typedef struct Slice {
 } Slice;
 
 inline size_t Slice_length(Slice slice) { return slice.end - slice.begin; }
-PLUGKIT_EXPORT Slice Slice_slice(Slice slice, size_t offset, size_t length);
-PLUGKIT_EXPORT Slice Slice_sliceAll(Slice slice, size_t offset);
+PLUGKIT_EXPORT Slice Slice_slice(Slice slice, size_t begin, size_t end);
+PLUGKIT_EXPORT Slice Slice_sliceAll(Slice slice, size_t begin);
 
 PLUGKIT_EXPORT uint8_t Slice_getUint8(Slice slice, size_t offset, Error *err);
 PLUGKIT_EXPORT int8_t Slice_getInt8(Slice slice, size_t offset, Error *err);

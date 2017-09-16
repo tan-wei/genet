@@ -156,7 +156,8 @@ void analyze(Context *ctx, void *data, Layer *layer) {
     case 5: {
       uint8_t length = Slice_getUint8(reader.data, optionOffset + 1, nullptr);
       Attr *opt = Layer_addAttr(child, selAckToken);
-      Attr_setSlice(opt, Slice_slice(reader.data, optionOffset + 2, length));
+      Attr_setSlice(opt, Slice_slice(reader.data, optionOffset + 2,
+                                     optionOffset + 2 + length));
       Attr_setRange(opt, Range{optionOffset, optionOffset + length});
       optionOffset += length;
     } break;

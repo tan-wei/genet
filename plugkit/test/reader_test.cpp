@@ -24,21 +24,21 @@ TEST_CASE("Reader_slice", "[Reader]") {
   Slice view = {data, data + sizeof(data)};
   reader.data = view;
 
-  Slice subview = Reader_slice(&reader, 1, 54);
+  Slice subview = Reader_slice(&reader, 1, 55);
   CHECK(subview.begin == data + 1);
   CHECK(subview.end == data + 1 + 54);
   CHECK(reader.lastRange.begin == 1);
   CHECK(reader.lastRange.end == 1 + 54);
   CHECK(reader.lastError.type == Token_null());
 
-  subview = Reader_slice(&reader, 10, 64);
+  subview = Reader_slice(&reader, 10, 74);
   CHECK(subview.begin == data + 1 + 54 + 10);
   CHECK(subview.end == data + 1 + 54 + 10 + 64);
   CHECK(reader.lastRange.begin == 1 + 54 + 10);
   CHECK(reader.lastRange.end == 1 + 54 + 10 + 64);
   CHECK(reader.lastError.type == Token_null());
 
-  subview = Reader_slice(&reader, 100, 64);
+  subview = Reader_slice(&reader, 100, 164);
   CHECK(subview.begin == nullptr);
   CHECK(subview.end == nullptr);
   CHECK(reader.lastRange.begin == 1 + 54 + 10);

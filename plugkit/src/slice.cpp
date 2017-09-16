@@ -35,15 +35,15 @@ template <class T> T readBE(const Slice &slice, size_t offset, Error *err) {
 }
 }
 
-Slice Slice_slice(Slice slice, size_t offset, size_t length) {
+Slice Slice_slice(Slice slice, size_t begin, size_t end) {
   Slice subview;
-  subview.begin = std::min(slice.begin + offset, slice.end);
-  subview.end = std::min(subview.begin + length, slice.end);
+  subview.begin = std::min(slice.begin + begin, slice.end);
+  subview.end = std::min(subview.begin + (end - begin), slice.end);
   return subview;
 }
 
-Slice Slice_sliceAll(Slice slice, size_t offset) {
-  return Slice{std::min(slice.begin + offset, slice.end), slice.end};
+Slice Slice_sliceAll(Slice slice, size_t begin) {
+  return Slice{std::min(slice.begin + begin, slice.end), slice.end};
 }
 
 uint8_t Slice_getUint8(Slice slice, size_t offset, Error *err) {
