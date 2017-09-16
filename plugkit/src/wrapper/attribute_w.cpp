@@ -4,8 +4,7 @@
 
 namespace plugkit {
 
-void AttributeWrapper::init(v8::Isolate *isolate,
-                            v8::Local<v8::Object> exports) {
+void AttributeWrapper::init(v8::Isolate *isolate) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Attr").ToLocalChecked());
@@ -21,8 +20,6 @@ void AttributeWrapper::init(v8::Isolate *isolate,
   module->attribute.proto.Reset(
       isolate, ctor->Get(Nan::New("prototype").ToLocalChecked()));
   module->attribute.ctor.Reset(isolate, ctor);
-  v8::Local<v8::Object> func = Nan::GetFunction(tpl).ToLocalChecked();
-  Nan::Set(exports, Nan::New("Attr").ToLocalChecked(), func);
 }
 
 AttributeWrapper::AttributeWrapper(Attr *prop) : prop(prop), constProp(prop) {}

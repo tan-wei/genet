@@ -27,8 +27,8 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
                              v8::Local<v8::Object> exports, bool mainThread) {
   ExtendedSlot::set(isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE, this);
   Variant::init(isolate);
-  AttributeWrapper::init(isolate, exports);
-  LayerWrapper::init(isolate, exports);
+  AttributeWrapper::init(isolate);
+  LayerWrapper::init(isolate);
   FrameWrapper::init(isolate);
   PayloadWrapper::init(isolate);
   if (mainThread) {

@@ -10,7 +10,7 @@ struct Layer;
 
 class LayerWrapper final : public Nan::ObjectWrap {
 public:
-  static void init(v8::Isolate *isolate, v8::Local<v8::Object> exports);
+  static void init(v8::Isolate *isolate);
   static v8::Local<v8::Object> wrap(const Layer *layer);
   static const Layer *unwrapConst(v8::Local<v8::Object> obj);
   static Layer *unwrap(v8::Local<v8::Object> obj);

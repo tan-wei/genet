@@ -12,7 +12,9 @@ class StreamReaderWrapper final : public Nan::ObjectWrap {
 public:
   ~StreamReaderWrapper();
   static void init(v8::Isolate *isolate, v8::Local<v8::Object> exports);
-  NAN_METHOD(New);
+  static NAN_METHOD(New);
+  static NAN_GETTER(length);
+  static NAN_METHOD(addPayload);
 
 private:
   StreamReaderWrapper();

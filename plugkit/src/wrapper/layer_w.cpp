@@ -8,7 +8,7 @@
 
 namespace plugkit {
 
-void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
+void LayerWrapper::init(v8::Isolate *isolate) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Layer").ToLocalChecked());
@@ -36,8 +36,6 @@ void LayerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   module->layer.proto.Reset(isolate,
                             ctor->Get(Nan::New("prototype").ToLocalChecked()));
   module->layer.ctor.Reset(isolate, ctor);
-  v8::Local<v8::Object> func = Nan::GetFunction(tpl).ToLocalChecked();
-  Nan::Set(exports, Nan::New("Layer").ToLocalChecked(), func);
 }
 
 LayerWrapper::LayerWrapper(const Layer *layer) : weakLayer(layer) {}
