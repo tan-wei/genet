@@ -15,6 +15,7 @@ public:
   static NAN_METHOD(New);
   static NAN_GETTER(length);
   static NAN_METHOD(addPayload);
+  static NAN_METHOD(addSlice);
 
 private:
   StreamReaderWrapper();

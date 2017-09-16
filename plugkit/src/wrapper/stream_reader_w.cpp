@@ -1,5 +1,6 @@
 #include "stream_reader.hpp"
 #include "payload.hpp"
+#include "variant.hpp"
 #include "../../include/plugkit/stream_reader.h"
 
 namespace plugkit {
@@ -44,6 +45,19 @@ NAN_METHOD(StreamReaderWrapper::addPayload) {
     if (const Payload *payload =
             PayloadWrapper::unwrap(info[0].As<v8::Object>())) {
       StreamReader_addPayload(reader, payload);
+    }
+  }
+}
+
+NAN_METHOD(StreamReaderWrapper::addSlice) {
+  StreamReaderWrapper *wrapper =
+      ObjectWrap::Unwrap<StreamReaderWrapper>(info.Holder());
+  if (auto reader = wrapper->reader) {
+    if (info[0]->IsArrayBufferView()) {
+      auto view = info[0].As<v8::ArrayBufferView>();
+      if (view->Buffer()->IsExternal()) {
+        StreamReader_addSlice(reader, Variant::getSlice(view));
+      }
     }
   }
 }
