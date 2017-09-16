@@ -40,7 +40,7 @@ const auto enumToken = Token_get("@enum");
 void analyze(Context *ctx, void *data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
-  reader.slice = Payload_slices(Layer_payloads(layer, nullptr)[0], nullptr)[0];
+  reader.data = Payload_slices(Layer_payloads(layer, nullptr)[0], nullptr)[0];
 
   Layer *child = Layer_addLayer(layer, ipv6Token);
   Layer_addTag(child, ipv6Token);

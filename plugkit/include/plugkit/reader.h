@@ -9,7 +9,7 @@
 PLUGKIT_NAMESPACE_BEGIN
 
 typedef struct Reader {
-  Slice slice;
+  Slice data;
   Range lastRange;
   Error lastError;
 } Reader;

@@ -10,8 +10,8 @@ const Token outOfBoundError = Token_get("Out of bound");
 TEST_CASE("Reader_reset", "[Reader]") {
   Reader reader;
   Reader_reset(&reader);
-  CHECK(reader.slice.begin == nullptr);
-  CHECK(reader.slice.end == nullptr);
+  CHECK(reader.data.begin == nullptr);
+  CHECK(reader.data.end == nullptr);
   CHECK(reader.lastRange.begin == 0);
   CHECK(reader.lastRange.end == 0);
   CHECK(reader.lastError.type == Token_null());
@@ -22,7 +22,7 @@ TEST_CASE("Reader_slice", "[Reader]") {
   Reader_reset(&reader);
   char data[256];
   Slice view = {data, data + sizeof(data)};
-  reader.slice = view;
+  reader.data = view;
 
   Slice subview = Reader_slice(&reader, 1, 54);
   CHECK(subview.begin == data + 1);
@@ -51,7 +51,7 @@ TEST_CASE("Reader_sliceAll", "[Reader]") {
   Reader_reset(&reader);
   char data[256];
   Slice view = {data, data + sizeof(data)};
-  reader.slice = view;
+  reader.data = view;
 
   Slice subview = Reader_sliceAll(&reader, 12);
   CHECK(subview.begin == data + 12);
@@ -73,7 +73,7 @@ TEST_CASE("Reader_getUint8", "[Reader]") {
   Reader_reset(&reader);
   char data[] = {static_cast<char>(128)};
   Slice view = {data, data + sizeof(data)};
-  reader.slice = view;
+  reader.data = view;
 
   CHECK(Reader_getUint8(&reader) == 128);
   CHECK(reader.lastRange.begin == 0);
@@ -91,7 +91,7 @@ TEST_CASE("Reader_getInt8", "[Reader]") {
   Reader_reset(&reader);
   char data[] = {-100};
   Slice view = {data, data + sizeof(data)};
-  reader.slice = view;
+  reader.data = view;
 
   CHECK(Reader_getInt8(&reader) == -100);
   CHECK(reader.lastRange.begin == 0);
@@ -109,7 +109,7 @@ TEST_CASE("Reader_getUint16", "[Reader]") {
   Reader_reset(&reader);
   char data[] = {0, 5};
   Slice view = {data, data + sizeof(data)};
-  reader.slice = view;
+  reader.data = view;
 
   CHECK(Reader_getUint16(&reader, false) == 5);
   CHECK(reader.lastRange.begin == 0);
@@ -127,7 +127,7 @@ TEST_CASE("Reader_getUint32", "[Reader]") {
   Reader_reset(&reader);
   char data[] = {0, 0, 0, 5};
   Slice view = {data, data + sizeof(data)};
-  reader.slice = view;
+  reader.data = view;
 
   CHECK(Reader_getUint32(&reader, false) == 5);
   CHECK(reader.lastRange.begin == 0);
@@ -145,7 +145,7 @@ TEST_CASE("Reader_getUint64", "[Reader]") {
   Reader_reset(&reader);
   char data[] = {0, 0, 0, 0, 0, 0, 0, 5};
   Slice view = {data, data + sizeof(data)};
-  reader.slice = view;
+  reader.data = view;
 
   CHECK(Reader_getUint64(&reader, false) == 5);
   CHECK(reader.lastRange.begin == 0);
@@ -163,7 +163,7 @@ TEST_CASE("Reader_getInt16", "[Reader]") {
   Reader_reset(&reader);
   char data[] = {static_cast<char>(255), 0};
   Slice view = {data, data + sizeof(data)};
-  reader.slice = view;
+  reader.data = view;
 
   CHECK(Reader_getInt16(&reader, false) == -256);
   CHECK(reader.lastRange.begin == 0);
@@ -182,7 +182,7 @@ TEST_CASE("Reader_getInt32", "[Reader]") {
   char data[] = {static_cast<char>(255), static_cast<char>(255),
                  static_cast<char>(255), 0};
   Slice view = {data, data + sizeof(data)};
-  reader.slice = view;
+  reader.data = view;
 
   CHECK(Reader_getInt32(&reader, false) == -256);
   CHECK(reader.lastRange.begin == 0);
@@ -203,7 +203,7 @@ TEST_CASE("Reader_getInt64", "[Reader]") {
                  static_cast<char>(255), static_cast<char>(255),
                  static_cast<char>(255), 0};
   Slice view = {data, data + sizeof(data)};
-  reader.slice = view;
+  reader.data = view;
 
   CHECK(Reader_getInt64(&reader, false) == -256);
   CHECK(reader.lastRange.begin == 0);
@@ -221,7 +221,7 @@ TEST_CASE("Reader_getFloat32", "[Reader]") {
   Reader_reset(&reader);
   char data[] = {-64, 0, 0, 0};
   Slice view = {data, data + sizeof(data)};
-  reader.slice = view;
+  reader.data = view;
 
   CHECK(Reader_getFloat32(&reader, false) == -2.0f);
   CHECK(reader.lastRange.begin == 0);
@@ -239,7 +239,7 @@ TEST_CASE("Reader_getFloat64", "[Reader]") {
   Reader_reset(&reader);
   char data[] = {-64, 0, 0, 0, 0, 0, 0, 0};
   Slice view = {data, data + sizeof(data)};
-  reader.slice = view;
+  reader.data = view;
 
   CHECK(Reader_getFloat64(&reader, false) == -2.0);
   CHECK(reader.lastRange.begin == 0);
@@ -257,7 +257,7 @@ TEST_CASE("Reader_getUint16 (little endian)", "[Reader]") {
   Reader_reset(&reader);
   char data[] = {5, 0};
   Slice view = {data, data + sizeof(data)};
-  reader.slice = view;
+  reader.data = view;
 
   CHECK(Reader_getUint16(&reader, true) == 5);
   CHECK(reader.lastRange.begin == 0);
@@ -275,7 +275,7 @@ TEST_CASE("Reader_getUint32 (little endian)", "[Reader]") {
   Reader_reset(&reader);
   char data[] = {5, 0, 0, 0};
   Slice view = {data, data + sizeof(data)};
-  reader.slice = view;
+  reader.data = view;
 
   CHECK(Reader_getUint32(&reader, true) == 5);
   CHECK(reader.lastRange.begin == 0);
@@ -293,7 +293,7 @@ TEST_CASE("Reader_getUint64 (little endian)", "[Reader]") {
   Reader_reset(&reader);
   char data[] = {5, 0, 0, 0, 0, 0, 0, 0};
   Slice view = {data, data + sizeof(data)};
-  reader.slice = view;
+  reader.data = view;
 
   CHECK(Reader_getUint64(&reader, true) == 5);
   CHECK(reader.lastRange.begin == 0);
@@ -311,7 +311,7 @@ TEST_CASE("Reader_getInt16 (little endian)", "[Reader]") {
   Reader_reset(&reader);
   char data[] = {0, static_cast<char>(255)};
   Slice view = {data, data + sizeof(data)};
-  reader.slice = view;
+  reader.data = view;
 
   CHECK(Reader_getInt16(&reader, true) == -256);
   CHECK(reader.lastRange.begin == 0);
@@ -330,7 +330,7 @@ TEST_CASE("Reader_getInt32 (little endian)", "[Reader]") {
   char data[] = {0, static_cast<char>(255), static_cast<char>(255),
                  static_cast<char>(255)};
   Slice view = {data, data + sizeof(data)};
-  reader.slice = view;
+  reader.data = view;
 
   CHECK(Reader_getInt32(&reader, true) == -256);
   CHECK(reader.lastRange.begin == 0);
@@ -355,7 +355,7 @@ TEST_CASE("Reader_getInt64 (little endian)", "[Reader]") {
                  static_cast<char>(255),
                  static_cast<char>(255)};
   Slice view = {data, data + sizeof(data)};
-  reader.slice = view;
+  reader.data = view;
 
   CHECK(Reader_getInt64(&reader, true) == -256);
   CHECK(reader.lastRange.begin == 0);
@@ -373,7 +373,7 @@ TEST_CASE("Reader_getFloat32 (little endian)", "[Reader]") {
   Reader_reset(&reader);
   char data[] = {0, 0, 0, -64};
   Slice view = {data, data + sizeof(data)};
-  reader.slice = view;
+  reader.data = view;
 
   CHECK(Reader_getFloat32(&reader, true) == -2.0f);
   CHECK(reader.lastRange.begin == 0);
@@ -391,7 +391,7 @@ TEST_CASE("Reader_getFloat64 (little endian)", "[Reader]") {
   Reader_reset(&reader);
   char data[] = {0, 0, 0, 0, 0, 0, 0, -64};
   Slice view = {data, data + sizeof(data)};
-  reader.slice = view;
+  reader.data = view;
 
   CHECK(Reader_getFloat64(&reader, true) == -2.0);
   CHECK(reader.lastRange.begin == 0);

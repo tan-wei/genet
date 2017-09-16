@@ -22,7 +22,7 @@ void StreamReaderWrapper::init(v8::Isolate *isolate,
   Nan::SetAccessor(otl, Nan::New("length").ToLocalChecked(), length);
 
   v8::Local<v8::Object> func = Nan::GetFunction(tpl).ToLocalChecked();
-  Nan::Set(exports, Nan::New("Attr").ToLocalChecked(), func);
+  Nan::Set(exports, Nan::New("StreamReader").ToLocalChecked(), func);
 }
 
 NAN_METHOD(StreamReaderWrapper::New) {

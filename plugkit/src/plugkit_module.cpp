@@ -7,6 +7,8 @@
 #include "wrapper/pcap.hpp"
 #include "wrapper/payload.hpp"
 #include "wrapper/attribute.hpp"
+#include "wrapper/reader.hpp"
+#include "wrapper/stream_reader.hpp"
 #include "wrapper/session.hpp"
 #include "wrapper/session_factory.hpp"
 
@@ -31,6 +33,8 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
   LayerWrapper::init(isolate);
   FrameWrapper::init(isolate);
   PayloadWrapper::init(isolate);
+  ReaderWrapper::init(isolate, exports);
+  StreamReaderWrapper::init(isolate, exports);
   if (mainThread) {
     PcapWrapper::init(isolate, exports);
     SessionFactoryWrapper::init(isolate, exports);

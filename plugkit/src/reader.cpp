@@ -14,25 +14,25 @@ Token outOfBoundError() {
 }
 
 template <class T> T readLE(Reader *reader) {
-  if (Slice_length(reader->slice) - reader->lastRange.end < sizeof(T)) {
+  if (Slice_length(reader->data) - reader->lastRange.end < sizeof(T)) {
     reader->lastError.type = outOfBoundError();
     return T();
   }
   T value =
-      *reinterpret_cast<const T *>(reader->slice.begin + reader->lastRange.end);
+      *reinterpret_cast<const T *>(reader->data.begin + reader->lastRange.end);
   reader->lastRange.end += sizeof(T);
   reader->lastRange.begin = reader->lastRange.end - sizeof(T);
   return value;
 }
 
 template <class T> T readBE(Reader *reader) {
-  if (Slice_length(reader->slice) - reader->lastRange.end < sizeof(T)) {
+  if (Slice_length(reader->data) - reader->lastRange.end < sizeof(T)) {
     reader->lastError.type = outOfBoundError();
     return T();
   }
   char data[sizeof(T)];
-  std::reverse_copy(reader->slice.begin + reader->lastRange.end,
-                    reader->slice.begin + reader->lastRange.end + sizeof(T),
+  std::reverse_copy(reader->data.begin + reader->lastRange.end,
+                    reader->data.begin + reader->lastRange.end + sizeof(T),
                     data);
   T value = *reinterpret_cast<const T *>(data);
   reader->lastRange.end += sizeof(T);
@@ -43,7 +43,7 @@ template <class T> T readBE(Reader *reader) {
 void Reader_reset(Reader *reader) { std::memset(reader, 0, sizeof(Reader)); }
 
 Slice Reader_slice(Reader *reader, size_t offset, size_t length) {
-  Slice *slice = &reader->slice;
+  Slice *slice = &reader->data;
   if (slice->begin + reader->lastRange.end + offset + length > slice->end) {
     static const Token outOfBoundError = Token_get("Out of bound");
     reader->lastError.type = outOfBoundError;
@@ -57,7 +57,7 @@ Slice Reader_slice(Reader *reader, size_t offset, size_t length) {
 }
 
 Slice Reader_sliceAll(Reader *reader, size_t offset) {
-  Slice *slice = &reader->slice;
+  Slice *slice = &reader->data;
   if (slice->begin + reader->lastRange.end + offset > slice->end) {
     static const Token outOfBoundError = Token_get("Out of bound");
     reader->lastError.type = outOfBoundError;

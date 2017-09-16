@@ -51,7 +51,7 @@ const auto nestedToken = Token_get("@nested");
 void analyze(Context *ctx, void *data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
-  reader.slice = Payload_slices(Layer_payloads(layer, nullptr)[0], nullptr)[0];
+  reader.data = Payload_slices(Layer_payloads(layer, nullptr)[0], nullptr)[0];
 
   Layer *child = Layer_addLayer(layer, tcpToken);
   Layer_addTag(child, tcpToken);
@@ -122,7 +122,7 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   size_t optionDataOffset = dataOffset * 4;
   uint32_t optionOffset = 20;
   while (optionDataOffset > optionOffset) {
-    switch (reader.slice.begin[optionOffset]) {
+    switch (reader.data.begin[optionOffset]) {
     case 0:
       optionOffset = optionDataOffset;
       break;
@@ -133,14 +133,14 @@ void analyze(Context *ctx, void *data, Layer *layer) {
     } break;
     case 2: {
       uint16_t size =
-          Slice_getUint16(reader.slice, optionOffset + 2, false, nullptr);
+          Slice_getUint16(reader.data, optionOffset + 2, false, nullptr);
       Attr *opt = Layer_addAttr(child, mssToken);
       Attr_setUint32(opt, size);
       Attr_setRange(opt, Range{optionOffset, optionOffset + 4});
       optionOffset += 4;
     } break;
     case 3: {
-      uint8_t scale = Slice_getUint8(reader.slice, optionOffset + 2, nullptr);
+      uint8_t scale = Slice_getUint8(reader.data, optionOffset + 2, nullptr);
       Attr *opt = Layer_addAttr(child, scaleToken);
       Attr_setUint32(opt, scale);
       Attr_setRange(opt, Range{optionOffset, optionOffset + 2});
@@ -154,17 +154,17 @@ void analyze(Context *ctx, void *data, Layer *layer) {
 
     // TODO: https://tools.ietf.org/html/rfc2018
     case 5: {
-      uint8_t length = Slice_getUint8(reader.slice, optionOffset + 1, nullptr);
+      uint8_t length = Slice_getUint8(reader.data, optionOffset + 1, nullptr);
       Attr *opt = Layer_addAttr(child, selAckToken);
-      Attr_setSlice(opt, Slice_slice(reader.slice, optionOffset + 2, length));
+      Attr_setSlice(opt, Slice_slice(reader.data, optionOffset + 2, length));
       Attr_setRange(opt, Range{optionOffset, optionOffset + length});
       optionOffset += length;
     } break;
     case 8: {
       uint32_t mt =
-          Slice_getUint32(reader.slice, optionOffset + 2, false, nullptr);
+          Slice_getUint32(reader.data, optionOffset + 2, false, nullptr);
       uint32_t et = Slice_getUint32(
-          reader.slice, optionOffset + 2 + sizeof(uint32_t), false, nullptr);
+          reader.data, optionOffset + 2 + sizeof(uint32_t), false, nullptr);
       Attr *opt = Layer_addAttr(child, tsToken);
       Attr_setString(opt,
                      (std::to_string(mt) + " - " + std::to_string(et)).c_str());
@@ -188,7 +188,7 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   }
 
   Payload *chunk = Layer_addPayload(child);
-  Payload_addSlice(chunk, Slice_sliceAll(reader.slice, optionDataOffset));
+  Payload_addSlice(chunk, Slice_sliceAll(reader.data, optionDataOffset));
 }
 }
 
