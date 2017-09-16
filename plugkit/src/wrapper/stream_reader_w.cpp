@@ -16,6 +16,7 @@ void StreamReaderWrapper::init(v8::Isolate *isolate,
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("StreamReader").ToLocalChecked());
   SetPrototypeMethod(tpl, "search", search);
+  SetPrototypeMethod(tpl, "read", read);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("length").ToLocalChecked(), length);
@@ -79,6 +80,34 @@ NAN_METHOD(StreamReaderWrapper::search) {
       info.GetReturnValue().Set(static_cast<uint32_t>(
           StreamReader_search(reader, data, view->ByteLength(), offset)));
     }
+  }
+}
+
+NAN_METHOD(StreamReaderWrapper::read) {
+  StreamReaderWrapper *wrapper =
+      ObjectWrap::Unwrap<StreamReaderWrapper>(info.Holder());
+  if (auto reader = wrapper->reader) {
+    size_t size = 0;
+    size_t offset = 0;
+    if (info[0]->IsNumber()) {
+      size = info[0]->NumberValue();
+    }
+    if (info[1]->IsNumber()) {
+      offset = info[1]->NumberValue();
+    }
+    auto buf = v8::ArrayBuffer::New(v8::Isolate::GetCurrent(), size);
+    char *data = static_cast<char *>(buf->GetContents().Data());
+    Slice slice = StreamReader_read(reader, data, size, offset);
+    size_t sliceLen = Slice_length(slice);
+    if (Slice_length(slice) == 0) {
+      info.GetReturnValue().Set(v8::Uint8Array::New(buf, 0, 0));
+    } else if (slice.begin == data) {
+      info.GetReturnValue().Set(v8::Uint8Array::New(buf, 0, sliceLen));
+    }
+    info.GetReturnValue().Set(v8::Uint8Array::New(
+        v8::ArrayBuffer::New(v8::Isolate::GetCurrent(),
+                             const_cast<char *>(slice.begin), sliceLen),
+        0, sliceLen));
   }
 }
 }
