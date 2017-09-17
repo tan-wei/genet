@@ -1,7 +1,7 @@
 #include "stream_reader.hpp"
 #include "payload.hpp"
 #include "variant.hpp"
-#include "../../include/plugkit/stream_reader.h"
+#include "stream_reader.h"
 
 namespace plugkit {
 
