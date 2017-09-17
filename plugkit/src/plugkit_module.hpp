@@ -27,6 +27,7 @@ public:
   Class layer;
   Class frame;
   Class payload;
+  Class logger;
   Class session;
   Class sessionFactory;
 

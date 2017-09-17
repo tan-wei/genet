@@ -1,5 +1,6 @@
 #include "worker_thread.hpp"
 #include "extended_slot.hpp"
+#include "wrapper/logger.hpp"
 #include "plugkit_module.hpp"
 #include <cstdlib>
 #include <cstring>
@@ -86,7 +87,10 @@ void WorkerThread::start() {
         v8::Local<v8::Object> exports = Nan::New<v8::Object>();
         std::unique_ptr<PlugkitModule> mod(
             new PlugkitModule(isolate, exports, false));
-        context->Global()->Set(Nan::New("_plugkit").ToLocalChecked(), exports);
+        auto global = context->Global();
+        global->Set(Nan::New("_plugkit").ToLocalChecked(), exports);
+        global->Set(Nan::New("console").ToLocalChecked(),
+                    LoggerWrapper::wrap(logger));
         enter();
         while (loop()) {
           uv_run(&uvloop, UV_RUN_NOWAIT);

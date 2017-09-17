@@ -4,6 +4,7 @@ function $_value(value) {
       return value.value
     }
   }
+  console.log('aaa')
   return value
 }
 
