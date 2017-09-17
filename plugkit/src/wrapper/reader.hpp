@@ -14,6 +14,7 @@ public:
   static NAN_GETTER(data);
   static NAN_SETTER(setData);
   static NAN_GETTER(lastRange);
+  static NAN_SETTER(setLastRange);
   static NAN_METHOD(slice);
   static NAN_METHOD(sliceAll);
   static NAN_METHOD(getUint8);

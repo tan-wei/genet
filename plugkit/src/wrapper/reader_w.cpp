@@ -23,7 +23,9 @@ void ReaderWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   SetPrototypeMethod(tpl, "getFloat64", getFloat64);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
-  // Nan::SetAccessor(otl, Nan::New("data").ToLocalChecked(), data, setData);
+  Nan::SetAccessor(otl, Nan::New("data").ToLocalChecked(), data, setData);
+  Nan::SetAccessor(otl, Nan::New("lastRange").ToLocalChecked(), lastRange,
+                   setLastRange);
 
   v8::Local<v8::Object> func = Nan::GetFunction(tpl).ToLocalChecked();
   Nan::Set(exports, Nan::New("Reader").ToLocalChecked(), func);
@@ -33,6 +35,51 @@ NAN_METHOD(ReaderWrapper::New) {
   ReaderWrapper *obj = new ReaderWrapper();
   obj->Wrap(info.This());
   info.GetReturnValue().Set(info.This());
+}
+
+NAN_GETTER(ReaderWrapper::data) {
+  ReaderWrapper *wrapper = ObjectWrap::Unwrap<ReaderWrapper>(info.Holder());
+  if (Reader *reader = &wrapper->reader) {
+    const Slice &slice = reader->data;
+    size_t sliceLen = Slice_length(slice);
+    info.GetReturnValue().Set(v8::Uint8Array::New(
+        v8::ArrayBuffer::New(v8::Isolate::GetCurrent(),
+                             const_cast<char *>(slice.begin), sliceLen),
+        0, sliceLen));
+  }
+}
+
+NAN_SETTER(ReaderWrapper::setData) {
+  ReaderWrapper *wrapper = ObjectWrap::Unwrap<ReaderWrapper>(info.Holder());
+  if (Reader *reader = &wrapper->reader) {
+    if (value->IsArrayBufferView()) {
+      reader->data = Variant::getSlice(value.As<v8::ArrayBufferView>());
+    }
+  }
+}
+
+NAN_GETTER(ReaderWrapper::lastRange) {
+  ReaderWrapper *wrapper = ObjectWrap::Unwrap<ReaderWrapper>(info.Holder());
+  if (Reader *reader = &wrapper->reader) {
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    auto array = v8::Array::New(isolate, 2);
+    array->Set(0, Nan::New(static_cast<uint32_t>(reader->lastRange.begin)));
+    array->Set(1, Nan::New(static_cast<uint32_t>(reader->lastRange.end)));
+    info.GetReturnValue().Set(array);
+  }
+}
+
+NAN_SETTER(ReaderWrapper::setLastRange) {
+  ReaderWrapper *wrapper = ObjectWrap::Unwrap<ReaderWrapper>(info.Holder());
+  if (Reader *reader = &wrapper->reader) {
+    if (value->IsArray()) {
+      auto array = value.As<v8::Array>();
+      if (array->Length() >= 2) {
+        reader->lastRange =
+            Range{array->Get(0)->Uint32Value(), array->Get(1)->Uint32Value()};
+      }
+    }
+  }
 }
 
 NAN_METHOD(ReaderWrapper::slice) {
