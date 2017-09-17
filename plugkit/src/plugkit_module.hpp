@@ -23,6 +23,7 @@ public:
   };
 
   Class attribute;
+  Class context;
   Class layer;
   Class frame;
   Class payload;

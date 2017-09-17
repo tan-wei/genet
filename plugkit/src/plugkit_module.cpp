@@ -7,6 +7,7 @@
 #include "wrapper/pcap.hpp"
 #include "wrapper/payload.hpp"
 #include "wrapper/attribute.hpp"
+#include "wrapper/context.hpp"
 #include "wrapper/reader.hpp"
 #include "wrapper/stream_reader.hpp"
 #include "wrapper/session.hpp"
@@ -32,6 +33,7 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
   AttributeWrapper::init(isolate);
   LayerWrapper::init(isolate);
   FrameWrapper::init(isolate);
+  ContextWrapper::init(isolate);
   PayloadWrapper::init(isolate);
   ReaderWrapper::init(isolate, exports);
   StreamReaderWrapper::init(isolate, exports);
