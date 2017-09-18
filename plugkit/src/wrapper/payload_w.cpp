@@ -125,7 +125,8 @@ NAN_INDEX_GETTER(PayloadWrapper::indexGetter) {
       for (const Slice &slice : payload->slices()) {
         size_t len = Slice_length(slice);
         if (offset + len > index) {
-          info.GetReturnValue().Set(slice.begin[index - offset]);
+          info.GetReturnValue().Set(
+              static_cast<unsigned char>(slice.begin[index - offset]));
           return;
         }
         offset += len;
