@@ -32,7 +32,8 @@ NAN_METHOD(LoggerWrapper::log) {
 NAN_METHOD(LoggerWrapper::debug) {
   LoggerWrapper *wrapper = ObjectWrap::Unwrap<LoggerWrapper>(info.Holder());
   if (const auto &logger = wrapper->logger) {
-    logger->logTrivial(Logger::LEVEL_DEBUG, *Nan::Utf8String(info[0]), "worker");
+    logger->logTrivial(Logger::LEVEL_DEBUG, *Nan::Utf8String(info[0]),
+                       "worker");
   }
 }
 NAN_METHOD(LoggerWrapper::warn) {
@@ -44,7 +45,8 @@ NAN_METHOD(LoggerWrapper::warn) {
 NAN_METHOD(LoggerWrapper::error) {
   LoggerWrapper *wrapper = ObjectWrap::Unwrap<LoggerWrapper>(info.Holder());
   if (const auto &logger = wrapper->logger) {
-    logger->logTrivial(Logger::LEVEL_ERROR, *Nan::Utf8String(info[0]), "worker");
+    logger->logTrivial(Logger::LEVEL_ERROR, *Nan::Utf8String(info[0]),
+                       "worker");
   }
 }
 
