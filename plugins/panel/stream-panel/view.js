@@ -7,10 +7,12 @@ export default class StreamView {
     this.session = null
     this.payloads = []
     this.frames = 0
+    this.length = 0
 
     Channel.on('core:frame:selected', (frames) => {
       this.payloads = []
       this.frames = 0
+      this.length = 0
       if (frames.length) {
         const id = frames[0].attr('tcp.streamId')
         if (id) {
@@ -33,6 +35,7 @@ export default class StreamView {
             for (const payload of tcp.payloads) {
               if (payload.type === '@reassembled') {
                 this.payloads.push(payload)
+                this.length += payload.length
               }
             }
           }
@@ -44,27 +47,6 @@ export default class StreamView {
   }
 
   view(vnode) {
-    return <div class="stream-view">
-    {
-      this.payloads.map((payload) => {
-        return <ul class="hex-list">
-          {
-            (new Array(Math.ceil(payload.length / 16))).fill().map((_, line) => {
-              const len = Math.min(16, payload.length - line * 16)
-              return <li>
-                {
-                  (new Array(len)).fill().map((_, byte) => {
-                    const index = line * 16 + byte
-                    return <span
-                    >{ ('0' + payload[index].toString(16)).slice(-2) }</span>
-                  })
-                }
-              </li>
-            })
-          }
-        </ul>
-      })
-    }
-    </div>
+    return <div class="stream-view">{ this.length } bytes</div>
   }
 }
