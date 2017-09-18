@@ -15,9 +15,6 @@ void Dissector_setWorkerFactory(Dissector *diss, WokerFactoryAllocFunc *alloc,
   diss->createWorker = alloc;
   diss->destroyWorker = dealloc;
 }
-void Dissector_setExpiry(Dissector *diss, ExpiryFunc *func) {
-  diss->expired = func;
-}
 void Dissector_addLayerHint(Dissector *diss, Token hint) {
   diss->layerHints.push_back(hint);
 }

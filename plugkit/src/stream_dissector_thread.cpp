@@ -18,8 +18,6 @@ namespace plugkit {
 namespace {
 struct WorkerContext {
   std::vector<std::pair<const Dissector *, void *>> list;
-  std::chrono::system_clock::time_point lastUpdated =
-      std::chrono::system_clock::now();
 };
 }
 
@@ -27,7 +25,6 @@ class StreamDissectorThread::Private {
 public:
   Private(const Variant &options, const Callback &callback);
   ~Private();
-  void cleanup();
   void analyze(Layer *layer, bool subLayer, std::vector<Layer *> *nextLayers,
                std::vector<Layer *> *nextSubLayers);
 
@@ -35,7 +32,6 @@ public:
   Queue<Layer *> queue;
   std::vector<Dissector> dissectors;
   double confidenceThreshold;
-  size_t count = 0;
   using IdMap = std::unordered_map<uint32_t, WorkerContext>;
   std::unordered_map<Token, IdMap> workers;
 
@@ -47,43 +43,6 @@ StreamDissectorThread::Private::Private(const Variant &options,
                                         const Callback &callback)
     : options(options), callback(callback) {}
 StreamDissectorThread::Private::~Private() {}
-
-void StreamDissectorThread::Private::cleanup() {
-  Context ctx;
-  ctx.options = options;
-  for (auto &pair : workers) {
-    for (auto it = pair.second.begin(); it != pair.second.end();) {
-      bool alive = false;
-      uint32_t elapsed =
-          std::chrono::duration_cast<std::chrono::milliseconds>(
-              std::chrono::system_clock::now() - it->second.lastUpdated)
-              .count();
-      for (const auto &pair : it->second.list) {
-        auto expired = pair.first->expired;
-        if (expired) {
-          if (!expired(&ctx, pair.second, elapsed)) {
-            alive = true;
-            break;
-          }
-        } else if (elapsed < 30000) {
-          alive = true;
-          break;
-        }
-      }
-      if (alive) {
-        ++it;
-      } else {
-        for (const auto &pair : it->second.list) {
-          auto destroy = pair.first->destroyWorker;
-          if (destroy) {
-            destroy(&ctx, pair.second);
-          }
-        }
-        it = pair.second.erase(it);
-      }
-    }
-  }
-}
 
 StreamDissectorThread::StreamDissectorThread(const Variant &options,
                                              const Callback &callback)
@@ -214,11 +173,6 @@ bool StreamDissectorThread::loop() {
   }
 
   d->callback(maxFrameIndex);
-
-  d->count++;
-  if (d->count % 1024 == 0) {
-    d->cleanup();
-  }
   return true;
 }
 

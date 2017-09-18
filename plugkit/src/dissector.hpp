@@ -10,7 +10,6 @@ struct Dissector {
   AnalyzerFunc *analyze;
   WokerFactoryAllocFunc *createWorker;
   WokerFactoryDeallocFunc *destroyWorker;
-  ExpiryFunc *expired;
   std::vector<Token> layerHints;
   DissectorType type;
 };
