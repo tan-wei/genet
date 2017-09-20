@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "mkpath": "^1.0.0",
-    "request": "^2.81.0"
+    "request": "^2.81.0",
+    "gperf": "^0.1.2"
   }
 }

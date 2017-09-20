@@ -1,6 +1,7 @@
 ELECTRON_VERSION = $(shell jq '.devDependencies."negatron"' ../../package.json -r)
 TOKEN_KEYWORDS=src/token.keys
 TOKEN_HASH_TABLE=src/token_hash.h
+GPERF=./node_modules/.bin/gperf
 
 ifeq ($(OS),Windows_NT)
 GYP=..\..\node_modules\.bin\node-gyp
@@ -24,7 +25,7 @@ $(CONFIG):
 		--arch=x64 --dist-url=https://atom.io/download/electron
 
 $(TOKEN_HASH_TABLE): $(TOKEN_KEYWORDS)
-	gperf $(TOKEN_KEYWORDS) -LANSI-C -G --output-file=$(TOKEN_HASH_TABLE)
+	$(GPERF) $(TOKEN_KEYWORDS) -G --output-file=$(TOKEN_HASH_TABLE)
 
 clean:
 	@$(GYP) clean
