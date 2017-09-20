@@ -8,7 +8,7 @@ GPERF=..\..\node_modules\.bin\gperf
 CONFIG = build/binding.sln
 else
 GYP=../../node_modules/.bin/node-gyp
-GPERF=../../node_modules/.bin/gperf
+GPERF=gperf
 CONFIG = build/Makefile
 ENV = JOBS=4 HOME=~/.electron-gyp
 endif
