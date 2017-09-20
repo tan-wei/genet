@@ -1,5 +1,6 @@
 #include "reader.hpp"
 #include "payload.hpp"
+#include "error.hpp"
 #include "variant.hpp"
 
 namespace plugkit {
@@ -26,6 +27,8 @@ void ReaderWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   Nan::SetAccessor(otl, Nan::New("data").ToLocalChecked(), data, setData);
   Nan::SetAccessor(otl, Nan::New("lastRange").ToLocalChecked(), lastRange,
                    setLastRange);
+  Nan::SetAccessor(otl, Nan::New("lastError").ToLocalChecked(), lastError,
+                   setLastError);
 
   v8::Local<v8::Object> func = Nan::GetFunction(tpl).ToLocalChecked();
   Nan::Set(exports, Nan::New("Reader").ToLocalChecked(), func);
@@ -79,6 +82,20 @@ NAN_SETTER(ReaderWrapper::setLastRange) {
             Range{array->Get(0)->Uint32Value(), array->Get(1)->Uint32Value()};
       }
     }
+  }
+}
+
+NAN_GETTER(ReaderWrapper::lastError) {
+  ReaderWrapper *wrapper = ObjectWrap::Unwrap<ReaderWrapper>(info.Holder());
+  if (Reader *reader = &wrapper->reader) {
+    info.GetReturnValue().Set(ErrorWrapper::wrap(reader->lastError));
+  }
+}
+
+NAN_SETTER(ReaderWrapper::setLastError) {
+  ReaderWrapper *wrapper = ObjectWrap::Unwrap<ReaderWrapper>(info.Holder());
+  if (Reader *reader = &wrapper->reader) {
+    reader->lastError = ErrorWrapper::unwrap(value.As<v8::Object>());
   }
 }
 

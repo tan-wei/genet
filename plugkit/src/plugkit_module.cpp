@@ -10,6 +10,7 @@
 #include "wrapper/context.hpp"
 #include "wrapper/reader.hpp"
 #include "wrapper/stream_reader.hpp"
+#include "wrapper/error.hpp"
 #include "wrapper/logger.hpp"
 #include "wrapper/session.hpp"
 #include "wrapper/session_factory.hpp"
@@ -37,6 +38,7 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
   ContextWrapper::init(isolate);
   LoggerWrapper::init(isolate);
   PayloadWrapper::init(isolate);
+  ErrorWrapper::init(isolate, exports);
   ReaderWrapper::init(isolate, exports);
   StreamReaderWrapper::init(isolate, exports);
   if (mainThread) {
