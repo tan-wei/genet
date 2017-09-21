@@ -54,8 +54,7 @@ private:
 
 private:
   Token mId = 0;
-  uint8_t mWorker = 0;
-  LayerConfidence mConfidence = LAYER_CONF_EXACT;
+  uint8_t mData = 0;
   Layer *mParent = nullptr;
   const Frame *mFrame = nullptr;
   std::vector<const Payload *> mPayloads;
