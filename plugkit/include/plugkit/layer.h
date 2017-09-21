@@ -13,14 +13,22 @@ typedef struct Layer Layer;
 typedef struct Payload Payload;
 typedef struct Attr Attr;
 
+typedef enum {
+  LAYER_CONF_DECODABLE = 0,
+  LAYER_CONF_POSSIBLE = 1,
+  LAYER_CONF_PROBABLE = 2,
+  LAYER_CONF_EXACT = 3
+} LayerConfidence;
+
 /// Gets id
 PLUGKIT_EXPORT Token Layer_id(const Layer *layer);
 
 /// Gets confidence
-PLUGKIT_EXPORT float Layer_confidence(const Layer *layer);
+PLUGKIT_EXPORT LayerConfidence Layer_confidence(const Layer *layer);
 
 /// Sets confidence
-PLUGKIT_EXPORT void Layer_setConfidence(Layer *layer, float confidence);
+PLUGKIT_EXPORT void Layer_setConfidence(Layer *layer,
+                                        LayerConfidence confidence);
 
 /// Gets worker
 PLUGKIT_EXPORT uint8_t Layer_worker(const Layer *layer);

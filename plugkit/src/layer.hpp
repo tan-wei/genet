@@ -17,8 +17,8 @@ public:
   ~Layer();
 
   Token id() const;
-  float confidence() const;
-  void setConfidence(float confidence);
+  LayerConfidence confidence() const;
+  void setConfidence(LayerConfidence confidence);
 
   const std::vector<Layer *> &layers() const;
   void addLayer(Layer *child);
@@ -55,7 +55,7 @@ private:
 private:
   Token mId = 0;
   uint8_t mWorker = 0;
-  float mConfidence = 1.0f;
+  LayerConfidence mConfidence = LAYER_CONF_EXACT;
   Layer *mParent = nullptr;
   const Frame *mFrame = nullptr;
   std::vector<const Payload *> mPayloads;

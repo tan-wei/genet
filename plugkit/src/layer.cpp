@@ -13,9 +13,11 @@ Layer::~Layer() {}
 
 Token Layer::id() const { return mId; }
 
-float Layer::confidence() const { return mConfidence; }
+LayerConfidence Layer::confidence() const { return mConfidence; }
 
-void Layer::setConfidence(float confidence) { mConfidence = confidence; }
+void Layer::setConfidence(LayerConfidence confidence) {
+  mConfidence = confidence;
+}
 
 const std::vector<Layer *> &Layer::layers() const { return mLayers; }
 
@@ -72,9 +74,11 @@ uint8_t Layer_worker(const Layer *layer) { return layer->worker(); }
 
 void Layer_setWorker(Layer *layer, uint8_t id) { layer->setWorker(id); }
 
-float Layer_confidence(const Layer *layer) { return layer->confidence(); }
+LayerConfidence Layer_confidence(const Layer *layer) {
+  return layer->confidence();
+}
 
-void Layer_setConfidence(Layer *layer, float confidence) {
+void Layer_setConfidence(Layer *layer, LayerConfidence confidence) {
   layer->setConfidence(confidence);
 }
 
