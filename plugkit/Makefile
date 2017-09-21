@@ -10,7 +10,7 @@ else
 GYP=../../node_modules/.bin/node-gyp
 GPERF=gperf -LANSI-C
 CONFIG = build/Makefile
-ENV = JOBS=4 HOME=~/.electron-gyp
+ENV = HOME=~/.electron-gyp
 endif
 
 ifeq ($(NODE_ENV),development)
@@ -18,7 +18,7 @@ GYP += --debug
 endif
 
 all: $(TOKEN_HASH_TABLE) $(CONFIG)
-	$(ENV) $(GYP) build --target=$(ELECTRON_VERSION) \
+	$(ENV) $(GYP) build --target=$(ELECTRON_VERSION) -j4 \
 		--arch=x64 --dist-url=https://atom.io/download/electron
 
 $(CONFIG):
