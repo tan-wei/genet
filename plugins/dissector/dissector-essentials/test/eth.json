@@ -2,7 +2,7 @@
   {
     "layer": "eth",
     "properties": {
-      "confidence": 1,
+      "confidence": 3,
       "id": "eth"
     }
   }
