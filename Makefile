@@ -53,7 +53,7 @@ plugkit:
 
 test:
 	node ci/run-as-node.js $(ELECTRON) node_modules/deplug-core/test.main.js
-	$(MOCHA) $(PLUGKIT_DST)/test
+	node ci/run-as-node.js $(ELECTRON) $(MOCHA) $(PLUGKIT_DST)/test
 
 bench:
 	node ci/run-as-node.js $(ELECTRON) node_modules/deplug-core/bench.main.js
