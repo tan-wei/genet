@@ -6,7 +6,7 @@
 
 namespace plugkit {
 
-void SessionWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
+void SessionWrapper::init(v8::Isolate *isolate) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Session").ToLocalChecked());
@@ -32,9 +32,6 @@ void SessionWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   Nan::SetAccessor(otl, Nan::New("snaplen").ToLocalChecked(), snaplen);
   Nan::SetAccessor(otl, Nan::New("options").ToLocalChecked(), options);
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
-
-  v8::Local<v8::Object> func = Nan::GetFunction(tpl).ToLocalChecked();
-  Nan::Set(exports, Nan::New("Session").ToLocalChecked(), func);
 }
 
 SessionWrapper::SessionWrapper(const std::shared_ptr<Session> &session)

@@ -45,7 +45,7 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
   if (mainThread) {
     PcapWrapper::init(isolate, exports);
     SessionFactoryWrapper::init(isolate, exports);
-    SessionWrapper::init(isolate, exports);
+    SessionWrapper::init(isolate);
   }
 
   auto token = Nan::New<v8::Object>();
