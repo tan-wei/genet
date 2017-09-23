@@ -21,6 +21,7 @@ ELECTRON_MIRROR = https://s3-ap-northeast-1.amazonaws.com/deplug-build-junk/elec
 ELECTRON_UNPACK = "node_modules/{deplug-helper,plugkit}"
 ELECTRON_IGNORE = "deplug-core","plugkit"
 
+MOCHA = node_modules/mocha/bin/mocha
 PACKAGER = node_modules/.bin/electron-packager
 APPDMG = node_modules/.bin/appdmg
 
@@ -51,8 +52,8 @@ plugkit:
 	$(MAKE) -C $(DISSECTOR_ESS)
 
 test:
-	node ci/run-as-node.js $(ELECTRON) $(PLUGKIT_DST)/test.js
 	node ci/run-as-node.js $(ELECTRON) node_modules/deplug-core/test.main.js
+	$(MOCHA) $(PLUGKIT_DST)/test
 
 bench:
 	node ci/run-as-node.js $(ELECTRON) node_modules/deplug-core/bench.main.js
