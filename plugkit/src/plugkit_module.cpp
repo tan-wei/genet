@@ -1,4 +1,5 @@
 #include "plugkit_module.hpp"
+#include "plugkit_testing.hpp"
 #include "extended_slot.hpp"
 #include "token.h"
 #include "variant.hpp"
@@ -53,6 +54,10 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
   token->Set(Nan::New("string").ToLocalChecked(),
              Nan::New<v8::FunctionTemplate>(Token_string_wrap)->GetFunction());
   exports->Set(Nan::New("Token").ToLocalChecked(), token);
+
+#ifdef PLUGKIT_ENABLE_TESTING
+  PlugkitTesting::init(exports);
+#endif
 }
 
 PlugkitModule *PlugkitModule::get(v8::Isolate *isolate) {

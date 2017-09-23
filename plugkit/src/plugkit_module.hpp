@@ -2,7 +2,6 @@
 #define PLUGKIT_PLUGKIT_MODULE_HPP
 
 #include <v8.h>
-#include <vector>
 
 namespace plugkit {
 

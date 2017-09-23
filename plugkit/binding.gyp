@@ -123,6 +123,7 @@
          ],
          "sources":[
             "<@(plugkit_sources)",
+            "src/plugkit_testing.cpp",
             "test/token_test.cpp",
             "test/variant_test.cpp",
             "test/tag_filter_test.cpp",
@@ -138,7 +139,7 @@
             "-fno-exceptions"
          ],
          "defines":[
-            "PLUGKIT_CATCH_TEST"
+            "PLUGKIT_ENABLE_TESTING"
          ]
       }
    ]
