@@ -50,12 +50,12 @@ plugkit:
 	$(MAKE) -C $(PLUGKIT_DST)
 	$(MAKE) -C $(DISSECTOR_ESS)
 
-plugtest:
+test:
 	node ci/run-as-node.js $(ELECTRON) $(PLUGKIT_DST)/test.js
-	node ci/run-as-node.js $(ELECTRON) node_modules/deplug-core/plugtest.main.js
+	node ci/run-as-node.js $(ELECTRON) node_modules/deplug-core/test.main.js
 
-plugbench:
-	node ci/run-as-node.js $(ELECTRON) node_modules/deplug-core/plugbench.main.js
+bench:
+	node ci/run-as-node.js $(ELECTRON) node_modules/deplug-core/bench.main.js
 
 dmg:
 	yarn add appdmg
@@ -118,4 +118,4 @@ fmt:
 clean:
 	@rm -rf $(DEPLUG_CORE) $(PLUGKIT_DST)
 
-.PHONY: all run build fix lint pack clean fmt plugkit plugtest dmg deb rpm winstaller
+.PHONY: all run build fix lint pack clean fmt plugkit test dmg deb rpm winstaller
