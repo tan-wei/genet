@@ -14,7 +14,7 @@ describe('Token', () => {
       assert.notEqual(Token.get('ab'), Token.get('ba'))
     })
   })
-  
+
   describe('#string()', () => {
     it('should return empty string for 0', () => {
       assert.equal('', Token.string(0));
