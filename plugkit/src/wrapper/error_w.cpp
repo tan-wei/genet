@@ -20,10 +20,24 @@ void ErrorWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
 }
 
 NAN_METHOD(ErrorWrapper::New) {
-  Token target = info[0]->IsNumber() ? info[0]->NumberValue()
-                                     : Token_get(*Nan::Utf8String(info[0]));
-  Token type = info[1]->IsNumber() ? info[1]->NumberValue()
-                                   : Token_get(*Nan::Utf8String(info[1]));
+  Token target = Token_null();
+  if (info[0]->IsNumber()) {
+    target = info[0]->NumberValue();
+  } else if (info[0]->IsString()) {
+    target = Token_get(*Nan::Utf8String(info[0]));
+  } else {
+    Nan::ThrowTypeError("First argument must be a string or token-id");
+  }
+
+  Token type = Token_null();
+  if (info[1]->IsNumber()) {
+    type = info[1]->NumberValue();
+  } else if (info[1]->IsString()) {
+    type = Token_get(*Nan::Utf8String(info[1]));
+  } else {
+    Nan::ThrowTypeError("Second argument must be a string or token-id");
+  }
+
   ErrorWrapper *obj = new ErrorWrapper(Error{target, type});
   obj->Wrap(info.This());
   info.GetReturnValue().Set(info.This());
