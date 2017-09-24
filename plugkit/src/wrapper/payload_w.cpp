@@ -31,7 +31,7 @@ PayloadWrapper::PayloadWrapper(Payload *payload)
     : payload(payload), constPayload(payload) {}
 
 PayloadWrapper::PayloadWrapper(const Payload *payload)
-    : constPayload(payload) {}
+    : payload(nullptr), constPayload(payload) {}
 
 NAN_METHOD(PayloadWrapper::New) { info.GetReturnValue().Set(info.This()); }
 

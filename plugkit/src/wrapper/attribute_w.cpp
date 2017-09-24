@@ -24,7 +24,8 @@ void AttributeWrapper::init(v8::Isolate *isolate) {
 
 AttributeWrapper::AttributeWrapper(Attr *prop) : prop(prop), constProp(prop) {}
 
-AttributeWrapper::AttributeWrapper(const Attr *prop) : constProp(prop) {}
+AttributeWrapper::AttributeWrapper(const Attr *prop)
+    : prop(nullptr), constProp(prop) {}
 
 NAN_METHOD(AttributeWrapper::New) {
   if (!info[0]->IsObject()) {
@@ -124,6 +125,19 @@ NAN_SETTER(AttributeWrapper::setType) {
                                     : Token_get(*Nan::Utf8String(value));
     prop->setType(token);
   }
+}
+
+v8::Local<v8::Object> AttributeWrapper::wrap(Attr *prop) {
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
+  PlugkitModule *module = PlugkitModule::get(isolate);
+  auto cons = v8::Local<v8::Function>::New(isolate, module->attribute.ctor);
+  v8::Local<v8::Object> obj =
+      cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,
+                        nullptr)
+          .ToLocalChecked();
+  AttributeWrapper *wrapper = new AttributeWrapper(prop);
+  wrapper->Wrap(obj);
+  return obj;
 }
 
 v8::Local<v8::Object> AttributeWrapper::wrap(const Attr *prop) {

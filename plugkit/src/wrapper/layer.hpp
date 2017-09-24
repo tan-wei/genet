@@ -40,8 +40,8 @@ private:
   LayerWrapper &operator=(const LayerWrapper &) = delete;
 
 private:
-  const Layer *weakLayer;
   Layer *layer;
+  const Layer *constLayer;
 };
 }
 

@@ -38,9 +38,10 @@ void LayerWrapper::init(v8::Isolate *isolate) {
   module->layer.ctor.Reset(isolate, ctor);
 }
 
-LayerWrapper::LayerWrapper(const Layer *layer) : weakLayer(layer) {}
+LayerWrapper::LayerWrapper(const Layer *layer)
+    : layer(nullptr), constLayer(layer) {}
 
-LayerWrapper::LayerWrapper(Layer *layer) : weakLayer(layer), layer(layer) {}
+LayerWrapper::LayerWrapper(Layer *layer) : layer(layer), constLayer(layer) {}
 
 NAN_METHOD(LayerWrapper::New) {
   if (!info[0]->IsObject()) {
@@ -65,7 +66,7 @@ NAN_METHOD(LayerWrapper::New) {
 
 NAN_GETTER(LayerWrapper::id) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer) {
+  if (auto layer = wrapper->constLayer) {
     info.GetReturnValue().Set(
         Nan::New(Token_string(layer->id())).ToLocalChecked());
   }
@@ -73,7 +74,7 @@ NAN_GETTER(LayerWrapper::id) {
 
 NAN_GETTER(LayerWrapper::worker) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer) {
+  if (auto layer = wrapper->constLayer) {
     info.GetReturnValue().Set(layer->worker());
   }
 }
@@ -87,7 +88,7 @@ NAN_SETTER(LayerWrapper::setWorker) {
 
 NAN_GETTER(LayerWrapper::confidence) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer) {
+  if (auto layer = wrapper->constLayer) {
     info.GetReturnValue().Set(layer->confidence());
   }
 }
@@ -101,7 +102,7 @@ NAN_SETTER(LayerWrapper::setConfidence) {
 
 NAN_GETTER(LayerWrapper::parent) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer) {
+  if (auto layer = wrapper->constLayer) {
     if (auto parent = layer->parent()) {
       info.GetReturnValue().Set(LayerWrapper::wrap(parent));
     } else {
@@ -112,7 +113,7 @@ NAN_GETTER(LayerWrapper::parent) {
 
 NAN_GETTER(LayerWrapper::frame) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer) {
+  if (auto layer = wrapper->constLayer) {
     if (auto frame = layer->frame()) {
       if (auto view = frame->view()) {
         info.GetReturnValue().Set(FrameWrapper::wrap(view));
@@ -125,7 +126,7 @@ NAN_GETTER(LayerWrapper::frame) {
 
 NAN_GETTER(LayerWrapper::payloads) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer) {
+  if (auto layer = wrapper->constLayer) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
     const auto &payloads = layer->payloads();
     auto array = v8::Array::New(isolate, payloads.size());
@@ -138,7 +139,7 @@ NAN_GETTER(LayerWrapper::payloads) {
 
 NAN_GETTER(LayerWrapper::children) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer) {
+  if (auto layer = wrapper->constLayer) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
     const auto &children = layer->layers();
     auto array = v8::Array::New(isolate, children.size());
@@ -151,7 +152,7 @@ NAN_GETTER(LayerWrapper::children) {
 
 NAN_GETTER(LayerWrapper::properties) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer) {
+  if (auto layer = wrapper->constLayer) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
     const auto &properties = layer->properties();
     auto array = v8::Array::New(isolate, properties.size());
@@ -164,7 +165,7 @@ NAN_GETTER(LayerWrapper::properties) {
 
 NAN_GETTER(LayerWrapper::tags) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer) {
+  if (auto layer = wrapper->constLayer) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
     const auto &tags = layer->tags();
     auto array = v8::Array::New(isolate, tags.size());
@@ -177,7 +178,7 @@ NAN_GETTER(LayerWrapper::tags) {
 
 NAN_METHOD(LayerWrapper::attr) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->weakLayer) {
+  if (auto layer = wrapper->constLayer) {
     Token token = info[0]->IsNumber() ? info[0]->NumberValue()
                                       : Token_get(*Nan::Utf8String(info[0]));
     if (const auto &prop = layer->attr(token)) {
@@ -257,7 +258,7 @@ const Layer *LayerWrapper::unwrapConst(v8::Local<v8::Object> obj) {
   if (obj->GetPrototype() ==
       v8::Local<v8::Value>::New(isolate, module->layer.proto)) {
     if (auto wrapper = ObjectWrap::Unwrap<LayerWrapper>(obj)) {
-      return wrapper->weakLayer;
+      return wrapper->constLayer;
     }
   }
   return nullptr;

@@ -11,6 +11,7 @@ struct Attr;
 struct AttributeWrapper final : public Nan::ObjectWrap {
 public:
   static void init(v8::Isolate *isolate);
+  static v8::Local<v8::Object> wrap(Attr *prop);
   static v8::Local<v8::Object> wrap(const Attr *prop);
   static const Attr *unwrap(v8::Local<v8::Object> obj);
   static NAN_METHOD(New);
