@@ -20,10 +20,16 @@ namespace plugkit {
 
 namespace {
 NAN_METHOD(Token_get_wrap) {
+  if (!info[0]->IsString()) {
+    Nan::ThrowTypeError("First argument must be a string");
+  }
   Token token = Token_get(*Nan::Utf8String(info[0]));
   info.GetReturnValue().Set(token);
 }
 NAN_METHOD(Token_string_wrap) {
+  if (!info[0]->IsNumber()) {
+    Nan::ThrowTypeError("First argument must be a number");
+  }
   auto str = Nan::New(Token_string(info[0]->NumberValue())).ToLocalChecked();
   info.GetReturnValue().Set(str);
 }

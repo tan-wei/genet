@@ -3,6 +3,10 @@ const {Token} = require('../test')
 
 describe('Token', () => {
   describe('#get()', () => {
+    it('should throw for wrong arguments', () => {
+      assert.throws(() => Token.get(),  TypeError)
+      assert.throws(() => Token.get(0), TypeError)
+    })
     it('should return 0 for empty string', () => {
       assert.equal(0, Token.get(''));
     })
@@ -16,6 +20,10 @@ describe('Token', () => {
   })
 
   describe('#string()', () => {
+    it('should throw for wrong arguments', () => {
+      assert.throws(() => Token.string(),       TypeError)
+      assert.throws(() => Token.string('ipv4'), TypeError)
+    })
     it('should return empty string for 0', () => {
       assert.equal('', Token.string(0));
     })
