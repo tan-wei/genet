@@ -1,10 +1,12 @@
 #include "plugkit_testing.hpp"
 #include "attribute.hpp"
 #include "payload.hpp"
+#include "layer.hpp"
 #include "token.h"
+#include "null_logger.hpp"
 #include "wrapper/attribute.hpp"
 #include "wrapper/payload.hpp"
-#include "null_logger.hpp"
+#include "wrapper/layer.hpp"
 #include "wrapper/logger.hpp"
 #include <nan.h>
 
@@ -37,10 +39,18 @@ void createAttrInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
   info.GetReturnValue().Set(persistent);
 }
 void createPayloadInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
-  Token id = Token_get(*Nan::Utf8String(info[0]));
   auto payload = new Payload();
   Nan::Persistent<v8::Object> persistent(PayloadWrapper::wrap(payload));
   persistent.SetWeak(payload, [](const Nan::WeakCallbackInfo<Payload> &data) {
+    delete data.GetParameter();
+  }, Nan::WeakCallbackType::kParameter);
+  info.GetReturnValue().Set(persistent);
+}
+void createLayerInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
+  Token id = Token_get(*Nan::Utf8String(info[0]));
+  auto layer = new Layer(id);
+  Nan::Persistent<v8::Object> persistent(LayerWrapper::wrap(layer));
+  persistent.SetWeak(layer, [](const Nan::WeakCallbackInfo<Layer> &data) {
     delete data.GetParameter();
   }, Nan::WeakCallbackType::kParameter);
   info.GetReturnValue().Set(persistent);
@@ -65,5 +75,8 @@ void PlugkitTesting::init(v8::Local<v8::Object> exports) {
       Nan::New("createPayloadInstance").ToLocalChecked(),
       v8::FunctionTemplate::New(isolate, createPayloadInstance, exports)
           ->GetFunction());
+  testing->Set(Nan::New("createLayerInstance").ToLocalChecked(),
+               v8::FunctionTemplate::New(isolate, createLayerInstance, exports)
+                   ->GetFunction());
 }
 } // namespace plugkit

@@ -4,9 +4,8 @@ const {Testing, Token} = require('../test')
 describe('Attr', () => {
   describe('#id', () => {
     it('should return attribute id', () => {
-      const token = Token.get('eth')
-      const attr = Testing.createAttrInstance(token)
-      assert.equal(token, attr.id)
+      const attr = Testing.createAttrInstance('eth')
+      assert.equal('eth', attr.id)
     })
   })
   describe('#value', () => {
