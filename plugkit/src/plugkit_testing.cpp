@@ -2,6 +2,8 @@
 #include "token.h"
 #include "attribute.hpp"
 #include "wrapper/attribute.hpp"
+#include "payload.hpp"
+#include "wrapper/payload.hpp"
 #include <nan.h>
 
 #define CATCH_CONFIG_RUNNER
@@ -15,7 +17,14 @@ void runCApiTests(v8::FunctionCallbackInfo<v8::Value> const &info) {
 }
 void createAttrInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
   Token id = Token_get(*Nan::Utf8String(info[0]));
-  info.GetReturnValue().Set(AttributeWrapper::wrap(new Attr(id)));
+  auto attr = new Attr(id);
+  auto weak = v8::UniquePersistent<v8::Object>(v8::Isolate::GetCurrent(),
+                                               AttributeWrapper::wrap(attr));
+  info.GetReturnValue().Set(weak);
+}
+void createPayloadInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
+  Token id = Token_get(*Nan::Utf8String(info[0]));
+  info.GetReturnValue().Set(PayloadWrapper::wrap(new Payload()));
 }
 }
 void PlugkitTesting::init(v8::Local<v8::Object> exports) {
@@ -29,5 +38,9 @@ void PlugkitTesting::init(v8::Local<v8::Object> exports) {
   testing->Set(Nan::New("createAttrInstance").ToLocalChecked(),
                v8::FunctionTemplate::New(isolate, createAttrInstance, exports)
                    ->GetFunction());
+  testing->Set(
+      Nan::New("createPayloadInstance").ToLocalChecked(),
+      v8::FunctionTemplate::New(isolate, createPayloadInstance, exports)
+          ->GetFunction());
 }
 }
