@@ -38,6 +38,11 @@ describe('Payload', () => {
       assert.equal(null, payload.attr('zzz'))
       assert.equal(null, payload.attr(123))
     })
+    it('should return found Attr', () => {
+      const payload = Testing.createPayloadInstance()
+      payload.addAttr('.dst')
+      assert.equal('.dst', payload.attr('.dst').id)
+    })
   })
   describe('#length', () => {
     it('should return payload length', () => {
@@ -66,9 +71,9 @@ describe('Payload', () => {
       const payload = Testing.createPayloadInstance()
       assert.deepEqual([], payload.attrs)
       payload.addAttr('.dst')
-      assert.deepEqual(1, payload.attrs.length)
+      assert.equal(1, payload.attrs.length)
       payload.addAttr('.src')
-      assert.deepEqual(2, payload.attrs.length)
+      assert.equal(2, payload.attrs.length)
     })
   })
   describe('#type', () => {

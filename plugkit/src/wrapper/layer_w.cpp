@@ -15,6 +15,7 @@ void LayerWrapper::init(v8::Isolate *isolate) {
   SetPrototypeMethod(tpl, "attr", attr);
   SetPrototypeMethod(tpl, "addLayer", addLayer);
   SetPrototypeMethod(tpl, "addSubLayer", addSubLayer);
+  SetPrototypeMethod(tpl, "addPayload", addPayload);
   SetPrototypeMethod(tpl, "addAttr", addAttr);
   SetPrototypeMethod(tpl, "addTag", addTag);
   SetPrototypeMethod(tpl, "toJSON", toJSON);
@@ -199,8 +200,15 @@ NAN_METHOD(LayerWrapper::attr) {
 NAN_METHOD(LayerWrapper::addLayer) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
-    Token token = info[0]->IsNumber() ? info[0]->NumberValue()
-                                      : Token_get(*Nan::Utf8String(info[0]));
+    Token token = Token_null();
+    if (info[0]->IsNumber()) {
+      token = info[0]->NumberValue();
+    } else if (info[0]->IsString()) {
+      token = Token_get(*Nan::Utf8String(info[0]));
+    } else {
+      Nan::ThrowTypeError("First argument must be a string or token-id");
+      return;
+    }
     info.GetReturnValue().Set(LayerWrapper::wrap(Layer_addLayer(layer, token)));
   }
 }
@@ -208,10 +216,24 @@ NAN_METHOD(LayerWrapper::addLayer) {
 NAN_METHOD(LayerWrapper::addSubLayer) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
-    Token token = info[0]->IsNumber() ? info[0]->NumberValue()
-                                      : Token_get(*Nan::Utf8String(info[0]));
+    Token token = Token_null();
+    if (info[0]->IsNumber()) {
+      token = info[0]->NumberValue();
+    } else if (info[0]->IsString()) {
+      token = Token_get(*Nan::Utf8String(info[0]));
+    } else {
+      Nan::ThrowTypeError("First argument must be a string or token-id");
+      return;
+    }
     info.GetReturnValue().Set(
         LayerWrapper::wrap(Layer_addSubLayer(layer, token)));
+  }
+}
+
+NAN_METHOD(LayerWrapper::addPayload) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->layer) {
+    info.GetReturnValue().Set(PayloadWrapper::wrap(Layer_addPayload(layer)));
   }
 }
 
@@ -235,8 +257,15 @@ NAN_METHOD(LayerWrapper::addAttr) {
 NAN_METHOD(LayerWrapper::addTag) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
-    Token token = info[0]->IsNumber() ? info[0]->NumberValue()
-                                      : Token_get(*Nan::Utf8String(info[0]));
+    Token token = Token_null();
+    if (info[0]->IsNumber()) {
+      token = info[0]->NumberValue();
+    } else if (info[0]->IsString()) {
+      token = Token_get(*Nan::Utf8String(info[0]));
+    } else {
+      Nan::ThrowTypeError("First argument must be a string or token-id");
+      return;
+    }
     layer->addTag(token);
   }
 }
