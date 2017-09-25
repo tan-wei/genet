@@ -64,4 +64,4 @@ void UvLoopLogger::log(MessagePtr &&msg) {
     previousHash = 0;
   }
 }
-}
+} // namespace plugkit

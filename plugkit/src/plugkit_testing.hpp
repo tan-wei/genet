@@ -12,6 +12,6 @@ public:
   PlugkitTesting &operator=(const PlugkitTesting &) = delete;
   static void init(v8::Local<v8::Object> exports);
 };
-}
+} // namespace plugkit
 
 #endif

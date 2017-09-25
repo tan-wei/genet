@@ -1,8 +1,8 @@
 #include "stream_reader.h"
 #include "payload.hpp"
 #include <algorithm>
-#include <vector>
 #include <cstring>
+#include <vector>
 
 namespace plugkit {
 
@@ -120,4 +120,4 @@ Slice StreamReader_read(StreamReader *reader, char *buffer, size_t length,
   }
   return Slice{buffer, buffer + buflen};
 }
-}
+} // namespace plugkit

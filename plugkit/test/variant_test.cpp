@@ -1,7 +1,7 @@
+#include "variant.hpp"
 #include <catch.hpp>
 #include <cfloat>
 #include <cstring>
-#include "variant.hpp"
 
 using namespace plugkit;
 
@@ -140,4 +140,4 @@ TEST_CASE("Variant_mapValue", "[variant]") {
   value = Variant_mapValue(&variant, "ddd", 3);
   CHECK(Variant_bool(value) == false);
 }
-}
+} // namespace

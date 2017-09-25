@@ -1,13 +1,13 @@
 #ifndef PLUGKIT_LAYER_HPP
 #define PLUGKIT_LAYER_HPP
 
+#include "error.h"
+#include "layer.h"
+#include "token.h"
+#include "types.hpp"
 #include <memory>
 #include <string>
 #include <vector>
-#include "layer.h"
-#include "token.h"
-#include "error.h"
-#include "types.hpp"
 
 namespace plugkit {
 
@@ -26,7 +26,7 @@ public:
   const std::vector<Layer *> &subLayers() const;
   void addSubLayer(Layer *child);
 
-  const std::vector<const Attr *> &properties() const;
+  const std::vector<const Attr *> &attrs() const;
   const Attr *attr(Token id) const;
   void addAttr(const Attr *prop);
 
@@ -61,9 +61,9 @@ private:
   std::vector<Token> mTags;
   std::vector<Layer *> mLayers;
   std::vector<Layer *> mSubLayers;
-  std::vector<const Attr *> mProperties;
+  std::vector<const Attr *> mAttrs;
   std::vector<Error> mErrors;
 };
-}
+} // namespace plugkit
 
 #endif

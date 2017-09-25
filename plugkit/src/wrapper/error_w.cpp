@@ -27,6 +27,7 @@ NAN_METHOD(ErrorWrapper::New) {
     target = Token_get(*Nan::Utf8String(info[0]));
   } else {
     Nan::ThrowTypeError("First argument must be a string or token-id");
+    return;
   }
 
   Token type = Token_null();
@@ -36,6 +37,7 @@ NAN_METHOD(ErrorWrapper::New) {
     type = Token_get(*Nan::Utf8String(info[1]));
   } else {
     Nan::ThrowTypeError("Second argument must be a string or token-id");
+    return;
   }
 
   ErrorWrapper *obj = new ErrorWrapper(Error{target, type});
@@ -79,4 +81,4 @@ Error ErrorWrapper::unwrap(v8::Local<v8::Object> obj) {
   }
   return Error{};
 }
-}
+} // namespace plugkit

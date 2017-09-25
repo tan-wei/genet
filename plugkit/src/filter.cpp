@@ -1,11 +1,11 @@
 #include "filter.hpp"
+#include "attribute.hpp"
 #include "frame.hpp"
 #include "frame_view.hpp"
 #include "layer.hpp"
-#include "attribute.hpp"
+#include "wrapper/attribute.hpp"
 #include "wrapper/frame.hpp"
 #include "wrapper/layer.hpp"
-#include "wrapper/attribute.hpp"
 #include <functional>
 #include <json11.hpp>
 
@@ -47,4 +47,4 @@ void Filter::test(char *results, const FrameView **begin, size_t size) const {
     }
   }
 }
-}
+} // namespace plugkit

@@ -1,8 +1,8 @@
 #include "reader.h"
 #include "payload.hpp"
 #include <algorithm>
-#include <vector>
 #include <cstring>
+#include <vector>
 
 namespace plugkit {
 
@@ -39,7 +39,7 @@ template <class T> T readBE(Reader *reader) {
   reader->lastRange.begin = reader->lastRange.end - sizeof(T);
   return value;
 }
-}
+} // namespace
 void Reader_reset(Reader *reader) { std::memset(reader, 0, sizeof(Reader)); }
 
 Slice Reader_slice(Reader *reader, size_t begin, size_t end) {
@@ -98,4 +98,4 @@ float Reader_getFloat32(Reader *reader, bool littleEndian) {
 double Reader_getFloat64(Reader *reader, bool littleEndian) {
   return littleEndian ? readLE<double>(reader) : readBE<double>(reader);
 }
-}
+} // namespace plugkit

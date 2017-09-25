@@ -30,4 +30,4 @@ void Frame::setSourceId(uint32_t id) { mSourceId = id; }
 const FrameView *Frame::view() const { return mView; }
 
 void Frame::setView(const FrameView *view) { mView = view; }
-}
+} // namespace plugkit

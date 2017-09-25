@@ -1,20 +1,20 @@
 #include "plugkit_module.hpp"
-#include "plugkit_testing.hpp"
 #include "extended_slot.hpp"
+#include "plugkit_testing.hpp"
 #include "token.h"
 #include "variant.hpp"
-#include "wrapper/frame.hpp"
-#include "wrapper/layer.hpp"
-#include "wrapper/pcap.hpp"
-#include "wrapper/payload.hpp"
 #include "wrapper/attribute.hpp"
 #include "wrapper/context.hpp"
-#include "wrapper/reader.hpp"
-#include "wrapper/stream_reader.hpp"
 #include "wrapper/error.hpp"
+#include "wrapper/frame.hpp"
+#include "wrapper/layer.hpp"
 #include "wrapper/logger.hpp"
+#include "wrapper/payload.hpp"
+#include "wrapper/pcap.hpp"
+#include "wrapper/reader.hpp"
 #include "wrapper/session.hpp"
 #include "wrapper/session_factory.hpp"
+#include "wrapper/stream_reader.hpp"
 
 namespace plugkit {
 
@@ -22,6 +22,7 @@ namespace {
 NAN_METHOD(Token_get_wrap) {
   if (!info[0]->IsString()) {
     Nan::ThrowTypeError("First argument must be a string");
+    return;
   }
   Token token = Token_get(*Nan::Utf8String(info[0]));
   info.GetReturnValue().Set(token);
@@ -29,11 +30,12 @@ NAN_METHOD(Token_get_wrap) {
 NAN_METHOD(Token_string_wrap) {
   if (!info[0]->IsNumber()) {
     Nan::ThrowTypeError("First argument must be a number");
+    return;
   }
   auto str = Nan::New(Token_string(info[0]->NumberValue())).ToLocalChecked();
   info.GetReturnValue().Set(str);
 }
-}
+} // namespace
 
 PlugkitModule::PlugkitModule(v8::Isolate *isolate,
                              v8::Local<v8::Object> exports, bool mainThread) {
@@ -70,4 +72,4 @@ PlugkitModule *PlugkitModule::get(v8::Isolate *isolate) {
   return ExtendedSlot::get<PlugkitModule>(isolate,
                                           ExtendedSlot::SLOT_PLUGKIT_MODULE);
 }
-}
+} // namespace plugkit

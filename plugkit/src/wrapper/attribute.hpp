@@ -33,6 +33,6 @@ private:
   Attr *prop;
   const Attr *constProp;
 };
-}
+} // namespace plugkit
 
 #endif

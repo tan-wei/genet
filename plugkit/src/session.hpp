@@ -2,12 +2,12 @@
 #define PLUGKIT_SESSION_H
 
 #include "logger.hpp"
-#include "variant.hpp"
 #include "token.h"
+#include "variant.hpp"
 #include <memory>
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 namespace plugkit {
 
@@ -108,6 +108,6 @@ public:
 private:
   std::unique_ptr<Session::Config> d;
 };
-}
+} // namespace plugkit
 
 #endif

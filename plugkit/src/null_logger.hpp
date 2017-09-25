@@ -19,6 +19,6 @@ public:
                   const std::string &domain = "global",
                   const std::string &resourceName = "") override;
 };
-}
+} // namespace plugkit
 
 #endif

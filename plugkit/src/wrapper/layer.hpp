@@ -23,7 +23,7 @@ public:
   static NAN_GETTER(parent);
   static NAN_GETTER(frame);
   static NAN_GETTER(children);
-  static NAN_GETTER(properties);
+  static NAN_GETTER(attrs);
   static NAN_GETTER(payloads);
   static NAN_GETTER(tags);
   static NAN_METHOD(attr);
@@ -43,6 +43,6 @@ private:
   Layer *layer;
   const Layer *constLayer;
 };
-}
+} // namespace plugkit
 
 #endif

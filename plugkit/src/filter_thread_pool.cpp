@@ -118,4 +118,4 @@ uint32_t FilterThreadPool::maxSeq() const {
   uv_rwlock_rdunlock(&d->rwlock);
   return maxSeq;
 }
-}
+} // namespace plugkit

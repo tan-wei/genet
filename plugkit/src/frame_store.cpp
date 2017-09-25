@@ -4,8 +4,8 @@
 #include <condition_variable>
 #include <map>
 #include <mutex>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
 namespace plugkit {
 
@@ -133,4 +133,4 @@ void FrameStore::close(std::thread::id id) {
   }
   d->cond.notify_all();
 }
-}
+} // namespace plugkit

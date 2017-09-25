@@ -1,8 +1,8 @@
 #ifndef PLUGKIT_TAG_FILTER_HPP
 #define PLUGKIT_TAG_FILTER_HPP
 
-#include <vector>
 #include "token.h"
+#include <vector>
 
 namespace plugkit {
 
@@ -19,6 +19,6 @@ private:
   uint64_t filterHash = 0;
   std::vector<Token> filters;
 };
-}
+} // namespace plugkit
 
 #endif

@@ -13,6 +13,6 @@ struct Dissector {
   std::vector<Token> layerHints;
   DissectorType type;
 };
-}
+} // namespace plugkit
 
 #endif

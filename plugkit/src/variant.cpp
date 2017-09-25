@@ -12,7 +12,7 @@ namespace {
 
 const Variant::Array nullArray;
 const Variant::Map nullMap;
-}
+} // namespace
 
 void Variant::init(v8::Isolate *isolate) {
   PlugkitModule *module = PlugkitModule::get(isolate);
@@ -675,4 +675,4 @@ Variant *Variant_mapValueRef(Variant *var, const char *key, int length) {
   }
   return &(*var)[length < 0 ? std::string(key) : std::string(key, length)];
 }
-}
+} // namespace plugkit

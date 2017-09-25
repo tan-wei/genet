@@ -15,4 +15,4 @@ std::unique_ptr<Pcap> Pcap::create() {
     return std::unique_ptr<Pcap>(new PcapPlatform());
   }
 }
-}
+} // namespace plugkit

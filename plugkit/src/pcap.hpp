@@ -1,11 +1,11 @@
 #ifndef PLUGKIT_PCAP_HPP
 #define PLUGKIT_PCAP_HPP
 
+#include "token.h"
 #include <functional>
 #include <memory>
 #include <string>
 #include <vector>
-#include "token.h"
 
 namespace plugkit {
 
@@ -50,6 +50,6 @@ public:
 public:
   static std::unique_ptr<Pcap> create();
 };
-}
+} // namespace plugkit
 
 #endif

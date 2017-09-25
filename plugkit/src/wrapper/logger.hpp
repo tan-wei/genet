@@ -27,6 +27,6 @@ private:
 private:
   LoggerPtr logger;
 };
-}
+} // namespace plugkit
 
 #endif

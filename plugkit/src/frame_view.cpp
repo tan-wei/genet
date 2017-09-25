@@ -1,8 +1,8 @@
 #include "frame_view.hpp"
 #include "frame.hpp"
 #include "layer.hpp"
-#include <vector>
 #include <functional>
+#include <vector>
 
 namespace plugkit {
 
@@ -60,4 +60,4 @@ const Layer *FrameView::layer(Token id) const {
   }
   return nullptr;
 }
-}
+} // namespace plugkit

@@ -1,10 +1,10 @@
 #ifndef PLUGKIT_FRAME_VIEW_H
 #define PLUGKIT_FRAME_VIEW_H
 
+#include "attribute.hpp"
+#include "token.h"
 #include <memory>
 #include <vector>
-#include "token.h"
-#include "attribute.hpp"
 
 namespace plugkit {
 
@@ -33,6 +33,6 @@ private:
   std::vector<const Layer *> mLeafLayers;
   std::vector<const Layer *> mLayers;
 };
-}
+} // namespace plugkit
 
 #endif

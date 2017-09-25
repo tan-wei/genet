@@ -46,6 +46,6 @@ void *MemoryPool<T, initSize, maxScale>::alloc() {
   ++used;
   return ptr;
 }
-}
+} // namespace plugkit
 
 #endif

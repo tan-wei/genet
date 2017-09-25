@@ -3,9 +3,9 @@
 #ifndef PLUGKIT_LAYER_H
 #define PLUGKIT_LAYER_H
 
-#include "token.h"
-#include "slice.h"
 #include "export.h"
+#include "slice.h"
+#include "token.h"
 
 PLUGKIT_NAMESPACE_BEGIN
 

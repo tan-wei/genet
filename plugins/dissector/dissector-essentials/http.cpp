@@ -1,13 +1,13 @@
-#include <unordered_set>
 #include <nan.h>
-#include <plugkit/dissector.h>
-#include <plugkit/context.h>
-#include <plugkit/token.h>
 #include <plugkit/attribute.h>
-#include <plugkit/variant.h>
+#include <plugkit/context.h>
+#include <plugkit/dissector.h>
 #include <plugkit/layer.h>
 #include <plugkit/payload.h>
 #include <plugkit/stream_reader.h>
+#include <plugkit/token.h>
+#include <plugkit/variant.h>
+#include <unordered_set>
 
 #define PLUGKIT_ENABLE_LOGGING
 #include <plugkit/logger.h>
@@ -243,6 +243,6 @@ void Init(v8::Local<v8::Object> exports) {
   exports->Set(Nan::New("dissector").ToLocalChecked(),
                Nan::New<v8::External>(diss));
 }
-}
+} // namespace
 
 NODE_MODULE(dissectorEssentials, Init);

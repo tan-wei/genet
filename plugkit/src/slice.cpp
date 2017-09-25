@@ -33,7 +33,7 @@ template <class T> T readBE(const Slice &slice, size_t offset, Error *err) {
                     data);
   return *reinterpret_cast<const T *>(data);
 }
-}
+} // namespace
 
 Slice Slice_slice(Slice slice, size_t begin, size_t end) {
   Slice subview;
@@ -101,4 +101,4 @@ double Slice_getFloat64(Slice slice, size_t offset, bool littleEndian,
   return littleEndian ? readLE<double>(slice, offset, err)
                       : readBE<double>(slice, offset, err);
 }
-}
+} // namespace plugkit

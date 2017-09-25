@@ -1,10 +1,10 @@
 #ifndef PLUGKIT_READER_H
 #define PLUGKIT_READER_H
 
-#include "slice.h"
-#include "range.h"
 #include "error.h"
 #include "export.h"
+#include "range.h"
+#include "slice.h"
 
 PLUGKIT_NAMESPACE_BEGIN
 

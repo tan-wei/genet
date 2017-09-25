@@ -33,6 +33,6 @@ public:
 
   Function arrayToBuffer;
 };
-}
+} // namespace plugkit
 
 #endif

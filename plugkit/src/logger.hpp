@@ -1,13 +1,13 @@
 #ifndef PLUGKIT_LOGGER_HPP
 #define PLUGKIT_LOGGER_HPP
 
+#include "export.h"
 #include <chrono>
 #include <functional>
 #include <memory>
 #include <string>
 #include <thread>
 #include <v8.h>
-#include "export.h"
 
 namespace plugkit {
 
@@ -55,6 +55,6 @@ public:
   class Private;
 };
 using LoggerPtr = std::shared_ptr<Logger>;
-}
+} // namespace plugkit
 
 #endif

@@ -3,10 +3,10 @@
 #ifndef PLUGKIT_PAYLOAD_H
 #define PLUGKIT_PAYLOAD_H
 
-#include <stddef.h>
-#include "token.h"
-#include "slice.h"
 #include "export.h"
+#include "slice.h"
+#include "token.h"
+#include <stddef.h>
 
 PLUGKIT_NAMESPACE_BEGIN
 

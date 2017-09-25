@@ -3,10 +3,10 @@
 #ifndef PLUGKIT_VIEW_H
 #define PLUGKIT_VIEW_H
 
+#include "export.h"
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <stdbool.h>
-#include "export.h"
 
 PLUGKIT_NAMESPACE_BEGIN
 

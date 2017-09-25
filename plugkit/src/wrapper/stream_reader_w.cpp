@@ -1,7 +1,7 @@
-#include "stream_reader.hpp"
 #include "payload.hpp"
-#include "variant.hpp"
 #include "stream_reader.h"
+#include "stream_reader.hpp"
+#include "variant.hpp"
 
 namespace plugkit {
 
@@ -110,4 +110,4 @@ NAN_METHOD(StreamReaderWrapper::read) {
         0, sliceLen));
   }
 }
-}
+} // namespace plugkit

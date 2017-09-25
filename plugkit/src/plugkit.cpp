@@ -3,4 +3,4 @@
 namespace plugkit {
 
 PlugKit &PlugKit::getInstance() { return PlugKitPrivate::getInstance(); }
-}
+} // namespace plugkit

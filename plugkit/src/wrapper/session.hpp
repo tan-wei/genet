@@ -44,6 +44,6 @@ private:
   v8::UniquePersistent<v8::Function> frameCallback;
   v8::UniquePersistent<v8::Function> loggerCallback;
 };
-}
+} // namespace plugkit
 
 #endif

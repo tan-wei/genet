@@ -24,6 +24,6 @@ private:
 private:
   Context *ctx;
 };
-}
+} // namespace plugkit
 
 #endif

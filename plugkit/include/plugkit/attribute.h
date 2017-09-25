@@ -1,10 +1,10 @@
 #ifndef PLUGKIT_PROPERTY_H
 #define PLUGKIT_PROPERTY_H
 
-#include "token.h"
+#include "export.h"
 #include "range.h"
 #include "slice.h"
-#include "export.h"
+#include "token.h"
 #include <stdbool.h>
 
 PLUGKIT_NAMESPACE_BEGIN

@@ -1,10 +1,10 @@
 #ifndef PLUGKIT_VARIANT_H
 #define PLUGKIT_VARIANT_H
 
-#include <stdint.h>
-#include <stdbool.h>
-#include "slice.h"
 #include "export.h"
+#include "slice.h"
+#include <stdbool.h>
+#include <stdint.h>
 
 PLUGKIT_NAMESPACE_BEGIN
 

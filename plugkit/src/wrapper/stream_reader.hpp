@@ -27,6 +27,6 @@ private:
 private:
   StreamReader *reader;
 };
-}
+} // namespace plugkit
 
 #endif

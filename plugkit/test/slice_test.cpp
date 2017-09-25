@@ -1,7 +1,7 @@
+#include "error.h"
+#include "slice.h"
 #include <catch.hpp>
 #include <cstring>
-#include "slice.h"
-#include "error.h"
 
 using namespace plugkit;
 
@@ -16,7 +16,7 @@ TEST_CASE("Slice_length", "[Slice]") {
   Slice enptyView = {nullptr, nullptr};
   CHECK(Slice_length(enptyView) == 0);
 }
-}
+} // namespace
 
 TEST_CASE("Slice_slice", "[Slice]") {
   char data[256];

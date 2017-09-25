@@ -1,9 +1,9 @@
 #ifndef PLUGKIT_ERROR_WRAPPER_H
 #define PLUGKIT_ERROR_WRAPPER_H
 
+#include "error.h"
 #include <memory>
 #include <nan.h>
-#include "error.h"
 
 namespace plugkit {
 
@@ -24,6 +24,6 @@ private:
 private:
   Error error;
 };
-}
+} // namespace plugkit
 
 #endif

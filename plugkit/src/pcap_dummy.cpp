@@ -1,6 +1,6 @@
 #include "pcap_dummy.hpp"
-#include "layer.hpp"
 #include "frame.hpp"
+#include "layer.hpp"
 #include "payload.hpp"
 #include "stream_logger.hpp"
 #include <chrono>
@@ -121,4 +121,4 @@ bool PcapDummy::running() const { return d->thread.joinable(); }
 void PcapDummy::registerLinkLayer(int link, Token token) {
   d->linkLayers[link] = token;
 }
-}
+} // namespace plugkit

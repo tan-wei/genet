@@ -1,6 +1,6 @@
 #include "dissector_thread_pool.hpp"
-#include "dissector_thread.hpp"
 #include "dissector.hpp"
+#include "dissector_thread.hpp"
 #include "variant.hpp"
 #include <array>
 
@@ -76,4 +76,4 @@ void DissectorThreadPool::setLogger(const LoggerPtr &logger) {
 void DissectorThreadPool::push(Frame **begin, size_t length) {
   d->queue->enqueue(begin, begin + length);
 }
-}
+} // namespace plugkit

@@ -3,6 +3,8 @@
 #ifndef PLUGKIT_RANGE_H
 #define PLUGKIT_RANGE_H
 
+#include <stdint.h>
+
 PLUGKIT_NAMESPACE_BEGIN
 
 typedef struct Range {

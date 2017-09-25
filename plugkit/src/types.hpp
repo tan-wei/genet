@@ -18,6 +18,6 @@ using LoggerPtr = std::shared_ptr<Logger>;
 
 using Timestamp = std::chrono::time_point<std::chrono::system_clock,
                                           std::chrono::nanoseconds>;
-}
+} // namespace plugkit
 
 #endif

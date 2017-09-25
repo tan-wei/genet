@@ -1,15 +1,15 @@
-#include <list>
 #include <algorithm>
-#include <unordered_map>
+#include <list>
 #include <nan.h>
-#include <plugkit/dissector.h>
-#include <plugkit/context.h>
-#include <plugkit/token.h>
 #include <plugkit/attribute.h>
-#include <plugkit/variant.h>
+#include <plugkit/context.h>
+#include <plugkit/dissector.h>
 #include <plugkit/layer.h>
 #include <plugkit/payload.h>
 #include <plugkit/reader.h>
+#include <plugkit/token.h>
+#include <plugkit/variant.h>
+#include <unordered_map>
 
 using namespace plugkit;
 
@@ -25,7 +25,7 @@ public:
            hash<std::string>()(std::get<3>(id));
   }
 };
-}
+} // namespace std
 
 namespace {
 const auto srcToken = Token_get(".src");
@@ -149,7 +149,7 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   Layer *sub = Layer_addSubLayer(layer, tcpStreamToken);
   Layer_addTag(sub, tcpStreamToken);
 }
-}
+} // namespace
 
 void Init(v8::Local<v8::Object> exports) {
   Dissector *diss = Dissector_create(DISSECTOR_STREAM);

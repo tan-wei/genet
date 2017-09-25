@@ -32,6 +32,6 @@ private:
 private:
   const FrameView *view;
 };
-}
+} // namespace plugkit
 
 #endif

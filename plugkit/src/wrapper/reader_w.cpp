@@ -1,6 +1,6 @@
-#include "reader.hpp"
-#include "payload.hpp"
 #include "error.hpp"
+#include "payload.hpp"
+#include "reader.hpp"
 #include "variant.hpp"
 
 namespace plugkit {
@@ -183,4 +183,4 @@ NAN_METHOD(ReaderWrapper::getFloat64) {
         Reader_getFloat64(reader, info[0]->BooleanValue()));
   }
 }
-}
+} // namespace plugkit

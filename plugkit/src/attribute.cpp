@@ -136,4 +136,4 @@ const Variant *Attr_mapValue(const Attr *prop, const char *key, int length) {
 Variant *Attr_mapValueRef(Attr *prop, const char *key, int length) {
   return Variant_mapValueRef(prop->valueRef(), key, length);
 }
-}
+} // namespace plugkit

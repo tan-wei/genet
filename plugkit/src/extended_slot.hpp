@@ -38,7 +38,7 @@ template <class T> T *get(v8::Isolate *isolate, SubSlot slot) {
     return nullptr;
   }
 }
-}
-}
+} // namespace ExtendedSlot
+} // namespace plugkit
 
 #endif

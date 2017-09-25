@@ -1,6 +1,6 @@
-#include <catch.hpp>
 #include "payload.h"
 #include "payload.hpp"
+#include <catch.hpp>
 
 using namespace plugkit;
 
@@ -38,4 +38,4 @@ TEST_CASE("Payload_slices", "[Payload]") {
   CHECK(slice[1].begin == data);
   CHECK(slice[1].end == data + 100);
 }
-}
+} // namespace

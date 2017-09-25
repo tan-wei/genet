@@ -1,7 +1,7 @@
 #include "worker_thread.hpp"
 #include "extended_slot.hpp"
-#include "wrapper/logger.hpp"
 #include "plugkit_module.hpp"
+#include "wrapper/logger.hpp"
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
@@ -106,4 +106,4 @@ void WorkerThread::start() {
 }
 
 void WorkerThread::setLogger(const LoggerPtr &logger) { this->logger = logger; }
-}
+} // namespace plugkit

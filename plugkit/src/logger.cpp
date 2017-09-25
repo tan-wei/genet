@@ -75,4 +75,4 @@ Logger::MessagePtr Logger::fromV8Message(v8::Local<v8::Message> msg,
   logmsg->endColumn = msg->GetEndColumn(context).FromMaybe(0);
   return logmsg;
 }
-}
+} // namespace plugkit

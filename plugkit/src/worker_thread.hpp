@@ -26,6 +26,6 @@ protected:
 private:
   class ArrayBufferAllocator;
 };
-}
+} // namespace plugkit
 
 #endif

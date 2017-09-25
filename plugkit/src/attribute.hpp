@@ -2,8 +2,8 @@
 #define PLUGKIT_PROPERTY_HPP
 
 #include "attribute.h"
-#include "variant.hpp"
 #include "token.h"
+#include "variant.hpp"
 #include <memory>
 
 namespace plugkit {
@@ -33,6 +33,6 @@ private:
   Range mRange = {0, 0};
   Token mType = 0;
 };
-}
+} // namespace plugkit
 
 #endif

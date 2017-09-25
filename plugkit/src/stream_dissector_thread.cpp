@@ -1,16 +1,16 @@
 #include "stream_dissector_thread.hpp"
-#include "layer.hpp"
 #include "frame.hpp"
+#include "layer.hpp"
 #include "queue.hpp"
 #include "variant.hpp"
 
-#include "dissector.hpp"
 #include "context.hpp"
+#include "dissector.hpp"
 
 #include <algorithm>
+#include <cstring>
 #include <unordered_map>
 #include <unordered_set>
-#include <cstring>
 #include <v8.h>
 
 namespace plugkit {
@@ -19,7 +19,7 @@ namespace {
 struct WorkerContext {
   std::vector<std::pair<const Dissector *, void *>> list;
 };
-}
+} // namespace
 
 class StreamDissectorThread::Private {
 public:
@@ -186,4 +186,4 @@ void StreamDissectorThread::push(Layer **begin, size_t size) {
 }
 
 void StreamDissectorThread::stop() { d->queue.close(); }
-}
+} // namespace plugkit

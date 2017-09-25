@@ -34,4 +34,4 @@ bool TagFilter::match(const std::vector<Token> &tags) const {
   }
   return true;
 }
-}
+} // namespace plugkit

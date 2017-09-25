@@ -1,14 +1,14 @@
 #include "dissector_thread.hpp"
+#include "context.hpp"
+#include "dissector.hpp"
 #include "frame.hpp"
 #include "layer.hpp"
 #include "tag_filter.hpp"
-#include "dissector.hpp"
-#include "context.hpp"
+#include <algorithm>
 #include <array>
+#include <cstring>
 #include <unordered_map>
 #include <unordered_set>
-#include <algorithm>
-#include <cstring>
 
 namespace plugkit {
 
@@ -19,7 +19,7 @@ struct WorkerData {
   TagFilter filter;
   void *worker;
 };
-}
+} // namespace
 
 class DissectorThread::Private {
 public:
@@ -132,4 +132,4 @@ bool DissectorThread::loop() {
 }
 
 void DissectorThread::exit() { d->workers.clear(); }
-}
+} // namespace plugkit

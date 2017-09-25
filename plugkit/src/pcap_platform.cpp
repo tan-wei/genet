@@ -1,14 +1,14 @@
 #include "pcap_platform.hpp"
-#include "layer.hpp"
 #include "frame.hpp"
+#include "layer.hpp"
 #include "payload.hpp"
 #include "stream_logger.hpp"
+#include <cstring>
 #include <mutex>
 #include <pcap.h>
 #include <signal.h>
 #include <thread>
 #include <unordered_map>
-#include <cstring>
 
 #if defined(PLUGKIT_OS_MAC)
 #include <SystemConfiguration/SystemConfiguration.h>
@@ -422,4 +422,4 @@ bool PcapPlatform::hasPermission() const {
 #endif
   return true;
 }
-}
+} // namespace plugkit

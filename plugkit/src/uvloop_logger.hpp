@@ -21,6 +21,6 @@ private:
   class Private;
   Private *d;
 };
-}
+} // namespace plugkit
 
 #endif

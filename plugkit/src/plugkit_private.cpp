@@ -23,4 +23,4 @@ PlugKitPrivate &PlugKitPrivate::getInstance() {
   }
   return *kit;
 }
-}
+} // namespace plugkit

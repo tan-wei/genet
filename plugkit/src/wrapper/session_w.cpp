@@ -1,6 +1,6 @@
-#include "session.hpp"
 #include "../src/session.hpp"
 #include "plugkit_module.hpp"
+#include "session.hpp"
 
 #include "wrapper/frame.hpp"
 
@@ -289,4 +289,4 @@ SessionWrapper::unwrap(v8::Local<v8::Object> obj) {
   }
   return std::shared_ptr<Session>();
 }
-}
+} // namespace plugkit

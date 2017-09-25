@@ -1,12 +1,12 @@
 #include <nan.h>
-#include <plugkit/dissector.h>
-#include <plugkit/context.h>
-#include <plugkit/token.h>
 #include <plugkit/attribute.h>
-#include <plugkit/variant.h>
+#include <plugkit/context.h>
+#include <plugkit/dissector.h>
 #include <plugkit/layer.h>
 #include <plugkit/payload.h>
 #include <plugkit/reader.h>
+#include <plugkit/token.h>
+#include <plugkit/variant.h>
 #include <unordered_map>
 
 using namespace plugkit;
@@ -52,7 +52,7 @@ void analyze(Context *ctx, void *data, Layer *layer) {
   Payload *chunk = Layer_addPayload(child);
   Payload_addSlice(chunk, Reader_slice(&reader, 0, lengthNumber - 8));
 }
-}
+} // namespace
 
 void Init(v8::Local<v8::Object> exports) {
   Dissector *diss = Dissector_create(DISSECTOR_PACKET);

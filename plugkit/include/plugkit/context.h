@@ -1,9 +1,9 @@
 #ifndef PLUGKIT_CONTEXT_H
 #define PLUGKIT_CONTEXT_H
 
+#include "export.h"
 #include <stddef.h>
 #include <stdint.h>
-#include "export.h"
 
 PLUGKIT_NAMESPACE_BEGIN
 

@@ -47,9 +47,7 @@ void Layer::addError(Error err) { mErrors.push_back(err); }
 
 void Layer::addPayload(const Payload *payload) { mPayloads.push_back(payload); }
 
-const std::vector<const Attr *> &Layer::properties() const {
-  return mProperties;
-}
+const std::vector<const Attr *> &Layer::attrs() const { return mAttrs; }
 
 Layer *Layer::parent() const { return mParent; }
 
@@ -60,7 +58,7 @@ const Frame *Layer::frame() const { return mFrame; }
 void Layer::setFrame(const Frame *frame) { mFrame = frame; }
 
 const Attr *Layer::attr(Token id) const {
-  for (const auto &child : mProperties) {
+  for (const auto &child : mAttrs) {
     if (child->id() == id) {
       return child;
     }
@@ -68,7 +66,7 @@ const Attr *Layer::attr(Token id) const {
   return nullptr;
 }
 
-void Layer::addAttr(const Attr *prop) { mProperties.push_back(prop); }
+void Layer::addAttr(const Attr *prop) { mAttrs.push_back(prop); }
 
 Token Layer_id(const Layer *layer) { return layer->id(); }
 
@@ -133,4 +131,4 @@ const Payload *const *Layer_payloads(const Layer *layer, size_t *size) {
 void Layer_addTag(Layer *layer, Token tag) { layer->addTag(tag); }
 
 void Layer_addError(Layer *layer, Error err) { layer->addError(err); }
-}
+} // namespace plugkit

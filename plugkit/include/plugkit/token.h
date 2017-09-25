@@ -3,9 +3,9 @@
 #ifndef PLUGKIT_TOKEN_H
 #define PLUGKIT_TOKEN_H
 
+#include "export.h"
 #include <stdint.h>
 #include <string.h>
-#include "export.h"
 
 PLUGKIT_NAMESPACE_BEGIN
 

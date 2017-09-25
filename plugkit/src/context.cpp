@@ -1,6 +1,6 @@
-#include <cstdio>
 #include "context.hpp"
 #include "logger.h"
+#include <cstdio>
 
 namespace plugkit {
 
@@ -29,7 +29,7 @@ void Log(Context *ctx, const char *file, int line, Logger::Level level,
     ctx->logger->log(std::move(msg));
   }
 }
-}
+} // namespace
 
 void Log_debug_(Context *ctx, const char *file, int line, const char *format,
                 ...) {
@@ -67,4 +67,4 @@ void Log_error_(Context *ctx, const char *file, int line, const char *format,
   va_end(args);
   Log(ctx, file, line, Logger::LEVEL_ERROR, buffer);
 }
-}
+} // namespace plugkit

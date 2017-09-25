@@ -1,6 +1,6 @@
-#include "session_factory.hpp"
 #include "../src/session.hpp"
 #include "plugkit_module.hpp"
+#include "session_factory.hpp"
 
 #include "session.hpp"
 
@@ -180,4 +180,4 @@ SessionFactoryPtr SessionFactoryWrapper::unwrap(v8::Local<v8::Object> obj) {
   }
   return SessionFactoryPtr();
 }
-}
+} // namespace plugkit

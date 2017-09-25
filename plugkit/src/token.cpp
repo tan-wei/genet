@@ -1,9 +1,9 @@
 #include "token.h"
 #include <cstring>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <mutex>
 
 namespace plugkit {
 
@@ -20,7 +20,7 @@ thread_local std::unordered_map<Token, const char *> localReverseMap;
 std::unordered_map<std::string, Token> map;
 std::unordered_map<Token, const char *> reverseMap;
 std::mutex mutex;
-}
+} // namespace
 
 Token Token_literal_(const char *str, size_t length) {
   if (str == nullptr || str[0] == '\0') {
@@ -88,4 +88,4 @@ const char *Token_string(Token token) {
   }
   return "";
 }
-}
+} // namespace plugkit

@@ -1,8 +1,8 @@
-#include "payload.hpp"
 #include "../payload.hpp"
-#include "variant.hpp"
 #include "attribute.hpp"
+#include "payload.hpp"
 #include "plugkit_module.hpp"
+#include "variant.hpp"
 
 namespace plugkit {
 
@@ -10,13 +10,14 @@ void PayloadWrapper::init(v8::Isolate *isolate) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Payload").ToLocalChecked());
+  SetPrototypeMethod(tpl, "addSlice", addSlice);
   SetPrototypeMethod(tpl, "attr", attr);
   SetPrototypeMethod(tpl, "addAttr", addAttr);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("slices").ToLocalChecked(), slices);
   Nan::SetAccessor(otl, Nan::New("length").ToLocalChecked(), length);
-  Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
+  Nan::SetAccessor(otl, Nan::New("attrs").ToLocalChecked(), attrs);
   Nan::SetAccessor(otl, Nan::New("type").ToLocalChecked(), type, setType);
   Nan::SetIndexedPropertyHandler(otl, indexGetter);
 
@@ -39,8 +40,13 @@ NAN_METHOD(PayloadWrapper::addSlice) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->payload) {
     if (info[0]->IsArrayBufferView()) {
-      payload->addSlice(Variant::getSlice(info[0].As<v8::ArrayBufferView>()));
+      auto view = info[0].As<v8::ArrayBufferView>();
+      if (view->Buffer()->IsExternal()) {
+        payload->addSlice(Variant::getSlice(view));
+        return;
+      }
     }
+    Nan::ThrowTypeError("First argument must be an externalized Uint8Array");
   }
 }
 
@@ -64,14 +70,14 @@ NAN_GETTER(PayloadWrapper::length) {
   }
 }
 
-NAN_GETTER(PayloadWrapper::properties) {
+NAN_GETTER(PayloadWrapper::attrs) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->constPayload) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
-    const auto &properties = payload->properties();
-    auto array = v8::Array::New(isolate, properties.size());
-    for (size_t i = 0; i < properties.size(); ++i) {
-      array->Set(i, AttributeWrapper::wrap(properties[i]));
+    const auto &attrs = payload->attrs();
+    auto array = v8::Array::New(isolate, attrs.size());
+    for (size_t i = 0; i < attrs.size(); ++i) {
+      array->Set(i, AttributeWrapper::wrap(attrs[i]));
     }
     info.GetReturnValue().Set(array);
   }
@@ -80,8 +86,16 @@ NAN_GETTER(PayloadWrapper::properties) {
 NAN_METHOD(PayloadWrapper::attr) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->constPayload) {
-    Token token = info[0]->IsNumber() ? info[0]->NumberValue()
-                                      : Token_get(*Nan::Utf8String(info[0]));
+    Token token = Token_null();
+    if (info[0]->IsNumber()) {
+      token = info[0]->NumberValue();
+    } else if (info[0]->IsString()) {
+      token = Token_get(*Nan::Utf8String(info[0]));
+    } else {
+      Nan::ThrowTypeError("First argument must be a string or token-id");
+      return;
+    }
+
     if (const auto &child = payload->attr(token)) {
       info.GetReturnValue().Set(AttributeWrapper::wrap(child));
     } else {
@@ -93,8 +107,16 @@ NAN_METHOD(PayloadWrapper::attr) {
 NAN_METHOD(PayloadWrapper::addAttr) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->payload) {
-    Token token = info[0]->IsNumber() ? info[0]->NumberValue()
-                                      : Token_get(*Nan::Utf8String(info[0]));
+    Token token = Token_null();
+    if (info[0]->IsNumber()) {
+      token = info[0]->NumberValue();
+    } else if (info[0]->IsString()) {
+      token = Token_get(*Nan::Utf8String(info[0]));
+    } else {
+      Nan::ThrowTypeError("First argument must be a string or token-id");
+      return;
+    }
+
     info.GetReturnValue().Set(
         AttributeWrapper::wrap(Payload_addAttr(payload, token)));
   }
@@ -135,6 +157,19 @@ NAN_INDEX_GETTER(PayloadWrapper::indexGetter) {
   }
 }
 
+v8::Local<v8::Object> PayloadWrapper::wrap(Payload *payload) {
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
+  PlugkitModule *module = PlugkitModule::get(isolate);
+  auto cons = v8::Local<v8::Function>::New(isolate, module->payload.ctor);
+  v8::Local<v8::Object> obj =
+      cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,
+                        nullptr)
+          .ToLocalChecked();
+  PayloadWrapper *wrapper = new PayloadWrapper(payload);
+  wrapper->Wrap(obj);
+  return obj;
+}
+
 v8::Local<v8::Object> PayloadWrapper::wrap(const Payload *payload) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
@@ -159,4 +194,4 @@ const Payload *PayloadWrapper::unwrap(v8::Local<v8::Object> obj) {
   }
   return nullptr;
 }
-}
+} // namespace plugkit

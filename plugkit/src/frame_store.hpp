@@ -39,5 +39,5 @@ private:
   class Private;
   std::unique_ptr<Private> d;
 };
-}
+} // namespace plugkit
 #endif

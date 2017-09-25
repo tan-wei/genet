@@ -1,12 +1,11 @@
 #include "stream_dissector_thread_pool.hpp"
+#include "dissector.hpp"
 #include "frame.hpp"
 #include "frame_store.hpp"
 #include "frame_view.hpp"
 #include "layer.hpp"
 #include "stream_dissector_thread.hpp"
 #include "stream_logger.hpp"
-#include "variant.hpp"
-#include "dissector.hpp"
 #include "variant.hpp"
 #include <array>
 #include <thread>
@@ -169,4 +168,4 @@ void StreamDissectorThreadPool::start() {
     }
   });
 }
-}
+} // namespace plugkit

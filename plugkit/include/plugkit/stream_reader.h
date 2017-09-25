@@ -1,9 +1,9 @@
 #ifndef PLUGKIT_STREAM_READER_H
 #define PLUGKIT_STREAM_READER_H
 
-#include "slice.h"
 #include "error.h"
 #include "export.h"
+#include "slice.h"
 
 PLUGKIT_NAMESPACE_BEGIN
 

@@ -1,6 +1,6 @@
-#include <catch.hpp>
-#include "token.h"
 #include "tag_filter.hpp"
+#include "token.h"
+#include <catch.hpp>
 
 using namespace plugkit;
 
@@ -24,4 +24,4 @@ TEST_CASE("TagFilter_match", "[TagFilter]") {
   CHECK(filter.match({Token_get("ipv6")}) == false);
   CHECK(filter.match({Token_null()}) == false);
 }
-}
+} // namespace

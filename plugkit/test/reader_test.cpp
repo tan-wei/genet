@@ -1,5 +1,5 @@
-#include <catch.hpp>
 #include "reader.h"
+#include <catch.hpp>
 
 using namespace plugkit;
 
@@ -403,4 +403,4 @@ TEST_CASE("Reader_getFloat64 (little endian)", "[Reader]") {
   CHECK(reader.lastRange.end == sizeof(double));
   CHECK(reader.lastError.type == outOfBoundError);
 }
-}
+} // namespace

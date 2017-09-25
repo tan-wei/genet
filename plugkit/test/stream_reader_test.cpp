@@ -1,5 +1,5 @@
-#include <catch.hpp>
 #include "stream_reader.h"
+#include <catch.hpp>
 
 using namespace plugkit;
 
@@ -93,4 +93,4 @@ TEST_CASE("StreamReader_length", "[StreamReader]") {
 
   StreamReader_destroy(reader);
 }
-}
+} // namespace

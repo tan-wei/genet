@@ -1,6 +1,6 @@
 #include "payload.hpp"
-#include "layer.hpp"
 #include "attribute.hpp"
+#include "layer.hpp"
 
 namespace plugkit {
 
@@ -17,12 +17,10 @@ const std::vector<Slice> &Payload::slices() const { return mSlices; }
 
 size_t Payload::length() const { return mLength; }
 
-const std::vector<const Attr *> &Payload::properties() const {
-  return mProperties;
-}
+const std::vector<const Attr *> &Payload::attrs() const { return mAttrs; }
 
 const Attr *Payload::attr(Token id) const {
-  for (const auto &prop : mProperties) {
+  for (const auto &prop : mAttrs) {
     if (prop->id() == id) {
       return prop;
     }
@@ -30,7 +28,7 @@ const Attr *Payload::attr(Token id) const {
   return nullptr;
 }
 
-void Payload::addAttr(const Attr *prop) { mProperties.push_back(prop); }
+void Payload::addAttr(const Attr *prop) { mAttrs.push_back(prop); }
 
 Token Payload::type() const { return mType; }
 
@@ -60,4 +58,4 @@ Attr *Payload_addAttr(Payload *payload, Token id) {
   payload->addAttr(prop);
   return prop;
 }
-}
+} // namespace plugkit

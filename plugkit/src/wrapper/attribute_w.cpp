@@ -1,5 +1,5 @@
-#include "attribute.hpp"
 #include "../attribute.hpp"
+#include "attribute.hpp"
 #include "plugkit_module.hpp"
 
 namespace plugkit {
@@ -164,4 +164,4 @@ const Attr *AttributeWrapper::unwrap(v8::Local<v8::Object> obj) {
   }
   return nullptr;
 }
-}
+} // namespace plugkit

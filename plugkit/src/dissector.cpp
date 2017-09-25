@@ -18,4 +18,4 @@ void Dissector_setWorkerFactory(Dissector *diss, WokerFactoryAllocFunc *alloc,
 void Dissector_addLayerHint(Dissector *diss, Token hint) {
   diss->layerHints.push_back(hint);
 }
-}
+} // namespace plugkit

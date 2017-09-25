@@ -11,6 +11,7 @@ struct Payload;
 struct PayloadWrapper final : public Nan::ObjectWrap {
 public:
   static void init(v8::Isolate *isolate);
+  static v8::Local<v8::Object> wrap(Payload *prop);
   static v8::Local<v8::Object> wrap(const Payload *prop);
   static const Payload *unwrap(v8::Local<v8::Object> obj);
   static NAN_METHOD(New);
@@ -18,7 +19,7 @@ public:
   static NAN_GETTER(slices);
   static NAN_GETTER(length);
   static NAN_METHOD(addAttr);
-  static NAN_GETTER(properties);
+  static NAN_GETTER(attrs);
   static NAN_METHOD(attr);
   static NAN_GETTER(type);
   static NAN_SETTER(setType);
@@ -34,6 +35,6 @@ private:
   Payload *payload;
   const Payload *constPayload;
 };
-}
+} // namespace plugkit
 
 #endif

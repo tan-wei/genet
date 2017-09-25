@@ -1,9 +1,9 @@
 #ifndef PLUGKIT_READER_WRAPPER_H
 #define PLUGKIT_READER_WRAPPER_H
 
+#include "reader.h"
 #include <memory>
 #include <nan.h>
-#include "reader.h"
 
 namespace plugkit {
 
@@ -36,6 +36,6 @@ private:
 private:
   Reader reader;
 };
-}
+} // namespace plugkit
 
 #endif

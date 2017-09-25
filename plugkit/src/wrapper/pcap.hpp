@@ -17,6 +17,6 @@ private:
   PcapWrapper(const PcapWrapper &) = delete;
   PcapWrapper &operator=(const PcapWrapper &) = delete;
 };
-}
+} // namespace plugkit
 
 #endif

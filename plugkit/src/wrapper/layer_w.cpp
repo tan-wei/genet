@@ -1,10 +1,10 @@
-#include "layer.hpp"
-#include "../layer.hpp"
 #include "../frame.hpp"
+#include "../layer.hpp"
+#include "layer.hpp"
 #include "payload.hpp"
 #include "plugkit_module.hpp"
-#include "wrapper/frame.hpp"
 #include "wrapper/attribute.hpp"
+#include "wrapper/frame.hpp"
 
 namespace plugkit {
 
@@ -27,7 +27,7 @@ void LayerWrapper::init(v8::Isolate *isolate) {
   Nan::SetAccessor(otl, Nan::New("parent").ToLocalChecked(), parent);
   Nan::SetAccessor(otl, Nan::New("frame").ToLocalChecked(), frame);
   Nan::SetAccessor(otl, Nan::New("payloads").ToLocalChecked(), payloads);
-  Nan::SetAccessor(otl, Nan::New("properties").ToLocalChecked(), properties);
+  Nan::SetAccessor(otl, Nan::New("attrs").ToLocalChecked(), attrs);
   Nan::SetAccessor(otl, Nan::New("children").ToLocalChecked(), children);
   Nan::SetAccessor(otl, Nan::New("tags").ToLocalChecked(), tags);
 
@@ -150,14 +150,14 @@ NAN_GETTER(LayerWrapper::children) {
   }
 }
 
-NAN_GETTER(LayerWrapper::properties) {
+NAN_GETTER(LayerWrapper::attrs) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->constLayer) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
-    const auto &properties = layer->properties();
-    auto array = v8::Array::New(isolate, properties.size());
-    for (size_t i = 0; i < properties.size(); ++i) {
-      array->Set(i, AttributeWrapper::wrap(properties[i]));
+    const auto &attrs = layer->attrs();
+    auto array = v8::Array::New(isolate, attrs.size());
+    for (size_t i = 0; i < attrs.size(); ++i) {
+      array->Set(i, AttributeWrapper::wrap(attrs[i]));
     }
     info.GetReturnValue().Set(array);
   }
@@ -275,4 +275,4 @@ Layer *LayerWrapper::unwrap(v8::Local<v8::Object> obj) {
   }
   return nullptr;
 }
-}
+} // namespace plugkit

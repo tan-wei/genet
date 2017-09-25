@@ -1,6 +1,6 @@
 #include "context.h"
-#include "variant.hpp"
 #include "stream_logger.hpp"
+#include "variant.hpp"
 
 namespace plugkit {
 
@@ -9,4 +9,4 @@ public:
   Variant options;
   LoggerPtr logger = std::make_shared<StreamLogger>();
 };
-}
+} // namespace plugkit

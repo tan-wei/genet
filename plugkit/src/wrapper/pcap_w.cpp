@@ -1,5 +1,5 @@
-#include "pcap.hpp"
 #include "../src/pcap.hpp"
+#include "pcap.hpp"
 
 namespace plugkit {
 
@@ -36,4 +36,4 @@ NAN_GETTER(PcapWrapper::devices) {
 NAN_GETTER(PcapWrapper::permission) {
   info.GetReturnValue().Set(Pcap::create()->hasPermission());
 }
-}
+} // namespace plugkit

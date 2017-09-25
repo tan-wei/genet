@@ -23,6 +23,6 @@ void Init(v8::Local<v8::Object> exports) {
   ExtendedSlot::init(isolate);
   new PlugkitModule(isolate, exports, true);
 }
-}
+} // namespace
 
 NODE_MODULE(plugkit, Init)

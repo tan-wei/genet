@@ -38,6 +38,6 @@ private:
   const FrameView *mView = nullptr;
   uint32_t mSourceId = 0;
 };
-}
+} // namespace plugkit
 
 #endif

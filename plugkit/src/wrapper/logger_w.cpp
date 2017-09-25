@@ -1,6 +1,6 @@
-#include "wrapper/logger.hpp"
 #include "../logger.hpp"
 #include "plugkit_module.hpp"
+#include "wrapper/logger.hpp"
 
 namespace plugkit {
 
@@ -64,4 +64,4 @@ v8::Local<v8::Object> LoggerWrapper::wrap(const LoggerPtr &logger) {
   wrapper->Wrap(obj);
   return obj;
 }
-}
+} // namespace plugkit

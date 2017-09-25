@@ -54,4 +54,4 @@ void FilterThread::close() {
     d->store->close(id);
   }
 }
-}
+} // namespace plugkit

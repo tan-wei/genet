@@ -1,14 +1,14 @@
 #ifndef PLUGKIT_VARIANT_HPP
 #define PLUGKIT_VARIANT_HPP
 
-#include "variant.h"
 #include "types.hpp"
+#include "variant.h"
+#include <json11.hpp>
 #include <memory>
 #include <string>
-#include <vector>
 #include <unordered_map>
 #include <v8.h>
-#include <json11.hpp>
+#include <vector>
 
 namespace plugkit {
 
@@ -110,6 +110,6 @@ public:
     Map *map;
   } d;
 };
-}
+} // namespace plugkit
 
 #endif

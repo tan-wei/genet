@@ -2,9 +2,9 @@
 #define PLUGKIT_PAYLOAD_HPP
 
 #include "payload.h"
-#include "types.hpp"
 #include "slice.h"
 #include "token.h"
+#include "types.hpp"
 #include <memory>
 #include <vector>
 
@@ -22,7 +22,7 @@ public:
   Token type() const;
   void setType(Token type);
 
-  const std::vector<const Attr *> &properties() const;
+  const std::vector<const Attr *> &attrs() const;
   const Attr *attr(Token id) const;
   void addAttr(const Attr *prop);
 
@@ -33,9 +33,9 @@ private:
 private:
   Token mType;
   std::vector<Slice> mSlices;
-  std::vector<const Attr *> mProperties;
+  std::vector<const Attr *> mAttrs;
   size_t mLength = 0;
 };
-}
+} // namespace plugkit
 
 #endif

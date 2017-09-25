@@ -37,6 +37,6 @@ private:
 private:
   SessionFactoryPtr factory;
 };
-}
+} // namespace plugkit
 
 #endif

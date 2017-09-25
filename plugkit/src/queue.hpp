@@ -75,6 +75,6 @@ template <class T> void Queue<T>::close() {
 template <class T> uint32_t Queue<T>::size() const {
   return count.load(std::memory_order_relaxed);
 }
-}
+} // namespace plugkit
 
 #endif

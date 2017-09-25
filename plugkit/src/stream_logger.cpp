@@ -18,4 +18,4 @@ void StreamLogger::log(MessagePtr &&msg) {
   }
   *stream << msg->toString() << std::endl;
 }
-}
+} // namespace plugkit

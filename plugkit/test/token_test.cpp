@@ -1,5 +1,5 @@
-#include <catch.hpp>
 #include "token.h"
+#include <catch.hpp>
 
 using namespace plugkit;
 
@@ -81,4 +81,4 @@ TEST_CASE("Token_string", "[Token]") {
             Token_string(Token_get("7a250b5e-0cb3-4987-81f6-1a8bb5f26704"))) ==
         Token_get("7a250b5e-0cb3-4987-81f6-1a8bb5f26704"));
 }
-}
+} // namespace
