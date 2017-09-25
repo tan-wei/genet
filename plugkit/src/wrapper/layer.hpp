@@ -11,6 +11,7 @@ struct Layer;
 class LayerWrapper final : public Nan::ObjectWrap {
 public:
   static void init(v8::Isolate *isolate);
+  static v8::Local<v8::Object> wrap(Layer *layer);
   static v8::Local<v8::Object> wrap(const Layer *layer);
   static const Layer *unwrapConst(v8::Local<v8::Object> obj);
   static Layer *unwrap(v8::Local<v8::Object> obj);
@@ -22,7 +23,7 @@ public:
   static NAN_SETTER(setConfidence);
   static NAN_GETTER(parent);
   static NAN_GETTER(frame);
-  static NAN_GETTER(children);
+  static NAN_GETTER(layers);
   static NAN_GETTER(attrs);
   static NAN_GETTER(payloads);
   static NAN_GETTER(tags);

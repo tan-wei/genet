@@ -28,7 +28,7 @@ void LayerWrapper::init(v8::Isolate *isolate) {
   Nan::SetAccessor(otl, Nan::New("frame").ToLocalChecked(), frame);
   Nan::SetAccessor(otl, Nan::New("payloads").ToLocalChecked(), payloads);
   Nan::SetAccessor(otl, Nan::New("attrs").ToLocalChecked(), attrs);
-  Nan::SetAccessor(otl, Nan::New("children").ToLocalChecked(), children);
+  Nan::SetAccessor(otl, Nan::New("layers").ToLocalChecked(), layers);
   Nan::SetAccessor(otl, Nan::New("tags").ToLocalChecked(), tags);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
@@ -137,14 +137,14 @@ NAN_GETTER(LayerWrapper::payloads) {
   }
 }
 
-NAN_GETTER(LayerWrapper::children) {
+NAN_GETTER(LayerWrapper::layers) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->constLayer) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
-    const auto &children = layer->layers();
-    auto array = v8::Array::New(isolate, children.size());
-    for (size_t i = 0; i < children.size(); ++i) {
-      array->Set(i, LayerWrapper::wrap(children[i]));
+    const auto &layers = layer->layers();
+    auto array = v8::Array::New(isolate, layers.size());
+    for (size_t i = 0; i < layers.size(); ++i) {
+      array->Set(i, LayerWrapper::wrap(layers[i]));
     }
     info.GetReturnValue().Set(array);
   }
@@ -179,8 +179,15 @@ NAN_GETTER(LayerWrapper::tags) {
 NAN_METHOD(LayerWrapper::attr) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->constLayer) {
-    Token token = info[0]->IsNumber() ? info[0]->NumberValue()
-                                      : Token_get(*Nan::Utf8String(info[0]));
+    Token token = Token_null();
+    if (info[0]->IsNumber()) {
+      token = info[0]->NumberValue();
+    } else if (info[0]->IsString()) {
+      token = Token_get(*Nan::Utf8String(info[0]));
+    } else {
+      Nan::ThrowTypeError("First argument must be a string or token-id");
+      return;
+    }
     if (const auto &prop = layer->attr(token)) {
       info.GetReturnValue().Set(AttributeWrapper::wrap(prop));
     } else {
@@ -211,8 +218,15 @@ NAN_METHOD(LayerWrapper::addSubLayer) {
 NAN_METHOD(LayerWrapper::addAttr) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
-    Token token = info[0]->IsNumber() ? info[0]->NumberValue()
-                                      : Token_get(*Nan::Utf8String(info[0]));
+    Token token = Token_null();
+    if (info[0]->IsNumber()) {
+      token = info[0]->NumberValue();
+    } else if (info[0]->IsString()) {
+      token = Token_get(*Nan::Utf8String(info[0]));
+    } else {
+      Nan::ThrowTypeError("First argument must be a string or token-id");
+      return;
+    }
     info.GetReturnValue().Set(
         AttributeWrapper::wrap(Layer_addAttr(layer, token)));
   }
@@ -237,6 +251,19 @@ NAN_METHOD(LayerWrapper::toJSON) {
     }
   }
   info.GetReturnValue().Set(obj);
+}
+
+v8::Local<v8::Object> LayerWrapper::wrap(Layer *layer) {
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
+  PlugkitModule *module = PlugkitModule::get(isolate);
+  auto cons = v8::Local<v8::Function>::New(isolate, module->layer.ctor);
+  v8::Local<v8::Object> obj =
+      cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,
+                        nullptr)
+          .ToLocalChecked();
+  LayerWrapper *wrapper = new LayerWrapper(layer);
+  wrapper->Wrap(obj);
+  return obj;
 }
 
 v8::Local<v8::Object> LayerWrapper::wrap(const Layer *layer) {
