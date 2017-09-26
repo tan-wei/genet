@@ -2,11 +2,14 @@
 #include "attribute.hpp"
 #include "payload.hpp"
 #include "layer.hpp"
+#include "frame.hpp"
+#include "frame_view.hpp"
 #include "token.h"
 #include "null_logger.hpp"
 #include "wrapper/attribute.hpp"
 #include "wrapper/payload.hpp"
 #include "wrapper/layer.hpp"
+#include "wrapper/frame.hpp"
 #include "wrapper/logger.hpp"
 #include <nan.h>
 
@@ -55,6 +58,16 @@ void createLayerInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
   }, Nan::WeakCallbackType::kParameter);
   info.GetReturnValue().Set(persistent);
 }
+void createFrameInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
+  auto view = new FrameView(new Frame());
+  Nan::Persistent<v8::Object> persistent(FrameWrapper::wrap(view));
+  persistent.SetWeak(view, [](const Nan::WeakCallbackInfo<FrameView> &data) {
+    FrameView *view = data.GetParameter();
+    delete view->frame();
+    delete view;
+  }, Nan::WeakCallbackType::kParameter);
+  info.GetReturnValue().Set(persistent);
+}
 } // namespace
 void PlugkitTesting::init(v8::Local<v8::Object> exports) {
   auto isolate = v8::Isolate::GetCurrent();
@@ -77,6 +90,9 @@ void PlugkitTesting::init(v8::Local<v8::Object> exports) {
           ->GetFunction());
   testing->Set(Nan::New("createLayerInstance").ToLocalChecked(),
                v8::FunctionTemplate::New(isolate, createLayerInstance, exports)
+                   ->GetFunction());
+  testing->Set(Nan::New("createFrameInstance").ToLocalChecked(),
+               v8::FunctionTemplate::New(isolate, createFrameInstance, exports)
                    ->GetFunction());
 }
 } // namespace plugkit
