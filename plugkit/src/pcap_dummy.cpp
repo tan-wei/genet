@@ -110,8 +110,13 @@ bool PcapDummy::stop() {
 }
 
 std::vector<NetworkInterface> PcapDummy::devices() const {
-  std::vector<NetworkInterface> devs;
-  return devs;
+  NetworkInterface iface;
+  iface.id = "eth";
+  iface.name = "eth";
+  iface.description = "Ethernet";
+  iface.link = 1;
+  iface.loopback = false;
+  return std::vector<NetworkInterface>{iface};
 }
 
 bool PcapDummy::hasPermission() const { return true; }
