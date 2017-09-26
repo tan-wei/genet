@@ -51,10 +51,15 @@ void createPayloadInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
 }
 void createLayerInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
   Token id = Token_get(*Nan::Utf8String(info[0]));
+  auto parent = new Layer(id);
   auto layer = new Layer(id);
+  layer->setParent(parent);
   Nan::Persistent<v8::Object> persistent(LayerWrapper::wrap(layer));
   persistent.SetWeak(layer, [](const Nan::WeakCallbackInfo<Layer> &data) {
-    delete data.GetParameter();
+    Layer *layer = data.GetParameter();
+    delete layer->frame();
+    delete layer->parent();
+    delete layer;
   }, Nan::WeakCallbackType::kParameter);
   info.GetReturnValue().Set(persistent);
 }

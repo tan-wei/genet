@@ -115,4 +115,11 @@ describe('Layer', () => {
       assert.equal(2, layer.payloads.length)
     })
   })
+  describe('#parent', () => {
+    it('should return parent layer', () => {
+      const layer = Testing.createLayerInstance('eth')
+      assert.equal('Layer', layer.parent.constructor.name)
+      assert.equal(null, layer.parent.parent)
+    })
+  })
 })
