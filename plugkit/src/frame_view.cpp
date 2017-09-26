@@ -15,6 +15,8 @@ FrameView::FrameView(Frame *frame) : mFrame(frame), mPrimaryLayer(nullptr) {
 
   std::function<void(const Layer *)> findLeafLayers = [this, &findLeafLayers](
       const Layer *layer) {
+    if (!layer)
+      return;
     mLayers.push_back(layer);
     if (layer->layers().empty()) {
       mLeafLayers.push_back(layer);

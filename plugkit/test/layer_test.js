@@ -122,4 +122,10 @@ describe('Layer', () => {
       assert.equal(null, layer.parent.parent)
     })
   })
+  describe('#frame', () => {
+    it('should return Frame', () => {
+      const layer = Testing.createLayerInstance('eth')
+      assert.equal('Frame', layer.frame.constructor.name)
+    })
+  })
 })
