@@ -8,4 +8,28 @@ describe('Frame', () => {
       assert.equal('Date', frame.timestamp.constructor.name)
     })
   })
+  describe('#length', () => {
+    it('should return frame length', () => {
+      const frame = Testing.createFrameInstance()
+      assert.equal(0, frame.length)
+    })
+  })
+  describe('#index', () => {
+    it('should return frame index', () => {
+      const frame = Testing.createFrameInstance()
+      assert.equal(0, frame.index)
+    })
+  })
+  describe('#sourceId', () => {
+    it('should return frame sourceId', () => {
+      const frame = Testing.createFrameInstance()
+      assert.equal(0, frame.sourceId)
+    })
+  })
+  describe('#leafLayers', () => {
+    it('should return frame leafLayers', () => {
+      const frame = Testing.createFrameInstance()
+      assert.deepEqual([], frame.leafLayers)
+    })
+  })
 })
