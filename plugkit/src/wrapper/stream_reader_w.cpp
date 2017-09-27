@@ -47,6 +47,8 @@ NAN_METHOD(StreamReaderWrapper::addPayload) {
     if (const Payload *payload =
             PayloadWrapper::unwrap(info[0].As<v8::Object>())) {
       StreamReader_addPayload(reader, payload);
+    } else {
+      Nan::ThrowTypeError("First argument must be a Payload");
     }
   }
 }
@@ -59,8 +61,10 @@ NAN_METHOD(StreamReaderWrapper::addSlice) {
       auto view = info[0].As<v8::ArrayBufferView>();
       if (view->Buffer()->IsExternal()) {
         StreamReader_addSlice(reader, Variant::getSlice(view));
+        return;
       }
     }
+    Nan::ThrowTypeError("First argument must be an externalized Uint8Array");
   }
 }
 
