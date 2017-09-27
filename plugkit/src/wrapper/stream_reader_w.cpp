@@ -15,6 +15,8 @@ void StreamReaderWrapper::init(v8::Isolate *isolate,
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("StreamReader").ToLocalChecked());
+  SetPrototypeMethod(tpl, "addPayload", addPayload);
+  SetPrototypeMethod(tpl, "addSlice", addSlice);
   SetPrototypeMethod(tpl, "search", search);
   SetPrototypeMethod(tpl, "read", read);
 
@@ -64,7 +66,8 @@ NAN_METHOD(StreamReaderWrapper::addSlice) {
         return;
       }
     }
-    Nan::ThrowTypeError("First argument must be an externalized Uint8Array");
+    Nan::ThrowTypeError(
+        "First argument must be an externalized ArrayBufferView");
   }
 }
 
@@ -83,6 +86,8 @@ NAN_METHOD(StreamReaderWrapper::search) {
           view->ByteOffset();
       info.GetReturnValue().Set(static_cast<uint32_t>(
           StreamReader_search(reader, data, view->ByteLength(), offset)));
+    } else {
+      Nan::ThrowTypeError("First argument must be an ArrayBufferView");
     }
   }
 }
@@ -93,11 +98,21 @@ NAN_METHOD(StreamReaderWrapper::read) {
   if (auto reader = wrapper->reader) {
     size_t size = 0;
     size_t offset = 0;
-    if (info[0]->IsNumber()) {
-      size = info[0]->NumberValue();
+    if (info.Length() >= 1) {
+      if (info[0]->IsNumber()) {
+        size = info[0]->NumberValue();
+      } else {
+        Nan::ThrowTypeError("First argument must be a number");
+        return;
+      }
     }
-    if (info[1]->IsNumber()) {
-      offset = info[1]->NumberValue();
+    if (info.Length() >= 2) {
+      if (info[1]->IsNumber()) {
+        offset = info[1]->NumberValue();
+      } else {
+        Nan::ThrowTypeError("Second argument must be a number");
+        return;
+      }
     }
     auto buf = v8::ArrayBuffer::New(v8::Isolate::GetCurrent(), size);
     char *data = static_cast<char *>(buf->GetContents().Data());

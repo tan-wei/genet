@@ -46,7 +46,8 @@ NAN_METHOD(PayloadWrapper::addSlice) {
         return;
       }
     }
-    Nan::ThrowTypeError("First argument must be an externalized Uint8Array");
+    Nan::ThrowTypeError(
+        "First argument must be an externalized ArrayBufferView");
   }
 }
 
