@@ -5,7 +5,7 @@
 
 namespace plugkit {
 
-ReaderWrapper::ReaderWrapper() {}
+ReaderWrapper::ReaderWrapper() { Reader_reset(&reader); }
 
 void ReaderWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
 
