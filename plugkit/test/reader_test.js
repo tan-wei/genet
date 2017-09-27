@@ -15,6 +15,14 @@ describe('Reader', () => {
     it('should return reader last range', () => {
       const reader = new Reader()
       assert.deepEqual([0, 0], reader.lastRange)
+      reader.lastRange = [123, 456]
+      assert.deepEqual([123, 456], reader.lastRange)
+    })
+  })
+  describe('#lastError', () => {
+    it('should return reader last error', () => {
+      const reader = new Reader()
+      assert.deepEqual('Error', reader.lastError.constructor.name)
     })
   })
 })

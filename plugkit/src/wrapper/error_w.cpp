@@ -15,8 +15,13 @@ void ErrorWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   Nan::SetAccessor(otl, Nan::New("target").ToLocalChecked(), target);
   Nan::SetAccessor(otl, Nan::New("type").ToLocalChecked(), type);
 
-  v8::Local<v8::Object> func = Nan::GetFunction(tpl).ToLocalChecked();
+  v8::Local<v8::Function> func = Nan::GetFunction(tpl).ToLocalChecked();
   Nan::Set(exports, Nan::New("Error").ToLocalChecked(), func);
+
+  PlugkitModule *module = PlugkitModule::get(isolate);
+  module->error.proto.Reset(isolate,
+                            func->Get(Nan::New("prototype").ToLocalChecked()));
+  module->error.ctor.Reset(isolate, func);
 }
 
 NAN_METHOD(ErrorWrapper::New) {
@@ -61,9 +66,9 @@ v8::Local<v8::Object> ErrorWrapper::wrap(const Error &error) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto cons = v8::Local<v8::Function>::New(isolate, module->error.ctor);
+  v8::Local<v8::Value> args[2] = {Nan::New(0), Nan::New(0)};
   v8::Local<v8::Object> obj =
-      cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,
-                        nullptr)
+      cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 2, args)
           .ToLocalChecked();
   ErrorWrapper *wrapper = new ErrorWrapper(error);
   wrapper->Wrap(obj);
