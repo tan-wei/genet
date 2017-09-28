@@ -3,7 +3,7 @@ const {Testing, Error, Reader} = require('../test')
 
 describe('Reader', () => {
   describe('#getUint8()', () => {
-    it('should return a Uint8 value', () => {
+    it('should return an Uint8 value', () => {
       const reader = new Reader()
       reader.data = Testing.externalize(new Uint8Array([200, 250, -1, -2]))
       assert.strictEqual(200, reader.getUint8())
@@ -29,11 +29,24 @@ describe('Reader', () => {
       const reader = new Reader()
       assert.throws(() => reader.getUint16([]), TypeError)
     })
+    it('should return an Uint16 value', () => {
+      const reader = new Reader()
+      reader.data = Testing.externalize(new Uint8Array([200, 250, -1, -2, 0]))
+      assert.strictEqual(51450, reader.getUint16())
+      assert.strictEqual(65534, reader.getUint16())
+      assert.strictEqual(0, reader.getUint16())
+    })
   })
   describe('#getUint32()', () => {
     it('should throw for wrong arguments', () => {
       const reader = new Reader()
       assert.throws(() => reader.getUint32([]), TypeError)
+    })
+    it('should return an Uint32 value', () => {
+      const reader = new Reader()
+      reader.data = Testing.externalize(new Uint8Array([200, 250, -1, -2, 0]))
+      assert.strictEqual(3371892734, reader.getUint32())
+      assert.strictEqual(0, reader.getUint32())
     })
   })
   describe('#getInt16()', () => {
@@ -41,11 +54,24 @@ describe('Reader', () => {
       const reader = new Reader()
       assert.throws(() => reader.getInt16([]), TypeError)
     })
+    it('should return an Int16 value', () => {
+      const reader = new Reader()
+      reader.data = Testing.externalize(new Uint8Array([200, 250, -1, -2, 0]))
+      assert.strictEqual(-14086, reader.getInt16())
+      assert.strictEqual(-2, reader.getInt16())
+      assert.strictEqual(0, reader.getInt16())
+    })
   })
   describe('#getInt32()', () => {
     it('should throw for wrong arguments', () => {
       const reader = new Reader()
       assert.throws(() => reader.getInt32([]), TypeError)
+    })
+    it('should return an Int32 value', () => {
+      const reader = new Reader()
+      reader.data = Testing.externalize(new Uint8Array([200, 250, -1, -2, 0]))
+      assert.strictEqual(-923074562, reader.getInt32())
+      assert.strictEqual(0, reader.getInt32())
     })
   })
   describe('#getFloat32()', () => {
@@ -53,11 +79,23 @@ describe('Reader', () => {
       const reader = new Reader()
       assert.throws(() => reader.getFloat32([]), TypeError)
     })
+    it('should return a Float32 value', () => {
+      const reader = new Reader()
+      reader.data = Testing.externalize(new Uint8Array([200, 250, -1, -2, 0]))
+      assert.strictEqual(-514047.9375, reader.getFloat32())
+      assert.strictEqual(0.0, reader.getFloat32())
+    })
   })
   describe('#getFloat64()', () => {
     it('should throw for wrong arguments', () => {
       const reader = new Reader()
       assert.throws(() => reader.getFloat64([]), TypeError)
+    })
+    it('should return a Float64 value', () => {
+      const reader = new Reader()
+      reader.data = Testing.externalize(new Uint8Array([-64, 0, 0, 0, 0, 0, 0, 0, 0]))
+      assert.strictEqual(-2.0, reader.getFloat64())
+      assert.strictEqual(0.0, reader.getFloat64())
     })
   })
   describe('#data', () => {
