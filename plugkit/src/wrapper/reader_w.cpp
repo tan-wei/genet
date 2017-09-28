@@ -141,6 +141,10 @@ NAN_METHOD(ReaderWrapper::getInt8) {
 NAN_METHOD(ReaderWrapper::getUint16) {
   ReaderWrapper *wrapper = ObjectWrap::Unwrap<ReaderWrapper>(info.Holder());
   if (Reader *reader = &wrapper->reader) {
+    if (info.Length() >= 1 && !info[0]->IsBoolean()) {
+      Nan::ThrowTypeError("First argument must be a boolean");
+      return;
+    }
     info.GetReturnValue().Set(
         Reader_getUint16(reader, info[0]->BooleanValue()));
   }
@@ -149,6 +153,10 @@ NAN_METHOD(ReaderWrapper::getUint16) {
 NAN_METHOD(ReaderWrapper::getUint32) {
   ReaderWrapper *wrapper = ObjectWrap::Unwrap<ReaderWrapper>(info.Holder());
   if (Reader *reader = &wrapper->reader) {
+    if (info.Length() >= 1 && !info[0]->IsBoolean()) {
+      Nan::ThrowTypeError("First argument must be a boolean");
+      return;
+    }
     info.GetReturnValue().Set(
         Reader_getUint32(reader, info[0]->BooleanValue()));
   }
@@ -157,6 +165,10 @@ NAN_METHOD(ReaderWrapper::getUint32) {
 NAN_METHOD(ReaderWrapper::getInt16) {
   ReaderWrapper *wrapper = ObjectWrap::Unwrap<ReaderWrapper>(info.Holder());
   if (Reader *reader = &wrapper->reader) {
+    if (info.Length() >= 1 && !info[0]->IsBoolean()) {
+      Nan::ThrowTypeError("First argument must be a boolean");
+      return;
+    }
     info.GetReturnValue().Set(Reader_getInt16(reader, info[0]->BooleanValue()));
   }
 }
@@ -164,6 +176,10 @@ NAN_METHOD(ReaderWrapper::getInt16) {
 NAN_METHOD(ReaderWrapper::getInt32) {
   ReaderWrapper *wrapper = ObjectWrap::Unwrap<ReaderWrapper>(info.Holder());
   if (Reader *reader = &wrapper->reader) {
+    if (info.Length() >= 1 && !info[0]->IsBoolean()) {
+      Nan::ThrowTypeError("First argument must be a boolean");
+      return;
+    }
     info.GetReturnValue().Set(Reader_getInt32(reader, info[0]->BooleanValue()));
   }
 }
@@ -171,6 +187,10 @@ NAN_METHOD(ReaderWrapper::getInt32) {
 NAN_METHOD(ReaderWrapper::getFloat32) {
   ReaderWrapper *wrapper = ObjectWrap::Unwrap<ReaderWrapper>(info.Holder());
   if (Reader *reader = &wrapper->reader) {
+    if (info.Length() >= 1 && !info[0]->IsBoolean()) {
+      Nan::ThrowTypeError("First argument must be a boolean");
+      return;
+    }
     info.GetReturnValue().Set(
         Reader_getFloat32(reader, info[0]->BooleanValue()));
   }
@@ -179,6 +199,10 @@ NAN_METHOD(ReaderWrapper::getFloat32) {
 NAN_METHOD(ReaderWrapper::getFloat64) {
   ReaderWrapper *wrapper = ObjectWrap::Unwrap<ReaderWrapper>(info.Holder());
   if (Reader *reader = &wrapper->reader) {
+    if (info.Length() >= 1 && !info[0]->IsBoolean()) {
+      Nan::ThrowTypeError("First argument must be a boolean");
+      return;
+    }
     info.GetReturnValue().Set(
         Reader_getFloat64(reader, info[0]->BooleanValue()));
   }
