@@ -5,7 +5,7 @@ describe('Attr', () => {
   describe('#id', () => {
     it('should return attribute id', () => {
       const attr = Testing.createAttrInstance('eth')
-      assert.equal('eth', attr.id)
+      assert.strictEqual('eth', attr.id)
     })
   })
   describe('#value', () => {
@@ -38,7 +38,7 @@ describe('Attr', () => {
     it('should return attribute type', () => {
       const token = Token.get('eth')
       const attr = Testing.createAttrInstance(token)
-      assert.equal('', attr.type)
+      assert.strictEqual('', attr.type)
       attr.type = '@type'
       assert.deepEqual('@type', attr.type)
     })

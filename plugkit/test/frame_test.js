@@ -5,25 +5,25 @@ describe('Frame', () => {
   describe('#timestamp', () => {
     it('should return frame timestamp', () => {
       const frame = Testing.createFrameInstance()
-      assert.equal('Date', frame.timestamp.constructor.name)
+      assert.strictEqual('Date', frame.timestamp.constructor.name)
     })
   })
   describe('#length', () => {
     it('should return frame length', () => {
       const frame = Testing.createFrameInstance()
-      assert.equal(0, frame.length)
+      assert.strictEqual(0, frame.length)
     })
   })
   describe('#index', () => {
     it('should return frame index', () => {
       const frame = Testing.createFrameInstance()
-      assert.equal(0, frame.index)
+      assert.strictEqual(0, frame.index)
     })
   })
   describe('#sourceId', () => {
     it('should return frame sourceId', () => {
       const frame = Testing.createFrameInstance()
-      assert.equal(0, frame.sourceId)
+      assert.strictEqual(0, frame.sourceId)
     })
   })
   describe('#leafLayers', () => {

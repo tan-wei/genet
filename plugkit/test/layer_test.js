@@ -10,7 +10,7 @@ describe('Layer', () => {
     })
     it('should return Attr', () => {
       const layer = Testing.createLayerInstance('eth')
-      assert.equal('Attr', layer.addAttr('.dst').constructor.name)
+      assert.strictEqual('Attr', layer.addAttr('.dst').constructor.name)
     })
   })
   describe('#addLayer()', () => {
@@ -21,7 +21,7 @@ describe('Layer', () => {
     })
     it('should return Layer', () => {
       const layer = Testing.createLayerInstance('eth')
-      assert.equal('Layer', layer.addLayer('ipv4').constructor.name)
+      assert.strictEqual('Layer', layer.addLayer('ipv4').constructor.name)
     })
   })
   describe('#addSubLayer()', () => {
@@ -32,13 +32,13 @@ describe('Layer', () => {
     })
     it('should return Layer', () => {
       const layer = Testing.createLayerInstance('eth')
-      assert.equal('Layer', layer.addSubLayer('ipv4').constructor.name)
+      assert.strictEqual('Layer', layer.addSubLayer('ipv4').constructor.name)
     })
   })
   describe('#addPayload()', () => {
     it('should return addPayload', () => {
       const layer = Testing.createLayerInstance('eth')
-      assert.equal('Payload', layer.addPayload().constructor.name)
+      assert.strictEqual('Payload', layer.addPayload().constructor.name)
     })
   })
   describe('#addTag()', () => {
@@ -56,35 +56,35 @@ describe('Layer', () => {
     })
     it('should return null for unknown id', () => {
       const layer = Testing.createLayerInstance('eth')
-      assert.equal(null, layer.attr('zzz'))
-      assert.equal(null, layer.attr(123))
+      assert.strictEqual(null, layer.attr('zzz'))
+      assert.strictEqual(null, layer.attr(123))
     })
     it('should return found Attr', () => {
       const layer = Testing.createLayerInstance('eth')
       layer.addAttr('.dst')
-      assert.equal('.dst', layer.attr('.dst').id)
+      assert.strictEqual('.dst', layer.attr('.dst').id)
     })
   })
   describe('#id', () => {
     it('should return layer id', () => {
       const layer = Testing.createLayerInstance('eth')
-      assert.equal('eth', layer.id)
+      assert.strictEqual('eth', layer.id)
     })
   })
   describe('#worker', () => {
     it('should return layer worker', () => {
       const layer = Testing.createLayerInstance('eth')
-      assert.equal(0, layer.worker)
+      assert.strictEqual(0, layer.worker)
       layer.worker = 15
-      assert.equal(15, layer.worker)
+      assert.strictEqual(15, layer.worker)
     })
   })
   describe('#confidence', () => {
     it('should return layer confidence', () => {
       const layer = Testing.createLayerInstance('eth')
-      assert.equal(3, layer.confidence)
+      assert.strictEqual(3, layer.confidence)
       layer.confidence = 1
-      assert.equal(1, layer.confidence)
+      assert.strictEqual(1, layer.confidence)
     })
   })
   describe('#tags', () => {
@@ -100,9 +100,9 @@ describe('Layer', () => {
       const layer = Testing.createLayerInstance('eth')
       assert.deepEqual([], layer.attrs)
       layer.addAttr('.dst')
-      assert.equal(1, layer.attrs.length)
+      assert.strictEqual(1, layer.attrs.length)
       layer.addAttr('.src')
-      assert.equal(2, layer.attrs.length)
+      assert.strictEqual(2, layer.attrs.length)
     })
   })
   describe('#payloads', () => {
@@ -110,22 +110,22 @@ describe('Layer', () => {
       const layer = Testing.createLayerInstance('eth')
       assert.deepEqual([], layer.payloads)
       layer.addPayload()
-      assert.equal(1, layer.payloads.length)
+      assert.strictEqual(1, layer.payloads.length)
       layer.addPayload()
-      assert.equal(2, layer.payloads.length)
+      assert.strictEqual(2, layer.payloads.length)
     })
   })
   describe('#parent', () => {
     it('should return parent layer', () => {
       const layer = Testing.createLayerInstance('eth')
-      assert.equal('Layer', layer.parent.constructor.name)
-      assert.equal(null, layer.parent.parent)
+      assert.strictEqual('Layer', layer.parent.constructor.name)
+      assert.strictEqual(null, layer.parent.parent)
     })
   })
   describe('#frame', () => {
     it('should return Frame', () => {
       const layer = Testing.createLayerInstance('eth')
-      assert.equal('Frame', layer.frame.constructor.name)
+      assert.strictEqual('Frame', layer.frame.constructor.name)
     })
   })
 })

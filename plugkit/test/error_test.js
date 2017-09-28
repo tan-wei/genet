@@ -13,13 +13,13 @@ describe('Error', () => {
   describe('#target', () => {
     it('should return error target', () => {
       const error = new Error('.dst', 'Invalid value')
-      assert.equal('.dst', error.target)
+      assert.strictEqual('.dst', error.target)
     })
   })
   describe('#type', () => {
     it('should return error type', () => {
       const error = new Error('.dst', 'Invalid value')
-      assert.equal('Invalid value', error.type)
+      assert.strictEqual('Invalid value', error.type)
     })
   })
 })
