@@ -1,6 +1,6 @@
 import PcapFile from './pcap-file'
 import { SessionFactory } from 'plugkit'
-import denodeify from 'denodeify'
+import {promisify} from 'util'
 import fs from 'fs'
 
 const dissectors = []
@@ -56,7 +56,7 @@ export default class Session {
   static async runSampleAnalysis (options = {}) {
     const pcapData = []
     for (const samp of samples) {
-      pcapData.push(denodeify(fs.readFile)(samp.pcap))
+      pcapData.push(promisify(fs.readFile)(samp.pcap))
     }
 
     const files = (await Promise.all(pcapData))
@@ -100,7 +100,7 @@ export default class Session {
   static async runSampleBenchmark (options = {}, size = 10000) {
     const pcapData = []
     for (const samp of samples) {
-      pcapData.push(denodeify(fs.readFile)(samp.pcap))
+      pcapData.push(promisify(fs.readFile)(samp.pcap))
     }
 
     const files = (await Promise.all(pcapData))

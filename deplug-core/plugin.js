@@ -1,5 +1,5 @@
 import config from './config'
-import denodeify from 'denodeify'
+import {promisify} from 'util'
 import glob from 'glob'
 import jsonfile from 'jsonfile'
 import objpath from 'object-path'
@@ -14,8 +14,8 @@ export default class Plugin {
     const userPluginPattern =
       path.join(config.userPluginPath, '/**/package.json')
 
-    const builtinPaths = await denodeify(glob)(builtinPluginPattern)
-    const userPaths = await denodeify(glob)(userPluginPattern)
+    const builtinPaths = await promisify(glob)(builtinPluginPattern)
+    const userPaths = await promisify(glob)(userPluginPattern)
 
     const list = []
     for (const root of builtinPaths.concat(userPaths)) {
@@ -30,7 +30,7 @@ export default class Plugin {
   }
 
   static async create (rootDir) {
-    const pkg = await denodeify(jsonfile.readFile)(
+    const pkg = await promisify(jsonfile.readFile)(
       path.join(rootDir, 'package.json'))
     const engine = objpath.get(pkg, 'engines.deplug', null)
     if (engine === null) {

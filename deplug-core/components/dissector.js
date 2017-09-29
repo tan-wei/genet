@@ -1,6 +1,6 @@
 import Component from './base'
 import Session from '../session'
-import denodeify from 'denodeify'
+import {promisify} from 'util'
 import exists from 'file-exists'
 import jsonfile from 'jsonfile'
 import objpath from 'object-path'
@@ -23,7 +23,7 @@ export default class DissectorComponent extends Component {
     for (const spath of searchPaths) {
       const file = path.join(this.rootDir, spath, main)
       // eslint-disable-next-line no-await-in-loop
-      if (await denodeify(exists)(file)) {
+      if (await promisify(exists)(file)) {
         mainFile = file
         break
       }

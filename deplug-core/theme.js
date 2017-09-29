@@ -1,7 +1,7 @@
 import Config from './config'
 import GlobalChannel from './global-channel'
 import Profile from './profile'
-import denodeify from 'denodeify'
+import {promisify} from 'util'
 import fs from 'fs'
 import less from 'less'
 import path from 'path'
@@ -34,7 +34,7 @@ export default class Theme {
     this.name = name
     this.lessFile = lessFile
 
-    denodeify(fs.readFile)(themeCachePath,
+    promisify(fs.readFile)(themeCachePath,
         { encoding: 'utf8' }).then((json) => {
       for (const file of JSON.parse(json)) {
         this.render(file)
@@ -59,10 +59,10 @@ export default class Theme {
       compress: true,
       globalVars: { 'node-platform': process.platform },
     }
-    const code = await denodeify(fs.readFile)(lessFile, { encoding: 'utf8' })
+    const code = await promisify(fs.readFile)(lessFile, { encoding: 'utf8' })
     const result = less.render(code, options)
     globalCache[lessFile] = result
-    denodeify(fs.writeFile)(themeCachePath,
+    promisify(fs.writeFile)(themeCachePath,
       JSON.stringify(Object.keys(globalCache)), { encoding: 'utf8' })
     return result
   }
