@@ -1,9 +1,9 @@
 import config from './config'
-import {promisify} from 'util'
 import glob from 'glob'
 import jsonfile from 'jsonfile'
 import objpath from 'object-path'
 import path from 'path'
+import { promisify } from 'util'
 import roll from './roll'
 import semver from 'semver'
 

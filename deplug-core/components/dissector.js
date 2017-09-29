@@ -1,10 +1,10 @@
 import Component from './base'
 import Session from '../session'
-import {promisify} from 'util'
 import exists from 'file-exists'
 import jsonfile from 'jsonfile'
 import objpath from 'object-path'
 import path from 'path'
+import { promisify } from 'util'
 
 export default class DissectorComponent extends Component {
   async load () {

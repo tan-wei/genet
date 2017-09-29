@@ -1,7 +1,7 @@
 import PcapFile from './pcap-file'
 import { SessionFactory } from 'plugkit'
-import {promisify} from 'util'
 import fs from 'fs'
+import { promisify } from 'util'
 
 const dissectors = []
 const linkLayers = []

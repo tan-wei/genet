@@ -1,10 +1,10 @@
 import Config from './config'
 import GlobalChannel from './global-channel'
 import Profile from './profile'
-import {promisify} from 'util'
 import fs from 'fs'
 import less from 'less'
 import path from 'path'
+import { promisify } from 'util'
 
 const themeCachePath = path.join(Config.userPath, '.theme-cache.json')
 
