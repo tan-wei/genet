@@ -1,4 +1,4 @@
-DEPLUG_VER = $(shell jq -r '.version' package.json)
+DEPLUG_VER = $(shell node version-string.js)
 DEPLUG_CORE = node_modules/deplug-core node_modules/deplug-core/theme
 
 DEPLUG_CORE_RES = $(wildcard deplug-core/*.htm) $(wildcard deplug-core/theme/*.*)
@@ -14,9 +14,9 @@ PLUGKIT_DST = node_modules/plugkit
 DISSECTOR_ESS = plugins/dissector/dissector-essentials
 
 ROOLUP_EXTERN_BUILTIN = electron,deplug,$(shell node -p -e 'require("builtin-modules").join(",")')
-ROOLUP_EXTERN = $(ROOLUP_EXTERN_BUILTIN),$(shell jq '.dependencies + .devDependencies | keys | join(",")' package.json -r)
+ROOLUP_EXTERN = $(ROOLUP_EXTERN_BUILTIN),$(shell node scripts/builtin-packages.js)
 
-ELECTRON_VERSION = $(shell jq '.devDependencies."negatron"' package.json -r)
+ELECTRON_VERSION = $(shell node scripts/negatron-version-string.js)
 ELECTRON_MIRROR = https://s3-ap-northeast-1.amazonaws.com/deplug-build-junk/electron/v
 ELECTRON_UNPACK = "node_modules/{deplug-helper,plugkit}"
 ELECTRON_IGNORE = "deplug-core","plugkit"

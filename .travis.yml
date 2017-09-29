@@ -21,12 +21,8 @@ addons:
     - ruby
     - ruby-dev
     - gperf
-cache:
-  yarn: true
-  directories:
-    - $HOME/Library/Caches/Homebrew
+cache: yarn
 before_install:
-- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install jq; fi
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source scripts/linux-before-install.sh; fi
 install:
 - yarn

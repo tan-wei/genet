@@ -1,4 +1,4 @@
-ELECTRON_VERSION = $(shell jq '.devDependencies."negatron"' ../../package.json -r)
+ELECTRON_VERSION = $(shell node ../../scripts/negatron-version-string.js)
 TOKEN_KEYWORDS=src/token.keys
 TOKEN_HASH_TABLE=src/token_hash.h
 
