@@ -52,15 +52,15 @@ plugkit:
 	$(MAKE) -C $(DISSECTOR_ESS)
 
 test:
-	node ci/run-as-node.js $(ELECTRON) node_modules/deplug-core/test.main.js
-	node ci/run-as-node.js $(ELECTRON) $(MOCHA) $(PLUGKIT_DST)/test
+	node scripts/run-as-node.js $(ELECTRON) node_modules/deplug-core/test.main.js
+	node scripts/run-as-node.js $(ELECTRON) $(MOCHA) $(PLUGKIT_DST)/test
 
 bench:
-	node ci/run-as-node.js $(ELECTRON) node_modules/deplug-core/bench.main.js
+	node scripts/run-as-node.js $(ELECTRON) node_modules/deplug-core/bench.main.js
 
 dmg:
 	yarn add appdmg
-	$(APPDMG) ci/appdmg.json out/deplug-darwin-amd64.dmg
+	$(APPDMG) scripts/appdmg.json out/deplug-darwin-amd64.dmg
 
 deb:
 	cp -r debian/. out/.debian
@@ -87,7 +87,7 @@ rpm:
 	mv out/.rpm/RPMS/*/*.rpm out/deplug-linux-amd64.rpm
 
 winstaller:
-	node ci/winstaller.js
+	node scripts/winstaller.js
 	mv out/DeplugSetup.exe out/deplug-win-amd64.exe
 
 pack: build

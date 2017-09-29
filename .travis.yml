@@ -27,7 +27,7 @@ cache:
     - $HOME/Library/Caches/Homebrew
 before_install:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install jq; fi
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source ci/linux-before-install.sh; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source scripts/linux-before-install.sh; fi
 install:
 - yarn
 - make build
@@ -38,7 +38,7 @@ script:
 before_deploy:
 - make pack
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make deb rpm ; fi
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source ci/linux-before-deploy.sh; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source scripts/linux-before-deploy.sh; fi
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then deb-s3 upload --bucket deplug-deb out/deplug-linux-amd64.deb ; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then make dmg ; fi
 notifications:
