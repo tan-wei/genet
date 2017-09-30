@@ -115,7 +115,16 @@ NAN_METHOD(ReaderWrapper::slice) {
 NAN_METHOD(ReaderWrapper::sliceAll) {
   ReaderWrapper *wrapper = ObjectWrap::Unwrap<ReaderWrapper>(info.Holder());
   if (Reader *reader = &wrapper->reader) {
-    const Slice &slice = Reader_sliceAll(reader, info[0]->NumberValue());
+    size_t offset = 0;
+    if (info.Length() >= 1) {
+      if (!info[0]->IsNumber()) {
+        offset = info[0]->NumberValue();
+      } else {
+        Nan::ThrowTypeError("First argument must be a number");
+        return;
+      }
+    }
+    const Slice &slice = Reader_sliceAll(reader, offset);
     size_t sliceLen = Slice_length(slice);
     info.GetReturnValue().Set(v8::Uint8Array::New(
         v8::ArrayBuffer::New(v8::Isolate::GetCurrent(),

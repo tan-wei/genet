@@ -2,6 +2,12 @@ const assert = require('assert')
 const {Testing, Error, Reader} = require('../test')
 
 describe('Reader', () => {
+  describe('#sliceAll()', () => {
+    it('should throw for wrong arguments', () => {
+      const reader = new Reader()
+      assert.throws(() => reader.getUint16([]), TypeError)
+    })
+  })
   describe('#getUint8()', () => {
     it('should return an Uint8 value', () => {
       const reader = new Reader()
