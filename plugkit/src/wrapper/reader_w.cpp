@@ -102,6 +102,14 @@ NAN_SETTER(ReaderWrapper::setLastError) {
 NAN_METHOD(ReaderWrapper::slice) {
   ReaderWrapper *wrapper = ObjectWrap::Unwrap<ReaderWrapper>(info.Holder());
   if (Reader *reader = &wrapper->reader) {
+    if (!info[0]->IsNumber()) {
+      Nan::ThrowTypeError("First argument must be a number");
+      return;
+    }
+    if (!info[1]->IsNumber()) {
+      Nan::ThrowTypeError("Second argument must be a number");
+      return;
+    }
     const Slice &slice =
         Reader_slice(reader, info[0]->NumberValue(), info[1]->NumberValue());
     size_t sliceLen = Slice_length(slice);

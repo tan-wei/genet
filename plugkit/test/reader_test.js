@@ -2,6 +2,14 @@ const assert = require('assert')
 const {Testing, Error, Reader} = require('../test')
 
 describe('Reader', () => {
+  describe('#slice()', () => {
+    it('should throw for wrong arguments', () => {
+      const reader = new Reader()
+      assert.throws(() => reader.slice(),      TypeError)
+      assert.throws(() => reader.slice(0),     TypeError)
+      assert.throws(() => reader.slice(0, []), TypeError)
+    })
+  })
   describe('#sliceAll()', () => {
     it('should throw for wrong arguments', () => {
       const reader = new Reader()
