@@ -6,10 +6,6 @@
 
 namespace plugkit {
 
-namespace {
-const Token lengthToken = Token_get(".length");
-}
-
 FrameView::FrameView(Frame *frame) : mFrame(frame), mPrimaryLayer(nullptr) {
   frame->setView(this);
 
