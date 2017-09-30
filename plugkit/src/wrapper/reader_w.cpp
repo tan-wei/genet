@@ -117,7 +117,7 @@ NAN_METHOD(ReaderWrapper::sliceAll) {
   if (Reader *reader = &wrapper->reader) {
     size_t offset = 0;
     if (info.Length() >= 1) {
-      if (!info[0]->IsNumber()) {
+      if (info[0]->IsNumber()) {
         offset = info[0]->NumberValue();
       } else {
         Nan::ThrowTypeError("First argument must be a number");

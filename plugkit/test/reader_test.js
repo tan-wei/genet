@@ -5,7 +5,7 @@ describe('Reader', () => {
   describe('#sliceAll()', () => {
     it('should throw for wrong arguments', () => {
       const reader = new Reader()
-      assert.throws(() => reader.getUint16([]), TypeError)
+      assert.throws(() => reader.sliceAll([]), TypeError)
     })
   })
   describe('#getUint8()', () => {
@@ -35,12 +35,19 @@ describe('Reader', () => {
       const reader = new Reader()
       assert.throws(() => reader.getUint16([]), TypeError)
     })
-    it('should return an Uint16 value', () => {
+    it('should return a big-endian Uint16 value', () => {
       const reader = new Reader()
       reader.data = Testing.externalize(new Uint8Array([200, 250, -1, -2, 0]))
       assert.strictEqual(51450, reader.getUint16())
       assert.strictEqual(65534, reader.getUint16())
       assert.strictEqual(0, reader.getUint16())
+    })
+    it('should return a little-endian Uint16 value when the first argument is true', () => {
+      const reader = new Reader()
+      reader.data = Testing.externalize(new Uint8Array([200, 250, -1, -2, 0]))
+      assert.strictEqual(64200, reader.getUint16(true))
+      assert.strictEqual(65279, reader.getUint16(true))
+      assert.strictEqual(0, reader.getUint16(true))
     })
   })
   describe('#getUint32()', () => {
@@ -48,11 +55,17 @@ describe('Reader', () => {
       const reader = new Reader()
       assert.throws(() => reader.getUint32([]), TypeError)
     })
-    it('should return an Uint32 value', () => {
+    it('should return a big-endian Uint32 value', () => {
       const reader = new Reader()
       reader.data = Testing.externalize(new Uint8Array([200, 250, -1, -2, 0]))
       assert.strictEqual(3371892734, reader.getUint32())
       assert.strictEqual(0, reader.getUint32())
+    })
+    it('should return a little-endian Uint32 value when the first argument is true', () => {
+      const reader = new Reader()
+      reader.data = Testing.externalize(new Uint8Array([200, 250, -1, -2, 0]))
+      assert.strictEqual(4278188744, reader.getUint32(true))
+      assert.strictEqual(0, reader.getUint32(true))
     })
   })
   describe('#getInt16()', () => {
@@ -60,12 +73,19 @@ describe('Reader', () => {
       const reader = new Reader()
       assert.throws(() => reader.getInt16([]), TypeError)
     })
-    it('should return an Int16 value', () => {
+    it('should return a big-endian Int16 value', () => {
       const reader = new Reader()
       reader.data = Testing.externalize(new Uint8Array([200, 250, -1, -2, 0]))
       assert.strictEqual(-14086, reader.getInt16())
       assert.strictEqual(-2, reader.getInt16())
       assert.strictEqual(0, reader.getInt16())
+    })
+    it('should return a little-endian Int16 value when the first argument is true', () => {
+      const reader = new Reader()
+      reader.data = Testing.externalize(new Uint8Array([200, 250, -1, -2, 0]))
+      assert.strictEqual(-1336, reader.getInt16(true))
+      assert.strictEqual(-257, reader.getInt16(true))
+      assert.strictEqual(0, reader.getInt16(true))
     })
   })
   describe('#getInt32()', () => {
@@ -73,11 +93,17 @@ describe('Reader', () => {
       const reader = new Reader()
       assert.throws(() => reader.getInt32([]), TypeError)
     })
-    it('should return an Int32 value', () => {
+    it('should return a big-endian Int32 value', () => {
       const reader = new Reader()
       reader.data = Testing.externalize(new Uint8Array([200, 250, -1, -2, 0]))
       assert.strictEqual(-923074562, reader.getInt32())
       assert.strictEqual(0, reader.getInt32())
+    })
+    it('should return a little-endian Int32 value when the first argument is true', () => {
+      const reader = new Reader()
+      reader.data = Testing.externalize(new Uint8Array([200, 250, -1, -2, 0]))
+      assert.strictEqual(-16778552, reader.getInt32(true))
+      assert.strictEqual(0, reader.getInt32(true))
     })
   })
   describe('#getFloat32()', () => {
@@ -85,11 +111,17 @@ describe('Reader', () => {
       const reader = new Reader()
       assert.throws(() => reader.getFloat32([]), TypeError)
     })
-    it('should return a Float32 value', () => {
+    it('should return a big-endian Float32 value', () => {
       const reader = new Reader()
-      reader.data = Testing.externalize(new Uint8Array([200, 250, -1, -2, 0]))
-      assert.strictEqual(-514047.9375, reader.getFloat32())
+      reader.data = Testing.externalize(new Uint8Array([-64, 0, 0, 0, 0]))
+      assert.strictEqual(-2, reader.getFloat32())
       assert.strictEqual(0.0, reader.getFloat32())
+    })
+    it('should return a little-endian Float32 value when the first argument is true', () => {
+      const reader = new Reader()
+      reader.data = Testing.externalize(new Uint8Array([0, 0, 0, -64, 0]))
+      assert.strictEqual(-2, reader.getFloat32(true))
+      assert.strictEqual(0.0, reader.getFloat32(true))
     })
   })
   describe('#getFloat64()', () => {
@@ -97,11 +129,17 @@ describe('Reader', () => {
       const reader = new Reader()
       assert.throws(() => reader.getFloat64([]), TypeError)
     })
-    it('should return a Float64 value', () => {
+    it('should return a big-endian Float64 value', () => {
       const reader = new Reader()
       reader.data = Testing.externalize(new Uint8Array([-64, 0, 0, 0, 0, 0, 0, 0, 0]))
       assert.strictEqual(-2.0, reader.getFloat64())
       assert.strictEqual(0.0, reader.getFloat64())
+    })
+    it('should return a little-endian Float64 value when the first argument is true', () => {
+      const reader = new Reader()
+      reader.data = Testing.externalize(new Uint8Array([0, 0, 0, 0, 0, 0, 0, -64, 0]))
+      assert.strictEqual(-2, reader.getFloat64(true))
+      assert.strictEqual(0.0, reader.getFloat64(true))
     })
   })
   describe('#data', () => {
