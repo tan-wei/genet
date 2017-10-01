@@ -1,6 +1,6 @@
+const kit = require('bindings')('plugkit.node')
 const estraverse = require('estraverse')
 const esprima = require('esprima')
-const Token = require('./token')
 
 function makeOp(opcode, ...args) {
   return {
@@ -53,9 +53,9 @@ module.exports = function transform(ast, transforms, attributes) {
           let code = ''
           if (layer.length) {
             if (layer === attrName) {
-              code = `$_frame.layer(${Token.get(layer)})${property}`
+              code = `$_frame.layer(${kit.Token.get(layer)})${property}`
             } else {
-              code = `$_frame.layer(${Token.get(layer)}).attr(${Token.get(attrName)})${property}`
+              code = `$_frame.layer(${kit.Token.get(layer)}).attr(${kit.Token.get(attrName)})${property}`
             }
           } else {
             code = attrName

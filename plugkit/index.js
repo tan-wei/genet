@@ -6,7 +6,6 @@ const escodegen = require('escodegen')
 const {rollup} = require('rollup')
 const EventEmitter = require('events')
 const transform = require('./transform')
-const Token = require('./token')
 
 const filterScript = fs.readFileSync(path.join(__dirname, 'filter.js'))
 
@@ -175,5 +174,5 @@ module.exports = {
   Layer: kit.Layer,
   Pcap: kit.Pcap,
   SessionFactory,
-  Token
+  Token: kit.Token,
 }
