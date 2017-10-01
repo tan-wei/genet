@@ -15,6 +15,7 @@
 #include "wrapper/session.hpp"
 #include "wrapper/session_factory.hpp"
 #include "wrapper/stream_reader.hpp"
+#include "embedded_files.hpp"
 
 namespace plugkit {
 
@@ -62,6 +63,16 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
   token->Set(Nan::New("string").ToLocalChecked(),
              Nan::New<v8::FunctionTemplate>(Token_string_wrap)->GetFunction());
   exports->Set(Nan::New("Token").ToLocalChecked(), token);
+
+  for (const char *data : files) {
+    auto script = Nan::CompileScript(Nan::New(data).ToLocalChecked());
+    auto func = Nan::RunScript(script.ToLocalChecked())
+                    .ToLocalChecked()
+                    .As<v8::Function>();
+    auto global = isolate->GetCurrentContext()->Global();
+    v8::Local<v8::Value> args[1] = {exports};
+    func->Call(global, 1, args);
+  }
 
 #ifdef PLUGKIT_ENABLE_TESTING
   PlugkitTesting::init(exports);

@@ -5,7 +5,7 @@ const writeFile = promisify(require('fs').writeFile)
 const path = require('path')
 
 const files = process.argv.slice(2)
-if (files.length >= 2) {
+if (files.length >= 1) {
   const inputs = files.slice(0, files.length - 1)
   const output = files[files.length - 1]
   const tasks = []
