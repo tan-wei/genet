@@ -377,8 +377,11 @@ v8::Local<v8::Object> Variant::getNodeBuffer(const Slice &slice) {
 
   Isolate *isolate = Isolate::GetCurrent();
   if (!isolate->GetData(1)) { // Node.js is not installed
-    return v8::ArrayBuffer::New(isolate, const_cast<char *>(slice.begin),
-                                Slice_length(slice));
+    size_t sliceLen = Slice_length(slice);
+    return v8::Uint8Array::New(
+        v8::ArrayBuffer::New(isolate, const_cast<char *>(slice.begin),
+                             sliceLen),
+        0, sliceLen);
   }
   auto nodeBuf = node::Buffer::New(isolate, const_cast<char *>(slice.begin),
                                    Slice_length(slice),

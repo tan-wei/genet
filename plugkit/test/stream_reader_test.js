@@ -19,14 +19,12 @@ describe('StreamReader', () => {
   describe('#addSlice()', () => {
     it('should throw for wrong arguments', () => {
       const reader = new StreamReader()
-      assert.throws(() => reader.addSlice(),                    TypeError)
-      assert.throws(() => reader.addSlice(0),                   TypeError)
-      assert.throws(() => reader.addSlice(new Uint8Array([0])), TypeError)
+      assert.throws(() => reader.addSlice(),  TypeError)
+      assert.throws(() => reader.addSlice(0), TypeError)
     })
-    it('should accept an externalized Uint8Array', () => {
+    it('should accept an Uint8Array', () => {
       const reader = new StreamReader()
-      const array = Testing.externalize(new Uint8Array([0]))
-      assert.doesNotThrow(() => reader.addSlice(array))
+      assert.doesNotThrow(() => reader.addSlice(new Uint8Array([0])))
     })
   })
   describe('#search()', () => {
