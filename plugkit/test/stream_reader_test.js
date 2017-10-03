@@ -40,6 +40,10 @@ describe('StreamReader', () => {
       assert.throws(() => reader.read('aaa'), TypeError)
       assert.throws(() => reader.read(0, []), TypeError)
     })
+    it('should return null when no slices are added', () => {
+      const reader = new StreamReader()
+      assert.strictEqual(null, reader.read(5))
+    })
   })
   describe('#length', () => {
     it('should return stream length', () => {

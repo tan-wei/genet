@@ -35,6 +35,24 @@ class StreamReader {
     if (!Number.isInteger(offset)) {
       throw new TypeError('Second argument must be an integer')
     }
+
+    const slices = this._fields.slices
+    let beginOffset = 0
+    let begin = 0
+    for (; begin < slices.length && (beginOffset += slices[begin].length) <= offset; ++begin);
+    if (beginOffset <= offset) {
+      return null
+    }
+    beginOffset -= slices[begin].length
+    let endOffset = beginOffset
+    let end = begin
+    for (; end < slices.length && (endOffset += slices[end].length) < offset + length; ++end);
+    let continuous = true
+    const buflen = endOffset - beginOffset
+    const sliceOffset = offset - beginOffset
+    if (slices[begin].length >= sliceOffset + buflen) {
+      return slices[begin].slice(sliceOffset, sliceOffset + buflen)
+    }
   }
 }
 
