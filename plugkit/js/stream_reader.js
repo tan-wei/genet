@@ -48,11 +48,22 @@ class StreamReader {
     let end = begin
     for (; end < slices.length && (endOffset += slices[end].length) < offset + length; ++end);
     let continuous = true
-    const buflen = endOffset - beginOffset
+    const buflen = Math.min(length, endOffset - beginOffset)
     const sliceOffset = offset - beginOffset
     if (slices[begin].length >= sliceOffset + buflen) {
       return slices[begin].slice(sliceOffset, sliceOffset + buflen)
     }
+    const data = new Uint8Array(buflen)
+    let dst = 0
+    for (let i = begin; i <= end; ++i) {
+      let slice = slices[i]
+      if (i === begin) {
+        slice = slice.slice(offset - beginOffset)
+      }
+      data.set(slice, dst)
+      dst += slice.length
+    }
+    return data
   }
 }
 

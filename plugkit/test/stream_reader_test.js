@@ -44,11 +44,16 @@ describe('StreamReader', () => {
       const reader = new StreamReader()
       assert.strictEqual(null, reader.read(5))
     })
+    it('should return a sliced stream', () => {
+      const reader = new StreamReader()
+      reader.addSlice(new Uint8Array([1, 2, 3, 4, 5]))
+      assert.strictEqual('1,2,3,4', reader.read(4).toString())
+    })
   })
   describe('#length', () => {
     it('should return stream length', () => {
       const reader = new StreamReader()
-      const array = Testing.externalize(new Uint8Array([1, 2, 3, 4, 5]))
+      const array = new Uint8Array([1, 2, 3, 4, 5])
       assert.strictEqual(0, reader.length)
       reader.addSlice(array)
       assert.strictEqual(5, reader.length)
