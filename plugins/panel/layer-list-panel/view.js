@@ -185,7 +185,7 @@ class LayerItem {
       Session.attributes[layerId].name : layerId
 
     const propObject = {[layerId]: {}}
-    const properties = layer.properties
+    const properties = layer.attrs
     for (let i = 0; i < properties.length; ++i) {
       const prop = properties[i]
       let id = prop.id
@@ -240,7 +240,7 @@ class LayerItem {
       <li>
         <ul>
           {
-            layer.children.map((child) => {
+            layer.layers.map((child) => {
               return m(LayerItem, {layer: child})
             })
           }
@@ -274,7 +274,7 @@ export default class LayerListView {
       let layers = [ frame.rootLayer ]
       const rootId = frame.rootLayer.id
       if (rootId.startsWith('[')) {
-        layers = frame.rootLayer.children
+        layers = frame.rootLayer.layers
       }
       return <div class="layer-list-view">
         <ul>

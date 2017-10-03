@@ -3,7 +3,7 @@ import {Session} from 'deplug'
 
 export default class Nested {
   view(vnode) {
-    const keys = vnode.attrs.layer.properties.filter((prop) => {
+    const keys = vnode.attrs.layer.attrs.filter((prop) => {
       return prop.id.startsWith(vnode.attrs.prop.id + '.')
     }).map((prop) => {
       const id = prop.id

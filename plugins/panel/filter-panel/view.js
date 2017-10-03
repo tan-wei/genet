@@ -29,10 +29,10 @@ export default class FilterView {
     if (layer.id.length > 0) {
       this.layerCandidates[layer.id] = layer
     }
-    for (const prop of layer.properties) {
+    for (const prop of layer.attrs) {
       this.candidatesFromProperty([layer.id], prop)
     }
-    for (const child of layer.children) {
+    for (const child of layer.layers) {
       this.candidatesFromLayer(child)
     }
   }
@@ -40,7 +40,7 @@ export default class FilterView {
   candidatesFromProperty(paths, prop) {
     const propPaths = paths.concat(prop.id)
     this.layerCandidates[propPaths.join('.')] = prop
-    for (const child of prop.properties) {
+    for (const child of prop.attrs) {
       this.candidatesFromProperty(propPaths, child)
     }
   }
