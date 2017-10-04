@@ -114,7 +114,11 @@ Slice StreamReader_read(StreamReader *reader, char *buffer, size_t length,
     if (i == begin) {
       slice.begin += (offset - beginOffset);
     }
+    size_t capacity = buffer + buflen - dst;
     size_t sliceLen = Slice_length(slice);
+    if (sliceLen > capacity) {
+      sliceLen = capacity;
+    }
     std::memcpy(dst, slice.begin, sliceLen);
     dst += sliceLen;
   }
