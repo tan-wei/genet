@@ -4,6 +4,7 @@ import log from 'electron-log'
 import msx from 'msx-optimized'
 import path from 'path'
 import { rollup } from 'rollup'
+import vm from 'vm'
 
 export default async function roll (file, rootDir, extern = []) {
   const deplugExtern = ['deplug', 'electron']
@@ -24,8 +25,12 @@ export default async function roll (file, rootDir, extern = []) {
   })
   const result = bundle.generate({ format: 'cjs' })
   return (module) => {
-    // eslint-disable-next-line no-new-func
-    const func = new Function('module', '__filename', '__dirname', result.code)
+    const options = {
+      filename: file,
+      displayErrors: true,
+    }
+    const code = `(function(module, __filename, __dirname){ ${result.code} })`
+    const func = vm.runInThisContext(code, options)
     return func(module, file, path.dirname(file))
   }
 }
