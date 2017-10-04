@@ -57,7 +57,7 @@ NAN_METHOD(LayerWrapper::New) {
   auto layer = new Layer(Token_get(*Nan::Utf8String(idValue)));
   if (confValue->IsNumber()) {
     layer->setConfidence(
-        static_cast<LayerConfidence>(confValue->NumberValue()));
+        static_cast<LayerConfidence>(confValue->Uint32Value()));
   }
 
   LayerWrapper *obj = new LayerWrapper(layer);
@@ -97,7 +97,7 @@ NAN_GETTER(LayerWrapper::confidence) {
 NAN_SETTER(LayerWrapper::setConfidence) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
-    layer->setConfidence(static_cast<LayerConfidence>(value->NumberValue()));
+    layer->setConfidence(static_cast<LayerConfidence>(value->Uint32Value()));
   }
 }
 
