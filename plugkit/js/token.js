@@ -1,24 +1,26 @@
 const nativeToken = exports.Token
-const tokenMap = {}
-const tokenReverseMap = {}
+const tokenMap = new Map()
+const tokenReverseMap = new Map()
 
 class Token {
   static get(str) {
-    if (str in tokenMap) {
-      return tokenMap[str]
+    const value = tokenMap.get(str)
+    if (value !== void 0) {
+      return value
     }
     const id = nativeToken.get(str)
-    tokenMap[str] = id
+    tokenMap.set(str, id)
     return id
   }
 
   static string(id) {
-    if (id in tokenReverseMap) {
-      return tokenReverseMap[id]
+    const value = tokenReverseMap.get(id)
+    if (value !== void 0) {
+      return value
     }
     const str = nativeToken.string(id)
     if (str) {
-      tokenReverseMap[id] = str
+      tokenReverseMap.set(id, str)
       return str
     }
     return ''
