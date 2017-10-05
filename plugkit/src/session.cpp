@@ -324,8 +324,9 @@ void SessionFactory::registerLinkLayer(int link, Token token) {
   d->linkLayers[link] = token;
 }
 
-void SessionFactory::registerDissector(const Dissector &diss) {
-  switch (diss.type) {
+void SessionFactory::registerDissector(const Dissector &diss,
+                                       DissectorType type) {
+  switch (type) {
   case DISSECTOR_PACKET:
     d->dissectors.push_back(diss);
     break;

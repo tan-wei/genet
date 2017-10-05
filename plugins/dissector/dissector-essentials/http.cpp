@@ -213,7 +213,7 @@ void Worker::analyze(Context *ctx, Layer *layer) {
 }
 
 void Init(v8::Local<v8::Object> exports) {
-  Dissector *diss = Dissector_create(DISSECTOR_STREAM);
+  Dissector *diss = Dissector_create();
   Dissector_addLayerHint(diss, Token_get("tcp-stream"));
   Dissector_setAnalyzer(diss, [](Context *ctx, void *data, Layer *layer) {
     Worker *worker = static_cast<Worker *>(data);

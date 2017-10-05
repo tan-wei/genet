@@ -140,13 +140,16 @@ NAN_METHOD(SessionFactoryWrapper::registerDissector) {
       ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
   if (const auto &factory = wrapper->factory) {
     const Dissector *dissector = nullptr;
-
+    DissectorType type = DISSECTOR_PACKET;
+    if (std::strcmp("stream", *Nan::Utf8String(info[1])) == 0) {
+      type = DISSECTOR_STREAM;
+    }
     if (info[0]->IsExternal()) {
       dissector =
           static_cast<const Dissector *>(info[0].As<v8::External>()->Value());
     }
     if (dissector) {
-      factory->registerDissector(*dissector);
+      factory->registerDissector(*dissector, type);
     }
   }
 }

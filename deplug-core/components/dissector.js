@@ -13,6 +13,11 @@ export default class DissectorComponent extends Component {
       throw new Error('dissector.main field required')
     }
 
+    const type = objpath.get(this.comp, 'dissector.type', '')
+    if (type === '') {
+      throw new Error('dissector.type field required')
+    }
+
     const searchPaths = [
       '.',
       'build/Debug',
@@ -34,9 +39,9 @@ export default class DissectorComponent extends Component {
     }
 
     if (path.extname(mainFile) === '.node') {
-      Session.registerNativeDissector(mainFile)
+      Session.registerNativeDissector(mainFile, type)
     } else {
-      Session.registerDissector(mainFile)
+      Session.registerDissector(mainFile, type)
     }
 
     const linkLayers = objpath.get(this.comp, 'dissector.linkLayers', [])

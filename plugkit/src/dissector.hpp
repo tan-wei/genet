@@ -13,7 +13,6 @@ struct Dissector {
   WokerFactoryAllocFunc *createWorker;
   WokerFactoryDeallocFunc *destroyWorker;
   std::vector<Token> layerHints;
-  DissectorType type;
   Context *context;
 };
 } // namespace plugkit

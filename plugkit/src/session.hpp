@@ -85,6 +85,11 @@ private:
 
 using SessionPtr = std::shared_ptr<Session>;
 
+typedef enum DissectorType {
+  DISSECTOR_PACKET = 0,
+  DISSECTOR_STREAM = 1
+} DissectorType;
+
 class SessionFactory {
 public:
   SessionFactory();
@@ -103,7 +108,7 @@ public:
   Variant options() const;
 
   void registerLinkLayer(int link, Token token);
-  void registerDissector(const Dissector &diss);
+  void registerDissector(const Dissector &diss, DissectorType type);
 
 private:
   std::unique_ptr<Session::Config> d;

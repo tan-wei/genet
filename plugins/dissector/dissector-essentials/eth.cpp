@@ -69,7 +69,7 @@ void analyze(Context *ctx, void *data, Layer *layer) {
 } // namespace
 
 void Init(v8::Local<v8::Object> exports) {
-  Dissector *diss = Dissector_create(DISSECTOR_PACKET);
+  Dissector *diss = Dissector_create();
   Dissector_addLayerHint(diss, Token_get("[eth]"));
   Dissector_setAnalyzer(diss, analyze);
   exports->Set(Nan::New("dissector").ToLocalChecked(),

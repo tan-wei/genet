@@ -9,12 +9,18 @@ const samples = []
 const attributes = {}
 const filterTransforms = []
 export default class Session {
-  static registerNativeDissector (file) {
-    dissectors.push(require(file).dissector)
+  static registerNativeDissector (file, type) {
+    dissectors.push({
+      main: require(file).dissector,
+      type,
+    })
   }
 
-  static registerDissector (file) {
-    dissectors.push(file)
+  static registerDissector (file, type) {
+    dissectors.push({
+      main: file,
+      type,
+    })
   }
 
   static registerLinkLayer (layer) {

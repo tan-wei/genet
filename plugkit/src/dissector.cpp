@@ -2,9 +2,8 @@
 
 namespace plugkit {
 
-Dissector *Dissector_create(DissectorType type) {
+Dissector *Dissector_create() {
   Dissector *diss = new Dissector();
-  diss->type = type;
   return diss;
 }
 void Dissector_setAnalyzer(Dissector *diss, AnalyzerFunc *func) {

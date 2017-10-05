@@ -245,6 +245,7 @@ export default {
       type: 'core:dissector',
       dissector: {
         main: 'ethernet.node',
+        type: 'packet',
         linkLayers: [
           {link: 1, id: '[eth]'}
         ],
@@ -268,6 +269,7 @@ export default {
       type: 'core:dissector',
       dissector: {
         main: 'ipv4.node',
+        type: 'packet',
         samples: [
           { pcap: 'samples/tcp-ipv4.pcap' }
         ]
@@ -291,7 +293,8 @@ export default {
     {
       type: 'core:dissector',
       dissector: {
-        main: 'ipv6.node'
+        main: 'ipv6.node',
+        type: 'packet'
       }
     },
     {
@@ -306,6 +309,7 @@ export default {
       type: 'core:dissector',
       dissector: {
         main: 'udp.node',
+        type: 'packet',
         samples: [
           { pcap: 'samples/ntp.pcap' }
         ]
@@ -314,7 +318,8 @@ export default {
     {
       type: 'core:dissector',
       dissector: {
-        main: 'tcp.node'
+        main: 'tcp.node',
+        type: 'packet'
       }
     },
     {
@@ -328,12 +333,14 @@ export default {
     {
       type: 'core:dissector',
       dissector: {
+        type: 'stream',
         main: 'tcp-stream.node'
       }
     },
     {
       type: 'core:dissector',
       dissector: {
+        type: 'stream',
         main: 'http.node'
       }
     }
