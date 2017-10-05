@@ -29,7 +29,6 @@ public:
                std::vector<Layer *> *nextSubLayers);
 
 public:
-  Context ctx;
   Queue<Layer *> queue;
   std::vector<Dissector> dissectors;
   double confidenceThreshold;
@@ -42,10 +41,7 @@ public:
 
 StreamDissectorThread::Private::Private(const Variant &options,
                                         const Callback &callback)
-    : options(options), callback(callback) {
-  ctx.options = options;
-}
-
+    : options(options), callback(callback) {}
 StreamDissectorThread::Private::~Private() {}
 
 StreamDissectorThread::StreamDissectorThread(const Variant &options,
@@ -58,9 +54,7 @@ StreamDissectorThread::StreamDissectorThread(const Variant &options,
 StreamDissectorThread::~StreamDissectorThread() {}
 
 void StreamDissectorThread::pushStreamDissector(const Dissector &diss) {
-  Dissector copied = diss;
-  copied.context = &d->ctx;
-  d->dissectors.push_back(copied);
+  d->dissectors.push_back(diss);
 }
 
 void StreamDissectorThread::enter() {}
@@ -73,6 +67,9 @@ void StreamDissectorThread::Private::analyze(
   Token id = layer->id();
   dissectedIds.insert(id);
   auto &streamWorkers = workers[id][layer->worker()];
+
+  Context ctx;
+  ctx.options = options;
 
   if (streamWorkers.list.empty()) {
     std::vector<const Dissector *> workerDissectors;
@@ -100,7 +97,7 @@ void StreamDissectorThread::Private::analyze(
     for (const Dissector *diss : workerDissectors) {
       void *worker = nullptr;
       if (diss->createWorker) {
-        worker = diss->createWorker(diss->context);
+        worker = diss->createWorker(&ctx);
       }
       streamWorkers.list.push_back(std::make_pair(diss, worker));
     }
@@ -109,14 +106,12 @@ void StreamDissectorThread::Private::analyze(
   if (subLayer) {
     for (const auto &pair : streamWorkers.list) {
       if (Layer *parent = layer->parent()) {
-        const Dissector *diss = pair.first;
-        diss->analyze(diss->context, pair.second, parent);
+        pair.first->analyze(&ctx, pair.second, parent);
       }
     }
   } else {
     for (const auto &pair : streamWorkers.list) {
-      const Dissector *diss = pair.first;
-      diss->analyze(diss->context, pair.second, layer);
+      pair.first->analyze(&ctx, pair.second, layer);
       for (Layer *childLayer : layer->layers()) {
         if (childLayer->confidence() >= confidenceThreshold) {
           auto it = dissectedIds.find(childLayer->id());
