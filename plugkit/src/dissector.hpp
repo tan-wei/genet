@@ -6,12 +6,15 @@
 
 namespace plugkit {
 
+struct Context;
+
 struct Dissector {
   AnalyzerFunc *analyze;
   WokerFactoryAllocFunc *createWorker;
   WokerFactoryDeallocFunc *destroyWorker;
   std::vector<Token> layerHints;
   DissectorType type;
+  Context *context;
 };
 } // namespace plugkit
 
