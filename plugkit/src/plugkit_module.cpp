@@ -14,6 +14,7 @@
 #include "wrapper/reader.hpp"
 #include "wrapper/session.hpp"
 #include "wrapper/session_factory.hpp"
+#include "wrapper/worker.hpp"
 #include "embedded_files.hpp"
 
 namespace plugkit {
@@ -49,6 +50,7 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
   PayloadWrapper::init(isolate);
   ErrorWrapper::init(isolate, exports);
   ReaderWrapper::init(isolate, exports);
+  WorkerWrapper::init(isolate, exports);
   if (mainThread) {
     PcapWrapper::init(isolate, exports);
     SessionFactoryWrapper::init(isolate, exports);

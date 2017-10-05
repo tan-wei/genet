@@ -14,9 +14,11 @@ public:
   static PlugkitModule *get(v8::Isolate *isolate);
 
 public:
+  using FunctionTemplate = v8::UniquePersistent<v8::FunctionTemplate>;
   using Function = v8::UniquePersistent<v8::Function>;
   using Prototype = v8::UniquePersistent<v8::Value>;
   struct Class {
+    FunctionTemplate temp;
     Function ctor;
     Prototype proto;
   };
@@ -30,6 +32,7 @@ public:
   Class error;
   Class session;
   Class sessionFactory;
+  Class worker;
 
   Function arrayToBuffer;
 };

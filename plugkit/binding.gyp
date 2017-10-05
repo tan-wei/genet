@@ -37,6 +37,7 @@
       "src/wrapper/context_w.cpp",
       "src/wrapper/error_w.cpp",
       "src/wrapper/logger_w.cpp",
+      "src/wrapper/worker_w.cpp",
       "src/session.cpp",
       "src/frame.cpp",
       "src/attribute.cpp",
