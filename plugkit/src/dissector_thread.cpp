@@ -31,6 +31,8 @@ public:
   std::vector<Dissector> dissectors;
   std::vector<WorkerData> workers;
   double confidenceThreshold;
+
+  Context ctx;
   const Variant options;
   const FrameQueuePtr queue;
   const Callback callback;
@@ -39,7 +41,9 @@ public:
 DissectorThread::Private::Private(const Variant &options,
                                   const FrameQueuePtr &queue,
                                   const Callback &callback)
-    : options(options), queue(queue), callback(callback) {}
+    : options(options), queue(queue), callback(callback) {
+  ctx.options = options;
+}
 
 DissectorThread::Private::~Private() {}
 
@@ -58,8 +62,13 @@ void DissectorThread::pushDissector(const Dissector &diss) {
 }
 
 void DissectorThread::enter() {
-  Context ctx;
-  ctx.options = d->options;
+
+  for (auto &diss : d->dissectors) {
+    if (diss.initialize) {
+      diss.initialize(&d->ctx, &diss);
+    }
+  }
+
   for (const auto &diss : d->dissectors) {
     WorkerData data;
     data.dissector = &diss;
@@ -72,7 +81,7 @@ void DissectorThread::enter() {
     }
     data.filter = TagFilter(tags);
     if (diss.createWorker) {
-      data.worker = diss.createWorker(&ctx, &diss);
+      data.worker = diss.createWorker(&d->ctx, &diss);
     }
     d->workers.push_back(data);
   }
@@ -84,8 +93,6 @@ bool DissectorThread::loop() {
   if (size == 0)
     return false;
 
-  Context ctx;
-  ctx.options = d->options;
   for (size_t i = 0; i < size; ++i) {
     std::unordered_set<Token> dissectedIds;
 
@@ -109,7 +116,8 @@ bool DissectorThread::loop() {
         }
 
         for (const WorkerData *data : workers) {
-          data->dissector->analyze(&ctx, data->dissector, data->worker, layer);
+          data->dissector->analyze(&d->ctx, data->dissector, data->worker,
+                                   layer);
           for (Layer *childLayer : layer->layers()) {
             if (childLayer->confidence() >= d->confidenceThreshold) {
               auto it = dissectedIds.find(childLayer->id());
@@ -131,5 +139,12 @@ bool DissectorThread::loop() {
   return true;
 }
 
-void DissectorThread::exit() { d->workers.clear(); }
+void DissectorThread::exit() {
+  for (auto &diss : d->dissectors) {
+    if (diss.terminate) {
+      diss.terminate(&d->ctx, &diss);
+    }
+  }
+  d->workers.clear();
+}
 } // namespace plugkit

@@ -35,13 +35,16 @@ public:
   using IdMap = std::unordered_map<uint32_t, WorkerContext>;
   std::unordered_map<Token, IdMap> workers;
 
+  Context ctx;
   const Variant options;
   const Callback callback;
 };
 
 StreamDissectorThread::Private::Private(const Variant &options,
                                         const Callback &callback)
-    : options(options), callback(callback) {}
+    : options(options), callback(callback) {
+  ctx.options = options;
+}
 StreamDissectorThread::Private::~Private() {}
 
 StreamDissectorThread::StreamDissectorThread(const Variant &options,
@@ -57,7 +60,13 @@ void StreamDissectorThread::pushStreamDissector(const Dissector &diss) {
   d->dissectors.push_back(diss);
 }
 
-void StreamDissectorThread::enter() {}
+void StreamDissectorThread::enter() {
+  for (auto &diss : d->dissectors) {
+    if (diss.initialize) {
+      diss.initialize(&d->ctx, &diss);
+    }
+  }
+}
 
 void StreamDissectorThread::Private::analyze(
     Layer *layer, bool subLayer, std::vector<Layer *> *nextLayers,
@@ -67,9 +76,6 @@ void StreamDissectorThread::Private::analyze(
   Token id = layer->id();
   dissectedIds.insert(id);
   auto &streamWorkers = workers[id][layer->worker()];
-
-  Context ctx;
-  ctx.options = options;
 
   if (streamWorkers.list.empty()) {
     std::vector<const Dissector *> workerDissectors;
@@ -177,6 +183,11 @@ bool StreamDissectorThread::loop() {
 }
 
 void StreamDissectorThread::exit() {
+  for (auto &diss : d->dissectors) {
+    if (diss.terminate) {
+      diss.terminate(&d->ctx, &diss);
+    }
+  }
   d->dissectors.clear();
   d->workers.clear();
 }
