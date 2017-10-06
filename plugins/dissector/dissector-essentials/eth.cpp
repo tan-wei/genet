@@ -25,7 +25,7 @@ static const std::unordered_map<uint16_t, std::pair<Token, Token>> typeTable = {
     {0x86DD, std::make_pair(Token_get("[ipv6]"), Token_get("eth.type.ipv6"))},
 };
 
-void analyze(Context *ctx, void *data, Layer *layer) {
+void analyze(Context *ctx, const Dissector *diss, Worker worker, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
   reader.data = Payload_slices(Layer_payloads(layer, nullptr)[0], nullptr)[0];
@@ -69,11 +69,11 @@ void analyze(Context *ctx, void *data, Layer *layer) {
 } // namespace
 
 void Init(v8::Local<v8::Object> exports) {
-  Dissector *diss = Dissector_create();
-  Dissector_addLayerHint(diss, Token_get("[eth]"));
-  Dissector_setAnalyzer(diss, analyze);
+  static Dissector diss;
+  diss.layerHints[0] = (Token_get("[eth]"));
+  diss.analyze = analyze;
   exports->Set(Nan::New("dissector").ToLocalChecked(),
-               Nan::New<v8::External>(diss));
+               Nan::New<v8::External>(&diss));
 }
 
 NODE_MODULE(dissectorEssentials, Init);

@@ -18,7 +18,7 @@ const auto lengthToken = Token_get("udp.length");
 const auto checksumToken = Token_get("udp.checksum");
 
 namespace {
-void analyze(Context *ctx, void *data, Layer *layer) {
+void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
   reader.data = Payload_slices(Layer_payloads(layer, nullptr)[0], nullptr)[0];
@@ -55,11 +55,11 @@ void analyze(Context *ctx, void *data, Layer *layer) {
 } // namespace
 
 void Init(v8::Local<v8::Object> exports) {
-  Dissector *diss = Dissector_create();
-  Dissector_addLayerHint(diss, Token_get("[udp]"));
-  Dissector_setAnalyzer(diss, analyze);
+  static Dissector diss;
+  diss.layerHints[0] = (Token_get("[udp]"));
+  diss.analyze = analyze;
   exports->Set(Nan::New("dissector").ToLocalChecked(),
-               Nan::New<v8::External>(diss));
+               Nan::New<v8::External>(&diss));
 }
 
 NODE_MODULE(dissectorEssentials, Init);

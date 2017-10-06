@@ -84,12 +84,12 @@ struct Stream {
   Ring ring;
 };
 
-struct Worker {
+struct TCPWorker {
   std::unordered_map<StreamID, Stream> idMap;
 };
 
-void analyze(Context *ctx, void *data, Layer *layer) {
-  Worker *worker = static_cast<Worker *>(data);
+void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
+  TCPWorker *worker = static_cast<TCPWorker *>(data.data);
 
   const auto &parentSrc = Attr_slice(Layer_attr(Layer_parent(layer), srcToken));
   const auto &parentDst = Attr_slice(Layer_attr(Layer_parent(layer), dstToken));
@@ -152,14 +152,18 @@ void analyze(Context *ctx, void *data, Layer *layer) {
 } // namespace
 
 void Init(v8::Local<v8::Object> exports) {
-  Dissector *diss = Dissector_create();
-  Dissector_addLayerHint(diss, Token_get("tcp"));
-  Dissector_setAnalyzer(diss, analyze);
-  Dissector_setWorkerFactory(
-      diss, [](Context *ctx) -> void * { return new Worker(); },
-      [](Context *ctx, void *data) { delete static_cast<Worker *>(data); });
+  static Dissector diss;
+  diss.layerHints[0] = Token_get("tcp");
+  diss.analyze = analyze;
+  diss.createWorker = [](Context *ctx, const Dissector *diss) {
+    return Worker{new TCPWorker()};
+  };
+  diss.destroyWorker = [](Context *ctx, const Dissector *diss, Worker data) {
+    TCPWorker *worker = static_cast<TCPWorker *>(data.data);
+    delete worker;
+  };
   exports->Set(Nan::New("dissector").ToLocalChecked(),
-               Nan::New<v8::External>(diss));
+               Nan::New<v8::External>(&diss));
 }
 
 NODE_MODULE(dissectorEssentials, Init);

@@ -17,7 +17,7 @@ namespace {
 struct WorkerData {
   const Dissector *dissector;
   TagFilter filter;
-  void *worker;
+  Worker worker;
 };
 } // namespace
 
@@ -72,7 +72,7 @@ void DissectorThread::enter() {
     }
     data.filter = TagFilter(tags);
     if (diss.createWorker) {
-      data.worker = diss.createWorker(&ctx);
+      data.worker = diss.createWorker(&ctx, &diss);
     }
     d->workers.push_back(data);
   }
@@ -109,7 +109,7 @@ bool DissectorThread::loop() {
         }
 
         for (const WorkerData *data : workers) {
-          data->dissector->analyze(&ctx, data->worker, layer);
+          data->dissector->analyze(&ctx, data->dissector, data->worker, layer);
           for (Layer *childLayer : layer->layers()) {
             if (childLayer->confidence() >= d->confidenceThreshold) {
               auto it = dissectedIds.find(childLayer->id());

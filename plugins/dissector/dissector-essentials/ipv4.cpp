@@ -45,7 +45,7 @@ const auto ipv4AddrToken = Token_get("@ipv4:addr");
 const auto flagsTypeToken = Token_get("@flags");
 const auto enumToken = Token_get("@enum");
 
-void analyze(Context *ctx, void *data, Layer *layer) {
+void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
   reader.data = Payload_slices(Layer_payloads(layer, nullptr)[0], nullptr)[0];
@@ -144,11 +144,11 @@ void analyze(Context *ctx, void *data, Layer *layer) {
 } // namespace
 
 void Init(v8::Local<v8::Object> exports) {
-  Dissector *diss = Dissector_create();
-  Dissector_addLayerHint(diss, Token_get("[ipv4]"));
-  Dissector_setAnalyzer(diss, analyze);
+  static Dissector diss;
+  diss.layerHints[0] = (Token_get("[ipv4]"));
+  diss.analyze = analyze;
   exports->Set(Nan::New("dissector").ToLocalChecked(),
-               Nan::New<v8::External>(diss));
+               Nan::New<v8::External>(&diss));
 }
 
 NODE_MODULE(dissectorEssentials, Init);

@@ -26,9 +26,9 @@ const auto mimeTypeToken = Token_get(".mimeType");
 
 enum State { STATE_START, STATE_HEADER, STATE_BODY, STATE_CLOSED };
 
-class Worker {
+class HTTPWorker {
 public:
-  Worker(const std::unordered_set<uint16_t> &ports);
+  HTTPWorker(const std::unordered_set<uint16_t> &ports);
   void analyze(Context *ctx, Layer *layer);
   bool analyze_start(Context *ctx, Layer *layer);
   bool analyze_header(Context *ctx, Layer *layer, Layer *child, Attr *headers);
@@ -46,9 +46,10 @@ public:
   bool chunked = false;
 };
 
-Worker::Worker(const std::unordered_set<uint16_t> &ports) : ports(ports) {}
+HTTPWorker::HTTPWorker(const std::unordered_set<uint16_t> &ports)
+    : ports(ports) {}
 
-bool Worker::analyze_start(Context *ctx, Layer *layer) {
+bool HTTPWorker::analyze_start(Context *ctx, Layer *layer) {
   uint16_t srcPort = Attr_uint32(Layer_attr(layer, srcToken));
   uint16_t dstPort = Attr_uint32(Layer_attr(layer, dstToken));
 
@@ -61,8 +62,8 @@ bool Worker::analyze_start(Context *ctx, Layer *layer) {
   return false;
 }
 
-bool Worker::analyze_header(Context *ctx, Layer *layer, Layer *child,
-                            Attr *headers) {
+bool HTTPWorker::analyze_header(Context *ctx, Layer *layer, Layer *child,
+                                Attr *headers) {
   size_t index = StreamReader_search(reader, "\r\n", 2, offset);
 
   if (index == 0)
@@ -127,8 +128,8 @@ bool Worker::analyze_header(Context *ctx, Layer *layer, Layer *child,
   return true;
 }
 
-bool Worker::analyze_body(Context *ctx, Layer *layer, Layer *child,
-                          Attr *headers) {
+bool HTTPWorker::analyze_body(Context *ctx, Layer *layer, Layer *child,
+                              Attr *headers) {
 
   size_t httpLength = contentLength + headerLength;
   if (chunked) {
@@ -171,7 +172,7 @@ bool Worker::analyze_body(Context *ctx, Layer *layer, Layer *child,
   return false;
 }
 
-void Worker::analyze(Context *ctx, Layer *layer) {
+void HTTPWorker::analyze(Context *ctx, Layer *layer) {
   if (state == STATE_CLOSED) {
     return;
   }
@@ -213,35 +214,33 @@ void Worker::analyze(Context *ctx, Layer *layer) {
 }
 
 void Init(v8::Local<v8::Object> exports) {
-  Dissector *diss = Dissector_create();
-  Dissector_addLayerHint(diss, Token_get("tcp-stream"));
-  Dissector_setAnalyzer(diss, [](Context *ctx, void *data, Layer *layer) {
-    Worker *worker = static_cast<Worker *>(data);
+  static Dissector diss;
+  diss.layerHints[0] = Token_get("tcp-stream");
+  diss.analyze = [](Context *ctx, const Dissector *diss, Worker data,
+                    Layer *layer) {
+    HTTPWorker *worker = static_cast<HTTPWorker *>(data.data);
     worker->analyze(ctx, layer);
-  });
-  Dissector_setWorkerFactory(
-      diss,
-      [](Context *ctx) -> void * {
-        auto httpPorts = Variant_mapValue(
-            Variant_mapValue(Context_options(ctx), "dissector-essentials", -1),
-            "httpPorts", -1);
+  };
+  diss.createWorker = [](Context *ctx, const Dissector *diss) {
+    auto httpPorts = Variant_mapValue(
+        Variant_mapValue(Context_options(ctx), "dissector-essentials", -1),
+        "httpPorts", -1);
 
-        const Variant *value = nullptr;
-        std::unordered_set<uint16_t> ports;
-        for (size_t i = 0; (value = Variant_arrayValue(httpPorts, i)); ++i) {
-          ports.insert(Variant_uint32(value));
-        }
-        Worker *worker = new Worker(ports);
-        worker->reader = StreamReader_create();
-        return worker;
-      },
-      [](Context *ctx, void *data) {
-        Worker *worker = static_cast<Worker *>(data);
-        StreamReader_destroy(worker->reader);
-        delete worker;
-      });
+    const Variant *value = nullptr;
+    std::unordered_set<uint16_t> ports;
+    for (size_t i = 0; (value = Variant_arrayValue(httpPorts, i)); ++i) {
+      ports.insert(Variant_uint32(value));
+    }
+    HTTPWorker *worker = new HTTPWorker(ports);
+    worker->reader = StreamReader_create();
+    return Worker{worker};
+  };
+  diss.destroyWorker = [](Context *ctx, const Dissector *diss, Worker data) {
+    HTTPWorker *worker = static_cast<HTTPWorker *>(data.data);
+    StreamReader_destroy(worker->reader);
+  };
   exports->Set(Nan::New("dissector").ToLocalChecked(),
-               Nan::New<v8::External>(diss));
+               Nan::New<v8::External>(&diss));
 }
 } // namespace
 

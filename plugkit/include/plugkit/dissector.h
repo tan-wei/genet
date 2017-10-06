@@ -11,16 +11,25 @@ typedef struct Layer Layer;
 typedef struct Context Context;
 typedef struct Dissector Dissector;
 
-typedef void(AnalyzerFunc)(Context *ctx, void *worker, Layer *layer);
-typedef void *(WokerFactoryAllocFunc)(Context *ctx);
-typedef void(WokerFactoryDeallocFunc)(Context *ctx, void *);
+typedef struct Worker { void *data; } Worker;
 
-PLUGKIT_EXPORT Dissector *Dissector_create();
-PLUGKIT_EXPORT void Dissector_setAnalyzer(Dissector *diss, AnalyzerFunc *func);
-PLUGKIT_EXPORT void
-Dissector_setWorkerFactory(Dissector *diss, WokerFactoryAllocFunc *alloc,
-                           WokerFactoryDeallocFunc *dealloc);
-PLUGKIT_EXPORT void Dissector_addLayerHint(Dissector *diss, Token hint);
+typedef void(IntializeFunc)(Context *ctx, Dissector *);
+typedef void(TerminateFunc)(Context *ctx, Dissector *);
+typedef Worker(CreateWorkerFunc)(Context *ctx, const Dissector *);
+typedef void(DestroyWorkerFunc)(Context *ctx, const Dissector *, Worker);
+typedef void(AnalyzeFunc)(Context *ctx, const Dissector *, Worker, Layer *);
+
+typedef struct Dissector {
+  IntializeFunc *initialize;
+  TerminateFunc *terminate;
+  CreateWorkerFunc *createWorker;
+  DestroyWorkerFunc *destroyWorker;
+  AnalyzeFunc *analyze;
+  Token layerHints[8];
+  void *data;
+} Dissector;
+
+PLUGKIT_EXPORT void Dissector_reset(Dissector *diss);
 
 PLUGKIT_NAMESPACE_END
 

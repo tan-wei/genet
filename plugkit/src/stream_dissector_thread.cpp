@@ -17,7 +17,7 @@ namespace plugkit {
 
 namespace {
 struct WorkerContext {
-  std::vector<std::pair<const Dissector *, void *>> list;
+  std::vector<std::pair<const Dissector *, Worker>> list;
 };
 } // namespace
 
@@ -95,9 +95,9 @@ void StreamDissectorThread::Private::analyze(
       }
     }
     for (const Dissector *diss : workerDissectors) {
-      void *worker = nullptr;
+      Worker worker = {nullptr};
       if (diss->createWorker) {
-        worker = diss->createWorker(&ctx);
+        worker = diss->createWorker(&ctx, diss);
       }
       streamWorkers.list.push_back(std::make_pair(diss, worker));
     }
@@ -106,12 +106,12 @@ void StreamDissectorThread::Private::analyze(
   if (subLayer) {
     for (const auto &pair : streamWorkers.list) {
       if (Layer *parent = layer->parent()) {
-        pair.first->analyze(&ctx, pair.second, parent);
+        pair.first->analyze(&ctx, pair.first, pair.second, parent);
       }
     }
   } else {
     for (const auto &pair : streamWorkers.list) {
-      pair.first->analyze(&ctx, pair.second, layer);
+      pair.first->analyze(&ctx, pair.first, pair.second, layer);
       for (Layer *childLayer : layer->layers()) {
         if (childLayer->confidence() >= confidenceThreshold) {
           auto it = dissectedIds.find(childLayer->id());
