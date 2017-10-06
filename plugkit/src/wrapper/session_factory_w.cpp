@@ -147,6 +147,8 @@ NAN_METHOD(SessionFactoryWrapper::registerDissector) {
     if (info[0]->IsExternal()) {
       dissector =
           static_cast<const Dissector *>(info[0].As<v8::External>()->Value());
+    } else if (info[0]->IsString()) {
+      puts(*Nan::Utf8String(info[0]));
     }
     if (dissector) {
       factory->registerDissector(*dissector, type);

@@ -343,6 +343,13 @@ export default {
         type: 'stream',
         main: 'http.node'
       }
+    },
+    {
+      type: 'core:dissector',
+      dissector: {
+        type: 'packet',
+        main: 'ntp.js'
+      }
     }
   ],
   options: [
