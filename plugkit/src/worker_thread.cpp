@@ -38,30 +38,7 @@ void WorkerThread::start() {
   if (thread.joinable())
     return;
 
-  std::string fileName;
-  {
-    char tmpPath[2048];
-    size_t tmpPathSize = sizeof(tmpPath);
-    uv_os_tmpdir(tmpPath, &tmpPathSize);
-    std::stringstream name;
-    name << tmpPath << "/__plugkit_node_init_.js";
-    fileName = name.str();
-    std::ofstream ofs;
-    ofs.open(fileName, std::ofstream::out);
-    ofs << R"(
-          global.require = function(id) {
-            if (id === "plugkit") {
-              return global._plugkit
-            } else {
-              return require(id)
-            }
-          };
-        )";
-    logger->log(Logger::LEVEL_DEBUG, std::string("init.js: ") + fileName,
-                "worker_thread");
-  }
-
-  thread = std::thread([this, fileName]() {
+  thread = std::thread([this]() {
     logger->log(Logger::LEVEL_DEBUG, "start", "worker_thread");
 
     v8::Isolate::CreateParams create_params;
