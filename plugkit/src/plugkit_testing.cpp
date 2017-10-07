@@ -84,24 +84,21 @@ void PlugkitTesting::init(v8::Local<v8::Object> exports) {
   exports->Set(Nan::New("Testing").ToLocalChecked(), testing);
   testing->Set(Nan::New("console").ToLocalChecked(),
                LoggerWrapper::wrap(std::make_shared<NullLogger>()));
+  testing->Set(Nan::New("runCApiTests").ToLocalChecked(),
+               v8::FunctionTemplate::New(isolate, runCApiTests)->GetFunction());
+  testing->Set(Nan::New("externalize").ToLocalChecked(),
+               v8::FunctionTemplate::New(isolate, externalize)->GetFunction());
   testing->Set(
-      Nan::New("runCApiTests").ToLocalChecked(),
-      v8::FunctionTemplate::New(isolate, runCApiTests, exports)->GetFunction());
-  testing->Set(
-      Nan::New("externalize").ToLocalChecked(),
-      v8::FunctionTemplate::New(isolate, externalize, exports)->GetFunction());
-  testing->Set(Nan::New("createAttrInstance").ToLocalChecked(),
-               v8::FunctionTemplate::New(isolate, createAttrInstance, exports)
-                   ->GetFunction());
+      Nan::New("createAttrInstance").ToLocalChecked(),
+      v8::FunctionTemplate::New(isolate, createAttrInstance)->GetFunction());
   testing->Set(
       Nan::New("createPayloadInstance").ToLocalChecked(),
-      v8::FunctionTemplate::New(isolate, createPayloadInstance, exports)
-          ->GetFunction());
-  testing->Set(Nan::New("createLayerInstance").ToLocalChecked(),
-               v8::FunctionTemplate::New(isolate, createLayerInstance, exports)
-                   ->GetFunction());
-  testing->Set(Nan::New("createFrameInstance").ToLocalChecked(),
-               v8::FunctionTemplate::New(isolate, createFrameInstance, exports)
-                   ->GetFunction());
+      v8::FunctionTemplate::New(isolate, createPayloadInstance)->GetFunction());
+  testing->Set(
+      Nan::New("createLayerInstance").ToLocalChecked(),
+      v8::FunctionTemplate::New(isolate, createLayerInstance)->GetFunction());
+  testing->Set(
+      Nan::New("createFrameInstance").ToLocalChecked(),
+      v8::FunctionTemplate::New(isolate, createFrameInstance)->GetFunction());
 }
 } // namespace plugkit
