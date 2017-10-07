@@ -182,9 +182,24 @@ Session::Session(const Config &config) : d(new Private(config)) {
       auto exports = module->Get(Nan::New("exports").ToLocalChecked());
       if (!exports->IsFunction())
         return;
+      auto ctor = exports.As<v8::Function>();
+      auto hints = ctor->Get(Nan::New("layerHints").ToLocalChecked());
+      if (hints->IsArray()) {
+        auto layerHints = hints.As<v8::Array>();
+        int size = sizeof(diss->layerHints) / sizeof(diss->layerHints[0]);
+        for (int i = 0; i < size && i < layerHints->Length(); ++i) {
+          auto item = layerHints->Get(i);
+          Token token = Token_null();
+          if (item->IsNumber()) {
+            token = item->NumberValue();
+          } else if (item->IsString()) {
+            token = Token_get(*Nan::Utf8String(item));
+          }
+          diss->layerHints[i] = token;
+        }
+      }
       auto scriptDissector = new ScriptDissector();
-      scriptDissector->func.Reset(v8::Isolate::GetCurrent(),
-                                  exports.As<v8::Function>());
+      scriptDissector->func.Reset(v8::Isolate::GetCurrent(), ctor);
       diss->data = scriptDissector;
     };
     dissector.terminate = [](Context *ctx, Dissector *diss) {
