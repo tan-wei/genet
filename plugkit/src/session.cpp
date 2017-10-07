@@ -99,7 +99,9 @@ void Session::Private::updateStatus() {
   }
 }
 
-struct ScriptDissector {};
+struct ScriptDissector {
+  v8::UniquePersistent<v8::Function> func;
+};
 
 void Session::Private::notifyStatus(UpdateType type) {
   std::atomic_fetch_or_explicit(&updates, static_cast<int>(type),
@@ -163,8 +165,27 @@ Session::Session(const Config &config) : d(new Private(config)) {
     dissector.data = &pair.first[0];
     dissector.initialize = [](Context *ctx, Dissector *diss) {
       const char *str = static_cast<const char *>(diss->data);
+      diss->data = nullptr;
+
       auto script = Nan::CompileScript(Nan::New(str).ToLocalChecked());
-      diss->data = new ScriptDissector();
+      if (script.IsEmpty())
+        return;
+      auto result = Nan::RunScript(script.ToLocalChecked());
+      if (result.IsEmpty())
+        return;
+      auto func = result.ToLocalChecked();
+      if (!func->IsFunction())
+        return;
+      auto module = Nan::New<v8::Object>();
+      v8::Local<v8::Value> args[1] = {module};
+      func.As<v8::Function>()->Call(module, 1, args);
+      auto exports = module->Get(Nan::New("exports").ToLocalChecked());
+      if (!exports->IsFunction())
+        return;
+      auto scriptDissector = new ScriptDissector();
+      scriptDissector->func.Reset(v8::Isolate::GetCurrent(),
+                                  exports.As<v8::Function>());
+      diss->data = scriptDissector;
     };
     dissector.terminate = [](Context *ctx, Dissector *diss) {
       delete static_cast<ScriptDissector *>(diss->data);
