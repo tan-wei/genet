@@ -68,6 +68,18 @@ void WorkerThread::start() {
         global->Set(Nan::New("_plugkit").ToLocalChecked(), exports);
         global->Set(Nan::New("console").ToLocalChecked(),
                     LoggerWrapper::wrap(logger));
+        global->Set(
+            Nan::New("require").ToLocalChecked(),
+            v8::FunctionTemplate::New(
+                isolate,
+                [](v8::FunctionCallbackInfo<v8::Value> const &info) {
+                  if (info[0]->IsString() &&
+                      std::strcmp("plugkit", *Nan::Utf8String(info[0])) == 0) {
+                    info.GetReturnValue().Set(info.Data());
+                  }
+                },
+                exports)
+                ->GetFunction());
         enter();
         while (loop()) {
           uv_run(&uvloop, UV_RUN_NOWAIT);
