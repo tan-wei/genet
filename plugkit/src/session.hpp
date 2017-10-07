@@ -109,6 +109,7 @@ public:
 
   void registerLinkLayer(int link, Token token);
   void registerDissector(const Dissector &diss, DissectorType type);
+  void registerDissector(const std::string &script, DissectorType type);
 
 private:
   std::unique_ptr<Session::Config> d;

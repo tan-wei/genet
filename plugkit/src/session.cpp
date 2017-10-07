@@ -14,6 +14,7 @@
 #include <atomic>
 #include <unordered_map>
 #include <uv.h>
+#include <nan.h>
 
 namespace plugkit {
 
@@ -23,8 +24,8 @@ struct Session::Config {
   int snaplen = 2048;
   std::string bpf;
   std::unordered_map<int, Token> linkLayers;
-  std::vector<Dissector> dissectors;
-  std::vector<Dissector> streamDissectors;
+  std::vector<std::pair<Dissector, DissectorType>> dissectors;
+  std::vector<std::pair<std::string, DissectorType>> scriptDissectors;
   Variant options;
 };
 
@@ -35,6 +36,9 @@ public:
     UPDATE_FILTER = 2,
     UPDATE_FRAME = 4,
   };
+
+public:
+  Private(const Config &config);
 
 public:
   uint32_t getSeq();
@@ -60,10 +64,12 @@ public:
   std::unique_ptr<FilterStatusMap> filterStatus;
   std::unique_ptr<FrameStatus> frameStatus;
 
-  Variant options;
+  Config config;
   uv_async_t async;
   int id;
 };
+
+Session::Private::Private(const Config &config) : config(config) {}
 
 uint32_t Session::Private::getSeq() {
   return index.fetch_add(1u, std::memory_order_relaxed);
@@ -93,13 +99,15 @@ void Session::Private::updateStatus() {
   }
 }
 
+struct ScriptDissector {};
+
 void Session::Private::notifyStatus(UpdateType type) {
   std::atomic_fetch_or_explicit(&updates, static_cast<int>(type),
                                 std::memory_order_relaxed);
   uv_async_send(&async);
 }
 
-Session::Session(const Config &config) : d(new Private()) {
+Session::Session(const Config &config) : d(new Private(config)) {
   std::atomic_init(&d->index, 1u);
   std::atomic_init(&d->updates, 0);
 
@@ -111,8 +119,6 @@ Session::Session(const Config &config) : d(new Private()) {
 
   static int id = 0;
   d->id = id++;
-
-  d->options = config.options;
 
   d->logger = std::make_shared<UvLoopLogger>(
       uv_default_loop(), [this](Logger::MessagePtr &&msg) {
@@ -130,13 +136,13 @@ Session::Session(const Config &config) : d(new Private()) {
       [this]() { d->notifyStatus(Private::UPDATE_FRAME); });
 
   d->dissectorPool.reset(new DissectorThreadPool(
-      config.options, [this](Frame **begin, size_t size) {
+      d->config.options, [this](Frame **begin, size_t size) {
         d->frameStore->insert(begin, size);
       }));
   d->dissectorPool->setLogger(d->logger);
 
   d->streamDissectorPool.reset(new StreamDissectorThreadPool(
-      config.options, d->frameStore,
+      d->config.options, d->frameStore,
       [this](uint32_t maxSeq) { d->frameStore->update(maxSeq); }));
   d->streamDissectorPool->setLogger(d->logger);
 
@@ -145,15 +151,38 @@ Session::Session(const Config &config) : d(new Private()) {
     d->dissectorPool->push(&frame, 1);
   });
 
-  d->linkLayers = config.linkLayers;
-  for (const auto &pair : config.linkLayers) {
+  d->linkLayers = d->config.linkLayers;
+  for (const auto &pair : d->config.linkLayers) {
     d->pcap->registerLinkLayer(pair.first, pair.second);
   }
-  for (const auto &diss : config.dissectors) {
-    d->dissectorPool->registerDissector(diss);
+
+  auto dissectors = d->config.dissectors;
+  for (auto &pair : d->config.scriptDissectors) {
+    Dissector dissector;
+    std::memset(&dissector, 0, sizeof(dissector));
+    dissector.data = &pair.first[0];
+    dissector.initialize = [](Context *ctx, Dissector *diss) {
+      const char *str = static_cast<const char *>(diss->data);
+      auto script = Nan::CompileScript(Nan::New(str).ToLocalChecked());
+      diss->data = new ScriptDissector();
+    };
+    dissector.terminate = [](Context *ctx, Dissector *diss) {
+      delete static_cast<ScriptDissector *>(diss->data);
+    };
+    dissector.analyze = [](Context *ctx, const Dissector *diss, Worker data,
+                           Layer *layer) {};
+    dissectors.push_back(std::make_pair(dissector, pair.second));
   }
-  for (const auto &diss : config.streamDissectors) {
-    d->streamDissectorPool->registerDissector(diss);
+
+  for (const auto &pair : dissectors) {
+    if (pair.second == DISSECTOR_PACKET) {
+      d->dissectorPool->registerDissector(pair.first);
+    }
+  }
+  for (const auto &pair : dissectors) {
+    if (pair.second == DISSECTOR_STREAM) {
+      d->streamDissectorPool->registerDissector(pair.first);
+    }
   }
   d->streamDissectorPool->start();
   d->dissectorPool->start();
@@ -203,7 +232,7 @@ int Session::snaplen() const { return d->pcap->snaplen(); }
 
 int Session::id() const { return d->id; }
 
-Variant Session::options() const { return d->options; }
+Variant Session::options() const { return d->config.options; }
 
 void Session::setDisplayFilter(const std::string &name,
                                const std::string &body) {
@@ -215,7 +244,7 @@ void Session::setDisplayFilter(const std::string &name,
     }
   } else {
     auto pool = std::unique_ptr<FilterThreadPool>(
-        new FilterThreadPool(body, d->options, d->frameStore, [this]() {
+        new FilterThreadPool(body, d->config.options, d->frameStore, [this]() {
           d->notifyStatus(Private::UPDATE_FILTER);
         }));
     pool->setLogger(d->logger);
@@ -326,14 +355,12 @@ void SessionFactory::registerLinkLayer(int link, Token token) {
 
 void SessionFactory::registerDissector(const Dissector &diss,
                                        DissectorType type) {
-  switch (type) {
-  case DISSECTOR_PACKET:
-    d->dissectors.push_back(diss);
-    break;
-  case DISSECTOR_STREAM:
-    d->streamDissectors.push_back(diss);
-    break;
-  default:;
-  }
+  d->dissectors.push_back(std::make_pair(diss, type));
 }
+
+void SessionFactory::registerDissector(const std::string &script,
+                                       DissectorType type) {
+  d->scriptDissectors.push_back(std::make_pair(script, type));
+}
+
 } // namespace plugkit

@@ -135,36 +135,21 @@ NAN_METHOD(SessionFactoryWrapper::registerLinkLayer) {
   }
 }
 
-struct ScriptDissector {};
-
 NAN_METHOD(SessionFactoryWrapper::registerDissector) {
   SessionFactoryWrapper *wrapper =
       ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
   if (const auto &factory = wrapper->factory) {
-    Dissector dissector;
-    std::memset(&dissector, 0, sizeof(dissector));
-
     DissectorType type = DISSECTOR_PACKET;
     if (std::strcmp("stream", *Nan::Utf8String(info[1])) == 0) {
       type = DISSECTOR_STREAM;
     }
     if (info[0]->IsExternal()) {
-      dissector =
+      Dissector dissector =
           *static_cast<const Dissector *>(info[0].As<v8::External>()->Value());
+      factory->registerDissector(dissector, type);
     } else if (info[0]->IsString()) {
-      dissector.data = new std::string(*Nan::Utf8String(info[0]));
-      dissector.initialize = [](Context *ctx, Dissector *diss) {
-        std::string *str = static_cast<std::string *>(diss->data);
-        auto script = Nan::CompileScript(Nan::New(*str).ToLocalChecked());
-        diss->data = new ScriptDissector();
-      };
-      dissector.terminate = [](Context *ctx, Dissector *diss) {
-        delete static_cast<ScriptDissector *>(diss->data);
-      };
-    } else {
-      return;
+      factory->registerDissector(std::string(*Nan::Utf8String(info[0])), type);
     }
-    factory->registerDissector(dissector, type);
   }
 }
 
