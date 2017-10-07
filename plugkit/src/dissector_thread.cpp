@@ -79,6 +79,9 @@ void DissectorThread::enter() {
         tags.push_back(tag);
       }
     }
+    if (tags.empty()) {
+      continue;
+    }
     data.filter = TagFilter(tags);
     if (diss.createWorker) {
       data.worker = diss.createWorker(&d->ctx, &diss);
