@@ -1,8 +1,8 @@
 #include "../src/session.hpp"
 #include "plugkit_module.hpp"
 #include "session_factory.hpp"
-
 #include "session.hpp"
+#include "dissector.h"
 
 namespace plugkit {
 
@@ -135,24 +135,36 @@ NAN_METHOD(SessionFactoryWrapper::registerLinkLayer) {
   }
 }
 
+struct ScriptDissector {};
+
 NAN_METHOD(SessionFactoryWrapper::registerDissector) {
   SessionFactoryWrapper *wrapper =
       ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
   if (const auto &factory = wrapper->factory) {
-    const Dissector *dissector = nullptr;
+    Dissector dissector;
+    std::memset(&dissector, 0, sizeof(dissector));
+
     DissectorType type = DISSECTOR_PACKET;
     if (std::strcmp("stream", *Nan::Utf8String(info[1])) == 0) {
       type = DISSECTOR_STREAM;
     }
     if (info[0]->IsExternal()) {
       dissector =
-          static_cast<const Dissector *>(info[0].As<v8::External>()->Value());
+          *static_cast<const Dissector *>(info[0].As<v8::External>()->Value());
     } else if (info[0]->IsString()) {
-      puts(*Nan::Utf8String(info[0]));
+      dissector.data = new std::string(*Nan::Utf8String(info[0]));
+      dissector.initialize = [](Context *ctx, Dissector *diss) {
+        std::string *str = static_cast<std::string *>(diss->data);
+        auto script = Nan::CompileScript(Nan::New(*str).ToLocalChecked());
+        diss->data = new ScriptDissector();
+      };
+      dissector.terminate = [](Context *ctx, Dissector *diss) {
+        delete static_cast<ScriptDissector *>(diss->data);
+      };
+    } else {
+      return;
     }
-    if (dissector) {
-      factory->registerDissector(*dissector, type);
-    }
+    factory->registerDissector(dissector, type);
   }
 }
 
