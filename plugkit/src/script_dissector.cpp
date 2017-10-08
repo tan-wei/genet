@@ -52,8 +52,29 @@ Dissector ScriptDissector::create(char *script) {
   dissector.terminate = [](Context *ctx, Dissector *diss) {
     delete static_cast<ScriptDissector *>(diss->data);
   };
+  dissector.createWorker = [](Context *ctx, const Dissector *diss) {
+    ScriptDissector *scriptDissector =
+        static_cast<ScriptDissector *>(diss->data);
+    auto ctor = v8::Local<v8::Function>::New(v8::Isolate::GetCurrent(),
+                                             scriptDissector->func);
+    auto analyze = new v8::UniquePersistent<v8::Function>();
+    auto worker = Nan::NewInstance(ctor).ToLocalChecked();
+    analyze->Reset(v8::Isolate::GetCurrent(), worker.As<v8::Function>());
+    return Worker{analyze};
+  };
+  dissector.destroyWorker = [](Context *ctx, const Dissector *diss,
+                               Worker worker) {
+    ScriptDissector *scriptDissector =
+        static_cast<ScriptDissector *>(diss->data);
+    auto analyze =
+        static_cast<v8::UniquePersistent<v8::Function> *>(worker.data);
+    delete analyze;
+  };
   dissector.analyze = [](Context *ctx, const Dissector *diss, Worker data,
-                         Layer *layer) {};
+                         Layer *layer) {
+    ScriptDissector *scriptDissector =
+        static_cast<ScriptDissector *>(diss->data);
+  };
   return dissector;
 }
 } // namespace plugkit
