@@ -1,7 +1,16 @@
 #include "script_dissector.hpp"
+#include "wrapper/context.hpp"
+#include "wrapper/layer.hpp"
 #include <nan.h>
 
 namespace plugkit {
+
+namespace {
+struct WorkerHolder {
+  v8::UniquePersistent<v8::Object> worker;
+  v8::UniquePersistent<v8::Function> analyze;
+};
+}
 
 ScriptDissector::ScriptDissector(const v8::Local<v8::Function> &ctor)
     : func(v8::Isolate::GetCurrent(), ctor) {}
@@ -57,23 +66,34 @@ Dissector ScriptDissector::create(char *script) {
         static_cast<ScriptDissector *>(diss->data);
     auto ctor = v8::Local<v8::Function>::New(v8::Isolate::GetCurrent(),
                                              scriptDissector->func);
-    auto analyze = new v8::UniquePersistent<v8::Function>();
     auto worker = Nan::NewInstance(ctor).ToLocalChecked();
-    analyze->Reset(v8::Isolate::GetCurrent(), worker.As<v8::Function>());
-    return Worker{analyze};
+    auto analyze = worker->Get(Nan::New("analyze").ToLocalChecked());
+    WorkerHolder *holder = nullptr;
+    if (analyze->IsFunction()) {
+      holder = new WorkerHolder();
+      holder->worker.Reset(v8::Isolate::GetCurrent(), worker);
+      holder->analyze.Reset(v8::Isolate::GetCurrent(),
+                            analyze.As<v8::Function>());
+    }
+    return Worker{holder};
   };
   dissector.destroyWorker = [](Context *ctx, const Dissector *diss,
                                Worker worker) {
-    ScriptDissector *scriptDissector =
-        static_cast<ScriptDissector *>(diss->data);
-    auto analyze =
-        static_cast<v8::UniquePersistent<v8::Function> *>(worker.data);
-    delete analyze;
+    auto holder = static_cast<WorkerHolder *>(worker.data);
+    delete holder;
   };
-  dissector.analyze = [](Context *ctx, const Dissector *diss, Worker data,
+  dissector.analyze = [](Context *ctx, const Dissector *diss, Worker worker,
                          Layer *layer) {
-    ScriptDissector *scriptDissector =
-        static_cast<ScriptDissector *>(diss->data);
+    auto holder = static_cast<WorkerHolder *>(worker.data);
+    if (holder) {
+      auto obj =
+          v8::Local<v8::Object>::New(v8::Isolate::GetCurrent(), holder->worker);
+      auto analyze = v8::Local<v8::Function>::New(v8::Isolate::GetCurrent(),
+                                                  holder->analyze);
+      v8::Local<v8::Value> args[] = {ContextWrapper::wrap(ctx),
+                                     LayerWrapper::wrap(layer)};
+      analyze->Call(obj, 2, args);
+    }
   };
   return dissector;
 }
