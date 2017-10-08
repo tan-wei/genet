@@ -1,5 +1,5 @@
 #include "session.hpp"
-#include "dissector.h"
+#include "script_dissector.hpp"
 #include "dissector_thread.hpp"
 #include "dissector_thread_pool.hpp"
 #include "filter_thread.hpp"
@@ -14,7 +14,6 @@
 #include <atomic>
 #include <unordered_map>
 #include <uv.h>
-#include <nan.h>
 
 namespace plugkit {
 
@@ -99,10 +98,6 @@ void Session::Private::updateStatus() {
   }
 }
 
-struct ScriptDissector {
-  v8::UniquePersistent<v8::Function> func;
-};
-
 void Session::Private::notifyStatus(UpdateType type) {
   std::atomic_fetch_or_explicit(&updates, static_cast<int>(type),
                                 std::memory_order_relaxed);
@@ -160,53 +155,7 @@ Session::Session(const Config &config) : d(new Private(config)) {
 
   auto dissectors = d->config.dissectors;
   for (auto &pair : d->config.scriptDissectors) {
-    Dissector dissector;
-    std::memset(&dissector, 0, sizeof(dissector));
-    dissector.data = &pair.first[0];
-    dissector.initialize = [](Context *ctx, Dissector *diss) {
-      const char *str = static_cast<const char *>(diss->data);
-      diss->data = nullptr;
-
-      auto script = Nan::CompileScript(Nan::New(str).ToLocalChecked());
-      if (script.IsEmpty())
-        return;
-      auto result = Nan::RunScript(script.ToLocalChecked());
-      if (result.IsEmpty())
-        return;
-      auto func = result.ToLocalChecked();
-      if (!func->IsFunction())
-        return;
-      auto module = Nan::New<v8::Object>();
-      v8::Local<v8::Value> args[1] = {module};
-      func.As<v8::Function>()->Call(module, 1, args);
-      auto exports = module->Get(Nan::New("exports").ToLocalChecked());
-      if (!exports->IsFunction())
-        return;
-      auto ctor = exports.As<v8::Function>();
-      auto hints = ctor->Get(Nan::New("layerHints").ToLocalChecked());
-      if (hints->IsArray()) {
-        auto layerHints = hints.As<v8::Array>();
-        int size = sizeof(diss->layerHints) / sizeof(diss->layerHints[0]);
-        for (int i = 0; i < size && i < layerHints->Length(); ++i) {
-          auto item = layerHints->Get(i);
-          Token token = Token_null();
-          if (item->IsNumber()) {
-            token = item->NumberValue();
-          } else if (item->IsString()) {
-            token = Token_get(*Nan::Utf8String(item));
-          }
-          diss->layerHints[i] = token;
-        }
-      }
-      auto scriptDissector = new ScriptDissector();
-      scriptDissector->func.Reset(v8::Isolate::GetCurrent(), ctor);
-      diss->data = scriptDissector;
-    };
-    dissector.terminate = [](Context *ctx, Dissector *diss) {
-      delete static_cast<ScriptDissector *>(diss->data);
-    };
-    dissector.analyze = [](Context *ctx, const Dissector *diss, Worker data,
-                           Layer *layer) {};
+    const Dissector dissector = ScriptDissector::create(&pair.first[0]);
     dissectors.push_back(std::make_pair(dissector, pair.second));
   }
 
