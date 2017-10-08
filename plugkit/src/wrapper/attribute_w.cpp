@@ -27,35 +27,7 @@ AttributeWrapper::AttributeWrapper(Attr *prop) : prop(prop), constProp(prop) {}
 AttributeWrapper::AttributeWrapper(const Attr *prop)
     : prop(nullptr), constProp(prop) {}
 
-NAN_METHOD(AttributeWrapper::New) {
-  if (!info[0]->IsObject()) {
-    return;
-  }
-  auto options = info[0].As<v8::Object>();
-  auto idValue = options->Get(Nan::New("id").ToLocalChecked());
-  auto rangeValue = options->Get(Nan::New("range").ToLocalChecked());
-  auto typeValue = options->Get(Nan::New("type").ToLocalChecked());
-  auto value = options->Get(Nan::New("value").ToLocalChecked());
-  if (idValue->IsNumber()) {
-    return;
-  }
-  auto prop = new Attr(Token_get(*Nan::Utf8String(idValue)));
-  if (rangeValue->IsArray()) {
-    auto array = rangeValue.As<v8::Array>();
-    if (array->Length() >= 2) {
-      prop->setRange(
-          Range{array->Get(0)->Uint32Value(), array->Get(1)->Uint32Value()});
-    }
-  }
-  if (typeValue->IsString()) {
-    prop->setType(Token_get(*Nan::Utf8String(typeValue)));
-  }
-  prop->setValue(Variant::getVariant(value));
-
-  AttributeWrapper *obj = new AttributeWrapper(prop);
-  obj->Wrap(info.This());
-  info.GetReturnValue().Set(info.This());
-}
+NAN_METHOD(AttributeWrapper::New) { info.GetReturnValue().Set(info.This()); }
 
 NAN_GETTER(AttributeWrapper::id) {
   AttributeWrapper *wrapper =

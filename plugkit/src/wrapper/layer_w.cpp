@@ -44,26 +44,7 @@ LayerWrapper::LayerWrapper(const Layer *layer)
 
 LayerWrapper::LayerWrapper(Layer *layer) : layer(layer), constLayer(layer) {}
 
-NAN_METHOD(LayerWrapper::New) {
-  if (!info[0]->IsObject()) {
-    return;
-  }
-  auto options = info[0].As<v8::Object>();
-  auto idValue = options->Get(Nan::New("id").ToLocalChecked());
-  auto confValue = options->Get(Nan::New("confidence").ToLocalChecked());
-  if (!idValue->IsNumber()) {
-    return;
-  }
-  auto layer = new Layer(Token_get(*Nan::Utf8String(idValue)));
-  if (confValue->IsNumber()) {
-    layer->setConfidence(
-        static_cast<LayerConfidence>(confValue->Uint32Value()));
-  }
-
-  LayerWrapper *obj = new LayerWrapper(layer);
-  obj->Wrap(info.This());
-  info.GetReturnValue().Set(info.This());
-}
+NAN_METHOD(LayerWrapper::New) { info.GetReturnValue().Set(info.This()); }
 
 NAN_GETTER(LayerWrapper::id) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
