@@ -1,4 +1,4 @@
-#include "dissector.hpp"
+#include "dissector.h"
 #include <cstring>
 
 namespace plugkit {

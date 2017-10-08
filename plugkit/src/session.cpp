@@ -1,5 +1,5 @@
 #include "session.hpp"
-#include "dissector.hpp"
+#include "dissector.h"
 #include "dissector_thread.hpp"
 #include "dissector_thread_pool.hpp"
 #include "filter_thread.hpp"
