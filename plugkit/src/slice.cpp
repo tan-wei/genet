@@ -7,7 +7,7 @@ namespace plugkit {
 namespace {
 
 Token outOfBoundError() {
-  thread_local const Token token = Token_get("Out of bound");
+  thread_local const Token token = Token_get("!out-of-bounds");
   return token;
 }
 

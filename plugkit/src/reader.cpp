@@ -9,7 +9,7 @@ namespace plugkit {
 namespace {
 
 Token outOfBoundError() {
-  thread_local const Token token = Token_get("Out of bound");
+  thread_local const Token token = Token_get("!out-of-bounds");
   return token;
 }
 
@@ -45,7 +45,7 @@ void Reader_reset(Reader *reader) { std::memset(reader, 0, sizeof(Reader)); }
 Slice Reader_slice(Reader *reader, size_t begin, size_t end) {
   Slice *slice = &reader->data;
   if (slice->begin + reader->lastRange.end + end > slice->end) {
-    static const Token outOfBoundError = Token_get("Out of bound");
+    static const Token outOfBoundError = Token_get("!out-of-bounds");
     reader->lastError.type = outOfBoundError;
     return Slice();
   }
@@ -59,7 +59,7 @@ Slice Reader_slice(Reader *reader, size_t begin, size_t end) {
 Slice Reader_sliceAll(Reader *reader, size_t begin) {
   Slice *slice = &reader->data;
   if (slice->begin + reader->lastRange.end + begin > slice->end) {
-    static const Token outOfBoundError = Token_get("Out of bound");
+    static const Token outOfBoundError = Token_get("!out-of-bounds");
     reader->lastError.type = outOfBoundError;
     return Slice();
   }

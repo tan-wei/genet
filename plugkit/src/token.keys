@@ -1,7 +1,9 @@
 .length
 .dst
 .src
-Out of bound
+!out-of-bounds
+!invalid-value
+!out-of-memory
 @reassembled
 @eth:mac
 @ipv4:addr

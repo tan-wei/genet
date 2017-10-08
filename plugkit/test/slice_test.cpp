@@ -77,7 +77,7 @@ TEST_CASE("Slice_getUint8", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_getUint8(view, 1, &err) == uint8_t());
-  CHECK(err.type == Token_get("Out of bound"));
+  CHECK(err.type == Token_get("!out-of-bounds"));
 }
 
 TEST_CASE("Slice_getInt8", "[Slice]") {
@@ -89,7 +89,7 @@ TEST_CASE("Slice_getInt8", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_getInt8(view, 1, &err) == int8_t());
-  CHECK(err.type == Token_get("Out of bound"));
+  CHECK(err.type == Token_get("!out-of-bounds"));
 }
 
 TEST_CASE("Slice_getUint16", "[Slice]") {
@@ -101,7 +101,7 @@ TEST_CASE("Slice_getUint16", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_getUint16(view, 1, false, &err) == uint16_t());
-  CHECK(err.type == Token_get("Out of bound"));
+  CHECK(err.type == Token_get("!out-of-bounds"));
 }
 
 TEST_CASE("Slice_getUint32", "[Slice]") {
@@ -113,7 +113,7 @@ TEST_CASE("Slice_getUint32", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_getUint32(view, 3, false, &err) == uint32_t());
-  CHECK(err.type == Token_get("Out of bound"));
+  CHECK(err.type == Token_get("!out-of-bounds"));
 }
 
 TEST_CASE("Slice_getUint64", "[Slice]") {
@@ -125,7 +125,7 @@ TEST_CASE("Slice_getUint64", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_getUint64(view, 7, false, &err) == uint64_t());
-  CHECK(err.type == Token_get("Out of bound"));
+  CHECK(err.type == Token_get("!out-of-bounds"));
 }
 
 TEST_CASE("Slice_getInt16", "[Slice]") {
@@ -137,7 +137,7 @@ TEST_CASE("Slice_getInt16", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_getInt16(view, 1, false, &err) == int16_t());
-  CHECK(err.type == Token_get("Out of bound"));
+  CHECK(err.type == Token_get("!out-of-bounds"));
 }
 
 TEST_CASE("Slice_getInt32", "[Slice]") {
@@ -150,7 +150,7 @@ TEST_CASE("Slice_getInt32", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_getInt32(view, 3, false, &err) == int32_t());
-  CHECK(err.type == Token_get("Out of bound"));
+  CHECK(err.type == Token_get("!out-of-bounds"));
 }
 
 TEST_CASE("Slice_getInt64", "[Slice]") {
@@ -165,7 +165,7 @@ TEST_CASE("Slice_getInt64", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_getInt64(view, 7, false, &err) == int64_t());
-  CHECK(err.type == Token_get("Out of bound"));
+  CHECK(err.type == Token_get("!out-of-bounds"));
 }
 
 TEST_CASE("Slice_getFloat32", "[Slice]") {
@@ -177,7 +177,7 @@ TEST_CASE("Slice_getFloat32", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_getFloat32(view, 3, false, &err) == float());
-  CHECK(err.type == Token_get("Out of bound"));
+  CHECK(err.type == Token_get("!out-of-bounds"));
 }
 
 TEST_CASE("Slice_getFloat64", "[Slice]") {
@@ -189,7 +189,7 @@ TEST_CASE("Slice_getFloat64", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_getFloat64(view, 7, false, &err) == double());
-  CHECK(err.type == Token_get("Out of bound"));
+  CHECK(err.type == Token_get("!out-of-bounds"));
 }
 
 TEST_CASE("Slice_getUint16 (little endian)", "[Slice]") {
@@ -201,7 +201,7 @@ TEST_CASE("Slice_getUint16 (little endian)", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_getUint16(view, 1, true, &err) == uint16_t());
-  CHECK(err.type == Token_get("Out of bound"));
+  CHECK(err.type == Token_get("!out-of-bounds"));
 }
 
 TEST_CASE("Slice_getUint32 (little endian)", "[Slice]") {
@@ -213,7 +213,7 @@ TEST_CASE("Slice_getUint32 (little endian)", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_getUint32(view, 3, true, &err) == uint32_t());
-  CHECK(err.type == Token_get("Out of bound"));
+  CHECK(err.type == Token_get("!out-of-bounds"));
 }
 
 TEST_CASE("Slice_getUint64 (little endian)", "[Slice]") {
@@ -225,7 +225,7 @@ TEST_CASE("Slice_getUint64 (little endian)", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_getUint64(view, 7, true, &err) == uint64_t());
-  CHECK(err.type == Token_get("Out of bound"));
+  CHECK(err.type == Token_get("!out-of-bounds"));
 }
 
 TEST_CASE("Slice_getInt16 (little endian)", "[Slice]") {
@@ -237,7 +237,7 @@ TEST_CASE("Slice_getInt16 (little endian)", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_getInt16(view, 1, true, &err) == int16_t());
-  CHECK(err.type == Token_get("Out of bound"));
+  CHECK(err.type == Token_get("!out-of-bounds"));
 }
 
 TEST_CASE("Slice_getInt32 (little endian)", "[Slice]") {
@@ -250,7 +250,7 @@ TEST_CASE("Slice_getInt32 (little endian)", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_getInt32(view, 3, true, &err) == int32_t());
-  CHECK(err.type == Token_get("Out of bound"));
+  CHECK(err.type == Token_get("!out-of-bounds"));
 }
 
 TEST_CASE("Slice_getInt64 (little endian)", "[Slice]") {
@@ -269,7 +269,7 @@ TEST_CASE("Slice_getInt64 (little endian)", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_getInt64(view, 7, true, &err) == int64_t());
-  CHECK(err.type == Token_get("Out of bound"));
+  CHECK(err.type == Token_get("!out-of-bounds"));
 }
 
 TEST_CASE("Slice_getFloat32 (little endian)", "[Slice]") {
@@ -281,7 +281,7 @@ TEST_CASE("Slice_getFloat32 (little endian)", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_getFloat32(view, 3, true, &err) == float());
-  CHECK(err.type == Token_get("Out of bound"));
+  CHECK(err.type == Token_get("!out-of-bounds"));
 }
 
 TEST_CASE("Slice_getFloat64 (little endian)", "[Slice]") {
@@ -293,5 +293,5 @@ TEST_CASE("Slice_getFloat64 (little endian)", "[Slice]") {
   CHECK(err.type == Token_null());
 
   CHECK(Slice_getFloat64(view, 7, true, &err) == double());
-  CHECK(err.type == Token_get("Out of bound"));
+  CHECK(err.type == Token_get("!out-of-bounds"));
 }
