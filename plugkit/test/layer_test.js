@@ -1,7 +1,32 @@
 const assert = require('assert')
-const {Testing, Token} = require('../test')
+const {Testing, Token, Layer} = require('../test')
 
 describe('Layer', () => {
+  describe('#constructor()', () => {
+    it('should throw error', () => {
+      assert.throws(() => new Layer(), TypeError)
+    })
+  })
+  describe('.ConfDecodable', () => {
+    it('should return 0', () => {
+      assert.strictEqual(0, Layer.ConfDecodable)
+    })
+  })
+  describe('.ConfPossible', () => {
+    it('should return 1', () => {
+      assert.strictEqual(1, Layer.ConfPossible)
+    })
+  })
+  describe('.ConfProbable', () => {
+    it('should return 2', () => {
+      assert.strictEqual(2, Layer.ConfProbable)
+    })
+  })
+  describe('.ConfExact', () => {
+    it('should return 3', () => {
+      assert.strictEqual(3, Layer.ConfExact)
+    })
+  })
   describe('#addAttr()', () => {
     it('should throw for wrong arguments', () => {
       const layer = Testing.createLayerInstance('eth')
