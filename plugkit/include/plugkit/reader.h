@@ -1,7 +1,7 @@
 #ifndef PLUGKIT_READER_H
 #define PLUGKIT_READER_H
 
-#include "error.h"
+#include "token.h"
 #include "export.h"
 #include "range.h"
 #include "slice.h"
@@ -11,7 +11,7 @@ PLUGKIT_NAMESPACE_BEGIN
 typedef struct Reader {
   Slice data;
   Range lastRange;
-  Error lastError;
+  Token lastError;
 } Reader;
 
 /// Clears Reader's state

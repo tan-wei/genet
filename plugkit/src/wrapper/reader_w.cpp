@@ -88,14 +88,17 @@ NAN_SETTER(ReaderWrapper::setLastRange) {
 NAN_GETTER(ReaderWrapper::lastError) {
   ReaderWrapper *wrapper = ObjectWrap::Unwrap<ReaderWrapper>(info.Holder());
   if (Reader *reader = &wrapper->reader) {
-    info.GetReturnValue().Set(ErrorWrapper::wrap(reader->lastError));
+    info.GetReturnValue().Set(
+        Nan::New(Token_string(reader->lastError)).ToLocalChecked());
   }
 }
 
 NAN_SETTER(ReaderWrapper::setLastError) {
   ReaderWrapper *wrapper = ObjectWrap::Unwrap<ReaderWrapper>(info.Holder());
   if (Reader *reader = &wrapper->reader) {
-    reader->lastError = ErrorWrapper::unwrap(value.As<v8::Object>());
+    Token token = value->IsNumber() ? value->NumberValue()
+                                    : Token_get(*Nan::Utf8String(value));
+    reader->lastError = token;
   }
 }
 

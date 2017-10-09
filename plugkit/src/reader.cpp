@@ -15,7 +15,7 @@ Token outOfBoundError() {
 
 template <class T> T readLE(Reader *reader) {
   if (Slice_length(reader->data) - reader->lastRange.end < sizeof(T)) {
-    reader->lastError.type = outOfBoundError();
+    reader->lastError = outOfBoundError();
     return T();
   }
   T value =
@@ -27,7 +27,7 @@ template <class T> T readLE(Reader *reader) {
 
 template <class T> T readBE(Reader *reader) {
   if (Slice_length(reader->data) - reader->lastRange.end < sizeof(T)) {
-    reader->lastError.type = outOfBoundError();
+    reader->lastError = outOfBoundError();
     return T();
   }
   char data[sizeof(T)];
@@ -46,7 +46,7 @@ Slice Reader_slice(Reader *reader, size_t begin, size_t end) {
   Slice *slice = &reader->data;
   if (slice->begin + reader->lastRange.end + end > slice->end) {
     static const Token outOfBoundError = Token_get("!out-of-bounds");
-    reader->lastError.type = outOfBoundError;
+    reader->lastError = outOfBoundError;
     return Slice();
   }
   Slice subview{slice->begin + reader->lastRange.end, slice->end};
@@ -60,7 +60,7 @@ Slice Reader_sliceAll(Reader *reader, size_t begin) {
   Slice *slice = &reader->data;
   if (slice->begin + reader->lastRange.end + begin > slice->end) {
     static const Token outOfBoundError = Token_get("!out-of-bounds");
-    reader->lastError.type = outOfBoundError;
+    reader->lastError = outOfBoundError;
     return Slice();
   }
   Slice subview{slice->begin + reader->lastRange.end + begin, slice->end};
