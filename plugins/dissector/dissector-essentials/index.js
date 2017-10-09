@@ -350,6 +350,20 @@ export default {
         type: 'packet',
         main: 'ntp.js'
       }
+    },
+    {
+      type: 'core:attribute',
+      attribute: {
+        ntp: {
+          name: 'NTP'
+        },
+        'ntp.leapIndicator': {
+          name: 'Leap Indicator'
+        },
+        'ntp.leapIndicator.noWarning': {
+          name: 'No Warning'
+        }
+      }
     }
   ],
   options: [

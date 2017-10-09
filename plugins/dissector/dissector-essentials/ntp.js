@@ -1,26 +1,32 @@
 import { Reader, Layer, Token } from 'plugkit'
 
-const ntpToken = Token.get('ntp')
-const srcToken = Token.get('.src')
-const dstToken = Token.get('.dst')
-
 const liTable = {
-  0: Token.get('noWarning'),
-  1: Token.get('sec61'),
-  2: Token.get('sec59'),
-  3: Token.get('unknown')
+  0: Token.get('ntp.leapIndicator.noWarning'),
+  1: Token.get('ntp.leapIndicator.sec61'),
+  2: Token.get('ntp.leapIndicator.sec59'),
+  3: Token.get('ntp.leapIndicator.unknown')
 }
 
 export default class NTP {
   analyze(ctx, layer) {
-    const child = layer.addLayer(ntpToken)
+    const child = layer.addLayer('ntp')
     child.confidence = Layer.ConfProbable
 
-    if (layer.attr(srcToken).value !== 123 || layer.attr(dstToken).value !== 123) {
+    if (layer.attr('.src').value !== 123 || layer.attr('.dst').value !== 123) {
       child.confidence = Layer.ConfPossible
     }
 
     const reader = new Reader(layer.payloads[0].slices[0])
+
+    const first = reader.getUint8()
+    const leapIndicator = child.addAttr('ntp.leapIndicator')
+    leapIndicator.value = first >> 6
+    leapIndicator.type = '@enum'
+
+    if (leapIndicator.value in liTable) {
+      const attr = child.addAttr(liTable[leapIndicator.value])
+      attr.value = true
+    }
   }
 
   static get layerHints() {
