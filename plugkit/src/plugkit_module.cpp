@@ -11,7 +11,6 @@
 #include "wrapper/logger.hpp"
 #include "wrapper/payload.hpp"
 #include "wrapper/pcap.hpp"
-#include "wrapper/reader.hpp"
 #include "wrapper/session.hpp"
 #include "wrapper/session_factory.hpp"
 #include "wrapper/worker.hpp"
@@ -49,7 +48,6 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
   LoggerWrapper::init(isolate);
   PayloadWrapper::init(isolate);
   ErrorWrapper::init(isolate, exports);
-  ReaderWrapper::init(isolate, exports);
   WorkerWrapper::init(isolate, exports);
   if (mainThread) {
     PcapWrapper::init(isolate, exports);

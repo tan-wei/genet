@@ -20,7 +20,7 @@ export default class NTP {
       child.confidence = Layer.ConfPossible
     }
 
-    const reader = new Reader()
+    const reader = new Reader(layer.payloads[0].slices[0])
   }
 
   static get layerHints() {
