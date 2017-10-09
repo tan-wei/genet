@@ -41,10 +41,6 @@ const std::vector<const Payload *> &Layer::payloads() const {
   return mPayloads;
 }
 
-const std::vector<Error> &Layer::errors() const { return mErrors; }
-
-void Layer::addError(Error err) { mErrors.push_back(err); }
-
 void Layer::addPayload(const Payload *payload) { mPayloads.push_back(payload); }
 
 const std::vector<const Attr *> &Layer::attrs() const { return mAttrs; }
@@ -130,5 +126,4 @@ const Payload *const *Layer_payloads(const Layer *layer, size_t *size) {
 
 void Layer_addTag(Layer *layer, Token tag) { layer->addTag(tag); }
 
-void Layer_addError(Layer *layer, Error err) { layer->addError(err); }
 } // namespace plugkit

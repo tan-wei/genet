@@ -2,7 +2,6 @@
 #include <attribute.h>
 #include <context.h>
 #include <dissector.h>
-#include <error.h>
 #include <export.h>
 #include <layer.h>
 #include <logger.h>

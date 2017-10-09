@@ -65,9 +65,6 @@ PLUGKIT_EXPORT const Payload *const *Layer_payloads(const Layer *layer,
 /// Adds a layer tag
 PLUGKIT_EXPORT void Layer_addTag(Layer *layer, Token tag);
 
-/// Adds a layer error
-PLUGKIT_EXPORT void Layer_addError(Layer *layer, Error err);
-
 PLUGKIT_NAMESPACE_END
 
 #endif

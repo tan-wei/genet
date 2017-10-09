@@ -5,7 +5,6 @@
 #include "variant.hpp"
 #include "wrapper/attribute.hpp"
 #include "wrapper/context.hpp"
-#include "wrapper/error.hpp"
 #include "wrapper/frame.hpp"
 #include "wrapper/layer.hpp"
 #include "wrapper/logger.hpp"
@@ -47,7 +46,6 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
   ContextWrapper::init(isolate);
   LoggerWrapper::init(isolate);
   PayloadWrapper::init(isolate);
-  ErrorWrapper::init(isolate, exports);
   WorkerWrapper::init(isolate, exports);
   if (mainThread) {
     PcapWrapper::init(isolate, exports);

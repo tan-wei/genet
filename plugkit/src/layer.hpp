@@ -1,7 +1,6 @@
 #ifndef PLUGKIT_LAYER_HPP
 #define PLUGKIT_LAYER_HPP
 
-#include "error.h"
 #include "layer.h"
 #include "token.h"
 #include "types.hpp"
@@ -39,9 +38,6 @@ public:
   const std::vector<Token> &tags() const;
   void addTag(Token token);
 
-  const std::vector<Error> &errors() const;
-  void addError(Error err);
-
   Layer *parent() const;
   void setParent(Layer *layer);
 
@@ -62,7 +58,6 @@ private:
   std::vector<Layer *> mLayers;
   std::vector<Layer *> mSubLayers;
   std::vector<const Attr *> mAttrs;
-  std::vector<Error> mErrors;
 };
 } // namespace plugkit
 
