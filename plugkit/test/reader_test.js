@@ -8,6 +8,7 @@ describe('Reader', () => {
       assert.throws(() => reader.slice(),      TypeError)
       assert.throws(() => reader.slice(0),     TypeError)
       assert.throws(() => reader.slice(0, []), TypeError)
+      assert.throws(() => reader.slice(5, 0),  RangeError)
     })
   })
   describe('#sliceAll()', () => {

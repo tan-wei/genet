@@ -24,6 +24,20 @@ class Reader {
     if (!Number.isInteger(end)) {
       throw new TypeError('Second argument must be an integer')
     }
+    if (end < begin) {
+      throw new RangeError('Second argument must be greater than first argument')
+    }
+    const offset = this._fields.lastRange[1]
+    const length = this._fields.data.length
+    const sliceBegin = offset + begin
+    const sliceEnd = offset + end
+    if (sliceBegin >= length || sliceEnd > length) {
+      this._fields.lastError = '!out-of-bounds'
+      return this._fields.data.slice(0, 0)
+    }
+    const slice = this._fields.data.slice(sliceBegin, sliceEnd)
+    this._fields.nextRange(slice.length)
+    return slice
   }
 
   sliceAll(begin = 0) {
