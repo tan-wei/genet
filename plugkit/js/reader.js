@@ -44,6 +44,16 @@ class Reader {
     if (!Number.isInteger(begin)) {
       throw new TypeError('First argument must be an integer')
     }
+    const offset = this._fields.lastRange[1]
+    const length = this._fields.data.length
+    const sliceBegin = offset + begin
+    if (sliceBegin >= length) {
+      this._fields.lastError = '!out-of-bounds'
+      return this._fields.data.slice(0, 0)
+    }
+    const slice = this._fields.data.slice(sliceBegin)
+    this._fields.nextRange(slice.length)
+    return slice
   }
 
   getUint8() {
