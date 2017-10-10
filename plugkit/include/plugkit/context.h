@@ -7,10 +7,8 @@
 
 PLUGKIT_NAMESPACE_BEGIN
 
-typedef struct Variant Variant;
-typedef struct Layer Layer;
 typedef struct Context Context;
-typedef struct Slice Slice;
+typedef struct Variant Variant;
 
 PLUGKIT_EXPORT void *Context_alloc(Context *ctx, size_t size);
 
