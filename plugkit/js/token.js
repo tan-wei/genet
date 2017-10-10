@@ -2,8 +2,12 @@ const nativeToken = exports.Token
 const tokenMap = new Map()
 const tokenReverseMap = new Map()
 
-class Token {
-  static get(str) {
+function Token(strings, ...keys) {
+  return Token.get(String.raw(strings, ...keys))
+}
+
+Object.defineProperty(Token, 'get', {
+  value: function(str) {
     const value = tokenMap.get(str)
     if (value !== void 0) {
       return value
@@ -12,8 +16,10 @@ class Token {
     tokenMap.set(str, id)
     return id
   }
+})
 
-  static string(id) {
+Object.defineProperty(Token, 'string', {
+  value: function(id) {
     const value = tokenReverseMap.get(id)
     if (value !== void 0) {
       return value
@@ -25,6 +31,6 @@ class Token {
     }
     return ''
   }
-}
+})
 
 exports.Token = Token

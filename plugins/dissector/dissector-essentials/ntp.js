@@ -1,21 +1,21 @@
 import { Reader, Layer, Token } from 'plugkit'
 
 const liTable = {
-  0: Token.get('ntp.leapIndicator.noWarning'),
-  1: Token.get('ntp.leapIndicator.sec61'),
-  2: Token.get('ntp.leapIndicator.sec59'),
-  3: Token.get('ntp.leapIndicator.unknown')
+  0: Token`ntp.leapIndicator.noWarning`,
+  1: Token`ntp.leapIndicator.sec61`,
+  2: Token`ntp.leapIndicator.sec59`,
+  3: Token`ntp.leapIndicator.unknown`
 }
 
 const modeTable = {
-  0: Token.get('ntp.mode.reserved'),
-  1: Token.get('ntp.mode.symmetricActive'),
-  2: Token.get('ntp.mode.symmetricPassive'),
-  3: Token.get('ntp.mode.client'),
-  4: Token.get('ntp.mode.server'),
-  5: Token.get('ntp.mode.broadcast'),
-  6: Token.get('ntp.mode.controlMessage'),
-  7: Token.get('ntp.mode.reservedForPrivate')
+  0: Token`ntp.mode.reserved`,
+  1: Token`ntp.mode.symmetricActive`,
+  2: Token`ntp.mode.symmetricPassive`,
+  3: Token`ntp.mode.client`,
+  4: Token`ntp.mode.server`,
+  5: Token`ntp.mode.broadcast`,
+  6: Token`ntp.mode.controlMessage`,
+  7: Token`ntp.mode.reservedForPrivate`
 }
 
 export default class NTP {
