@@ -4,6 +4,11 @@
 !out-of-bounds
 !invalid-value
 !out-of-memory
+@date:unix
+@int:hex
+@int:dec
+@int:oct
+@int:bin
 @reassembled
 @eth:mac
 @ipv4:addr
