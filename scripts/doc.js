@@ -39,16 +39,15 @@ function parseFunctionDecl(decl) {
   if (decl.value.includes(' implicit used ')) {
     return null
   }
-  const regex = / (\w+) '(.+)\((.*)\)'(?: |$)/
-  const result = regex.exec(decl.value)
-  const name = result[1]
-  const returnType = result[2]
+  const result = / (\w+) '(.+)\((.*)\)'(?: |$)/.exec(decl.value)
+  const name = result[1].trim()
+  const returnType = result[2].trim()
   const args = result[3].split(',').map(t => t.trim()).filter(t => t)
   if (name.endsWith('_')) {
     return null
   }
   return {
-    type: 'function',
+    type: 'c-function',
     name,
     returnType,
     args
