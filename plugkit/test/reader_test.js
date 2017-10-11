@@ -10,6 +10,13 @@ describe('Reader', () => {
       assert.throws(() => reader.slice(0, []), TypeError)
       assert.throws(() => reader.slice(5, 0),  RangeError)
     })
+    it('should return a sliced data', () => {
+      const reader = new Reader(new Uint8Array([200, 250, 1, 2]))
+      assert.strictEqual('250,1', reader.slice(1, 3).toString())
+      assert.strictEqual('2', reader.slice(0, 1).toString())
+      assert.strictEqual('', reader.slice(4, 10).toString())
+      assert.strictEqual('!out-of-bounds', reader.lastError)
+    })
   })
   describe('#sliceAll()', () => {
     it('should throw for wrong arguments', () => {

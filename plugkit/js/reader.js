@@ -36,7 +36,8 @@ class Reader {
       return this._fields.data.slice(0, 0)
     }
     const slice = this._fields.data.slice(sliceBegin, sliceEnd)
-    this._fields.nextRange(slice.length)
+    this._fields.lastRange[0] = this._fields.lastRange[1]
+    this._fields.lastRange[1] = sliceEnd
     return slice
   }
 
@@ -52,7 +53,8 @@ class Reader {
       return this._fields.data.slice(0, 0)
     }
     const slice = this._fields.data.slice(sliceBegin)
-    this._fields.nextRange(slice.length)
+    this._fields.lastRange[0] = this._fields.lastRange[1]
+    this._fields.lastRange[1] = sliceEnd
     return slice
   }
 
