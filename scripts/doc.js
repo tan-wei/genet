@@ -4,7 +4,7 @@ const execa = require('execa')
 
 function ast(filename) {
   return execa('clang', ['-cc1', '-ast-dump', filename], {reject: false}).then(result => {
-    const regex = /^[`\| ]([`| -]*)(\w+) 0x[0-9a-f]+[ $](.*)$/mg
+    const regex = /^[`\| ]([`| -]*)(\w+) 0x[0-9a-f]+ (.*)$/mg
     let metches = null
 
     const stack = [{
@@ -35,4 +35,37 @@ function ast(filename) {
   })
 }
 
-ast(process.argv[2]).then(ast => console.dir(ast))
+function parseFunctionDecl(decl) {
+  if (decl.value.includes(' implicit used ')) {
+    return null
+  }
+  const regex = / (\w+) '(.+)\((.*)\)'(?: |$)/
+  const result = regex.exec(decl.value)
+  const name = result[1]
+  const returnType = result[2]
+  const args = result[3].split(',').map(t => t.trim()).filter(t => t)
+  if (name.endsWith('_')) {
+    return null
+  }
+  return {
+    type: 'function',
+    name,
+    returnType,
+    args
+  }
+}
+
+ast(process.argv[2]).then(ast => {
+  const items = []
+  for (const decl of ast) {
+    let item = null
+    switch (decl.name) {
+      case 'FunctionDecl':
+        if (item = parseFunctionDecl(decl)) {
+          items.push(item)
+        }
+        break
+    }
+  }
+  console.log(items)
+})
