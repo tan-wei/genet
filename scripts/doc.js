@@ -35,6 +35,45 @@ function ast(filename) {
   })
 }
 
+function parseFullComment(decl) {
+  let paragraph = ''
+  const commands = []
+  for (const item of decl.children) {
+    if (item.name === 'ParagraphComment') {
+      if (commands.length > 0) commands += '\n'
+      for (const text of item.children) {
+        const match = text.value.match(/Text=" (.*)"$/)
+        if (match !== null) {
+          paragraph += match[1] + '\n'
+        }
+      }
+    } else if (item.name === 'BlockCommandComment') {
+      const match = item.value.match(/Name="(.+)"/)
+      if (match !== null) {
+        const name = match[1]
+        let value = ''
+        for (const para of item.children) {
+          if (value.length > 0) value += '\n'
+          for (const text of para.children) {
+            const match = text.value.match(/Text=" (.*)"$/)
+            if (match !== null) {
+              value += match[1] + '\n'
+            }
+          }
+        }
+        commands.push({
+          name,
+          value: value.trim()
+        })
+      }
+    }
+  }
+  return {
+    paragraph: paragraph.trim(),
+    commands
+  }
+}
+
 function parseFunctionDecl(decl) {
   if (decl.value.includes(' implicit used ')) {
     return null
@@ -46,11 +85,18 @@ function parseFunctionDecl(decl) {
   if (name.endsWith('_')) {
     return null
   }
+  let comment = null
+  for (const item of decl.children) {
+    if (item.name === 'FullComment') {
+      comment = parseFullComment(item)
+    }
+  }
   return {
     type: 'c-function',
     name,
     returnType,
-    args
+    args,
+    comment
   }
 }
 
