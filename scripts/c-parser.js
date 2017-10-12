@@ -102,17 +102,19 @@ function parseFunctionDecl(decl) {
   }
 }
 
-ast(process.argv[2]).then(ast => {
-  const items = []
-  for (const decl of ast) {
-    let item = null
-    switch (decl.name) {
-      case 'FunctionDecl':
-        if (item = parseFunctionDecl(decl)) {
-          items.push(item)
-        }
-        break
+module.exports = function(file) {
+  return ast(file).then(ast => {
+    const items = []
+    for (const decl of ast) {
+      let item = null
+      switch (decl.name) {
+        case 'FunctionDecl':
+          if (item = parseFunctionDecl(decl)) {
+            items.push(item)
+          }
+          break
+      }
     }
-  }
-  console.log(items)
-})
+    return items
+  })
+}

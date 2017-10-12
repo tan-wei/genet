@@ -11,6 +11,8 @@ DEPLUG_CORE_JS_OUT = $(addprefix node_modules/,$(DEPLUG_CORE_MAIN_JS))
 PLUGKIT_SRC = plugkit
 PLUGKIT_DST = node_modules/plugkit
 
+PLUGKIT_HEADERS = $(wildcard plugkit/include/plugkit/*.h)
+
 DISSECTOR_ESS = plugins/dissector/dissector-essentials
 
 ROOLUP_EXTERN_BUILTIN = electron,deplug,$(shell node -p -e 'require("builtin-modules").join(",")')
@@ -114,7 +116,9 @@ $(DEPLUG_CORE):
 	@mkdir $(DEPLUG_CORE)
 
 docs:
-	$(DOCSIFY) serve ./docs
+	cp -r -f -p docs/. out/docs
+	@node scripts/generate-docs.js c-parser.js $(PLUGKIT_HEADERS) out/docs/diss-api-c.md
+	$(DOCSIFY) serve ./out/docs
 
 fmt:
 	$(MAKE) fmt -C $(PLUGKIT_SRC)
