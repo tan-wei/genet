@@ -78,13 +78,14 @@ function parseFunctionDecl(decl) {
   if (decl.value.includes(' implicit used ')) {
     return null
   }
-  const result = / (\w+) '(.+)\((.*)\)'(?: |$)/.exec(decl.value)
+  const result = decl.value.match(/ (\w+) '(.+)\((.*)\)'(?: |$)/)
   const name = result[1].trim()
   const returnType = result[2].trim()
   const args = result[3].split(',').map(t => t.trim()).filter(t => t)
   if (name.endsWith('_')) {
     return null
   }
+  const module = name.split('_')[0]
   let comment = null
   for (const item of decl.children) {
     if (item.name === 'FullComment') {
@@ -93,6 +94,7 @@ function parseFunctionDecl(decl) {
   }
   return {
     type: 'c-function',
+    module,
     name,
     returnType,
     args,
