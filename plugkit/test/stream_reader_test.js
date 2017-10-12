@@ -32,6 +32,8 @@ describe('StreamReader', () => {
       const reader = new StreamReader()
       assert.throws(() => reader.search(),   TypeError)
       assert.throws(() => reader.search([]), TypeError)
+      assert.throws(() => reader.search('aaa', []), TypeError)
+      assert.throws(() => reader.search('aaa', 0, []), TypeError)
     })
   })
   describe('#read()', () => {
