@@ -24,6 +24,7 @@ ELECTRON_IGNORE = "deplug-core","plugkit"
 MOCHA = node_modules/mocha/bin/mocha
 PACKAGER = node_modules/.bin/electron-packager
 APPDMG = node_modules/.bin/appdmg
+DOCSIFY = node_modules/.bin/docsify
 
 ifeq ($(OS),Windows_NT)
 ELECTRON = node_modules\.bin\negatron.cmd
@@ -112,6 +113,9 @@ $(DEPLUG_CORE_JS_OUT): $(DEPLUG_CORE_JS) $(DEPLUG_CORE)
 $(DEPLUG_CORE):
 	@mkdir $(DEPLUG_CORE)
 
+docs:
+	$(DOCSIFY) serve ./docs
+
 fmt:
 	$(MAKE) fmt -C $(PLUGKIT_SRC)
 	$(MAKE) fmt -C $(DISSECTOR_ESS)
@@ -119,4 +123,4 @@ fmt:
 clean:
 	@rm -rf $(DEPLUG_CORE) $(PLUGKIT_DST)
 
-.PHONY: all run build fix lint pack clean fmt plugkit test dmg deb rpm winstaller
+.PHONY: all run build fix lint pack clean fmt plugkit test dmg deb rpm winstaller docs
