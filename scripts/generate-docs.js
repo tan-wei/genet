@@ -12,7 +12,6 @@ for (const file of files) {
 
 Promise.all(tasks).then(items => {
   const groups = group(uniqify(Array.prototype.concat.apply([], items)))
-  console.log(markdown(groups))
   fs.writeFileSync(out, markdown(groups))
 })
 
@@ -64,7 +63,10 @@ function markdown(groups) {
     if (group.functions.length > 0) {
       doc += `### Functions\n`
       for (const func of group.functions) {
-        const args = func.args.join(', ').replace(/\*/g, '\\*')
+        const args = func.args
+          .map(a => `<small style="color:#c4494c">${a.type}</small> ${a.name}`)
+          .join(', ')
+          .replace(/\*/g, '\\*')
         const ret = func.returnType.replace(/\*/g, '\\*')
         doc += `#### <small style="color:#c4494c">${ret}</small> ${func.name} `
         doc += `<small style="color:#808080">(${args})</small> \n\n`

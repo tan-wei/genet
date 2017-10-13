@@ -74,6 +74,19 @@ function parseFullComment(decl) {
   }
 }
 
+function parseParmVarDecl(children) {
+  const args = []
+  for (const decl of children) {
+    if (decl.name === 'ParmVarDecl') {
+      const result = decl.value.match(/ (\w+) '([^:]+)'/)
+      const name = result[1]
+      const type = result[2]
+      args.push({name, type})
+    }
+  }
+  return args
+}
+
 function parseFunctionDecl(decl) {
   if (decl.value.includes(' implicit used ')) {
     return null
@@ -81,7 +94,7 @@ function parseFunctionDecl(decl) {
   const result = decl.value.match(/ (\w+) '(.+)\((.*)\)'(?: |$)/)
   const name = result[1].trim()
   const returnType = result[2].trim()
-  const args = result[3].split(',').map(t => t.trim()).filter(t => t)
+  const args = parseParmVarDecl(decl.children)
   if (name.endsWith('_')) {
     return null
   }
