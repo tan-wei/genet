@@ -118,6 +118,7 @@ $(DEPLUG_CORE):
 docs:
 	cp -r -f -p docs/. out/docs
 	@node scripts/generate-docs.js c-parser.js $(PLUGKIT_HEADERS) out/docs/diss-api-c.md
+	@node scripts/generate-token-docs.js plugins/token/token-wellknown/tokens.json out/docs/well-known-tokens.md
 	$(DOCSIFY) serve ./out/docs
 
 fmt:
