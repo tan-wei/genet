@@ -1,0 +1,10 @@
+{
+  "name": "token-wellknown",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Deplug well-known tokens",
+  "engines": {
+    "deplug": "*"
+  },
+  "main": "index.js"
+}

@@ -1,17 +1,6 @@
 export default {
   components: [
     {
-      type: 'core:attribute',
-      attribute: {
-        '.src': {
-          name: 'Source'
-        },
-        '.dst': {
-          name: 'Destination'
-        },
-      }
-    },
-    {
       type: 'core:renderer',
       renderer: {
         type: 'property',

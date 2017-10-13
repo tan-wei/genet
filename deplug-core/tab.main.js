@@ -14,6 +14,7 @@ const packageWhiteList = [
   'esprima',
   'estraverse',
   'deplug',
+  'jsonfile',
   'plugkit',
   'object-path',
   'deplugin',
