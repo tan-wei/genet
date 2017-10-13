@@ -14,6 +14,7 @@ void AttributeWrapper::init(v8::Isolate *isolate) {
   Nan::SetAccessor(otl, Nan::New("range").ToLocalChecked(), range, setRange);
   Nan::SetAccessor(otl, Nan::New("value").ToLocalChecked(), value, setValue);
   Nan::SetAccessor(otl, Nan::New("type").ToLocalChecked(), type, setType);
+  Nan::SetAccessor(otl, Nan::New("error").ToLocalChecked(), error, setError);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
@@ -96,6 +97,25 @@ NAN_SETTER(AttributeWrapper::setType) {
     Token token = value->IsNumber() ? value->NumberValue()
                                     : Token_get(*Nan::Utf8String(value));
     prop->setType(token);
+  }
+}
+
+NAN_GETTER(AttributeWrapper::error) {
+  AttributeWrapper *wrapper =
+      ObjectWrap::Unwrap<AttributeWrapper>(info.Holder());
+  if (auto prop = wrapper->constProp) {
+    info.GetReturnValue().Set(
+        Nan::New(Token_string(prop->error())).ToLocalChecked());
+  }
+}
+
+NAN_SETTER(AttributeWrapper::setError) {
+  AttributeWrapper *wrapper =
+      ObjectWrap::Unwrap<AttributeWrapper>(info.Holder());
+  if (auto prop = wrapper->prop) {
+    Token token = value->IsNumber() ? value->NumberValue()
+                                    : Token_get(*Nan::Utf8String(value));
+    prop->setError(token);
   }
 }
 

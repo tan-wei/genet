@@ -22,6 +22,8 @@ public:
   void setValue(const Variant &value);
   Token type() const;
   void setType(Token type);
+  Token error() const;
+  void setError(Token error);
 
 private:
   Attr(const Attr &prop) = delete;
@@ -32,6 +34,7 @@ private:
   Variant mValue;
   Range mRange = {0, 0};
   Token mType = 0;
+  Token mError = 0;
 };
 } // namespace plugkit
 

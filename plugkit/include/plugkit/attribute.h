@@ -32,6 +32,12 @@ PLUGKIT_EXPORT Token Attr_type(const Attr *prop);
 /// Sets type
 PLUGKIT_EXPORT void Attr_setType(Attr *prop, Token type);
 
+/// Gets error
+PLUGKIT_EXPORT Token Attr_error(const Attr *prop);
+
+/// Sets error
+PLUGKIT_EXPORT void Attr_setError(Attr *prop, Token error);
+
 /// Gets value as a const pointer
 PLUGKIT_EXPORT const Variant *Attr_value(const Attr *prop);
 
