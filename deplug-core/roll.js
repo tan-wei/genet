@@ -29,7 +29,8 @@ export default async function roll (file, rootDir, extern = []) {
       filename: file,
       displayErrors: true,
     }
-    const code = `(function(module, require, __filename, __dirname){ ${result.code} })`
+    const code =
+      `(function(module, require, __filename, __dirname){ ${result.code} })`
     const func = vm.runInThisContext(code, options)
     return func(module, require, file, path.dirname(file))
   }
