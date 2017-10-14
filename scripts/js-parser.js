@@ -5,6 +5,47 @@ const esprima = require('esprima')
 const fs = require('fs')
 const {promisify} = require('util')
 
+function parseComments(comments) {
+  if (!Array.isArray(comments)) {
+    return null
+  }
+  const commands = []
+  let paragraph = ''
+  for (const comment of comments) {
+    const line = comment.value.trim()
+    if (line.startsWith('@')) {
+      const result = line.match(/@(\w+)( .+)?$/)
+      commands.push({
+        name: result[1],
+        value: result[2].trim(),
+      })
+    } else {
+      paragraph += line + '\n'
+    }
+  }
+  return {
+    paragraph: paragraph.trim(),
+    commands
+  }
+}
+
+function parseParams(params) {
+  const args = []
+  if (!Array.isArray(params)) {
+    return args
+  }
+  for (const param of params) {
+    if (param.type === 'Identifier') {
+      args.push({name: param.name})
+    } else if (param.type === 'AssignmentPattern') {
+      if (param.right.type === 'Literal') {
+        args.push({name: param.left.name, defaultValue: param.right.raw})
+      }
+    }
+  }
+  return args
+}
+
 function parse(ast) {
   let className = ''
   let funcName = ''
@@ -18,55 +59,24 @@ function parse(ast) {
     comment: null
   }
 
-  function parseComments(comments) {
-    if (!Array.isArray(comments)) {
-      return null
-    }
-    const commands = []
-    let paragraph = ''
-    for (const comment of comments) {
-      const line = comment.value.trim()
-      if (line.startsWith('@')) {
-        const result = line.match(/@(\w+)( .+)?$/)
-        commands.push({
-          name: result[1],
-          value: result[2].trim(),
-        })
-      } else {
-        paragraph += line + '\n'
-      }
-    }
-    return {
-      paragraph: paragraph.trim(),
-      commands
-    }
-  }
-
-  function parseParams(params) {
-    const args = []
-    if (!Array.isArray(params)) {
-      return args
-    }
-    for (const param of params) {
-      if (param.type === 'Identifier') {
-        args.push({name: param.name})
-      } else if (param.type === 'AssignmentPattern') {
-        if (param.right.type === 'Literal') {
-          args.push({name: param.left.name, defaultValue: param.right.raw})
-        }
-      }
-    }
-    return args
-  }
-
   estraverse.traverse(ast, {
     enter: (node, parent) => {
       switch (node.type) {
         case 'ClassDeclaration':
-          item.type = 'js-function'
           item.module = node.id.name
           break
         case 'MethodDefinition':
+          switch (node.kind) {
+            case 'method':
+              item.type = 'js-function'
+              break
+            case 'get':
+              item.type = 'js-getter'
+              break
+            case 'set':
+              item.type = 'js-setter'
+              break
+          }
           item.name = node.key.name
           item.staticFunc = node.static
           item.comment = parseComments(node.leadingComments)
@@ -95,6 +105,33 @@ function parse(ast) {
       }
     }
   })
+
+  const properties = new Map()
+  for (const item of items) {
+    const key = `${item.module}#${item.name}`
+    if (item.type === 'js-getter' || item.type === 'js-setter') {
+      const prop = properties.get(key) || {type: 'js-property', readonly: true}
+      prop.module = prop.module || item.module
+      prop.name = prop.name || item.name
+      prop.comment = prop.comment || item.comment
+      if (item.type === 'js-setter') {
+        prop.readonly = false
+      }
+      if (prop.comment !== null) {
+        for (const command of prop.comment.commands) {
+          if (command.name === 'property') {
+            prop.propType = command.value
+          }
+        }
+      }
+      properties.set(key, prop)
+    }
+  }
+
+  for (const prop of properties) {
+    items.push(prop[1])
+  }
+
   return items
 }
 

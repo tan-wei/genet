@@ -34,7 +34,8 @@ function group(array) {
   for (const item of array) {
     let group = {
       name: item.module,
-      functions: []
+      functions: [],
+      properties: []
     }
     if (map.has(item.module)) {
       group = map.get(item.module)
@@ -43,6 +44,8 @@ function group(array) {
     }
     if (item.type === 'c-function' || item.type === 'js-function') {
       group.functions.push(item)
+    } else if (item.type === 'js-property') {
+      group.properties.push(item)
     }
   }
   for (const pair of map) {
@@ -60,6 +63,22 @@ function markdown(groups) {
   let doc = '# Dissector API\n'
   for (const group of groups) {
     doc += `## ${group.name}\n`
+    if (group.properties.length > 0) {
+      doc += `### Properties\n`
+      for (const prop of group.properties) {
+        doc += `#### #${prop.name} `
+        if (prop.propType) {
+          doc += `\`${prop.propType}\` `
+        }
+        if (prop.readonly) {
+          doc += `*readonly*`
+        }
+        doc += `\n\n`
+        if (prop.comment !== null) {
+          doc += prop.comment.paragraph + '\n\n'
+        }
+      }
+    }
     if (group.functions.length > 0) {
       doc += `### Functions\n`
       for (const func of group.functions) {

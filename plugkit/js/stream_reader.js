@@ -8,6 +8,8 @@ class StreamReader {
     }
   }
 
+  // Total length of the added payloads
+  // @property Integer
   get length() {
     return this._fields.length
   }

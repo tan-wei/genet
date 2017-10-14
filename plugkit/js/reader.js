@@ -176,20 +176,24 @@ class Reader {
     }
   }
 
+  // @property [Integer, Integer]
   get lastRange() {
     return this._fields.lastRange
   }
 
+  // @property [Integer, Integer]
   set lastRange(value) {
     if (Array.isArray(value) && value.length >= 2) {
       this._fields.lastRange = value.slice(0, 2)
     }
   }
 
+  // @property String
   get lastError() {
     return this._fields.lastError
   }
 
+  // @property Uint8Array
   get data() {
     return this._fields.data
   }
