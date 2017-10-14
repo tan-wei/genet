@@ -12,6 +12,7 @@ PLUGKIT_SRC = plugkit
 PLUGKIT_DST = node_modules/plugkit
 
 PLUGKIT_HEADERS = $(wildcard plugkit/include/plugkit/*.h)
+PLUGKIT_JS_FILES = $(wildcard plugkit/js/*.js)
 
 DISSECTOR_ESS = plugins/dissector/dissector-essentials
 
@@ -119,6 +120,7 @@ docs:
 	mkdir -p out
 	cp -r -f -p docs/. out/docs
 	@node scripts/generate-docs.js c-parser.js $(PLUGKIT_HEADERS) out/docs/diss-api-c.md
+	@node scripts/generate-docs.js js-parser.js $(PLUGKIT_JS_FILES) out/docs/diss-api-js.md
 	@node scripts/generate-token-docs.js plugins/token/token-wellknown/tokens.json out/docs/well-known-tokens.md
 	$(DOCSIFY) serve ./out/docs
 

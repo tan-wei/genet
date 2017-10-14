@@ -41,7 +41,7 @@ function group(array) {
     } else {
       map.set(item.module, group)
     }
-    if (item.type === 'c-function') {
+    if (item.type === 'c-function' || item.type === 'js-function') {
       group.functions.push(item)
     }
   }
@@ -57,19 +57,22 @@ function group(array) {
 }
 
 function markdown(groups) {
-  let doc = '# Dissector C API\n'
+  let doc = '# Dissector API\n'
   for (const group of groups) {
     doc += `## ${group.name}\n`
     if (group.functions.length > 0) {
       doc += `### Functions\n`
       for (const func of group.functions) {
         const args = func.args
-          .map(a => `<small style="color:#c4494c">${a.type}</small> ${a.name}`)
+          .map(a => `\`${a.type}\` ${a.name}`)
           .join(', ')
-          .replace(/\*/g, '\\*')
-        const ret = func.returnType.replace(/\*/g, '\\*')
-        doc += `#### <small style="color:#c4494c">${ret}</small> ${func.name} `
-        doc += `<small style="color:#808080">(${args})</small> \n\n`
+        const ret = func.returnType
+        if (func.type === 'c-function') {
+          doc += `#### \`${ret}\` ${func.name} `
+        } else if (func.type === 'js-function') {
+          doc += `#### ${func.module}#${func.name} `
+        }
+        doc += `(${args})\n\n`
         if (func.comment !== null) {
           doc += func.comment.paragraph + '\n\n'
         }
