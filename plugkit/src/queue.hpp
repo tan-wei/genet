@@ -8,13 +8,16 @@
 
 namespace plugkit {
 
-template <class T> class Queue final {
+template <class T>
+class Queue final {
 public:
   Queue();
   ~Queue();
   void enqueue(T value);
-  template <class It> void enqueue(It b, It e);
-  template <class It> size_t dequeue(It it, size_t max);
+  template <class It>
+  void enqueue(It b, It e);
+  template <class It>
+  size_t dequeue(It it, size_t max);
   uint32_t size() const;
   void close();
 
@@ -26,11 +29,14 @@ private:
   std::atomic<uint32_t> count;
 };
 
-template <class T> Queue<T>::Queue() {}
+template <class T>
+Queue<T>::Queue() {}
 
-template <class T> Queue<T>::~Queue() {}
+template <class T>
+Queue<T>::~Queue() {}
 
-template <class T> void Queue<T>::enqueue(T value) {
+template <class T>
+void Queue<T>::enqueue(T value) {
   std::lock_guard<std::mutex> lock(mutex);
   if (closed)
     return;
@@ -38,7 +44,9 @@ template <class T> void Queue<T>::enqueue(T value) {
   cond.notify_all();
 }
 
-template <class T> template <class It> void Queue<T>::enqueue(It b, It e) {
+template <class T>
+template <class It>
+void Queue<T>::enqueue(It b, It e) {
   std::lock_guard<std::mutex> lock(mutex);
   if (closed)
     return;
@@ -66,13 +74,15 @@ size_t Queue<T>::dequeue(It it, size_t max) {
   return num;
 }
 
-template <class T> void Queue<T>::close() {
+template <class T>
+void Queue<T>::close() {
   std::unique_lock<std::mutex> lock(mutex);
   closed = true;
   cond.notify_all();
 }
 
-template <class T> uint32_t Queue<T>::size() const {
+template <class T>
+uint32_t Queue<T>::size() const {
   return count.load(std::memory_order_relaxed);
 }
 } // namespace plugkit

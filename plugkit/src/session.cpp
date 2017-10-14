@@ -1,5 +1,4 @@
 #include "session.hpp"
-#include "script_dissector.hpp"
 #include "dissector_thread.hpp"
 #include "dissector_thread_pool.hpp"
 #include "filter_thread.hpp"
@@ -9,6 +8,7 @@
 #include "layer.hpp"
 #include "payload.hpp"
 #include "pcap.hpp"
+#include "script_dissector.hpp"
 #include "stream_dissector_thread_pool.hpp"
 #include "uvloop_logger.hpp"
 #include <atomic>
@@ -221,7 +221,6 @@ Variant Session::options() const { return d->config.options; }
 
 void Session::setDisplayFilter(const std::string &name,
                                const std::string &body) {
-
   auto filter = d->filters.find(name);
   if (body.empty()) {
     if (filter != d->filters.end()) {

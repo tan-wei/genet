@@ -15,7 +15,8 @@ public:
       std::function<void(uint32_t begin, const std::vector<char> &)>;
 
 public:
-  FilterThread(const std::string &body, const FrameStorePtr &store,
+  FilterThread(const std::string &body,
+               const FrameStorePtr &store,
                const Callback &callback);
   ~FilterThread() override;
   void enter() override;

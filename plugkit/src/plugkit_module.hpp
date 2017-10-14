@@ -7,7 +7,8 @@ namespace plugkit {
 
 class PlugkitModule final {
 public:
-  PlugkitModule(v8::Isolate *isolate, v8::Local<v8::Object> exports,
+  PlugkitModule(v8::Isolate *isolate,
+                v8::Local<v8::Object> exports,
                 bool mainThread);
   PlugkitModule(const PlugkitModule &) = delete;
   PlugkitModule &operator=(const PlugkitModule &) = delete;

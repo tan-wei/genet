@@ -25,7 +25,9 @@ class StreamDissectorThread::Private {
 public:
   Private(const Variant &options, const Callback &callback);
   ~Private();
-  void analyze(Layer *layer, bool subLayer, std::vector<Layer *> *nextLayers,
+  void analyze(Layer *layer,
+               bool subLayer,
+               std::vector<Layer *> *nextLayers,
                std::vector<Layer *> *nextSubLayers);
 
 public:
@@ -69,7 +71,9 @@ void StreamDissectorThread::enter() {
 }
 
 void StreamDissectorThread::Private::analyze(
-    Layer *layer, bool subLayer, std::vector<Layer *> *nextLayers,
+    Layer *layer,
+    bool subLayer,
+    std::vector<Layer *> *nextLayers,
     std::vector<Layer *> *nextSubLayers) {
   std::unordered_set<Token> dissectedIds;
 

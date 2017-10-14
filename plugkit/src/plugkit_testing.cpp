@@ -1,16 +1,16 @@
 #include "plugkit_testing.hpp"
 #include "attribute.hpp"
-#include "payload.hpp"
-#include "layer.hpp"
 #include "frame.hpp"
 #include "frame_view.hpp"
-#include "token.h"
+#include "layer.hpp"
 #include "null_logger.hpp"
+#include "payload.hpp"
+#include "token.h"
 #include "wrapper/attribute.hpp"
-#include "wrapper/payload.hpp"
-#include "wrapper/layer.hpp"
 #include "wrapper/frame.hpp"
+#include "wrapper/layer.hpp"
 #include "wrapper/logger.hpp"
+#include "wrapper/payload.hpp"
 #include <nan.h>
 
 #define CATCH_CONFIG_RUNNER
@@ -36,17 +36,21 @@ void createAttrInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
   Token id = Token_get(*Nan::Utf8String(info[0]));
   auto attr = new Attr(id);
   Nan::Persistent<v8::Object> persistent(AttributeWrapper::wrap(attr));
-  persistent.SetWeak(attr, [](const Nan::WeakCallbackInfo<Attr> &data) {
-    delete data.GetParameter();
-  }, Nan::WeakCallbackType::kParameter);
+  persistent.SetWeak(attr,
+                     [](const Nan::WeakCallbackInfo<Attr> &data) {
+                       delete data.GetParameter();
+                     },
+                     Nan::WeakCallbackType::kParameter);
   info.GetReturnValue().Set(persistent);
 }
 void createPayloadInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
   auto payload = new Payload();
   Nan::Persistent<v8::Object> persistent(PayloadWrapper::wrap(payload));
-  persistent.SetWeak(payload, [](const Nan::WeakCallbackInfo<Payload> &data) {
-    delete data.GetParameter();
-  }, Nan::WeakCallbackType::kParameter);
+  persistent.SetWeak(payload,
+                     [](const Nan::WeakCallbackInfo<Payload> &data) {
+                       delete data.GetParameter();
+                     },
+                     Nan::WeakCallbackType::kParameter);
   info.GetReturnValue().Set(persistent);
 }
 void createLayerInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
@@ -58,23 +62,27 @@ void createLayerInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
   layer->setFrame(frame);
   layer->setParent(parent);
   Nan::Persistent<v8::Object> persistent(LayerWrapper::wrap(layer));
-  persistent.SetWeak(layer, [](const Nan::WeakCallbackInfo<Layer> &data) {
-    Layer *layer = data.GetParameter();
-    delete layer->frame()->view();
-    delete layer->frame();
-    delete layer->parent();
-    delete layer;
-  }, Nan::WeakCallbackType::kParameter);
+  persistent.SetWeak(layer,
+                     [](const Nan::WeakCallbackInfo<Layer> &data) {
+                       Layer *layer = data.GetParameter();
+                       delete layer->frame()->view();
+                       delete layer->frame();
+                       delete layer->parent();
+                       delete layer;
+                     },
+                     Nan::WeakCallbackType::kParameter);
   info.GetReturnValue().Set(persistent);
 }
 void createFrameInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
   auto view = new FrameView(new Frame());
   Nan::Persistent<v8::Object> persistent(FrameWrapper::wrap(view));
-  persistent.SetWeak(view, [](const Nan::WeakCallbackInfo<FrameView> &data) {
-    FrameView *view = data.GetParameter();
-    delete view->frame();
-    delete view;
-  }, Nan::WeakCallbackType::kParameter);
+  persistent.SetWeak(view,
+                     [](const Nan::WeakCallbackInfo<FrameView> &data) {
+                       FrameView *view = data.GetParameter();
+                       delete view->frame();
+                       delete view;
+                     },
+                     Nan::WeakCallbackType::kParameter);
   info.GetReturnValue().Set(persistent);
 }
 } // namespace

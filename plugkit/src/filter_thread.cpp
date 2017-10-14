@@ -17,7 +17,8 @@ public:
   size_t offset = 0;
 };
 
-FilterThread::FilterThread(const std::string &body, const FrameStorePtr &store,
+FilterThread::FilterThread(const std::string &body,
+                           const FrameStorePtr &store,
                            const Callback &callback)
     : d(new Private()) {
   d->store = store;

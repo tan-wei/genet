@@ -31,7 +31,8 @@ inline void set(v8::Isolate *isolate, SubSlot slot, void *ptr) {
   }
 }
 
-template <class T> T *get(v8::Isolate *isolate, SubSlot slot) {
+template <class T>
+T *get(v8::Isolate *isolate, SubSlot slot) {
   if (auto slots = static_cast<void **>(isolate->GetData(isolateSlot))) {
     return static_cast<T *>(slots[slot]);
   } else {

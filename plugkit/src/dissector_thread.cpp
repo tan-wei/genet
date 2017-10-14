@@ -23,7 +23,8 @@ struct WorkerData {
 
 class DissectorThread::Private {
 public:
-  Private(const Variant &options, const FrameQueuePtr &queue,
+  Private(const Variant &options,
+          const FrameQueuePtr &queue,
           const Callback &callback);
   ~Private();
 
@@ -62,7 +63,6 @@ void DissectorThread::pushDissector(const Dissector &diss) {
 }
 
 void DissectorThread::enter() {
-
   for (auto &diss : d->dissectors) {
     if (diss.initialize) {
       diss.initialize(&d->ctx, &diss);

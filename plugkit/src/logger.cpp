@@ -33,8 +33,10 @@ std::string Logger::Message::toString() const {
 
 Logger::~Logger() {}
 
-void Logger::log(Level level, const std::string &message,
-                 const std::string &domain, const std::string &resourceName) {
+void Logger::log(Level level,
+                 const std::string &message,
+                 const std::string &domain,
+                 const std::string &resourceName) {
   auto msg = MessagePtr(new Message());
   msg->level = level;
   msg->message = message;
@@ -43,10 +45,10 @@ void Logger::log(Level level, const std::string &message,
   log(std::move(msg));
 }
 
-void Logger::logTrivial(Level level, const std::string &message,
+void Logger::logTrivial(Level level,
+                        const std::string &message,
                         const std::string &domain,
                         const std::string &resourceName) {
-
   auto msg = MessagePtr(new Message());
   msg->level = level;
   msg->message = message;
@@ -59,7 +61,6 @@ void Logger::logTrivial(Level level, const std::string &message,
 Logger::MessagePtr Logger::fromV8Message(v8::Local<v8::Message> msg,
                                          Logger::Level level,
                                          const std::string &domain) {
-
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   auto context = isolate->GetCurrentContext();
   MessagePtr logmsg(new Logger::Message());

@@ -16,7 +16,8 @@ using namespace plugkit;
 using StreamID = std::tuple<uint16_t, uint16_t, std::string, std::string>;
 
 namespace std {
-template <> struct hash<StreamID> {
+template <>
+struct hash<StreamID> {
 public:
   size_t operator()(const StreamID &id) const {
     return hash<uint16_t>()(std::get<0>(id)) ^

@@ -12,10 +12,12 @@ public:
   NullLogger(const NullLogger &) = delete;
   NullLogger &operator=(const NullLogger &) = delete;
   void log(MessagePtr &&msg) override;
-  void log(Level level, const std::string &message,
+  void log(Level level,
+           const std::string &message,
            const std::string &domain = "global",
            const std::string &resourceName = "") override;
-  void logTrivial(Level level, const std::string &message,
+  void logTrivial(Level level,
+                  const std::string &message,
                   const std::string &domain = "global",
                   const std::string &resourceName = "") override;
 };

@@ -8,8 +8,10 @@ namespace plugkit {
 
 class FilterThreadPool::Private {
 public:
-  Private(const std::string &body, const Variant &options,
-          const FrameStorePtr &store, const Callback &callback);
+  Private(const std::string &body,
+          const Variant &options,
+          const FrameStorePtr &store,
+          const Callback &callback);
   ~Private();
 
 public:

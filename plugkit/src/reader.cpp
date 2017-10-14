@@ -13,7 +13,8 @@ Token outOfBoundError() {
   return token;
 }
 
-template <class T> T readLE(Reader *reader) {
+template <class T>
+T readLE(Reader *reader) {
   if (Slice_length(reader->data) - reader->lastRange.end < sizeof(T)) {
     reader->lastError = outOfBoundError();
     return T();
@@ -25,7 +26,8 @@ template <class T> T readLE(Reader *reader) {
   return value;
 }
 
-template <class T> T readBE(Reader *reader) {
+template <class T>
+T readBE(Reader *reader) {
   if (Slice_length(reader->data) - reader->lastRange.end < sizeof(T)) {
     reader->lastError = outOfBoundError();
     return T();

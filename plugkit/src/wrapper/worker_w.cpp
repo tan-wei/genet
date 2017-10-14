@@ -1,12 +1,11 @@
-#include "worker.hpp"
 #include "plugkit_module.hpp"
+#include "worker.hpp"
 
 namespace plugkit {
 
 WorkerWrapper::WorkerWrapper() {}
 
 void WorkerWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
-
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Worker").ToLocalChecked());

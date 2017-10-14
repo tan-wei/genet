@@ -23,7 +23,9 @@ public:
   FrameStore(const Callback &callback);
   ~FrameStore();
   void insert(Frame **, size_t size);
-  size_t dequeue(size_t offset, size_t max, const FrameView **dst,
+  size_t dequeue(size_t offset,
+                 size_t max,
+                 const FrameView **dst,
                  std::thread::id id = std::thread::id()) const;
   size_t dequeue(size_t offset, size_t max, const Frame **dst) const;
   size_t dissectedSize() const;

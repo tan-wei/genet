@@ -25,7 +25,8 @@ public:
   using Callback = std::function<void(uint32_t)>;
 
 public:
-  StreamDissectorThreadPool(const Variant &options, const FrameStorePtr &store,
+  StreamDissectorThreadPool(const Variant &options,
+                            const FrameStorePtr &store,
                             const Callback &callback);
   ~StreamDissectorThreadPool();
   void registerDissector(const Dissector &diss);

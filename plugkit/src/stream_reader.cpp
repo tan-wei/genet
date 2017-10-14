@@ -30,8 +30,10 @@ void StreamReader_addPayload(StreamReader *reader, const Payload *payload) {
   }
 }
 
-size_t StreamReader_search(StreamReader *reader, const char *data,
-                           size_t length, size_t offset) {
+size_t StreamReader_search(StreamReader *reader,
+                           const char *data,
+                           size_t length,
+                           size_t offset) {
   if (reader->slices.empty() || length == 0) {
     return 0;
   }
@@ -71,7 +73,9 @@ size_t StreamReader_search(StreamReader *reader, const char *data,
   return 0;
 }
 
-Slice StreamReader_read(StreamReader *reader, char *buffer, size_t length,
+Slice StreamReader_read(StreamReader *reader,
+                        char *buffer,
+                        size_t length,
                         size_t offset) {
   if (reader->slices.empty()) {
     return Slice{buffer, buffer};

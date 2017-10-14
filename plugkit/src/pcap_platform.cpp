@@ -207,8 +207,8 @@ bool PcapPlatform::start() {
 
   d->thread = std::thread([this]() {
     d->pcapLoop(
-        d->pcap,
-        0, [](u_char *user, const struct pcap_pkthdr *h, const u_char *bytes) {
+        d->pcap, 0,
+        [](u_char *user, const struct pcap_pkthdr *h, const u_char *bytes) {
           PcapPlatform &self = *reinterpret_cast<PcapPlatform *>(user);
           if (self.d->callback) {
             auto layer = new Layer(self.d->tag);
@@ -231,7 +231,8 @@ bool PcapPlatform::start() {
 
             self.d->callback(frame);
           }
-        }, reinterpret_cast<u_char *>(this));
+        },
+        reinterpret_cast<u_char *>(this));
     {
       std::lock_guard<std::mutex> lock(d->mutex);
       d->pcapClose(d->pcap);

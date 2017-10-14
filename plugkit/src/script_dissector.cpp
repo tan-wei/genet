@@ -10,7 +10,7 @@ struct WorkerHolder {
   v8::UniquePersistent<v8::Object> worker;
   v8::UniquePersistent<v8::Function> analyze;
 };
-}
+} // namespace
 
 ScriptDissector::ScriptDissector(const v8::Local<v8::Function> &ctor)
     : func(v8::Isolate::GetCurrent(), ctor) {}

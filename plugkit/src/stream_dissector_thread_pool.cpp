@@ -15,7 +15,8 @@ namespace plugkit {
 
 class StreamDissectorThreadPool::Private {
 public:
-  Private(const Variant &options, const FrameStorePtr &store,
+  Private(const Variant &options,
+          const FrameStorePtr &store,
           const Callback &callback);
   ~Private();
   uint32_t updateIndex(int thread, uint32_t pushed = 0, uint32_t dissected = 0);

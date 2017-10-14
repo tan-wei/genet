@@ -11,7 +11,9 @@ typedef struct Layer Layer;
 typedef struct Context Context;
 typedef struct Dissector Dissector;
 
-typedef struct Worker { void *data; } Worker;
+typedef struct Worker {
+  void *data;
+} Worker;
 
 typedef void(IntializeFunc)(Context *ctx, Dissector *);
 typedef void(TerminateFunc)(Context *ctx, Dissector *);

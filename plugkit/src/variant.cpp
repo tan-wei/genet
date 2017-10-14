@@ -612,8 +612,8 @@ Variant *Variant_arrayValueRef(Variant *var, size_t index) {
   return &(*var)[index];
 }
 
-const Variant *Variant_mapValue(const Variant *var, const char *key,
-                                int length) {
+const Variant *
+Variant_mapValue(const Variant *var, const char *key, int length) {
   if (!var)
     return nullptr;
   if (var->isMap()) {

@@ -23,7 +23,8 @@ public:
   using Callback = std::function<void(Frame **, size_t)>;
 
 public:
-  DissectorThread(const Variant &options, const FrameQueuePtr &queue,
+  DissectorThread(const Variant &options,
+                  const FrameQueuePtr &queue,
                   const Callback &callback);
   ~DissectorThread() override;
   void pushDissector(const Dissector &diss);

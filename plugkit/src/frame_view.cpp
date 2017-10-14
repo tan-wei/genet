@@ -9,19 +9,19 @@ namespace plugkit {
 FrameView::FrameView(Frame *frame) : mFrame(frame), mPrimaryLayer(nullptr) {
   frame->setView(this);
 
-  std::function<void(const Layer *)> findLeafLayers = [this, &findLeafLayers](
-      const Layer *layer) {
-    if (!layer)
-      return;
-    mLayers.push_back(layer);
-    if (layer->layers().empty()) {
-      mLeafLayers.push_back(layer);
-    } else {
-      for (const Layer *child : layer->layers()) {
-        findLeafLayers(child);
-      }
-    }
-  };
+  std::function<void(const Layer *)> findLeafLayers =
+      [this, &findLeafLayers](const Layer *layer) {
+        if (!layer)
+          return;
+        mLayers.push_back(layer);
+        if (layer->layers().empty()) {
+          mLeafLayers.push_back(layer);
+        } else {
+          for (const Layer *child : layer->layers()) {
+            findLeafLayers(child);
+          }
+        }
+      };
   findLeafLayers(mFrame->rootLayer());
 
   if (!mLeafLayers.empty()) {

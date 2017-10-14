@@ -95,12 +95,12 @@ PLUGKIT_EXPORT void Attr_setSlice(Attr *prop, Slice slice);
 PLUGKIT_EXPORT const Variant *Attr_arrayValue(const Attr *prop, size_t index);
 
 /// Gets a value associated with a given key
-PLUGKIT_EXPORT const Variant *Attr_mapValue(const Attr *prop, const char *key,
-                                            int length);
+PLUGKIT_EXPORT const Variant *
+Attr_mapValue(const Attr *prop, const char *key, int length);
 
 /// Gets a mutable value associated with a given key
-PLUGKIT_EXPORT Variant *Attr_mapValueRef(Attr *prop, const char *key,
-                                         int length);
+PLUGKIT_EXPORT Variant *
+Attr_mapValueRef(Attr *prop, const char *key, int length);
 
 PLUGKIT_NAMESPACE_END
 

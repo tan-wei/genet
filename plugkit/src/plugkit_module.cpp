@@ -1,4 +1,5 @@
 #include "plugkit_module.hpp"
+#include "embedded_files.hpp"
 #include "extended_slot.hpp"
 #include "plugkit_testing.hpp"
 #include "token.h"
@@ -13,7 +14,6 @@
 #include "wrapper/session.hpp"
 #include "wrapper/session_factory.hpp"
 #include "wrapper/worker.hpp"
-#include "embedded_files.hpp"
 
 namespace plugkit {
 
@@ -37,7 +37,8 @@ NAN_METHOD(Token_string_wrap) {
 } // namespace
 
 PlugkitModule::PlugkitModule(v8::Isolate *isolate,
-                             v8::Local<v8::Object> exports, bool mainThread) {
+                             v8::Local<v8::Object> exports,
+                             bool mainThread) {
   ExtendedSlot::set(isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE, this);
   Variant::init(isolate);
   AttributeWrapper::init(isolate);

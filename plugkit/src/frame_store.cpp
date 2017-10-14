@@ -72,7 +72,9 @@ size_t FrameStore::dequeue(size_t offset, size_t max, const Frame **dst) const {
   return read;
 }
 
-size_t FrameStore::dequeue(size_t offset, size_t max, const FrameView **dst,
+size_t FrameStore::dequeue(size_t offset,
+                           size_t max,
+                           const FrameView **dst,
                            std::thread::id id) const {
   std::unique_lock<std::mutex> lock(d->mutex);
   size_t read = 0;

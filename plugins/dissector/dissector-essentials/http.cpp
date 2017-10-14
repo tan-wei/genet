@@ -62,7 +62,9 @@ bool HTTPWorker::analyze_start(Context *ctx, Layer *layer) {
   return false;
 }
 
-bool HTTPWorker::analyze_header(Context *ctx, Layer *layer, Layer *child,
+bool HTTPWorker::analyze_header(Context *ctx,
+                                Layer *layer,
+                                Layer *child,
                                 Attr *headers) {
   size_t index = StreamReader_search(reader, "\r\n", 2, offset);
 
@@ -128,9 +130,10 @@ bool HTTPWorker::analyze_header(Context *ctx, Layer *layer, Layer *child,
   return true;
 }
 
-bool HTTPWorker::analyze_body(Context *ctx, Layer *layer, Layer *child,
+bool HTTPWorker::analyze_body(Context *ctx,
+                              Layer *layer,
+                              Layer *child,
                               Attr *headers) {
-
   size_t httpLength = contentLength + headerLength;
   if (chunked) {
     /*

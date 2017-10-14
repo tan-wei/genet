@@ -21,8 +21,10 @@ public:
   using Callback = std::function<void()>;
 
 public:
-  FilterThreadPool(const std::string &body, const Variant &options,
-                   const FrameStorePtr &store, const Callback &callback);
+  FilterThreadPool(const std::string &body,
+                   const Variant &options,
+                   const FrameStorePtr &store,
+                   const Callback &callback);
   ~FilterThreadPool();
   void start();
   void setLogger(const LoggerPtr &logger);

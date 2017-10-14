@@ -70,8 +70,8 @@ PLUGKIT_EXPORT void Variant_setDouble(Variant *var, double value);
 PLUGKIT_EXPORT const char *Variant_string(const Variant *var);
 
 /// Sets a string value
-PLUGKIT_EXPORT void Variant_setString(Variant *var, const char *str,
-                                      int length);
+PLUGKIT_EXPORT void
+Variant_setString(Variant *var, const char *str, int length);
 
 /// Gets a slice value
 PLUGKIT_EXPORT Slice Variant_slice(const Variant *var);
@@ -87,12 +87,12 @@ PLUGKIT_EXPORT const Variant *Variant_arrayValue(const Variant *var,
 PLUGKIT_EXPORT Variant *Variant_arrayValueRef(Variant *var, size_t index);
 
 /// Gets a value associated with a given key
-PLUGKIT_EXPORT const Variant *Variant_mapValue(const Variant *var,
-                                               const char *key, int length);
+PLUGKIT_EXPORT const Variant *
+Variant_mapValue(const Variant *var, const char *key, int length);
 
 /// Gets a mutable value associated with a given key
-PLUGKIT_EXPORT Variant *Variant_mapValueRef(Variant *var, const char *key,
-                                            int length);
+PLUGKIT_EXPORT Variant *
+Variant_mapValueRef(Variant *var, const char *key, int length);
 
 PLUGKIT_NAMESPACE_END
 

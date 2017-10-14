@@ -40,10 +40,12 @@ public:
 public:
   virtual ~Logger();
   virtual void log(MessagePtr &&msg) = 0;
-  virtual void log(Level level, const std::string &message,
+  virtual void log(Level level,
+                   const std::string &message,
                    const std::string &domain = "global",
                    const std::string &resourceName = "");
-  virtual void logTrivial(Level level, const std::string &message,
+  virtual void logTrivial(Level level,
+                          const std::string &message,
                           const std::string &domain = "global",
                           const std::string &resourceName = "");
 
