@@ -3,6 +3,7 @@
 
 #include "logger.hpp"
 #include "token.h"
+#include "types.hpp"
 #include "variant.hpp"
 #include <memory>
 #include <string>

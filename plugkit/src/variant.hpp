@@ -1,7 +1,6 @@
 #ifndef PLUGKIT_VARIANT_HPP
 #define PLUGKIT_VARIANT_HPP
 
-#include "types.hpp"
 #include "variant.h"
 #include <json11.hpp>
 #include <memory>
@@ -14,20 +13,6 @@ namespace plugkit {
 
 struct Variant final {
 public:
-  enum Type {
-    TYPE_NIL,
-    TYPE_BOOL,
-    TYPE_INT32,
-    TYPE_UINT32,
-    TYPE_INT64,
-    TYPE_UINT64,
-    TYPE_DOUBLE,
-    TYPE_STRING,
-    TYPE_SLICE,
-    TYPE_ARRAY,
-    TYPE_MAP,
-    TYPE_MASK = 0x0f
-  };
   using Array = std::vector<Variant>;
   using Map = std::unordered_map<std::string, Variant>;
 
@@ -53,7 +38,7 @@ public:
   Variant &operator=(const Variant &value);
 
 public:
-  Type type() const;
+  VariantType type() const;
   bool isNil() const;
   bool isBool() const;
   bool isInt32() const;

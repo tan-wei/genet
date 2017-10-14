@@ -27,9 +27,9 @@ void Variant::init(v8::Isolate *isolate) {
   module->arrayToBuffer.Reset(isolate, func);
 }
 
-Variant::Variant() : type_(TYPE_NIL) {}
+Variant::Variant() : type_(VARTYPE_NIL) {}
 
-Variant::Variant(bool value) : type_(TYPE_BOOL) { d.bool_ = value; }
+Variant::Variant(bool value) : type_(VARTYPE_BOOL) { d.bool_ = value; }
 
 Variant::Variant(int8_t value) : Variant(static_cast<double>(value)) {}
 
@@ -39,21 +39,21 @@ Variant::Variant(int16_t value) : Variant(static_cast<double>(value)) {}
 
 Variant::Variant(uint16_t value) : Variant(static_cast<double>(value)) {}
 
-Variant::Variant(int32_t value) : type_(TYPE_INT32) { d.int_ = value; }
+Variant::Variant(int32_t value) : type_(VARTYPE_INT32) { d.int_ = value; }
 
-Variant::Variant(uint32_t value) : type_(TYPE_UINT32) { d.uint_ = value; }
+Variant::Variant(uint32_t value) : type_(VARTYPE_UINT32) { d.uint_ = value; }
 
-Variant::Variant(int64_t value) : type_(TYPE_INT64) { d.int_ = value; }
+Variant::Variant(int64_t value) : type_(VARTYPE_INT64) { d.int_ = value; }
 
-Variant::Variant(uint64_t value) : type_(TYPE_UINT64) { d.uint_ = value; }
+Variant::Variant(uint64_t value) : type_(VARTYPE_UINT64) { d.uint_ = value; }
 
-Variant::Variant(double value) : type_(TYPE_DOUBLE) { d.double_ = value; }
+Variant::Variant(double value) : type_(VARTYPE_DOUBLE) { d.double_ = value; }
 
-Variant::Variant(const std::string &str) : type_(TYPE_STRING) {
+Variant::Variant(const std::string &str) : type_(VARTYPE_STRING) {
   if (str.empty()) {
     d.str = nullptr;
   } else if (str.size() < sizeof(d.str)) {
-    type_ = TYPE_STRING | (str.size() << 4);
+    type_ = VARTYPE_STRING | (str.size() << 4);
     d.str = nullptr;
     str.copy(reinterpret_cast<char *>(&d.str), sizeof(d.str));
   } else {
@@ -61,30 +61,30 @@ Variant::Variant(const std::string &str) : type_(TYPE_STRING) {
   }
 }
 
-Variant::Variant(const Array &array) : type_(TYPE_ARRAY) {
+Variant::Variant(const Array &array) : type_(VARTYPE_ARRAY) {
   d.array = new Array(array);
 }
 
-Variant::Variant(const Map &map) : type_(TYPE_MAP) { d.map = new Map(map); }
+Variant::Variant(const Map &map) : type_(VARTYPE_MAP) { d.map = new Map(map); }
 
-Variant::Variant(const Slice &slice) : type_(TYPE_SLICE) {
+Variant::Variant(const Slice &slice) : type_(VARTYPE_SLICE) {
   d.slice = new Slice(slice);
 }
 
 Variant::~Variant() {
   switch (type()) {
-  case Variant::TYPE_STRING:
+  case VARTYPE_STRING:
     if (tag() == 0) {
       delete d.str;
     }
     break;
-  case Variant::TYPE_SLICE:
+  case VARTYPE_SLICE:
     delete d.slice;
     break;
-  case Variant::TYPE_ARRAY:
+  case VARTYPE_ARRAY:
     delete d.array;
     break;
-  case Variant::TYPE_MAP:
+  case VARTYPE_MAP:
     delete d.map;
     break;
   default:;
@@ -97,20 +97,20 @@ Variant &Variant::operator=(const Variant &value) {
   this->type_ = value.type_;
   this->d = value.d;
   switch (this->type()) {
-  case Variant::TYPE_STRING:
+  case VARTYPE_STRING:
     if (value.d.str && tag() == 0) {
       this->d.str = new std::shared_ptr<std::string>(*value.d.str);
     } else {
       this->d.str = value.d.str;
     }
     break;
-  case Variant::TYPE_SLICE:
+  case VARTYPE_SLICE:
     this->d.slice = new Slice(*value.d.slice);
     break;
-  case Variant::TYPE_ARRAY:
+  case VARTYPE_ARRAY:
     this->d.array = new Array(*value.d.array);
     break;
-  case Variant::TYPE_MAP:
+  case VARTYPE_MAP:
     this->d.map = new Map(*value.d.map);
     break;
   default:;
@@ -118,120 +118,120 @@ Variant &Variant::operator=(const Variant &value) {
   return *this;
 }
 
-Variant::Type Variant::type() const {
-  return static_cast<Type>(type_ & TYPE_MASK);
+VariantType Variant::type() const {
+  return static_cast<VariantType>(type_ & 0x0f);
 }
 
-bool Variant::isNil() const { return type() == TYPE_NIL; }
+bool Variant::isNil() const { return type() == VARTYPE_NIL; }
 
-bool Variant::isBool() const { return type() == TYPE_BOOL; }
+bool Variant::isBool() const { return type() == VARTYPE_BOOL; }
 
 bool Variant::boolValue(bool defaultValue) const {
   switch (type()) {
-  case TYPE_BOOL:
+  case VARTYPE_BOOL:
     return d.bool_;
-  case TYPE_INT32:
-  case TYPE_INT64:
+  case VARTYPE_INT32:
+  case VARTYPE_INT64:
     return d.int_;
-  case TYPE_UINT32:
-  case TYPE_UINT64:
+  case VARTYPE_UINT32:
+  case VARTYPE_UINT64:
     return d.uint_;
-  case TYPE_DOUBLE:
+  case VARTYPE_DOUBLE:
     return d.double_;
   default:
     return defaultValue;
   }
 }
 
-bool Variant::isInt32() const { return type() == TYPE_INT32; }
+bool Variant::isInt32() const { return type() == VARTYPE_INT32; }
 
 int32_t Variant::int32Value(int32_t defaultValue) const {
   switch (type()) {
-  case TYPE_BOOL:
+  case VARTYPE_BOOL:
     return d.bool_;
-  case TYPE_INT32:
-  case TYPE_INT64:
+  case VARTYPE_INT32:
+  case VARTYPE_INT64:
     return d.int_;
-  case TYPE_UINT32:
-  case TYPE_UINT64:
+  case VARTYPE_UINT32:
+  case VARTYPE_UINT64:
     return d.uint_;
-  case TYPE_DOUBLE:
+  case VARTYPE_DOUBLE:
     return d.double_;
   default:
     return defaultValue;
   }
 }
 
-bool Variant::isInt64() const { return type() == TYPE_INT64; }
+bool Variant::isInt64() const { return type() == VARTYPE_INT64; }
 
 int64_t Variant::int64Value(int64_t defaultValue) const {
   switch (type()) {
-  case TYPE_BOOL:
+  case VARTYPE_BOOL:
     return d.bool_;
-  case TYPE_INT32:
-  case TYPE_INT64:
+  case VARTYPE_INT32:
+  case VARTYPE_INT64:
     return d.int_;
-  case TYPE_UINT32:
-  case TYPE_UINT64:
+  case VARTYPE_UINT32:
+  case VARTYPE_UINT64:
     return d.uint_;
-  case TYPE_DOUBLE:
+  case VARTYPE_DOUBLE:
     return d.double_;
   default:
     return defaultValue;
   }
 }
 
-bool Variant::isUint32() const { return type() == TYPE_UINT32; }
+bool Variant::isUint32() const { return type() == VARTYPE_UINT32; }
 
 uint32_t Variant::uint32Value(uint32_t defaultValue) const {
   switch (type()) {
-  case TYPE_BOOL:
+  case VARTYPE_BOOL:
     return d.bool_;
-  case TYPE_INT32:
-  case TYPE_INT64:
+  case VARTYPE_INT32:
+  case VARTYPE_INT64:
     return d.int_;
-  case TYPE_UINT32:
-  case TYPE_UINT64:
+  case VARTYPE_UINT32:
+  case VARTYPE_UINT64:
     return d.uint_;
-  case TYPE_DOUBLE:
+  case VARTYPE_DOUBLE:
     return d.double_;
   default:
     return defaultValue;
   }
 }
 
-bool Variant::isUint64() const { return type() == TYPE_UINT64; }
+bool Variant::isUint64() const { return type() == VARTYPE_UINT64; }
 
 uint64_t Variant::uint64Value(uint64_t defaultValue) const {
   switch (type()) {
-  case TYPE_BOOL:
+  case VARTYPE_BOOL:
     return d.bool_;
-  case TYPE_INT32:
-  case TYPE_INT64:
+  case VARTYPE_INT32:
+  case VARTYPE_INT64:
     return d.int_;
-  case TYPE_UINT32:
-  case TYPE_UINT64:
+  case VARTYPE_UINT32:
+  case VARTYPE_UINT64:
     return d.uint_;
-  case TYPE_DOUBLE:
+  case VARTYPE_DOUBLE:
     return d.double_;
   default:
     return defaultValue;
   }
 }
 
-bool Variant::isDouble() const { return type() == TYPE_DOUBLE; }
+bool Variant::isDouble() const { return type() == VARTYPE_DOUBLE; }
 
 double Variant::doubleValue(double defaultValue) const {
   switch (type()) {
-  case TYPE_BOOL:
+  case VARTYPE_BOOL:
     return d.bool_;
-  case TYPE_INT32:
-  case TYPE_INT64:
+  case VARTYPE_INT32:
+  case VARTYPE_INT64:
     return d.int_;
-  case TYPE_UINT32:
-  case TYPE_UINT64:
+  case VARTYPE_UINT32:
+  case VARTYPE_UINT64:
     return d.uint_;
-  case TYPE_DOUBLE:
+  case VARTYPE_DOUBLE:
     return d.double_;
   default:
     return defaultValue;
@@ -240,7 +240,7 @@ double Variant::doubleValue(double defaultValue) const {
 
 std::string Variant::string(const std::string &defaultValue) const {
   switch (type()) {
-  case TYPE_STRING:
+  case VARTYPE_STRING:
     if (d.str) {
       if (tag() == 0) {
         return **d.str;
@@ -250,15 +250,15 @@ std::string Variant::string(const std::string &defaultValue) const {
     } else {
       return std::string();
     }
-  case TYPE_BOOL:
+  case VARTYPE_BOOL:
     return boolValue() ? "true" : "false";
-  case TYPE_INT32:
-  case TYPE_INT64:
+  case VARTYPE_INT32:
+  case VARTYPE_INT64:
     return std::to_string(int64Value());
-  case TYPE_UINT32:
-  case TYPE_UINT64:
+  case VARTYPE_UINT32:
+  case VARTYPE_UINT64:
     return std::to_string(uint64Value());
-  case TYPE_DOUBLE:
+  case VARTYPE_DOUBLE:
     return std::to_string(doubleValue());
   default:
     return defaultValue;
@@ -274,7 +274,7 @@ Slice Variant::slice() const {
 }
 
 const Variant::Array &Variant::array() const {
-  if (type() == TYPE_ARRAY) {
+  if (type() == VARTYPE_ARRAY) {
     return *d.array;
   } else {
     return nullArray;
@@ -282,7 +282,7 @@ const Variant::Array &Variant::array() const {
 }
 
 const Variant::Map &Variant::map() const {
-  if (type() == TYPE_MAP) {
+  if (type() == VARTYPE_MAP) {
     return *d.map;
   } else {
     return nullMap;
@@ -290,7 +290,7 @@ const Variant::Map &Variant::map() const {
 }
 
 Variant Variant::operator[](size_t index) const {
-  if (type() == TYPE_ARRAY && index < d.array->size()) {
+  if (type() == VARTYPE_ARRAY && index < d.array->size()) {
     return (*d.array)[index];
   } else {
     return Variant();
@@ -298,7 +298,7 @@ Variant Variant::operator[](size_t index) const {
 }
 
 Variant &Variant::operator[](size_t index) {
-  if (type() == TYPE_ARRAY) {
+  if (type() == VARTYPE_ARRAY) {
     if (index >= d.array->size()) {
       d.array->resize(index + 1);
     }
@@ -309,7 +309,7 @@ Variant &Variant::operator[](size_t index) {
 }
 
 Variant Variant::operator[](const std::string &key) const {
-  if (type() == TYPE_MAP) {
+  if (type() == VARTYPE_MAP) {
     auto it = d.map->find(key);
     if (it != d.map->end()) {
       return it->second;
@@ -319,7 +319,7 @@ Variant Variant::operator[](const std::string &key) const {
 }
 
 Variant &Variant::operator[](const std::string &key) {
-  if (type() == TYPE_MAP) {
+  if (type() == VARTYPE_MAP) {
     return (*d.map)[key];
   }
   static Variant null;
@@ -327,9 +327,9 @@ Variant &Variant::operator[](const std::string &key) {
 }
 
 size_t Variant::length() const {
-  if (type() == TYPE_ARRAY) {
+  if (type() == VARTYPE_ARRAY) {
     return d.array->size();
-  } else if (type() == TYPE_MAP) {
+  } else if (type() == VARTYPE_MAP) {
     return d.map->size();
   }
   return 0;
@@ -337,13 +337,13 @@ size_t Variant::length() const {
 
 uint8_t Variant::tag() const { return type_ >> 4; }
 
-bool Variant::isString() const { return type() == TYPE_STRING; }
+bool Variant::isString() const { return type() == VARTYPE_STRING; }
 
-bool Variant::isSlice() const { return type() == TYPE_SLICE; }
+bool Variant::isSlice() const { return type() == VARTYPE_SLICE; }
 
-bool Variant::isArray() const { return type() == TYPE_ARRAY; }
+bool Variant::isArray() const { return type() == VARTYPE_ARRAY; }
 
-bool Variant::isMap() const { return type() == TYPE_MAP; }
+bool Variant::isMap() const { return type() == VARTYPE_MAP; }
 
 v8::Local<v8::Object> Variant::getNodeBuffer(const Slice &slice) {
   using namespace v8;
@@ -382,21 +382,21 @@ Slice Variant::getSlice(v8::Local<v8::ArrayBufferView> obj) {
 
 v8::Local<v8::Value> Variant::getValue(const Variant &var) {
   switch (var.type()) {
-  case TYPE_BOOL:
+  case VARTYPE_BOOL:
     return Nan::New(var.boolValue());
-  case TYPE_INT32:
+  case VARTYPE_INT32:
     return Nan::New(var.int32Value());
-  case TYPE_INT64:
+  case VARTYPE_INT64:
     return Nan::New(std::to_string(var.int64Value())).ToLocalChecked();
-  case TYPE_UINT32:
+  case VARTYPE_UINT32:
     return Nan::New(var.uint32Value());
-  case TYPE_UINT64:
+  case VARTYPE_UINT64:
     return Nan::New(std::to_string(var.uint64Value())).ToLocalChecked();
-  case TYPE_DOUBLE:
+  case VARTYPE_DOUBLE:
     return Nan::New(var.doubleValue());
-  case TYPE_STRING:
+  case VARTYPE_STRING:
     return Nan::New(var.string()).ToLocalChecked();
-  case TYPE_ARRAY: {
+  case VARTYPE_ARRAY: {
     const auto &array = var.array();
     auto obj = Nan::New<v8::Array>(array.size());
     for (size_t i = 0; i < array.size(); ++i) {
@@ -404,7 +404,7 @@ v8::Local<v8::Value> Variant::getValue(const Variant &var) {
     }
     return obj;
   }
-  case TYPE_MAP: {
+  case VARTYPE_MAP: {
     const auto &map = var.map();
     auto obj = Nan::New<v8::Object>();
     for (const auto &pair : map) {
@@ -412,7 +412,7 @@ v8::Local<v8::Value> Variant::getValue(const Variant &var) {
     }
     return obj;
   }
-  case TYPE_SLICE:
+  case VARTYPE_SLICE:
     return getNodeBuffer(var.slice());
   default:
     return Nan::Null();
@@ -423,39 +423,39 @@ json11::Json Variant::getJson(const Variant &var) {
   using namespace json11;
   Json::object json;
   switch (var.type()) {
-  case Variant::TYPE_NIL:
+  case VARTYPE_NIL:
     json["type"] = "nil";
     json["value"] = Json();
     break;
-  case Variant::TYPE_BOOL:
+  case VARTYPE_BOOL:
     json["type"] = "bool";
     json["value"] = var.boolValue();
     break;
-  case Variant::TYPE_INT32:
+  case VARTYPE_INT32:
     json["type"] = "int32";
     json["value"] = var.doubleValue();
     break;
-  case Variant::TYPE_UINT32:
+  case VARTYPE_UINT32:
     json["type"] = "uint32";
     json["value"] = var.doubleValue();
     break;
-  case Variant::TYPE_INT64:
+  case VARTYPE_INT64:
     json["type"] = "int64";
     json["value"] = var.string();
     break;
-  case Variant::TYPE_UINT64:
+  case VARTYPE_UINT64:
     json["type"] = "uint64";
     json["value"] = var.string();
     break;
-  case Variant::TYPE_DOUBLE:
+  case VARTYPE_DOUBLE:
     json["type"] = "double";
     json["value"] = var.doubleValue();
     break;
-  case Variant::TYPE_STRING:
+  case VARTYPE_STRING:
     json["type"] = "string";
     json["value"] = var.string();
     break;
-  case Variant::TYPE_SLICE:
+  case VARTYPE_SLICE:
     json["type"] = "slice";
     {
       std::stringstream stream;
@@ -469,7 +469,7 @@ json11::Json Variant::getJson(const Variant &var) {
       json["value"] = stream.str();
     }
     break;
-  case Variant::TYPE_ARRAY:
+  case VARTYPE_ARRAY:
     json["type"] = "array";
     {
       Json::array array;
@@ -479,7 +479,7 @@ json11::Json Variant::getJson(const Variant &var) {
       json["value"] = array;
     }
     break;
-  case Variant::TYPE_MAP:
+  case VARTYPE_MAP:
     json["type"] = "map";
     {
       Json::object object;
@@ -526,6 +526,10 @@ Variant Variant::getVariant(v8::Local<v8::Value> var) {
   }
   return Variant();
 }
+
+VariantType Variant_type(const Variant *var) { return var->type(); }
+
+void Variant_setNil(Variant *var) { *var = Variant(); }
 
 bool Variant_bool(const Variant *var) {
   if (!var)

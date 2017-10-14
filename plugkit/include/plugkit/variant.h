@@ -8,7 +8,27 @@
 
 PLUGKIT_NAMESPACE_BEGIN
 
+typedef enum VariantType {
+  VARTYPE_NIL = 0,
+  VARTYPE_BOOL = 1,
+  VARTYPE_INT32 = 2,
+  VARTYPE_UINT32 = 3,
+  VARTYPE_INT64 = 4,
+  VARTYPE_UINT64 = 5,
+  VARTYPE_DOUBLE = 6,
+  VARTYPE_STRING = 7,
+  VARTYPE_SLICE = 8,
+  VARTYPE_ARRAY = 9,
+  VARTYPE_MAP = 10
+} VariantType;
+
 typedef struct Variant Variant;
+
+/// Variant type
+PLUGKIT_EXPORT VariantType Variant_type(const Variant *var);
+
+/// Sets a nil value
+PLUGKIT_EXPORT void Variant_setNil(Variant *var);
 
 /// Gets a boolean value
 PLUGKIT_EXPORT bool Variant_bool(const Variant *var);

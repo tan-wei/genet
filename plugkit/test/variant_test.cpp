@@ -7,6 +7,39 @@ using namespace plugkit;
 
 namespace {
 
+TEST_CASE("Variant_type", "[variant]") {
+  Variant variant;
+  CHECK(Variant_type(&variant) == VARTYPE_NIL);
+  Variant_setBool(&variant, false);
+  CHECK(Variant_type(&variant) == VARTYPE_BOOL);
+  Variant_setInt32(&variant, 0);
+  CHECK(Variant_type(&variant) == VARTYPE_INT32);
+  Variant_setUint32(&variant, 0);
+  CHECK(Variant_type(&variant) == VARTYPE_UINT32);
+  Variant_setInt64(&variant, 0);
+  CHECK(Variant_type(&variant) == VARTYPE_INT64);
+  Variant_setUint64(&variant, 0);
+  CHECK(Variant_type(&variant) == VARTYPE_UINT64);
+  Variant_setDouble(&variant, 0.0);
+  CHECK(Variant_type(&variant) == VARTYPE_DOUBLE);
+  Variant_setString(&variant, "HELLO", -1);
+  CHECK(Variant_type(&variant) == VARTYPE_STRING);
+  Variant_setSlice(&variant, Slice());
+  CHECK(Variant_type(&variant) == VARTYPE_SLICE);
+  Variant_arrayValueRef(&variant, 0);
+  CHECK(Variant_type(&variant) == VARTYPE_ARRAY);
+  Variant_mapValueRef(&variant, "aaa", -1);
+  CHECK(Variant_type(&variant) == VARTYPE_MAP);
+  Variant_setNil(&variant);
+  CHECK(Variant_type(&variant) == VARTYPE_NIL);
+}
+
+TEST_CASE("Variant_setNil", "[variant]") {
+  Variant variant;
+  Variant_setNil(&variant);
+  CHECK(Variant_type(&variant) == VARTYPE_NIL);
+}
+
 TEST_CASE("Variant_bool", "[variant]") {
   Variant variant;
   CHECK(Variant_bool(&variant) == false);
