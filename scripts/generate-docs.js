@@ -19,7 +19,7 @@ function uniqify(array) {
   const set = new Set()
   const unique = []
   for (const item of array) {
-    const id = item.type + ' : ' + item.name
+    const id = `${item.type}@${item.module}@${item.name}`
     if (!set.has(id)) {
       unique.push(item)
       set.add(id)
