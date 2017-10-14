@@ -122,7 +122,6 @@ docs:
 	@node scripts/generate-docs.js c-parser.js $(PLUGKIT_HEADERS) out/docs/diss-api-c.md
 	@node scripts/generate-docs.js js-parser.js $(PLUGKIT_JS_FILES) out/docs/diss-api-js.md
 	@node scripts/generate-token-docs.js plugins/token/token-wellknown/tokens.json out/docs/well-known-tokens.md
-	$(DOCSIFY) serve ./out/docs
 
 fmt:
 	$(MAKE) fmt -C $(PLUGKIT_SRC)
