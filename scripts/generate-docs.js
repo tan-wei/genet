@@ -69,10 +69,15 @@ function markdown(groups) {
         const ret = func.returnType
         if (func.type === 'c-function') {
           doc += `#### \`${ret}\` ${func.name} `
+          doc += `(${args})\n\n`
         } else if (func.type === 'js-function') {
-          doc += `#### ${func.module}#${func.name} `
+          doc += `#### #${func.name} `
+          doc += `(${args})`
+          if (func.returnType) {
+            doc += ` -> \`${func.returnType}\``
+          }
+          doc += `\n\n`
         }
-        doc += `(${args})\n\n`
         if (func.comment !== null) {
           doc += func.comment.paragraph + '\n\n'
         }

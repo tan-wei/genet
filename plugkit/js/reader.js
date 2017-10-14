@@ -1,4 +1,5 @@
 class Reader {
+  // @return Reader
   constructor(data) {
     if (!(data instanceof Uint8Array)) {
       throw new TypeError('First argument must be an Uint8Array')
@@ -17,6 +18,7 @@ class Reader {
     }
   }
 
+  // @return UInt8Array
   slice(begin, end) {
     if (!Number.isInteger(begin)) {
       throw new TypeError('First argument must be an integer')
@@ -41,6 +43,7 @@ class Reader {
     return slice
   }
 
+  // @return UInt8Array
   sliceAll(begin = 0) {
     if (!Number.isInteger(begin)) {
       throw new TypeError('First argument must be an integer')
@@ -58,6 +61,8 @@ class Reader {
     return slice
   }
 
+  // Returns an unsigned 8-bit integer
+  // @return Integer
   getUint8() {
     try {
       const value = this._fields.getDateView().getUint8(this._fields.lastRange[1])
@@ -69,6 +74,7 @@ class Reader {
     }
   }
 
+  // @return Integer
   getInt8() {
     try {
       const value = this._fields.getDateView().getInt8(this._fields.lastRange[1])
@@ -80,6 +86,7 @@ class Reader {
     }
   }
 
+  // @return Integer
   getUint16(littleEndian = false) {
     if (typeof littleEndian !== 'boolean') {
       throw new TypeError('First argument must be boolean')
@@ -94,6 +101,7 @@ class Reader {
     }
   }
 
+  // @return Integer
   getUint32(littleEndian = false) {
     if (typeof littleEndian !== 'boolean') {
       throw new TypeError('First argument must be boolean')
@@ -108,6 +116,7 @@ class Reader {
     }
   }
 
+  // @return Integer
   getInt16(littleEndian = false) {
     if (typeof littleEndian !== 'boolean') {
       throw new TypeError('First argument must be boolean')
@@ -122,6 +131,7 @@ class Reader {
     }
   }
 
+  // @return Integer
   getInt32(littleEndian = false) {
     if (typeof littleEndian !== 'boolean') {
       throw new TypeError('First argument must be boolean')
@@ -136,6 +146,7 @@ class Reader {
     }
   }
 
+  // @return Double
   getFloat32(littleEndian = false) {
     if (typeof littleEndian !== 'boolean') {
       throw new TypeError('First argument must be boolean')
@@ -150,6 +161,7 @@ class Reader {
     }
   }
 
+  // @return Double
   getFloat64(littleEndian = false) {
     if (typeof littleEndian !== 'boolean') {
       throw new TypeError('First argument must be boolean')

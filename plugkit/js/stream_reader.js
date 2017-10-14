@@ -1,4 +1,6 @@
 class StreamReader {
+
+  // @return StreamReader
   constructor() {
     this._fields = {
       length: 0,
@@ -28,6 +30,7 @@ class StreamReader {
     this._fields.slices.push(slice)
   }
 
+  // @return Uint8Array | null
   search(pattern, length, offset = 0) {
     if (!(pattern instanceof Uint8Array) && typeof pattern !== 'string') {
       throw new TypeError('First argument must be a string or Uint8Array')
