@@ -149,11 +149,22 @@ NAN_METHOD(SessionWrapper::analyze) {
         }
         frame.length =
             obj->Get(Nan::New("length").ToLocalChecked())->Uint32Value();
-        const Variant &tsVariant = Variant::getVariant(
-            obj->Get(Nan::New("timestamp").ToLocalChecked()));
-        frame.timestamp = tsVariant.isTimestamp()
-                              ? tsVariant.timestamp()
-                              : std::chrono::system_clock::now();
+
+        auto timestamp = obj->Get(Nan::New("timestamp").ToLocalChecked());
+        if (timestamp->IsDate()) {
+          auto nsec = timestamp.As<v8::Object>()->Get(
+              Nan::New("nsec").ToLocalChecked());
+          uint64_t ts =
+              static_cast<uint64_t>(timestamp.As<v8::Date>()->ValueOf()) *
+              1000000;
+          if (nsec->IsNumber()) {
+            ts += nsec->NumberValue();
+          }
+          frame.timestamp = Timestamp(std::chrono::nanoseconds(ts));
+        } else {
+          frame.timestamp = std::chrono::system_clock::now();
+        }
+
         frame.sourceId =
             obj->Get(Nan::New("sourceId").ToLocalChecked())->Uint32Value();
         frames.push_back(std::move(frame));

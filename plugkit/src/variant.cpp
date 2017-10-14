@@ -71,15 +71,8 @@ Variant::Variant(const Slice &slice) : type_(TYPE_SLICE) {
   d.slice = new Slice(slice);
 }
 
-Variant::Variant(const Timestamp &ts) : type_(TYPE_TIMESTAMP) {
-  d.ts = new Timestamp(ts);
-}
-
 Variant::~Variant() {
   switch (type()) {
-  case Variant::TYPE_TIMESTAMP:
-    delete d.ts;
-    break;
   case Variant::TYPE_STRING:
     if (tag() == 0) {
       delete d.str;
@@ -104,9 +97,6 @@ Variant &Variant::operator=(const Variant &value) {
   this->type_ = value.type_;
   this->d = value.d;
   switch (this->type()) {
-  case Variant::TYPE_TIMESTAMP:
-    this->d.ts = new Timestamp(*value.d.ts);
-    break;
   case Variant::TYPE_STRING:
     if (value.d.str && tag() == 0) {
       this->d.str = new std::shared_ptr<std::string>(*value.d.str);
@@ -270,22 +260,7 @@ std::string Variant::string(const std::string &defaultValue) const {
     return std::to_string(uint64Value());
   case TYPE_DOUBLE:
     return std::to_string(doubleValue());
-  case TYPE_TIMESTAMP: {
-    auto tp = std::chrono::time_point_cast<std::chrono::seconds>(timestamp());
-    std::time_t ts = std::chrono::system_clock::to_time_t(tp);
-    std::stringstream stream;
-    stream << std::put_time(std::localtime(&ts), "%FT%T%z");
-    return stream.str();
-  }
   default:
-    return defaultValue;
-  }
-}
-
-Timestamp Variant::timestamp(const Timestamp &defaultValue) const {
-  if (isTimestamp()) {
-    return *d.ts;
-  } else {
     return defaultValue;
   }
 }
@@ -364,8 +339,6 @@ uint8_t Variant::tag() const { return type_ >> 4; }
 
 bool Variant::isString() const { return type() == TYPE_STRING; }
 
-bool Variant::isTimestamp() const { return type() == TYPE_TIMESTAMP; }
-
 bool Variant::isSlice() const { return type() == TYPE_SLICE; }
 
 bool Variant::isArray() const { return type() == TYPE_ARRAY; }
@@ -423,16 +396,6 @@ v8::Local<v8::Value> Variant::getValue(const Variant &var) {
     return Nan::New(var.doubleValue());
   case TYPE_STRING:
     return Nan::New(var.string()).ToLocalChecked();
-  case TYPE_TIMESTAMP: {
-    v8::Isolate *isolate = v8::Isolate::GetCurrent();
-    auto nano = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                    var.timestamp().time_since_epoch())
-                    .count();
-    auto date = v8::Date::New(isolate, nano / 1000000.0).As<v8::Object>();
-    date->Set(Nan::New("nsec").ToLocalChecked(),
-              Nan::New(static_cast<double>(nano % 1000000)));
-    return date;
-  }
   case TYPE_ARRAY: {
     const auto &array = var.array();
     auto obj = Nan::New<v8::Array>(array.size());
@@ -492,10 +455,6 @@ json11::Json Variant::getJson(const Variant &var) {
     json["type"] = "string";
     json["value"] = var.string();
     break;
-  case Variant::TYPE_TIMESTAMP:
-    json["type"] = "timestamp";
-    json["value"] = var.string();
-    break;
   case Variant::TYPE_SLICE:
     json["type"] = "slice";
     {
@@ -543,14 +502,6 @@ Variant Variant::getVariant(v8::Local<v8::Value> var) {
     return var->NumberValue();
   } else if (var->IsString()) {
     return std::string(*Nan::Utf8String(var));
-  } else if (var->IsDate()) {
-    auto nsec = var.As<v8::Object>()->Get(Nan::New("nsec").ToLocalChecked());
-    uint64_t ts =
-        static_cast<uint64_t>(var.As<v8::Date>()->ValueOf()) * 1000000;
-    if (nsec->IsNumber()) {
-      ts += var->NumberValue();
-    }
-    return Timestamp(std::chrono::nanoseconds(ts));
   } else if (var->IsArrayBufferView()) {
     return getSlice(var.As<v8::ArrayBufferView>());
   } else if (var->IsArray()) {

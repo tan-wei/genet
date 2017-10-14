@@ -23,7 +23,6 @@ public:
     TYPE_UINT64,
     TYPE_DOUBLE,
     TYPE_STRING,
-    TYPE_TIMESTAMP,
     TYPE_SLICE,
     TYPE_ARRAY,
     TYPE_MAP,
@@ -48,7 +47,6 @@ public:
   Variant(const Slice &slice);
   Variant(const Array &array);
   Variant(const Map &map);
-  Variant(const Timestamp &ts);
   Variant(void *) = delete;
   ~Variant();
   Variant(const Variant &value);
@@ -64,7 +62,6 @@ public:
   bool isUint64() const;
   bool isDouble() const;
   bool isString() const;
-  bool isTimestamp() const;
   bool isSlice() const;
   bool isArray() const;
   bool isMap() const;
@@ -76,7 +73,6 @@ public:
   int64_t int64Value(int64_t defaultValue = int64_t()) const;
   uint64_t uint64Value(uint64_t defaultValue = uint64_t()) const;
   double doubleValue(double defaultValue = double()) const;
-  Timestamp timestamp(const Timestamp &defaultValue = Timestamp()) const;
   std::string string(const std::string &defaultValue = std::string()) const;
   Slice slice() const;
   const Array &array() const;
@@ -103,7 +99,6 @@ public:
     double double_;
     int64_t int_;
     uint64_t uint_;
-    Timestamp *ts;
     std::shared_ptr<std::string> *str;
     Slice *slice;
     Array *array;
