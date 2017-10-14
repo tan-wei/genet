@@ -42,6 +42,23 @@ function parse(ast) {
     }
   }
 
+  function parseParams(params) {
+    const args = []
+    if (!Array.isArray(params)) {
+      return args
+    }
+    for (const param of params) {
+      if (param.type === 'Identifier') {
+        args.push({name: param.name})
+      } else if (param.type === 'AssignmentPattern') {
+        if (param.right.type === 'Literal') {
+          args.push({name: param.left.name, defaultValue: param.right.raw})
+        }
+      }
+    }
+    return args
+  }
+
   estraverse.traverse(ast, {
     enter: (node, parent) => {
       switch (node.type) {
@@ -63,6 +80,7 @@ function parse(ast) {
           }
           break
         case 'FunctionExpression':
+          item.args = parseParams(node.params)
           if (item.module && item.name) {
             items.push(Object.assign({}, item))
           }

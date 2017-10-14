@@ -123,6 +123,9 @@ docs:
 	@node scripts/generate-docs.js js-parser.js $(PLUGKIT_JS_FILES) out/docs/diss-api-js.md
 	@node scripts/generate-token-docs.js plugins/token/token-wellknown/tokens.json out/docs/well-known-tokens.md
 
+docs-serve: docs
+	$(DOCSIFY) serve ./out/docs
+
 fmt:
 	$(MAKE) fmt -C $(PLUGKIT_SRC)
 	$(MAKE) fmt -C $(DISSECTOR_ESS)
@@ -130,4 +133,4 @@ fmt:
 clean:
 	@rm -rf $(DEPLUG_CORE) $(PLUGKIT_DST)
 
-.PHONY: all run build fix lint pack clean fmt plugkit test dmg deb rpm winstaller docs
+.PHONY: all run build fix lint pack clean fmt plugkit test dmg deb rpm winstaller docs docs-serve

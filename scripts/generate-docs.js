@@ -63,14 +63,17 @@ function markdown(groups) {
     if (group.functions.length > 0) {
       doc += `### Functions\n`
       for (const func of group.functions) {
-        const args = func.args
-          .map(a => `\`${a.type}\` ${a.name}`)
-          .join(', ')
         const ret = func.returnType
         if (func.type === 'c-function') {
+          const args = func.args
+            .map(a => `\`${a.type}\` ${a.name}`)
+            .join(', ')
           doc += `#### \`${ret}\` ${func.name} `
           doc += `(${args})\n\n`
         } else if (func.type === 'js-function') {
+          const args = func.args
+            .map(a => a.defaultValue ? `${a.name} *= ${a.defaultValue}*` : a.name)
+            .join(', ')
           doc += `#### #${func.name} `
           doc += `(${args})`
           if (func.returnType) {
