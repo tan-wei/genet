@@ -68,7 +68,7 @@ bool HTTPWorker::analyze_header(Context *ctx,
                                 Attr *headers) {
   size_t index = StreamReader_search(reader, "\r\n", 2, offset);
 
-  if (index == 0)
+  if (index == RANGE_NPOS)
     return false;
   size_t length = index - 2 - offset;
 
