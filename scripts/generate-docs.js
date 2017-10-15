@@ -123,6 +123,11 @@ function markdown(groups) {
         }
         if (func.comment !== null) {
           doc += func.comment.paragraph + '\n\n'
+          for (const command of func.comment.commands) {
+            if (command.name === 'remark') {
+              doc += `?> ${command.value}\n`
+            }
+          }
         }
         for (const code of snippet(itemId(func))) {
           doc += '```' + code.type + '\n'
