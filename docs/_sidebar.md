@@ -1,3 +1,6 @@
+- Display Filter
+  - [Filter Examples](filter-examples.md)
+
 - API Reference
   - [Dissector JavaScript API](diss-api-js.md)
   - [Dissector C API](diss-api-c.md)
