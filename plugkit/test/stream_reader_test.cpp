@@ -68,7 +68,7 @@ TEST_CASE("StreamReader_search", "[StreamReader]") {
   offset = StreamReader_search(reader, "xfy", 3, offset);
   CHECK(offset == 300);
   offset = StreamReader_search(reader, "xfy", 3, StreamReader_length(reader));
-  CHECK(offset == 0);
+  CHECK(offset == RANGE_NPOS);
 
   StreamReader_destroy(reader);
 }

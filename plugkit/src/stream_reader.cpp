@@ -35,7 +35,7 @@ size_t StreamReader_search(StreamReader *reader,
                            size_t length,
                            size_t offset) {
   if (reader->slices.empty() || length == 0) {
-    return 0;
+    return RANGE_NPOS;
   }
   size_t beginOffset = 0;
   size_t begin = 0;
@@ -69,8 +69,7 @@ size_t StreamReader_search(StreamReader *reader,
     }
     front += sliceLen;
   }
-
-  return 0;
+  return RANGE_NPOS;
 }
 
 Slice StreamReader_read(StreamReader *reader,

@@ -2,6 +2,7 @@
 #define PLUGKIT_STREAM_READER_H
 
 #include "export.h"
+#include "range.h"
 #include "slice.h"
 
 PLUGKIT_NAMESPACE_BEGIN
