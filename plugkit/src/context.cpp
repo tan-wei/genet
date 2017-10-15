@@ -4,14 +4,13 @@
 
 namespace plugkit {
 
-void *Context_alloc(Context *ctx, size_t size) {
-  // zero initialized
-  return new char[size]();
+void *Context_alloc(Context *ctx, size_t size) { return malloc(size); }
+
+void *Context_realloc(Context *ctx, void *ptr, size_t size) {
+  return realloc(ptr, size);
 }
 
-void Context_dealloc(Context *ctx, void *ptr) {
-  delete[] static_cast<char *>(ptr);
-}
+void Context_dealloc(Context *ctx, void *ptr) { free(ptr); }
 
 const Variant *Context_options(Context *ctx) { return &ctx->options; }
 
