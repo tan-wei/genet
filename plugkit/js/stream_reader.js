@@ -32,16 +32,13 @@ class StreamReader {
     this._fields.slices.push(slice)
   }
 
-  // @return Uint8Array | null
-  search(pattern, length, offset = 0) {
+  // @return Integer
+  search(pattern, offset = 0) {
     if (!(pattern instanceof Uint8Array) && typeof pattern !== 'string') {
       throw new TypeError('First argument must be a string or Uint8Array')
     }
-    if (!Number.isInteger(length)) {
-      throw new TypeError('Second argument must be an integer')
-    }
     if (!Number.isInteger(offset)) {
-      throw new TypeError('Third argument must be an integer')
+      throw new TypeError('Second argument must be an integer')
     }
 
     const slices = this._fields.slices
@@ -49,7 +46,7 @@ class StreamReader {
     let begin = 0
     for (; begin < slices.length && (beginOffset += slices[begin].length) <= offset; ++begin);
     if (beginOffset <= offset) {
-      return null
+      return -1
     }
     beginOffset -= slices[begin].length
     let front = beginOffset

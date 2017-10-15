@@ -106,7 +106,7 @@ function parseFunctionDecl(decl) {
     }
   }
   return {
-    type: 'c-function',
+    type: 'c-func',
     module,
     name,
     returnType,

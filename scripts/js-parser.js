@@ -53,7 +53,7 @@ function parse(ast) {
 
   const items = []
   let item = {
-    type: 'js-function',
+    type: 'js-func',
     returnType: '',
     args: [],
     comment: null
@@ -68,13 +68,13 @@ function parse(ast) {
         case 'MethodDefinition':
           switch (node.kind) {
             case 'method':
-              item.type = 'js-function'
+              item.type = 'js-func'
               break
             case 'get':
-              item.type = 'js-getter'
+              item.type = 'js-get'
               break
             case 'set':
-              item.type = 'js-setter'
+              item.type = 'js-set'
               break
           }
           item.name = node.key.name
@@ -109,12 +109,12 @@ function parse(ast) {
   const properties = new Map()
   for (const item of items) {
     const key = `${item.module}#${item.name}`
-    if (item.type === 'js-getter' || item.type === 'js-setter') {
-      const prop = properties.get(key) || {type: 'js-property', readonly: true}
+    if (item.type === 'js-get' || item.type === 'js-set') {
+      const prop = properties.get(key) || {type: 'js-prop', readonly: true}
       prop.module = prop.module || item.module
       prop.name = prop.name || item.name
       prop.comment = prop.comment || item.comment
-      if (item.type === 'js-setter') {
+      if (item.type === 'js-set') {
         prop.readonly = false
       }
       if (prop.comment !== null) {

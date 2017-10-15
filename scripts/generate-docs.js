@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 
 const parser = require('./' + process.argv[2])
-const files = process.argv.slice(3, -1)
+const snippetDir = process.argv[3]
+const files = process.argv.slice(4, -1)
 const out = process.argv[process.argv.length - 1]
 const fs = require('fs')
+const path = require('path')
+const glob = require('glob')
 
 const tasks = []
 for (const file of files) {
@@ -15,11 +18,19 @@ Promise.all(tasks).then(items => {
   fs.writeFileSync(out, markdown(groups))
 })
 
+function itemId(item) {
+  const id = `${item.type}@${item.module}@${item.name}`
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-([a-z0-9]+)-\1-/, '-$1-')
+  return id
+}
+
 function uniqify(array) {
   const set = new Set()
   const unique = []
   for (const item of array) {
-    const id = `${item.type}@${item.module}@${item.name}`
+    const id = itemId(item)
     if (!set.has(id)) {
       unique.push(item)
       set.add(id)
@@ -42,9 +53,9 @@ function group(array) {
     } else {
       map.set(item.module, group)
     }
-    if (item.type === 'c-function' || item.type === 'js-function') {
+    if (item.type === 'c-func' || item.type === 'js-func') {
       group.functions.push(item)
-    } else if (item.type === 'js-property') {
+    } else if (item.type === 'js-prop') {
       group.properties.push(item)
     }
   }
@@ -57,6 +68,16 @@ function group(array) {
     return 0
   })
   return groups
+}
+
+function snippet(id) {
+  const files = glob.sync(path.join(snippetDir, id + '.*'))
+  return files.map(f => {
+    return {
+      data: fs.readFileSync(f, 'utf8'),
+      type: f.endsWith('.c') ? 'c' : 'javascript'
+    }
+  })
 }
 
 function markdown(groups) {
@@ -83,13 +104,13 @@ function markdown(groups) {
       doc += `### Functions\n`
       for (const func of group.functions) {
         const ret = func.returnType
-        if (func.type === 'c-function') {
+        if (func.type === 'c-func') {
           const args = func.args
             .map(a => `\`${a.type}\` ${a.name}`)
             .join(', ')
           doc += `#### \`${ret}\` ${func.name} `
           doc += `(${args})\n\n`
-        } else if (func.type === 'js-function') {
+        } else if (func.type === 'js-func') {
           const args = func.args
             .map(a => a.defaultValue ? `${a.name} *= ${a.defaultValue}*` : a.name)
             .join(', ')
@@ -102,6 +123,11 @@ function markdown(groups) {
         }
         if (func.comment !== null) {
           doc += func.comment.paragraph + '\n\n'
+        }
+        for (const code of snippet(itemId(func))) {
+          doc += '```' + code.type + '\n'
+          doc += code.data
+          doc += '```\n'
         }
       }
     }

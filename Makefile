@@ -119,8 +119,8 @@ $(DEPLUG_CORE):
 docs:
 	mkdir -p out
 	cp -r -f -p docs/. out/docs
-	@node scripts/generate-docs.js c-parser.js $(PLUGKIT_HEADERS) out/docs/diss-api-c.md
-	@node scripts/generate-docs.js js-parser.js $(PLUGKIT_JS_FILES) out/docs/diss-api-js.md
+	@node scripts/generate-docs.js c-parser.js ./snippet $(PLUGKIT_HEADERS) out/docs/diss-api-c.md
+	@node scripts/generate-docs.js js-parser.js ./snippet $(PLUGKIT_JS_FILES) out/docs/diss-api-js.md
 	@node scripts/generate-token-docs.js plugins/token/token-wellknown/tokens.json out/docs/well-known-tokens.md
 
 docs-serve: docs
