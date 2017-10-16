@@ -11,12 +11,7 @@ PLUGKIT_NAMESPACE_BEGIN
 
 typedef uint32_t Token;
 
-/// Returns the null token.
-///
-/// @code
-/// Token_null() == Token_get(nullptr) == Token_get("")
-/// @endcode
-/// @remarks This function is thread-safe.
+/// Return the null token.
 inline Token Token_null() { return (Token)0; }
 
 PLUGKIT_EXPORT Token Token_literal_(const char *str, size_t length);
@@ -25,9 +20,7 @@ PLUGKIT_EXPORT Token Token_literal_(const char *str, size_t length);
 #pragma intrinsic(strlen)
 #endif
 
-/// Returns a token corresponded with a given string.
-///
-/// @remarks This function is thread-safe.
+/// Return a token corresponded with the given string.
 inline Token Token_get(const char *str) {
   if (str == NULL || str[0] == '\0') {
     return Token_null();
@@ -39,9 +32,7 @@ inline Token Token_get(const char *str) {
 #pragma function(strlen)
 #endif
 
-/// Returns a string corresponded with a given token.
-///
-/// @remarks This function is thread-safe.
+/// Return a string corresponded with the given token.
 PLUGKIT_EXPORT const char *Token_string(Token token);
 
 PLUGKIT_NAMESPACE_END

@@ -24,73 +24,100 @@ typedef enum VariantType {
 
 typedef struct Variant Variant;
 
-/// Variant type
+/// Return the type of the variant.
 PLUGKIT_EXPORT VariantType Variant_type(const Variant *var);
 
-/// Sets a nil value
+/// Set the value of the variant to `Nil`.
 PLUGKIT_EXPORT void Variant_setNil(Variant *var);
 
-/// Gets a boolean value
+/// Return the value of the variant as `bool`.
 PLUGKIT_EXPORT bool Variant_bool(const Variant *var);
 
-/// Sets a boolean value
+/// Set the value of the variant to the given `bool` value.
 PLUGKIT_EXPORT void Variant_setBool(Variant *var, bool value);
 
-/// Gets an integer value
+/// Return the value of the variant as `int32_t`.
 PLUGKIT_EXPORT int32_t Variant_int32(const Variant *var);
 
-/// Sets an integer value
+/// Set the value of the variant to the given `int32_t` value.
 PLUGKIT_EXPORT void Variant_setInt32(Variant *var, int32_t value);
 
-/// Gets an integer value
+/// Return the value of the variant as `int64_t`.
 PLUGKIT_EXPORT int64_t Variant_int64(const Variant *var);
 
-/// Sets an integer value
+/// Set the value of the variant to the given `int64_t` value.
 PLUGKIT_EXPORT void Variant_setInt64(Variant *var, int64_t value);
 
-/// Gets an unsigned integer value
+/// Return the value of the variant as `uint32_t`.
 PLUGKIT_EXPORT uint32_t Variant_uint32(const Variant *var);
 
-/// Gets an unsigned integer value
+/// Set the value of the variant to the given `uint32_t` value.
 PLUGKIT_EXPORT void Variant_setUint32(Variant *var, uint32_t value);
 
-/// Gets an unsigned integer value
+/// Return the value of the variant as `uint64_t`.
 PLUGKIT_EXPORT uint64_t Variant_uint64(const Variant *var);
 
-/// Gets an unsigned integer value
+/// Set the value of the variant to the given `uint64_t` value.
 PLUGKIT_EXPORT void Variant_setUint64(Variant *var, uint64_t value);
 
-/// Gets a floating number value
+/// Return the value of the variant as `double`.
 PLUGKIT_EXPORT double Variant_double(const Variant *var);
 
-/// Sets a floating number value
+/// Set the value of the variant to the given `double` value.
 PLUGKIT_EXPORT void Variant_setDouble(Variant *var, double value);
 
-/// Gets a string value
+/// Return the value of the variant as a null-terminated string.
 PLUGKIT_EXPORT const char *Variant_string(const Variant *var);
 
-/// Sets a string value
+/// Set the value of the variant to the given string.
+///
+/// If `length` is less than `0`,
+/// the length of the string is determined by `strlen()`.
+/// 
+/// !> This function cannot handle a string contains NULL
+/// even if a positive`length` is given,
+/// because the given string will be copied as a null-terminated string.
 PLUGKIT_EXPORT void
 Variant_setString(Variant *var, const char *str, int length);
 
-/// Gets a slice value
+/// Return the value of the variant as `Slice`.
 PLUGKIT_EXPORT Slice Variant_slice(const Variant *var);
 
-/// Sets a slice value
+/// Set the value of the variant to the given `Slice` value.
+///
+/// !> Unlike `Variant_setString`,
+/// this function does not make a copy of the buffer.
 PLUGKIT_EXPORT void Variant_setSlice(Variant *var, Slice slice);
 
-/// Returns the first address of arrays
-/// and assigns the length of arrays to size.
+/// Returns an element of the array at `index`.
+/// If the variant is not an array or `index` is out of bounds, return `NULL`.
 PLUGKIT_EXPORT const Variant *Variant_arrayValue(const Variant *var,
                                                  size_t index);
 
+/// Returns a mutable element of the array at `index`.
+///
+/// The length of the array will be extended automatically.
+///
+/// If the variant is not an array,
+/// the type of the variant become `array` even if another value is set.
 PLUGKIT_EXPORT Variant *Variant_arrayValueRef(Variant *var, size_t index);
 
-/// Gets a value associated with a given key
+/// Returns an element of the map corresponded to `key`.
+///
+/// If `length` is less than `0`,
+/// the length of the `key` is determined by `strlen()`.
+///
+/// If the variant is not a map or `key` is not found, return `NULL`.
 PLUGKIT_EXPORT const Variant *
 Variant_mapValue(const Variant *var, const char *key, int length);
 
-/// Gets a mutable value associated with a given key
+/// Returns a mutable element of the map corresponded to `key`.
+///
+/// If `length` is less than `0`,
+/// the length of the `key` is determined by `strlen()`.
+///
+/// If the variant is not a map,
+/// the type of the variant become `map` even if another value is set.
 PLUGKIT_EXPORT Variant *
 Variant_mapValueRef(Variant *var, const char *key, int length);
 
