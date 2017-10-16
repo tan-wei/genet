@@ -80,9 +80,11 @@ function parseParmVarDecl(children) {
   for (const decl of children) {
     if (decl.name === 'ParmVarDecl') {
       const result = decl.value.match(/ (\w+) '([^:]+)'/)
-      const name = result[1]
-      const type = result[2]
-      args.push({name, type})
+      if (result !== null) {
+        const name = result[1]
+        const type = result[2]
+        args.push({name, type})
+      }
     }
   }
   return args
@@ -93,6 +95,9 @@ function parseFunctionDecl(decl) {
     return null
   }
   const result = decl.value.match(/ (\w+) '(.+)\((.*)\)'(?: |$)/)
+  if (result === null) {
+    return null
+  }
   const name = result[1].trim()
   const returnType = result[2].trim()
   const args = parseParmVarDecl(decl.children)
