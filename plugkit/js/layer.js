@@ -7,6 +7,9 @@ exports.Layer = layer
 
 class Layer {
 
+  // Find the first child `Attr` with the given `id` and return it.
+  //
+  // If no attribute is found, return `null`.
   // @return Attr | null
   attr(id) {}
 
@@ -24,6 +27,7 @@ class Layer {
 
   addTag(id) {}
 
+  // Return a JSON representation of the layer.
   // @return Object
   toJSON() {}
 
@@ -48,15 +52,19 @@ class Layer {
   // @property Frame
   get frame() {}
 
+  // Array of the child layers.
   // @property Array<Layer>
   get layers() {}
 
+  // Array of the layer attrs.
   // @property Array<Attr>
   get attrs() {}
 
+  // Array of the layer payloads.
   // @property Array<Payload>
   get payloads() {}
 
+  // Array of the layer tags.
   // @property Array<String>
   get tags() {}
 }
