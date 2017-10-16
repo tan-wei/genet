@@ -73,7 +73,7 @@ PLUGKIT_EXPORT const char *Variant_string(const Variant *var);
 ///
 /// If `length` is less than `0`,
 /// the length of the string is determined by `strlen()`.
-/// 
+///
 /// !> This function cannot handle a string contains NULL
 /// even if a positive`length` is given,
 /// because the given string will be copied as a null-terminated string.
@@ -87,6 +87,7 @@ PLUGKIT_EXPORT Slice Variant_slice(const Variant *var);
 ///
 /// !> Unlike `Variant_setString`,
 /// this function does not make a copy of the buffer.
+/// Be careful of its ownership.
 PLUGKIT_EXPORT void Variant_setSlice(Variant *var, Slice slice);
 
 /// Returns an element of the array at `index`.
