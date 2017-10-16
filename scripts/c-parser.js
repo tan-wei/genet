@@ -47,6 +47,7 @@ function parseFullComment(decl) {
           paragraph += match[1] + '\n'
         }
       }
+      paragraph += '\n'
     } else if (item.name === 'BlockCommandComment') {
       const match = item.value.match(/Name="(.+)"/)
       if (match !== null) {
