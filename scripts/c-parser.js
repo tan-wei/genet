@@ -3,7 +3,7 @@
 const execa = require('execa')
 
 function ast(filename) {
-  return execa('clang', ['-cc1', '-ast-dump', filename], {reject: false}).then(result => {
+  return execa('clang', ['-Xclang', '-ast-dump', '-fsyntax-only', '-fno-diagnostics-color', filename], {reject: false}).then(result => {
     const regex = /^[`\| ]([`| -]*)(\w+) 0x[0-9a-f]+ (.*)$/mg
     let metches = null
 
@@ -91,7 +91,8 @@ function parseParmVarDecl(children) {
 }
 
 function parseFunctionDecl(decl) {
-  if (decl.value.includes(' implicit used ')) {
+  if (decl.value.includes(' implicit used ') ||
+      decl.value.includes(' extern')) {
     return null
   }
   const result = decl.value.match(/ (\w+) '(.+)\((.*)\)'(?: |$)/)
