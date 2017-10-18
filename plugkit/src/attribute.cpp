@@ -133,6 +133,10 @@ const Variant *Attr_arrayValue(const Attr *prop, size_t index) {
   return Variant_arrayValue(prop->valueRef(), index);
 }
 
+Variant *Attr_arrayValueRef(Attr *prop, size_t index) {
+  return Variant_arrayValueRef(prop->valueRef(), index);
+}
+
 const Variant *Attr_mapValue(const Attr *prop, const char *key, int length) {
   if (!prop) {
     static const Variant null;

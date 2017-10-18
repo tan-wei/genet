@@ -41,8 +41,9 @@ PLUGKIT_EXPORT size_t StreamReader_search(StreamReader *reader,
 ///
 /// The capacity of `buffer` must be at least `length` bytes.
 ///
-/// If all slices are contiguous in the memory, just return a concatenated slice.
-/// Otherwise copy all slices into `buffer` and return a slice of `buffer`.
+/// If all slices are contiguous in the memory, just return a concatenated
+/// slice. Otherwise copy all slices into `buffer` and return a slice of
+/// `buffer`.
 PLUGKIT_EXPORT Slice StreamReader_read(StreamReader *reader,
                                        char *buffer,
                                        size_t length,
