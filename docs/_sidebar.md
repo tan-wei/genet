@@ -1,3 +1,6 @@
+- Dissection
+  - [Confidence](confidence.md)
+
 - Display Filter
   - [Filter Examples](filter-examples.md)
 
