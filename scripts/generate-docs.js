@@ -87,14 +87,16 @@ function markdown(groups) {
     if (group.properties.length > 0) {
       doc += `### Properties\n`
       for (const prop of group.properties) {
-        doc += `#### #${prop.name} `
+        const id = itemId(prop)
+        const link = '/#/' + path.basename(out) + '?id=' + id
+        doc += `<h4 id=${id}><a href="${link}" class="anchor">#${prop.name}</a> `
         if (prop.propType) {
           doc += `\`${prop.propType}\` `
         }
         if (prop.readonly) {
           doc += `*readonly*`
         }
-        doc += `\n\n`
+        doc += `</h4>\n\n`
         if (prop.comment !== null) {
           doc += prop.comment.paragraph + '\n\n'
         }
@@ -104,22 +106,24 @@ function markdown(groups) {
       doc += `### Functions\n`
       for (const func of group.functions) {
         const ret = func.returnType
+        const id = itemId(func)
+        const link = '/#/' + path.basename(out) + '?id=' + id
         if (func.type === 'c-func') {
           const args = func.args
             .map(a => `\`${a.type}\` ${a.name}`)
             .join(', ')
-          doc += `#### \`${ret}\` ${func.name} `
-          doc += `(${args})\n\n`
+          doc += `<h4 id="${id}"> \`${ret}\` <a href="${link}" class="anchor">${func.name}</a> `
+          doc += `(${args})</h4>\n\n`
         } else if (func.type === 'js-func') {
           const args = func.args
             .map(a => a.defaultValue ? `${a.name} *= ${a.defaultValue}*` : a.name)
             .join(', ')
-          doc += `#### #${func.name} `
+          doc += `<h4 id="${id}"><a href="${link}" class="anchor">#${func.name}</a> `
           doc += `(${args})`
           if (func.returnType) {
             doc += ` -> \`${func.returnType}\``
           }
-          doc += `\n\n`
+          doc += `</h4>\n\n`
         }
         if (func.comment !== null) {
           doc += func.comment.paragraph + '\n\n'
