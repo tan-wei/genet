@@ -31,121 +31,121 @@ Token Attr::error() const { return mError; }
 
 void Attr::setError(Token error) { mError = error; }
 
-Token Attr_id(const Attr *prop) {
-  if (!prop)
+Token Attr_id(const Attr *attr) {
+  if (!attr)
     return Token_null();
-  return prop->id();
+  return attr->id();
 }
 
-Range Attr_range(const Attr *prop) {
-  if (!prop)
+Range Attr_range(const Attr *attr) {
+  if (!attr)
     return Range{0, 0};
-  return prop->range();
+  return attr->range();
 }
 
-void Attr_setRange(Attr *prop, Range range) { prop->setRange(range); }
+void Attr_setRange(Attr *attr, Range range) { attr->setRange(range); }
 
-Token Attr_type(const Attr *prop) {
-  if (!prop)
+Token Attr_type(const Attr *attr) {
+  if (!attr)
     return Token_null();
-  return prop->type();
+  return attr->type();
 }
 
-void Attr_setType(Attr *prop, Token type) { prop->setType(type); }
+void Attr_setType(Attr *attr, Token type) { attr->setType(type); }
 
-Token Attr_error(const Attr *prop) { return prop->error(); }
+Token Attr_error(const Attr *attr) { return attr->error(); }
 
-void Attr_setError(Attr *prop, Token error) { prop->setError(error); }
+void Attr_setError(Attr *attr, Token error) { attr->setError(error); }
 
-const Variant *Attr_value(const Attr *prop) { return prop->valueRef(); }
+const Variant *Attr_value(const Attr *attr) { return attr->valueRef(); }
 
-Variant *Attr_valueRef(Attr *prop) { return prop->valueRef(); }
+Variant *Attr_valueRef(Attr *attr) { return attr->valueRef(); }
 
-bool Attr_bool(const Attr *prop) {
-  if (!prop)
+bool Attr_bool(const Attr *attr) {
+  if (!attr)
     return false;
-  return prop->value().boolValue();
+  return attr->value().boolValue();
 }
 
-void Attr_setBool(Attr *prop, bool value) { prop->setValue(value); }
+void Attr_setBool(Attr *attr, bool value) { attr->setValue(value); }
 
-int32_t Attr_int32(const Attr *prop) {
-  if (!prop)
+int32_t Attr_int32(const Attr *attr) {
+  if (!attr)
     return 0ll;
-  return prop->value().int32Value();
+  return attr->value().int32Value();
 }
 
-void Attr_setInt32(Attr *prop, int32_t value) { prop->setValue(value); }
+void Attr_setInt32(Attr *attr, int32_t value) { attr->setValue(value); }
 
-int64_t Attr_int64(const Attr *prop) {
-  if (!prop)
+int64_t Attr_int64(const Attr *attr) {
+  if (!attr)
     return 0ll;
-  return prop->value().int64Value();
+  return attr->value().int64Value();
 }
 
-void Attr_setInt64(Attr *prop, int64_t value) { prop->setValue(value); }
+void Attr_setInt64(Attr *attr, int64_t value) { attr->setValue(value); }
 
-uint32_t Attr_uint32(const Attr *prop) {
-  if (!prop)
+uint32_t Attr_uint32(const Attr *attr) {
+  if (!attr)
     return 0ull;
-  return prop->value().uint32Value();
+  return attr->value().uint32Value();
 }
 
-void Attr_setUint32(Attr *prop, uint32_t value) { prop->setValue(value); }
+void Attr_setUint32(Attr *attr, uint32_t value) { attr->setValue(value); }
 
-uint64_t Attr_uint64(const Attr *prop) {
-  if (!prop)
+uint64_t Attr_uint64(const Attr *attr) {
+  if (!attr)
     return 0ull;
-  return prop->value().uint64Value();
+  return attr->value().uint64Value();
 }
 
-void Attr_setUint64(Attr *prop, uint64_t value) { prop->setValue(value); }
+void Attr_setUint64(Attr *attr, uint64_t value) { attr->setValue(value); }
 
-double Attr_double(const Attr *prop) {
-  if (!prop)
+double Attr_double(const Attr *attr) {
+  if (!attr)
     return 0.0;
-  return prop->value().doubleValue();
+  return attr->value().doubleValue();
 }
 
-void Attr_setDouble(Attr *prop, double value) { prop->setValue(value); }
+void Attr_setDouble(Attr *attr, double value) { attr->setValue(value); }
 
-const char *Attr_string(const Attr *prop) {
-  if (!prop)
+const char *Attr_string(const Attr *attr) {
+  if (!attr)
     return "";
-  return prop->value().string().c_str();
+  return attr->value().string().c_str();
 }
 
-void Attr_setString(Attr *prop, const char *str) { prop->setValue(str); }
+void Attr_setString(Attr *attr, const char *str) { attr->setValue(str); }
 
-Slice Attr_slice(const Attr *prop) {
-  if (!prop)
+Slice Attr_slice(const Attr *attr) {
+  if (!attr)
     return Slice{nullptr, nullptr};
-  return prop->value().slice();
+  return attr->value().slice();
 }
 
-void Attr_setSlice(Attr *prop, Slice slice) { prop->setValue(slice); }
+void Attr_setSlice(Attr *attr, Slice slice) { attr->setValue(slice); }
 
-const Variant *Attr_arrayValue(const Attr *prop, size_t index) {
-  if (!prop) {
+const Variant *Attr_arrayValue(const Attr *attr, size_t index) {
+  if (!attr) {
     static const Variant null;
     return &null;
   }
-  return Variant_arrayValue(prop->valueRef(), index);
+  return Variant_arrayValue(attr->valueRef(), index);
 }
 
-Variant *Attr_arrayValueRef(Attr *prop, size_t index) {
-  return Variant_arrayValueRef(prop->valueRef(), index);
+Variant *Attr_arrayValueRef(Attr *attr, size_t index) {
+  return Variant_arrayValueRef(attr->valueRef(), index);
 }
 
-const Variant *Attr_mapValue(const Attr *prop, const char *key, int length) {
-  if (!prop) {
+const Variant *Attr_mapValue(const Attr *attr, const char *key, int length) {
+  if (!attr) {
     static const Variant null;
     return &null;
   }
-  return Variant_mapValue(prop->valueRef(), key, length);
+  return Variant_mapValue(attr->valueRef(), key, length);
 }
 
-Variant *Attr_mapValueRef(Attr *prop, const char *key, int length) {
-  return Variant_mapValueRef(prop->valueRef(), key, length);
+Variant *Attr_mapValueRef(Attr *attr, const char *key, int length) {
+  return Variant_mapValueRef(attr->valueRef(), key, length);
 }
 } // namespace plugkit
