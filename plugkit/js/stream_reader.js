@@ -1,5 +1,5 @@
 class StreamReader {
-
+  // Construct a new StreamReader instance
   // @return StreamReader
   constructor() {
     this._fields = {

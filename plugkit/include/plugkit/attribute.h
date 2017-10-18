@@ -83,20 +83,38 @@ PLUGKIT_EXPORT void Attr_setDouble(Attr *attr, double value);
 /// Return the value associated with the attr as a null-terminated string.
 PLUGKIT_EXPORT const char *Attr_string(const Attr *attr);
 
-/// Set the value of the variant to the given string.
+/// Set the value of the attr to the given string.
+///
+/// See [Variant_setString](diss-api-c.md#c-func-variant-setstring) for details.
 PLUGKIT_EXPORT void Attr_setString(Attr *attr, const char *str);
 
 /// Return the value associated with the attr as `Slice`.
 PLUGKIT_EXPORT Slice Attr_slice(const Attr *attr);
 
-/// Set the value of the variant to the given `Slice` value.
+/// Set the value of the attr to the given `Slice` value.
+///
+/// See [Variant_setSlice](diss-api-c.md#c-func-variant-setslice) for details.
 PLUGKIT_EXPORT void Attr_setSlice(Attr *attr, Slice slice);
 
+/// Returns an element of the array at `index`.
+///
+/// See [Variant_arrayValue](diss-api-c.md#c-func-variant-arrayvalue) for details.
 PLUGKIT_EXPORT const Variant *Attr_arrayValue(const Attr *attr, size_t index);
 
+/// Returns a mutable element of the array at `index`.
+///
+/// See [Variant_arrayValueRef](diss-api-c.md#c-func-variant-arrayvalueref) for details.
+PLUGKIT_EXPORT Variant *Attr_arrayValueRef(const Attr *attr, size_t index);
+
+/// Returns an element of the map corresponded to `key`.
+///
+/// See [Variant_mapValue](diss-api-c.md#c-func-variant-mapvalue) for details.
 PLUGKIT_EXPORT const Variant *
 Attr_mapValue(const Attr *attr, const char *key, int length);
 
+/// Returns a mutable element of the map corresponded to `key`.
+///
+/// See [Variant_mapValueRef](diss-api-c.md#c-func-variant-mapvalueref) for details.
 PLUGKIT_EXPORT Variant *
 Attr_mapValueRef(Attr *attr, const char *key, int length);
 

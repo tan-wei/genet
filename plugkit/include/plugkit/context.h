@@ -22,7 +22,7 @@ PLUGKIT_EXPORT void *Context_realloc(Context *ctx, void *ptr, size_t size);
 /// @remark Currently, this function is just a wrapper for `free()`.
 PLUGKIT_EXPORT void Context_dealloc(Context *ctx, void *ptr);
 
-/// Retrun the option in the current context.
+/// Retrun the options in the current context.
 PLUGKIT_EXPORT const Variant *Context_options(Context *ctx);
 
 PLUGKIT_NAMESPACE_END

@@ -1,4 +1,5 @@
 class Reader {
+  // Construct a new Reader instance
   // @return Reader
   constructor(data) {
     if (!(data instanceof Uint8Array)) {
