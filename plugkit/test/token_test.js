@@ -14,10 +14,10 @@ describe('Token', () => {
   })
   describe('#get()', () => {
     it('should throw for wrong arguments', () => {
-      assert.throws(() => Token.get(),  TypeError)
       assert.throws(() => Token.get(0), TypeError)
     })
     it('should return 0 for empty string', () => {
+      assert.strictEqual(0, Token.get());
       assert.strictEqual(0, Token.get(''));
     })
     it('should return consistent values', () => {

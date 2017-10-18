@@ -6,7 +6,10 @@ function token(strings, ...keys) {
   return token_get(String.raw(strings, ...keys))
 }
 
-function token_get(str) {
+function token_get(str = '') {
+  if (typeof str !== 'string') {
+    throw new TypeError('First argument must be a string')
+  }
   const value = tokenMap.get(str)
   if (value !== void 0) {
     return value
@@ -17,6 +20,9 @@ function token_get(str) {
 }
 
 function token_string(id) {
+  if (!Number.isInteger(id)) {
+    throw new TypeError('First argument must be an integer')
+  }
   const value = tokenReverseMap.get(id)
   if (value !== void 0) {
     return value
@@ -34,9 +40,11 @@ Object.defineProperty(token, 'string', { value: token_string })
 exports.Token = token
 
 class Token {
+  // Return a token corresponded with the given string.
   // @return Integer
-  get(str) {}
+  get(str = '') {}
 
+  // Return a string corresponded with the given token.
   // @return String
   string(id) {}
 }
