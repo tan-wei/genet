@@ -34,11 +34,15 @@ class StreamReader {
 
   // @return Integer
   search(pattern, offset = 0) {
-    if (!(pattern instanceof Uint8Array) && typeof pattern !== 'string') {
-      throw new TypeError('First argument must be a string or Uint8Array')
+    if (!(pattern instanceof Uint8Array)) {
+      throw new TypeError('First argument must be an Uint8Array')
     }
     if (!Number.isInteger(offset)) {
       throw new TypeError('Second argument must be an integer')
+    }
+
+    if (pattern.length === 0) {
+      return 0
     }
 
     const slices = this._fields.slices
@@ -50,6 +54,33 @@ class StreamReader {
     }
     beginOffset -= slices[begin].length
     let front = beginOffset
+
+    for (let i = begin; i < slices.length; ++i) {
+      const slice = slices[i]
+      let index = 0
+      if (i === begin) {
+        index = offset - beginOffset
+      }
+      for (; index < slice.length - pattern.length + 1; ++index) {
+        if (slice[index] == pattern[0]) {
+          const window = this.read(pattern.length, front + index)
+          if (window.length === pattern.length) {
+            let equal = true
+            for (let j = 0; j < window.length; ++j) {
+              if (window[i] !== slice[i]) {
+                equal = false
+                break
+              }
+            }
+            if (equal) {
+              return front + index + pattern.length
+            }
+          }
+        }
+      }
+    }
+
+    return -1
   }
 
   read(length, offset = 0) {

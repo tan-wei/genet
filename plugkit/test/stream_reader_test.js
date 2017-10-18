@@ -30,10 +30,20 @@ describe('StreamReader', () => {
   describe('#search()', () => {
     it('should throw for wrong arguments', () => {
       const reader = new StreamReader()
-      assert.throws(() => reader.search(),          TypeError)
-      assert.throws(() => reader.search([]),        TypeError)
-      assert.throws(() => reader.search('aaa', []), TypeError)
-      assert.throws(() => reader.search([], 0),     TypeError)
+      assert.throws(() => reader.search(),                     TypeError)
+      assert.throws(() => reader.search([]),                   TypeError)
+      assert.throws(() => reader.search(new Uint8Array(), []), TypeError)
+      assert.throws(() => reader.search([], 0),                TypeError)
+    })
+    it('should return -1 when no such pattern is found', () => {
+      const reader = new StreamReader()
+      reader.addSlice(new Uint8Array([1, 2, 3, 4, 5]))
+      assert.strictEqual(-1, reader.search(new Uint8Array([3, 2])))
+    })
+    it('should return 0 for an empty pattern', () => {
+      const reader = new StreamReader()
+      reader.addSlice(new Uint8Array([1, 2, 3, 4, 5]))
+      assert.strictEqual(0, reader.search(new Uint8Array()))
     })
   })
   describe('#read()', () => {
