@@ -29,7 +29,7 @@ PLUGKIT_EXPORT void StreamReader_addPayload(StreamReader *reader,
 /// Find the first occurrence of the given byte sequence in the stream.
 /// The first `offset` bytes in the stream are skipped.
 ///
-/// Return the position of the found byte sequence,
+/// Return the _end_ position of the found byte sequence,
 /// or `RANGE_NPOS` if no such byte sequence is found.
 PLUGKIT_EXPORT size_t StreamReader_search(StreamReader *reader,
                                           const char *data,

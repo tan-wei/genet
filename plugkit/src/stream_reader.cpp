@@ -62,8 +62,7 @@ size_t StreamReader_search(StreamReader *reader,
             StreamReader_read(reader, &buf[0], length, front + index);
         if (Slice_length(window) == length &&
             std::memcmp(window.begin, data, length) == 0) {
-          front += index;
-          return front + length;
+          return front + index + length;
         }
       }
     }
