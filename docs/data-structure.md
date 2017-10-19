@@ -14,6 +14,9 @@ Layer represents a layer in a protocol stack.
                     ` utp   <- Leaf Layer
 ```
 
+!> In a dissection, you can manipulate the parent layer but the grandparent layer
+and its ancestors are read-only because they could be accessed by multiple threads.
+
 ### Worker ID
 
 The dissection processes in Deplug are concurrent.
