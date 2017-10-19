@@ -83,6 +83,9 @@ class StreamReader {
     return -1
   }
 
+  /// Read a byte sequence from the stream up to `length` bytes.
+  /// The first `offset` bytes in the stream are skipped.
+  /// @return Uint8Array
   read(length, offset = 0) {
     if (!Number.isInteger(length)) {
       throw new TypeError('First argument must be an integer')
@@ -96,7 +99,7 @@ class StreamReader {
     let begin = 0
     for (; begin < slices.length && (beginOffset += slices[begin].length) <= offset; ++begin);
     if (beginOffset <= offset) {
-      return null
+      return new Uint8Array()
     }
     beginOffset -= slices[begin].length
     let endOffset = beginOffset

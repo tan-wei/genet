@@ -59,9 +59,9 @@ describe('StreamReader', () => {
       assert.throws(() => reader.read('aaa'), TypeError)
       assert.throws(() => reader.read(0, []), TypeError)
     })
-    it('should return null when no slices are added', () => {
+    it('should return an empty Uint8Array when no slices are added', () => {
       const reader = new StreamReader()
-      assert.strictEqual(null, reader.read(5))
+      assert.strictEqual(0, reader.read(5).length)
     })
     it('should return a sliced stream', () => {
       const reader = new StreamReader()
