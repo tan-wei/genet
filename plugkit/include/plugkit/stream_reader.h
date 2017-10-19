@@ -36,7 +36,7 @@ PLUGKIT_EXPORT size_t StreamReader_search(StreamReader *reader,
                                           size_t length,
                                           size_t offset);
 
-/// Read data from the stream up to `length` bytes.
+/// Read a byte sequence from the stream up to `length` bytes.
 /// The first `offset` bytes in the stream are skipped.
 ///
 /// The capacity of `buffer` must be at least `length` bytes.
