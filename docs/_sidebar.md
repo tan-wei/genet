@@ -1,5 +1,5 @@
 - Dissection
-  - [Confidence](confidence.md)
+  - [Data Structure](data-structure.md)
 
 - Display Filter
   - [Filter Examples](filter-examples.md)
