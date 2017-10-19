@@ -56,7 +56,7 @@ size_t StreamReader_search(StreamReader *reader,
     if (i == begin) {
       index = offset - beginOffset;
     }
-    for (; index < sliceLen - length + 1; ++index) {
+    for (; index < sliceLen; ++index) {
       if (slice.begin[index] == data[0]) {
         const Slice &window =
             StreamReader_read(reader, &buf[0], length, front + index);

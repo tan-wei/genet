@@ -40,10 +40,17 @@ describe('StreamReader', () => {
       reader.addSlice(new Uint8Array([1, 2, 3, 4, 5]))
       assert.strictEqual(-1, reader.search(new Uint8Array([3, 2])))
     })
-    it('should return 0 for an empty pattern', () => {
+    it('should return -1 for an empty pattern', () => {
       const reader = new StreamReader()
       reader.addSlice(new Uint8Array([1, 2, 3, 4, 5]))
-      assert.strictEqual(0, reader.search(new Uint8Array()))
+      assert.strictEqual(-1, reader.search(new Uint8Array()))
+    })
+    it('should return the end position of the found pattern', () => {
+      const reader = new StreamReader()
+      reader.addSlice(new Uint8Array([1, 2, 3]))
+      reader.addSlice(new Uint8Array([4, 5, 6]))
+      reader.addSlice(new Uint8Array([7, 8, 9]))
+      assert.strictEqual(7, reader.search(new Uint8Array([2, 3, 4, 5, 6, 7])))
     })
   })
   describe('#read()', () => {

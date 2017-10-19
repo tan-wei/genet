@@ -42,7 +42,7 @@ class StreamReader {
     }
 
     if (pattern.length === 0) {
-      return 0
+      return -1
     }
 
     const slices = this._fields.slices
@@ -61,13 +61,13 @@ class StreamReader {
       if (i === begin) {
         index = offset - beginOffset
       }
-      for (; index < slice.length - pattern.length + 1; ++index) {
-        if (slice[index] == pattern[0]) {
+      for (; index < slice.length; ++index) {
+        if (slice[index] === pattern[0]) {
           const window = this.read(pattern.length, front + index)
           if (window.length === pattern.length) {
             let equal = true
             for (let j = 0; j < window.length; ++j) {
-              if (window[i] !== slice[i]) {
+              if (window[j] !== pattern[j]) {
                 equal = false
                 break
               }
@@ -115,7 +115,7 @@ class StreamReader {
       if (i === begin) {
         slice = slice.slice(offset - beginOffset)
       }
-      data.set(slice, dst)
+      data.set(slice.slice(0, data.length - dst), dst)
       dst += slice.length
     }
     return data
