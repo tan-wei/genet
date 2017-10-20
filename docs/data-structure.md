@@ -44,3 +44,16 @@ _Confidence_ is a 2-bit value represents an accuracy of a dissected layer.
 ## Attr
 
 ## Payload
+
+
+## Token
+
+Token is a constant integer value associated with a string, such as Symbol in JavaScript.
+
+To get the token for "string", call `Token.get("string")` and it returns a 32-bit unsigned integer.　(`Token_get(const char*)` is available for C-API)
+
+Some strings are predefined though you can get tokens for any strings. When the token for an unregisterd string is requested, the string is added to the global lookup table with an unique integer.
+
+There is `Token.string(token)` (`Token_string(uint32_t)` for C-API) for the reverse lookup.
+
+!> `Token.get` may return different value in another process.
