@@ -3,6 +3,11 @@
 
 ## Frame
 
+Frame represents a single packet.
+
+Each frame has a root layer.
+This is, in most cases, a link layer protocol such as Ethernet.
+
 ## Layer
 
 Layer represents a layer in a protocol stack.
