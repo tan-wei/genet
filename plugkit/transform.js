@@ -53,23 +53,29 @@ module.exports = function transform(ast, transforms, attributes) {
           let code = ''
           if (layer.length) {
             if (layer === attrName) {
-              code = `$_frame.layer(${kit.Token.get(layer)})${property}`
+              code = `
+                (function(){
+                  const layer = $_frame.layer(${kit.Token.get(layer)})
+                  if (!layer) return null
+                  return layer${property}
+                })()
+                `
             } else {
-              code = `$_frame.layer(${kit.Token.get(layer)}).attr(${kit.Token.get(attrName)})${property}`
+              code = `
+                (function(){
+                  const layer = $_frame.layer(${kit.Token.get(layer)})
+                  if (!layer) return null
+                  const attr = layer.attr(${kit.Token.get(attrName)})
+                  if (!attr) return null
+                  return attr${property}
+                })()
+              `
             }
           } else {
             code = attrName
           }
-          return esprima.parse(code).body[0].expression
-
-          return {
-            type: "CallExpression",
-            callee: {
-                type: "MemberExpression",
-                object: { type: "Identifier", name: "$_frame" },
-                property: { type: "Identifier", name: "attr" }
-            },
-            arguments: [ { type: "Literal", value: identifiers.join('.') } ]
+          if (code.length) {
+            return esprima.parse(code).body[0].expression
           }
         }
       }
