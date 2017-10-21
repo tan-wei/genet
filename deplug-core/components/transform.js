@@ -6,14 +6,14 @@ import roll from '../roll'
 
 export default class TransformComponent extends Component {
   async load () {
-    const id = objpath.get(this.comp, 'transform.id', '')
+    const id = objpath.get(this.comp, 'id', '')
     if (id === '') {
-      throw new Error('transform.id field required')
+      throw new Error('id field required')
     }
 
-    const root = objpath.get(this.comp, 'transform.root', '')
+    const root = objpath.get(this.comp, 'root', '')
     if (root === '') {
-      throw new Error('transform.root field required')
+      throw new Error('root field required')
     }
 
     const rootFile = path.join(this.rootDir, root)

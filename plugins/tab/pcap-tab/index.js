@@ -1,13 +1,11 @@
 export default {
   components: [
     {
-      type: 'core:tab',
-      tab: {
-        name: 'Pcap',
-        template: 'Pcap',
-        less: 'theme.less',
-        root: 'view.js'
-      }
+      _type: 'core:tab',
+      name: 'Pcap',
+      template: 'Pcap',
+      less: 'theme.less',
+      root: 'view.js'
     }
   ]
 }

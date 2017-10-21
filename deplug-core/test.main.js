@@ -9,7 +9,7 @@ Plugin.listPlugins()
   const tasks = []
   for (const plugin of list) {
     for (const comp of plugin.compList) {
-      if (comp.type === 'core:dissector') {
+      if (comp._type === 'core:dissector') {
         const dissector =
           new DissectorComponent(plugin.rootDir, plugin.pkg, comp)
         tasks.push(dissector.load())

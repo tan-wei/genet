@@ -1,13 +1,11 @@
 export default {
   components: [
     {
-      type: 'core:panel',
-      panel: {
-        name: 'Binary',
-        slot: 'core:pcap:bottom',
-        less: 'theme.less',
-        root: 'view.js'
-      }
+      _type: 'core:panel',
+      name: 'Binary',
+      slot: 'core:pcap:bottom',
+      less: 'theme.less',
+      root: 'view.js'
     }
   ],
   options: [

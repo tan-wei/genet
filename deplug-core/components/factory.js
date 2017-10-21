@@ -12,7 +12,7 @@ import WindowComponent from './window'
 
 export default class ComponentFactory {
   static create (rootDir, pkg, comp) {
-    switch (comp.type) {
+    switch (comp._type) {
       case 'core:panel':
         return new PanelComponent(rootDir, pkg, comp)
       case 'core:tab':

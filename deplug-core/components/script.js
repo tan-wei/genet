@@ -5,9 +5,9 @@ import roll from '../roll'
 
 export default class ScriptComponent extends Component {
   async load () {
-    const main = objpath.get(this.comp, 'script.main', '')
+    const main = objpath.get(this.comp, 'main', '')
     if (main === '') {
-      throw new Error('script.main field required')
+      throw new Error('main field required')
     }
 
     const mainFile = path.join(this.rootDir, main)

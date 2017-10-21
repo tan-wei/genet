@@ -6,9 +6,9 @@ import roll from '../roll'
 
 export default class MenuComponent extends Component {
   async load () {
-    const root = objpath.get(this.comp, 'menu.root', '')
+    const root = objpath.get(this.comp, 'root', '')
     if (root === '') {
-      throw new Error('menu.root field required')
+      throw new Error('root field required')
     }
     const rootFile = path.join(this.rootDir, root)
     const func = await roll(rootFile, this.rootDir, this.localExtern)
@@ -17,7 +17,7 @@ export default class MenuComponent extends Component {
     for (const menu of module.exports) {
       const menuPath = objpath.get(menu, 'path', null)
       if (menuPath === null) {
-        throw new Error('menu.path field required')
+        throw new Error('path field required')
       }
 
       Menu.registerHandler({

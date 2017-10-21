@@ -8,14 +8,14 @@ import { promisify } from 'util'
 
 export default class DissectorComponent extends Component {
   async load () {
-    const main = objpath.get(this.comp, 'dissector.main', '')
+    const main = objpath.get(this.comp, 'main', '')
     if (main === '') {
-      throw new Error('dissector.main field required')
+      throw new Error('main field required')
     }
 
-    const type = objpath.get(this.comp, 'dissector.type', '')
+    const type = objpath.get(this.comp, 'type', '')
     if (type === '') {
-      throw new Error('dissector.type field required')
+      throw new Error('type field required')
     }
 
     const searchPaths = [
@@ -44,15 +44,15 @@ export default class DissectorComponent extends Component {
       Session.registerDissector(mainFile, type)
     }
 
-    const linkLayers = objpath.get(this.comp, 'dissector.linkLayers', [])
+    const linkLayers = objpath.get(this.comp, 'linkLayers', [])
     for (const layer of linkLayers) {
       Session.registerLinkLayer(layer)
     }
 
-    const attributes = objpath.get(this.comp, 'dissector.attributes', {})
+    const attributes = objpath.get(this.comp, 'attributes', {})
     Session.addAttributes(attributes)
 
-    const samples = objpath.get(this.comp, 'dissector.samples', [])
+    const samples = objpath.get(this.comp, 'samples', [])
     for (const item of samples) {
       const sample = { pcap: path.join(this.rootDir, item.pcap) }
       if (item.assert) {

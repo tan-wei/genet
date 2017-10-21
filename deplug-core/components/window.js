@@ -23,20 +23,20 @@ export default class WindowComponent extends Component {
     }
     GlobalChannel.on('core:theme:updated', this.updateTheme)
 
-    const less = objpath.get(this.comp, 'window.less', '')
+    const less = objpath.get(this.comp, 'less', '')
     if (less !== '') {
       this.lessFile = path.join(this.rootDir, less)
       await this.updateTheme()
     }
 
-    const main = objpath.get(this.comp, 'window.main', '')
+    const main = objpath.get(this.comp, 'main', '')
     if (main !== '') {
       const mainFile = path.join(this.rootDir, main)
       const func = await roll(mainFile, this.rootDir, this.localExtern)
       func({}, this.rootDir)
     }
 
-    const root = objpath.get(this.comp, 'window.root', '')
+    const root = objpath.get(this.comp, 'root', '')
     if (root !== '') {
       const rootFile = path.join(this.rootDir, root)
       const func = await roll(rootFile, this.rootDir, this.localExtern)

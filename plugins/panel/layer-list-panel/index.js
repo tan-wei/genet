@@ -1,13 +1,11 @@
 export default {
   components: [
     {
-      type: 'core:panel',
-      panel: {
-        name: 'Layers',
-        slot: 'core:pcap:middle',
-        less: 'theme.less',
-        root: 'view.js'
-      }
+      _type: 'core:panel',
+      name: 'Layers',
+      slot: 'core:pcap:middle',
+      less: 'theme.less',
+      root: 'view.js'
     }
   ],
   options: [

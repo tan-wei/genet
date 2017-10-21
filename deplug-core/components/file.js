@@ -6,17 +6,17 @@ import roll from '../roll'
 
 export default class FileComponent extends Component {
   async load () {
-    const name = objpath.get(this.comp, 'file.name', '')
+    const name = objpath.get(this.comp, 'name', '')
     if (name === '') {
-      throw new Error('file.main field required')
+      throw new Error('main field required')
     }
 
-    const extensions = objpath.get(this.comp, 'file.extensions', [])
+    const extensions = objpath.get(this.comp, 'extensions', [])
     if (extensions.length === 0) {
-      throw new Error('file.extensions field required')
+      throw new Error('extensions field required')
     }
 
-    const importer = objpath.get(this.comp, 'file.importer', '')
+    const importer = objpath.get(this.comp, 'importer', '')
     if (importer !== '') {
       const file = path.join(this.rootDir, importer)
       const func = await roll(file, this.rootDir, this.localExtern)
@@ -29,7 +29,7 @@ export default class FileComponent extends Component {
       })
     }
 
-    const exporter = objpath.get(this.comp, 'file.exporter', '')
+    const exporter = objpath.get(this.comp, 'exporter', '')
     if (exporter !== '') {
       const file = path.join(this.rootDir, exporter)
       const func = await roll(file, this.rootDir, this.localExtern)

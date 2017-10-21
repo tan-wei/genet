@@ -4,7 +4,7 @@ import objpath from 'object-path'
 
 export default class AttributeComponent extends Component {
   async load () {
-    const attribute = objpath.get(this.comp, 'attribute', {})
+    const attribute = objpath.get(this.comp, 'attributes', {})
     Session.addAttributes(attribute)
   }
 }

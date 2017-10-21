@@ -5,19 +5,19 @@ import path from 'path'
 
 export default class ThemeComponent extends Component {
   async load () {
-    const id = objpath.get(this.comp, 'theme.id', '')
+    const id = objpath.get(this.comp, 'id', '')
     if (id === '') {
-      throw new Error('theme.id field required')
+      throw new Error('id field required')
     }
 
-    const name = objpath.get(this.comp, 'theme.name', '')
+    const name = objpath.get(this.comp, 'name', '')
     if (name === '') {
-      throw new Error('theme.name field required')
+      throw new Error('name field required')
     }
 
-    const less = objpath.get(this.comp, 'theme.less', '')
+    const less = objpath.get(this.comp, 'less', '')
     if (less === '') {
-      throw new Error('theme.less field required')
+      throw new Error('less field required')
     }
 
     const lessFile = path.join(this.rootDir, less)

@@ -1,114 +1,88 @@
 export default {
   components: [
     {
-      type: 'core:dissector',
-      dissector: {
-        main: 'ethernet.node',
-        type: 'packet',
-        linkLayers: [
-          {link: 1, id: '[eth]'}
-        ],
-        samples: [
-          {
-            pcap: 'samples/tcp-ipv4.pcap',
-            assert: 'test/eth.json'
-          }
-        ]
-      }
+      _type: 'core:dissector',
+      main: 'ethernet.node',
+      type: 'packet',
+      linkLayers: [
+        {link: 1, id: '[eth]'}
+      ],
+      samples: [
+        {
+          pcap: 'samples/tcp-ipv4.pcap',
+          assert: 'test/eth.json'
+        }
+      ]
     },
     {
-      type: 'core:renderer',
-      renderer: {
-        type: 'property',
-        id: '@eth:mac',
-        root: 'mac-addr.js'
-      }
+      _type: 'core:renderer',
+      type: 'property',
+      id: '@eth:mac',
+      root: 'mac-addr.js'
     },
     {
-      type: 'core:dissector',
-      dissector: {
-        main: 'ipv4.node',
-        type: 'packet',
-        samples: [
-          { pcap: 'samples/tcp-ipv4.pcap' }
-        ]
-      }
+      _type: 'core:dissector',
+      main: 'ipv4.node',
+      type: 'packet',
+      samples: [
+        { pcap: 'samples/tcp-ipv4.pcap' }
+      ]
     },
     {
-      type: 'core:filter:transform',
-      transform: {
-        id: 'ipv4-literal',
-        root: 'ipv4-literal.js'
-      }
+      _type: 'core:filter:transform',
+      id: 'ipv4-literal',
+      root: 'ipv4-literal.js'
     },
     {
-      type: 'core:renderer',
-      renderer: {
-        type: 'property',
-        id: '@ipv4:addr',
-        root: 'ipv4-addr.js'
-      }
+      _type: 'core:renderer',
+      type: 'property',
+      id: '@ipv4:addr',
+      root: 'ipv4-addr.js'
     },
     {
-      type: 'core:dissector',
-      dissector: {
-        main: 'ipv6.node',
-        type: 'packet'
-      }
+      _type: 'core:dissector',
+      main: 'ipv6.node',
+      type: 'packet'
     },
     {
-      type: 'core:renderer',
-      renderer: {
-        type: 'property',
-        id: '@ipv6:addr',
-        root: 'ipv6-addr.js'
-      }
+      _type: 'core:renderer',
+      type: 'property',
+      id: '@ipv6:addr',
+      root: 'ipv6-addr.js'
     },
     {
-      type: 'core:dissector',
-      dissector: {
-        main: 'udp.node',
-        type: 'packet',
-        samples: [
-          { pcap: 'samples/ntp.pcap' }
-        ]
-      }
+      _type: 'core:dissector',
+      main: 'udp.node',
+      type: 'packet',
+      samples: [
+        { pcap: 'samples/ntp.pcap' }
+      ]
     },
     {
-      type: 'core:dissector',
-      dissector: {
-        main: 'tcp.node',
-        type: 'packet'
-      }
+      _type: 'core:dissector',
+      main: 'tcp.node',
+      type: 'packet'
     },
     {
-      type: 'core:renderer',
-      renderer: {
-        type: 'layer',
-        id: 'tcp',
-        root: 'tcp-summary.js'
-      }
+      _type: 'core:renderer',
+      type: 'layer',
+      id: 'tcp',
+      root: 'tcp-summary.js'
     },
     {
-      type: 'core:dissector',
-      dissector: {
-        type: 'stream',
-        main: 'tcp-stream.node'
-      }
+      _type: 'core:dissector',
+      type: 'stream',
+      main: 'tcp-stream.node'
     },
     {
-      type: 'core:dissector',
-      dissector: {
-        type: 'stream',
-        main: 'http.node'
-      }
+      _type: 'core:dissector',
+      type: 'stream',
+      main: 'http.node'
     },
     {
-      type: 'core:dissector',
-      dissector: {
-        type: 'packet',
-        main: 'ntp.js'
-      }
+      _type: 'core:dissector',
+      type: 'packet',
+      main: 'ntp.js'
     }
   ],
   options: [

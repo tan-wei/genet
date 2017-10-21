@@ -4,22 +4,22 @@ import objpath from 'object-path'
 
 export default class TabComponent extends Component {
   async load () {
-    const name = objpath.get(this.comp, 'tab.name', '')
+    const name = objpath.get(this.comp, 'name', '')
     if (name === '') {
-      throw new Error('tab.name field required')
+      throw new Error('name field required')
     }
 
-    const template = objpath.get(this.comp, 'tab.template', '')
+    const template = objpath.get(this.comp, 'template', '')
     if (template === '') {
-      throw new Error('tab.template field required')
+      throw new Error('template field required')
     }
 
-    const root = objpath.get(this.comp, 'tab.root', '')
+    const root = objpath.get(this.comp, 'root', '')
     if (root === '') {
-      throw new Error('tab.root field required')
+      throw new Error('root field required')
     }
 
-    const tab = Object.assign({ rootDir: this.rootDir }, this.comp.tab)
+    const tab = Object.assign({ rootDir: this.rootDir }, this.comp)
     Tab.registerTemplate(tab)
   }
 }

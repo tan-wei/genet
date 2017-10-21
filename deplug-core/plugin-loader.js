@@ -21,7 +21,7 @@ export default class PluginLoader {
         }
 
         for (const comp of plugin.compList) {
-          if (comp.type === type) {
+          if (comp._type === type) {
             const builtComponent =
               ComponentFactory.create(plugin.rootDir, plugin.pkg, comp)
             tasks.push(builtComponent.load())

@@ -2,7 +2,7 @@ import objpath from 'object-path'
 
 export default class Component {
   constructor (rootDir, pkg, comp) {
-    this.type = comp.type
+    this.type = comp._type
     this.rootDir = rootDir
     this.pkg = pkg
     this.comp = comp
