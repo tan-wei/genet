@@ -1,5 +1,5 @@
 #include <nan.h>
-#include <plugkit/attribute.h>
+#include <plugkit/attr.h>
 #include <plugkit/context.h>
 #include <plugkit/dissector.h>
 #include <plugkit/layer.h>

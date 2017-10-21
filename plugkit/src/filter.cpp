@@ -1,9 +1,9 @@
 #include "filter.hpp"
-#include "attribute.hpp"
+#include "attr.hpp"
 #include "frame.hpp"
 #include "frame_view.hpp"
 #include "layer.hpp"
-#include "wrapper/attribute.hpp"
+#include "wrapper/attr.hpp"
 #include "wrapper/frame.hpp"
 #include "wrapper/layer.hpp"
 #include <functional>

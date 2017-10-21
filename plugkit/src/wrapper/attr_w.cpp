@@ -1,5 +1,5 @@
-#include "../attribute.hpp"
-#include "attribute.hpp"
+#include "../attr.hpp"
+#include "attr.hpp"
 #include "plugkit_module.hpp"
 
 namespace plugkit {

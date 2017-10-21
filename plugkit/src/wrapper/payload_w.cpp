@@ -1,5 +1,5 @@
 #include "../payload.hpp"
-#include "attribute.hpp"
+#include "attr.hpp"
 #include "payload.hpp"
 #include "plugkit_module.hpp"
 #include "variant.hpp"

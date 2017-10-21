@@ -1,7 +1,7 @@
 #ifndef PLUGKIT_FRAME_VIEW_H
 #define PLUGKIT_FRAME_VIEW_H
 
-#include "attribute.hpp"
+#include "attr.hpp"
 #include "token.h"
 #include <memory>
 #include <vector>

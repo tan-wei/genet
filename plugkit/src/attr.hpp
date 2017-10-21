@@ -1,7 +1,7 @@
 #ifndef PLUGKIT_PROPERTY_HPP
 #define PLUGKIT_PROPERTY_HPP
 
-#include "attribute.h"
+#include "attr.h"
 #include "token.h"
 #include "variant.hpp"
 #include <memory>

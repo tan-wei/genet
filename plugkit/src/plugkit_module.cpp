@@ -4,7 +4,7 @@
 #include "plugkit_testing.hpp"
 #include "token.h"
 #include "variant.hpp"
-#include "wrapper/attribute.hpp"
+#include "wrapper/attr.hpp"
 #include "wrapper/context.hpp"
 #include "wrapper/frame.hpp"
 #include "wrapper/layer.hpp"

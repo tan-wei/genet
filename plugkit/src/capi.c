@@ -1,5 +1,5 @@
 // Public headers should be compilable with C.
-#include <attribute.h>
+#include <attr.h>
 #include <context.h>
 #include <dissector.h>
 #include <export.h>
