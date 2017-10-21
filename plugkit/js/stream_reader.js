@@ -16,7 +16,7 @@ class StreamReader {
     return this[fields].length
   }
 
-  /// Add all slices in `payload` to the stream.
+  // Add all slices in `payload` to the stream.
   addPayload(payload) {
     if (typeof payload !== 'object' || payload === null ||
         payload.constructor.name !== 'Payload') {
@@ -27,7 +27,7 @@ class StreamReader {
     }
   }
 
-  /// Add `slice` to the stream.
+  // Add `slice` to the stream.
   addSlice(slice) {
     if (!(slice instanceof Uint8Array)) {
       throw new TypeError('First argument must be an Uint8Array')
@@ -36,11 +36,11 @@ class StreamReader {
     this[fields].slices.push(slice)
   }
 
-  /// Find the first occurrence of `pattern` in the stream.
-  /// The first `offset` bytes in the stream are skipped.
+  // Find the first occurrence of `pattern` in the stream.
+  // The first `offset` bytes in the stream are skipped.
   ///
-  /// Return the _end_ position of the found byte sequence,
-  /// or -1 if no such byte sequence is found.
+  // Return the _end_ position of the found byte sequence,
+  // or -1 if no such byte sequence is found.
   // @return Integer
   search(pattern, offset = 0) {
     if (!(pattern instanceof Uint8Array)) {
@@ -92,9 +92,9 @@ class StreamReader {
     return -1
   }
 
-  /// Read a byte sequence from the stream up to `length` bytes.
-  /// The first `offset` bytes in the stream are skipped.
-  /// @return Uint8Array
+  // Read a byte sequence from the stream up to `length` bytes.
+  // The first `offset` bytes in the stream are skipped.
+  // @return Uint8Array
   read(length, offset = 0) {
     if (!Number.isInteger(length)) {
       throw new TypeError('First argument must be an integer')
