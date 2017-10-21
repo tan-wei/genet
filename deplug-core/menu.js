@@ -1,9 +1,9 @@
 import { EventEmitter } from 'events'
-import internal from './internal'
 import objpath from 'object-path'
 import { remote } from 'electron'
 import throttle from 'lodash.throttle'
 
+const fields = Symbol('fields')
 const handlers = []
 
 const reload = throttle(() => {
@@ -69,35 +69,37 @@ export default class Menu extends EventEmitter {
 
   constructor () {
     super()
-    internal(this).handlers = {}
-    internal(this).mainHadlers = {}
-    internal(this).mainPriorities = {}
+    this[fields] = {
+      handlers: {},
+      mainHadlers: {},
+      mainPriorities: {},
+    }
   }
 
   register (name, handler, priority = 0) {
-    if (!(name in internal(this).handlers)) {
-      internal(this).handlers[name] = []
+    if (!(name in this[fields].handlers)) {
+      this[fields].handlers[name] = []
     }
-    internal(this).handlers[name].push({
+    this[fields].handlers[name].push({
       handler,
       priority,
     })
-    internal(this).handlers[name]
+    this[fields].handlers[name]
       .sort((first, second) => first.priority - second.priority)
   }
 
   unregister (name, handler) {
-    if (!(name in internal(this).handlers)) {
-      internal(this).handlers[name] = []
+    if (!(name in this[fields].handlers)) {
+      this[fields].handlers[name] = []
     }
-    internal(this).handlers[name] =
-      internal(this).handlers[name].filter((item) => item.handler !== handler)
+    this[fields].handlers[name] =
+      this[fields].handlers[name].filter((item) => item.handler !== handler)
   }
 
   popup (name, self, browserWindow, option = {}) {
-    if (name in internal(this).handlers) {
+    if (name in this[fields].handlers) {
       let menu = new remote.Menu()
-      const list = internal(this).handlers[name]
+      const list = this[fields].handlers[name]
       list.forEach((item, index) => {
         menu = Reflect.apply(item.handler, self, [menu, option.event])
         if (index < list.length - 1) {

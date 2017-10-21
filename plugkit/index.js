@@ -7,15 +7,8 @@ const {rollup} = require('rollup')
 const EventEmitter = require('events')
 const transform = require('./transform')
 
+const fields = Symbol('fields')
 const filterScript = fs.readFileSync(path.join(__dirname, 'filter.js'))
-
-const map = new WeakMap()
-function internal (object) {
-  if (!map.has(object)) {
-    map.set(object, {})
-  }
-  return map.get(object)
-}
 
 function roll(script) {
   return rollup({
@@ -39,9 +32,11 @@ function roll(script) {
 class Session extends EventEmitter {
   constructor(sess, options) {
     super()
-    internal(this).sess = sess
-    internal(this).transforms = options.transforms
-    internal(this).attributes = options.attributes
+    this[fields] = {
+      sess,
+      transforms: options.transforms,
+      attributes: options.attributes
+    }
 
     this.status = {
       capture: false
@@ -69,90 +64,92 @@ class Session extends EventEmitter {
   }
 
   get networkInterface() {
-    return internal(this).sess.networkInterface
+    return this[fields].sess.networkInterface
   }
 
   get promiscuous() {
-    return internal(this).sess.promiscuous
+    return this[fields].sess.promiscuous
   }
 
   get snaplen() {
-    return internal(this).sess.snaplen
+    return this[fields].sess.snaplen
   }
 
   get id() {
-    return internal(this).sess.id
+    return this[fields].sess.id
   }
 
   get options() {
-    return internal(this).sess.options
+    return this[fields].sess.options
   }
 
   startPcap() {
-    return internal(this).sess.startPcap()
+    return this[fields].sess.startPcap()
   }
 
   stopPcap() {
-    return internal(this).sess.stopPcap()
+    return this[fields].sess.stopPcap()
   }
 
   destroy() {
-    return internal(this).sess.destroy()
+    return this[fields].sess.destroy()
   }
 
   getFilteredFrames(name, offset, length) {
-    return internal(this).sess.getFilteredFrames(name, offset, length)
+    return this[fields].sess.getFilteredFrames(name, offset, length)
   }
 
   getFrames(offset, length) {
-    return internal(this).sess.getFrames(offset, length)
+    return this[fields].sess.getFrames(offset, length)
   }
 
   analyze(frames) {
-    return internal(this).sess.analyze(frames)
+    return this[fields].sess.analyze(frames)
   }
 
   setDisplayFilter(name, filter) {
     const ast = transform(
       esprima.parse(filter),
-      internal(this).transforms,
-      internal(this).attributes)
+      this[fields].transforms,
+      this[fields].attributes)
     const body = ast.body.length ? (filterScript + escodegen.generate(ast)) : ''
-    return internal(this).sess.setDisplayFilter(name, body)
+    return this[fields].sess.setDisplayFilter(name, body)
   }
 }
 
 class SessionFactory extends kit.SessionFactory {
   constructor() {
     super()
-    internal(this).tasks = []
-    internal(this).linkLayers = []
-    internal(this).transforms = []
-    internal(this).attributes = {}
+    this[fields]  = {
+      tasks: [],
+      linkLayers: [],
+      transforms: [],
+      attributes: {}
+    }
   }
 
   create() {
-    return Promise.all(internal(this).tasks).then(() => {
-      for (let link of internal(this).linkLayers) {
+    return Promise.all(this[fields].tasks).then(() => {
+      for (let link of this[fields].linkLayers) {
         super.registerLinkLayer(link.link, link.id, link.name)
       }
       return new Session(super.create(), {
-        transforms: internal(this).transforms,
-        attributes: internal(this).attributes
+        transforms: this[fields].transforms,
+        attributes: this[fields].attributes
       })
     })
   }
 
   registerLinkLayer(layer) {
-    internal(this).linkLayers.push(layer)
+    this[fields].linkLayers.push(layer)
   }
 
   registerFilterTransform(trans) {
-    internal(this).transforms.push(trans)
+    this[fields].transforms.push(trans)
   }
 
   registerAttributes(attrs) {
-    internal(this).attributes = Object.assign(internal(this).attributes, attrs)
+    this[fields].attributes = Object.assign(this[fields].attributes, attrs)
   }
 
   registerDissector(dissector) {
@@ -164,7 +161,7 @@ class SessionFactory extends kit.SessionFactory {
       }).catch((err) => {
         return Promise.reject(err)
       })
-      internal(this).tasks.push(task)
+      this[fields].tasks.push(task)
     } else {
       super.registerDissector(dissector.main, dissector.type)
     }

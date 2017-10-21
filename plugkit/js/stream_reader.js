@@ -1,8 +1,10 @@
+const fields = Symbol('fields')
+
 class StreamReader {
   // Construct a new StreamReader instance
   // @return StreamReader
   constructor() {
-    this._fields = {
+    this[fields] = {
       length: 0,
       slices: []
     }
@@ -11,7 +13,7 @@ class StreamReader {
   // Total length of the added payloads
   // @property Integer
   get length() {
-    return this._fields.length
+    return this[fields].length
   }
 
   /// Add all slices in `payload` to the stream.
@@ -30,8 +32,8 @@ class StreamReader {
     if (!(slice instanceof Uint8Array)) {
       throw new TypeError('First argument must be an Uint8Array')
     }
-    this._fields.length += slice.length
-    this._fields.slices.push(slice)
+    this[fields].length += slice.length
+    this[fields].slices.push(slice)
   }
 
   /// Find the first occurrence of `pattern` in the stream.
@@ -52,7 +54,7 @@ class StreamReader {
       return -1
     }
 
-    const slices = this._fields.slices
+    const slices = this[fields].slices
     let beginOffset = 0
     let begin = 0
     for (; begin < slices.length && (beginOffset += slices[begin].length) <= offset; ++begin);
@@ -101,7 +103,7 @@ class StreamReader {
       throw new TypeError('Second argument must be an integer')
     }
 
-    const slices = this._fields.slices
+    const slices = this[fields].slices
     let beginOffset = 0
     let begin = 0
     for (; begin < slices.length && (beginOffset += slices[begin].length) <= offset; ++begin);
