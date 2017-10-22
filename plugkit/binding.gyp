@@ -35,7 +35,6 @@
       "src/wrapper/session_factory_w.cpp",
       "src/wrapper/context_w.cpp",
       "src/wrapper/logger_w.cpp",
-      "src/wrapper/worker_w.cpp",
       "src/session.cpp",
       "src/script_dissector.cpp",
       "src/frame.cpp",
