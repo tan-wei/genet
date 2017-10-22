@@ -31,7 +31,9 @@ void Layer::addSubLayer(Layer *child) { mSubLayers.push_back(child); }
 
 uint8_t Layer::worker() const { return mData & 0xf; }
 
-void Layer::setWorker(uint8_t id) { mData = ((mData & 0xf0) | (id % 16)); }
+void Layer::setWorker(uint8_t id) {
+  mData = ((mData & 0xf0) | (id % LAYER_MAX_WORKER));
+}
 
 const std::vector<Token> &Layer::tags() const { return mTags; }
 

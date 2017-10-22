@@ -9,6 +9,8 @@
 
 PLUGKIT_NAMESPACE_BEGIN
 
+#define LAYER_MAX_WORKER 16
+
 typedef struct Context Context;
 typedef struct Layer Layer;
 typedef struct Payload Payload;
