@@ -43,10 +43,6 @@ Variant::Variant(int32_t value) : type_(VARTYPE_INT32) { d.int_ = value; }
 
 Variant::Variant(uint32_t value) : type_(VARTYPE_UINT32) { d.uint_ = value; }
 
-Variant::Variant(int64_t value) : type_(VARTYPE_INT64) { d.int_ = value; }
-
-Variant::Variant(uint64_t value) : type_(VARTYPE_UINT64) { d.uint_ = value; }
-
 Variant::Variant(double value) : type_(VARTYPE_DOUBLE) { d.double_ = value; }
 
 Variant::Variant(const std::string &str) : type_(VARTYPE_STRING) {
@@ -131,10 +127,8 @@ bool Variant::boolValue(bool defaultValue) const {
   case VARTYPE_BOOL:
     return d.bool_;
   case VARTYPE_INT32:
-  case VARTYPE_INT64:
     return d.int_;
   case VARTYPE_UINT32:
-  case VARTYPE_UINT64:
     return d.uint_;
   case VARTYPE_DOUBLE:
     return d.double_;
@@ -150,29 +144,8 @@ int32_t Variant::int32Value(int32_t defaultValue) const {
   case VARTYPE_BOOL:
     return d.bool_;
   case VARTYPE_INT32:
-  case VARTYPE_INT64:
     return d.int_;
   case VARTYPE_UINT32:
-  case VARTYPE_UINT64:
-    return d.uint_;
-  case VARTYPE_DOUBLE:
-    return d.double_;
-  default:
-    return defaultValue;
-  }
-}
-
-bool Variant::isInt64() const { return type() == VARTYPE_INT64; }
-
-int64_t Variant::int64Value(int64_t defaultValue) const {
-  switch (type()) {
-  case VARTYPE_BOOL:
-    return d.bool_;
-  case VARTYPE_INT32:
-  case VARTYPE_INT64:
-    return d.int_;
-  case VARTYPE_UINT32:
-  case VARTYPE_UINT64:
     return d.uint_;
   case VARTYPE_DOUBLE:
     return d.double_;
@@ -188,29 +161,8 @@ uint32_t Variant::uint32Value(uint32_t defaultValue) const {
   case VARTYPE_BOOL:
     return d.bool_;
   case VARTYPE_INT32:
-  case VARTYPE_INT64:
     return d.int_;
   case VARTYPE_UINT32:
-  case VARTYPE_UINT64:
-    return d.uint_;
-  case VARTYPE_DOUBLE:
-    return d.double_;
-  default:
-    return defaultValue;
-  }
-}
-
-bool Variant::isUint64() const { return type() == VARTYPE_UINT64; }
-
-uint64_t Variant::uint64Value(uint64_t defaultValue) const {
-  switch (type()) {
-  case VARTYPE_BOOL:
-    return d.bool_;
-  case VARTYPE_INT32:
-  case VARTYPE_INT64:
-    return d.int_;
-  case VARTYPE_UINT32:
-  case VARTYPE_UINT64:
     return d.uint_;
   case VARTYPE_DOUBLE:
     return d.double_;
@@ -226,10 +178,8 @@ double Variant::doubleValue(double defaultValue) const {
   case VARTYPE_BOOL:
     return d.bool_;
   case VARTYPE_INT32:
-  case VARTYPE_INT64:
     return d.int_;
   case VARTYPE_UINT32:
-  case VARTYPE_UINT64:
     return d.uint_;
   case VARTYPE_DOUBLE:
     return d.double_;
@@ -253,11 +203,9 @@ std::string Variant::string(const std::string &defaultValue) const {
   case VARTYPE_BOOL:
     return boolValue() ? "true" : "false";
   case VARTYPE_INT32:
-  case VARTYPE_INT64:
-    return std::to_string(int64Value());
+    return std::to_string(int32Value());
   case VARTYPE_UINT32:
-  case VARTYPE_UINT64:
-    return std::to_string(uint64Value());
+    return std::to_string(uint32Value());
   case VARTYPE_DOUBLE:
     return std::to_string(doubleValue());
   default:
@@ -386,12 +334,8 @@ v8::Local<v8::Value> Variant::getValue(const Variant &var) {
     return Nan::New(var.boolValue());
   case VARTYPE_INT32:
     return Nan::New(var.int32Value());
-  case VARTYPE_INT64:
-    return Nan::New(std::to_string(var.int64Value())).ToLocalChecked();
   case VARTYPE_UINT32:
     return Nan::New(var.uint32Value());
-  case VARTYPE_UINT64:
-    return Nan::New(std::to_string(var.uint64Value())).ToLocalChecked();
   case VARTYPE_DOUBLE:
     return Nan::New(var.doubleValue());
   case VARTYPE_STRING:
@@ -438,14 +382,6 @@ json11::Json Variant::getJson(const Variant &var) {
   case VARTYPE_UINT32:
     json["type"] = "uint32";
     json["value"] = var.doubleValue();
-    break;
-  case VARTYPE_INT64:
-    json["type"] = "int64";
-    json["value"] = var.string();
-    break;
-  case VARTYPE_UINT64:
-    json["type"] = "uint64";
-    json["value"] = var.string();
     break;
   case VARTYPE_DOUBLE:
     json["type"] = "double";
@@ -545,26 +481,12 @@ int32_t Variant_int32(const Variant *var) {
 }
 void Variant_setInt32(Variant *var, int32_t value) { *var = Variant(value); }
 
-int64_t Variant_int64(const Variant *var) {
-  if (!var)
-    return 0;
-  return var->int64Value();
-}
-void Variant_setInt64(Variant *var, int64_t value) { *var = Variant(value); }
-
 uint32_t Variant_uint32(const Variant *var) {
   if (!var)
     return 0;
   return var->uint32Value();
 }
 void Variant_setUint32(Variant *var, uint32_t value) { *var = Variant(value); }
-
-uint64_t Variant_uint64(const Variant *var) {
-  if (!var)
-    return 0;
-  return var->uint64Value();
-}
-void Variant_setUint64(Variant *var, uint64_t value) { *var = Variant(value); }
 
 double Variant_double(const Variant *var) {
   if (!var)

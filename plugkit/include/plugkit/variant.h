@@ -13,8 +13,6 @@ typedef enum VariantType {
   VARTYPE_BOOL = 1,
   VARTYPE_INT32 = 2,
   VARTYPE_UINT32 = 3,
-  VARTYPE_INT64 = 4,
-  VARTYPE_UINT64 = 5,
   VARTYPE_DOUBLE = 6,
   VARTYPE_STRING = 7,
   VARTYPE_SLICE = 8,
@@ -42,23 +40,11 @@ PLUGKIT_EXPORT int32_t Variant_int32(const Variant *var);
 /// Set the value of the variant to the given `int32_t` value.
 PLUGKIT_EXPORT void Variant_setInt32(Variant *var, int32_t value);
 
-/// Return the value of the variant as `int64_t`.
-PLUGKIT_EXPORT int64_t Variant_int64(const Variant *var);
-
-/// Set the value of the variant to the given `int64_t` value.
-PLUGKIT_EXPORT void Variant_setInt64(Variant *var, int64_t value);
-
 /// Return the value of the variant as `uint32_t`.
 PLUGKIT_EXPORT uint32_t Variant_uint32(const Variant *var);
 
 /// Set the value of the variant to the given `uint32_t` value.
 PLUGKIT_EXPORT void Variant_setUint32(Variant *var, uint32_t value);
-
-/// Return the value of the variant as `uint64_t`.
-PLUGKIT_EXPORT uint64_t Variant_uint64(const Variant *var);
-
-/// Set the value of the variant to the given `uint64_t` value.
-PLUGKIT_EXPORT void Variant_setUint64(Variant *var, uint64_t value);
 
 /// Return the value of the variant as `double`.
 PLUGKIT_EXPORT double Variant_double(const Variant *var);

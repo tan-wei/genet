@@ -53,7 +53,7 @@ DissectorThread::DissectorThread(const Variant &options,
                                  const Callback &callback)
     : d(new Private(options, queue, callback)) {
   d->confidenceThreshold =
-      options["_"]["confidenceThreshold"].uint64Value(0) / 100.0;
+      options["_"]["confidenceThreshold"].uint32Value(0) / 100.0;
 }
 
 DissectorThread::~DissectorThread() {}
