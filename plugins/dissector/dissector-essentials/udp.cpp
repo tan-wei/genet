@@ -26,9 +26,6 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Layer *child = Layer_addLayer(ctx, layer, udpToken);
   Layer_addTag(child, udpToken);
 
-  const auto &parentSrc = Layer_attr(layer, srcToken);
-  const auto &parentDst = Layer_attr(layer, dstToken);
-
   uint16_t sourcePort = Reader_getUint16(&reader, false);
   Attr *src = Layer_addAttr(ctx, child, srcToken);
   Attr_setUint32(src, sourcePort);

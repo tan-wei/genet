@@ -102,7 +102,6 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
       size_t extLen = Reader_getUint8(&reader);
       size_t byteLen = (extLen + 1) * 8;
       Reader_slice(&reader, 0, byteLen);
-      Token id = (nextHeader == 0) ? hbyhToken : dstToken;
     }
 
     break;
