@@ -13,7 +13,6 @@
 #include "wrapper/pcap.hpp"
 #include "wrapper/session.hpp"
 #include "wrapper/session_factory.hpp"
-#include "wrapper/worker.hpp"
 
 namespace plugkit {
 
@@ -47,7 +46,6 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
   ContextWrapper::init(isolate);
   LoggerWrapper::init(isolate);
   PayloadWrapper::init(isolate);
-  WorkerWrapper::init(isolate, exports);
   if (mainThread) {
     PcapWrapper::init(isolate, exports);
     SessionFactoryWrapper::init(isolate, exports);
