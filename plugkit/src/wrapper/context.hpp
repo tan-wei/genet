@@ -14,7 +14,7 @@ public:
   static NAN_METHOD(New);
   static NAN_GETTER(options);
   static v8::Local<v8::Object> wrap(Context *ctx);
-  static Context *unwrap(v8::Local<v8::Object> obj);
+  static Context *unwrap(v8::Local<v8::Value> obj);
 
 private:
   ContextWrapper(Context *ctx);

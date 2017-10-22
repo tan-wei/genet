@@ -105,7 +105,7 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   if (stream.id == 0) {
     stream.id = (worker->idMap.size() << 8) | Layer_worker(layer);
   }
-  Attr_setUint32(Layer_addAttr(layer, streamIdToken), stream.id);
+  Attr_setUint32(Layer_addAttr(ctx, layer, streamIdToken), stream.id);
   const Slice payload =
       Payload_slices(Layer_payloads(layer, nullptr)[0], nullptr)[0];
 
@@ -140,14 +140,14 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
 
   const auto slices = stream.ring.fetch();
   if (slices.size() > 0) {
-    Payload *chunk = Layer_addPayload(layer);
+    Payload *chunk = Layer_addPayload(ctx, layer);
     Payload_setType(chunk, reassembledToken);
     for (const auto &slice : slices) {
       Payload_addSlice(chunk, slice);
     }
   }
 
-  Layer *sub = Layer_addSubLayer(layer, tcpStreamToken);
+  Layer *sub = Layer_addSubLayer(ctx, layer, tcpStreamToken);
   Layer_addTag(sub, tcpStreamToken);
 }
 } // namespace

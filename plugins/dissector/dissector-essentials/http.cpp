@@ -154,7 +154,7 @@ bool HTTPWorker::analyze_body(Context *ctx,
     */
   } else if (contentLength >= 0 && StreamReader_length(reader) >= httpLength) {
     size_t bodyOffset = headerLength;
-    Payload *chunk = Layer_addPayload(child);
+    Payload *chunk = Layer_addPayload(ctx, child);
     Payload_setType(chunk, mimeToken);
     if (!contentType.empty()) {
       Attr *mime = Payload_addAttr(chunk, mimeTypeToken);
@@ -188,9 +188,9 @@ void HTTPWorker::analyze(Context *ctx, Layer *layer) {
     }
   }
 
-  Layer *child = Layer_addLayer(layer, httpToken);
+  Layer *child = Layer_addLayer(ctx, layer, httpToken);
   Layer_addTag(child, httpToken);
-  Attr *headers = Layer_addAttr(child, headersToken);
+  Attr *headers = Layer_addAttr(ctx, child, headersToken);
 
   State prevState = state;
   while (1) {

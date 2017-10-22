@@ -9,6 +9,7 @@
 
 PLUGKIT_NAMESPACE_BEGIN
 
+typedef struct Context Context;
 typedef struct Layer Layer;
 typedef struct Payload Payload;
 typedef struct Attr Attr;
@@ -41,13 +42,13 @@ PLUGKIT_EXPORT void Layer_setWorker(Layer *layer, uint8_t id);
 PLUGKIT_EXPORT const Layer *Layer_parent(const Layer *layer);
 
 /// Allocate a new `Layer` and adds it as a child layer.
-PLUGKIT_EXPORT Layer *Layer_addLayer(Layer *layer, Token id);
+PLUGKIT_EXPORT Layer *Layer_addLayer(Context *ctx, Layer *layer, Token id);
 
 /// Allocate a new `Layer` and adds it as a sub layer.
-PLUGKIT_EXPORT Layer *Layer_addSubLayer(Layer *layer, Token id);
+PLUGKIT_EXPORT Layer *Layer_addSubLayer(Context *ctx, Layer *layer, Token id);
 
 /// Allocate a new `Attr` and adds it as a layer attribute.
-PLUGKIT_EXPORT Attr *Layer_addAttr(Layer *layer, Token id);
+PLUGKIT_EXPORT Attr *Layer_addAttr(Context *ctx, Layer *layer, Token id);
 
 /// Find the first layer attribute with the given id and returns it.
 ///
@@ -55,7 +56,7 @@ PLUGKIT_EXPORT Attr *Layer_addAttr(Layer *layer, Token id);
 PLUGKIT_EXPORT const Attr *Layer_attr(const Layer *layer, Token id);
 
 /// Allocate a new Payload and adds it as a layer payload.
-PLUGKIT_EXPORT Payload *Layer_addPayload(Layer *layer);
+PLUGKIT_EXPORT Payload *Layer_addPayload(Context *ctx, Layer *layer);
 
 /// Return the first address of payloads
 /// and assigns the number of the layer payloads to size.

@@ -23,33 +23,33 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Reader_reset(&reader);
   reader.data = Payload_slices(Layer_payloads(layer, nullptr)[0], nullptr)[0];
 
-  Layer *child = Layer_addLayer(layer, udpToken);
+  Layer *child = Layer_addLayer(ctx, layer, udpToken);
   Layer_addTag(child, udpToken);
 
   const auto &parentSrc = Layer_attr(layer, srcToken);
   const auto &parentDst = Layer_attr(layer, dstToken);
 
   uint16_t sourcePort = Reader_getUint16(&reader, false);
-  Attr *src = Layer_addAttr(child, srcToken);
+  Attr *src = Layer_addAttr(ctx, child, srcToken);
   Attr_setUint32(src, sourcePort);
   Attr_setRange(src, reader.lastRange);
 
   uint16_t dstPort = Reader_getUint16(&reader, false);
-  Attr *dst = Layer_addAttr(child, dstToken);
+  Attr *dst = Layer_addAttr(ctx, child, dstToken);
   Attr_setUint32(dst, dstPort);
   Attr_setRange(dst, reader.lastRange);
 
   uint32_t lengthNumber = Reader_getUint16(&reader, false);
-  Attr *length = Layer_addAttr(child, lengthToken);
+  Attr *length = Layer_addAttr(ctx, child, lengthToken);
   Attr_setUint32(length, lengthNumber);
   Attr_setRange(length, reader.lastRange);
 
   uint32_t checksumNumber = Reader_getUint16(&reader, false);
-  Attr *checksum = Layer_addAttr(child, checksumToken);
+  Attr *checksum = Layer_addAttr(ctx, child, checksumToken);
   Attr_setUint32(checksum, checksumNumber);
   Attr_setRange(checksum, reader.lastRange);
 
-  Payload *chunk = Layer_addPayload(child);
+  Payload *chunk = Layer_addPayload(ctx, child);
   Payload_addSlice(chunk, Reader_slice(&reader, 0, lengthNumber - 8));
 }
 } // namespace

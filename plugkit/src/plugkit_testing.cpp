@@ -1,5 +1,6 @@
 #include "plugkit_testing.hpp"
 #include "attr.hpp"
+#include "context.hpp"
 #include "frame.hpp"
 #include "frame_view.hpp"
 #include "layer.hpp"
@@ -7,6 +8,7 @@
 #include "payload.hpp"
 #include "token.h"
 #include "wrapper/attr.hpp"
+#include "wrapper/context.hpp"
 #include "wrapper/frame.hpp"
 #include "wrapper/layer.hpp"
 #include "wrapper/logger.hpp"
@@ -38,6 +40,16 @@ void createAttrInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
   Nan::Persistent<v8::Object> persistent(AttributeWrapper::wrap(attr));
   persistent.SetWeak(attr,
                      [](const Nan::WeakCallbackInfo<Attr> &data) {
+                       delete data.GetParameter();
+                     },
+                     Nan::WeakCallbackType::kParameter);
+  info.GetReturnValue().Set(persistent);
+}
+void createContextInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
+  auto ctx = new Context();
+  Nan::Persistent<v8::Object> persistent(ContextWrapper::wrap(ctx));
+  persistent.SetWeak(ctx,
+                     [](const Nan::WeakCallbackInfo<Context> &data) {
                        delete data.GetParameter();
                      },
                      Nan::WeakCallbackType::kParameter);
@@ -99,6 +111,9 @@ void PlugkitTesting::init(v8::Local<v8::Object> exports) {
   testing->Set(
       Nan::New("createAttrInstance").ToLocalChecked(),
       v8::FunctionTemplate::New(isolate, createAttrInstance)->GetFunction());
+  testing->Set(
+      Nan::New("createContextInstance").ToLocalChecked(),
+      v8::FunctionTemplate::New(isolate, createContextInstance)->GetFunction());
   testing->Set(
       Nan::New("createPayloadInstance").ToLocalChecked(),
       v8::FunctionTemplate::New(isolate, createPayloadInstance)->GetFunction());

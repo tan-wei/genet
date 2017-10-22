@@ -50,43 +50,43 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Reader_reset(&reader);
   reader.data = Payload_slices(Layer_payloads(layer, nullptr)[0], nullptr)[0];
 
-  Layer *child = Layer_addLayer(layer, ipv4Token);
+  Layer *child = Layer_addLayer(ctx, layer, ipv4Token);
   Layer_addTag(child, ipv4Token);
 
   uint8_t header = Reader_getUint8(&reader);
   int version = header >> 4;
   int headerLength = header & 0b00001111;
 
-  Attr *ver = Layer_addAttr(child, versionToken);
+  Attr *ver = Layer_addAttr(ctx, child, versionToken);
   Attr_setUint32(ver, version);
   Attr_setRange(ver, reader.lastRange);
 
-  Attr *hlen = Layer_addAttr(child, hLenToken);
+  Attr *hlen = Layer_addAttr(ctx, child, hLenToken);
   Attr_setUint32(hlen, headerLength);
   Attr_setRange(hlen, reader.lastRange);
 
-  Attr *tos = Layer_addAttr(child, typeToken);
+  Attr *tos = Layer_addAttr(ctx, child, typeToken);
   Attr_setUint32(tos, Reader_getUint8(&reader));
   Attr_setRange(tos, reader.lastRange);
 
   uint16_t totalLength = Reader_getUint16(&reader, false);
-  Attr *tlen = Layer_addAttr(child, tLenToken);
+  Attr *tlen = Layer_addAttr(ctx, child, tLenToken);
   Attr_setUint32(tlen, totalLength);
   Attr_setRange(tlen, reader.lastRange);
 
-  Attr *id = Layer_addAttr(child, idToken);
+  Attr *id = Layer_addAttr(ctx, child, idToken);
   Attr_setUint32(id, Reader_getUint16(&reader, false));
   Attr_setRange(id, reader.lastRange);
 
   uint8_t flagAndOffset = Reader_getUint8(&reader);
   uint8_t flag = (flagAndOffset >> 5) & 0b00000111;
 
-  Attr *flags = Layer_addAttr(child, flagsToken);
+  Attr *flags = Layer_addAttr(ctx, child, flagsToken);
   Attr_setUint32(flags, flag);
   std::string flagSummary;
   for (const auto &bit : flagTable) {
     bool on = bit.first & flag;
-    Attr *flagBit = Layer_addAttr(child, bit.second);
+    Attr *flagBit = Layer_addAttr(ctx, child, bit.second);
     Attr_setBool(flagBit, on);
     Attr_setRange(flagBit, reader.lastRange);
 
@@ -101,44 +101,44 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
 
   uint16_t fgOffset =
       ((flagAndOffset & 0b00011111) << 8) | Reader_getUint8(&reader);
-  Attr *fragmentOffset = Layer_addAttr(child, fOffsetToken);
+  Attr *fragmentOffset = Layer_addAttr(ctx, child, fOffsetToken);
   Attr_setUint32(fragmentOffset, fgOffset);
   Attr_setRange(fragmentOffset, Range{6, 8});
 
-  Attr *ttl = Layer_addAttr(child, ttlToken);
+  Attr *ttl = Layer_addAttr(ctx, child, ttlToken);
   Attr_setUint32(ttl, Reader_getUint8(&reader));
   Attr_setRange(ttl, reader.lastRange);
 
   uint8_t protocolNumber = Reader_getUint8(&reader);
-  Attr *proto = Layer_addAttr(child, protocolToken);
+  Attr *proto = Layer_addAttr(ctx, child, protocolToken);
   Attr_setUint32(proto, protocolNumber);
   Attr_setType(proto, enumToken);
   Attr_setRange(proto, reader.lastRange);
   const auto &it = protoTable.find(protocolNumber);
   if (it != protoTable.end()) {
-    Attr *sub = Layer_addAttr(child, it->second.second);
+    Attr *sub = Layer_addAttr(ctx, child, it->second.second);
     Attr_setBool(sub, true);
     Attr_setRange(sub, reader.lastRange);
     Layer_addTag(child, it->second.first);
   }
 
-  Attr *checksum = Layer_addAttr(child, checksumToken);
+  Attr *checksum = Layer_addAttr(ctx, child, checksumToken);
   Attr_setUint32(checksum, Reader_getUint16(&reader, false));
   Attr_setRange(checksum, reader.lastRange);
 
   const auto &srcSlice = Reader_slice(&reader, 0, 4);
-  Attr *src = Layer_addAttr(child, srcToken);
+  Attr *src = Layer_addAttr(ctx, child, srcToken);
   Attr_setSlice(src, srcSlice);
   Attr_setType(src, ipv4AddrToken);
   Attr_setRange(src, reader.lastRange);
 
   const auto &dstSlice = Reader_slice(&reader, 0, 4);
-  Attr *dst = Layer_addAttr(child, dstToken);
+  Attr *dst = Layer_addAttr(ctx, child, dstToken);
   Attr_setSlice(dst, dstSlice);
   Attr_setType(dst, ipv4AddrToken);
   Attr_setRange(dst, reader.lastRange);
 
-  Payload *chunk = Layer_addPayload(child);
+  Payload *chunk = Layer_addPayload(ctx, child);
   Payload_addSlice(chunk, Reader_sliceAll(&reader, 0));
 }
 } // namespace

@@ -29,41 +29,48 @@ describe('Layer', () => {
   })
   describe('#addAttr()', () => {
     it('should throw for wrong arguments', () => {
+      const ctx = Testing.createContextInstance()
       const layer = Testing.createLayerInstance('eth')
-      assert.throws(() => layer.addAttr(),   TypeError)
-      assert.throws(() => layer.addAttr([]), TypeError)
+      assert.throws(() => layer.addAttr(ctx),   TypeError)
+      assert.throws(() => layer.addAttr(ctx, []), TypeError)
     })
     it('should return Attr', () => {
+      const ctx = Testing.createContextInstance()
       const layer = Testing.createLayerInstance('eth')
-      assert.strictEqual('Attr', layer.addAttr('.dst').constructor.name)
+      assert.strictEqual('Attr', layer.addAttr(ctx, '.dst').constructor.name)
     })
   })
   describe('#addLayer()', () => {
     it('should throw for wrong arguments', () => {
+      const ctx = Testing.createContextInstance()
       const layer = Testing.createLayerInstance('eth')
-      assert.throws(() => layer.addLayer(),   TypeError)
-      assert.throws(() => layer.addLayer([]), TypeError)
+      assert.throws(() => layer.addLayer(ctx),   TypeError)
+      assert.throws(() => layer.addLayer(ctx, []), TypeError)
     })
     it('should return Layer', () => {
+      const ctx = Testing.createContextInstance()
       const layer = Testing.createLayerInstance('eth')
-      assert.strictEqual('Layer', layer.addLayer('ipv4').constructor.name)
+      assert.strictEqual('Layer', layer.addLayer(ctx, 'ipv4').constructor.name)
     })
   })
   describe('#addSubLayer()', () => {
     it('should throw for wrong arguments', () => {
+      const ctx = Testing.createContextInstance()
       const layer = Testing.createLayerInstance('eth')
-      assert.throws(() => layer.addSubLayer(),   TypeError)
-      assert.throws(() => layer.addSubLayer([]), TypeError)
+      assert.throws(() => layer.addSubLayer(ctx),   TypeError)
+      assert.throws(() => layer.addSubLayer(ctx, []), TypeError)
     })
     it('should return Layer', () => {
+      const ctx = Testing.createContextInstance()
       const layer = Testing.createLayerInstance('eth')
-      assert.strictEqual('Layer', layer.addSubLayer('ipv4').constructor.name)
+      assert.strictEqual('Layer', layer.addSubLayer(ctx, 'ipv4').constructor.name)
     })
   })
   describe('#addPayload()', () => {
     it('should return addPayload', () => {
+      const ctx = Testing.createContextInstance()
       const layer = Testing.createLayerInstance('eth')
-      assert.strictEqual('Payload', layer.addPayload().constructor.name)
+      assert.strictEqual('Payload', layer.addPayload(ctx).constructor.name)
     })
   })
   describe('#addTag()', () => {
@@ -85,8 +92,9 @@ describe('Layer', () => {
       assert.strictEqual(null, layer.attr(123))
     })
     it('should return found Attr', () => {
+      const ctx = Testing.createContextInstance()
       const layer = Testing.createLayerInstance('eth')
-      layer.addAttr('.dst')
+      layer.addAttr(ctx, '.dst')
       assert.strictEqual('.dst', layer.attr('.dst').id)
     })
   })
@@ -122,21 +130,23 @@ describe('Layer', () => {
   })
   describe('#attrs', () => {
     it('should return layer attrs', () => {
+      const ctx = Testing.createContextInstance()
       const layer = Testing.createLayerInstance('eth')
       assert.deepEqual([], layer.attrs)
-      layer.addAttr('.dst')
+      layer.addAttr(ctx, '.dst')
       assert.strictEqual(1, layer.attrs.length)
-      layer.addAttr('.src')
+      layer.addAttr(ctx, '.src')
       assert.strictEqual(2, layer.attrs.length)
     })
   })
   describe('#payloads', () => {
     it('should return layer payloads', () => {
+      const ctx = Testing.createContextInstance()
       const layer = Testing.createLayerInstance('eth')
       assert.deepEqual([], layer.payloads)
-      layer.addPayload()
+      layer.addPayload(ctx)
       assert.strictEqual(1, layer.payloads.length)
-      layer.addPayload()
+      layer.addPayload(ctx)
       assert.strictEqual(2, layer.payloads.length)
     })
   })

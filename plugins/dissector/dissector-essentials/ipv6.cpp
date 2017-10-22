@@ -42,7 +42,7 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Reader_reset(&reader);
   reader.data = Payload_slices(Layer_payloads(layer, nullptr)[0], nullptr)[0];
 
-  Layer *child = Layer_addLayer(layer, ipv6Token);
+  Layer *child = Layer_addLayer(ctx, layer, ipv6Token);
   Layer_addTag(child, ipv6Token);
 
   uint8_t header = Reader_getUint8(&reader);
@@ -52,41 +52,41 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   int flowLevel =
       Reader_getUint16(&reader, false) | ((header2 & 0b00001111) << 16);
 
-  Attr *ver = Layer_addAttr(child, versionToken);
+  Attr *ver = Layer_addAttr(ctx, child, versionToken);
   Attr_setUint32(ver, version);
   Attr_setRange(ver, Range{0, 1});
 
-  Attr *tClass = Layer_addAttr(child, tClassToken);
+  Attr *tClass = Layer_addAttr(ctx, child, tClassToken);
   Attr_setUint32(tClass, trafficClass);
   Attr_setRange(tClass, Range{0, 2});
 
-  Attr *fLevel = Layer_addAttr(child, fLevelToken);
+  Attr *fLevel = Layer_addAttr(ctx, child, fLevelToken);
   Attr_setUint32(fLevel, flowLevel);
   Attr_setRange(fLevel, Range{1, 4});
 
-  Attr *pLen = Layer_addAttr(child, pLenToken);
+  Attr *pLen = Layer_addAttr(ctx, child, pLenToken);
   Attr_setUint32(pLen, Reader_getUint16(&reader, false));
   Attr_setRange(pLen, reader.lastRange);
 
   int nextHeader = Reader_getUint8(&reader);
   auto nextHeaderRange = reader.lastRange;
 
-  Attr *nHeader = Layer_addAttr(child, nHeaderToken);
+  Attr *nHeader = Layer_addAttr(ctx, child, nHeaderToken);
   Attr_setUint32(nHeader, nextHeader);
   Attr_setRange(nHeader, nextHeaderRange);
 
-  Attr *hLimit = Layer_addAttr(child, hLimitToken);
+  Attr *hLimit = Layer_addAttr(ctx, child, hLimitToken);
   Attr_setUint32(hLimit, Reader_getUint8(&reader));
   Attr_setRange(hLimit, reader.lastRange);
 
   const auto &srcSlice = Reader_slice(&reader, 0, 16);
-  Attr *src = Layer_addAttr(child, srcToken);
+  Attr *src = Layer_addAttr(ctx, child, srcToken);
   Attr_setSlice(src, srcSlice);
   Attr_setType(src, ipv6AddrToken);
   Attr_setRange(src, reader.lastRange);
 
   const auto &dstSlice = Reader_slice(&reader, 0, 16);
-  Attr *dst = Layer_addAttr(child, dstToken);
+  Attr *dst = Layer_addAttr(ctx, child, dstToken);
   Attr_setSlice(dst, dstSlice);
   Attr_setType(dst, ipv6AddrToken);
   Attr_setRange(dst, reader.lastRange);
@@ -122,19 +122,19 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   }
 
   uint8_t protocolNumber = nextHeader;
-  Attr *proto = Layer_addAttr(child, protocolToken);
+  Attr *proto = Layer_addAttr(ctx, child, protocolToken);
   Attr_setUint32(proto, protocolNumber);
   Attr_setType(proto, enumToken);
   Attr_setRange(proto, reader.lastRange);
   const auto &it = protoTable.find(protocolNumber);
   if (it != protoTable.end()) {
-    Attr *sub = Layer_addAttr(child, it->second.second);
+    Attr *sub = Layer_addAttr(ctx, child, it->second.second);
     Attr_setBool(sub, true);
     Attr_setRange(sub, reader.lastRange);
     Layer_addTag(child, it->second.first);
   }
 
-  Payload *chunk = Layer_addPayload(child);
+  Payload *chunk = Layer_addPayload(ctx, child);
   Payload_addSlice(chunk, Reader_sliceAll(&reader, 0));
 }
 } // namespace

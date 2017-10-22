@@ -4,6 +4,7 @@
 #include "payload.hpp"
 #include "plugkit_module.hpp"
 #include "wrapper/attr.hpp"
+#include "wrapper/context.hpp"
 #include "wrapper/frame.hpp"
 
 namespace plugkit {
@@ -182,15 +183,20 @@ NAN_METHOD(LayerWrapper::addLayer) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
     Token token = Token_null();
-    if (info[0]->IsNumber()) {
-      token = info[0]->NumberValue();
-    } else if (info[0]->IsString()) {
+    if (info[1]->IsNumber()) {
+      token = info[1]->NumberValue();
+    } else if (info[1]->IsString()) {
       token = Token_get(*Nan::Utf8String(info[0]));
     } else {
-      Nan::ThrowTypeError("First argument must be a string or token-id");
+      Nan::ThrowTypeError("Second argument must be a string or token-id");
       return;
     }
-    info.GetReturnValue().Set(LayerWrapper::wrap(Layer_addLayer(layer, token)));
+    if (auto ctx = ContextWrapper::unwrap(info[0])) {
+      info.GetReturnValue().Set(
+          LayerWrapper::wrap(Layer_addLayer(ctx, layer, token)));
+    } else {
+      Nan::ThrowTypeError("First argument must be a context");
+    }
   }
 }
 
@@ -198,23 +204,32 @@ NAN_METHOD(LayerWrapper::addSubLayer) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
     Token token = Token_null();
-    if (info[0]->IsNumber()) {
-      token = info[0]->NumberValue();
-    } else if (info[0]->IsString()) {
-      token = Token_get(*Nan::Utf8String(info[0]));
+    if (info[1]->IsNumber()) {
+      token = info[1]->NumberValue();
+    } else if (info[1]->IsString()) {
+      token = Token_get(*Nan::Utf8String(info[1]));
     } else {
-      Nan::ThrowTypeError("First argument must be a string or token-id");
+      Nan::ThrowTypeError("Second argument must be a string or token-id");
       return;
     }
-    info.GetReturnValue().Set(
-        LayerWrapper::wrap(Layer_addSubLayer(layer, token)));
+    if (auto ctx = ContextWrapper::unwrap(info[0])) {
+      info.GetReturnValue().Set(
+          LayerWrapper::wrap(Layer_addSubLayer(ctx, layer, token)));
+    } else {
+      Nan::ThrowTypeError("First argument must be a context");
+    }
   }
 }
 
 NAN_METHOD(LayerWrapper::addPayload) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
-    info.GetReturnValue().Set(PayloadWrapper::wrap(Layer_addPayload(layer)));
+    if (auto ctx = ContextWrapper::unwrap(info[0])) {
+      info.GetReturnValue().Set(
+          PayloadWrapper::wrap(Layer_addPayload(ctx, layer)));
+    } else {
+      Nan::ThrowTypeError("First argument must be a context");
+    }
   }
 }
 
@@ -222,16 +237,20 @@ NAN_METHOD(LayerWrapper::addAttr) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
     Token token = Token_null();
-    if (info[0]->IsNumber()) {
-      token = info[0]->NumberValue();
-    } else if (info[0]->IsString()) {
-      token = Token_get(*Nan::Utf8String(info[0]));
+    if (info[1]->IsNumber()) {
+      token = info[1]->NumberValue();
+    } else if (info[1]->IsString()) {
+      token = Token_get(*Nan::Utf8String(info[1]));
     } else {
-      Nan::ThrowTypeError("First argument must be a string or token-id");
+      Nan::ThrowTypeError("Second argument must be a string or token-id");
       return;
     }
-    info.GetReturnValue().Set(
-        AttributeWrapper::wrap(Layer_addAttr(layer, token)));
+    if (auto ctx = ContextWrapper::unwrap(info[0])) {
+      info.GetReturnValue().Set(
+          AttributeWrapper::wrap(Layer_addAttr(ctx, layer, token)));
+    } else {
+      Nan::ThrowTypeError("First argument must be a context");
+    }
   }
 }
 

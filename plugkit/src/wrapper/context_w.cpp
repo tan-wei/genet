@@ -42,8 +42,10 @@ v8::Local<v8::Object> ContextWrapper::wrap(Context *ctx) {
   return obj;
 }
 
-Context *ContextWrapper::unwrap(v8::Local<v8::Object> obj) {
-  if (auto wrapper = ObjectWrap::Unwrap<ContextWrapper>(obj)) {
+Context *ContextWrapper::unwrap(v8::Local<v8::Value> obj) {
+  if (obj.IsEmpty() || !obj->IsObject())
+    return nullptr;
+  if (auto wrapper = ObjectWrap::Unwrap<ContextWrapper>(obj.As<v8::Object>())) {
     return wrapper->ctx;
   }
   return nullptr;
