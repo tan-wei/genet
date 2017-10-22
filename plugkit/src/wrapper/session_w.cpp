@@ -294,8 +294,11 @@ SessionWrapper::wrap(const std::shared_ptr<Session> &session) {
 }
 
 std::shared_ptr<const Session>
-SessionWrapper::unwrap(v8::Local<v8::Object> obj) {
-  if (auto wrapper = ObjectWrap::Unwrap<SessionWrapper>(obj)) {
+SessionWrapper::unwrap(v8::Local<v8::Value> value) {
+  if (value.IsEmpty() || !value->IsObject())
+    return nullptr;
+  if (auto wrapper =
+          ObjectWrap::Unwrap<SessionWrapper>(value.As<v8::Object>())) {
     return wrapper->session;
   }
   return std::shared_ptr<Session>();

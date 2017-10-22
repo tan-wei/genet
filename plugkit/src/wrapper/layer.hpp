@@ -13,8 +13,8 @@ public:
   static void init(v8::Isolate *isolate);
   static v8::Local<v8::Object> wrap(Layer *layer);
   static v8::Local<v8::Object> wrap(const Layer *layer);
-  static const Layer *unwrapConst(v8::Local<v8::Object> obj);
-  static Layer *unwrap(v8::Local<v8::Object> obj);
+  static const Layer *unwrapConst(v8::Local<v8::Value> value);
+  static Layer *unwrap(v8::Local<v8::Value> value);
   static NAN_METHOD(New);
   static NAN_GETTER(id);
   static NAN_GETTER(worker);

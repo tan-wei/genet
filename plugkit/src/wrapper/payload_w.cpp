@@ -184,7 +184,10 @@ v8::Local<v8::Object> PayloadWrapper::wrap(const Payload *payload) {
   return obj;
 }
 
-const Payload *PayloadWrapper::unwrap(v8::Local<v8::Object> obj) {
+const Payload *PayloadWrapper::unwrap(v8::Local<v8::Value> value) {
+  if (value.IsEmpty() || !value->IsObject())
+    return nullptr;
+  auto obj = value.As<v8::Object>();
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
   if (obj->GetPrototype() ==

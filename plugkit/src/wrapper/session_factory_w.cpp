@@ -176,8 +176,11 @@ SessionFactoryWrapper::wrap(const SessionFactoryPtr &factory) {
   return obj;
 }
 
-SessionFactoryPtr SessionFactoryWrapper::unwrap(v8::Local<v8::Object> obj) {
-  if (auto wrapper = ObjectWrap::Unwrap<SessionFactoryWrapper>(obj)) {
+SessionFactoryPtr SessionFactoryWrapper::unwrap(v8::Local<v8::Value> value) {
+  if (value.IsEmpty() || !value->IsObject())
+    return nullptr;
+  if (auto wrapper =
+          ObjectWrap::Unwrap<SessionFactoryWrapper>(value.As<v8::Object>())) {
     return wrapper->factory;
   }
   return SessionFactoryPtr();

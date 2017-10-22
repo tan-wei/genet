@@ -308,7 +308,10 @@ v8::Local<v8::Object> LayerWrapper::wrap(const Layer *layer) {
   return obj;
 }
 
-const Layer *LayerWrapper::unwrapConst(v8::Local<v8::Object> obj) {
+const Layer *LayerWrapper::unwrapConst(v8::Local<v8::Value> value) {
+  if (value.IsEmpty() || !value->IsObject())
+    return nullptr;
+  auto obj = value.As<v8::Object>();
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
   if (obj->GetPrototype() ==
@@ -320,7 +323,10 @@ const Layer *LayerWrapper::unwrapConst(v8::Local<v8::Object> obj) {
   return nullptr;
 }
 
-Layer *LayerWrapper::unwrap(v8::Local<v8::Object> obj) {
+Layer *LayerWrapper::unwrap(v8::Local<v8::Value> value) {
+  if (value.IsEmpty() || !value->IsObject())
+    return nullptr;
+  auto obj = value.As<v8::Object>();
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
   if (obj->GetPrototype() ==

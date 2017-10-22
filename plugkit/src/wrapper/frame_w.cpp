@@ -142,8 +142,10 @@ v8::Local<v8::Object> FrameWrapper::wrap(const FrameView *view) {
   return obj;
 }
 
-const FrameView *FrameWrapper::unwrap(v8::Local<v8::Object> obj) {
-  if (auto wrapper = ObjectWrap::Unwrap<FrameWrapper>(obj)) {
+const FrameView *FrameWrapper::unwrap(v8::Local<v8::Value> value) {
+  if (value.IsEmpty() || !value->IsObject())
+    return nullptr;
+  if (auto wrapper = ObjectWrap::Unwrap<FrameWrapper>(value.As<v8::Object>())) {
     return wrapper->view;
   }
   return nullptr;

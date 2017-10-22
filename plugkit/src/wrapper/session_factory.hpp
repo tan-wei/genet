@@ -13,7 +13,7 @@ class SessionFactoryWrapper final : public Nan::ObjectWrap {
 public:
   static void init(v8::Isolate *isolate, v8::Local<v8::Object> exports);
   static v8::Local<v8::Object> wrap(const SessionFactoryPtr &factory);
-  static SessionFactoryPtr unwrap(v8::Local<v8::Object> obj);
+  static SessionFactoryPtr unwrap(v8::Local<v8::Value> value);
   static NAN_METHOD(New);
   static NAN_GETTER(networkInterface);
   static NAN_SETTER(setNetworkInterface);

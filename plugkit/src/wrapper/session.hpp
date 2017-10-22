@@ -13,7 +13,7 @@ public:
   ~SessionWrapper();
   static void init(v8::Isolate *isolate);
   static v8::Local<v8::Object> wrap(const std::shared_ptr<Session> &session);
-  static std::shared_ptr<const Session> unwrap(v8::Local<v8::Object> obj);
+  static std::shared_ptr<const Session> unwrap(v8::Local<v8::Value> value);
   static NAN_METHOD(New);
   static NAN_GETTER(networkInterface);
   static NAN_GETTER(promiscuous);

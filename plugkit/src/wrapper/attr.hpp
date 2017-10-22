@@ -13,7 +13,7 @@ public:
   static void init(v8::Isolate *isolate);
   static v8::Local<v8::Object> wrap(Attr *prop);
   static v8::Local<v8::Object> wrap(const Attr *prop);
-  static const Attr *unwrap(v8::Local<v8::Object> obj);
+  static const Attr *unwrap(v8::Local<v8::Value> value);
   static NAN_METHOD(New);
   static NAN_GETTER(id);
   static NAN_GETTER(range);

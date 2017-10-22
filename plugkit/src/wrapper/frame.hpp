@@ -12,7 +12,7 @@ class FrameWrapper final : public Nan::ObjectWrap {
 public:
   static void init(v8::Isolate *isolate);
   static v8::Local<v8::Object> wrap(const FrameView *view);
-  static const FrameView *unwrap(v8::Local<v8::Object> obj);
+  static const FrameView *unwrap(v8::Local<v8::Value> value);
   static NAN_METHOD(New);
   static NAN_GETTER(timestamp);
   static NAN_GETTER(length);

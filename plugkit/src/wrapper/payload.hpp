@@ -13,7 +13,7 @@ public:
   static void init(v8::Isolate *isolate);
   static v8::Local<v8::Object> wrap(Payload *prop);
   static v8::Local<v8::Object> wrap(const Payload *prop);
-  static const Payload *unwrap(v8::Local<v8::Object> obj);
+  static const Payload *unwrap(v8::Local<v8::Value> value);
   static NAN_METHOD(New);
   static NAN_METHOD(addSlice);
   static NAN_GETTER(slices);
