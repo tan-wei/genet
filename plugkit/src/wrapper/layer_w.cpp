@@ -163,10 +163,11 @@ NAN_METHOD(LayerWrapper::attr) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->constLayer) {
     Token token = Token_null();
-    if (info[0]->IsNumber()) {
-      token = info[0]->NumberValue();
-    } else if (info[0]->IsString()) {
-      token = Token_get(*Nan::Utf8String(info[0]));
+    auto id = info[0];
+    if (id->IsNumber()) {
+      token = id->NumberValue();
+    } else if (id->IsString()) {
+      token = Token_get(*Nan::Utf8String(id));
     } else {
       Nan::ThrowTypeError("First argument must be a string or token-id");
       return;
@@ -183,10 +184,11 @@ NAN_METHOD(LayerWrapper::addLayer) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
     Token token = Token_null();
-    if (info[1]->IsNumber()) {
-      token = info[1]->NumberValue();
-    } else if (info[1]->IsString()) {
-      token = Token_get(*Nan::Utf8String(info[0]));
+    auto id = info[1];
+    if (id->IsNumber()) {
+      token = id->NumberValue();
+    } else if (id->IsString()) {
+      token = Token_get(*Nan::Utf8String(id));
     } else {
       Nan::ThrowTypeError("Second argument must be a string or token-id");
       return;
@@ -204,10 +206,11 @@ NAN_METHOD(LayerWrapper::addSubLayer) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
     Token token = Token_null();
-    if (info[1]->IsNumber()) {
-      token = info[1]->NumberValue();
-    } else if (info[1]->IsString()) {
-      token = Token_get(*Nan::Utf8String(info[1]));
+    auto id = info[1];
+    if (id->IsNumber()) {
+      token = id->NumberValue();
+    } else if (id->IsString()) {
+      token = Token_get(*Nan::Utf8String(id));
     } else {
       Nan::ThrowTypeError("Second argument must be a string or token-id");
       return;
@@ -237,10 +240,11 @@ NAN_METHOD(LayerWrapper::addAttr) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
     Token token = Token_null();
-    if (info[1]->IsNumber()) {
-      token = info[1]->NumberValue();
-    } else if (info[1]->IsString()) {
-      token = Token_get(*Nan::Utf8String(info[1]));
+    auto id = info[1];
+    if (id->IsNumber()) {
+      token = id->NumberValue();
+    } else if (id->IsString()) {
+      token = Token_get(*Nan::Utf8String(id));
     } else {
       Nan::ThrowTypeError("Second argument must be a string or token-id");
       return;

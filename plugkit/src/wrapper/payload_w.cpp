@@ -88,10 +88,11 @@ NAN_METHOD(PayloadWrapper::attr) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->constPayload) {
     Token token = Token_null();
-    if (info[0]->IsNumber()) {
-      token = info[0]->NumberValue();
-    } else if (info[0]->IsString()) {
-      token = Token_get(*Nan::Utf8String(info[0]));
+    auto id = info[0];
+    if (id->IsNumber()) {
+      token = id->NumberValue();
+    } else if (id->IsString()) {
+      token = Token_get(*Nan::Utf8String(id));
     } else {
       Nan::ThrowTypeError("First argument must be a string or token-id");
       return;
@@ -109,10 +110,11 @@ NAN_METHOD(PayloadWrapper::addAttr) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->payload) {
     Token token = Token_null();
-    if (info[0]->IsNumber()) {
-      token = info[0]->NumberValue();
-    } else if (info[0]->IsString()) {
-      token = Token_get(*Nan::Utf8String(info[0]));
+    auto id = info[0];
+    if (id->IsNumber()) {
+      token = id->NumberValue();
+    } else if (id->IsString()) {
+      token = Token_get(*Nan::Utf8String(id));
     } else {
       Nan::ThrowTypeError("First argument must be a string or token-id");
       return;
