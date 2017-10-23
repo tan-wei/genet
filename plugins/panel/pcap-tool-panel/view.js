@@ -1,6 +1,8 @@
-import { Channel, Tab } from 'deplug'
+import {
+  Channel,
+  Tab
+} from 'deplug'
 import m from 'mithril'
-
 export default class View {
   constructor() {
     this.capture = false
@@ -12,21 +14,34 @@ export default class View {
       })
     })
   }
-
   view(vnode) {
     if (!Tab.options.ifs) {
-      return <a style="display: none;"></a>
+      return m('a', {
+        style: 'display: none;'
+      })
     }
     if (this.capture) {
-      return <a href="javascript:void(0)"
-        onclick={ () => { this.session.stopPcap() } }
-      >
-      <i class="fa fa-pause-circle"></i> Pause</a>
+      return m('a', {
+        href: 'javascript:void(0)',
+        onclick: () => {
+          this.session.stopPcap()
+        }
+      }, [
+        m('i', {
+          class: 'fa fa-pause-circle'
+        }), ' Pause'
+      ])
     } else {
-      return <a href="javascript:void(0)"
-        onclick={ () => { this.session.startPcap() } }
-      >
-      <i class="fa fa-play-circle"></i> Start</a>
+      return m('a', {
+        href: 'javascript:void(0)',
+        onclick: () => {
+          this.session.startPcap()
+        }
+      }, [
+        m('i', {
+          class: 'fa fa-play-circle'
+        }), ' Start'
+      ])
     }
   }
 }

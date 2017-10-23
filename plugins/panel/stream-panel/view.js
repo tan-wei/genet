@@ -1,14 +1,14 @@
 import m from 'mithril'
 import moment from 'moment'
-import { Channel } from 'deplug'
-
+import {
+  Channel
+} from 'deplug'
 export default class StreamView {
   constructor() {
     this.session = null
     this.payloads = []
     this.frames = 0
     this.length = 0
-
     Channel.on('core:frame:selected', (frames) => {
       this.payloads = []
       this.frames = 0
@@ -23,12 +23,13 @@ export default class StreamView {
       }
       m.redraw()
     })
-
     Channel.on('core:pcap:session-created', (sess) => {
       this.session = sess
       this.session.on('filter', (stat) => {
         if ('stream-panel' in stat) {
-          const { frames } = stat['stream-panel']
+          const {
+            frames
+          } = stat['stream-panel']
           const indices = this.session.getFilteredFrames('stream-panel', this.frames, frames - this.frames)
           for (const index of indices) {
             const tcp = this.session.getFrames(index - 1, 1)[0].layer('tcp')
@@ -45,8 +46,9 @@ export default class StreamView {
       })
     })
   }
-
   view(vnode) {
-    return <div class="stream-view">{ this.length } bytes</div>
+    return m('div', {
+      class: 'stream-view'
+    }, [this.length, ' bytes'])
   }
 }

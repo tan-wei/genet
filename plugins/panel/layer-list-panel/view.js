@@ -1,115 +1,126 @@
 import m from 'mithril'
 import moment from 'moment'
 import objpath from 'object-path'
-import { Channel, Profile, Session, Renderer } from 'deplug'
+import {
+  Channel,
+  Profile,
+  Session,
+  Renderer
+} from 'deplug'
 import Buffer from 'buffer'
-
 class BooleanValueItem {
   view(vnode) {
     const faClass = vnode.attrs.value ? 'fa-check-square-o' : 'fa-square-o'
-    return <span><i class={`fa ${faClass}`}></i></span>
+    return m('span', [m('i', {
+      class: `fa ${faClass}`
+    })])
   }
 }
-
 class DateValueItem {
   view(vnode) {
     const tsformat = Profile.current.get('layer-list-panel', 'tsformat')
     const ts = moment(vnode.attrs.value)
     const tsString = ts.format(tsformat)
-    return <span>{ tsString }</span>
+    return m('span', [tsString])
   }
 }
-
 class BufferValueItem {
   view(vnode) {
     const maxLen = 6
     const buffer = vnode.attrs.value
-    const hex = buffer.slice(0, maxLen).toString('hex') +
-      (buffer.length > maxLen ? '...' : '')
-    return <span>[{buffer.length} bytes] 0x{ hex }</span>
+    const hex = buffer.slice(0, maxLen).toString('hex') + (buffer.length > maxLen ? '...' : '')
+    return m('span', ['[', buffer.length, ' bytes] 0x', hex])
   }
 }
-
 class ArrayValueItem {
   view(vnode) {
-    return <ul>{vnode.attrs.value.map((value) => {
-      return <li>{m(PropertyValueItem, {
-        prop: {value}
-      })}</li>
-    })}</ul>
+    return m('ul', [vnode.attrs.value.map((value) => {
+      return m('li', [m(PropertyValueItem, {
+        prop: {
+          value
+        }
+      })])
+    })])
   }
 }
-
 class ObjectValueItem {
   view(vnode) {
     const obj = vnode.attrs.value
-    return <ul>{Object.keys(obj).map((key) => {
-      return <li><label>{ key }</label>{m(PropertyValueItem, {
-        prop: {value: obj[key]}
-      })}</li>
-    })}</ul>
+    return m('ul', [Object.keys(obj).map((key) => {
+      return m('li', [m('label', [key]), m(PropertyValueItem, {
+        prop: {
+          value: obj[key]
+        }
+      })])
+    })])
   }
 }
-
 class LayerValueItem {
-  view (vnode) {
+  view(vnode) {
     const layer = vnode.attrs.value
     if (layer.payloads.length) {
-      return <span> [{ layer.id }] Payloads </span>
+      return m('span', [' [', layer.id, '] Payloads '])
     }
-    return <span> [{ layer.id }] </span>
+    return m('span', [' [', layer.id, '] '])
   }
 }
-
 class PropertyValueItem {
   view(vnode) {
     const prop = vnode.attrs.prop
     if (prop.value === null) {
-      return <span></span>
+      return m('span')
     } else if (typeof prop.value === 'boolean') {
-      return m(BooleanValueItem, {value: prop.value})
+      return m(BooleanValueItem, {
+        value: prop.value
+      })
     } else if (prop.value instanceof Date) {
-      return m(DateValueItem, {value: prop.value})
+      return m(DateValueItem, {
+        value: prop.value
+      })
     } else if (prop.value instanceof Uint8Array) {
-      return m(BufferValueItem, {value: prop.value})
+      return m(BufferValueItem, {
+        value: prop.value
+      })
     } else if (Array.isArray(prop.value)) {
-      return m(ArrayValueItem, {value: prop.value})
-    } else if (typeof prop.value === 'object' &&
-        prop.value.constructor.name === 'Layer') {
-      return m(LayerValueItem, {value: prop.value})
-    } else if (typeof prop.value === 'object' &&
-        prop.value != null &&
-        Reflect.getPrototypeOf(prop.value) === Object.prototype) {
-      return m(ObjectValueItem, {value: prop.value})
+      return m(ArrayValueItem, {
+        value: prop.value
+      })
+    } else if (typeof prop.value === 'object' && prop.value.constructor.name === 'Layer') {
+      return m(LayerValueItem, {
+        value: prop.value
+      })
+    } else if (typeof prop.value === 'object' && prop.value != null && Reflect.getPrototypeOf(prop.value) === Object.prototype) {
+      return m(ObjectValueItem, {
+        value: prop.value
+      })
     }
     const value = (prop.value == null ? '' : prop.value.toString())
     if (value.length > 1024) {
-      return <span>
-        <details>
-          <summary>{value.substr(0, 64)}... ({value.length})</summary>
-          { value }
-        </details>
-      </span>
+      return m('span', [
+        m('details', [
+          m('summary', [value.substr(0, 64), '... (', value.length, ')']),
+          value
+        ])
+      ])
     }
-    return <span> { value } </span>
+    return m('span', [' ', value, ' '])
   }
 }
-
 Renderer.registerProperty('', PropertyValueItem)
 
 function selectRange(range = []) {
   Channel.emit('core:frame:range-selected', range)
 }
-
 const propSymbol = Symbol('prop')
 const orderSymbol = Symbol('order')
 
 function orderedProperties(obj) {
-  return Object.values(obj)
-    .sort((a, b) => { return a[orderSymbol] - b[orderSymbol] })
-    .map((item) => {return item })
+  return Object.values(obj).sort((a, b) => {
+    return a[orderSymbol] - b[orderSymbol]
+  }).map((item) => {
+    return item
+  })
 }
-
 class PropertyItem {
   view(vnode) {
     const prop = vnode.attrs.property[propSymbol]
@@ -123,43 +134,54 @@ class PropertyItem {
       prop.range[0] + vnode.attrs.dataOffset,
       prop.range[1] + vnode.attrs.dataOffset
     ]
-    const name = (prop.id in Session.attributes) ?
-      Session.attributes[prop.id].name : prop.id
+    const name = (prop.id in Session.attributes) ? Session.attributes[prop.id].name : prop.id
     const propRenderer = Renderer.forProperty(prop.type)
-
-    return <li
-        data-range={ `${range[0]}:${range[1]}` }
-        onmouseover={ () => selectRange(range) }
-        onmouseout= { () => selectRange() }
-      >
-      <details>
-        <summary class={ faClass }>
-          <label>
-          <i class="fa fa-circle-o"> </i>
-          <i class="fa fa-arrow-circle-right"> </i>
-          <i class="fa fa-arrow-circle-down"> </i>
-           { name }: </label>
-          { m(propRenderer, {prop, layer: vnode.attrs.layer}) }
-          <label
-          class="error"
-          style={{ display: prop.error ? 'inline' : 'none' }}
-          ><i class="fa fa-exclamation-triangle"></i> { prop.error }</label>
-        </summary>
-        <ul>
-          {
-            children.map((prop) => {
-              return m(PropertyItem, {
-                property: prop,
-                layer: vnode.attrs.layer
-              })
+    return m('li', {
+      'data-range': `${range[0]}:${range[1]}`,
+      onmouseover: () => selectRange(range),
+      onmouseout: () => selectRange()
+    }, [
+      m('details', [
+        m('summary', {
+          class: faClass
+        }, [
+          m('label', [
+            m('i', {
+              class: 'fa fa-circle-o'
+            }, [' ']),
+            m('i', {
+              class: 'fa fa-arrow-circle-right'
+            }, [' ']),
+            m('i', {
+              class: 'fa fa-arrow-circle-down'
+            }, [' ']),
+            name, ': '
+          ]),
+          m(propRenderer, {
+            prop,
+            layer: vnode.attrs.layer
+          }),
+          m('label', {
+            class: 'error',
+            style: {
+              display: prop.error ? 'inline' : 'none'
+            }
+          }, [m('i', {
+            class: 'fa fa-exclamation-triangle'
+          }), ' ', prop.error])
+        ]),
+        m('ul', [
+          children.map((prop) => {
+            return m(PropertyItem, {
+              property: prop,
+              layer: vnode.attrs.layer
             })
-          }
-        </ul>
-      </details>
-    </li>
+          })
+        ])
+      ])
+    ])
   }
 }
-
 class LayerItem {
   view(vnode) {
     const layer = vnode.attrs.layer
@@ -181,10 +203,10 @@ class LayerItem {
       dataOffset + dataLength
     ]
     const layerId = layer.id
-    const name = (layerId in Session.attributes) ?
-      Session.attributes[layerId].name : layerId
-
-    const propObject = {[layerId]: {}}
+    const name = (layerId in Session.attributes) ? Session.attributes[layerId].name : layerId
+    const propObject = {
+      [layerId]: {}
+    }
     const properties = layer.attrs
     for (let i = 0; i < properties.length; ++i) {
       const prop = properties[i]
@@ -197,59 +219,70 @@ class LayerItem {
       item[propSymbol] = prop
       item[orderSymbol] = i
     }
-
-    return <ul>
-      <li
-        data-range={ `${range[0]}:${range[1]}` }
-        onmouseover={ () => selectRange(range) }
-        onmouseout= { () => selectRange() }
-      >
-      <details>
-        <summary class="layer children" data-layer={layer.tags.join(' ')}>
-          <i class="fa fa-arrow-circle-right"> </i>
-          <i class="fa fa-arrow-circle-down"> </i>
-          { name } { Renderer.query(layer, '.') }
-          <span
-          style={{ display: layer.streamId > 0 ? 'inline' : 'none' }}
-          ><i class="fa fa-exchange"></i> Stream #{ layer.streamId }</span>
-          <span
-          style={{ display: layer.confidence < 1.0 ? 'inline' : 'none' }}
-          ><i class="fa fa-question-circle"></i> { layer.confidence * 100 }%</span>
-        </summary>
-        {
+    return m('ul', [
+      m('li', {
+        'data-range': `${range[0]}:${range[1]}`,
+        onmouseover: () => selectRange(range),
+        onmouseout: () => selectRange()
+      }, [
+        m('details', [
+          m('summary', {
+            class: 'layer children',
+            'data-layer': layer.tags.join(' ')
+          }, [
+            m('i', {
+              class: 'fa fa-arrow-circle-right'
+            }, [' ']),
+            m('i', {
+              class: 'fa fa-arrow-circle-down'
+            }, [' ']),
+            name, ' ', Renderer.query(layer, '.'),
+            m('span', {
+              style: {
+                display: layer.streamId > 0 ? 'inline' : 'none'
+              }
+            }, [m('i', {
+              class: 'fa fa-exchange'
+            }), ' Stream #', layer.streamId]),
+            m('span', {
+              style: {
+                display: layer.confidence < 1.0 ? 'inline' : 'none'
+              }
+            }, [m('i', {
+              class: 'fa fa-question-circle'
+            }), ' ', layer.confidence * 100, '%'])
+          ]),
           orderedProperties(propObject[layerId]).map((prop) => {
             return m(PropertyItem, {
               property: prop,
               layer: layer,
               dataOffset
             })
-          })
-        }
-        <a>Payloads</a>
-        <ul>
-        {
-          layer.payloads.map((payload) => {
-            return payload.slices.map((slice) => {
-              return <li> { m(BufferValueItem, {value: slice}) } : { payload.type } </li>
+          }),
+          m('a', ['Payloads']),
+          m('ul', [
+            layer.payloads.map((payload) => {
+              return payload.slices.map((slice) => {
+                return m('li', [' ', m(BufferValueItem, {
+                  value: slice
+                }), ' : ', payload.type, ' '])
+              })
+            })
+          ])
+        ])
+      ]),
+      m('li', [
+        m('ul', [
+          layer.layers.map((child) => {
+            return m(LayerItem, {
+              layer: child
             })
           })
-        }
-        </ul>
-      </details>
-      </li>
-      <li>
-        <ul>
-          {
-            layer.layers.map((child) => {
-              return m(LayerItem, {layer: child})
-            })
-          }
-        </ul>
-      </li>
-    </ul>
+        ])
+      ])
+    ])
   }
 }
-
 export default class LayerListView {
   constructor() {
     this.frames = []
@@ -258,10 +291,11 @@ export default class LayerListView {
       m.redraw()
     })
   }
-
   view(vnode) {
     if (!this.frames.length) {
-      return <div class="layer-list-view">No frames selected</div>
+      return m('div', {
+        class: 'layer-list-view'
+      }, ['No frames selected'])
     }
     return this.frames.map((frame) => {
       const tsformat = Profile.current.get('layer-list-panel', 'tsformat')
@@ -271,30 +305,36 @@ export default class LayerListView {
       if (frame.length > frame.rootLayer.payloads[0].slices[0].length) {
         length += ` (actual: ${frame.length})`
       }
-      let layers = [ frame.rootLayer ]
+      let layers = [frame.rootLayer]
       const rootId = frame.rootLayer.id
       if (rootId.startsWith('[')) {
         layers = frame.rootLayer.layers
       }
-      return <div class="layer-list-view">
-        <ul>
-          <li>
-            <i class="fa fa-circle-o"></i>
-            <label> Timestamp: </label>
-            <span> { tsString } </span>
-          </li>
-          <li>
-            <i class="fa fa-circle-o"></i>
-            <label> Length: </label>
-            <span> { length } </span>
-          </li>
-        </ul>
-        {
-          layers.map((layer) => {
-            return m(LayerItem, {layer})
+      return m('div', {
+        class: 'layer-list-view'
+      }, [
+        m('ul', [
+          m('li', [
+            m('i', {
+              class: 'fa fa-circle-o'
+            }),
+            m('label', [' Timestamp: ']),
+            m('span', [' ', tsString, ' '])
+          ]),
+          m('li', [
+            m('i', {
+              class: 'fa fa-circle-o'
+            }),
+            m('label', [' Length: ']),
+            m('span', [' ', length, ' '])
+          ])
+        ]),
+        layers.map((layer) => {
+          return m(LayerItem, {
+            layer
           })
-        }
-      </div>
+        })
+      ])
     })
   }
 }

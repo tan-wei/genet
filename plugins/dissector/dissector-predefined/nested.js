@@ -1,6 +1,7 @@
 import m from 'mithril'
-import {Session} from 'deplug'
-
+import {
+  Session
+} from 'deplug'
 export default class Nested {
   view(vnode) {
     const keys = vnode.attrs.layer.attrs.filter((prop) => {
@@ -10,6 +11,6 @@ export default class Nested {
       const name = (id in Session.attributes) ? Session.attributes[id].name : id
       return name
     }).join(', ')
-    return <span>{ keys }</span>
+    return m('span', [keys])
   }
 }

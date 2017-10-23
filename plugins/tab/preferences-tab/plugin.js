@@ -1,7 +1,8 @@
-import { Plugin } from 'deplug'
+import {
+  Plugin
+} from 'deplug'
 import PluginCard from './plugin-card'
 import m from 'mithril'
-
 export default class PluginView {
   constructor() {
     this.plugins = []
@@ -10,15 +11,17 @@ export default class PluginView {
       m.redraw()
     })
   }
-
   view(vnode) {
     const userPlugins = this.plugins.filter((plugin) => !plugin.builtin)
     return [
-      <div>
-      <h1>Plugin Settings</h1>
-      <h2 style={{display: userPlugins.length ? 'block' : 'none'}}>User Plugins</h2>
-      <div>
-        {
+      m('div', [
+        m('h1', ['Plugin Settings']),
+        m('h2', {
+          style: {
+            display: userPlugins.length ? 'block' : 'none'
+          }
+        }, ['User Plugins']),
+        m('div', [
           userPlugins.map((plugin) => {
             return m(PluginCard, {
               pkg: plugin.pkg,
@@ -26,11 +29,9 @@ export default class PluginView {
               options: plugin.options
             })
           })
-        }
-      </div>
-      <h2>Built-in Plugins</h2>
-      <div>
-        {
+        ]),
+        m('h2', ['Built-in Plugins']),
+        m('div', [
           this.plugins.filter((plugin) => plugin.builtin).map((plugin) => {
             return m(PluginCard, {
               pkg: plugin.pkg,
@@ -38,9 +39,8 @@ export default class PluginView {
               options: plugin.options
             })
           })
-        }
-      </div>
-      </div>
+        ])
+      ])
     ]
   }
 }

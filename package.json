@@ -31,7 +31,6 @@
     "mkpath": "^1.0.0",
     "moment": "^2.18.1",
     "mousetrap": "^1.6.1",
-    "msx-optimized": "^0.3.0",
     "npm": "^5.0.4",
     "object-path": "^0.11.4",
     "plugkit": "0.0.15",

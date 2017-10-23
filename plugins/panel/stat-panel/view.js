@@ -14,14 +14,14 @@ export default class StatView {
   }
 
   view(vnode) {
-    return <div class="stat-view">
-      <ul>
-        <li>
-          <i class="fa fa-flask"></i>
-          <label> Dissected Frames: </label>
-          <span> { this.stat.frames } </span>
-        </li>
-      </ul>
-    </div>
+    return m('div', {class:'stat-view'}, [
+      m('ul', [
+        m('li', [
+          m('i', {class:'fa fa-flask'}),
+          m('label', [' Dissected Frames: ']),
+          m('span', [' ',this.stat.frames,' '])
+        ])
+      ])
+    ])
   }
 }

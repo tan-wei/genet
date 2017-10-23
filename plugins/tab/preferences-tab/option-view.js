@@ -1,13 +1,15 @@
-import { Profile } from 'deplug'
+import {
+  Profile
+} from 'deplug'
 import m from 'mithril'
-
 export default class OptionView {
   updateBooleanValue(event, vnode) {
     this.updateValue(event.target.checked, vnode)
   }
-
   updateIntegerValue(event, vnode) {
-    const { option } = vnode.attrs
+    const {
+      option
+    } = vnode.attrs
     let value = Number.parseInt(event.target.value)
     if (Number.isNaN(value)) {
       value = option.default || 0
@@ -19,9 +21,10 @@ export default class OptionView {
     }
     this.updateValue(Math.floor(value), vnode)
   }
-
   updateStringValue(event, vnode) {
-    const { option } = vnode.attrs
+    const {
+      option
+    } = vnode.attrs
     let value = event.target.value
     if ('regexp' in option && !(new RegExp(option.regexp)).test(value)) {
       value = option.default || ''
@@ -31,16 +34,18 @@ export default class OptionView {
     }
     this.updateValue(value, vnode)
   }
-
   updateEnumValue(event, vnode) {
-    const { option } = vnode.attrs
-    let value = event.target.options
-      [event.target.selectedIndex].value || option.default || ''
+    const {
+      option
+    } = vnode.attrs
+    let value = event.target.options[event.target.selectedIndex].value || option.default || ''
     this.updateValue(value, vnode)
   }
-
   updateValue(value, vnode) {
-    const { pkg, option } = vnode.attrs
+    const {
+      pkg,
+      option
+    } = vnode.attrs
     const id = pkg ? pkg.name : '_'
     if (value === option.default) {
       Profile.current.delete(id, option.id)
@@ -48,9 +53,11 @@ export default class OptionView {
       Profile.current.set(id, option.id, value)
     }
   }
-
   view(vnode) {
-    const { pkg, option } = vnode.attrs
+    const {
+      pkg,
+      option
+    } = vnode.attrs
     const id = pkg ? pkg.name : '_'
     let value = Profile.current.get(id, option.id)
     const defaultValue = ('default' in option) ? `Default: ${option.default}` : ''
@@ -59,40 +66,48 @@ export default class OptionView {
     }
     switch (option.type) {
       case 'boolean':
-        return <input
-          type="checkbox"
-          onclick={ (event) => { this.updateBooleanValue(event, vnode) } }
-          checked={value}
-          ></input>
+        return m('input', {
+          type: 'checkbox',
+          onclick: (event) => {
+            this.updateBooleanValue(event, vnode)
+          },
+          checked: value
+        })
       case 'integer':
-        return <input
-          type="number"
-          value={ value }
-          onchange={ (event) => { this.updateIntegerValue(event, vnode) } }
-          placeholder={ defaultValue }
-          ></input>
+        return m('input', {
+          type: 'number',
+          value: value,
+          onchange: (event) => {
+            this.updateIntegerValue(event, vnode)
+          },
+          placeholder: defaultValue
+        })
       case 'string':
-        return <input
-          type="text"
-          value={ value }
-          onchange={ (event) => { this.updateStringValue(event, vnode) } }
-          placeholder={ defaultValue }
-          ></input>
+        return m('input', {
+          type: 'text',
+          value: value,
+          onchange: (event) => {
+            this.updateStringValue(event, vnode)
+          },
+          placeholder: defaultValue
+        })
       case 'enum':
-        return <select
-          onchange={ (event) => { this.updateEnumValue(event, vnode) } }
-          >
-          {
-            (option.values).map((item) => {
-              return <option
-                selected={ item.value == value }
-                value={ item.value }>
-                { item.name }</option>
-            })
+        return m('select', {
+          onchange: (event) => {
+            this.updateEnumValue(event, vnode)
           }
-        </select>
+        }, [
+          (option.values).map((item) => {
+            return m('option', {
+              selected: item.value == value,
+              value: item.value
+            }, [
+              item.name
+            ])
+          })
+        ])
       default:
-        return <span>n/a</span>
+        return m('span', ['n/a'])
     }
   }
 }

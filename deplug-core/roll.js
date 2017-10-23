@@ -1,7 +1,6 @@
 import builtin from 'builtin-modules'
 import config from './config'
 import log from 'electron-log'
-import msx from 'msx-optimized'
 import path from 'path'
 import { rollup } from 'rollup'
 import vm from 'vm'
@@ -13,12 +12,6 @@ export default async function roll (file, rootDir, extern = []) {
     entry: file,
     external: extern.concat(builtin, deplugExtern, globalExtern),
     acorn: { ecmaVersion: 8 },
-    plugins: [{
-      name: 'jsx',
-      transform (code) {
-        return { code: msx.transform(code, { precompile: false }) }
-      },
-    }],
     onwarn: (err) => {
       log.warn(err)
     },

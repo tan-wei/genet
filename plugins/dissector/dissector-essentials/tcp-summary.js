@@ -1,6 +1,7 @@
 import m from 'mithril'
-import { Renderer } from 'deplug';
-
+import {
+  Renderer
+} from 'deplug'
 export default class TCPSummary {
   view(vnode) {
     const layer = vnode.attrs.prop.value
@@ -11,10 +12,18 @@ export default class TCPSummary {
     const dstPort = layer.attr('.dst').value
     const renderer = Renderer.forProperty(srcAddr.type)
     if (srcAddr.type === '@ipv6:addr') {
-      return <span> [{ m(renderer, {prop: srcAddr}) }]:<b>{ srcPort }</b> ->
-        [{ m(renderer, {prop: dstAddr}) }]:<b>{ dstPort }</b> [{ layer.payloads.length }] </span>
+      return m('span', [' [', m(renderer, {
+        prop: srcAddr
+      }), ']:', m('b', [srcPort]), ' ->' + ' ' + '[', m(renderer, {
+        prop: dstAddr
+      }), ']:', m('b', [dstPort]), ' [', layer.payloads.length, '] '])
     }
-    return <span> { m(renderer, {prop: srcAddr}) }:<b>{ srcPort }</b> ->
-      { m(renderer, {prop: dstAddr}) }:<b>{ dstPort }</b> [{ layer.payloads.length }] </span>
+    return m('span', [' ', m(renderer, {
+        prop: srcAddr
+      }), ':', m('b', [srcPort]), ' ->',
+      m(renderer, {
+        prop: dstAddr
+      }), ':', m('b', [dstPort]), ' [', layer.payloads.length, '] '
+    ])
   }
 }
