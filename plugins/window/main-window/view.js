@@ -117,6 +117,14 @@ export default class TabView {
         content.openDevTools()
       }
     }))
+    menu.append(new MenuItem({
+      label: 'Reload',
+      click: () => {
+        const id = e.target.getAttribute('tabId')
+        const content = document.querySelector(`#tab-content-${id}`)
+        content.reload()
+      }
+    }))
     return menu
   }
 
