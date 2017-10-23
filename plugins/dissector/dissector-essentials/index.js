@@ -95,5 +95,6 @@ export default {
       toJSON: (str) => str.split(',').map((str) => Number.parseInt(str)),
       toString: (json) => json.join(', ')
     }
-  ]
+  ],
+  reload: 'tab'
 }

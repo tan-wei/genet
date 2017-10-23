@@ -16,5 +16,6 @@ export default {
       regexp: '^.+$',
       default: 'YYYY-MM-DDTHH:mm:ss.SSSZ'
     }
-  ]
+  ],
+  reload: 'tab'
 }

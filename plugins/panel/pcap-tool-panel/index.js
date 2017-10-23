@@ -7,5 +7,6 @@ export default {
       less: 'theme.less',
       root: 'view.js'
     }
-  ]
+  ],
+  reload: 'tab'
 }

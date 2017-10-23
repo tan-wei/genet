@@ -18,5 +18,6 @@ export default {
       id: '@nested',
       root: 'nested.js'
     }
-  ]
+  ],
+  reload: 'tab'
 }

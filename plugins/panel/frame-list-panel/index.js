@@ -17,5 +17,6 @@ export default {
       max: 1000,
       default: 100
     }
-  ]
+  ],
+  reload: 'tab'
 }

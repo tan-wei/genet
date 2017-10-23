@@ -8,6 +8,7 @@ export default {
       root: 'view.js'
     }
   ],
+  reload: 'tab',
   options: [
     {
       id: 'layout',
