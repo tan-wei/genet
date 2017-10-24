@@ -19,7 +19,6 @@ export default function (ast) {
           return tree.body[0].expression
         }
       }
-      return null
     },
   })
 }
