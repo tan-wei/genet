@@ -15,6 +15,12 @@ export default [
     default: 100,
   },
   {
+    id: 'noPrebuilt',
+    name: 'Don\'t Use Pre-Built Binaries',
+    type: 'boolean',
+    default: false,
+  },
+  {
     id: 'concurrency',
     name: 'Concurrency',
     type: 'integer',
