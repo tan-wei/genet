@@ -4,7 +4,7 @@ const liTable = {
   0: Token`ntp.leapIndicator.noWarning`,
   1: Token`ntp.leapIndicator.sec61`,
   2: Token`ntp.leapIndicator.sec59`,
-  3: Token`ntp.leapIndicator.unknown`
+  3: Token`ntp.leapIndicator.unknown`,
 }
 
 const modeTable = {
@@ -15,11 +15,10 @@ const modeTable = {
   4: Token`ntp.mode.server`,
   5: Token`ntp.mode.broadcast`,
   6: Token`ntp.mode.controlMessage`,
-  7: Token`ntp.mode.reservedForPrivate`
+  7: Token`ntp.mode.reservedForPrivate`,
 }
-
 export default class NTP {
-  analyze(ctx, layer) {
+  analyze (ctx, layer) {
     const child = layer.addLayer(ctx, 'ntp')
     child.confidence = Layer.ConfProbable
 
@@ -92,7 +91,9 @@ export default class NTP {
 
     const ideitifier = child.addAttr(ctx, 'ntp.ideitifier')
     ideitifier.value = reader.slice(0, 4)
-    ideitifier.type = stratum.value >= 2 ? '@ipv4:addr' : ''
+    ideitifier.type = stratum.value >= 2
+                      ? '@ipv4:addr'
+                      : ''
     ideitifier.range = reader.lastRange
     ideitifier.error = reader.lastError
 
@@ -123,7 +124,7 @@ export default class NTP {
     transmitTs.error = reader.lastError
   }
 
-  static get layerHints() {
+  static get layerHints () {
     return ['udp']
   }
 }
