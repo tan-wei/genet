@@ -5,7 +5,7 @@ export default {
       name: 'Binary',
       slot: 'core:pcap:bottom',
       less: 'theme.less',
-      root: 'view.js'
+      root: 'view.js',
     }
   ],
   reload: 'tab',
@@ -15,11 +15,20 @@ export default {
       name: 'Layout',
       type: 'enum',
       values: [
-        {value: 'hex-ascii', name: 'Hex + ASCII'},
-        {value: 'hex', name: 'Hex'},
-        {value: 'ascii', name: 'ASCII'}
+        {
+          value: 'hex-ascii',
+          name: 'Hex + ASCII',
+        },
+        {
+          value: 'hex',
+          name: 'Hex',
+        },
+        {
+          value: 'ascii',
+          name: 'ASCII',
+        }
       ],
-      default: 'hex-ascii'
+      default: 'hex-ascii',
     }
-  ]
+  ],
 }
