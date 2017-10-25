@@ -1,3 +1,4 @@
+import { URL } from 'url'
 import config from './config'
 import glob from 'glob'
 import jsonfile from 'jsonfile'
@@ -58,5 +59,16 @@ export default class Plugin {
     this.builtin = !this.pkg.name.startsWith('deplugin-')
     this.compList = compList
     this.options = options
+  }
+
+  get binaryUrl () {
+    const host = objpath.get(this.pkg, 'binary.host', '')
+    if (host === '') {
+      return null
+    }
+    const file = `${this.pkg.name}-v${this.pkg.version}` +
+      `-abi${process.versions.modules}-` +
+      `${process.platform}-${process.arch}-release.zip`
+    return new URL(file, host).toString()
   }
 }
