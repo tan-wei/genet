@@ -1,28 +1,28 @@
 import {
+  Argv,
+  GlobalChannel,
+  Menu,
+  Profile,
+  Tab
+} from 'deplug'
+import {
   ipcRenderer,
   remote
 } from 'electron'
-import {
-  Argv,
-  GlobalChannel,
-  Tab,
-  Menu,
-  Profile
-} from 'deplug'
+
+import i18n from 'i18n4v'
 import m from 'mithril'
 import url from 'url'
-import i18n from 'i18n4v'
-const {
-  MenuItem
-} = remote
+
+const { MenuItem } = remote
 class WebView {
-  onupdate(vnode) {
+  onupdate (vnode) {
     if (vnode.attrs.isLoaded && typeof this.guestinstance === 'undefined') {
       this.guestinstance = vnode.dom.getAttribute('guestinstance')
     }
   }
-  view(vnode) {
-    const item = vnode.attrs.item
+  view (vnode) {
+    const { item } = vnode.attrs
     const src = url.format({
       protocol: 'file',
       pathname: `${__dirname}/index.htm`,
@@ -39,15 +39,16 @@ class WebView {
   }
 }
 export default class TabView {
-  constructor() {
+  constructor () {
     this.idCounter = 0
     this.currentIndex = 0
     this.loadedTabs = []
     this.tabs = []
-    GlobalChannel.on('core:tab:open', (_, template, options = {}) => {
+    GlobalChannel.on('core:tab:open', (event, template, options = {}) => {
       const tab = Tab.getTemplate(template)
       if (tab.singleton === true) {
-        const index = this.tabs.findIndex((t) => t.tab.template === template)
+        const index = this.tabs.findIndex(
+          (item) => item.tab.template === template)
         if (index >= 0) {
           this.currentIndex = index
           m.redraw()
@@ -55,32 +56,34 @@ export default class TabView {
         }
       }
       this.tabs.push({
-        id: this.idCounter++,
+        id: this.idCounter,
         tab: Object.assign({}, tab),
         options,
       })
+      this.idCounter += 1
       this.currentIndex = this.tabs.length - 1
       m.redraw()
     })
-    GlobalChannel.on('core:tab:set-name', (_, id, name) => {
-      const item = this.tabs.find((t) => t.id === id)
+    GlobalChannel.on('core:tab:set-name', (event, id, name) => {
+      const item = this.tabs.find((tab) => tab.id === id)
       if (item) {
         item.tab.name = name
         m.redraw()
       }
     })
-    GlobalChannel.on('core:tab:focus', (_, id) => {
-      const index = this.tabs.findIndex((t) => t.id === id)
+    GlobalChannel.on('core:tab:focus', (event, id) => {
+      const index = this.tabs.findIndex((tab) => tab.id === id)
       if (index >= 0) {
         this.currentIndex = index
         m.redraw()
       }
     })
-    GlobalChannel.on('core:tab:close', (_, id) => {
-      const index = this.tabs.findIndex((t) => t.id === id)
+    GlobalChannel.on('core:tab:close', (event, id) => {
+      const index = this.tabs.findIndex((tab) => tab.id === id)
       if (index >= 0) {
-        if (this.currentIndex > 0 && this.currentIndex === this.tabs.length - 1) {
-          this.currentIndex--
+        if (this.currentIndex > 0 &&
+          this.currentIndex === this.tabs.length - 1) {
+          this.currentIndex -= 1
         }
         const content = document.querySelector(`#tab-content-${index}`)
         if (content) {
@@ -93,25 +96,25 @@ export default class TabView {
         m.redraw()
       }
     })
-    ipcRenderer.on('tab-deplug-loaded', (_, id) => {
+    ipcRenderer.on('tab-deplug-loaded', (event, id) => {
       this.loadedTabs[id] = true
       m.redraw()
     })
     Menu.register('core:tab:context', this.tabMenu)
   }
-  oncreate(vnode) {
+  oncreate (vnode) {
     this.tabContainer = vnode.dom.querySelector('#tab-container')
     this.styleTag = document.createElement('style')
     document.head.appendChild(this.styleTag)
   }
-  activate(index) {
-    this.currentIndex = parseInt(index)
+  activate (index) {
+    this.currentIndex = Number.parseInt(index, 10)
   }
-  tabMenu(menu, e) {
+  tabMenu (menu, event) {
     menu.append(new MenuItem({
       label: 'Show Developer Tools',
       click: () => {
-        const id = e.target.getAttribute('tabId')
+        const id = event.target.getAttribute('tabId')
         const content = document.querySelector(`#tab-content-${id}`)
         content.openDevTools()
       },
@@ -119,108 +122,102 @@ export default class TabView {
     menu.append(new MenuItem({
       label: 'Reload',
       click: () => {
-        const id = e.target.getAttribute('tabId')
+        const id = event.target.getAttribute('tabId')
         const content = document.querySelector(`#tab-content-${id}`)
         content.reload()
       },
     }))
     return menu
   }
-  dragStart(event) {
+  dragStart (event) {
     event.target.style.opacity = '0.4'
     event.dataTransfer.effectAllowed = 'move'
     event.dataTransfer.setData('text/plain', event.target.getAttribute('index'))
     this.styleTag.textContent = 'webview { pointer-events: none; }'
   }
-  dragEnd(event) {
+  dragEnd (event) {
     event.target.style.opacity = '1.0'
     this.styleTag.textContent = ''
   }
-  dragDrop(event) {
-    const currentIndex = parseInt(event.dataTransfer.getData('text/plain'))
-    const index = parseInt(event.target.getAttribute('index'))
+  dragDrop (event) {
+    const currentIndex =
+      Number.parseInt(event.dataTransfer.getData('text/plain'), 10)
+    const index = Number.parseInt(event.target.getAttribute('index'), 10)
     if (index !== currentIndex) {
-      const id = this.tabs[this.currentIndex].id
+      const { id } = this.tabs[this.currentIndex]
       const tmp = this.tabs[index]
       this.tabs[index] = this.tabs[currentIndex]
       this.tabs[currentIndex] = tmp
-      this.currentIndex = this.tabs.findIndex((t) => t.id === id)
+      this.currentIndex = this.tabs.findIndex((tab) => tab.id === id)
       m.redraw()
     }
     event.target.classList.remove('over')
   }
-  dragEnter(event) {
+  dragEnter (event) {
     event.target.classList.add('over')
   }
-  dragLeave(event) {
+  dragLeave (event) {
     event.target.classList.remove('over')
   }
-  dragOver(event) {
+  dragOver (event) {
     if (event.preventDefault) {
       event.preventDefault()
     }
     event.dataTransfer.dropEffect = 'move'
     return false
   }
-  view() {
+  view () {
     return (m('main', [
-      m('div', {
-        id: 'tab-container'
-      }, [
-        this.tabs.map((t, i) => (m('a', {
+      m('div', { id: 'tab-container' }, [
+        this.tabs.map((tab, index) => (m('a', {
           class: 'tab-label',
           draggable: 'true',
-          index: i,
-          tabId: t.id,
-          isActive: this.currentIndex === i,
+          index,
+          tabId: tab.id,
+          isActive: this.currentIndex === index,
           onclick: m.withAttr('index', this.activate, this),
-          ondragstart: (e) => {
-            this.dragStart(e)
+          ondragstart: (event) => {
+            this.dragStart(event)
           },
-          ondragend: (e) => {
-            this.dragEnd(e)
+          ondragend: (event) => {
+            this.dragEnd(event)
           },
-          ondragenter: (e) => {
-            this.dragEnter(e)
+          ondragenter: (event) => {
+            this.dragEnter(event)
           },
-          ondragleave: (e) => {
-            this.dragLeave(e)
+          ondragleave: (event) => {
+            this.dragLeave(event)
           },
-          ondrop: (e) => {
-            this.dragDrop(e)
+          ondrop: (event) => {
+            this.dragDrop(event)
           },
-          ondragover: (e) => {
-            this.dragOver(e)
+          ondragover: (event) => {
+            this.dragOver(event)
           },
-          oncontextmenu: (e) => {
-            Menu.popup('core:tab:context', this, remote.getCurrentWindow(), {
-              event: e
-            })
+          oncontextmenu: (event) => {
+            Menu.popup('core:tab:context',
+              this, remote.getCurrentWindow(), { event })
           },
         }, [
           m('i', {
             class: 'fa fa-times',
             onclick: () => {
-              if (this.currentIndex === i) {
-                GlobalChannel.emit('core:tab:close', t.id)
+              if (this.currentIndex === index) {
+                GlobalChannel.emit('core:tab:close', tab.id)
               }
             },
           }),
-          i18n(t.tab.name)
+          i18n(tab.tab.name)
         ])))
       ]),
-      m('div', {
-        id: 'menu-container'
-      }, [
+      m('div', { id: 'menu-container' }, [
         m('a', {
           class: 'tab-menu-button',
           onclick: () => {
             GlobalChannel.emit('core:tab:open', 'Preferences')
           },
         }, [
-          m('i', {
-            class: 'fa fa-cog'
-          })
+          m('i', { class: 'fa fa-cog' })
         ]),
         m('a', {
           class: 'tab-menu-button',
@@ -228,19 +225,17 @@ export default class TabView {
             GlobalChannel.emit('core:tab:open', 'Pcap')
           },
         }, [
-          m('i', {
-            class: 'fa fa-plus'
-          })
+          m('i', { class: 'fa fa-plus' })
         ])
       ]), (() => {
         const tabs = [].concat(this.tabs)
         tabs.sort((tab1, tab2) => tab1.id - tab2.id)
         return tabs
-      })().map((t, i) => m(WebView, {
-        key: t.id,
-        item: t,
-        isLoaded: (this.loadedTabs[t.id] === true),
-        isActive: this.tabs[this.currentIndex].id === t.id,
+      })().map((tab) => m(WebView, {
+        key: tab.id,
+        item: tab,
+        isLoaded: (this.loadedTabs[tab.id] === true),
+        isActive: this.tabs[this.currentIndex].id === tab.id,
       }))
     ]))
   }

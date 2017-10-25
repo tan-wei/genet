@@ -4,20 +4,20 @@ export default {
       _type: 'core:renderer',
       type: 'property',
       id: '@flags',
-      root: 'flags.js'
+      root: 'flags.js',
     },
     {
       _type: 'core:renderer',
       type: 'property',
       id: '@enum',
-      root: 'enum.js'
+      root: 'enum.js',
     },
     {
       _type: 'core:renderer',
       type: 'property',
       id: '@nested',
-      root: 'nested.js'
+      root: 'nested.js',
     }
   ],
-  reload: 'tab'
+  reload: 'tab',
 }

@@ -4,7 +4,7 @@ export default {
       _type: 'core:theme',
       less: 'theme.less',
       id: 'default',
-      name: 'Base16 Ocean Dark'
+      name: 'Base16 Ocean Dark',
     }
-  ]
+  ],
 }

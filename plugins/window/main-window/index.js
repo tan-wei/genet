@@ -3,11 +3,11 @@ export default {
     {
       _type: 'core:window',
       less: 'theme.less',
-      root: 'view.js'
+      root: 'view.js',
     },
     {
       _type: 'core:menu',
-      root: 'menu.js'
+      root: 'menu.js',
     }
-  ]
+  ],
 }

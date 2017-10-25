@@ -5,7 +5,7 @@ export default {
   components: [
     {
       _type: 'core:attribute',
-      attributes: jsonfile.readFileSync(path.join(__dirname, 'tokens.json'))
+      attributes: jsonfile.readFileSync(path.join(__dirname, 'tokens.json')),
     }
-  ]
+  ],
 }
