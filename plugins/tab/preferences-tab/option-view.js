@@ -2,14 +2,12 @@ import { Profile } from 'deplug'
 import m from 'mithril'
 
 export default class OptionView {
-  updateBooleanValue(event, vnode) {
+  updateBooleanValue (event, vnode) {
     this.updateValue(event.target.checked, vnode)
   }
-  updateIntegerValue(event, vnode) {
-    const {
-      option
-    } = vnode.attrs
-    let value = Number.parseInt(event.target.value)
+  updateIntegerValue (event, vnode) {
+    const { option } = vnode.attrs
+    let value = Number.parseInt(event.target.value, 10)
     if (Number.isNaN(value)) {
       value = option.default || 0
     }
@@ -20,11 +18,9 @@ export default class OptionView {
     }
     this.updateValue(Math.floor(value), vnode)
   }
-  updateStringValue(event, vnode) {
-    const {
-      option
-    } = vnode.attrs
-    let value = event.target.value
+  updateStringValue (event, vnode) {
+    const { option } = vnode.attrs
+    let { value } = event.target
     if ('pattern' in option && !(new RegExp(option.pattern)).test(value)) {
       value = option.default || ''
     }
@@ -33,32 +29,33 @@ export default class OptionView {
     }
     this.updateValue(value, vnode)
   }
-  updateEnumValue(event, vnode) {
-    const {
-      option
-    } = vnode.attrs
-    let value = event.target.options[event.target.selectedIndex].value
-      || option.default 
-      || ''
+  updateEnumValue (event, vnode) {
+    const { option } = vnode.attrs
+    const value = event.target.options[event.target.selectedIndex].value ||
+      option.default ||
+      ''
     this.updateValue(value, vnode)
   }
-  updateValue(value, vnode) {
+  updateValue (value, vnode) {
     const { pkg, option, id } = vnode.attrs
-    const pkgId = pkg ? pkg.name : '_'
+    const pkgId = pkg
+      ? pkg.name
+      : '_'
     if (value === option.default) {
       Profile.current.delete(pkgId, id)
     } else {
       Profile.current.set(pkgId, id, value)
     }
   }
-  view(vnode) {
+  view (vnode) {
     const { pkg, option, id } = vnode.attrs
-    const pkgId = pkg ? pkg.name : '_'
-    let value = Profile.current.get(pkgId, id)
-    const defaultValue = ('default' in option) ? `Default: ${option.default}` : ''
-    if (option.hasOwnProperty('toString')) {
-      value = option.toString(value)
-    }
+    const pkgId = pkg
+      ? pkg.name
+      : '_'
+    const value = Profile.current.get(pkgId, id)
+    const defaultValue = ('default' in option)
+      ? `Default: ${option.default}`
+      : ''
     switch (option.type) {
       case 'boolean':
         return m('input', {
@@ -66,40 +63,38 @@ export default class OptionView {
           onclick: (event) => {
             this.updateBooleanValue(event, vnode)
           },
-          checked: value
+          checked: value,
         })
       case 'integer':
         return m('input', {
           type: 'number',
-          value: value,
+          value,
           onchange: (event) => {
             this.updateIntegerValue(event, vnode)
           },
-          placeholder: defaultValue
+          placeholder: defaultValue,
         })
       case 'string':
         return m('input', {
           type: 'text',
-          value: value,
+          value,
           onchange: (event) => {
             this.updateStringValue(event, vnode)
           },
-          placeholder: defaultValue
+          placeholder: defaultValue,
         })
       case 'enum':
         return m('select', {
           onchange: (event) => {
             this.updateEnumValue(event, vnode)
-          }
+          },
         }, [
-          (option.values).map((item) => {
-            return m('option', {
-              selected: item.value == value,
-              value: item.value
+          (option.values).map((item) => m('option', {
+              selected: item.value === value,
+              value: item.value,
             }, [
               item.name
-            ])
-          })
+            ]))
         ])
       default:
         return m('span', ['n/a'])

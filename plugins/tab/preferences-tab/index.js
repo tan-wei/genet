@@ -6,7 +6,7 @@ export default {
       template: 'Preferences',
       less: 'theme.less',
       root: 'view.js',
-      singleton: true
+      singleton: true,
     }
-  ]
+  ],
 }

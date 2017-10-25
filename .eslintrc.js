@@ -175,7 +175,7 @@ module.exports = {
         "no-restricted-syntax": "error",
         "no-return-assign": "error",
         "no-return-await": "error",
-        "no-script-url": "error",
+        "no-script-url": "off",
         "no-self-compare": "error",
         "no-sequences": "error",
         "no-shadow": "error",

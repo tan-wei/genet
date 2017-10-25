@@ -1,9 +1,7 @@
-import {
-  Profile
-} from 'deplug'
+import { Profile } from 'deplug'
 import m from 'mithril'
 export default class ProfileView {
-  view(vnode) {
+  view () {
     return [
       m('h1', ['Profile']),
       m('table', [

@@ -3,13 +3,12 @@ import General from './general'
 import Install from './install'
 import Plugin from './plugin'
 import Profile from './profile'
-import {
-  Tab
-} from 'deplug'
+import { Tab } from 'deplug'
 import m from 'mithril'
+
 export default class View {
-  view(vnode) {
-    let comp = General
+  view (vnode) {
+    let comp = null
     switch (Tab.page) {
       case 'plugin':
         comp = Plugin
@@ -23,7 +22,10 @@ export default class View {
       case 'about':
         comp = About
         break
+      default:
+        comp = General
     }
+
     return [
       m('nav', [
         m('a', {
@@ -31,28 +33,28 @@ export default class View {
           onclick: () => {
             Tab.page = ''
           },
-          isactive: Tab.page === ''
+          isactive: Tab.page === '',
         }, ['General']),
         m('a', {
           href: 'javascript:void(0)',
           onclick: () => {
             Tab.page = 'plugin'
           },
-          isactive: Tab.page === 'plugin'
+          isactive: Tab.page === 'plugin',
         }, ['Plugin']),
         m('a', {
           href: 'javascript:void(0)',
           onclick: () => {
             Tab.page = 'profile'
           },
-          isactive: Tab.page === 'profile'
+          isactive: Tab.page === 'profile',
         }, ['Profile']),
         m('a', {
           href: 'javascript:void(0)',
           onclick: () => {
             Tab.page = 'about'
           },
-          isactive: Tab.page === 'about'
+          isactive: Tab.page === 'about',
         }, ['About Deplug'])
       ]),
       m('main', [
