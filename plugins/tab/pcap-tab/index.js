@@ -5,7 +5,7 @@ export default {
       name: 'Pcap',
       template: 'Pcap',
       less: 'theme.less',
-      root: 'view.js'
+      root: 'view.js',
     }
-  ]
+  ],
 }

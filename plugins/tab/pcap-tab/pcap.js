@@ -1,30 +1,25 @@
-import {
-  GlobalChannel,
-  Panel,
-  Theme
-} from 'deplug'
+import { GlobalChannel, Panel, Theme } from 'deplug'
 import m from 'mithril'
+
 class PanelSlot {
-  constructor() {
+  constructor () {
     GlobalChannel.on('core:theme:updated', () => {
       this.updateTheme()
     })
     this.ready = false
   }
-  oncreate(vnode) {
+  oncreate (vnode) {
     this.panel = vnode.attrs.panel
     const div = document.createElement('div')
     div.classList.add('slot-wrapper')
-    const node = div.attachShadow({
-      mode: 'open'
-    })
+    const node = div.attachShadow({ mode: 'open' })
     m.mount(node, this.panel.component)
     vnode.dom.parentNode.appendChild(div)
     this.node = node
     this.updateTheme()
     m.redraw()
   }
-  updateTheme() {
+  updateTheme () {
     Theme.current.render(this.panel.less).then((style) => {
       const styleTag = document.createElement('style')
       styleTag.classList.add('slot-style')
@@ -38,7 +33,7 @@ class PanelSlot {
       m.redraw()
     })
   }
-  onupdate(vnode) {
+  onupdate (vnode) {
     if (this.node) {
       if (this.ready && vnode.attrs.active) {
         this.node.host.style.cssText = 'visibility: visible;'
@@ -47,101 +42,89 @@ class PanelSlot {
       }
     }
   }
-  view(vnode) {
+  view () {
     return m('div')
   }
 }
 class MultiPanelSlot {
-  constructor() {
+  constructor () {
     this.panels = []
   }
-  oncreate(vnode) {
+  oncreate (vnode) {
     this.panels = Panel.get(vnode.attrs.slot)
   }
-  view(vnode) {
-    return this.panels.map((panel) => {
-      return m(PanelSlot, {
+  view () {
+    return this.panels.map((panel) => m(PanelSlot, {
         panel,
-        active: true
-      })
-    })
+        active: true,
+      }))
   }
 }
 class TabSlot {
-  constructor() {
+  constructor () {
     this.panels = []
     this.currentIndex = 0
   }
-  oncreate(vnode) {
+  oncreate (vnode) {
     this.panels = Panel.get(vnode.attrs.slot)
     m.redraw()
   }
-  activate(index) {
-    this.currentIndex = parseInt(index)
+  activate (index) {
+    this.currentIndex = Number.parseInt(index, 10)
   }
-  view(vnode) {
-    return m('div', {
-      class: 'tab-container'
-    }, [
-      m('div', {
-        class: 'tab-header'
-      }, [
-        this.panels.map((panel, index) => {
-          return m('a', {
+  view () {
+    return m('div', { class: 'tab-container' }, [
+      m('div', { class: 'tab-header' }, [
+        this.panels.map((panel, index) => m('a', {
             class: 'tab-label',
             onclick: () => this.activate(index),
-            isactive: this.currentIndex === index
+            isactive: this.currentIndex === index,
           }, [
             panel.name
-          ])
-        })
+          ]))
       ]),
-      this.panels.map((panel, index) => {
-        return m(PanelSlot, {
+      this.panels.map((panel, index) => m(PanelSlot, {
           panel,
-          active: this.currentIndex === index
-        })
-      })
+          active: this.currentIndex === index,
+        }))
     ])
   }
 }
 class DrawerView {
-  constructor() {
+  constructor () {
     this.separatorRatio = 0.5
   }
-  oncreate(vnode) {
+  oncreate (vnode) {
     this.dom = vnode.dom
     this.dragArea = vnode.dom.querySelector('#pcap-separator-drag-area')
   }
-  startDrag(event) {
+  startDrag (event) {
     this.dragArea.style.visibility = 'visible'
     if (!this.dragArea.hasAttribute('data-start-y')) {
       this.dragArea.setAttribute('data-start-y', event.clientY)
     }
   }
-  endDrag() {
+  endDrag () {
     this.dragArea.style.visibility = 'hidden'
     this.dragArea.removeAttribute('data-start-y')
   }
-  move(event) {
+  move (event) {
     this.separatorRatio = event.offsetY / this.dragArea.clientHeight
   }
-  view(vnode) {
-    return m('div', {
-      id: 'pcap-separator-wrap'
-    }, [
+  view () {
+    return m('div', { id: 'pcap-separator-wrap' }, [
       m('div', {
         class: 'vertical-handle',
         style: {
           top: `${this.separatorRatio * 100}%`,
-          transform: 'translateY(-4px)'
+          transform: 'translateY(-4px)',
         },
         onmousedown: (event) => {
           this.startDrag(event)
         },
         onmouseup: (event) => {
           this.endDrag(event)
-        }
+        },
       }),
       m('div', {
         id: 'pcap-separator-drag-area',
@@ -154,77 +137,64 @@ class DrawerView {
         },
         onmousemove: (event) => {
           this.move(event)
-        }
+        },
       }),
       m('div', {
         id: 'pcap-middle',
-        style: {
-          bottom: `${(1 - this.separatorRatio) * 100}%`
-        }
+        style: { bottom: `${(1 - this.separatorRatio) * 100}%` },
       }, [
-        m(TabSlot, {
-          slot: 'core:pcap:middle'
-        })
+        m(TabSlot, { slot: 'core:pcap:middle' })
       ]),
       m('div', {
         id: 'pcap-bottom',
-        style: {
-          top: `${this.separatorRatio * 100}%`
-        }
+        style: { top: `${this.separatorRatio * 100}%` },
       }, [
-        m(TabSlot, {
-          slot: 'core:pcap:bottom'
-        })
+        m(TabSlot, { slot: 'core:pcap:bottom' })
       ])
     ])
   }
 }
 export default class PcapView {
-  constructor() {
+  constructor () {
     this.bottomHeight = 300
   }
-  oncreate(vnode) {
+  oncreate (vnode) {
     this.dragArea = vnode.dom.querySelector('#pcap-top-drag-area')
   }
-  startDrag(event) {
+  startDrag (event) {
     this.dragArea.style.visibility = 'visible'
     if (!this.dragArea.hasAttribute('data-start-y')) {
       this.dragArea.setAttribute('data-start-y', event.clientY)
     }
   }
-  endDrag() {
+  endDrag () {
     this.dragArea.style.visibility = 'hidden'
     this.dragArea.removeAttribute('data-start-y')
   }
-  move(event) {
+  move (event) {
     const minBottomHeight = 32
     const maxBottomHeight = this.dragArea.clientHeight - minBottomHeight
     this.bottomHeight = this.dragArea.clientHeight - event.clientY
-    this.bottomHeight = Math.min(maxBottomHeight, Math.max(this.bottomHeight, minBottomHeight))
+    this.bottomHeight =
+      Math.min(maxBottomHeight, Math.max(this.bottomHeight, minBottomHeight))
   }
-  view(vnode) {
+  view () {
     return m('div', [
       m('div', {
         id: 'pcap-top',
-        style: {
-          bottom: `${this.bottomHeight}px`
-        }
+        style: { bottom: `${this.bottomHeight}px` },
       }, [
-        m(MultiPanelSlot, {
-          slot: 'core:pcap:top'
-        })
+        m(MultiPanelSlot, { slot: 'core:pcap:top' })
       ]),
       m('div', {
         class: 'vertical-handle',
-        style: {
-          bottom: `${this.bottomHeight}px`
-        },
+        style: { bottom: `${this.bottomHeight}px` },
         onmousedown: (event) => {
           this.startDrag(event)
         },
         onmouseup: (event) => {
           this.endDrag(event)
-        }
+        },
       }),
       m('div', {
         id: 'pcap-top-drag-area',
@@ -237,20 +207,14 @@ export default class PcapView {
         },
         onmousemove: (event) => {
           this.move(event)
-        }
+        },
       }),
       m('div', {
         id: 'pcap-drawer-wrap',
-        style: {
-          height: `${this.bottomHeight}px`
-        }
+        style: { height: `${this.bottomHeight}px` },
       }, [
-        m('div', {
-          id: 'pcap-tool'
-        }, [
-          m(MultiPanelSlot, {
-            slot: 'core:pcap:tool'
-          })
+        m('div', { id: 'pcap-tool' }, [
+          m(MultiPanelSlot, { slot: 'core:pcap:tool' })
         ]),
         m(DrawerView, {})
       ])

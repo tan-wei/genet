@@ -1,20 +1,19 @@
-import {Buffer} from 'buffer'
+import { Buffer } from 'buffer'
 
 export default class PcapFileImportHandler {
-  async loadFrames(stream) {
+  async loadFrames (stream) {
     const data = await new Promise((res, rej) => {
       let buf = Buffer.alloc(0)
       stream.on('data', (chunk) => {
         buf = Buffer.concat([buf, chunk])
       })
-      stream.on('end', (chunk) => {
+      stream.on('end', () => {
         res(buf)
       })
       stream.on('error', (error) => {
         rej(error)
       })
     })
-
     if (data.length < 24) {
       throw new Error('too short global header')
     }
@@ -103,16 +102,20 @@ export default class PcapFileImportHandler {
       frames.push({
         length: origLen,
         timestamp: date,
-        payload
+        payload,
       })
 
       offset += inclLen
     }
 
     return {
+      versionMajor,
+      versionMinor,
+      thiszone,
+      sigfigs,
       snaplen,
       link: network,
-      frames
+      frames,
     }
   }
 }

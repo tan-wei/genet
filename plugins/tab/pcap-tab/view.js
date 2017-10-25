@@ -4,7 +4,7 @@ import { Tab } from 'deplug'
 import m from 'mithril'
 
 export default class View {
-  view(vnode) {
+  view () {
     if (Tab.page === '') {
       return m(ConfigView, {})
     }

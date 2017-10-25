@@ -5,7 +5,7 @@ export default {
       name: 'Pcap',
       extensions: ['pcap'],
       importer: 'importer.js',
-      exporter: 'exporter.js'
+      exporter: 'exporter.js',
     }
-  ]
+  ],
 }

@@ -7,51 +7,59 @@ import {
   Channel,
   GlobalChannel
 } from 'deplug'
-import {
-  Pcap,
-  SessionFactory
-} from 'plugkit'
+import { Pcap, SessionFactory } from 'plugkit'
 import m from 'mithril'
+
 class PermissionMassage {
-  view(vnode) {
+  view () {
     if (Pcap.permission) {
-      return m('p', [m('i', {
-        class: 'fa fa-check'
-      }), ' Live capture is ready.'])
+      return m('p', [
+        m('i', { class: 'fa fa-check' }), ' Live capture is ready.'
+      ])
     }
     switch (process.platform) {
       case 'darwin':
         return m('p', [
-          m('i', {
-            class: 'fa fa-exclamation-triangle'
-          }), ' Live capture is NOT ready.', m('br'), 'Could not access /dev/bpf*.' + ' ' + 'Please check if the Deplug Helper Tool has been installed correctly.'
+          m('i', { class: 'fa fa-exclamation-triangle' }),
+          ' Live capture is NOT ready.',
+          m('br'),
+          'Could not access /dev/bpf*. Please check if the ' +
+          'Deplug Helper Tool has been installed correctly.'
         ])
       case 'linux':
         return m('p', [
-          m('i', {
-            class: 'fa fa-exclamation-triangle'
-          }), ' Live capture is NOT ready.', m('br'), 'The program does not have enough capabilities to start a live capture.', m('br'), 'Please run setcap to the executable and don’t forget to change RPATH.',
+          m('i', { class: 'fa fa-exclamation-triangle' }),
+            ' Live capture is NOT ready.',
+            m('br'),
+            'The program does not have enough capabilities to ' +
+            'start a live capture.',
+            m('br'),
+            'Please run setcap to the executable and don’t forget ' +
+            'to change RPATH.',
           m('ul', [
             m('li', ['$ DEPLUG_BIN=', process.execPath]),
-            m('li', ['$ patchelf --set-rpath $(dirname $DEPLUG_BIN) $DEPLUG_BIN']),
+            m('li', ['$ patchelf --set-rpath ' +
+              '$(dirname $DEPLUG_BIN) $DEPLUG_BIN']),
             m('li', ['$ sudo setcap cap_net_raw,cap_net_admin=p $DEPLUG_BIN'])
           ])
         ])
       case 'win32':
         return m('p', [
-          m('i', {
-            class: 'fa fa-exclamation-triangle'
-          }), ' Live capture is NOT ready.', m('br'), 'Could not load wpcap.dll.' + ' ' + 'Please install WinPcap from ', m('a', {
-            target: '_blank',
-            href: 'https://www.winpcap.org/install/'
-          }, ['https://www.winpcap.org/install/']), '.'
+          m('i', { class: 'fa fa-exclamation-triangle' }),
+            ' Live capture is NOT ready.', m('br'),
+            'Could not load wpcap.dll. Please install WinPcap from ',
+            m('a', {
+              target: '_blank',
+              href: 'https://www.winpcap.org/install/',
+            }, ['https://www.winpcap.org/install/']), '.'
         ])
+      default:
+        return m('p')
     }
-    return m('p')
   }
 }
 
-function prepareSession() {
+function prepareSession () {
   const factory = new SessionFactory()
   factory.options = Profile.current.object
   factory.networkInterface = Tab.options.ifs || ''
@@ -68,23 +76,23 @@ function prepareSession() {
   return factory
 }
 export default class ConfigView {
-  constructor() {
+  constructor () {
     this.loaded = false
     this.load()
   }
-  async load() {
+  async load () {
     await PluginLoader.loadComponents('core:dissector')
     this.loaded = true
     m.redraw()
   }
-  startPcap(vnode) {
+  startPcap (vnode) {
     const ifsSelector = vnode.dom.querySelector('[name=ifs]')
     const opt = ifsSelector.options[ifsSelector.selectedIndex]
     const ifs = opt.value
     const ifsName = opt.getAttribute('data-name')
     Object.assign(Tab.options, {
       ifs,
-      ifsName
+      ifsName,
     })
     Tab.page = 'pcap'
     setTimeout(() => {
@@ -96,12 +104,14 @@ export default class ConfigView {
         }
         Channel.emit('core:pcap:session-created', sess)
       }, (err) => {
+        // eslint-disable-next-line no-console
         console.log(err)
       })
-      GlobalChannel.emit('core:tab:set-name', Tab.id, `${Tab.options.ifsName} @ Live Capture`)
+      GlobalChannel.emit(
+        'core:tab:set-name', Tab.id, `${Tab.options.ifsName} @ Live Capture`)
     }, 100)
   }
-  oncreate(vnode) {
+  oncreate () {
     if (Tab.options.files) {
       Tab.page = 'pcap'
       m.redraw()
@@ -124,24 +134,22 @@ export default class ConfigView {
       }, 100)
     }
   }
-  view(vnode) {
+  view (vnode) {
     return m('main', [
       m('section', [
         m('h1', ['Live capture']),
         m(PermissionMassage, {}),
         m('ul', [
           m('li', [
-            m('select', {
-              name: 'ifs'
-            }, [
+            m('select', { name: 'ifs' }, [
               Pcap.devices.map((dev) => {
-                let name = dev.name
+                let { name } = dev
                 if (name !== dev.id && process.platform !== 'win32') {
                   name += ` - ${dev.id}`
                 }
                 return m('option', {
                   value: dev.id,
-                  'data-name': name
+                  'data-name': name,
                 }, [name])
               })
             ])
@@ -153,7 +161,7 @@ export default class ConfigView {
               disabled: !this.loaded,
               onclick: () => {
                 this.startPcap(vnode)
-              }
+              },
             })
           ])
         ])
