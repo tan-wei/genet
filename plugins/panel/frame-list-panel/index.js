@@ -5,7 +5,7 @@ export default {
       name: 'Frames',
       slot: 'core:pcap:top',
       less: 'theme.less',
-      root: 'view.js'
+      root: 'view.js',
     }
   ],
   options: {
@@ -14,8 +14,8 @@ export default {
       type: 'integer',
       minimum: 10,
       maximum: 1000,
-      default: 100
-    }
+      default: 100,
+    },
   },
-  reload: 'tab'
+  reload: 'tab',
 }

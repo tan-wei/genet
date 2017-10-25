@@ -5,7 +5,7 @@ export default {
       name: 'Layers',
       slot: 'core:pcap:middle',
       less: 'theme.less',
-      root: 'view.js'
+      root: 'view.js',
     }
   ],
   options: {
@@ -13,8 +13,8 @@ export default {
       title: 'Timestamp Format',
       type: 'string',
       pattern: '^.+$',
-      default: 'YYYY-MM-DDTHH:mm:ss.SSSZ'
-    }
+      default: 'YYYY-MM-DDTHH:mm:ss.SSSZ',
+    },
   },
-  reload: 'tab'
+  reload: 'tab',
 }

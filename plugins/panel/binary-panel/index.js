@@ -14,8 +14,8 @@ export default {
       title: 'Layout',
       type: 'string',
       enum: ['hex-ascii', 'hex', 'ascii'],
-      enum_titles: ['Hex + ASCII', 'Hex', 'ASCII'],
+      enumTitles: ['Hex + ASCII', 'Hex', 'ASCII'],
       default: 'hex-ascii',
-    }
+    },
   },
 }

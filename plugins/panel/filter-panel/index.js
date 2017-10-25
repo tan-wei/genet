@@ -5,8 +5,8 @@ export default {
       name: 'Filter',
       slot: 'core:pcap:tool',
       less: 'theme.less',
-      root: 'view.js'
+      root: 'view.js',
     }
   ],
-  reload: 'tab'
+  reload: 'tab',
 }

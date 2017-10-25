@@ -5,8 +5,8 @@ export default {
       name: 'Statistics',
       slot: 'core:pcap:bottom',
       less: 'theme.less',
-      root: 'view.js'
+      root: 'view.js',
     }
   ],
-  reload: 'tab'
+  reload: 'tab',
 }
