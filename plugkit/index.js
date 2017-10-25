@@ -3,59 +3,48 @@ const fs = require('fs')
 const path = require('path')
 const esprima = require('esprima')
 const escodegen = require('escodegen')
-const {rollup} = require('rollup')
+const { rollup } = require('rollup')
 const EventEmitter = require('events')
 const transform = require('./transform')
 
 const fields = Symbol('fields')
 const filterScript = fs.readFileSync(path.join(__dirname, 'filter.js'))
-
-function roll(script) {
+function roll (script) {
   return rollup({
     entry: script,
-    external: (id) => {
-      return false
-    },
-    acorn: {
-      ecmaVersion: 8
-    },
+    external: () => false,
+    acorn: { ecmaVersion: 8 },
     plugins: [],
-    onwarn: (e) => {}
+    onwarn: () => null,
   }).then((bundle) => {
-    const result = bundle.generate({
-      format: 'cjs'
-    });
+    const result = bundle.generate({ format: 'cjs' })
     return result.code
   })
 }
 
 class Session extends EventEmitter {
-  constructor(sess, options) {
+  constructor (sess, options) {
     super()
     this[fields] = {
       sess,
       transforms: options.transforms,
-      attributes: options.attributes
+      attributes: options.attributes,
     }
 
-    this.status = {
-      capture: false
-    };
-    this.filter = {};
-    this.frame = {
-      frames: 0
-    };
+    this.status = { capture: false }
+    this.filter = {}
+    this.frame = { frames: 0 }
 
     sess.setStatusCallback((status) => {
-      this.status = status;
+      this.status = status
       this.emit('status', status)
     })
     sess.setFilterCallback((filter) => {
-      this.filter = filter;
+      this.filter = filter
       this.emit('filter', filter)
     })
     sess.setFrameCallback((frame) => {
-      this.frame = frame;
+      this.frame = frame
       this.emit('frame', frame)
     })
     sess.setLoggerCallback((log) => {
@@ -63,114 +52,115 @@ class Session extends EventEmitter {
     })
   }
 
-  get networkInterface() {
+  get networkInterface () {
     return this[fields].sess.networkInterface
   }
 
-  get promiscuous() {
+  get promiscuous () {
     return this[fields].sess.promiscuous
   }
 
-  get snaplen() {
+  get snaplen () {
     return this[fields].sess.snaplen
   }
 
-  get id() {
+  get id () {
     return this[fields].sess.id
   }
 
-  get options() {
+  get options () {
     return this[fields].sess.options
   }
 
-  startPcap() {
+  startPcap () {
     return this[fields].sess.startPcap()
   }
 
-  stopPcap() {
+  stopPcap () {
     return this[fields].sess.stopPcap()
   }
 
-  destroy() {
+  destroy () {
     return this[fields].sess.destroy()
   }
 
-  getFilteredFrames(name, offset, length) {
+  getFilteredFrames (name, offset, length) {
     return this[fields].sess.getFilteredFrames(name, offset, length)
   }
 
-  getFrames(offset, length) {
+  getFrames (offset, length) {
     return this[fields].sess.getFrames(offset, length)
   }
 
-  analyze(frames) {
+  analyze (frames) {
     return this[fields].sess.analyze(frames)
   }
 
-  setDisplayFilter(name, filter) {
+  setDisplayFilter (name, filter) {
     const ast = transform(
       esprima.parse(filter),
       this[fields].transforms,
       this[fields].attributes)
-    const body = ast.body.length ? (filterScript + escodegen.generate(ast)) : ''
-    return this[fields].sess.setDisplayFilter(name, body)
-  }
-}
-
-class SessionFactory extends kit.SessionFactory {
-  constructor() {
-    super()
-    this[fields]  = {
-      tasks: [],
-      linkLayers: [],
-      transforms: [],
-      attributes: {}
+      const body = ast.body.length
+      ? (filterScript + escodegen.generate(ast))
+      : ''
+      return this[fields].sess.setDisplayFilter(name, body)
     }
   }
 
-  create() {
-    return Promise.all(this[fields].tasks).then(() => {
-      for (let link of this[fields].linkLayers) {
-        super.registerLinkLayer(link.link, link.id, link.name)
+  class SessionFactory extends kit.SessionFactory {
+    constructor () {
+      super()
+      this[fields] = {
+        tasks: [],
+        linkLayers: [],
+        transforms: [],
+        attributes: {},
       }
-      return new Session(super.create(), {
-        transforms: this[fields].transforms,
-        attributes: this[fields].attributes
+    }
+
+    create () {
+      return Promise.all(this[fields].tasks).then(() => {
+        for (const link of this[fields].linkLayers) {
+          super.registerLinkLayer(link.link, link.id, link.name)
+        }
+        return new Session(super.create(), {
+          transforms: this[fields].transforms,
+          attributes: this[fields].attributes,
+        })
       })
-    })
-  }
+    }
 
-  registerLinkLayer(layer) {
-    this[fields].linkLayers.push(layer)
-  }
+    registerLinkLayer (layer) {
+      this[fields].linkLayers.push(layer)
+    }
 
-  registerFilterTransform(trans) {
-    this[fields].transforms.push(trans)
-  }
+    registerFilterTransform (trans) {
+      this[fields].transforms.push(trans)
+    }
 
-  registerAttributes(attrs) {
-    this[fields].attributes = Object.assign(this[fields].attributes, attrs)
-  }
+    registerAttributes (attrs) {
+      this[fields].attributes = Object.assign(this[fields].attributes, attrs)
+    }
 
-  registerDissector(dissector) {
-    if (typeof dissector.main === 'string') {
-      let task = roll(dissector.main).then((script) => {
-        const func = `(function(module){${script}})`
-        super.registerDissector(func, dissector.type)
-        return Promise.resolve()
-      }).catch((err) => {
-        return Promise.reject(err)
-      })
-      this[fields].tasks.push(task)
-    } else {
-      super.registerDissector(dissector.main, dissector.type)
+    registerDissector (dissector) {
+      if (typeof dissector.main === 'string') {
+        const task = roll(dissector.main).then((script) => {
+          const func = `(function(module){${script}})`
+          super.registerDissector(func, dissector.type)
+          return Promise.resolve()
+        })
+        .catch((err) => Promise.reject(err))
+        this[fields].tasks.push(task)
+      } else {
+        super.registerDissector(dissector.main, dissector.type)
+      }
     }
   }
-}
 
-module.exports = {
-  Layer: kit.Layer,
-  Pcap: kit.Pcap,
-  SessionFactory,
-  Token: kit.Token,
-}
+  module.exports = {
+    Layer: kit.Layer,
+    Pcap: kit.Pcap,
+    SessionFactory,
+    Token: kit.Token,
+  }

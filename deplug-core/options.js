@@ -22,5 +22,5 @@ export default {
     type: 'integer',
     maximum: 0,
     default: 0,
-  }
+  },
 }

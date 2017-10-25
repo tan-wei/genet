@@ -95,10 +95,10 @@ export default {
       items: {
         type: 'integer',
         minimum: 0,
-        maximum: 65535
+        maximum: 65535,
       },
       default: [80, 8080],
-    }
+    },
   },
   reload: 'tab',
 }
