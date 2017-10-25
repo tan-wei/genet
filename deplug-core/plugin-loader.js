@@ -14,9 +14,9 @@ export default class PluginLoader {
       const enabled = !Profile.current
         .get('_', `disabledPlugins.${plugin.pkg.name}`, false)
       if (enabled) {
-        for (const opt of plugin.options) {
+        for (const [id, opt] of Object.entries(plugin.options)) {
           if ('default' in opt) {
-            Profile.setDefault(plugin.pkg.name, opt.id, opt.default)
+            Profile.setDefault(plugin.pkg.name, id, opt.default)
           }
         }
 

@@ -132,8 +132,8 @@ export default class Profile extends EventEmitter {
   }
 }
 
-for (const opt of options) {
+for (const [id, opt] of Object.entries(options)) {
   if ('default' in opt) {
-    Profile.setDefault('_', opt.id, opt.default)
+    Profile.setDefault('_', id, opt.default)
   }
 }

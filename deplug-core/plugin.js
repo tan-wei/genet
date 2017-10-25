@@ -49,7 +49,7 @@ export default class Plugin {
       func(module)
       compList = objpath.get(module.exports, 'components', [])
     }
-    const options = objpath.get(module.exports, 'options', [])
+    const options = objpath.get(module.exports, 'options', {})
     return new Plugin(rootDir, pkg, compList, options)
   }
 

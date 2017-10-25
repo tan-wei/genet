@@ -88,16 +88,17 @@ export default {
       main: 'ntp.js',
     }
   ],
-  options: [
-    {
-      id: 'httpPorts',
-      name: 'Restrict HTTP Ports',
-      type: 'string',
-      regexp: '^\\s*([0-9]+,\\s*)*[0-9]*\\s*$',
+  options: {
+    httpPorts: {
+      title: 'Restrict HTTP Ports',
+      type: 'array',
+      items: {
+        type: 'integer',
+        minimum: 0,
+        maximum: 65535
+      },
       default: [80, 8080],
-      toJSON: (str) => str.split(',').map((port) => Number.parseInt(port, 10)),
-      toString: (json) => json.join(', '),
     }
-  ],
+  },
   reload: 'tab',
 }

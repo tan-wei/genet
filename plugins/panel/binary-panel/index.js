@@ -9,26 +9,13 @@ export default {
     }
   ],
   reload: 'tab',
-  options: [
-    {
-      id: 'layout',
-      name: 'Layout',
-      type: 'enum',
-      values: [
-        {
-          value: 'hex-ascii',
-          name: 'Hex + ASCII',
-        },
-        {
-          value: 'hex',
-          name: 'Hex',
-        },
-        {
-          value: 'ascii',
-          name: 'ASCII',
-        }
-      ],
+  options: {
+    layout: {
+      title: 'Layout',
+      type: 'string',
+      enum: ['hex-ascii', 'hex', 'ascii'],
+      enum_titles: ['Hex + ASCII', 'Hex', 'ASCII'],
       default: 'hex-ascii',
     }
-  ],
+  },
 }

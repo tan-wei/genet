@@ -12,7 +12,7 @@ export default class PluginCard {
   }
   view(vnode) {
     const pkg = vnode.attrs.pkg
-    const options = vnode.attrs.options || []
+    const options = vnode.attrs.options || {}
     const enabled = !Profile.current.get('_', `disabledPlugins.${pkg.name}`, false)
     const name = pkg.name.replace(/^deplugin-/, '')
     const builtin = !pkg.name.startsWith('deplugin-')
@@ -59,16 +59,18 @@ export default class PluginCard {
       ]),
       m('table', {
         style: {
-          display: vnode.attrs.installed && options.length ? 'block' : 'none'
+          display: vnode.attrs.installed &&
+            Object.keys(options).length ? 'block' : 'none'
         }
       }, [
-        options.map((opt) => {
+        Object.entries(options).map(([id, opt]) => {
           return m('tr', [
             m('td', {
-              'data-tooltip': `.${opt.id}`
-            }, [opt.name]),
+              'data-tooltip': `.${id}`
+            }, [opt.title]),
             m('td', [m(OptionView, {
               pkg,
+              id,
               option: opt
             })])
           ])

@@ -8,14 +8,13 @@ export default {
       root: 'view.js'
     }
   ],
-  options: [
-    {
-      id: 'tsformat',
-      name: 'Timestamp Format',
+  options: {
+    tsformat: {
+      title: 'Timestamp Format',
       type: 'string',
-      regexp: '^.+$',
+      pattern: '^.+$',
       default: 'YYYY-MM-DDTHH:mm:ss.SSSZ'
     }
-  ],
+  },
   reload: 'tab'
 }

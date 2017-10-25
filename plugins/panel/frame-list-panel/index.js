@@ -8,15 +8,14 @@ export default {
       root: 'view.js'
     }
   ],
-  options: [
-    {
-      id: 'mapResolution',
-      name: 'Minimap Resolution',
+  options: {
+    mapResolution: {
+      title: 'Minimap Resolution',
       type: 'integer',
-      min: 10,
-      max: 1000,
+      minimum: 10,
+      maximum: 1000,
       default: 100
     }
-  ],
+  },
   reload: 'tab'
 }

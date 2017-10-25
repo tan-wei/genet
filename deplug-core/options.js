@@ -1,30 +1,26 @@
-export default [
-  {
-    id: 'snaplen',
-    name: 'Snapshot Length (Bytes)',
+export default {
+  snaplen: {
+    title: 'Snapshot Length (Bytes)',
     type: 'integer',
-    min: 0,
+    minimum: 0,
     default: 2048,
   },
-  {
-    id: 'confidenceThreshold',
-    name: 'Confidence Threshold (%)',
+  confidenceThreshold: {
+    title: 'Confidence Threshold (%)',
     type: 'integer',
-    min: 0,
-    max: 100,
+    minimum: 0,
+    maximum: 100,
     default: 100,
   },
-  {
-    id: 'noPrebuilt',
-    name: 'Don\'t Use Pre-Built Binaries',
+  noPrebuilt: {
+    title: 'Don\'t Use Pre-Built Binaries',
     type: 'boolean',
     default: false,
   },
-  {
-    id: 'concurrency',
-    name: 'Concurrency',
+  concurrency: {
+    title: 'Concurrency',
     type: 'integer',
-    min: 0,
+    maximum: 0,
     default: 0,
   }
-]
+}

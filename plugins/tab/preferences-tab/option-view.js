@@ -1,7 +1,6 @@
-import {
-  Profile
-} from 'deplug'
+import { Profile } from 'deplug'
 import m from 'mithril'
+
 export default class OptionView {
   updateBooleanValue(event, vnode) {
     this.updateValue(event.target.checked, vnode)
@@ -26,7 +25,7 @@ export default class OptionView {
       option
     } = vnode.attrs
     let value = event.target.value
-    if ('regexp' in option && !(new RegExp(option.regexp)).test(value)) {
+    if ('pattern' in option && !(new RegExp(option.pattern)).test(value)) {
       value = option.default || ''
     }
     if ('toJSON' in option) {
@@ -38,28 +37,24 @@ export default class OptionView {
     const {
       option
     } = vnode.attrs
-    let value = event.target.options[event.target.selectedIndex].value || option.default || ''
+    let value = event.target.options[event.target.selectedIndex].value
+      || option.default 
+      || ''
     this.updateValue(value, vnode)
   }
   updateValue(value, vnode) {
-    const {
-      pkg,
-      option
-    } = vnode.attrs
-    const id = pkg ? pkg.name : '_'
+    const { pkg, option, id } = vnode.attrs
+    const pkgId = pkg ? pkg.name : '_'
     if (value === option.default) {
-      Profile.current.delete(id, option.id)
+      Profile.current.delete(pkgId, id)
     } else {
-      Profile.current.set(id, option.id, value)
+      Profile.current.set(pkgId, id, value)
     }
   }
   view(vnode) {
-    const {
-      pkg,
-      option
-    } = vnode.attrs
-    const id = pkg ? pkg.name : '_'
-    let value = Profile.current.get(id, option.id)
+    const { pkg, option, id } = vnode.attrs
+    const pkgId = pkg ? pkg.name : '_'
+    let value = Profile.current.get(pkgId, id)
     const defaultValue = ('default' in option) ? `Default: ${option.default}` : ''
     if (option.hasOwnProperty('toString')) {
       value = option.toString(value)
