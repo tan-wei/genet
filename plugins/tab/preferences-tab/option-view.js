@@ -1,5 +1,6 @@
 import { Profile } from 'deplug'
 import m from 'mithril'
+import objpath from 'object-path'
 
 export default class OptionView {
   updateBooleanValue (event, vnode) {
@@ -29,11 +30,19 @@ export default class OptionView {
     }
     this.updateValue(value, vnode)
   }
-  updateEnumValue (event, vnode) {
+  updateArrayValue (event, vnode) {
     const { option } = vnode.attrs
-    const value = event.target.options[event.target.selectedIndex].value ||
-      option.default ||
-      ''
+    let { value } = event.target
+    const type = objpath.get(option, 'items.type', '')
+    value = value.split(',').map((item) => {
+      switch (type) {
+        case 'number':
+        case 'integer':
+          return Number.parseInt(JSON.parse(item), 10)
+        default:
+          return item
+      }
+    })
     this.updateValue(value, vnode)
   }
   updateValue (value, vnode) {
@@ -54,7 +63,7 @@ export default class OptionView {
       : '_'
     const value = Profile.current.get(pkgId, id)
     const defaultValue = ('default' in option)
-      ? `Default: ${option.default}`
+      ? option.default
       : ''
     if ('enum' in option) {
       return m('select', {
@@ -86,7 +95,7 @@ export default class OptionView {
           onchange: (event) => {
             this.updateIntegerValue(event, vnode)
           },
-          placeholder: defaultValue,
+          placeholder: `Default: ${defaultValue}`,
         })
       case 'string':
         return m('input', {
@@ -95,7 +104,18 @@ export default class OptionView {
           onchange: (event) => {
             this.updateStringValue(event, vnode)
           },
-          placeholder: defaultValue,
+          placeholder: `Default: ${defaultValue}`,
+        })
+      case 'array':
+        return m('input', {
+          type: 'text',
+          value: value.join(', '),
+          onchange: (event) => {
+            this.updateArrayValue(event, vnode)
+          },
+          placeholder: Array.isArray(defaultValue)
+            ? `Default: ${defaultValue.join(', ')}`
+            : '',
         })
       default:
         return m('span', ['Unsupported Schema'])
