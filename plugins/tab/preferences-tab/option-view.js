@@ -56,6 +56,20 @@ export default class OptionView {
     const defaultValue = ('default' in option)
       ? `Default: ${option.default}`
       : ''
+    if ('enum' in option) {
+      return m('select', {
+        onchange: (event) => {
+          this.updateEnumValue(event, vnode)
+        },
+      }, [
+        (option.enum).map((item, index) => m('option', {
+            selected: item === value,
+            value: item,
+          }, [
+            ('enumTitles' in option) ? option.enumTitles[index] : item
+          ]))
+      ])
+    }
     switch (option.type) {
       case 'boolean':
         return m('input', {
@@ -83,21 +97,8 @@ export default class OptionView {
           },
           placeholder: defaultValue,
         })
-      case 'enum':
-        return m('select', {
-          onchange: (event) => {
-            this.updateEnumValue(event, vnode)
-          },
-        }, [
-          (option.values).map((item) => m('option', {
-              selected: item.value === value,
-              value: item.value,
-            }, [
-              item.name
-            ]))
-        ])
       default:
-        return m('span', ['n/a'])
+        return m('span', ['Unsupported Schema'])
     }
   }
 }
