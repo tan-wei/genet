@@ -1,28 +1,28 @@
 class Attr {
   // @property Integer
-  get id() {}
+  get id () {}
 
   // @property [Integer, Integer]
-  get range() {}
+  get range () {}
 
   // @property [Integer, Integer]
-  set range(range) {}
+  set range (range) {}
 
   // @property Any
-  get value() {}
+  get value () {}
 
   // @property Any
-  set value(value) {}
+  set value (value) {}
 
   // @property String
-  get type() {}
+  get type () {}
 
   // @property String
-  set type(type) {}
+  set type (type) {}
 
   // @property String
-  get error() {}
+  get error () {}
 
   // @property String
-  set error(error) {}
+  set error (error) {}
 }

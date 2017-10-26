@@ -1,23 +1,22 @@
 const fields = Symbol('fields')
-
 class StreamReader {
   // Construct a new StreamReader instance
   // @return StreamReader
-  constructor() {
+  constructor () {
     this[fields] = {
       length: 0,
-      slices: []
+      slices: [],
     }
   }
 
   // Total length of the added payloads
   // @property Integer
-  get length() {
+  get length () {
     return this[fields].length
   }
 
   // Add all slices in `payload` to the stream.
-  addPayload(payload) {
+  addPayload (payload) {
     if (typeof payload !== 'object' || payload === null ||
         payload.constructor.name !== 'Payload') {
       throw new TypeError('First argument must be an Uint8Array')
@@ -28,7 +27,7 @@ class StreamReader {
   }
 
   // Add `slice` to the stream.
-  addSlice(slice) {
+  addSlice (slice) {
     if (!(slice instanceof Uint8Array)) {
       throw new TypeError('First argument must be an Uint8Array')
     }
@@ -38,11 +37,11 @@ class StreamReader {
 
   // Find the first occurrence of `pattern` in the stream.
   // The first `offset` bytes in the stream are skipped.
-  ///
+  // /
   // Return the _end_ position of the found byte sequence,
-  // or -1 if no such byte sequence is found.
+  // Or -1 if no such byte sequence is found.
   // @return Integer
-  search(pattern, offset = 0) {
+  search (pattern, offset = 0) {
     if (!(pattern instanceof Uint8Array)) {
       throw new TypeError('First argument must be an Uint8Array')
     }
@@ -57,13 +56,13 @@ class StreamReader {
     const slices = this[fields].slices
     let beginOffset = 0
     let begin = 0
-    for (; begin < slices.length && (beginOffset += slices[begin].length) <= offset; ++begin);
+    for (; begin < slices.length && (beginOffset += slices[begin].length) <= offset; ++begin) {
+ }
     if (beginOffset <= offset) {
       return -1
     }
     beginOffset -= slices[begin].length
-    let front = beginOffset
-
+    const front = beginOffset
     for (let i = begin; i < slices.length; ++i) {
       const slice = slices[i]
       let index = 0
@@ -95,7 +94,7 @@ class StreamReader {
   // Read a byte sequence from the stream up to `length` bytes.
   // The first `offset` bytes in the stream are skipped.
   // @return Uint8Array
-  read(length, offset = 0) {
+  read (length, offset = 0) {
     if (!Number.isInteger(length)) {
       throw new TypeError('First argument must be an integer')
     }
@@ -106,15 +105,16 @@ class StreamReader {
     const slices = this[fields].slices
     let beginOffset = 0
     let begin = 0
-    for (; begin < slices.length && (beginOffset += slices[begin].length) <= offset; ++begin);
+    for (; begin < slices.length && (beginOffset += slices[begin].length) <= offset; ++begin) {
+ }
     if (beginOffset <= offset) {
       return new Uint8Array()
     }
     beginOffset -= slices[begin].length
     let endOffset = beginOffset
     let end = begin
-    for (; end < slices.length && (endOffset += slices[end].length) < offset + length; ++end);
-    let continuous = true
+    for (; end < slices.length && (endOffset += slices[end].length) < offset + length; ++end) { }
+    const continuous = true
     const buflen = Math.min(length, endOffset - beginOffset)
     const sliceOffset = offset - beginOffset
     if (slices[begin].length >= sliceOffset + buflen) {

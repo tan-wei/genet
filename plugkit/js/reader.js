@@ -1,9 +1,8 @@
 const fields = Symbol('fields')
-
 class Reader {
   // Construct a new Reader instance
   // @return Reader
-  constructor(data) {
+  constructor (data) {
     if (!(data instanceof Uint8Array)) {
       throw new TypeError('First argument must be an Uint8Array')
     }
@@ -11,18 +10,16 @@ class Reader {
       data,
       lastRange: [0, 0],
       lastError: '',
-      getDateView: () => {
-        return new DataView(data.buffer, data.byteOffset, data.byteLength)
-      },
+      getDateView: () => new DataView(data.buffer, data.byteOffset, data.byteLength),
       nextRange: (size) => {
         this[fields].lastRange[0] = this[fields].lastRange[1]
         this[fields].lastRange[1] = this[fields].lastRange[0] + size
-      }
+      },
     }
   }
 
   // @return UInt8Array
-  slice(begin, end) {
+  slice (begin, end) {
     if (!Number.isInteger(begin)) {
       throw new TypeError('First argument must be an integer')
     }
@@ -47,7 +44,7 @@ class Reader {
   }
 
   // @return UInt8Array
-  sliceAll(begin = 0) {
+  sliceAll (begin = 0) {
     if (!Number.isInteger(begin)) {
       throw new TypeError('First argument must be an integer')
     }
@@ -66,7 +63,7 @@ class Reader {
 
   // Returns an unsigned 8-bit integer
   // @return Integer
-  getUint8() {
+  getUint8 () {
     try {
       const value = this[fields].getDateView().getUint8(this[fields].lastRange[1])
       this[fields].nextRange(1)
@@ -78,7 +75,7 @@ class Reader {
   }
 
   // @return Integer
-  getInt8() {
+  getInt8 () {
     try {
       const value = this[fields].getDateView().getInt8(this[fields].lastRange[1])
       this[fields].nextRange(1)
@@ -90,7 +87,7 @@ class Reader {
   }
 
   // @return Integer
-  getUint16(littleEndian = false) {
+  getUint16 (littleEndian = false) {
     if (typeof littleEndian !== 'boolean') {
       throw new TypeError('First argument must be boolean')
     }
@@ -105,7 +102,7 @@ class Reader {
   }
 
   // @return Integer
-  getUint32(littleEndian = false) {
+  getUint32 (littleEndian = false) {
     if (typeof littleEndian !== 'boolean') {
       throw new TypeError('First argument must be boolean')
     }
@@ -120,7 +117,7 @@ class Reader {
   }
 
   // @return Integer
-  getInt16(littleEndian = false) {
+  getInt16 (littleEndian = false) {
     if (typeof littleEndian !== 'boolean') {
       throw new TypeError('First argument must be boolean')
     }
@@ -135,7 +132,7 @@ class Reader {
   }
 
   // @return Integer
-  getInt32(littleEndian = false) {
+  getInt32 (littleEndian = false) {
     if (typeof littleEndian !== 'boolean') {
       throw new TypeError('First argument must be boolean')
     }
@@ -150,7 +147,7 @@ class Reader {
   }
 
   // @return Double
-  getFloat32(littleEndian = false) {
+  getFloat32 (littleEndian = false) {
     if (typeof littleEndian !== 'boolean') {
       throw new TypeError('First argument must be boolean')
     }
@@ -165,7 +162,7 @@ class Reader {
   }
 
   // @return Double
-  getFloat64(littleEndian = false) {
+  getFloat64 (littleEndian = false) {
     if (typeof littleEndian !== 'boolean') {
       throw new TypeError('First argument must be boolean')
     }
@@ -180,24 +177,24 @@ class Reader {
   }
 
   // @property [Integer, Integer]
-  get lastRange() {
+  get lastRange () {
     return this[fields].lastRange
   }
 
   // @property [Integer, Integer]
-  set lastRange(value) {
+  set lastRange (value) {
     if (Array.isArray(value) && value.length >= 2) {
       this[fields].lastRange = value.slice(0, 2)
     }
   }
 
   // @property String
-  get lastError() {
+  get lastError () {
     return this[fields].lastError
   }
 
   // @property Uint8Array
-  get data() {
+  get data () {
     return this[fields].data
   }
 }

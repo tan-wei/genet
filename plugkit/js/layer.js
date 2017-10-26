@@ -1,8 +1,8 @@
 const layer = {}
-Object.defineProperty(layer, 'ConfDecodable', {value: 0})
-Object.defineProperty(layer, 'ConfPossible',  {value: 1})
-Object.defineProperty(layer, 'ConfProbable',  {value: 2})
-Object.defineProperty(layer, 'ConfExact',     {value: 3})
+Object.defineProperty(layer, 'ConfDecodable', { value: 0 })
+Object.defineProperty(layer, 'ConfPossible', { value: 1 })
+Object.defineProperty(layer, 'ConfProbable', { value: 2 })
+Object.defineProperty(layer, 'ConfExact', { value: 3 })
 exports.Layer = layer
 
 class Layer {
@@ -11,60 +11,60 @@ class Layer {
   //
   // If no attribute is found, return `null`.
   // @return Attr | null
-  attr(id) {}
+  attr (id) {}
 
   // @return Layer
-  addLayer(id) {}
+  addLayer (id) {}
 
   // @return Layer
-  addSubLayer(id) {}
+  addSubLayer (id) {}
 
   // @return Paylaod
-  addPayload() {}
+  addPayload () {}
 
   // @return Attr
-  addAttr(id) {}
+  addAttr (id) {}
 
-  addTag(id) {}
+  addTag (id) {}
 
   // Return a JSON representation of the layer.
   // @return Object
-  toJSON() {}
+  toJSON () {}
 
   // @property String
-  get id() {}
+  get id () {}
 
   // @property Integer
-  get worker() {}
+  get worker () {}
 
   // @property Integer
-  set worker(worker) {}
+  set worker (worker) {}
 
   // @property Integer
-  get confidence() {}
+  get confidence () {}
 
   // @property Integer
-  set confidence(confidence) {}
+  set confidence (confidence) {}
 
   // @property Layer | null
-  get parent() {}
+  get parent () {}
 
   // @property Frame
-  get frame() {}
+  get frame () {}
 
   // Array of the child layers.
   // @property Array<Layer>
-  get layers() {}
+  get layers () {}
 
   // Array of the layer attrs.
   // @property Array<Attr>
-  get attrs() {}
+  get attrs () {}
 
   // Array of the layer payloads.
   // @property Array<Payload>
-  get payloads() {}
+  get payloads () {}
 
   // Array of the layer tags.
   // @property Array<String>
-  get tags() {}
+  get tags () {}
 }

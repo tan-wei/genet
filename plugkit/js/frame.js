@@ -1,28 +1,28 @@
 class Frame {
   // @property Date
-  get timestamp() {}
+  get timestamp () {}
 
   // @property Integer
-  get length() {}
+  get length () {}
 
   // @property Integer
-  get index() {}
+  get index () {}
 
   // @property Layer
-  get rootLayer() {}
+  get rootLayer () {}
 
   // @property Layer
-  get primaryLayer() {}
+  get primaryLayer () {}
 
   // @property Array<Layer>
-  get leafLayers() {}
+  get leafLayers () {}
 
   // @property Integer
-  get sourceId() {}
+  get sourceId () {}
 
   // @return Attr | null
-  attr(id) {}
+  attr (id) {}
 
   // @return Layer | null
-  layer(id) {}
+  layer (id) {}
 }
