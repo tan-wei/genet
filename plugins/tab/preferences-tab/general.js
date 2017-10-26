@@ -28,10 +28,13 @@ export default class GeneralView {
         ])]),
         Object.entries(Profile.globalOptions).map(([id, opt]) => m('tr', [
             m('td', { 'data-tooltip': `.${id}` }, [opt.title]),
-            m('td', [m(OptionView, {
-              option: opt,
-              id,
-            })])
+            m('td', [
+              m(OptionView, {
+                option: opt,
+                id,
+              }),
+              m('small', { class: 'description' }, [opt.description])
+            ])
           ]))
       ])
     ]

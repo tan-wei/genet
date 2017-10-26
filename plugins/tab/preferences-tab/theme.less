@@ -35,7 +35,7 @@ main {
     border-spacing: 0;
     tr {
       td:first-child {
-        vertical-align: middle;
+        vertical-align: top;
         min-width: 220px;
         font-weight: bold;
         color: @theme-dark-fg;
@@ -46,6 +46,12 @@ main {
       td {
         padding: 5px;
         font-size: 1.2em;
+      }
+      small.description {
+        display: block;
+        font-size: 0.8em;
+        padding: 5px 0px;
+        opacity: 0.7;
       }
       padding: 10px;
     }

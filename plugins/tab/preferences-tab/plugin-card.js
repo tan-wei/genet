@@ -72,11 +72,14 @@ export default class PluginCard {
       }, [
         Object.entries(options).map(([id, opt]) => m('tr', [
           m('td', { 'data-tooltip': `.${id}` }, [opt.title]),
-          m('td', [m(OptionView, {
-            pkg,
-            id,
-            option: opt,
-          })])
+          m('td', [
+            m(OptionView, {
+              pkg,
+              id,
+              option: opt,
+            }),
+            m('small', { class: 'description' }, [opt.description])
+          ])
         ]))
       ])
     ])

@@ -97,6 +97,7 @@ export default {
         minimum: 0,
         maximum: 65535,
       },
+      uniqueItems: true,
       default: [80, 8080],
     },
   },

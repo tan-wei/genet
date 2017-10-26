@@ -11,6 +11,7 @@ export default {
   options: {
     mapResolution: {
       title: 'Minimap Resolution',
+      description: 'Higher value may cause a performance issue',
       type: 'integer',
       minimum: 10,
       maximum: 1000,

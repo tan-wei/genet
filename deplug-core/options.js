@@ -14,6 +14,7 @@ export default {
   },
   noPrebuilt: {
     title: 'Don\'t Use Pre-Built Binaries',
+    description: 'Force to build native add-ons from source',
     type: 'boolean',
     default: false,
   },
