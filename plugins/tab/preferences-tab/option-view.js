@@ -12,9 +12,9 @@ export default class OptionView {
     if (Number.isNaN(value)) {
       value = option.default || 0
     }
-    if ('min' in option && value < option.min) {
+    if (value < objpath.get(option, 'min', NaN)) {
       value = option.min
-    } else if ('max' in option && value > option.max) {
+    } else if (objpath.get(option, 'max', NaN) > option.max) {
       value = option.max
     }
     this.updateValue(Math.floor(value), vnode)
@@ -22,11 +22,8 @@ export default class OptionView {
   updateStringValue (event, vnode) {
     const { option } = vnode.attrs
     let { value } = event.target
-    if ('pattern' in option && !(new RegExp(option.pattern)).test(value)) {
+    if (!(new RegExp(objpath.get(option, 'pattern', ''))).test(value)) {
       value = option.default || ''
-    }
-    if ('toJSON' in option) {
-      value = option.toJSON(value)
     }
     this.updateValue(value, vnode)
   }
@@ -62,9 +59,7 @@ export default class OptionView {
       ? pkg.name
       : '_'
     const value = Profile.current.get(pkgId, id)
-    const defaultValue = ('default' in option)
-      ? option.default
-      : ''
+    const defaultValue = objpath.get(option, 'default', '')
     if ('enum' in option) {
       return m('select', {
         onchange: (event) => {
@@ -75,7 +70,7 @@ export default class OptionView {
             selected: item === value,
             value: item,
           }, [
-            ('enumTitles' in option) ? option.enumTitles[index] : item
+            objpath.get(option, 'enumTitles', option.enum)[index]
           ]))
       ])
     }
