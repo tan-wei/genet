@@ -37,7 +37,7 @@ export default class OptionView {
         case 'integer':
           return Number.parseInt(JSON.parse(item), 10)
         default:
-          return item
+          return item.trim()
       }
     })
     this.updateValue(value, vnode)
