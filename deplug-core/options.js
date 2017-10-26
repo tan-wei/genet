@@ -27,7 +27,10 @@ export default {
   pluginRegistries: {
     title: 'Plugin Registries',
     type: 'array',
-    items: { type: 'string' },
+    items: {
+      type: 'string',
+      format: 'uri',
+    },
     default: ['https://deplug.net/registry/list.yml'],
   },
 }
