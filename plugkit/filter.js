@@ -1,3 +1,5 @@
+/* eslint-disable camelcase, complexity, no-unused-vars */
+
 function $_value (value) {
   if (typeof value === 'object' && value !== null) {
     if (value.constructor.name === 'Attr') {
