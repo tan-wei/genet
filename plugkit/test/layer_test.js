@@ -1,6 +1,5 @@
 const assert = require('assert')
-const {Testing, Token, Layer} = require('../test')
-
+const { Testing, Layer } = require('../test')
 describe('Layer', () => {
   describe('#constructor()', () => {
     it('should throw error', () => {
@@ -31,7 +30,7 @@ describe('Layer', () => {
     it('should throw for wrong arguments', () => {
       const ctx = Testing.createContextInstance()
       const layer = Testing.createLayerInstance('eth')
-      assert.throws(() => layer.addAttr(ctx),   TypeError)
+      assert.throws(() => layer.addAttr(ctx), TypeError)
       assert.throws(() => layer.addAttr(ctx, []), TypeError)
     })
     it('should return Attr', () => {
@@ -44,7 +43,7 @@ describe('Layer', () => {
     it('should throw for wrong arguments', () => {
       const ctx = Testing.createContextInstance()
       const layer = Testing.createLayerInstance('eth')
-      assert.throws(() => layer.addLayer(ctx),   TypeError)
+      assert.throws(() => layer.addLayer(ctx), TypeError)
       assert.throws(() => layer.addLayer(ctx, []), TypeError)
     })
     it('should return Layer', () => {
@@ -57,13 +56,14 @@ describe('Layer', () => {
     it('should throw for wrong arguments', () => {
       const ctx = Testing.createContextInstance()
       const layer = Testing.createLayerInstance('eth')
-      assert.throws(() => layer.addSubLayer(ctx),   TypeError)
+      assert.throws(() => layer.addSubLayer(ctx), TypeError)
       assert.throws(() => layer.addSubLayer(ctx, []), TypeError)
     })
     it('should return Layer', () => {
       const ctx = Testing.createContextInstance()
       const layer = Testing.createLayerInstance('eth')
-      assert.strictEqual('Layer', layer.addSubLayer(ctx, 'ipv4').constructor.name)
+      assert.strictEqual(
+        'Layer', layer.addSubLayer(ctx, 'ipv4').constructor.name)
     })
   })
   describe('#addPayload()', () => {
@@ -76,14 +76,14 @@ describe('Layer', () => {
   describe('#addTag()', () => {
     it('should throw for wrong arguments', () => {
       const layer = Testing.createLayerInstance('eth')
-      assert.throws(() => layer.addTag(),   TypeError)
+      assert.throws(() => layer.addTag(), TypeError)
       assert.throws(() => layer.addTag([]), TypeError)
     })
   })
   describe('#attr()', () => {
     it('should throw for wrong arguments', () => {
       const layer = Testing.createLayerInstance('eth')
-      assert.throws(() => layer.attr(),   TypeError)
+      assert.throws(() => layer.attr(), TypeError)
       assert.throws(() => layer.attr([]), TypeError)
     })
     it('should return null for unknown id', () => {

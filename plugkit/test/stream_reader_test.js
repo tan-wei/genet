@@ -1,11 +1,10 @@
 const assert = require('assert')
-const {Testing, StreamReader} = require('../test')
-
+const { Testing, StreamReader } = require('../test')
 describe('StreamReader', () => {
   describe('#addPayload()', () => {
     it('should throw for wrong arguments', () => {
       const reader = new StreamReader()
-      assert.throws(() => reader.addPayload(),   TypeError)
+      assert.throws(() => reader.addPayload(), TypeError)
       assert.throws(() => reader.addPayload([]), TypeError)
     })
     it('should accept a Payload', () => {
@@ -19,7 +18,7 @@ describe('StreamReader', () => {
   describe('#addSlice()', () => {
     it('should throw for wrong arguments', () => {
       const reader = new StreamReader()
-      assert.throws(() => reader.addSlice(),  TypeError)
+      assert.throws(() => reader.addSlice(), TypeError)
       assert.throws(() => reader.addSlice(0), TypeError)
     })
     it('should accept an Uint8Array', () => {
@@ -30,10 +29,10 @@ describe('StreamReader', () => {
   describe('#search()', () => {
     it('should throw for wrong arguments', () => {
       const reader = new StreamReader()
-      assert.throws(() => reader.search(),                     TypeError)
-      assert.throws(() => reader.search([]),                   TypeError)
+      assert.throws(() => reader.search(), TypeError)
+      assert.throws(() => reader.search([]), TypeError)
       assert.throws(() => reader.search(new Uint8Array(), []), TypeError)
-      assert.throws(() => reader.search([], 0),                TypeError)
+      assert.throws(() => reader.search([], 0), TypeError)
     })
     it('should return -1 when no such pattern is found', () => {
       const reader = new StreamReader()

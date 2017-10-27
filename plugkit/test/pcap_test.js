@@ -1,6 +1,5 @@
 const assert = require('assert')
-const {Pcap, Token} = require('../test')
-
+const { Pcap } = require('../test')
 describe('Pcap', () => {
   describe('.devices', () => {
     it('should return available network devices', () => {

@@ -1,12 +1,11 @@
 const assert = require('assert')
-const {Testing} = require('../test')
-
+const { Testing } = require('../test')
 describe('Payload', () => {
   describe('#addSlice()', () => {
     it('should throw for wrong arguments', () => {
       const payload = Testing.createPayloadInstance()
-      assert.throws(() => payload.addSlice(),                    TypeError)
-      assert.throws(() => payload.addSlice(0),                   TypeError)
+      assert.throws(() => payload.addSlice(), TypeError)
+      assert.throws(() => payload.addSlice(0), TypeError)
       assert.throws(() => payload.addSlice(new Uint8Array([0])), TypeError)
     })
     it('should accept an externalized Uint8Array', () => {
@@ -19,7 +18,7 @@ describe('Payload', () => {
   describe('#addAttr()', () => {
     it('should throw for wrong arguments', () => {
       const payload = Testing.createPayloadInstance()
-      assert.throws(() => payload.addAttr(),   TypeError)
+      assert.throws(() => payload.addAttr(), TypeError)
       assert.throws(() => payload.addAttr([]), TypeError)
     })
     it('should return Attr', () => {
@@ -30,7 +29,7 @@ describe('Payload', () => {
   describe('#attr()', () => {
     it('should throw for wrong arguments', () => {
       const payload = Testing.createPayloadInstance()
-      assert.throws(() => payload.attr(),   TypeError)
+      assert.throws(() => payload.attr(), TypeError)
       assert.throws(() => payload.attr([]), TypeError)
     })
     it('should return null for unknown id', () => {

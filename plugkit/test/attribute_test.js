@@ -1,6 +1,5 @@
 const assert = require('assert')
-const {Testing, Token} = require('../test')
-
+const { Testing, Token } = require('../test')
 describe('Attr', () => {
   describe('#id', () => {
     it('should return attribute id', () => {
@@ -17,10 +16,10 @@ describe('Attr', () => {
       assert.deepEqual(true, attr.value)
       attr.value = -0.5
       assert.deepEqual(-0.5, attr.value)
-      attr.value = "hello"
-      assert.deepEqual("hello", attr.value)
-      attr.value = {a: '0'}
-      assert.deepEqual({a: '0'}, attr.value)
+      attr.value = 'hello'
+      assert.deepEqual('hello', attr.value)
+      attr.value = { abc: '0' }
+      assert.deepEqual({ abc: '0' }, attr.value)
       attr.value = [123, 456]
       assert.deepEqual([123, 456], attr.value)
     })
