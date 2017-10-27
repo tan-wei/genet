@@ -1,8 +1,8 @@
 const layer = {}
-Object.defineProperty(layer, 'ConfDecodable', { value: 0 })
-Object.defineProperty(layer, 'ConfPossible', { value: 1 })
-Object.defineProperty(layer, 'ConfProbable', { value: 2 })
-Object.defineProperty(layer, 'ConfExact', { value: 3 })
+Reflect.defineProperty(layer, 'ConfDecodable', { value: 0 })
+Reflect.defineProperty(layer, 'ConfPossible', { value: 1 })
+Reflect.defineProperty(layer, 'ConfProbable', { value: 2 })
+Reflect.defineProperty(layer, 'ConfExact', { value: 3 })
 exports.Layer = layer
 
 class Layer {

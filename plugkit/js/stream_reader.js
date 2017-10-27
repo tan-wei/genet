@@ -1,4 +1,16 @@
 const fields = Symbol('fields')
+function compareUint8Array (lhs, rhs) {
+  if (lhs.length !== rhs.length) {
+    return false
+  }
+  for (let pos = 0; pos < lhs.length; pos += 1) {
+    if (lhs[pos] !== rhs[pos]) {
+      return false
+    }
+  }
+  return true
+}
+
 class StreamReader {
   // Construct a new StreamReader instance
   // @return StreamReader
@@ -53,36 +65,29 @@ class StreamReader {
       return -1
     }
 
-    const slices = this[fields].slices
+    const { slices } = this[fields]
     let beginOffset = 0
     let begin = 0
-    for (; begin < slices.length && (beginOffset += slices[begin].length) <= offset; ++begin) {
- }
+    for (; begin < slices.length &&
+      (beginOffset += slices[begin].length) <= offset;) {
+        begin += 1
+    }
     if (beginOffset <= offset) {
       return -1
     }
     beginOffset -= slices[begin].length
     const front = beginOffset
-    for (let i = begin; i < slices.length; ++i) {
-      const slice = slices[i]
+    for (let cur = begin; cur < slices.length; cur += 1) {
+      const slice = slices[cur]
       let index = 0
-      if (i === begin) {
+      if (cur === begin) {
         index = offset - beginOffset
       }
-      for (; index < slice.length; ++index) {
+      for (; index < slice.length; index += 1) {
         if (slice[index] === pattern[0]) {
           const window = this.read(pattern.length, front + index)
-          if (window.length === pattern.length) {
-            let equal = true
-            for (let j = 0; j < window.length; ++j) {
-              if (window[j] !== pattern[j]) {
-                equal = false
-                break
-              }
-            }
-            if (equal) {
-              return front + index + pattern.length
-            }
+          if (compareUint8Array(window, pattern)) {
+            return front + index + pattern.length
           }
         }
       }
@@ -102,18 +107,23 @@ class StreamReader {
       throw new TypeError('Second argument must be an integer')
     }
 
-    const slices = this[fields].slices
+    const { slices } = this[fields]
     let beginOffset = 0
     let begin = 0
-    for (; begin < slices.length && (beginOffset += slices[begin].length) <= offset; ++begin) {
- }
+    for (; begin < slices.length &&
+      (beginOffset += slices[begin].length) <= offset;) {
+        begin += 1
+    }
     if (beginOffset <= offset) {
       return new Uint8Array()
     }
     beginOffset -= slices[begin].length
     let endOffset = beginOffset
     let end = begin
-    for (; end < slices.length && (endOffset += slices[end].length) < offset + length; ++end) { }
+    for (; end < slices.length &&
+      (endOffset += slices[end].length) < offset + length;) {
+        end += 1
+    }
     const continuous = true
     const buflen = Math.min(length, endOffset - beginOffset)
     const sliceOffset = offset - beginOffset
@@ -122,9 +132,9 @@ class StreamReader {
     }
     const data = new Uint8Array(buflen)
     let dst = 0
-    for (let i = begin; i <= end; ++i) {
-      let slice = slices[i]
-      if (i === begin) {
+    for (let index = begin; index <= end; index += 1) {
+      let slice = slices[index]
+      if (index === begin) {
         slice = slice.slice(offset - beginOffset)
       }
       data.set(slice.slice(0, data.length - dst), dst)
