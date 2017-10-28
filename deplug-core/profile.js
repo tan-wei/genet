@@ -3,13 +3,13 @@ import { EventEmitter } from 'events'
 import config from './config'
 import fs from 'fs'
 import glob from 'glob'
-import jsonfile from 'jsonfile'
 import log from 'electron-log'
 import merge from 'lodash.merge'
 import mkpath from 'mkpath'
 import objpath from 'object-path'
 import options from './options'
 import path from 'path'
+import yaml from 'js-yaml'
 
 const profileRegistory = {}
 const defaults = {}
@@ -20,11 +20,11 @@ export default class Profile extends EventEmitter {
   constructor (profile) {
     super()
     this.profileDir = path.join(config.userProfilePath, profile)
-    this.configFile = path.join(this.profileDir, 'config.json')
+    this.configFile = path.join(this.profileDir, 'config.yml')
     this.configObject = {}
 
     try {
-      this.configObject = jsonfile.readFileSync(this.configFile)
+      this.configObject = yaml.safeLoad(fs.readFileSync(this.configFile))
     } catch (err) {
       log.warn(err)
     }
@@ -43,7 +43,7 @@ export default class Profile extends EventEmitter {
   }
 
   static get list () {
-    return glob.sync(path.join(config.userProfilePath, '*/config.json'))
+    return glob.sync(path.join(config.userProfilePath, '*/config.yml'))
       .map(path.dirname)
       .map((dir) => path.basename(dir))
   }
@@ -127,8 +127,7 @@ export default class Profile extends EventEmitter {
 
   writeSync () {
     mkpath.sync(path.dirname(this.configFile))
-    fs.writeFileSync(this.configFile,
-      JSON.stringify(this.configObject, null, ' '))
+    fs.writeFileSync(this.configFile, yaml.safeDump(this.configObject))
   }
 }
 
