@@ -34,7 +34,7 @@ class WebView {
       isActive: vnode.attrs.isActive,
       isLoaded: vnode.attrs.isLoaded,
       useragent: JSON.stringify([Profile.currentId, Argv, item]),
-      preload: `file://${__dirname}/preload.js`,
+      Preload: `file://${__dirname}/preload.js`,
     })
   }
 }

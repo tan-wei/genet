@@ -48,9 +48,9 @@ export default class OptionView {
       ? pkg.name
       : '_'
     if (value === option.default) {
-      Profile.current.delete(pkgId, id)
+      Profile.current.delete(`${pkgId}.${id}`)
     } else {
-      Profile.current.set(pkgId, id, value)
+      Profile.current.set(`${pkgId}.${id}`, value)
     }
   }
   view (vnode) {
@@ -58,7 +58,7 @@ export default class OptionView {
     const pkgId = pkg
       ? pkg.name
       : '_'
-    const value = Profile.current.get(pkgId, id)
+    const value = Profile.current.get(`${pkgId}.${id}`)
     const defaultValue = objpath.get(option, 'default', '')
     if ('enum' in option) {
       return m('select', {

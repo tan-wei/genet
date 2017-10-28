@@ -29,16 +29,13 @@ export default class Profile extends EventEmitter {
       log.warn(err)
     }
 
-    ipcRenderer.on('updated', (event, id, opath, value) => {
-      if (typeof this.configObject[id] === 'undefined') {
-        this.configObject[id] = {}
-      }
+    ipcRenderer.on('updated', (event, opath, value) => {
       if (typeof value === 'undefined') {
-        objpath.del(this.configObject[id], opath)
+        objpath.del(this.configObject, opath)
       } else {
-        objpath.set(this.configObject[id], opath, value)
+        objpath.set(this.configObject, opath, value)
       }
-      this.emit('updated', id, opath, value)
+      this.emit('updated', opath, value)
     })
   }
 
@@ -75,13 +72,13 @@ export default class Profile extends EventEmitter {
     return merge(defaults, this.configObject)
   }
 
-  get (id, opath, defaultValue) {
-    const value = objpath.get(this.configObject[id] || {}, opath)
+  get (opath, defaultValue) {
+    const value = objpath.get(this.configObject, opath)
     if (typeof value === 'undefined') {
       if (typeof defaultValue !== 'undefined') {
         return defaultValue
-      } else if (id in defaults) {
-        return objpath.get(defaults[id], opath, null)
+      } else if (objpath.has(defaults, opath)) {
+        return objpath.get(defaults, opath)
       }
     } else {
       return value
@@ -89,36 +86,28 @@ export default class Profile extends EventEmitter {
     return null
   }
 
-  delete (id, opath) {
-    if (id in this.configObject) {
-      objpath.del(this.configObject[id], opath)
-      for (const wc of webContents.getAllWebContents()) {
-        wc.send('updated', id, opath)
-      }
+  delete (opath) {
+    objpath.del(this.configObject, opath)
+    for (const wc of webContents.getAllWebContents()) {
+      wc.send('updated', opath)
     }
     this.writeSync()
   }
 
-  set (id, opath, value) {
-    if (typeof this.configObject[id] === 'undefined') {
-      this.configObject[id] = {}
-    }
+  set (opath, value) {
     if (typeof value === 'undefined') {
-      objpath.del(this.configObject[id], opath)
+      objpath.del(this.configObject, opath)
     } else {
-      objpath.set(this.configObject[id], opath, value)
+      objpath.set(this.configObject, opath, value)
     }
     for (const wc of webContents.getAllWebContents()) {
-      wc.send('updated', id, opath, value)
+      wc.send('updated', opath, value)
     }
     this.writeSync()
   }
 
-  static setDefault (id, opath, value) {
-    if (!(id in defaults)) {
-      defaults[id] = {}
-    }
-    objpath.set(defaults[id], opath, value)
+  static setDefault (opath, value) {
+    objpath.set(defaults, opath, value)
   }
 
   static get globalOptions () {
@@ -133,6 +122,6 @@ export default class Profile extends EventEmitter {
 
 for (const [id, opt] of Object.entries(options)) {
   if ('default' in opt) {
-    Profile.setDefault('_', id, opt.default)
+    Profile.setDefault(`_.${id}`, opt.default)
   }
 }

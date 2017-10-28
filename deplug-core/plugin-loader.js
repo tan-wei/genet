@@ -10,13 +10,13 @@ export default class PluginLoader {
     }
     const tasks = []
     for (const plugin of plugins) {
-      Profile.setDefault(plugin.pkg.name, 'enabled', true)
+      Profile.setDefault(`${plugin.pkg.name}.enabled`, true)
       const enabled = !Profile.current
-        .get('_', `disabledPlugins.${plugin.pkg.name}`, false)
+        .get(`_.disabledPlugins.${plugin.pkg.name}`, false)
       if (enabled) {
         for (const [id, opt] of Object.entries(plugin.options)) {
           if ('default' in opt) {
-            Profile.setDefault(plugin.pkg.name, id, opt.default)
+            Profile.setDefault(`${plugin.pkg.name}.${id}`, opt.default)
           }
         }
 

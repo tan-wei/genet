@@ -42,7 +42,7 @@ class FrameItem {
 export default class FrameListView {
   constructor () {
     const mapResolution =
-      Profile.current.get('frame-list-panel', 'mapResolution')
+      Profile.current.get('frame-list-panel.mapResolution')
     this.frame = { frames: 0 }
     this.session = null
     this.viewScrollTop = 0

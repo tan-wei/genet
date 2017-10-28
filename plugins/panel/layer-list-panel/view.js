@@ -13,7 +13,7 @@ class BooleanValueItem {
 }
 class DateValueItem {
   view (vnode) {
-    const tsformat = Profile.current.get('layer-list-panel', 'tsformat')
+    const tsformat = Profile.current.get('layer-list-panel.tsformat')
     const ts = moment(vnode.attrs.value)
     const tsString = ts.format(tsformat)
     return m('span', [tsString])
@@ -262,7 +262,7 @@ export default class LayerListView {
       return m('div', { class: 'layer-list-view' }, ['No frames selected'])
     }
     return this.frames.map((frame) => {
-      const tsformat = Profile.current.get('layer-list-panel', 'tsformat')
+      const tsformat = Profile.current.get('layer-list-panel.tsformat')
       const ts = moment(frame.timestamp)
       const tsString = ts.format(tsformat)
       let length = `${frame.rootLayer.payloads[0].slices[0].length}`

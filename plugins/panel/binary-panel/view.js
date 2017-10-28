@@ -3,7 +3,7 @@ import m from 'mithril'
 
 class BinaryItem {
   view (vnode) {
-    const layout = Profile.current.get('binary-panel', 'layout')
+    const layout = Profile.current.get('binary-panel.layout')
     const showHex = layout.includes('hex')
     const showAscii = layout.includes('ascii')
     const { payload } = vnode.attrs

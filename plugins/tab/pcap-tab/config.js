@@ -97,7 +97,7 @@ export default class ConfigView {
     Tab.page = 'pcap'
     setTimeout(() => {
       const factory = prepareSession()
-      factory.snaplen = Profile.current.get('_', 'snaplen')
+      factory.snaplen = Profile.current.get('_.snaplen')
       factory.create().then((sess) => {
         if (Tab.options.ifs) {
           sess.startPcap()

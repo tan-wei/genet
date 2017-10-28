@@ -5,16 +5,16 @@ import {
 import m from 'mithril'
 export default class PluginCard {
   disable (pkg) {
-    Profile.current.set('_', `disabledPlugins.${pkg.name}`, true)
+    Profile.current.set(`_.disabledPlugins.${pkg.name}`, true)
   }
   enable (pkg) {
-    Profile.current.delete('_', `disabledPlugins.${pkg.name}`)
+    Profile.current.delete(`_.disabledPlugins.${pkg.name}`)
   }
   view (vnode) {
     const { pkg } = vnode.attrs
     const options = vnode.attrs.options || {}
     const enabled =
-    !Profile.current.get('_', `disabledPlugins.${pkg.name}`, false)
+    !Profile.current.get(`_.disabledPlugins.${pkg.name}`, false)
     const name = pkg.name.replace(/^deplugin-/, '')
     const builtin = !pkg.name.startsWith('deplugin-')
     return m('div', {
