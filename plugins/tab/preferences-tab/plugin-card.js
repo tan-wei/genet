@@ -22,7 +22,11 @@ export default class PluginCard {
       enabled,
     }, [
       m('div', { class: 'title' }, [
-        m('span', [name, ' ', m('small', ['(', pkg.version, ')'])]),
+        m('span', [
+          name,
+          ' ',
+          m('small', ['(', pkg.version, ')'])
+        ]),
         m('span', {
           style: {
             display: enabled

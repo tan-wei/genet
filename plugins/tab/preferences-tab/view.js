@@ -45,6 +45,13 @@ export default class View {
         m('a', {
           href: 'javascript:void(0)',
           onclick: () => {
+            Tab.page = 'install'
+          },
+          isactive: Tab.page === 'install',
+        }, ['Install']),
+        m('a', {
+          href: 'javascript:void(0)',
+          onclick: () => {
             Tab.page = 'profile'
           },
           isactive: Tab.page === 'profile',

@@ -93,14 +93,15 @@ export default class PluginRegistry extends EventEmitter {
       registries,
       updating: false,
       plugins: [],
+      lastUpdated: null,
     }
-    this.update()
   }
 
   update () {
     if (this[fields].updating) {
       return
     }
+    this[fields].lastUpdated = new Date()
     this[fields].updating = true
     crawlRegistries(this[fields].registries, (err) => {
       this.emit('error', err)
@@ -109,5 +110,13 @@ export default class PluginRegistry extends EventEmitter {
       this[fields].updating = false
       this.emit('updated')
     })
+  }
+
+  get plugins () {
+    return this[fields].plugins
+  }
+
+  get lastUpdated () {
+    return this[fields].lastUpdated
   }
 }

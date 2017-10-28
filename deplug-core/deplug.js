@@ -5,6 +5,7 @@ import Menu from './menu'
 import Panel from './panel'
 import Plugin from './plugin'
 import PluginLoader from './plugin-loader'
+import PluginRegistry from './plugin-registry'
 import Profile from './profile'
 import Renderer from './renderer'
 import Session from './session'
@@ -24,6 +25,7 @@ export default async function (profile, argv) {
     Menu: new Menu(),
     Panel,
     PluginLoader,
+    PluginRegistry,
     Plugin,
     Profile,
     Renderer,
