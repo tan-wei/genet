@@ -1,9 +1,9 @@
 module.exports = {
-  "plugins": [
-    "mocha"
+  'plugins': [
+    'mocha'
   ],
-  "rules": {
-    "no-undef": "off",
-    "no-undefined": "off",
-  }
-};
+  'rules': {
+    'no-undef': 'off',
+    'no-undefined': 'off',
+  },
+}

@@ -1,7 +1,7 @@
 module.exports = {
-  "rules": {
-    "no-unused-vars": "off",
-    "no-empty-function": "off",
-    "no-undefined": "off",
-  }
-};
+  'rules': {
+    'no-unused-vars': 'off',
+    'no-empty-function': 'off',
+    'no-undefined': 'off',
+  },
+}

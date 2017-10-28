@@ -45,10 +45,10 @@ all: build
 build: $(DEPLUG_CORE_RES_OUT) $(DEPLUG_CORE_JS_OUT) plugkit
 
 lint:
-	$(ESLINT) $(DEPLUG_CORE_JS)
+	$(ESLINT) .
 
 fix:
-	$(ESLINT) --fix $(DEPLUG_CORE_JS)
+	$(ESLINT) --fix .
 
 plugkit:
 	cp -r -f -p $(PLUGKIT_SRC) node_modules
