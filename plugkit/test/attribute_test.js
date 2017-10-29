@@ -7,7 +7,7 @@ describe('Attr', () => {
       assert.strictEqual('eth', attr.id)
     })
   })
-  .describe('#value', () => {
+  describe('#value', () => {
     it('should return attribute value', () => {
       const token = Token.get('eth')
       const attr = Testing.createAttrInstance(token)
