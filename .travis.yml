@@ -28,7 +28,7 @@ script:
 - make test
 - make bench
 before_deploy:
-- npm update -g npm
+- npm install -g npm
 - npm install -g electron-packager
 - make pack
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make deb rpm ; fi
