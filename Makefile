@@ -1,4 +1,4 @@
-DEPLUG_VER = $(shell node version-string.js)
+DEPLUG_VER = $(shell node scripts/version-string.js)
 DEPLUG_CORE = node_modules/deplug-core node_modules/deplug-core/theme
 
 DEPLUG_CORE_RES = $(wildcard deplug-core/*.htm) $(wildcard deplug-core/theme/*.*)
