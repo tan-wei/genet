@@ -5,7 +5,7 @@ Maintainer: h2so5 <mail@h2so5.net>
 Section: net
 Priority: optional
 Installed-Size: 160000
-Depends: libcap2-bin
+Depends: libcap2-bin, libgconf-2-4
 Vcs-Git: git://github.com/deplug/deplug.git
 Vcs-browser: http://github.com/deplug/deplug
 Homepage: https://deplug.net
