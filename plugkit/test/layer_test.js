@@ -6,9 +6,9 @@ describe('Layer', () => {
       assert.throws(() => new Layer(), TypeError)
     })
   })
-  describe('.ConfDecodable', () => {
+  describe('.ConfError', () => {
     it('should return 0', () => {
-      assert.strictEqual(0, Layer.ConfDecodable)
+      assert.strictEqual(0, Layer.ConfError)
     })
   })
   describe('.ConfPossible', () => {

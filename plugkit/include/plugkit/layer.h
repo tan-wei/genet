@@ -17,7 +17,7 @@ typedef struct Payload Payload;
 typedef struct Attr Attr;
 
 typedef enum {
-  LAYER_CONF_DECODABLE = 0,
+  LAYER_CONF_ERROR = 0,
   LAYER_CONF_POSSIBLE = 1,
   LAYER_CONF_PROBABLE = 2,
   LAYER_CONF_EXACT = 3

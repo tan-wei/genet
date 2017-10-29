@@ -6,11 +6,18 @@ export default {
     default: 2048,
   },
   confidenceThreshold: {
-    title: 'Confidence Threshold (%)',
+    title: 'Confidence Threshold',
     type: 'integer',
+    enum: [0, 1, 2, 3],
+    enumTitles: [
+      '0 - Error',
+      '1 - Possible',
+      '2 - Probable',
+      '3 - Exact'
+    ],
     minimum: 0,
-    maximum: 100,
-    default: 100,
+    maximum: 3,
+    default: 2,
   },
   noPrebuilt: {
     title: 'Don\'t Use Pre-Built Binaries',
