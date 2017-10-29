@@ -66,6 +66,10 @@ const Attr *Layer::attr(Token id) const {
 
 void Layer::addAttr(const Attr *prop) { mAttrs.push_back(prop); }
 
+bool Layer::ref() const { return mRef; }
+
+void Layer::setRef(bool ref) { mRef = ref; }
+
 Token Layer_id(const Layer *layer) { return layer->id(); }
 
 uint8_t Layer_worker(const Layer *layer) { return layer->worker(); }

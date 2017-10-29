@@ -44,6 +44,9 @@ public:
   const Frame *frame() const;
   void setFrame(const Frame *frame);
 
+  bool ref() const;
+  void setRef(bool ref);
+
 private:
   Layer(const Layer &layer) = delete;
   Layer &operator=(const Layer &layer) = delete;
@@ -58,6 +61,7 @@ private:
   std::vector<Layer *> mLayers;
   std::vector<Layer *> mSubLayers;
   std::vector<const Attr *> mAttrs;
+  bool mRef = false;
 };
 } // namespace plugkit
 

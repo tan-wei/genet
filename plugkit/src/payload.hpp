@@ -26,6 +26,9 @@ public:
   const Attr *attr(Token id) const;
   void addAttr(const Attr *prop);
 
+  bool ref() const;
+  void setRef(bool ref);
+
 private:
   Payload(const Payload &payload) = delete;
   Payload &operator=(const Payload &payload) = delete;
@@ -35,6 +38,7 @@ private:
   std::vector<Slice> mSlices;
   std::vector<const Attr *> mAttrs;
   size_t mLength = 0;
+  bool mRef = false;
 };
 } // namespace plugkit
 

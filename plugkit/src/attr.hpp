@@ -24,6 +24,8 @@ public:
   void setType(Token type);
   Token error() const;
   void setError(Token error);
+  bool ref() const;
+  void setRef(bool ref);
 
 private:
   Attr(const Attr &prop) = delete;
@@ -35,6 +37,7 @@ private:
   Range mRange = {0, 0};
   Token mType = 0;
   Token mError = 0;
+  bool mRef = false;
 };
 } // namespace plugkit
 

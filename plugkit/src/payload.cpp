@@ -34,6 +34,10 @@ Token Payload::type() const { return mType; }
 
 void Payload::setType(Token type) { mType = type; }
 
+bool Payload::ref() const { return mRef; }
+
+void Payload::setRef(bool ref) { mRef = ref; }
+
 void Payload_addSlice(Payload *payload, Slice slice) {
   payload->addSlice(slice);
 }
