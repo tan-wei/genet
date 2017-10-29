@@ -1,6 +1,7 @@
 #include "frame_view.hpp"
 #include "frame.hpp"
 #include "layer.hpp"
+#include <algorithm>
 #include <functional>
 #include <vector>
 
