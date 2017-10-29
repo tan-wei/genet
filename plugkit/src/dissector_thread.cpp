@@ -31,7 +31,7 @@ public:
 public:
   std::vector<Dissector> dissectors;
   std::vector<WorkerData> workers;
-  double confidenceThreshold;
+  int confidenceThreshold;
 
   Context ctx;
   const Variant options;
@@ -52,8 +52,7 @@ DissectorThread::DissectorThread(const Variant &options,
                                  const FrameQueuePtr &queue,
                                  const Callback &callback)
     : d(new Private(options, queue, callback)) {
-  d->confidenceThreshold =
-      options["_"]["confidenceThreshold"].uint32Value(0) / 100.0;
+  d->confidenceThreshold = options["_"]["confidenceThreshold"].uint32Value(2);
 }
 
 DissectorThread::~DissectorThread() {}
