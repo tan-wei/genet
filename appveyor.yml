@@ -15,7 +15,7 @@ test_script:
 - ps: make bench
 after_test:
 - ps: npm install -g npm
-- ps: npm install -g electron-packager
+- ps: npm install -g electron-packager electron-winstaller
 - ps: make pack; true
 - ps: make winstaller; true
 artifacts:
