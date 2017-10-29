@@ -2,7 +2,7 @@
 #include <catch.hpp>
 
 #ifdef WIN32
-#pragma warning(disable:4309)
+#pragma warning(disable : 4309)
 #endif
 
 using namespace plugkit;
