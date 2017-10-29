@@ -1,3 +1,5 @@
+import os from 'os'
+
 export default {
   snaplen: {
     title: 'Snapshot Length (Bytes)',
@@ -28,7 +30,20 @@ export default {
   concurrency: {
     title: 'Concurrency',
     type: 'integer',
-    maximum: 0,
+    enum: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+    enumTitles: [
+      `Automatic (${os.cpus().length})`,
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      '8'
+    ],
+    minimum: 0,
+    maximum: 8,
     default: 0,
   },
   pluginRegistries: {
