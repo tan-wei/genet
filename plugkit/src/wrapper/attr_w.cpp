@@ -94,7 +94,7 @@ NAN_SETTER(AttributeWrapper::setType) {
   AttributeWrapper *wrapper =
       ObjectWrap::Unwrap<AttributeWrapper>(info.Holder());
   if (auto prop = wrapper->prop) {
-    Token token = value->IsNumber() ? value->NumberValue()
+    Token token = value->IsUint32() ? value->Uint32Value()
                                     : Token_get(*Nan::Utf8String(value));
     prop->setType(token);
   }
@@ -113,7 +113,7 @@ NAN_SETTER(AttributeWrapper::setError) {
   AttributeWrapper *wrapper =
       ObjectWrap::Unwrap<AttributeWrapper>(info.Holder());
   if (auto prop = wrapper->prop) {
-    Token token = value->IsNumber() ? value->NumberValue()
+    Token token = value->IsUint32() ? value->Uint32Value()
                                     : Token_get(*Nan::Utf8String(value));
     prop->setError(token);
   }

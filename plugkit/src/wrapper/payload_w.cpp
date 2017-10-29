@@ -89,8 +89,8 @@ NAN_METHOD(PayloadWrapper::attr) {
   if (auto payload = wrapper->constPayload) {
     Token token = Token_null();
     auto id = info[0];
-    if (id->IsNumber()) {
-      token = id->NumberValue();
+    if (id->IsUint32()) {
+      token = id->Uint32Value();
     } else if (id->IsString()) {
       token = Token_get(*Nan::Utf8String(id));
     } else {
@@ -111,8 +111,8 @@ NAN_METHOD(PayloadWrapper::addAttr) {
   if (auto payload = wrapper->payload) {
     Token token = Token_null();
     auto id = info[0];
-    if (id->IsNumber()) {
-      token = id->NumberValue();
+    if (id->IsUint32()) {
+      token = id->Uint32Value();
     } else if (id->IsString()) {
       token = Token_get(*Nan::Utf8String(id));
     } else {
@@ -136,7 +136,7 @@ NAN_GETTER(PayloadWrapper::type) {
 NAN_SETTER(PayloadWrapper::setType) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->payload) {
-    Token token = value->IsNumber() ? value->NumberValue()
+    Token token = value->IsUint32() ? value->Uint32Value()
                                     : Token_get(*Nan::Utf8String(value));
     payload->setType(token);
   }

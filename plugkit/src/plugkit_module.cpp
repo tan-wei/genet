@@ -26,11 +26,11 @@ NAN_METHOD(Token_get_wrap) {
   info.GetReturnValue().Set(token);
 }
 NAN_METHOD(Token_string_wrap) {
-  if (!info[0]->IsNumber()) {
+  if (!info[0]->IsUint32()) {
     Nan::ThrowTypeError("First argument must be a number");
     return;
   }
-  auto str = Nan::New(Token_string(info[0]->NumberValue())).ToLocalChecked();
+  auto str = Nan::New(Token_string(info[0]->Uint32Value())).ToLocalChecked();
   info.GetReturnValue().Set(str);
 }
 } // namespace

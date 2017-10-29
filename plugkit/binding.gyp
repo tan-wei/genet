@@ -102,7 +102,10 @@
             "PLUGKIT_OS_WIN",
             "PLUGKIT_DLL_EXPORT",
             "NOMINMAX"
-          ]
+          ],
+          "VCCLCompilerTool": {
+            'DisableSpecificWarnings': ['4577']
+          },
         }
       ]
     ]
@@ -136,11 +139,6 @@
       "cflags_cc!":[
         "-fno-exceptions"
       ],
-      "msvs_settings":{
-        "VCCLCompilerTool":{
-          "ExceptionHandling":1
-        }
-      },
       "defines":[
         "PLUGKIT_ENABLE_TESTING"
       ]

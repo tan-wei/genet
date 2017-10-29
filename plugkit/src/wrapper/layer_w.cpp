@@ -65,7 +65,7 @@ NAN_GETTER(LayerWrapper::worker) {
 NAN_SETTER(LayerWrapper::setWorker) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
-    layer->setWorker(value->NumberValue());
+    layer->setWorker(value->Uint32Value());
   }
 }
 
@@ -164,8 +164,8 @@ NAN_METHOD(LayerWrapper::attr) {
   if (auto layer = wrapper->constLayer) {
     Token token = Token_null();
     auto id = info[0];
-    if (id->IsNumber()) {
-      token = id->NumberValue();
+    if (id->IsUint32()) {
+      token = id->Uint32Value();
     } else if (id->IsString()) {
       token = Token_get(*Nan::Utf8String(id));
     } else {
@@ -185,8 +185,8 @@ NAN_METHOD(LayerWrapper::addLayer) {
   if (auto layer = wrapper->layer) {
     Token token = Token_null();
     auto id = info[1];
-    if (id->IsNumber()) {
-      token = id->NumberValue();
+    if (id->IsUint32()) {
+      token = id->Uint32Value();
     } else if (id->IsString()) {
       token = Token_get(*Nan::Utf8String(id));
     } else {
@@ -207,8 +207,8 @@ NAN_METHOD(LayerWrapper::addSubLayer) {
   if (auto layer = wrapper->layer) {
     Token token = Token_null();
     auto id = info[1];
-    if (id->IsNumber()) {
-      token = id->NumberValue();
+    if (id->IsUint32()) {
+      token = id->Uint32Value();
     } else if (id->IsString()) {
       token = Token_get(*Nan::Utf8String(id));
     } else {
@@ -241,8 +241,8 @@ NAN_METHOD(LayerWrapper::addAttr) {
   if (auto layer = wrapper->layer) {
     Token token = Token_null();
     auto id = info[1];
-    if (id->IsNumber()) {
-      token = id->NumberValue();
+    if (id->IsUint32()) {
+      token = id->Uint32Value();
     } else if (id->IsString()) {
       token = Token_get(*Nan::Utf8String(id));
     } else {
@@ -262,8 +262,8 @@ NAN_METHOD(LayerWrapper::addTag) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
     Token token = Token_null();
-    if (info[0]->IsNumber()) {
-      token = info[0]->NumberValue();
+    if (info[0]->IsUint32()) {
+      token = info[0]->Uint32Value();
     } else if (info[0]->IsString()) {
       token = Token_get(*Nan::Utf8String(info[0]));
     } else {

@@ -106,7 +106,7 @@ NAN_GETTER(FrameWrapper::sourceId) {
 NAN_METHOD(FrameWrapper::attr) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
   if (const auto &view = wrapper->view) {
-    Token token = info[0]->IsNumber() ? info[0]->NumberValue()
+    Token token = info[0]->IsUint32() ? info[0]->Uint32Value()
                                       : Token_get(*Nan::Utf8String(info[0]));
     if (const auto &prop = view->attr(token)) {
       info.GetReturnValue().Set(AttributeWrapper::wrap(prop));
@@ -119,7 +119,7 @@ NAN_METHOD(FrameWrapper::attr) {
 NAN_METHOD(FrameWrapper::layer) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
   if (const auto &view = wrapper->view) {
-    Token token = info[0]->IsNumber() ? info[0]->NumberValue()
+    Token token = info[0]->IsUint32() ? info[0]->Uint32Value()
                                       : Token_get(*Nan::Utf8String(info[0]));
     if (const auto &layer = view->layer(token)) {
       info.GetReturnValue().Set(LayerWrapper::wrap(layer));
