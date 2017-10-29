@@ -25,7 +25,6 @@ ELECTRON_UNPACK = "node_modules/{deplug-helper,plugkit}"
 ELECTRON_IGNORE = "deplug-core","plugkit"
 
 MOCHA = node_modules/mocha/bin/mocha
-PACKAGER = node_modules/.bin/electron-packager
 APPDMG = node_modules/.bin/appdmg
 DOCSIFY = node_modules/.bin/docsify
 
@@ -94,8 +93,9 @@ winstaller:
 	node scripts/winstaller.js
 	mv out/DeplugSetup.exe out/deplug-win-amd64.exe
 
-pack: build
-	$(PACKAGER) ./ --download.mirror=$(ELECTRON_MIRROR) \
+pack:
+	npm prune --production
+	electron-packager ./ --no-prune --download.mirror=$(ELECTRON_MIRROR) \
 	 						--asar.unpackDir=$(ELECTRON_UNPACK) \
 							--icon=images/deplug \
 							--ignore=$(ELECTRON_IGNORE) \
