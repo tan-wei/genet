@@ -31,10 +31,6 @@ Token Attr::error() const { return mError; }
 
 void Attr::setError(Token error) { mError = error; }
 
-bool Attr::ref() const { return mRef; }
-
-void Attr::setRef(bool ref) { mRef = ref; }
-
 Token Attr_id(const Attr *attr) {
   if (!attr)
     return Token_null();
