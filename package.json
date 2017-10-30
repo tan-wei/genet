@@ -7,7 +7,7 @@
     "type": "git",
     "url": "https://github.com/deplug/deplug.git"
   },
-  "main": "node_modules/deplug-core/app.main.js",
+  "main": "node_modules/@deplug/core/app.main.js",
   "author": "h2so5",
   "license": "MIT",
   "dependencies": {

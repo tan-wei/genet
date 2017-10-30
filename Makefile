@@ -1,12 +1,12 @@
 DEPLUG_VER = $(shell node scripts/version-string.js)
-DEPLUG_CORE = node_modules/deplug-core node_modules/deplug-core/theme
+DEPLUG_CORE = node_modules/@deplug/core
 
-DEPLUG_CORE_RES = $(wildcard deplug-core/*.htm) $(wildcard deplug-core/theme/*.*)
-DEPLUG_CORE_RES_OUT = $(addprefix node_modules/,$(DEPLUG_CORE_RES))
+DEPLUG_CORE_RES = $(wildcard core/*.htm) $(wildcard core/theme/*.*)
+DEPLUG_CORE_RES_OUT = $(addprefix node_modules/@deplug/,$(DEPLUG_CORE_RES))
 
-DEPLUG_CORE_JS = $(wildcard deplug-core/*.js) $(wildcard deplug-core/components/*.js)
-DEPLUG_CORE_MAIN_JS = $(wildcard deplug-core/*.main.js)
-DEPLUG_CORE_JS_OUT = $(addprefix node_modules/,$(DEPLUG_CORE_MAIN_JS))
+DEPLUG_CORE_JS = $(wildcard core/*.js) $(wildcard core/components/*.js)
+DEPLUG_CORE_MAIN_JS = $(wildcard core/*.main.js)
+DEPLUG_CORE_JS_OUT = $(addprefix node_modules/@deplug/,$(DEPLUG_CORE_MAIN_JS))
 
 PLUGKIT_SRC = plugkit
 PLUGKIT_DST = node_modules/plugkit
@@ -55,11 +55,11 @@ plugkit:
 	$(MAKE) -C $(DISSECTOR_ESS)
 
 test:
-	node scripts/run-as-node.js $(ELECTRON) node_modules/deplug-core/test.main.js
+	node scripts/run-as-node.js $(ELECTRON) node_modules/core/test.main.js
 	node scripts/run-as-node.js $(ELECTRON) $(MOCHA) $(PLUGKIT_DST)/test
 
 bench:
-	node scripts/run-as-node.js $(ELECTRON) node_modules/deplug-core/bench.main.js
+	node scripts/run-as-node.js $(ELECTRON) node_modules/core/bench.main.js
 
 dmg:
 	yarn add appdmg
@@ -108,13 +108,13 @@ pack:
 							--out=./out --overwrite
 
 $(DEPLUG_CORE_RES_OUT): $(DEPLUG_CORE_RES) $(DEPLUG_CORE)
-	cp -r -f -p $(subst node_modules/,,$@) $@
+	cp -r -f -p $(subst node_modules/@deplug/,,$@) $@
 
 $(DEPLUG_CORE_JS_OUT): $(DEPLUG_CORE_JS) $(DEPLUG_CORE)
-	$(ROLLUP) $(subst node_modules/,,$@) -e $(ROOLUP_EXTERN) --format cjs --output $@
+	$(ROLLUP) $(subst node_modules/@deplug/,,$@) -e $(ROOLUP_EXTERN) --format cjs --output $@
 
 $(DEPLUG_CORE):
-	@mkdir $(DEPLUG_CORE)
+	@mkdir -p $(DEPLUG_CORE)
 
 docs:
 	mkdir -p out
