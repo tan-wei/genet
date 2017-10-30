@@ -80,17 +80,24 @@ const Attr *Layer::attr(Token id) const {
 void Layer::addAttr(const Attr *prop) { mAttrs.push_back(prop); }
 
 void Layer::removeUnconfidentLayers(LayerConfidence confidence) {
+  for (auto &layer : mLayers) {
+    if (layer->confidence() < confidence) {
+      delete layer;
+      layer = nullptr;
+    }
+  }
 
-  mLayers.erase(std::remove_if(mLayers.begin(), mLayers.end(),
-                               [confidence](const Layer *layer) {
-                                 return layer->confidence() < confidence;
-                               }),
+  for (auto &layer : mSubLayers) {
+    if (layer->confidence() < confidence) {
+      delete layer;
+      layer = nullptr;
+    }
+  }
+
+  mLayers.erase(std::remove(mLayers.begin(), mLayers.end(), nullptr),
                 mLayers.end());
 
-  mSubLayers.erase(std::remove_if(mSubLayers.begin(), mSubLayers.end(),
-                                  [confidence](const Layer *layer) {
-                                    return layer->confidence() < confidence;
-                                  }),
+  mSubLayers.erase(std::remove(mSubLayers.begin(), mSubLayers.end(), nullptr),
                    mSubLayers.end());
 }
 
