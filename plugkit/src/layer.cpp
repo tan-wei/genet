@@ -9,7 +9,20 @@ namespace plugkit {
 
 Layer::Layer(Token id) : mId(id) { setConfidence(LAYER_CONF_EXACT); }
 
-Layer::~Layer() {}
+Layer::~Layer() {
+  for (const auto &payload : mPayloads) {
+    delete payload;
+  }
+  for (const auto &layer : mLayers) {
+    delete layer;
+  }
+  for (const auto &layer : mSubLayers) {
+    delete layer;
+  }
+  for (const auto &attr : mAttrs) {
+    delete attr;
+  }
+}
 
 Token Layer::id() const { return mId; }
 
@@ -65,6 +78,21 @@ const Attr *Layer::attr(Token id) const {
 }
 
 void Layer::addAttr(const Attr *prop) { mAttrs.push_back(prop); }
+
+void Layer::removeUnconfidentLayers(LayerConfidence confidence) {
+
+  mLayers.erase(std::remove_if(mLayers.begin(), mLayers.end(),
+                               [confidence](const Layer *layer) {
+                                 return layer->confidence() < confidence;
+                               }),
+                mLayers.end());
+
+  mSubLayers.erase(std::remove_if(mSubLayers.begin(), mSubLayers.end(),
+                                  [confidence](const Layer *layer) {
+                                    return layer->confidence() < confidence;
+                                  }),
+                   mSubLayers.end());
+}
 
 Token Layer_id(const Layer *layer) { return layer->id(); }
 

@@ -44,6 +44,8 @@ public:
   const Frame *frame() const;
   void setFrame(const Frame *frame);
 
+  void removeUnconfidentLayers(LayerConfidence confidence);
+
 private:
   Layer(const Layer &layer) = delete;
   Layer &operator=(const Layer &layer) = delete;

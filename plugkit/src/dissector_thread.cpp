@@ -31,7 +31,7 @@ public:
 public:
   std::vector<Dissector> dissectors;
   std::vector<WorkerData> workers;
-  int confidenceThreshold;
+  LayerConfidence confidenceThreshold;
 
   Context ctx;
   const Variant options;
@@ -52,7 +52,8 @@ DissectorThread::DissectorThread(const Variant &options,
                                  const FrameQueuePtr &queue,
                                  const Callback &callback)
     : d(new Private(options, queue, callback)) {
-  d->confidenceThreshold = options["_"]["confidenceThreshold"].uint32Value(2);
+  d->confidenceThreshold = static_cast<LayerConfidence>(
+      options["_"]["confidenceThreshold"].uint32Value(2));
 }
 
 DissectorThread::~DissectorThread() {}
@@ -120,6 +121,7 @@ bool DissectorThread::loop() {
         for (const WorkerData *data : workers) {
           data->dissector->analyze(&d->ctx, data->dissector, data->worker,
                                    layer);
+          layer->removeUnconfidentLayers(d->confidenceThreshold);
           for (Layer *childLayer : layer->layers()) {
             if (childLayer->confidence() >= d->confidenceThreshold) {
               auto it = dissectedIds.find(childLayer->id());

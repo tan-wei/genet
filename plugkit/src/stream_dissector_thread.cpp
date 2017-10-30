@@ -33,7 +33,7 @@ public:
 public:
   Queue<Layer *> queue;
   std::vector<Dissector> dissectors;
-  int confidenceThreshold;
+  LayerConfidence confidenceThreshold;
   using IdMap = std::unordered_map<uint32_t, WorkerContext>;
   std::unordered_map<Token, IdMap> workers;
 
@@ -52,7 +52,8 @@ StreamDissectorThread::Private::~Private() {}
 StreamDissectorThread::StreamDissectorThread(const Variant &options,
                                              const Callback &callback)
     : d(new Private(options, callback)) {
-  d->confidenceThreshold = options["_"]["confidenceThreshold"].uint32Value(2);
+  d->confidenceThreshold = static_cast<LayerConfidence>(
+      options["_"]["confidenceThreshold"].uint32Value(2));
 }
 
 StreamDissectorThread::~StreamDissectorThread() {}
@@ -122,6 +123,8 @@ void StreamDissectorThread::Private::analyze(
   } else {
     for (const auto &pair : streamWorkers.list) {
       pair.first->analyze(&ctx, pair.first, pair.second, layer);
+      layer->removeUnconfidentLayers(confidenceThreshold);
+
       for (Layer *childLayer : layer->layers()) {
         if (childLayer->confidence() >= confidenceThreshold) {
           auto it = dissectedIds.find(childLayer->id());
