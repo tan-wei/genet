@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import WindowFactory from './window-factory'
-import config from './config'
+import env from './env'
 import mkpath from 'mkpath'
 
 
@@ -8,7 +8,7 @@ if (require('electron-squirrel-startup')) {
   app.quit()
 }
 
-mkpath.sync(config.userPluginPath)
+mkpath.sync(env.userPluginPath)
 app.commandLine.appendSwitch('--enable-experimental-web-platform-features')
 
 app.on('ready', () => {
