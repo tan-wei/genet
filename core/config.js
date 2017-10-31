@@ -16,29 +16,50 @@ export default class Config {
     mkpath.sync(path.dirname(filePath))
     touch.sync(filePath)
 
-    let tree = null
-    try {
-      tree = yaml.safeLoad(fs.readFileSync(filePath, 'utf8'))
-    } catch (err) {
-      console.warn(err)
-    }
-
     this[fields] = {
-      tree: tree || {},
+      tree: {},
       defaultTree: configDefault[name] || {},
+      listeners: [],
       filePath,
       write: () =>
         fs.writeFileSync(
           this[fields].filePath, yaml.safeDump(this[fields].tree)),
+      update: (oldTree) => {
+        const { listeners } = this[fields]
+        for (const listener of listeners) {
+          const value = objpath.get(this[fields].tree, listener.id)
+          const oldValue = objpath.get(oldTree, listener.id)
+          if (!deepEqual(value, oldValue)) {
+            listener.callback(value, oldValue)
+          }
+        }
+      },
+      load: (update = false) => {
+        let tree = null
+        try {
+          tree = yaml.safeLoad(fs.readFileSync(filePath, 'utf8'))
+        } catch (err) {
+          console.warn(err)
+        }
+        const oldTree = this[fields].tree || {}
+        this[fields].tree = tree || {}
+        if (update) {
+          this[fields].update(oldTree)
+        }
+      },
     }
+
+    this[fields].load(false)
+    fs.watchFile(filePath, () => this[fields].load(true))
   }
 
   get (id, defaultValue) {
-    let value = objpath.get(this[fields].tree, id)
+    const { defaultTree, tree } = this[fields]
+    let value = objpath.get(tree, id)
     if (typeof value !== 'undefined') {
       return value
     }
-    value = objpath.get(this[fields].defaultTree, id)
+    value = objpath.get(defaultTree, id)
     if (typeof value !== 'undefined') {
       return value
     }
@@ -46,17 +67,29 @@ export default class Config {
   }
 
   set (id, value) {
-    if (!deepEqual(value, objpath.get(this[fields].tree, id))) {
-      if (deepEqual(value, objpath.get(this[fields].defaultTree, id))) {
-        objpath.del(this[fields].tree, id)
+    const { defaultTree, tree, update, write } = this[fields]
+    if (!deepEqual(value, objpath.get(tree, id))) {
+      const oldTree = Object.assign({}, tree)
+      if (deepEqual(value, objpath.get(defaultTree, id))) {
+        objpath.del(tree, id)
       } else {
-        objpath.set(this[fields].tree, id, value)
+        objpath.set(tree, id, value)
       }
-      this[fields].write()
+      update(oldTree)
+      write()
     }
   }
 
   del (id) {
-    objpath.del(this[fields].tree, id)
+    const { tree } = this[fields]
+    objpath.del(tree, id)
+  }
+
+  watch (id, callback) {
+    const { listeners } = this[fields]
+    listeners.push({
+      id,
+      callback,
+    })
   }
 }
