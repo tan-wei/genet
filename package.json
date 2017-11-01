@@ -26,6 +26,7 @@
     "i18n4v": "^0.2.2",
     "js-yaml": "^3.10.0",
     "jsonfile": "^3.0.0",
+    "jsonschema": "^1.2.0",
     "less": "^2.7.2",
     "lodash.merge": "^4.6.0",
     "lodash.throttle": "^4.1.1",

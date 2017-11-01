@@ -1,11 +1,12 @@
-import configDefault from './config-default'
 import deepEqual from 'deep-equal'
 import env from './env'
 import fs from 'fs'
 import mkpath from 'mkpath'
 import objpath from 'object-path'
 import path from 'path'
+import schemaDefault from './schema-default'
 import touch from 'touch'
+import { validate } from 'jsonschema'
 import yaml from 'js-yaml'
 
 const fields = Symbol('fields')
@@ -16,9 +17,17 @@ export default class Config {
     mkpath.sync(path.dirname(filePath))
     touch.sync(filePath)
 
+    const schema = schemaDefault[name] || {}
+    const defaultTree = {}
+    for (const [id, value] of Object.entries(schema)) {
+      if ('default' in value) {
+        objpath.set(defaultTree, id, value.default)
+      }
+    }
     this[fields] = {
       tree: {},
-      defaultTree: configDefault[name] || {},
+      defaultTree,
+      schema,
       listeners: [],
       filePath,
       write: () =>
@@ -67,7 +76,13 @@ export default class Config {
   }
 
   set (id, value) {
-    const { defaultTree, tree, update, write } = this[fields]
+    const { defaultTree, tree, update, write, schema } = this[fields]
+    if (id in schema) {
+      const result = validate(value, schema[id])
+      if (result.errors.length > 0) {
+        throw result.errors[0]
+      }
+    }
     if (!deepEqual(value, objpath.get(tree, id))) {
       const oldTree = Object.assign({}, tree)
       if (deepEqual(value, objpath.get(defaultTree, id))) {
