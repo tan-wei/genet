@@ -1,7 +1,7 @@
 DEPLUG_VER = $(shell node scripts/version-string.js)
 DEPLUG_CORE = node_modules/@deplug/core
 
-DEPLUG_CORE_RES = $(wildcard core/*.htm) $(wildcard core/theme/*.*)
+DEPLUG_CORE_RES = $(wildcard core/*.htm) $(wildcard core/*.less)
 DEPLUG_CORE_RES_OUT = $(addprefix node_modules/@deplug/,$(DEPLUG_CORE_RES))
 
 DEPLUG_CORE_JS = $(wildcard core/*.js) $(wildcard core/components/*.js)
