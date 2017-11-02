@@ -70,4 +70,8 @@ export default class KeyBind {
     }
     this[fields].map = map
   }
+
+  get keymap () {
+    return this[fields].map
+  }
 }
