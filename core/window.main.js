@@ -1,14 +1,16 @@
 import { ipcRenderer, remote } from 'electron'
 import KeyBind from './keybind'
 import ThemeLoader from './theme-loader'
+import minimist from 'minimist'
 import ready from 'document-ready-promise'
 
 export default async function (argv) {
+  const options = minimist(argv)
   const loader = new ThemeLoader(`${__dirname}/theme.less`)
   await loader.load(`${__dirname}/window.less`, document.head)
   ipcRenderer.send('core:window:loaded', remote.getCurrentWindow().id)
   try {
-  const kb = new KeyBind('default')
+  const kb = new KeyBind(options.profile)
   } catch (err) {
     console.log(err)
   }
