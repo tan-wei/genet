@@ -1,3 +1,4 @@
+import { Disposable } from 'disposables'
 import Mousetrap from 'mousetrap'
 import deepEqual from 'deep-equal'
 import env from './env'
@@ -18,6 +19,7 @@ export default class KeyBind {
     this[fields] = {
       filePath,
       map: {},
+      binds: new Set(),
       load: () => {
         let bind = null
         try {
@@ -25,7 +27,7 @@ export default class KeyBind {
         } catch (err) {
           console.warn(err)
         }
-        this[fields].bind = bind || {}
+        this[fields].defaultBind = bind || {}
         this.update()
       },
     }
@@ -34,9 +36,17 @@ export default class KeyBind {
     fs.watchFile(filePath, () => this[fields].load())
   }
 
+  register (map) {
+    const { binds } = this[fields]
+    binds.add(map)
+    return new Disposable(() => {
+      binds.delete(map)
+    })
+  }
+
   update () {
     const map = {}
-    for (const [selector, bind] of Object.entries(this[fields].bind)) {
+    for (const [selector, bind] of Object.entries(this[fields].defaultBind)) {
       for (const [key, command] of Object.entries(bind)) {
         map[key] = map[key] || []
         map[key].push({

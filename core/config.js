@@ -1,3 +1,4 @@
+import { Disposable } from 'disposables'
 import deepEqual from 'deep-equal'
 import env from './env'
 import fs from 'fs'
@@ -105,6 +106,10 @@ export default class Config {
     listeners.push({
       id,
       callback,
+    })
+    return new Disposable(() => {
+      this[fields].listeners =
+        listeners.filter((handler) => handler.callback !== callback)
     })
   }
 }
