@@ -9,6 +9,18 @@ import touch from 'touch'
 import yaml from 'js-yaml'
 
 const fields = Symbol('fields')
+function transformBindSet (map, binds) {
+  for (const [selector, bind] of Object.entries(binds)) {
+    for (const [key, command] of Object.entries(bind)) {
+      map[key] = map[key] || []
+      map[key].push({
+        selector,
+        command,
+      })
+    }
+  }
+}
+
 export default class KeyBind {
   constructor (profile) {
     const filePath =
@@ -19,7 +31,7 @@ export default class KeyBind {
     this[fields] = {
       filePath,
       map: {},
-      binds: new Set(),
+      bindSets: new Set(),
       load: () => {
         let bind = null
         try {
@@ -27,7 +39,7 @@ export default class KeyBind {
         } catch (err) {
           console.warn(err)
         }
-        this[fields].defaultBind = bind || {}
+        this[fields].userBindSet = bind || {}
         this.update()
       },
     }
@@ -36,25 +48,22 @@ export default class KeyBind {
     fs.watchFile(filePath, () => this[fields].load())
   }
 
-  register (map) {
-    const { binds } = this[fields]
-    binds.add(map)
+  register (binds) {
+    const { bindSets } = this[fields]
+    bindSets.add(binds)
+    this.update()
     return new Disposable(() => {
-      binds.delete(map)
+      bindSets.delete(binds)
+      this.update()
     })
   }
 
   update () {
     const map = {}
-    for (const [selector, bind] of Object.entries(this[fields].defaultBind)) {
-      for (const [key, command] of Object.entries(bind)) {
-        map[key] = map[key] || []
-        map[key].push({
-          selector,
-          command,
-        })
-      }
+    for (const binds of this[fields].bindSets) {
+      transformBindSet(map, binds)
     }
+    transformBindSet(map, this[fields].userBindSet)
     const keys = new Set()
     for (const key of Object.keys(map)) {
       keys.add(key)
