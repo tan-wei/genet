@@ -6,6 +6,11 @@
   -webkit-appearance: none;
 }
 
+html {
+  overflow: hidden;
+  height: 100%;
+}
+
 body {
   .mixin (@b) when not (@b = darwin) {
     background-color: @theme-default-bg;
@@ -14,6 +19,43 @@ body {
   color: @theme-default-fg;
   -webkit-user-select: none;
   overflow: hidden;
+  margin: 0;
+}
+
+nav {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 180px;
+  padding: 38px 0;
+  -webkit-app-region: drag;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      padding: 10px 15px;
+      cursor: default;
+      -webkit-user-select: none;
+    }
+  }
+}
+
+main {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 180px;
+  right: 0;
+  background-color: @theme-default-bg;
 }
 
 .fa {
