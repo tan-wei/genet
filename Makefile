@@ -16,9 +16,6 @@ PLUGKIT_JS_FILES = $(wildcard plugkit/js/*.js)
 
 DISSECTOR_ESS = plugins/dissector/dissector-essentials
 
-ROOLUP_EXTERN_BUILTIN = electron,deplug,$(shell node -p -e 'require("builtin-modules").join(",")')
-ROOLUP_EXTERN = $(ROOLUP_EXTERN_BUILTIN),$(shell node scripts/builtin-packages.js)
-
 ELECTRON_VERSION = $(shell node scripts/negatron-version-string.js)
 ELECTRON_MIRROR = https://cdn.deplug.net/electron/v
 ELECTRON_UNPACK = "node_modules/{deplug-helper,plugkit}"
@@ -111,7 +108,7 @@ $(DEPLUG_CORE_RES_OUT): $(DEPLUG_CORE_RES) $(DEPLUG_CORE)
 	cp -r -f -p $(subst node_modules/@deplug/,,$@) $@
 
 $(DEPLUG_CORE_JS_OUT): $(DEPLUG_CORE_JS) $(DEPLUG_CORE)
-	$(ROLLUP) $(subst node_modules/@deplug/,,$@) -e $(ROOLUP_EXTERN) --format cjs --output $@
+	$(ROLLUP) $(subst node_modules/@deplug/,,$@) --silent --format cjs --output $@
 
 $(DEPLUG_CORE):
 	@mkdir -p $(DEPLUG_CORE)
