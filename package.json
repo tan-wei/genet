@@ -15,7 +15,6 @@
     "deplug-core": "*",
     "deplugin": "^0.0.8",
     "disposables": "^1.0.1",
-    "document-ready-promise": "^3.0.1",
     "electron-log": "^2.0.2",
     "electron-squirrel-startup": "^1.0.0",
     "escodegen": "^1.8.1",

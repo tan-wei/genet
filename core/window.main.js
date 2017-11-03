@@ -3,17 +3,14 @@ import Deplug from './deplug'
 import RootView from './root-view'
 import ThemeLoader from './theme-loader'
 import m from 'mithril'
-import minimist from 'minimist'
-import ready from 'document-ready-promise'
 
 export default async function (argv) {
-  const options = minimist(argv)
-  Reflect.defineProperty(window, 'deplug', { value: new Deplug(options) })
+  Reflect.defineProperty(window, 'deplug', { value: new Deplug(argv) })
   const loader = new ThemeLoader(`${__dirname}/theme.less`)
   await loader.load(`${__dirname}/window.less`, document.head)
   m.mount(document.body, RootView)
+  await document.fonts.ready
   ipcRenderer.send('core:window:loaded', remote.getCurrentWindow().id)
-  await ready()
 }
 
 document.addEventListener('dragover', (event) => {
