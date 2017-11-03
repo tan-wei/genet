@@ -64,10 +64,12 @@ export default class Config {
   }
 
   get (id, defaultValue) {
-    const { defaultTree, tree } = this[fields]
+    const { defaultTree, tree, schema } = this[fields]
     let value = objpath.get(tree, id)
     if (typeof value !== 'undefined') {
-      return value
+      if (!(id in schema) || validate(value, schema[id]).errors.length === 0) {
+        return value
+      }
     }
     value = objpath.get(defaultTree, id)
     if (typeof value !== 'undefined') {
