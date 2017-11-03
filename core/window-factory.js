@@ -1,4 +1,4 @@
-import { app, BrowserWindow, webContents } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu, webContents } from 'electron'
 import Config from './config'
 import env from './env'
 import path from 'path'
@@ -42,6 +42,26 @@ export default class WindowFactory {
         JSON.stringify(argv.concat([`--profile=${profile}`]))
       const script = `require("./window.main.js")(${jsonArgv})`
       contents.executeJavaScript(script)
+    })
+
+    function reloadMenu () {
+      const script = 'deplug.menu.template'
+      contents.executeJavaScript(script).then((template) => {
+        const menu = Menu.buildFromTemplate(template)
+        if (process.platform === 'darwin') {
+          Menu.setApplicationMenu(menu)
+        } else {
+          mainWindow.setMenu(menu)
+        }
+      })
+    }
+
+    mainWindow.on('focus', reloadMenu)
+
+    ipcMain.on('core:menu:reload', (event, id) => {
+      if (id === mainWindow.id) {
+        reloadMenu()
+      }
     })
 
     return mainWindow

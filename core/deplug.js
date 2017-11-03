@@ -1,5 +1,6 @@
 import Config from './config'
 import KeyBind from './keybind'
+import Menu from './menu'
 
 const fields = Symbol('fields')
 export default class Deplug {
@@ -8,6 +9,7 @@ export default class Deplug {
       config: new Config(options.profile, 'config'),
       layout: new Config(options.profile, 'layout'),
       keybind: new KeyBind(options.profile),
+      menu: new Menu(),
     }
   }
 
@@ -21,5 +23,9 @@ export default class Deplug {
 
   get keybind () {
     return this[fields].keybind
+  }
+
+  get menu () {
+    return this[fields].menu
   }
 }
