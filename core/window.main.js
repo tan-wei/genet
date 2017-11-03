@@ -1,5 +1,5 @@
 import { ipcRenderer, remote } from 'electron'
-import KeyBind from './keybind'
+import Deplug from './deplug'
 import RootView from './root-view'
 import ThemeLoader from './theme-loader'
 import m from 'mithril'
@@ -8,15 +8,11 @@ import ready from 'document-ready-promise'
 
 export default async function (argv) {
   const options = minimist(argv)
+  Reflect.defineProperty(window, 'deplug', { value: new Deplug(options) })
   const loader = new ThemeLoader(`${__dirname}/theme.less`)
   await loader.load(`${__dirname}/window.less`, document.head)
   m.mount(document.body, RootView)
   ipcRenderer.send('core:window:loaded', remote.getCurrentWindow().id)
-  try {
-  const kb = new KeyBind(options.profile)
-  } catch (err) {
-    console.log(err)
-  }
   await ready()
 }
 
