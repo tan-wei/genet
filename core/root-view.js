@@ -1,6 +1,13 @@
 import m from 'mithril'
 
 export default class RootView {
+  constructor () {
+    this.tabs = [{
+      id: 'preferences',
+      src: 'https://www.github.com/',
+    }]
+  }
+
   view () {
     return [
       m('nav', [
@@ -12,7 +19,11 @@ export default class RootView {
           m('li', [m('i', { class: 'fa fa-cog' }), ' ', 'Preferences'])
         ])
       ]),
-      m('main', ['hello'])
+      m('main', this.tabs.map((tab) =>
+        m('webview', {
+          key: tab.id,
+          src: tab.src,
+        })))
     ]
   }
 }
