@@ -4,8 +4,7 @@ import RootView from './root-view'
 import ThemeLoader from './theme-loader'
 import m from 'mithril'
 
-export default async function (argv) {
-  Reflect.defineProperty(window, 'deplug', { value: new Deplug(argv) })
+async function load () {
   const loader = new ThemeLoader(`${__dirname}/theme.less`)
   await loader.load(`${__dirname}/window.less`, document.head)
   m.mount(document.body, RootView)
@@ -22,3 +21,8 @@ document.addEventListener('drop', (event) => {
   event.preventDefault()
   return false
 }, false)
+
+const argv = JSON.parse(decodeURIComponent(location.search.substr(1)))
+Reflect.defineProperty(window, 'deplug', { value: new Deplug(argv) })
+
+load()

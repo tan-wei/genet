@@ -27,22 +27,20 @@ export default class WindowFactory {
     }
     const mainWindow = new BrowserWindow(options)
 
+    const jsonArgv =
+      JSON.stringify(argv.concat([`--profile=${profile}`]))
+
     const localUrl = url.format({
       protocol: 'file',
       slashes: true,
       pathname: path.join(__dirname, 'index.htm'),
+      search: jsonArgv,
     })
     mainWindow.loadURL(localUrl)
 
     const contents = mainWindow.webContents
     contents.on('crashed', () => mainWindow.reload())
     contents.on('unresponsive', () => mainWindow.reload())
-    contents.on('dom-ready', () => {
-      const jsonArgv =
-        JSON.stringify(argv.concat([`--profile=${profile}`]))
-      const script = `require("./window.main.js")(${jsonArgv})`
-      contents.executeJavaScript(script)
-    })
 
     function reloadMenu () {
       const script = 'deplug.menu.template'

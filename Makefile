@@ -28,11 +28,11 @@ DOCSIFY = node_modules/.bin/docsify
 ifeq ($(OS),Windows_NT)
 ELECTRON = node_modules\.bin\negatron.cmd
 ESLINT = node_modules\.bin\eslint
-ROLLUP = node_modules\.bin\rollup
+WEBPACK = node_modules\.bin\webpack
 else
 ELECTRON = node_modules/.bin/negatron
 ESLINT = node_modules/.bin/eslint
-ROLLUP = node_modules/.bin/rollup
+WEBPACK = node_modules/.bin/webpack
 endif
 
 all: build
@@ -108,7 +108,7 @@ $(DEPLUG_CORE_RES_OUT): $(DEPLUG_CORE_RES) $(DEPLUG_CORE)
 	cp -r -f -p $(subst node_modules/@deplug/,,$@) $@
 
 $(DEPLUG_CORE_JS_OUT): $(DEPLUG_CORE_JS) $(DEPLUG_CORE)
-	$(ROLLUP) $(subst node_modules/@deplug/,,$@) --silent --format cjs --output $@
+	$(WEBPACK) $(subst node_modules/@deplug/,,$@) $@
 
 $(DEPLUG_CORE):
 	@mkdir -p $(DEPLUG_CORE)
