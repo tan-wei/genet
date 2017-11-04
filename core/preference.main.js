@@ -1,5 +1,5 @@
 import Content from './content'
-import PreferenceView from './preference-view'
+import PreferenceView from './view/preference-view'
 
 const content = new Content(PreferenceView)
 content.load()
