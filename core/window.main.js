@@ -1,4 +1,4 @@
-import { ipcRenderer, remote } from 'electron'
+import { ipcRenderer, remote, shell } from 'electron'
 import Deplug from './deplug'
 import RootView from './root-view'
 import ThemeLoader from './theme-loader'
@@ -21,6 +21,13 @@ document.addEventListener('drop', (event) => {
   event.preventDefault()
   return false
 }, false)
+
+document.addEventListener('click', (event) => {
+  if (event.target.tagName === 'A') {
+    event.preventDefault()
+    shell.openExternal(event.target.href)
+  }
+})
 
 const argv = JSON.parse(decodeURIComponent(location.search.substr(1)))
 Reflect.defineProperty(window, 'deplug', { value: new Deplug(argv) })
