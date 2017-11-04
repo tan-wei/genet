@@ -2,7 +2,7 @@ import { ipcRenderer, remote } from 'electron'
 import Content from './lib/content'
 import WindowView from './view/window-view'
 
-const content = new Content(WindowView)
+const content = new Content(WindowView, 'window.less')
 content.load().then(() => {
   ipcRenderer.send('core:window:loaded', remote.getCurrentWindow().id)
 })

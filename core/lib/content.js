@@ -1,11 +1,13 @@
 import Deplug from './deplug'
 import ThemeLoader from './theme-loader'
 import m from 'mithril'
+import path from 'path'
 import { shell } from 'electron'
 
 export default class Content {
-  constructor (rootView) {
-    this.rootView = rootView
+  constructor (view, less) {
+    this.view = view
+    this.less = less
   }
 
   async load () {
@@ -29,9 +31,9 @@ export default class Content {
     const argv = JSON.parse(decodeURIComponent(location.search.substr(1)))
     Reflect.defineProperty(window, 'deplug', { value: new Deplug(argv) })
 
-    const loader = new ThemeLoader(`${__dirname}/theme.less`)
-    await loader.load(`${__dirname}/window.less`, document.head)
-    m.mount(document.body, this.rootView)
+    const loader = new ThemeLoader(path.join(__dirname, 'theme.less'))
+    await loader.load(path.join(__dirname, this.less), document.head)
+    m.mount(document.body, this.view)
     await document.fonts.ready
   }
 }
