@@ -1,10 +1,13 @@
 import m from 'mithril'
+import path from 'path'
+import url from 'url'
 
 export default class RootView {
   constructor () {
     this.tabs = [{
       id: 'preferences',
-      src: 'https://www.github.com/',
+      src: 'preference.htm',
+      argv: deplug.argv,
     }]
   }
 
@@ -19,11 +22,19 @@ export default class RootView {
           m('li', [m('i', { class: 'fa fa-cog' }), ' ', 'Preferences'])
         ])
       ]),
-      m('main', this.tabs.map((tab) =>
-        m('webview', {
+      m('main', this.tabs.map((tab) => {
+        const localUrl = url.format({
+          protocol: 'file',
+          slashes: true,
+          pathname: path.join(__dirname, tab.src),
+          search: JSON.stringify(tab.argv),
+        })
+        return m('webview', {
           key: tab.id,
-          src: tab.src,
-        })))
+          src: localUrl,
+          nodeintegration: true,
+        })
+      }))
     ]
   }
 }
