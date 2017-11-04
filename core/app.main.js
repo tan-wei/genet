@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
-import WindowFactory from './window-factory'
-import env from './env'
+import WindowFactory from './lib/window-factory'
+import env from './lib/env'
 import mkpath from 'mkpath'
 
 
