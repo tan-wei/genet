@@ -33,7 +33,7 @@ export default class WindowFactory {
     const localUrl = url.format({
       protocol: 'file',
       slashes: true,
-      pathname: path.join(__dirname, 'index.htm'),
+      pathname: path.join(__dirname, 'asset', 'window.htm'),
       search: jsonArgv,
     })
     mainWindow.loadURL(localUrl)

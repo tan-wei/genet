@@ -1,7 +1,7 @@
 DEPLUG_VER = $(shell node scripts/version-string.js)
 DEPLUG_CORE = node_modules/@deplug/core
 
-DEPLUG_CORE_RES = $(wildcard core/*.htm) $(wildcard core/*.less)
+DEPLUG_CORE_RES = $(wildcard core/asset/*.*)
 DEPLUG_CORE_RES_OUT = $(addprefix node_modules/@deplug/,$(DEPLUG_CORE_RES))
 
 DEPLUG_CORE_JS = $(wildcard core/*.js) $(wildcard core/components/*.js)
@@ -105,7 +105,7 @@ pack:
 							--out=./out --overwrite
 
 $(DEPLUG_CORE_RES_OUT): $(DEPLUG_CORE_RES) $(DEPLUG_CORE)
-	cp -r -f -p $(subst node_modules/@deplug/,,$@) $@
+	cp -r -f -p core/asset/ node_modules/@deplug/core/asset
 
 $(DEPLUG_CORE_JS_OUT): $(DEPLUG_CORE_JS) $(DEPLUG_CORE)
 	$(WEBPACK) $(subst node_modules/@deplug/,,$@) $@
