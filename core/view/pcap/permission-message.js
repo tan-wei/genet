@@ -1,8 +1,7 @@
-import { Pcap, SessionFactory } from 'plugkit'
-import Dialog from '../lib/dialog'
+import { Pcap } from 'plugkit'
 import m from 'mithril'
 
-class PermissionMassage {
+export default class PermissionMassage {
   view () {
     if (Pcap.permission) {
       return m('p', [
@@ -48,59 +47,5 @@ class PermissionMassage {
       default:
         return m('p')
     }
-  }
-}
-
-class PcapDialog {
-  view (vnode) {
-    const ifs = deplug.layout.get('_.pcap.interface')
-    return m('div', [
-      m(PermissionMassage, {}),
-      m('ul', [
-        m('li', [
-          m('select', { name: 'ifs' }, [
-            Pcap.devices.map((dev) => {
-              let { name } = dev
-              if (name !== dev.id && process.platform !== 'win32') {
-                name += ` - ${dev.id}`
-              }
-              return m('option', {
-                value: dev.id,
-                'data-name': name,
-                selected: ifs === dev.id,
-              }, [name])
-            })
-          ])
-        ]),
-        m('li', [
-          m('input', {
-            type: 'button',
-            value: 'Start Live Capture',
-            onclick: () => {
-              const ifsElem = vnode.dom.querySelector('[name=ifs]')
-              const opt = ifsElem.options[ifsElem.selectedIndex]
-              deplug.layout.set('_.pcap.interface', opt.value)
-              vnode.attrs.callback(opt.value)
-            },
-          })
-        ])
-      ])
-    ])
-  }
-}
-
-export default class PcapView {
-  view () {
-    return [
-      m('nav', []),
-      m('main', [
-        m('h1', ['Deplug'])
-      ])
-    ]
-  }
-
-  oncreate () {
-    const dialog = new Dialog(PcapDialog)
-    dialog.show({ cancelable: false }).then((result) => console.log(result))
   }
 }

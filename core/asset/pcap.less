@@ -1,10 +1,20 @@
 @import "common";
 
+@header-height: 80px;
 @nav-width: 380px;
+
+header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: @nav-width;
+  height: @header-height;
+  background: @theme-lighter-bg;
+}
 
 nav {
   position: absolute;
-  top: 0;
+  top: @header-height;
   bottom: 0;
   left: 0;
   width: @nav-width;
@@ -17,13 +27,11 @@ nav {
     background-color: @theme-lighter-bg;
     background-size: 100% 100%;
     image-rendering: pixelated;
-    border-left: 3px solid @theme-default-fg;
-    border-right: 3px solid @theme-default-fg;
   }
 
   &::-webkit-scrollbar-thumb {
     background: fade(@theme-selection-bg, 20%);
-    border: 3px solid @theme-default-bg;
+    border: 3px solid @theme-default-fg;
   }
 }
 
