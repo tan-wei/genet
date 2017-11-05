@@ -6,13 +6,10 @@ nav {
   bottom: 0;
   left: 0;
   width: 180px;
-  padding: 38px 0;
+  padding: 0;
   -webkit-app-region: drag;
-  overflow-y: auto;
-
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
+  overflow-y: hidden;
+  border-right: 1px solid @theme-lighter-bg;
 
   ul {
     list-style: none;
@@ -20,10 +17,24 @@ nav {
     margin: 0;
 
     li {
-      padding: 10px 15px;
-      cursor: default;
+      padding: 0;
       -webkit-user-select: none;
       color: @theme-default-fg;
+
+      a {
+        padding: 15px 20px;
+        display: block;
+        cursor: pointer;
+        text-decoration: none;
+
+        &:hover {
+          background: @theme-lighter-bg;
+        }
+
+        &[active] {
+          background: @theme-lighter-bg;
+        }
+      }
     }
   }
 }
@@ -36,6 +47,7 @@ main {
   right: 0;
 
   article {
+    padding: 0 20px;
     position: absolute;
     top: 0;
     bottom: 0;

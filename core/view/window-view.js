@@ -22,18 +22,22 @@ export default class WindowView {
     return [
       m('nav', [
         m('ul', [
-          m('li', {
-            onclick: () => {
-             this.activeTab = 'pcap-1'
-            },
-          }, ['Live Capture 1'])
+          m('li', [
+            m('a', {
+              onclick: () => {
+               this.activeTab = 'pcap-1'
+              },
+              active: this.activeTab === 'pcap-1',
+            }, ['Live Capture 1'])
+          ])
         ]),
         m('ul', [
-          m('li', {
+          m('li', [m('a', {
              onclick: () => {
              this.activeTab = 'preference'
             },
-          }, [m('i', { class: 'fa fa-cog' }), ' ', 'Preferences'])
+            active: this.activeTab === 'preference',
+          }, [m('i', { class: 'fa fa-cog' }), ' ', 'Preferences'])])
         ])
       ]),
       m('main', this.tabs.map((tab) => m(WebView, {

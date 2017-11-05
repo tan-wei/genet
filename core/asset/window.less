@@ -20,10 +20,20 @@ nav {
     margin: 0;
 
     li {
-      padding: 10px 15px;
-      cursor: default;
+      padding: 0;
       -webkit-user-select: none;
       color: @theme-default-fg;
+
+      a {
+        padding: 8px 20px;
+        display: block;
+        cursor: pointer;
+        text-decoration: none;
+
+        &[active] {
+          background: @theme-lighter-bg;
+        }
+      }
     }
   }
 }
