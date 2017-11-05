@@ -53,6 +53,7 @@ class PermissionMassage {
 
 class PcapDialog {
   view (vnode) {
+    const ifs = deplug.layout.get('_.pcap.interface')
     return m('div', [
       m(PermissionMassage, {}),
       m('ul', [
@@ -66,6 +67,7 @@ class PcapDialog {
               return m('option', {
                 value: dev.id,
                 'data-name': name,
+                selected: ifs === dev.id,
               }, [name])
             })
           ])
@@ -77,6 +79,7 @@ class PcapDialog {
             onclick: () => {
               const ifsElem = vnode.dom.querySelector('[name=ifs]')
               const opt = ifsElem.options[ifsElem.selectedIndex]
+              deplug.layout.set('_.pcap.interface', opt.value)
               vnode.attrs.callback(opt.value)
             },
           })
