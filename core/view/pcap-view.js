@@ -23,6 +23,6 @@ export default class PcapView {
 
   oncreate () {
     const dialog = new Dialog(PcapDialog)
-    dialog.show().then((result) => console.log(result))
+    dialog.show({ cancelable: false }).then((result) => console.log(result))
   }
 }
