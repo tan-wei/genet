@@ -2,6 +2,11 @@ import m from 'mithril'
 
 export default class PcapView {
   view () {
-    return m('h1', ['pcap'])
+    return [
+      m('nav', []),
+      m('main', [
+        m('h1', ['Deplug'])
+      ])
+    ]
   }
 }

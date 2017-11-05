@@ -1,1 +1,38 @@
 @import "common";
+
+@nav-width: 380px;
+
+nav {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: @nav-width;
+  padding: 0;
+  -webkit-app-region: drag;
+  overflow-y: scroll;
+  border-right: 1px solid @theme-lighter-bg;
+
+  &::-webkit-scrollbar {
+    background-color: @theme-lighter-bg;
+    background-size: 100% 100%;
+    image-rendering: pixelated;
+    border-left: 3px solid @theme-default-fg;
+    border-right: 3px solid @theme-default-fg;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: fade(@theme-selection-bg, 20%);
+    border: 3px solid @theme-default-bg;
+  }
+}
+
+main {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: @nav-width;
+  right: 0;
+  overflow-y: scroll;
+  padding: 20px;
+}
