@@ -21,6 +21,34 @@ export default {
       maximum: 3,
       default: 2,
     },
+    '_.concurrency': {
+      title: 'Concurrency',
+      type: 'integer',
+      enum: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+      enumTitles: [
+        'Automatic',
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8'
+      ],
+      minimum: 0,
+      maximum: 8,
+      default: 0,
+    },
+    '_.pluginRegistries': {
+      title: 'Plugin Registries',
+      type: 'array',
+      items: {
+        type: 'string',
+        format: 'uri',
+      },
+      default: ['https://deplug.net/registry/list.yml'],
+    },
   },
   layout: {
     '_.window.size': {

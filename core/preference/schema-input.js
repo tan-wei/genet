@@ -1,5 +1,33 @@
 import m from 'mithril'
 
+class StringArrayInput {
+  view (vnode) {
+    const { schema } = vnode.attrs
+    const placeholder = ('default' in schema)
+      ? schema.default.join(', ')
+      : ''
+    return m('input', {
+      type: 'text',
+      value: deplug.config.get(vnode.attrs.id).join(', '),
+      placeholder,
+    })
+  }
+}
+
+class StringInput {
+  view (vnode) {
+    const { schema } = vnode.attrs
+    const placeholder = ('default' in schema)
+      ? schema.default
+      : ''
+    return m('input', {
+      type: 'text',
+      value: deplug.config.get(vnode.attrs.id),
+      placeholder,
+    })
+  }
+}
+
 class IntegerInput {
   view (vnode) {
     const { schema } = vnode.attrs
@@ -36,7 +64,15 @@ export default class SchemaInput {
     if ('enum' in schema) {
       return m(EnumInput, vnode.attrs)
     }
+    if (schema.type === 'array') {
+      const { items } = schema
+      if (items && items.type === 'string') {
+        return m(StringArrayInput, vnode.attrs)
+      }
+    }
     switch (schema.type) {
+      case 'string':
+        return m(StringInput, vnode.attrs)
       case 'integer':
         return m(IntegerInput, vnode.attrs)
       default:
