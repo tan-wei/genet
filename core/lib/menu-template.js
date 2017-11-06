@@ -21,6 +21,12 @@ const template = [
       { role: 'reload' },
       { role: 'forcereload' },
       { role: 'toggledevtools' },
+      {
+        label: 'Toggle Developer Tools for Current Tab',
+        click: () => {
+          deplug.action.emit('core:tab:toggle-devtool')
+        },
+      },
       { type: 'separator' },
       { role: 'resetzoom' },
       { role: 'zoomin' },

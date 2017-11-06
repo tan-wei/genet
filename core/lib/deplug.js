@@ -1,3 +1,4 @@
+import { ipcRenderer, ipcMain } from 'electron'
 import Config from './config'
 import KeyBind from './keybind'
 import Menu from './menu'
@@ -17,6 +18,7 @@ export default class Deplug {
       packages: new PackageManager(config),
       registry: new PackageRegistry(config),
       menu: new Menu(),
+      action: ipcRenderer || ipcMain,
       argv,
     }
   }
@@ -43,6 +45,10 @@ export default class Deplug {
 
   get registry () {
     return this[fields].registry
+  }
+
+  get action () {
+    return this[fields].action
   }
 
   get argv () {

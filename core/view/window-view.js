@@ -18,6 +18,12 @@ export default class WindowView {
     this.activeTab = 'preference'
   }
 
+  oncreate () {
+    deplug.action.on('core:tab:toggle-devtool', () => {
+      require('electron').remote.getCurrentWebContents().openDevTools()
+    })
+  }
+
   view () {
     return [
       m('nav', [
