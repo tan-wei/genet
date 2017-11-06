@@ -1,6 +1,6 @@
 import SchemaInput from './schema-input'
 import m from 'mithril'
-import schemaDefault from '../lib/schema-default'
+import schemaDefault from '../../lib/schema-default'
 
 export default class General {
   view () {

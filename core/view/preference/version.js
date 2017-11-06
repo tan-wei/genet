@@ -1,4 +1,4 @@
-import env from '../lib/env'
+import env from '../../lib/env'
 import m from 'mithril'
 import objpath from 'object-path'
 export default class Plugin {

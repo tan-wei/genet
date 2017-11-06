@@ -1,7 +1,7 @@
-import General from '../preference/general'
-import Install from '../preference/install'
-import Plugin from '../preference/plugin'
-import Version from '../preference/version'
+import General from './general'
+import Install from './install'
+import Plugin from './plugin'
+import Version from './version'
 import m from 'mithril'
 
 export default class PrefernceView {
