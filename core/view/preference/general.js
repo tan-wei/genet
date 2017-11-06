@@ -18,4 +18,10 @@ export default class General {
       ]))
     ]
   }
+
+  oncreate () {
+    deplug.config.watch('_', () => {
+      m.redraw()
+    })
+  }
 }
