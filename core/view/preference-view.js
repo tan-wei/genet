@@ -1,5 +1,7 @@
 import General from '../preference/general'
+import Install from '../preference/install'
 import Plugin from '../preference/plugin'
+import Version from '../preference/version'
 import m from 'mithril'
 
 export default class PrefernceView {
@@ -10,6 +12,12 @@ export default class PrefernceView {
     }, {
       name: 'Plugin',
       component: Plugin,
+    }, {
+      name: 'Install',
+      component: Install,
+    }, {
+      name: 'Version',
+      component: Version,
     }]
     this.activeTab = 'General'
   }
