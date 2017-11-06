@@ -1,0 +1,17 @@
+{
+  "name": "@deplug/token-wellknown",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Deplug well-known tokens",
+  "engines": {
+    "deplug": "*"
+  },
+  "deplug": {
+    "components": [
+      {
+        "type": "token",
+        "main": "tokens.json"
+      }
+    ]
+  }
+}

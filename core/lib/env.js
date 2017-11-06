@@ -2,17 +2,37 @@ import jsonfile from 'jsonfile'
 import os from 'os'
 import path from 'path'
 
-const deplug = jsonfile.readFileSync(
-  path.join(__dirname, '..', '..', '..', '..', 'package.json'))
+function readFile (filePath) {
+    try {
+        return jsonfile.readFileSync(filePath)
+    } catch (err) {
+        return {}
+    }
+}
+
+function getRootPath () {
+    let root = __dirname
+    while (root !== '/') {
+        const pkg = path.join(root, 'package.json')
+        if (readFile(pkg).name === 'deplug') {
+            return root
+        }
+        root = path.dirname(root)
+    }
+    return root
+}
+
+const root = getRootPath()
+const deplug = jsonfile.readFileSync(path.join(root, 'package.json'))
 const userPath = path.join(os.homedir(), '.deplug')
-const userPluginPath = path.join(userPath, 'plugin')
+const userPackagePath = path.join(userPath, 'package')
 const userProfilePath = path.join(userPath, 'profile')
-const builtinPluginPath = path.join(__dirname, '..', '..', 'plugin')
+const builtinPackagePath = path.join(root, 'package')
 export default {
- deplug,
- userPath,
- userPluginPath,
- userProfilePath,
- builtinPluginPath,
- linuxIconPath: '/usr/share/icons/hicolor/256x256/apps/deplug.png',
+  deplug,
+  userPath,
+  userPackagePath,
+  userProfilePath,
+  builtinPackagePath,
+  linuxIconPath: '/usr/share/icons/hicolor/256x256/apps/deplug.png',
 }

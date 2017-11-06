@@ -2,6 +2,13 @@
 
 @nav-width: 150px;
 
+body {
+  .mixin (@b) when not (@b = darwin) {
+    background-color: @theme-default-bg;
+  }
+  .mixin (@node-platform);
+}
+
 nav {
   position: absolute;
   top: 0;

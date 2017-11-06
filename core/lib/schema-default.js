@@ -40,8 +40,8 @@ export default {
       maximum: 8,
       default: 0,
     },
-    '_.pluginRegistries': {
-      title: 'Plugin Registries',
+    '_.packageRegistries': {
+      title: 'Package Registries',
       type: 'array',
       items: {
         type: 'string',
