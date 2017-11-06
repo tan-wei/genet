@@ -1,6 +1,6 @@
 import General from './general'
 import Install from './install'
-import Plugin from './plugin'
+import Package from './package'
 import Version from './version'
 import m from 'mithril'
 
@@ -10,8 +10,8 @@ export default class PrefernceView {
       name: 'General',
       component: General,
     }, {
-      name: 'Plugin',
-      component: Plugin,
+      name: 'Package',
+      component: Package,
     }, {
       name: 'Install',
       component: Install,

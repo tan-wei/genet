@@ -1,6 +1,6 @@
 import m from 'mithril'
 export default class Plugin {
   view () {
-    return m('h1', ['Plugin'])
+    return m('h1', ['Package'])
   }
 }
