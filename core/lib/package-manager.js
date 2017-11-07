@@ -63,7 +63,10 @@ export default class PackageManager extends EventEmitter {
       let cache = packages.get(pkg.name)
       if (typeof cache === 'undefined') {
         addedPackages.add(pkg.name)
-        cache = { disabled: disabledPackages.has(pkg.name) }
+        cache = {
+          disabled: disabledPackages.has(pkg.name),
+          components: [],
+        }
       } else if (disabledPackages.has(pkg.name)) {
         if (cache.disabled === true) {
           disabledPackages.delete(pkg.name)
@@ -82,10 +85,29 @@ export default class PackageManager extends EventEmitter {
       removedPackages.delete(pkg.name)
     }
 
-    for (const name of disabledPackages) {
-      if (!packages.has(name)) {
-        disabledPackages.delete(name)
-      }
+    Array.from(disabledPackages)
+      .concat(Array.from(removedPackages))
+      .concat(Array.from(updatedPackages))
+      .map((name) => packages.get(name))
+      .filter((pkg) => typeof pkg !== 'undefined')
+      .forEach((pkg) => {
+        for (const comp of pkg.components) {
+          comp.unload()
+        }
+      })
+
+    Array.from(enabledPackages)
+      .concat(Array.from(addedPackages))
+      .concat(Array.from(updatedPackages))
+      .map((name) => packages.get(name))
+      .forEach((pkg) => {
+        for (const comp of pkg.components) {
+          comp.load()
+        }
+      })
+
+    for (const name of removedPackages) {
+      packages.delete(name)
     }
 
     this.emit('updated')
