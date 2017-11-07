@@ -18,6 +18,15 @@ async function readFile (filePath) {
     }
 }
 
+class Component {
+  async load () {
+    console.log('load')
+  }
+  async unload () {
+    console.log('unload')
+  }
+}
+
 const promiseGlob = promisify(glob)
 const fields = Symbol('fields')
 export default class PackageManager extends EventEmitter {
@@ -85,6 +94,7 @@ export default class PackageManager extends EventEmitter {
       removedPackages.delete(pkg.name)
     }
 
+    const task = []
     Array.from(disabledPackages)
       .concat(Array.from(removedPackages))
       .concat(Array.from(updatedPackages))
@@ -92,8 +102,15 @@ export default class PackageManager extends EventEmitter {
       .filter((pkg) => typeof pkg !== 'undefined')
       .forEach((pkg) => {
         for (const comp of pkg.components) {
-          comp.unload()
+          task.push(comp.unload())
         }
+      })
+
+    Array.from(addedPackages)
+      .concat(Array.from(updatedPackages))
+      .map((name) => packages.get(name))
+      .forEach((pkg) => {
+        pkg.components = [new Component()]
       })
 
     Array.from(enabledPackages)
@@ -102,7 +119,7 @@ export default class PackageManager extends EventEmitter {
       .map((name) => packages.get(name))
       .forEach((pkg) => {
         for (const comp of pkg.components) {
-          comp.load()
+          task.push(comp.load())
         }
       })
 
@@ -110,6 +127,7 @@ export default class PackageManager extends EventEmitter {
       packages.delete(name)
     }
 
+    await Promise.all(task)
     this.emit('updated')
     this[fields].updating = false
   }
