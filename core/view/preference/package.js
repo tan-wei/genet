@@ -4,7 +4,7 @@ export default class Plugin {
     return [
       m('h1', ['Package']),
       m('section', deplug.packages.list.map((pkg) => m('h4', [
-          pkg.name, m('span', { class: 'schema-path' }, [pkg.version])
+          pkg.data.name, m('span', { class: 'schema-path' }, [pkg.data.version])
         ])))
     ]
   }
