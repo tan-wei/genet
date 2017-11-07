@@ -1,7 +1,9 @@
+import ComponentFactory from './component-factory'
 import { EventEmitter } from 'events'
 import env from './env'
 import glob from 'glob'
 import jsonfile from 'jsonfile'
+import objpath from 'object-path'
 import path from 'path'
 import { promisify } from 'util'
 import semver from 'semver'
@@ -16,15 +18,6 @@ async function readFile (filePath) {
     } catch (err) {
       return {}
     }
-}
-
-class Component {
-  async load () {
-    console.log('load')
-  }
-  async unload () {
-    console.log('unload')
-  }
 }
 
 const promiseGlob = promisify(glob)
@@ -90,6 +83,7 @@ export default class PackageManager extends EventEmitter {
       }
 
       cache.data = pkg.data
+      cache.dir = path.dirname(pkg.filePath)
       packages.set(pkg.name, cache)
       removedPackages.delete(pkg.name)
     }
@@ -110,7 +104,9 @@ export default class PackageManager extends EventEmitter {
       .concat(Array.from(updatedPackages))
       .map((name) => packages.get(name))
       .forEach((pkg) => {
-        pkg.components = [new Component()]
+        const components = objpath.get(pkg.data, 'deplug.components', [])
+        pkg.components = components.map(
+          (comp) => ComponentFactory.create(comp, pkg.dir))
       })
 
     Array.from(enabledPackages)
@@ -140,3 +136,4 @@ export default class PackageManager extends EventEmitter {
     return Array.from(this[fields].packages.values())
   }
 }
+      require('electron').remote.getCurrentWebContents().openDevTools()
