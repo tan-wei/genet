@@ -59,6 +59,7 @@ export default class PackageManager extends EventEmitter {
     const enabledPackages = new Set()
     const addedPackages = new Set()
     const removedPackages = new Set(packages.keys())
+    const danglingPackages = new Set()
 
     const pkgs = (await Promise.all(
       builtinPaths.map(readFile).concat(userPaths.map(readFile))))
@@ -98,7 +99,12 @@ export default class PackageManager extends EventEmitter {
       .filter((pkg) => typeof pkg !== 'undefined')
       .forEach((pkg) => {
         for (const comp of pkg.components) {
-          task.push(comp.unload())
+          task.push(comp.unload().then((result) => {
+            if (!result) {
+              danglingPackages.add(pkg.data.name)
+            }
+            return result
+          }))
         }
       })
 
@@ -117,9 +123,21 @@ export default class PackageManager extends EventEmitter {
       .map((name) => packages.get(name))
       .forEach((pkg) => {
         for (const comp of pkg.components) {
-          task.push(comp.load())
+          task.push(comp.load().then((result) => {
+            if (!result) {
+              danglingPackages.add(pkg.data.name)
+            }
+            return result
+          }))
         }
       })
+
+    for (const name of danglingPackages) {
+      const pkg = packages.get(name)
+      if (typeof pkg !== 'undefined') {
+        pkg.dangling = true
+      }
+    }
 
     for (const name of removedPackages) {
       packages.delete(name)
