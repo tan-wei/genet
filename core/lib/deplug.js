@@ -4,6 +4,7 @@ import KeyBind from './keybind'
 import Menu from './menu'
 import PackageManager from './package-manager'
 import PackageRegistry from './package-registry'
+import Session from './session'
 import minimist from 'minimist'
 
 const fields = Symbol('fields')
@@ -17,6 +18,7 @@ export default class Deplug {
       keybind: new KeyBind(options.profile),
       packages: new PackageManager(config),
       registry: new PackageRegistry(config),
+      session: new Session(config),
       menu: new Menu(),
       action: ipcRenderer || ipcMain,
       argv,
@@ -49,6 +51,10 @@ export default class Deplug {
 
   get action () {
     return this[fields].action
+  }
+
+  get session () {
+    return this[fields].session
   }
 
   get argv () {
