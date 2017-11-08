@@ -11,12 +11,13 @@ const fields = Symbol('fields')
 export default class Deplug {
   constructor (argv) {
     const options = minimist(argv)
+    const components = options.components || ''
     const config = new Config(options.profile, 'config')
     this[fields] = {
       config,
       layout: new Config(options.profile, 'layout'),
       keybind: new KeyBind(options.profile),
-      packages: new PackageManager(config),
+      packages: new PackageManager(config, components.split(',')),
       registry: new PackageRegistry(config),
       session: new Session(config),
       menu: new Menu(),

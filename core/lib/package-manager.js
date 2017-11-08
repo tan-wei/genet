@@ -25,12 +25,12 @@ async function readFile (filePath) {
 
 
 export default class PackageManager extends EventEmitter {
-  constructor (config) {
+  constructor (config, components) {
     super()
     this[fields] = {
       config,
       packages: new Map(),
-      enabledComponents: new Set(),
+      activatedComponents: new Set(components),
       updating: false,
     }
     this.update()
@@ -40,7 +40,7 @@ export default class PackageManager extends EventEmitter {
   }
 
   async update () {
-    const { config, updating, packages } = this[fields]
+    const { config, updating, packages, activatedComponents } = this[fields]
     if (updating) {
       return
     }
@@ -113,8 +113,9 @@ export default class PackageManager extends EventEmitter {
       .map((name) => packages.get(name))
       .forEach((pkg) => {
         const components = objpath.get(pkg.data, 'deplug.components', [])
-        pkg.components = components.map(
-          (comp) => ComponentFactory.create(comp, pkg.dir))
+        pkg.components = components
+          .filter((comp) => activatedComponents.has(comp.type))
+          .map((comp) => ComponentFactory.create(comp, pkg.dir))
       })
 
     Array.from(enabledPackages)
@@ -146,10 +147,6 @@ export default class PackageManager extends EventEmitter {
     await Promise.all(task)
     this.emit('updated')
     this[fields].updating = false
-  }
-
-  enableComponent (type) {
-    this[fields].enabledComponents.add(type)
   }
 
   get list () {

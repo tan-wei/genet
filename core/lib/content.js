@@ -5,9 +5,10 @@ import path from 'path'
 import { shell } from 'electron'
 
 export default class Content {
-  constructor (view, less) {
+  constructor (view, less, argv = []) {
     this.view = view
     this.less = less
+    this.argv = argv
   }
 
   async load () {
@@ -29,6 +30,7 @@ export default class Content {
     })
 
     const argv = JSON.parse(decodeURIComponent(location.search.substr(1)))
+      .concat(this.argv)
     Reflect.defineProperty(window, 'deplug', { value: new Deplug(argv) })
 
     const loader = new ThemeLoader(path.join(__dirname, 'theme.less'))
