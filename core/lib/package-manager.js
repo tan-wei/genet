@@ -8,9 +8,12 @@ import path from 'path'
 import { promisify } from 'util'
 import semver from 'semver'
 
+const promiseGlob = promisify(glob)
+const promiseReadFile = promisify(jsonfile.readFile)
+const fields = Symbol('fields')
 async function readFile (filePath) {
     try {
-      const data = await jsonfile.readFileSync(filePath)
+      const data = await promiseReadFile(filePath)
       return {
         data,
         filePath,
@@ -20,8 +23,7 @@ async function readFile (filePath) {
     }
 }
 
-const promiseGlob = promisify(glob)
-const fields = Symbol('fields')
+
 export default class PackageManager extends EventEmitter {
   constructor (config) {
     super()
@@ -136,4 +138,3 @@ export default class PackageManager extends EventEmitter {
     return Array.from(this[fields].packages.values())
   }
 }
-      require('electron').remote.getCurrentWebContents().openDevTools()

@@ -10,7 +10,7 @@
     "components": [
       {
         "type": "token",
-        "main": "tokens.json"
+        "files": ["tokens.json"]
       }
     ]
   }
