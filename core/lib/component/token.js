@@ -18,16 +18,20 @@ export default class TokenComponent extends BaseComponent {
     super()
     this.tokenFiles =
       objpath.get(comp, 'files', []).map((file) => path.resolve(dir, file))
-    this.tokens = {}
+    this.tokenList = []
   }
   async load () {
-    this.tokens = await Promise.all(this.tokenFiles.map(readFile))
-    deplug.session.registerTokens(this.tokens)
+    this.tokenList = await Promise.all(this.tokenFiles.map(readFile))
+    for (const tokens of this.tokenList) {
+      deplug.session.registerTokens(tokens)
+    }
     return true
   }
   async unload () {
-    deplug.session.unregisterTokens(this.tokens)
-    this.tokens = {}
+    for (const tokens of this.tokenList) {
+      deplug.session.unregisterTokens(tokens)
+    }
+    this.tokenList = []
     return true
   }
 }
