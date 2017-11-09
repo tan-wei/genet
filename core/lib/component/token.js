@@ -1,4 +1,5 @@
 import BaseComponent from './base'
+import { CompositeDisposable } from 'disposables'
 import jsonfile from 'jsonfile'
 import objpath from 'object-path'
 import path from 'path'
@@ -18,20 +19,18 @@ export default class TokenComponent extends BaseComponent {
     super()
     this.tokenFiles =
       objpath.get(comp, 'files', []).map((file) => path.resolve(dir, file))
-    this.tokenList = []
   }
   async load () {
-    this.tokenList = await Promise.all(this.tokenFiles.map(readFile))
-    for (const tokens of this.tokenList) {
-      deplug.session.registerTokens(tokens)
-    }
+    const tokenList = await Promise.all(this.tokenFiles.map(readFile))
+    this.disposable = new CompositeDisposable(
+      tokenList.map((tokens) => deplug.session.registerTokens(tokens)))
     return true
   }
   async unload () {
-    for (const tokens of this.tokenList) {
-      deplug.session.unregisterTokens(tokens)
+    if (this.disposable) {
+      this.disposable.dispose()
+      this.disposable = null
     }
-    this.tokenList = []
     return true
   }
 }
