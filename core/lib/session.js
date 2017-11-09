@@ -2,10 +2,12 @@ import { Disposable } from 'disposables'
 
 const fields = Symbol('fields')
 export default class Session {
-  constructor (config) {
+  constructor () {
     this[fields] = {
       tokens: new Map(),
-      linkLayers: [],
+      linkLayers: new Set(),
+      dissectors: new Set(),
+      nativeDissectors: new Set(),
     }
   }
 
@@ -17,6 +19,27 @@ export default class Session {
       for (const id of Object.keys(tokens)) {
         this[fields].tokens.delete(id)
       }
+    })
+  }
+
+  registerNativeDissector (diss) {
+    this[fields].nativeDissectors.add(diss)
+    return new Disposable(() => {
+      this[fields].nativeDissectors.delete(diss)
+    })
+  }
+
+  registerDissector (diss) {
+    this[fields].dissectors.add(diss)
+    return new Disposable(() => {
+      this[fields].dissectors.delete(diss)
+    })
+  }
+
+  registerLinkLayer (link) {
+    this[fields].linkLayers.add(link)
+    return new Disposable(() => {
+      this[fields].linkLayers.delete(link)
     })
   }
 }

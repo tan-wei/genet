@@ -19,7 +19,7 @@ export default class Deplug {
       keybind: new KeyBind(options.profile),
       packages: new PackageManager(config, components.split(',')),
       registry: new PackageRegistry(config),
-      session: new Session(config),
+      session: new Session(),
       menu: new Menu(),
       action: ipcRenderer || ipcMain,
       argv,
