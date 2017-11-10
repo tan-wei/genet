@@ -1,3 +1,6 @@
+- Installation
+  - [Helper Tool](helper-tool.md)
+
 - Dissection
   - [Data Structure](data-structure.md)
 
