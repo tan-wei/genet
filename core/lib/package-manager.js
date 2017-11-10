@@ -32,6 +32,7 @@ export default class PackageManager extends EventEmitter {
       packages: new Map(),
       activatedComponents: new Set(components),
       updating: false,
+      initialLoad: true,
     }
     this.update()
     config.watch('_.disabledPackages', () => {
@@ -40,7 +41,10 @@ export default class PackageManager extends EventEmitter {
   }
 
   async update () {
-    const { config, updating, packages, activatedComponents } = this[fields]
+    const {
+      config, updating, packages,
+      activatedComponents, initialLoad,
+    } = this[fields]
     if (updating) {
       return
     }
@@ -125,7 +129,7 @@ export default class PackageManager extends EventEmitter {
       .forEach((pkg) => {
         for (const comp of pkg.components) {
           task.push(comp.load().then((result) => {
-            if (!result) {
+            if (!result && !initialLoad) {
               danglingPackages.add(pkg.data.name)
             }
             return result
@@ -147,6 +151,7 @@ export default class PackageManager extends EventEmitter {
     await Promise.all(task)
     this.emit('updated')
     this[fields].updating = false
+    this[fields].initialLoad = false
   }
 
   get list () {
