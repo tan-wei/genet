@@ -1,6 +1,5 @@
 # Helper Tool on macOS
 
-## TL;DR:
 macOS does not allow normal users to access pcap devices
 by default.  Deplug provides a tiny helper tool to handle
 this problem. Once it has been installed, we can start a
