@@ -22,10 +22,16 @@ class MacHelper {
           require('deplug-helper')()
           if (Pcap.permission) {
             deplug.notify.show(
-              'Successfully installed.', { type: 'success' })
+              'Successfully installed.', {
+                type: 'success',
+                title: 'Helper Tool',
+              })
           } else {
             deplug.notify.show(
-              'Installation failed.', { type: 'error' })
+              'Installation failed.', {
+                type: 'error',
+                title: 'Helper Tool',
+              })
           }
         },
       }),

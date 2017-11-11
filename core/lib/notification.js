@@ -6,12 +6,15 @@ class Container {
   view (vnode) {
     const { opt, content, handler } = vnode.attrs
     return [
-      m('button', {
-        style: { visible: opt.closeButton },
-        onclick: () => {
-          handler.dispose()
-        },
-      }, [m('i', { class: 'fa fa-close' })]),
+      m('h4', [
+        opt.title,
+        m('button', {
+          style: { visible: opt.closeButton },
+          onclick: () => {
+            handler.dispose()
+          },
+        }, [m('i', { class: 'fa fa-close' })])
+      ]),
       m('p', [content])
     ]
   }
@@ -25,6 +28,7 @@ export default class Notification {
   show (content, options = {}) {
     const opt = Object.assign({
       type: '',
+      title: '',
       ttl: 5000,
       closeButton: true,
     }, options)
