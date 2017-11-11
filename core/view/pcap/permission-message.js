@@ -6,8 +6,7 @@ class MacHelper {
     return m('section', [
       m('h1', ['Install Helper Tool']),
       m('p', [
-        m('b', ['TL;DR:']),
-        ' macOS does not allow normal users to access pcap devices ' +
+        'macOS does not allow normal users to access pcap devices ' +
         'by default.  Deplug provides a tiny helper tool to handle ' +
         'this problem. Once it has been installed, we can start a ' +
         'live capture without running Deplug as root.'
