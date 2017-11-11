@@ -21,5 +21,3 @@ export default class PcapView {
     dialog.show({ cancelable: false }).then((result) => console.log(result))
   }
 }
-
-require('electron').remote.getCurrentWebContents().openDevTools()

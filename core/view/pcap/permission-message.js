@@ -36,7 +36,7 @@ class MacHelper {
         },
       }),
       m('p', [
-        m('a', { href: 'https://deplug.net/#/helper-tool' }, ['Read more...'])
+        m('a', { href: 'https://deplug.net/#/helper-tool' }, ['Learn more...'])
       ])
     ])
   }
