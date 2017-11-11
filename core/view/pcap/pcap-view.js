@@ -11,7 +11,8 @@ export default class PcapView {
       ]),
       m('main', [
         m('h1', ['Deplug'])
-      ])
+      ]),
+      m('div', { class: 'notification' })
     ]
   }
 

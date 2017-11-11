@@ -36,7 +36,8 @@ export default class PrefernceView {
       ]),
       m('main', this.tabs.map((item) =>
         m('article', { active: this.activeTab === item.name },
-          [m(item.component, {})])))
+          [m(item.component, {})]))),
+      m('div', { class: 'notification' })
     ]
   }
 }

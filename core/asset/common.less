@@ -46,7 +46,7 @@ body {
   bottom: 0;
   right: 0;
   width: 300px;
-  z-index: 50;
+  z-index: 150;
   display: flex;
   margin-right: 30px;
   margin-bottom: 20px;
@@ -54,13 +54,36 @@ body {
   justify-content: flex-start;
 
   > div {
-    background-color: @theme-error;
-    border-color: darken(@theme-error, 10%);
+    color: @theme-default-bg;
+    background-color: @theme-dark-fg;
+    border: 2px solid darken(@theme-info, 20%);
     padding: 10px;
     margin-top: 10px;
     min-height: 40px;
     border-radius: 5px;
     box-shadow: 0 0 35px 15px rgba(0,0,0,0.1);
+    animation: fadein 0.2s linear;
+
+    &.success {
+      background-color: @theme-info;
+    }
+
+    &.error {
+      background-color: @theme-error;
+    }
+
+    button {
+      color: @theme-default-bg;
+      border: none;
+      background: none;
+      float: right;
+      cursor: pointer;
+    }
+  }
+
+  @keyframes fadein {
+  	0%   { opacity:0; }
+  	100% { opacity:1; }
   }
 }
 

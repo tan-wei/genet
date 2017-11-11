@@ -20,6 +20,13 @@ class MacHelper {
         disabled: Pcap.permission,
         onclick: () => {
           require('deplug-helper')()
+          if (Pcap.permission) {
+            deplug.notify.show(
+              'Successfully installed.', { type: 'success' })
+          } else {
+            deplug.notify.show(
+              'Installation failed.', { type: 'error' })
+          }
         },
       }),
       m('p', [

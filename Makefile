@@ -4,7 +4,7 @@ DEPLUG_CORE = node_modules/@deplug/core
 DEPLUG_CORE_RES = $(wildcard core/asset/*.*)
 DEPLUG_CORE_RES_OUT = $(addprefix node_modules/@deplug/,$(DEPLUG_CORE_RES))
 
-DEPLUG_CORE_JS = $(wildcard core/*.js) $(wildcard core/*/*.js)
+DEPLUG_CORE_JS = $(wildcard core/*.js) $(wildcard core/*/*/*.js) $(wildcard core/*/*.js)
 DEPLUG_CORE_MAIN_JS = $(wildcard core/*.main.js)
 DEPLUG_CORE_JS_OUT = $(addprefix node_modules/@deplug/,$(DEPLUG_CORE_MAIN_JS))
 
