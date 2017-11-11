@@ -5,7 +5,7 @@ import glob from 'glob'
 import jsonfile from 'jsonfile'
 import objpath from 'object-path'
 import path from 'path'
-import { promisify } from 'util'
+import promisify from 'es6-promisify'
 import semver from 'semver'
 
 const promiseGlob = promisify(glob)

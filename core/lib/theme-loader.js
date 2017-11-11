@@ -1,7 +1,7 @@
 import fs from 'fs'
 import less from 'less'
 import path from 'path'
-import { promisify } from 'util'
+import promisify from 'es6-promisify'
 
 const readFile = promisify(fs.readFile)
 

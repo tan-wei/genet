@@ -3,7 +3,7 @@ import { CompositeDisposable } from 'disposables'
 import jsonfile from 'jsonfile'
 import objpath from 'object-path'
 import path from 'path'
-import { promisify } from 'util'
+import promisify from 'es6-promisify'
 
 const promiseReadFile = promisify(jsonfile.readFile)
 async function readFile (filePath) {

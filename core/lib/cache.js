@@ -2,7 +2,7 @@ import crypto from 'crypto'
 import env from './env'
 import fs from 'fs'
 import path from 'path'
-import { promisify } from 'util'
+import promisify from 'es6-promisify'
 import writeFileAtomic from 'write-file-atomic'
 
 const promiseReadFile = promisify(fs.readFile)
