@@ -9,6 +9,7 @@ if (require('electron-squirrel-startup')) {
 }
 
 mkpath.sync(env.userPackagePath)
+mkpath.sync(env.cachePath)
 app.commandLine.appendSwitch('--enable-experimental-web-platform-features')
 
 app.on('ready', () => {

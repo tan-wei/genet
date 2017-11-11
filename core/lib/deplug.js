@@ -1,4 +1,5 @@
 import { ipcRenderer, ipcMain } from 'electron'
+import Cache from './cache'
 import Config from './config'
 import KeyBind from './keybind'
 import Menu from './menu'
@@ -17,10 +18,11 @@ export default class Deplug {
     this.layout = new Config(options.profile, 'layout')
     this.keybind = new KeyBind(options.profile)
     this.packages = new PackageManager(config, components.split(','))
-    this.registry = new PackageRegistry(config)
+    this.registry = new PackageRegistry(options.profile, config)
     this.session = new Session()
     this.menu = new Menu()
     this.notify = new Notification()
+    this.cache = new Cache(options.profile)
     this.action = ipcRenderer || ipcMain
     this.argv = argv
     Object.freeze(this)

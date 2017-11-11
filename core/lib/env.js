@@ -28,11 +28,13 @@ const userPath = path.join(os.homedir(), '.deplug')
 const userPackagePath = path.join(userPath, 'package')
 const userProfilePath = path.join(userPath, 'profile')
 const builtinPackagePath = path.join(root, 'package')
+const cachePath = path.join(os.homedir(), '.deplug-cache')
 export default {
   deplug,
   userPath,
   userPackagePath,
   userProfilePath,
   builtinPackagePath,
+  cachePath,
   linuxIconPath: '/usr/share/icons/hicolor/256x256/apps/deplug.png',
 }

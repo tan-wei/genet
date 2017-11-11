@@ -1,4 +1,6 @@
+import Cache from './cache'
 import { EventEmitter } from 'events'
+import deepEqual from 'deep-equal'
 import env from './env'
 import fetch from 'node-fetch'
 import objpath from 'object-path'
@@ -87,31 +89,39 @@ async function crawlRegistries (registries, errorCb) {
 
 const fields = Symbol('fields')
 export default class PackageRegistry extends EventEmitter {
-  constructor (config) {
+  constructor (profile, config) {
     super()
+    const cache = new Cache(profile)
     const registries = config.get('_.packageRegistries', [])
     this[fields] = {
       registries,
       updating: false,
       packages: [],
       lastUpdated: null,
+      cache,
     }
   }
 
-  update () {
-    const { registries } = this[fields]
+  async update () {
+    const { registries, cache } = this[fields]
     if (this[fields].updating || registries.length === 0) {
       return
     }
     this[fields].lastUpdated = new Date()
     this[fields].updating = true
-    crawlRegistries(registries, (err) => {
-      this.emit('error', err)
-    }).then((packages) => {
-      this[fields].packages = packages
-      this[fields].updating = false
+    const cached = cache.get('core:package:registry:cache')
+    if (typeof cached !== 'undefined' &&
+      !deepEqual(cached, this[fields].packages)) {
+      this[fields].packages = cached
       this.emit('updated')
+    }
+    const packages = await crawlRegistries(registries, (err) => {
+      this.emit('error', err)
     })
+    this[fields].packages = packages
+    this[fields].updating = false
+    cache.set('core:package:registry:cache', JSON.stringify(packages))
+    this.emit('updated')
   }
 
   get packages () {
