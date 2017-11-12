@@ -12,6 +12,15 @@
         "type": "token",
         "files": ["tokens.json"]
       }
-    ]
+    ],
+    "configSchema": {
+      "@deplug/token-wellknown.snaplen": {
+        "title": "Snapshot Lengths",
+        "description": "Snapshot Length",
+        "type": "integer",
+        "minimum": 0,
+        "default": 2048
+      }
+    }
   }
 }

@@ -148,6 +148,17 @@ export default class PackageManager extends EventEmitter {
       packages.delete(name)
     }
 
+    for (const [, pkg] of packages) {
+      if (pkg.configSchemaDisposer) {
+        pkg.configSchemaDisposer.dispose()
+      }
+      const configSchema = objpath.get(pkg.data, 'deplug.configSchema')
+      if (typeof configSchema === 'object') {
+        pkg.configSchemaDisposer =
+          deplug.config.registerSchema(configSchema)
+      }
+    }
+
     await Promise.all(task)
     this.emit('updated')
     this[fields].updating = false

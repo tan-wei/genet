@@ -1,16 +1,30 @@
+import SchemaInput from './schema-input'
 import m from 'mithril'
 export default class Plugin {
   view () {
     return [
       m('h1', ['Package']),
-      m('section', deplug.packages.list.map((pkg) => [
-        m('h4', [
-          pkg.data.name,
-          m('span', { class: 'schema-path' },
-          [pkg.data.version])
-        ]),
-        m('p', [pkg.data.description])
-      ]
+      m('section', { class: 'package' }, deplug.packages.list.map((pkg) => {
+        const config = Object.entries(deplug.config.schema)
+          .filter(([id]) => id.startsWith(`${pkg.data.name}.`))
+        return [
+          m('h4', [
+            pkg.data.name,
+            m('span', { class: 'schema-path' },
+            [pkg.data.version])
+          ]),
+          m('p', [pkg.data.description]),
+          config.map(([id, schema]) => m('section', [
+              m('h4', [
+                schema.title, m('span', { class: 'schema-path' }, [id])]),
+              m(SchemaInput, {
+                id,
+                schema,
+              }),
+              m('p', { class: 'description' }, [schema.description])
+          ]))
+        ]
+      }
     ))]
   }
 

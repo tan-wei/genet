@@ -1,10 +1,9 @@
 import SchemaInput from './schema-input'
 import m from 'mithril'
-import schemaDefault from '../../lib/schema-default'
 
 export default class General {
   view () {
-    const config = Object.entries(schemaDefault.config)
+    const config = Object.entries(deplug.config.schema)
       .filter(([id]) => id.startsWith('_.'))
     return [
       m('h1', ['General']),

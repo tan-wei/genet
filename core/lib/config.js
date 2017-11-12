@@ -19,16 +19,10 @@ export default class Config {
     touch.sync(filePath)
 
     const schema = schemaDefault[name] || {}
-    const defaultTree = {}
-    for (const [id, value] of Object.entries(schema)) {
-      if ('default' in value) {
-        objpath.set(defaultTree, id, value.default)
-      }
-    }
     this[fields] = {
       tree: {},
-      defaultTree,
       schema,
+      schemaSet: new Set(),
       listeners: [],
       filePath,
       write: () =>
@@ -63,15 +57,31 @@ export default class Config {
     fs.watchFile(filePath, () => this[fields].load(true))
   }
 
+  registerSchema (schema) {
+    const { schemaSet } = this[fields]
+    schemaSet.add(schema)
+    return new Disposable(() => {
+      schemaSet.delete(schema)
+    })
+  }
+
+  get schema () {
+    const { schema, schemaSet } = this[fields]
+    return Object.assign({}, schema, ...schemaSet)
+  }
+
   get (id, defaultValue) {
-    const { defaultTree, tree, schema } = this[fields]
+    const { tree } = this[fields]
     let value = objpath.get(tree, id)
     if (typeof value !== 'undefined') {
-      if (!(id in schema) || validate(value, schema[id]).errors.length === 0) {
+      if (!(id in this.schema) ||
+        validate(value, this.schema[id]).errors.length === 0) {
         return value
       }
     }
-    value = objpath.get(defaultTree, id)
+    if (id in this.schema) {
+      value = this.schema[id].default
+    }
     if (typeof value !== 'undefined') {
       return value
     }
@@ -79,16 +89,18 @@ export default class Config {
   }
 
   set (id, value) {
-    const { defaultTree, tree, update, write, schema } = this[fields]
-    if (id in schema) {
-      const result = validate(value, schema[id])
+    const { tree, update, write } = this[fields]
+    let defaultValue = null
+    if (id in this.schema) {
+      const result = validate(value, this.schema[id])
       if (result.errors.length > 0) {
         throw result.errors[0]
       }
+      defaultValue = this.schema[id].default
     }
     if (!deepEqual(value, objpath.get(tree, id))) {
       const oldTree = Object.assign({}, tree)
-      if (deepEqual(value, objpath.get(defaultTree, id))) {
+      if (deepEqual(value, objpath.get(defaultValue, id))) {
         objpath.del(tree, id)
       } else {
         objpath.set(tree, id, value)
