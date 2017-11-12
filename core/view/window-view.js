@@ -3,15 +3,20 @@ import m from 'mithril'
 
 export default class WindowView {
   constructor () {
-    this.tabs = [{
+    this.tabs = [
+    {
+      id: 'pcap-1',
+      src: 'pcap.htm',
+      argv: deplug.argv,
+      loading: true,
+    }, {
       id: 'preference',
       src: 'preference.htm',
       argv: deplug.argv,
       loading: true,
-    },
-    {
-      id: 'pcap-1',
-      src: 'pcap.htm',
+    }, {
+      id: 'log',
+      src: 'log.htm',
       argv: deplug.argv,
       loading: true,
     }]
@@ -44,6 +49,14 @@ export default class WindowView {
             },
             active: this.activeTab === 'preference',
           }, [m('i', { class: 'fa fa-cog' }), ' ', 'Preferences'])])
+        ]),
+        m('ul', [
+          m('li', [m('a', {
+             onclick: () => {
+             this.activeTab = 'log'
+            },
+            active: this.activeTab === 'log',
+          }, [m('i', { class: 'fa fa-book' }), ' ', 'Logs'])])
         ])
       ]),
       m('main', this.tabs.map((tab) => m(WebView, {
