@@ -47,6 +47,7 @@ export default {
         type: 'string',
         format: 'uri',
       },
+      uniqueItems: true,
       default: ['https://deplug.net/registry/list.yml'],
     },
   },
