@@ -32,6 +32,7 @@ export default class PackageManager extends EventEmitter {
       packages: new Map(),
       activatedComponents: new Set(components),
       updating: false,
+      queued: false,
       initialLoad: true,
     }
     this.update()
@@ -43,11 +44,16 @@ export default class PackageManager extends EventEmitter {
   async update () {
     const {
       config, updating, packages,
-      activatedComponents, initialLoad,
+      activatedComponents, initialLoad, queued,
     } = this[fields]
-    if (updating) {
+    if (updating && !queued) {
+      this.once('updated', () => {
+        this.update()
+      })
+      this[fields].queued = true
       return
     }
+    this[fields].queued = false
     this[fields].updating = true
 
     const builtinPluginPattern =
@@ -69,30 +75,27 @@ export default class PackageManager extends EventEmitter {
       builtinPaths.map(readFile).concat(userPaths.map(readFile))))
       .filter((pkg) => pkg.data)
     for (const pkg of pkgs) {
-      let cache = packages.get(pkg.name)
-      if (typeof cache === 'undefined') {
-        addedPackages.add(pkg.name)
-        cache = {
-          disabled: disabledPackages.has(pkg.name),
-          components: [],
-        }
-      } else if (disabledPackages.has(pkg.name)) {
+      const disabled = disabledPackages.has(pkg.data.name)
+      const cache = packages.get(pkg.data.name) || { components: [] }
+      if (!packages.has(pkg.data.name) && !disabled) {
+        addedPackages.add(pkg.data.name)
+      } else if (disabled) {
         if (cache.disabled === true) {
-          disabledPackages.delete(pkg.name)
+          disabledPackages.delete(pkg.data.name)
         } else {
           cache.disabled = true
         }
       } else if (cache.disabled === true) {
-        enabledPackages.add(pkg.name)
+        enabledPackages.add(pkg.data.name)
         cache.disabled = false
       } else if (semver.neq(pkg.data.version, cache.data.version)) {
-        updatedPackages.add(pkg.name)
+        updatedPackages.add(pkg.data.name)
       }
 
       cache.data = pkg.data
       cache.dir = path.dirname(pkg.filePath)
-      packages.set(pkg.name, cache)
-      removedPackages.delete(pkg.name)
+      packages.set(pkg.data.name, cache)
+      removedPackages.delete(pkg.data.name)
     }
 
     const task = []
@@ -167,5 +170,22 @@ export default class PackageManager extends EventEmitter {
 
   get list () {
     return Array.from(this[fields].packages.values())
+  }
+
+  enable (name) {
+    const { config } = this[fields]
+    const disabledPackages = new Set(config.get('_.disabledPackages', []))
+    if (disabledPackages.delete(name)) {
+      config.set('_.disabledPackages', Array.from(disabledPackages))
+    }
+  }
+
+  disable (name) {
+    const { config } = this[fields]
+    const disabledPackages = new Set(config.get('_.disabledPackages', []))
+    if (!disabledPackages.has(name)) {
+      disabledPackages.add(name)
+      config.set('_.disabledPackages', Array.from(disabledPackages))
+    }
   }
 }

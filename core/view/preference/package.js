@@ -4,10 +4,15 @@ export default class Plugin {
   view () {
     return [
       m('h1', ['Package']),
-      m('section', { class: 'package' }, deplug.packages.list.map((pkg) => {
-        const config = Object.entries(deplug.config.schema)
-          .filter(([id]) => id.startsWith(`${pkg.data.name}.`))
-        return [
+      m('div', deplug.packages.list.map((pkg) => {
+        const config = pkg.disabled
+          ? []
+          : Object.entries(deplug.config.schema)
+            .filter(([id]) => id.startsWith(`${pkg.data.name}.`))
+        return m('section', {
+          class: 'package',
+          disabled: pkg.disabled,
+          }, [
           m('h4', [
             pkg.data.name,
             m('span', { class: 'schema-path' },
@@ -23,9 +28,10 @@ export default class Plugin {
               }),
               m('p', { class: 'description' }, [schema.description])
           ]))
-        ]
+        ])
       }
-    ))]
+    ))
+    ]
   }
 
   oncreate () {

@@ -76,6 +76,10 @@ main {
       margin-bottom: 40px;
       &.package {
         border-top: 1px solid @theme-dark-fg;
+
+        &[disabled] h4, p {
+          opacity: 0.7;
+        }
       }
     }
   }
