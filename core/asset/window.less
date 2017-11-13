@@ -4,7 +4,7 @@
 
 body {
   .mixin (@b) when not (@b = darwin) {
-    background-color: @theme-default-bg;
+    background-color: darken(@theme-default-bg, 5%);
   }
   .mixin (@node-platform);
 }
