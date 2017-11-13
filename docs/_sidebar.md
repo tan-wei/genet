@@ -1,6 +1,9 @@
 - Installation
   - [Helper Tool](helper-tool.md)
 
+- Packages
+  - [Publish](publish-packages.md)
+
 - Dissection
   - [Data Structure](data-structure.md)
 
