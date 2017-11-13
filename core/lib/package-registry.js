@@ -84,7 +84,7 @@ async function crawlRegistries (registries, errorCb) {
     )
   }
   const data = await promiseFilter(tasks, errorCb)
-  return data.reduce((lhs, rhs) => lhs.concat(rhs))
+  return data.reduce((lhs, rhs) => lhs.concat(rhs), [])
 }
 
 const fields = Symbol('fields')
