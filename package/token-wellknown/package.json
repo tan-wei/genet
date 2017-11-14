@@ -6,6 +6,7 @@
   "engines": {
     "deplug": "*"
   },
+  "homepage": "https://deplug.net/",
   "deplug": {
     "components": [
       {

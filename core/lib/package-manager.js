@@ -94,6 +94,7 @@ export default class PackageManager extends EventEmitter {
 
       cache.data = pkg.data
       cache.dir = path.dirname(pkg.filePath)
+      cache.builtin = !pkg.filePath.startsWith(env.userPackagePath)
       packages.set(pkg.data.name, cache)
       removedPackages.delete(pkg.data.name)
     }

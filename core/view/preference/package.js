@@ -1,5 +1,6 @@
 import SchemaInput from './schema-input'
 import m from 'mithril'
+import { shell } from 'electron'
 export default class Plugin {
   view () {
     return [
@@ -36,14 +37,35 @@ export default class Plugin {
             m('input', {
               type: 'button',
               value: 'Open Website',
+              style: {
+                display: pkg.data.homepage
+                  ? 'block'
+                  : 'hidden',
+              },
+              onclick: () => {
+                shell.openExternal(pkg.data.homepage)
+              },
             }),
             m('input', {
               type: 'button',
               value: 'Open Directory',
+              style: {
+                display: pkg.builtin
+                  ? 'none'
+                  : 'block',
+              },
+              onclick: () => {
+                shell.showItemInFolder(pkg.dir)
+              },
             }),
             m('input', {
               type: 'button',
               value: 'Uninstall',
+              style: {
+                display: pkg.builtin
+                  ? 'none'
+                  : 'block',
+              },
             })
           ]),
           config.map(([id, schema]) => m('section', [
