@@ -2,6 +2,7 @@ import { ipcRenderer, ipcMain } from 'electron'
 import Cache from './cache'
 import Config from './config'
 import KeyBind from './keybind'
+import Logger from './logger'
 import Menu from './menu'
 import Notification from './notification'
 import PackageManager from './package-manager'
@@ -22,6 +23,7 @@ export default class Deplug {
     this.session = new Session()
     this.menu = new Menu()
     this.notify = new Notification()
+    this.logger = new Logger()
     this.cache = new Cache(options.profile)
     this.action = ipcRenderer || ipcMain
     this.argv = argv

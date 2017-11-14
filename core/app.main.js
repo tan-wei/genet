@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, webContents } from 'electron'
 import Cache from './lib/cache'
 import WindowFactory from './lib/window-factory'
 import env from './lib/env'
@@ -20,4 +20,15 @@ app.on('ready', () => {
 
 ipcMain.on('core:window:loaded', (event, id) => {
   BrowserWindow.fromId(id).show()
+})
+
+const logContents = new Map()
+ipcMain.on('core:logger:register', (event, windowId, contentId) => {
+  logContents.set(windowId, contentId)
+})
+ipcMain.on('core:logger:message', (event, windowId, message) => {
+  const contentId = logContents.get(windowId)
+  if (Number.isInteger(contentId)) {
+    webContents.fromId(contentId).send('core:logger:message', message)
+  }
 })
