@@ -19,6 +19,33 @@ export default class Plugin {
             [pkg.data.version])
           ]),
           m('p', [pkg.data.description]),
+          m('span', { class: 'button-box' }, [
+            m('input', {
+              type: 'button',
+              value: pkg.disabled
+                ? 'Enable'
+                : 'Disable',
+              onclick: () => {
+                if (pkg.disabled) {
+                  deplug.packages.enable(pkg.data.name)
+                } else {
+                  deplug.packages.disable(pkg.data.name)
+                }
+              },
+            }),
+            m('input', {
+              type: 'button',
+              value: 'Open Website',
+            }),
+            m('input', {
+              type: 'button',
+              value: 'Open Directory',
+            }),
+            m('input', {
+              type: 'button',
+              value: 'Uninstall',
+            })
+          ]),
           config.map(([id, schema]) => m('section', [
               m('h4', [
                 schema.title, m('span', { class: 'schema-path' }, [id])]),

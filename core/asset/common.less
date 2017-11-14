@@ -93,6 +93,21 @@ body {
   }
 }
 
+.button-box {
+  display: flex;
+  flex-wrap: nowrap;
+
+  > input {
+    margin: 5px;
+    &:first-child {
+      margin-left: 0;
+    }
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
 ::-webkit-scrollbar {
   width: 16px;
   background: @theme-lighter-bg;

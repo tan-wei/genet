@@ -48,12 +48,12 @@ export default class PackageManager extends EventEmitter {
     } = this[fields]
     if (updating && !queued) {
       this.once('updated', () => {
+        this[fields].queued = false
         this.update()
       })
       this[fields].queued = true
       return
     }
-    this[fields].queued = false
     this[fields].updating = true
 
     const builtinPluginPattern =
@@ -177,6 +177,7 @@ export default class PackageManager extends EventEmitter {
     const disabledPackages = new Set(config.get('_.disabledPackages', []))
     if (disabledPackages.delete(name)) {
       config.set('_.disabledPackages', Array.from(disabledPackages))
+      this.update()
     }
   }
 
@@ -186,6 +187,7 @@ export default class PackageManager extends EventEmitter {
     if (!disabledPackages.has(name)) {
       disabledPackages.add(name)
       config.set('_.disabledPackages', Array.from(disabledPackages))
+      this.update()
     }
   }
 }
