@@ -11,7 +11,7 @@
   "author": "h2so5",
   "license": "MIT",
   "dependencies": {
-    "@deplug/package-install": "^0.0.2",
+    "@deplug/package-install": "^0.0.3",
     "deep-equal": "^1.0.1",
     "deplug-core": "*",
     "deplugin": "^0.0.8",

@@ -40,7 +40,7 @@ export default class Plugin {
               style: {
                 display: pkg.data.homepage
                   ? 'block'
-                  : 'hidden',
+                  : 'none',
               },
               onclick: () => {
                 shell.openExternal(pkg.data.homepage)

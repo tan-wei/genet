@@ -173,6 +173,10 @@ export default class PackageManager extends EventEmitter {
     return Array.from(this[fields].packages.values())
   }
 
+  get (name) {
+    return this[fields].packages.get(name)
+  }
+
   enable (name) {
     const { config } = this[fields]
     const disabledPackages = new Set(config.get('_.disabledPackages', []))

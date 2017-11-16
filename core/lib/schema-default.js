@@ -50,6 +50,12 @@ export default {
       uniqueItems: true,
       default: ['https://deplug.net/registry/list.yml'],
     },
+    '_.noPrebuilt': {
+      title: 'Don\'t Use Pre-Built Binaries',
+      description: 'Force to build native add-ons from source',
+      type: 'boolean',
+      default: false,
+    },
   },
   layout: {
     '_.window.size': {

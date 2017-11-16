@@ -60,6 +60,21 @@ class IntegerArrayInput extends InputBase {
   }
 }
 
+class BooleanInput extends InputBase {
+  view (vnode) {
+    return m('input', {
+      type: 'checkbox',
+      checked: deplug.config.get(vnode.attrs.id),
+    })
+  }
+
+  oncreate (vnode) {
+    vnode.dom.addEventListener('change', (event) => {
+      this.writeValue(vnode, event.target.checked)
+    })
+  }
+}
+
 class StringInput extends InputBase {
   view (vnode) {
     const { schema } = vnode.attrs
@@ -151,6 +166,8 @@ export default class SchemaInput {
         return m(StringInput, vnode.attrs)
       case 'integer':
         return m(IntegerInput, vnode.attrs)
+      case 'boolean':
+        return m(BooleanInput, vnode.attrs)
       default:
         return m('p', ['n/a'])
     }
