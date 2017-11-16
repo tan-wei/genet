@@ -5,6 +5,8 @@ export default class ComponentFactory {
     switch (comp.type) {
       case 'token':
         return new TokenComponent(comp, dir)
+      case 'dissector':
+        return new DissectorComponent(comp, dir)
       default:
         return new BaseComponent(comp, dir)
     }
