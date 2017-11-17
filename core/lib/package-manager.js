@@ -1,15 +1,19 @@
 import ComponentFactory from './component-factory'
 import { EventEmitter } from 'events'
 import env from './env'
+import fs from 'fs'
 import glob from 'glob'
 import jsonfile from 'jsonfile'
 import objpath from 'object-path'
 import path from 'path'
 import promisify from 'es6-promisify'
 import semver from 'semver'
+import writeFileAtomic from 'write-file-atomic'
 
 const promiseGlob = promisify(glob)
 const promiseReadFile = promisify(jsonfile.readFile)
+const promiseWriteFile = promisify(writeFileAtomic)
+const promiseUnlink = promisify(fs.unlink)
 const fields = Symbol('fields')
 async function readFile (filePath) {
     try {
@@ -75,6 +79,17 @@ export default class PackageManager extends EventEmitter {
       builtinPaths.map(readFile).concat(userPaths.map(readFile))))
       .filter((pkg) => pkg.data)
     for (const pkg of pkgs) {
+      const removeme =
+        await readFile(path.join(path.dirname(pkg.filePath), '.removeme'))
+      if (typeof removeme.data === 'undefined') {
+        pkg.removal = false
+      } else {
+        disabledPackages.add(pkg.data.name)
+        pkg.removal = true
+      }
+    }
+
+    for (const pkg of pkgs) {
       const disabled = disabledPackages.has(pkg.data.name)
       const cache = packages.get(pkg.data.name) || { components: [] }
       if (!packages.has(pkg.data.name) && !disabled) {
@@ -93,6 +108,7 @@ export default class PackageManager extends EventEmitter {
       }
 
       cache.data = pkg.data
+      cache.removal = pkg.removal
       cache.dir = path.dirname(pkg.filePath)
       cache.builtin = !pkg.filePath.startsWith(env.userPackagePath)
       packages.set(pkg.data.name, cache)
@@ -193,6 +209,22 @@ export default class PackageManager extends EventEmitter {
       disabledPackages.add(name)
       config.set('_.disabledPackages', Array.from(disabledPackages))
       this.update()
+    }
+  }
+
+  setUninstallFlag (name, flag = true) {
+    const pkg = this.get(name)
+    if (typeof pkg !== 'undefined') {
+      const removeme = path.join(pkg.dir, '.removeme')
+      if (flag) {
+        promiseWriteFile(removeme, '{}').then(() => {
+          this.update()
+        })
+      } else {
+        promiseUnlink(removeme).then(() => {
+          this.update()
+        })
+      }
     }
   }
 }
