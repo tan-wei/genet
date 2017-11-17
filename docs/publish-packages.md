@@ -1,5 +1,17 @@
 # Publish
 
+## Registry
+
+Registry is just a single YAML file contains package metadata.
+Currently, Deplug supports `npm` as a source.
+
+The official registry is here:
+
+- Endpoint: https://deplug.net/registry/list.yml
+- Repository: https://github.com/deplug/registry
+
+Feel free to open pull requests.
+
 ## Pre-built binaries
 
 You can distribute pre-built binaries for native packages.
