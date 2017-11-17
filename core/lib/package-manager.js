@@ -212,7 +212,7 @@ export default class PackageManager extends EventEmitter {
     }
   }
 
-  setUninstallFlag (name, flag = true) {
+  setUninstallFlag (name, flag) {
     const pkg = this.get(name)
     if (typeof pkg !== 'undefined') {
       const removeme = path.join(pkg.dir, '.removeme')

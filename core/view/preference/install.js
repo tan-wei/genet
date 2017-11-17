@@ -48,6 +48,9 @@ export default class Plugin {
                 display: installedPkg
                   ? 'block'
                   : 'none',
+                onclick: () => {
+                  deplug.package.setUninstallFlag(pkg.name, true)
+                },
               },
             })
           ])

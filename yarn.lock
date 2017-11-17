@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@deplug/package-install@^0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@deplug/package-install/-/package-install-0.0.3.tgz#53c7c94c52ac154e4ce4271388405d05703383a2"
+"@deplug/package-install@^0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@deplug/package-install/-/package-install-0.0.4.tgz#08be330f899e5c38876bba5b637760cda7d604f6"
   dependencies:
     "@deplug/plugkit.h" "0.0.1"
     axios "^0.17.1"

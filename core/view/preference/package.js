@@ -20,7 +20,14 @@ export default class Plugin {
             [pkg.data.version])
           ]),
           m('p', [pkg.data.description]),
-          m('span', { class: 'button-box' }, [
+          m('span', {
+            class: 'button-box',
+            style: {
+              display: pkg.removal
+                ? 'none'
+                : 'flex',
+            },
+          }, [
             m('input', {
               type: 'button',
               value: pkg.disabled
@@ -65,6 +72,25 @@ export default class Plugin {
                 display: pkg.builtin
                   ? 'none'
                   : 'block',
+              },
+              onclick: () => {
+                deplug.packages.setUninstallFlag(pkg.data.name, true)
+              },
+            })
+          ]),
+          m('span', {
+            style: {
+              display: pkg.removal
+                ? 'block'
+                : 'none',
+            },
+          }, [
+            m('p', ['This package will be removed on the next startup.']),
+            m('input', {
+              type: 'button',
+              value: 'Undo',
+              onclick: () => {
+                deplug.packages.setUninstallFlag(pkg.data.name, false)
               },
             })
           ]),
