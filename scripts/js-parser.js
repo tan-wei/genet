@@ -137,6 +137,6 @@ function parse(ast) {
 
 module.exports = function(file) {
   return promisify(fs.readFile)(file, 'utf8').then(data => {
-    return parse(esprima.parse(data, {attachComment: true, comment: true}))
+    return parse(esprima.parseModule(data, {attachComment: true, comment: true}))
   })
 }

@@ -81,7 +81,7 @@ function snippet(id) {
 }
 
 function markdown(groups) {
-  let doc = '# Dissector API\n'
+  let doc = '# Public API\n'
   for (const group of groups) {
     doc += `## ${group.name}\n`
     if (group.properties.length > 0) {

@@ -5,6 +5,7 @@ DEPLUG_CORE_RES = $(wildcard core/asset/*.*)
 DEPLUG_CORE_RES_OUT = $(addprefix node_modules/@deplug/,$(DEPLUG_CORE_RES))
 
 DEPLUG_CORE_JS = $(wildcard core/*.js) $(wildcard core/*/*/*.js) $(wildcard core/*/*.js)
+DEPLUG_CORE_LIB_JS = $(wildcard core/lib/*.js)
 DEPLUG_CORE_MAIN_JS = $(wildcard core/*.main.js)
 DEPLUG_CORE_JS_OUT = $(addprefix node_modules/@deplug/,$(DEPLUG_CORE_MAIN_JS))
 
@@ -118,6 +119,7 @@ docs:
 	cp -r -f -p docs/. out/docs
 	@node scripts/generate-docs.js c-parser.js ./snippet $(PLUGKIT_HEADERS) out/docs/diss-api-c.md
 	@node scripts/generate-docs.js js-parser.js ./snippet $(PLUGKIT_JS_FILES) out/docs/diss-api-js.md
+	@node scripts/generate-docs.js js-parser.js ./snippet $(DEPLUG_CORE_LIB_JS) out/docs/core-api-js.md
 	@node scripts/generate-token-docs.js plugins/token/token-wellknown/tokens.json out/docs/well-known-tokens.md
 
 docs-serve: docs

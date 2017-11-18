@@ -20,9 +20,9 @@ async function readExpiryFile (filePath) {
       }
     } catch (err) {
       return {
- filePath,
-expiry: 0,
-}
+        filePath,
+        expiry: 0,
+      }
     }
 }
 
@@ -47,10 +47,10 @@ export default class Cache {
     }
   }
 
-  async get (key, defaultValue) {
+  get (key, defaultValue) {
     const { getFileName } = this[fields]
     try {
-      return await promiseReadFile(getFileName(key))
+      return promiseReadFile(getFileName(key))
     } catch (err) {
       return defaultValue
     }
