@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain, webContents } from 'electron'
 import Cache from './lib/cache'
+import PackageManager from './lib/package-manager'
 import WindowFactory from './lib/window-factory'
 import env from './lib/env'
 import mkpath from 'mkpath'
@@ -8,14 +9,18 @@ if (require('electron-squirrel-startup')) {
   app.quit()
 }
 
-mkpath.sync(env.userPackagePath)
-mkpath.sync(env.cachePath)
-Cache.cleanup()
-
 app.commandLine.appendSwitch('--enable-experimental-web-platform-features')
 
-app.on('ready', () => {
+async function init () {
+  await mkpath(env.userPackagePath)
+  await mkpath(env.cachePath)
+  await Cache.cleanup()
+  await PackageManager.cleanup()
   WindowFactory.create(process.argv.slice(2))
+}
+
+app.on('ready', () => {
+  init()
 })
 
 ipcMain.on('core:window:loaded', (event, id) => {

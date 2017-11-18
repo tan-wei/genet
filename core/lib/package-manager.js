@@ -7,6 +7,7 @@ import jsonfile from 'jsonfile'
 import objpath from 'object-path'
 import path from 'path'
 import promisify from 'es6-promisify'
+import rimraf from 'rimraf'
 import semver from 'semver'
 import writeFileAtomic from 'write-file-atomic'
 
@@ -14,6 +15,7 @@ const promiseGlob = promisify(glob)
 const promiseReadFile = promisify(jsonfile.readFile)
 const promiseWriteFile = promisify(writeFileAtomic)
 const promiseUnlink = promisify(fs.unlink)
+const promiseRmdir = promisify(rimraf)
 const fields = Symbol('fields')
 async function readFile (filePath) {
     try {
@@ -226,5 +228,22 @@ export default class PackageManager extends EventEmitter {
         })
       }
     }
+  }
+
+  static async cleanup () {
+    const userPluginPattern =
+      path.join(env.userPackagePath, '/**/package.json')
+    const userPaths = await promiseGlob(userPluginPattern)
+    const files = await Promise.all(userPaths.map((file) => {
+      const removeme = path.join(path.dirname(file), '.removeme')
+      return readFile(removeme)
+    }))
+    const dirs = files.map((data) => {
+      if (data.data) {
+        return path.dirname(data.filePath)
+      }
+      return null
+    }).filter((dir) => dir !== null)
+    return Promise.all(dirs.map((dir) => promiseRmdir(dir)))
   }
 }

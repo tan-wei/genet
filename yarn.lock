@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@deplug/package-install@^0.0.4":
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/@deplug/package-install/-/package-install-0.0.4.tgz#08be330f899e5c38876bba5b637760cda7d604f6"
+"@deplug/package-install@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@deplug/package-install/-/package-install-0.0.5.tgz#ab13a1ce587a40a50ee8a67ea8b0ae59542ab0f1"
   dependencies:
     "@deplug/plugkit.h" "0.0.1"
     axios "^0.17.1"
@@ -4027,7 +4027,7 @@ right-align@^0.1.1:
   dependencies:
     align-text "^0.1.1"
 
-rimraf@2, rimraf@^2.2.8, rimraf@^2.5.1, rimraf@^2.5.2, rimraf@^2.5.4, rimraf@^2.6.1, rimraf@~2.6.1, rimraf@~2.6.2:
+rimraf@2, rimraf@^2.2.8, rimraf@^2.5.1, rimraf@^2.5.2, rimraf@^2.5.4, rimraf@^2.6.1, rimraf@^2.6.2, rimraf@~2.6.1, rimraf@~2.6.2:
   version "2.6.2"
   resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.6.2.tgz#2ed8150d24a16ea8651e6d6ef0f47c4158ce7a36"
   dependencies:
