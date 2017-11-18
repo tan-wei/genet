@@ -12,10 +12,9 @@ if (require('electron-squirrel-startup')) {
 app.commandLine.appendSwitch('--enable-experimental-web-platform-features')
 
 async function init () {
-  await mkpath(env.userPackagePath)
-  await mkpath(env.cachePath)
-  await Cache.cleanup()
+  await PackageManager.init()
   await PackageManager.cleanup()
+  await Cache.cleanup()
   WindowFactory.create(process.argv.slice(2))
 }
 

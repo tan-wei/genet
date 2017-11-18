@@ -4,6 +4,7 @@ import env from './env'
 import fs from 'fs'
 import glob from 'glob'
 import jsonfile from 'jsonfile'
+import mkpath from 'mkpath'
 import objpath from 'object-path'
 import path from 'path'
 import promisify from 'es6-promisify'
@@ -16,6 +17,7 @@ const promiseReadFile = promisify(jsonfile.readFile)
 const promiseWriteFile = promisify(writeFileAtomic)
 const promiseUnlink = promisify(fs.unlink)
 const promiseRmdir = promisify(rimraf)
+const promiseMkpath = promisify(mkpath)
 const fields = Symbol('fields')
 async function readFile (filePath) {
     try {
@@ -228,6 +230,18 @@ export default class PackageManager extends EventEmitter {
         })
       }
     }
+  }
+
+  static async init () {
+    await promiseMkpath(env.userPackagePath)
+    await promiseMkpath(env.cachePath)
+
+    const versionFile = path.join(env.userPath, '.version')
+    await promiseWriteFile(versionFile, JSON.stringify({
+      deplug: env.deplug.version,
+      negatron: env.deplug.devDependencies.negatron,
+      abi: process.versions.modules,
+    }))
   }
 
   static async cleanup () {
