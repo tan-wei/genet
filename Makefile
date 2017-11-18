@@ -15,7 +15,7 @@ PLUGKIT_DST = node_modules/plugkit
 PLUGKIT_HEADERS = $(wildcard plugkit/include/plugkit/*.h)
 PLUGKIT_JS_FILES = $(wildcard plugkit/js/*.js)
 
-DISSECTOR_ESS = plugins/dissector/dissector-essentials
+BUILTIN_PACKAGES = package
 
 ELECTRON_VERSION = $(shell node scripts/negatron-version-string.js)
 ELECTRON_MIRROR = https://cdn.deplug.net/electron/v
@@ -25,6 +25,7 @@ ELECTRON_IGNORE = "deplug-core","plugkit"
 MOCHA = node_modules/mocha/bin/mocha
 APPDMG = node_modules/.bin/appdmg
 DOCSIFY = node_modules/.bin/docsify
+DPM = node_modules/.bin/dpm
 
 ifeq ($(OS),Windows_NT)
 ELECTRON = node_modules\.bin\negatron.cmd
@@ -50,7 +51,7 @@ fix:
 plugkit:
 	cp -r -f -p $(PLUGKIT_SRC) node_modules
 	$(MAKE) -C $(PLUGKIT_DST)
-	$(MAKE) -C $(DISSECTOR_ESS)
+	$(DPM) update $(BUILTIN_PACKAGES)
 
 test:
 	node scripts/run-as-node.js $(ELECTRON) node_modules/core/test.main.js

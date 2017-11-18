@@ -2,6 +2,16 @@
 # yarn lockfile v1
 
 
+"@deplug/dpm@^0.0.7":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@deplug/dpm/-/dpm-0.0.2.tgz#5a2f56d71c33b5ee1811cdf71a6b688977bb23d1"
+  dependencies:
+    "@deplug/package-install" "^0.0.7"
+    commander "^2.11.0"
+    es6-promisify "^5.0.0"
+    glob "^7.1.2"
+    jsonfile "^4.0.0"
+
 "@deplug/package-install@^0.0.7":
   version "0.0.7"
   resolved "https://registry.yarnpkg.com/@deplug/package-install/-/package-install-0.0.7.tgz#420d22f14a78324be29bba463dd19cba8306bb30"
@@ -698,7 +708,7 @@ commander@2.9.0:
   dependencies:
     graceful-readlink ">= 1.0.0"
 
-commander@^2.9.0, commander@~2.11.0:
+commander@^2.11.0, commander@^2.9.0, commander@~2.11.0:
   version "2.11.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.11.0.tgz#157152fd1e7a6c8d98a5b715cf376df928004563"
 
@@ -2333,6 +2343,12 @@ jsonfile@^2.1.0, jsonfile@^2.4.0:
 jsonfile@^3.0.0:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/jsonfile/-/jsonfile-3.0.1.tgz#a5ecc6f65f53f662c4415c7675a0331d0992ec66"
+  optionalDependencies:
+    graceful-fs "^4.1.6"
+
+jsonfile@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/jsonfile/-/jsonfile-4.0.0.tgz#8771aae0799b64076b76640fca058f9c10e33ecb"
   optionalDependencies:
     graceful-fs "^4.1.6"
 

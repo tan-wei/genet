@@ -1,0 +1,29 @@
+{
+  "name": "@deplug/eth",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Deplug Ethernet dissector",
+  "engines": {
+    "deplug": "*"
+  },
+  "deplug": {
+    "components": [
+      {
+        "type": "packet",
+        "main": "ethernet.node",
+        "linkLayers": [
+          {
+            "link": 1,
+            "id": "[eth]"
+          }
+        ],
+        "samples": [
+          {
+            "pcap": "samples/tcp-ipv4.pcap",
+            "assert": "test/eth.json"
+          }
+        ]
+      }
+    ]
+  }
+}

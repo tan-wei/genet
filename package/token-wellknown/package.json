@@ -11,7 +11,9 @@
     "components": [
       {
         "type": "token",
-        "files": ["tokens.json"]
+        "files": [
+          "tokens.json"
+        ]
       }
     ],
     "configSchema": {
