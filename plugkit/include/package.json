@@ -1,7 +1,7 @@
 {
-  "name": "plugkit.h",
-  "version": "0.0.6",
-  "description": "Deplug pcap engine header for C/C++",
+  "name": "@deplug/plugkit.h",
+  "version": "0.0.1",
+  "description": "Native module headers for plugkit",
   "author": "h2so5",
   "license": "MIT",
   "main": "index.js",

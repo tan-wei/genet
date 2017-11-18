@@ -1,0 +1,27 @@
+{
+  "name": "@deplug/token-wellknown",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Deplug well-known tokens",
+  "engines": {
+    "deplug": "*"
+  },
+  "homepage": "https://deplug.net/",
+  "deplug": {
+    "components": [
+      {
+        "type": "token",
+        "files": ["tokens.json"]
+      }
+    ],
+    "configSchema": {
+      "@deplug/token-wellknown.snaplen": {
+        "title": "Snapshot Lengths",
+        "description": "Snapshot Length",
+        "type": "integer",
+        "minimum": 0,
+        "default": 2048
+      }
+    }
+  }
+}

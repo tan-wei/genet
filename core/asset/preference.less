@@ -1,0 +1,86 @@
+@import "common";
+
+@nav-width: 180px;
+
+nav {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: @nav-width;
+  padding: 0;
+  -webkit-app-region: drag;
+  overflow-y: hidden;
+  border-right: 1px solid @theme-lighter-bg;
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      padding: 0;
+      -webkit-user-select: none;
+
+      a {
+        padding: 15px 20px;
+        display: block;
+        cursor: pointer;
+        text-decoration: none;
+
+        &:hover {
+          background: @theme-lighter-bg;
+        }
+
+        &[active] {
+          background: @theme-lighter-bg;
+        }
+      }
+    }
+  }
+}
+
+main {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: @nav-width;
+  right: 0;
+  overflow-y: scroll;
+
+  article {
+    padding: 0 20px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: none;
+
+    &[active] {
+      display: block;
+    }
+
+    h4 {
+      font-size: 1.2em;
+      margin-bottom: 0.8em;
+    }
+
+    span.schema-path {
+      margin: 10px 25px;
+      font-weight: normal;
+      color: @theme-dark-fg;
+    }
+
+    section {
+      margin-bottom: 40px;
+      &.package {
+        border-top: 1px solid @theme-dark-fg;
+
+        &[disabled] h4, p {
+          opacity: 0.7;
+        }
+      }
+    }
+  }
+}

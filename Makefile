@@ -1,12 +1,13 @@
 DEPLUG_VER = $(shell node scripts/version-string.js)
-DEPLUG_CORE = node_modules/deplug-core node_modules/deplug-core/theme
+DEPLUG_CORE = node_modules/@deplug/core
 
-DEPLUG_CORE_RES = $(wildcard deplug-core/*.htm) $(wildcard deplug-core/theme/*.*)
-DEPLUG_CORE_RES_OUT = $(addprefix node_modules/,$(DEPLUG_CORE_RES))
+DEPLUG_CORE_RES = $(wildcard core/asset/*.*)
+DEPLUG_CORE_RES_OUT = $(addprefix node_modules/@deplug/,$(DEPLUG_CORE_RES))
 
-DEPLUG_CORE_JS = $(wildcard deplug-core/*.js) $(wildcard deplug-core/components/*.js)
-DEPLUG_CORE_MAIN_JS = $(wildcard deplug-core/*.main.js)
-DEPLUG_CORE_JS_OUT = $(addprefix node_modules/,$(DEPLUG_CORE_MAIN_JS))
+DEPLUG_CORE_JS = $(wildcard core/*.js) $(wildcard core/*/*/*.js) $(wildcard core/*/*.js)
+DEPLUG_CORE_LIB_JS = $(wildcard core/lib/*.js)
+DEPLUG_CORE_MAIN_JS = $(wildcard core/*.main.js)
+DEPLUG_CORE_JS_OUT = $(addprefix node_modules/@deplug/,$(DEPLUG_CORE_MAIN_JS))
 
 PLUGKIT_SRC = plugkit
 PLUGKIT_DST = node_modules/plugkit
@@ -15,9 +16,6 @@ PLUGKIT_HEADERS = $(wildcard plugkit/include/plugkit/*.h)
 PLUGKIT_JS_FILES = $(wildcard plugkit/js/*.js)
 
 DISSECTOR_ESS = plugins/dissector/dissector-essentials
-
-ROOLUP_EXTERN_BUILTIN = electron,deplug,$(shell node -p -e 'require("builtin-modules").join(",")')
-ROOLUP_EXTERN = $(ROOLUP_EXTERN_BUILTIN),$(shell node scripts/builtin-packages.js)
 
 ELECTRON_VERSION = $(shell node scripts/negatron-version-string.js)
 ELECTRON_MIRROR = https://cdn.deplug.net/electron/v
@@ -31,11 +29,11 @@ DOCSIFY = node_modules/.bin/docsify
 ifeq ($(OS),Windows_NT)
 ELECTRON = node_modules\.bin\negatron.cmd
 ESLINT = node_modules\.bin\eslint
-ROLLUP = node_modules\.bin\rollup
+WEBPACK = node_modules\.bin\webpack
 else
 ELECTRON = node_modules/.bin/negatron
 ESLINT = node_modules/.bin/eslint
-ROLLUP = node_modules/.bin/rollup
+WEBPACK = node_modules/.bin/webpack
 endif
 
 all: build
@@ -55,11 +53,11 @@ plugkit:
 	$(MAKE) -C $(DISSECTOR_ESS)
 
 test:
-	node scripts/run-as-node.js $(ELECTRON) node_modules/deplug-core/test.main.js
+	node scripts/run-as-node.js $(ELECTRON) node_modules/core/test.main.js
 	node scripts/run-as-node.js $(ELECTRON) $(MOCHA) $(PLUGKIT_DST)/test
 
 bench:
-	node scripts/run-as-node.js $(ELECTRON) node_modules/deplug-core/bench.main.js
+	node scripts/run-as-node.js $(ELECTRON) node_modules/core/bench.main.js
 
 dmg:
 	yarn add appdmg
@@ -108,19 +106,20 @@ pack:
 							--out=./out --overwrite
 
 $(DEPLUG_CORE_RES_OUT): $(DEPLUG_CORE_RES) $(DEPLUG_CORE)
-	cp -r -f -p $(subst node_modules/,,$@) $@
+	cp -r -f -p core/asset/ node_modules/@deplug/core/asset
 
 $(DEPLUG_CORE_JS_OUT): $(DEPLUG_CORE_JS) $(DEPLUG_CORE)
-	$(ROLLUP) $(subst node_modules/,,$@) -e $(ROOLUP_EXTERN) --format cjs --output $@
+	$(WEBPACK) $(subst node_modules/@deplug/,,$@) $@
 
 $(DEPLUG_CORE):
-	@mkdir $(DEPLUG_CORE)
+	@mkdir -p $(DEPLUG_CORE)
 
 docs:
 	mkdir -p out
 	cp -r -f -p docs/. out/docs
 	@node scripts/generate-docs.js c-parser.js ./snippet $(PLUGKIT_HEADERS) out/docs/diss-api-c.md
 	@node scripts/generate-docs.js js-parser.js ./snippet $(PLUGKIT_JS_FILES) out/docs/diss-api-js.md
+	@node scripts/generate-docs.js js-parser.js ./snippet $(DEPLUG_CORE_LIB_JS) out/docs/core-api-js.md
 	@node scripts/generate-token-docs.js plugins/token/token-wellknown/tokens.json out/docs/well-known-tokens.md
 
 docs-serve: docs

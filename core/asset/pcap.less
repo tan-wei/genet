@@ -1,0 +1,62 @@
+@import "common";
+
+@header-height: 80px;
+@nav-width: 380px;
+
+header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: @nav-width;
+  height: @header-height;
+  background: @theme-lighter-bg;
+}
+
+nav {
+  position: absolute;
+  top: @header-height;
+  bottom: 0;
+  left: 0;
+  width: @nav-width;
+  padding: 0;
+  -webkit-app-region: drag;
+  overflow-y: scroll;
+  border-right: 1px solid @theme-lighter-bg;
+
+  &::-webkit-scrollbar {
+    background-color: @theme-lighter-bg;
+    background-size: 100% 100%;
+    image-rendering: pixelated;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: fade(@theme-selection-bg, 20%);
+    border: 3px solid @theme-default-fg;
+  }
+}
+
+main {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: @nav-width;
+  right: 0;
+  overflow-y: scroll;
+  padding: 20px;
+}
+
+.dialog {
+  label {
+    margin: 5px 0;
+    display: block;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  li {
+    padding: 6px 0;
+  }
+}

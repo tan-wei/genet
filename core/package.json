@@ -1,0 +1,12 @@
+{
+  "name": "@deplug/core",
+  "version": "0.0.1",
+  "description": "Deplug core modules",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/deplug/deplug.git"
+  },
+  "files": [],
+  "author": "h2so5",
+  "license": "MIT"
+}
