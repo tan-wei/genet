@@ -75,6 +75,7 @@ export default class Plugin {
       noPrebuilt: deplug.config.get('_.noPrebuilt'),
     })
     try {
+      await installer.setup()
       await installer.install()
       deplug.notify.show(
         `package: ${shortName}`, {
