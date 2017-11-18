@@ -2,6 +2,7 @@
   - [Helper Tool](helper-tool.md)
 
 - Packages
+  - [Install](install-packages.md)
   - [Publish](publish-packages.md)
 
 - Dissection
