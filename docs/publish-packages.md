@@ -29,6 +29,8 @@ Put a `deplug.binary.souece` entry into `package.json` to indicate the download 
 }
 ```
 
+The `dpm prebuilt [package-dir]` command is available to create an archive.
+
 The name of the archive is represented as
 `${this.pkg.name}-v${this.pkg.version}-abi${process.versions.modules}-${process.platform}-${process.arch}.tar.gz`.
 
