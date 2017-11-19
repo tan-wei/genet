@@ -51,7 +51,7 @@ fix:
 plugkit:
 	cp -r -f -p $(PLUGKIT_SRC) node_modules
 	$(MAKE) -C $(PLUGKIT_DST)
-	$(DPM) update $(BUILTIN_PACKAGES)
+	$(DPM) update --negatron $(ELECTRON_VERSION) $(BUILTIN_PACKAGES)
 
 test:
 	node scripts/run-as-node.js $(ELECTRON) node_modules/core/test.main.js
