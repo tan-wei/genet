@@ -62,10 +62,8 @@ async function resolveEntry (entry) {
     }
 
     return {
-      name: meta.name,
-      description: meta.description,
+      data: pkg,
       timestamp: new Date(meta.time.modified),
-      version: vers[0],
       archive: tarball,
       url: entry.url || null,
     }

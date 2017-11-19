@@ -8,25 +8,25 @@ export default class Plugin {
     return [
       m('h1', ['Install']),
       m('div', deplug.registry.packages.map((pkg) => {
-        const installedPkg = deplug.packages.get(pkg.name)
+        const installedPkg = deplug.packages.get(pkg.data.name)
         return m('section', { class: 'package' }, [
           m('h4', [
-            pkg.name,
+            pkg.data.name,
             m('span', { class: 'schema-path' },
-            [pkg.version])
+            [pkg.data.version])
           ]),
-          m('p', [pkg.description]),
+          m('p', [pkg.data.description]),
           m('span', { class: 'button-box' }, [
             m('input', {
               type: 'button',
               value: 'Open Website',
               style: {
-                display: pkg.homepage
+                display: pkg.data.homepage
                   ? 'block'
                   : 'none',
               },
               onclick: () => {
-                shell.openExternal(pkg.homepage)
+                shell.openExternal(pkg.data.homepage)
               },
             }),
             m('input', {
@@ -49,7 +49,7 @@ export default class Plugin {
                   ? 'block'
                   : 'none',
                 onclick: () => {
-                  deplug.package.setUninstallFlag(pkg.name, true)
+                  deplug.package.setUninstallFlag(pkg.data.name, true)
                 },
               },
             })
@@ -67,7 +67,7 @@ export default class Plugin {
   }
 
   async install (pkg) {
-    const shortName = pkg.name.replace(/@\w+\//, '')
+    const shortName = pkg.data.name.replace(/@\w+\//, '')
     const installer = new Installer({
       dir: path.join(env.userPackagePath, shortName),
       url: pkg.archive,
