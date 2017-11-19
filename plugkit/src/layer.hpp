@@ -41,6 +41,9 @@ public:
   Layer *parent() const;
   void setParent(Layer *layer);
 
+  const Layer *master() const;
+  void setMaster(const Layer *layer);
+
   const Frame *frame() const;
   void setFrame(const Frame *frame);
 
@@ -54,6 +57,7 @@ private:
   Token mId = 0;
   uint8_t mData = 0;
   Layer *mParent = nullptr;
+  const Layer *mMaster = nullptr;
   const Frame *mFrame = nullptr;
   std::vector<const Payload *> mPayloads;
   std::vector<Token> mTags;

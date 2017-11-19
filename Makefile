@@ -128,7 +128,6 @@ docs-serve: docs
 
 fmt:
 	$(MAKE) fmt -C $(PLUGKIT_SRC)
-	$(MAKE) fmt -C $(DISSECTOR_ESS)
 
 clean:
 	@rm -rf $(DEPLUG_CORE) $(PLUGKIT_DST)

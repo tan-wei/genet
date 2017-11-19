@@ -64,6 +64,10 @@ Layer *Layer::parent() const { return mParent; }
 
 void Layer::setParent(Layer *layer) { mParent = layer; }
 
+const Layer *Layer::master() const { return mMaster; }
+
+void Layer::setMaster(const Layer *layer) { mMaster = layer; }
+
 const Frame *Layer::frame() const { return mFrame; }
 
 void Layer::setFrame(const Frame *frame) { mFrame = frame; }
