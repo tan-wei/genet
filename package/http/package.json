@@ -9,8 +9,7 @@
   "deplug": {
     "components": [
       {
-        "type": "dissector",
-        "dissectorType": "stream",
+        "type": "core:dissector:stream",
         "main": "main.node"
       }
     ]

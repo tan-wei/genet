@@ -9,14 +9,17 @@
   "deplug": {
     "components": [
       {
-        "type": "dissector",
-        "dissectorType": "packet",
+        "type": "core:dissector:packet",
         "main": "tcp.node"
       },
       {
-        "type": "dissector",
-        "dissectorType": "stream",
+        "type": "core:dissector:stream",
         "main": "tcp-stream.node"
+      },
+      {
+        "type": "core:renderer:layer",
+        "id": "tcp",
+        "main": "tcp-summary.js"
       }
     ]
   }

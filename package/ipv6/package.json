@@ -9,9 +9,13 @@
   "deplug": {
     "components": [
       {
-        "type": "dissector",
-        "dissectorType": "packet",
+        "type": "core:dissector:packet",
         "main": "main.node"
+      },
+      {
+        "type": "core:renderer:property",
+        "id": "@ipv6:addr",
+        "root": "ipv6-addr.js"
       }
     ]
   }

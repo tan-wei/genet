@@ -9,14 +9,23 @@
   "deplug": {
     "components": [
       {
-        "type": "dissector",
-        "dissectorType": "packet",
+        "type": "core:dissector:packet",
         "main": "main.node",
         "samples": [
           {
             "pcap": "samples/tcp-ipv4.pcap"
           }
         ]
+      },
+      {
+        "type": "core:filter:transform",
+        "id": "ipv4-literal",
+        "main": "ipv4-literal.js"
+      },
+      {
+        "type": "core:renderer:property",
+        "id": "@ipv4:addr",
+        "root": "ipv4-addr.js"
       }
     ]
   }

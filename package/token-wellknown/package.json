@@ -10,7 +10,7 @@
   "deplug": {
     "components": [
       {
-        "type": "token",
+        "type": "core:token",
         "files": [
           "tokens.json"
         ]

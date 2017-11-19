@@ -9,7 +9,7 @@
   "deplug": {
     "components": [
       {
-        "type": "packet",
+        "type": "core:dissector:packet",
         "main": "main.node",
         "linkLayers": [
           {
@@ -23,6 +23,11 @@
             "assert": "test/eth.json"
           }
         ]
+      },
+      {
+        "type": "core:renderer:property",
+        "id": "@eth:mac",
+        "main": "mac-addr.js"
       }
     ]
   }

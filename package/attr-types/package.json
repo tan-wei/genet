@@ -1,0 +1,28 @@
+{
+  "name": "@deplug/attr-types",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Generic attribute types",
+  "engines": {
+    "deplug": "*"
+  },
+  "deplug": {
+    "components": [
+      {
+        "type": "core:renderer:property",
+        "id": "@flags",
+        "main": "flags.js"
+      },
+      {
+        "type": "core:renderer:property",
+        "id": "@enum",
+        "main": "enum.js"
+      },
+      {
+        "type": "core:renderer:property",
+        "id": "@nested",
+        "main": "nested.js"
+      }
+    ]
+  }
+}
