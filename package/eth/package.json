@@ -10,7 +10,7 @@
     "components": [
       {
         "type": "packet",
-        "main": "ethernet.node",
+        "main": "main.node",
         "linkLayers": [
           {
             "link": 1,

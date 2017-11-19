@@ -1,0 +1,18 @@
+{
+  "name": "@deplug/http",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Deplug HTTP dissector",
+  "engines": {
+    "deplug": "*"
+  },
+  "deplug": {
+    "components": [
+      {
+        "type": "dissector",
+        "dissectorType": "stream",
+        "main": "main.node"
+      }
+    ]
+  }
+}

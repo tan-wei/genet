@@ -1,0 +1,23 @@
+{
+  "name": "@deplug/tcp",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Deplug TCP dissector",
+  "engines": {
+    "deplug": "*"
+  },
+  "deplug": {
+    "components": [
+      {
+        "type": "dissector",
+        "dissectorType": "packet",
+        "main": "tcp.node"
+      },
+      {
+        "type": "dissector",
+        "dissectorType": "stream",
+        "main": "tcp-stream.node"
+      }
+    ]
+  }
+}

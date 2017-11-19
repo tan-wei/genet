@@ -1,0 +1,16 @@
+{
+  "targets":[
+    {
+      "target_name":"tcp",
+      "sources":[
+        "tcp.cpp"
+      ]
+    },
+    {
+      "target_name":"tcp-stream",
+      "sources":[
+        "tcp-stream.cpp"
+      ]
+    }
+  ]
+}
