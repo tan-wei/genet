@@ -3,6 +3,7 @@
 
 #include "attr.hpp"
 #include "token.h"
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -23,6 +24,9 @@ public:
   const Attr *attr(Token id) const;
   const Layer *layer(Token id) const;
 
+  Layer *addModifiedLayer(const Layer *master);
+  void clearModifiedLayers();
+
 private:
   FrameView(const FrameView &view) = delete;
   FrameView &operator=(const FrameView &view) = delete;
@@ -32,6 +36,7 @@ private:
   const Layer *mPrimaryLayer;
   std::vector<const Layer *> mLeafLayers;
   std::vector<const Layer *> mLayers;
+  std::map<const Layer *, Layer *> mModifiedLayers;
 };
 } // namespace plugkit
 
