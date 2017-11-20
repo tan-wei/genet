@@ -1,12 +1,16 @@
 import BaseComponent from './component/base'
+import DissectorComponent from './component/dissector'
 import TokenComponent from './component/token'
 export default class ComponentFactory {
  static create (comp, dir) {
     switch (comp.type) {
-      case 'token':
+      case 'core:token':
         return new TokenComponent(comp, dir)
-      case 'dissector':
+      case 'core:dissector:packet':
+      case 'core:dissector:stream':
         return new DissectorComponent(comp, dir)
+      case 'core:renderer:property':
+      case 'core:filter:transform':
       default:
         return new BaseComponent(comp, dir)
     }
