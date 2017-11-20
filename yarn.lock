@@ -2,11 +2,11 @@
 # yarn lockfile v1
 
 
-"@deplug/dpm@^0.0.4":
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/@deplug/dpm/-/dpm-0.0.4.tgz#12c16fd0d545eefd9839d79ba7169315e8837cd6"
+"@deplug/dpm@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@deplug/dpm/-/dpm-0.0.5.tgz#f14ae00a74b7d2feaecd85649d230c958af38b85"
   dependencies:
-    "@deplug/package-install" "^0.0.8"
+    "@deplug/package-install" "^0.0.9"
     commander "^2.11.0"
     es6-promisify "^5.0.0"
     glob "^7.1.2"
@@ -30,9 +30,9 @@
     temp "^0.8.3"
     url-join "^2.0.2"
 
-"@deplug/package-install@^0.0.8":
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/@deplug/package-install/-/package-install-0.0.8.tgz#ef60c4e88c4f6b95236a6af97e7efe8a725c74b4"
+"@deplug/package-install@^0.0.9":
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/@deplug/package-install/-/package-install-0.0.9.tgz#9f087d16b88bdc5880bb378ac6704a8afdc5fd26"
   dependencies:
     "@deplug/plugkit.h" "0.0.1"
     axios "^0.17.1"

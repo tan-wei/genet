@@ -51,6 +51,7 @@ fix:
 plugkit:
 	cp -r -f -p $(PLUGKIT_SRC) node_modules
 	$(MAKE) -C $(PLUGKIT_DST)
+	$(DPM) update --negatron $(ELECTRON_VERSION) $(PLUGKIT_DST)/package.json
 	$(DPM) update --negatron $(ELECTRON_VERSION) $(BUILTIN_PACKAGES)
 
 test:
