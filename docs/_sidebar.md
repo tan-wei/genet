@@ -3,6 +3,7 @@
 
 - Packages
   - [Install](install-packages.md)
+  - [Components](components.md)
   - [Publish](publish-packages.md)
 
 - Dissection
