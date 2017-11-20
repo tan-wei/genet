@@ -25,7 +25,7 @@
         ]
       },
       {
-        "type": "core:renderer:property",
+        "type": "core:renderer:attr",
         "id": "@eth:mac",
         "main": "mac-addr.js"
       }

@@ -9,7 +9,7 @@ export default class ComponentFactory {
       case 'core:dissector:packet':
       case 'core:dissector:stream':
         return new DissectorComponent(comp, dir)
-      case 'core:renderer:property':
+      case 'core:renderer:attr':
       case 'core:filter:transform':
       default:
         return new BaseComponent(comp, dir)

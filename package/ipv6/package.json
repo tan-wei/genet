@@ -13,7 +13,7 @@
         "main": "main.node"
       },
       {
-        "type": "core:renderer:property",
+        "type": "core:renderer:attr",
         "id": "@ipv6:addr",
         "root": "ipv6-addr.js"
       }

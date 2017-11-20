@@ -9,17 +9,17 @@
   "deplug": {
     "components": [
       {
-        "type": "core:renderer:property",
+        "type": "core:renderer:attr",
         "id": "@flags",
         "main": "flags.js"
       },
       {
-        "type": "core:renderer:property",
+        "type": "core:renderer:attr",
         "id": "@enum",
         "main": "enum.js"
       },
       {
-        "type": "core:renderer:property",
+        "type": "core:renderer:attr",
         "id": "@nested",
         "main": "nested.js"
       }
