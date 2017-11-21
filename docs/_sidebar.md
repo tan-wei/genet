@@ -1,5 +1,6 @@
 - Installation
   - [Helper Tool](helper-tool.md)
+  - [Build from Source](build.md)
 
 - Packages
   - [Install](install-packages.md)
