@@ -115,12 +115,17 @@ export default class Config {
     objpath.del(tree, id)
   }
 
-  watch (id, callback) {
+  watch (id, callback, defaultValue) {
     const { listeners } = this[fields]
     listeners.push({
       id,
       callback,
     })
+    if (typeof defaultValue !== 'undefined') {
+      const value = this.get(id, defaultValue)
+      // eslint-disable-next-line callback-return
+      callback(value, defaultValue)
+    }
     return new Disposable(() => {
       this[fields].listeners =
         listeners.filter((handler) => handler.callback !== callback)
