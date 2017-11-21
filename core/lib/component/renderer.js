@@ -11,7 +11,7 @@ async function readFile (filePath) {
     }
 }
 
-export default class DissectorComponent extends BaseComponent {
+export default class RendererComponent extends BaseComponent {
   constructor (comp, dir) {
     super()
   }

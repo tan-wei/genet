@@ -107,8 +107,9 @@ pack:
 							--win32metadata.InternalName=Deplug \
 							--out=./out --overwrite
 
-$(DEPLUG_CORE_RES_OUT): $(DEPLUG_CORE_RES) $(DEPLUG_CORE)
-	cp -r -f -p core/asset/ node_modules/@deplug/core/asset
+node_modules/@deplug/core/asset/%: core/asset/%
+	@mkdir -p node_modules/@deplug/core/asset
+	cp -f -p $< $@
 
 $(DEPLUG_CORE_JS_OUT): $(DEPLUG_CORE_JS) $(DEPLUG_CORE)
 	$(WEBPACK) $(subst node_modules/@deplug/,,$@) $@
