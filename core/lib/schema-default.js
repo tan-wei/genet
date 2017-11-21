@@ -56,6 +56,12 @@ export default {
       type: 'boolean',
       default: false,
     },
+    '_.maxLogLength': {
+      title: 'Maximum Log Length',
+      type: 'integer',
+      minimum: 0,
+      default: 1000,
+    },
   },
   layout: {
     '_.window.size': {
