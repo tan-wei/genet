@@ -1,5 +1,5 @@
-import m from 'mithril'
-export default class IPv6Addr {
+const m = require('mithril')
+class IPv6Addr {
   view (vnode) {
     const { value } = vnode.attrs.prop
     const array = [
@@ -30,3 +30,4 @@ export default class IPv6Addr {
     return m('span', [addr])
   }
 }
+module.exports = IPv6Addr

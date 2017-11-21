@@ -1,7 +1,6 @@
-import { Session } from 'deplug'
-import m from 'mithril'
-
-export default class Flags {
+const { Session } = require('deplug')
+const m = require('mithril')
+class Flags {
   view (vnode) {
     const { value } = vnode.attrs.prop
     const flags = vnode.attrs.layer.attrs
@@ -17,3 +16,4 @@ export default class Flags {
     return m('span', [flags, ' (', value, ')'])
   }
 }
+module.exports = Flags

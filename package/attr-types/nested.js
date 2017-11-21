@@ -1,7 +1,6 @@
-import { Session } from 'deplug'
-import m from 'mithril'
-
-export default class Nested {
+const { Session } = require('deplug')
+const m = require('mithril')
+class Nested {
   view (vnode) {
     const keys = vnode.attrs.layer.attrs
       .filter((prop) => prop.id.startsWith(`${vnode.attrs.prop.id}.`))
@@ -15,3 +14,4 @@ export default class Nested {
     return m('span', [keys])
   }
 }
+module.exports = Nested

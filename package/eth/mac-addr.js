@@ -1,5 +1,5 @@
-import m from 'mithril'
-export default class MACAddr {
+const m = require('mithril')
+class MACAddr {
   view (vnode) {
     const { value } = vnode.attrs.prop
     const addr = value.toJSON().data
@@ -9,3 +9,4 @@ export default class MACAddr {
     return m('span', [addr])
   }
 }
+module.exports = MACAddr

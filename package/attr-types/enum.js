@@ -1,7 +1,6 @@
-import { Session } from 'deplug'
-import m from 'mithril'
-
-export default class Enum {
+const { Session } = require('deplug')
+const m = require('mithril')
+class Enum {
   view (vnode) {
     const { value } = vnode.attrs.prop
     const flags = vnode.attrs.layer.attrs
@@ -16,3 +15,4 @@ export default class Enum {
     return m('span', [flags, ' (', value, ')'])
   }
 }
+module.exports = Enum

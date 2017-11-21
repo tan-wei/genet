@@ -1,7 +1,6 @@
-import { Renderer } from 'deplug'
-import m from 'mithril'
-
-export default class TCPSummary {
+const { Renderer } = require('deplug')
+const m = require('mithril')
+class TCPSummary {
   view (vnode) {
     const layer = vnode.attrs.prop.value
     const { parent } = layer
@@ -38,3 +37,4 @@ export default class TCPSummary {
     ])
   }
 }
+module.exports = TCPSummary

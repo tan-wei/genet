@@ -1,4 +1,4 @@
-import { Reader, Layer, Token } from 'plugkit'
+const { Reader, Layer, Token } = require('plugkit')
 
 const liTable = {
   0: Token`ntp.leapIndicator.noWarning`,
@@ -17,7 +17,7 @@ const modeTable = {
   6: Token`ntp.mode.controlMessage`,
   7: Token`ntp.mode.reservedForPrivate`,
 }
-export default class NTP {
+class NTP {
   analyze (ctx, layer) {
     const child = layer.addLayer(ctx, 'ntp')
     child.confidence = Layer.ConfProbable
@@ -128,3 +128,4 @@ export default class NTP {
     return ['udp']
   }
 }
+module.exports = NTP

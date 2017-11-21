@@ -1,9 +1,9 @@
-import esprima from 'esprima'
-import estraverse from 'estraverse'
-import objpath from 'object-path'
+const esprima = require('esprima')
+const estraverse = require('estraverse')
+const objpath = require('object-path')
 
 let counter = 0
-export default function (ast) {
+function transform (ast) {
   return estraverse.replace(ast, {
     enter: (node) => {
       if (node.type === 'TemplateLiteral') {
@@ -22,3 +22,4 @@ export default function (ast) {
     },
   })
 }
+module.exports = transform
