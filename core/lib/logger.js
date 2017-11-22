@@ -12,6 +12,7 @@ export default class Logger {
       remote.getCurrentWindow().id, {
         level,
         message: util.format(format, ...args),
+        timestamp: new Date(),
       })
   }
 

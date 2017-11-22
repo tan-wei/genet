@@ -5,5 +5,5 @@ import LogView from './view/log/log-view'
 ipcRenderer.send('core:logger:register',
   remote.getCurrentWindow().id, remote.getCurrentWebContents().id)
 
-const content = new Content(LogView, 'preference.less')
+const content = new Content(LogView, 'log.less')
 content.load()
