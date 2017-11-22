@@ -8,6 +8,9 @@ class InputBase {
     if (result.errors.length === 0) {
       deplug.config.set(id, value)
     } else {
+      if ('default' in schema) {
+        deplug.config.set(id, schema.default)
+      }
       deplug.notify.show(
         `${result.errors[0].name}: ${result.errors[0].message}`, {
           type: 'error',
