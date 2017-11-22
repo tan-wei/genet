@@ -13,5 +13,3 @@ const components = [
 const content = new Content(
   PcapView, 'pcap.less', ['--components', components.join(',')])
 content.load()
-
-require('electron').remote.getCurrentWebContents().openDevTools()

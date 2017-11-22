@@ -14,6 +14,16 @@ export default class RendererComponent extends BaseComponent {
       throw new Error('main field required')
     }
     this.mainFile = path.resolve(dir, file)
+    switch (comp.type) {
+      case 'core:renderer:attr':
+        this.type = 'attr'
+        break
+      case 'core:renderer:layer':
+        this.type = 'layer'
+        break
+      default:
+        throw new Error('unknown renderer type')
+    }
   }
   async load () {
     const code = await promiseReadFile(this.mainFile, 'utf8')
@@ -32,9 +42,20 @@ export default class RendererComponent extends BaseComponent {
     }
     const module = {}
     func(module, req, this.mainFile, path.dirname(this.mainFile))
+    if (typeof module.exports === 'function') {
+      if (this.type === 'attr') {
+        this.disposable = deplug.session.registerAttrRenderer(module.exports)
+      } else if (this.type === 'layer') {
+        this.disposable = deplug.session.registerLayerRenderer(module.exports)
+      }
+    }
     return true
   }
   async unload () {
+    if (this.disposable) {
+      this.disposable.dispose()
+      this.disposable = null
+    }
     return true
   }
 }

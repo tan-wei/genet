@@ -8,6 +8,8 @@ export default class Session {
       linkLayers: new Set(),
       dissectors: new Set(),
       nativeDissectors: new Set(),
+      layerRenderers: new Set(),
+      attrRenderers: new Set(),
     }
   }
 
@@ -41,5 +43,43 @@ export default class Session {
     return new Disposable(() => {
       this[fields].linkLayers.delete(link)
     })
+  }
+
+  registerLayerRenderer (renderer) {
+    this[fields].layerRenderers.add(renderer)
+    return new Disposable(() => {
+      this[fields].layerRenderers.delete(renderer)
+    })
+  }
+
+  registerAttrRenderer (renderer) {
+    this[fields].attrRenderers.add(renderer)
+    return new Disposable(() => {
+      this[fields].attrRenderers.delete(renderer)
+    })
+  }
+
+  get tokens () {
+    return this[fields].tokens.entries()
+  }
+
+  get linkLayers () {
+    return this[fields].linkLayers.values()
+  }
+
+  get dissectors () {
+    return this[fields].dissectors.values()
+  }
+
+  get nativeDissectors () {
+    return this[fields].nativeDissectors.values()
+  }
+
+  get layerRenderers () {
+    return this[fields].layerRenderers.values()
+  }
+
+  get attrRenderers () {
+    return this[fields].attrRenderers.values()
   }
 }
