@@ -1,14 +1,15 @@
 # Download
 
-## Relases
+## Latest Relases
 
- - macOS (dmg)
-   - Github: https://github.com/deplug/deplug/releases
- - Linux (deb/rpm)
-   - Github: https://github.com/deplug/deplug/releases
- - Windows (exe)
-   - Github: https://github.com/deplug/deplug/releases
-   
+ - macOS
+  - [Download .dmg](https://cdn.deplug.net/deplug/release/latest/deplug-darwin-amd64.dmg)
+ - Linux
+   - [Download .deb](https://cdn.deplug.net/deplug/release/latest/deplug-linux-amd64.deb)
+   - [Download .rpm](https://cdn.deplug.net/deplug/release/latest/deplug-linux-amd64.rpm)
+ - Windows
+   - [Download .exe (Installer)](https://cdn.deplug.net/deplug/release/latest/deplug-win32-amd64.exe)
+
 ## Requirements for Live Capture
 
 ### macOS
