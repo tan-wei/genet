@@ -144,12 +144,39 @@ class IntegerEnumInput extends InputBase {
   }
 }
 
+class StringEnumInput extends InputBase {
+  view (vnode) {
+    const { schema } = vnode.attrs
+    const value = deplug.config.get(vnode.attrs.id)
+    const titles = schema.enumTitles || schema.enum
+    return m('select', {}, [
+      (schema.enum).map((item, index) => m('option', {
+          selected: item === value,
+          value: item,
+        }, [
+          titles[index]
+        ]))
+    ])
+  }
+
+  oncreate (vnode) {
+    vnode.dom.addEventListener('change', (event) => {
+      const { value } = event.target.options[event.target.selectedIndex]
+      this.writeValue(vnode, value)
+    })
+  }
+}
+
 export default class SchemaInput {
   view (vnode) {
     const { schema } = vnode.attrs
     if ('enum' in schema) {
-      if (Number.isInteger(schema.enum[0])) {
-        return m(IntegerEnumInput, vnode.attrs)
+      switch (schema.type) {
+        case 'string':
+          return m(StringEnumInput, vnode.attrs)
+        case 'integer':
+          return m(IntegerEnumInput, vnode.attrs)
+        default:
       }
     }
     if (schema.type === 'array') {

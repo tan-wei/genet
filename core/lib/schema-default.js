@@ -56,6 +56,18 @@ export default {
       type: 'boolean',
       default: false,
     },
+    '_.logLevel': {
+      title: 'Log Level',
+      type: 'string',
+      enum: ['debug', 'info', 'warn', 'error'],
+      enumTitles: [
+        'Debug',
+        'Info',
+        'Warning',
+        'Error'
+      ],
+      default: 'error',
+    },
     '_.maxLogLength': {
       title: 'Maximum Log Length',
       type: 'integer',
