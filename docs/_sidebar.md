@@ -1,4 +1,5 @@
 - Installation
+  - [Download](download.md)
   - [Helper Tool](helper-tool.md)
   - [Build from Source](build.md)
 
@@ -12,6 +13,9 @@
 
 - Display Filter
   - [Filter Examples](filter-examples.md)
+
+- Miscellaneous
+  - [FAQ](faq.md)
 
 - API Reference
   - [Core JavaScript API](core-api-js.md)
