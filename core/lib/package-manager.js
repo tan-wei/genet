@@ -58,7 +58,7 @@ export default class PackageManager extends EventEmitter {
   async update () {
     const {
       config, updating, packages,
-      activatedComponents, initialLoad, queued,
+      activatedComponents, initialLoad, queued, logger,
     } = this[fields]
     if (updating && !queued) {
       this.once('updated', () => {
@@ -133,11 +133,15 @@ export default class PackageManager extends EventEmitter {
       .filter((pkg) => typeof pkg !== 'undefined')
       .forEach((pkg) => {
         for (const comp of pkg.components) {
+          logger.debug(`unloading package: ${pkg.data.name}`)
           task.push(comp.unload().then((result) => {
             if (!result) {
               dirtyPackages.add(pkg.data.name)
             }
             return result
+          })
+          .catch((err) => {
+            logger.error(err)
           }))
         }
       })
@@ -158,11 +162,15 @@ export default class PackageManager extends EventEmitter {
       .map((name) => packages.get(name))
       .forEach((pkg) => {
         for (const comp of pkg.components) {
+          logger.debug(`loading package: ${pkg.data.name}`)
           task.push(comp.load().then((result) => {
             if (!result && !initialLoad) {
               dirtyPackages.add(pkg.data.name)
             }
             return result
+          })
+          .catch((err) => {
+            logger.error(err)
           }))
         }
       })

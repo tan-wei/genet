@@ -22,7 +22,7 @@ export default class RendererComponent extends BaseComponent {
         this.type = 'layer'
         break
       default:
-        throw new Error('unknown renderer type')
+        throw new Error(`unknown renderer type: ${comp.type}`)
     }
   }
   async load () {
@@ -42,12 +42,13 @@ export default class RendererComponent extends BaseComponent {
     }
     const module = {}
     func(module, req, this.mainFile, path.dirname(this.mainFile))
-    if (typeof module.exports === 'function') {
-      if (this.type === 'attr') {
-        this.disposable = deplug.session.registerAttrRenderer(module.exports)
-      } else if (this.type === 'layer') {
-        this.disposable = deplug.session.registerLayerRenderer(module.exports)
-      }
+    if (typeof module.exports !== 'function') {
+      throw new TypeError('module.exports must be a function')
+    }
+    if (this.type === 'attr') {
+      this.disposable = deplug.session.registerAttrRenderer(module.exports)
+    } else if (this.type === 'layer') {
+      this.disposable = deplug.session.registerLayerRenderer(module.exports)
     }
     return true
   }

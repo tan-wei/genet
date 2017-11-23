@@ -6,14 +6,6 @@ import path from 'path'
 import promisify from 'es6-promisify'
 
 const promiseReadFile = promisify(jsonfile.readFile)
-async function readFile (filePath) {
-    try {
-      return await promiseReadFile(filePath)
-    } catch (err) {
-      return {}
-    }
-}
-
 export default class TokenComponent extends BaseComponent {
   constructor (comp, dir) {
     super()
@@ -21,7 +13,8 @@ export default class TokenComponent extends BaseComponent {
       objpath.get(comp, 'files', []).map((file) => path.resolve(dir, file))
   }
   async load () {
-    const tokenList = await Promise.all(this.tokenFiles.map(readFile))
+    const tokenList =
+      await Promise.all(this.tokenFiles.map((file) => promiseReadFile(file)))
     this.disposable = new CompositeDisposable(
       tokenList.map((tokens) => deplug.session.registerTokens(tokens)))
     return true
