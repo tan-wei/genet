@@ -18,7 +18,7 @@
     ],
     "configSchema": {
       "@deplug/token-wellknown.snaplen": {
-        "title": "Snapshot Lengths",
+        "title": "Snapshot Length",
         "description": "Snapshot Length",
         "type": "integer",
         "minimum": 0,
