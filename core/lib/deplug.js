@@ -12,7 +12,7 @@ import minimist from 'minimist'
 
 export default class Deplug {
   constructor (argv) {
-    const options = minimist(argv)
+    const options = minimist(argv, { boolean: true })
     const components = options.components || ''
     const config = new Config(options.profile, 'config')
     const logger = new Logger(config)
@@ -36,6 +36,10 @@ export default class Deplug {
     this.registry.on('error', (err) => {
       logger.warn(err)
     })
+
+    if (options.contextMenu) {
+      this.menu.enableContextMenu()
+    }
 
     Object.freeze(this)
   }

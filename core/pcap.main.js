@@ -11,6 +11,11 @@ const components = [
 ]
 
 const content = new Content(
-  PcapView, 'pcap.less',
-    ['--components', components.join(','), '--loggerDomain', 'pcap'])
+  PcapView,
+  'pcap.less',
+  [
+    `--components=${components.join(',')}`,
+    '--loggerDomain=pcap',
+    '--contextMenu'
+  ])
 content.load()
