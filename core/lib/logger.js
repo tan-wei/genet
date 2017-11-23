@@ -1,34 +1,61 @@
 import { ipcRenderer, remote } from 'electron'
-import util from 'util'
 
 const fields = Symbol('fields')
+const logLevels =
+  new Map([['debug', 0], ['info', 1], ['warn', 2], ['error', 3]])
 export default class Logger {
-  constructor () {
-    this[fields] = { windowId: remote.getCurrentWindow().id }
+  constructor (config) {
+    this[fields] = {
+      windowId: remote.getCurrentWindow().id,
+      domain: 'core',
+    }
+    config.watch('_.logLevel', (value) => {
+      this[fields].logLevel = value
+    }, 'error')
   }
 
-  log (level, format, ...args) {
+  get domain () {
+    return this[fields].domain
+  }
+
+  set domain (domain) {
+    this[fields].domain = domain
+  }
+
+  log (message, options = {}) {
+    if (logLevels.get(this[fields].logLevel) > logLevels.get(options.level)) {
+      return
+    }
+    const summary = (message instanceof Error)
+      ? message.message
+      : message
+    const detail = (message instanceof Error)
+      ? message.stack
+      : message
     ipcRenderer.send('core:logger:message',
-      remote.getCurrentWindow().id, {
-        level,
-        message: util.format(format, ...args),
+      remote.getCurrentWindow().id, Object.assign({
+        message: {
+          summary,
+          detail,
+        },
         timestamp: new Date(),
-      })
+        domain: this[fields].domain,
+      }, options))
   }
 
-  debug (format, ...args) {
-    this.log('debug', format, ...args)
+  debug (message, options = {}) {
+    this.log(message, Object.assign(options, { level: 'debug' }))
   }
 
-  info (format, ...args) {
-    this.log('info', format, ...args)
+  info (message, options = {}) {
+    this.log(message, Object.assign(options, { level: 'info' }))
   }
 
-  warn (format, ...args) {
-    this.log('warn', format, ...args)
+  warn (message, options = {}) {
+    this.log(message, Object.assign(options, { level: 'warn' }))
   }
 
-  error (format, ...args) {
-    this.log('error', format, ...args)
+  error (message, options = {}) {
+    this.log(message, Object.assign(options, { level: 'error' }))
   }
 }

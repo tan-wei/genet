@@ -22,6 +22,7 @@ export default class LogView {
       m('ul', this.logs.map((line) => {
         const timestamp = moment(line.timestamp)
         return m('li', { class: line.level }, [
+          m('span', { class: 'domain' }, [line.domain]),
           m('span', {
             class: 'timestamp',
             'data-balloon': timestamp.fromNow(),
@@ -29,9 +30,9 @@ export default class LogView {
           }, [timestamp.format()]),
           m('details', [
             m('summary', [
-              line.message
+              line.message.summary
             ]),
-            line.message
+            line.message.detail
           ])
         ])
       }))

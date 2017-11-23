@@ -23,7 +23,7 @@ export default class Deplug {
     this.session = new Session()
     this.menu = new Menu()
     this.notify = new Notification()
-    this.logger = new Logger()
+    this.logger = new Logger(config)
     this.cache = new Cache(options.profile)
     this.action = ipcRenderer || ipcMain
     this.argv = argv
