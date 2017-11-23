@@ -1,4 +1,3 @@
-import Cache from './cache'
 import { EventEmitter } from 'events'
 import deepEqual from 'deep-equal'
 import env from './env'
@@ -87,9 +86,8 @@ async function crawlRegistries (registries, errorCb) {
 
 const fields = Symbol('fields')
 export default class PackageRegistry extends EventEmitter {
-  constructor (profile, config) {
+  constructor (profile, config, cache) {
     super()
-    const cache = new Cache(profile)
     const registries = config.get('_.packageRegistries', [])
     this[fields] = {
       registries,
@@ -118,7 +116,7 @@ export default class PackageRegistry extends EventEmitter {
     })
     this[fields].packages = packages
     this[fields].updating = false
-    cache.set('core:package:registry:cache', JSON.stringify(packages))
+    cache.set('core:package:registry:cache', packages)
     this.emit('updated')
   }
 

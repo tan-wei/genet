@@ -27,10 +27,11 @@ async function readExpiryFile (filePath) {
 }
 
 export default class Cache {
-  constructor (profile) {
+  constructor (profile, logger) {
     const table = new Map()
     const separator = Buffer.from([0])
     this[fields] = {
+      logger,
       getFileName: (key) => {
         let name = table.get(key)
         if (typeof name !== 'undefined') {
@@ -48,21 +49,28 @@ export default class Cache {
   }
 
   get (key, defaultValue) {
-    const { getFileName } = this[fields]
+    const { getFileName, logger } = this[fields]
+    logger.debug(`Loading cache for ${key}...`)
     try {
-      return promiseReadFile(getFileName(key))
+      return JSON.parse(fs.readFileSync(getFileName(key), 'utf8'))
     } catch (err) {
+      logger.info(err)
       return defaultValue
     }
   }
 
-  set (key, value, ttl = 3600) {
-    const { getFileName } = this[fields]
+  async set (key, value, ttl = 3600) {
+    const { getFileName, logger } = this[fields]
     const expiry = Date.now() + ttl
-    return Promise.all([
-      promiseWriteFile(getFileName(key), value),
-      promiseWriteFile(`${getFileName(key)}.expiry`, `${expiry}`)
-    ])
+    logger.debug(`Saving cache for ${key} (ttl: ${ttl})...`)
+    try {
+      return Promise.all([
+        promiseWriteFile(getFileName(key), JSON.stringify(value)),
+        promiseWriteFile(`${getFileName(key)}.expiry`, `${expiry * 1000}`)
+      ])
+    } catch (err) {
+      logger.warn(err)
+    }
   }
 
   static async cleanup () {

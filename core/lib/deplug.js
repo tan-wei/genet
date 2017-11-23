@@ -15,21 +15,23 @@ export default class Deplug {
     const options = minimist(argv)
     const components = options.components || ''
     const config = new Config(options.profile, 'config')
+    const logger = new Logger(config)
+    const cache = new Cache(options.profile, logger)
     this.config = config
     this.layout = new Config(options.profile, 'layout')
     this.keybind = new KeyBind(options.profile)
     this.packages = new PackageManager(config, components.split(','))
-    this.registry = new PackageRegistry(options.profile, config)
+    this.registry = new PackageRegistry(options.profile, config, cache)
     this.session = new Session()
     this.menu = new Menu()
     this.notify = new Notification()
-    this.logger = new Logger(config)
-    this.cache = new Cache(options.profile)
+    this.logger = logger
+    this.cache = cache
     this.action = ipcRenderer || ipcMain
     this.argv = argv
 
     this.registry.on('error', (err) => {
-      this.logger.warn(err)
+      logger.warn(err)
     })
 
     Object.freeze(this)
