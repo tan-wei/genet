@@ -1,4 +1,3 @@
-import BaseComponent from './component/base'
 import DissectorComponent from './component/dissector'
 import RendererComponent from './component/renderer'
 import TokenComponent from './component/token'
@@ -17,7 +16,7 @@ export default class ComponentFactory {
       case 'core:filter:transform':
         return new TransformComponent(comp, dir)
       default:
-        return new BaseComponent(comp, dir)
+        throw new Error(`unknown component type: ${comp.type}`)
     }
   }
 }

@@ -2,8 +2,6 @@ import { app, BrowserWindow, ipcMain, webContents } from 'electron'
 import Cache from './lib/cache'
 import PackageManager from './lib/package-manager'
 import WindowFactory from './lib/window-factory'
-import env from './lib/env'
-import mkpath from 'mkpath'
 
 if (require('electron-squirrel-startup')) {
   app.quit()

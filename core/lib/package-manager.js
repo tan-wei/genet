@@ -33,19 +33,25 @@ async function readFile (filePath) {
 
 
 export default class PackageManager extends EventEmitter {
-  constructor (config, components) {
+  constructor (config, components, logger) {
     super()
     this[fields] = {
       config,
+      logger,
       packages: new Map(),
       activatedComponents: new Set(components),
       updating: false,
       queued: false,
       initialLoad: true,
     }
-    this.update()
     config.watch('_.disabledPackages', () => {
-      this.update()
+      this.triggerUpdate()
+    }, [])
+  }
+
+  triggerUpdate () {
+    this.update().catch((err) => {
+      this[fields].logger.error(err)
     })
   }
 
@@ -57,7 +63,7 @@ export default class PackageManager extends EventEmitter {
     if (updating && !queued) {
       this.once('updated', () => {
         this[fields].queued = false
-        this.update()
+        this.triggerUpdate()
       })
       this[fields].queued = true
       return
@@ -202,7 +208,7 @@ export default class PackageManager extends EventEmitter {
     const disabledPackages = new Set(config.get('_.disabledPackages', []))
     if (disabledPackages.delete(name)) {
       config.set('_.disabledPackages', Array.from(disabledPackages))
-      this.update()
+      this.triggerUpdate()
     }
   }
 
@@ -212,7 +218,7 @@ export default class PackageManager extends EventEmitter {
     if (!disabledPackages.has(name)) {
       disabledPackages.add(name)
       config.set('_.disabledPackages', Array.from(disabledPackages))
-      this.update()
+      this.triggerUpdate()
     }
   }
 
@@ -222,11 +228,11 @@ export default class PackageManager extends EventEmitter {
       const removeme = path.join(pkg.dir, '.removeme')
       if (flag) {
         promiseWriteFile(removeme, '{}').then(() => {
-          this.update()
+          this.triggerUpdate()
         })
       } else {
         promiseUnlink(removeme).then(() => {
-          this.update()
+          this.triggerUpdate()
         })
       }
     }

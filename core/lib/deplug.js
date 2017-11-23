@@ -16,11 +16,14 @@ export default class Deplug {
     const components = options.components || ''
     const config = new Config(options.profile, 'config')
     const logger = new Logger(config)
+    if (options.loggerDomain) {
+      logger.domain = options.loggerDomain
+    }
     const cache = new Cache(options.profile, logger)
     this.config = config
     this.layout = new Config(options.profile, 'layout')
     this.keybind = new KeyBind(options.profile)
-    this.packages = new PackageManager(config, components.split(','))
+    this.packages = new PackageManager(config, components.split(','), logger)
     this.registry = new PackageRegistry(options.profile, config, cache)
     this.session = new Session()
     this.menu = new Menu()
