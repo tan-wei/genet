@@ -10,6 +10,7 @@ export default class Session {
       nativeDissectors: new Set(),
       layerRenderers: new Set(),
       attrRenderers: new Set(),
+      filterTransforms: new Set(),
     }
   }
 
@@ -59,6 +60,13 @@ export default class Session {
     })
   }
 
+  registerFilterTransform (renderer) {
+    this[fields].filterTransforms.add(renderer)
+    return new Disposable(() => {
+      this[fields].filterTransforms.delete(renderer)
+    })
+  }
+
   get tokens () {
     return this[fields].tokens.entries()
   }
@@ -81,5 +89,9 @@ export default class Session {
 
   get attrRenderers () {
     return this[fields].attrRenderers.values()
+  }
+
+  get filterTransforms () {
+    return this[fields].filterTransforms.values()
   }
 }
