@@ -32,7 +32,7 @@ export default class LogView {
             m('summary', [
               line.message.summary
             ]),
-            line.message.detail
+            m('pre', [line.message.detail])
           ])
         ])
       }))

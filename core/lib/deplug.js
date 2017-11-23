@@ -27,6 +27,11 @@ export default class Deplug {
     this.cache = new Cache(options.profile)
     this.action = ipcRenderer || ipcMain
     this.argv = argv
+
+    this.registry.on('error', (err) => {
+      this.logger.warn(err)
+    })
+
     Object.freeze(this)
   }
 }

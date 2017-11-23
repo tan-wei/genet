@@ -66,7 +66,7 @@ export default {
         'Warning',
         'Error'
       ],
-      default: 'error',
+      default: 'debug',
     },
     '_.maxLogLength': {
       title: 'Maximum Log Length',

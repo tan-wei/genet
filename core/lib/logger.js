@@ -11,7 +11,7 @@ export default class Logger {
     }
     config.watch('_.logLevel', (value) => {
       this[fields].logLevel = value
-    }, 'error')
+    }, 'debug')
   }
 
   get domain () {
