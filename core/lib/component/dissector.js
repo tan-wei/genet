@@ -1,4 +1,5 @@
 import BaseComponent from './base'
+import exists from 'file-exists'
 import fs from 'fs'
 import objpath from 'object-path'
 import path from 'path'
@@ -12,6 +13,23 @@ export default class DissectorComponent extends BaseComponent {
     if (!file) {
       throw new Error('main field required')
     }
+
+    const searchPaths = [
+      '.',
+      'build/Debug',
+      'build/Release'
+    ]
+    for (const spath of searchPaths) {
+      const absolute = path.join(dir, spath, file)
+      if (exists(absolute)) {
+        this.mainFile = absolute
+        break
+      }
+    }
+    if (!this.mainFile) {
+      throw new Error(`could not resolve ${file} in ${dir}`)
+    }
+
     this.mainFile = path.resolve(dir, file)
     switch (comp.type) {
       case 'core:dissector:packet':
