@@ -13,6 +13,6 @@ You can discard uncertain results by changing the `Confidence Threshold` level.
 
 ### Changing a package configuration does not take effect
 
-Some packages (especially native modules) have to be configured before the initialization,
+Some packages (especially native modules) have to be configured before the initialization.
 
 It is recommended to reopen tabs or restart the app to apply changes correctly.
