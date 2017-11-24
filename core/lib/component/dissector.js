@@ -21,7 +21,7 @@ export default class DissectorComponent extends BaseComponent {
     ]
     for (const spath of searchPaths) {
       const absolute = path.join(dir, spath, file)
-      if (exists(absolute)) {
+      if (exists.sync(absolute)) {
         this.mainFile = absolute
         break
       }
@@ -30,7 +30,6 @@ export default class DissectorComponent extends BaseComponent {
       throw new Error(`could not resolve ${file} in ${dir}`)
     }
 
-    this.mainFile = path.resolve(dir, file)
     switch (comp.type) {
       case 'core:dissector:packet':
         this.type = 'packet'
