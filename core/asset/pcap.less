@@ -23,6 +23,20 @@ nav {
   overflow-y: scroll;
   border-right: 1px solid @theme-lighter-bg;
 
+  > div {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    overflow: hidden;
+  }
+
+  div.frame {
+    position: absolute;
+    left: 0;
+    right: 0;
+  }
+
   &::-webkit-scrollbar {
     background-color: @theme-lighter-bg;
     background-size: 100% 100%;
