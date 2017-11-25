@@ -2,6 +2,22 @@ import Dialog from '../../lib/dialog'
 import PcapDialog from './pcap-dialog'
 import m from 'mithril'
 
+class FrameView {
+  view (vnode) {
+    if (!this.frame) {
+      const { sess, key } = vnode.attrs;
+      [this.frame] = sess.getFrames(key, 1)
+    }
+    if (!this.frame) {
+      return m('div')
+    }
+    return m('div', {
+      class: 'frame',
+      style: vnode.attrs.style,
+    }, [this.frame.length])
+  }
+}
+
 class FrameListView {
   constructor () {
     this.itemHeight = 60
@@ -22,11 +38,11 @@ class FrameListView {
         height: `${this.itemHeight}px`,
         top: `${seq * this.itemHeight}px`,
       }
-      items.push(m('div', {
-        class: 'frame',
+      items.push(m(FrameView, {
         style: itemStyle,
         key: seq,
-      }, [seq]))
+        sess: vnode.attrs.sess,
+      }))
     }
     return m('nav', [
       m('div', { style: listStyle }, items)
@@ -56,12 +72,16 @@ export default class PcapView {
       frames: 0,
       queue: 0,
     }
+    this.sess = null
   }
 
   view () {
     return [
       m('header', []),
-      m(FrameListView, { stat: this.stat }),
+      m(FrameListView, {
+        stat: this.stat,
+        sess: this.sess,
+      }),
       m('main', [
         m('h1', ['Deplug'])
       ]),
@@ -73,6 +93,7 @@ export default class PcapView {
     const dialog = new Dialog(PcapDialog)
     dialog.show({ cancelable: false }).then(async (ifs) => {
       const sess = await deplug.session.create(ifs)
+      this.sess = sess
       sess.startPcap()
       sess.on('frame', (stat) => {
         deplug.logger.debug(stat)
