@@ -1,3 +1,3 @@
 module.exports = {
-  'globals': {deplug: true}
+  'globals': {deplug: true, ResizeObserver: true}
 }
