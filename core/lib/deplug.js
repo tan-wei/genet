@@ -25,7 +25,7 @@ export default class Deplug {
     this.keybind = new KeyBind(options.profile)
     this.packages = new PackageManager(config, components.split(','), logger)
     this.registry = new PackageRegistry(options.profile, config, cache)
-    this.session = new Session()
+    this.session = new Session(config)
     this.menu = new Menu()
     this.notify = new Notification()
     this.logger = logger

@@ -131,4 +131,8 @@ export default class Config {
         listeners.filter((handler) => handler.callback !== callback)
     })
   }
+
+  toJSON () {
+    return this[fields].tree
+  }
 }

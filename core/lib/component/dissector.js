@@ -53,7 +53,7 @@ export default class DissectorComponent extends BaseComponent {
       case '.js':
         this.disposable = deplug.session.registerDissector({
           type: this.type,
-          main: await promiseReadFile(this.mainFile, 'utf8'),
+          main: this.mainFile,
         })
         break
       default:

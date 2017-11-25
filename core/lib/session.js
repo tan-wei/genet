@@ -1,9 +1,11 @@
 import { Disposable } from 'disposables'
+import { SessionFactory } from 'plugkit'
 
 const fields = Symbol('fields')
 export default class Session {
-  constructor () {
+  constructor (config) {
     this[fields] = {
+      config,
       tokens: new Map(),
       linkLayers: new Set(),
       dissectors: new Set(),
@@ -67,31 +69,20 @@ export default class Session {
     })
   }
 
-  get tokens () {
-    return this[fields].tokens.entries()
-  }
-
-  get linkLayers () {
-    return this[fields].linkLayers.values()
-  }
-
-  get dissectors () {
-    return this[fields].dissectors.values()
-  }
-
-  get nativeDissectors () {
-    return this[fields].nativeDissectors.values()
-  }
-
-  get layerRenderers () {
-    return this[fields].layerRenderers.values()
-  }
-
-  get attrRenderers () {
-    return this[fields].attrRenderers.values()
-  }
-
-  get filterTransforms () {
-    return this[fields].filterTransforms.values()
+  async create (ifs = '') {
+    const { config, linkLayers, dissectors, filterTransforms } = this[fields]
+    const factory = new SessionFactory()
+    factory.options = config.toJSON()
+    factory.networkInterface = ifs
+    for (const layer of linkLayers) {
+      factory.registerLinkLayer(layer)
+    }
+    for (const diss of dissectors) {
+      factory.registerDissector(diss)
+    }
+    for (const trans of filterTransforms) {
+      factory.registerFilterTransform(trans)
+    }
+    return factory.create()
   }
 }

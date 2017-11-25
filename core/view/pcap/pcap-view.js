@@ -18,6 +18,12 @@ export default class PcapView {
 
   oncreate () {
     const dialog = new Dialog(PcapDialog)
-    dialog.show({ cancelable: false }).then((result) => console.log(result))
+    dialog.show({ cancelable: false }).then(async (ifs) => {
+      const sess = await deplug.session.create(ifs)
+      sess.startPcap()
+      sess.on('frame', (stat) => {
+        deplug.logger.debug(stat)
+      })
+    })
   }
 }

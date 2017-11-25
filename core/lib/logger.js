@@ -28,10 +28,10 @@ export default class Logger {
     }
     const summary = (message instanceof Error)
       ? message.message
-      : message
+      : `${message}`
     const detail = (message instanceof Error)
       ? message.stack
-      : message
+      : `${message}`
     ipcRenderer.send('core:logger:message',
       remote.getCurrentWindow().id, Object.assign({
         message: {
