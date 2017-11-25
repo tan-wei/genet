@@ -14,7 +14,13 @@ class FrameView {
     return m('div', {
       class: 'frame',
       style: vnode.attrs.style,
-    }, [this.frame.length])
+    }, [
+      m('div', { class: 'header' }, [
+        m('span', [this.frame.primaryLayer.id]),
+        m('span', { class: 'right' }, [`${this.frame.length} bytes`])
+      ]),
+      m('div', { class: 'content' }, [])
+    ])
   }
 }
 
@@ -28,7 +34,7 @@ class FrameListView {
   view (vnode) {
     const visibleItems = Math.min(
       Math.floor(this.height / this.itemHeight) + 2, vnode.attrs.stat.frames)
-    const startIndex = Math.floor(this.scrollTop / 60)
+    const startIndex = Math.floor(this.scrollTop / this.itemHeight)
     const listStyle =
       { height: `${vnode.attrs.stat.frames * this.itemHeight}px` }
     const items = []
@@ -45,7 +51,10 @@ class FrameListView {
       }))
     }
     return m('nav', [
-      m('div', { style: listStyle }, items)
+      m('div', {
+        class: 'container',
+        style: listStyle,
+      }, items)
     ])
   }
 

@@ -20,7 +20,7 @@ export default class WindowView {
       argv: deplug.argv,
       loading: true,
     }]
-    this.activeTab = 'preference'
+    this.activeTab = 'pcap-1'
   }
 
   oncreate () {
