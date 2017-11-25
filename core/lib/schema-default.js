@@ -6,6 +6,7 @@ export default {
       type: 'integer',
       minimum: 0,
       default: 2048,
+      section: 'Pcap',
     },
     '_.confidenceThreshold': {
       title: 'Confidence Threshold',
@@ -20,6 +21,7 @@ export default {
       minimum: 0,
       maximum: 3,
       default: 2,
+      section: 'Analyzer',
     },
     '_.concurrency': {
       title: 'Concurrency',
@@ -39,6 +41,7 @@ export default {
       minimum: 0,
       maximum: 8,
       default: 0,
+      section: 'Analyzer',
     },
     '_.packageRegistries': {
       title: 'Package Registries',
@@ -49,12 +52,14 @@ export default {
       },
       uniqueItems: true,
       default: ['https://deplug.net/registry/list.yml'],
+      section: 'Package',
     },
     '_.noPrebuilt': {
       title: 'Don\'t Use Pre-Built Binaries',
       description: 'Force to build native add-ons from source',
       type: 'boolean',
       default: false,
+      section: 'Package',
     },
     '_.logLevel': {
       title: 'Log Level',
@@ -67,12 +72,14 @@ export default {
         'Error'
       ],
       default: 'debug',
+      section: 'Logger',
     },
     '_.maxLogLength': {
       title: 'Maximum Log Length',
       type: 'integer',
       minimum: 0,
       default: 1000,
+      section: 'Logger',
     },
   },
   layout: {
