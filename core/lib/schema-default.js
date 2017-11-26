@@ -82,7 +82,7 @@ export default {
       section: 'Logger',
     },
   },
-  layout: {
+  workspace: {
     '_.window.size': {
       type: 'array',
       items: {

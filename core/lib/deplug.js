@@ -21,7 +21,7 @@ export default class Deplug {
     }
     const cache = new Cache(options.profile, logger)
     this.config = config
-    this.layout = new Config(options.profile, 'layout')
+    this.workspace = new Config(options.profile, 'workspace')
     this.keybind = new KeyBind(options.profile)
     this.packages = new PackageManager(config, components.split(','), logger)
     this.registry = new PackageRegistry(options.profile, config, cache)

@@ -13,7 +13,7 @@ app.on('window-all-closed', () => {
 
 export default class WindowFactory {
   static create (argv, profile = 'default') {
-    const conf = new Config(profile, 'layout')
+    const conf = new Config(profile, 'workspace')
     const size = conf.get('_.window.size')
     const options = {
       width: size[0],
