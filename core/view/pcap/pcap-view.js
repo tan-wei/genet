@@ -29,6 +29,7 @@ class FrameListView {
     this.itemHeight = 60
     this.height = 0
     this.scrollTop = 0
+    this.prevFrames = 0
   }
 
   view (vnode) {
@@ -58,6 +59,16 @@ class FrameListView {
     ])
   }
 
+  onupdate (vnode) {
+    const { frames } = vnode.attrs.stat
+    if (this.prevFrames !== frames) {
+      this.prevFrames = frames
+      if (!vnode.attrs.scrollLock) {
+        vnode.dom.scrollTop = vnode.dom.scrollHeight - vnode.dom.clientHeight
+      }
+    }
+  }
+
   oncreate (vnode) {
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
@@ -82,6 +93,7 @@ export default class PcapView {
       queue: 0,
     }
     this.sess = null
+    this.scrollLock = false
   }
 
   view () {
@@ -90,11 +102,28 @@ export default class PcapView {
         m('input', {
           type: 'text',
           placeholder: 'Display Filter',
-        })
+        }),
+        m('span', {
+          class: 'button',
+          'data-balloon': `Scroll ${this.scrollLock
+            ? 'Locked'
+            : 'Unlocked'}`,
+          'data-balloon-pos': 'right',
+          onclick: () => {
+            this.scrollLock = !this.scrollLock
+          },
+        }, [
+          m('i', {
+            class: this.scrollLock
+              ? 'fa fa-lock'
+              : 'fa fa-unlock-alt',
+          })
+        ])
       ]),
       m(FrameListView, {
         stat: this.stat,
         sess: this.sess,
+        scrollLock: this.scrollLock,
       }),
       m('main', [
         m('h1', ['Deplug'])

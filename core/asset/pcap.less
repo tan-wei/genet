@@ -15,6 +15,18 @@ header {
     border: none;
     border-bottom: 1px solid @theme-selection-bg;
   }
+
+  span.button {
+    background: none;
+    border: none;
+    color: @theme-default-fg;
+    padding: 12px;
+    cursor: pointer;
+
+    i {
+      line-height: 30px;
+    }
+  }
 }
 
 nav {
@@ -26,7 +38,6 @@ nav {
   padding: 0;
   -webkit-app-region: drag;
   overflow-y: scroll;
-  border-right: 1px solid @theme-lighter-bg;
 
   div.container {
     position: absolute;
