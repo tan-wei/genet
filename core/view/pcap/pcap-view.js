@@ -93,6 +93,7 @@ export default class PcapView {
       queue: 0,
     }
     this.sess = null
+    this.capture = false
     this.scrollLock = false
   }
 
@@ -103,6 +104,28 @@ export default class PcapView {
           type: 'text',
           placeholder: 'Display Filter',
         }),
+        m('span', {
+          class: 'button',
+          'data-balloon': `Capture ${this.capture
+            ? 'Running'
+            : 'Paused'}`,
+          'data-balloon-pos': 'right',
+          onclick: () => {
+            const { sess } = this
+            if (this.capture) {
+              sess.stopPcap()
+            } else {
+              sess.startPcap()
+            }
+            this.capture = !this.capture
+          },
+        }, [
+          m('i', {
+            class: this.capture
+              ? 'fa fa-play-circle'
+              : 'fa fa-pause-circle',
+          })
+        ]),
         m('span', {
           class: 'button',
           'data-balloon': `Scroll ${this.scrollLock
@@ -142,6 +165,10 @@ export default class PcapView {
         sess.on('frame', (stat) => {
           deplug.logger.debug(stat)
           this.stat = stat
+          m.redraw()
+        })
+        sess.on('status', (stat) => {
+          this.capture = stat.capture
           m.redraw()
         })
       })
