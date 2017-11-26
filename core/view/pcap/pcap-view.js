@@ -99,16 +99,18 @@ export default class PcapView {
   }
 
   oncreate () {
-    const dialog = new Dialog(PcapDialog)
-    dialog.show({ cancelable: false }).then(async (ifs) => {
-      const sess = await deplug.session.create(ifs)
-      this.sess = sess
-      sess.startPcap()
-      sess.on('frame', (stat) => {
-        deplug.logger.debug(stat)
-        this.stat = stat
-        m.redraw()
+    if (!deplug.argv.import) {
+      const dialog = new Dialog(PcapDialog)
+      dialog.show({ cancelable: false }).then(async (ifs) => {
+        const sess = await deplug.session.create(ifs)
+        this.sess = sess
+        sess.startPcap()
+        sess.on('frame', (stat) => {
+          deplug.logger.debug(stat)
+          this.stat = stat
+          m.redraw()
+        })
       })
-    })
+    }
   }
 }

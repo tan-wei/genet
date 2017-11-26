@@ -31,7 +31,7 @@ export default class Deplug {
     this.logger = logger
     this.cache = cache
     this.action = ipcRenderer || ipcMain
-    this.argv = argv
+    this.argv = Object.assign(argv, options)
 
     this.registry.on('error', (err) => {
       logger.warn(err)
