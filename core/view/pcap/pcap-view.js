@@ -86,7 +86,12 @@ export default class PcapView {
 
   view () {
     return [
-      m('header', []),
+      m('header', [
+        m('input', {
+          type: 'text',
+          placeholder: 'Display Filter',
+        })
+      ]),
       m(FrameListView, {
         stat: this.stat,
         sess: this.sess,

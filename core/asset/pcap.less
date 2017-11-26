@@ -1,6 +1,6 @@
 @import "common";
 
-@header-height: 80px;
+@header-height: 60px;
 @nav-width: 380px;
 
 header {
@@ -10,6 +10,11 @@ header {
   width: @nav-width;
   height: @header-height;
   background: @theme-lighter-bg;
+
+  input[type=text] {
+    border: none;
+    border-bottom: 1px solid @theme-selection-bg;
+  }
 }
 
 nav {
