@@ -30,6 +30,8 @@ export default class DissectorComponent extends BaseComponent {
       throw new Error(`could not resolve ${file} in ${dir}`)
     }
 
+    this.linkLayers = objpath.get(comp, 'linkLayers', [])
+
     switch (comp.type) {
       case 'core:dissector:packet':
         this.type = 'packet'
@@ -45,7 +47,7 @@ export default class DissectorComponent extends BaseComponent {
     const ext = path.extname(this.mainFile)
     switch (ext) {
       case '.node':
-        this.disposable = deplug.session.registerNativeDissector({
+        this.disposable = deplug.session.registerDissector({
           type: this.type,
           main: global.require(this.mainFile).dissector,
         })
@@ -58,6 +60,9 @@ export default class DissectorComponent extends BaseComponent {
         break
       default:
         throw new Error(`unknown extension type: ${ext}`)
+    }
+    for (const layer of this.linkLayers) {
+      deplug.session.registerLinkLayer(layer)
     }
     return false
   }

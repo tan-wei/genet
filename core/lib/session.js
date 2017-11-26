@@ -9,7 +9,6 @@ export default class Session {
       tokens: new Map(),
       linkLayers: new Set(),
       dissectors: new Set(),
-      nativeDissectors: new Set(),
       layerRenderers: new Set(),
       attrRenderers: new Set(),
       filterTransforms: new Set(),
@@ -24,13 +23,6 @@ export default class Session {
       for (const id of Object.keys(tokens)) {
         this[fields].tokens.delete(id)
       }
-    })
-  }
-
-  registerNativeDissector (diss) {
-    this[fields].nativeDissectors.add(diss)
-    return new Disposable(() => {
-      this[fields].nativeDissectors.delete(diss)
     })
   }
 
