@@ -122,6 +122,12 @@ export default class PcapView {
   }
 
   view () {
+    let counter = '0'
+    if (this.sess) {
+      counter = this.sess.filter.main
+        ? `${this.sess.filter.main.frames} / ${this.sess.frame.frames}`
+        : `${this.sess.frame.frames}`
+    }
     return [
       m('header', [
         m('input', {
@@ -168,9 +174,12 @@ export default class PcapView {
               ? 'fa fa-lock'
               : 'fa fa-unlock-alt',
           })
-        ])
+        ]),
+        m('span', {
+          'data-balloon': 'Frame Counter',
+          'data-balloon-pos': 'right',
+        }, [counter])
       ]),
-      m('span', []),
       this.sess
       ? m(FrameListView, {
         sess: this.sess,
