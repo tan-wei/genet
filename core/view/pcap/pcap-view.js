@@ -33,8 +33,8 @@ class FrameListView {
   }
 
   view (vnode) {
-    const {frame, filter} = vnode.attrs.sess
-    let {frames} = frame
+    const { frame, filter } = vnode.attrs.sess
+    let { frames } = frame
     if (filter.main) {
       frames = filter.main.frames
     }
@@ -101,15 +101,14 @@ export default class PcapView {
     this.sess = null
     this.capture = false
     this.filtered = null
-    this.scrollLock == false
+    this.scrollLock = false
   }
 
-  searchKeyPress(event) {
+  searchKeyPress (event) {
     switch (event.code) {
     case 'Enter':
-      const filter = event.target.value
       try {
-        this.sess.setDisplayFilter('main', filter)
+        this.sess.setDisplayFilter('main', event.target.value)
       } catch (err) {
         deplug.notify.show(
           err.message, {
@@ -117,6 +116,8 @@ export default class PcapView {
             title: 'Filter Error',
           })
       }
+      break
+      default:
     }
   }
 
@@ -169,6 +170,7 @@ export default class PcapView {
           })
         ])
       ]),
+      m('span', []),
       this.sess
       ? m(FrameListView, {
         sess: this.sess,
@@ -197,7 +199,7 @@ export default class PcapView {
           this.capture = stat.capture
           m.redraw()
         })
-        sess.on('filter', (stat) => {
+        sess.on('filter', () => {
           m.redraw()
         })
       })
