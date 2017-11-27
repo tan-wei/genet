@@ -108,7 +108,13 @@ export default class PcapView {
     switch (event.code) {
     case 'Enter':
       try {
-        this.sess.setDisplayFilter('main', event.target.value)
+        const { value } = event.target
+        this.sess.setDisplayFilter('main', value)
+        if (value.length > 0) {
+          const history = deplug.workspace.get('_.filter.history', [])
+          history.push(value)
+          deplug.workspace.set('_.filter.history', history)
+        }
       } catch (err) {
         deplug.notify.show(
           err.message, {
