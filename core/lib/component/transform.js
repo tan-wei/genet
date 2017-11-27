@@ -14,6 +14,10 @@ export default class RendererComponent extends BaseComponent {
       throw new Error('main field required')
     }
     this.mainFile = path.resolve(dir, file)
+    this.id = objpath.get(comp, 'id', '')
+    if (!this.id) {
+      throw new Error('id field required')
+    }
   }
   async load () {
     const code = await promiseReadFile(this.mainFile, 'utf8')
@@ -35,7 +39,10 @@ export default class RendererComponent extends BaseComponent {
     if (typeof module.exports !== 'function') {
       throw new TypeError('module.exports must be a function')
     }
-    this.disposable = deplug.session.registerFilterTransform(module.exports)
+    this.disposable = deplug.session.registerFilterTransform({
+      id: this.id,
+      execute: module.exports
+    })
     return true
   }
   async unload () {

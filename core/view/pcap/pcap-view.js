@@ -33,17 +33,27 @@ class FrameListView {
   }
 
   view (vnode) {
+    const {frame, filter} = vnode.attrs.sess
+    let {frames} = frame
+    if (filter.main) {
+      frames = filter.main.frames
+    }
     const visibleItems = Math.min(
-      Math.floor(this.height / this.itemHeight) + 2, vnode.attrs.stat.frames)
+      Math.floor(this.height / this.itemHeight) + 2, frames)
     const startIndex = Math.floor(this.scrollTop / this.itemHeight)
-    const listStyle =
-      { height: `${vnode.attrs.stat.frames * this.itemHeight}px` }
+    const listStyle = { height: `${frames * this.itemHeight}px` }
+
+    const filteredFrames =
+      vnode.attrs.sess.getFilteredFrames('main', startIndex, visibleItems)
+
     const items = []
     for (let index = 0; index < visibleItems; index += 1) {
-      const seq = index + startIndex
+      const seq = (filter.main)
+        ? filteredFrames[index] - 1
+        : index + startIndex
       const itemStyle = {
         height: `${this.itemHeight}px`,
-        top: `${seq * this.itemHeight}px`,
+        top: `${(index + startIndex) * this.itemHeight}px`,
       }
       items.push(m(FrameView, {
         style: itemStyle,
@@ -60,7 +70,7 @@ class FrameListView {
   }
 
   onupdate (vnode) {
-    const { frames } = vnode.attrs.stat
+    const { frames } = vnode.attrs.sess.frame
     if (this.prevFrames !== frames) {
       this.prevFrames = frames
       if (!vnode.attrs.scrollLock) {
@@ -88,13 +98,26 @@ class FrameListView {
 
 export default class PcapView {
   constructor () {
-    this.stat = {
-      frames: 0,
-      queue: 0,
-    }
     this.sess = null
     this.capture = false
-    this.scrollLock = false
+    this.filtered = null
+    this.scrollLock == false
+  }
+
+  searchKeyPress(event) {
+    switch (event.code) {
+    case 'Enter':
+      const filter = event.target.value
+      try {
+        this.sess.setDisplayFilter('main', filter)
+      } catch (err) {
+        deplug.notify.show(
+          err.message, {
+            type: 'error',
+            title: 'Filter Error',
+          })
+      }
+    }
   }
 
   view () {
@@ -103,6 +126,9 @@ export default class PcapView {
         m('input', {
           type: 'text',
           placeholder: 'Display Filter',
+          onkeydown: (event) => {
+            this.searchKeyPress(event)
+          },
         }),
         m('span', {
           class: 'button',
@@ -143,11 +169,12 @@ export default class PcapView {
           })
         ])
       ]),
-      m(FrameListView, {
-        stat: this.stat,
+      this.sess
+      ? m(FrameListView, {
         sess: this.sess,
         scrollLock: this.scrollLock,
-      }),
+      })
+      : m('nav'),
       m('main', [
         m('h1', ['Deplug'])
       ]),
@@ -164,11 +191,13 @@ export default class PcapView {
         sess.startPcap()
         sess.on('frame', (stat) => {
           deplug.logger.debug(stat)
-          this.stat = stat
           m.redraw()
         })
         sess.on('status', (stat) => {
           this.capture = stat.capture
+          m.redraw()
+        })
+        sess.on('filter', (stat) => {
           m.redraw()
         })
       })

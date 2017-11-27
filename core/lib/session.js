@@ -62,7 +62,8 @@ export default class Session {
   }
 
   async create (ifs = '') {
-    const { config, linkLayers, dissectors, filterTransforms } = this[fields]
+    const { config, tokens, linkLayers,
+      dissectors, filterTransforms } = this[fields]
     const factory = new SessionFactory()
     factory.options = config.toJSON()
     factory.networkInterface = ifs
@@ -75,6 +76,11 @@ export default class Session {
     for (const trans of filterTransforms) {
       factory.registerFilterTransform(trans)
     }
+    const attributes = {}
+    for (const [key, value] of tokens.entries()) {
+      attributes[key] = value
+    }
+    factory.registerAttributes(attributes)
     return factory.create()
   }
 }
