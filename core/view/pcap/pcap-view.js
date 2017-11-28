@@ -111,8 +111,14 @@ export default class PcapView {
         const { value } = event.target
         this.sess.setDisplayFilter('main', value)
         if (value.length > 0) {
-          const history = deplug.workspace.get('_.filter.history', [])
+          const maxLength = deplug.config.get('_.filterHistoryLength', 10)
+          const history =
+            [].concat(deplug.workspace.get('_.filter.history', []))
           history.push(value)
+          const overflow = history.length - maxLength
+          if (overflow > 0) {
+            history.splice(0, overflow)
+          }
           deplug.workspace.set('_.filter.history', history)
         }
       } catch (err) {

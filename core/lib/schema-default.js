@@ -81,6 +81,13 @@ export default {
       default: 1000,
       section: 'Logger',
     },
+    '_.filterHistoryLength': {
+      title: 'Filter History Length',
+      type: 'integer',
+      minimum: 0,
+      default: 10,
+      section: 'Filter',
+    },
   },
   workspace: {
     '_.window.size': {
