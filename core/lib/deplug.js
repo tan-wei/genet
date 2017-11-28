@@ -1,4 +1,4 @@
-import { ipcRenderer, ipcMain } from 'electron'
+import { EventEmitter } from 'events'
 import Cache from './cache'
 import Config from './config'
 import KeyBind from './keybind'
@@ -30,7 +30,7 @@ export default class Deplug {
     this.notify = new Notification()
     this.logger = logger
     this.cache = cache
-    this.action = ipcRenderer || ipcMain
+    this.action = new EventEmitter()
     this.argv = Object.assign(argv, options)
 
     this.registry.on('error', (err) => {
