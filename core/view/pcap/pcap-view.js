@@ -14,6 +14,7 @@ class FrameView {
     return m('div', {
       class: 'frame',
       style: vnode.attrs.style,
+      'data-layer': this.frame.primaryLayer.tags.join(' '),
     }, [
       m('div', { class: 'header' }, [
         m('span', [this.frame.primaryLayer.id]),
