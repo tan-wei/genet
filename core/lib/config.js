@@ -11,10 +11,6 @@ import { validate } from 'jsonschema'
 import yaml from 'js-yaml'
 
 const fields = Symbol('fields')
-function clone (value) {
-  return JSON.parse(JSON.stringify(value))
-}
-
 export default class Config {
   constructor (profile, name) {
     const filePath =
@@ -80,14 +76,14 @@ export default class Config {
     if (typeof value !== 'undefined') {
       if (!(id in this.schema) ||
         validate(value, this.schema[id]).errors.length === 0) {
-        return clone(value)
+        return Object.freeze(value)
       }
     }
     if (id in this.schema) {
       value = this.schema[id].default
     }
     if (typeof value !== 'undefined') {
-      return clone(value)
+      return Object.freeze(value)
     }
     return defaultValue
   }
