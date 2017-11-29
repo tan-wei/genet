@@ -11,16 +11,20 @@ class FrameView {
     if (!this.frame) {
       return m('div')
     }
+    const { id } = this.frame.primaryLayer
+    const renderer = deplug.session.layerRenderer(id) || 'p'
     return m('div', {
       class: 'frame',
       style: vnode.attrs.style,
       'data-layer': this.frame.primaryLayer.tags.join(' '),
     }, [
       m('div', { class: 'header' }, [
-        m('span', [this.frame.primaryLayer.id]),
+        m('span', [deplug.session.token(id).name]),
         m('span', { class: 'right' }, [`${this.frame.length} bytes`])
       ]),
-      m('div', { class: 'content' }, [])
+      m('div', { class: 'content' }, [
+        m(renderer, { layer: this.frame.primaryLayer })
+      ])
     ])
   }
 }

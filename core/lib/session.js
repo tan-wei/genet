@@ -9,8 +9,8 @@ export default class Session {
       tokens: new Map(),
       linkLayers: new Set(),
       dissectors: new Set(),
-      layerRenderers: new Set(),
-      attrRenderers: new Set(),
+      layerRenderers: new Map(),
+      attrRenderers: new Map(),
       filterTransforms: new Set(),
     }
   }
@@ -40,17 +40,17 @@ export default class Session {
     })
   }
 
-  registerLayerRenderer (renderer) {
-    this[fields].layerRenderers.add(renderer)
+  registerLayerRenderer (id, renderer) {
+    this[fields].layerRenderers.set(id, renderer)
     return new Disposable(() => {
-      this[fields].layerRenderers.delete(renderer)
+      this[fields].layerRenderers.delete(id)
     })
   }
 
-  registerAttrRenderer (renderer) {
-    this[fields].attrRenderers.add(renderer)
+  registerAttrRenderer (id, renderer) {
+    this[fields].attrRenderers.set(id, renderer)
     return new Disposable(() => {
-      this[fields].attrRenderers.delete(renderer)
+      this[fields].attrRenderers.delete(id)
     })
   }
 
@@ -61,9 +61,35 @@ export default class Session {
     })
   }
 
+  token (id) {
+    const data = this[fields].tokens.get(id)
+    if (typeof data !== 'undefined') {
+      return data
+    }
+    return { name: id }
+  }
+
+  layerRenderer (id) {
+    const data = this[fields].layerRenderers.get(id)
+    if (typeof data !== 'undefined') {
+      return data
+    }
+    return null
+  }
+
+  attrRenderer (id) {
+    const data = this[fields].attrRenderers.get(id)
+    if (typeof data !== 'undefined') {
+      return data
+    }
+    return null
+  }
+
   async create (ifs = '') {
-    const { config, tokens, linkLayers,
-      dissectors, filterTransforms } = this[fields]
+    const {
+      config, tokens, linkLayers,
+      dissectors, filterTransforms,
+    } = this[fields]
     const factory = new SessionFactory()
     factory.options = config.toJSON()
     factory.networkInterface = ifs

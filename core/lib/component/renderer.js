@@ -13,6 +13,10 @@ export default class RendererComponent extends BaseComponent {
     if (!file) {
       throw new Error('main field required')
     }
+    this.id = objpath.get(comp, 'id', '')
+    if (!this.id) {
+      throw new Error('id field required')
+    }
     this.mainFile = path.resolve(dir, file)
     switch (comp.type) {
       case 'core:renderer:attr':
@@ -46,9 +50,11 @@ export default class RendererComponent extends BaseComponent {
       throw new TypeError('module.exports must be a function')
     }
     if (this.type === 'attr') {
-      this.disposable = deplug.session.registerAttrRenderer(module.exports)
+      this.disposable =
+        deplug.session.registerAttrRenderer(this.id, module.exports)
     } else if (this.type === 'layer') {
-      this.disposable = deplug.session.registerLayerRenderer(module.exports)
+      this.disposable =
+        deplug.session.registerLayerRenderer(this.id, module.exports)
     }
     return true
   }
