@@ -20,6 +20,12 @@
         "type": "core:renderer:layer",
         "id": "tcp",
         "main": "tcp-summary.js"
+      },
+      {
+        "type": "core:style",
+        "files": [
+          "tcp.less"
+        ]
       }
     ]
   }

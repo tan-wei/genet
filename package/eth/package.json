@@ -28,6 +28,12 @@
         "type": "core:renderer:attr",
         "id": "@eth:mac",
         "main": "mac-addr.js"
+      },
+      {
+        "type": "core:style",
+        "files": [
+          "eth.less"
+        ]
       }
     ]
   }

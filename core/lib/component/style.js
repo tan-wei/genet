@@ -1,12 +1,9 @@
 import BaseComponent from './base'
-import { Disposable } from 'disposables'
-import fs from 'fs'
-import less from 'less'
+import { CompositeDisposable } from 'disposables'
+import Style from '../style'
 import objpath from 'object-path'
 import path from 'path'
-import promisify from 'es6-promisify'
 
-const promiseReadFile = promisify(fs.readFile)
 export default class StyleComponent extends BaseComponent {
   constructor (comp, dir) {
     super()
@@ -14,15 +11,10 @@ export default class StyleComponent extends BaseComponent {
       objpath.get(comp, 'files', []).map((file) => path.resolve(dir, file))
   }
   async load () {
+    const loader = new Style()
     const files = await Promise.all(
-      this.styleFiles.map((file) => promiseReadFile(file, 'utf8')))
-    const results = await Promise.all(files.map((data) => less.render(data)))
-    const styleTag = document.createElement('style')
-    styleTag.textContent = results.map((result) => result.css).join('\n')
-    document.head.appendChild(styleTag)
-    this.disposable = new Disposable(() => {
-      styleTag.remove()
-    })
+      this.styleFiles.map((file) => loader.applyLess(file)))
+    this.disposable = new CompositeDisposable(files)
     return true
   }
   async unload () {

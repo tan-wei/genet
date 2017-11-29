@@ -11,6 +11,12 @@
       {
         "type": "core:dissector:packet",
         "main": "main.node"
+      },
+      {
+        "type": "core:style",
+        "files": [
+          "udp.less"
+        ]
       }
     ]
   }

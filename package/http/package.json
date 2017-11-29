@@ -11,6 +11,12 @@
       {
         "type": "core:dissector:stream",
         "main": "main.node"
+      },
+      {
+        "type": "core:style",
+        "files": [
+          "http.less"
+        ]
       }
     ]
   }

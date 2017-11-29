@@ -1,11 +1,11 @@
+import { Disposable } from 'disposables'
 import fs from 'fs'
 import less from 'less'
 import path from 'path'
 import promisify from 'es6-promisify'
 
-const readFile = promisify(fs.readFile)
-
 const fields = Symbol('fields')
+const readFile = promisify(fs.readFile)
 class FileManager extends less.FileManager {
   constructor (themeFile) {
     super()
@@ -29,28 +29,33 @@ class LessPlugin {
   }
 }
 
-export default class ThemeLoader {
-  constructor (themeFile) {
-    this[fields] = { themeFile }
+export default class Style {
+  constructor () {
+    this[fields] = { themeFile: path.join(__dirname, 'theme.less') }
   }
 
-  async load (lessFile, element) {
+  async compileLess (file) {
     const options = {
       paths: [
-        path.dirname(lessFile),
-        path.join(__dirname, '../../font-awesome/less')
+        path.dirname(file),
+        __dirname
       ],
       plugins: [new LessPlugin(this[fields].themeFile)],
-      filename: lessFile,
+      filename: file,
       compress: true,
       globalVars: { 'node-platform': process.platform },
     }
-    const code = await readFile(lessFile, { encoding: 'utf8' })
-    const result = await less.render(code, options)
+    const code = await readFile(file, 'utf8')
+    return less.render(code, options)
+  }
 
+  async applyLess (file) {
+    const result = await this.compileLess(file)
     const styleTag = document.createElement('style')
     styleTag.textContent = result.css
-    element.appendChild(styleTag)
-    this[fields].styleTag = styleTag
+    document.head.appendChild(styleTag)
+    return new Disposable(() => {
+      styleTag.remove()
+    })
   }
 }

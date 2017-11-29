@@ -16,6 +16,12 @@
         "type": "core:renderer:attr",
         "id": "@ipv6:addr",
         "main": "ipv6-addr.js"
+      },
+      {
+        "type": "core:style",
+        "files": [
+          "ipv6.less"
+        ]
       }
     ]
   }

@@ -26,6 +26,12 @@
         "type": "core:renderer:attr",
         "id": "@ipv4:addr",
         "main": "ipv4-addr.js"
+      },
+      {
+        "type": "core:style",
+        "files": [
+          "ipv4.less"
+        ]
       }
     ]
   }

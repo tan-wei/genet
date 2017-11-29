@@ -1,4 +1,5 @@
 @import "deplug-theme";
+@import "protocol";
 
 * {
   font-family: @theme-font-family;
@@ -258,4 +259,17 @@ input[type=checkbox]:checked {
   z-index: 100;
   opacity: 1;
   transition: opacity 0.3s;
+}
+
+[data-layer] {
+  .protocol-color(@theme-lighter-bg);
+}
+
+[data-layer-error] {
+  .protocol-color(#e0352f);
+}
+
+[data-selected] {
+  .protocol-color(#221E1F);
+  font-weight: bold;
 }

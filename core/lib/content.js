@@ -1,5 +1,5 @@
 import Deplug from './deplug'
-import ThemeLoader from './theme-loader'
+import Style from './style'
 import m from 'mithril'
 import path from 'path'
 import { shell } from 'electron'
@@ -33,8 +33,8 @@ export default class Content {
       .concat(this.argv)
     Reflect.defineProperty(window, 'deplug', { value: new Deplug(argv) })
 
-    const loader = new ThemeLoader(path.join(__dirname, 'theme.less'))
-    await loader.load(path.join(__dirname, this.less), document.head)
+    const loader = new Style()
+    await loader.applyLess(path.join(__dirname, this.less))
     m.mount(document.body, this.view)
     await document.fonts.ready
   }
