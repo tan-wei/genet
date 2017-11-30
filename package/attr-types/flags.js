@@ -1,4 +1,3 @@
-const { Session } = require('deplug')
 const m = require('mithril')
 class Flags {
   view (vnode) {
@@ -8,9 +7,7 @@ class Flags {
       .startsWith(`${vnode.attrs.prop.id}.`))
       .map((prop) => {
         const { id } = prop
-        return (id in Session.attributes)
-          ? Session.attributes[id].name
-          : id
+        return deplug.session.token(id).name
     })
     .join(', ')
     return m('span', [flags, ' (', value, ')'])

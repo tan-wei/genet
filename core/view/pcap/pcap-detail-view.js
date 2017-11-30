@@ -14,6 +14,91 @@ function orderedProperties (obj) {
     .map((item) => item)
 }
 
+class BooleanValueItem {
+  view (vnode) {
+    const faClass = vnode.attrs.value
+      ? 'fa-check-square-o'
+      : 'fa-square-o'
+    return m('span', [m('i', { class: `fa ${faClass}` })])
+  }
+}
+class DateValueItem {
+  view (vnode) {
+    const ts = moment(vnode.attrs.value)
+    const tsString = ts.format('YYYY-MM-DDTHH:mm:ss.SSSZ')
+    return m('span', [tsString])
+  }
+}
+class BufferValueItem {
+  view (vnode) {
+    const maxLen = 6
+    const buffer = vnode.attrs.value
+    const hex = buffer.slice(0, maxLen).toString('hex') +
+      (buffer.length > maxLen
+        ? '...'
+        : '')
+    return m('span', ['[', buffer.length, ' bytes] 0x', hex])
+  }
+}
+class ArrayValueItem {
+  view (vnode) {
+    return m('ul', [vnode.attrs.value.map(
+      (value) => m('li', [m(PropertyValueItem, { prop: { value } })]))])
+  }
+}
+class ObjectValueItem {
+  view (vnode) {
+    const obj = vnode.attrs.value
+    return m('ul', [Object.keys(obj).map(
+      (key) => m('li', [m('label', [key]),
+      m(PropertyValueItem, { prop: { value: obj[key] } })]))])
+  }
+}
+class LayerValueItem {
+  view (vnode) {
+    const layer = vnode.attrs.value
+    if (layer.payloads.length) {
+      return m('span', [' [', layer.id, '] Payloads '])
+    }
+    return m('span', [' [', layer.id, '] '])
+  }
+}
+class PropertyValueItem {
+  view (vnode) {
+    const { prop } = vnode.attrs
+    if (prop.value === null) {
+      return m('span')
+    } else if (typeof prop.value === 'boolean') {
+      return m(BooleanValueItem, { value: prop.value })
+    } else if (prop.value instanceof Date) {
+      return m(DateValueItem, { value: prop.value })
+    } else if (prop.value instanceof Uint8Array) {
+      return m(BufferValueItem, { value: prop.value })
+    } else if (Array.isArray(prop.value)) {
+      return m(ArrayValueItem, { value: prop.value })
+    } else if (typeof prop.value === 'object' &&
+      prop.value.constructor.name === 'Layer') {
+      return m(LayerValueItem, { value: prop.value })
+    } else if (typeof prop.value === 'object' &&
+      prop.value !== null &&
+      Reflect.getPrototypeOf(prop.value) === Object.prototype) {
+      return m(ObjectValueItem, { value: prop.value })
+    }
+    const value = (prop.value === null
+      ? ''
+      : prop.value.toString())
+    if (value.length > 1024) {
+      return m('span', [
+        m('details', [
+          m('summary', [value.substr(0, 64), '... (', value.length, ')']),
+          value
+        ])
+      ])
+    }
+    return m('span', [' ', value, ' '])
+  }
+}
+
 class PropertyItem {
   view (vnode) {
     const prop = vnode.attrs.property[propSymbol]
@@ -27,7 +112,8 @@ class PropertyItem {
       prop.range[1] + vnode.attrs.dataOffset
     ]
     const { name } = deplug.session.token(prop.id)
-    const propRenderer = deplug.session.attrRenderer(prop.type) || 'p'
+    const propRenderer =
+      deplug.session.attrRenderer(prop.type) || PropertyValueItem
     return m('li', {
       'data-range': `${range[0]}:${range[1]}`,
       onmouseover: () => selectRange(range),
@@ -41,13 +127,10 @@ class PropertyItem {
             m('i', { class: 'fa fa-arrow-circle-down' }, [' ']),
             name, ': '
           ]),
-
-          /*
-          M(propRenderer, {
+          m(propRenderer, {
             prop,
             layer: vnode.attrs.layer,
           }),
-          */
           m('label', {
             class: 'error',
             style: {
@@ -65,18 +148,6 @@ class PropertyItem {
         ])
       ])
     ])
-  }
-}
-
-class BufferValueItem {
-  view (vnode) {
-    const maxLen = 6
-    const buffer = vnode.attrs.value
-    const hex = buffer.slice(0, maxLen).toString('hex') +
-      (buffer.length > maxLen
-        ? '...'
-        : '')
-    return m('span', ['[', buffer.length, ' bytes] 0x', hex])
   }
 }
 
@@ -179,8 +250,8 @@ class LayerItem {
 export default class PcapDetailView {
   constructor () {
     this.selectedFrame = null
-    deplug.action.on('core:frame:selected', (frame) => {
-      this.selectedFrame = frame
+    deplug.action.on('core:frame:selected', (frames) => {
+      this.selectedFrame = frames[0] || null
       m.redraw()
     })
   }

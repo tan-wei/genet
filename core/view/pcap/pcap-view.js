@@ -19,7 +19,7 @@ class FrameView {
       style: vnode.attrs.style,
       'data-layer': this.frame.primaryLayer.tags.join(' '),
       onclick: () => {
-        deplug.action.emit('core:frame:selected', this.frame)
+        deplug.action.emit('core:frame:selected', [this.frame])
       },
     }, [
       m('div', { class: 'header' }, [
