@@ -50,7 +50,7 @@ class ObjectValueItem {
   view (vnode) {
     const obj = vnode.attrs.value
     return m('ul', [Object.keys(obj).map(
-      (key) => m('li', [m('label', [key]),
+      (key) => m('li', [m('span', { class: 'label' }, [key]),
       m(AttributeValueItem, { prop: { value: obj[key] } })]))])
   }
 }
@@ -121,7 +121,7 @@ class AttributeItem {
     }, [
       m('details', [
         m('summary', { class: faClass }, [
-          m('label', [
+          m('span', { class: 'label' }, [
             m('i', { class: 'fa fa-circle-o' }, [' ']),
             m('i', { class: 'fa fa-arrow-circle-right' }, [' ']),
             m('i', { class: 'fa fa-arrow-circle-down' }, [' ']),
@@ -131,8 +131,8 @@ class AttributeItem {
             prop,
             layer: vnode.attrs.layer,
           }),
-          m('label', {
-            class: 'error',
+          m('span', {
+            class: 'label error',
             style: {
               display: prop.error
               ? 'inline'
@@ -192,7 +192,7 @@ class LayerItem {
         onmouseover: () => selectRange(range),
         onmouseout: () => selectRange(),
       }, [
-        m('details', [
+        m('details', { open: true }, [
           m('summary', {
             class: 'layer children',
             'data-layer': layer.tags.join(' '),
@@ -280,12 +280,12 @@ export default class PcapDetailView {
       m('ul', [
         m('li', [
           m('i', { class: 'fa fa-circle-o' }),
-          m('label', [' Timestamp: ']),
+          m('span', { class: 'label' }, [' Timestamp: ']),
           m('span', [' ', tsString, ' '])
         ]),
         m('li', [
           m('i', { class: 'fa fa-circle-o' }),
-          m('label', [' Length: ']),
+          m('span', { class: 'label' }, [' Length: ']),
           m('span', [' ', length, ' '])
         ])
       ]),
