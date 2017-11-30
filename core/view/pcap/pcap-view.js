@@ -1,4 +1,5 @@
 import Dialog from '../../lib/dialog'
+import PcapDetailView from './pcap-detail-view'
 import PcapDialog from './pcap-dialog'
 import m from 'mithril'
 
@@ -110,12 +111,6 @@ export default class PcapView {
     this.capture = false
     this.filtered = null
     this.scrollLock = false
-
-    this.selectedFrame = null
-    deplug.action.on('core:frame:selected', (frame) => {
-      this.selectedFrame = frame
-      m.redraw()
-    })
   }
 
   searchKeyPress (event) {
@@ -213,12 +208,7 @@ export default class PcapView {
       })
       : m('nav'),
       m('main', [
-        m('h1', ['Deplug']),
-        m('p', [
-          (this.selectedFrame
-            ? this.selectedFrame.length
-            : '')
-        ])
+        m(PcapDetailView, {})
       ]),
       m('div', { class: 'notification' })
     ]
