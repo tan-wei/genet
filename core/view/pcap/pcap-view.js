@@ -17,6 +17,9 @@ class FrameView {
       class: 'frame',
       style: vnode.attrs.style,
       'data-layer': this.frame.primaryLayer.tags.join(' '),
+      onclick: () => {
+        deplug.action.emit('core:frame:selected', this.frame)
+      },
     }, [
       m('div', { class: 'header' }, [
         m('span', [deplug.session.token(id).name]),
@@ -107,6 +110,12 @@ export default class PcapView {
     this.capture = false
     this.filtered = null
     this.scrollLock = false
+
+    this.selectedFrame = null
+    deplug.action.on('core:frame:selected', (frame) => {
+      this.selectedFrame = frame
+      m.redraw()
+    })
   }
 
   searchKeyPress (event) {
@@ -204,7 +213,12 @@ export default class PcapView {
       })
       : m('nav'),
       m('main', [
-        m('h1', ['Deplug'])
+        m('h1', ['Deplug']),
+        m('p', [
+          (this.selectedFrame
+            ? this.selectedFrame.length
+            : '')
+        ])
       ]),
       m('div', { class: 'notification' })
     ]
