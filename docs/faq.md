@@ -2,7 +2,7 @@
 
 ## Analyzer
 
-### Packets are detected as a wrong protocols
+### Packets are detected as a wrong protocol
 
 Deplug's approach to the packet analysis is *"Trying all possible interpretation"*.
 So if the analyzer does not know a correct way to interpret the packets, it returns the most likely results instead.
