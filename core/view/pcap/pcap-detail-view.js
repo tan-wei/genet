@@ -8,7 +8,7 @@ function selectRange (range = []) {
 
 const propSymbol = Symbol('prop')
 const orderSymbol = Symbol('order')
-function orderedProperties (obj) {
+function orderedAttributes (obj) {
   return Object.values(obj)
     .sort((lhs, rhs) => lhs[orderSymbol] - rhs[orderSymbol])
     .map((item) => item)
@@ -43,7 +43,7 @@ class BufferValueItem {
 class ArrayValueItem {
   view (vnode) {
     return m('ul', [vnode.attrs.value.map(
-      (value) => m('li', [m(PropertyValueItem, { prop: { value } })]))])
+      (value) => m('li', [m(AttributeValueItem, { prop: { value } })]))])
   }
 }
 class ObjectValueItem {
@@ -51,7 +51,7 @@ class ObjectValueItem {
     const obj = vnode.attrs.value
     return m('ul', [Object.keys(obj).map(
       (key) => m('li', [m('label', [key]),
-      m(PropertyValueItem, { prop: { value: obj[key] } })]))])
+      m(AttributeValueItem, { prop: { value: obj[key] } })]))])
   }
 }
 class LayerValueItem {
@@ -63,7 +63,7 @@ class LayerValueItem {
     return m('span', [' [', layer.id, '] '])
   }
 }
-class PropertyValueItem {
+class AttributeValueItem {
   view (vnode) {
     const { prop } = vnode.attrs
     if (prop.value === null) {
@@ -99,10 +99,10 @@ class PropertyValueItem {
   }
 }
 
-class PropertyItem {
+class AttributeItem {
   view (vnode) {
     const prop = vnode.attrs.property[propSymbol]
-    const children = orderedProperties(vnode.attrs.property)
+    const children = orderedAttributes(vnode.attrs.property)
     let faClass = 'property'
     if (children.length) {
       faClass = 'property children'
@@ -113,7 +113,7 @@ class PropertyItem {
     ]
     const { name } = deplug.session.token(prop.id)
     const propRenderer =
-      deplug.session.attrRenderer(prop.type) || PropertyValueItem
+      deplug.session.attrRenderer(prop.type) || AttributeValueItem
     return m('li', {
       'data-range': `${range[0]}:${range[1]}`,
       onmouseover: () => selectRange(range),
@@ -141,7 +141,7 @@ class PropertyItem {
           }, [m('i', { class: 'fa fa-exclamation-triangle' }), ' ', prop.error])
         ]),
         m('ul', [
-          children.map((child) => m(PropertyItem, {
+          children.map((child) => m(AttributeItem, {
               property: child,
               layer: vnode.attrs.layer,
             }))
@@ -222,7 +222,7 @@ class LayerItem {
                 layer.confidence * 100, '%'
               ])
           ]),
-          orderedProperties(propObject[layerId]).map((prop) => m(PropertyItem, {
+          orderedAttributes(propObject[layerId]).map((prop) => m(AttributeItem, {
               property: prop,
               layer,
               dataOffset,
