@@ -1,6 +1,6 @@
-import { EventEmitter } from 'events'
 import Cache from './cache'
 import Config from './config'
+import { EventEmitter } from 'events'
 import KeyBind from './keybind'
 import Logger from './logger'
 import Menu from './menu'
@@ -8,6 +8,7 @@ import Notification from './notification'
 import PackageManager from './package-manager'
 import PackageRegistry from './package-registry'
 import Session from './session'
+import Workspace from './workspace'
 import minimist from 'minimist'
 
 export default class Deplug {
@@ -21,7 +22,7 @@ export default class Deplug {
     }
     const cache = new Cache(options.profile, logger)
     this.config = config
-    this.workspace = new Config(options.profile, 'workspace')
+    this.workspace = new Workspace(options.profile)
     this.keybind = new KeyBind(options.profile)
     this.packages = new PackageManager(config, components.split(','), logger)
     this.registry = new PackageRegistry(options.profile, config, cache)
