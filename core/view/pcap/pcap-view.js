@@ -1,6 +1,7 @@
 import Dialog from '../../lib/dialog'
-import PcapDetailView from './pcap-detail-view'
-import PcapDialog from './pcap-dialog'
+import PcapDetailView from './detail'
+import PcapDialog from './dialog'
+import PcapToolView from './tool'
 import m from 'mithril'
 
 class FrameView {
@@ -208,7 +209,8 @@ export default class PcapView {
       })
       : m('nav'),
       m('main', [
-        m(PcapDetailView, {})
+        m(PcapDetailView, {}),
+        m(PcapToolView, {})
       ]),
       m('div', { class: 'notification' })
     ]

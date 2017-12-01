@@ -97,8 +97,25 @@ main {
   bottom: 0;
   left: @nav-width;
   right: 0;
-  overflow-y: scroll;
-  padding: 20px;
+
+  .detail-view {
+    position: absolute;
+    top: 0;
+    bottom: 200px;
+    left: 0;
+    right: 0;
+    overflow-y: scroll;
+    padding: 20px;
+  }
+
+  .tool-view {
+    position: absolute;
+    height: 200px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-top: 1px solid @theme-lighter-bg;
+  }
 
   ul {
     list-style: none;

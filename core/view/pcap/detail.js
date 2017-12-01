@@ -258,7 +258,7 @@ export default class PcapDetailView {
 
   view () {
     if (this.selectedFrame === null) {
-      return m('div', { class: 'layer-list-view' }, ['No frame selected'])
+      return m('div', { class: 'detail-view' }, ['No frame selected'])
     }
     const frame = this.selectedFrame
 
@@ -276,7 +276,7 @@ export default class PcapDetailView {
       children = frame.rootLayer.layers
     }
 
-    return m('div', { class: 'layer-list-view' }, [
+    return m('div', { class: 'detail-view' }, [
       m('ul', [
         m('li', [
           m('i', { class: 'fa fa-circle-o' }),
