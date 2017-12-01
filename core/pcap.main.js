@@ -4,6 +4,7 @@ import PcapView from './view/pcap/pcap-view'
 const components = [
   'core:style',
   'core:token',
+  'core:panel',
   'core:dissector:packet',
   'core:dissector:stream',
   'core:renderer:attr',

@@ -20,12 +20,12 @@ export default class Workspace extends Config {
     this[fields] = { panels: new Map() }
   }
 
-  registerPanel (panel) {
+  registerPanel (id, panel) {
     const { panels } = this[fields]
-    panels.set(panel.id, panel)
+    panels.set(id, panel)
     this.update()
     return new Disposable(() => {
-      panels.delete(panel.id)
+      panels.delete(id)
     })
   }
 

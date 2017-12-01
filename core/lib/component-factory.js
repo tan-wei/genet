@@ -1,4 +1,5 @@
 import DissectorComponent from './component/dissector'
+import PanelComponent from './component/panel'
 import RendererComponent from './component/renderer'
 import StyleComponent from './component/style'
 import TokenComponent from './component/token'
@@ -16,6 +17,8 @@ export default class ComponentFactory {
         return new RendererComponent(comp, dir)
       case 'core:style':
         return new StyleComponent(comp, dir)
+      case 'core:panel':
+        return new PanelComponent(comp, dir)
       case 'core:filter:transform':
         return new TransformComponent(comp, dir)
       default:
