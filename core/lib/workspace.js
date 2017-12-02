@@ -39,7 +39,7 @@ export default class Workspace extends Config {
 
   update () {
     const { panels } = this[fields]
-    const layout = this.get('_.panelLayout', {})
+    const layout = JSON.parse(JSON.stringify(this.get('_.panelLayout', {})))
     const activePanels = new Set(flatten(layout))
     for (const [id] of panels) {
       if (!activePanels.has(id)) {

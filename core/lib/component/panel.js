@@ -41,6 +41,7 @@ export default class PanelComponent extends BaseComponent {
       throw new TypeError('module.exports must be a function')
     }
     this.disposable = deplug.workspace.registerPanel(this.id, module.exports)
+    return true
   }
 
   async unload () {
