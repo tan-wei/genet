@@ -52,6 +52,14 @@ class Session extends EventEmitter {
     })
   }
 
+  exportFrames (file, callback, filter = '', type = '') {
+    this[fields].sess.exportFrames(file, callback, filter, type)
+  }
+
+  importFrames (file, callback, type = '') {
+    this[fields].sess.importFrames(file, callback, type)
+  }
+
   get networkInterface () {
     return this[fields].sess.networkInterface
   }
@@ -115,6 +123,8 @@ class Session extends EventEmitter {
         tasks: [],
         linkLayers: [],
         transforms: [],
+        importers: [],
+        exporters: [],
         attributes: {},
       }
     }
@@ -137,6 +147,14 @@ class Session extends EventEmitter {
 
     registerFilterTransform (trans) {
       this[fields].transforms.push(trans)
+    }
+
+    registerImporter (importer) {
+      this[fields].importers.push(importer)
+    }
+
+    registerExporter (exporter) {
+      this[fields].exporters.push(exporter)
     }
 
     registerAttributes (attrs) {
