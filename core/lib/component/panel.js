@@ -1,4 +1,5 @@
 import BaseComponent from './base'
+import Style from '../style'
 import fs from 'fs'
 import objpath from 'object-path'
 import path from 'path'
@@ -18,6 +19,10 @@ export default class PanelComponent extends BaseComponent {
       throw new Error('id field required')
     }
     this.mainFile = path.resolve(dir, file)
+    const style = objpath.get(comp, 'style', '')
+    if (style.length > 0) {
+      this.styleFile = path.resolve(dir, style)
+    }
   }
 
   async load () {
@@ -40,7 +45,17 @@ export default class PanelComponent extends BaseComponent {
     if (typeof module.exports !== 'function') {
       throw new TypeError('module.exports must be a function')
     }
-    this.disposable = deplug.workspace.registerPanel(this.id, module.exports)
+    let style = ''
+    if (this.styleFile) {
+      const loader = new Style()
+      const result = await loader.compileLess(this.styleFile)
+      style = result.css
+    }
+    this.disposable =
+      deplug.workspace.registerPanel(this.id, {
+        component: module.exports,
+        style,
+      })
     return true
   }
 

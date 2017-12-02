@@ -11,7 +11,8 @@
       {
         "type": "core:panel",
         "main": "main.js",
-        "id": "core:panel:binary"
+        "id": "core:panel:binary",
+        "style": "theme.less"
       }
     ]
   }

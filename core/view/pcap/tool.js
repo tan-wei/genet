@@ -10,6 +10,11 @@ class PanelView {
     this.container.classList.add('slot-wrapper')
     const node = this.container.attachShadow({ mode: 'open' })
     m.mount(node, vnode.attrs.component)
+
+    const styleTag = document.createElement('style')
+    styleTag.textContent = vnode.attrs.style
+    node.appendChild(styleTag)
+
     vnode.dom.parentNode.appendChild(this.container)
   }
 
@@ -26,7 +31,7 @@ class PcapTabView {
       if (typeof panel === 'undefined') {
         return m('p')
       }
-      return m(PanelView, { component: deplug.workspace.panel(tab) })
+      return m(PanelView, panel)
     }))
   }
 }
