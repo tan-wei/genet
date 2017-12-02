@@ -1,0 +1,16 @@
+{
+  "targets":[
+    {
+      "target_name":"importer",
+      "sources":[
+        "importer.cpp"
+      ]
+    },
+    {
+      "target_name":"exporter",
+      "sources":[
+        "exporter.cpp"
+      ]
+    }
+  ]
+}

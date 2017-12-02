@@ -2,21 +2,21 @@
 # yarn lockfile v1
 
 
-"@deplug/dpm@^0.0.5":
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@deplug/dpm/-/dpm-0.0.5.tgz#f14ae00a74b7d2feaecd85649d230c958af38b85"
+"@deplug/dpm@^0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@deplug/dpm/-/dpm-0.0.6.tgz#02c0950f874798bf728bc6a4c6aa9abc45b2cb71"
   dependencies:
-    "@deplug/package-install" "^0.0.9"
+    "@deplug/package-install" "^0.0.10"
     commander "^2.11.0"
     es6-promisify "^5.0.0"
     glob "^7.1.2"
     jsonfile "^4.0.0"
 
-"@deplug/package-install@^0.0.7":
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/@deplug/package-install/-/package-install-0.0.7.tgz#420d22f14a78324be29bba463dd19cba8306bb30"
+"@deplug/package-install@^0.0.10":
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/@deplug/package-install/-/package-install-0.0.10.tgz#c05be6a14efa15cb22cc78fe345e795de543577c"
   dependencies:
-    "@deplug/plugkit.h" "0.0.1"
+    "@deplug/plugkit.h" "0.0.2"
     axios "^0.17.1"
     es6-promisify "^5.0.0"
     glob "^7.1.2"
@@ -30,27 +30,9 @@
     temp "^0.8.3"
     url-join "^2.0.2"
 
-"@deplug/package-install@^0.0.9":
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/@deplug/package-install/-/package-install-0.0.9.tgz#9f087d16b88bdc5880bb378ac6704a8afdc5fd26"
-  dependencies:
-    "@deplug/plugkit.h" "0.0.1"
-    axios "^0.17.1"
-    es6-promisify "^5.0.0"
-    glob "^7.1.2"
-    mkpath "^1.0.0"
-    nan "^2.8.0"
-    npm "^5.5.1"
-    object-path "^0.11.4"
-    resolve "^1.5.0"
-    tar "^4.0.2"
-    tee "^0.2.0"
-    temp "^0.8.3"
-    url-join "^2.0.2"
-
-"@deplug/plugkit.h@0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@deplug/plugkit.h/-/plugkit.h-0.0.1.tgz#1408a3bad15fbe754767162f949609c8514d423a"
+"@deplug/plugkit.h@0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@deplug/plugkit.h/-/plugkit.h-0.0.2.tgz#71c264e8ffe80e701db24f874f39945debcde4d2"
 
 JSONStream@~1.3.1:
   version "1.3.1"
