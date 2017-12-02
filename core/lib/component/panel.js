@@ -1,12 +1,9 @@
 import BaseComponent from './base'
+import Script from '../script'
 import Style from '../style'
-import fs from 'fs'
 import objpath from 'object-path'
 import path from 'path'
-import promisify from 'es6-promisify'
-import vm from 'vm'
 
-const promiseReadFile = promisify(fs.readFile)
 export default class PanelComponent extends BaseComponent {
   constructor (comp, dir) {
     super()
@@ -26,34 +23,16 @@ export default class PanelComponent extends BaseComponent {
   }
 
   async load () {
-    const code = await promiseReadFile(this.mainFile, 'utf8')
-    const wrapper =
-      `(function(module, require, __filename, __dirname){ ${code} })`
-    const options = {
-      filename: this.mainFile,
-      displayErrors: true,
-    }
-    const func = vm.runInThisContext(wrapper, options)
-    function req (name) {
-      if (name === 'deplug') {
-        return deplug
-      }
-      return global.require(name)
-    }
-    const module = {}
-    func(module, req, this.mainFile, path.dirname(this.mainFile))
-    if (typeof module.exports !== 'function') {
-      throw new TypeError('module.exports must be a function')
-    }
     let style = ''
     if (this.styleFile) {
       const loader = new Style()
       const result = await loader.compileLess(this.styleFile)
       style = result.css
     }
+    const component = await Script.execute(this.mainFile)
     this.disposable =
       deplug.workspace.registerPanel(this.id, {
-        component: module.exports,
+        component,
         style,
       })
     return true

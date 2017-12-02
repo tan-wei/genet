@@ -1,11 +1,8 @@
 import BaseComponent from './base'
-import fs from 'fs'
+import Script from '../script'
 import objpath from 'object-path'
 import path from 'path'
-import promisify from 'es6-promisify'
-import vm from 'vm'
 
-const promiseReadFile = promisify(fs.readFile)
 export default class RendererComponent extends BaseComponent {
   constructor (comp, dir) {
     super()
@@ -20,28 +17,10 @@ export default class RendererComponent extends BaseComponent {
     }
   }
   async load () {
-    const code = await promiseReadFile(this.mainFile, 'utf8')
-    const wrapper =
-      `(function(module, require, __filename, __dirname){ ${code} })`
-    const options = {
-      filename: this.mainFile,
-      displayErrors: true,
-    }
-    const func = vm.runInThisContext(wrapper, options)
-    function req (name) {
-      if (name === 'deplug') {
-        return deplug
-      }
-      return global.require(name)
-    }
-    const module = {}
-    func(module, req, this.mainFile, path.dirname(this.mainFile))
-    if (typeof module.exports !== 'function') {
-      throw new TypeError('module.exports must be a function')
-    }
+    const module = await Script.execute(this.mainFile)
     this.disposable = deplug.session.registerFilterTransform({
       id: this.id,
-      execute: module.exports
+      execute: module,
     })
     return true
   }

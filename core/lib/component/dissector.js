@@ -1,11 +1,8 @@
 import BaseComponent from './base'
 import exists from 'file-exists'
-import fs from 'fs'
 import objpath from 'object-path'
 import path from 'path'
-import promisify from 'es6-promisify'
 
-const promiseReadFile = promisify(fs.readFile)
 export default class DissectorComponent extends BaseComponent {
   constructor (comp, dir) {
     super()

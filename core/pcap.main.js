@@ -9,7 +9,12 @@ const components = [
   'core:dissector:stream',
   'core:renderer:attr',
   'core:renderer:layer',
-  'core:filter:transform'
+  'core:filter:transform',
+  'core:filter:string',
+  'core:filter:token',
+  'core:filter:ast',
+  'core:file:importer',
+  'core:file:exporter'
 ]
 
 const content = new Content(

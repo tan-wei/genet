@@ -3,7 +3,7 @@ import Script from '../script'
 import objpath from 'object-path'
 import path from 'path'
 
-export default class RendererComponent extends BaseComponent {
+export default class FileComponent extends BaseComponent {
   constructor (comp, dir) {
     super()
     const file = objpath.get(comp, 'main', '')
@@ -16,24 +16,24 @@ export default class RendererComponent extends BaseComponent {
     }
     this.mainFile = path.resolve(dir, file)
     switch (comp.type) {
-      case 'core:renderer:attr':
-        this.type = 'attr'
+      case 'core:file:importer':
+        this.type = 'importer'
         break
-      case 'core:renderer:layer':
-        this.type = 'layer'
+      case 'core:file:exporter':
+        this.type = 'exporter'
         break
       default:
-        throw new Error(`unknown renderer type: ${comp.type}`)
+        throw new Error(`unknown type: ${comp.type}`)
     }
   }
   async load () {
     const component = await Script.execute(this.mainFile)
-    if (this.type === 'attr') {
+    if (this.type === 'importer') {
       this.disposable =
-        deplug.session.registerAttrRenderer(this.id, component)
-    } else if (this.type === 'layer') {
+        deplug.session.registerImporter(this.id, component)
+    } else if (this.type === 'exporter') {
       this.disposable =
-        deplug.session.registerLayerRenderer(this.id, component)
+        deplug.session.registerExporter(this.id, component)
     }
     return true
   }

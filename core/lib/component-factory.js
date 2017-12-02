@@ -1,4 +1,5 @@
 import DissectorComponent from './component/dissector'
+import FileComponent from './component/file'
 import PanelComponent from './component/panel'
 import RendererComponent from './component/renderer'
 import StyleComponent from './component/style'
@@ -20,7 +21,13 @@ export default class ComponentFactory {
       case 'core:panel':
         return new PanelComponent(comp, dir)
       case 'core:filter:transform':
+      case 'core:filter:string':
+      case 'core:filter:token':
+      case 'core:filter:ast':
         return new TransformComponent(comp, dir)
+      case 'core:file:importer':
+      case 'core:file:exporter':
+        return new FileComponent(comp, dir)
       default:
         throw new Error(`unknown component type: ${comp.type}`)
     }
