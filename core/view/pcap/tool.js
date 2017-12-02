@@ -1,5 +1,23 @@
 import m from 'mithril'
 
+class PanelView {
+  view () {
+    return m('div')
+  }
+
+  oncreate (vnode) {
+    this.container = document.createElement('div')
+    this.container.classList.add('slot-wrapper')
+    const node = this.container.attachShadow({ mode: 'open' })
+    m.mount(node, vnode.attrs.component)
+    vnode.dom.parentNode.appendChild(this.container)
+  }
+
+  onbeforeremove () {
+    this.container.remove()
+  }
+}
+
 class PcapTabView {
   view (vnode) {
     const { tabs } = vnode.attrs
@@ -8,7 +26,7 @@ class PcapTabView {
       if (typeof panel === 'undefined') {
         return m('p')
       }
-      return m(deplug.workspace.panel(tab), {})
+      return m(PanelView, { component: deplug.workspace.panel(tab) })
     }))
   }
 }
