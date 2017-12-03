@@ -31,7 +31,7 @@ typedef enum FileStatus {
 typedef bool(FileImporterCallback)(const RawFrame *frames,
                                    size_t length,
                                    double progress);
-typedef bool(FileExporterCallback)(double progress);
+typedef const RawFrame *(FileExporterCallback)(size_t *length);
 
 typedef FileStatus(FileImporterFunc)(Context *ctx,
                                      const char *filename,
