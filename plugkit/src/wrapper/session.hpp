@@ -21,7 +21,6 @@ public:
   static NAN_METHOD(startPcap);
   static NAN_METHOD(stopPcap);
   static NAN_GETTER(id);
-  static NAN_GETTER(options);
   static NAN_METHOD(destroy);
   static NAN_METHOD(getFilteredFrames);
   static NAN_METHOD(getFrames);

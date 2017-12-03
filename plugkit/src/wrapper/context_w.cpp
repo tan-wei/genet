@@ -25,7 +25,7 @@ NAN_METHOD(ContextWrapper::New) { info.GetReturnValue().Set(info.This()); }
 NAN_GETTER(ContextWrapper::options) {
   ContextWrapper *wrapper = ObjectWrap::Unwrap<ContextWrapper>(info.Holder());
   if (Context *ctx = wrapper->ctx) {
-    info.GetReturnValue().Set(Variant::getValue(Context_options(ctx)));
+    //  info.GetReturnValue().Set(Variant::getValue(Context_options(ctx)));
   }
 }
 

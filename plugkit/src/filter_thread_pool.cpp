@@ -9,7 +9,7 @@ namespace plugkit {
 class FilterThreadPool::Private {
 public:
   Private(const std::string &body,
-          const Variant &options,
+          const OptionMap &options,
           const FrameStorePtr &store,
           const Callback &callback);
   ~Private();
@@ -22,13 +22,13 @@ public:
   LoggerPtr logger = std::make_shared<StreamLogger>();
   uv_rwlock_t rwlock;
   const std::string body;
-  const Variant options;
+  const OptionMap options;
   const FrameStorePtr store;
   const Callback callback;
 };
 
 FilterThreadPool::Private::Private(const std::string &body,
-                                   const Variant &options,
+                                   const OptionMap &options,
                                    const FrameStorePtr &store,
                                    const Callback &callback)
     : body(body), options(options), store(store), callback(callback) {
@@ -38,7 +38,7 @@ FilterThreadPool::Private::Private(const std::string &body,
 FilterThreadPool::Private::~Private() { uv_rwlock_destroy(&rwlock); }
 
 FilterThreadPool::FilterThreadPool(const std::string &body,
-                                   const Variant &options,
+                                   const OptionMap &options,
                                    const FrameStorePtr &store,
                                    const Callback &callback)
     : d(new Private(body, options, store, callback)) {}
@@ -76,7 +76,7 @@ void FilterThreadPool::start() {
     uv_rwlock_wrunlock(&d->rwlock);
   };
 
-  int concurrency = d->options["_"]["concurrency"].uint32Value(0);
+  int concurrency = d->options.find("_.concurrency")->second.uint32Value(0);
   if (concurrency == 0)
     concurrency = std::thread::hardware_concurrency();
   if (concurrency == 0)

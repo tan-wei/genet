@@ -23,8 +23,7 @@ public:
   static NAN_SETTER(setSnaplen);
   static NAN_GETTER(bpf);
   static NAN_SETTER(setBpf);
-  static NAN_GETTER(options);
-  static NAN_SETTER(setOptions);
+  static NAN_METHOD(setOption);
   static NAN_METHOD(registerLinkLayer);
   static NAN_METHOD(registerDissector);
   static NAN_METHOD(create);

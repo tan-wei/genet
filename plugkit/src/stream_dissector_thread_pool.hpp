@@ -4,6 +4,7 @@
 #include "queue.hpp"
 #include <functional>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 namespace plugkit {
@@ -17,6 +18,7 @@ class FrameStore;
 using FrameStorePtr = std::shared_ptr<FrameStore>;
 
 struct Variant;
+using OptionMap = std::unordered_map<std::string, Variant>;
 
 struct Dissector;
 
@@ -25,7 +27,7 @@ public:
   using Callback = std::function<void(uint32_t)>;
 
 public:
-  StreamDissectorThreadPool(const Variant &options,
+  StreamDissectorThreadPool(const OptionMap &options,
                             const FrameStorePtr &store,
                             const Callback &callback);
   ~StreamDissectorThreadPool();

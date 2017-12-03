@@ -15,6 +15,7 @@ class FrameStore;
 using FrameStorePtr = std::shared_ptr<FrameStore>;
 
 struct Variant;
+using OptionMap = std::unordered_map<std::string, Variant>;
 
 class FilterThreadPool final {
 public:
@@ -22,7 +23,7 @@ public:
 
 public:
   FilterThreadPool(const std::string &body,
-                   const Variant &options,
+                   const OptionMap &options,
                    const FrameStorePtr &store,
                    const Callback &callback);
   ~FilterThreadPool();

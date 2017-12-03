@@ -4,6 +4,7 @@
 #include "queue.hpp"
 #include <functional>
 #include <memory>
+#include <unordered_map>
 
 namespace plugkit {
 
@@ -15,13 +16,14 @@ class Frame;
 struct Dissector;
 
 struct Variant;
+using OptionMap = std::unordered_map<std::string, Variant>;
 
 class DissectorThreadPool final {
 public:
   using Callback = std::function<void(Frame **, size_t)>;
 
 public:
-  DissectorThreadPool(const Variant &options, const Callback &callback);
+  DissectorThreadPool(const OptionMap &options, const Callback &callback);
   ~DissectorThreadPool();
   DissectorThreadPool(const DissectorThreadPool &) = delete;
   DissectorThreadPool &operator=(const DissectorThreadPool &) = delete;

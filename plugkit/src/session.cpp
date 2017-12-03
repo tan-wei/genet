@@ -25,7 +25,7 @@ struct Session::Config {
   std::unordered_map<int, Token> linkLayers;
   std::vector<std::pair<Dissector, DissectorType>> dissectors;
   std::vector<std::pair<std::string, DissectorType>> scriptDissectors;
-  Variant options;
+  OptionMap options;
 };
 
 class Session::Private {
@@ -217,8 +217,6 @@ int Session::snaplen() const { return d->pcap->snaplen(); }
 
 int Session::id() const { return d->id; }
 
-Variant Session::options() const { return d->config.options; }
-
 void Session::setDisplayFilter(const std::string &name,
                                const std::string &body) {
   auto filter = d->filters.find(name);
@@ -327,11 +325,9 @@ void SessionFactory::setBpf(const std::string &filter) { d->bpf = filter; }
 
 std::string SessionFactory::bpf() const { return d->bpf; }
 
-void SessionFactory::setOptions(const Variant &options) {
-  d->options = options;
+void SessionFactory::setOption(const std::string &key, const Variant &value) {
+  d->options[key] = value;
 }
-
-Variant SessionFactory::options() const { return d->options; }
 
 void SessionFactory::registerLinkLayer(int link, Token token) {
   d->linkLayers[link] = token;

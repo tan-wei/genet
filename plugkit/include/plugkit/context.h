@@ -22,8 +22,8 @@ PLUGKIT_EXPORT void *Context_realloc(Context *ctx, void *ptr, size_t size);
 /// @remark Currently, this function is just a wrapper for `free()`.
 PLUGKIT_EXPORT void Context_dealloc(Context *ctx, void *ptr);
 
-/// Return the options in the current context.
-PLUGKIT_EXPORT const Variant *Context_options(Context *ctx);
+/// Return the value of the option in the current context.
+PLUGKIT_EXPORT const Variant *Context_option(Context *ctx, const char *key);
 
 /// Return the value of the context variable.
 PLUGKIT_EXPORT const Variant *Context_variable(Context *ctx, const char *key);

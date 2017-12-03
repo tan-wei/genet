@@ -30,7 +30,6 @@ void SessionWrapper::init(v8::Isolate *isolate) {
                    networkInterface);
   Nan::SetAccessor(otl, Nan::New("promiscuous").ToLocalChecked(), promiscuous);
   Nan::SetAccessor(otl, Nan::New("snaplen").ToLocalChecked(), snaplen);
-  Nan::SetAccessor(otl, Nan::New("options").ToLocalChecked(), options);
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
 }
 
@@ -81,13 +80,6 @@ NAN_GETTER(SessionWrapper::id) {
   SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
   if (const auto &session = wrapper->session) {
     info.GetReturnValue().Set(session->id());
-  }
-}
-
-NAN_GETTER(SessionWrapper::options) {
-  SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
-  if (const auto &session = wrapper->session) {
-    info.GetReturnValue().Set(Variant::getValue(session->options()));
   }
 }
 

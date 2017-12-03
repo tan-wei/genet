@@ -5,10 +5,12 @@
 
 namespace plugkit {
 
+using OptionMap = std::unordered_map<std::string, Variant>;
+
 struct Context final {
 public:
-  Variant options;
-  std::unordered_map<std::string, Variant> variables;
+  OptionMap options;
+  OptionMap variables;
   LoggerPtr logger = std::make_shared<StreamLogger>();
 };
 } // namespace plugkit

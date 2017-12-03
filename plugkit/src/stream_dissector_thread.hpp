@@ -3,6 +3,7 @@
 
 #include "worker_thread.hpp"
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 namespace plugkit {
@@ -11,6 +12,7 @@ class Frame;
 struct Layer;
 
 struct Variant;
+using OptionMap = std::unordered_map<std::string, Variant>;
 
 struct Dissector;
 
@@ -19,7 +21,7 @@ public:
   using Callback = std::function<void(uint32_t)>;
 
 public:
-  StreamDissectorThread(const Variant &options, const Callback &callback);
+  StreamDissectorThread(const OptionMap &options, const Callback &callback);
   ~StreamDissectorThread() override;
   void pushStreamDissector(const Dissector &diss);
   void enter() override;

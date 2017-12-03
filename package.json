@@ -23,6 +23,7 @@
     "escodegen": "^1.8.1",
     "estraverse": "^4.2.0",
     "file-exists": "^4.0.0",
+    "flat": "^4.0.0",
     "font-awesome": "^4.7.0",
     "glob": "^7.1.1",
     "i18n4v": "^0.2.2",

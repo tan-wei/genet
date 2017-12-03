@@ -225,15 +225,7 @@ void Init(v8::Local<v8::Object> exports) {
     worker->analyze(ctx, layer);
   };
   diss.createWorker = [](Context *ctx, const Dissector *diss) {
-    auto httpPorts = Variant_mapValue(
-        Variant_mapValue(Context_options(ctx), "dissector-essentials", -1),
-        "httpPorts", -1);
-
-    const Variant *value = nullptr;
-    std::unordered_set<uint16_t> ports;
-    for (size_t i = 0; (value = Variant_arrayValue(httpPorts, i)); ++i) {
-      ports.insert(Variant_uint32(value));
-    }
+    std::unordered_set<uint16_t> ports = {80};
     HTTPWorker *worker = new HTTPWorker(ports);
     worker->reader = StreamReader_create();
     return Worker{worker};

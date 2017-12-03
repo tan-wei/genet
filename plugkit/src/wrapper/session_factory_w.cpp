@@ -11,6 +11,7 @@ void SessionFactoryWrapper::init(v8::Isolate *isolate,
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("SessionFactory").ToLocalChecked());
+  SetPrototypeMethod(tpl, "setOption", setOption);
   SetPrototypeMethod(tpl, "registerDissector", registerDissector);
   SetPrototypeMethod(tpl, "registerLinkLayer", registerLinkLayer);
   SetPrototypeMethod(tpl, "create", create);
@@ -27,8 +28,6 @@ void SessionFactoryWrapper::init(v8::Isolate *isolate,
   Nan::SetAccessor(otl, Nan::New("snaplen").ToLocalChecked(), snaplen,
                    setSnaplen);
   Nan::SetAccessor(otl, Nan::New("bpf").ToLocalChecked(), bpf, setBpf);
-  Nan::SetAccessor(otl, Nan::New("options").ToLocalChecked(), options,
-                   setOptions);
 
   v8::Local<v8::Object> func = Nan::GetFunction(tpl).ToLocalChecked();
   Nan::Set(exports, Nan::New("SessionFactory").ToLocalChecked(), func);
@@ -110,19 +109,13 @@ NAN_SETTER(SessionFactoryWrapper::setBpf) {
   }
 }
 
-NAN_GETTER(SessionFactoryWrapper::options) {
+NAN_METHOD(SessionFactoryWrapper::setOption) {
   SessionFactoryWrapper *wrapper =
       ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
   if (auto factory = wrapper->factory) {
-    info.GetReturnValue().Set(Variant::getValue(factory->options()));
-  }
-}
-
-NAN_SETTER(SessionFactoryWrapper::setOptions) {
-  SessionFactoryWrapper *wrapper =
-      ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
-  if (auto factory = wrapper->factory) {
-    factory->setOptions(Variant::getVariant(value));
+    std::string key = *Nan::Utf8String(info[0]);
+    const Variant &value = Variant::getVariant(info[1]);
+    factory->setOption(key, value);
   }
 }
 

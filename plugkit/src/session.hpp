@@ -17,6 +17,8 @@ class FrameView;
 
 struct Dissector;
 
+using OptionMap = std::unordered_map<std::string, Variant>;
+
 class Session final {
   friend class SessionFactory;
 
@@ -58,7 +60,6 @@ public:
   std::string networkInterface() const;
   bool promiscuous() const;
   int snaplen() const;
-  Variant options() const;
 
   bool startPcap();
   bool stopPcap();
@@ -105,8 +106,7 @@ public:
   int snaplen() const;
   void setBpf(const std::string &filter);
   std::string bpf() const;
-  void setOptions(const Variant &options);
-  Variant options() const;
+  void setOption(const std::string &key, const Variant &value);
 
   void registerLinkLayer(int link, Token token);
   void registerDissector(const Dissector &diss, DissectorType type);

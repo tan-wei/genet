@@ -1,5 +1,6 @@
 import { Disposable } from 'disposables'
 import { SessionFactory } from 'plugkit'
+import flatten from 'flat'
 
 const fields = Symbol('fields')
 export default class Session {
@@ -91,7 +92,9 @@ export default class Session {
       dissectors, filterTransforms,
     } = this[fields]
     const factory = new SessionFactory()
-    factory.options = config.toJSON()
+    for (const [key, value] of Object.entries(flatten(config.toJSON()))) {
+      factory.setOption(key, value)
+    }
     factory.networkInterface = ifs
     for (const layer of linkLayers) {
       factory.registerLinkLayer(layer)

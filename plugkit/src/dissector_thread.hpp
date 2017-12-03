@@ -3,6 +3,7 @@
 
 #include "queue.hpp"
 #include "worker_thread.hpp"
+#include <unordered_map>
 
 namespace plugkit {
 
@@ -15,6 +16,7 @@ class StreamResolver;
 using StreamResolverPtr = std::shared_ptr<StreamResolver>;
 
 struct Variant;
+using OptionMap = std::unordered_map<std::string, Variant>;
 
 struct Dissector;
 
@@ -23,7 +25,7 @@ public:
   using Callback = std::function<void(Frame **, size_t)>;
 
 public:
-  DissectorThread(const Variant &options,
+  DissectorThread(const OptionMap &options,
                   const FrameQueuePtr &queue,
                   const Callback &callback);
   ~DissectorThread() override;
