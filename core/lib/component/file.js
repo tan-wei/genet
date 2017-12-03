@@ -1,5 +1,5 @@
 import BaseComponent from './base'
-import Script from '../script'
+import exists from 'file-exists'
 import objpath from 'object-path'
 import path from 'path'
 
@@ -10,11 +10,23 @@ export default class FileComponent extends BaseComponent {
     if (!file) {
       throw new Error('main field required')
     }
-    this.id = objpath.get(comp, 'id', '')
-    if (!this.id) {
-      throw new Error('id field required')
+
+    const searchPaths = [
+      '.',
+      'build/Debug',
+      'build/Release'
+    ]
+    for (const spath of searchPaths) {
+      const absolute = path.join(dir, spath, file)
+      if (exists.sync(absolute)) {
+        this.mainFile = absolute
+        break
+      }
     }
-    this.mainFile = path.resolve(dir, file)
+    if (!this.mainFile) {
+      throw new Error(`could not resolve ${file} in ${dir}`)
+    }
+
     switch (comp.type) {
       case 'core:file:importer':
         this.type = 'importer'
@@ -27,13 +39,12 @@ export default class FileComponent extends BaseComponent {
     }
   }
   async load () {
-    const component = await Script.execute(this.mainFile)
     if (this.type === 'importer') {
       this.disposable =
-        deplug.session.registerImporter(this.id, component)
+        deplug.session.registerImporter(global.require(this.mainFile).importer)
     } else if (this.type === 'exporter') {
       this.disposable =
-        deplug.session.registerExporter(this.id, component)
+        deplug.session.registerExporter(global.require(this.mainFile).exporter)
     }
     return true
   }

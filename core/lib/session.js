@@ -13,6 +13,8 @@ export default class Session {
       layerRenderers: new Map(),
       attrRenderers: new Map(),
       filterTransforms: new Set(),
+      importers: new Set(),
+      exporters: new Set(),
     }
   }
 
@@ -59,6 +61,20 @@ export default class Session {
     this[fields].filterTransforms.add(renderer)
     return new Disposable(() => {
       this[fields].filterTransforms.delete(renderer)
+    })
+  }
+
+  registerImporter (importer) {
+    this[fields].importers.add(importer)
+    return new Disposable(() => {
+      this[fields].importers.delete(importer)
+    })
+  }
+
+  registerExporter (exporter) {
+    this[fields].exporters.add(exporter)
+    return new Disposable(() => {
+      this[fields].exporters.delete(exporter)
     })
   }
 
