@@ -16,24 +16,39 @@ typedef struct RawFrame {
   const char *data;
   size_t length;
   size_t actualLength;
-  int64_t tsMsec;
+  int64_t tsSec;
   int64_t tsNsec;
   const Layer *root;
 } RawFrame;
+
+typedef enum FileStatus {
+  FILE_STATUS_DONE,
+  FILE_STATUS_ERROR,
+  FILE_STATUS_UNSUPPORTED,
+  FILE_STATUS_CANCELED
+} FileStatus;
 
 typedef bool(FileImporterCallback)(const RawFrame *frames,
                                    size_t length,
                                    double progress);
 typedef bool(FileExporterCallback)(double progress);
 
-typedef bool(FileImporter)(Context *ctx,
-                           const char *filename,
-                           FileImporterCallback callback);
-typedef bool(FileExporter)(Context *ctx,
-                           const char *filename,
-                           const RawFrame *frames,
-                           size_t length,
-                           FileExporterCallback callback);
+typedef FileStatus(FileImporterFunc)(Context *ctx,
+                                     const char *filename,
+                                     FileImporterCallback callback);
+typedef FileStatus(FileExporterFunc)(Context *ctx,
+                                     const char *filename,
+                                     const RawFrame *frames,
+                                     size_t length,
+                                     FileExporterCallback callback);
+
+typedef struct FileImporter {
+  FileImporterFunc *func;
+} FileImporter;
+
+typedef struct FileExporter {
+  FileExporterFunc *func;
+} FileExporter;
 
 PLUGKIT_NAMESPACE_END
 
