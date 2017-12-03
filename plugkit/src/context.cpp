@@ -14,6 +14,15 @@ void Context_dealloc(Context *ctx, void *ptr) { free(ptr); }
 
 const Variant *Context_options(Context *ctx) { return &ctx->options; }
 
+const Variant *Context_variable(Context *ctx, const char *key) {
+  auto it = ctx->variables.find(key);
+  if (it != ctx->variables.end()) {
+    return &it->second;
+  }
+  static const Variant null;
+  return &null;
+}
+
 namespace {
 void Log(Context *ctx,
          const char *file,
