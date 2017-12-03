@@ -79,6 +79,10 @@ FileStatus import(Context *ctx,
       break;
     }
 
+    if (!nanosec) {
+      tsUsec *= 1000;
+    }
+
     RawFrame frame;
     frame.link = network;
     frame.data = buffer.data();
