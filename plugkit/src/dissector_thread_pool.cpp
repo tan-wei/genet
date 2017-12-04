@@ -8,7 +8,7 @@ namespace plugkit {
 
 class DissectorThreadPool::Private {
 public:
-  Private(const OptionMap &options, const Callback &callback);
+  Private(const VariantMap &options, const Callback &callback);
   ~Private();
 
 public:
@@ -16,17 +16,17 @@ public:
   std::vector<Dissector> dissectors;
   LoggerPtr logger = std::make_shared<StreamLogger>();
   FrameQueuePtr queue = std::make_shared<FrameQueue>();
-  const OptionMap options;
+  const VariantMap options;
   const Callback callback;
 };
 
-DissectorThreadPool::Private::Private(const OptionMap &options,
+DissectorThreadPool::Private::Private(const VariantMap &options,
                                       const Callback &callback)
     : options(options), callback(callback) {}
 
 DissectorThreadPool::Private::~Private() {}
 
-DissectorThreadPool::DissectorThreadPool(const OptionMap &options,
+DissectorThreadPool::DissectorThreadPool(const VariantMap &options,
                                          const Callback &callback)
     : d(new Private(options, callback)) {}
 
@@ -45,7 +45,7 @@ void DissectorThreadPool::start() {
     d->callback(begin, size);
   };
 
-  int concurrency = d->options.find("_.concurrency")->second.uint32Value(0);
+  int concurrency = d->options["_.concurrency"].uint32Value(0);
   if (concurrency == 0)
     concurrency = std::thread::hardware_concurrency();
   if (concurrency == 0)

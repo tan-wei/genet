@@ -23,7 +23,7 @@ struct WorkerData {
 
 class DissectorThread::Private {
 public:
-  Private(const OptionMap &options,
+  Private(const VariantMap &options,
           const FrameQueuePtr &queue,
           const Callback &callback);
   ~Private();
@@ -34,12 +34,12 @@ public:
   LayerConfidence confidenceThreshold;
 
   Context ctx;
-  const OptionMap options;
+  const VariantMap options;
   const FrameQueuePtr queue;
   const Callback callback;
 };
 
-DissectorThread::Private::Private(const OptionMap &options,
+DissectorThread::Private::Private(const VariantMap &options,
                                   const FrameQueuePtr &queue,
                                   const Callback &callback)
     : options(options), queue(queue), callback(callback) {
@@ -48,12 +48,12 @@ DissectorThread::Private::Private(const OptionMap &options,
 
 DissectorThread::Private::~Private() {}
 
-DissectorThread::DissectorThread(const OptionMap &options,
+DissectorThread::DissectorThread(const VariantMap &options,
                                  const FrameQueuePtr &queue,
                                  const Callback &callback)
     : d(new Private(options, queue, callback)) {
   d->confidenceThreshold = static_cast<LayerConfidence>(
-      options.find("_.confidenceThreshold")->second.uint32Value(2));
+      options["_.confidenceThreshold"].uint32Value(2));
 }
 
 DissectorThread::~DissectorThread() {}

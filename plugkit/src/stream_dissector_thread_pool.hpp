@@ -2,6 +2,7 @@
 #define PLUGKIT_STREAM_DISSECTOR_THREAD_POOL_H
 
 #include "queue.hpp"
+#include "variant_map.hpp"
 #include <functional>
 #include <memory>
 #include <unordered_map>
@@ -17,9 +18,6 @@ class Frame;
 class FrameStore;
 using FrameStorePtr = std::shared_ptr<FrameStore>;
 
-struct Variant;
-using OptionMap = std::unordered_map<std::string, Variant>;
-
 struct Dissector;
 
 class StreamDissectorThreadPool final {
@@ -27,7 +25,7 @@ public:
   using Callback = std::function<void(uint32_t)>;
 
 public:
-  StreamDissectorThreadPool(const OptionMap &options,
+  StreamDissectorThreadPool(const VariantMap &options,
                             const FrameStorePtr &store,
                             const Callback &callback);
   ~StreamDissectorThreadPool();

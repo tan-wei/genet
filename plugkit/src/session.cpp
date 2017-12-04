@@ -25,7 +25,7 @@ struct Session::Config {
   std::unordered_map<int, Token> linkLayers;
   std::vector<std::pair<Dissector, DissectorType>> dissectors;
   std::vector<std::pair<std::string, DissectorType>> scriptDissectors;
-  OptionMap options;
+  VariantMap options;
 };
 
 class Session::Private {

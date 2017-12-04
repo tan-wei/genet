@@ -23,7 +23,7 @@ struct WorkerContext {
 
 class StreamDissectorThread::Private {
 public:
-  Private(const OptionMap &options, const Callback &callback);
+  Private(const VariantMap &options, const Callback &callback);
   ~Private();
   void analyze(Layer *layer,
                bool subLayer,
@@ -38,22 +38,22 @@ public:
   std::unordered_map<Token, IdMap> workers;
 
   Context ctx;
-  const OptionMap options;
+  const VariantMap options;
   const Callback callback;
 };
 
-StreamDissectorThread::Private::Private(const OptionMap &options,
+StreamDissectorThread::Private::Private(const VariantMap &options,
                                         const Callback &callback)
     : options(options), callback(callback) {
   ctx.options = options;
 }
 StreamDissectorThread::Private::~Private() {}
 
-StreamDissectorThread::StreamDissectorThread(const OptionMap &options,
+StreamDissectorThread::StreamDissectorThread(const VariantMap &options,
                                              const Callback &callback)
     : d(new Private(options, callback)) {
   d->confidenceThreshold = static_cast<LayerConfidence>(
-      options.find("_.confidenceThreshold")->second.uint32Value(2));
+      options["_.confidenceThreshold"].uint32Value(2));
 }
 
 StreamDissectorThread::~StreamDissectorThread() {}

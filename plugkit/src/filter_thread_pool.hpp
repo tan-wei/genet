@@ -1,6 +1,7 @@
 #ifndef PLUGKIT_FILTER_THREAD_POOL_H
 #define PLUGKIT_FILTER_THREAD_POOL_H
 
+#include "variant_map.hpp"
 #include <functional>
 #include <memory>
 #include <unordered_map>
@@ -14,16 +15,13 @@ using LoggerPtr = std::shared_ptr<Logger>;
 class FrameStore;
 using FrameStorePtr = std::shared_ptr<FrameStore>;
 
-struct Variant;
-using OptionMap = std::unordered_map<std::string, Variant>;
-
 class FilterThreadPool final {
 public:
   using Callback = std::function<void()>;
 
 public:
   FilterThreadPool(const std::string &body,
-                   const OptionMap &options,
+                   const VariantMap &options,
                    const FrameStorePtr &store,
                    const Callback &callback);
   ~FilterThreadPool();

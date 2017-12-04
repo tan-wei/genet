@@ -14,6 +14,7 @@
       "src/stream_dissector_thread_pool.cpp",
       "src/plugkit_module.cpp",
       "src/variant.cpp",
+      "src/variant_map.cpp",
       "src/frame_view.cpp",
       "src/frame_store.cpp",
       "src/filter.cpp",

@@ -13,21 +13,11 @@ void *Context_realloc(Context *ctx, void *ptr, size_t size) {
 void Context_dealloc(Context *ctx, void *ptr) { free(ptr); }
 
 const Variant *Context_option(Context *ctx, const char *key) {
-  auto it = ctx->options.find(key);
-  if (it != ctx->options.end()) {
-    return &it->second;
-  }
-  static const Variant null;
-  return &null;
+  return &ctx->options[key];
 }
 
 const Variant *Context_variable(Context *ctx, const char *key) {
-  auto it = ctx->variables.find(key);
-  if (it != ctx->variables.end()) {
-    return &it->second;
-  }
-  static const Variant null;
-  return &null;
+  return &ctx->variables[key];
 }
 
 namespace {

@@ -17,8 +17,6 @@ class FrameView;
 
 struct Dissector;
 
-using OptionMap = std::unordered_map<std::string, Variant>;
-
 class Session final {
   friend class SessionFactory;
 

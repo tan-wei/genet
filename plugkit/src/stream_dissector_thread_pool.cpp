@@ -15,7 +15,7 @@ namespace plugkit {
 
 class StreamDissectorThreadPool::Private {
 public:
-  Private(const OptionMap &options,
+  Private(const VariantMap &options,
           const FrameStorePtr &store,
           const Callback &callback);
   ~Private();
@@ -28,12 +28,12 @@ public:
   std::thread thread;
   std::vector<std::pair<uint32_t, uint32_t>> threadStats;
   std::mutex mutex;
-  const OptionMap options;
+  const VariantMap options;
   const FrameStorePtr store;
   const Callback callback;
 };
 
-StreamDissectorThreadPool::Private::Private(const OptionMap &options,
+StreamDissectorThreadPool::Private::Private(const VariantMap &options,
                                             const FrameStorePtr &store,
                                             const Callback &callback)
     : options(options), store(store), callback(callback) {}
@@ -70,7 +70,7 @@ uint32_t StreamDissectorThreadPool::Private::updateIndex(int thread,
   return min;
 }
 
-StreamDissectorThreadPool::StreamDissectorThreadPool(const OptionMap &options,
+StreamDissectorThreadPool::StreamDissectorThreadPool(const VariantMap &options,
                                                      const FrameStorePtr &store,
                                                      const Callback &callback)
     : d(new Private(options, store, callback)) {}
@@ -99,7 +99,7 @@ void StreamDissectorThreadPool::start() {
   if (d->thread.joinable() || !d->threads.empty())
     return;
 
-  int concurrency = d->options.find("_.concurrency")->second.uint32Value(0);
+  int concurrency = d->options["_.concurrency"].uint32Value(0);
   if (concurrency == 0)
     concurrency = std::thread::hardware_concurrency();
   if (concurrency == 0)

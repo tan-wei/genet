@@ -12,7 +12,7 @@ class ContextWrapper final : public Nan::ObjectWrap {
 public:
   static void init(v8::Isolate *isolate);
   static NAN_METHOD(New);
-  static NAN_GETTER(options);
+  static NAN_METHOD(option);
   static v8::Local<v8::Object> wrap(Context *ctx);
   static Context *unwrap(v8::Local<v8::Value> value);
 
