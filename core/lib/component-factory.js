@@ -20,7 +20,6 @@ export default class ComponentFactory {
         return new StyleComponent(comp, dir)
       case 'core:panel':
         return new PanelComponent(comp, dir)
-      case 'core:filter:transform':
       case 'core:filter:string':
       case 'core:filter:token':
       case 'core:filter:ast':

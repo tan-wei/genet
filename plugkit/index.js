@@ -101,6 +101,21 @@ class Session extends EventEmitter {
 
   setDisplayFilter (name, filter) {
     const compiler = new Filter()
+    for (const trans of this[fields].transforms) {
+      switch (trans.type) {
+        case 'string':
+          compiler.registerStringTransform(trans.func)
+          break
+        case 'token':
+          compiler.registerTokenTransform(trans.func)
+          break
+        case 'ast':
+          compiler.registerAstTransform(trans.func)
+          break
+        default:
+          throw new Error(`unknown transform type: ${trans.type}`)
+      }
+    }
     const body = compiler.compile(filter)
     return this[fields].sess.setDisplayFilter(name, body)
   }

@@ -129,10 +129,25 @@ function processIdentifiers (tokens) {
 class Filter {
   constructor () {
     this[fields] = {
-      stringTransforms: new Set(),
-      tokenTransforms: new Set(),
-      astTransforms: new Set(),
+      stringTransforms: [],
+      tokenTransforms: [],
+      astTransforms: [],
     }
+  }
+
+  registerStringTransform (trans) {
+    const { stringTransforms } = this[fields]
+    stringTransforms.push(trans)
+  }
+
+  registerTokenTransform (trans) {
+    const { tokenTransforms } = this[fields]
+    tokenTransforms.push(trans)
+  }
+
+  registerAstTransform (trans) {
+    const { astTransforms } = this[fields]
+    astTransforms.push(trans)
   }
 
   compile (filter) {

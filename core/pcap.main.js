@@ -9,7 +9,6 @@ const components = [
   'core:dissector:stream',
   'core:renderer:attr',
   'core:renderer:layer',
-  'core:filter:transform',
   'core:filter:string',
   'core:filter:token',
   'core:filter:ast',

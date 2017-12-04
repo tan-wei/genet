@@ -11,16 +11,25 @@ export default class RendererComponent extends BaseComponent {
       throw new Error('main field required')
     }
     this.mainFile = path.resolve(dir, file)
-    this.id = objpath.get(comp, 'id', '')
-    if (!this.id) {
-      throw new Error('id field required')
+    switch (comp.type) {
+      case 'core:filter:string':
+        this.type = 'string'
+        break
+      case 'core:filter:token':
+        this.type = 'token'
+        break
+      case 'core:filter:ast':
+        this.type = 'ast'
+        break
+      default:
+        throw new Error(`unknown renderer type: ${comp.type}`)
     }
   }
   async load () {
     const module = await Script.execute(this.mainFile)
     this.disposable = deplug.session.registerFilterTransform({
-      id: this.id,
-      execute: module,
+      type: this.type,
+      func: module,
     })
     return true
   }
