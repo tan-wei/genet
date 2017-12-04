@@ -68,6 +68,21 @@ const Layer *FrameView::layer(Token id) const {
   return nullptr;
 }
 
+void FrameView::query(Token id, const Layer **layer, const Attr **attr) const {
+  for (const Layer *leaf : leafLayers()) {
+    for (const Layer *parent = leaf; parent; parent = parent->parent()) {
+      if (parent->id() == id) {
+        *layer = parent;
+        return;
+      }
+      if (const Attr *layerAttr = parent->attr(id)) {
+        *attr = layerAttr;
+        return;
+      }
+    }
+  }
+}
+
 Layer *FrameView::addModifiedLayer(const Layer *master) {
   Layer *modifed = new Layer(master->id());
   modifed->setMaster(master);

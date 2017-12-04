@@ -1,14 +1,9 @@
 const kit = require('bindings')('plugkit.node')
-const fs = require('fs')
-const path = require('path')
-const esprima = require('esprima')
-const escodegen = require('escodegen')
 const { rollup } = require('rollup')
 const EventEmitter = require('events')
-const transform = require('./transform')
+const Filter = require('./filter')
 
 const fields = Symbol('fields')
-const filterScript = fs.readFileSync(path.join(__dirname, 'filter.js'))
 function roll (script) {
   return rollup({
     entry: script,
@@ -105,16 +100,11 @@ class Session extends EventEmitter {
   }
 
   setDisplayFilter (name, filter) {
-    const ast = transform(
-      esprima.parse(filter),
-      this[fields].transforms,
-      this[fields].attributes)
-      const body = ast.body.length
-      ? (filterScript + escodegen.generate(ast))
-      : ''
-      return this[fields].sess.setDisplayFilter(name, body)
-    }
+    const compiler = new Filter()
+    const body = compiler.compile(filter)
+    return this[fields].sess.setDisplayFilter(name, body)
   }
+}
 
   class SessionFactory extends kit.SessionFactory {
     constructor () {

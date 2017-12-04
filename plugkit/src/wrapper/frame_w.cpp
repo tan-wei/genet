@@ -12,8 +12,7 @@ void FrameWrapper::init(v8::Isolate *isolate) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Frame").ToLocalChecked());
-  SetPrototypeMethod(tpl, "attr", attr);
-  SetPrototypeMethod(tpl, "layer", layer);
+  SetPrototypeMethod(tpl, "query", query);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("timestamp").ToLocalChecked(), timestamp);
@@ -103,26 +102,19 @@ NAN_GETTER(FrameWrapper::sourceId) {
   }
 }
 
-NAN_METHOD(FrameWrapper::attr) {
+NAN_METHOD(FrameWrapper::query) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
   if (const auto &view = wrapper->view) {
     Token token = info[0]->IsUint32() ? info[0]->Uint32Value()
                                       : Token_get(*Nan::Utf8String(info[0]));
-    if (const auto &prop = view->attr(token)) {
-      info.GetReturnValue().Set(AttributeWrapper::wrap(prop));
-    } else {
-      info.GetReturnValue().Set(Nan::Null());
-    }
-  }
-}
 
-NAN_METHOD(FrameWrapper::layer) {
-  FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
-  if (const auto &view = wrapper->view) {
-    Token token = info[0]->IsUint32() ? info[0]->Uint32Value()
-                                      : Token_get(*Nan::Utf8String(info[0]));
-    if (const auto &layer = view->layer(token)) {
+    const Layer *layer = nullptr;
+    const Attr *attr = nullptr;
+    view->query(token, &layer, &attr);
+    if (layer) {
       info.GetReturnValue().Set(LayerWrapper::wrap(layer));
+    } else if (attr) {
+      info.GetReturnValue().Set(AttributeWrapper::wrap(attr));
     } else {
       info.GetReturnValue().Set(Nan::Null());
     }

@@ -1,168 +1,163 @@
-/* eslint-disable camelcase, complexity, no-unused-vars, eqeqeq, max-depth */
-function $_value (value) {
-  if (typeof value === 'object' && value !== null) {
-    if (value.constructor.name === 'Attr') {
-      return value.value
-    }
+const estraverse = require('estraverse')
+const esprima = require('esprima')
+const escodegen = require('escodegen')
+const fs = require('fs')
+const path = require('path')
+
+const fields = Symbol('fields')
+const runtime = fs.readFileSync(path.join(__dirname, 'runtime.js'), 'utf8')
+function makeValue (val) {
+  return {
+    type: 'CallExpression',
+    callee: {
+      type: 'Identifier',
+      name: '__value',
+    },
+    arguments: [val],
   }
-  return value
 }
 
-function $_op (opcode, ...args) {
-  if (args.length === 1) {
-    switch (opcode) {
-      case '+':
-        return Number($_value(args[0]))
-      case '-':
-        return -$_value(args[0])
-      case '~':
-        return ~$_value(args[0])
-      case '!':
-        return !$_value(args[0])
-      case 'delete':
-        return Reflect.deleteProperty(args, 0)
-      case 'void':
-        return Reflect.deleteProperty(args, 0)
-      case 'typeof':
-        return typeof args[0]
-      default:
-        return false
-    }
-  } else if (args.length === 2) {
-    const left = $_value(args[0])
-    const right = $_value(args[1])
-    if (typeof left === 'object' && Symbol.iterator in left &&
-      typeof right === 'object' && Symbol.iterator in right) {
-      const leftIt = left[Symbol.iterator]()
-      const rightIt = right[Symbol.iterator]()
-      switch (opcode) {
-        case '==':
-        case '===':
-          for (;;) {
-            const leftValue = leftIt.next()
-            const rightValue = rightIt.next()
-            if (leftValue.value !== rightValue.value ||
-              leftValue.done !== rightValue.done) {
-              return false
-            }
-            if (leftValue.done && rightValue.done) {
-              return true
-            }
-          }
-        case '!=':
-        case '!==':
-          for (;;) {
-            const leftValue = leftIt.next()
-            const rightValue = rightIt.next()
-            if (leftValue.value !== rightValue.value ||
-              leftValue.done !== rightValue.done) {
-              return true
-            }
-            if (leftValue.done && rightValue.done) {
-              return false
-            }
-          }
-        case '<':
-          for (;;) {
-            const leftValue = leftIt.next()
-            const rightValue = rightIt.next()
-            if (leftValue.value < rightValue.value) {
-              return true
-            }
-            if (leftValue.value > rightValue.value) {
-              return false
-            }
-            if (leftValue.done || rightValue.done) {
-              return false
-            }
-          }
-        case '>':
-          for (;;) {
-            const leftValue = leftIt.next()
-            const rightValue = rightIt.next()
-            if (leftValue.value > rightValue.value) {
-              return true
-            }
-            if (leftValue.value < rightValue.value) {
-              return false
-            }
-            if (leftValue.done || rightValue.done) {
-              return false
-            }
-          }
-        case '>=':
-          for (;;) {
-            const leftValue = leftIt.next()
-            const rightValue = rightIt.next()
-            if (leftValue.value > rightValue.value) {
-              return true
-            }
-            if (leftValue.value < rightValue.value) {
-              return false
-            }
-            if (leftValue.done || rightValue.done) {
-              return true
-            }
-          }
+function makeOp (opcode, ...args) {
+  return {
+    type: 'CallExpression',
+    callee: {
+      type: 'Identifier',
+      name: '__operator',
+    },
+    arguments: [{
+      type: 'Literal',
+      value: opcode,
+    }].concat(args),
+  }
+}
+
+function processOperators (ast) {
+  return estraverse.replace(ast, {
+    enter: (node) => {
+      switch (node.type) {
+        case 'BinaryExpression':
+        case 'LogicalExpression':
+        return makeOp(node.operator, node.left, node.right)
+        case 'UnaryExpression':
+        return makeOp(node.operator, node.argument)
+        case 'ConditionalExpression':
+        node.test = {
+          type: 'UnaryExpression',
+          operator: '!',
+          argument: makeOp('!', node.test),
+          prefix: true,
+        }
+        return node
         default:
-          return false
       }
-    }
+    },
+  })
+}
 
-    switch (opcode) {
-      case 'instanceof':
-        return args[0] instanceof args[1]
-      case 'in':
-        return args[0] in args[1]
-      case '+':
-        return left + right
-      case '-':
-        return left - right
-      case '*':
-        return left * right
-      case '/':
-        return left / right
-      case '%':
-        return left % right
-      case '**':
-        return left ** right
-      case '|':
-        return left | right
-      case '^':
-        return left ^ right
-      case '&':
-        return left & right
-      case '==':
-        return left == right
-      case '!=':
-        return left != right
-      case '===':
-        return left === right
-      case '!==':
-        return left !== right
-      case '<':
-        return left < right
-      case '>':
-        return left > right
-      case '<=':
-        return left <= right
-      case '<<':
-        return left << right
-      case '>>':
-        return left >> right
-      case '>>>':
-        return left >>> right
-      case '||':
-        return left
-          ? args[0]
-          : args[1]
-      case '&&':
-        return left
-          ? args[1]
-          : args[0]
-      default:
-        return false
+function processIdentifiers (tokens) {
+  const resolvedTokens = []
+  let identifiers = []
+  for (const token of tokens) {
+    if (token.type === 'Identifier') {
+      identifiers.push(token.value)
+    } else if (identifiers.length === 0 || token.value !== '.') {
+      if (identifiers.length > 0) {
+        resolvedTokens.push(
+          {
+            type: 'Identifier',
+            value: '__resolve',
+          },
+          {
+            type: 'Punctuator',
+            value: '(',
+          }
+        )
+        for (const id of identifiers) {
+          resolvedTokens.push(
+            {
+              type: 'String',
+              value: JSON.stringify(id),
+            },
+            {
+              type: 'Punctuator',
+              value: ',',
+            }
+          )
+        }
+        resolvedTokens.pop()
+        resolvedTokens.push({
+          type: 'Punctuator',
+          value: ')',
+        })
+        identifiers = []
+      }
+      resolvedTokens.push(token)
     }
   }
-  return false
+  if (identifiers.length > 0) {
+    resolvedTokens.push(
+      {
+        type: 'Identifier',
+        value: '__resolve',
+      },
+      {
+        type: 'Punctuator',
+        value: '(',
+      }
+    )
+    for (const id of identifiers) {
+      resolvedTokens.push(
+        {
+          type: 'String',
+          value: JSON.stringify(id),
+        },
+        {
+          type: 'Punctuator',
+          value: ',',
+        }
+      )
+    }
+    resolvedTokens.pop()
+    resolvedTokens.push({
+      type: 'Punctuator',
+      value: ')',
+    })
+  }
+  return resolvedTokens
 }
+
+class Filter {
+  constructor () {
+    this[fields] = {
+      stringTransforms: new Set(),
+      tokenTransforms: new Set(),
+      astTransforms: new Set(),
+    }
+  }
+
+  compile (filter) {
+    const { stringTransforms, tokenTransforms, astTransforms } = this[fields]
+    if (!filter) {
+      return ''
+    }
+    let str = filter
+    for (const trans of stringTransforms) {
+      str = trans(str)
+    }
+    let tokens = esprima.tokenize(str)
+    for (const trans of tokenTransforms) {
+      tokens = trans(tokens)
+    }
+    tokens = processIdentifiers(tokens)
+    let ast = esprima.parse(tokens.map((token) => token.value).join(' '))
+    for (const trans of astTransforms) {
+      ast = trans(ast)
+    }
+    ast = ast.body[0].expression
+    ast = processOperators(ast)
+    ast = makeValue(ast)
+    return runtime.replace('@@@', escodegen.generate(ast))
+  }
+}
+
+module.exports = Filter
