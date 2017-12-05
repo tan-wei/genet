@@ -20,11 +20,7 @@ function roll (script) {
 class Session extends EventEmitter {
   constructor (sess, options) {
     super()
-    this[fields] = {
-      sess,
-      transforms: options.transforms,
-      attributes: options.attributes,
-    }
+    this[fields] = Object.assign({ sess }, options)
 
     this.status = { capture: false }
     this.filter = {}
@@ -128,8 +124,6 @@ class Session extends EventEmitter {
         tasks: [],
         linkLayers: [],
         transforms: [],
-        importers: [],
-        exporters: [],
         attributes: {},
       }
     }
@@ -139,10 +133,7 @@ class Session extends EventEmitter {
         for (const link of this[fields].linkLayers) {
           super.registerLinkLayer(link.link, link.id, link.name)
         }
-        return new Session(super.create(), {
-          transforms: this[fields].transforms,
-          attributes: this[fields].attributes,
-        })
+        return new Session(super.create(), this[fields])
       })
     }
 
@@ -155,11 +146,11 @@ class Session extends EventEmitter {
     }
 
     registerImporter (importer) {
-      this[fields].importers.push(importer)
+      super.registerImporter(importer)
     }
 
     registerExporter (exporter) {
-      this[fields].exporters.push(exporter)
+      super.registerExporter(exporter)
     }
 
     registerAttributes (attrs) {

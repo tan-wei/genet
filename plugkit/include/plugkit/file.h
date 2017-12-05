@@ -1,5 +1,5 @@
-#ifndef PLUGKIT_CONTEXT_H
-#define PLUGKIT_CONTEXT_H
+#ifndef PLUGKIT_FILE_H
+#define PLUGKIT_FILE_H
 
 #include "export.h"
 #include <stdbool.h>

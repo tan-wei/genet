@@ -1,5 +1,6 @@
 #include "../src/session.hpp"
 #include "dissector.h"
+#include "file.h"
 #include "plugkit_module.hpp"
 #include "session.hpp"
 #include "session_factory.hpp"
@@ -14,6 +15,8 @@ void SessionFactoryWrapper::init(v8::Isolate *isolate,
   SetPrototypeMethod(tpl, "setOption", setOption);
   SetPrototypeMethod(tpl, "registerDissector", registerDissector);
   SetPrototypeMethod(tpl, "registerLinkLayer", registerLinkLayer);
+  SetPrototypeMethod(tpl, "registerImporter", registerImporter);
+  SetPrototypeMethod(tpl, "registerExporter", registerExporter);
   SetPrototypeMethod(tpl, "create", create);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
@@ -142,6 +145,30 @@ NAN_METHOD(SessionFactoryWrapper::registerDissector) {
       factory->registerDissector(dissector, type);
     } else if (info[0]->IsString()) {
       factory->registerDissector(std::string(*Nan::Utf8String(info[0])), type);
+    }
+  }
+}
+
+NAN_METHOD(SessionFactoryWrapper::registerImporter) {
+  SessionFactoryWrapper *wrapper =
+      ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
+  if (const auto &factory = wrapper->factory) {
+    if (info[0]->IsExternal()) {
+      FileImporter importer = *static_cast<const FileImporter *>(
+          info[0].As<v8::External>()->Value());
+      factory->registerImporter(importer);
+    }
+  }
+}
+
+NAN_METHOD(SessionFactoryWrapper::registerExporter) {
+  SessionFactoryWrapper *wrapper =
+      ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
+  if (const auto &factory = wrapper->factory) {
+    if (info[0]->IsExternal()) {
+      FileExporter exporter = *static_cast<const FileExporter *>(
+          info[0].As<v8::External>()->Value());
+      factory->registerExporter(exporter);
     }
   }
 }

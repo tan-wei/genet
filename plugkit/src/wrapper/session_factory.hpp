@@ -26,6 +26,8 @@ public:
   static NAN_METHOD(setOption);
   static NAN_METHOD(registerLinkLayer);
   static NAN_METHOD(registerDissector);
+  static NAN_METHOD(registerImporter);
+  static NAN_METHOD(registerExporter);
   static NAN_METHOD(create);
 
 private:

@@ -16,6 +16,8 @@ class Frame;
 class FrameView;
 
 struct Dissector;
+struct FileImporter;
+struct FileExporter;
 
 class Session final {
   friend class SessionFactory;
@@ -70,6 +72,7 @@ public:
                                            uint32_t length) const;
 
   void analyze(const std::vector<RawFrame> &rawFrames);
+  void importFile(const std::string &file);
 
   void setStatusCallback(const StatusCallback &callback);
   void setFilterCallback(const FilterCallback &callback);
@@ -109,6 +112,8 @@ public:
   void registerLinkLayer(int link, Token token);
   void registerDissector(const Dissector &diss, DissectorType type);
   void registerDissector(const std::string &script, DissectorType type);
+  void registerImporter(const FileImporter &importer);
+  void registerExporter(const FileExporter &exporter);
 
 private:
   std::unique_ptr<Session::Config> d;

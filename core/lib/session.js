@@ -106,6 +106,7 @@ export default class Session {
     const {
       config, tokens, linkLayers,
       dissectors, filterTransforms,
+      importers, exporters,
     } = this[fields]
     const factory = new SessionFactory()
     for (const [key, value] of Object.entries(flatten(config.toJSON()))) {
@@ -120,6 +121,12 @@ export default class Session {
     }
     for (const trans of filterTransforms) {
       factory.registerFilterTransform(trans)
+    }
+    for (const imp of importers) {
+      factory.registerImporter(imp)
+    }
+    for (const exp of exporters) {
+      factory.registerExporter(exp)
     }
     const attributes = {}
     for (const [key, value] of tokens.entries()) {

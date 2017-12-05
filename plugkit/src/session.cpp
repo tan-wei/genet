@@ -1,6 +1,7 @@
 #include "session.hpp"
 #include "dissector_thread.hpp"
 #include "dissector_thread_pool.hpp"
+#include "file.h"
 #include "filter_thread.hpp"
 #include "filter_thread_pool.hpp"
 #include "frame.hpp"
@@ -25,6 +26,8 @@ struct Session::Config {
   std::unordered_map<int, Token> linkLayers;
   std::vector<std::pair<Dissector, DissectorType>> dissectors;
   std::vector<std::pair<std::string, DissectorType>> scriptDissectors;
+  std::vector<FileImporter> importers;
+  std::vector<FileExporter> exporters;
   VariantMap options;
 };
 
@@ -282,6 +285,8 @@ void Session::analyze(const std::vector<RawFrame> &rawFrames) {
   d->dissectorPool->push(&frames[0], frames.size());
 }
 
+void Session::importFile(const std::string &file) {}
+
 void Session::setStatusCallback(const StatusCallback &callback) {
   d->statusCallback = callback;
 }
@@ -341,6 +346,14 @@ void SessionFactory::registerDissector(const Dissector &diss,
 void SessionFactory::registerDissector(const std::string &script,
                                        DissectorType type) {
   d->scriptDissectors.push_back(std::make_pair(script, type));
+}
+
+void SessionFactory::registerImporter(const FileImporter &importer) {
+  d->importers.push_back(importer);
+}
+
+void SessionFactory::registerExporter(const FileExporter &exporter) {
+  d->exporters.push_back(exporter);
 }
 
 } // namespace plugkit
