@@ -12,11 +12,11 @@ void *Context_realloc(Context *ctx, void *ptr, size_t size) {
 
 void Context_dealloc(Context *ctx, void *ptr) { free(ptr); }
 
-const Variant *Context_option(Context *ctx, const char *key) {
-  return &ctx->options[key];
-}
-
-const Variant *Context_variable(Context *ctx, const char *key) {
+const Variant *Context_getOption(Context *ctx, const char *key) {
+  const Variant &value = ctx->options[key];
+  if (!value.isNil()) {
+    return &value;
+  }
   return &ctx->variables[key];
 }
 
