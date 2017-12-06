@@ -39,6 +39,7 @@
       "src/session.cpp",
       "src/script_dissector.cpp",
       "src/file_importer_thread.cpp",
+      "src/file_exporter_thread.cpp",
       "src/frame.cpp",
       "src/attr.cpp",
       "src/payload.cpp",

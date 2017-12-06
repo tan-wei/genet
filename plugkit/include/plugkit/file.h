@@ -39,8 +39,6 @@ typedef FileStatus(FileImporterFunc)(Context *ctx,
                                      FileImporterCallback callback);
 typedef FileStatus(FileExporterFunc)(Context *ctx,
                                      const char *filename,
-                                     const RawFrame *frames,
-                                     size_t length,
                                      FileExporterCallback callback);
 
 typedef struct FileImporter {
