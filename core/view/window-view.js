@@ -10,6 +10,11 @@ export default class WindowView {
       argv: deplug.argv,
       loading: true,
     }, {
+      id: 'pcap-2',
+      src: 'pcap.htm',
+      argv: deplug.argv.concat(['--import=../ipv6.pcap']),
+      loading: true,
+    }, {
       id: 'preference',
       src: 'preference.htm',
       argv: deplug.argv,
@@ -42,6 +47,16 @@ export default class WindowView {
             }, ['Live Capture 1'])
           ])
         ]),
+          m('ul', [
+            m('li', [
+              m('a', {
+                onclick: () => {
+                 this.activeTab = 'pcap-2'
+                },
+                active: this.activeTab === 'pcap-2',
+              }, ['Live Capture 2'])
+            ])
+          ]),
         m('ul', [
           m('li', [m('a', {
              onclick: () => {

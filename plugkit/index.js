@@ -51,6 +51,10 @@ class Session extends EventEmitter {
     this[fields].sess.importFrames(file, callback, type)
   }
 
+  importFile (file) {
+    return this[fields].sess.importFile(file)
+  }
+
   get networkInterface () {
     return this[fields].sess.networkInterface
   }

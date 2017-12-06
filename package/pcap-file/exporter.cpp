@@ -7,8 +7,6 @@ using namespace plugkit;
 
 FileStatus exportFile(Context *ctx,
                                     const char *filename,
-                                    const RawFrame *frames,
-                                    size_t length,
                                     FileExporterCallback callback)
 {
   std::ofstream ofs(filename, std::ios::binary);

@@ -15,8 +15,9 @@ FileStatus import(Context *ctx,
    return FILE_STATUS_ERROR;
   }
   char header[24];
-  if (ifs.readsome(header, sizeof header) != sizeof header) {
-    return FILE_STATUS_ERROR;
+  ifs.read(header, sizeof header);
+  if (!ifs) {
+    return FILE_STATUS_UNSUPPORTED;
   }
 
   Reader headerReader;
@@ -46,7 +47,7 @@ FileStatus import(Context *ctx,
       nanosec = true;
       break;
     default:
-      return FILE_STATUS_ERROR;
+      return FILE_STATUS_UNSUPPORTED;
   }
 
   uint16_t versionMajor = Reader_getUint16(&headerReader, littleEndian);
@@ -59,7 +60,8 @@ FileStatus import(Context *ctx,
   std::vector<char> buffer;
   while (1) {
     char frameHeader[16];
-    if (ifs.readsome(frameHeader, sizeof frameHeader) != sizeof frameHeader) {
+    ifs.read(frameHeader, sizeof frameHeader);
+    if (!ifs) {
       break;
     }
 
@@ -75,7 +77,8 @@ FileStatus import(Context *ctx,
     uint32_t origLen = Reader_getUint32(&frameReader, littleEndian);
 
     buffer.resize(inclLen);
-    if (ifs.readsome(buffer.data(), inclLen) != inclLen) {
+    ifs.read(buffer.data(), inclLen);
+    if (!ifs) {
       break;
     }
 

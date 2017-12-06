@@ -159,6 +159,14 @@ Session::Session(const Config &config) : d(new Private(config)) {
     d->pcap->registerLinkLayer(pair.first, pair.second);
   }
 
+  for (const FileImporter &importer : config.importers) {
+    d->fileImporter.addImporter(importer);
+  }
+  d->fileImporter.setCallback(
+      [this](Frame **begin, size_t length, double progress) {
+        d->dissectorPool->push(begin, length);
+      });
+
   auto dissectors = d->config.dissectors;
   for (auto &pair : d->config.scriptDissectors) {
     const Dissector dissector = ScriptDissector::create(&pair.first[0]);

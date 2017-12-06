@@ -65,16 +65,18 @@ export default class Session {
   }
 
   registerImporter (importer) {
-    this[fields].importers.add(importer)
+    const wrapper = { importer }
+    this[fields].importers.add(wrapper)
     return new Disposable(() => {
-      this[fields].importers.delete(importer)
+      this[fields].importers.delete(wrapper)
     })
   }
 
   registerExporter (exporter) {
-    this[fields].exporters.add(exporter)
+    const wrapper = { exporter }
+    this[fields].exporters.add(wrapper)
     return new Disposable(() => {
-      this[fields].exporters.delete(exporter)
+      this[fields].exporters.delete(wrapper)
     })
   }
 
@@ -123,10 +125,10 @@ export default class Session {
       factory.registerFilterTransform(trans)
     }
     for (const imp of importers) {
-      factory.registerImporter(imp)
+      factory.registerImporter(imp.importer)
     }
     for (const exp of exporters) {
-      factory.registerExporter(exp)
+      factory.registerExporter(exp.exporter)
     }
     const attributes = {}
     for (const [key, value] of tokens.entries()) {

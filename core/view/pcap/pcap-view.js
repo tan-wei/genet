@@ -2,6 +2,7 @@ import Dialog from '../../lib/dialog'
 import PcapDetailView from './detail'
 import PcapDialog from './dialog'
 import PcapToolView from './tool'
+import path from 'path'
 import m from 'mithril'
 
 class FrameView {
@@ -217,7 +218,26 @@ export default class PcapView {
   }
 
   oncreate () {
-    if (!deplug.argv.import) {
+    if (deplug.argv.import) {
+      const file = path.resolve(deplug.argv.import)
+      deplug.packages.once('updated', () => {
+        deplug.session.create().then((sess) => {
+          this.sess = sess
+          sess.importFile(file)
+          sess.on('frame', (stat) => {
+            deplug.logger.debug(stat)
+            m.redraw()
+          })
+          sess.on('status', (stat) => {
+            this.capture = stat.capture
+            m.redraw()
+          })
+          sess.on('filter', () => {
+            m.redraw()
+          })
+        })
+      })
+    } else {
       const dialog = new Dialog(PcapDialog)
       dialog.show({ cancelable: false }).then(async (ifs) => {
         const sess = await deplug.session.create(ifs)

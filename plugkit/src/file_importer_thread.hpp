@@ -12,7 +12,7 @@ struct FileImporter;
 
 class FileImporterThread final {
 public:
-  using Callback = std::function<void(Frame *, size_t, double)>;
+  using Callback = std::function<void(Frame **, size_t, double)>;
 
 public:
   FileImporterThread();
