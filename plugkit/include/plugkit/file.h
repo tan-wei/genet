@@ -28,10 +28,11 @@ typedef enum FileStatus {
   FILE_STATUS_CANCELED
 } FileStatus;
 
-typedef bool(FileImporterCallback)(const RawFrame *frames,
+typedef bool(FileImporterCallback)(Context *ctx,
+                                   const RawFrame *frames,
                                    size_t length,
                                    double progress);
-typedef const RawFrame *(FileExporterCallback)(size_t *length);
+typedef const RawFrame *(FileExporterCallback)(Context *ctx, size_t *length);
 
 typedef FileStatus(FileImporterFunc)(Context *ctx,
                                      const char *filename,

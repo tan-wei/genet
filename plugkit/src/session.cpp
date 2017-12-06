@@ -2,6 +2,7 @@
 #include "dissector_thread.hpp"
 #include "dissector_thread_pool.hpp"
 #include "file.h"
+#include "file_importer_thread.hpp"
 #include "filter_thread.hpp"
 #include "filter_thread_pool.hpp"
 #include "frame.hpp"
@@ -65,6 +66,8 @@ public:
   std::unique_ptr<Status> status;
   std::unique_ptr<FilterStatusMap> filterStatus;
   std::unique_ptr<FrameStatus> frameStatus;
+
+  FileImporterThread fileImporter;
 
   Config config;
   uv_async_t async;
@@ -285,7 +288,9 @@ void Session::analyze(const std::vector<RawFrame> &rawFrames) {
   d->dissectorPool->push(&frames[0], frames.size());
 }
 
-void Session::importFile(const std::string &file) {}
+void Session::importFile(const std::string &file) {
+  d->fileImporter.start(file);
+}
 
 void Session::setStatusCallback(const StatusCallback &callback) {
   d->statusCallback = callback;

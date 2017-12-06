@@ -25,10 +25,6 @@ void FileImporterThread::addImporter(const FileImporter &importer) {
   d->importers.push_back(importer);
 }
 
-namespace {
-thread_local FileImporterThread::Callback importerCallback;
-}
-
 bool FileImporterThread::start(const std::string &file) {
   if (d->thread.joinable())
     return false;
@@ -37,16 +33,19 @@ bool FileImporterThread::start(const std::string &file) {
   auto callback = d->callback;
   d->thread = std::thread([file, callback, importers]() {
     Context ctx;
-    importerCallback = callback;
+    ctx.data = &callback;
     for (const FileImporter &importer : importers) {
       if (!importer.func)
         continue;
-      FileStatus status = importer.func(
-          &ctx, file.c_str(),
-          [](const RawFrame *frames, size_t length, double progress) {
-            importerCallback(nullptr, 0, progress);
-            return true;
-          });
+      FileStatus status =
+          importer.func(&ctx, file.c_str(),
+                        [](Context *ctx, const RawFrame *frames, size_t length,
+                           double progress) {
+                          auto callback =
+                              *static_cast<const Callback *>(ctx->data);
+                          callback(nullptr, 0, progress);
+                          return true;
+                        });
       if (status != FILE_STATUS_UNSUPPORTED) {
         return;
       }

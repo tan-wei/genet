@@ -23,7 +23,7 @@ FileStatus exportFile(Context *ctx,
 
   while (1) {
     size_t length;
-    const RawFrame *begin = callback(&length);
+    const RawFrame *begin = callback(ctx, &length);
     if (length == 0) break;
 
     if (!header) {

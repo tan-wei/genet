@@ -10,5 +10,6 @@ public:
   VariantMap options;
   VariantMap variables;
   LoggerPtr logger = std::make_shared<StreamLogger>();
+  const void *data = nullptr;
 };
 } // namespace plugkit
