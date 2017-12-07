@@ -1,6 +1,6 @@
 #include <nan.h>
 #include <fstream>
-#include <vector>
+#include <../../plugkit/include/plugkit/context.h>
 #include <../../plugkit/include/plugkit/file.h>
 #include <../../plugkit/include/plugkit/reader.h>
 
@@ -57,7 +57,6 @@ FileStatus import(Context *ctx,
   uint32_t snaplen = Reader_getUint32(&headerReader, littleEndian);
   uint32_t network = Reader_getUint32(&headerReader, littleEndian);
 
-  std::vector<char> buffer;
   while (1) {
     char frameHeader[16];
     ifs.read(frameHeader, sizeof frameHeader);
@@ -76,8 +75,8 @@ FileStatus import(Context *ctx,
     uint32_t inclLen = Reader_getUint32(&frameReader, littleEndian);
     uint32_t origLen = Reader_getUint32(&frameReader, littleEndian);
 
-    buffer.resize(inclLen);
-    ifs.read(buffer.data(), inclLen);
+    char *buffer = static_cast<char *>(Context_alloc(ctx, inclLen));
+    ifs.read(buffer, inclLen);
     if (!ifs) {
       break;
     }
@@ -88,7 +87,7 @@ FileStatus import(Context *ctx,
 
     RawFrame frame;
     frame.link = network;
-    frame.data = buffer.data();
+    frame.data = buffer;
     frame.length = inclLen;
     frame.actualLength = origLen;
     frame.tsSec = tsSec;

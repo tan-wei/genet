@@ -1,10 +1,36 @@
 #include "file_importer_thread.hpp"
 #include "context.hpp"
 #include "file.h"
+#include "frame.hpp"
+#include "layer.hpp"
+#include "payload.hpp"
+#include <chrono>
 #include <thread>
 #include <vector>
 
 namespace plugkit {
+
+namespace {
+Frame *createFrame(Context *ctx, const RawFrame &raw) {
+  auto layer = new Layer(Token_get("[eth]"));
+  layer->addTag(Token_get("[eth]"));
+
+  auto payload = new Payload();
+  payload->addSlice(Slice{raw.data, raw.data + raw.length});
+  layer->addPayload(payload);
+
+  using namespace std::chrono;
+  const Timestamp &ts =
+      system_clock::from_time_t(raw.tsSec) + nanoseconds(raw.tsNsec);
+
+  auto frame = new Frame();
+  frame->setTimestamp(ts);
+  frame->setRootLayer(layer);
+  frame->setLength(raw.actualLength);
+  layer->setFrame(frame);
+  return frame;
+}
+} // namespace
 
 class FileImporterThread::Private {
 public:
@@ -43,11 +69,16 @@ bool FileImporterThread::start(const std::string &file) {
         continue;
       FileStatus status =
           importer.func(&ctx, file.c_str(),
-                        [](Context *ctx, const RawFrame *frames, size_t length,
+                        [](Context *ctx, const RawFrame *begin, size_t length,
                            double progress) {
+                          std::vector<Frame *> frames;
+                          frames.reserve(length);
+                          for (size_t i = 0; i < length; ++i) {
+                            frames.push_back(createFrame(ctx, begin[i]));
+                          }
                           auto callback =
                               *static_cast<const Callback *>(ctx->data);
-                          callback(nullptr, 0, progress);
+                          callback(frames.data(), frames.size(), progress);
                           return true;
                         });
       if (status != FILE_STATUS_UNSUPPORTED) {

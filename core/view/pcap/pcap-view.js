@@ -223,7 +223,6 @@ export default class PcapView {
       deplug.packages.once('updated', () => {
         deplug.session.create().then((sess) => {
           this.sess = sess
-          sess.importFile(file)
           sess.on('frame', (stat) => {
             deplug.logger.debug(stat)
             m.redraw()
@@ -235,6 +234,7 @@ export default class PcapView {
           sess.on('filter', () => {
             m.redraw()
           })
+          sess.importFile(file)
         })
       })
     } else {

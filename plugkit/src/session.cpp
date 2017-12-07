@@ -167,6 +167,9 @@ Session::Session(const Config &config) : d(new Private(config)) {
   }
   d->fileImporter->setCallback(
       [this](Frame **begin, size_t length, double progress) {
+        for (size_t i = 0; i < length; ++i) {
+          begin[i]->setIndex(d->getSeq());
+        }
         d->dissectorPool->push(begin, length);
       });
 
