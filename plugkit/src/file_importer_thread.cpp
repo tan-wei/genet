@@ -30,6 +30,21 @@ Frame *createFrame(Context *ctx, const RawFrame &raw) {
   layer->setFrame(frame);
   return frame;
 }
+
+bool apiCallback(Context *ctx,
+                 const RawFrame *begin,
+                 size_t length,
+                 double progress) {
+  std::vector<Frame *> frames;
+  frames.reserve(length);
+  for (size_t i = 0; i < length; ++i) {
+    frames.push_back(createFrame(ctx, begin[i]));
+  }
+  auto callback = *static_cast<const FileImporterThread::Callback *>(ctx->data);
+  callback(frames.data(), frames.size(), progress);
+  return true;
+}
+
 } // namespace
 
 class FileImporterThread::Private {
@@ -60,27 +75,14 @@ bool FileImporterThread::start(const std::string &file) {
     return false;
 
   auto importers = d->importers;
-  auto callback = d->callback;
-  d->thread = std::thread([file, callback, importers]() {
+  d->thread = std::thread([this, file, importers]() {
+    auto threadCallback = d->callback;
     Context ctx;
-    ctx.data = &callback;
+    ctx.data = &threadCallback;
     for (const FileImporter &importer : importers) {
       if (!importer.func)
         continue;
-      FileStatus status =
-          importer.func(&ctx, file.c_str(),
-                        [](Context *ctx, const RawFrame *begin, size_t length,
-                           double progress) {
-                          std::vector<Frame *> frames;
-                          frames.reserve(length);
-                          for (size_t i = 0; i < length; ++i) {
-                            frames.push_back(createFrame(ctx, begin[i]));
-                          }
-                          auto callback =
-                              *static_cast<const Callback *>(ctx->data);
-                          callback(frames.data(), frames.size(), progress);
-                          return true;
-                        });
+      FileStatus status = importer.func(&ctx, file.c_str(), apiCallback);
       if (status != FILE_STATUS_UNSUPPORTED) {
         return;
       }
