@@ -73,6 +73,7 @@ public:
 
   void analyze(const std::vector<RawFrame> &rawFrames);
   void importFile(const std::string &file);
+  void exportFile(const std::string &file, const std::string &filter);
 
   void setStatusCallback(const StatusCallback &callback);
   void setFilterCallback(const FilterCallback &callback);

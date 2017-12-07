@@ -17,6 +17,7 @@ void SessionWrapper::init(v8::Isolate *isolate) {
   SetPrototypeMethod(tpl, "getFrames", getFrames);
   SetPrototypeMethod(tpl, "analyze", analyze);
   SetPrototypeMethod(tpl, "importFile", importFile);
+  SetPrototypeMethod(tpl, "exportFile", exportFile);
   SetPrototypeMethod(tpl, "setDisplayFilter", setDisplayFilter);
   SetPrototypeMethod(tpl, "setStatusCallback", setStatusCallback);
   SetPrototypeMethod(tpl, "setFilterCallback", setFilterCallback);
@@ -172,6 +173,15 @@ NAN_METHOD(SessionWrapper::importFile) {
   if (const auto &session = wrapper->session) {
     const std::string &file = *Nan::Utf8String(info[0]);
     session->importFile(file);
+  }
+}
+
+NAN_METHOD(SessionWrapper::exportFile) {
+  SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
+  if (const auto &session = wrapper->session) {
+    const std::string &file = *Nan::Utf8String(info[0]);
+    const std::string &filter = *Nan::Utf8String(info[1]);
+    session->exportFile(file, filter);
   }
 }
 

@@ -21,7 +21,11 @@ FileExporterThread::FileExporterThread(const FrameStorePtr &store)
   d->store = store;
 }
 
-FileExporterThread::~FileExporterThread() {}
+FileExporterThread::~FileExporterThread() {
+  if (d->thread.joinable()) {
+    d->thread.join();
+  }
+}
 
 void FileExporterThread::setCallback(const Callback &callback) {
   d->callback = callback;

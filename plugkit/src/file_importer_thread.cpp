@@ -15,7 +15,11 @@ public:
 
 FileImporterThread::FileImporterThread() : d(new Private()) {}
 
-FileImporterThread::~FileImporterThread() {}
+FileImporterThread::~FileImporterThread() {
+  if (d->thread.joinable()) {
+    d->thread.join();
+  }
+}
 
 void FileImporterThread::setCallback(const Callback &callback) {
   d->callback = callback;

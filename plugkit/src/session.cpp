@@ -2,6 +2,7 @@
 #include "dissector_thread.hpp"
 #include "dissector_thread_pool.hpp"
 #include "file.h"
+#include "file_exporter_thread.hpp"
 #include "file_importer_thread.hpp"
 #include "filter_thread.hpp"
 #include "filter_thread_pool.hpp"
@@ -67,7 +68,8 @@ public:
   std::unique_ptr<FilterStatusMap> filterStatus;
   std::unique_ptr<FrameStatus> frameStatus;
 
-  FileImporterThread fileImporter;
+  std::unique_ptr<FileImporterThread> fileImporter;
+  std::unique_ptr<FileExporterThread> fileExporter;
 
   Config config;
   uv_async_t async;
@@ -159,13 +161,20 @@ Session::Session(const Config &config) : d(new Private(config)) {
     d->pcap->registerLinkLayer(pair.first, pair.second);
   }
 
+  d->fileImporter.reset(new FileImporterThread());
   for (const FileImporter &importer : config.importers) {
-    d->fileImporter.addImporter(importer);
+    d->fileImporter->addImporter(importer);
   }
-  d->fileImporter.setCallback(
+  d->fileImporter->setCallback(
       [this](Frame **begin, size_t length, double progress) {
         d->dissectorPool->push(begin, length);
       });
+
+  d->fileExporter.reset(new FileExporterThread(d->frameStore));
+  for (const FileExporter &exporter : config.exporters) {
+    d->fileExporter->addExporter(exporter);
+  }
+  d->fileExporter->setCallback([this](double progress) {});
 
   auto dissectors = d->config.dissectors;
   for (auto &pair : d->config.scriptDissectors) {
@@ -297,7 +306,11 @@ void Session::analyze(const std::vector<RawFrame> &rawFrames) {
 }
 
 void Session::importFile(const std::string &file) {
-  d->fileImporter.start(file);
+  d->fileImporter->start(file);
+}
+
+void Session::exportFile(const std::string &file, const std::string &filter) {
+  d->fileExporter->start(file, filter);
 }
 
 void Session::setStatusCallback(const StatusCallback &callback) {
