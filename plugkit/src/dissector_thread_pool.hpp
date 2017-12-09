@@ -15,6 +15,7 @@ using LoggerPtr = std::shared_ptr<Logger>;
 class Frame;
 
 struct Dissector;
+class RootAllocator;
 
 class DissectorThreadPool final {
 public:
@@ -28,6 +29,7 @@ public:
   void start();
   void registerDissector(const Dissector &diss);
   void setLogger(const LoggerPtr &logger);
+  void setAllocator(RootAllocator *allocator);
   void push(Frame **begin, size_t length);
 
 private:

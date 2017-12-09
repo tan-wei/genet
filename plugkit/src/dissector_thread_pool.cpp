@@ -18,6 +18,7 @@ public:
   FrameQueuePtr queue = std::make_shared<FrameQueue>();
   const VariantMap options;
   const Callback callback;
+  RootAllocator *allocator = nullptr;
 };
 
 DissectorThreadPool::Private::Private(const VariantMap &options,
@@ -57,12 +58,17 @@ void DissectorThreadPool::start() {
     for (const auto &diss : d->dissectors) {
       dissectorThread->pushDissector(diss);
     }
+    dissectorThread->setAllocator(d->allocator);
     dissectorThread->setLogger(d->logger);
     d->threads.emplace_back(dissectorThread);
   }
   for (const auto &thread : d->threads) {
     thread->start();
   }
+}
+
+void DissectorThreadPool::setAllocator(RootAllocator *allocator) {
+  d->allocator = allocator;
 }
 
 void DissectorThreadPool::registerDissector(const Dissector &diss) {

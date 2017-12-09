@@ -148,11 +148,13 @@ Session::Session(const Config &config) : d(new Private(config)) {
       d->config.options, [this](Frame **begin, size_t size) {
         d->frameStore->insert(begin, size);
       }));
+  d->dissectorPool->setAllocator(&d->allocator);
   d->dissectorPool->setLogger(d->logger);
 
   d->streamDissectorPool.reset(new StreamDissectorThreadPool(
       d->config.options, d->frameStore,
       [this](uint32_t maxSeq) { d->frameStore->update(maxSeq); }));
+  d->streamDissectorPool->setAllocator(&d->allocator);
   d->streamDissectorPool->setLogger(d->logger);
 
   d->pcap->setCallback([this](Frame *frame) {

@@ -27,9 +27,9 @@ public:
   const std::vector<Layer *> &subLayers() const;
   void addSubLayer(Layer *child);
 
-  const std::vector<const Attr *> &attrs() const;
+  const std::vector<Attr *> &attrs() const;
   const Attr *attr(Token id) const;
-  void addAttr(const Attr *prop);
+  void addAttr(Attr *prop);
 
   uint8_t worker() const;
   void setWorker(uint8_t id);
@@ -65,7 +65,7 @@ private:
   std::vector<Token> mTags;
   std::vector<Layer *> mLayers;
   std::vector<Layer *> mSubLayers;
-  std::vector<const Attr *> mAttrs;
+  std::vector<Attr *> mAttrs;
 };
 } // namespace plugkit
 

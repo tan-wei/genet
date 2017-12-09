@@ -13,6 +13,7 @@ class Frame;
 struct Layer;
 
 struct Dissector;
+class RootAllocator;
 
 class StreamDissectorThread final : public WorkerThread {
 public:
@@ -22,6 +23,7 @@ public:
   StreamDissectorThread(const VariantMap &options, const Callback &callback);
   ~StreamDissectorThread() override;
   void pushStreamDissector(const Dissector &diss);
+  void setAllocator(RootAllocator *allocator);
   void enter() override;
   bool loop() override;
   void exit() override;

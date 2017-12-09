@@ -1,6 +1,6 @@
 #include "layer.hpp"
 #include "attr.hpp"
-#include "context.h"
+#include "context.hpp"
 #include "payload.hpp"
 #include "wrapper/layer.hpp"
 #include <functional>
@@ -10,14 +10,7 @@ namespace plugkit {
 
 Layer::Layer(Token id) : mId(id) { setConfidence(LAYER_CONF_EXACT); }
 
-Layer::~Layer() {
-  for (const auto &payload : mPayloads) {
-    delete payload;
-  }
-  for (const auto &attr : mAttrs) {
-    delete attr;
-  }
-}
+Layer::~Layer() {}
 
 Token Layer::id() const { return mId; }
 
@@ -53,7 +46,7 @@ const std::vector<const Payload *> &Layer::payloads() const {
 
 void Layer::addPayload(const Payload *payload) { mPayloads.push_back(payload); }
 
-const std::vector<const Attr *> &Layer::attrs() const { return mAttrs; }
+const std::vector<Attr *> &Layer::attrs() const { return mAttrs; }
 
 Layer *Layer::parent() const { return mParent; }
 
@@ -76,11 +69,14 @@ const Attr *Layer::attr(Token id) const {
   return nullptr;
 }
 
-void Layer::addAttr(const Attr *prop) { mAttrs.push_back(prop); }
+void Layer::addAttr(Attr *prop) { mAttrs.push_back(prop); }
 
 void Layer::removeUnconfidentLayers(Context *ctx, LayerConfidence confidence) {
   for (auto &layer : mLayers) {
     if (layer->confidence() < confidence) {
+      for (Attr *attr : layer->mAttrs) {
+        Context_deallocAttr(ctx, attr);
+      }
       Context_deallocLayer(ctx, layer);
       layer = nullptr;
     }
@@ -88,7 +84,10 @@ void Layer::removeUnconfidentLayers(Context *ctx, LayerConfidence confidence) {
 
   for (auto &layer : mSubLayers) {
     if (layer->confidence() < confidence) {
-      delete layer;
+      for (Attr *attr : layer->mAttrs) {
+        Context_deallocAttr(ctx, attr);
+      }
+      Context_deallocLayer(ctx, layer);
       layer = nullptr;
     }
   }
@@ -119,7 +118,7 @@ const Layer *Layer_parent(const Layer *layer) { return layer->parent(); }
 const Frame *Layer_frame(const Layer *layer) { return layer->frame(); }
 
 Layer *Layer_addLayer(Context *context, Layer *layer, Token id) {
-  Layer *child = new Layer(id);
+  Layer *child = Context_allocLayer(context, id);
   child->setParent(layer);
   child->setFrame(layer->frame());
   layer->addLayer(child);
@@ -127,7 +126,7 @@ Layer *Layer_addLayer(Context *context, Layer *layer, Token id) {
 }
 
 Layer *Layer_addSubLayer(Context *context, Layer *layer, Token id) {
-  Layer *child = new Layer(id);
+  Layer *child = Context_allocLayer(context, id);
   child->setParent(layer);
   child->setFrame(layer->frame());
   layer->addSubLayer(child);
@@ -135,7 +134,7 @@ Layer *Layer_addSubLayer(Context *context, Layer *layer, Token id) {
 }
 
 Attr *Layer_addAttr(Context *context, Layer *layer, Token id) {
-  Attr *prop = new Attr(id);
+  Attr *prop = Context_allocAttr(context, id);
   layer->addAttr(prop);
   return prop;
 }

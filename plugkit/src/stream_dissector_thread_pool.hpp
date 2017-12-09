@@ -19,6 +19,7 @@ class FrameStore;
 using FrameStorePtr = std::shared_ptr<FrameStore>;
 
 struct Dissector;
+class RootAllocator;
 
 class StreamDissectorThreadPool final {
 public:
@@ -30,6 +31,7 @@ public:
                             const Callback &callback);
   ~StreamDissectorThreadPool();
   void registerDissector(const Dissector &diss);
+  void setAllocator(RootAllocator *allocator);
   void start();
   void setLogger(const LoggerPtr &logger);
 

@@ -199,6 +199,10 @@ void StreamDissectorThread::exit() {
   d->workers.clear();
 }
 
+void StreamDissectorThread::setAllocator(RootAllocator *allocator) {
+  d->ctx.rootAllocator = allocator;
+}
+
 void StreamDissectorThread::push(Layer **begin, size_t size) {
   d->queue.enqueue(begin, begin + size);
 }

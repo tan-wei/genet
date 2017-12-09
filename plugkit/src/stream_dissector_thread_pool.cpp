@@ -31,6 +31,7 @@ public:
   const VariantMap options;
   const FrameStorePtr store;
   const Callback callback;
+  RootAllocator *allocator = nullptr;
 };
 
 StreamDissectorThreadPool::Private::Private(const VariantMap &options,
@@ -87,6 +88,10 @@ StreamDissectorThreadPool::~StreamDissectorThreadPool() {
     d->thread.join();
 }
 
+void StreamDissectorThreadPool::setAllocator(RootAllocator *allocator) {
+  d->allocator = allocator;
+}
+
 void StreamDissectorThreadPool::registerDissector(const Dissector &diss) {
   d->dissectors.push_back(diss);
 }
@@ -114,6 +119,7 @@ void StreamDissectorThreadPool::start() {
     for (const auto &diss : d->dissectors) {
       dissectorThread->pushStreamDissector(diss);
     }
+    dissectorThread->setAllocator(d->allocator);
     dissectorThread->setLogger(d->logger);
     d->threads.emplace_back(dissectorThread);
   }

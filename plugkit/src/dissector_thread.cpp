@@ -58,6 +58,10 @@ DissectorThread::DissectorThread(const VariantMap &options,
 
 DissectorThread::~DissectorThread() {}
 
+void DissectorThread::setAllocator(RootAllocator *allocator) {
+  d->ctx.rootAllocator = allocator;
+}
+
 void DissectorThread::pushDissector(const Dissector &diss) {
   d->dissectors.push_back(diss);
 }
