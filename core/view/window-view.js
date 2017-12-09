@@ -12,7 +12,7 @@ export default class WindowView {
     }, {
       id: 'pcap-2',
       src: 'pcap.htm',
-      argv: deplug.argv.concat(['--import=../ipv6.pcap']),
+      argv: deplug.argv.concat(['--import=../rrr.pcap']),
       loading: true,
     }, {
       id: 'preference',

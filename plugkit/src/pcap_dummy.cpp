@@ -22,7 +22,9 @@ public:
   std::unordered_map<int, Token> linkLayers;
   int link;
 
+  std::unique_ptr<BlockAllocator<Frame>> frameAllocator;
   std::unique_ptr<BlockAllocator<Layer>> layerAllocator;
+  std::unique_ptr<BlockAllocator<Payload>> payloadAllocator;
 
   std::mutex mutex;
   std::thread thread;
@@ -82,9 +84,9 @@ bool PcapDummy::start() {
         if (d->callback) {
           auto layer = d->layerAllocator->alloc(tag);
           layer->addTag(tag);
-          layer->addPayload(new Payload());
+          layer->addPayload(d->payloadAllocator->alloc());
 
-          auto frame = new Frame();
+          auto frame = d->frameAllocator->alloc();
           frame->setLength(125);
           frame->setRootLayer(layer);
           layer->setFrame(frame);
@@ -131,7 +133,9 @@ void PcapDummy::registerLinkLayer(int link, Token token) {
 }
 
 void PcapDummy::setAllocator(RootAllocator *allocator) {
+  d->frameAllocator.reset(new BlockAllocator<Frame>(allocator));
   d->layerAllocator.reset(new BlockAllocator<Layer>(allocator));
+  d->payloadAllocator.reset(new BlockAllocator<Payload>(allocator));
 }
 
 } // namespace plugkit

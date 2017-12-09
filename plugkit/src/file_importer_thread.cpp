@@ -12,10 +12,10 @@ namespace plugkit {
 
 namespace {
 Frame *createFrame(Context *ctx, const RawFrame &raw) {
-  auto layer = new Layer(Token_get("[eth]"));
+  auto layer = Context_allocLayer(ctx, Token_get("[eth]"));
   layer->addTag(Token_get("[eth]"));
 
-  auto payload = new Payload();
+  auto payload = Context_allocPayload(ctx);
   payload->addSlice(Slice{raw.data, raw.data + raw.length});
   layer->addPayload(payload);
 
@@ -23,7 +23,7 @@ Frame *createFrame(Context *ctx, const RawFrame &raw) {
   const Timestamp &ts =
       system_clock::from_time_t(raw.tsSec) + nanoseconds(raw.tsNsec);
 
-  auto frame = new Frame();
+  auto frame = Context_allocFrame(ctx);
   frame->setTimestamp(ts);
   frame->setRootLayer(layer);
   frame->setLength(raw.actualLength);
@@ -52,6 +52,7 @@ public:
   Callback callback;
   std::vector<FileImporter> importers;
   std::thread thread;
+  RootAllocator *allocator = nullptr;
 };
 
 FileImporterThread::FileImporterThread() : d(new Private()) {}
@@ -60,6 +61,10 @@ FileImporterThread::~FileImporterThread() {
   if (d->thread.joinable()) {
     d->thread.join();
   }
+}
+
+void FileImporterThread::setAllocator(RootAllocator *allocator) {
+  d->allocator = allocator;
 }
 
 void FileImporterThread::setCallback(const Callback &callback) {
@@ -78,6 +83,7 @@ bool FileImporterThread::start(const std::string &file) {
   d->thread = std::thread([this, file, importers]() {
     auto threadCallback = d->callback;
     Context ctx;
+    ctx.rootAllocator = d->allocator;
     ctx.data = &threadCallback;
     for (const FileImporter &importer : importers) {
       if (!importer.func)

@@ -3,6 +3,7 @@
 #include "payload.hpp"
 #include "plugkit_module.hpp"
 #include "variant.hpp"
+#include "wrapper/context.hpp"
 
 namespace plugkit {
 
@@ -110,18 +111,21 @@ NAN_METHOD(PayloadWrapper::addAttr) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->payload) {
     Token token = Token_null();
-    auto id = info[0];
+    auto id = info[1];
     if (id->IsUint32()) {
       token = id->Uint32Value();
     } else if (id->IsString()) {
       token = Token_get(*Nan::Utf8String(id));
     } else {
-      Nan::ThrowTypeError("First argument must be a string or token-id");
+      Nan::ThrowTypeError("Second argument must be a string or token-id");
       return;
     }
-
-    info.GetReturnValue().Set(
-        AttributeWrapper::wrap(Payload_addAttr(payload, token)));
+    if (auto ctx = ContextWrapper::unwrap(info[0])) {
+      info.GetReturnValue().Set(
+          AttributeWrapper::wrap(Payload_addAttr(ctx, payload, token)));
+    } else {
+      Nan::ThrowTypeError("First argument must be a context");
+    }
   }
 }
 

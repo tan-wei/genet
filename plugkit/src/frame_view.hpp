@@ -25,9 +25,6 @@ public:
   const Layer *layer(Token id) const;
   void query(Token id, const Layer **layer, const Attr **attr) const;
 
-  Layer *addModifiedLayer(const Layer *master);
-  void clearModifiedLayers();
-
 private:
   FrameView(const FrameView &view) = delete;
   FrameView &operator=(const FrameView &view) = delete;
@@ -37,7 +34,6 @@ private:
   const Layer *mPrimaryLayer;
   std::vector<const Layer *> mLeafLayers;
   std::vector<const Layer *> mLayers;
-  std::map<const Layer *, Layer *> mModifiedLayers;
 };
 } // namespace plugkit
 

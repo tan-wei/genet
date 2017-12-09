@@ -143,6 +143,7 @@ Session::Session(const Config &config) : d(new Private(config)) {
 
   d->frameStore = std::make_shared<FrameStore>(
       [this]() { d->notifyStatus(Private::UPDATE_FRAME); });
+  d->frameStore->setAllocator(&d->allocator);
 
   d->dissectorPool.reset(new DissectorThreadPool(
       d->config.options, [this](Frame **begin, size_t size) {
@@ -168,6 +169,7 @@ Session::Session(const Config &config) : d(new Private(config)) {
   }
 
   d->fileImporter.reset(new FileImporterThread());
+  d->fileImporter->setAllocator(&d->allocator);
   for (const FileImporter &importer : config.importers) {
     d->fileImporter->addImporter(importer);
   }
@@ -281,37 +283,6 @@ std::vector<uint32_t> Session::getFilteredFrames(const std::string &name,
 std::vector<const FrameView *> Session::getFrames(uint32_t offset,
                                                   uint32_t length) const {
   return d->frameStore->get(offset, length);
-}
-
-void Session::analyze(const std::vector<RawFrame> &rawFrames) {
-  Token unknown = Token_get("[unknown]");
-  std::vector<Frame *> frames;
-  for (const RawFrame &raw : rawFrames) {
-    Layer *rootLayer;
-    const auto &linkLayer = d->linkLayers.find(raw.link);
-    if (linkLayer != d->linkLayers.end()) {
-      rootLayer = new Layer(linkLayer->second);
-      rootLayer->addTag(linkLayer->second);
-    } else {
-      rootLayer = new Layer(unknown);
-      rootLayer->addTag(unknown);
-    }
-    auto payload = new Payload();
-    payload->addSlice(raw.payload);
-    rootLayer->addPayload(payload);
-
-    Frame *frame = new Frame();
-    frame->setSourceId(raw.sourceId);
-    frame->setTimestamp(raw.timestamp);
-
-    size_t length = Slice_length(raw.payload);
-    frame->setLength((raw.length < length) ? length : raw.length);
-    frame->setRootLayer(rootLayer);
-    frame->setIndex(d->getSeq());
-    rootLayer->setFrame(frame);
-    frames.push_back(frame);
-  }
-  d->dissectorPool->push(&frames[0], frames.size());
 }
 
 void Session::importFile(const std::string &file) {

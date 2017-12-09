@@ -3,7 +3,7 @@
 #include <plugkit/context.h>
 #include <plugkit/dissector.h>
 #include <plugkit/layer.h>
-#include <plugkit/payload.h>
+#include <../../plugkit/include/plugkit/payload.h>
 #include <plugkit/stream_reader.h>
 #include <plugkit/token.h>
 #include <plugkit/variant.h>
@@ -157,7 +157,7 @@ bool HTTPWorker::analyze_body(Context *ctx,
     Payload *chunk = Layer_addPayload(ctx, child);
     Payload_setType(chunk, mimeToken);
     if (!contentType.empty()) {
-      Attr *mime = Payload_addAttr(chunk, mimeTypeToken);
+      Attr *mime = Payload_addAttr(ctx, chunk, mimeTypeToken);
       Attr_setString(mime, contentType.c_str());
     }
 

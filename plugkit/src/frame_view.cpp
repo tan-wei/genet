@@ -82,19 +82,4 @@ void FrameView::query(Token id, const Layer **layer, const Attr **attr) const {
     }
   }
 }
-
-Layer *FrameView::addModifiedLayer(const Layer *master) {
-  Layer *modifed = new Layer(master->id());
-  modifed->setMaster(master);
-  mModifiedLayers[master] = modifed;
-  return modifed;
-}
-
-void FrameView::clearModifiedLayers() {
-  for (const auto &pair : mModifiedLayers) {
-    delete pair.second;
-  }
-  mModifiedLayers.clear();
-}
-
 } // namespace plugkit

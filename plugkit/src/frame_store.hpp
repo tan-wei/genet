@@ -14,6 +14,7 @@ class FrameStore;
 using FrameStorePtr = std::shared_ptr<FrameStore>;
 
 class FrameView;
+class RootAllocator;
 
 class FrameStore final {
 public:
@@ -32,6 +33,7 @@ public:
   void update(uint32_t index);
   std::vector<const FrameView *> get(uint32_t offset, uint32_t length) const;
   void close(std::thread::id id = std::thread::id());
+  void setAllocator(RootAllocator *allocator);
 
 private:
   FrameStore(const FrameStore &) = delete;

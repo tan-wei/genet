@@ -40,11 +40,9 @@ const std::vector<Token> &Layer::tags() const { return mTags; }
 
 void Layer::addTag(Token token) { mTags.push_back(token); }
 
-const std::vector<const Payload *> &Layer::payloads() const {
-  return mPayloads;
-}
+const std::vector<Payload *> &Layer::payloads() const { return mPayloads; }
 
-void Layer::addPayload(const Payload *payload) { mPayloads.push_back(payload); }
+void Layer::addPayload(Payload *payload) { mPayloads.push_back(payload); }
 
 const std::vector<Attr *> &Layer::attrs() const { return mAttrs; }
 
@@ -77,6 +75,9 @@ void Layer::removeUnconfidentLayers(Context *ctx, LayerConfidence confidence) {
       for (Attr *attr : layer->mAttrs) {
         Context_deallocAttr(ctx, attr);
       }
+      for (Payload *payload : layer->mPayloads) {
+        Context_deallocPayload(ctx, payload);
+      }
       Context_deallocLayer(ctx, layer);
       layer = nullptr;
     }
@@ -86,6 +87,9 @@ void Layer::removeUnconfidentLayers(Context *ctx, LayerConfidence confidence) {
     if (layer->confidence() < confidence) {
       for (Attr *attr : layer->mAttrs) {
         Context_deallocAttr(ctx, attr);
+      }
+      for (Payload *payload : layer->mPayloads) {
+        Context_deallocPayload(ctx, payload);
       }
       Context_deallocLayer(ctx, layer);
       layer = nullptr;
@@ -142,7 +146,7 @@ Attr *Layer_addAttr(Context *context, Layer *layer, Token id) {
 const Attr *Layer_attr(const Layer *layer, Token id) { return layer->attr(id); }
 
 Payload *Layer_addPayload(Context *context, Layer *layer) {
-  Payload *payload = new Payload();
+  Payload *payload = Context_allocPayload(context);
   layer->addPayload(payload);
   return payload;
 }

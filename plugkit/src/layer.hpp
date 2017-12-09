@@ -34,8 +34,8 @@ public:
   uint8_t worker() const;
   void setWorker(uint8_t id);
 
-  const std::vector<const Payload *> &payloads() const;
-  void addPayload(const Payload *payload);
+  const std::vector<Payload *> &payloads() const;
+  void addPayload(Payload *payload);
 
   const std::vector<Token> &tags() const;
   void addTag(Token token);
@@ -61,7 +61,7 @@ private:
   Layer *mParent = nullptr;
   const Layer *mMaster = nullptr;
   const Frame *mFrame = nullptr;
-  std::vector<const Payload *> mPayloads;
+  std::vector<Payload *> mPayloads;
   std::vector<Token> mTags;
   std::vector<Layer *> mLayers;
   std::vector<Layer *> mSubLayers;

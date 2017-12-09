@@ -95,10 +95,6 @@ class Session extends EventEmitter {
     return this[fields].sess.getFrames(offset, length)
   }
 
-  analyze (frames) {
-    return this[fields].sess.analyze(frames)
-  }
-
   setDisplayFilter (name, filter) {
     const compiler = new Filter()
     for (const trans of this[fields].transforms) {

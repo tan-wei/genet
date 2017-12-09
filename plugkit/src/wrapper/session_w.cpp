@@ -15,7 +15,6 @@ void SessionWrapper::init(v8::Isolate *isolate) {
   SetPrototypeMethod(tpl, "destroy", destroy);
   SetPrototypeMethod(tpl, "getFilteredFrames", getFilteredFrames);
   SetPrototypeMethod(tpl, "getFrames", getFrames);
-  SetPrototypeMethod(tpl, "analyze", analyze);
   SetPrototypeMethod(tpl, "importFile", importFile);
   SetPrototypeMethod(tpl, "exportFile", exportFile);
   SetPrototypeMethod(tpl, "setDisplayFilter", setDisplayFilter);
@@ -120,51 +119,6 @@ NAN_METHOD(SessionWrapper::getFrames) {
       array->Set(i, FrameWrapper::wrap(frames[i]));
     }
     info.GetReturnValue().Set(array);
-  }
-}
-
-NAN_METHOD(SessionWrapper::analyze) {
-  SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
-  if (const auto &session = wrapper->session) {
-    if (info[0]->IsArray()) {
-      auto array = info[0].As<v8::Array>();
-      std::vector<Session::RawFrame> frames;
-      for (uint32_t i = 0; i < array->Length(); ++i) {
-        auto obj = array->Get(i).As<v8::Object>();
-        Session::RawFrame frame;
-        frame.link = obj->Get(Nan::New("link").ToLocalChecked())->Uint32Value();
-
-        auto payload = obj->Get(Nan::New("payload").ToLocalChecked());
-        if (node::Buffer::HasInstance(payload)) {
-          size_t len = node::Buffer::Length(payload);
-          char *data = new char[len];
-          std::memcpy(data, node::Buffer::Data(payload), len);
-          frame.payload = Slice{data, data + len};
-        }
-        frame.length =
-            obj->Get(Nan::New("length").ToLocalChecked())->Uint32Value();
-
-        auto timestamp = obj->Get(Nan::New("timestamp").ToLocalChecked());
-        if (timestamp->IsDate()) {
-          auto nsec = timestamp.As<v8::Object>()->Get(
-              Nan::New("nsec").ToLocalChecked());
-          uint64_t ts =
-              static_cast<uint64_t>(timestamp.As<v8::Date>()->ValueOf()) *
-              1000000;
-          if (nsec->IsNumber()) {
-            ts += nsec->NumberValue();
-          }
-          frame.timestamp = Timestamp(std::chrono::nanoseconds(ts));
-        } else {
-          frame.timestamp = std::chrono::system_clock::now();
-        }
-
-        frame.sourceId =
-            obj->Get(Nan::New("sourceId").ToLocalChecked())->Uint32Value();
-        frames.push_back(std::move(frame));
-      }
-      session->analyze(frames);
-    }
   }
 }
 

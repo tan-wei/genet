@@ -71,7 +71,6 @@ public:
   std::vector<const FrameView *> getFrames(uint32_t offset,
                                            uint32_t length) const;
 
-  void analyze(const std::vector<RawFrame> &rawFrames);
   void importFile(const std::string &file);
   void exportFile(const std::string &file, const std::string &filter);
 

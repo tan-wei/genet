@@ -24,7 +24,6 @@ public:
   static NAN_METHOD(destroy);
   static NAN_METHOD(getFilteredFrames);
   static NAN_METHOD(getFrames);
-  static NAN_METHOD(analyze);
   static NAN_METHOD(importFile);
   static NAN_METHOD(exportFile);
   static NAN_METHOD(setDisplayFilter);

@@ -10,6 +10,8 @@ namespace plugkit {
 class Frame;
 struct FileImporter;
 
+class RootAllocator;
+
 class FileImporterThread final {
 public:
   using Callback = std::function<void(Frame **, size_t, double)>;
@@ -18,6 +20,7 @@ public:
   FileImporterThread();
   ~FileImporterThread();
   void setCallback(const Callback &callback);
+  void setAllocator(RootAllocator *allocator);
   void addImporter(const FileImporter &importer);
   bool start(const std::string &file);
 

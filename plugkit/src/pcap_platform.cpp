@@ -52,7 +52,9 @@ public:
   bool promiscuous = false;
   int snaplen = 2048;
 
+  std::unique_ptr<BlockAllocator<Frame>> frameAllocator;
   std::unique_ptr<BlockAllocator<Layer>> layerAllocator;
+  std::unique_ptr<BlockAllocator<Payload>> payloadAllocator;
 
   std::function<decltype(::pcap_freecode)> pcapFreecode;
   std::function<decltype(::pcap_open_live)> pcapOpenLive;
@@ -218,7 +220,7 @@ bool PcapPlatform::start() {
             layer->addTag(self.d->tag);
             char *data = new char[h->caplen];
             std::memcpy(data, bytes, h->caplen);
-            auto payload = new Payload();
+            auto payload = self.d->payloadAllocator->alloc();
             payload->addSlice(Slice{data, data + h->caplen});
             layer->addPayload(payload);
 
@@ -226,7 +228,7 @@ bool PcapPlatform::start() {
             const Timestamp &ts = system_clock::from_time_t(h->ts.tv_sec) +
                                   nanoseconds(h->ts.tv_usec * 1000);
 
-            auto frame = new Frame();
+            auto frame = self.d->frameAllocator->alloc();
             frame->setTimestamp(ts);
             frame->setRootLayer(layer);
             frame->setLength(h->len);
@@ -264,7 +266,9 @@ void PcapPlatform::registerLinkLayer(int link, Token token) {
 }
 
 void PcapPlatform::setAllocator(RootAllocator *allocator) {
+  d->frameAllocator.reset(new BlockAllocator<Frame>(allocator));
   d->layerAllocator.reset(new BlockAllocator<Layer>(allocator));
+  d->payloadAllocator.reset(new BlockAllocator<Payload>(allocator));
 }
 
 std::vector<NetworkInterface> PcapPlatform::devices() const {

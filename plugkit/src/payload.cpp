@@ -1,5 +1,6 @@
 #include "payload.hpp"
 #include "attr.hpp"
+#include "context.hpp"
 #include "layer.hpp"
 
 namespace plugkit {
@@ -57,8 +58,8 @@ Token Payload_type(const Payload *payload) { return payload->type(); }
 
 void Payload_setType(Payload *payload, Token type) { payload->setType(type); }
 
-Attr *Payload_addAttr(Payload *payload, Token id) {
-  Attr *attr = new Attr(id);
+Attr *Payload_addAttr(Context *ctx, Payload *payload, Token id) {
+  Attr *attr = Context_allocAttr(ctx, id);
   payload->addAttr(attr);
   return attr;
 }

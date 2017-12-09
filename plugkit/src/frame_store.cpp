@@ -1,4 +1,5 @@
 #include "frame_store.hpp"
+#include "allocator.hpp"
 #include "frame.hpp"
 #include "frame_view.hpp"
 #include <condition_variable>
@@ -22,6 +23,7 @@ public:
   std::mutex mutex;
   std::condition_variable cond;
   std::unordered_set<std::thread::id> closedThreads;
+  std::unique_ptr<BlockAllocator<FrameView>> frameViewAllocator;
   bool closed = false;
   Callback callback;
 };
@@ -119,7 +121,7 @@ void FrameStore::update(uint32_t index) {
     size_t size = d->views.size();
     d->views.resize(index);
     for (size_t i = size; i < index; ++i) {
-      d->views[i] = new FrameView(d->frames[i]);
+      d->views[i] = d->frameViewAllocator->alloc(d->frames[i]);
     }
   }
   d->callback();
@@ -134,5 +136,9 @@ void FrameStore::close(std::thread::id id) {
     d->closedThreads.insert(id);
   }
   d->cond.notify_all();
+}
+
+void FrameStore::setAllocator(RootAllocator *allocator) {
+  d->frameViewAllocator.reset(new BlockAllocator<FrameView>(allocator));
 }
 } // namespace plugkit
