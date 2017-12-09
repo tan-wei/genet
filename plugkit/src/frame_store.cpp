@@ -32,9 +32,7 @@ FrameStore::Private::Private() {}
 
 FrameStore::Private::~Private() {}
 
-FrameStore::FrameStore(const Callback &callback) : d(new Private()) {
-  d->callback = callback;
-}
+FrameStore::FrameStore() : d(new Private()) {}
 
 FrameStore::~FrameStore() { close(); }
 
@@ -136,6 +134,10 @@ void FrameStore::close(std::thread::id id) {
     d->closedThreads.insert(id);
   }
   d->cond.notify_all();
+}
+
+void FrameStore::setCallback(const Callback &callback) {
+  d->callback = callback;
 }
 
 void FrameStore::setAllocator(RootAllocator *allocator) {

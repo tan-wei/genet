@@ -21,7 +21,7 @@ public:
   using Callback = std::function<void()>;
 
 public:
-  FrameStore(const Callback &callback);
+  FrameStore();
   ~FrameStore();
   void insert(Frame **, size_t size);
   size_t dequeue(size_t offset,
@@ -33,6 +33,7 @@ public:
   void update(uint32_t index);
   std::vector<const FrameView *> get(uint32_t offset, uint32_t length) const;
   void close(std::thread::id id = std::thread::id());
+  void setCallback(const Callback &callback);
   void setAllocator(RootAllocator *allocator);
 
 private:

@@ -8,28 +8,16 @@ namespace plugkit {
 
 class DissectorThreadPool::Private {
 public:
-  Private(const VariantMap &options, const Callback &callback);
-  ~Private();
-
-public:
   std::vector<std::unique_ptr<DissectorThread>> threads;
   std::vector<Dissector> dissectors;
   LoggerPtr logger = std::make_shared<StreamLogger>();
   FrameQueuePtr queue = std::make_shared<FrameQueue>();
-  const VariantMap options;
-  const Callback callback;
+  VariantMap options;
+  Callback callback;
   RootAllocator *allocator = nullptr;
 };
 
-DissectorThreadPool::Private::Private(const VariantMap &options,
-                                      const Callback &callback)
-    : options(options), callback(callback) {}
-
-DissectorThreadPool::Private::~Private() {}
-
-DissectorThreadPool::DissectorThreadPool(const VariantMap &options,
-                                         const Callback &callback)
-    : d(new Private(options, callback)) {}
+DissectorThreadPool::DissectorThreadPool() : d(new Private()) {}
 
 DissectorThreadPool::~DissectorThreadPool() {
   d->queue->close();
@@ -65,6 +53,14 @@ void DissectorThreadPool::start() {
   for (const auto &thread : d->threads) {
     thread->start();
   }
+}
+
+void DissectorThreadPool::setOptions(const VariantMap &options) {
+  d->options = options;
+}
+
+void DissectorThreadPool::setCallback(const Callback &callback) {
+  d->callback = callback;
 }
 
 void DissectorThreadPool::setAllocator(RootAllocator *allocator) {

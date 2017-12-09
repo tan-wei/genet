@@ -141,20 +141,24 @@ Session::Session(const Config &config) : d(new Private(config)) {
   d->pcap->setLogger(d->logger);
   d->pcap->setAllocator(&d->allocator);
 
-  d->frameStore = std::make_shared<FrameStore>(
+  d->frameStore = std::make_shared<FrameStore>();
+  d->frameStore->setCallback(
       [this]() { d->notifyStatus(Private::UPDATE_FRAME); });
   d->frameStore->setAllocator(&d->allocator);
 
-  d->dissectorPool.reset(new DissectorThreadPool(
-      d->config.options, [this](Frame **begin, size_t size) {
-        d->frameStore->insert(begin, size);
-      }));
+  d->dissectorPool.reset(new DissectorThreadPool());
+  d->dissectorPool->setOptions(d->config.options);
+  d->dissectorPool->setCallback([this](Frame **begin, size_t size) {
+    d->frameStore->insert(begin, size);
+  });
   d->dissectorPool->setAllocator(&d->allocator);
   d->dissectorPool->setLogger(d->logger);
 
-  d->streamDissectorPool.reset(new StreamDissectorThreadPool(
-      d->config.options, d->frameStore,
-      [this](uint32_t maxSeq) { d->frameStore->update(maxSeq); }));
+  d->streamDissectorPool.reset(new StreamDissectorThreadPool());
+  d->streamDissectorPool->setOptions(d->config.options);
+  d->streamDissectorPool->setFrameStore(d->frameStore);
+  d->streamDissectorPool->setCallback(
+      [this](uint32_t maxSeq) { d->frameStore->update(maxSeq); });
   d->streamDissectorPool->setAllocator(&d->allocator);
   d->streamDissectorPool->setLogger(d->logger);
 
@@ -210,6 +214,8 @@ Session::Session(const Config &config) : d(new Private(config)) {
 Session::~Session() {
   stopPcap();
   d->updateStatus();
+  d->fileImporter.reset();
+  d->fileExporter.reset();
   d->frameStore->close();
   d->filters.clear();
   d->pcap.reset();

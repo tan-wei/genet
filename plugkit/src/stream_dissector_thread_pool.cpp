@@ -15,10 +15,6 @@ namespace plugkit {
 
 class StreamDissectorThreadPool::Private {
 public:
-  Private(const VariantMap &options,
-          const FrameStorePtr &store,
-          const Callback &callback);
-  ~Private();
   uint32_t updateIndex(int thread, uint32_t pushed = 0, uint32_t dissected = 0);
 
 public:
@@ -28,18 +24,11 @@ public:
   std::thread thread;
   std::vector<std::pair<uint32_t, uint32_t>> threadStats;
   std::mutex mutex;
-  const VariantMap options;
-  const FrameStorePtr store;
-  const Callback callback;
+  VariantMap options;
+  FrameStorePtr store;
+  Callback callback;
   RootAllocator *allocator = nullptr;
 };
-
-StreamDissectorThreadPool::Private::Private(const VariantMap &options,
-                                            const FrameStorePtr &store,
-                                            const Callback &callback)
-    : options(options), store(store), callback(callback) {}
-
-StreamDissectorThreadPool::Private::~Private() {}
 
 uint32_t StreamDissectorThreadPool::Private::updateIndex(int thread,
                                                          uint32_t pushed,
@@ -71,10 +60,7 @@ uint32_t StreamDissectorThreadPool::Private::updateIndex(int thread,
   return min;
 }
 
-StreamDissectorThreadPool::StreamDissectorThreadPool(const VariantMap &options,
-                                                     const FrameStorePtr &store,
-                                                     const Callback &callback)
-    : d(new Private(options, store, callback)) {}
+StreamDissectorThreadPool::StreamDissectorThreadPool() : d(new Private()) {}
 
 StreamDissectorThreadPool::~StreamDissectorThreadPool() {
   for (const auto &thread : d->threads) {
@@ -86,6 +72,18 @@ StreamDissectorThreadPool::~StreamDissectorThreadPool() {
   d->store->close();
   if (d->thread.joinable())
     d->thread.join();
+}
+
+void StreamDissectorThreadPool::setOptions(const VariantMap &options) {
+  d->options = options;
+}
+
+void StreamDissectorThreadPool::setFrameStore(const FrameStorePtr &store) {
+  d->store = store;
+}
+
+void StreamDissectorThreadPool::setCallback(const Callback &callback) {
+  d->callback = callback;
 }
 
 void StreamDissectorThreadPool::setAllocator(RootAllocator *allocator) {
