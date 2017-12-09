@@ -1,4 +1,5 @@
 #include "pcap_platform.hpp"
+#include "allocator.hpp"
 #include "frame.hpp"
 #include "layer.hpp"
 #include "payload.hpp"
@@ -50,6 +51,8 @@ public:
   std::string networkInterface;
   bool promiscuous = false;
   int snaplen = 2048;
+
+  std::unique_ptr<BlockAllocator<Layer>> layerAllocator;
 
   std::function<decltype(::pcap_freecode)> pcapFreecode;
   std::function<decltype(::pcap_open_live)> pcapOpenLive;
@@ -211,7 +214,7 @@ bool PcapPlatform::start() {
         [](u_char *user, const struct pcap_pkthdr *h, const u_char *bytes) {
           PcapPlatform &self = *reinterpret_cast<PcapPlatform *>(user);
           if (self.d->callback) {
-            auto layer = new Layer(self.d->tag);
+            auto layer = self.d->layerAllocator->alloc(self.d->tag);
             layer->addTag(self.d->tag);
             char *data = new char[h->caplen];
             std::memcpy(data, bytes, h->caplen);
@@ -258,6 +261,10 @@ bool PcapPlatform::stop() {
 
 void PcapPlatform::registerLinkLayer(int link, Token token) {
   d->linkLayers[link] = token;
+}
+
+void PcapPlatform::setAllocator(RootAllocator *allocator) {
+  d->layerAllocator.reset(new BlockAllocator<Layer>(allocator));
 }
 
 std::vector<NetworkInterface> PcapPlatform::devices() const {

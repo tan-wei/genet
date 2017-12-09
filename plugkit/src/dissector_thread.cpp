@@ -121,7 +121,7 @@ bool DissectorThread::loop() {
         for (const WorkerData *data : workers) {
           data->dissector->analyze(&d->ctx, data->dissector, data->worker,
                                    layer);
-          layer->removeUnconfidentLayers(d->confidenceThreshold);
+          layer->removeUnconfidentLayers(&d->ctx, d->confidenceThreshold);
           for (Layer *childLayer : layer->layers()) {
             if (childLayer->confidence() >= d->confidenceThreshold) {
               auto it = dissectedIds.find(childLayer->id());

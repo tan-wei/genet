@@ -1,4 +1,5 @@
 #include "session.hpp"
+#include "allocator.hpp"
 #include "dissector_thread.hpp"
 #include "dissector_thread_pool.hpp"
 #include "file.h"
@@ -63,6 +64,8 @@ public:
   FilterCallback filterCallback;
   FrameCallback frameCallback;
   LoggerCallback loggerCallback;
+
+  RootAllocator allocator;
 
   std::unique_ptr<Status> status;
   std::unique_ptr<FilterStatusMap> filterStatus;
@@ -136,6 +139,7 @@ Session::Session(const Config &config) : d(new Private(config)) {
   d->pcap->setSnaplen(config.snaplen);
   d->pcap->setBpf(config.bpf);
   d->pcap->setLogger(d->logger);
+  d->pcap->setAllocator(&d->allocator);
 
   d->frameStore = std::make_shared<FrameStore>(
       [this]() { d->notifyStatus(Private::UPDATE_FRAME); });

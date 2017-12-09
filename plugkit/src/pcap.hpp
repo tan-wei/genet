@@ -18,6 +18,7 @@ struct NetworkInterface {
 };
 
 class Frame;
+class RootAllocator;
 
 class Logger;
 using LoggerPtr = std::shared_ptr<Logger>;
@@ -43,6 +44,7 @@ public:
   virtual bool running() const = 0;
 
   virtual void registerLinkLayer(int link, Token token) = 0;
+  virtual void setAllocator(RootAllocator *allocator) = 0;
 
   virtual bool start() = 0;
   virtual bool stop() = 0;

@@ -1,4 +1,5 @@
 #include "pcap_dummy.hpp"
+#include "allocator.hpp"
 #include "frame.hpp"
 #include "layer.hpp"
 #include "payload.hpp"
@@ -20,6 +21,8 @@ public:
   Callback callback;
   std::unordered_map<int, Token> linkLayers;
   int link;
+
+  std::unique_ptr<BlockAllocator<Layer>> layerAllocator;
 
   std::mutex mutex;
   std::thread thread;
@@ -77,7 +80,7 @@ bool PcapDummy::start() {
         if (d->closed)
           return;
         if (d->callback) {
-          auto layer = new Layer(tag);
+          auto layer = d->layerAllocator->alloc(tag);
           layer->addTag(tag);
           layer->addPayload(new Payload());
 
@@ -126,4 +129,9 @@ bool PcapDummy::running() const { return d->thread.joinable(); }
 void PcapDummy::registerLinkLayer(int link, Token token) {
   d->linkLayers[link] = token;
 }
+
+void PcapDummy::setAllocator(RootAllocator *allocator) {
+  d->layerAllocator.reset(new BlockAllocator<Layer>(allocator));
+}
+
 } // namespace plugkit

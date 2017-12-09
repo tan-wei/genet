@@ -12,6 +12,21 @@ void *Context_realloc(Context *ctx, void *ptr, size_t size) {
 
 void Context_dealloc(Context *ctx, void *ptr) { free(ptr); }
 
+Layer *Context_allocLayer(Context *ctx, Token id) {
+  if (!ctx->rootAllocator)
+    return nullptr;
+  if (!ctx->layerAllocator) {
+    ctx->layerAllocator.reset(new BlockAllocator<Layer>(ctx->rootAllocator));
+  }
+  return ctx->layerAllocator->alloc(id);
+}
+
+void Context_deallocLayer(Context *ctx, Layer *layer) {
+  if (!ctx->rootAllocator)
+    return;
+  ctx->layerAllocator->dealloc(layer);
+}
+
 const Variant *Context_getOption(Context *ctx, const char *key) {
   const Variant &value = ctx->options[key];
   if (!value.isNil()) {

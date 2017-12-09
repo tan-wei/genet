@@ -10,6 +10,8 @@
 
 namespace plugkit {
 
+struct Context;
+
 struct Layer final {
 public:
   Layer(Token id);
@@ -47,7 +49,7 @@ public:
   const Frame *frame() const;
   void setFrame(const Frame *frame);
 
-  void removeUnconfidentLayers(LayerConfidence confidence);
+  void removeUnconfidentLayers(Context *ctx, LayerConfidence confidence);
 
 private:
   Layer(const Layer &layer) = delete;

@@ -28,6 +28,7 @@ public:
   bool running() const override;
 
   void registerLinkLayer(int link, Token token) override;
+  void setAllocator(RootAllocator *allocator) override;
 
   bool start() override;
   bool stop() override;

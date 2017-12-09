@@ -123,7 +123,7 @@ void StreamDissectorThread::Private::analyze(
   } else {
     for (const auto &pair : streamWorkers.list) {
       pair.first->analyze(&ctx, pair.first, pair.second, layer);
-      layer->removeUnconfidentLayers(confidenceThreshold);
+      layer->removeUnconfidentLayers(&ctx, confidenceThreshold);
 
       for (Layer *childLayer : layer->layers()) {
         if (childLayer->confidence() >= confidenceThreshold) {

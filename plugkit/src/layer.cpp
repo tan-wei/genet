@@ -1,5 +1,6 @@
 #include "layer.hpp"
 #include "attr.hpp"
+#include "context.h"
 #include "payload.hpp"
 #include "wrapper/layer.hpp"
 #include <functional>
@@ -12,12 +13,6 @@ Layer::Layer(Token id) : mId(id) { setConfidence(LAYER_CONF_EXACT); }
 Layer::~Layer() {
   for (const auto &payload : mPayloads) {
     delete payload;
-  }
-  for (const auto &layer : mLayers) {
-    delete layer;
-  }
-  for (const auto &layer : mSubLayers) {
-    delete layer;
   }
   for (const auto &attr : mAttrs) {
     delete attr;
@@ -83,10 +78,10 @@ const Attr *Layer::attr(Token id) const {
 
 void Layer::addAttr(const Attr *prop) { mAttrs.push_back(prop); }
 
-void Layer::removeUnconfidentLayers(LayerConfidence confidence) {
+void Layer::removeUnconfidentLayers(Context *ctx, LayerConfidence confidence) {
   for (auto &layer : mLayers) {
     if (layer->confidence() < confidence) {
-      delete layer;
+      Context_deallocLayer(ctx, layer);
       layer = nullptr;
     }
   }
