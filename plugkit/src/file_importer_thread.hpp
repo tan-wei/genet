@@ -1,6 +1,7 @@
 #ifndef PLUGKIT_FILE_IMPORTEER_THREAD_H
 #define PLUGKIT_FILE_IMPORTEER_THREAD_H
 
+#include "token.h"
 #include <functional>
 #include <memory>
 #include <string>
@@ -21,6 +22,7 @@ public:
   ~FileImporterThread();
   void setCallback(const Callback &callback);
   void setAllocator(RootAllocator *allocator);
+  void registerLinkLayer(int link, Token token);
   void addImporter(const FileImporter &importer);
   bool start(const std::string &file);
 

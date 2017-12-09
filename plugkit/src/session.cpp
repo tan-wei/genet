@@ -174,6 +174,9 @@ Session::Session(const Config &config) : d(new Private(config)) {
 
   d->fileImporter.reset(new FileImporterThread());
   d->fileImporter->setAllocator(&d->allocator);
+  for (const auto &pair : d->config.linkLayers) {
+    d->fileImporter->registerLinkLayer(pair.first, pair.second);
+  }
   for (const FileImporter &importer : config.importers) {
     d->fileImporter->addImporter(importer);
   }

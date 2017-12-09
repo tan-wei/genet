@@ -11,9 +11,15 @@
 namespace plugkit {
 
 namespace {
-Frame *createFrame(Context *ctx, const RawFrame &raw) {
-  auto layer = Context_allocLayer(ctx, Token_get("[eth]"));
-  layer->addTag(Token_get("[eth]"));
+
+struct CallbackData {
+  FileImporterThread::Callback callback;
+  std::unordered_map<int, Token> linkLayers;
+};
+
+Frame *createFrame(Context *ctx, Token tag, const RawFrame &raw) {
+  auto layer = Context_allocLayer(ctx, tag);
+  layer->addTag(tag);
 
   auto payload = Context_allocPayload(ctx);
   payload->addSlice(Slice{raw.data, raw.data + raw.length});
@@ -37,11 +43,20 @@ bool apiCallback(Context *ctx,
                  double progress) {
   std::vector<Frame *> frames;
   frames.reserve(length);
+
+  const CallbackData *data = static_cast<const CallbackData *>(ctx->data);
+
   for (size_t i = 0; i < length; ++i) {
-    frames.push_back(createFrame(ctx, begin[i]));
+    const RawFrame &raw = begin[i];
+    const auto &linkLayer = data->linkLayers.find(raw.link);
+    Token tag = Token_get("[unknown]");
+    if (linkLayer != data->linkLayers.end()) {
+      tag = linkLayer->second;
+    }
+    frames.push_back(createFrame(ctx, tag, raw));
   }
-  auto callback = *static_cast<const FileImporterThread::Callback *>(ctx->data);
-  callback(frames.data(), frames.size(), progress);
+
+  data->callback(frames.data(), frames.size(), progress);
   return true;
 }
 
@@ -50,6 +65,7 @@ bool apiCallback(Context *ctx,
 class FileImporterThread::Private {
 public:
   Callback callback;
+  std::unordered_map<int, Token> linkLayers;
   std::vector<FileImporter> importers;
   std::thread thread;
   RootAllocator *allocator = nullptr;
@@ -71,6 +87,10 @@ void FileImporterThread::setCallback(const Callback &callback) {
   d->callback = callback;
 }
 
+void FileImporterThread::registerLinkLayer(int link, Token token) {
+  d->linkLayers[link] = token;
+}
+
 void FileImporterThread::addImporter(const FileImporter &importer) {
   d->importers.push_back(importer);
 }
@@ -81,10 +101,12 @@ bool FileImporterThread::start(const std::string &file) {
 
   auto importers = d->importers;
   d->thread = std::thread([this, file, importers]() {
-    auto threadCallback = d->callback;
     Context ctx;
+    CallbackData data;
+    data.callback = d->callback;
+    data.linkLayers = d->linkLayers;
     ctx.rootAllocator = d->allocator;
-    ctx.data = &threadCallback;
+    ctx.data = &data;
     for (const FileImporter &importer : importers) {
       if (!importer.func)
         continue;

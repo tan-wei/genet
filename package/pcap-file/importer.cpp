@@ -52,7 +52,7 @@ FileStatus import(Context *ctx,
 
   uint16_t versionMajor = Reader_getUint16(&headerReader, littleEndian);
   uint16_t versionMinor = Reader_getUint16(&headerReader, littleEndian);
-  int16_t thiszone = Reader_getInt16(&headerReader, littleEndian);
+  int32_t thiszone = Reader_getInt32(&headerReader, littleEndian);
   uint32_t sigfigs = Reader_getUint32(&headerReader, littleEndian);
   uint32_t snaplen = Reader_getUint32(&headerReader, littleEndian);
   uint32_t network = Reader_getUint32(&headerReader, littleEndian);
