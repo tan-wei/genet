@@ -55,6 +55,10 @@ class Session extends EventEmitter {
     return this[fields].sess.importFile(file)
   }
 
+  exportFile (file, filter) {
+    return this[fields].sess.exportFile(file, filter)
+  }
+
   get networkInterface () {
     return this[fields].sess.networkInterface
   }

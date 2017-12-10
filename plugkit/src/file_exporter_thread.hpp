@@ -1,6 +1,7 @@
 #ifndef PLUGKIT_FILE_EXPORTER_THREAD_H
 #define PLUGKIT_FILE_EXPORTER_THREAD_H
 
+#include "token.h"
 #include <functional>
 #include <memory>
 #include <string>
@@ -22,6 +23,7 @@ public:
   ~FileExporterThread();
   void setCallback(const Callback &callback);
   void addExporter(const FileExporter &exporter);
+  void registerLinkLayer(Token token, int link);
   bool start(const std::string &file, const std::string &filter);
 
 private:

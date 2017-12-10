@@ -189,6 +189,9 @@ Session::Session(const Config &config) : d(new Private(config)) {
       });
 
   d->fileExporter.reset(new FileExporterThread(d->frameStore));
+  for (const auto &pair : d->config.linkLayers) {
+    d->fileExporter->registerLinkLayer(pair.second, pair.first);
+  }
   for (const FileExporter &exporter : config.exporters) {
     d->fileExporter->addExporter(exporter);
   }

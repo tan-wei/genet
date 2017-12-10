@@ -26,9 +26,9 @@ FileStatus exportFile(Context *ctx,
 
     if (!header) {
       header = true;
-      uint16_t versionMajor = 0;
-      uint16_t versionMinor = 0;
-      int16_t thiszone = 0;
+      uint16_t versionMajor = 2;
+      uint16_t versionMinor = 4;
+      int32_t thiszone = 0;
       uint32_t sigfigs = 0;
       uint32_t snaplen = 0;
       uint32_t network = begin[0].link;
