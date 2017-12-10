@@ -12,6 +12,7 @@ const components = [
   'core:filter:string',
   'core:filter:token',
   'core:filter:ast',
+  'core:filter:template',
   'core:file:importer',
   'core:file:exporter'
 ]

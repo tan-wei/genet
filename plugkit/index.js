@@ -112,6 +112,9 @@ class Session extends EventEmitter {
         case 'ast':
           compiler.registerAstTransform(trans.func)
           break
+        case 'template':
+          compiler.registerTemplateTransform(trans.func)
+          break
         default:
           throw new Error(`unknown transform type: ${trans.type}`)
       }

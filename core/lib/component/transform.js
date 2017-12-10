@@ -21,6 +21,9 @@ export default class RendererComponent extends BaseComponent {
       case 'core:filter:ast':
         this.type = 'ast'
         break
+      case 'core:filter:template':
+        this.type = 'template'
+        break
       default:
         throw new Error(`unknown renderer type: ${comp.type}`)
     }

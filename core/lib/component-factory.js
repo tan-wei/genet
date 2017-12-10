@@ -23,6 +23,7 @@ export default class ComponentFactory {
       case 'core:filter:string':
       case 'core:filter:token':
       case 'core:filter:ast':
+      case 'core:filter:template':
         return new TransformComponent(comp, dir)
       case 'core:file:importer':
       case 'core:file:exporter':

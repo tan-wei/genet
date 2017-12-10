@@ -54,6 +54,34 @@ function processOperators (ast) {
   })
 }
 
+function processTemplates (ast, templateTransforms) {
+  return estraverse.replace(ast, {
+    enter: (node, parent) => {
+      let tag = ''
+      let value = ''
+      if (node.type === 'TemplateLiteral') {
+        for (const quasi of node.quasis) {
+          if (quasi.type === 'TemplateElement') {
+            value += quasi.value.raw
+          }
+        }
+        if (parent.type === 'TaggedTemplateExpression') {
+          if (parent.tag.type === 'Identifier') {
+            tag = parent.tag.name
+          }
+        }
+      }
+
+      for (const trans of templateTransforms) {
+        const code = trans(tag, value)
+        if (code) {
+          return esprima.parse(code).body[0].expression
+        }
+      }
+    },
+  })
+}
+
 function processIdentifiers (tokens) {
   const resolvedTokens = []
   let identifiers = []
@@ -132,6 +160,7 @@ class Filter {
       stringTransforms: [],
       tokenTransforms: [],
       astTransforms: [],
+      templateTransforms: [],
     }
   }
 
@@ -150,8 +179,16 @@ class Filter {
     astTransforms.push(trans)
   }
 
+  registerTemplateTransform (trans) {
+    const { templateTransforms } = this[fields]
+    templateTransforms.push(trans)
+  }
+
   compile (filter) {
-    const { stringTransforms, tokenTransforms, astTransforms } = this[fields]
+    const {
+      stringTransforms, tokenTransforms,
+      astTransforms, templateTransforms,
+    } = this[fields]
     if (!filter) {
       return ''
     }
@@ -163,8 +200,11 @@ class Filter {
     for (const trans of tokenTransforms) {
       tokens = trans(tokens)
     }
-    tokens = processIdentifiers(tokens)
     let ast = esprima.parse(tokens.map((token) => token.value).join(' '))
+    ast = processTemplates(ast, templateTransforms)
+    tokens = esprima.tokenize(escodegen.generate(ast))
+    tokens = processIdentifiers(tokens)
+    ast = esprima.parse(tokens.map((token) => token.value).join(' '))
     for (const trans of astTransforms) {
       ast = trans(ast)
     }
