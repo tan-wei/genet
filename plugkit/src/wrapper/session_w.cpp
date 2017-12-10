@@ -163,6 +163,10 @@ NAN_METHOD(SessionWrapper::setStatusCallback) {
           auto obj = Nan::New<v8::Object>();
           obj->Set(Nan::New("capture").ToLocalChecked(),
                    Nan::New(status.capture));
+          obj->Set(Nan::New("importerProgress").ToLocalChecked(),
+                   Nan::New(status.importerProgress));
+          obj->Set(Nan::New("exporterProgress").ToLocalChecked(),
+                   Nan::New(status.exporterProgress));
           v8::Local<v8::Value> args[1] = {obj};
           func->Call(obj, 1, args);
         }

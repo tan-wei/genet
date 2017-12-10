@@ -93,9 +93,10 @@ FileStatus import(Context *ctx,
     frame.tsSec = tsSec;
     frame.tsNsec = tsUsec;
 
-    callback(ctx, &frame, 1, 0.0);
+    callback(ctx, &frame, 1, 0.5);
   }
 
+  callback(ctx, nullptr, 0, 1.0);
   return FILE_STATUS_DONE;
 }
 

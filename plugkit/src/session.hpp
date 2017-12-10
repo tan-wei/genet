@@ -33,6 +33,8 @@ public:
 
   struct Status {
     bool capture = false;
+    double importerProgress = 0.0;
+    double exporterProgress = 0.0;
   };
   using StatusCallback = std::function<void(const Status &)>;
 

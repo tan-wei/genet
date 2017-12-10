@@ -53,6 +53,8 @@ public:
 public:
   std::atomic<uint32_t> index;
   std::atomic<int> updates;
+  std::atomic<double> importerProgress;
+  std::atomic<double> exporterProgress;
   std::shared_ptr<UvLoopLogger> logger;
   std::unique_ptr<DissectorThreadPool> dissectorPool;
   std::unique_ptr<StreamDissectorThreadPool> streamDissectorPool;
@@ -91,6 +93,8 @@ void Session::Private::updateStatus() {
   if (flags & Private::UPDATE_STATUS) {
     Status status;
     status.capture = pcap->running();
+    status.importerProgress = importerProgress.load(std::memory_order_relaxed);
+    status.exporterProgress = exporterProgress.load(std::memory_order_relaxed);
     statusCallback(status);
   }
   if (flags & Private::UPDATE_FILTER) {
@@ -118,6 +122,8 @@ void Session::Private::notifyStatus(UpdateType type) {
 Session::Session(const Config &config) : d(new Private(config)) {
   std::atomic_init(&d->index, 1u);
   std::atomic_init(&d->updates, 0);
+  std::atomic_init(&d->importerProgress, 0.0);
+  std::atomic_init(&d->exporterProgress, 0.0);
 
   d->async.data = d;
   uv_async_init(uv_default_loop(), &d->async, [](uv_async_t *handle) {
@@ -186,6 +192,8 @@ Session::Session(const Config &config) : d(new Private(config)) {
           begin[i]->setIndex(d->getSeq());
         }
         d->dissectorPool->push(begin, length);
+        d->importerProgress.store(progress, std::memory_order_relaxed);
+        d->notifyStatus(Private::UPDATE_STATUS);
       });
 
   d->fileExporter.reset(new FileExporterThread(d->frameStore));
@@ -195,7 +203,10 @@ Session::Session(const Config &config) : d(new Private(config)) {
   for (const FileExporter &exporter : config.exporters) {
     d->fileExporter->addExporter(exporter);
   }
-  d->fileExporter->setCallback([this](double progress) {});
+  d->fileExporter->setCallback([this](double progress) {
+    d->exporterProgress.store(progress, std::memory_order_relaxed);
+    d->notifyStatus(Private::UPDATE_STATUS);
+  });
 
   auto dissectors = d->config.dissectors;
   for (auto &pair : d->config.scriptDissectors) {

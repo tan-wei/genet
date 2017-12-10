@@ -14,6 +14,7 @@ namespace plugkit {
 namespace {
 struct ContextData {
   FrameStorePtr store;
+  FileExporterThread::Callback callback;
   std::unordered_map<Token, int> linkLayers;
   std::unique_ptr<Filter> filter;
   std::vector<RawFrame> frames;
@@ -57,6 +58,7 @@ const RawFrame *apiCallback(Context *ctx, size_t *length) {
     size = data->length - data->offset;
   }
   *length = size;
+  data->callback(1.0 * data->offset / data->length);
   if (size == 0) {
     return nullptr;
   }
@@ -92,8 +94,7 @@ FileExporterThread::~FileExporterThread() {
   }
 }
 
-void FileExporterThread::registerLinkLayer(Token token, int link)
-{
+void FileExporterThread::registerLinkLayer(Token token, int link) {
   d->linkLayers[token] = link;
 }
 
@@ -110,9 +111,17 @@ bool FileExporterThread::start(const std::string &file,
   if (d->thread.joinable())
     return false;
 
+  d->callback(0.0);
+
+  if (d->store->dissectedSize() == 0) {
+    d->callback(1.0);
+    return true;
+  }
+
   auto exporters = d->exporters;
   d->thread = std::thread([this, file, filter, exporters]() {
     ContextData data;
+    data.callback = d->callback;
     data.store = d->store;
     data.length = d->store->dissectedSize();
     data.linkLayers = d->linkLayers;

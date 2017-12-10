@@ -99,6 +99,8 @@ bool FileImporterThread::start(const std::string &file) {
   if (d->thread.joinable())
     return false;
 
+  d->callback(nullptr, 0, 0.0);
+
   auto importers = d->importers;
   d->thread = std::thread([this, file, importers]() {
     Context ctx;
