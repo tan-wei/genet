@@ -15,6 +15,10 @@ export default class PanelComponent extends BaseComponent {
     if (!this.id) {
       throw new Error('id field required')
     }
+    this.name = objpath.get(comp, 'name', '')
+    if (!this.name) {
+      throw new Error('name field required')
+    }
     this.mainFile = path.resolve(dir, file)
     const style = objpath.get(comp, 'style', '')
     if (style.length > 0) {
@@ -34,6 +38,8 @@ export default class PanelComponent extends BaseComponent {
       deplug.workspace.registerPanel(this.id, {
         component,
         style,
+        id: this.id,
+        name: this.name,
       })
     return true
   }

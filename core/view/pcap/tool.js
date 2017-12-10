@@ -7,7 +7,7 @@ class PanelView {
 
   oncreate (vnode) {
     this.container = document.createElement('div')
-    this.container.classList.add('slot-wrapper')
+    this.container.classList.add('panel')
     const node = this.container.attachShadow({ mode: 'open' })
     m.mount(node, vnode.attrs.component)
 
@@ -15,7 +15,7 @@ class PanelView {
     styleTag.textContent = vnode.attrs.style
     node.appendChild(styleTag)
 
-    vnode.dom.parentNode.appendChild(this.container)
+    vnode.dom.appendChild(this.container)
   }
 
   onbeforeremove () {
@@ -24,15 +24,28 @@ class PanelView {
 }
 
 class PcapTabView {
+  constructor () {
+    this.activeTab = ''
+  }
+
   view (vnode) {
     const { tabs } = vnode.attrs
-    return ('div', tabs.map((tab) => {
-      const panel = deplug.workspace.panel(tab)
+    if (tabs.length > 0) {
+      const panel = deplug.workspace.panel(this.activeTab)
       if (typeof panel === 'undefined') {
-        return m('p')
+        [this.activeTab] = tabs
       }
-      return m(PanelView, panel)
-    }))
+    }
+
+    const panels = tabs.map((tab) => deplug.workspace.panel(tab))
+      .filter((panel) => typeof panel !== 'undefined')
+    return ('div', [
+      m('div', { class: 'tab-container' }, panels.map((panel) =>
+        m('span', { active: panel.id === this.activeTab }, panel.name))),
+      m('div', { class: 'panel-container' }, panels.map((panel) =>
+        m(PanelView, Object.assign(panel,
+          { active: panel.id === this.activeTab }))))
+    ])
   }
 }
 

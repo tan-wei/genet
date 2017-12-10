@@ -1,6 +1,7 @@
 @import "common";
 
 @header-height: 60px;
+@tab-height: 32px;
 @nav-width: 380px;
 
 header {
@@ -115,6 +116,35 @@ main {
     left: 0;
     right: 0;
     border-top: 1px solid @theme-lighter-bg;
+
+    .tab-container {
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+      height: @tab-height;
+      border-bottom: 1px solid @theme-lighter-bg;
+
+      span {
+        -webkit-user-select: none;
+        cursor: pointer;
+        display: inline-block;
+        line-height: 32px;
+        padding: 0 20px;
+
+        &[active] {
+          background: @theme-lighter-bg;
+        }
+      }
+    }
+
+    .panel-container {
+      position: absolute;
+      top: @tab-height;
+      right: 0;
+      left: 0;
+      bottom: 0;
+    }
   }
 
   ul {
