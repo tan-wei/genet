@@ -1,3 +1,4 @@
+import Action from './action'
 import Cache from './cache'
 import Config from './config'
 import { EventEmitter } from 'events'
@@ -31,7 +32,7 @@ export default class Deplug {
     this.notify = new Notification()
     this.logger = logger
     this.cache = cache
-    this.action = new EventEmitter()
+    this.action = new Action()
     this.argv = Object.assign(argv, options)
 
     this.registry.on('error', (err) => {

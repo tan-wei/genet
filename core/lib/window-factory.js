@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, Menu, webContents } from 'electron'
 import Config from './config'
 import env from './env'
+import flatten from 'flat'
 import path from 'path'
 import url from 'url'
 
@@ -45,7 +46,17 @@ export default class WindowFactory {
     function reloadMenu () {
       const script = 'deplug.menu.template'
       contents.executeJavaScript(script).then((template) => {
-        const menu = Menu.buildFromTemplate(template)
+        const flatMenu = flatten({template})
+        for (const [key, channel] of Object.entries(flatMenu)) {
+          if (key.endsWith('.action')) {
+            flatMenu[key.replace('.action', '.click')] = () => {
+              for (const wc of webContents.getAllWebContents()) {
+                wc.send(`${channel} #${mainWindow.id}`)
+              }
+            }
+          }
+        }
+        const menu = Menu.buildFromTemplate(flatten.unflatten(flatMenu).template)
         if (process.platform === 'darwin') {
           Menu.setApplicationMenu(menu)
         } else {

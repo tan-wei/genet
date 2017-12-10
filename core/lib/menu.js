@@ -19,13 +19,7 @@ export default class MainMenu {
       { role: 'pasteandmatchstyle' },
       { role: 'delete' },
       { role: 'selectall' },
-      { type: 'separator' },
-      {
-        label: 'Toggle Developer Tools',
-        click: () => {
-          remote.getCurrentWebContents().openDevTools()
-        },
-      }
+      { type: 'separator' }
     ]
 
       const menu = Menu.buildFromTemplate(tmpl)

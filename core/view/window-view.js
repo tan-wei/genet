@@ -29,8 +29,8 @@ export default class WindowView {
   }
 
   oncreate () {
-    deplug.action.on('core:tab:toggle-devtool', () => {
-      require('electron').remote.getCurrentWebContents().openDevTools()
+    deplug.action.global.on('core:tab:open-devtool', () => {
+      document.querySelector('webview[active]').openDevTools()
     })
   }
 
