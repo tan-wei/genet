@@ -18,7 +18,7 @@
         ]
       },
       {
-        "type": "core:filter:transform",
+        "type": "core:filter:template",
         "id": "ipv4-literal",
         "main": "ipv4-literal.js"
       },

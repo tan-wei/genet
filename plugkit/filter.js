@@ -70,12 +70,11 @@ function processTemplates (ast, templateTransforms) {
             tag = parent.tag.name
           }
         }
-      }
-
-      for (const trans of templateTransforms) {
-        const code = trans(tag, value)
-        if (code) {
-          return esprima.parse(code).body[0].expression
+        for (const trans of templateTransforms) {
+          const code = trans(tag, value)
+          if (typeof code === 'string' && code.length > 0) {
+            return esprima.parse(code).body[0].expression
+          }
         }
       }
     },
