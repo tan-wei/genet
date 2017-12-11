@@ -130,7 +130,7 @@ void StreamDissectorThreadPool::start() {
 
   d->thread = std::thread([this, concurrency]() {
     size_t offset = 0;
-    std::array<const Frame *, 128> frames;
+    std::array<const Frame *, 2048> frames;
     while (true) {
       size_t size = d->store->dequeue(offset, frames.size(), &frames.front());
       if (size == 0)
