@@ -44,7 +44,7 @@ export default class WindowView {
             extensions: ['pcap'],
           }],
         })
-      if (files.length > 0) {
+      if (typeof files !== 'undefined' && files.length > 0) {
         const [file] = files
         const id = `import-${file}`
         this.tabs.unshift({

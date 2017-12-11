@@ -5,7 +5,7 @@ import PcapToolView from './tool'
 import m from 'mithril'
 import path from 'path'
 import { remote } from 'electron'
-
+const { dialog } = remote
 class FrameView {
   view (vnode) {
     if (!this.frame) {
@@ -244,8 +244,8 @@ export default class PcapView {
         })
       })
     } else {
-      const dialog = new Dialog(PcapDialog)
-      dialog.show({ cancelable: false }).then(async (ifs) => {
+      const pcapDialog = new Dialog(PcapDialog)
+      pcapDialog.show({ cancelable: false }).then(async (ifs) => {
         const sess = await deplug.session.create(ifs)
         this.sess = sess
         sess.startPcap()
@@ -262,5 +262,17 @@ export default class PcapView {
         })
       })
     }
+    deplug.action.global.on('core:file:export', () => {
+      const file = dialog.showSaveDialog({
+        filters: [
+          {
+            name: 'Libpcap File',
+            extensions: ['pcap'],
+          }],
+        })
+      if (typeof file !== 'undefined') {
+        this.sess.exportFile(file, '')
+      }
+    })
   }
 }
