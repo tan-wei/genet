@@ -16,6 +16,21 @@ const template = [
     ],
   },
   {
+    label: 'File',
+    submenu: [
+      {
+        label: 'Import File...',
+        action: 'core:file:import',
+        accelerator: 'CommandOrControl+O',
+      },
+      {
+        label: 'Export File...',
+        action: 'core:file:export',
+        accelerator: 'CommandOrControl+S',
+      }
+    ],
+  },
+  {
     label: 'View',
     submenu: [
       { role: 'reload' },
@@ -23,7 +38,7 @@ const template = [
       { role: 'toggledevtools' },
       {
         label: 'Open Developer Tools for Current Tab',
-        action: 'core:tab:open-devtool'
+        action: 'core:tab:open-devtool',
       },
       { type: 'separator' },
       { role: 'resetzoom' },
