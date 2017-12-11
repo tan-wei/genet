@@ -1,5 +1,6 @@
 #include <nan.h>
 #include <fstream>
+#include <vector>
 #include <../../plugkit/include/plugkit/context.h>
 #include <../../plugkit/include/plugkit/file.h>
 #include <../../plugkit/include/plugkit/reader.h>
@@ -57,6 +58,14 @@ FileStatus import(Context *ctx,
   uint32_t snaplen = Reader_getUint32(&headerReader, littleEndian);
   uint32_t network = Reader_getUint32(&headerReader, littleEndian);
 
+  size_t headerOffset = ifs.tellg();
+  ifs.seekg (0, ifs.end);
+  size_t dataLength = ifs.tellg();
+  ifs.seekg (headerOffset, ifs.beg);
+
+  const size_t bufferSize = 1024;
+  std::vector<RawFrame> frames;
+  frames.resize(bufferSize);
   while (1) {
     char frameHeader[16];
     ifs.read(frameHeader, sizeof frameHeader);
@@ -92,11 +101,16 @@ FileStatus import(Context *ctx,
     frame.actualLength = origLen;
     frame.tsSec = tsSec;
     frame.tsNsec = tsUsec;
+    frames.push_back(frame);
 
-    callback(ctx, &frame, 1, 0.5);
+    if (frames.size() >= bufferSize) {
+      callback(ctx, frames.data(), frames.size(),
+        1.0 * ifs.tellg() / dataLength);
+      frames.clear();
+    }
   }
 
-  callback(ctx, nullptr, 0, 1.0);
+  callback(ctx, frames.data(), frames.size(), 1.0);
   return FILE_STATUS_DONE;
 }
 

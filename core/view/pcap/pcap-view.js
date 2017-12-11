@@ -2,8 +2,9 @@ import Dialog from '../../lib/dialog'
 import PcapDetailView from './detail'
 import PcapDialog from './dialog'
 import PcapToolView from './tool'
-import path from 'path'
 import m from 'mithril'
+import path from 'path'
+import { remote } from 'electron'
 
 class FrameView {
   view (vnode) {
@@ -220,6 +221,7 @@ export default class PcapView {
   oncreate () {
     if (deplug.argv.import) {
       const file = path.resolve(deplug.argv.import)
+      const browserWindow = remote.getCurrentWindow()
       deplug.packages.once('updated', () => {
         deplug.session.create().then((sess) => {
           this.sess = sess
@@ -228,6 +230,10 @@ export default class PcapView {
             m.redraw()
           })
           sess.on('status', (stat) => {
+            const progress = stat.importerProgress >= 1.0
+              ? -1
+              : stat.importerProgress
+            browserWindow.setProgressBar(progress)
             this.capture = stat.capture
             m.redraw()
           })
