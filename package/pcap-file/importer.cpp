@@ -65,7 +65,7 @@ FileStatus import(Context *ctx,
 
   const size_t bufferSize = 1024;
   std::vector<RawFrame> frames;
-  frames.resize(bufferSize);
+  frames.reserve(bufferSize);
   while (1) {
     char frameHeader[16];
     ifs.read(frameHeader, sizeof frameHeader);
