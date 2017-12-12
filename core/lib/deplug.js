@@ -15,7 +15,10 @@ import minimist from 'minimist'
 export default class Deplug {
   constructor (argv) {
     const options = minimist(argv, { boolean: true })
-    const components = options.components || ''
+    let components = options.components || ''
+    if (Array.isArray(components)) {
+      components = components.join(',')
+    }
     const config = new Config(options.profile, 'config')
     const logger = new Logger(config)
     if (options.loggerDomain) {

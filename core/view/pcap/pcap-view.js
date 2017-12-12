@@ -263,13 +263,8 @@ export default class PcapView {
       })
     }
     deplug.action.global.on('core:file:export', () => {
-      const file = dialog.showSaveDialog({
-        filters: [
-          {
-            name: 'Libpcap File',
-            extensions: ['pcap'],
-          }],
-        })
+      const file = dialog.showSaveDialog(
+        { filters: deplug.session.fileExtensions.exporter })
       if (typeof file !== 'undefined') {
         this.sess.exportFile(file, '')
       }

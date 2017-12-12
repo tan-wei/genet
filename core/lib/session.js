@@ -15,6 +15,8 @@ export default class Session {
       filterTransforms: new Set(),
       importers: new Set(),
       exporters: new Set(),
+      fileImporterExtensions: new Set(),
+      fileExporterExtensions: new Set(),
     }
   }
 
@@ -80,6 +82,20 @@ export default class Session {
     })
   }
 
+  registerFileImporterExtensions (extensions) {
+    this[fields].fileImporterExtensions.add(extensions)
+    return new Disposable(() => {
+      this[fields].fileImporterExtensions.delete(extensions)
+    })
+  }
+
+  registerFileExporterExtensions (extensions) {
+    this[fields].fileExporterExtensions.add(extensions)
+    return new Disposable(() => {
+      this[fields].fileExporterExtensions.delete(extensions)
+    })
+  }
+
   token (id) {
     const data = this[fields].tokens.get(id)
     if (typeof data !== 'undefined') {
@@ -102,6 +118,26 @@ export default class Session {
       return data
     }
     return null
+  }
+
+  get fileExtensions () {
+    function merge (fileExtensions) {
+      const map = new Map()
+      for (const obj of fileExtensions) {
+        for (const [ext, name] of Object.entries(obj)) {
+          map.set(name, map.get(name) || new Set())
+          map.get(name).add(ext)
+        }
+      }
+      return Array.from(map.entries()).map(([name, exts]) => ({
+          name,
+          extensions: Array.from(exts),
+        }))
+    }
+    return {
+      importer: merge(this[fields].fileImporterExtensions),
+      exporter: merge(this[fields].fileExporterExtensions),
+    }
   }
 
   async create (ifs = '') {

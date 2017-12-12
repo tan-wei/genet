@@ -1,4 +1,5 @@
 import BaseComponent from './base'
+import { CompositeDisposable } from 'disposables'
 import exists from 'file-exists'
 import objpath from 'object-path'
 import path from 'path'
@@ -27,6 +28,8 @@ export default class FileComponent extends BaseComponent {
       throw new Error(`could not resolve ${file} in ${dir}`)
     }
 
+    this.extensions = objpath.get(comp, 'extensions', [])
+
     switch (comp.type) {
       case 'core:file:importer':
         this.type = 'importer'
@@ -40,11 +43,15 @@ export default class FileComponent extends BaseComponent {
   }
   async load () {
     if (this.type === 'importer') {
-      this.disposable =
-        deplug.session.registerImporter(global.require(this.mainFile).importer)
+      this.disposable = new CompositeDisposable([
+        deplug.session.registerImporter(global.require(this.mainFile).importer),
+        deplug.session.registerFileImporterExtensions(this.extensions)
+      ])
     } else if (this.type === 'exporter') {
-      this.disposable =
-        deplug.session.registerExporter(global.require(this.mainFile).exporter)
+      this.disposable = new CompositeDisposable([
+        deplug.session.registerExporter(global.require(this.mainFile).exporter),
+        deplug.session.registerFileExporterExtensions(this.extensions)
+      ])
     }
     return true
   }

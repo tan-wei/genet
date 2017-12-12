@@ -38,12 +38,8 @@ export default class WindowView {
     deplug.action.global.on('core:file:import', () => {
       const files = dialog.showOpenDialog({
         properties: ['openFile'],
-        filters: [
-          {
-            name: 'Libpcap File',
-            extensions: ['pcap'],
-          }],
-        })
+        filters: deplug.session.fileExtensions.importer,
+      })
       if (typeof files !== 'undefined' && files.length > 0) {
         const [file] = files
         const id = `import-${file}`
