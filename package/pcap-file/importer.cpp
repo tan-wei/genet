@@ -94,14 +94,14 @@ FileStatus import(Context *ctx,
       tsUsec *= 1000;
     }
 
-    RawFrame frame;
+    frames.resize(frames.size() + 1);
+    RawFrame &frame = frames[frames.size() - 1];
     frame.link = network;
     frame.data = buffer;
     frame.length = inclLen;
     frame.actualLength = origLen;
     frame.tsSec = tsSec;
     frame.tsNsec = tsUsec;
-    frames.push_back(frame);
 
     if (frames.size() >= bufferSize) {
       callback(ctx, frames.data(), frames.size(),

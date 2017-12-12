@@ -12,14 +12,14 @@
         "type": "core:file:importer",
         "main": "importer.node",
         "extensions": {
-          "*.pcap": "Pcap File"
+          "pcap": "Pcap File"
         }
       },
       {
         "type": "core:file:exporter",
         "main": "exporter.node",
         "extensions": {
-          "*.pcap": "Pcap File"
+          "pcap": "Pcap File"
         }
       }
     ]

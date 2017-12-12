@@ -2,6 +2,7 @@
 #include <fstream>
 #include <../../plugkit/include/plugkit/file.h>
 #include <../../plugkit/include/plugkit/context.h>
+#include <../../plugkit/include/plugkit/variant.h>
 
 using namespace plugkit;
 
@@ -30,7 +31,7 @@ FileStatus exportFile(Context *ctx,
       uint16_t versionMinor = 4;
       int32_t thiszone = 0;
       uint32_t sigfigs = 0;
-      uint32_t snaplen = 0;
+      uint32_t snaplen = Variant_uint32(Context_getOption(ctx, "_.snaplen"));
       uint32_t network = begin[0].link;
       ofs.write(reinterpret_cast<const char*>(&versionMajor), sizeof(versionMajor));
       ofs.write(reinterpret_cast<const char*>(&versionMinor), sizeof(versionMinor));

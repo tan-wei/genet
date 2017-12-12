@@ -8,6 +8,7 @@
 #include "layer.hpp"
 #include <thread>
 #include <vector>
+#include <chrono>
 
 namespace plugkit {
 
@@ -44,9 +45,12 @@ RawFrame createRawFrame(const ContextData *data, const Frame *frame) {
     raw.link = it->second;
   }
 
+  auto nano = std::chrono::duration_cast<std::chrono::nanoseconds>(
+    frame->timestamp().time_since_epoch()).count();
+
   raw.actualLength = frame->length();
-  raw.tsSec = 0;
-  raw.tsNsec = 0;
+  raw.tsSec = nano / 1000000000;
+  raw.tsNsec = nano % 1000000000;
   raw.root = frame->rootLayer();
   return raw;
 }
