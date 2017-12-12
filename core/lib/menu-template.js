@@ -94,7 +94,7 @@ if (process.platform === 'darwin') {
   )
 
   // Window menu
-  template[3].submenu = [
+  template[4].submenu = [
     { role: 'close' },
     { role: 'minimize' },
     { role: 'zoom' },
