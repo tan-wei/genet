@@ -33,7 +33,7 @@ header {
   }
 }
 
-nav {
+nav.frame-list {
   position: absolute;
   top: @header-height;
   bottom: 0;
@@ -42,6 +42,12 @@ nav {
   padding: 0;
   -webkit-app-region: drag;
   overflow-y: scroll;
+
+  .padding {
+    background-color: @theme-default-bg;
+    background-size: 100% 100%;
+    image-rendering: pixelated;
+  }
 
   div.container {
     position: absolute;
@@ -58,7 +64,9 @@ nav {
     padding: 5px;
     display: flex;
     flex-direction: column;
-    border-top: 1px solid @theme-default-bg;
+    border-bottom: 1px solid @theme-default-bg;
+    border-right: 1px solid @theme-default-bg;
+    box-sizing: border-box;
 
     div.header {
       display: flex;

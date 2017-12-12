@@ -5,6 +5,7 @@ import PcapToolView from './tool'
 import m from 'mithril'
 import path from 'path'
 import { remote } from 'electron'
+import throttle from 'lodash.throttle'
 const { dialog } = remote
 class FrameView {
   view (vnode) {
@@ -42,6 +43,41 @@ class FrameListView {
     this.height = 0
     this.scrollTop = 0
     this.prevFrames = 0
+    this.mapHeight = 256
+    this.updateMapThrottle = throttle((vnode) => {
+      this.updateMap(vnode)
+    }, 500)
+  }
+
+  updateMap (vnode) {
+    const { sess } = vnode.attrs
+    if (sess && sess.frame.frames > 0) {
+      const dummy = this.dummyCanvas
+      const ctx = dummy.getContext('2d')
+      const frames = (sess.filter.main
+        ? sess.filter.main.frames
+        : sess.frame.frames)
+      ctx.clearRect(0, 0, 1, this.mapHeight)
+      if (frames > 0) {
+        for (let line = 0; line < this.mapHeight; line += 1) {
+          let index = Math.floor(frames / this.mapHeight * (line + 0.5))
+          if (sess.filter.main) {
+            index = sess.getFilteredFrames('main', index, 1)[0] - 1
+          }
+          const [frame] = sess.getFrames(index, 1)
+          dummy.setAttribute('data-layer', frame.primaryLayer.tags.join(' '))
+          ctx.fillStyle =
+            getComputedStyle(dummy, null).getPropertyValue('background-color')
+          ctx.fillRect(0, line, 1, 1)
+        }
+      }
+      const data = dummy.toDataURL('image/png')
+      this.barStyle.textContent = `
+      nav.frame-list .padding, nav.frame-list::-webkit-scrollbar {
+        background-image: url(${data});
+      }
+      `
+    }
   }
 
   view (vnode) {
@@ -73,7 +109,18 @@ class FrameListView {
         sess: vnode.attrs.sess,
       }))
     }
-    return m('nav', [
+    return m('nav', { class: 'frame-list' }, [
+      m('style', { class: 'scrollbar-style' }),
+      m('canvas', {
+         style: 'opacity: 0; position: absolute;',
+         class: 'dummy-item',
+         width: '1',
+         height: this.mapHeight,
+      }),
+      m('div', {
+        class: 'padding',
+        style: { height: `${this.itemHeight * frames}px` },
+      }),
       m('div', {
         class: 'container',
         style: listStyle,
@@ -89,9 +136,14 @@ class FrameListView {
         vnode.dom.scrollTop = vnode.dom.scrollHeight - vnode.dom.clientHeight
       }
     }
+
+    this.updateMapThrottle(vnode)
   }
 
   oncreate (vnode) {
+    this.dummyCanvas = vnode.dom.parentNode.querySelector('.dummy-item')
+    this.barStyle = vnode.dom.parentNode.querySelector('.scrollbar-style')
+
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         if (entry.target === vnode.dom) {
