@@ -8,12 +8,6 @@ export default class WindowView {
   constructor () {
     this.tabs = [
     {
-      id: 'pcap-1',
-      name: 'Pcap 1',
-      src: 'pcap.htm',
-      argv: deplug.argv,
-      loading: true,
-    }, {
       id: 'preference',
       name: 'Preferences',
       src: 'preference.htm',
@@ -30,12 +24,27 @@ export default class WindowView {
       system: true,
       icon: 'fa-book',
     }]
-    this.activeTab = 'pcap-1'
+    this.activeTab = 'preference'
+    this.counter = 1
   }
 
   oncreate () {
     deplug.action.global.on('core:tab:open-devtool', () => {
       document.querySelector('webview[active]').openDevTools()
+    })
+    deplug.action.global.on('core:tab:new-pcap', () => {
+      const number = this.counter
+      this.counter += 1
+      const id = `pcap-${number}`
+      this.tabs.unshift({
+        id,
+        name: `Pcap ${number}`,
+        src: 'pcap.htm',
+        argv: deplug.argv,
+        loading: true,
+      })
+      this.activeTab = id
+      m.redraw()
     })
     deplug.action.global.on('core:file:import', () => {
       const files = dialog.showOpenDialog({

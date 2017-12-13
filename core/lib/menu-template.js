@@ -19,6 +19,12 @@ const template = [
     label: 'File',
     submenu: [
       {
+        label: 'New Live Capture...',
+        action: 'core:tab:new-pcap',
+        accelerator: 'CommandOrControl+N',
+      },
+      { type: 'separator' },
+      {
         label: 'Import File...',
         action: 'core:file:import',
         accelerator: 'CommandOrControl+O',
