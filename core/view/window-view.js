@@ -28,23 +28,27 @@ export default class WindowView {
     this.counter = 1
   }
 
+  createPcapTab () {
+    const number = this.counter
+    this.counter += 1
+    const id = `pcap-${number}`
+    this.tabs.unshift({
+      id,
+      name: `Pcap ${number}`,
+      src: 'pcap.htm',
+      argv: deplug.argv,
+      loading: true,
+    })
+    this.activeTab = id
+    m.redraw()
+  }
+
   oncreate () {
     deplug.action.global.on('core:tab:open-devtool', () => {
       document.querySelector('webview[active]').openDevTools()
     })
     deplug.action.global.on('core:tab:new-pcap', () => {
-      const number = this.counter
-      this.counter += 1
-      const id = `pcap-${number}`
-      this.tabs.unshift({
-        id,
-        name: `Pcap ${number}`,
-        src: 'pcap.htm',
-        argv: deplug.argv,
-        loading: true,
-      })
-      this.activeTab = id
-      m.redraw()
+      this.createPcapTab()
     })
     deplug.action.global.on('core:file:import', () => {
       const files = dialog.showOpenDialog({
@@ -65,6 +69,7 @@ export default class WindowView {
         m.redraw()
       }
     })
+    this.createPcapTab()
   }
 
   view () {
