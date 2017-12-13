@@ -33,7 +33,9 @@ Filter::Filter(const std::string &body) : d(new Private()) {
 
 Filter::~Filter() {}
 
-void Filter::test(char *results, const FrameView **begin, size_t size) const {
+void Filter::test(char *results,
+                  const FrameView *const *begin,
+                  size_t size) const {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   auto global = isolate->GetCurrentContext()->Global();
   auto func = v8::Local<v8::Function>::New(isolate, d->func);

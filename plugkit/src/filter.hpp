@@ -12,7 +12,7 @@ class Filter final {
 public:
   Filter(const std::string &body);
   ~Filter();
-  void test(char *results, const FrameView **begin, size_t size) const;
+  void test(char *results, const FrameView *const *begin, size_t size) const;
 
 private:
   class Private;

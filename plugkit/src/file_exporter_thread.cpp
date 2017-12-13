@@ -6,9 +6,10 @@
 #include "frame_store.hpp"
 #include "frame_view.hpp"
 #include "layer.hpp"
+#include "worker_thread.hpp"
+#include <chrono>
 #include <thread>
 #include <vector>
-#include <chrono>
 
 namespace plugkit {
 
@@ -17,8 +18,11 @@ struct ContextData {
   FrameStorePtr store;
   FileExporterThread::Callback callback;
   std::unordered_map<Token, int> linkLayers;
-  std::unique_ptr<Filter> filter;
+  std::vector<FileExporter> exporters;
   std::vector<RawFrame> frames;
+  std::string file;
+  std::string filterBody;
+  Filter *filter = nullptr;
   size_t length = 0;
   size_t offset = 0;
 };
@@ -46,7 +50,8 @@ RawFrame createRawFrame(const ContextData *data, const Frame *frame) {
   }
 
   auto nano = std::chrono::duration_cast<std::chrono::nanoseconds>(
-    frame->timestamp().time_since_epoch()).count();
+                  frame->timestamp().time_since_epoch())
+                  .count();
 
   raw.actualLength = frame->length();
   raw.tsSec = nano / 1000000000;
@@ -69,19 +74,62 @@ const RawFrame *apiCallback(Context *ctx, size_t *length) {
   const std::vector<const FrameView *> views =
       data->store->get(data->offset, size);
   data->frames.resize(size);
+
+  std::vector<char> results;
+  if (data->filter) {
+    results.resize(views.size());
+    data->filter->test(results.data(), views.data(), views.size());
+  }
   for (size_t i = 0; i < size; ++i) {
-    data->frames[i] = createRawFrame(data, views[i]->frame());
+    if (!data->filter || results[i]) {
+      data->frames[i] = createRawFrame(data, views[i]->frame());
+    }
   }
   data->offset += size;
   return data->frames.data();
 }
+
+class FileExporterWorkerThread : public WorkerThread {
+public:
+  FileExporterWorkerThread(const ContextData &data) : data(data) {}
+
+  ~FileExporterWorkerThread() {}
+
+  void enter() override {
+    if (!data.filterBody.empty()) {
+      filter.reset(new Filter(data.filterBody));
+    }
+  }
+  bool loop() override {
+    Context ctx;
+    data.filter = filter.get();
+    ctx.data = &data;
+
+    for (const FileExporter &exporter : data.exporters) {
+      if (!exporter.func)
+        continue;
+      FileStatus status = exporter.func(&ctx, data.file.c_str(), apiCallback);
+      if (status != FILE_STATUS_UNSUPPORTED) {
+        break;
+      }
+    }
+    return false;
+  }
+  void exit() override { filter.reset(); }
+
+private:
+  ContextData data;
+  std::unique_ptr<Filter> filter;
+};
 
 } // namespace
 
 class FileExporterThread::Private {
 public:
   Callback callback;
+  LoggerPtr logger = std::make_shared<StreamLogger>();
   std::unordered_map<Token, int> linkLayers;
+  std::unique_ptr<FileExporterWorkerThread> worker;
   std::vector<FileExporter> exporters;
   std::thread thread;
   FrameStorePtr store;
@@ -93,9 +141,13 @@ FileExporterThread::FileExporterThread(const FrameStorePtr &store)
 }
 
 FileExporterThread::~FileExporterThread() {
-  if (d->thread.joinable()) {
-    d->thread.join();
+  if (d->worker) {
+    d->worker->join();
   }
+}
+
+void FileExporterThread::setLogger(const LoggerPtr &logger) {
+  d->logger = logger;
 }
 
 void FileExporterThread::registerLinkLayer(Token token, int link) {
@@ -112,9 +164,6 @@ void FileExporterThread::addExporter(const FileExporter &exporters) {
 
 bool FileExporterThread::start(const std::string &file,
                                const std::string &filter) {
-  if (d->thread.joinable())
-    return false;
-
   d->callback(0.0);
 
   if (d->store->dissectedSize() == 0) {
@@ -122,26 +171,22 @@ bool FileExporterThread::start(const std::string &file,
     return true;
   }
 
-  auto exporters = d->exporters;
-  d->thread = std::thread([this, file, filter, exporters]() {
-    ContextData data;
-    data.callback = d->callback;
-    data.store = d->store;
-    data.length = d->store->dissectedSize();
-    data.linkLayers = d->linkLayers;
+  if (d->worker) {
+    d->worker->join();
+  }
 
-    Context ctx;
-    ctx.data = &data;
+  ContextData data;
+  data.callback = d->callback;
+  data.store = d->store;
+  data.length = d->store->dissectedSize();
+  data.linkLayers = d->linkLayers;
+  data.exporters = d->exporters;
+  data.file = file;
+  data.filterBody = filter;
 
-    for (const FileExporter &exporter : exporters) {
-      if (!exporter.func)
-        continue;
-      FileStatus status = exporter.func(&ctx, file.c_str(), apiCallback);
-      if (status != FILE_STATUS_UNSUPPORTED) {
-        return;
-      }
-    }
-  });
+  d->worker.reset(new FileExporterWorkerThread(data));
+  d->worker->setLogger(d->logger);
+  d->worker->start();
   return true;
 }
 

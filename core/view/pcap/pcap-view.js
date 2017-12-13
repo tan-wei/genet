@@ -166,13 +166,15 @@ export default class PcapView {
     this.capture = false
     this.filtered = null
     this.scrollLock = false
+    this.displayFilter = ''
   }
 
   searchKeyPress (event) {
     switch (event.code) {
     case 'Enter':
       try {
-        const { value } = event.target
+        const value = event.target.value.trim()
+        this.displayFilter = value
         this.sess.setDisplayFilter('main', value)
         if (value.length > 0) {
           const maxLength = deplug.config.get('_.filterHistoryLength', 10)
@@ -318,7 +320,7 @@ export default class PcapView {
       const file = dialog.showSaveDialog(
         { filters: deplug.session.fileExtensions.exporter })
       if (typeof file !== 'undefined') {
-        this.sess.exportFile(file, '')
+        this.sess.exportFile(file, this.displayFilter)
       }
     })
   }

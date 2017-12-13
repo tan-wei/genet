@@ -55,8 +55,28 @@ class Session extends EventEmitter {
     return this[fields].sess.importFile(file)
   }
 
-  exportFile (file, filter) {
-    return this[fields].sess.exportFile(file, filter)
+  exportFile (file, filter = '') {
+    const compiler = new Filter()
+    for (const trans of this[fields].transforms) {
+      switch (trans.type) {
+        case 'string':
+          compiler.registerStringTransform(trans.func)
+          break
+        case 'token':
+          compiler.registerTokenTransform(trans.func)
+          break
+        case 'ast':
+          compiler.registerAstTransform(trans.func)
+          break
+        case 'template':
+          compiler.registerTemplateTransform(trans.func)
+          break
+        default:
+          throw new Error(`unknown transform type: ${trans.type}`)
+      }
+    }
+    const body = compiler.compile(filter)
+    return this[fields].sess.exportFile(file, body)
   }
 
   get networkInterface () {

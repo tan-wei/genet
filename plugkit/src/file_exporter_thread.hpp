@@ -11,6 +11,9 @@ namespace plugkit {
 class Frame;
 struct FileExporter;
 
+class Logger;
+using LoggerPtr = std::shared_ptr<Logger>;
+
 class FrameStore;
 using FrameStorePtr = std::shared_ptr<FrameStore>;
 
@@ -21,6 +24,7 @@ public:
 public:
   FileExporterThread(const FrameStorePtr &store);
   ~FileExporterThread();
+  void setLogger(const LoggerPtr &logger);
   void setCallback(const Callback &callback);
   void addExporter(const FileExporter &exporter);
   void registerLinkLayer(Token token, int link);
