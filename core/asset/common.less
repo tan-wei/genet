@@ -109,16 +109,41 @@ body {
     bottom: 0;
   }
 
-  > .handle {
+  > .top {
     position: absolute;
     top: 0;
+    left: 0;
+    right: 0;
+  }
+
+  > .bottom {
+    position: absolute;
+    left: 0;
+    right: 0;
     bottom: 0;
-    width: 5px;
+  }
+
+  > .handle {
+    position: absolute;
     background-color: @theme-info;
-    transform: translateX(-2px);
     opacity: 0;
-    cursor: ew-resize;
     -webkit-app-region: no-drag;
+
+    &.vertical {
+      top: 0;
+      bottom: 0;
+      width: 5px;
+      transform: translateX(-2px);
+      cursor: ew-resize;
+    }
+
+    &.horizontal {
+      left: 0;
+      right: 0;
+      height: 5px;
+      transform: translateY(2px);
+      cursor: ns-resize;
+    }
 
     &[active] {
       opacity: 1;
@@ -131,10 +156,16 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    cursor: ew-resize;
     -webkit-app-region: no-drag;
     background-color: @theme-lighter-bg;
     opacity: 0.3;
+
+    &.vertical {
+      cursor: ew-resize;
+    }
+    &.horizontal {
+      cursor: ns-resize;
+    }
   }
 }
 

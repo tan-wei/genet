@@ -1,6 +1,6 @@
-import { HSplitter } from '../../lib/splitter'
 import Menu from './menu'
 import Stack from './stack'
+import { VSplitter } from '../../lib/splitter'
 import m from 'mithril'
 import path from 'path'
 import { remote } from 'electron'
@@ -76,10 +76,11 @@ export default class WindowView {
 
   view () {
     return [
-      m(HSplitter, {
+      m(VSplitter, {
         left: Menu,
         right: Stack,
         parent: this,
+        width: 180,
       })
     ]
   }

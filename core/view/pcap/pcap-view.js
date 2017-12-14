@@ -1,4 +1,5 @@
 import Dialog from '../../lib/dialog'
+import { HSplitter } from '../../lib/splitter'
 import PcapDetailView from './detail'
 import PcapDialog from './dialog'
 import PcapToolView from './tool'
@@ -265,8 +266,12 @@ export default class PcapView {
       })
       : m('nav'),
       m('main', [
-        m(PcapDetailView, {}),
-        m(PcapToolView, {})
+        m(HSplitter, {
+          top: PcapDetailView,
+          bottom: PcapToolView,
+          parent: this,
+          height: 280,
+        })
       ]),
       m('div', { class: 'notification' })
     ]
