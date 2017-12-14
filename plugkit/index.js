@@ -17,6 +17,29 @@ function roll (script) {
   })
 }
 
+function compileFilter (filter, transforms) {
+  const compiler = new Filter()
+  for (const trans of transforms) {
+    switch (trans.type) {
+      case 'string':
+        compiler.registerStringTransform(trans.func)
+        break
+      case 'token':
+        compiler.registerTokenTransform(trans.func)
+        break
+      case 'ast':
+        compiler.registerAstTransform(trans.func)
+        break
+      case 'template':
+        compiler.registerTemplateTransform(trans.func)
+        break
+      default:
+        throw new Error(`unknown transform type: ${trans.type}`)
+    }
+  }
+  return compiler.compile(filter)
+}
+
 class Session extends EventEmitter {
   constructor (sess, options) {
     super()
@@ -56,26 +79,7 @@ class Session extends EventEmitter {
   }
 
   exportFile (file, filter = '') {
-    const compiler = new Filter()
-    for (const trans of this[fields].transforms) {
-      switch (trans.type) {
-        case 'string':
-          compiler.registerStringTransform(trans.func)
-          break
-        case 'token':
-          compiler.registerTokenTransform(trans.func)
-          break
-        case 'ast':
-          compiler.registerAstTransform(trans.func)
-          break
-        case 'template':
-          compiler.registerTemplateTransform(trans.func)
-          break
-        default:
-          throw new Error(`unknown transform type: ${trans.type}`)
-      }
-    }
-    const body = compiler.compile(filter)
+    const body = compileFilter(filter, this[fields].transforms)
     return this[fields].sess.exportFile(file, body)
   }
 
@@ -120,26 +124,7 @@ class Session extends EventEmitter {
   }
 
   setDisplayFilter (name, filter) {
-    const compiler = new Filter()
-    for (const trans of this[fields].transforms) {
-      switch (trans.type) {
-        case 'string':
-          compiler.registerStringTransform(trans.func)
-          break
-        case 'token':
-          compiler.registerTokenTransform(trans.func)
-          break
-        case 'ast':
-          compiler.registerAstTransform(trans.func)
-          break
-        case 'template':
-          compiler.registerTemplateTransform(trans.func)
-          break
-        default:
-          throw new Error(`unknown transform type: ${trans.type}`)
-      }
-    }
-    const body = compiler.compile(filter)
+    const body = compileFilter(filter, this[fields].transforms)
     return this[fields].sess.setDisplayFilter(name, body)
   }
 }
