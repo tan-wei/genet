@@ -1,4 +1,5 @@
-import WebView from '../lib/webview'
+import Menu from './menu'
+import Stack from './stack'
 import m from 'mithril'
 import path from 'path'
 import { remote } from 'electron'
@@ -74,37 +75,8 @@ export default class WindowView {
 
   view () {
     return [
-      m('nav', this.tabs.map((tab) => m('ul', [
-          m('li', [
-            m('a', {
-              onclick: () => {
-               this.activeTab = tab.id
-              },
-              active: this.activeTab === tab.id,
-            }, [
-              m('i', { class: `fa ${tab.icon}` }),
-              ' ',
-              tab.name,
-              m('i', {
-                class: 'fa fa-close close-button',
-                style: {
-                  display: tab.system
-                    ? 'none'
-                    : 'inline-block',
-                },
-                onclick: () => {
-                  this.tabs = this.tabs.filter((item) => tab.id !== item.id)
-                  m.redraw()
-                },
-              })
-            ])
-          ])
-        ]))),
-      m('main', this.tabs.map((tab) => m(WebView, {
-        tab,
-        key: tab.id,
-        active: this.activeTab === tab.id,
-      })))
+      m(Menu, { parent: this }),
+      m(Stack, { parent: this })
     ]
   }
 }
