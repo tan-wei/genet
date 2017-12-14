@@ -1,3 +1,4 @@
+import { HSplitter } from '../../lib/splitter'
 import Menu from './menu'
 import Stack from './stack'
 import m from 'mithril'
@@ -75,8 +76,11 @@ export default class WindowView {
 
   view () {
     return [
-      m(Menu, { parent: this }),
-      m(Stack, { parent: this })
+      m(HSplitter, {
+        left: Menu,
+        right: Stack,
+        parent: this,
+      })
     ]
   }
 }

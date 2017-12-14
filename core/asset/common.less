@@ -108,6 +108,34 @@ body {
     right: 0;
     bottom: 0;
   }
+
+  > .handle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background-color: @theme-info;
+    transform: translateX(-2px);
+    opacity: 0;
+    cursor: ew-resize;
+    -webkit-app-region: no-drag;
+
+    &[active] {
+      opacity: 1;
+    }
+  }
+
+  > .base {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    cursor: ew-resize;
+    -webkit-app-region: no-drag;
+    background-color: @theme-lighter-bg;
+    opacity: 0.3;
+  }
 }
 
 .button-box {

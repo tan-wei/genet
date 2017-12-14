@@ -1,7 +1,5 @@
 @import "common";
 
-@nav-width: 150px;
-
 body {
   .mixin (@b) when not (@b = darwin) {
     background-color: darken(@theme-default-bg, 5%);
@@ -14,7 +12,7 @@ nav {
   top: 0;
   bottom: 0;
   left: 0;
-  width: @nav-width;
+  right: 0;
   padding: 38px 0;
   -webkit-app-region: drag;
   overflow-y: auto;
@@ -55,7 +53,7 @@ main {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: @nav-width;
+  left: 0;
   right: 0;
   background-color: @theme-default-bg;
 
