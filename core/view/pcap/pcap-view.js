@@ -1,5 +1,5 @@
+import { HSplitter, VSplitter } from '../../lib/splitter'
 import Dialog from '../../lib/dialog'
-import { HSplitter } from '../../lib/splitter'
 import PcapDetailView from './detail'
 import PcapDialog from './dialog'
 import PcapToolView from './tool'
@@ -161,7 +161,7 @@ class FrameListView {
   }
 }
 
-export default class PcapView {
+class SideView {
   constructor () {
     this.sess = null
     this.capture = false
@@ -264,16 +264,7 @@ export default class PcapView {
         sess: this.sess,
         scrollLock: this.scrollLock,
       })
-      : m('nav'),
-      m('main', [
-        m(HSplitter, {
-          top: PcapDetailView,
-          bottom: PcapToolView,
-          parent: this,
-          height: 280,
-        })
-      ]),
-      m('div', { class: 'notification' })
+      : m('nav')
     ]
   }
 
@@ -328,5 +319,32 @@ export default class PcapView {
         this.sess.exportFile(file, this.displayFilter)
       }
     })
+  }
+}
+
+class MainView {
+  view () {
+    return m('main', [
+      m(HSplitter, {
+        top: PcapDetailView,
+        bottom: PcapToolView,
+        parent: this,
+        height: 280,
+      })
+    ])
+  }
+}
+
+export default class PcapView {
+  view () {
+    return [
+      m(VSplitter, {
+        left: SideView,
+        right: MainView,
+        parent: this,
+        width: 400,
+      }),
+      m('div', { class: 'notification' })
+    ]
   }
 }

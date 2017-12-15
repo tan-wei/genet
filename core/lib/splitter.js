@@ -5,6 +5,7 @@ export class VSplitter {
   constructor () {
     this[fields] = {
       width: 320,
+      handle: 0,
       active: false,
     }
   }
@@ -14,10 +15,11 @@ export class VSplitter {
     if (Number.isInteger(width)) {
       this[fields].width = width
     }
+    this[fields].handle = this[fields].width
   }
 
   view (vnode) {
-    const { width, active } = this[fields]
+    const { width, handle, active } = this[fields]
     const { left, right } = vnode.attrs
     return m('div', { class: 'splitter' }, [
       m('div', {
@@ -34,9 +36,10 @@ export class VSplitter {
       ]),
       m('div', {
         class: 'handle vertical',
-        style: { left: `${width}px` },
+        style: { left: `${handle}px` },
         active,
         onmousedown: () => {
+          this[fields].handle = this[fields].width
           this[fields].active = true
         },
         onmouseup: () => {
@@ -51,13 +54,15 @@ export class VSplitter {
             : 'none',
         },
         onmouseup: () => {
+          this[fields].width = this[fields].handle
           this[fields].active = false
         },
         onmouseout: () => {
+          this[fields].width = this[fields].handle
           this[fields].active = false
         },
-        onmousemove: (event) => {
-          this[fields].width = event.offsetX
+        onmousemove: () => {
+          this[fields].handle = event.offsetX
         },
       })
     ])
@@ -68,6 +73,7 @@ export class HSplitter {
   constructor () {
     this[fields] = {
       height: 320,
+      handle: 0,
       active: false,
     }
   }
@@ -77,10 +83,11 @@ export class HSplitter {
     if (Number.isInteger(height)) {
       this[fields].height = height
     }
+    this[fields].handle = this[fields].height
   }
 
   view (vnode) {
-    const { height, active } = this[fields]
+    const { height, handle, active } = this[fields]
     const { bottom, top } = vnode.attrs
     return m('div', { class: 'splitter vertical' }, [
       m('div', {
@@ -97,7 +104,7 @@ export class HSplitter {
       ]),
       m('div', {
         class: 'handle horizontal',
-        style: { bottom: `${height}px` },
+        style: { bottom: `${handle}px` },
         active,
         onmousedown: () => {
           this[fields].active = true
@@ -114,13 +121,15 @@ export class HSplitter {
             : 'none',
         },
         onmouseup: () => {
+          this[fields].height = this[fields].handle
           this[fields].active = false
         },
         onmouseout: () => {
+          this[fields].height = this[fields].handle
           this[fields].active = false
         },
-        onmousemove: (event) => {
-          this[fields].height = event.target.clientHeight - event.offsetY
+        onmousemove: () => {
+          this[fields].handle = event.target.clientHeight - event.offsetY
         },
       })
     ])
