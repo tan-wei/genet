@@ -81,6 +81,7 @@ export default class WindowView {
         right: Stack,
         parent: this,
         width: 180,
+        workspace: '_.menuWidth',
       })
     ]
   }

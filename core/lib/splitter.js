@@ -11,16 +11,19 @@ export class VSplitter {
   }
 
   oninit (vnode) {
-    const { width } = vnode.attrs
+    const { width, workspace } = vnode.attrs
     if (Number.isInteger(width)) {
       this[fields].width = width
+    }
+    if (typeof workspace === 'string') {
+      this[fields].width = deplug.workspace.get(workspace, this[fields].width)
     }
     this[fields].handle = this[fields].width
   }
 
   view (vnode) {
     const { width, handle, active } = this[fields]
-    const { left, right } = vnode.attrs
+    const { left, right, workspace } = vnode.attrs
     return m('div', { class: 'splitter' }, [
       m('div', {
         class: 'left',
@@ -54,18 +57,24 @@ export class VSplitter {
             : 'none',
         },
         onmouseup: () => {
-          this[fields].width = this[fields].handle
-          this[fields].active = false
+          this.applyWidth(workspace)
         },
         onmouseout: () => {
-          this[fields].width = this[fields].handle
-          this[fields].active = false
+          this.applyWidth(workspace)
         },
-        onmousemove: () => {
+        onmousemove: (event) => {
           this[fields].handle = event.offsetX
         },
       })
     ])
+  }
+
+  applyWidth (workspace) {
+    this[fields].width = this[fields].handle
+    this[fields].active = false
+    if (typeof workspace === 'string') {
+      deplug.workspace.set(workspace, this[fields].width)
+    }
   }
 }
 
@@ -79,16 +88,19 @@ export class HSplitter {
   }
 
   oninit (vnode) {
-    const { height } = vnode.attrs
+    const { height, workspace } = vnode.attrs
     if (Number.isInteger(height)) {
       this[fields].height = height
+    }
+    if (typeof workspace === 'string') {
+      this[fields].height = deplug.workspace.get(workspace, this[fields].height)
     }
     this[fields].handle = this[fields].height
   }
 
   view (vnode) {
     const { height, handle, active } = this[fields]
-    const { bottom, top } = vnode.attrs
+    const { bottom, top, workspace } = vnode.attrs
     return m('div', { class: 'splitter vertical' }, [
       m('div', {
         class: 'bottom',
@@ -121,17 +133,23 @@ export class HSplitter {
             : 'none',
         },
         onmouseup: () => {
-          this[fields].height = this[fields].handle
-          this[fields].active = false
+          this.applyHeight(workspace)
         },
         onmouseout: () => {
-          this[fields].height = this[fields].handle
-          this[fields].active = false
+          this.applyHeight(workspace)
         },
-        onmousemove: () => {
+        onmousemove: (event) => {
           this[fields].handle = event.target.clientHeight - event.offsetY
         },
       })
     ])
+  }
+
+  applyHeight (workspace) {
+    this[fields].height = this[fields].handle
+    this[fields].active = false
+    if (typeof workspace === 'string') {
+      deplug.workspace.set(workspace, this[fields].height)
+    }
   }
 }

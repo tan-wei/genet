@@ -330,6 +330,7 @@ class MainView {
         bottom: PcapToolView,
         parent: this,
         height: 280,
+        workspace: '_.pcapToolHeight',
       })
     ])
   }
@@ -343,6 +344,7 @@ export default class PcapView {
         right: MainView,
         parent: this,
         width: 400,
+        workspace: '_.pcapSideWidth',
       }),
       m('div', { class: 'notification' })
     ]
