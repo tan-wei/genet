@@ -23,7 +23,8 @@ describe('Payload', () => {
     })
     it('should return Attr', () => {
       const payload = Testing.createPayloadInstance()
-      assert.strictEqual('Attr', payload.addAttr('.dst').constructor.name)
+      const ctx = Testing.createContextInstance()
+      assert.strictEqual('Attr', payload.addAttr(ctx, '.dst').constructor.name)
     })
   })
   describe('#attr()', () => {
@@ -39,7 +40,8 @@ describe('Payload', () => {
     })
     it('should return found Attr', () => {
       const payload = Testing.createPayloadInstance()
-      payload.addAttr('.dst')
+      const ctx = Testing.createContextInstance()
+      payload.addAttr(ctx, '.dst')
       assert.strictEqual('.dst', payload.attr('.dst').id)
     })
   })
@@ -68,10 +70,11 @@ describe('Payload', () => {
   describe('#attrs', () => {
     it('should return payload attrs', () => {
       const payload = Testing.createPayloadInstance()
+      const ctx = Testing.createContextInstance()
       assert.deepEqual([], payload.attrs)
-      payload.addAttr('.dst')
+      payload.addAttr(ctx, '.dst')
       assert.strictEqual(1, payload.attrs.length)
-      payload.addAttr('.src')
+      payload.addAttr(ctx, '.src')
       assert.strictEqual(2, payload.attrs.length)
     })
   })

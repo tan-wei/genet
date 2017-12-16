@@ -1,4 +1,5 @@
 #include "plugkit_testing.hpp"
+#include "allocator.hpp"
 #include "attr.hpp"
 #include "context.hpp"
 #include "frame.hpp"
@@ -46,7 +47,9 @@ void createAttrInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
   info.GetReturnValue().Set(persistent);
 }
 void createContextInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
+  static RootAllocator allocator;
   auto ctx = new Context();
+  ctx->rootAllocator = &allocator;
   Nan::Persistent<v8::Object> persistent(ContextWrapper::wrap(ctx));
   persistent.SetWeak(ctx,
                      [](const Nan::WeakCallbackInfo<Context> &data) {
