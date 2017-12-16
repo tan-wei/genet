@@ -276,7 +276,6 @@ class SideView {
         deplug.session.create().then((sess) => {
           this.sess = sess
           sess.on('frame', (stat) => {
-            deplug.logger.debug(stat)
             m.redraw()
           })
           sess.on('status', (stat) => {
@@ -300,7 +299,6 @@ class SideView {
         this.sess = sess
         sess.startPcap()
         sess.on('frame', (stat) => {
-          deplug.logger.debug(stat)
           m.redraw()
         })
         sess.on('status', (stat) => {
