@@ -46,17 +46,17 @@ export default class WindowFactory {
     function reloadMenu () {
       const script = 'deplug.menu.template'
       contents.executeJavaScript(script).then((template) => {
-        const flatMenu = flatten({template})
+        const flatMenu = flatten({ template })
         for (const [key, channel] of Object.entries(flatMenu)) {
           if (key.endsWith('.action')) {
             flatMenu[key.replace('.action', '.click')] = () => {
-              for (const wc of webContents.getAllWebContents()) {
-                wc.send(`${channel} #${mainWindow.id}`)
-              }
+              mainWindow.webContents
+                .send('core:menu:action', channel)
             }
           }
         }
-        const menu = Menu.buildFromTemplate(flatten.unflatten(flatMenu).template)
+        const menu =
+          Menu.buildFromTemplate(flatten.unflatten(flatMenu).template)
         if (process.platform === 'darwin') {
           Menu.setApplicationMenu(menu)
         } else {

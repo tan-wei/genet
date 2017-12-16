@@ -1,11 +1,12 @@
+import { remote, ipcRenderer } from 'electron'
 import Menu from './menu'
 import Stack from './stack'
 import { VSplitter } from '../../lib/splitter'
 import m from 'mithril'
 import path from 'path'
-import { remote } from 'electron'
 
 const { dialog } = remote
+const windowId = remote.getCurrentWindow().id
 export default class WindowView {
   constructor () {
     this.tabs = [
@@ -46,6 +47,15 @@ export default class WindowView {
   }
 
   oncreate () {
+    ipcRenderer.on('core:menu:action', (event, channel) => {
+      document
+        .querySelector('webview[active]')
+        .getWebContents()
+        .send(`${channel} #${windowId}`)
+      remote
+        .getCurrentWebContents()
+        .send(`${channel} #${windowId}`)
+    })
     deplug.action.global.on('core:tab:open-devtool', () => {
       document.querySelector('webview[active]').openDevTools()
     })
