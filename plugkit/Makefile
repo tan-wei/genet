@@ -6,11 +6,11 @@ JS_FILES = $(wildcard js/*.js)
 JS_EMBEDDED_HEADER = src/embedded_files.hpp
 
 ifeq ($(OS),Windows_NT)
-GYP=..\..\node_modules\.bin\node-gyp
-GPERF=..\..\node_modules\.bin\gperf
+GYP=..\..\.bin\node-gyp
+GPERF=..\..\.bin\gperf
 CONFIG = build/binding.sln
 else
-GYP=../../node_modules/.bin/node-gyp
+GYP=../../.bin/node-gyp
 GPERF=gperf -LANSI-C
 CONFIG = build/Makefile
 ENV = JOBS=4 HOME=~/.electron-gyp

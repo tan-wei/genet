@@ -25,16 +25,17 @@ ELECTRON_IGNORE = "core","plugkit"
 MOCHA = node_modules/mocha/bin/mocha
 APPDMG = node_modules/.bin/appdmg
 DOCSIFY = node_modules/.bin/docsify
-DPM = node_modules/.bin/dpm
 
 ifeq ($(OS),Windows_NT)
 ELECTRON = node_modules\.bin\negatron.cmd
 ESLINT = node_modules\.bin\eslint
 WEBPACK = node_modules\.bin\webpack
+DPM = node_modules\.bin\dpm
 else
 ELECTRON = node_modules/.bin/negatron
 ESLINT = node_modules/.bin/eslint
 WEBPACK = node_modules/.bin/webpack
+DPM = node_modules/.bin/dpm
 endif
 
 all: build
