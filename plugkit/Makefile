@@ -26,7 +26,7 @@ $(TOKEN_HASH_TABLE): $(TOKEN_KEYWORDS)
 	$(GPERF) $(TOKEN_KEYWORDS) -G --output-file=$(TOKEN_HASH_TABLE)
 
 $(JS_EMBEDDED_HEADER): $(JS_FILES)
-	node ../../scripts/text-to-cpp.js $(JS_FILES) $(JS_EMBEDDED_HEADER)
+	node ../../../scripts/text-to-cpp.js $(JS_FILES) $(JS_EMBEDDED_HEADER)
 
 clean:
 	@$(GYP) clean

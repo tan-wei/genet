@@ -10,7 +10,7 @@ DEPLUG_CORE_MAIN_JS = $(wildcard core/*.main.js)
 DEPLUG_CORE_JS_OUT = $(addprefix node_modules/@deplug/,$(DEPLUG_CORE_MAIN_JS))
 
 PLUGKIT_SRC = plugkit
-PLUGKIT_DST = node_modules/plugkit
+PLUGKIT_DST = node_modules/@deplug/plugkit
 
 PLUGKIT_HEADERS = $(wildcard plugkit/include/plugkit/*.h)
 PLUGKIT_JS_FILES = $(wildcard plugkit/js/*.js)
@@ -19,8 +19,8 @@ BUILTIN_PACKAGES = package
 
 ELECTRON_VERSION = $(shell node scripts/negatron-version-string.js)
 ELECTRON_MIRROR = https://cdn.deplug.net/electron/v
-ELECTRON_UNPACK = "node_modules/{deplug-helper,plugkit}"
-ELECTRON_IGNORE = "@deplug/core","plugkit"
+ELECTRON_UNPACK = "node_modules/{@deplug/core,@deplug/plugkit}"
+ELECTRON_IGNORE = "core","plugkit"
 
 MOCHA = node_modules/mocha/bin/mocha
 APPDMG = node_modules/.bin/appdmg
@@ -49,7 +49,8 @@ fix:
 	$(ESLINT) --fix .
 
 plugkit:
-	cp -r -f -p $(PLUGKIT_SRC) node_modules
+	rm -r -f $(PLUGKIT_DST)
+	cp -r -f -p $(PLUGKIT_SRC) $(PLUGKIT_DST)
 	$(MAKE) -C $(PLUGKIT_DST)
 	$(DPM) update --negatron $(ELECTRON_VERSION) $(PLUGKIT_DST)/package.json
 	$(DPM) update --negatron $(ELECTRON_VERSION) $(BUILTIN_PACKAGES)
@@ -90,9 +91,9 @@ winstaller:
 	mv out/DeplugSetup.exe out/deplug-win-amd64.exe
 
 pack:
-	npm prune --production
-	electron-packager ./ --no-prune --download.mirror=$(ELECTRON_MIRROR) \
-	 						--asar.unpackDir=$(ELECTRON_UNPACK) \
+	electron-packager ./ --download.mirror=$(ELECTRON_MIRROR) \
+					    --no-prune \
+							--asar.unpackDir=$(ELECTRON_UNPACK) \
 							--icon=images/deplug \
 							--ignore=$(ELECTRON_IGNORE) \
 							--electron-version=$(ELECTRON_VERSION) \

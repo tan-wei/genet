@@ -6,7 +6,7 @@ environment:
   CL: -DDELAYIMP_INSECURE_WRITABLE_HOOKS
 install:
 - ps: git submodule update --init --recursive; true
-- ps: yarn
+- ps: npm install
 build_script:
 - ps: make build; true
 test_script:

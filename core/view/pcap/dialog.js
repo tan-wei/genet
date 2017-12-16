@@ -1,4 +1,4 @@
-import { Pcap } from 'plugkit'
+import { Pcap } from '@deplug/plugkit'
 import PermissionMassage from './permission-message'
 import m from 'mithril'
 

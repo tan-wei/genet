@@ -1,5 +1,5 @@
 import { Disposable } from 'disposables'
-import { SessionFactory } from 'plugkit'
+import { SessionFactory } from '@deplug/plugkit'
 import flatten from 'flat'
 
 const fields = Symbol('fields')

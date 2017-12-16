@@ -1,5 +1,5 @@
 {
-  "name": "plugkit",
+  "name": "@deplug/plugkit",
   "version": "0.0.15",
   "description": "deplug pcap engine",
   "author": "h2so5",
