@@ -30,8 +30,11 @@ class LessPlugin {
 }
 
 export default class Style {
-  constructor () {
-    this[fields] = { themeFile: path.join(__dirname, 'theme.less') }
+  constructor (scope = 'global') {
+    this[fields] = {
+      themeFile: path.join(__dirname, 'theme.less'),
+      scope,
+    }
   }
 
   async compileLess (file) {
@@ -53,7 +56,7 @@ export default class Style {
     const result = await this.compileLess(file)
     const styleTag = document.createElement('style')
     styleTag.textContent = result.css
-    document.head.appendChild(styleTag)
+    document.querySelector(`#${this[fields].scope}-style`).appendChild(styleTag)
     return new Disposable(() => {
       styleTag.remove()
     })

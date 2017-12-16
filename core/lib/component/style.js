@@ -11,7 +11,7 @@ export default class StyleComponent extends BaseComponent {
       objpath.get(comp, 'files', []).map((file) => path.resolve(dir, file))
   }
   async load () {
-    const loader = new Style()
+    const loader = new Style('custom')
     const files = await Promise.all(
       this.styleFiles.map((file) => loader.applyLess(file)))
     this.disposable = new CompositeDisposable(files)
