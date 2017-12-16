@@ -48,9 +48,9 @@ export default class Plugin {
                 display: installedPkg
                   ? 'block'
                   : 'none',
-                onclick: () => {
-                  deplug.package.setUninstallFlag(pkg.data.name, true)
-                },
+              },
+              onclick: () => {
+                deplug.packages.setUninstallFlag(pkg.data.name, true)
               },
             })
           ])
@@ -61,6 +61,9 @@ export default class Plugin {
 
   oncreate () {
     deplug.registry.on('updated', () => {
+      m.redraw()
+    })
+    deplug.packages.on('updated', () => {
       m.redraw()
     })
     deplug.registry.update()
