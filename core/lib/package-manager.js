@@ -88,10 +88,12 @@ export default class PackageManager extends EventEmitter {
     const pkgs = (await Promise.all(
       builtinPaths.map(readFile).concat(userPaths.map(readFile))))
       .filter((pkg) => pkg.data)
-    for (const pkg of pkgs) {
-      const removeme =
-        await readFile(path.join(path.dirname(pkg.filePath), '.removeme'))
-      if (typeof removeme.data === 'undefined') {
+
+    const removeme = await Promise.all(pkgs.map((pkg) =>
+      readFile(path.join(path.dirname(pkg.filePath), '.removeme'))))
+    for (let index = 0; index < pkgs.length; index += 1) {
+      const pkg = pkgs[index]
+      if (typeof removeme[index].data === 'undefined') {
         pkg.removal = false
       } else {
         disabledPackages.add(pkg.data.name)

@@ -1,7 +1,6 @@
 import Action from './action'
 import Cache from './cache'
 import Config from './config'
-import { EventEmitter } from 'events'
 import KeyBind from './keybind'
 import Logger from './logger'
 import Menu from './menu'

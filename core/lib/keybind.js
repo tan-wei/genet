@@ -37,6 +37,7 @@ export default class KeyBind {
         try {
           bind = yaml.safeLoad(fs.readFileSync(filePath, 'utf8'))
         } catch (err) {
+          // eslint-disable-next-line no-console
           console.warn(err)
         }
         this[fields].userBindSet = bind || {}

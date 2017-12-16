@@ -222,7 +222,8 @@ class LayerItem {
                 layer.confidence * 100, '%'
               ])
           ]),
-          orderedAttributes(propObject[layerId]).map((prop) => m(AttributeItem, {
+          orderedAttributes(propObject[layerId]).map((prop) =>
+            m(AttributeItem, {
               property: prop,
               layer,
               dataOffset,

@@ -43,6 +43,7 @@ export default class Config {
         try {
           tree = yaml.safeLoad(fs.readFileSync(filePath, 'utf8'))
         } catch (err) {
+          // eslint-disable-next-line no-console
           console.warn(err)
         }
         const oldTree = this[fields].tree || {}
