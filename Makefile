@@ -56,10 +56,6 @@ plugkit:
 
 test:
 	node scripts/run-as-node.js $(ELECTRON) $(MOCHA) $(PLUGKIT_DST)/test
-	node scripts/run-as-node.js $(ELECTRON) node_modules/core/test.main.js
-
-bench:
-	node scripts/run-as-node.js $(ELECTRON) node_modules/core/bench.main.js
 
 dmg:
 	yarn add appdmg

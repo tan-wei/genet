@@ -12,7 +12,6 @@ build_script:
 test_script:
 - ps: make lint
 - ps: make test
-- ps: make bench
 after_test:
 - ps: npm install -g npm
 - ps: npm install -g electron-packager electron-winstaller
