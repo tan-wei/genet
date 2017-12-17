@@ -15,7 +15,6 @@ const cache = path.resolve(dst, '.last-updated')
 const version = jsonfile.readFileSync(
   path.join(__dirname, '../package.json')).devDependencies.negatron
 const scriptFiles = glob.sync(path.resolve(src, '*.{js,json}'))
-const binaryFiles = glob.sync(path.resolve(src, 'build/Release/*.node'))
 const embeddedFiles = glob.sync(path.resolve(src, 'js/*.js'))
 
 const env = Object.assign(process.env, {
@@ -53,18 +52,22 @@ if (srcLastUpdated > lastUpdated) {
 
   execa('node-gyp', ['configure'], { env, cwd: src }).then(() => {
   	const proc = execa('node-gyp', ['build'], { env, cwd: src })
-      proc.stdout.pipe(process.stdout)
-      proc.stderr.pipe(process.stderr)
+    proc.stdout.pipe(process.stdout)
+    proc.stderr.pipe(process.stderr)
+    return proc
+  }).then(() => {
+    const binaryFiles = glob.sync(path.resolve(src, 'build/Release/*.node'))
+    for (const file of binaryFiles) {
+      fs.createReadStream(file)
+        .pipe(fs.createWriteStream(
+          path.resolve(dst, 'build/Release', path.basename(file))))
+    }
   })
+  
   for (const file of scriptFiles) {
     fs.createReadStream(file)
       .pipe(fs.createWriteStream(
         path.resolve(dst, path.basename(file))))
-  }
-  for (const file of binaryFiles) {
-    fs.createReadStream(file)
-      .pipe(fs.createWriteStream(
-        path.resolve(dst, 'build/Release', path.basename(file))))
   }
 }
 
