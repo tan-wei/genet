@@ -55,7 +55,7 @@ plugkit:
 	node scripts/build-packages.js
 
 test:
-	node scripts/run-as-node.js $(ELECTRON) $(MOCHA) $(PLUGKIT_DST)/test
+	node scripts/run-as-node.js $(ELECTRON) $(MOCHA) plugkit/test
 
 dmg:
 	npm install appdmg
