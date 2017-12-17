@@ -19,8 +19,8 @@ BUILTIN_PACKAGES = package
 
 ELECTRON_VERSION = $(shell node scripts/negatron-version-string.js)
 ELECTRON_MIRROR = https://cdn.deplug.net/electron/v
-ELECTRON_UNPACK = "node_modules/{@deplug/core,@deplug/plugkit,deplug-helper}"
-ELECTRON_IGNORE = "(core|plugkit|scripts|snippet|debian|docs|images)"
+ELECTRON_UNPACK = "node_modules/deplug-helper"
+ELECTRON_IGNORE = "^(core|plugkit|scripts|snippet|debian|docs|images)"
 
 MOCHA = node_modules/mocha/bin/mocha
 APPDMG = node_modules/.bin/appdmg
@@ -41,7 +41,8 @@ endif
 all: build
 	$(ELECTRON) --enable-logging .
 
-build: $(DEPLUG_CORE_RES_OUT) $(DEPLUG_CORE_JS_OUT) plugkit
+build: plugkit
+	node scripts/build-deplug-core.js
 
 lint:
 	$(ESLINT) .
@@ -50,17 +51,14 @@ fix:
 	$(ESLINT) --fix .
 
 plugkit:
-	rm -r -f $(PLUGKIT_DST)
-	cp -r -f -p $(PLUGKIT_SRC) $(PLUGKIT_DST)
-	$(MAKE) -C $(PLUGKIT_DST)
-	$(DPM) update --negatron $(ELECTRON_VERSION) $(PLUGKIT_DST)/package.json
-	$(DPM) update --negatron $(ELECTRON_VERSION) $(BUILTIN_PACKAGES)
+	node scripts/build-plugkit.js
+	node scripts/build-packages.js
 
 test:
 	node scripts/run-as-node.js $(ELECTRON) $(MOCHA) $(PLUGKIT_DST)/test
 
 dmg:
-	yarn add appdmg
+	npm install appdmg
 	$(APPDMG) scripts/appdmg.json out/deplug-darwin-amd64.dmg
 
 deb:
@@ -93,7 +91,6 @@ winstaller:
 
 pack:
 	electron-packager ./ --download.mirror=$(ELECTRON_MIRROR) \
-					    --no-prune \
 							--asar.unpackDir=$(ELECTRON_UNPACK) \
 							--icon=images/deplug \
 							--ignore=$(ELECTRON_IGNORE) \

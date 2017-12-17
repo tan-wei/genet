@@ -6,7 +6,6 @@
 
 - git
 - Node.js 8.x
-- [yarn](https://yarnpkg.com/docs/install/)
 
 ### macOS
 
@@ -34,7 +33,7 @@ $ sudo apt-get install build-essential libpcap-dev libcap-dev gperf
 ```bash
 $ git clone https://github.com/deplug/deplug.git
 $ cd deplug
-$ yarn
+$ npm install
 $ make
 ```
 

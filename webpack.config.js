@@ -7,6 +7,7 @@ module.exports = {
       }
       callback()
     }],
+    cache: true,
     node: {
       __dirname: false,
       __filename: false,
