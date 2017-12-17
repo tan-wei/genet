@@ -44,7 +44,7 @@ if (srcLastUpdated > lastUpdated) {
   execa.sync(path.resolve(__dirname, 'text-to-cpp.js'),
     embeddedFiles.concat(path.resolve(src, 'src/embedded_files.hpp')))
 
-  execa.sync('gperf', [
+  execa.sync('/usr/bin/gperf', [
     '-LANSI-C',
     path.resolve(src, 'src/token.keys'),
     '-G',
