@@ -20,7 +20,7 @@ BUILTIN_PACKAGES = package
 ELECTRON_VERSION = $(shell node scripts/negatron-version-string.js)
 ELECTRON_MIRROR = https://cdn.deplug.net/electron/v
 ELECTRON_UNPACK = "node_modules/{@deplug/core,@deplug/plugkit,deplug-helper}"
-ELECTRON_IGNORE = "core","plugkit"
+ELECTRON_IGNORE = "(core|plugkit|scripts|snippet|debian|docs|images)"
 
 MOCHA = node_modules/mocha/bin/mocha
 APPDMG = node_modules/.bin/appdmg
