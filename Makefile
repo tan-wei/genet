@@ -51,6 +51,7 @@ fix:
 	$(ESLINT) --fix .
 
 plugkit:
+	node scripts/run-as-node.js $(ELECTRON) scripts/generate-version-file.js
 	node scripts/build-plugkit.js
 	node scripts/build-packages.js
 

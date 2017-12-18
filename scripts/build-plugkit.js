@@ -66,7 +66,7 @@ if (srcLastUpdated > lastUpdated) {
           path.resolve(dst, 'build/Release', path.basename(file))))
     }
   })
-  
+
   for (const file of scriptFiles) {
     fs.createReadStream(file)
       .pipe(fs.createWriteStream(

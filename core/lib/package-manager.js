@@ -257,6 +257,7 @@ export default class PackageManager extends EventEmitter {
       deplug: env.deplug.version,
       negatron: env.deplug.devDependencies.negatron,
       abi: process.versions.modules,
+      resourcePath: path.resolve(__dirname, '../..'),
     }))
   }
 
