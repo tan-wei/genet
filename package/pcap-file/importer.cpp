@@ -1,9 +1,9 @@
 #include <nan.h>
 #include <fstream>
 #include <vector>
-#include <../../plugkit/include/plugkit/context.h>
-#include <../../plugkit/include/plugkit/file.h>
-#include <../../plugkit/include/plugkit/reader.h>
+#include <plugkit/context.h>
+#include <plugkit/file.h>
+#include <plugkit/reader.h>
 
 using namespace plugkit;
 

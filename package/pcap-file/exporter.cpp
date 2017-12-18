@@ -1,8 +1,8 @@
 #include <nan.h>
 #include <fstream>
-#include <../../plugkit/include/plugkit/file.h>
-#include <../../plugkit/include/plugkit/context.h>
-#include <../../plugkit/include/plugkit/variant.h>
+#include <plugkit/file.h>
+#include <plugkit/context.h>
+#include <plugkit/variant.h>
 
 using namespace plugkit;
 

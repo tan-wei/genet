@@ -33,6 +33,7 @@ const env = Object.assign(process.env, {
 
 mkpath.sync(dst)
 mkpath.sync(path.resolve(dst, 'build/Release'))
+mkpath.sync(path.resolve(dst, 'include/plugkit'))
 
 let lastUpdated = null
 try {
@@ -71,6 +72,13 @@ if (srcLastUpdated > lastUpdated) {
     fs.createReadStream(file)
       .pipe(fs.createWriteStream(
         path.resolve(dst, path.basename(file))))
+  }
+
+  const headerFiles = glob.sync(path.resolve(src, 'include/plugkit/*.h'))
+  for (const file of headerFiles) {
+    fs.createReadStream(file)
+      .pipe(fs.createWriteStream(
+        path.resolve(dst, 'include/plugkit', path.basename(file))))
   }
 }
 
