@@ -16,6 +16,9 @@ const version = jsonfile.readFileSync(
   path.join(__dirname, '../package.json')).devDependencies.negatron
 const scriptFiles = glob.sync(path.resolve(src, '*.{js,json}'))
 const embeddedFiles = glob.sync(path.resolve(src, 'js/*.js'))
+const gperf = (process.platform === 'win32')
+  ? path.resolve(__dirname, '../node_modules/.bin/gperf')
+  : '/usr/bin/gperf'
 
 const env = Object.assign(process.env, {
   npm_config_target: version,
@@ -43,7 +46,7 @@ if (srcLastUpdated > lastUpdated) {
   execa.sync(path.resolve(__dirname, 'text-to-cpp.js'),
     embeddedFiles.concat(path.resolve(src, 'src/embedded_files.hpp')))
 
-  execa.sync('/usr/bin/gperf', [
+  execa.sync(gperf, [
     '-LANSI-C',
     path.resolve(src, 'src/token.keys'),
     '-G',
