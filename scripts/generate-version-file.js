@@ -2,10 +2,12 @@ const path = require('path')
 const os = require('os')
 const fs = require('fs')
 const jsonfile = require('jsonfile')
+const mkpath = require('mkpath')
 
 const userPath = path.resolve(os.homedir(), '.deplug')
 const versionFile = path.join(userPath, '.version')
 
+mkpath.sync(userPath)
 const deplug = jsonfile.readFileSync(
   path.join(__dirname, '../package.json'))
 
