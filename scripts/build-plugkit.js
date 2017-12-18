@@ -59,7 +59,7 @@ if (srcLastUpdated > lastUpdated) {
     proc.stderr.pipe(process.stderr)
     return proc
   }).then(() => {
-    const binaryFiles = glob.sync(path.resolve(src, 'build/Release/*.node'))
+    const binaryFiles = glob.sync(path.resolve(src, 'build/Release/*.{node,lib}'))
     for (const file of binaryFiles) {
       fs.createReadStream(file)
         .pipe(fs.createWriteStream(
