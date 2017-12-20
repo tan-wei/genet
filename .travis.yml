@@ -17,7 +17,9 @@ addons:
     - rpm
     - fakeroot
     - gperf
-cache: yarn
+cache:
+  directories:
+    - node_modules
 before_install:
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source scripts/linux-before-install.sh; fi
 install:
