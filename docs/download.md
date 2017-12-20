@@ -8,7 +8,7 @@
    - [Download .deb](https://cdn.deplug.net/deplug/release/latest/deplug-linux-amd64.deb)
    - [Download .rpm](https://cdn.deplug.net/deplug/release/latest/deplug-linux-amd64.rpm)
  - Windows
-   - [Download .exe (Installer)](https://cdn.deplug.net/deplug/release/latest/deplug-win32-amd64.exe)
+   - [Download .exe (Installer)](https://cdn.deplug.net/deplug/release/latest/deplug-win-amd64.exe)
 
 ## Requirements for Live Capture
 
