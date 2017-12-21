@@ -25,7 +25,6 @@
     "flat": "^4.0.0",
     "font-awesome": "^4.7.0",
     "glob": "^7.1.1",
-    "i18n4v": "^0.2.2",
     "js-yaml": "^3.10.0",
     "jsonfile": "^3.0.0",
     "jsonschema": "^1.2.0",
