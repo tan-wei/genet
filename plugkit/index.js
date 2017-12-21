@@ -1,22 +1,11 @@
 const kit = require('bindings')('plugkit.node')
-const { rollup } = require('rollup')
+const fs = require('fs')
+const promisify = require('es6-promisify')
 const EventEmitter = require('events')
 const Filter = require('./filter')
 
 const fields = Symbol('fields')
-function roll (script) {
-  return rollup({
-    entry: script,
-    external: () => false,
-    acorn: { ecmaVersion: 8 },
-    plugins: [],
-    onwarn: () => null,
-  }).then((bundle) => {
-    const result = bundle.generate({ format: 'cjs' })
-    return result.code
-  })
-}
-
+const promiseReadFile = promisify(fs.readFile)
 function compileFilter (filter, transforms) {
   const compiler = new Filter()
   for (const trans of transforms) {
@@ -171,12 +160,12 @@ class Session extends EventEmitter {
 
     registerDissector (dissector) {
       if (typeof dissector.main === 'string') {
-        const task = roll(dissector.main).then((script) => {
+        const task = promiseReadFile(dissector.main, 'utf8')
+        .then((script) => {
           const func = `(function(module){${script}})`
           super.registerDissector(func, dissector.type)
           return Promise.resolve()
         })
-        .catch((err) => Promise.reject(err))
         this[fields].tasks.push(task)
       } else {
         super.registerDissector(dissector.main, dissector.type)
