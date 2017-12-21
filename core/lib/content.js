@@ -23,7 +23,8 @@ export default class Content {
     }, false)
 
     document.addEventListener('click', (event) => {
-      if (event.target.tagName === 'A') {
+      const isUrl = (/^https?:\/\//).test(event.target.href)
+      if (event.target.tagName === 'A' && isUrl) {
         event.preventDefault()
         shell.openExternal(event.target.href)
       }
