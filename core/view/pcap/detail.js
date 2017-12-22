@@ -1,5 +1,5 @@
 import m from 'mithril'
-import moment from 'moment'
+import moment from '@deplug/moment.min'
 import objpath from 'object-path'
 
 function selectRange (range = []) {

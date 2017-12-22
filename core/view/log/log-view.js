@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron'
 import m from 'mithril'
-import moment from 'moment'
+import moment from '@deplug/moment.min'
 
 export default class LogView {
   constructor () {
