@@ -1,10 +1,12 @@
 import { EventEmitter } from 'events'
+import axios from 'axios'
 import deepEqual from 'deep-equal'
 import env from './env'
-import fetch from 'node-fetch'
 import objpath from 'object-path'
 import semver from 'semver'
 import yaml from 'js-yaml'
+
+axios.defaults.adapter = require('axios/lib/adapters/http')
 
 function promiseFilter (proms, errorCb) {
   if (proms.length === 0) {
@@ -40,9 +42,8 @@ async function resolveEntry (entry) {
   if (entry.source === 'npm') {
     const encodedName = entry.name.replace('/', '%2F')
     const url = `https://registry.npmjs.org/${encodedName}`
-    const meta = await fetch(url)
-      .then((res) => res.text())
-      .then((data) => JSON.parse(data))
+    const meta = await axios.get(url)
+      .then((res) => res.data)
 
     const vers = Object.keys(meta.versions)
     vers.sort(semver.rcompare)
@@ -74,8 +75,8 @@ async function crawlRegistries (registries, errorCb) {
   const tasks = []
   for (const reg of registries) {
     tasks.push(
-      fetch(reg)
-        .then((res) => res.text())
+      axios(reg)
+        .then((res) => res.data)
         .then((data) => Object.values(yaml.safeLoad(data)))
         .then((entries) => promiseFilter(entries.map(resolveEntry), errorCb))
     )
