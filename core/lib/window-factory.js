@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain, Menu, webContents } from 'electron'
 import Config from './config'
+import debounce from 'lodash.debounce'
 import env from './env'
 import flatten from 'flat'
 import path from 'path'
@@ -38,6 +39,10 @@ export default class WindowFactory {
       search: jsonArgv,
     })
     mainWindow.loadURL(localUrl)
+
+    mainWindow.on('resize', debounce(() => {
+      conf.set('_.window.size', mainWindow.getSize())
+    }), 500)
 
     const contents = mainWindow.webContents
     contents.on('crashed', () => mainWindow.reload())
