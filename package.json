@@ -31,7 +31,6 @@
     "jsonfile": "^3.0.0",
     "jsonschema": "^1.2.0",
     "less": "^2.7.2",
-    "lodash.merge": "^4.6.0",
     "lodash.throttle": "^4.1.1",
     "minimist": "^1.2.0",
     "mithril": "^1.1.1",
