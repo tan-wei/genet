@@ -2,7 +2,6 @@
   "variables":{
     "plugkit_sources":[
       "src/main.cpp",
-      "src/plugkit_private.cpp",
       "src/pcap.cpp",
       "src/worker_thread.cpp",
       "src/filter_thread.cpp",
