@@ -36,6 +36,11 @@ class MacHelper {
         },
       }),
       m('p', [
+        'Uninstaller is available in the main menu.',
+        m('br'),
+        '[ Deplug > Uninstall Helper Tool... ]'
+      ]),
+      m('p', [
         m('a', { href: 'https://deplug.net/#/helper-tool' }, ['Learn more...'])
       ])
     ])

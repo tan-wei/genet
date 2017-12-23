@@ -78,6 +78,10 @@ if (process.platform === 'darwin') {
     label: remote.app.getName(),
     submenu: [
       { role: 'about' },
+      {
+        label: 'Uninstall Helper Tool...',
+        action: 'core:pcap:uninstall-helper',
+      },
       { type: 'separator' },
       {
         role: 'services',

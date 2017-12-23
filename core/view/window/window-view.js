@@ -66,6 +66,9 @@ export default class WindowView {
     deplug.action.global.on('core:file:browse-user-dir', () => {
       shell.showItemInFolder(env.userProfilePath)
     })
+    deplug.action.global.on('core:pcap:uninstall-helper', () => {
+      require('@deplug/osx-helper').uninstall()
+    })
     deplug.action.global.on('core:file:import', () => {
       const files = dialog.showOpenDialog({
         properties: ['openFile'],
