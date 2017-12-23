@@ -1,7 +1,8 @@
-import { remote, ipcRenderer } from 'electron'
+import { remote, ipcRenderer, shell } from 'electron'
 import Menu from './menu'
 import Stack from './stack'
 import { VSplitter } from '../../lib/splitter'
+import env from '../../lib/env'
 import m from 'mithril'
 import path from 'path'
 
@@ -61,6 +62,9 @@ export default class WindowView {
     })
     deplug.action.global.on('core:tab:new-pcap', () => {
       this.createPcapTab()
+    })
+    deplug.action.global.on('core:file:browse-user-dir', () => {
+      shell.showItemInFolder(env.userProfilePath)
     })
     deplug.action.global.on('core:file:import', () => {
       const files = dialog.showOpenDialog({

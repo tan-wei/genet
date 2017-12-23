@@ -33,6 +33,11 @@ const template = [
         label: 'Export File...',
         action: 'core:file:export',
         accelerator: 'CommandOrControl+S',
+      },
+      { type: 'separator' },
+      {
+        label: 'Browse User Directory...',
+        action: 'core:file:browse-user-dir',
       }
     ],
   },
