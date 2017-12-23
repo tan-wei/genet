@@ -51,12 +51,23 @@
       "src/tag_filter.cpp",
       "src/capi.c",
       "vendor/json11/json11.cpp"
+    ],
+    "plugkit_test_sources":[
+      "src/plugkit_testing.cpp",
+      "test/token_test.cpp",
+      "test/variant_test.cpp",
+      "test/tag_filter_test.cpp",
+      "test/slice_test.cpp",
+      "test/reader_test.cpp",
+      "test/stream_reader_test.cpp",
+      "test/payload_test.cpp"
     ]
   },
   "target_defaults":{
     "include_dirs":[
       "vendor/nan",
       "vendor/json11",
+      "vendor/Catch/include",
       "include/plugkit",
       "src"
     ],
@@ -118,33 +129,14 @@
     {
       "target_name":"plugkit",
       "sources":[
-        "<@(plugkit_sources)"
-      ]
-    },
-    {
-      "target_name":"plugkit_test",
-      "include_dirs":[
-        "vendor/Catch/include"
-      ],
-      "sources":[
         "<@(plugkit_sources)",
-        "src/plugkit_testing.cpp",
-        "test/token_test.cpp",
-        "test/variant_test.cpp",
-        "test/tag_filter_test.cpp",
-        "test/slice_test.cpp",
-        "test/reader_test.cpp",
-        "test/stream_reader_test.cpp",
-        "test/payload_test.cpp"
+        "<@(plugkit_test_sources)"
       ],
       "xcode_settings":{
         "GCC_ENABLE_CPP_EXCEPTIONS":"YES"
       },
       "cflags_cc!":[
         "-fno-exceptions"
-      ],
-      "defines":[
-        "PLUGKIT_ENABLE_TESTING"
       ]
     }
   ]

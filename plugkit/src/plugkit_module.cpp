@@ -69,9 +69,7 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
     func->Call(global, 1, args);
   }
 
-#ifdef PLUGKIT_ENABLE_TESTING
   PlugkitTesting::init(exports);
-#endif
 }
 
 PlugkitModule *PlugkitModule::get(v8::Isolate *isolate) {

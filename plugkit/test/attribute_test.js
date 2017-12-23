@@ -1,5 +1,5 @@
 const assert = require('assert')
-const { Testing, Token } = require('../test')
+const { Testing, Token } = require('..')
 describe('Attr', () => {
   describe('#id', () => {
     it('should return attribute id', () => {

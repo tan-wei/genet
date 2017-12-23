@@ -1,5 +1,5 @@
 const assert = require('assert')
-const { Testing } = require('../test')
+const { Testing } = require('..')
 describe('Payload', () => {
   describe('#addSlice()', () => {
     it('should throw for wrong arguments', () => {

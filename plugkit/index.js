@@ -178,4 +178,7 @@ class Session extends EventEmitter {
     Pcap: kit.Pcap,
     SessionFactory,
     Token: kit.Token,
+    Reader: kit.Reader,
+    StreamReader: kit.StreamReader,
+    Testing: kit.Testing,
   }

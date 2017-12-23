@@ -1,5 +1,5 @@
 const assert = require('assert')
-const { Pcap } = require('../test')
+const { Pcap } = require('..')
 describe('Pcap', () => {
   describe('.devices', () => {
     it('should return available network devices', () => {

@@ -1,5 +1,5 @@
 const assert = require('assert')
-const { Reader } = require('../test')
+const { Reader } = require('..')
 describe('Reader', () => {
   describe('#slice()', () => {
     it('should throw for wrong arguments', () => {

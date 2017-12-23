@@ -1,5 +1,5 @@
 const assert = require('assert')
-const { Token } = require('../test')
+const { Token } = require('..')
 describe('Token', () => {
   it('should return 0 for empty string', () => {
     assert.strictEqual(0, Token``)

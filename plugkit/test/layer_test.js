@@ -1,5 +1,5 @@
 const assert = require('assert')
-const { Testing, Layer } = require('../test')
+const { Testing, Layer } = require('..')
 describe('Layer', () => {
   describe('#constructor()', () => {
     it('should throw error', () => {

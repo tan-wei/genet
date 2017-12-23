@@ -1,5 +1,5 @@
 const assert = require('assert')
-const { Testing } = require('../test')
+const { Testing } = require('..')
 describe('Frame', () => {
   describe('#timestamp', () => {
     it('should return frame timestamp', () => {

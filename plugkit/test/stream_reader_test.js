@@ -1,5 +1,5 @@
 const assert = require('assert')
-const { Testing, StreamReader } = require('../test')
+const { Testing, StreamReader } = require('..')
 describe('StreamReader', () => {
   describe('#addPayload()', () => {
     it('should throw for wrong arguments', () => {
