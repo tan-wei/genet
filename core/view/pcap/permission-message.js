@@ -19,7 +19,7 @@ class MacHelper {
         : 'Install',
         disabled: Pcap.permission,
         onclick: () => {
-          require('@deplug/osx-helper')()
+          require('@deplug/osx-helper').install()
           if (Pcap.permission) {
             deplug.notify.show(
               'Successfully installed.', {

@@ -62,6 +62,6 @@
     "electron-winstaller": "^2.6.3"
   },
   "optionalDependencies": {
-    "@deplug/osx-helper": "^0.1.0"
+    "@deplug/osx-helper": "^0.2.0"
   }
 }
