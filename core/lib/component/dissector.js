@@ -1,4 +1,5 @@
 import BaseComponent from './base'
+import { CompositeDisposable } from 'disposables'
 import { _load } from 'module'
 import exists from 'file-exists'
 import objpath from 'object-path'
@@ -30,6 +31,12 @@ export default class DissectorComponent extends BaseComponent {
 
     this.linkLayers = objpath.get(comp, 'linkLayers', [])
 
+    this.samples = objpath.get(comp, 'samples', [])
+      .map((sample) => ({
+          pcap: path.join(dir, sample.pcap),
+          assert: path.join(dir, sample.assert),
+        }))
+
     switch (comp.type) {
       case 'core:dissector:packet':
         this.type = 'packet'
@@ -60,7 +67,16 @@ export default class DissectorComponent extends BaseComponent {
         throw new Error(`unknown extension type: ${ext}`)
     }
     for (const layer of this.linkLayers) {
-      deplug.session.registerLinkLayer(layer)
+      this.disposable = new CompositeDisposable([
+        this.disposable,
+        deplug.session.registerLinkLayer(layer)
+      ])
+    }
+    for (const sample of this.samples) {
+      this.disposable = new CompositeDisposable([
+        this.disposable,
+        deplug.session.registerSample(sample)
+      ])
     }
     return false
   }

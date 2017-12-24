@@ -1,13 +1,14 @@
 const kit = require('bindings')('plugkit.node')
 const fs = require('fs')
+const vm = require('vm')
 const promisify = require('es6-promisify')
 const EventEmitter = require('events')
-const Filter = require('./filter')
+const FilterCompiler = require('./filter')
 
 const fields = Symbol('fields')
 const promiseReadFile = promisify(fs.readFile)
 function compileFilter (filter, transforms) {
-  const compiler = new Filter()
+  const compiler = new FilterCompiler()
   for (const trans of transforms) {
     switch (trans.type) {
       case 'string':
@@ -27,6 +28,17 @@ function compileFilter (filter, transforms) {
     }
   }
   return compiler.compile(filter)
+}
+
+class Filter {
+  constructor (body) {
+    const options = { displayErrors: true }
+    this.func = vm.runInThisContext(body, options)
+  }
+
+  test (frame) {
+    return this.func(frame)
+  }
 }
 
 class Session extends EventEmitter {
@@ -53,14 +65,6 @@ class Session extends EventEmitter {
     sess.setLoggerCallback((log) => {
       this.emit('log', log)
     })
-  }
-
-  exportFrames (file, callback, filter = '', type = '') {
-    this[fields].sess.exportFrames(file, callback, filter, type)
-  }
-
-  importFrames (file, callback, type = '') {
-    this[fields].sess.importFrames(file, callback, type)
   }
 
   importFile (file) {
@@ -115,6 +119,11 @@ class Session extends EventEmitter {
   setDisplayFilter (name, filter) {
     const body = compileFilter(filter, this[fields].transforms)
     return this[fields].sess.setDisplayFilter(name, body)
+  }
+
+  createFilter (filter) {
+    const body = compileFilter(filter, this[fields].transforms)
+    return new Filter(body)
   }
 }
 

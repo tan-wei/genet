@@ -1,0 +1,6 @@
+[
+  [
+    "eth.type.ipv4",
+    "!ipv4.flags.moreFragments"
+  ]
+]

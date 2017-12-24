@@ -1,6 +1,7 @@
 import { Disposable } from 'disposables'
 import { SessionFactory } from '@deplug/plugkit'
 import flatten from 'flat'
+import jsonfile from 'jsonfile'
 
 const fields = Symbol('fields')
 export default class Session {
@@ -13,6 +14,7 @@ export default class Session {
       layerRenderers: new Map(),
       attrRenderers: new Map(),
       filterTransforms: new Set(),
+      samples: new Set(),
       importers: new Set(),
       exporters: new Set(),
       fileImporterExtensions: new Set(),
@@ -96,6 +98,13 @@ export default class Session {
     })
   }
 
+  registerSample (sample) {
+    this[fields].samples.add(sample)
+    return new Disposable(() => {
+      this[fields].samples.delete(sample)
+    })
+  }
+
   token (id) {
     const data = this[fields].tokens.get(id)
     if (typeof data !== 'undefined') {
@@ -172,5 +181,44 @@ export default class Session {
     }
     factory.registerAttributes(attributes)
     return factory.create()
+  }
+
+  async runSampleTesting (sample) {
+    const asserts = jsonfile.readFileSync(sample.assert)
+    const sess = await this.create()
+    const prom = (new Promise((res) => {
+      sess.on('frame', (stat) => {
+        if (stat.frames >= asserts.length) {
+          const results = []
+          const frames = sess.getFrames(0, asserts.length)
+          for (let index = 0; index < frames.length; index += 1) {
+            const assertionResults = asserts[index].map((assert) => {
+              const filter = sess.createFilter(assert)
+              return {
+                filter: assert,
+                match: filter.test(frames[index]),
+              }
+            })
+            results.push({
+              frame: frames[index],
+              assert: assertionResults,
+            })
+          }
+          res({
+            sample,
+            results,
+          })
+        }
+      })
+    }))
+    sess.importFile(sample.pcap)
+    return prom
+  }
+
+  async runSampleTestingAll () {
+    const { samples } = this[fields]
+    return Promise.all(Array.from(samples).map((sample) =>
+      this.runSampleTesting(sample)
+    ))
   }
 }

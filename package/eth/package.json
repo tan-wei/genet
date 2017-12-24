@@ -19,8 +19,8 @@
         ],
         "samples": [
           {
-            "pcap": "samples/tcp-ipv4.pcap",
-            "assert": "test/eth.json"
+            "pcap": "tcp-ipv4.pcap",
+            "assert": "assert.json"
           }
         ]
       },
