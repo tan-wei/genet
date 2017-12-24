@@ -55,7 +55,6 @@ export default class Config {
     }
 
     this[fields].load(false)
-    fs.watchFile(filePath, () => this[fields].load(true))
   }
 
   registerSchema (schema) {
@@ -117,7 +116,10 @@ export default class Config {
   }
 
   watch (id, callback, defaultValue) {
-    const { listeners } = this[fields]
+    const { listeners, filePath } = this[fields]
+    if (listeners.length === 0) {
+      fs.watchFile(filePath, () => this[fields].load(true))
+    }
     listeners.push({
       id,
       callback,
@@ -130,6 +132,9 @@ export default class Config {
     return new Disposable(() => {
       this[fields].listeners =
         listeners.filter((handler) => handler.callback !== callback)
+      if (listeners.length === 0) {
+        fs.unwatchFile(filePath, () => this[fields].load(true))
+      }
     })
   }
 
