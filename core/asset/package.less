@@ -1,6 +1,6 @@
 @import "common";
 
-@nav-width: 150px;
+@nav-width: 280px;
 
 nav {
   position: absolute;
@@ -13,6 +13,41 @@ nav {
   overflow-y: hidden;
   border-right: 1px solid @theme-lighter-bg;
 
+  .mode-selector {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 40px;
+    display: flex;
+    border-bottom: 1px solid @theme-lighter-bg;
+
+    button {
+      flex-grow: 1;
+      border: none;
+      color: @theme-default-fg;
+      background-color: @theme-default-bg;
+
+      &:hover {
+        background: @theme-lighter-bg;
+      }
+
+      &[active] {
+        color: @theme-default-bg;
+        background-color: @theme-default-fg;
+      }
+    }
+  }
+
+  .registry-packages, .local-packages {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    overflow-y: scroll;
+  }
+
   ul {
     list-style: none;
     padding: 0;
@@ -22,8 +57,23 @@ nav {
       padding: 0;
       -webkit-user-select: none;
 
+      h4 {
+        font-size: 1.0em;
+        margin: 0 0 5px 0;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+
+      span {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        display: block;
+        overflow: hidden;
+      }
+
       a {
-        padding: 15px 20px;
+        padding: 10px 15px;
         display: block;
         cursor: pointer;
         text-decoration: none;
@@ -33,8 +83,7 @@ nav {
         }
 
         &[active] {
-          color: @theme-default-bg;
-          background-color: @theme-default-fg;
+          background: @theme-lighter-bg;
         }
       }
     }

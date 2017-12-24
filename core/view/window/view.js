@@ -19,6 +19,15 @@ export default class WindowView {
       loading: true,
       system: true,
       icon: 'fa-cog',
+    },
+    {
+      id: 'package',
+      name: 'Packages',
+      src: 'package.htm',
+      argv: deplug.argv,
+      loading: true,
+      system: true,
+      icon: 'fa-gift',
     }, {
       id: 'log',
       name: 'Logs',
