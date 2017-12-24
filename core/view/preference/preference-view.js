@@ -7,10 +7,42 @@ import m from 'mithril'
 export default class PrefernceView {
   constructor () {
     this.tabs = [{
-      name: 'General',
+      name: 'Pcap',
       component: General,
+      attrs: {
+        name: 'Pcap',
+        prefix: '_.pcap.',
+      },
+    }, {
+      name: 'Dissector',
+      component: General,
+      attrs: {
+        name: 'Dissector',
+        prefix: '_.dissector.',
+      },
     }, {
       name: 'Package',
+      component: General,
+      attrs: {
+        name: 'Package',
+        prefix: '_.package.',
+      },
+    }, {
+      name: 'Filter',
+      component: General,
+      attrs: {
+        name: 'Filter',
+        prefix: '_.filter.',
+      },
+    }, {
+      name: 'Logger',
+      component: General,
+      attrs: {
+        name: 'Logger',
+        prefix: '_.logger.',
+      },
+    }, {
+      name: 'Packages',
       component: Package,
     }, {
       name: 'Install',
@@ -19,7 +51,7 @@ export default class PrefernceView {
       name: 'Version',
       component: Version,
     }]
-    this.activeTab = 'General'
+    this.activeTab = 'Pcap'
   }
 
   view () {
@@ -36,7 +68,7 @@ export default class PrefernceView {
       ]),
       m('main', this.tabs.map((item) =>
         m('article', { active: this.activeTab === item.name },
-          [m(item.component, {})]))),
+          [m(item.component, item.attrs || {})]))),
       m('div', { class: 'notification' })
     ]
   }
