@@ -1,6 +1,6 @@
 export default {
   config: {
-    '_.snaplen': {
+    '_.pcap.snaplen': {
       title: 'Snapshot Length',
       description: 'Snapshot Length',
       type: 'integer',
@@ -8,7 +8,7 @@ export default {
       default: 2048,
       section: 'Pcap',
     },
-    '_.confidenceThreshold': {
+    '_.dissector.confidenceThreshold': {
       title: 'Confidence Threshold',
       type: 'integer',
       enum: [0, 1, 2, 3],
@@ -23,7 +23,7 @@ export default {
       default: 2,
       section: 'Analyzer',
     },
-    '_.concurrency': {
+    '_.dissector.concurrency': {
       title: 'Concurrency',
       type: 'integer',
       enum: [0, 1, 2, 3, 4, 5, 6, 7, 8],
@@ -43,7 +43,7 @@ export default {
       default: 0,
       section: 'Analyzer',
     },
-    '_.packageRegistries': {
+    '_.package.registries': {
       title: 'Package Registries',
       type: 'array',
       items: {
@@ -54,14 +54,14 @@ export default {
       default: ['https://deplug.net/registry/list.yml'],
       section: 'Package',
     },
-    '_.noPrebuilt': {
+    '_.package.noPrebuilt': {
       title: 'Don\'t Use Pre-Built Binaries',
       description: 'Force to build native add-ons from source',
       type: 'boolean',
       default: false,
       section: 'Package',
     },
-    '_.logLevel': {
+    '_.logger.level': {
       title: 'Log Level',
       type: 'string',
       enum: ['debug', 'info', 'warn', 'error'],
@@ -74,14 +74,14 @@ export default {
       default: 'debug',
       section: 'Logger',
     },
-    '_.maxLogLength': {
+    '_.logger.maxLength': {
       title: 'Maximum Log Length',
       type: 'integer',
       minimum: 0,
       default: 1000,
       section: 'Logger',
     },
-    '_.filterHistoryLength': {
+    '_.filter.historyLength': {
       title: 'Filter History Length',
       type: 'integer',
       minimum: 0,

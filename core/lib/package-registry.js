@@ -89,7 +89,7 @@ const fields = Symbol('fields')
 export default class PackageRegistry extends EventEmitter {
   constructor (profile, config, cache) {
     super()
-    const registries = config.get('_.packageRegistries', [])
+    const registries = config.get('_.package.registries', [])
     this[fields] = {
       registries,
       updating: false,

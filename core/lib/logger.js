@@ -9,7 +9,7 @@ export default class Logger {
       windowId: remote.getCurrentWindow().id,
       domain: 'core',
     }
-    config.watch('_.logLevel', (value) => {
+    config.watch('_.logger.level', (value) => {
       this[fields].logLevel = value
     }, 'debug')
   }

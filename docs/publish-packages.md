@@ -39,4 +39,4 @@ For example, on Linux with node@8.1.2 (ABI version 57), the package installer wi
 
 If the archive is not available, the installer will build the native package with `node-gyp`.
 
-Using pre-built binaries can be disabled by setting `_.noPrebuilt` to `true` in `config.yml`.
+Using pre-built binaries can be disabled by setting `_.package.noPrebuilt` to `true` in `config.yml`.

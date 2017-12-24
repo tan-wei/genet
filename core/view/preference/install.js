@@ -75,7 +75,7 @@ export default class Plugin {
       dir: path.join(env.userPackagePath, shortName),
       url: pkg.archive,
       version: env.deplug.devDependencies.negatron,
-      noPrebuilt: deplug.config.get('_.noPrebuilt'),
+      noPrebuilt: deplug.config.get('_.package.noPrebuilt'),
       plugkitPath: path.resolve(__dirname, '../..', 'deplug-modules/plugkit'),
     })
     try {

@@ -5,7 +5,7 @@ import moment from '@deplug/moment.min'
 export default class LogView {
   constructor () {
     this.logs = []
-    deplug.config.watch('_.maxLogLength', (value) => {
+    deplug.config.watch('_.logger.maxLength', (value) => {
       this.maxLength = value
     }, 1000)
     ipcRenderer.on('core:logger:message', (event, message) => {

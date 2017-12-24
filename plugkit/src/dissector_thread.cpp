@@ -53,7 +53,7 @@ DissectorThread::DissectorThread(const VariantMap &options,
                                  const Callback &callback)
     : d(new Private(options, queue, callback)) {
   d->confidenceThreshold = static_cast<LayerConfidence>(
-      options["_.confidenceThreshold"].uint32Value(2));
+      options["_.dissector.confidenceThreshold"].uint32Value(2));
 }
 
 DissectorThread::~DissectorThread() {}
