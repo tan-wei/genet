@@ -1,6 +1,6 @@
 import { ipcRenderer, remote } from 'electron'
 import Content from './lib/content'
-import WindowView from './view/window/window-view'
+import WindowView from './view/window/view'
 
 const components = [
   'core:file:importer',

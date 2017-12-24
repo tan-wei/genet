@@ -1,6 +1,6 @@
 import { ipcRenderer, remote } from 'electron'
 import Content from './lib/content'
-import LogView from './view/log/log-view'
+import LogView from './view/log/view'
 
 ipcRenderer.send('core:logger:register',
   remote.getCurrentWindow().id, remote.getCurrentWebContents().id)

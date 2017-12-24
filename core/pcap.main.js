@@ -1,5 +1,5 @@
 import Content from './lib/content'
-import PcapView from './view/pcap/pcap-view'
+import PcapView from './view/pcap/view'
 
 const components = [
   'core:style',

@@ -1,5 +1,5 @@
 import Content from './lib/content'
-import PreferenceView from './view/preference/preference-view'
+import PreferenceView from './view/preference/view'
 
 const components = [
   'core:style'
