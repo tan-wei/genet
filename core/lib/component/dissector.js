@@ -1,4 +1,5 @@
 import BaseComponent from './base'
+import { _load } from 'module'
 import exists from 'file-exists'
 import objpath from 'object-path'
 import path from 'path'
@@ -46,7 +47,7 @@ export default class DissectorComponent extends BaseComponent {
       case '.node':
         this.disposable = deplug.session.registerDissector({
           type: this.type,
-          main: global.require(this.mainFile).dissector,
+          main: _load(this.mainFile).dissector,
         })
         break
       case '.js':

@@ -1,5 +1,6 @@
 import BaseComponent from './base'
 import { CompositeDisposable } from 'disposables'
+import { _load } from 'module'
 import exists from 'file-exists'
 import objpath from 'object-path'
 import path from 'path'
@@ -44,12 +45,12 @@ export default class FileComponent extends BaseComponent {
   async load () {
     if (this.type === 'importer') {
       this.disposable = new CompositeDisposable([
-        deplug.session.registerImporter(global.require(this.mainFile).importer),
+        deplug.session.registerImporter(_load(this.mainFile).importer),
         deplug.session.registerFileImporterExtensions(this.extensions)
       ])
     } else if (this.type === 'exporter') {
       this.disposable = new CompositeDisposable([
-        deplug.session.registerExporter(global.require(this.mainFile).exporter),
+        deplug.session.registerExporter(_load(this.mainFile).exporter),
         deplug.session.registerFileExporterExtensions(this.extensions)
       ])
     }
