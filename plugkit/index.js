@@ -1,4 +1,8 @@
-const kit = require('bindings')('plugkit.node')
+const path = require('path')
+const kitpath = path.join(__dirname, '../bin/plugkit/plugkit.node')
+  .replace('/app.asar/', '/app.asar.unpacked/')
+
+const kit = require(kitpath)
 const fs = require('fs')
 const vm = require('vm')
 const promisify = require('es6-promisify')

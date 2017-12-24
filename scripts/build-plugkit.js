@@ -11,6 +11,7 @@ const lastmod = require('./lastmod')
 
 const src = path.resolve(__dirname, '../plugkit')
 const dst = path.resolve(__dirname, '../deplug-modules/plugkit')
+const dstBin = path.resolve(__dirname, '../deplug-modules/bin/plugkit')
 const cache = path.resolve(dst, '.last-updated')
 const version = jsonfile.readFileSync(
   path.join(__dirname, '../package.json')).devDependencies.negatron
@@ -32,7 +33,7 @@ const env = Object.assign(process.env, {
 })
 
 mkpath.sync(dst)
-mkpath.sync(path.resolve(dst, 'build/Release'))
+mkpath.sync(dstBin)
 mkpath.sync(path.resolve(dst, 'include/plugkit'))
 
 let lastUpdated = null
@@ -64,7 +65,7 @@ if (srcLastUpdated > lastUpdated) {
     for (const file of binaryFiles) {
       fs.createReadStream(file)
         .pipe(fs.createWriteStream(
-          path.resolve(dst, 'build/Release', path.basename(file))))
+          path.resolve(dstBin, path.basename(file))))
     }
   })
 
