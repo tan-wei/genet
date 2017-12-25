@@ -34,6 +34,7 @@ const env = Object.assign(process.env, {
 
 mkpath.sync(dst)
 mkpath.sync(dstBin)
+mkpath.sync(path.resolve(dst, 'build/Release'))
 mkpath.sync(path.resolve(dst, 'include/plugkit'))
 
 let lastUpdated = null
@@ -66,6 +67,9 @@ if (srcLastUpdated > lastUpdated) {
       fs.createReadStream(file)
         .pipe(fs.createWriteStream(
           path.resolve(dstBin, path.basename(file))))
+      fs.createReadStream(file)
+        .pipe(fs.createWriteStream(
+         path.resolve(dst, 'build/Release', path.basename(file))))
     }
   })
 
