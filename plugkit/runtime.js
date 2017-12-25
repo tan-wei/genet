@@ -9,12 +9,13 @@ function value (val) {
 
 function resolver(root) {
   return function (...args) {
-    return root.query(args.join('.'))
+    const attr = root.query(args.join('.'))
+    return attr === null ? undefined : attr
   }
 }
 
-function operator(opcode, lhs, rhs = null) {
-  if (rhs === null) {
+function operator(opcode, lhs, rhs) {
+  if (arguments.length === 2) {
     switch (opcode) {
       case '+':
         return Number(value(lhs))
@@ -33,8 +34,8 @@ function operator(opcode, lhs, rhs = null) {
 
   const left = value(lhs)
   const right = value(rhs)
-  if (typeof left === 'object' && Symbol.iterator in left &&
-    typeof right === 'object' && Symbol.iterator in right) {
+  if (typeof left === 'object' && left !== null && Symbol.iterator in left &&
+    typeof right === 'object' && right !== null && Symbol.iterator in right) {
     const leftIt = left[Symbol.iterator]()
     const rightIt = right[Symbol.iterator]()
     switch (opcode) {
