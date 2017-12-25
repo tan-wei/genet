@@ -1,4 +1,4 @@
-import SchemaInput from './schema-input'
+import SchemaInput from '../../lib/schema-input'
 import m from 'mithril'
 
 export default class General {

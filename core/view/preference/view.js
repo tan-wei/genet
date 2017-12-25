@@ -1,6 +1,4 @@
 import General from './general'
-import Install from './install'
-import Package from './package'
 import Version from './version'
 import m from 'mithril'
 
@@ -41,12 +39,6 @@ export default class PrefernceView {
         name: 'Logger',
         prefix: '_.logger.',
       },
-    }, {
-      name: 'Packages',
-      component: Package,
-    }, {
-      name: 'Install',
-      component: Install,
     }, {
       name: 'Version',
       component: Version,

@@ -1,8 +1,11 @@
+import DetailView from './detail'
 import m from 'mithril'
 
 export default class PackageView {
   constructor () {
     this.mode = 'local'
+    this.selectedLocalPackage = ''
+    this.selectedRegistryPackage = ''
   }
 
   oncreate () {
@@ -16,6 +19,34 @@ export default class PackageView {
   }
 
   view () {
+    if (deplug.packages.list.map((pkg) => pkg.data.name)
+      .indexOf(this.selectedLocalPackage) < 0) {
+      if (deplug.packages.list.length > 0) {
+        this.selectedLocalPackage = deplug.packages.list[0].data.name
+      } else {
+        this.selectedLocalPackage = ''
+      }
+    }
+    if (deplug.registry.packages.map((pkg) => pkg.data.name)
+      .indexOf(this.selectedRegistryPackage) < 0) {
+      if (deplug.registry.packages.length > 0) {
+        this.selectedRegistryPackage = deplug.registry.packages[0].data.name
+      } else {
+        this.selectedRegistryPackage = ''
+      }
+    }
+    let selectedPackage = null
+    if (this.mode === 'local') {
+      selectedPackage = deplug.packages.list.find((pkg) =>
+        pkg.data.name === this.selectedLocalPackage) || null
+    } else {
+      selectedPackage = deplug.registry.packages.find((pkg) =>
+        pkg.data.name === this.selectedRegistryPackage) || null
+    }
+    if (selectedPackage !== null) {
+      const installedPkg = deplug.packages.get(selectedPackage.data.name)
+      selectedPackage = installedPkg || selectedPackage
+    }
     return [
       m('nav', [
         m('div', { class: 'mode-selector' }, [
@@ -40,9 +71,15 @@ export default class PackageView {
               : 'none',
           },
         }, [
-          m('ul', deplug.packages.list.map((pkg) => m('li', [
-            m('a', [
-              m('h4', [pkg.data.name]),
+          m('ul', deplug.packages.list.map((pkg) =>
+            m('li', [
+            m('a', {
+              active: this.selectedLocalPackage === pkg.data.name,
+              onclick: () => {
+                this.selectedLocalPackage = pkg.data.name
+              },
+            }, [
+              m('h4', { disabled: pkg.disabled === true }, [pkg.data.name]),
               m('span', [pkg.data.description])
             ])])))
         ]),
@@ -54,14 +91,20 @@ export default class PackageView {
               : 'none',
           },
         }, [
-          m('ul', deplug.registry.packages.map((pkg) => m('li', [
-            m('a', [
+          m('ul', deplug.registry.packages.map((pkg) =>
+            m('li', [
+            m('a', {
+              active: this.selectedRegistryPackage === pkg.data.name,
+              onclick: () => {
+                this.selectedRegistryPackage = pkg.data.name
+              },
+            }, [
               m('h4', [pkg.data.name]),
               m('span', [pkg.data.description])
             ])])))
         ])
       ]),
-      m('main'),
+      m('main', [m(DetailView, { pkg: selectedPackage })]),
       m('div', { class: 'notification' })
     ]
   }

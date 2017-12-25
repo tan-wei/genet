@@ -2,6 +2,10 @@
 
 @nav-width: 280px;
 
+[disabled] {
+  opacity: 0.6;
+}
+
 nav {
   position: absolute;
   top: 0;
@@ -83,7 +87,12 @@ nav {
         }
 
         &[active] {
-          background: @theme-lighter-bg;
+          color: @theme-default-bg;
+          background-color: @theme-default-fg;
+
+          h4 {
+            color: @theme-default-bg;
+          }
         }
       }
     }
@@ -97,34 +106,15 @@ main {
   left: @nav-width;
   right: 0;
   overflow-y: scroll;
+  padding: 0 20px;
 
-  article {
-    padding: 0 20px;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: none;
+  span.version, span.schema-path {
+    margin: 10px 25px;
+    font-weight: normal;
+    color: @theme-dark-fg;
+  }
 
-    &[active] {
-      display: block;
-    }
-
-    h4 {
-      font-size: 1.2em;
-      margin-bottom: 0.8em;
-    }
-
-    span.schema-path {
-      margin: 10px 25px;
-      font-weight: normal;
-      color: @theme-dark-fg;
-    }
-
-    section {
-      margin-bottom: 40px;
-      border-top: 1px solid @theme-dark-fg;
-    }
+  input[type=button] {
+    max-width: 120px;
   }
 }
