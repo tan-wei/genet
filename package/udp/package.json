@@ -2,7 +2,7 @@
   "name": "@deplug/udp",
   "version": "0.1.0",
   "license": "MIT",
-  "description": "Deplug UDP dissector",
+  "description": "UDP dissector",
   "engines": {
     "deplug": "*"
   },

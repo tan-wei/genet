@@ -2,7 +2,7 @@
   "name": "@deplug/ipv6",
   "version": "0.1.0",
   "license": "MIT",
-  "description": "Deplug IPv6 dissector",
+  "description": "IPv6 dissector",
   "engines": {
     "deplug": "*"
   },

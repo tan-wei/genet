@@ -2,7 +2,7 @@
   "name": "@deplug/ntp",
   "version": "0.1.0",
   "license": "MIT",
-  "description": "Deplug NTP dissector",
+  "description": "NTP dissector",
   "engines": {
     "deplug": "*"
   },
