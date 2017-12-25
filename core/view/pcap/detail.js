@@ -101,8 +101,9 @@ class AttributeValueItem {
 
 class AttributeItem {
   view (vnode) {
-    const prop = vnode.attrs.property[propSymbol]
-    const children = orderedAttributes(vnode.attrs.property)
+    const { property } = vnode.attrs
+    const prop = property.attr
+    const { children } = property
     let faClass = 'property'
     if (children.length) {
       faClass = 'property children'
@@ -173,18 +174,36 @@ class LayerItem {
     ]
     const layerId = layer.id
     const { name } = deplug.session.token(layerId)
-    const propObject = { [layerId]: {} }
+
     const properties = layer.attrs
-    for (let index = 0; index < properties.length; index += 1) {
-      const prop = properties[index]
+    const propArray = []
+    let prevDepth = 0
+    for (const prop of properties) {
       let { id } = prop
       if (id.startsWith('.')) {
         id = layer.id + id
       }
-      objpath.ensureExists(propObject, id, {})
-      const item = objpath.get(propObject, id)
-      item[propSymbol] = prop
-      item[orderSymbol] = index
+      const propPath = id.split('.')
+      let items = propArray
+      let child = null
+      for (let index = 0; index < propPath.length; index += 1) {
+        const key = propPath[index]
+        if (index < propPath.length - 1 || prevDepth < propPath.length) {
+          child = items.find((item) => item.key === key) || null
+        } else {
+          child = null
+        }
+        if (child === null) {
+          child = {
+            key,
+            children: [],
+          }
+          items.push(child)
+        }
+        items = child.children
+      }
+      child.attr = prop
+      prevDepth = propPath.length
     }
     return m('ul', [
       m('li', {
@@ -222,7 +241,7 @@ class LayerItem {
                 layer.confidence * 100, '%'
               ])
           ]),
-          orderedAttributes(propObject[layerId]).map((prop) =>
+          propArray[0].children.map((prop) =>
             m(AttributeItem, {
               property: prop,
               layer,
