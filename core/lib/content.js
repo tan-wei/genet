@@ -1,8 +1,8 @@
+import { shell, webFrame } from 'electron'
 import Deplug from './deplug'
 import Style from './style'
 import m from 'mithril'
 import path from 'path'
-import { shell } from 'electron'
 
 export default class Content {
   constructor (view, less, argv = []) {
@@ -12,6 +12,8 @@ export default class Content {
   }
 
   async load () {
+    webFrame.setZoomLevelLimits(1, 1)
+
     document.addEventListener('dragover', (event) => {
       event.preventDefault()
       return false
