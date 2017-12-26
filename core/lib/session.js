@@ -196,7 +196,7 @@ export default class Session {
               const filter = sess.createFilter(assert)
               return {
                 filter: assert,
-                match: filter.test(frames[index]),
+                match: Boolean(filter.test(frames[index])),
               }
             })
             results.push({
