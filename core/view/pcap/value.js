@@ -6,7 +6,13 @@ import moment from '@deplug/moment.min'
     const faClass = vnode.attrs.value
       ? 'fa-check-square-o'
       : 'fa-square-o'
-    return m('span', [m('i', { class: `fa ${faClass}` })])
+    return m('span', [
+      m('i', { class: `fa ${faClass}` }),
+      ' ',
+      vnode.attrs.value
+        ? 'true'
+        : 'false'
+    ])
   }
 }
  class DateValueItem {
@@ -55,6 +61,8 @@ export class AttributeValueItem {
     const { prop } = vnode.attrs
     if (prop.value === null) {
       return m('span')
+    } else if (typeof prop.value === 'undefined') {
+      return m('span', ['undefined'])
     } else if (typeof prop.value === 'boolean') {
       return m(BooleanValueItem, { value: prop.value })
     } else if (prop.value instanceof Date) {

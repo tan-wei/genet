@@ -177,8 +177,16 @@ class LayerItem {
 export default class PcapDetailView {
   constructor () {
     this.selectedFrame = null
+    this.displayFilter = null
     deplug.action.on('core:frame:selected', (frames) => {
       this.selectedFrame = frames[0] || null
+      m.redraw()
+    })
+  }
+
+  oncreate () {
+    deplug.action.on('core:filter:set', (filter) => {
+      this.displayFilter = filter
       m.redraw()
     })
   }
@@ -203,6 +211,16 @@ export default class PcapDetailView {
       children = frame.rootLayer.layers
     }
 
+    let filterValue = '(null)'
+    if (this.displayFilter) {
+      const value = this.displayFilter.test(frame)
+      if (value !== null) {
+        filterValue = value
+      }
+    } else {
+      filterValue = 'No filter'
+    }
+
     return m('div', { class: 'detail-view' }, [
       m('ul', [
         m('li', [
@@ -214,6 +232,16 @@ export default class PcapDetailView {
           m('i', { class: 'fa fa-circle-o' }),
           m('span', { class: 'label' }, [' Length: ']),
           m('span', [' ', length, ' '])
+        ]),
+        m('li', [
+          m('i', { class: 'fa fa-circle-o' }),
+          m('span', { class: 'label' }, [' Evaluated Filter: ']),
+          m('span', [
+            this.displayFilter
+            ? `${this.displayFilter.expression} =>`
+            : '',
+           ' ']),
+          m('span', [m(AttributeValueItem, { prop: { value: filterValue } })])
         ])
       ]),
       children.map((layer) => m(LayerItem, { layer }))

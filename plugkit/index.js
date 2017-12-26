@@ -41,9 +41,10 @@ function compileFilter (filter, transforms) {
 }
 
 class Filter {
-  constructor (body) {
+  constructor (expression, body) {
     const options = { displayErrors: true }
-    this.func = vm.runInThisContext(body, options)
+    this.expression = expression
+    this.func = vm.runInThisContext(body, options) || (() => true)
   }
 
   test (frame) {
@@ -133,7 +134,7 @@ class Session extends EventEmitter {
 
   createFilter (filter) {
     const body = compileFilter(filter, this[fields].transforms)
-    return new Filter(body)
+    return new Filter(filter, body)
   }
 }
 

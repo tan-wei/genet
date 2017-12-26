@@ -35,6 +35,10 @@ class SideView {
           }
           deplug.workspace.set('_.filter.history', history)
         }
+        const filter = value.length > 0
+          ? this.sess.createFilter(value)
+          : null
+        deplug.action.emit('core:filter:set', filter)
       } catch (err) {
         deplug.notify.show(
           err.message, {
