@@ -11,18 +11,18 @@ import yaml from 'js-yaml'
 const fields = Symbol('fields')
 function transformBindSet (map, binds) {
   for (const [selector, bind] of Object.entries(binds)) {
-    for (const [key, command] of Object.entries(bind)) {
+    for (const [key, action] of Object.entries(bind)) {
       map[key] = map[key] || []
       map[key].push({
         selector,
-        command,
+        action,
       })
     }
   }
 }
 
 export default class KeyBind {
-  constructor (profile) {
+  constructor (profile, logger) {
     const filePath =
       path.join(env.userProfilePath, profile, 'keybind.yml')
     mkpath.sync(path.dirname(filePath))
@@ -37,8 +37,7 @@ export default class KeyBind {
         try {
           bind = yaml.safeLoad(fs.readFileSync(filePath, 'utf8'))
         } catch (err) {
-          // eslint-disable-next-line no-console
-          console.warn(err)
+          logger.warn(err)
         }
         this[fields].userBindSet = bind || {}
         this.update()
@@ -79,6 +78,7 @@ export default class KeyBind {
           Mousetrap.bind(key, (event, combo) => {
             for (const binds of this[fields].map[combo]) {
               if (event.target.matches(binds.selector)) {
+                deplug.action.global.emit(binds.action)
                 event.preventDefault()
                 event.stopPropagation()
                 break
