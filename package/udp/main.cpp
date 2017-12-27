@@ -47,6 +47,7 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Attr_setUint32(checksum, checksumNumber);
   Attr_setRange(checksum, reader.lastRange);
 
+  Layer_setRange(child, Range{0, reader.lastRange.end});
   Payload *chunk = Layer_addPayload(ctx, child);
   Payload_addSlice(chunk, Reader_slice(&reader, 0, lengthNumber - 8));
 }

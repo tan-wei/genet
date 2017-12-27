@@ -138,6 +138,7 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Attr_setType(dst, ipv4AddrToken);
   Attr_setRange(dst, reader.lastRange);
 
+  Layer_setRange(child, Range{0, reader.lastRange.end});
   Payload *chunk = Layer_addPayload(ctx, child);
   Payload_addSlice(chunk, Reader_sliceAll(&reader, 0));
 }

@@ -133,6 +133,7 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
     Layer_addTag(child, it->second.first);
   }
 
+  Layer_setRange(child, Range{0, reader.lastRange.end});
   Payload *chunk = Layer_addPayload(ctx, child);
   Payload_addSlice(chunk, Reader_sliceAll(&reader, 0));
 }

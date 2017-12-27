@@ -123,6 +123,8 @@ class NTP {
     transmitTs.type = '@ntp:time'
     transmitTs.range = reader.lastRange
     transmitTs.error = reader.lastError
+
+    child.range = [0, reader.lastRange[1]]
   }
 
   static get layerHints () {
