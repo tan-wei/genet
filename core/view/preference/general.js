@@ -6,7 +6,6 @@ export default class General {
     const config = Object.entries(deplug.config.schema)
       .filter(([id]) => id.startsWith(vnode.attrs.prefix))
     return [
-      m('h1', [vnode.attrs.name]),
       m('div',
         config.map(([id, schema]) => m('section', [
           m('h4', [schema.title, m('span', { class: 'schema-path' }, [id])]),

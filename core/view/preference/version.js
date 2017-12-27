@@ -9,7 +9,6 @@ export default class Plugin {
   }
   view () {
     return [
-      m('h1', ['Version']),
       m('h4', ['Deplug version']),
       m('span', [this.version]),
       m('h4', ['Negatron version']),

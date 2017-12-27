@@ -58,6 +58,16 @@ main {
     right: 0;
     display: none;
 
+    table {
+      width: 100%;
+      margin: 20px auto;
+      max-width: 800px;
+
+      th {
+        text-align: left;
+      }
+    }
+
     &[active] {
       display: block;
     }
@@ -75,7 +85,6 @@ main {
 
     section {
       margin-bottom: 40px;
-      border-top: 1px solid @theme-dark-fg;
     }
   }
 }

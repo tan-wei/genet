@@ -1,4 +1,5 @@
 import { Disposable } from 'disposables'
+import { EventEmitter } from 'events'
 import Mousetrap from 'mousetrap'
 import deepEqual from 'deep-equal'
 import env from './env'
@@ -21,8 +22,9 @@ function transformBindSet (map, binds) {
   }
 }
 
-export default class KeyBind {
+export default class KeyBind extends EventEmitter {
   constructor (profile, logger) {
+    super()
     const filePath =
       path.join(env.userProfilePath, profile, 'keybind.yml')
     mkpath.sync(path.dirname(filePath))
@@ -89,6 +91,7 @@ export default class KeyBind {
       }
     }
     this[fields].map = map
+    this.emit('update')
   }
 
   get keymap () {

@@ -1,4 +1,5 @@
 import General from './general'
+import KeyBind from './keybind'
 import Version from './version'
 import m from 'mithril'
 
@@ -7,38 +8,26 @@ export default class PrefernceView {
     this.tabs = [{
       name: 'Pcap',
       component: General,
-      attrs: {
-        name: 'Pcap',
-        prefix: '_.pcap.',
-      },
+      attrs: { prefix: '_.pcap.' },
     }, {
       name: 'Dissector',
       component: General,
-      attrs: {
-        name: 'Dissector',
-        prefix: '_.dissector.',
-      },
+      attrs: { prefix: '_.dissector.' },
     }, {
       name: 'Package',
       component: General,
-      attrs: {
-        name: 'Package',
-        prefix: '_.package.',
-      },
+      attrs: { prefix: '_.package.' },
     }, {
       name: 'Filter',
       component: General,
-      attrs: {
-        name: 'Filter',
-        prefix: '_.filter.',
-      },
+      attrs: { prefix: '_.filter.' },
     }, {
       name: 'Logger',
       component: General,
-      attrs: {
-        name: 'Logger',
-        prefix: '_.logger.',
-      },
+      attrs: { prefix: '_.logger.' },
+    }, {
+      name: 'KeyBind',
+      component: KeyBind,
     }, {
       name: 'Version',
       component: Version,
