@@ -20,32 +20,7 @@ class SideView {
   searchKeyPress (event) {
     switch (event.code) {
     case 'Enter':
-      try {
-        const value = event.target.value.trim()
-        this.displayFilter = value
-        this.sess.setDisplayFilter('main', value)
-        if (value.length > 0) {
-          const maxLength = deplug.config.get('_.filter.historyLength', 10)
-          const history =
-            [].concat(deplug.workspace.get('_.filter.history', []))
-          history.push(value)
-          const overflow = history.length - maxLength
-          if (overflow > 0) {
-            history.splice(0, overflow)
-          }
-          deplug.workspace.set('_.filter.history', history)
-        }
-        const filter = value.length > 0
-          ? this.sess.createFilter(value)
-          : null
-        deplug.action.emit('core:filter:set', filter)
-      } catch (err) {
-        deplug.notify.show(
-          err.message, {
-            type: 'error',
-            title: 'Filter Error',
-          })
-      }
+        deplug.action.emit('core:filter:set', event.target.value.trim())
       break
       default:
     }
@@ -66,6 +41,7 @@ class SideView {
           onkeydown: (event) => {
             this.searchKeyPress(event)
           },
+          name: 'display-filter',
         }),
         m('span', {
           class: 'button',
@@ -161,11 +137,40 @@ class SideView {
         })
       })
     }
+    const filterInput = document.querySelector('input[name=display-filter]')
     deplug.action.global.on('core:file:export', () => {
       const file = dialog.showSaveDialog(
         { filters: deplug.session.fileExtensions.exporter })
       if (typeof file !== 'undefined') {
         this.sess.exportFile(file, this.displayFilter)
+      }
+    })
+    deplug.action.on('core:filter:set', (value) => {
+      try {
+        filterInput.value = value
+        this.displayFilter = value
+        this.sess.setDisplayFilter('main', value)
+        if (value.length > 0) {
+          const maxLength = deplug.config.get('_.filter.historyLength', 10)
+          const history =
+            [].concat(deplug.workspace.get('_.filter.history', []))
+          history.push(value)
+          const overflow = history.length - maxLength
+          if (overflow > 0) {
+            history.splice(0, overflow)
+          }
+          deplug.workspace.set('_.filter.history', history)
+        }
+        const filter = value.length > 0
+          ? this.sess.createFilter(value)
+          : null
+        deplug.action.emit('core:filter:updated', filter)
+      } catch (err) {
+        deplug.notify.show(
+          err.message, {
+          type: 'error',
+          title: 'Filter Error',
+        })
       }
     })
   }

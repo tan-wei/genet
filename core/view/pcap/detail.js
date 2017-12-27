@@ -28,7 +28,19 @@ class AttributeItem {
       onmouseout: () => selectRange(),
     }, [
       m('details', [
-        m('summary', { class: faClass }, [
+        m('summary', {
+          class: faClass,
+          oncontextmenu: (event) => {
+            const { id } = prop
+            deplug.menu.showContextMenu(event, [
+              {
+                label: `Apply Filter: ${id}`,
+                click: () => deplug.action
+                  .emit('core:filter:set', id),
+              }
+            ])
+          },
+        }, [
           m('span', { class: 'label' }, [
             m('i', { class: 'fa fa-circle-o' }, [' ']),
             m('i', { class: 'fa fa-arrow-circle-right' }, [' ']),
@@ -118,17 +130,19 @@ class LayerItem {
         onmouseover: () => selectRange(range),
         onmouseout: () => selectRange(),
       }, [
-        m('details', {
-          open: true,
-          oncontextmenu: (event) => {
-            deplug.menu.showContextMenu(event, [
-              { label: `Apply Filter: ${layerId}` }
-            ])
-          },
-        }, [
+        m('details', { open: true }, [
           m('summary', {
             class: 'layer children',
             'data-layer': layer.tags.join(' '),
+            oncontextmenu: (event) => {
+              deplug.menu.showContextMenu(event, [
+                {
+                  label: `Apply Filter: ${layerId}`,
+                  click: () => deplug.action
+                    .emit('core:filter:set', layerId),
+                }
+              ])
+            },
           }, [
             m('i', { class: 'fa fa-arrow-circle-right' }, [' ']),
             m('i', { class: 'fa fa-arrow-circle-down' }, [' ']),
@@ -192,7 +206,7 @@ export default class PcapDetailView {
   }
 
   oncreate () {
-    deplug.action.on('core:filter:set', (filter) => {
+    deplug.action.on('core:filter:updated', (filter) => {
       this.displayFilter = filter
       m.redraw()
     })
