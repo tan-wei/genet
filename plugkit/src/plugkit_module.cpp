@@ -25,6 +25,21 @@ NAN_METHOD(Token_get_wrap) {
   Token token = Token_get(*Nan::Utf8String(info[0]));
   info.GetReturnValue().Set(token);
 }
+
+NAN_METHOD(Token_join_wrap) {
+  if (!info[0]->IsUint32()) {
+    Nan::ThrowTypeError("First argument must be a number");
+    return;
+  }
+  if (!info[1]->IsString()) {
+    Nan::ThrowTypeError("Second argument must be a string");
+    return;
+  }
+  Token token = Token_join(static_cast<Token>(info[0]->Uint32Value()),
+                           *Nan::Utf8String(info[1]));
+  info.GetReturnValue().Set(token);
+}
+
 NAN_METHOD(Token_string_wrap) {
   if (!info[0]->IsUint32()) {
     Nan::ThrowTypeError("First argument must be a number");
@@ -55,6 +70,8 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
   auto token = Nan::New<v8::Object>();
   token->Set(Nan::New("get").ToLocalChecked(),
              Nan::New<v8::FunctionTemplate>(Token_get_wrap)->GetFunction());
+  token->Set(Nan::New("join").ToLocalChecked(),
+             Nan::New<v8::FunctionTemplate>(Token_join_wrap)->GetFunction());
   token->Set(Nan::New("string").ToLocalChecked(),
              Nan::New<v8::FunctionTemplate>(Token_string_wrap)->GetFunction());
   exports->Set(Nan::New("Token").ToLocalChecked(), token);

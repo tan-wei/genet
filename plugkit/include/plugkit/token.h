@@ -15,6 +15,7 @@ typedef uint32_t Token;
 inline Token Token_null() { return (Token)0; }
 
 PLUGKIT_EXPORT Token Token_literal_(const char *str, size_t length);
+PLUGKIT_EXPORT Token Token_join_(Token prefix, Token token);
 
 #ifdef PLUGKIT_OS_WIN
 #pragma intrinsic(strlen)
@@ -26,6 +27,15 @@ inline Token Token_get(const char *str) {
     return Token_null();
   }
   return Token_literal_(str, strlen(str));
+}
+
+inline Token Token_join(Token prefix, const char *str) {
+  if (str == NULL || str[0] == '\0') {
+    return prefix;
+  } else if (prefix == Token_null()) {
+    return Token_get(str);
+  }
+  return Token_join_(prefix, Token_get(str));
 }
 
 #ifdef PLUGKIT_OS_WIN

@@ -5,6 +5,16 @@
 #include <unordered_map>
 #include <vector>
 
+namespace std {
+template <>
+struct hash<std::pair<plugkit::Token, plugkit::Token>> {
+  inline size_t
+  operator()(const pair<plugkit::Token, plugkit::Token> &v) const {
+    return v.first ^ v.second;
+  }
+};
+} // namespace std
+
 namespace plugkit {
 
 namespace {
@@ -17,6 +27,7 @@ extern "C" {
 
 thread_local std::unordered_map<std::string, Token> localMap;
 thread_local std::unordered_map<Token, const char *> localReverseMap;
+thread_local std::unordered_map<std::pair<Token, Token>, Token> pairMap;
 std::unordered_map<std::string, Token> map;
 std::unordered_map<Token, const char *> reverseMap;
 std::mutex mutex;
@@ -65,6 +76,19 @@ Token Token_literal_(const char *str, size_t length) {
   localMap.emplace(data, id);
   localReverseMap.emplace(id, data);
   return id;
+}
+
+Token Token_join_(Token prefix, Token token) {
+  const auto &key = std::make_pair(prefix, token);
+  auto it = pairMap.find(key);
+  if (it != pairMap.end()) {
+    return it->second;
+  }
+  std::string joinedStr = Token_string(prefix);
+  joinedStr += Token_string(token);
+  Token joined = Token_get(joinedStr.c_str());
+  pairMap[key] = joined;
+  return joined;
 }
 
 const char *Token_string(Token token) {
