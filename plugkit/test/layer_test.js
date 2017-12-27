@@ -95,6 +95,14 @@ describe('Layer', () => {
       assert.strictEqual(1, layer.confidence)
     })
   })
+  describe('#range', () => {
+    it('should return attribute range', () => {
+      const layer = Testing.createLayerInstance('eth')
+      assert.deepEqual([0, 0], layer.range)
+      layer.range = [123, 456]
+      assert.deepEqual([123, 456], layer.range)
+    })
+  })
   describe('#tags', () => {
     it('should return layer tags', () => {
       const layer = Testing.createLayerInstance('eth')
