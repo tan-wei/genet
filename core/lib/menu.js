@@ -1,9 +1,16 @@
+import { Disposable } from 'disposables'
 import flatten from 'flat'
 import objpath from 'object-path'
 import { remote } from 'electron'
 import template from './menu-template'
 const { Menu } = remote
+
+const fields = Symbol('fields')
 export default class MainMenu {
+  constructor () {
+    this[fields] = { contextMenuTemplates: new Set() }
+  }
+
   get template () {
     return template
   }
@@ -29,10 +36,27 @@ export default class MainMenu {
     return map
   }
 
-  enableContextMenu () {
-    document.addEventListener('contextmenu', (event) => {
+  registerContextMenu (menu) {
+    const { contextMenuTemplates } = this[fields]
+    contextMenuTemplates.add(menu)
+    return new Disposable(() => {
+      contextMenuTemplates.delete(menu)
+    })
+  }
 
-      const tmpl = [
+  showContextMenu (event, menu = []) {
+    const { contextMenuTemplates } = this[fields]
+    let contextMenu = []
+    if (menu.length > 0) {
+      contextMenu = contextMenu.concat(menu, { type: 'separator' })
+    }
+    for (const tmpl of contextMenuTemplates) {
+      if (event.target.matches(tmpl.selector)) {
+        contextMenu = contextMenu.concat(tmpl.menu, { type: 'separator' })
+      }
+    }
+
+    contextMenu = contextMenu.concat([
       { role: 'undo' },
       { role: 'redo' },
       { type: 'separator' },
@@ -43,11 +67,16 @@ export default class MainMenu {
       { role: 'delete' },
       { role: 'selectall' },
       { type: 'separator' }
-    ]
+    ])
 
-      const menu = Menu.buildFromTemplate(tmpl)
-      event.preventDefault()
-      menu.popup(remote.getCurrentWindow())
+    event.preventDefault()
+    event.stopPropagation()
+    Menu.buildFromTemplate(contextMenu).popup(remote.getCurrentWindow())
+  }
+
+  enableContextMenu () {
+    document.addEventListener('contextmenu', (event) => {
+      this.showContextMenu(event)
     }, false)
   }
 }

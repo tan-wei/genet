@@ -118,7 +118,14 @@ class LayerItem {
         onmouseover: () => selectRange(range),
         onmouseout: () => selectRange(),
       }, [
-        m('details', { open: true }, [
+        m('details', {
+          open: true,
+          oncontextmenu: (event) => {
+            deplug.menu.showContextMenu(event, [
+              { label: `Apply Filter: ${layerId}` }
+            ])
+          },
+        }, [
           m('summary', {
             class: 'layer children',
             'data-layer': layer.tags.join(' '),
