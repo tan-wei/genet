@@ -2,6 +2,7 @@
 #define PLUGKIT_LAYER_HPP
 
 #include "layer.h"
+#include "range.h"
 #include "token.h"
 #include "types.hpp"
 #include <memory>
@@ -18,8 +19,12 @@ public:
   ~Layer();
 
   Token id() const;
+
   LayerConfidence confidence() const;
   void setConfidence(LayerConfidence confidence);
+
+  Range range() const;
+  void setRange(const Range &range);
 
   const std::vector<Layer *> &layers() const;
   void addLayer(Layer *child);
@@ -61,6 +66,7 @@ private:
   Layer *mParent = nullptr;
   const Layer *mMaster = nullptr;
   const Frame *mFrame = nullptr;
+  Range mRange = {0, 0};
   std::vector<Payload *> mPayloads;
   std::vector<Token> mTags;
   std::vector<Layer *> mLayers;

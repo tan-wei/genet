@@ -22,6 +22,10 @@ void Layer::setConfidence(LayerConfidence confidence) {
   mData = ((mData & 0xcf) | (confidence << 4));
 }
 
+Range Layer::range() const { return mRange; }
+
+void Layer::setRange(const Range &range) { mRange = range; }
+
 const std::vector<Layer *> &Layer::layers() const { return mLayers; }
 
 void Layer::addLayer(Layer *child) { mLayers.push_back(child); }
@@ -116,6 +120,10 @@ LayerConfidence Layer_confidence(const Layer *layer) {
 void Layer_setConfidence(Layer *layer, LayerConfidence confidence) {
   layer->setConfidence(confidence);
 }
+
+Range Layer_range(const Layer *layer) { return layer->range(); }
+
+void Layer_setRange(Layer *layer, Range range) { layer->setRange(range); }
 
 const Layer *Layer_parent(const Layer *layer) { return layer->parent(); }
 

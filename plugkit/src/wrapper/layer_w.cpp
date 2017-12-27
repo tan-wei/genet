@@ -26,6 +26,7 @@ void LayerWrapper::init(v8::Isolate *isolate) {
   Nan::SetAccessor(otl, Nan::New("worker").ToLocalChecked(), worker, setWorker);
   Nan::SetAccessor(otl, Nan::New("confidence").ToLocalChecked(), confidence,
                    setConfidence);
+  Nan::SetAccessor(otl, Nan::New("range").ToLocalChecked(), range, setRange);
   Nan::SetAccessor(otl, Nan::New("parent").ToLocalChecked(), parent);
   Nan::SetAccessor(otl, Nan::New("frame").ToLocalChecked(), frame);
   Nan::SetAccessor(otl, Nan::New("payloads").ToLocalChecked(), payloads);
@@ -80,6 +81,30 @@ NAN_SETTER(LayerWrapper::setConfidence) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
     layer->setConfidence(static_cast<LayerConfidence>(value->Uint32Value()));
+  }
+}
+
+NAN_GETTER(LayerWrapper::range) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->layer) {
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    auto array = v8::Array::New(isolate, 2);
+    array->Set(0, Nan::New(static_cast<uint32_t>(layer->range().begin)));
+    array->Set(1, Nan::New(static_cast<uint32_t>(layer->range().end)));
+    info.GetReturnValue().Set(array);
+  }
+}
+
+NAN_SETTER(LayerWrapper::setRange) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->layer) {
+    if (value->IsArray()) {
+      auto array = value.As<v8::Array>();
+      if (array->Length() >= 2) {
+        layer->setRange(
+            Range{array->Get(0)->Uint32Value(), array->Get(1)->Uint32Value()});
+      }
+    }
   }
 }
 

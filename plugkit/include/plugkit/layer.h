@@ -4,6 +4,7 @@
 #define PLUGKIT_LAYER_H
 
 #include "export.h"
+#include "range.h"
 #include "slice.h"
 #include "token.h"
 
@@ -28,6 +29,12 @@ PLUGKIT_EXPORT Token Layer_id(const Layer *layer);
 
 /// Return the confidence of the layer.
 PLUGKIT_EXPORT LayerConfidence Layer_confidence(const Layer *layer);
+
+/// Return the range of the layer.
+PLUGKIT_EXPORT Range Layer_range(const Layer *layer);
+
+/// Set the range of the layer.
+PLUGKIT_EXPORT void Layer_setRange(Layer *layer, Range range);
 
 /// Set the confidence of the layer.
 PLUGKIT_EXPORT void Layer_setConfidence(Layer *layer,
