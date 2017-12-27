@@ -17,8 +17,6 @@ using namespace plugkit;
 namespace {
 
 const auto httpToken = Token_get("http");
-const auto srcToken = Token_get(".src");
-const auto dstToken = Token_get(".dst");
 const auto headersToken = Token_get("http.headers");
 const auto reassembledToken = Token_get("@reassembled");
 const auto mimeToken = Token_get("@mime");
@@ -50,8 +48,9 @@ HTTPWorker::HTTPWorker(const std::unordered_set<uint16_t> &ports)
     : ports(ports) {}
 
 bool HTTPWorker::analyze_start(Context *ctx, Layer *layer) {
-  uint16_t srcPort = Attr_uint32(Layer_attr(layer, srcToken));
-  uint16_t dstPort = Attr_uint32(Layer_attr(layer, dstToken));
+  Token layerId = Layer_id(layer);
+  uint16_t srcPort = Attr_uint32(Layer_attr(layer, Token_join(layerId, ".src")));
+  uint16_t dstPort = Attr_uint32(Layer_attr(layer, Token_join(layerId, ".dst")));
 
   if (!ports.empty() && ports.find(srcPort) == ports.end() &&
       ports.find(dstPort) == ports.end()) {

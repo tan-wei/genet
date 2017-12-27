@@ -22,7 +22,8 @@ class NTP {
     const child = layer.addLayer(ctx, 'ntp')
     child.confidence = Layer.ConfProbable
 
-    if (layer.attr('.src').value !== 123 || layer.attr('.dst').value !== 123) {
+    if (layer.attr(`${layer.id}.src`).value !== 123 ||
+        layer.attr(`${layer.id}.dst`).value !== 123) {
       child.confidence = Layer.ConfPossible
     }
 

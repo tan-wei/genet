@@ -27,8 +27,8 @@ const std::pair<uint16_t, Token> flagTable[] = {
 };
 
 const auto tcpToken = Token_get("tcp");
-const auto srcToken = Token_get(".src");
-const auto dstToken = Token_get(".dst");
+const auto srcToken = Token_get("tcp.src");
+const auto dstToken = Token_get("tcp.dst");
 const auto seqToken = Token_get("tcp.seq");
 const auto ackToken = Token_get("tcp.ack");
 const auto dOffsetToken = Token_get("tcp.dataOffset");
@@ -56,8 +56,9 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Layer *child = Layer_addLayer(ctx, layer, tcpToken);
   Layer_addTag(child, tcpToken);
 
-  const auto &parentSrc = Attr_slice(Layer_attr(layer, srcToken));
-  const auto &parentDst = Attr_slice(Layer_attr(layer, dstToken));
+  Token layerId = Layer_id(layer);
+  const auto &parentSrc = Attr_slice(Layer_attr(layer, Token_join(layerId, ".src")));
+  const auto &parentDst = Attr_slice(Layer_attr(layer, Token_join(layerId, ".dst")));
 
   uint16_t srcPort = Reader_getUint16(&reader, false);
   Attr *src = Layer_addAttr(ctx, child, srcToken);

@@ -14,8 +14,8 @@ using namespace plugkit;
 namespace {
 
 const auto ethToken = Token_get("eth");
-const auto srcToken = Token_get(".src");
-const auto dstToken = Token_get(".dst");
+const auto srcToken = Token_get("eth.src");
+const auto dstToken = Token_get("eth.dst");
 const auto lenToken = Token_get("eth.len");
 const auto ethTypeToken = Token_get("eth.type");
 const auto macToken = Token_get("@eth:mac");

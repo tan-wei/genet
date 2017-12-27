@@ -13,8 +13,8 @@
 using namespace plugkit;
 
 const auto udpToken = Token_get("udp");
-const auto srcToken = Token_get(".src");
-const auto dstToken = Token_get(".dst");
+const auto srcToken = Token_get("udp.src");
+const auto dstToken = Token_get("udp.dst");
 const auto lengthToken = Token_get("udp.length");
 const auto checksumToken = Token_get("udp.checksum");
 

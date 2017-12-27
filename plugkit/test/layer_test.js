@@ -36,7 +36,7 @@ describe('Layer', () => {
     it('should return Attr', () => {
       const ctx = Testing.createContextInstance()
       const layer = Testing.createLayerInstance('eth')
-      assert.strictEqual('Attr', layer.addAttr(ctx, '.dst').constructor.name)
+      assert.strictEqual('Attr', layer.addAttr(ctx, 'eth.dst').constructor.name)
     })
   })
 
@@ -69,8 +69,8 @@ describe('Layer', () => {
     it('should return found Attr', () => {
       const ctx = Testing.createContextInstance()
       const layer = Testing.createLayerInstance('eth')
-      layer.addAttr(ctx, '.dst')
-      assert.strictEqual('.dst', layer.attr('.dst').id)
+      layer.addAttr(ctx, 'eth.dst')
+      assert.strictEqual('eth.dst', layer.attr('eth.dst').id)
     })
   })
   describe('#id', () => {
@@ -108,9 +108,9 @@ describe('Layer', () => {
       const ctx = Testing.createContextInstance()
       const layer = Testing.createLayerInstance('eth')
       assert.deepEqual([], layer.attrs)
-      layer.addAttr(ctx, '.dst')
+      layer.addAttr(ctx, 'eth.dst')
       assert.strictEqual(1, layer.attrs.length)
-      layer.addAttr(ctx, '.src')
+      layer.addAttr(ctx, 'eth.src')
       assert.strictEqual(2, layer.attrs.length)
     })
   })

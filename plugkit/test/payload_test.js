@@ -24,7 +24,8 @@ describe('Payload', () => {
     it('should return Attr', () => {
       const payload = Testing.createPayloadInstance()
       const ctx = Testing.createContextInstance()
-      assert.strictEqual('Attr', payload.addAttr(ctx, '.dst').constructor.name)
+      assert.strictEqual('Attr',
+        payload.addAttr(ctx, 'eth.dst').constructor.name)
     })
   })
   describe('#attr()', () => {
@@ -41,8 +42,8 @@ describe('Payload', () => {
     it('should return found Attr', () => {
       const payload = Testing.createPayloadInstance()
       const ctx = Testing.createContextInstance()
-      payload.addAttr(ctx, '.dst')
-      assert.strictEqual('.dst', payload.attr('.dst').id)
+      payload.addAttr(ctx, 'eth.dst')
+      assert.strictEqual('eth.dst', payload.attr('eth.dst').id)
     })
   })
   describe('#length', () => {
@@ -72,9 +73,9 @@ describe('Payload', () => {
       const payload = Testing.createPayloadInstance()
       const ctx = Testing.createContextInstance()
       assert.deepEqual([], payload.attrs)
-      payload.addAttr(ctx, '.dst')
+      payload.addAttr(ctx, 'eth.dst')
       assert.strictEqual(1, payload.attrs.length)
-      payload.addAttr(ctx, '.src')
+      payload.addAttr(ctx, 'eth.src')
       assert.strictEqual(2, payload.attrs.length)
     })
   })
