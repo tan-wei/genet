@@ -192,6 +192,7 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Layer_setRange(child, Range{0, reader.lastRange.end});
   Payload *chunk = Layer_addPayload(ctx, child);
   Payload_addSlice(chunk, Slice_sliceAll(reader.data, optionDataOffset));
+  Payload_setRange(chunk, reader.lastRange);
 }
 } // namespace
 
