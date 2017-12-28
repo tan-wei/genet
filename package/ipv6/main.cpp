@@ -36,6 +36,7 @@ const auto protocolToken = Token_get("ipv6.protocol");
 const auto ipv6AddrToken = Token_get("@ipv6:addr");
 const auto flagsTypeToken = Token_get("@flags");
 const auto enumToken = Token_get("@enum");
+const auto novalueToken = Token_get("@novalue");
 
 void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Reader reader;
@@ -133,6 +134,7 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   if (it != protoTable.end()) {
     Attr *sub = Layer_addAttr(ctx, child, it->second.second);
     Attr_setBool(sub, true);
+    Attr_setType(sub, novalueToken);
     Attr_setRange(sub, reader.lastRange);
     Layer_addTag(child, it->second.first);
   }

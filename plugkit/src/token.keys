@@ -16,6 +16,7 @@
 @flags
 @enum
 @nested
+@novalue
 [eth]
 [ipv4]
 [ipv6]

@@ -22,6 +22,11 @@
         "type": "core:renderer:attr",
         "id": "@nested",
         "main": "nested.js"
+      },
+      {
+        "type": "core:renderer:attr",
+        "id": "@novalue",
+        "main": "novalue.js"
       }
     ]
   }
