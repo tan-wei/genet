@@ -1,7 +1,7 @@
 const m = require('mithril')
 class IPv6Addr {
   view (vnode) {
-    const { value } = vnode.attrs.prop
+    const { value } = vnode.attrs.attr
     const array = [
       (value[0] << 8) | value[1],
       (value[2] << 8) | value[3],

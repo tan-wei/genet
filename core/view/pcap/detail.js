@@ -8,30 +8,26 @@ function selectRange (range = []) {
 
 class AttributeItem {
   view (vnode) {
-    const { property } = vnode.attrs
-    const prop = property.attr
-    const { children } = property
+    const { item, layer } = vnode.attrs
+    const { attr, children } = item
     let faClass = 'property'
     if (children.length) {
       faClass = 'property children'
     }
-    const range = [
-      prop.range[0] + vnode.attrs.dataOffset,
-      prop.range[1] + vnode.attrs.dataOffset
-    ]
-    const { name } = deplug.session.token(prop.id)
-    const propRenderer =
-      deplug.session.attrRenderer(prop.type) || AttributeValueItem
-    return m('li', {
-      'data-range': `${range[0]}:${range[1]}`,
-      onmouseover: () => selectRange(range),
-      onmouseout: () => selectRange(),
-    }, [
+    const { name } = deplug.session.token(attr.id)
+    const attrRenderer =
+      deplug.session.attrRenderer(attr.type) || AttributeValueItem
+    return m('li', [
       m('details', [
         m('summary', {
           class: faClass,
+          onmouseover: () => selectRange([
+            layer.range[0] + attr.range[0],
+            layer.range[0] + attr.range[1]
+          ]),
+          onmouseout: () => selectRange(),
           oncontextmenu: (event) => {
-            const { id } = prop
+            const { id } = attr
             deplug.menu.showContextMenu(event, [
               {
                 label: `Apply Filter: ${id}`,
@@ -47,23 +43,23 @@ class AttributeItem {
             m('i', { class: 'fa fa-arrow-circle-down' }, [' ']),
             name, ': '
           ]),
-          m(propRenderer, {
-            prop,
+          m(attrRenderer, {
+            attr,
             layer: vnode.attrs.layer,
           }),
           m('span', {
             class: 'label error',
             style: {
-              display: prop.error
+              display: attr.error
               ? 'inline'
               : 'none',
             },
-          }, [m('i', { class: 'fa fa-exclamation-triangle' }), ' ', prop.error])
+          }, [m('i', { class: 'fa fa-exclamation-triangle' }), ' ', attr.error])
         ]),
         m('ul', [
           children.map((child) => m(AttributeItem, {
-              property: child,
-              layer: vnode.attrs.layer,
+              item: child,
+              layer,
             }))
         ])
       ])
@@ -75,7 +71,6 @@ class LayerItem {
   view (vnode) {
     const { layer } = vnode.attrs
     let dataOffset = 0
-    let dataLength = 0
     if (layer.parent) {
       const [parentPayload] = layer.parent.payloads
       const parentAddr = parentPayload.slices[0].addr
@@ -84,30 +79,24 @@ class LayerItem {
         [rootPayload] = parent.payloads
       }
       const rootAddr = rootPayload.slices[0].addr
-      dataLength = parentPayload.slices[0].length
       dataOffset = parentAddr[1] - rootAddr[1]
     }
-    const range = [
-      dataOffset,
-      dataOffset + dataLength
-    ]
     const layerId = layer.id
     const { name } = deplug.session.token(layerId)
 
-    const properties = layer.attrs
-    const propArray = []
+    const attrArray = []
     let prevDepth = 0
-    for (const prop of properties) {
-      let { id } = prop
+    for (const attr of layer.attrs) {
+      let { id } = attr
       if (id.startsWith('.')) {
         id = layer.id + id
       }
-      const propPath = id.split('.')
-      let items = propArray
+      const attrPath = id.split('.')
+      let items = attrArray
       let child = null
-      for (let index = 0; index < propPath.length; index += 1) {
-        const key = propPath[index]
-        if (index < propPath.length - 1 || prevDepth < propPath.length) {
+      for (let index = 0; index < attrPath.length; index += 1) {
+        const key = attrPath[index]
+        if (index < attrPath.length - 1 || prevDepth < attrPath.length) {
           child = items.find((item) => item.key === key) || null
         } else {
           child = null
@@ -121,19 +110,17 @@ class LayerItem {
         }
         items = child.children
       }
-      child.attr = prop
-      prevDepth = propPath.length
+      child.attr = attr
+      prevDepth = attrPath.length
     }
     return m('ul', [
-      m('li', {
-        'data-range': `${range[0]}:${range[1]}`,
-        onmouseover: () => selectRange(range),
-        onmouseout: () => selectRange(),
-      }, [
+      m('li', [
         m('details', { open: true }, [
           m('summary', {
             class: 'layer children',
             'data-layer': layer.tags.join(' '),
+            onmouseover: () => selectRange(layer.range),
+            onmouseout: () => selectRange(),
             oncontextmenu: (event) => {
               deplug.menu.showContextMenu(event, [
                 {
@@ -169,9 +156,9 @@ class LayerItem {
                 layer.confidence * 100, '%'
               ])
           ]),
-          propArray[0].children.map((prop) =>
+          attrArray[0].children.map((item) =>
             m(AttributeItem, {
-              property: prop,
+              item,
               layer,
               dataOffset,
             })),
@@ -262,7 +249,7 @@ export default class PcapDetailView {
             ? `${this.displayFilter.expression} =>`
             : '',
            ' ']),
-          m('span', [m(AttributeValueItem, { prop: { value: filterValue } })])
+          m('span', [m(AttributeValueItem, { attr: { value: filterValue } })])
         ])
       ]),
       children.map((layer) => m(LayerItem, { layer }))

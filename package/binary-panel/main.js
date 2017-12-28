@@ -1,10 +1,21 @@
 const m = require('mithril')
 class BinaryItem {
+  constructor () {
+    this.range = [-1, -1]
+  }
+  oncreate () {
+    deplug.action.on('core:frame:range-selected', (range) => {
+      this.range = range.length === 2
+        ? range
+        : [-1, -1]
+      m.redraw()
+    })
+  }
+
   view (vnode) {
     const showHex = true
     const showAscii = true
     const { payload } = vnode.attrs
-    const range = [-1, -1]
     return m('div', { class: 'binary-view' }, [
       m('ul', {
         class: 'hex-list',
@@ -22,7 +33,10 @@ class BinaryItem {
             .map((item, byte) => {
               const index = (line * 16) + byte
               return m('span',
-                { 'data-selected': range[0] <= index && index < range[1] },
+                {
+                  'data-selected':
+                  this.range[0] <= index && index < this.range[1],
+                },
                 [(`0${payload[index].toString(16)}`).slice(-2)])
             })
           ])
@@ -48,7 +62,10 @@ class BinaryItem {
                 ? String.fromCharCode(char)
                 : '.'
               return m('span',
-                { 'data-selected': range[0] <= index && index < range[1] },
+                {
+                  'data-selected':
+                    this.range[0] <= index && index < this.range[1],
+                },
                 [ascii])
             })
           ])

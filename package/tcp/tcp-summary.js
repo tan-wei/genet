@@ -11,11 +11,11 @@ class TCPSummary {
     if (srcAddr.type === '@ipv6:addr') {
       return m('span', [
         ' [',
-        m(renderer, { prop: srcAddr }),
+        m(renderer, { attr: srcAddr }),
         ']:',
         m('b', [srcPort]),
         ' -> [',
-         m(renderer, { prop: dstAddr }),
+         m(renderer, { attr: dstAddr }),
          ']:',
          m('b', [dstPort]),
          ' [', layer.payloads.length, '] '
@@ -23,11 +23,11 @@ class TCPSummary {
     }
     return m('span', [
       ' ',
-      m(renderer, { prop: srcAddr }),
+      m(renderer, { attr: srcAddr }),
       ':',
       m('b', [srcPort]),
       ' ->',
-      m(renderer, { prop: dstAddr }),
+      m(renderer, { attr: dstAddr }),
       ':',
       m('b', [dstPort]),
       ' [',

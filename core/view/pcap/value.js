@@ -36,7 +36,7 @@ export class BufferValueItem {
  class ArrayValueItem {
   view (vnode) {
     return m('ul', [vnode.attrs.value.map(
-      (value) => m('li', [m(AttributeValueItem, { prop: { value } })]))])
+      (value) => m('li', [m(AttributeValueItem, { attr: { value } })]))])
   }
 }
  class ObjectValueItem {
@@ -44,7 +44,7 @@ export class BufferValueItem {
     const obj = vnode.attrs.value
     return m('ul', [Object.keys(obj).map(
       (key) => m('li', [m('span', { class: 'label' }, [key]),
-      m(AttributeValueItem, { prop: { value: obj[key] } })]))])
+      m(AttributeValueItem, { attr: { value: obj[key] } })]))])
   }
 }
  class LayerValueItem {
@@ -58,30 +58,30 @@ export class BufferValueItem {
 }
 export class AttributeValueItem {
   view (vnode) {
-    const { prop } = vnode.attrs
-    if (prop.value === null) {
+    const { attr } = vnode.attrs
+    if (attr.value === null) {
       return m('span')
-    } else if (typeof prop.value === 'undefined') {
+    } else if (typeof attr.value === 'undefined') {
       return m('span', ['undefined'])
-    } else if (typeof prop.value === 'boolean') {
-      return m(BooleanValueItem, { value: prop.value })
-    } else if (prop.value instanceof Date) {
-      return m(DateValueItem, { value: prop.value })
-    } else if (prop.value instanceof Uint8Array) {
-      return m(BufferValueItem, { value: prop.value })
-    } else if (Array.isArray(prop.value)) {
-      return m(ArrayValueItem, { value: prop.value })
-    } else if (typeof prop.value === 'object' &&
-      prop.value.constructor.name === 'Layer') {
-      return m(LayerValueItem, { value: prop.value })
-    } else if (typeof prop.value === 'object' &&
-      prop.value !== null &&
-      Reflect.getPrototypeOf(prop.value) === Object.prototype) {
-      return m(ObjectValueItem, { value: prop.value })
+    } else if (typeof attr.value === 'boolean') {
+      return m(BooleanValueItem, { value: attr.value })
+    } else if (attr.value instanceof Date) {
+      return m(DateValueItem, { value: attr.value })
+    } else if (attr.value instanceof Uint8Array) {
+      return m(BufferValueItem, { value: attr.value })
+    } else if (Array.isArray(attr.value)) {
+      return m(ArrayValueItem, { value: attr.value })
+    } else if (typeof attr.value === 'object' &&
+      attr.value.constructor.name === 'Layer') {
+      return m(LayerValueItem, { value: attr.value })
+    } else if (typeof attr.value === 'object' &&
+      attr.value !== null &&
+      Reflect.getPrototypeOf(attr.value) === Object.prototype) {
+      return m(ObjectValueItem, { value: attr.value })
     }
-    const value = (prop.value === null
+    const value = (attr.value === null
       ? ''
-      : prop.value.toString())
+      : attr.value.toString())
     if (value.length > 1024) {
       return m('span', [
         m('details', [
