@@ -48,10 +48,14 @@ const auto enumToken = Token_get("@enum");
 void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
-  reader.data = Payload_slices(Layer_payloads(layer, nullptr)[0], nullptr)[0];
+
+  const Payload *parentPayload = Layer_payloads(layer, nullptr)[0];
+  Range payloadRange = Payload_range(parentPayload);
+  reader.data = Payload_slices(parentPayload, nullptr)[0];
 
   Layer *child = Layer_addLayer(ctx, layer, ipv4Token);
   Layer_addTag(child, ipv4Token);
+  Layer_setRange(child, payloadRange);
 
   uint8_t header = Reader_getUint8(&reader);
   int version = header >> 4;
@@ -138,10 +142,9 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Attr_setType(dst, ipv4AddrToken);
   Attr_setRange(dst, reader.lastRange);
 
-  Layer_setRange(child, Range{0, reader.lastRange.end});
   Payload *chunk = Layer_addPayload(ctx, child);
   Payload_addSlice(chunk, Reader_sliceAll(&reader, 0));
-  Payload_setRange(chunk, reader.lastRange);
+  Payload_setRange(chunk, Range_offset(reader.lastRange, payloadRange.begin));
 }
 } // namespace
 

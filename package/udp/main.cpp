@@ -22,10 +22,14 @@ namespace {
 void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
-  reader.data = Payload_slices(Layer_payloads(layer, nullptr)[0], nullptr)[0];
+
+  const Payload *parentPayload = Layer_payloads(layer, nullptr)[0];
+  Range payloadRange = Payload_range(parentPayload);
+  reader.data = Payload_slices(parentPayload, nullptr)[0];
 
   Layer *child = Layer_addLayer(ctx, layer, udpToken);
   Layer_addTag(child, udpToken);
+  Layer_setRange(child, payloadRange);
 
   uint16_t sourcePort = Reader_getUint16(&reader, false);
   Attr *src = Layer_addAttr(ctx, child, srcToken);
@@ -47,10 +51,9 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Attr_setUint32(checksum, checksumNumber);
   Attr_setRange(checksum, reader.lastRange);
 
-  Layer_setRange(child, Range{0, reader.lastRange.end});
   Payload *chunk = Layer_addPayload(ctx, child);
   Payload_addSlice(chunk, Reader_slice(&reader, 0, lengthNumber - 8));
-  Payload_setRange(chunk, reader.lastRange);
+  Payload_setRange(chunk, Range_offset(reader.lastRange, payloadRange.begin));
 }
 } // namespace
 

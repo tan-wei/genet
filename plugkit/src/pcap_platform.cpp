@@ -222,6 +222,7 @@ bool PcapPlatform::start() {
             std::memcpy(data, bytes, h->caplen);
             auto payload = self.d->payloadAllocator->alloc();
             payload->addSlice(Slice{data, data + h->caplen});
+            payload->setRange(Range{0, h->caplen});
             layer->addPayload(payload);
 
             using namespace std::chrono;

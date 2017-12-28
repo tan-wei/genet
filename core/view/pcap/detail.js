@@ -166,7 +166,10 @@ class LayerItem {
           m('ul', [
             layer.payloads.map(
               (payload) => payload.slices.map(
-                (slice) => m('li', [
+                (slice) => m('li', {
+                  onmouseover: () => selectRange(payload.range),
+                  onmouseout: () => selectRange(),
+                }, [
                   ' ',
                   m(BufferValueItem, { value: slice }),
                   ' : ', payload.type, ' '])))

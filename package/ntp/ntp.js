@@ -27,7 +27,9 @@ class NTP {
       child.confidence = Layer.ConfPossible
     }
 
-    const reader = new Reader(layer.payloads[0].slices[0])
+    const [parentPayload] = layer.payloads
+    const reader = new Reader(parentPayload.slices[0])
+    child.range = parentPayload.range
 
     const head = reader.getUint8()
     const leapIndicator = child.addAttr(ctx, 'ntp.leapIndicator')
@@ -81,13 +83,19 @@ class NTP {
     precision.error = reader.lastError
 
     const rootDelay = child.addAttr(ctx, 'ntp.rootDelay')
+    rootDelay.range = [
+      reader.lastRange[1],
+      reader.lastRange[1] + 4
+    ]
     rootDelay.value = reader.getInt16() + (reader.getUint16() / 65536)
-    rootDelay.range = reader.lastRange
     rootDelay.error = reader.lastError
 
     const rootDispersion = child.addAttr(ctx, 'ntp.rootDispersion')
+    rootDispersion.range = [
+      reader.lastRange[1],
+      reader.lastRange[1] + 4
+    ]
     rootDispersion.value = reader.getInt16() + (reader.getUint16() / 65536)
-    rootDispersion.range = reader.lastRange
     rootDispersion.error = reader.lastError
 
     const ideitifier = child.addAttr(ctx, 'ntp.ideitifier')
@@ -101,30 +109,40 @@ class NTP {
     const fraction = 4294967296
 
     const referenceTs = child.addAttr(ctx, 'ntp.referenceTs')
+    referenceTs.range = [
+      reader.lastRange[1],
+      reader.lastRange[1] + 8
+    ]
     referenceTs.value = reader.getUint32() + (reader.getUint32() / fraction)
     referenceTs.type = '@ntp:time'
-    referenceTs.range = reader.lastRange
     referenceTs.error = reader.lastError
 
     const originateTs = child.addAttr(ctx, 'ntp.originateTs')
+    originateTs.range = [
+      reader.lastRange[1],
+      reader.lastRange[1] + 8
+    ]
     originateTs.value = reader.getUint32() + (reader.getUint32() / fraction)
     originateTs.type = '@ntp:time'
-    originateTs.range = reader.lastRange
     originateTs.error = reader.lastError
 
     const receiveTs = child.addAttr(ctx, 'ntp.receiveTs')
+    receiveTs.range = [
+      reader.lastRange[1],
+      reader.lastRange[1] + 8
+    ]
     receiveTs.value = reader.getUint32() + (reader.getUint32() / fraction)
     receiveTs.type = '@ntp:time'
-    receiveTs.range = reader.lastRange
     receiveTs.error = reader.lastError
 
     const transmitTs = child.addAttr(ctx, 'ntp.transmitTs')
+    transmitTs.range = [
+      reader.lastRange[1],
+      reader.lastRange[1] + 8
+    ]
     transmitTs.value = reader.getUint32() + (reader.getUint32() / fraction)
     transmitTs.type = '@ntp:time'
-    transmitTs.range = reader.lastRange
     transmitTs.error = reader.lastError
-
-    child.range = [0, reader.lastRange[1]]
   }
 
   static get layerHints () {

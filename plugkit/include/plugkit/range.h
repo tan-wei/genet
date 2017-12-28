@@ -14,6 +14,11 @@ typedef struct Range {
   size_t end;
 } Range;
 
+inline Range Range_offset(Range base, size_t offset) {
+  Range range = {base.begin + offset, base.end + offset};
+  return range;
+}
+
 PLUGKIT_NAMESPACE_END
 
 #endif

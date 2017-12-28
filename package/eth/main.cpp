@@ -28,10 +28,14 @@ static const std::unordered_map<uint16_t, std::pair<Token, Token>> typeTable = {
 void analyze(Context *ctx, const Dissector *diss, Worker worker, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
-  reader.data = Payload_slices(Layer_payloads(layer, nullptr)[0], nullptr)[0];
+
+  const Payload *parentPayload = Layer_payloads(layer, nullptr)[0];
+  Range payloadRange = Payload_range(parentPayload);
+  reader.data = Payload_slices(parentPayload, nullptr)[0];
 
   Layer *child = Layer_addLayer(ctx, layer, ethToken);
   Layer_addTag(child, ethToken);
+  Layer_setRange(child, payloadRange);
 
   const auto &srcSlice = Reader_slice(&reader, 0, 6);
   Attr *src = Layer_addAttr(ctx, child, srcToken);
@@ -62,11 +66,10 @@ void analyze(Context *ctx, const Dissector *diss, Worker worker, Layer *layer) {
       Layer_addTag(child, it->second.first);
     }
   }
-  Layer_setRange(child, Range{0, reader.lastRange.end});
 
   Payload *chunk = Layer_addPayload(ctx, child);
   Payload_addSlice(chunk, Reader_sliceAll(&reader, 0));
-  Payload_setRange(chunk, reader.lastRange);
+  Payload_setRange(chunk, Range_offset(reader.lastRange, payloadRange.begin));
 }
 } // namespace
 
