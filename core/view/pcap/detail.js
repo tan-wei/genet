@@ -33,6 +33,14 @@ class AttributeItem {
                 label: `Apply Filter: ${id}`,
                 click: () => deplug.action
                   .emit('core:filter:set', id),
+              },
+              {
+                label: 'Reveal in Developer Tools...',
+                click: () => {
+                  // eslint-disable-next-line no-console
+                  console.log(attr)
+                  deplug.action.global.emit('core:tab:open-devtool')
+                },
               }
             ])
           },
@@ -81,8 +89,7 @@ class LayerItem {
       const rootAddr = rootPayload.slices[0].addr
       dataOffset = parentAddr[1] - rootAddr[1]
     }
-    const layerId = layer.id
-    const { name } = deplug.session.token(layerId)
+    const { name } = deplug.session.token(layer.id)
 
     const attrArray = []
     let prevDepth = 0
@@ -124,9 +131,17 @@ class LayerItem {
             oncontextmenu: (event) => {
               deplug.menu.showContextMenu(event, [
                 {
-                  label: `Apply Filter: ${layerId}`,
+                  label: `Apply Filter: ${layer.id}`,
                   click: () => deplug.action
-                    .emit('core:filter:set', layerId),
+                    .emit('core:filter:set', layer.id),
+                },
+                {
+                  label: 'Reveal in Developer Tools...',
+                  click: () => {
+                    // eslint-disable-next-line no-console
+                    console.log(layer)
+                    deplug.action.global.emit('core:tab:open-devtool')
+                  },
                 }
               ])
             },
