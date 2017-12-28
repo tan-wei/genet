@@ -4,6 +4,7 @@
 #define PLUGKIT_PAYLOAD_H
 
 #include "export.h"
+#include "range.h"
 #include "slice.h"
 #include "token.h"
 #include <stddef.h>
@@ -30,6 +31,12 @@ PLUGKIT_EXPORT Token Payload_type(const Payload *payload);
 
 /// Set the type of the payload
 PLUGKIT_EXPORT void Payload_setType(Payload *payload, Token type);
+
+/// Return the range of the payload.
+PLUGKIT_EXPORT Range Payload_range(const Payload *payload);
+
+/// Set the range of the payload.
+PLUGKIT_EXPORT void Payload_setRange(Payload *payload, Range range);
 
 PLUGKIT_NAMESPACE_END
 

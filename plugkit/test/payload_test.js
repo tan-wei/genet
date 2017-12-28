@@ -87,6 +87,14 @@ describe('Payload', () => {
       assert.strictEqual('@type', payload.type)
     })
   })
+  describe('#range', () => {
+    it('should return payload range', () => {
+      const payload = Testing.createPayloadInstance()
+      assert.deepEqual([0, 0], payload.range)
+      payload.range = [123, 456]
+      assert.deepEqual([123, 456], payload.range)
+    })
+  })
   describe('#[]', () => {
     it('should return byte at given index', () => {
       const payload = Testing.createPayloadInstance()

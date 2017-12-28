@@ -2,6 +2,7 @@
 #define PLUGKIT_PAYLOAD_HPP
 
 #include "payload.h"
+#include "range.h"
 #include "slice.h"
 #include "token.h"
 #include "types.hpp"
@@ -22,6 +23,9 @@ public:
   Token type() const;
   void setType(Token type);
 
+  Range range() const;
+  void setRange(const Range &range);
+
   const std::vector<const Attr *> &attrs() const;
   const Attr *attr(Token id) const;
   void addAttr(const Attr *prop);
@@ -32,6 +36,7 @@ private:
 
 private:
   Token mType;
+  Range mRange = {0, 0};
   std::vector<Slice> mSlices;
   std::vector<const Attr *> mAttrs;
   size_t mLength = 0;

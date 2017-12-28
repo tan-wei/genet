@@ -20,6 +20,7 @@ void PayloadWrapper::init(v8::Isolate *isolate) {
   Nan::SetAccessor(otl, Nan::New("length").ToLocalChecked(), length);
   Nan::SetAccessor(otl, Nan::New("attrs").ToLocalChecked(), attrs);
   Nan::SetAccessor(otl, Nan::New("type").ToLocalChecked(), type, setType);
+  Nan::SetAccessor(otl, Nan::New("range").ToLocalChecked(), range, setRange);
   Nan::SetIndexedPropertyHandler(otl, indexGetter);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
@@ -143,6 +144,30 @@ NAN_SETTER(PayloadWrapper::setType) {
     Token token = value->IsUint32() ? value->Uint32Value()
                                     : Token_get(*Nan::Utf8String(value));
     payload->setType(token);
+  }
+}
+
+NAN_GETTER(PayloadWrapper::range) {
+  PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
+  if (auto payload = wrapper->payload) {
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    auto array = v8::Array::New(isolate, 2);
+    array->Set(0, Nan::New(static_cast<uint32_t>(payload->range().begin)));
+    array->Set(1, Nan::New(static_cast<uint32_t>(payload->range().end)));
+    info.GetReturnValue().Set(array);
+  }
+}
+
+NAN_SETTER(PayloadWrapper::setRange) {
+  PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
+  if (auto payload = wrapper->payload) {
+    if (value->IsArray()) {
+      auto array = value.As<v8::Array>();
+      if (array->Length() >= 2) {
+        payload->setRange(
+            Range{array->Get(0)->Uint32Value(), array->Get(1)->Uint32Value()});
+      }
+    }
   }
 }
 

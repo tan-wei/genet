@@ -39,6 +39,10 @@ Token Payload::type() const { return mType; }
 
 void Payload::setType(Token type) { mType = type; }
 
+Range Payload::range() const { return mRange; }
+
+void Payload::setRange(const Range &range) { mRange = range; }
+
 void Payload_addSlice(Payload *payload, Slice slice) {
   payload->addSlice(slice);
 }
@@ -57,6 +61,12 @@ const Slice *Payload_slices(const Payload *payload, size_t *size) {
 Token Payload_type(const Payload *payload) { return payload->type(); }
 
 void Payload_setType(Payload *payload, Token type) { payload->setType(type); }
+
+Range Payload_range(const Payload *payload) { return payload->range(); }
+
+void Payload_setRange(Payload *payload, Range range) {
+  payload->setRange(range);
+}
 
 Attr *Payload_addAttr(Context *ctx, Payload *payload, Token id) {
   Attr *attr = Context_allocAttr(ctx, id);
