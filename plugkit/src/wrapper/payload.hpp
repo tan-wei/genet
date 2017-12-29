@@ -34,7 +34,7 @@ private:
   PayloadWrapper &operator=(const PayloadWrapper &) = delete;
 
 private:
-  ;
+  Payload *payload;
   const Payload *constPayload;
 };
 } // namespace plugkit
