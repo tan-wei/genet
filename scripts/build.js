@@ -6,8 +6,10 @@ const touch = require('touch')
 const debounce = require('lodash.debounce')
 const watchMode = (process.argv[2] === '--watch')
 
-const reloadFile = './.reload'
-const negatron = './node_modules/.bin/negatron'
+const reloadFile = '.reload'
+const negatron = (process.platform === 'win32')
+                  ? 'node_modules\\.bin\\negatron.cmd'
+                  : 'node_modules/.bin/negatron'
 
 let building = false
 
