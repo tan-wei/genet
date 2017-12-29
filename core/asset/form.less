@@ -1,0 +1,59 @@
+@import "deplug-theme";
+
+input,
+select,
+textarea {
+  border: 1px solid @theme-selection-bg;
+  background: @theme-lighter-bg;
+  color: @theme-default-fg;
+  border-radius: 2px;
+  padding: 0.5em;
+  line-height: 1.2em;
+  width: 100%;
+}
+
+input[type="number"],
+input[type="text"] {
+  box-sizing: border-box;
+}
+
+input[type=checkbox],
+input[type=radio] {
+  display: inline-block;
+  line-height: 1em;
+  margin: 0 0.25em 0 0;
+  padding: 0;
+  width: 1.25em;
+  height: 1.25em;
+  border-radius: 0.25em;
+  vertical-align: text-top;
+
+  &:checked {
+    background-color: @theme-variables;
+  }
+}
+
+input[type=number] {
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+input[type=button] {
+  height: 32px;
+}
+
+select {
+  background: @theme-lighter-bg;
+}
+
+* {
+  outline-color: @theme-variables;
+}
+
+::-webkit-input-placeholder {
+  color: @theme-dark-fg;
+  opacity: 0.5;
+}
