@@ -47,6 +47,7 @@ const auto mtToken = Token_get("tcp.options.ts.my");
 const auto etToken = Token_get("tcp.options.ts.echo");
 const auto flagsTypeToken = Token_get("@flags");
 const auto nestedToken = Token_get("@nested");
+const auto novalueToken = Token_get("@novalue");
 
 void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Reader reader;
@@ -133,6 +134,8 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
       break;
     case 1: {
       Attr *opt = Layer_addAttr(ctx, child, nopToken);
+      Attr_setBool(opt, true);
+      Attr_setType(opt, novalueToken);
       Attr_setRange(opt, Range{optionOffset, optionOffset + 1});
       optionOffset++;
     } break;
@@ -153,6 +156,8 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
     } break;
     case 4: {
       Attr *opt = Layer_addAttr(ctx, child, ackPermToken);
+      Attr_setBool(opt, true);
+      Attr_setType(opt, novalueToken);
       Attr_setRange(opt, Range{optionOffset, optionOffset + 2});
       optionOffset += 2;
     } break;
