@@ -41,19 +41,8 @@ endif
 all: build
 	$(ELECTRON) --enable-logging --deplug-dev-watch-file=./.reload .
 
-build: plugkit
-	node scripts/build-deplug-core.js
-
-lint:
-	$(ESLINT) .
-
-fix:
-	$(ESLINT) --fix .
-
-plugkit:
-	node scripts/run-as-node.js $(ELECTRON) scripts/generate-version-file.js
-	node scripts/build-plugkit.js
-	node scripts/build-packages.js
+build:
+	node scripts/build.js
 
 test:
 	node scripts/run-as-node.js $(ELECTRON) $(MOCHA) plugkit/test
@@ -124,6 +113,12 @@ docs:
 
 docs-serve: docs
 	$(DOCSIFY) serve ./out/docs
+
+lint:
+	$(ESLINT) .
+
+fix:
+	$(ESLINT) --fix .
 
 fmt:
 	$(MAKE) fmt -C $(PLUGKIT_SRC)

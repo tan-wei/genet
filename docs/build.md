@@ -34,7 +34,7 @@ $ sudo apt-get install build-essential libpcap-dev libcap-dev gperf
 $ git clone https://github.com/deplug/deplug.git
 $ cd deplug
 $ npm install
-$ make
+$ npm run watch
 ```
 
 ## Build Documentation
