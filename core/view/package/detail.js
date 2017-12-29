@@ -101,7 +101,7 @@ export default class DetailView {
 
     const config = Object.entries(deplug.config.schema)
       .filter(([id]) => id.startsWith(`${pkg.data.name}.`))
-    return [
+    return m('article', [
       m('h1', { disabled: pkg.disabled === true }, [pkg.data.name,
         m('span', { class: 'version' },
           [pkg.data.version])]),
@@ -116,6 +116,6 @@ export default class DetailView {
           }),
           m('p', { class: 'description' }, [schema.description])
       ])))
-    ]
+    ])
   }
 }

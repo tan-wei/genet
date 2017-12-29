@@ -32,36 +32,63 @@ a {
   background: @theme-default-fg;
   color: @theme-default-bg;
 }
-// headline
+
+h1, h2, h3, h4, h5, h6, label, summary {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
 h1 {
   font-size: 2.0em;
   color: @theme-light-fg;
 }
+
 h2 {
   font-size: 1.8em;
   color: @theme-light-fg;
 }
+
 h3 {
   font-size: 1.6em;
   color: @theme-light-fg;
 }
+
 h4 {
   font-size: 1.4em;
   color: @theme-light-fg;
 }
+
 h5 {
   font-size: 1.2em;
   color: @theme-light-fg;
 }
+
 h6 {
   font-size: 1.0em;
   color: @theme-light-fg;
 }
+
 th {
   color: @theme-dark-fg;
 }
+
 label {
   color: @theme-dark-fg;
+}
+
+table {
+  width: 100%;
+  margin: 20px auto;
+  max-width: 800px;
+
+  th {
+    text-align: left;
+  }
+}
+
+article {
+  padding: 0 20px;
 }
 
 :root {
