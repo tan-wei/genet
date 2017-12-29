@@ -71,7 +71,7 @@ const Attr *Layer::attr(Token id) const {
   return nullptr;
 }
 
-void Layer::addAttr(Attr *prop) { mAttrs.push_back(prop); }
+void Layer::addAttr(Attr *attr) { mAttrs.push_back(attr); }
 
 void Layer::removeUnconfidentLayers(Context *ctx, LayerConfidence confidence) {
   for (auto &layer : mLayers) {
@@ -146,9 +146,9 @@ Layer *Layer_addSubLayer(Context *context, Layer *layer, Token id) {
 }
 
 Attr *Layer_addAttr(Context *context, Layer *layer, Token id) {
-  Attr *prop = Context_allocAttr(context, id);
-  layer->addAttr(prop);
-  return prop;
+  Attr *attr = Context_allocAttr(context, id);
+  layer->addAttr(attr);
+  return attr;
 }
 
 const Attr *Layer_attr(const Layer *layer, Token id) { return layer->attr(id); }

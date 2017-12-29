@@ -197,8 +197,8 @@ NAN_METHOD(LayerWrapper::attr) {
       Nan::ThrowTypeError("First argument must be a string or token-id");
       return;
     }
-    if (const auto &prop = layer->attr(token)) {
-      info.GetReturnValue().Set(AttributeWrapper::wrap(prop));
+    if (const auto &attr = layer->attr(token)) {
+      info.GetReturnValue().Set(AttributeWrapper::wrap(attr));
     } else {
       info.GetReturnValue().Set(Nan::Null());
     }

@@ -10,9 +10,9 @@ class AttributeItem {
   view (vnode) {
     const { item, layer } = vnode.attrs
     const { attr, children } = item
-    let faClass = 'property'
+    let faClass = 'attribute'
     if (children.length) {
-      faClass = 'property children'
+      faClass = 'attribute children'
     }
     const { name } = deplug.session.token(attr.id)
     const attrRenderer =

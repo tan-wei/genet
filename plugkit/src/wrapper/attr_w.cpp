@@ -23,30 +23,30 @@ void AttributeWrapper::init(v8::Isolate *isolate) {
   module->attribute.ctor.Reset(isolate, ctor);
 }
 
-AttributeWrapper::AttributeWrapper(Attr *prop) : prop(prop), constProp(prop) {}
+AttributeWrapper::AttributeWrapper(Attr *attr) : attr(attr), constProp(attr) {}
 
-AttributeWrapper::AttributeWrapper(const Attr *prop)
-    : prop(nullptr), constProp(prop) {}
+AttributeWrapper::AttributeWrapper(const Attr *attr)
+    : attr(nullptr), constProp(attr) {}
 
 NAN_METHOD(AttributeWrapper::New) { info.GetReturnValue().Set(info.This()); }
 
 NAN_GETTER(AttributeWrapper::id) {
   AttributeWrapper *wrapper =
       ObjectWrap::Unwrap<AttributeWrapper>(info.Holder());
-  if (auto prop = wrapper->constProp) {
+  if (auto attr = wrapper->constProp) {
     info.GetReturnValue().Set(
-        Nan::New(Token_string(prop->id())).ToLocalChecked());
+        Nan::New(Token_string(attr->id())).ToLocalChecked());
   }
 }
 
 NAN_GETTER(AttributeWrapper::range) {
   AttributeWrapper *wrapper =
       ObjectWrap::Unwrap<AttributeWrapper>(info.Holder());
-  if (auto prop = wrapper->constProp) {
+  if (auto attr = wrapper->constProp) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
     auto array = v8::Array::New(isolate, 2);
-    array->Set(0, Nan::New(static_cast<uint32_t>(prop->range().begin)));
-    array->Set(1, Nan::New(static_cast<uint32_t>(prop->range().end)));
+    array->Set(0, Nan::New(static_cast<uint32_t>(attr->range().begin)));
+    array->Set(1, Nan::New(static_cast<uint32_t>(attr->range().end)));
     info.GetReturnValue().Set(array);
   }
 }
@@ -54,11 +54,11 @@ NAN_GETTER(AttributeWrapper::range) {
 NAN_SETTER(AttributeWrapper::setRange) {
   AttributeWrapper *wrapper =
       ObjectWrap::Unwrap<AttributeWrapper>(info.Holder());
-  if (auto prop = wrapper->prop) {
+  if (auto attr = wrapper->attr) {
     if (value->IsArray()) {
       auto array = value.As<v8::Array>();
       if (array->Length() >= 2) {
-        prop->setRange(
+        attr->setRange(
             Range{array->Get(0)->Uint32Value(), array->Get(1)->Uint32Value()});
       }
     }
@@ -68,58 +68,58 @@ NAN_SETTER(AttributeWrapper::setRange) {
 NAN_GETTER(AttributeWrapper::value) {
   AttributeWrapper *wrapper =
       ObjectWrap::Unwrap<AttributeWrapper>(info.Holder());
-  if (auto prop = wrapper->constProp) {
-    info.GetReturnValue().Set(Variant::getValue(prop->value()));
+  if (auto attr = wrapper->constProp) {
+    info.GetReturnValue().Set(Variant::getValue(attr->value()));
   }
 }
 
 NAN_SETTER(AttributeWrapper::setValue) {
   AttributeWrapper *wrapper =
       ObjectWrap::Unwrap<AttributeWrapper>(info.Holder());
-  if (auto prop = wrapper->prop) {
-    prop->setValue(Variant::getVariant(value));
+  if (auto attr = wrapper->attr) {
+    attr->setValue(Variant::getVariant(value));
   }
 }
 
 NAN_GETTER(AttributeWrapper::type) {
   AttributeWrapper *wrapper =
       ObjectWrap::Unwrap<AttributeWrapper>(info.Holder());
-  if (auto prop = wrapper->constProp) {
+  if (auto attr = wrapper->constProp) {
     info.GetReturnValue().Set(
-        Nan::New(Token_string(prop->type())).ToLocalChecked());
+        Nan::New(Token_string(attr->type())).ToLocalChecked());
   }
 }
 
 NAN_SETTER(AttributeWrapper::setType) {
   AttributeWrapper *wrapper =
       ObjectWrap::Unwrap<AttributeWrapper>(info.Holder());
-  if (auto prop = wrapper->prop) {
+  if (auto attr = wrapper->attr) {
     Token token = value->IsUint32() ? value->Uint32Value()
                                     : Token_get(*Nan::Utf8String(value));
-    prop->setType(token);
+    attr->setType(token);
   }
 }
 
 NAN_GETTER(AttributeWrapper::error) {
   AttributeWrapper *wrapper =
       ObjectWrap::Unwrap<AttributeWrapper>(info.Holder());
-  if (auto prop = wrapper->constProp) {
+  if (auto attr = wrapper->constProp) {
     info.GetReturnValue().Set(
-        Nan::New(Token_string(prop->error())).ToLocalChecked());
+        Nan::New(Token_string(attr->error())).ToLocalChecked());
   }
 }
 
 NAN_SETTER(AttributeWrapper::setError) {
   AttributeWrapper *wrapper =
       ObjectWrap::Unwrap<AttributeWrapper>(info.Holder());
-  if (auto prop = wrapper->prop) {
+  if (auto attr = wrapper->attr) {
     Token token = value->IsUint32() ? value->Uint32Value()
                                     : Token_get(*Nan::Utf8String(value));
-    prop->setError(token);
+    attr->setError(token);
   }
 }
 
-v8::Local<v8::Object> AttributeWrapper::wrap(Attr *prop) {
+v8::Local<v8::Object> AttributeWrapper::wrap(Attr *attr) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto cons = v8::Local<v8::Function>::New(isolate, module->attribute.ctor);
@@ -127,12 +127,12 @@ v8::Local<v8::Object> AttributeWrapper::wrap(Attr *prop) {
       cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,
                         nullptr)
           .ToLocalChecked();
-  AttributeWrapper *wrapper = new AttributeWrapper(prop);
+  AttributeWrapper *wrapper = new AttributeWrapper(attr);
   wrapper->Wrap(obj);
   return obj;
 }
 
-v8::Local<v8::Object> AttributeWrapper::wrap(const Attr *prop) {
+v8::Local<v8::Object> AttributeWrapper::wrap(const Attr *attr) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto cons = v8::Local<v8::Function>::New(isolate, module->attribute.ctor);
@@ -140,7 +140,7 @@ v8::Local<v8::Object> AttributeWrapper::wrap(const Attr *prop) {
       cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,
                         nullptr)
           .ToLocalChecked();
-  AttributeWrapper *wrapper = new AttributeWrapper(prop);
+  AttributeWrapper *wrapper = new AttributeWrapper(attr);
   wrapper->Wrap(obj);
   return obj;
 }

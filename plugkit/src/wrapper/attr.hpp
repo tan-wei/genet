@@ -11,8 +11,8 @@ struct Attr;
 struct AttributeWrapper final : public Nan::ObjectWrap {
 public:
   static void init(v8::Isolate *isolate);
-  static v8::Local<v8::Object> wrap(Attr *prop);
-  static v8::Local<v8::Object> wrap(const Attr *prop);
+  static v8::Local<v8::Object> wrap(Attr *attr);
+  static v8::Local<v8::Object> wrap(const Attr *attr);
   static const Attr *unwrap(v8::Local<v8::Value> value);
   static NAN_METHOD(New);
   static NAN_GETTER(id);
@@ -26,13 +26,13 @@ public:
   static NAN_SETTER(setError);
 
 private:
-  AttributeWrapper(Attr *prop);
-  AttributeWrapper(const Attr *prop);
+  AttributeWrapper(Attr *attr);
+  AttributeWrapper(const Attr *attr);
   AttributeWrapper(const AttributeWrapper &) = delete;
   AttributeWrapper &operator=(const AttributeWrapper &) = delete;
 
 private:
-  Attr *prop;
+  Attr *attr;
   const Attr *constProp;
 };
 } // namespace plugkit

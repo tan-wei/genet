@@ -28,7 +28,7 @@ public:
 
   const std::vector<const Attr *> &attrs() const;
   const Attr *attr(Token id) const;
-  void addAttr(const Attr *prop);
+  void addAttr(const Attr *attr);
 
 private:
   Payload(const Payload &payload) = delete;

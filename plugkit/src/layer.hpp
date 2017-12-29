@@ -34,7 +34,7 @@ public:
 
   const std::vector<Attr *> &attrs() const;
   const Attr *attr(Token id) const;
-  void addAttr(Attr *prop);
+  void addAttr(Attr *attr);
 
   uint8_t worker() const;
   void setWorker(uint8_t id);

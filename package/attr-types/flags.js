@@ -3,10 +3,10 @@ class Flags {
   view (vnode) {
     const { value } = vnode.attrs.attr
     const flags = vnode.attrs.layer.attrs
-      .filter((prop) => prop.value && prop.id
+      .filter((attr) => attr.value && attr.id
       .startsWith(`${vnode.attrs.attr.id}.`))
-      .map((prop) => {
-        const { id } = prop
+      .map((attr) => {
+        const { id } = attr
         return deplug.session.token(id).name
     })
     .join(', ')

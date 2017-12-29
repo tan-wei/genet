@@ -26,8 +26,8 @@ public:
   void setError(Token error);
 
 private:
-  Attr(const Attr &prop) = delete;
-  Attr &operator=(const Attr &prop) = delete;
+  Attr(const Attr &attr) = delete;
+  Attr &operator=(const Attr &attr) = delete;
 
 private:
   Token mId = 0;
