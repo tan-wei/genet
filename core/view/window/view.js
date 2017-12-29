@@ -3,8 +3,10 @@ import Menu from './menu'
 import Stack from './stack'
 import { VSplitter } from '../../lib/splitter'
 import env from '../../lib/env'
+import fs from 'fs'
 import m from 'mithril'
 import path from 'path'
+import touch from 'touch'
 
 const { dialog } = remote
 const windowId = remote.getCurrentWindow().id
@@ -57,6 +59,11 @@ export default class WindowView {
   }
 
   oncreate () {
+    const watcherFile = deplug.argv['deplug-dev-watch-file']
+    if (watcherFile) {
+      touch.sync(watcherFile)
+      fs.watchFile(watcherFile, remote.getCurrentWindow().reload)
+    }
     ipcRenderer.on('core:menu:action', (event, channel) => {
       document
         .querySelector('webview[active]')

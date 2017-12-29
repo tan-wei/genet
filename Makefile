@@ -39,7 +39,7 @@ DPM = node_modules/.bin/dpm
 endif
 
 all: build
-	$(ELECTRON) --enable-logging .
+	$(ELECTRON) --enable-logging --deplug-dev-watch-file=./.reload .
 
 build: plugkit
 	node scripts/build-deplug-core.js
