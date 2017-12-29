@@ -31,6 +31,9 @@ ipcMain.on('core:logger:register', (event, windowId, contentId) => {
 ipcMain.on('core:logger:message', (event, windowId, message) => {
   const contentId = logContents.get(windowId)
   if (Number.isInteger(contentId)) {
-    webContents.fromId(contentId).send('core:logger:message', message)
+    const content = webContents.fromId(logContents.get(windowId))
+    if (content !== null) {
+      content.send('core:logger:message', message)
+    }
   }
 })
