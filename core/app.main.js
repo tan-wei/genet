@@ -21,7 +21,10 @@ app.on('ready', () => {
 })
 
 ipcMain.on('core:window:loaded', (event, id) => {
-  BrowserWindow.fromId(id).show()
+  const window = BrowserWindow.fromId(id)
+  if (!window.isVisible()) {
+    window.show()
+  }
 })
 
 const logContents = new Map()
