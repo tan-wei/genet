@@ -4,7 +4,8 @@
 
 namespace plugkit {
 
-void AttributeWrapper::init(v8::Isolate *isolate) {
+void AttributeWrapper::init(v8::Isolate *isolate,
+                            v8::Local<v8::Object> exports) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Attr").ToLocalChecked());
@@ -18,15 +19,37 @@ void AttributeWrapper::init(v8::Isolate *isolate) {
 
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
+  ctor->Set(
+      Nan::New("create").ToLocalChecked(),
+      Nan::New<v8::FunctionTemplate>(AttributeWrapper::create)->GetFunction());
   module->attribute.proto.Reset(
       isolate, ctor->Get(Nan::New("prototype").ToLocalChecked()));
   module->attribute.ctor.Reset(isolate, ctor);
+  Nan::Set(exports, Nan::New("Attr").ToLocalChecked(), ctor);
 }
 
 AttributeWrapper::AttributeWrapper(Attr *attr) : attr(attr), constProp(attr) {}
 
 AttributeWrapper::AttributeWrapper(const Attr *attr)
     : attr(nullptr), constProp(attr) {}
+
+AttributeWrapper::AttributeWrapper(const std::shared_ptr<Attr> &attr)
+    : attr(attr.get()), constProp(attr.get()), shared(attr) {}
+
+NAN_METHOD(AttributeWrapper::create) {
+  Token token = Token_null();
+  auto id = info[0];
+  if (id->IsUint32()) {
+    token = id->Uint32Value();
+  } else if (id->IsString()) {
+    token = Token_get(*Nan::Utf8String(id));
+  } else {
+    Nan::ThrowTypeError("First argument must be a string or token-id");
+    return;
+  }
+  info.GetReturnValue().Set(
+      AttributeWrapper::wrap(std::make_shared<Attr>(token)));
+}
 
 NAN_METHOD(AttributeWrapper::New) { info.GetReturnValue().Set(info.This()); }
 
@@ -133,6 +156,20 @@ v8::Local<v8::Object> AttributeWrapper::wrap(Attr *attr) {
 }
 
 v8::Local<v8::Object> AttributeWrapper::wrap(const Attr *attr) {
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
+  PlugkitModule *module = PlugkitModule::get(isolate);
+  auto cons = v8::Local<v8::Function>::New(isolate, module->attribute.ctor);
+  v8::Local<v8::Object> obj =
+      cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,
+                        nullptr)
+          .ToLocalChecked();
+  AttributeWrapper *wrapper = new AttributeWrapper(attr);
+  wrapper->Wrap(obj);
+  return obj;
+}
+
+v8::Local<v8::Object>
+AttributeWrapper::wrap(const std::shared_ptr<Attr> &attr) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto cons = v8::Local<v8::Function>::New(isolate, module->attribute.ctor);

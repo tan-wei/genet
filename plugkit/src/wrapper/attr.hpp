@@ -10,11 +10,13 @@ struct Attr;
 
 struct AttributeWrapper final : public Nan::ObjectWrap {
 public:
-  static void init(v8::Isolate *isolate);
+  static void init(v8::Isolate *isolate, v8::Local<v8::Object> exports);
   static v8::Local<v8::Object> wrap(Attr *attr);
   static v8::Local<v8::Object> wrap(const Attr *attr);
+  static v8::Local<v8::Object> wrap(const std::shared_ptr<Attr> &attr);
   static const Attr *unwrap(v8::Local<v8::Value> value);
   static NAN_METHOD(New);
+  static NAN_METHOD(create);
   static NAN_GETTER(id);
   static NAN_GETTER(range);
   static NAN_SETTER(setRange);
@@ -28,12 +30,14 @@ public:
 private:
   AttributeWrapper(Attr *attr);
   AttributeWrapper(const Attr *attr);
+  AttributeWrapper(const std::shared_ptr<Attr> &attr);
   AttributeWrapper(const AttributeWrapper &) = delete;
   AttributeWrapper &operator=(const AttributeWrapper &) = delete;
 
 private:
   Attr *attr;
   const Attr *constProp;
+  std::shared_ptr<Attr> shared;
 };
 } // namespace plugkit
 

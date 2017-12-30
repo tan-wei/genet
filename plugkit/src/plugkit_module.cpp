@@ -55,12 +55,12 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
                              bool mainThread) {
   ExtendedSlot::set(isolate, ExtendedSlot::SLOT_PLUGKIT_MODULE, this);
   Variant::init(isolate);
-  AttributeWrapper::init(isolate);
+  AttributeWrapper::init(isolate, exports);
+  PayloadWrapper::init(isolate, exports);
   LayerWrapper::init(isolate);
   FrameWrapper::init(isolate);
   ContextWrapper::init(isolate);
   LoggerWrapper::init(isolate);
-  PayloadWrapper::init(isolate);
   if (mainThread) {
     PcapWrapper::init(isolate, exports);
     SessionFactoryWrapper::init(isolate, exports);

@@ -7,7 +7,7 @@
 
 namespace plugkit {
 
-void PayloadWrapper::init(v8::Isolate *isolate) {
+void PayloadWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Payload").ToLocalChecked());
@@ -25,9 +25,13 @@ void PayloadWrapper::init(v8::Isolate *isolate) {
 
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
+  ctor->Set(
+      Nan::New("create").ToLocalChecked(),
+      Nan::New<v8::FunctionTemplate>(PayloadWrapper::create)->GetFunction());
   module->payload.proto.Reset(
       isolate, ctor->Get(Nan::New("prototype").ToLocalChecked()));
   module->payload.ctor.Reset(isolate, ctor);
+  Nan::Set(exports, Nan::New("Payload").ToLocalChecked(), ctor);
 }
 
 PayloadWrapper::PayloadWrapper(Payload *payload)
@@ -36,7 +40,14 @@ PayloadWrapper::PayloadWrapper(Payload *payload)
 PayloadWrapper::PayloadWrapper(const Payload *payload)
     : payload(nullptr), constPayload(payload) {}
 
+PayloadWrapper::PayloadWrapper(const std::shared_ptr<Payload> &payload)
+    : payload(payload.get()), constPayload(payload.get()), shared(payload) {}
+
 NAN_METHOD(PayloadWrapper::New) { info.GetReturnValue().Set(info.This()); }
+
+NAN_METHOD(PayloadWrapper::create) {
+  info.GetReturnValue().Set(PayloadWrapper::wrap(std::make_shared<Payload>()));
+}
 
 NAN_METHOD(PayloadWrapper::addSlice) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
@@ -203,6 +214,20 @@ v8::Local<v8::Object> PayloadWrapper::wrap(Payload *payload) {
 }
 
 v8::Local<v8::Object> PayloadWrapper::wrap(const Payload *payload) {
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
+  PlugkitModule *module = PlugkitModule::get(isolate);
+  auto cons = v8::Local<v8::Function>::New(isolate, module->payload.ctor);
+  v8::Local<v8::Object> obj =
+      cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,
+                        nullptr)
+          .ToLocalChecked();
+  PayloadWrapper *wrapper = new PayloadWrapper(payload);
+  wrapper->Wrap(obj);
+  return obj;
+}
+
+v8::Local<v8::Object>
+PayloadWrapper::wrap(const std::shared_ptr<Payload> &payload) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto cons = v8::Local<v8::Function>::New(isolate, module->payload.ctor);
