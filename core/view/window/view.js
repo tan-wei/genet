@@ -30,14 +30,6 @@ export default class WindowView {
       loading: true,
       system: true,
       icon: 'fa-gift',
-    }, {
-      id: 'log',
-      name: 'Logs',
-      src: 'log.htm',
-      argv: deplug.argv,
-      loading: true,
-      system: true,
-      icon: 'fa-book',
     }]
     this.activeTab = 'preference'
     this.counter = 1

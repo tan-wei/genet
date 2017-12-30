@@ -27,7 +27,7 @@ async function readFile (filePath) {
         filePath,
       }
     } catch (err) {
-      return {}
+      return { err }
     }
 }
 
@@ -85,9 +85,14 @@ export default class PackageManager extends EventEmitter {
     const removedPackages = new Set(packages.keys())
     const dirtyPackages = new Set()
 
-    const pkgs = (await Promise.all(
-      builtinPaths.map(readFile).concat(userPaths.map(readFile))))
-      .filter((pkg) => pkg.data)
+    const metaDataList = await Promise.all(
+      builtinPaths.map(readFile).concat(userPaths.map(readFile)))
+    for (const data of metaDataList) {
+      if (data.err) {
+        deplug.logger.error(data.err)
+      }
+    }
+    const pkgs = metaDataList.filter((pkg) => pkg.data)
 
     const removeme = await Promise.all(pkgs.map((pkg) =>
       readFile(path.join(path.dirname(pkg.filePath), '.removeme'))))

@@ -61,26 +61,6 @@ export default {
       default: false,
       section: 'Package',
     },
-    '_.logger.level': {
-      title: 'Log Level',
-      type: 'string',
-      enum: ['debug', 'info', 'warn', 'error'],
-      enumTitles: [
-        'Debug',
-        'Info',
-        'Warning',
-        'Error'
-      ],
-      default: 'debug',
-      section: 'Logger',
-    },
-    '_.logger.maxLength': {
-      title: 'Maximum Log Length',
-      type: 'integer',
-      minimum: 0,
-      default: 1000,
-      section: 'Logger',
-    },
     '_.filter.historyLength': {
       title: 'Filter History Length',
       type: 'integer',

@@ -22,10 +22,6 @@ export default class PrefernceView {
       component: General,
       attrs: { prefix: '_.filter.' },
     }, {
-      name: 'Logger',
-      component: General,
-      attrs: { prefix: '_.logger.' },
-    }, {
       name: 'KeyBind',
       component: KeyBind,
     }, {

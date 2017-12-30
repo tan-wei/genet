@@ -1,13 +1,40 @@
-import { ipcRenderer, remote } from 'electron'
+/* eslint no-console: "off" */
+
+import { remote } from 'electron'
+import throttle from 'lodash.throttle'
+
+const dumpLogs = throttle((data) => {
+  if (data.logs.length > 0) {
+    for (const log of data.logs) {
+      switch (log.level) {
+        case 'info':
+          console.info(log.message)
+          break
+        case 'debug':
+          console.debug(log.message)
+          break
+        case 'warn':
+          console.warn(log.message)
+          break
+        case 'error':
+          console.error(log.message)
+          break
+        default:
+          console.log(log.message)
+          break
+      }
+    }
+    data.logs = []
+  }
+}, 100)
 
 const fields = Symbol('fields')
-const logLevels =
-  new Map([['debug', 0], ['info', 1], ['warn', 2], ['error', 3]])
 export default class Logger {
   constructor (config) {
     this[fields] = {
       windowId: remote.getCurrentWindow().id,
       domain: 'core',
+      logs: [],
     }
     config.watch('_.logger.level', (value) => {
       this[fields].logLevel = value
@@ -23,24 +50,11 @@ export default class Logger {
   }
 
   log (message, options = {}) {
-    if (logLevels.get(this[fields].logLevel) > logLevels.get(options.level)) {
-      return
-    }
-    const summary = (message instanceof Error)
-      ? message.message
-      : `${message}`
-    const detail = (message instanceof Error)
-      ? message.stack
-      : `${message}`
-    ipcRenderer.send('core:logger:message',
-      remote.getCurrentWindow().id, Object.assign({
-        message: {
-          summary,
-          detail,
-        },
-        timestamp: new Date(),
-        domain: this[fields].domain,
-      }, options))
+    this[fields].logs.push({
+      message,
+      level: options.level,
+    })
+    dumpLogs(this[fields])
   }
 
   debug (message, options = {}) {
