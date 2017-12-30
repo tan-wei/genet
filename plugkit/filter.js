@@ -3,6 +3,7 @@ const esprima = require('esprima')
 const escodegen = require('escodegen')
 const fs = require('fs')
 const path = require('path')
+const vm = require('vm')
 
 const fields = Symbol('fields')
 const runtime = fs.readFileSync(path.join(__dirname, 'runtime.js'), 'utf8')
@@ -211,6 +212,14 @@ class Filter {
     ast = processOperators(ast)
     ast = makeValue(ast)
     return runtime.replace('@@@', escodegen.generate(ast))
+  }
+
+  compileFunction (filter) {
+    const options = { displayErrors: true }
+    if (filter.length === 0) {
+      return (() => true)
+    }
+    return vm.runInThisContext(this.compile(filter), options)
   }
 }
 

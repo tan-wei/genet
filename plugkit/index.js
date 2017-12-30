@@ -1,6 +1,5 @@
 const kit = require('./plugkit')
 const fs = require('fs')
-const vm = require('vm')
 const promisify = require('es6-promisify')
 const EventEmitter = require('events')
 const FilterCompiler = require('./filter')
@@ -8,45 +7,34 @@ const VirtualLayer = require('./layer')
 
 const fields = Symbol('fields')
 const promiseReadFile = promisify(fs.readFile)
-function compileFilter (filter, transforms) {
-  const compiler = new FilterCompiler()
-  for (const trans of transforms) {
-    switch (trans.type) {
-      case 'string':
-        compiler.registerStringTransform(trans.func)
-        break
-      case 'token':
-        compiler.registerTokenTransform(trans.func)
-        break
-      case 'ast':
-        compiler.registerAstTransform(trans.func)
-        break
-      case 'template':
-        compiler.registerTemplateTransform(trans.func)
-        break
-      default:
-        throw new Error(`unknown transform type: ${trans.type}`)
-    }
-  }
-  return compiler.compile(filter)
-}
-
-class Filter {
-  constructor (expression, body) {
-    const options = { displayErrors: true }
-    this.expression = expression
-    this.func = vm.runInThisContext(body, options) || (() => true)
-  }
-
-  test (frame) {
-    return this.func(frame)
-  }
-}
-
 class Session extends EventEmitter {
   constructor (sess, options) {
     super()
-    this[fields] = Object.assign({ sess }, options)
+    this[fields] = Object.assign({
+      sess,
+      filterCompiler: new FilterCompiler(),
+    }, options)
+
+    const filterCompiler = new FilterCompiler()
+    for (const trans of options.transforms) {
+      switch (trans.type) {
+        case 'string':
+          filterCompiler.registerStringTransform(trans.func)
+          break
+        case 'token':
+          filterCompiler.registerTokenTransform(trans.func)
+          break
+        case 'ast':
+          filterCompiler.registerAstTransform(trans.func)
+          break
+        case 'template':
+          filterCompiler.registerTemplateTransform(trans.func)
+          break
+        default:
+          throw new Error(`unknown transform type: ${trans.type}`)
+      }
+    }
+    this[fields].filterCompiler = filterCompiler
 
     this.status = { capture: false }
     this.filter = {}
@@ -74,7 +62,8 @@ class Session extends EventEmitter {
   }
 
   exportFile (file, filter = '') {
-    const body = compileFilter(filter, this[fields].transforms)
+    const { filterCompiler } = this[fields]
+    const body = filterCompiler.compile(filter)
     return this[fields].sess.exportFile(file, body)
   }
 
@@ -119,78 +108,82 @@ class Session extends EventEmitter {
   }
 
   setDisplayFilter (name, filter) {
-    const body = compileFilter(filter, this[fields].transforms)
+    const { filterCompiler } = this[fields]
+    const body = filterCompiler.compile(filter)
     return this[fields].sess.setDisplayFilter(name, body)
   }
 
   createFilter (filter) {
-    const body = compileFilter(filter, this[fields].transforms)
-    return new Filter(filter, body)
+    const { filterCompiler } = this[fields]
+    return {
+      expression: filter,
+      test: filterCompiler.compileFunction(filter),
+    }
   }
 }
 
-  class SessionFactory extends kit.SessionFactory {
-    constructor () {
-      super()
-      this[fields] = {
-        tasks: [],
-        linkLayers: [],
-        transforms: [],
-        attributes: {},
-      }
+class SessionFactory extends kit.SessionFactory {
+  constructor () {
+    super()
+    this[fields] = {
+      tasks: [],
+      linkLayers: [],
+      transforms: [],
+      attributes: {},
     }
+  }
 
-    create () {
-      return Promise.all(this[fields].tasks).then(() => {
-        for (const link of this[fields].linkLayers) {
-          super.registerLinkLayer(link.link, link.id, link.name)
-        }
-        return new Session(super.create(), this[fields])
+  create () {
+    return Promise.all(this[fields].tasks).then(() => {
+      for (const link of this[fields].linkLayers) {
+        super.registerLinkLayer(link.link, link.id, link.name)
+      }
+      return new Session(super.create(), this[fields])
+    })
+  }
+
+  registerLinkLayer (layer) {
+    this[fields].linkLayers.push(layer)
+  }
+
+  registerFilterTransform (trans) {
+    this[fields].transforms.push(trans)
+  }
+
+  registerImporter (importer) {
+    super.registerImporter(importer)
+  }
+
+  registerExporter (exporter) {
+    super.registerExporter(exporter)
+  }
+
+  registerAttributes (attrs) {
+    this[fields].attributes = Object.assign(this[fields].attributes, attrs)
+  }
+
+  registerDissector (dissector) {
+    if (typeof dissector.main === 'string') {
+      const task = promiseReadFile(dissector.main, 'utf8')
+      .then((script) => {
+        const func = `(function(module){${script}})`
+        super.registerDissector(func, dissector.type)
+        return Promise.resolve()
       })
-    }
-
-    registerLinkLayer (layer) {
-      this[fields].linkLayers.push(layer)
-    }
-
-    registerFilterTransform (trans) {
-      this[fields].transforms.push(trans)
-    }
-
-    registerImporter (importer) {
-      super.registerImporter(importer)
-    }
-
-    registerExporter (exporter) {
-      super.registerExporter(exporter)
-    }
-
-    registerAttributes (attrs) {
-      this[fields].attributes = Object.assign(this[fields].attributes, attrs)
-    }
-
-    registerDissector (dissector) {
-      if (typeof dissector.main === 'string') {
-        const task = promiseReadFile(dissector.main, 'utf8')
-        .then((script) => {
-          const func = `(function(module){${script}})`
-          super.registerDissector(func, dissector.type)
-          return Promise.resolve()
-        })
-        this[fields].tasks.push(task)
-      } else {
-        super.registerDissector(dissector.main, dissector.type)
-      }
+      this[fields].tasks.push(task)
+    } else {
+      super.registerDissector(dissector.main, dissector.type)
     }
   }
+}
 
-  module.exports = {
-    Layer: kit.Layer,
-    Pcap: kit.Pcap,
-    SessionFactory,
-    Token: kit.Token,
-    Reader: kit.Reader,
-    StreamReader: kit.StreamReader,
-    Testing: kit.Testing,
-    VirtualLayer,
-  }
+module.exports = {
+  Layer: kit.Layer,
+  Pcap: kit.Pcap,
+  SessionFactory,
+  Token: kit.Token,
+  Reader: kit.Reader,
+  StreamReader: kit.StreamReader,
+  Testing: kit.Testing,
+  VirtualLayer,
+}
