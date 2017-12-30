@@ -1,19 +1,10 @@
-const path = require('path')
-const kitpath = path.join(__dirname, '../bin/plugkit/plugkit.node')
-  .replace('/app.asar/', '/app.asar.unpacked/')
-
-let kit = null
-try {
-  kit = require(kitpath)
-} catch (err) {
-  kit = require('bindings')('plugkit.node')
-}
-
+const kit = require('./plugkit')
 const fs = require('fs')
 const vm = require('vm')
 const promisify = require('es6-promisify')
 const EventEmitter = require('events')
 const FilterCompiler = require('./filter')
+const VirtualLayer = require('./layer')
 
 const fields = Symbol('fields')
 const promiseReadFile = promisify(fs.readFile)
@@ -201,4 +192,5 @@ class Session extends EventEmitter {
     Reader: kit.Reader,
     StreamReader: kit.StreamReader,
     Testing: kit.Testing,
+    VirtualLayer,
   }
