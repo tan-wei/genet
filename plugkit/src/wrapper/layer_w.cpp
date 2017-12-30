@@ -32,6 +32,7 @@ void LayerWrapper::init(v8::Isolate *isolate) {
   Nan::SetAccessor(otl, Nan::New("payloads").ToLocalChecked(), payloads);
   Nan::SetAccessor(otl, Nan::New("attrs").ToLocalChecked(), attrs);
   Nan::SetAccessor(otl, Nan::New("layers").ToLocalChecked(), layers);
+  Nan::SetAccessor(otl, Nan::New("subLayers").ToLocalChecked(), layers);
   Nan::SetAccessor(otl, Nan::New("tags").ToLocalChecked(), tags);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
@@ -150,6 +151,19 @@ NAN_GETTER(LayerWrapper::layers) {
   if (auto layer = wrapper->constLayer) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
     const auto &layers = layer->layers();
+    auto array = v8::Array::New(isolate, layers.size());
+    for (size_t i = 0; i < layers.size(); ++i) {
+      array->Set(i, LayerWrapper::wrap(layers[i]));
+    }
+    info.GetReturnValue().Set(array);
+  }
+}
+
+NAN_GETTER(LayerWrapper::subLayers) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->constLayer) {
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    const auto &layers = layer->subLayers();
     auto array = v8::Array::New(isolate, layers.size());
     for (size_t i = 0; i < layers.size(); ++i) {
       array->Set(i, LayerWrapper::wrap(layers[i]));

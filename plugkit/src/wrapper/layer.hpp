@@ -26,6 +26,7 @@ public:
   static NAN_GETTER(parent);
   static NAN_GETTER(frame);
   static NAN_GETTER(layers);
+  static NAN_GETTER(subLayers);
   static NAN_GETTER(attrs);
   static NAN_GETTER(payloads);
   static NAN_GETTER(tags);
