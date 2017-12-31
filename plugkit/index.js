@@ -3,7 +3,7 @@ const fs = require('fs')
 const promisify = require('es6-promisify')
 const EventEmitter = require('events')
 const FilterCompiler = require('./filter')
-const VirtualLayer = require('./layer')
+const VirtualFrame = require('./frame')
 
 const fields = Symbol('fields')
 const promiseReadFile = promisify(fs.readFile)
@@ -104,7 +104,8 @@ class Session extends EventEmitter {
   }
 
   getFrames (offset, length) {
-    return this[fields].sess.getFrames(offset, length)
+    return this[fields].sess
+      .getFrames(offset, length).map((frame) => new VirtualFrame(frame))
   }
 
   setDisplayFilter (name, filter) {
@@ -185,5 +186,4 @@ module.exports = {
   Reader: kit.Reader,
   StreamReader: kit.StreamReader,
   Testing: kit.Testing,
-  VirtualLayer,
 }

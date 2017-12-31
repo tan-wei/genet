@@ -2,10 +2,9 @@ const { Attr, Payload, Layer } = require('./plugkit')
 
 const fields = Symbol('fields')
 class VirtualLayer {
-  constructor (id, base = {}) {
+  constructor (id) {
     this[fields] = {
       id,
-      base,
       worker: 0,
       confidence: Layer.ConfExact,
       attrs: [],
@@ -20,8 +19,7 @@ class VirtualLayer {
   }
 
   get id () {
-    const { id, base } = this[fields]
-    return base.id || id
+    return this[fields].id
   }
 
   set worker (worker) {
@@ -29,8 +27,7 @@ class VirtualLayer {
   }
 
   get worker () {
-    const { worker, base } = this[fields]
-    return base.worker || worker
+    return this[fields].worker
   }
 
   set confidence (confidence) {
@@ -38,8 +35,7 @@ class VirtualLayer {
   }
 
   get confidence () {
-    const { confidence, base } = this[fields]
-    return base.confidence || confidence
+    return this[fields].confidence
   }
 
   set range (range) {
@@ -47,43 +43,35 @@ class VirtualLayer {
   }
 
   get range () {
-    const { range, base } = this[fields]
-    return base.range || range
+    return this[fields].range
   }
 
   get attrs () {
-    const { attrs, base } = this[fields]
-    return (base.attrs || []).concat(attrs)
+    return this[fields].attrs
   }
 
   get payloads () {
-    const { payloads, base } = this[fields]
-    return (base.payloads || []).concat(payloads)
+    return this[fields].payloads
   }
 
   get layers () {
-    const { layers, base } = this[fields]
-    return (base.layers || []).concat(layers)
+    return this[fields].layers
   }
 
   get subLayers () {
-    const { subLayers, base } = this[fields]
-    return (base.subLayers || []).concat(subLayers)
+    return this[fields].subLayers
   }
 
   get tags () {
-    const { tags, base } = this[fields]
-    return (base.tags || []).concat(tags)
+    return this[fields].tags
   }
 
   get parent () {
-    const { parent, base } = this[fields]
-    return base.parent || parent
+    return this[fields].parent
   }
 
   get frame () {
-    const { frame, base } = this[fields]
-    return base.frame || frame
+    return this[fields].frame
   }
 
   addTag (tag) {
@@ -124,13 +112,7 @@ class VirtualLayer {
   }
 
   attr (id) {
-    const { attrs, base } = this[fields]
-    if (base.attr) {
-      const result = base.attr(id)
-      if (result !== null) {
-        return result
-      }
-    }
+    const { attrs } = this[fields]
     return attrs.find((attr) => attr.id === id) || null
   }
 
@@ -139,9 +121,29 @@ class VirtualLayer {
   }
 }
 
-module.exports = VirtualLayer
+class WrappedLayer extends VirtualLayer {
+  constructor (base, frame, parent = null) {
+    super()
+    this[fields] = Object.assign(this[fields], {
+      base,
+      frame,
+      parent,
+      id: base.id,
+      worker: base.worker,
+      confidence: base.confidence,
+      attrs: base.attrs,
+      layers: base.layers.map((layer) =>
+        new WrappedLayer(layer, frame, this)),
+      subLayers: base.subLayers.map((layer) =>
+        new WrappedLayer(layer, frame, this)),
+      payloads: base.payloads,
+      tags: base.tags,
+      range: base.range,
+    })
+  }
+}
 
-/*
-Static NAN_METHOD(attr);
-
-*/
+module.exports = {
+  VirtualLayer,
+  WrappedLayer,
+}
