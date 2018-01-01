@@ -9,10 +9,10 @@ install:
 - ps: npm install; true
 - ps: npm install -g eslint eslint-plugin-mocha
 build_script:
-- ps: make build; true
+- ps: npm run build; true
 test_script:
-- eslint .
-- ps: make test
+- ps: eslint .
+- ps: npm test
 after_test:
 - ps: npm install -g npm
 - ps: npm install -g modclean

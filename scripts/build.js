@@ -6,6 +6,7 @@ const touch = require('touch')
 const debounce = require('lodash.debounce')
 const watchMode = (process.argv[2] === '--watch')
 const { negatronBin } = require('./negatron')
+const runAsNode = require('./run-as-node')
 
 const reloadFile = '.reload'
 let building = false
@@ -19,7 +20,7 @@ function run(cmd, ...args) {
 function build() {
   if (building) return
   building = true
-  run('node', 'scripts/run-as-node.js', negatronBin, 'scripts/generate-version-file.js')
+  runAsNode('scripts/generate-version-file.js')
   run('node', 'scripts/build-plugkit.js')
   run('node', 'scripts/build-packages.js')
   run('node', 'scripts/build-deplug-core.js')
