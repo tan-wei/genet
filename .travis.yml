@@ -31,8 +31,9 @@ before_deploy:
 - npm install -g modclean
 - modclean --run
 - make pack
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make deb rpm ; fi
-- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then make dmg ; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then scripts/deb.sh ; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then scripts/rpm.sh ; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then scripts/dmg.sh ; fi
 notifications:
   email: false
 deploy:

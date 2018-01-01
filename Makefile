@@ -48,34 +48,6 @@ test:
 	node scripts/run-as-node.js $(ELECTRON) $(MOCHA) plugkit/test
 	node scripts/run-as-node.js $(ELECTRON) deplug-modules/core/test.main.js
 
-dmg:
-	npm install appdmg
-	$(APPDMG) scripts/appdmg.json out/deplug-darwin-amd64.dmg
-
-deb:
-	cp -r debian/. out/.debian
-	sed -e "s/{{DEPLUG_VERSION}}/$(DEPLUG_VER)/g" debian/DEBIAN/control > out/.debian/DEBIAN/control
-	chmod 755 out/.debian/DEBIAN/postinst
-	mkdir -p out/.debian/usr/share/icons/hicolor/256x256/apps
-	cp images/deplug.png out/.debian/usr/share/icons/hicolor/256x256/apps
-	cp -r out/Deplug-linux-x64/. out/.debian/usr/share/deplug
-	mv out/.debian/usr/share/deplug/Deplug out/.debian/usr/share/deplug/deplug
-	chrpath -r /usr/share/deplug out/.debian/usr/share/deplug/deplug
-	(cd out/.debian && fakeroot dpkg-deb --build . ../deplug-linux-amd64.deb)
-
-rpm:
-	mkdir -p out/.rpm
-	(cd out/.rpm && mkdir -p SOURCES BUILD RPMS SRPMS)
-	sed -e "s/{{DEPLUG_VERSION}}/$(DEPLUG_VER)/g" deplug.rpm.spec > out/.rpm/deplug.rpm.spec
-	cp -r debian/usr out/.rpm/BUILD
-	mkdir -p out/.rpm/BUILD/usr/share/icons/hicolor/256x256/apps
-	cp images/deplug.png out/.rpm/BUILD/usr/share/icons/hicolor/256x256/apps
-	cp -r out/Deplug-linux-x64/. out/.rpm/BUILD/usr/share/deplug
-	mv out/.rpm/BUILD/usr/share/deplug/Deplug out/.rpm/BUILD/usr/share/deplug/deplug
-	chrpath -r /usr/share/deplug out/.rpm/BUILD/usr/share/deplug/deplug
-	rpmbuild --define "_topdir $(CURDIR)/out/.rpm" -bb out/.rpm/deplug.rpm.spec
-	mv out/.rpm/RPMS/*/*.rpm out/deplug-linux-amd64.rpm
-
 winstaller:
 	node scripts/winstaller.js
 	mv out/DeplugSetup.exe out/deplug-win-amd64.exe
