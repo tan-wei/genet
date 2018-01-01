@@ -17,7 +17,7 @@ after_test:
 - ps: npm install -g npm
 - ps: npm install -g modclean
 - ps: modclean --run
-- ps: node scripts/pack.js
+- ps: node scripts/pack.js; true
 - ps: node scripts/winstaller.js
 - ps: mv out/DeplugSetup.exe out/deplug-win-amd64.exe
 artifacts:
