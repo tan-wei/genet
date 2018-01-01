@@ -8,13 +8,12 @@ const fs = require('fs')
 const os = require('os')
 const jsonfile = require('jsonfile')
 const lastmod = require('./lastmod')
+const { negatronVersion } = require('./negatron')
 
 const src = path.resolve(__dirname, '../plugkit')
 const dst = path.resolve(__dirname, '../deplug-modules/plugkit')
 const dstBin = path.resolve(__dirname, '../deplug-modules/bin/plugkit')
 const cache = path.resolve(dst, '.last-updated')
-const version = jsonfile.readFileSync(
-  path.join(__dirname, '../package.json')).devDependencies.negatron
 const scriptFiles = glob.sync(path.resolve(src, '*.{js,json}'))
 const embeddedFiles = glob.sync(path.resolve(src, 'js/*.js'))
 const gperf = (process.platform === 'win32')
@@ -22,7 +21,7 @@ const gperf = (process.platform === 'win32')
   : '/usr/bin/gperf'
 
 const env = Object.assign(process.env, {
-  npm_config_target: version,
+  npm_config_target: negatronVersion,
   npm_config_devdir: path.resolve(os.homedir(), '.electron-gyp'),
   npm_config_disturl: 'https://atom.io/download/electron',
   npm_config_arch: process.arch,
