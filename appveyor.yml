@@ -14,11 +14,11 @@ test_script:
 - ps: make test
 after_test:
 - ps: npm install -g npm
-- ps: npm install -g electron-packager
 - ps: npm install -g modclean
 - ps: modclean --run
-- ps: make pack; true
-- ps: make winstaller; true
+- ps: node scripts/pack.js
+- ps: node scripts/winstaller.js
+- ps: mv out/DeplugSetup.exe out/deplug-win-amd64.exe
 artifacts:
 - path: out/deplug-win-amd64.exe
 deploy:

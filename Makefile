@@ -48,10 +48,6 @@ test:
 	node scripts/run-as-node.js $(ELECTRON) $(MOCHA) plugkit/test
 	node scripts/run-as-node.js $(ELECTRON) deplug-modules/core/test.main.js
 
-winstaller:
-	node scripts/winstaller.js
-	mv out/DeplugSetup.exe out/deplug-win-amd64.exe
-
 pack:
 	electron-packager ./ --download.mirror=$(ELECTRON_MIRROR) \
 							--asar.unpackDir=$(ELECTRON_UNPACK) \
