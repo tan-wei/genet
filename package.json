@@ -53,8 +53,6 @@
     "docsify-cli": "^4.1.11",
     "electron-packager": "^10.1.0",
     "electron-winstaller": "^2.6.3",
-    "eslint": "^4.9.0",
-    "eslint-plugin-mocha": "^4.11.0",
     "esprima": "^4.0.0",
     "execa": "^0.8.0",
     "gperf": "^0.1.3",

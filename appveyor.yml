@@ -7,10 +7,11 @@ environment:
 install:
 - ps: git submodule update --init --recursive; true
 - ps: npm install; true
+- ps: npm install -g eslint eslint-plugin-mocha
 build_script:
 - ps: make build; true
 test_script:
-- ps: make lint
+- eslint .
 - ps: make test
 after_test:
 - ps: npm install -g npm

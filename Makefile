@@ -28,12 +28,10 @@ DOCSIFY = node_modules/.bin/docsify
 
 ifeq ($(OS),Windows_NT)
 ELECTRON = node_modules\.bin\negatron.cmd
-ESLINT = node_modules\.bin\eslint
 WEBPACK = node_modules\.bin\webpack
 DPM = node_modules\.bin\dpm
 else
 ELECTRON = node_modules/.bin/negatron
-ESLINT = node_modules/.bin/eslint
 WEBPACK = node_modules/.bin/webpack
 DPM = node_modules/.bin/dpm
 endif
@@ -82,9 +80,6 @@ docs:
 docs-serve: docs
 	$(DOCSIFY) serve ./out/docs
 
-lint:
-	$(ESLINT) .
-
 fix:
 	$(ESLINT) --fix .
 
@@ -94,4 +89,4 @@ fmt:
 clean:
 	@rm -rf $(DEPLUG_CORE) $(PLUGKIT_DST)
 
-.PHONY: all run build fix lint pack clean fmt plugkit test dmg deb rpm winstaller docs docs-serve
+.PHONY: all run build fix pack clean fmt plugkit test dmg deb rpm winstaller docs docs-serve
