@@ -91,7 +91,10 @@ class LayerItem {
     }
     const { name } = deplug.session.token(layer.id)
 
-    const attrArray = []
+    const attrArray = [{
+      key: layer.id,
+      children: [],
+    }]
     let prevDepth = 0
     for (const attr of layer.attrs) {
       let { id } = attr
