@@ -19,6 +19,7 @@ const auto dstToken = Token_get("eth.dst");
 const auto lenToken = Token_get("eth.len");
 const auto ethTypeToken = Token_get("eth.type");
 const auto macToken = Token_get("@eth:mac");
+const auto novalueToken = Token_get("@novalue");
 
 static const std::unordered_map<uint16_t, std::pair<Token, Token>> typeTable = {
     {0x0800, std::make_pair(Token_get("[ipv4]"), Token_get("eth.type.ipv4"))},
@@ -62,6 +63,7 @@ void analyze(Context *ctx, const Dissector *diss, Worker worker, Layer *layer) {
     if (it != typeTable.end()) {
       Attr *type = Layer_addAttr(ctx, child, it->second.second);
       Attr_setBool(type, true);
+      Attr_setType(type, novalueToken);
       Attr_setRange(type, reader.lastRange);
       Layer_addTag(child, it->second.first);
     }
