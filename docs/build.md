@@ -25,8 +25,7 @@ $ sudo apt-get install build-essential libpcap-dev libcap-dev gperf
 
 ### Windows
 
-- GNU Make (Available on [Chocolatey](https://chocolatey.org/packages/make))
-- Visual Studio 2015
+- Visual Studio 2015/2017
 
 ## Build
 
