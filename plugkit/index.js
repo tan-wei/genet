@@ -13,6 +13,7 @@ class Session extends EventEmitter {
     this[fields] = Object.assign({
       sess,
       filterCompiler: new FilterCompiler(),
+      frameCache: new Map(),
     }, options)
 
     const filterCompiler = new FilterCompiler()
@@ -104,8 +105,16 @@ class Session extends EventEmitter {
   }
 
   getFrames (offset, length) {
-    return this[fields].sess
-      .getFrames(offset, length).map((frame) => new VirtualFrame(frame))
+    const { sess, frameCache } = this[fields]
+    return sess.getFrames(offset, length).map((frame, index) => {
+      let wrapped = frameCache.get(offset + index)
+      if (wrapped) {
+        return wrapped
+      }
+      wrapped = new VirtualFrame(frame)
+      frameCache.set(offset + index, wrapped)
+      return wrapped
+    })
   }
 
   setDisplayFilter (name, filter) {
