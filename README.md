@@ -1,5 +1,8 @@
 # deplug
 
+[![Build Status](https://travis-ci.org/deplug/deplug.svg)](https://travis-ci.org/deplug/deplug)
+[![Build status](https://ci.appveyor.com/api/projects/status/37ek4o97h0kqr0p9?svg=true)](https://ci.appveyor.com/project/h2so5/deplug)
+
 # Download
 
 ## Latest Releases
