@@ -17,16 +17,6 @@ Some packages (especially native modules) have to be configured before the initi
 
 It is recommended to reopen tabs or restart the app to apply changes correctly.
 
-## Filter
-
-### How to filter frames by an attribute which has no value.
-
-```
-tcp.options.nop           # evaluated as null (falsy value)
-tcp.options.nop == null   # cannot distinguish null and undefined
-tcp.options.nop === null  # correct
-```
-
 ## Debug
 
 ### How to debug native modules?
