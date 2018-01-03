@@ -51,6 +51,8 @@ if (watchMode) {
       '--enable-logging',
       `--deplug-dev-watch-file=./${reloadFile}`,
       '.'
-    ])
+    ], {
+      stdio: 'inherit'
+    })
     .on('exit', process.exit)
 }

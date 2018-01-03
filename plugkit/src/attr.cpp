@@ -99,7 +99,9 @@ const char *Attr_string(const Attr *attr) {
   return attr->value().string().c_str();
 }
 
-void Attr_setString(Attr *attr, const char *str) { attr->setValue(str); }
+void Attr_setString(Attr *attr, const char *str) {
+  attr->setValue(std::string(str));
+}
 
 Slice Attr_slice(const Attr *attr) {
   if (!attr)
