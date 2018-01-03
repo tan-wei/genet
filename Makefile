@@ -22,6 +22,6 @@ fix:
 	eslint --fix .
 
 fmt:
-	clang-format -i plugkit/**/*.{cpp,hpp}
+	clang-format -i plugkit/**/*.{cpp,hpp,h,c}
 
 .PHONY: all build fix fmt docs docs-serve

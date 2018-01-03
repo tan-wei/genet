@@ -3,6 +3,7 @@
 #include <context.h>
 #include <dissector.h>
 #include <export.h>
+#include <file.h>
 #include <layer.h>
 #include <logger.h>
 #include <payload.h>
@@ -11,4 +12,3 @@
 #include <slice.h>
 #include <token.h>
 #include <variant.h>
-#include <file.h>
