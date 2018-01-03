@@ -47,7 +47,7 @@ if (watchMode) {
     }
   })
 
-  spawn(negatron, [
+  spawn(negatronBin, [
       '--enable-logging',
       `--deplug-dev-watch-file=./${reloadFile}`,
       '.'
