@@ -4,6 +4,7 @@ const promisify = require('es6-promisify')
 const EventEmitter = require('events')
 const FilterCompiler = require('./filter')
 const VirtualFrame = require('./frame')
+const Inspector = require('./inspector')
 
 const fields = Symbol('fields')
 const promiseReadFile = promisify(fs.readFile)
@@ -15,6 +16,10 @@ class Session extends EventEmitter {
       filterCompiler: new FilterCompiler(),
       frameCache: new Map(),
     }, options)
+
+    if (options.inspect) {
+      this[fields].inspector = new Inspector()
+    }
 
     const filterCompiler = new FilterCompiler()
     for (const trans of options.transforms) {
@@ -140,6 +145,7 @@ class SessionFactory extends kit.SessionFactory {
       linkLayers: [],
       transforms: [],
       attributes: {},
+      inspect: true,
     }
   }
 
