@@ -66,6 +66,7 @@ public:
   FilterCallback filterCallback;
   FrameCallback frameCallback;
   LoggerCallback loggerCallback;
+  InspectorCallback inspectorCallback;
 
   RootAllocator allocator;
 
@@ -309,6 +310,9 @@ std::vector<const FrameView *> Session::getFrames(uint32_t offset,
   return d->frameStore->get(offset, length);
 }
 
+void Session::sendInspectorMessage(const std::string &id,
+                                   const std::string &msg) {}
+
 void Session::importFile(const std::string &file) {
   d->fileImporter->start(file);
 }
@@ -331,6 +335,10 @@ void Session::setFrameCallback(const FrameCallback &callback) {
 
 void Session::setLoggerCallback(const LoggerCallback &callback) {
   d->loggerCallback = callback;
+}
+
+void Session::setInspectorCallback(const InspectorCallback &callback) {
+  d->inspectorCallback = callback;
 }
 
 SessionFactory::SessionFactory() : d(new Session::Config()) {}

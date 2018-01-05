@@ -26,11 +26,13 @@ public:
   static NAN_METHOD(getFrames);
   static NAN_METHOD(importFile);
   static NAN_METHOD(exportFile);
+  static NAN_METHOD(sendInspectorMessage);
   static NAN_METHOD(setDisplayFilter);
   static NAN_METHOD(setStatusCallback);
   static NAN_METHOD(setFilterCallback);
   static NAN_METHOD(setFrameCallback);
   static NAN_METHOD(setLoggerCallback);
+  static NAN_METHOD(setInspectorCallback);
 
 private:
   SessionWrapper(const std::shared_ptr<Session> &session);
@@ -43,6 +45,7 @@ private:
   v8::UniquePersistent<v8::Function> filterCallback;
   v8::UniquePersistent<v8::Function> frameCallback;
   v8::UniquePersistent<v8::Function> loggerCallback;
+  v8::UniquePersistent<v8::Function> inspectorCallback;
 };
 } // namespace plugkit
 

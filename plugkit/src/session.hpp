@@ -50,6 +50,7 @@ public:
   using FrameCallback = std::function<void(const FrameStatus &)>;
 
   using LoggerCallback = std::function<void(Logger::MessagePtr &&msg)>;
+  using InspectorCallback = std::function<void(std::string, std::string)>;
 
 private:
   struct Config;
@@ -76,10 +77,13 @@ public:
   void importFile(const std::string &file);
   void exportFile(const std::string &file, const std::string &filter);
 
+  void sendInspectorMessage(const std::string &id, const std::string &msg);
+
   void setStatusCallback(const StatusCallback &callback);
   void setFilterCallback(const FilterCallback &callback);
   void setFrameCallback(const FrameCallback &callback);
   void setLoggerCallback(const LoggerCallback &callback);
+  void setInspectorCallback(const InspectorCallback &callback);
 
   int id() const;
 

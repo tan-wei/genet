@@ -4,6 +4,10 @@
 #include "stream_logger.hpp"
 #include <thread>
 
+namespace v8_inspector {
+class V8InspectorClient;
+}
+
 namespace plugkit {
 
 class WorkerThread {
@@ -22,9 +26,12 @@ public:
 protected:
   LoggerPtr logger = std::make_shared<StreamLogger>();
   std::thread thread;
+  std::unique_ptr<v8_inspector::V8InspectorClient> inspectorClient;
 
 private:
   class ArrayBufferAllocator;
+  class InspectorClient;
+  class InspectorChannel;
 };
 } // namespace plugkit
 

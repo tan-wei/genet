@@ -17,11 +17,13 @@ void SessionWrapper::init(v8::Isolate *isolate) {
   SetPrototypeMethod(tpl, "getFrames", getFrames);
   SetPrototypeMethod(tpl, "importFile", importFile);
   SetPrototypeMethod(tpl, "exportFile", exportFile);
+  SetPrototypeMethod(tpl, "sendInspectorMessage", sendInspectorMessage);
   SetPrototypeMethod(tpl, "setDisplayFilter", setDisplayFilter);
   SetPrototypeMethod(tpl, "setStatusCallback", setStatusCallback);
   SetPrototypeMethod(tpl, "setFilterCallback", setFilterCallback);
   SetPrototypeMethod(tpl, "setFrameCallback", setFrameCallback);
   SetPrototypeMethod(tpl, "setLoggerCallback", setLoggerCallback);
+  SetPrototypeMethod(tpl, "setInspectorCallback", setInspectorCallback);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
   module->session.ctor.Reset(isolate, Nan::GetFunction(tpl).ToLocalChecked());
@@ -148,6 +150,16 @@ NAN_METHOD(SessionWrapper::setDisplayFilter) {
   }
 }
 
+NAN_METHOD(SessionWrapper::sendInspectorMessage)
+{
+  SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
+  if (const auto &session = wrapper->session) {
+    const std::string &id = *Nan::Utf8String(info[0]);
+    const std::string &msg = *Nan::Utf8String(info[1]);
+    session->sendInspectorMessage(id, msg);
+  }
+}
+
 NAN_METHOD(SessionWrapper::setStatusCallback) {
   SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
   if (const auto &session = wrapper->session) {
@@ -240,6 +252,30 @@ NAN_METHOD(SessionWrapper::setLoggerCallback) {
           auto obj = Nan::New<v8::Object>();
           obj->Set(Nan::New("message").ToLocalChecked(),
                    Nan::New(msg->toString()).ToLocalChecked());
+          v8::Local<v8::Value> args[1] = {obj};
+          func->Call(obj, 1, args);
+        }
+      });
+    }
+  }
+}
+
+NAN_METHOD(SessionWrapper::setInspectorCallback) {
+  SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
+  if (const auto &session = wrapper->session) {
+    if (info[0]->IsFunction()) {
+      wrapper->inspectorCallback.Reset(v8::Isolate::GetCurrent(),
+                                    info[0].As<v8::Function>());
+      session->setInspectorCallback([wrapper](std::string id, std::string msg) {
+        v8::Isolate *isolate = v8::Isolate::GetCurrent();
+        auto func =
+            v8::Local<v8::Function>::New(isolate, wrapper->loggerCallback);
+        if (!func.IsEmpty()) {
+          auto obj = Nan::New<v8::Object>();
+          obj->Set(Nan::New("id").ToLocalChecked(),
+                   Nan::New(id).ToLocalChecked());
+         obj->Set(Nan::New("msg").ToLocalChecked(),
+                  Nan::New(msg).ToLocalChecked());
           v8::Local<v8::Value> args[1] = {obj};
           func->Call(obj, 1, args);
         }

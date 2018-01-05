@@ -12,6 +12,7 @@
 #include <string>
 #include <thread>
 #include <uv.h>
+#include <v8-inspector.h>
 
 namespace plugkit {
 
@@ -23,6 +24,19 @@ public:
   void *Allocate(size_t size) override { return calloc(1, size); }
   void *AllocateUninitialized(size_t size) override { return malloc(size); }
   void Free(void *data, size_t) override { free(data); }
+};
+
+class WorkerThread::InspectorClient : public v8_inspector::V8InspectorClient {};
+
+class WorkerThread::InspectorChannel
+    : public v8_inspector::V8Inspector::Channel {
+public:
+  void
+  sendResponse(int callId,
+               std::unique_ptr<v8_inspector::StringBuffer> message) override {}
+  void sendNotification(
+      std::unique_ptr<v8_inspector::StringBuffer> message) override {}
+  void flushProtocolNotifications() override {}
 };
 
 WorkerThread::WorkerThread() {}
@@ -37,6 +51,8 @@ void WorkerThread::join() {
 void WorkerThread::start() {
   if (thread.joinable())
     return;
+
+  inspectorClient.reset(new InspectorClient());
 
   thread = std::thread([this]() {
     logger->log(Logger::LEVEL_DEBUG, "start", "worker_thread");
@@ -53,8 +69,22 @@ void WorkerThread::start() {
       }
       v8::HandleScope handle_scope(isolate);
 
+      auto inspector =
+          v8_inspector::V8Inspector::create(isolate, inspectorClient.get());
+
+      std::unique_ptr<v8_inspector::V8Inspector::Channel> channel(
+          new InspectorChannel());
+
+      auto session =
+          inspector->connect(1, channel.get(), v8_inspector::StringView());
+
       v8::Local<v8::Context> context = v8::Context::New(isolate);
       v8::Context::Scope context_scope(context);
+
+      inspector->contextCreated(v8_inspector::V8ContextInfo(
+          context, 1,
+          v8_inspector::StringView(reinterpret_cast<const uint8_t *>("Deplug"),
+                                   6)));
 
       uv_loop_s uvloop;
       uv_loop_init(&uvloop);
