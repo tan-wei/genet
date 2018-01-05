@@ -51,7 +51,6 @@
   "devDependencies": {
     "@deplug/dpm": "^0.0.12",
     "chokidar": "^1.7.0",
-    "docsify-cli": "^4.1.11",
     "electron-packager": "^10.1.0",
     "electron-winstaller": "^2.6.3",
     "esprima": "^4.0.0",
