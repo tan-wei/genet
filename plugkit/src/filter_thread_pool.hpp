@@ -28,6 +28,9 @@ public:
   void start();
   void setLogger(const LoggerPtr &logger);
 
+  void sendInspectorMessage(const std::string &id, const std::string &msg);
+  std::vector<std::string> inspectors() const;
+
   std::vector<uint32_t> get(uint32_t offset, uint32_t length) const;
   uint32_t size() const;
   uint32_t maxSeq() const;

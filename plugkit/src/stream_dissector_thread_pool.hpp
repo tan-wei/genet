@@ -36,6 +36,9 @@ public:
   void start();
   void setLogger(const LoggerPtr &logger);
 
+  void sendInspectorMessage(const std::string &id, const std::string &msg);
+  std::vector<std::string> inspectors() const;
+
 private:
   StreamDissectorThreadPool(const StreamDissectorThreadPool &) = delete;
   StreamDissectorThreadPool &

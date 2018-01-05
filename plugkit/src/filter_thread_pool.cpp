@@ -1,5 +1,6 @@
 #include "filter_thread_pool.hpp"
 #include "filter_thread.hpp"
+#include "random_id.hpp"
 #include "variant.hpp"
 #include <map>
 #include <uv.h>
@@ -25,6 +26,8 @@ public:
   const VariantMap options;
   const FrameStorePtr store;
   const Callback callback;
+  WorkerThread::InspectorCallback inspectorCallback;
+  std::vector<std::string> inspectors;
 };
 
 FilterThreadPool::Private::Private(const std::string &body,
@@ -50,6 +53,20 @@ FilterThreadPool::~FilterThreadPool() {
   for (const auto &thread : d->threads) {
     thread->join();
   }
+}
+
+void FilterThreadPool::sendInspectorMessage(const std::string &id,
+                                            const std::string &msg) {
+  for (size_t i = 0; i < d->inspectors.size(); ++i) {
+    if (d->inspectors[i] == id) {
+      d->threads[i]->sendInspectorMessage(msg);
+      break;
+    }
+  }
+}
+
+std::vector<std::string> FilterThreadPool::inspectors() const {
+  return d->inspectors;
 }
 
 void FilterThreadPool::start() {
@@ -85,6 +102,12 @@ void FilterThreadPool::start() {
   for (int i = 0; i < concurrency; ++i) {
     auto thread = new FilterThread(d->body, d->store, threadCallback);
     thread->setLogger(d->logger);
+
+    const auto &inspector =
+        "filter-" + RandomID::generate<16>() + "-" + std::to_string(i);
+    thread->setInspector(inspector, d->inspectorCallback);
+    d->inspectors.push_back(inspector);
+
     d->threads.emplace_back(thread);
   }
   for (const auto &thread : d->threads) {

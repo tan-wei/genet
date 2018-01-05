@@ -21,6 +21,8 @@ public:
   void start();
   void join();
   void setLogger(const LoggerPtr &logger);
+
+  void sendInspectorMessage(const std::string &msg);
   void setInspector(const std::string &id, const InspectorCallback &callback);
 
 protected:
@@ -28,10 +30,9 @@ protected:
   std::thread thread;
 
 private:
-  std::string inspectorId;
-  InspectorCallback inspectorCallback;
+  class Private;
+  std::unique_ptr<Private> d;
 
-private:
   class ArrayBufferAllocator;
   class InspectorClient;
   class InspectorChannel;

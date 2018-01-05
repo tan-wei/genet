@@ -34,6 +34,9 @@ public:
   void setAllocator(RootAllocator *allocator);
   void push(Frame **begin, size_t length);
 
+  void sendInspectorMessage(const std::string &id, const std::string &msg);
+  std::vector<std::string> inspectors() const;
+
 private:
   class Private;
   std::unique_ptr<Private> d;

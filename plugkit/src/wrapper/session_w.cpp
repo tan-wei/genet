@@ -34,6 +34,7 @@ void SessionWrapper::init(v8::Isolate *isolate) {
   Nan::SetAccessor(otl, Nan::New("promiscuous").ToLocalChecked(), promiscuous);
   Nan::SetAccessor(otl, Nan::New("snaplen").ToLocalChecked(), snaplen);
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
+  Nan::SetAccessor(otl, Nan::New("inspectors").ToLocalChecked(), inspectors);
 }
 
 SessionWrapper::SessionWrapper(const std::shared_ptr<Session> &session)
@@ -62,6 +63,18 @@ NAN_GETTER(SessionWrapper::snaplen) {
   SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
   if (const auto &session = wrapper->session) {
     info.GetReturnValue().Set(session->snaplen());
+  }
+}
+
+NAN_GETTER(SessionWrapper::inspectors) {
+  SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
+  if (const auto &session = wrapper->session) {
+    const auto &inspectors = session->inspectors();
+    auto array = Nan::New<v8::Array>(inspectors.size());
+    for (size_t i = 0; i < inspectors.size(); ++i) {
+      array->Set(i, Nan::New(inspectors[i]).ToLocalChecked());
+    }
+    info.GetReturnValue().Set(array);
   }
 }
 

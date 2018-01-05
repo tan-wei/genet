@@ -311,7 +311,13 @@ std::vector<const FrameView *> Session::getFrames(uint32_t offset,
 }
 
 void Session::sendInspectorMessage(const std::string &id,
-                                   const std::string &msg) {}
+                                   const std::string &msg) {
+  d->dissectorPool->sendInspectorMessage(id, msg);
+  d->streamDissectorPool->sendInspectorMessage(id, msg);
+  for (const auto &pair : d->filters) {
+    pair.second->sendInspectorMessage(id, msg);
+  }
+}
 
 void Session::importFile(const std::string &file) {
   d->fileImporter->start(file);
@@ -319,6 +325,22 @@ void Session::importFile(const std::string &file) {
 
 void Session::exportFile(const std::string &file, const std::string &filter) {
   d->fileExporter->start(file, filter);
+}
+
+std::vector<std::string> Session::inspectors() const {
+  std::vector<std::string> inspectors;
+  for (const auto &id : d->dissectorPool->inspectors()) {
+    inspectors.push_back(id);
+  }
+  for (const auto &id : d->streamDissectorPool->inspectors()) {
+    inspectors.push_back(id);
+  }
+  for (const auto &pair : d->filters) {
+    for (const auto &id : pair.second->inspectors()) {
+      inspectors.push_back(id);
+    }
+  }
+  return inspectors;
 }
 
 void Session::setStatusCallback(const StatusCallback &callback) {

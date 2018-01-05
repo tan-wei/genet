@@ -18,7 +18,7 @@ class Session extends EventEmitter {
     }, options)
 
     if (options.inspect) {
-      this[fields].inspector = new Inspector()
+      this[fields].inspector = new Inspector(sess)
     }
 
     const filterCompiler = new FilterCompiler()

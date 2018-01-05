@@ -8,6 +8,7 @@
 #include <map>
 #include <mutex>
 #include <nan.h>
+#include <queue>
 #include <sstream>
 #include <string>
 #include <thread>
@@ -28,6 +29,18 @@ public:
 
 class WorkerThread::InspectorClient : public v8_inspector::V8InspectorClient {};
 
+namespace {
+  std::string onebyte(const uint16_t *data, size_t length) {
+    auto string = v8::String::NewFromTwoByte(v8::Isolate::GetCurrent(), data,
+                                 v8::NewStringType::kNormal,
+                                 length).ToLocalChecked();
+    std::string utf8;
+    utf8.resize(string->Utf8Length());
+    string->WriteUtf8(&utf8[0]);
+    return utf8;
+  }
+}
+
 class WorkerThread::InspectorChannel
     : public v8_inspector::V8Inspector::Channel {
 public:
@@ -36,16 +49,16 @@ public:
   sendResponse(int callId,
                std::unique_ptr<v8_inspector::StringBuffer> message) override {
     const auto &view = message->string();
-    const std::string &str = std::string(
-        reinterpret_cast<const char *>(view.characters8()), view.length());
-    callback(str);
+
+    auto str = onebyte(view.characters16(), view.length());
+    if (callback) callback(str);
   }
   void sendNotification(
       std::unique_ptr<v8_inspector::StringBuffer> message) override {
     const auto &view = message->string();
-    const std::string &str = std::string(
-        reinterpret_cast<const char *>(view.characters8()), view.length());
-    callback(str);
+
+    auto str = onebyte(view.characters16(), view.length());
+    if (callback) callback(str);
   }
   void flushProtocolNotifications() override {}
 
@@ -53,7 +66,15 @@ private:
   const InspectorCallback &callback;
 };
 
-WorkerThread::WorkerThread() {}
+class WorkerThread::Private {
+public:
+  std::string inspectorId;
+  InspectorCallback inspectorCallback;
+  std::mutex mutex;
+  std::queue<std::string> inspectorQueue;
+};
+
+WorkerThread::WorkerThread() : d(new Private()) {}
 
 WorkerThread::~WorkerThread() {}
 
@@ -89,18 +110,18 @@ void WorkerThread::start() {
       std::unique_ptr<v8_inspector::V8Inspector::Channel> channel;
       std::unique_ptr<v8_inspector::V8InspectorSession> session;
 
-      if (!inspectorId.empty()) {
+      if (!d->inspectorId.empty()) {
         inspectorClient.reset(new InspectorClient());
         inspector =
             v8_inspector::V8Inspector::create(isolate, inspectorClient.get());
-        channel.reset(new InspectorChannel(inspectorCallback));
+        channel.reset(new InspectorChannel(d->inspectorCallback));
         session =
             inspector->connect(1, channel.get(), v8_inspector::StringView());
         inspector->contextCreated(v8_inspector::V8ContextInfo(
             context, 1,
             v8_inspector::StringView(
-                reinterpret_cast<const uint8_t *>(inspectorId.c_str()),
-                inspectorId.size())));
+                reinterpret_cast<const uint8_t *>(d->inspectorId.c_str()),
+                d->inspectorId.size())));
       }
 
       uv_loop_s uvloop;
@@ -129,6 +150,15 @@ void WorkerThread::start() {
                 ->GetFunction());
         enter();
         while (loop()) {
+          if (session) {
+            std::lock_guard<std::mutex> lock(d->mutex);
+            while (!d->inspectorQueue.empty()) {
+              std::string msg = d->inspectorQueue.front();
+              d->inspectorQueue.pop();
+              session->dispatchProtocolMessage(v8_inspector::StringView(
+                  reinterpret_cast<const uint8_t *>(msg.c_str()), msg.size()));
+            }
+          }
           uv_run(&uvloop, UV_RUN_NOWAIT);
         }
       }
@@ -143,9 +173,14 @@ void WorkerThread::start() {
 
 void WorkerThread::setLogger(const LoggerPtr &logger) { this->logger = logger; }
 
+void WorkerThread::sendInspectorMessage(const std::string &msg) {
+  std::lock_guard<std::mutex> lock(d->mutex);
+  d->inspectorQueue.push(msg);
+}
+
 void WorkerThread::setInspector(const std::string &id,
                                 const InspectorCallback &callback) {
-  inspectorId = id;
-  inspectorCallback = callback;
+  d->inspectorId = id;
+  d->inspectorCallback = callback;
 }
 } // namespace plugkit

@@ -26,6 +26,7 @@ public:
   static NAN_METHOD(getFrames);
   static NAN_METHOD(importFile);
   static NAN_METHOD(exportFile);
+  static NAN_GETTER(inspectors);
   static NAN_METHOD(sendInspectorMessage);
   static NAN_METHOD(setDisplayFilter);
   static NAN_METHOD(setStatusCallback);

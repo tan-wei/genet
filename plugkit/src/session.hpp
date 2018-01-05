@@ -78,6 +78,7 @@ public:
   void exportFile(const std::string &file, const std::string &filter);
 
   void sendInspectorMessage(const std::string &id, const std::string &msg);
+  std::vector<std::string> inspectors() const;
 
   void setStatusCallback(const StatusCallback &callback);
   void setFilterCallback(const FilterCallback &callback);

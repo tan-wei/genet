@@ -1,6 +1,7 @@
 #include "dissector_thread_pool.hpp"
 #include "dissector.h"
 #include "dissector_thread.hpp"
+#include "random_id.hpp"
 #include "variant.hpp"
 #include <array>
 
@@ -15,6 +16,8 @@ public:
   VariantMap options;
   Callback callback;
   RootAllocator *allocator = nullptr;
+  WorkerThread::InspectorCallback inspectorCallback;
+  std::vector<std::string> inspectors;
 };
 
 DissectorThreadPool::DissectorThreadPool() : d(new Private()) {}
@@ -48,6 +51,12 @@ void DissectorThreadPool::start() {
     }
     dissectorThread->setAllocator(d->allocator);
     dissectorThread->setLogger(d->logger);
+
+    const auto &inspector =
+        "dissector-" + RandomID::generate<16>() + "-" + std::to_string(i);
+    dissectorThread->setInspector(inspector, d->inspectorCallback);
+    d->inspectors.push_back(inspector);
+
     d->threads.emplace_back(dissectorThread);
   }
   for (const auto &thread : d->threads) {
@@ -78,4 +87,19 @@ void DissectorThreadPool::setLogger(const LoggerPtr &logger) {
 void DissectorThreadPool::push(Frame **begin, size_t length) {
   d->queue->enqueue(begin, begin + length);
 }
+
+void DissectorThreadPool::sendInspectorMessage(const std::string &id,
+                                               const std::string &msg) {
+  for (size_t i = 0; i < d->inspectors.size(); ++i) {
+    if (d->inspectors[i] == id) {
+      d->threads[i]->sendInspectorMessage(msg);
+      break;
+    }
+  }
+}
+
+std::vector<std::string> DissectorThreadPool::inspectors() const {
+  return d->inspectors;
+}
+
 } // namespace plugkit
