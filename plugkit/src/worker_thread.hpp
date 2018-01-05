@@ -4,13 +4,12 @@
 #include "stream_logger.hpp"
 #include <thread>
 
-namespace v8_inspector {
-class V8InspectorClient;
-}
-
 namespace plugkit {
 
 class WorkerThread {
+public:
+  using InspectorCallback = std::function<void(std::string)>;
+
 public:
   WorkerThread();
   virtual ~WorkerThread();
@@ -22,11 +21,15 @@ public:
   void start();
   void join();
   void setLogger(const LoggerPtr &logger);
+  void setInspector(const std::string &id, const InspectorCallback &callback);
 
 protected:
   LoggerPtr logger = std::make_shared<StreamLogger>();
   std::thread thread;
-  std::unique_ptr<v8_inspector::V8InspectorClient> inspectorClient;
+
+private:
+  std::string inspectorId;
+  InspectorCallback inspectorCallback;
 
 private:
   class ArrayBufferAllocator;

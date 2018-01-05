@@ -2,7 +2,6 @@ const http = require('http')
 const express = require('express')
 const ws = require('ws')
 
-
 const data = [
   {
   description: 'Deplug Worker',
@@ -42,7 +41,7 @@ class Inspector {
         ws.send('Hi there, I am a WebSocket server')
     })
 
-    httpServer.listen(9229, () => {
+    httpServer.listen(9229, '127.0.0.1', () => {
     const { host, port } = httpServer.address()
     console.log(`Server is listening on ${host}:${port}`)
   })

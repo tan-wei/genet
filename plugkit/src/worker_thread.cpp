@@ -31,12 +31,26 @@ class WorkerThread::InspectorClient : public v8_inspector::V8InspectorClient {};
 class WorkerThread::InspectorChannel
     : public v8_inspector::V8Inspector::Channel {
 public:
+  InspectorChannel(const InspectorCallback &callback) : callback(callback) {}
   void
   sendResponse(int callId,
-               std::unique_ptr<v8_inspector::StringBuffer> message) override {}
+               std::unique_ptr<v8_inspector::StringBuffer> message) override {
+    const auto &view = message->string();
+    const std::string &str = std::string(
+        reinterpret_cast<const char *>(view.characters8()), view.length());
+    callback(str);
+  }
   void sendNotification(
-      std::unique_ptr<v8_inspector::StringBuffer> message) override {}
+      std::unique_ptr<v8_inspector::StringBuffer> message) override {
+    const auto &view = message->string();
+    const std::string &str = std::string(
+        reinterpret_cast<const char *>(view.characters8()), view.length());
+    callback(str);
+  }
   void flushProtocolNotifications() override {}
+
+private:
+  const InspectorCallback &callback;
 };
 
 WorkerThread::WorkerThread() {}
@@ -51,8 +65,6 @@ void WorkerThread::join() {
 void WorkerThread::start() {
   if (thread.joinable())
     return;
-
-  inspectorClient.reset(new InspectorClient());
 
   thread = std::thread([this]() {
     logger->log(Logger::LEVEL_DEBUG, "start", "worker_thread");
@@ -69,22 +81,27 @@ void WorkerThread::start() {
       }
       v8::HandleScope handle_scope(isolate);
 
-      auto inspector =
-          v8_inspector::V8Inspector::create(isolate, inspectorClient.get());
-
-      std::unique_ptr<v8_inspector::V8Inspector::Channel> channel(
-          new InspectorChannel());
-
-      auto session =
-          inspector->connect(1, channel.get(), v8_inspector::StringView());
-
       v8::Local<v8::Context> context = v8::Context::New(isolate);
       v8::Context::Scope context_scope(context);
 
-      inspector->contextCreated(v8_inspector::V8ContextInfo(
-          context, 1,
-          v8_inspector::StringView(reinterpret_cast<const uint8_t *>("Deplug"),
-                                   6)));
+      std::unique_ptr<v8_inspector::V8InspectorClient> inspectorClient;
+      std::unique_ptr<v8_inspector::V8Inspector> inspector;
+      std::unique_ptr<v8_inspector::V8Inspector::Channel> channel;
+      std::unique_ptr<v8_inspector::V8InspectorSession> session;
+
+      if (!inspectorId.empty()) {
+        inspectorClient.reset(new InspectorClient());
+        inspector =
+            v8_inspector::V8Inspector::create(isolate, inspectorClient.get());
+        channel.reset(new InspectorChannel(inspectorCallback));
+        session =
+            inspector->connect(1, channel.get(), v8_inspector::StringView());
+        inspector->contextCreated(v8_inspector::V8ContextInfo(
+            context, 1,
+            v8_inspector::StringView(
+                reinterpret_cast<const uint8_t *>(inspectorId.c_str()),
+                inspectorId.size())));
+      }
 
       uv_loop_s uvloop;
       uv_loop_init(&uvloop);
@@ -125,4 +142,10 @@ void WorkerThread::start() {
 }
 
 void WorkerThread::setLogger(const LoggerPtr &logger) { this->logger = logger; }
+
+void WorkerThread::setInspector(const std::string &id,
+                                const InspectorCallback &callback) {
+  inspectorId = id;
+  inspectorCallback = callback;
+}
 } // namespace plugkit
