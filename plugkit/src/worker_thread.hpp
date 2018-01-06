@@ -8,7 +8,7 @@ namespace plugkit {
 
 class WorkerThread {
 public:
-  using InspectorCallback = std::function<void(std::string)>;
+  using InspectorCallback = std::function<void(const std::string &)>;
 
 public:
   WorkerThread();

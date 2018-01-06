@@ -282,7 +282,7 @@ NAN_METHOD(SessionWrapper::setInspectorCallback) {
       session->setInspectorCallback([wrapper](std::string id, std::string msg) {
         v8::Isolate *isolate = v8::Isolate::GetCurrent();
         auto func =
-            v8::Local<v8::Function>::New(isolate, wrapper->loggerCallback);
+            v8::Local<v8::Function>::New(isolate, wrapper->inspectorCallback);
         if (!func.IsEmpty()) {
           auto obj = Nan::New<v8::Object>();
           obj->Set(Nan::New("id").ToLocalChecked(),

@@ -16,7 +16,7 @@ public:
   VariantMap options;
   Callback callback;
   RootAllocator *allocator = nullptr;
-  WorkerThread::InspectorCallback inspectorCallback;
+  InspectorCallback inspectorCallback;
   std::vector<std::string> inspectors;
 };
 
@@ -54,7 +54,10 @@ void DissectorThreadPool::start() {
 
     const auto &inspector =
         "dissector-" + RandomID::generate<16>() + "-" + std::to_string(i);
-    dissectorThread->setInspector(inspector, d->inspectorCallback);
+    dissectorThread->setInspector(inspector,
+                                  [this, inspector](const std::string &msg) {
+                                    d->inspectorCallback(inspector, msg);
+                                  });
     d->inspectors.push_back(inspector);
 
     d->threads.emplace_back(dissectorThread);
@@ -96,6 +99,11 @@ void DissectorThreadPool::sendInspectorMessage(const std::string &id,
       break;
     }
   }
+}
+
+void DissectorThreadPool::setInspectorCallback(
+    const InspectorCallback &callback) {
+  d->inspectorCallback = callback;
 }
 
 std::vector<std::string> DissectorThreadPool::inspectors() const {

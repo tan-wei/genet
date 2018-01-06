@@ -40,6 +40,7 @@ public:
     UPDATE_STATUS = 1,
     UPDATE_FILTER = 2,
     UPDATE_FRAME = 4,
+    UPDATE_INSPECTOR = 8,
   };
 
 public:
@@ -77,6 +78,9 @@ public:
   std::unique_ptr<FileImporterThread> fileImporter;
   std::unique_ptr<FileExporterThread> fileExporter;
 
+  std::queue<std::pair<std::string, std::string>> inspectorQueue;
+  std::mutex inspectorMutex;
+
   Config config;
   uv_async_t async;
   int id;
@@ -111,6 +115,15 @@ void Session::Private::updateStatus() {
     FrameStatus status;
     status.frames = frameStore->dissectedSize();
     frameCallback(status);
+  }
+  if (flags & Private::UPDATE_INSPECTOR) {
+    printf(">>> %d\n", inspectorQueue.size());
+    std::lock_guard<std::mutex> lock(inspectorMutex);
+    while (!inspectorQueue.empty()) {
+      inspectorCallback(inspectorQueue.front().first,
+                        inspectorQueue.front().second);
+      inspectorQueue.pop();
+    }
   }
 }
 
@@ -160,6 +173,14 @@ Session::Session(const Config &config) : d(new Private(config)) {
   });
   d->dissectorPool->setAllocator(&d->allocator);
   d->dissectorPool->setLogger(d->logger);
+  d->dissectorPool->setInspectorCallback(
+      [this](const std::string &id, const std::string &msg) {
+        {
+          std::lock_guard<std::mutex> lock(d->inspectorMutex);
+          d->inspectorQueue.push(std::make_pair(id, msg));
+        }
+        d->notifyStatus(Private::UPDATE_INSPECTOR);
+      });
 
   d->streamDissectorPool.reset(new StreamDissectorThreadPool());
   d->streamDissectorPool->setOptions(d->config.options);

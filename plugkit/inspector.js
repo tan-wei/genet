@@ -18,7 +18,10 @@ function endpoints (list, port) {
 const fields = Symbol('fields')
 class Inspector {
   constructor (sess) {
-    this[fields] = { port: 0 }
+    this[fields] = {
+      port: 0,
+      connections: new Map(),
+    }
     const app = express()
     app.get('/json', (req, res) => {
       res.send(endpoints(sess.inspectors, this[fields].port))
@@ -26,11 +29,18 @@ class Inspector {
     const httpServer = http.createServer()
     httpServer.on('request', app)
 
+    sess.setInspectorCallback((msg) => {
+      const sock = this[fields].connections.get(msg.id)
+      if (sock) {
+        sock.send(msg.msg)
+      }
+    })
+
     const wss = new ws.Server({ server: httpServer })
     wss.on('connection', (sock, req) => {
       const id = req.url.substr(1)
+      this[fields].connections.set(id, sock)
       sock.on('message', (message) => {
-        console.log('received: %s', message)
         sess.sendInspectorMessage(id, message)
       })
 

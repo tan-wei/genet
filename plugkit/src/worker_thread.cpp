@@ -30,16 +30,16 @@ public:
 class WorkerThread::InspectorClient : public v8_inspector::V8InspectorClient {};
 
 namespace {
-  std::string onebyte(const uint16_t *data, size_t length) {
-    auto string = v8::String::NewFromTwoByte(v8::Isolate::GetCurrent(), data,
-                                 v8::NewStringType::kNormal,
-                                 length).ToLocalChecked();
-    std::string utf8;
-    utf8.resize(string->Utf8Length());
-    string->WriteUtf8(&utf8[0]);
-    return utf8;
-  }
+std::string onebyte(const uint16_t *data, size_t length) {
+  auto string = v8::String::NewFromTwoByte(v8::Isolate::GetCurrent(), data,
+                                           v8::NewStringType::kNormal, length)
+                    .ToLocalChecked();
+  std::string utf8;
+  utf8.resize(string->Utf8Length());
+  string->WriteUtf8(&utf8[0]);
+  return utf8;
 }
+} // namespace
 
 class WorkerThread::InspectorChannel
     : public v8_inspector::V8Inspector::Channel {
@@ -51,14 +51,16 @@ public:
     const auto &view = message->string();
 
     auto str = onebyte(view.characters16(), view.length());
-    if (callback) callback(str);
+    if (callback)
+      callback(str);
   }
   void sendNotification(
       std::unique_ptr<v8_inspector::StringBuffer> message) override {
     const auto &view = message->string();
 
     auto str = onebyte(view.characters16(), view.length());
-    if (callback) callback(str);
+    if (callback)
+      callback(str);
   }
   void flushProtocolNotifications() override {}
 

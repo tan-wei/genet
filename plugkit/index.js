@@ -61,9 +61,6 @@ class Session extends EventEmitter {
     sess.setLoggerCallback((log) => {
       this.emit('log', log)
     })
-    sess.setInspectorCallback((msg) => {
-      console.log(msg)
-    })
   }
 
   importFile (file) {

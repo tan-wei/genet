@@ -20,6 +20,8 @@ class RootAllocator;
 class DissectorThreadPool final {
 public:
   using Callback = std::function<void(Frame **, size_t)>;
+  using InspectorCallback =
+      std::function<void(const std::string &id, const std::string &msg)>;
 
 public:
   DissectorThreadPool();
@@ -35,6 +37,7 @@ public:
   void push(Frame **begin, size_t length);
 
   void sendInspectorMessage(const std::string &id, const std::string &msg);
+  void setInspectorCallback(const InspectorCallback &callback);
   std::vector<std::string> inspectors() const;
 
 private:
