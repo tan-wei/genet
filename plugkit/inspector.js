@@ -1,30 +1,18 @@
 const http = require('http')
 const express = require('express')
 const ws = require('ws')
-function endpoints (list, port) {
-  return list.map((id) => ({
-      description: 'Deplug Worker',
-      devtoolsFrontendUrl: 'chrome-devtools://devtools/bundled/inspector.html' +
-      `?experiments=true&v8only=true&ws=127.0.0.1:${port}/${id}`,
-      faviconUrl: 'https://github.com/deplug/images/raw/master/deplug.png',
-      id,
-      title: 'Deplug',
-      type: 'node',
-      url: `deplug://${id}`,
-      webSocketDebuggerUrl: `ws://127.0.0.1:${port}/${id}`,
-    }))
-}
 
 const fields = Symbol('fields')
-class Inspector {
+class InspectorServer {
   constructor (sess) {
     this[fields] = {
       port: 0,
       connections: new Map(),
+      sess,
     }
     const app = express()
     app.get('/json', (req, res) => {
-      res.send(endpoints(sess.inspectors, this[fields].port))
+      res.send(this.sessions)
     })
     const httpServer = http.createServer()
     httpServer.on('request', app)
@@ -43,17 +31,29 @@ class Inspector {
       sock.on('message', (message) => {
         sess.sendInspectorMessage(id, message)
       })
-
-      // Send immediatly a feedback to the incoming connection
-      //  Ws.send('Hi there, I am a WebSocket server')
     })
 
-  httpServer.listen(9229, '127.0.0.1', () => {
-    const { host, port } = httpServer.address()
+  httpServer.listen(0, '127.0.0.1', () => {
+    const { port } = httpServer.address()
     this[fields].port = port
-    console.log(`Server is listening on ${host}:${port}`)
   })
  }
+
+ get sessions () {
+   const { port, sess } = this[fields]
+   return sess.inspectors.map((id) => ({
+      description: 'Deplug Worker',
+      devtoolsFrontendUrl:
+        'chrome-devtools://devtools/bundled/inspector.html' +
+        `?experiments=true&v8only=true&ws=127.0.0.1:${port}/${id}`,
+      faviconUrl: 'https://github.com/deplug/images/raw/master/deplug.png',
+      id,
+      title: 'Deplug',
+      type: 'node',
+      url: `deplug://${id}`,
+      webSocketDebuggerUrl: `ws://127.0.0.1:${port}/${id}`,
+    }))
+  }
 }
 
-module.exports = Inspector
+module.exports = InspectorServer

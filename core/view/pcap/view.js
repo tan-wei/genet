@@ -101,6 +101,7 @@ class SideView {
       const browserWindow = remote.getCurrentWindow()
       deplug.packages.once('updated', () => {
         deplug.session.create().then((sess) => {
+        deplug.action.emit('core:session:created', sess)
           this.sess = sess
           sess.on('frame', () => {
             m.redraw()
@@ -123,6 +124,7 @@ class SideView {
       const pcapDialog = new Dialog(PcapDialog)
       pcapDialog.show({ cancelable: false }).then(async (ifs) => {
         const sess = await deplug.session.create(ifs)
+        deplug.action.emit('core:session:created', sess)
         this.sess = sess
         sess.startPcap()
         sess.on('frame', () => {

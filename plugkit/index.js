@@ -4,7 +4,7 @@ const promisify = require('es6-promisify')
 const EventEmitter = require('events')
 const FilterCompiler = require('./filter')
 const VirtualFrame = require('./frame')
-const Inspector = require('./inspector')
+const InspectorServer = require('./inspector')
 
 const fields = Symbol('fields')
 const promiseReadFile = promisify(fs.readFile)
@@ -18,7 +18,7 @@ class Session extends EventEmitter {
     }, options)
 
     if (options.inspect) {
-      this[fields].inspector = new Inspector(sess)
+      this[fields].inspector = new InspectorServer(sess)
     }
 
     const filterCompiler = new FilterCompiler()
@@ -91,6 +91,14 @@ class Session extends EventEmitter {
 
   get options () {
     return this[fields].sess.options
+  }
+
+  get inspectorSessions () {
+    const { inspector } = this[fields]
+    if (inspector) {
+      return inspector.sessions
+    }
+    return null
   }
 
   startPcap () {
