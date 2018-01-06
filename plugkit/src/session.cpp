@@ -117,7 +117,6 @@ void Session::Private::updateStatus() {
     frameCallback(status);
   }
   if (flags & Private::UPDATE_INSPECTOR) {
-    printf(">>> %d\n", inspectorQueue.size());
     std::lock_guard<std::mutex> lock(inspectorMutex);
     while (!inspectorQueue.empty()) {
       inspectorCallback(inspectorQueue.front().first,
