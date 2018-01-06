@@ -152,6 +152,14 @@ main {
       left: 0;
       bottom: 0;
     }
+
+    .panel-wrapper {
+      visibility: hidden;
+
+      &[active] {
+        visibility: visible;
+      }
+    }
   }
 
   ul {

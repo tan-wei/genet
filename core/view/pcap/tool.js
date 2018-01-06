@@ -28,6 +28,10 @@ class PcapTabView {
     this.activeTab = ''
   }
 
+  oncreate () {
+    this.activeTab = deplug.workspace.get('_.pcap.activeTab', '')
+  }
+
   view (vnode) {
     const { tabs } = vnode.attrs
     if (tabs.length > 0) {
@@ -41,10 +45,21 @@ class PcapTabView {
       .filter((panel) => typeof panel !== 'undefined')
     return ('div', [
       m('div', { class: 'tab-container' }, panels.map((panel) =>
-        m('span', { active: panel.id === this.activeTab }, panel.name))),
+        m('span', {
+          active: panel.id === this.activeTab,
+          onclick: () => {
+            this.activeTab = panel.id
+            deplug.workspace.set('_.pcap.activeTab', this.activeTab)
+          },
+        }, panel.name))),
       m('div', { class: 'panel-container' }, panels.map((panel) =>
-        m(PanelView, Object.assign(panel,
-          { active: panel.id === this.activeTab }))))
+        m('div', {
+          class: 'panel-wrapper',
+          active: panel.id === this.activeTab,
+        }, [
+          m(PanelView, Object.assign(panel,
+            { active: panel.id === this.activeTab }))
+        ])))
     ])
   }
 }
