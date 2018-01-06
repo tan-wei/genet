@@ -1,4 +1,23 @@
+const { remote } = require('electron')
+const { BrowserWindow } = remote
 const m = require('mithril')
+class SessionView {
+  view (vnode) {
+    const { session } = vnode.attrs
+    return m('li', [
+      m('h4', [session.id]),
+      m('input', {
+        type: 'button',
+        value: 'Inspect...',
+        onclick: () => {
+          const win = new BrowserWindow()
+          win.loadURL(session.devtoolsFrontendUrl)
+        },
+      })
+    ])
+  }
+}
+
 class WorkerView {
   constructor () {
     this.sess = null
@@ -15,9 +34,8 @@ class WorkerView {
       ])
     }
     return m('div', { class: 'worker-view' }, [
-      m('ul', this.sess.inspectorSessions.map((session) => m('li', [
-          session.id
-        ])))
+      m('ul', this.sess.inspectorSessions.map((session) =>
+        m(SessionView, { session })))
     ])
   }
 }

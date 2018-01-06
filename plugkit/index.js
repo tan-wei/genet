@@ -17,7 +17,7 @@ class Session extends EventEmitter {
       frameCache: new Map(),
     }, options)
 
-    if (options.inspect) {
+    if (options.enableDebugSession) {
       this[fields].inspector = new InspectorServer(sess)
     }
 
@@ -153,7 +153,7 @@ class SessionFactory extends kit.SessionFactory {
       linkLayers: [],
       transforms: [],
       attributes: {},
-      inspect: true,
+      enableDebugSession: false,
     }
   }
 
@@ -184,6 +184,14 @@ class SessionFactory extends kit.SessionFactory {
 
   registerAttributes (attrs) {
     this[fields].attributes = Object.assign(this[fields].attributes, attrs)
+  }
+
+  get enableDebugSession () {
+    return this[fields].enableDebugSession
+  }
+
+  set enableDebugSession (flag) {
+    this[fields].enableDebugSession = flag
   }
 
   registerDissector (dissector) {

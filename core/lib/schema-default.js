@@ -68,6 +68,12 @@ export default {
       default: 10,
       section: 'Filter',
     },
+    '_.debug.enableDebugSession': {
+      title: 'Enable Debug Session',
+      type: 'boolean',
+      default: false,
+      description: 'Enabling this option may affect performance',
+    },
   },
   workspace: {
     '_.window.size': {
