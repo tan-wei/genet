@@ -96,9 +96,12 @@ void DissectorThread::enter() {
 
 bool DissectorThread::loop() {
   std::array<Frame *, 128> frames;
-  size_t size = d->queue->dequeue(std::begin(frames), frames.size());
-  if (size == 0)
+  size_t size = frames.size();
+
+  const int waitFor = inspectorActivated() ? 0 : 3000;
+  if (!d->queue->dequeue(std::begin(frames), &size, waitFor)) {
     return false;
+  }
 
   for (size_t i = 0; i < size; ++i) {
     std::unordered_set<Token> dissectedIds;
@@ -140,7 +143,7 @@ bool DissectorThread::loop() {
     }
   }
 
-  if (d->callback) {
+  if (size > 0 && d->callback) {
     d->callback(&frames.front(), size);
   }
 

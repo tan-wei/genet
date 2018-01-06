@@ -24,6 +24,8 @@ class RootAllocator;
 class StreamDissectorThreadPool final {
 public:
   using Callback = std::function<void(uint32_t)>;
+  using InspectorCallback =
+      std::function<void(const std::string &id, const std::string &msg)>;
 
 public:
   StreamDissectorThreadPool();
@@ -37,6 +39,7 @@ public:
   void setLogger(const LoggerPtr &logger);
 
   void sendInspectorMessage(const std::string &id, const std::string &msg);
+  void setInspectorCallback(const InspectorCallback &callback);
   std::vector<std::string> inspectors() const;
 
 private:

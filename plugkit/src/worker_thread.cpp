@@ -74,6 +74,7 @@ public:
   InspectorCallback inspectorCallback;
   std::mutex mutex;
   std::queue<std::string> inspectorQueue;
+  bool inspectorActivated = false;
 };
 
 WorkerThread::WorkerThread() : d(new Private()) {}
@@ -155,6 +156,7 @@ void WorkerThread::start() {
           if (session) {
             std::lock_guard<std::mutex> lock(d->mutex);
             while (!d->inspectorQueue.empty()) {
+              d->inspectorActivated = true;
               std::string msg = d->inspectorQueue.front();
               d->inspectorQueue.pop();
               session->dispatchProtocolMessage(v8_inspector::StringView(
@@ -172,6 +174,8 @@ void WorkerThread::start() {
     logger->log(Logger::LEVEL_DEBUG, "exit", "worker_thread");
   });
 }
+
+bool WorkerThread::inspectorActivated() const { return d->inspectorActivated; }
 
 void WorkerThread::setLogger(const LoggerPtr &logger) { this->logger = logger; }
 

@@ -1,7 +1,6 @@
 #include "dissector_thread_pool.hpp"
 #include "dissector.h"
 #include "dissector_thread.hpp"
-#include "random_id.hpp"
 #include "variant.hpp"
 #include <array>
 
@@ -52,8 +51,7 @@ void DissectorThreadPool::start() {
     dissectorThread->setAllocator(d->allocator);
     dissectorThread->setLogger(d->logger);
 
-    const auto &inspector =
-        "dissector-" + RandomID::generate<16>() + "-" + std::to_string(i);
+    const auto &inspector = "worker:dissector:" + std::to_string(i);
     dissectorThread->setInspector(inspector,
                                   [this, inspector](const std::string &msg) {
                                     d->inspectorCallback(inspector, msg);

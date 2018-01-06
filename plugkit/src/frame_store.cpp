@@ -72,30 +72,34 @@ size_t FrameStore::dequeue(size_t offset, size_t max, const Frame **dst) const {
   return read;
 }
 
-size_t FrameStore::dequeue(size_t offset,
-                           size_t max,
-                           const FrameView **dst,
-                           std::thread::id id) const {
+bool FrameStore::dequeue(size_t offset,
+                         size_t *size,
+                         const FrameView **dst,
+                         std::thread::id id,
+                         int waitFor) const {
   std::unique_lock<std::mutex> lock(d->mutex);
   size_t read = 0;
-  uint32_t size = d->views.size();
-  if (size <= offset) {
-    d->cond.wait(lock, [this, offset, id, &size]() -> bool {
-      bool closed =
-          ((id != std::thread::id()) && d->closedThreads.count(id) > 0);
-      return d->closed || closed || ((size = d->views.size()) > offset);
-    });
+  uint32_t frameSize = d->views.size();
+  if (frameSize <= offset) {
+    d->cond.wait_for(lock, std::chrono::milliseconds(waitFor),
+                     [this, offset, id, &frameSize]() -> bool {
+                       bool closed = ((id != std::thread::id()) &&
+                                      d->closedThreads.count(id) > 0);
+                       return d->closed || closed ||
+                              ((frameSize = d->views.size()) > offset);
+                     });
   }
   if (id != std::thread::id() && d->closedThreads.count(id) > 0) {
     d->closedThreads.erase(id);
-    return 0;
+    return false;
   }
   if (d->closed)
-    return 0;
-  for (size_t i = 0; i + offset < size && i < max; ++i, ++read) {
+    return false;
+  for (size_t i = 0; i + offset < frameSize && i < *size; ++i, ++read) {
     dst[i] = d->views[i + offset];
   }
-  return read;
+  *size = read;
+  return true;
 }
 
 std::vector<const FrameView *> FrameStore::get(uint32_t offset,

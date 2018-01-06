@@ -17,7 +17,7 @@ public:
   template <class It>
   void enqueue(It b, It e);
   template <class It>
-  size_t dequeue(It it, size_t max);
+  bool dequeue(It it, size_t *size, int waitFor);
   uint32_t size() const;
   void close();
 
@@ -58,20 +58,28 @@ void Queue<T>::enqueue(It b, It e) {
 
 template <class T>
 template <class It>
-size_t Queue<T>::dequeue(It it, size_t max) {
+bool Queue<T>::dequeue(It it, size_t *size, int waitFor) {
   std::unique_lock<std::mutex> lock(mutex);
-  cond.wait(lock, [this]() { return !buf.empty() || closed; });
+  if (waitFor > 0) {
+    cond.wait_for(lock, std::chrono::milliseconds(waitFor),
+                  [this]() { return !buf.empty() || closed; });
+  }
   if (closed)
-    return 0;
+    return false;
+  if (buf.empty()) {
+    *size = 0;
+    return true;
+  }
   size_t num = 0;
-  while (!buf.empty() && num < max) {
+  while (!buf.empty() && num < *size) {
     *it = std::move(buf.front());
     buf.pop();
     ++it;
     ++num;
   }
   count.store(buf.size(), std::memory_order_relaxed);
-  return num;
+  *size = num;
+  return true;
 }
 
 template <class T>

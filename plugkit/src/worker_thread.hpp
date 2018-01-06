@@ -26,6 +26,9 @@ public:
   void setInspector(const std::string &id, const InspectorCallback &callback);
 
 protected:
+  bool inspectorActivated() const;
+
+protected:
   LoggerPtr logger = std::make_shared<StreamLogger>();
   std::thread thread;
 

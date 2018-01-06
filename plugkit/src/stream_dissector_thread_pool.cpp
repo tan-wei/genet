@@ -4,7 +4,6 @@
 #include "frame_store.hpp"
 #include "frame_view.hpp"
 #include "layer.hpp"
-#include "random_id.hpp"
 #include "stream_dissector_thread.hpp"
 #include "stream_logger.hpp"
 #include "variant.hpp"
@@ -29,7 +28,7 @@ public:
   FrameStorePtr store;
   Callback callback;
   RootAllocator *allocator = nullptr;
-  WorkerThread::InspectorCallback inspectorCallback;
+  InspectorCallback inspectorCallback;
   std::vector<std::string> inspectors;
 };
 
@@ -115,6 +114,11 @@ std::vector<std::string> StreamDissectorThreadPool::inspectors() const {
   return d->inspectors;
 }
 
+void StreamDissectorThreadPool::setInspectorCallback(
+    const InspectorCallback &callback) {
+  d->inspectorCallback = callback;
+}
+
 void StreamDissectorThreadPool::start() {
   if (d->thread.joinable() || !d->threads.empty())
     return;
@@ -137,9 +141,11 @@ void StreamDissectorThreadPool::start() {
     dissectorThread->setAllocator(d->allocator);
     dissectorThread->setLogger(d->logger);
 
-    const auto &inspector = "stream-dissector-" + RandomID::generate<16>() +
-                            "-" + std::to_string(i);
-    dissectorThread->setInspector(inspector, d->inspectorCallback);
+    const auto &inspector = "worker:stream-dissector:" + std::to_string(i);
+    dissectorThread->setInspector(inspector,
+                                  [this, inspector](const std::string &msg) {
+                                    d->inspectorCallback(inspector, msg);
+                                  });
     d->inspectors.push_back(inspector);
 
     d->threads.emplace_back(dissectorThread);

@@ -150,9 +150,16 @@ void StreamDissectorThread::Private::analyze(
 bool StreamDissectorThread::loop() {
   std::vector<Layer *> layers;
   layers.resize(2048);
-  size_t size = d->queue.dequeue(std::begin(layers), layers.capacity());
-  if (size == 0)
+
+  size_t size = layers.size();
+  const int waitFor = inspectorActivated() ? 0 : 3000;
+  if (!d->queue.dequeue(std::begin(layers), &size, waitFor)) {
     return false;
+  }
+
+  if (size == 0) {
+    return true;
+  }
 
   layers.resize(size);
 

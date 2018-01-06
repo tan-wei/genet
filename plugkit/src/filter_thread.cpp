@@ -35,9 +35,15 @@ void FilterThread::exit() { d->filter.reset(); }
 bool FilterThread::loop() {
   std::thread::id id = std::this_thread::get_id();
   std::array<const FrameView *, 2048> views;
-  size_t size = d->store->dequeue(d->offset, views.size(), &views[0], id);
-  if (size == 0)
+  size_t size = views.size();
+
+  const int waitFor = inspectorActivated() ? 0 : 3000;
+  if (!d->store->dequeue(d->offset, &size, &views[0], id, waitFor)) {
     return false;
+  }
+
+  if (size == 0)
+    return true;
 
   uint32_t begin = views[0]->frame()->index();
   std::vector<char> results;

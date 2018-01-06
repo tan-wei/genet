@@ -1,6 +1,5 @@
 #include "filter_thread_pool.hpp"
 #include "filter_thread.hpp"
-#include "random_id.hpp"
 #include "variant.hpp"
 #include <map>
 #include <uv.h>
@@ -26,7 +25,7 @@ public:
   const VariantMap options;
   const FrameStorePtr store;
   const Callback callback;
-  WorkerThread::InspectorCallback inspectorCallback;
+  InspectorCallback inspectorCallback;
   std::vector<std::string> inspectors;
 };
 
@@ -103,9 +102,10 @@ void FilterThreadPool::start() {
     auto thread = new FilterThread(d->body, d->store, threadCallback);
     thread->setLogger(d->logger);
 
-    const auto &inspector =
-        "filter-" + RandomID::generate<16>() + "-" + std::to_string(i);
-    thread->setInspector(inspector, d->inspectorCallback);
+    const auto &inspector = "worker:filter:" + std::to_string(i);
+    thread->setInspector(inspector, [this, inspector](const std::string &msg) {
+      d->inspectorCallback(inspector, msg);
+    });
     d->inspectors.push_back(inspector);
 
     d->threads.emplace_back(thread);
@@ -117,6 +117,10 @@ void FilterThreadPool::start() {
 
 void FilterThreadPool::setLogger(const LoggerPtr &logger) {
   d->logger = logger;
+}
+
+void FilterThreadPool::setInspectorCallback(const InspectorCallback &callback) {
+  d->inspectorCallback = callback;
 }
 
 std::vector<uint32_t> FilterThreadPool::get(uint32_t offset,

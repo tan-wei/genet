@@ -188,6 +188,14 @@ Session::Session(const Config &config) : d(new Private(config)) {
       [this](uint32_t maxSeq) { d->frameStore->update(maxSeq); });
   d->streamDissectorPool->setAllocator(&d->allocator);
   d->streamDissectorPool->setLogger(d->logger);
+  d->streamDissectorPool->setInspectorCallback(
+      [this](const std::string &id, const std::string &msg) {
+        {
+          std::lock_guard<std::mutex> lock(d->inspectorMutex);
+          d->inspectorQueue.push(std::make_pair(id, msg));
+        }
+        d->notifyStatus(Private::UPDATE_INSPECTOR);
+      });
 
   d->pcap->setCallback([this](Frame *frame) {
     frame->setIndex(d->getSeq());
@@ -308,6 +316,14 @@ void Session::setDisplayFilter(const std::string &name,
         new FilterThreadPool(body, d->config.options, d->frameStore, [this]() {
           d->notifyStatus(Private::UPDATE_FILTER);
         }));
+    pool->setInspectorCallback(
+        [this](const std::string &id, const std::string &msg) {
+          {
+            std::lock_guard<std::mutex> lock(d->inspectorMutex);
+            d->inspectorQueue.push(std::make_pair(id, msg));
+          }
+          d->notifyStatus(Private::UPDATE_INSPECTOR);
+        });
     pool->setLogger(d->logger);
     pool->start();
     d->filters[name] = std::move(pool);
