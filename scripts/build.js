@@ -4,6 +4,8 @@ const { spawnSync, spawn } = require('child_process')
 const chokidar = require('chokidar')
 const touch = require('touch')
 const debounce = require('lodash.debounce')
+const path = require('path')
+const notifier = require('node-notifier')
 const watchMode = (process.argv[2] === '--watch')
 const { negatronBin } = require('./negatron')
 const runAsNode = require('./run-as-node')
@@ -25,6 +27,13 @@ function build() {
   run('node', 'scripts/build-packages.js')
   run('node', 'scripts/build-deplug-core.js')
   touch.sync(reloadFile)
+  if (watchMode) {
+    notifier.notify({
+      title: 'Deplug Build Service',
+      message: 'Build Finished!\nReloading Window...',
+      icon: path.join(__dirname, '..', 'images', 'deplug.png')
+    })
+  }
   setTimeout(() => {
     building = false
   }, 1000)
