@@ -1,6 +1,9 @@
+import { clipboard, remote } from 'electron'
+import fs from 'fs'
 import m from 'mithril'
 import moment from '@deplug/moment.min'
 
+const { dialog } = remote
  class BooleanValueItem {
   view (vnode) {
     const faClass = vnode.attrs.value
@@ -30,7 +33,28 @@ export class BufferValueItem {
       (buffer.length > maxLen
         ? '...'
         : '')
-    return m('span', ['[', buffer.length, ' bytes] 0x', hex])
+    return m('span', {
+      oncontextmenu: (event) => {
+        deplug.menu.showContextMenu(event, [
+          {
+            label: 'Copy As Hex',
+            click: () => {
+              clipboard.writeText(buffer.toString('hex'))
+              deplug.notify.show('Copied!')
+            },
+          },
+          {
+            label: 'Save As...',
+            click: () => {
+              const file = dialog.showSaveDialog()
+              if (typeof file !== 'undefined') {
+                fs.writeFileSync(file, buffer)
+              }
+            },
+          }
+        ])
+      },
+    }, ['[', buffer.length, ' bytes] 0x', hex])
   }
 }
  class ArrayValueItem {
