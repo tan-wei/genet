@@ -3,7 +3,6 @@ const fs = require('fs')
 const promisify = require('es6-promisify')
 const EventEmitter = require('events')
 const FilterCompiler = require('./filter')
-const VirtualFrame = require('./frame')
 const InspectorServer = require('./inspector')
 
 const fields = Symbol('fields')
@@ -14,7 +13,6 @@ class Session extends EventEmitter {
     this[fields] = Object.assign({
       sess,
       filterCompiler: new FilterCompiler(),
-      frameCache: new Map(),
     }, options)
 
     if (options.enableDebugSession) {
@@ -118,16 +116,8 @@ class Session extends EventEmitter {
   }
 
   getFrames (offset, length) {
-    const { sess, frameCache } = this[fields]
-    return sess.getFrames(offset, length).map((frame, index) => {
-      let wrapped = frameCache.get(offset + index)
-      if (wrapped) {
-        return wrapped
-      }
-      wrapped = new VirtualFrame(frame)
-      frameCache.set(offset + index, wrapped)
-      return wrapped
-    })
+    const { sess } = this[fields]
+    return sess.getFrames(offset, length)
   }
 
   setDisplayFilter (name, filter) {
