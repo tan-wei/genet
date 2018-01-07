@@ -1,5 +1,5 @@
-#ifndef PLUGKIT_Queue_H
-#define PLUGKIT_Queue_H
+#ifndef PLUGKIT_QUEUE_H
+#define PLUGKIT_QUEUE_H
 
 #include <atomic>
 #include <condition_variable>
