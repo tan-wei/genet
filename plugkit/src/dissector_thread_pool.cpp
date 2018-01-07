@@ -1,6 +1,7 @@
 #include "dissector_thread_pool.hpp"
 #include "dissector.h"
 #include "dissector_thread.hpp"
+#include "random_id.hpp"
 #include "variant.hpp"
 #include <array>
 
@@ -15,6 +16,7 @@ public:
   VariantMap options;
   Callback callback;
   RootAllocator *allocator = nullptr;
+  const std::string inspectorId = ":" + RandomID::generate<8>();
   InspectorCallback inspectorCallback;
   std::vector<std::string> inspectors;
 };
@@ -51,7 +53,8 @@ void DissectorThreadPool::start() {
     dissectorThread->setAllocator(d->allocator);
     dissectorThread->setLogger(d->logger);
 
-    const auto &inspector = "worker:dissector:" + std::to_string(i);
+    const auto &inspector =
+        "worker:dissector:" + std::to_string(i) + d->inspectorId;
     dissectorThread->setInspector(inspector,
                                   [this, inspector](const std::string &msg) {
                                     d->inspectorCallback(inspector, msg);

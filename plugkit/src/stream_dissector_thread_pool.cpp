@@ -4,6 +4,7 @@
 #include "frame_store.hpp"
 #include "frame_view.hpp"
 #include "layer.hpp"
+#include "random_id.hpp"
 #include "stream_dissector_thread.hpp"
 #include "stream_logger.hpp"
 #include "variant.hpp"
@@ -28,6 +29,7 @@ public:
   FrameStorePtr store;
   Callback callback;
   RootAllocator *allocator = nullptr;
+  const std::string inspectorId = ":" + RandomID::generate<8>();
   InspectorCallback inspectorCallback;
   std::vector<std::string> inspectors;
 };
@@ -141,7 +143,8 @@ void StreamDissectorThreadPool::start() {
     dissectorThread->setAllocator(d->allocator);
     dissectorThread->setLogger(d->logger);
 
-    const auto &inspector = "worker:stream-dissector:" + std::to_string(i);
+    const auto &inspector =
+        "worker:stream-dissector:" + std::to_string(i) + d->inspectorId;
     dissectorThread->setInspector(inspector,
                                   [this, inspector](const std::string &msg) {
                                     d->inspectorCallback(inspector, msg);
