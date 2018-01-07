@@ -9,7 +9,7 @@ namespace {
 TEST_CASE("Payload_type", "[Payload]") {
   Payload payload;
 
-  Token token = Token_get("@reassembled");
+  Token token = Token_get("@stream");
   Payload_setType(&payload, token);
   CHECK(Payload_type(&payload) == token);
 }

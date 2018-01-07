@@ -34,7 +34,7 @@ const auto seqToken = Token_get("tcp.seq");
 const auto windowToken = Token_get("tcp.window");
 const auto flagsToken = Token_get("tcp.flags");
 const auto tcpStreamToken = Token_get("tcp-stream");
-const auto reassembledToken = Token_get("@reassembled");
+const auto streamToken = Token_get("@stream");
 
 class Ring {
 public:
@@ -142,7 +142,7 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   const auto slices = stream.ring.fetch();
   if (slices.size() > 0) {
     Payload *chunk = Layer_addPayload(ctx, layer);
-    Payload_setType(chunk, reassembledToken);
+    Payload_setType(chunk, streamToken);
     for (const auto &slice : slices) {
       Payload_addSlice(chunk, slice);
     }

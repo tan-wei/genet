@@ -9,7 +9,7 @@
 @int:dec
 @int:oct
 @int:bin
-@reassembled
+@stream
 @eth:mac
 @ipv4:addr
 @ipv6:addr

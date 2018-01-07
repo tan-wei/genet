@@ -18,7 +18,7 @@ namespace {
 
 const auto httpToken = Token_get("http");
 const auto headersToken = Token_get("http.headers");
-const auto reassembledToken = Token_get("@reassembled");
+const auto streamToken = Token_get("@stream");
 const auto mimeToken = Token_get("@mime");
 const auto mimeTypeToken = Token_get(".mimeType");
 
@@ -182,7 +182,7 @@ void HTTPWorker::analyze(Context *ctx, Layer *layer) {
   size_t payloads = 0;
   auto begin = Layer_payloads(layer, &payloads);
   for (size_t i = 0; i < payloads; ++i) {
-    if (Payload_type(begin[i]) == reassembledToken) {
+    if (Payload_type(begin[i]) == streamToken) {
       StreamReader_addPayload(reader, begin[i]);
     }
   }
