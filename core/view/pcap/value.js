@@ -37,11 +37,37 @@ export class BufferValueItem {
       oncontextmenu: (event) => {
         deplug.menu.showContextMenu(event, [
           {
-            label: 'Copy As Hex',
-            click: () => {
-              clipboard.writeText(buffer.toString('hex'))
-              deplug.notify.show('Copied!')
-            },
+            label: 'Copy As',
+            submenu: [
+              {
+                label: 'Hex',
+                click: () => {
+                  clipboard.writeText(buffer.toString('hex'))
+                  deplug.notify.show('Copied!')
+                },
+              },
+              {
+                label: 'Base64',
+                click: () => {
+                  clipboard.writeText(buffer.toString('base64'))
+                  deplug.notify.show('Copied!')
+                },
+              },
+              {
+                label: 'JSON Array',
+                click: () => {
+                  clipboard.writeText(JSON.stringify(Array.from(buffer)))
+                  deplug.notify.show('Copied!')
+                },
+              },
+              {
+                label: 'UTF-8',
+                click: () => {
+                  clipboard.writeText(buffer.toString('utf8'))
+                  deplug.notify.show('Copied!')
+                },
+              }
+            ],
           },
           {
             label: 'Save As...',
