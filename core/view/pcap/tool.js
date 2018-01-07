@@ -34,6 +34,25 @@ class PcapTabView {
 
   view (vnode) {
     const { tabs } = vnode.attrs
+
+    const tabOrders = deplug.workspace.get('_.pcap.tabOrders', [])
+    tabs.sort((lhs, rhs) => {
+      const lhsIndex = tabOrders.indexOf(lhs)
+      const rhsIndex = tabOrders.indexOf(rhs)
+      if (lhsIndex < 0 && rhsIndex < 0) {
+        return lhs > rhs
+          ? 1
+          : -1
+      }
+      if (lhsIndex >= 0 && rhsIndex < 0) {
+        return -1
+      }
+      if (lhsIndex < 0 && rhsIndex >= 0) {
+        return 1
+      }
+      return lhsIndex - rhsIndex
+    })
+
     if (tabs.length > 0) {
       const panel = deplug.workspace.panel(this.activeTab)
       if (typeof panel === 'undefined') {
