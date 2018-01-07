@@ -1,0 +1,20 @@
+{
+  "name": "@deplug/stream-panel",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Stream Panel",
+  "engines": {
+    "deplug": "*"
+  },
+  "deplug": {
+    "components": [
+      {
+        "type": "core:panel",
+        "main": "main.js",
+        "name": "Stream",
+        "id": "core:panel:stream",
+        "style": "theme.less"
+      }
+    ]
+  }
+}

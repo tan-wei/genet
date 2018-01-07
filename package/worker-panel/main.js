@@ -29,11 +29,11 @@ class WorkerView {
 
   view () {
     if (this.sess === null || this.sess.inspectorSessions === null) {
-      return m('div', { class: 'worker-view' }, [
-        'Debug sessions are disabled'
+      return m('div', { class: 'view' }, [
+        m('p', ['Debug sessions are disabled'])
       ])
     }
-    return m('div', { class: 'worker-view' }, [
+    return m('div', { class: 'view' }, [
       m('ul', this.sess.inspectorSessions.map((session) =>
         m(SessionView, { session })))
     ])
