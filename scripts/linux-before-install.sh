@@ -1,5 +1,5 @@
-export CC="gcc-8"
-export CXX="g++-8"
+export CC="clang-5.0"
+export CXX="clang++-5.0"
 export CPATH=$CPATH:$HOME/usr/include
 export LIBRARY_PATH=$LIBRARY_PATH:$HOME/usr/lib
 wget http://www.tcpdump.org/release/libpcap-1.7.4.tar.gz
