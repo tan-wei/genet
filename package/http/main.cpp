@@ -29,13 +29,16 @@ public:
 
 private:
   http_parser_settings settings;
-  http_parser parser;
+  http_parser reqParser;
+  http_parser resParser;
 };
 
 HTTPWorker::HTTPWorker()
 {
-  http_parser_init(&parser, HTTP_RESPONSE);
-  parser.data = this;
+  http_parser_init(&reqParser, HTTP_REQUEST);
+  reqParser.data = this;
+  http_parser_init(&resParser, HTTP_RESPONSE);
+  resParser.data = this;
 }
 
 HTTPWorker::~HTTPWorker()
@@ -51,9 +54,19 @@ void HTTPWorker::analyze(Context *ctx, Layer *layer) {
       size_t nslices = 0;
       const Slice *slices = Payload_slices(begin[i], &nslices);
       for (size_t j = 0; j < nslices; ++j) {
-        size_t npersed = http_parser_execute(&parser, &settings,
+        size_t reqParsed = http_parser_execute(&reqParser, &settings,
           slices[j].begin, Slice_length(slices[j]));
-        printf(">> %d %d \n", npersed, Slice_length(slices[j]));
+        size_t resParsed = http_parser_execute(&resParser, &settings,
+          slices[j].begin, Slice_length(slices[j]));
+        printf(">> %p %d %d %d \n", this, reqParsed, resParsed, Slice_length(slices[j]));
+        if (reqParsed == 0) {
+          http_parser_init(&reqParser, HTTP_REQUEST);
+          reqParser.data = this;
+        }
+        if (resParsed == 0) {
+          http_parser_init(&resParser, HTTP_RESPONSE);
+          resParser.data = this;
+        }
       }
     }
   }
