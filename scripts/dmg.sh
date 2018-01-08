@@ -1,4 +1,4 @@
 #!/bin/sh
 
-npm install appdmg
-$(APPDMG) scripts/appdmg.json out/deplug-darwin-amd64.dmg
+npm install -g appdmg
+appdmg scripts/appdmg.json out/deplug-darwin-amd64.dmg

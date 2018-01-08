@@ -1,5 +1,5 @@
 #!/bin/sh
-
+DEPLUG_VER=$(jq -r '.version' package.json)
 cp -r debian/. out/.debian
 sed -e "s/{{DEPLUG_VERSION}}/$(DEPLUG_VER)/g" debian/DEBIAN/control > out/.debian/DEBIAN/control
 chmod 755 out/.debian/DEBIAN/postinst
