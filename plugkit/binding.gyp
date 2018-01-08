@@ -77,7 +77,8 @@
             "-Wl,-dn,-lpcap,-lcap,-lrt,-dy,-lpthread,-ldl"
           ],
           "cflags_cc":[
-            "-fno-strict-aliasing"
+            "-fno-strict-aliasing",
+            "-std=c++11"
           ],
           "defines":[
             "PLUGKIT_OS_LINUX"
