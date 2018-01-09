@@ -27,7 +27,17 @@ public:
   void Free(void *data, size_t) override { free(data); }
 };
 
-class WorkerThread::InspectorClient : public v8_inspector::V8InspectorClient {};
+class WorkerThread::InspectorClient : public v8_inspector::V8InspectorClient {
+public:
+  void runMessageLoopOnPause(int contextGroupId) override { mPaused = true; }
+
+  void quitMessageLoopOnPause() override { mPaused = false; }
+
+  bool paused() const { return mPaused; }
+
+private:
+  bool mPaused = false;
+};
 
 namespace {
 std::string onebyte(const uint16_t *data, size_t length) {
@@ -108,7 +118,7 @@ void WorkerThread::start() {
       v8::Local<v8::Context> context = v8::Context::New(isolate);
       v8::Context::Scope context_scope(context);
 
-      std::unique_ptr<v8_inspector::V8InspectorClient> inspectorClient;
+      std::unique_ptr<WorkerThread::InspectorClient> inspectorClient;
       std::unique_ptr<v8_inspector::V8Inspector> inspector;
       std::unique_ptr<v8_inspector::V8Inspector::Channel> channel;
       std::unique_ptr<v8_inspector::V8InspectorSession> session;
@@ -154,14 +164,17 @@ void WorkerThread::start() {
         enter();
         while (loop()) {
           if (session) {
-            std::lock_guard<std::mutex> lock(d->mutex);
-            while (!d->inspectorQueue.empty()) {
-              d->inspectorActivated = true;
-              std::string msg = d->inspectorQueue.front();
-              d->inspectorQueue.pop();
-              session->dispatchProtocolMessage(v8_inspector::StringView(
-                  reinterpret_cast<const uint8_t *>(msg.c_str()), msg.size()));
-            }
+            do {
+              std::lock_guard<std::mutex> lock(d->mutex);
+              while (!d->inspectorQueue.empty()) {
+                d->inspectorActivated = true;
+                std::string msg = d->inspectorQueue.front();
+                d->inspectorQueue.pop();
+                session->dispatchProtocolMessage(v8_inspector::StringView(
+                    reinterpret_cast<const uint8_t *>(msg.c_str()),
+                    msg.size()));
+              }
+            } while (inspectorClient->paused());
           }
           uv_run(&uvloop, UV_RUN_NOWAIT);
         }
