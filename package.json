@@ -10,7 +10,8 @@
   "scripts": {
     "build": "node scripts/build.js",
     "watch": "node scripts/build.js --watch",
-    "test": "node scripts/test.js"
+    "test": "node scripts/test.js",
+    "bench": "node scripts/bench.js plugkit/bench/*.js"
   },
   "main": "deplug-modules/core/app.main.js",
   "author": "h2so5",
@@ -52,6 +53,7 @@
   },
   "devDependencies": {
     "@deplug/dpm": "0.0.14",
+    "benchmark": "^2.1.4",
     "chokidar": "^1.7.0",
     "electron-packager": "^10.1.0",
     "electron-winstaller": "^2.6.3",

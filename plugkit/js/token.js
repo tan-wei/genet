@@ -6,6 +6,9 @@ function tokenGet (str = '') {
   if (typeof str !== 'string') {
     throw new TypeError('First argument must be a string')
   }
+  if (str.length === 0) {
+    return 0
+  }
   const value = tokenMap.get(str)
   if (value !== undefined) {
     return value
@@ -35,6 +38,9 @@ function tokenJoin (prefix, str) {
 function tokenString (id) {
   if (!Number.isInteger(id)) {
     throw new TypeError('First argument must be an integer')
+  }
+  if (id === 0) {
+    return ''
   }
   const value = tokenReverseMap.get(id)
   if (value !== undefined) {
