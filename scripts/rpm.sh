@@ -1,8 +1,9 @@
 #!/bin/sh
 
+DEPLUG_VER=$(jq -r '.version' package.json)
 mkdir -p out/.rpm
 (cd out/.rpm && mkdir -p SOURCES BUILD RPMS SRPMS)
-sed -e "s/{{DEPLUG_VERSION}}/$(DEPLUG_VER)/g" deplug.rpm.spec > out/.rpm/deplug.rpm.spec
+sed -e "s/{{DEPLUG_VERSION}}/$DEPLUG_VER/g" deplug.rpm.spec > out/.rpm/deplug.rpm.spec
 cp -r debian/usr out/.rpm/BUILD
 mkdir -p out/.rpm/BUILD/usr/share/icons/hicolor/256x256/apps
 cp images/deplug.png out/.rpm/BUILD/usr/share/icons/hicolor/256x256/apps
