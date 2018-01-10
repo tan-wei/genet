@@ -30,6 +30,8 @@ public:
 
 namespace {
 const auto streamIdToken = Token_get("tcp.streamId");
+const auto srcToken = Token_get(".src");
+const auto dstToken = Token_get(".dst");
 const auto seqToken = Token_get("tcp.seq");
 const auto windowToken = Token_get("tcp.window");
 const auto flagsToken = Token_get("tcp.flags");
@@ -93,12 +95,12 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   const auto parentLayerId = Layer_id(Layer_parent(layer));
   const auto layerId = Layer_id(layer);
 
-  const auto &parentSrc = Attr_slice(Layer_attr(Layer_parent(layer), Token_join(parentLayerId, ".src")));
-  const auto &parentDst = Attr_slice(Layer_attr(Layer_parent(layer), Token_join(parentLayerId, ".dst")));
+  const auto &parentSrc = Attr_slice(Layer_attr(Layer_parent(layer), Token_join(parentLayerId, srcToken)));
+  const auto &parentDst = Attr_slice(Layer_attr(Layer_parent(layer), Token_join(parentLayerId, dstToken)));
 
   const auto &id =
-      StreamID(Attr_uint32(Layer_attr(layer, Token_join(layerId, ".src"))),
-               Attr_uint32(Layer_attr(layer, Token_join(layerId, ".dst"))),
+      StreamID(Attr_uint32(Layer_attr(layer, Token_join(layerId, srcToken))),
+               Attr_uint32(Layer_attr(layer, Token_join(layerId, dstToken))),
                std::string(parentSrc.begin, Slice_length(parentSrc)),
                std::string(parentDst.begin, Slice_length(parentDst)));
 

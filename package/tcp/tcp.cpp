@@ -27,8 +27,10 @@ const std::pair<uint16_t, Token> flagTable[] = {
 };
 
 const auto tcpToken = Token_get("tcp");
-const auto srcToken = Token_get("tcp.src");
-const auto dstToken = Token_get("tcp.dst");
+const auto srcToken = Token_get(".src");
+const auto dstToken = Token_get(".dst");
+const auto tcpSrcToken = Token_get("tcp.src");
+const auto tcpDstToken = Token_get("tcp.dst");
 const auto seqToken = Token_get("tcp.seq");
 const auto ackToken = Token_get("tcp.ack");
 const auto dOffsetToken = Token_get("tcp.dataOffset");
@@ -62,16 +64,16 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Layer_setRange(child, payloadRange);
 
   Token layerId = Layer_id(layer);
-  const auto &parentSrc = Attr_slice(Layer_attr(layer, Token_join(layerId, ".src")));
-  const auto &parentDst = Attr_slice(Layer_attr(layer, Token_join(layerId, ".dst")));
+  const auto &parentSrc = Attr_slice(Layer_attr(layer, Token_join(layerId, srcToken)));
+  const auto &parentDst = Attr_slice(Layer_attr(layer, Token_join(layerId, dstToken)));
 
   uint16_t srcPort = Reader_getUint16(&reader, false);
-  Attr *src = Layer_addAttr(ctx, child, srcToken);
+  Attr *src = Layer_addAttr(ctx, child, tcpSrcToken);
   Attr_setUint32(src, srcPort);
   Attr_setRange(src, reader.lastRange);
 
   uint16_t dstPort = Reader_getUint16(&reader, false);
-  Attr *dst = Layer_addAttr(ctx, child, dstToken);
+  Attr *dst = Layer_addAttr(ctx, child, tcpDstToken);
   Attr_setUint32(dst, dstPort);
   Attr_setRange(dst, reader.lastRange);
 

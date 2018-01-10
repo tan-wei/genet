@@ -17,6 +17,7 @@ using namespace plugkit;
 
 namespace {
 
+const auto streamIdToken = Token_get(".streamId");
 const auto httpToken = Token_get("http");
 const auto headersToken = Token_get("http.headers");
 const auto streamToken = Token_get("@stream");
@@ -159,7 +160,7 @@ HTTPWorker::~HTTPWorker()
 
 void HTTPWorker::analyze(Context *ctx, Layer *layer) {
   const auto layerId = Layer_id(layer);
-  uint32_t streamId = Attr_uint32(Layer_attr(layer, Token_join(layerId, ".streamId")));
+  uint32_t streamId = Attr_uint32(Layer_attr(layer, Token_join(layerId, streamIdToken)));
   streams[streamId].analyze(ctx, layer);
 }
 

@@ -27,17 +27,31 @@ NAN_METHOD(Token_get_wrap) {
 }
 
 NAN_METHOD(Token_join_wrap) {
-  if (!info[0]->IsUint32()) {
-    Nan::ThrowTypeError("First argument must be a number");
+
+  Token prefix = Token_null();
+  auto prefixId = info[0];
+  if (prefixId->IsUint32()) {
+    prefix = prefixId->Uint32Value();
+  } else if (prefixId->IsString()) {
+    prefix = Token_get(*Nan::Utf8String(prefixId));
+  } else {
+    Nan::ThrowTypeError("First argument must be a string or token-id");
     return;
   }
-  if (!info[1]->IsString()) {
-    Nan::ThrowTypeError("Second argument must be a string");
+
+  Token token = Token_null();
+  auto tokenId = info[1];
+  if (tokenId->IsUint32()) {
+    token = tokenId->Uint32Value();
+  } else if (tokenId->IsString()) {
+    token = Token_get(*Nan::Utf8String(tokenId));
+  } else {
+    Nan::ThrowTypeError("Second argument must be a string or token-id");
     return;
   }
-  Token token = Token_join(static_cast<Token>(info[0]->Uint32Value()),
-                           *Nan::Utf8String(info[1]));
-  info.GetReturnValue().Set(token);
+
+  Token joined = Token_join(prefix, token);
+  info.GetReturnValue().Set(joined);
 }
 
 NAN_METHOD(Token_string_wrap) {

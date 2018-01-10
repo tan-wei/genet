@@ -78,7 +78,7 @@ Token Token_literal_(const char *str, size_t length) {
   return id;
 }
 
-Token Token_join_(Token prefix, Token token) {
+Token Token_join(Token prefix, Token token) {
   const auto &key = std::make_pair(prefix, token);
   auto it = pairMap.find(key);
   if (it != pairMap.end()) {
