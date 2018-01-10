@@ -18,7 +18,7 @@
   "license": "MIT",
   "dependencies": {
     "@deplug/moment.min": "^2.20.0",
-    "@deplug/package-install": "0.0.17",
+    "@deplug/package-install": "^0.0.18",
     "@deplug/plugkit": "^0.0.2",
     "axios": "^0.17.1",
     "balloon-css": "^0.5.0",
@@ -52,7 +52,7 @@
     "ws": "^4.0.0"
   },
   "devDependencies": {
-    "@deplug/dpm": "0.0.14",
+    "@deplug/dpm": "^0.0.15",
     "benchmark": "^2.1.4",
     "chokidar": "^1.7.0",
     "electron-packager": "^10.1.0",
