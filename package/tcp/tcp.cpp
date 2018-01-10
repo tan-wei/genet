@@ -64,8 +64,10 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Layer_setRange(child, payloadRange);
 
   Token layerId = Layer_id(layer);
-  const auto &parentSrc = Attr_slice(Layer_attr(layer, Token_join(layerId, srcToken)));
-  const auto &parentDst = Attr_slice(Layer_attr(layer, Token_join(layerId, dstToken)));
+  const auto &parentSrc =
+      Attr_slice(Layer_attr(layer, Token_join(layerId, srcToken)));
+  const auto &parentDst =
+      Attr_slice(Layer_attr(layer, Token_join(layerId, dstToken)));
 
   uint16_t srcPort = Reader_getUint16(&reader, false);
   Attr *src = Layer_addAttr(ctx, child, tcpSrcToken);

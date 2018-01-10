@@ -95,8 +95,10 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   const auto parentLayerId = Layer_id(Layer_parent(layer));
   const auto layerId = Layer_id(layer);
 
-  const auto &parentSrc = Attr_slice(Layer_attr(Layer_parent(layer), Token_join(parentLayerId, srcToken)));
-  const auto &parentDst = Attr_slice(Layer_attr(Layer_parent(layer), Token_join(parentLayerId, dstToken)));
+  const auto &parentSrc = Attr_slice(
+      Layer_attr(Layer_parent(layer), Token_join(parentLayerId, srcToken)));
+  const auto &parentDst = Attr_slice(
+      Layer_attr(Layer_parent(layer), Token_join(parentLayerId, dstToken)));
 
   const auto &id =
       StreamID(Attr_uint32(Layer_attr(layer, Token_join(layerId, srcToken))),

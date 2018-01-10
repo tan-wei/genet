@@ -1,3 +1,4 @@
+#include "http_parser.h"
 #include <nan.h>
 #include <plugkit/attr.h>
 #include <plugkit/context.h>
@@ -8,7 +9,6 @@
 #include <plugkit/token.h>
 #include <plugkit/variant.h>
 #include <unordered_map>
-#include "http_parser.h"
 
 #define PLUGKIT_ENABLE_LOGGING
 #include <plugkit/logger.h>
@@ -44,12 +44,7 @@ public:
   int on_status(const char *at, size_t length);
 
 private:
-  enum class State {
-    UNKNOWN,
-    REQUEST,
-    RESPONSE,
-    ERROR
-  };
+  enum class State { UNKNOWN, REQUEST, RESPONSE, ERROR };
 
 private:
   http_parser_settings settings;
@@ -62,8 +57,9 @@ private:
 HTTPWorker::Stream::Stream() {
   settings.on_message_begin = nullptr;
   settings.on_url = nullptr;
-  settings.on_status = [](http_parser*parser, const char *at, size_t length) {
-    return static_cast<HTTPWorker::Stream*>(parser->data)->on_status(at, length);
+  settings.on_status = [](http_parser *parser, const char *at, size_t length) {
+    return static_cast<HTTPWorker::Stream *>(parser->data)
+        ->on_status(at, length);
   };
   settings.on_header_field = nullptr;
   settings.on_header_value = nullptr;
@@ -79,8 +75,7 @@ HTTPWorker::Stream::Stream() {
   resParser.data = this;
 }
 
-void HTTPWorker::Stream::analyze(Context *ctx, Layer *layer)
-{
+void HTTPWorker::Stream::analyze(Context *ctx, Layer *layer) {
   size_t payloads = 0;
   auto begin = Layer_payloads(layer, &payloads);
   for (size_t i = 0; i < payloads; ++i) {
@@ -99,68 +94,50 @@ void HTTPWorker::Stream::analyze(Context *ctx, Layer *layer)
   }
 }
 
-int HTTPWorker::Stream::on_status(const char *at, size_t length)
-{
+int HTTPWorker::Stream::on_status(const char *at, size_t length) {
   printf("%s\n", std::string(at, length).c_str());
   return 0;
 }
 
-void HTTPWorker::Stream::parse(const char *data, size_t length)
-{
+void HTTPWorker::Stream::parse(const char *data, size_t length) {
   switch (state) {
-    case State::UNKNOWN:
-      {
-        size_t parsed = http_parser_execute(&reqParser, &settings,
-          data, length);
-        if (parsed == length) {
-          state = State::REQUEST;
-        } else {
-          parsed = http_parser_execute(&resParser, &settings,
-            data, length);
-          if (parsed == length) {
-            state = State::RESPONSE;
-          } else {
-            state = State::ERROR;
-          }
-        }
+  case State::UNKNOWN: {
+    size_t parsed = http_parser_execute(&reqParser, &settings, data, length);
+    if (parsed == length) {
+      state = State::REQUEST;
+    } else {
+      parsed = http_parser_execute(&resParser, &settings, data, length);
+      if (parsed == length) {
+        state = State::RESPONSE;
+      } else {
+        state = State::ERROR;
       }
-      break;
-    case State::REQUEST:
-      {
-        size_t parsed = http_parser_execute(&reqParser, &settings,
-          data, length);
-        if (parsed != length) {
-          state = State::ERROR;
-        }
-      }
-      break;
-    case State::RESPONSE:
-      {
-        size_t parsed = http_parser_execute(&resParser, &settings,
-          data, length);
-        if (parsed != length) {
-          state = State::ERROR;
-        }
-      }
-      break;
-    default:
-      ;
+    }
+  } break;
+  case State::REQUEST: {
+    size_t parsed = http_parser_execute(&reqParser, &settings, data, length);
+    if (parsed != length) {
+      state = State::ERROR;
+    }
+  } break;
+  case State::RESPONSE: {
+    size_t parsed = http_parser_execute(&resParser, &settings, data, length);
+    if (parsed != length) {
+      state = State::ERROR;
+    }
+  } break;
+  default:;
   }
 }
 
-HTTPWorker::HTTPWorker()
-{
+HTTPWorker::HTTPWorker() {}
 
-}
-
-HTTPWorker::~HTTPWorker()
-{
-
-}
+HTTPWorker::~HTTPWorker() {}
 
 void HTTPWorker::analyze(Context *ctx, Layer *layer) {
   const auto layerId = Layer_id(layer);
-  uint32_t streamId = Attr_uint32(Layer_attr(layer, Token_join(layerId, streamIdToken)));
+  uint32_t streamId =
+      Attr_uint32(Layer_attr(layer, Token_join(layerId, streamIdToken)));
   streams[streamId].analyze(ctx, layer);
 }
 

@@ -1,19 +1,18 @@
-#include <nan.h>
 #include <fstream>
-#include <vector>
+#include <nan.h>
 #include <plugkit/context.h>
 #include <plugkit/file.h>
 #include <plugkit/reader.h>
+#include <vector>
 
 using namespace plugkit;
 
-FileStatus import(Context *ctx,
-                           const char *filename,
-                           FileImporterCallback callback) {
+FileStatus
+import(Context *ctx, const char *filename, FileImporterCallback callback) {
 
   std::ifstream ifs(filename, std::ios::binary);
   if (!ifs.is_open()) {
-   return FILE_STATUS_ERROR;
+    return FILE_STATUS_ERROR;
   }
   char header[24];
   ifs.read(header, sizeof header);
@@ -31,24 +30,24 @@ FileStatus import(Context *ctx,
   bool nanosec = false;
   uint32_t magicNumber = Reader_getUint32(&headerReader, false);
   switch (magicNumber) {
-    case 0xd4c3b2a1:
-      littleEndian = true;
-      nanosec = false;
-      break;
-    case 0xa1b2c3d4:
-      littleEndian = false;
-      nanosec = false;
-      break;
-    case 0x4d3cb2a1:
-      littleEndian = true;
-      nanosec = true;
-      break;
-    case 0xa1b23c4d:
-      littleEndian = false;
-      nanosec = true;
-      break;
-    default:
-      return FILE_STATUS_UNSUPPORTED;
+  case 0xd4c3b2a1:
+    littleEndian = true;
+    nanosec = false;
+    break;
+  case 0xa1b2c3d4:
+    littleEndian = false;
+    nanosec = false;
+    break;
+  case 0x4d3cb2a1:
+    littleEndian = true;
+    nanosec = true;
+    break;
+  case 0xa1b23c4d:
+    littleEndian = false;
+    nanosec = true;
+    break;
+  default:
+    return FILE_STATUS_UNSUPPORTED;
   }
 
   uint16_t versionMajor = Reader_getUint16(&headerReader, littleEndian);
@@ -59,9 +58,9 @@ FileStatus import(Context *ctx,
   uint32_t network = Reader_getUint32(&headerReader, littleEndian);
 
   size_t headerOffset = ifs.tellg();
-  ifs.seekg (0, ifs.end);
+  ifs.seekg(0, ifs.end);
   size_t dataLength = ifs.tellg();
-  ifs.seekg (headerOffset, ifs.beg);
+  ifs.seekg(headerOffset, ifs.beg);
 
   const size_t bufferSize = 1024;
   std::vector<RawFrame> frames;
@@ -105,7 +104,7 @@ FileStatus import(Context *ctx,
 
     if (frames.size() >= bufferSize) {
       callback(ctx, frames.data(), frames.size(),
-        1.0 * ifs.tellg() / dataLength);
+               1.0 * ifs.tellg() / dataLength);
       frames.clear();
     }
   }
