@@ -7,7 +7,7 @@
 #include <plugkit/stream_reader.h>
 #include <plugkit/token.h>
 #include <plugkit/variant.h>
-#include <unordered_set>
+#include <unordered_map>
 #include "http_parser.h"
 
 #define PLUGKIT_ENABLE_LOGGING
@@ -28,17 +28,128 @@ public:
   void analyze(Context *ctx, Layer *layer);
 
 private:
+  class Stream;
+
+private:
+  std::unordered_map<uint32_t, Stream> streams;
+};
+
+class HTTPWorker::Stream {
+public:
+  Stream();
+  void analyze(Context *ctx, Layer *layer);
+  void parse(const char *data, size_t length);
+
+  int on_status(const char *at, size_t length);
+
+private:
+  enum class State {
+    UNKNOWN,
+    REQUEST,
+    RESPONSE,
+    ERROR
+  };
+
+private:
   http_parser_settings settings;
   http_parser reqParser;
   http_parser resParser;
+  State state = State::UNKNOWN;
+  Layer *child = nullptr;
 };
 
-HTTPWorker::HTTPWorker()
-{
+HTTPWorker::Stream::Stream() {
+  settings.on_message_begin = nullptr;
+  settings.on_url = nullptr;
+  settings.on_status = [](http_parser*parser, const char *at, size_t length) {
+    return static_cast<HTTPWorker::Stream*>(parser->data)->on_status(at, length);
+  };
+  settings.on_header_field = nullptr;
+  settings.on_header_value = nullptr;
+  settings.on_headers_complete = nullptr;
+  settings.on_body = nullptr;
+  settings.on_message_complete = nullptr;
+  settings.on_chunk_header = nullptr;
+  settings.on_chunk_complete = nullptr;
+
   http_parser_init(&reqParser, HTTP_REQUEST);
   reqParser.data = this;
   http_parser_init(&resParser, HTTP_RESPONSE);
   resParser.data = this;
+}
+
+void HTTPWorker::Stream::analyze(Context *ctx, Layer *layer)
+{
+  size_t payloads = 0;
+  auto begin = Layer_payloads(layer, &payloads);
+  for (size_t i = 0; i < payloads; ++i) {
+    if (Payload_type(begin[i]) == streamToken) {
+      size_t nslices = 0;
+      const Slice *slices = Payload_slices(begin[i], &nslices);
+      for (size_t j = 0; j < nslices; ++j) {
+        parse(slices[j].begin, Slice_length(slices[j]));
+      }
+    }
+  }
+
+  if (state == State::REQUEST || state == State::RESPONSE) {
+    child = Layer_addLayer(ctx, layer, httpToken);
+    Layer_addTag(child, httpToken);
+  }
+}
+
+int HTTPWorker::Stream::on_status(const char *at, size_t length)
+{
+  printf("%s\n", std::string(at, length).c_str());
+  return 0;
+}
+
+void HTTPWorker::Stream::parse(const char *data, size_t length)
+{
+  switch (state) {
+    case State::UNKNOWN:
+      {
+        size_t parsed = http_parser_execute(&reqParser, &settings,
+          data, length);
+        if (parsed == length) {
+          state = State::REQUEST;
+        } else {
+          parsed = http_parser_execute(&resParser, &settings,
+            data, length);
+          if (parsed == length) {
+            state = State::RESPONSE;
+          } else {
+            state = State::ERROR;
+          }
+        }
+      }
+      break;
+    case State::REQUEST:
+      {
+        size_t parsed = http_parser_execute(&reqParser, &settings,
+          data, length);
+        if (parsed != length) {
+          state = State::ERROR;
+        }
+      }
+      break;
+    case State::RESPONSE:
+      {
+        size_t parsed = http_parser_execute(&resParser, &settings,
+          data, length);
+        if (parsed != length) {
+          state = State::ERROR;
+        }
+      }
+      break;
+    default:
+      ;
+  }
+}
+
+HTTPWorker::HTTPWorker()
+{
+
 }
 
 HTTPWorker::~HTTPWorker()
@@ -47,29 +158,9 @@ HTTPWorker::~HTTPWorker()
 }
 
 void HTTPWorker::analyze(Context *ctx, Layer *layer) {
-  size_t payloads = 0;
-  auto begin = Layer_payloads(layer, &payloads);
-  for (size_t i = 0; i < payloads; ++i) {
-    if (Payload_type(begin[i]) == streamToken) {
-      size_t nslices = 0;
-      const Slice *slices = Payload_slices(begin[i], &nslices);
-      for (size_t j = 0; j < nslices; ++j) {
-        size_t reqParsed = http_parser_execute(&reqParser, &settings,
-          slices[j].begin, Slice_length(slices[j]));
-        size_t resParsed = http_parser_execute(&resParser, &settings,
-          slices[j].begin, Slice_length(slices[j]));
-        printf(">> %p %d %d %d \n", this, reqParsed, resParsed, Slice_length(slices[j]));
-        if (reqParsed == 0) {
-          http_parser_init(&reqParser, HTTP_REQUEST);
-          reqParser.data = this;
-        }
-        if (resParsed == 0) {
-          http_parser_init(&resParser, HTTP_RESPONSE);
-          resParser.data = this;
-        }
-      }
-    }
-  }
+  const auto layerId = Layer_id(layer);
+  uint32_t streamId = Attr_uint32(Layer_attr(layer, Token_join(layerId, ".streamId")));
+  streams[streamId].analyze(ctx, layer);
 }
 
 void Init(v8::Local<v8::Object> exports) {
