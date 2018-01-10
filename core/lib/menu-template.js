@@ -44,8 +44,6 @@ const template = [
   {
     label: 'View',
     submenu: [
-      { role: 'reload' },
-      { role: 'forcereload' },
       { role: 'toggledevtools' },
       {
         label: 'Open Developer Tools for Current Tab',
