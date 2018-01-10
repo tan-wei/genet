@@ -6,7 +6,6 @@ export default {
       type: 'integer',
       minimum: 0,
       default: 2048,
-      section: 'Pcap',
     },
     '_.dissector.confidenceThreshold': {
       title: 'Confidence Threshold',
@@ -21,7 +20,6 @@ export default {
       minimum: 0,
       maximum: 3,
       default: 2,
-      section: 'Analyzer',
     },
     '_.dissector.concurrency': {
       title: 'Concurrency',
@@ -41,7 +39,6 @@ export default {
       minimum: 0,
       maximum: 8,
       default: 0,
-      section: 'Analyzer',
     },
     '_.package.registries': {
       title: 'Package Registries',
@@ -52,21 +49,18 @@ export default {
       },
       uniqueItems: true,
       default: ['https://deplug.net/registry/list.yml'],
-      section: 'Package',
     },
     '_.package.noPrebuilt': {
       title: 'Don\'t Use Pre-Built Binaries',
       description: 'Force to build native add-ons from source',
       type: 'boolean',
       default: false,
-      section: 'Package',
     },
     '_.filter.historyLength': {
       title: 'Filter History Length',
       type: 'integer',
       minimum: 0,
       default: 10,
-      section: 'Filter',
     },
     '_.debug.enableDebugSession': {
       title: 'Enable Debug Session',
