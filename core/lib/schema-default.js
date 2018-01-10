@@ -56,6 +56,11 @@ export default {
       type: 'boolean',
       default: false,
     },
+    '_.package.noConfUpdated': {
+      title: 'Don\'t Show "Config Updated" Message',
+      type: 'boolean',
+      default: false,
+    },
     '_.filter.historyLength': {
       title: 'Filter History Length',
       type: 'integer',
