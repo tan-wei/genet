@@ -44,13 +44,13 @@ public:
   int on_status(const char *at, size_t length);
 
 private:
-  enum class State { UNKNOWN, REQUEST, RESPONSE, ERROR };
+  enum class State { HttpUnknown, HttpRequest, HttpResponse, HttpError };
 
 private:
   http_parser_settings settings;
   http_parser reqParser;
   http_parser resParser;
-  State state = State::UNKNOWN;
+  State state = State::HttpUnknown;
   Layer *child = nullptr;
 };
 
@@ -88,7 +88,7 @@ void HTTPWorker::Stream::analyze(Context *ctx, Layer *layer) {
     }
   }
 
-  if (state == State::REQUEST || state == State::RESPONSE) {
+  if (state == State::HttpRequest || state == State::HttpResponse) {
     child = Layer_addLayer(ctx, layer, httpToken);
     Layer_addTag(child, httpToken);
   }
@@ -101,29 +101,29 @@ int HTTPWorker::Stream::on_status(const char *at, size_t length) {
 
 void HTTPWorker::Stream::parse(const char *data, size_t length) {
   switch (state) {
-  case State::UNKNOWN: {
+  case State::HttpUnknown: {
     size_t parsed = http_parser_execute(&reqParser, &settings, data, length);
     if (parsed == length) {
-      state = State::REQUEST;
+      state = State::HttpRequest;
     } else {
       parsed = http_parser_execute(&resParser, &settings, data, length);
       if (parsed == length) {
-        state = State::RESPONSE;
+        state = State::HttpResponse;
       } else {
-        state = State::ERROR;
+        state = State::HttpError;
       }
     }
   } break;
-  case State::REQUEST: {
+  case State::HttpRequest: {
     size_t parsed = http_parser_execute(&reqParser, &settings, data, length);
     if (parsed != length) {
-      state = State::ERROR;
+      state = State::HttpError;
     }
   } break;
-  case State::RESPONSE: {
+  case State::HttpResponse: {
     size_t parsed = http_parser_execute(&resParser, &settings, data, length);
     if (parsed != length) {
-      state = State::ERROR;
+      state = State::HttpError;
     }
   } break;
   default:;
