@@ -27,6 +27,11 @@ ipcMain.on('core:window:loaded', (event, id) => {
   }
 })
 
+ipcMain.on('core:window:create', () => {
+  WindowFactory.create(process.argv.slice(2).filter((argv) =>
+    !argv.startsWith('--deplug-dev-watch-file=')))
+})
+
 const logContents = new Map()
 ipcMain.on('core:logger:register', (event, windowId, contentId) => {
   logContents.set(windowId, contentId)

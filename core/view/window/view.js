@@ -71,6 +71,9 @@ export default class WindowView {
     deplug.action.global.on('core:tab:new-pcap', () => {
       this.createPcapTab()
     })
+    deplug.action.global.on('core:window:new', () => {
+      ipcRenderer.send('core:window:create')
+    })
     deplug.action.global.on('core:file:browse-user-dir', () => {
       shell.showItemInFolder(env.userProfilePath)
     })

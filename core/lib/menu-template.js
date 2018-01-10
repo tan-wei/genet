@@ -19,6 +19,11 @@ const template = [
     label: 'File',
     submenu: [
       {
+        label: 'New Window',
+        action: 'core:window:new',
+        accelerator: 'CommandOrControl+Shift+N',
+      },
+      {
         label: 'New Live Capture...',
         action: 'core:tab:new-pcap',
         accelerator: 'CommandOrControl+N',
