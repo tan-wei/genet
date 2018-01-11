@@ -141,7 +141,7 @@ NAN_METHOD(SessionWrapper::importFile) {
   SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
   if (const auto &session = wrapper->session) {
     const std::string &file = *Nan::Utf8String(info[0]);
-    session->importFile(file);
+    info.GetReturnValue().Set(session->importFile(file));
   }
 }
 
@@ -150,7 +150,7 @@ NAN_METHOD(SessionWrapper::exportFile) {
   if (const auto &session = wrapper->session) {
     const std::string &file = *Nan::Utf8String(info[0]);
     const std::string &filter = *Nan::Utf8String(info[1]);
-    session->exportFile(file, filter);
+    info.GetReturnValue().Set(session->exportFile(file, filter));
   }
 }
 

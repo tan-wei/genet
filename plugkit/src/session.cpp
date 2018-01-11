@@ -355,12 +355,12 @@ void Session::sendInspectorMessage(const std::string &id,
   }
 }
 
-void Session::importFile(const std::string &file) {
-  d->fileImporter->start(file);
+int Session::importFile(const std::string &file) {
+  return d->fileImporter->start(file);
 }
 
-void Session::exportFile(const std::string &file, const std::string &filter) {
-  d->fileExporter->start(file, filter);
+int Session::exportFile(const std::string &file, const std::string &filter) {
+  return d->fileExporter->start(file, filter);
 }
 
 std::vector<std::string> Session::inspectors() const {

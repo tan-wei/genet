@@ -74,8 +74,8 @@ public:
   std::vector<const FrameView *> getFrames(uint32_t offset,
                                            uint32_t length) const;
 
-  void importFile(const std::string &file);
-  void exportFile(const std::string &file, const std::string &filter);
+  int importFile(const std::string &file);
+  int exportFile(const std::string &file, const std::string &filter);
 
   void sendInspectorMessage(const std::string &id, const std::string &msg);
   std::vector<std::string> inspectors() const;

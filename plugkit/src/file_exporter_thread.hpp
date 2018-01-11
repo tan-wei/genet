@@ -28,7 +28,7 @@ public:
   void setCallback(const Callback &callback);
   void addExporter(const FileExporter &exporter);
   void registerLinkLayer(Token token, int link);
-  bool start(const std::string &file, const std::string &filter);
+  int start(const std::string &file, const std::string &filter);
 
 private:
   class Private;

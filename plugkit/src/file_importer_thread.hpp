@@ -24,7 +24,7 @@ public:
   void setAllocator(RootAllocator *allocator);
   void registerLinkLayer(int link, Token token);
   void addImporter(const FileImporter &importer);
-  bool start(const std::string &file);
+  int start(const std::string &file);
 
 private:
   class Private;

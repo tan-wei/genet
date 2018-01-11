@@ -65,6 +65,7 @@ bool apiCallback(Context *ctx,
 
 class FileImporterThread::Private {
 public:
+  int counter = 0;
   Callback callback;
   std::unordered_map<int, Token> linkLayers;
   std::vector<FileImporter> importers;
@@ -96,9 +97,9 @@ void FileImporterThread::addImporter(const FileImporter &importer) {
   d->importers.push_back(importer);
 }
 
-bool FileImporterThread::start(const std::string &file) {
+int FileImporterThread::start(const std::string &file) {
   if (d->thread.joinable())
-    return false;
+    return -1;
 
   d->callback(nullptr, 0, 0.0);
 
@@ -119,7 +120,7 @@ bool FileImporterThread::start(const std::string &file) {
       }
     }
   });
-  return true;
+  return d->counter++;
 }
 
 } // namespace plugkit

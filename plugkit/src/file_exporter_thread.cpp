@@ -126,6 +126,7 @@ private:
 
 class FileExporterThread::Private {
 public:
+  int counter = 0;
   Callback callback;
   LoggerPtr logger = std::make_shared<StreamLogger>();
   std::unordered_map<Token, int> linkLayers;
@@ -162,13 +163,13 @@ void FileExporterThread::addExporter(const FileExporter &exporters) {
   d->exporters.push_back(exporters);
 }
 
-bool FileExporterThread::start(const std::string &file,
-                               const std::string &filter) {
+int FileExporterThread::start(const std::string &file,
+                              const std::string &filter) {
   d->callback(0.0);
 
   if (d->store->dissectedSize() == 0) {
     d->callback(1.0);
-    return true;
+    return -1;
   }
 
   if (d->worker) {
@@ -187,7 +188,7 @@ bool FileExporterThread::start(const std::string &file,
   d->worker.reset(new FileExporterWorkerThread(data));
   d->worker->setLogger(d->logger);
   d->worker->start();
-  return true;
+  return d->counter++;
 }
 
 } // namespace plugkit
