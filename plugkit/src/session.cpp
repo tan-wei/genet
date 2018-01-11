@@ -41,7 +41,8 @@ public:
     UPDATE_STATUS = 1,
     UPDATE_FILTER = 2,
     UPDATE_FRAME = 4,
-    UPDATE_INSPECTOR = 8,
+    UPDATE_EVENT = 8,
+    UPDATE_INSPECTOR = 16,
   };
 
 public:
@@ -98,8 +99,6 @@ void Session::Private::updateStatus() {
   if (flags & Private::UPDATE_STATUS) {
     Status status;
     status.capture = pcap->running();
-    status.importerProgress = importerProgress.load(std::memory_order_relaxed);
-    status.exporterProgress = exporterProgress.load(std::memory_order_relaxed);
     statusCallback(status);
   }
   if (flags & Private::UPDATE_FILTER) {
@@ -115,6 +114,8 @@ void Session::Private::updateStatus() {
     FrameStatus status;
     status.frames = frameStore->dissectedSize();
     frameCallback(status);
+  }
+  if (flags & Private::UPDATE_EVENT) {
   }
   if (flags & Private::UPDATE_INSPECTOR) {
     for (const auto &pair : inspectorQueue.fetch()) {
@@ -207,13 +208,13 @@ Session::Session(const Config &config) : d(new Private(config)) {
     d->fileImporter->addImporter(importer);
   }
   d->fileImporter->setCallback(
-      [this](Frame **begin, size_t length, double progress) {
+      [this](int id, Frame **begin, size_t length, double progress) {
         for (size_t i = 0; i < length; ++i) {
           begin[i]->setIndex(d->getSeq());
         }
         d->dissectorPool->push(begin, length);
         d->importerProgress.store(progress, std::memory_order_relaxed);
-        d->notifyStatus(Private::UPDATE_STATUS);
+        d->notifyStatus(Private::UPDATE_EVENT);
       });
 
   d->fileExporter.reset(new FileExporterThread(d->frameStore));
@@ -224,9 +225,9 @@ Session::Session(const Config &config) : d(new Private(config)) {
   for (const FileExporter &exporter : config.exporters) {
     d->fileExporter->addExporter(exporter);
   }
-  d->fileExporter->setCallback([this](double progress) {
+  d->fileExporter->setCallback([this](int id, double progress) {
     d->exporterProgress.store(progress, std::memory_order_relaxed);
-    d->notifyStatus(Private::UPDATE_STATUS);
+    d->notifyStatus(Private::UPDATE_EVENT);
   });
 
   auto dissectors = d->config.dissectors;

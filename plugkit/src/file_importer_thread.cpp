@@ -13,6 +13,7 @@ namespace plugkit {
 namespace {
 
 struct CallbackData {
+  int id;
   FileImporterThread::Callback callback;
   std::unordered_map<int, Token> linkLayers;
 };
@@ -57,7 +58,7 @@ bool apiCallback(Context *ctx,
     frames.push_back(createFrame(ctx, tag, raw));
   }
 
-  data->callback(frames.data(), frames.size(), progress);
+  data->callback(data->id, frames.data(), frames.size(), progress);
   return true;
 }
 
@@ -101,12 +102,14 @@ int FileImporterThread::start(const std::string &file) {
   if (d->thread.joinable())
     return -1;
 
-  d->callback(nullptr, 0, 0.0);
+  int id = d->counter++;
+  d->callback(id, nullptr, 0, 0.0);
 
   auto importers = d->importers;
-  d->thread = std::thread([this, file, importers]() {
+  d->thread = std::thread([this, id, file, importers]() {
     Context ctx;
     CallbackData data;
+    data.id = id;
     data.callback = d->callback;
     data.linkLayers = d->linkLayers;
     ctx.rootAllocator = d->allocator;
@@ -120,7 +123,7 @@ int FileImporterThread::start(const std::string &file) {
       }
     }
   });
-  return d->counter++;
+  return id;
 }
 
 } // namespace plugkit

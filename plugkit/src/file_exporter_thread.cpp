@@ -15,6 +15,7 @@ namespace plugkit {
 
 namespace {
 struct ContextData {
+  int id;
   FrameStorePtr store;
   FileExporterThread::Callback callback;
   std::unordered_map<Token, int> linkLayers;
@@ -67,7 +68,7 @@ const RawFrame *apiCallback(Context *ctx, size_t *length) {
     size = data->length - data->offset;
   }
   *length = size;
-  data->callback(1.0 * data->offset / data->length);
+  data->callback(data->id, 1.0 * data->offset / data->length);
   if (size == 0) {
     return nullptr;
   }
@@ -165,11 +166,12 @@ void FileExporterThread::addExporter(const FileExporter &exporters) {
 
 int FileExporterThread::start(const std::string &file,
                               const std::string &filter) {
-  d->callback(0.0);
+  int id = d->counter++;
+  d->callback(id, 0.0);
 
   if (d->store->dissectedSize() == 0) {
-    d->callback(1.0);
-    return -1;
+    d->callback(id, 1.0);
+    return id;
   }
 
   if (d->worker) {
@@ -177,6 +179,7 @@ int FileExporterThread::start(const std::string &file,
   }
 
   ContextData data;
+  data.id = id;
   data.callback = d->callback;
   data.store = d->store;
   data.length = d->store->dissectedSize();
@@ -188,7 +191,7 @@ int FileExporterThread::start(const std::string &file,
   d->worker.reset(new FileExporterWorkerThread(data));
   d->worker->setLogger(d->logger);
   d->worker->start();
-  return d->counter++;
+  return id;
 }
 
 } // namespace plugkit

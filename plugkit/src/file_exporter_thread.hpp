@@ -19,7 +19,7 @@ using FrameStorePtr = std::shared_ptr<FrameStore>;
 
 class FileExporterThread final {
 public:
-  using Callback = std::function<void(double)>;
+  using Callback = std::function<void(int, double)>;
 
 public:
   FileExporterThread(const FrameStorePtr &store);
