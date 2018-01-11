@@ -14,6 +14,7 @@
 #include "pcap.hpp"
 #include "script_dissector.hpp"
 #include "stream_dissector_thread_pool.hpp"
+#include "swap_queue.hpp"
 #include "uvloop_logger.hpp"
 #include <atomic>
 #include <unordered_map>
@@ -78,8 +79,7 @@ public:
   std::unique_ptr<FileImporterThread> fileImporter;
   std::unique_ptr<FileExporterThread> fileExporter;
 
-  std::queue<std::pair<std::string, std::string>> inspectorQueue;
-  std::mutex inspectorMutex;
+  SwapQueue<std::pair<std::string, std::string>> inspectorQueue;
 
   Config config;
   uv_async_t async;
@@ -117,11 +117,8 @@ void Session::Private::updateStatus() {
     frameCallback(status);
   }
   if (flags & Private::UPDATE_INSPECTOR) {
-    std::lock_guard<std::mutex> lock(inspectorMutex);
-    while (!inspectorQueue.empty()) {
-      inspectorCallback(inspectorQueue.front().first,
-                        inspectorQueue.front().second);
-      inspectorQueue.pop();
+    for (const auto &pair : inspectorQueue.fetch()) {
+      inspectorCallback(pair.first, pair.second);
     }
   }
 }
@@ -174,10 +171,7 @@ Session::Session(const Config &config) : d(new Private(config)) {
   d->dissectorPool->setLogger(d->logger);
   d->dissectorPool->setInspectorCallback(
       [this](const std::string &id, const std::string &msg) {
-        {
-          std::lock_guard<std::mutex> lock(d->inspectorMutex);
-          d->inspectorQueue.push(std::make_pair(id, msg));
-        }
+        d->inspectorQueue.emplace(id, msg);
         d->notifyStatus(Private::UPDATE_INSPECTOR);
       });
 
@@ -190,10 +184,7 @@ Session::Session(const Config &config) : d(new Private(config)) {
   d->streamDissectorPool->setLogger(d->logger);
   d->streamDissectorPool->setInspectorCallback(
       [this](const std::string &id, const std::string &msg) {
-        {
-          std::lock_guard<std::mutex> lock(d->inspectorMutex);
-          d->inspectorQueue.push(std::make_pair(id, msg));
-        }
+        d->inspectorQueue.emplace(id, msg);
         d->notifyStatus(Private::UPDATE_INSPECTOR);
       });
 
@@ -318,10 +309,7 @@ void Session::setDisplayFilter(const std::string &name,
         }));
     pool->setInspectorCallback(
         [this](const std::string &id, const std::string &msg) {
-          {
-            std::lock_guard<std::mutex> lock(d->inspectorMutex);
-            d->inspectorQueue.push(std::make_pair(id, msg));
-          }
+          d->inspectorQueue.emplace(id, msg);
           d->notifyStatus(Private::UPDATE_INSPECTOR);
         });
     pool->setLogger(d->logger);
