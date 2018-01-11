@@ -29,38 +29,36 @@ public:
   void analyze(Context *ctx, Layer *layer);
 
 private:
-  class Stream;
+  class Stream {
+  public:
+    Stream();
+    void analyze(Context *ctx, Layer *layer);
+    void parse(const char *data, size_t length);
+
+    int on_message_begin();
+    int on_url(const char *at, size_t length);
+    int on_status(const char *at, size_t length);
+    int on_header_field(const char *at, size_t length);
+    int on_header_value(const char *at, size_t length);
+    int on_headers_complete();
+    int on_body(const char *at, size_t length);
+    int on_message_complete();
+    int on_chunk_header();
+    int on_chunk_complete();
+
+  private:
+    enum class State { HttpUnknown, HttpRequest, HttpResponse, HttpError };
+
+  private:
+    http_parser_settings settings;
+    http_parser reqParser;
+    http_parser resParser;
+    State state = State::HttpUnknown;
+    Layer *child = nullptr;
+  };
 
 private:
   std::unordered_map<uint32_t, Stream> streams;
-};
-
-class HTTPWorker::Stream {
-public:
-  Stream();
-  void analyze(Context *ctx, Layer *layer);
-  void parse(const char *data, size_t length);
-
-  int on_message_begin();
-  int on_url(const char *at, size_t length);
-  int on_status(const char *at, size_t length);
-  int on_header_field(const char *at, size_t length);
-  int on_header_value(const char *at, size_t length);
-  int on_headers_complete();
-  int on_body(const char *at, size_t length);
-  int on_message_complete();
-  int on_chunk_header();
-  int on_chunk_complete();
-
-private:
-  enum class State { HttpUnknown, HttpRequest, HttpResponse, HttpError };
-
-private:
-  http_parser_settings settings;
-  http_parser reqParser;
-  http_parser resParser;
-  State state = State::HttpUnknown;
-  Layer *child = nullptr;
 };
 
 HTTPWorker::Stream::Stream() {
