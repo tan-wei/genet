@@ -1,6 +1,7 @@
 #include "worker_thread.hpp"
 #include "extended_slot.hpp"
 #include "plugkit_module.hpp"
+#include "swap_queue.hpp"
 #include "wrapper/logger.hpp"
 #include <cstdlib>
 #include <cstring>
@@ -82,8 +83,7 @@ class WorkerThread::Private {
 public:
   std::string inspectorId;
   InspectorCallback inspectorCallback;
-  std::mutex mutex;
-  std::queue<std::string> inspectorQueue;
+  SwapQueue<std::string> inspectorQueue;
   bool inspectorActivated = false;
 };
 
@@ -165,11 +165,8 @@ void WorkerThread::start() {
         while (loop()) {
           if (session) {
             do {
-              std::lock_guard<std::mutex> lock(d->mutex);
-              while (!d->inspectorQueue.empty()) {
+              for (const auto &msg : d->inspectorQueue.fetch()) {
                 d->inspectorActivated = true;
-                std::string msg = d->inspectorQueue.front();
-                d->inspectorQueue.pop();
                 session->dispatchProtocolMessage(v8_inspector::StringView(
                     reinterpret_cast<const uint8_t *>(msg.c_str()),
                     msg.size()));
@@ -193,7 +190,6 @@ bool WorkerThread::inspectorActivated() const { return d->inspectorActivated; }
 void WorkerThread::setLogger(const LoggerPtr &logger) { this->logger = logger; }
 
 void WorkerThread::sendInspectorMessage(const std::string &msg) {
-  std::lock_guard<std::mutex> lock(d->mutex);
   d->inspectorQueue.push(msg);
 }
 
