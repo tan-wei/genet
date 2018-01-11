@@ -181,8 +181,8 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
       uint32_t et = Slice_getUint32(
           reader.data, optionOffset + 2 + sizeof(uint32_t), false, nullptr);
       Attr *opt = Layer_addAttr(ctx, child, tsToken);
-      Attr_setString(opt,
-                     (std::to_string(mt) + " - " + std::to_string(et)).c_str());
+      const auto &optStr = std::to_string(mt) + " - " + std::to_string(et);
+      Attr_setString(opt, optStr.c_str(), optStr.size());
       Attr_setRange(opt, Range{optionOffset, optionOffset + 10});
 
       Attr *optmt = Layer_addAttr(ctx, child, mtToken);

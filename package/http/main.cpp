@@ -145,7 +145,7 @@ int HTTPWorker::Stream::on_url(const char *at, size_t length) {
     Layer_addTag(child, httpToken);
   }
   Attr *attr = Layer_addAttr(lastCtx, child, pathToken);
-  Attr_setString(attr, std::string(at, length).c_str());
+  Attr_setString(attr, at, length);
   return 0;
 }
 
@@ -155,7 +155,7 @@ int HTTPWorker::Stream::on_status(const char *at, size_t length) {
     Layer_addTag(child, httpToken);
   }
   Attr *attr = Layer_addAttr(lastCtx, child, statusToken);
-  Attr_setString(attr, std::string(at, length).c_str());
+  Attr_setString(attr, at, length);
   return 0;
 }
 

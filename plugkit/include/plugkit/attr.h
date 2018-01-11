@@ -74,7 +74,7 @@ PLUGKIT_EXPORT const char *Attr_string(const Attr *attr);
 /// Set the value of the attr to the given string.
 ///
 /// See [Variant_setString](diss-api-c.md#c-func-variant-setstring) for details.
-PLUGKIT_EXPORT void Attr_setString(Attr *attr, const char *str);
+PLUGKIT_EXPORT void Attr_setString(Attr *attr, const char *str, int length);
 
 /// Return the value associated with the attr as `Slice`.
 PLUGKIT_EXPORT Slice Attr_slice(const Attr *attr);
