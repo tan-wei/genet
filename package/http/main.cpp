@@ -19,6 +19,8 @@ namespace {
 
 const auto streamIdToken = Token_get(".streamId");
 const auto httpToken = Token_get("http");
+const auto pathToken = Token_get("http.path");
+const auto statusToken = Token_get("http.status");
 const auto headersToken = Token_get("http.headers");
 const auto streamToken = Token_get("@stream");
 
@@ -54,6 +56,8 @@ private:
     http_parser reqParser;
     http_parser resParser;
     State state = State::HttpUnknown;
+    Context *lastCtx = nullptr;
+    Layer *parent = nullptr;
     Layer *child = nullptr;
   };
 
@@ -108,6 +112,11 @@ HTTPWorker::Stream::Stream() {
 }
 
 void HTTPWorker::Stream::analyze(Context *ctx, Layer *layer) {
+  lastCtx = ctx;
+  parent = layer;
+  if (state == State::HttpError)
+    return;
+
   size_t payloads = 0;
   auto begin = Layer_payloads(layer, &payloads);
   for (size_t i = 0; i < payloads; ++i) {
@@ -120,18 +129,33 @@ void HTTPWorker::Stream::analyze(Context *ctx, Layer *layer) {
     }
   }
 
-  if (state == State::HttpRequest || state == State::HttpResponse) {
+  if (!child && (state == State::HttpRequest || state == State::HttpResponse)) {
     child = Layer_addLayer(ctx, layer, httpToken);
     Layer_addTag(child, httpToken);
   }
+
+  child = nullptr;
 }
 
 int HTTPWorker::Stream::on_message_begin() { return 0; }
 
-int HTTPWorker::Stream::on_url(const char *at, size_t length) { return 0; }
+int HTTPWorker::Stream::on_url(const char *at, size_t length) {
+  if (!child) {
+    child = Layer_addLayer(lastCtx, parent, httpToken);
+    Layer_addTag(child, httpToken);
+  }
+  Attr *attr = Layer_addAttr(lastCtx, child, pathToken);
+  Attr_setString(attr, std::string(at, length).c_str());
+  return 0;
+}
 
 int HTTPWorker::Stream::on_status(const char *at, size_t length) {
-  printf("%s\n", std::string(at, length).c_str());
+  if (!child) {
+    child = Layer_addLayer(lastCtx, parent, httpToken);
+    Layer_addTag(child, httpToken);
+  }
+  Attr *attr = Layer_addAttr(lastCtx, child, statusToken);
+  Attr_setString(attr, std::string(at, length).c_str());
   return 0;
 }
 
