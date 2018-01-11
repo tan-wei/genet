@@ -41,7 +41,16 @@ public:
   void analyze(Context *ctx, Layer *layer);
   void parse(const char *data, size_t length);
 
+  int on_message_begin();
+  int on_url(const char *at, size_t length);
   int on_status(const char *at, size_t length);
+  int on_header_field(const char *at, size_t length);
+  int on_header_value(const char *at, size_t length);
+  int on_headers_complete();
+  int on_body(const char *at, size_t length);
+  int on_message_complete();
+  int on_chunk_header();
+  int on_chunk_complete();
 
 private:
   enum class State { HttpUnknown, HttpRequest, HttpResponse, HttpError };
@@ -55,19 +64,44 @@ private:
 };
 
 HTTPWorker::Stream::Stream() {
-  settings.on_message_begin = nullptr;
-  settings.on_url = nullptr;
+  settings.on_message_begin = [](http_parser *parser) {
+    return static_cast<HTTPWorker::Stream *>(parser->data)->on_message_begin();
+  };
+  ;
+  settings.on_url = [](http_parser *parser, const char *at, size_t length) {
+    return static_cast<HTTPWorker::Stream *>(parser->data)->on_url(at, length);
+  };
   settings.on_status = [](http_parser *parser, const char *at, size_t length) {
     return static_cast<HTTPWorker::Stream *>(parser->data)
         ->on_status(at, length);
   };
-  settings.on_header_field = nullptr;
-  settings.on_header_value = nullptr;
-  settings.on_headers_complete = nullptr;
-  settings.on_body = nullptr;
-  settings.on_message_complete = nullptr;
-  settings.on_chunk_header = nullptr;
-  settings.on_chunk_complete = nullptr;
+  settings.on_header_field = [](http_parser *parser, const char *at,
+                                size_t length) {
+    return static_cast<HTTPWorker::Stream *>(parser->data)
+        ->on_header_field(at, length);
+  };
+  settings.on_header_value = [](http_parser *parser, const char *at,
+                                size_t length) {
+    return static_cast<HTTPWorker::Stream *>(parser->data)
+        ->on_header_value(at, length);
+  };
+  settings.on_headers_complete = [](http_parser *parser) {
+    return static_cast<HTTPWorker::Stream *>(parser->data)
+        ->on_headers_complete();
+  };
+  settings.on_body = [](http_parser *parser, const char *at, size_t length) {
+    return static_cast<HTTPWorker::Stream *>(parser->data)->on_body(at, length);
+  };
+  settings.on_message_complete = [](http_parser *parser) {
+    return static_cast<HTTPWorker::Stream *>(parser->data)
+        ->on_message_complete();
+  };
+  settings.on_chunk_header = [](http_parser *parser) {
+    return static_cast<HTTPWorker::Stream *>(parser->data)->on_chunk_header();
+  };
+  settings.on_chunk_complete = [](http_parser *parser) {
+    return static_cast<HTTPWorker::Stream *>(parser->data)->on_chunk_complete();
+  };
 
   http_parser_init(&reqParser, HTTP_REQUEST);
   reqParser.data = this;
@@ -94,10 +128,32 @@ void HTTPWorker::Stream::analyze(Context *ctx, Layer *layer) {
   }
 }
 
+int HTTPWorker::Stream::on_message_begin() { return 0; }
+
+int HTTPWorker::Stream::on_url(const char *at, size_t length) { return 0; }
+
 int HTTPWorker::Stream::on_status(const char *at, size_t length) {
   printf("%s\n", std::string(at, length).c_str());
   return 0;
 }
+
+int HTTPWorker::Stream::on_header_field(const char *at, size_t length) {
+  return 0;
+}
+
+int HTTPWorker::Stream::on_header_value(const char *at, size_t length) {
+  return 0;
+}
+
+int HTTPWorker::Stream::on_headers_complete() { return 0; }
+
+int HTTPWorker::Stream::on_body(const char *at, size_t length) { return 0; }
+
+int HTTPWorker::Stream::on_message_complete() { return 0; }
+
+int HTTPWorker::Stream::on_chunk_header() { return 0; }
+
+int HTTPWorker::Stream::on_chunk_complete() { return 0; }
 
 void HTTPWorker::Stream::parse(const char *data, size_t length) {
   switch (state) {
