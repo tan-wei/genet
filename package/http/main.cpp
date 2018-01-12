@@ -21,6 +21,7 @@ const auto streamIdToken = Token_get(".streamId");
 const auto httpToken = Token_get("http");
 const auto pathToken = Token_get("http.path");
 const auto statusToken = Token_get("http.status");
+const auto methodToken = Token_get("http.method");
 const auto headersToken = Token_get("http.headers");
 const auto streamToken = Token_get("@stream");
 
@@ -36,6 +37,7 @@ private:
     Stream();
     void analyze(Context *ctx, Layer *layer);
     void parse(const char *data, size_t length);
+    void ensureLayer();
 
     int on_message_begin();
     int on_url(const char *at, size_t length);
@@ -129,33 +131,36 @@ void HTTPWorker::Stream::analyze(Context *ctx, Layer *layer) {
     }
   }
 
-  if (!child && (state == State::HttpRequest || state == State::HttpResponse)) {
-    child = Layer_addLayer(ctx, layer, httpToken);
-    Layer_addTag(child, httpToken);
+  if (state == State::HttpRequest) {
+    ensureLayer();
+    Attr *method = Layer_addAttr(lastCtx, child, methodToken);
+    Attr_setUint32(method, reqParser.method);
+  } else if (state == State::HttpResponse) {
+    ensureLayer();
+    Attr *status = Layer_addAttr(lastCtx, child, statusToken);
+    Attr_setUint32(status, resParser.status_code);
   }
 
   child = nullptr;
 }
 
-int HTTPWorker::Stream::on_message_begin() { return 0; }
-
-int HTTPWorker::Stream::on_url(const char *at, size_t length) {
+void HTTPWorker::Stream::ensureLayer() {
   if (!child) {
     child = Layer_addLayer(lastCtx, parent, httpToken);
     Layer_addTag(child, httpToken);
   }
+}
+
+int HTTPWorker::Stream::on_message_begin() { return 0; }
+
+int HTTPWorker::Stream::on_url(const char *at, size_t length) {
+  ensureLayer();
   Attr *attr = Layer_addAttr(lastCtx, child, pathToken);
   Attr_setString(attr, at, length);
   return 0;
 }
 
 int HTTPWorker::Stream::on_status(const char *at, size_t length) {
-  if (!child) {
-    child = Layer_addLayer(lastCtx, parent, httpToken);
-    Layer_addTag(child, httpToken);
-  }
-  Attr *attr = Layer_addAttr(lastCtx, child, statusToken);
-  Attr_setString(attr, at, length);
   return 0;
 }
 
