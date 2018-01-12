@@ -72,7 +72,8 @@ public:
   static void init(v8::Isolate *isolate);
 
 public:
-  uint8_t type_;
+  VariantType type_ : 4;
+  uint8_t tag_ : 4;
   union {
     bool bool_;
     double double_;
