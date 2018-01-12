@@ -25,6 +25,8 @@ const auto methodToken = Token_get("http.method");
 const auto headersToken = Token_get("http.headers");
 const auto streamToken = Token_get("@stream");
 
+const Token methodTable[] = {Token_get("http.method.get")};
+
 class HTTPWorker {
 public:
   HTTPWorker();
@@ -160,9 +162,7 @@ int HTTPWorker::Stream::on_url(const char *at, size_t length) {
   return 0;
 }
 
-int HTTPWorker::Stream::on_status(const char *at, size_t length) {
-  return 0;
-}
+int HTTPWorker::Stream::on_status(const char *at, size_t length) { return 0; }
 
 int HTTPWorker::Stream::on_header_field(const char *at, size_t length) {
   return 0;

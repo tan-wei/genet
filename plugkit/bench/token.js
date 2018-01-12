@@ -27,7 +27,9 @@ suite
   Token.join(ethToken, '9bbb35e6-cde1-419b-8d7b-ea04c87e7320')
 })
 .on('cycle', (event) => {
-  // eslint-disable-next-line no-console
   console.log(String(event.target))
+})
+.on('complete', () => {
+  process.exit(0)
 })
 .run({ 'async': true })
