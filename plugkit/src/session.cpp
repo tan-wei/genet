@@ -233,7 +233,7 @@ Session::Session(const Config &config) : d(new Private(config)) {
   auto dissectors = d->config.dissectors;
   for (auto &pair : d->config.scriptDissectors) {
     const Dissector dissector = ScriptDissector::create(&pair.first[0]);
-    dissectors.push_back(std::make_pair(dissector, pair.second));
+    dissectors.emplace_back(dissector, pair.second);
   }
 
   for (const auto &pair : dissectors) {
@@ -425,12 +425,12 @@ void SessionFactory::registerLinkLayer(int link, Token token) {
 
 void SessionFactory::registerDissector(const Dissector &diss,
                                        DissectorType type) {
-  d->dissectors.push_back(std::make_pair(diss, type));
+  d->dissectors.emplace_back(diss, type);
 }
 
 void SessionFactory::registerDissector(const std::string &script,
                                        DissectorType type) {
-  d->scriptDissectors.push_back(std::make_pair(script, type));
+  d->scriptDissectors.emplace_back(script, type);
 }
 
 void SessionFactory::registerImporter(const FileImporter &importer) {

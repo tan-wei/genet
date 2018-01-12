@@ -63,7 +63,7 @@ T *BlockAllocator<T>::alloc(Args... args) {
       front[i].next = front + i + 1;
     }
     front[length - 1].next = nullptr;
-    mList.push_front(std::make_pair(front, front + length));
+    mList.emplace_front(front, front + length);
   }
   return new (chunk) T(args...);
 }

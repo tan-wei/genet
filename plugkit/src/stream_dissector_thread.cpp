@@ -110,7 +110,7 @@ void StreamDissectorThread::Private::analyze(
       if (diss->createWorker) {
         worker = diss->createWorker(&ctx, diss);
       }
-      streamWorkers.list.push_back(std::make_pair(diss, worker));
+      streamWorkers.list.emplace_back(diss, worker);
     }
   }
 
