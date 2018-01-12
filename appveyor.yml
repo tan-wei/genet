@@ -13,10 +13,10 @@ test_script:
 - ps: eslint .
 - ps: npm test
 after_test:
-- ps: npm install -g npm
-- ps: npm install -g modclean
+- ps: npm install -g npm modclean
 - ps: npm prune --production
 - ps: node scripts/generate-license-json.js
+- ps: npm install
 - ps: modclean --run
 - ps: node scripts/pack.js; true
 - ps: node scripts/winstaller.js

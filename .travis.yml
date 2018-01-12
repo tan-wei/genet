@@ -27,10 +27,10 @@ script:
 - eslint .
 - npm test
 before_deploy:
-- npm install -g npm
-- npm install -g modclean
+- npm install -g npm modclean
 - npm prune --production
 - node scripts/generate-license-json.js
+- npm install
 - modclean --run
 - scripts/pack.js
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then scripts/deb.sh ; fi
