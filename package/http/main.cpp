@@ -18,6 +18,8 @@ using namespace plugkit;
 namespace {
 
 const auto streamIdToken = Token_get(".streamId");
+const auto enumToken = Token_get("@enum");
+const auto novalueToken = Token_get("@novalue");
 const auto httpToken = Token_get("http");
 const auto pathToken = Token_get("http.path");
 const auto statusToken = Token_get("http.status");
@@ -25,7 +27,25 @@ const auto methodToken = Token_get("http.method");
 const auto headersToken = Token_get("http.headers");
 const auto streamToken = Token_get("@stream");
 
-const Token methodTable[] = {Token_get("http.method.get")};
+const Token methodTable[] = {
+    Token_get("http.method.delete"),     Token_get("http.method.get"),
+    Token_get("http.method.head"),       Token_get("http.method.post"),
+    Token_get("http.method.put"),        Token_get("http.method.connect"),
+    Token_get("http.method.options"),    Token_get("http.method.trace"),
+    Token_get("http.method.copy"),       Token_get("http.method.lock"),
+    Token_get("http.method.mocol"),      Token_get("http.method.move"),
+    Token_get("http.method.propfind"),   Token_get("http.method.proppatch"),
+    Token_get("http.method.search"),     Token_get("http.method.unlock"),
+    Token_get("http.method.bind"),       Token_get("http.method.rebind"),
+    Token_get("http.method.unbind"),     Token_get("http.method.acl"),
+    Token_get("http.method.report"),     Token_get("http.method.mkactivity"),
+    Token_get("http.method.checkout"),   Token_get("http.method.merge"),
+    Token_get("http.method.msearch"),    Token_get("http.method.notify"),
+    Token_get("http.method.subscribe"),  Token_get("http.method.unsubscribe"),
+    Token_get("http.method.patch"),      Token_get("http.method.purge"),
+    Token_get("http.method.mkcalender"), Token_get("http.method.link"),
+    Token_get("http.method.unlink"),
+};
 
 class HTTPWorker {
 public:
@@ -136,7 +156,12 @@ void HTTPWorker::Stream::analyze(Context *ctx, Layer *layer) {
   if (state == State::HttpRequest) {
     ensureLayer();
     Attr *method = Layer_addAttr(lastCtx, child, methodToken);
+    Attr_setType(method, enumToken);
     Attr_setUint32(method, reqParser.method);
+    Attr *methodEnum =
+        Layer_addAttr(lastCtx, child, methodTable[reqParser.method]);
+    Attr_setType(methodEnum, novalueToken);
+    Attr_setBool(methodEnum, true);
   } else if (state == State::HttpResponse) {
     ensureLayer();
     Attr *status = Layer_addAttr(lastCtx, child, statusToken);
