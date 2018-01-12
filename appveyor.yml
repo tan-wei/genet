@@ -16,7 +16,7 @@ after_test:
 - ps: npm install -g npm modclean
 - ps: npm prune --production
 - ps: node scripts/generate-license-json.js
-- ps: npm install
+- ps: npm install; true
 - ps: modclean --run
 - ps: node scripts/pack.js; true
 - ps: node scripts/winstaller.js
