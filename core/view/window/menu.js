@@ -22,7 +22,7 @@ export default class Menu {
                   : 'inline-block',
               },
               onclick: () => {
-                parent.tabs = parent.tabs.filter((item) => tab.id !== item.id)
+                parent.removeTab(tab.id)
                 m.redraw()
               },
             })

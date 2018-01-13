@@ -10,44 +10,71 @@ import touch from 'touch'
 
 const { dialog } = remote
 const windowId = remote.getCurrentWindow().id
+const fields = Symbol('fields')
 export default class WindowView {
   constructor () {
-    this.tabs = [
-    {
-      id: 'preference',
-      name: 'Preferences',
-      src: 'preference.htm',
-      argv: deplug.argv,
-      loading: true,
-      system: true,
-      icon: 'fa-cog',
-    },
-    {
-      id: 'package',
-      name: 'Packages',
-      src: 'package.htm',
-      argv: deplug.argv,
-      loading: true,
-      system: true,
-      icon: 'fa-gift',
-    }]
-    this.activeTab = 'preference'
-    this.counter = 1
+    this[fields] = {
+      tabs: [],
+      systemTabs: [
+        {
+          id: 'preference',
+          name: 'Preferences',
+          src: 'preference.htm',
+          argv: deplug.argv,
+          loading: true,
+          system: true,
+          icon: 'fa-cog',
+        },
+        {
+          id: 'package',
+          name: 'Packages',
+          src: 'package.htm',
+          argv: deplug.argv,
+          loading: true,
+          system: true,
+          icon: 'fa-gift',
+        }
+      ],
+      activeTab: 'preference',
+      counter: 1,
+    }
+  }
+
+  get tabs () {
+    const { tabs, systemTabs } = this[fields]
+    return tabs.concat(systemTabs)
+  }
+
+  get activeTab () {
+    return this[fields].activeTab
+  }
+
+  set activeTab (id) {
+    this[fields].activeTab = id
   }
 
   createPcapTab () {
-    const number = this.counter
-    this.counter += 1
+    const { counter } = this[fields]
+    const number = counter
+    this[fields].counter += 1
     const id = `pcap-${number}`
-    this.tabs.unshift({
+    this.addTab({
       id,
       name: `Pcap ${number}`,
       src: 'pcap.htm',
       argv: deplug.argv,
       loading: true,
     })
-    this.activeTab = id
+  }
+
+  addTab (tab) {
+    this[fields].tabs.push(tab)
+    this[fields].activeTab = tab.id
     m.redraw()
+  }
+
+  removeTab (id) {
+    this[fields].tabs = this[fields].tabs.filter((tab) => tab.id !== id)
   }
 
   oncreate () {
@@ -88,15 +115,13 @@ export default class WindowView {
       if (typeof files !== 'undefined' && files.length > 0) {
         const [file] = files
         const id = `import-${file}`
-        this.tabs.unshift({
+        this.addTab({
           id,
           name: path.basename(file),
           src: 'pcap.htm',
           argv: deplug.argv.concat([`--import=${file}`]),
           loading: true,
         })
-        this.activeTab = id
-        m.redraw()
       }
     })
     this.createPcapTab()
