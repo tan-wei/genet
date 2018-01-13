@@ -17,6 +17,12 @@
         "files": [
           "udp.less"
         ]
+      },
+      {
+        "type": "core:token",
+        "files": [
+          "tokens.json"
+        ]
       }
     ]
   }

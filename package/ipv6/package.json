@@ -22,6 +22,12 @@
         "files": [
           "ipv6.less"
         ]
+      },
+      {
+        "type": "core:token",
+        "files": [
+          "tokens.json"
+        ]
       }
     ]
   }

@@ -27,6 +27,12 @@
         "files": [
           "ipv4.less"
         ]
+      },
+      {
+        "type": "core:token",
+        "files": [
+          "tokens.json"
+        ]
       }
     ]
   }

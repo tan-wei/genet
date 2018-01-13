@@ -17,6 +17,12 @@
         "files": [
           "http.less"
         ]
+      },
+      {
+        "type": "core:token",
+        "files": [
+          "tokens.json"
+        ]
       }
     ]
   }

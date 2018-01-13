@@ -11,6 +11,12 @@
       {
         "type": "core:dissector:packet",
         "main": "ntp.js"
+      },
+      {
+        "type": "core:token",
+        "files": [
+          "tokens.json"
+        ]
       }
     ]
   }
