@@ -47,6 +47,68 @@ const Token methodTable[] = {
     Token_get("http.method.unlink"),
 };
 
+static const std::unordered_map<int, Token> statusTable = {
+    {100, Token_get("http.status.continue")},
+    {101, Token_get("http.status.switchingProtocols")},
+    {102, Token_get("http.status.processing")},
+    {200, Token_get("http.status.ok")},
+    {201, Token_get("http.status.created")},
+    {202, Token_get("http.status.accepted")},
+    {203, Token_get("http.status.nonAuthoritativeInformation")},
+    {204, Token_get("http.status.noContent")},
+    {205, Token_get("http.status.resetContent")},
+    {206, Token_get("http.status.partialContent")},
+    {207, Token_get("http.status.multiStatus")},
+    {208, Token_get("http.status.alreadyReported")},
+    {226, Token_get("http.status.imUsed")},
+    {300, Token_get("http.status.multipleChoices")},
+    {301, Token_get("http.status.movedPermanently")},
+    {302, Token_get("http.status.found")},
+    {303, Token_get("http.status.seeOther")},
+    {304, Token_get("http.status.notModified")},
+    {305, Token_get("http.status.useProxy")},
+    {307, Token_get("http.status.temporaryRedirect")},
+    {308, Token_get("http.status.permanentRedirect")},
+    {400, Token_get("http.status.badRequest")},
+    {401, Token_get("http.status.unauthorized")},
+    {402, Token_get("http.status.paymentRequired")},
+    {403, Token_get("http.status.forbidden")},
+    {404, Token_get("http.status.notFound")},
+    {405, Token_get("http.status.methodNotAllowed")},
+    {406, Token_get("http.status.notAcceptable")},
+    {407, Token_get("http.status.proxyAuthenticationRequired")},
+    {408, Token_get("http.status.requestTimeout")},
+    {409, Token_get("http.status.conflict")},
+    {410, Token_get("http.status.gone")},
+    {411, Token_get("http.status.lengthRequired")},
+    {412, Token_get("http.status.preconditionFailed")},
+    {413, Token_get("http.status.payloadTooLarge")},
+    {414, Token_get("http.status.uriTooLong")},
+    {415, Token_get("http.status.unsupportedMediaType")},
+    {416, Token_get("http.status.rangeNotSatisfiable")},
+    {417, Token_get("http.status.expectationFailed")},
+    {421, Token_get("http.status.misdirectedRequest")},
+    {422, Token_get("http.status.unprocessableEntity")},
+    {423, Token_get("http.status.locked")},
+    {424, Token_get("http.status.failedDependency")},
+    {426, Token_get("http.status.upgradeRequired")},
+    {428, Token_get("http.status.preconditionRequired")},
+    {429, Token_get("http.status.tooManyRequests")},
+    {431, Token_get("http.status.requestHeaderFieldsTooLarge")},
+    {451, Token_get("http.status.unavailableForLegalReasons")},
+    {500, Token_get("http.status.internalServerError")},
+    {501, Token_get("http.status.notImplemented")},
+    {502, Token_get("http.status.badGateway")},
+    {503, Token_get("http.status.serviceUnavailable")},
+    {504, Token_get("http.status.gatewayTimeout")},
+    {505, Token_get("http.status.httpVersionNotSupported")},
+    {506, Token_get("http.status.variantAlsoNegotiates")},
+    {507, Token_get("http.status.insufficientStorage")},
+    {508, Token_get("http.status.loopDetected")},
+    {510, Token_get("http.status.notExtended")},
+    {511, Token_get("http.status.networkAuthenticationRequired")},
+};
+
 class HTTPWorker {
 public:
   HTTPWorker();
@@ -158,14 +220,23 @@ void HTTPWorker::Stream::analyze(Context *ctx, Layer *layer) {
     Attr *method = Layer_addAttr(lastCtx, child, methodToken);
     Attr_setType(method, enumToken);
     Attr_setUint32(method, reqParser.method);
-    Attr *methodEnum =
+    Attr *methodValue =
         Layer_addAttr(lastCtx, child, methodTable[reqParser.method]);
-    Attr_setType(methodEnum, novalueToken);
-    Attr_setBool(methodEnum, true);
+    Attr_setType(methodValue, novalueToken);
+    Attr_setBool(methodValue, true);
   } else if (state == State::HttpResponse) {
     ensureLayer();
     Attr *status = Layer_addAttr(lastCtx, child, statusToken);
+    Attr_setType(status, enumToken);
     Attr_setUint32(status, resParser.status_code);
+
+    auto statusValueToken = statusTable.find(resParser.status_code);
+    if (statusValueToken != statusTable.end()) {
+      Attr *statusValue =
+          Layer_addAttr(lastCtx, child, statusValueToken->second);
+      Attr_setType(statusValue, novalueToken);
+      Attr_setBool(statusValue, true);
+    }
   }
 
   child = nullptr;
