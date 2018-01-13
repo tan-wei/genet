@@ -21,6 +21,7 @@ const auto streamIdToken = Token_get(".streamId");
 const auto enumToken = Token_get("@enum");
 const auto novalueToken = Token_get("@novalue");
 const auto httpToken = Token_get("http");
+const auto versionToken = Token_get("http.version");
 const auto pathToken = Token_get("http.path");
 const auto statusToken = Token_get("http.status");
 const auto methodToken = Token_get("http.method");
@@ -217,6 +218,8 @@ void HTTPWorker::Stream::analyze(Context *ctx, Layer *layer) {
 
   if (state == State::HttpRequest) {
     ensureLayer();
+    Attr *version = Layer_addAttr(lastCtx, child, versionToken);
+    Attr_setDouble(version, reqParser.http_major + reqParser.http_minor / 10.0);
     Attr *method = Layer_addAttr(lastCtx, child, methodToken);
     Attr_setType(method, enumToken);
     Attr_setUint32(method, reqParser.method);
@@ -226,6 +229,8 @@ void HTTPWorker::Stream::analyze(Context *ctx, Layer *layer) {
     Attr_setBool(methodValue, true);
   } else if (state == State::HttpResponse) {
     ensureLayer();
+    Attr *version = Layer_addAttr(lastCtx, child, versionToken);
+    Attr_setDouble(version, resParser.http_major + resParser.http_minor / 10.0);
     Attr *status = Layer_addAttr(lastCtx, child, statusToken);
     Attr_setType(status, enumToken);
     Attr_setUint32(status, resParser.status_code);
