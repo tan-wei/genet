@@ -33,7 +33,7 @@ void Attr::setError(Token error) { mError = error; }
 
 Token Attr_id(const Attr *attr) {
   if (!attr)
-    return Token_null();
+    return Token_get(nullptr);
   return attr->id();
 }
 
@@ -47,7 +47,7 @@ void Attr_setRange(Attr *attr, Range range) { attr->setRange(range); }
 
 Token Attr_type(const Attr *attr) {
   if (!attr)
-    return Token_null();
+    return Token_get(nullptr);
   return attr->type();
 }
 

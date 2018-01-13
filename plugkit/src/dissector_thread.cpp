@@ -79,7 +79,7 @@ void DissectorThread::enter() {
 
     std::vector<Token> tags;
     for (Token tag : data.dissector->layerHints) {
-      if (tag != Token_null()) {
+      if (tag != Token_get(nullptr)) {
         tags.push_back(tag);
       }
     }

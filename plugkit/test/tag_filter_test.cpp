@@ -22,6 +22,6 @@ TEST_CASE("TagFilter_match", "[TagFilter]") {
   CHECK(filter.match({Token_get("udp")}) == false);
   CHECK(filter.match({Token_get("ipv4")}) == false);
   CHECK(filter.match({Token_get("ipv6")}) == false);
-  CHECK(filter.match({Token_null()}) == false);
+  CHECK(filter.match({Token_get(nullptr)}) == false);
 }
 } // namespace

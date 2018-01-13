@@ -11,9 +11,6 @@ PLUGKIT_NAMESPACE_BEGIN
 
 typedef uint32_t Token;
 
-/// Return the null token.
-inline Token Token_null() { return (Token)0; }
-
 PLUGKIT_EXPORT Token Token_literal_(const char *str, size_t length);
 PLUGKIT_EXPORT Token Token_join(Token prefix, Token token);
 
@@ -24,7 +21,7 @@ PLUGKIT_EXPORT Token Token_join(Token prefix, Token token);
 /// Return a token corresponded with the given string.
 inline Token Token_get(const char *str) {
   if (str == NULL || str[0] == '\0') {
-    return Token_null();
+    return (Token)0;
   }
   return Token_literal_(str, strlen(str));
 }

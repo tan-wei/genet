@@ -92,7 +92,7 @@ void StreamDissectorThread::Private::analyze(
     for (const auto &diss : dissectors) {
       bool match = false;
       for (const Token &token : diss.layerHints) {
-        if (token != Token_null()) {
+        if (token != Token_get(nullptr)) {
           auto it = tags.find(token);
           if (it == tags.end()) {
             match = false;

@@ -46,7 +46,7 @@ Dissector ScriptDissector::create(char *script) {
           sizeof(diss->layerHints) / sizeof(diss->layerHints[0]);
       for (uint32_t i = 0; i < size && i < layerHints->Length(); ++i) {
         auto item = layerHints->Get(i);
-        Token token = Token_null();
+        Token token = Token_get(nullptr);
         if (item->IsUint32()) {
           token = item->Uint32Value();
         } else if (item->IsString()) {

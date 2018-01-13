@@ -28,7 +28,7 @@ NAN_METHOD(Token_get_wrap) {
 
 NAN_METHOD(Token_join_wrap) {
 
-  Token prefix = Token_null();
+  Token prefix = Token_get(nullptr);
   auto prefixId = info[0];
   if (prefixId->IsUint32()) {
     prefix = prefixId->Uint32Value();
@@ -39,7 +39,7 @@ NAN_METHOD(Token_join_wrap) {
     return;
   }
 
-  Token token = Token_null();
+  Token token = Token_get(nullptr);
   auto tokenId = info[1];
   if (tokenId->IsUint32()) {
     token = tokenId->Uint32Value();
