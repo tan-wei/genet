@@ -87,6 +87,17 @@ if (process.platform === 'darwin') {
       },
       { type: 'separator' },
       {
+        label: 'Preferences...',
+        action: 'core:tab:show-preferences',
+        accelerator: 'CommandOrControl+,',
+      },
+      {
+        label: 'Packages...',
+        action: 'core:tab:show-packages',
+        accelerator: 'CommandOrControl+Shift+,',
+      },
+      { type: 'separator' },
+      {
         role: 'services',
         submenu: [],
       },
@@ -119,5 +130,19 @@ if (process.platform === 'darwin') {
     { type: 'separator' },
     { role: 'front' }
   ]
+} else {
+  template[0].submenu.unshift(
+    {
+      label: 'Preferences...',
+      action: 'core:tab:show-preferences',
+      accelerator: 'CommandOrControl+,',
+    },
+    {
+      label: 'Packages...',
+      action: 'core:tab:show-packages',
+      accelerator: 'CommandOrControl+Shift+,',
+    },
+    { type: 'separator' }
+  )
 }
 export default template

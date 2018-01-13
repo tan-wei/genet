@@ -17,7 +17,7 @@ export default class WindowView {
       tabs: [],
       systemTabs: [
         {
-          id: 'preference',
+          id: 'preferences',
           name: 'Preferences',
           src: 'preference.htm',
           argv: deplug.argv,
@@ -26,7 +26,7 @@ export default class WindowView {
           icon: 'fa-cog',
         },
         {
-          id: 'package',
+          id: 'packages',
           name: 'Packages',
           src: 'package.htm',
           argv: deplug.argv,
@@ -97,6 +97,14 @@ export default class WindowView {
     })
     deplug.action.global.on('core:tab:new-pcap', () => {
       this.createPcapTab()
+    })
+    deplug.action.global.on('core:tab:show-preferences', () => {
+      this.activeTab = 'preferences'
+      m.redraw()
+    })
+    deplug.action.global.on('core:tab:show-packages', () => {
+      this.activeTab = 'packages'
+      m.redraw()
     })
     deplug.action.global.on('core:window:new', () => {
       ipcRenderer.send('core:window:create')
