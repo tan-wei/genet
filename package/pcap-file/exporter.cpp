@@ -59,7 +59,7 @@ exportFile(Context *ctx, const char *filename, FileExporterCallback callback) {
   return FILE_STATUS_DONE;
 }
 
-PLUGKIT_MODULE("exporter", []() {
+PLUGKIT_MODULE([]() {
   static FileExporter exporter;
   exporter.func = exportFile;
   return &exporter;

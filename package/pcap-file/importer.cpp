@@ -113,7 +113,7 @@ import(Context *ctx, const char *filename, FileImporterCallback callback) {
   return FILE_STATUS_DONE;
 }
 
-PLUGKIT_MODULE("importer", []() {
+PLUGKIT_MODULE([]() {
   static FileImporter importer;
   importer.func = import;
   return &importer;

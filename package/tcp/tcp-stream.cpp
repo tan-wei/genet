@@ -1,14 +1,15 @@
 #include <algorithm>
 #include <list>
-#include <nan.h>
 #include <plugkit/attr.h>
 #include <plugkit/context.h>
 #include <plugkit/dissector.h>
 #include <plugkit/layer.h>
+#include <plugkit/module.h>
 #include <plugkit/payload.h>
 #include <plugkit/reader.h>
 #include <plugkit/token.h>
 #include <plugkit/variant.h>
+#include <string>
 #include <unordered_map>
 
 using namespace plugkit;
@@ -157,7 +158,7 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
 }
 } // namespace
 
-void Init(v8::Local<v8::Object> exports) {
+PLUGKIT_MODULE([]() {
   static Dissector diss;
   diss.layerHints[0] = Token_get("tcp");
   diss.analyze = analyze;
@@ -168,8 +169,5 @@ void Init(v8::Local<v8::Object> exports) {
     TCPWorker *worker = static_cast<TCPWorker *>(data.data);
     delete worker;
   };
-  exports->Set(Nan::New("dissector").ToLocalChecked(),
-               Nan::New<v8::External>(&diss));
-}
-
-NODE_MODULE(dissectorEssentials, Init);
+  return &diss;
+})

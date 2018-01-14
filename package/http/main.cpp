@@ -327,7 +327,7 @@ void HTTPWorker::analyze(Context *ctx, Layer *layer) {
 
 } // namespace
 
-PLUGKIT_MODULE("dissector", []() {
+PLUGKIT_MODULE([]() {
   static Dissector diss;
   diss.layerHints[0] = Token_get("tcp-stream");
   diss.analyze = [](Context *ctx, const Dissector *diss, Worker data,

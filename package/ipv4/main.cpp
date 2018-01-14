@@ -151,7 +151,7 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
 }
 } // namespace
 
-PLUGKIT_MODULE("dissector", []() {
+PLUGKIT_MODULE([]() {
   static Dissector diss;
   diss.layerHints[0] = (Token_get("[ipv4]"));
   diss.analyze = analyze;
