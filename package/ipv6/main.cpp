@@ -1,8 +1,8 @@
-#include <nan.h>
 #include <plugkit/attr.h>
 #include <plugkit/context.h>
 #include <plugkit/dissector.h>
 #include <plugkit/layer.h>
+#include <plugkit/module.h>
 #include <plugkit/payload.h>
 #include <plugkit/reader.h>
 #include <plugkit/token.h>
@@ -145,12 +145,9 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
 }
 } // namespace
 
-void Init(v8::Local<v8::Object> exports) {
+PLUGKIT_MODULE("dissector", []() {
   static Dissector diss;
   diss.layerHints[0] = (Token_get("[ipv6]"));
   diss.analyze = analyze;
-  exports->Set(Nan::New("dissector").ToLocalChecked(),
-               Nan::New<v8::External>(&diss));
-}
-
-NODE_MODULE(dissectorEssentials, Init);
+  return &diss;
+})

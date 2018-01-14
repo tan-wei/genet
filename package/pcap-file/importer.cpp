@@ -1,7 +1,7 @@
 #include <fstream>
-#include <nan.h>
 #include <plugkit/context.h>
 #include <plugkit/file.h>
+#include <plugkit/module.h>
 #include <plugkit/reader.h>
 #include <vector>
 
@@ -113,11 +113,8 @@ import(Context *ctx, const char *filename, FileImporterCallback callback) {
   return FILE_STATUS_DONE;
 }
 
-void Init(v8::Local<v8::Object> exports) {
+PLUGKIT_MODULE("importer", []() {
   static FileImporter importer;
   importer.func = import;
-  exports->Set(Nan::New("importer").ToLocalChecked(),
-               Nan::New<v8::External>(&importer));
-}
-
-NODE_MODULE(pcapImporter, Init);
+  return &importer;
+})

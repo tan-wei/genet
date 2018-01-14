@@ -1,7 +1,7 @@
 #include <fstream>
-#include <nan.h>
 #include <plugkit/context.h>
 #include <plugkit/file.h>
+#include <plugkit/module.h>
 #include <plugkit/variant.h>
 
 using namespace plugkit;
@@ -59,11 +59,8 @@ exportFile(Context *ctx, const char *filename, FileExporterCallback callback) {
   return FILE_STATUS_DONE;
 }
 
-void Init(v8::Local<v8::Object> exports) {
+PLUGKIT_MODULE("exporter", []() {
   static FileExporter exporter;
   exporter.func = exportFile;
-  exports->Set(Nan::New("exporter").ToLocalChecked(),
-               Nan::New<v8::External>(&exporter));
-}
-
-NODE_MODULE(pcapExporter, Init);
+  return &exporter;
+})
