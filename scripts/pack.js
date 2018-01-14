@@ -9,7 +9,7 @@ const options = {
   download: { mirror: 'https://cdn.deplug.net/electron/v' },
   asar: { unpackDir: '{node_modules/@deplug/osx-helper,node_modules/nan,package,deplug-modules/bin}' },
   icon: 'images/deplug',
-  ignore: /^(core|plugkit|scripts|snippet|debian|docs|images)/,
+  ignore: /^(core|plugkit|scripts|snippet|debian|images)/,
   electronVersion: negatronVersion,
   win32metadata: {
     CompanyName: 'Deplug',
