@@ -41,7 +41,8 @@ class MacHelper {
         '[ Deplug > Uninstall Helper Tool... ]'
       ]),
       m('p', [
-        m('a', { href: 'https://deplug.net/#/helper-tool' }, ['Learn more...'])
+        m('a', { href: 'https://docs.deplug.net/helper-tool.html' },
+          ['Learn more...'])
       ])
     ])
   }
