@@ -234,7 +234,7 @@ NAN_METHOD(LayerWrapper::addLayer) {
     }
     if (auto ctx = ContextWrapper::unwrap(info[0])) {
       info.GetReturnValue().Set(
-          LayerWrapper::wrap(Layer_addLayer(ctx, layer, token)));
+          LayerWrapper::wrap(Layer_addLayer(layer, ctx, token)));
     } else {
       Nan::ThrowTypeError("First argument must be a context");
     }
@@ -256,7 +256,7 @@ NAN_METHOD(LayerWrapper::addSubLayer) {
     }
     if (auto ctx = ContextWrapper::unwrap(info[0])) {
       info.GetReturnValue().Set(
-          LayerWrapper::wrap(Layer_addSubLayer(ctx, layer, token)));
+          LayerWrapper::wrap(Layer_addSubLayer(layer, ctx, token)));
     } else {
       Nan::ThrowTypeError("First argument must be a context");
     }
@@ -268,7 +268,7 @@ NAN_METHOD(LayerWrapper::addPayload) {
   if (auto layer = wrapper->layer) {
     if (auto ctx = ContextWrapper::unwrap(info[0])) {
       info.GetReturnValue().Set(
-          PayloadWrapper::wrap(Layer_addPayload(ctx, layer)));
+          PayloadWrapper::wrap(Layer_addPayload(layer, ctx)));
     } else {
       Nan::ThrowTypeError("First argument must be a context");
     }
@@ -290,7 +290,7 @@ NAN_METHOD(LayerWrapper::addAttr) {
     }
     if (auto ctx = ContextWrapper::unwrap(info[0])) {
       info.GetReturnValue().Set(
-          AttributeWrapper::wrap(Layer_addAttr(ctx, layer, token)));
+          AttributeWrapper::wrap(Layer_addAttr(layer, ctx, token)));
     } else {
       Nan::ThrowTypeError("First argument must be a context");
     }

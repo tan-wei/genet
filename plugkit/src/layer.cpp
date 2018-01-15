@@ -130,7 +130,7 @@ const Layer *Layer_parent(const Layer *layer) { return layer->parent(); }
 
 const Frame *Layer_frame(const Layer *layer) { return layer->frame(); }
 
-Layer *Layer_addLayer(Context *context, Layer *layer, Token id) {
+Layer *Layer_addLayer(Layer *layer, Context *context, Token id) {
   Layer *child = Context_allocLayer(context, id);
   child->setParent(layer);
   child->setFrame(layer->frame());
@@ -138,7 +138,7 @@ Layer *Layer_addLayer(Context *context, Layer *layer, Token id) {
   return child;
 }
 
-Layer *Layer_addSubLayer(Context *context, Layer *layer, Token id) {
+Layer *Layer_addSubLayer(Layer *layer, Context *context, Token id) {
   Layer *child = Context_allocLayer(context, id);
   child->setParent(layer);
   child->setFrame(layer->frame());
@@ -146,7 +146,7 @@ Layer *Layer_addSubLayer(Context *context, Layer *layer, Token id) {
   return child;
 }
 
-Attr *Layer_addAttr(Context *context, Layer *layer, Token id) {
+Attr *Layer_addAttr(Layer *layer, Context *context, Token id) {
   Attr *attr = Context_allocAttr(context, id);
   layer->addAttr(attr);
   return attr;
@@ -154,7 +154,7 @@ Attr *Layer_addAttr(Context *context, Layer *layer, Token id) {
 
 const Attr *Layer_attr(const Layer *layer, Token id) { return layer->attr(id); }
 
-Payload *Layer_addPayload(Context *context, Layer *layer) {
+Payload *Layer_addPayload(Layer *layer, Context *context) {
   Payload *payload = Context_allocPayload(context);
   layer->addPayload(payload);
   return payload;

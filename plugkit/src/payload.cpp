@@ -68,7 +68,7 @@ void Payload_setRange(Payload *payload, Range range) {
   payload->setRange(range);
 }
 
-Attr *Payload_addAttr(Context *ctx, Payload *payload, Token id) {
+Attr *Payload_addAttr(Payload *payload, Context *ctx, Token id) {
   Attr *attr = Context_allocAttr(ctx, id);
   payload->addAttr(attr);
   return attr;

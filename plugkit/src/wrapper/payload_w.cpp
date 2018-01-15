@@ -134,7 +134,7 @@ NAN_METHOD(PayloadWrapper::addAttr) {
     }
     if (auto ctx = ContextWrapper::unwrap(info[0])) {
       info.GetReturnValue().Set(
-          AttributeWrapper::wrap(Payload_addAttr(ctx, payload, token)));
+          AttributeWrapper::wrap(Payload_addAttr(payload, ctx, token)));
     } else {
       Nan::ThrowTypeError("First argument must be a context");
     }

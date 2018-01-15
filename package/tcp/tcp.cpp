@@ -60,7 +60,7 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Range payloadRange = Payload_range(parentPayload);
   reader.data = Payload_slices(parentPayload, nullptr)[0];
 
-  Layer *child = Layer_addLayer(ctx, layer, tcpToken);
+  Layer *child = Layer_addLayer(layer, ctx, tcpToken);
   Layer_addTag(child, tcpToken);
   Layer_setRange(child, payloadRange);
 
@@ -71,12 +71,12 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
       Attr_slice(Layer_attr(layer, Token_join(layerId, dstToken)));
 
   uint16_t srcPort = Reader_getUint16(&reader, false);
-  Attr *src = Layer_addAttr(ctx, child, tcpSrcToken);
+  Attr *src = Layer_addAttr(child, ctx, tcpSrcToken);
   Attr_setUint32(src, srcPort);
   Attr_setRange(src, reader.lastRange);
 
   uint16_t dstPort = Reader_getUint16(&reader, false);
-  Attr *dst = Layer_addAttr(ctx, child, tcpDstToken);
+  Attr *dst = Layer_addAttr(child, ctx, tcpDstToken);
   Attr_setUint32(dst, dstPort);
   Attr_setRange(dst, reader.lastRange);
 
@@ -86,47 +86,47 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Layer_setWorker(child, worker % 256);
 
   uint32_t seqNumber = Reader_getUint32(&reader, false);
-  Attr *seq = Layer_addAttr(ctx, child, seqToken);
+  Attr *seq = Layer_addAttr(child, ctx, seqToken);
   Attr_setUint32(seq, seqNumber);
   Attr_setRange(seq, reader.lastRange);
 
   uint32_t ackNumber = Reader_getUint32(&reader, false);
-  Attr *ack = Layer_addAttr(ctx, child, ackToken);
+  Attr *ack = Layer_addAttr(child, ctx, ackToken);
   Attr_setUint32(ack, ackNumber);
   Attr_setRange(ack, reader.lastRange);
 
   uint8_t offsetAndFlag = Reader_getUint8(&reader);
   int dataOffset = offsetAndFlag >> 4;
-  Attr *offset = Layer_addAttr(ctx, child, dOffsetToken);
+  Attr *offset = Layer_addAttr(child, ctx, dOffsetToken);
   Attr_setUint32(offset, dataOffset);
   Attr_setRange(offset, reader.lastRange);
 
   uint8_t flag = Reader_getUint8(&reader) | ((offsetAndFlag & 0x1) << 8);
 
-  Attr *flags = Layer_addAttr(ctx, child, flagsToken);
+  Attr *flags = Layer_addAttr(child, ctx, flagsToken);
   Attr_setUint32(flags, flag);
   for (const auto &bit : flagTable) {
     bool on = bit.first & flag;
-    Attr *flagBit = Layer_addAttr(ctx, child, bit.second);
+    Attr *flagBit = Layer_addAttr(child, ctx, bit.second);
     Attr_setBool(flagBit, on);
     Attr_setRange(flagBit, reader.lastRange);
   }
   Attr_setType(flags, flagsTypeToken);
   Attr_setRange(flags, Range{12, 14});
 
-  Attr *window = Layer_addAttr(ctx, child, windowToken);
+  Attr *window = Layer_addAttr(child, ctx, windowToken);
   Attr_setUint32(window, Reader_getUint16(&reader, false));
   Attr_setRange(window, reader.lastRange);
 
-  Attr *checksum = Layer_addAttr(ctx, child, checksumToken);
+  Attr *checksum = Layer_addAttr(child, ctx, checksumToken);
   Attr_setUint32(checksum, Reader_getUint16(&reader, false));
   Attr_setRange(checksum, reader.lastRange);
 
-  Attr *urgent = Layer_addAttr(ctx, child, urgentToken);
+  Attr *urgent = Layer_addAttr(child, ctx, urgentToken);
   Attr_setUint32(urgent, Reader_getUint16(&reader, false));
   Attr_setRange(urgent, reader.lastRange);
 
-  Attr *options = Layer_addAttr(ctx, child, optionsToken);
+  Attr *options = Layer_addAttr(child, ctx, optionsToken);
   Attr_setType(options, nestedToken);
   Attr_setRange(options, reader.lastRange);
 
@@ -138,7 +138,7 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
       optionOffset = optionDataOffset;
       break;
     case 1: {
-      Attr *opt = Layer_addAttr(ctx, child, nopToken);
+      Attr *opt = Layer_addAttr(child, ctx, nopToken);
       Attr_setBool(opt, true);
       Attr_setType(opt, novalueToken);
       Attr_setRange(opt, Range{optionOffset, optionOffset + 1});
@@ -147,20 +147,20 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
     case 2: {
       uint16_t size =
           Slice_getUint16(reader.data, optionOffset + 2, false, nullptr);
-      Attr *opt = Layer_addAttr(ctx, child, mssToken);
+      Attr *opt = Layer_addAttr(child, ctx, mssToken);
       Attr_setUint32(opt, size);
       Attr_setRange(opt, Range{optionOffset, optionOffset + 4});
       optionOffset += 4;
     } break;
     case 3: {
       uint8_t scale = Slice_getUint8(reader.data, optionOffset + 2, nullptr);
-      Attr *opt = Layer_addAttr(ctx, child, scaleToken);
+      Attr *opt = Layer_addAttr(child, ctx, scaleToken);
       Attr_setUint32(opt, scale);
       Attr_setRange(opt, Range{optionOffset, optionOffset + 2});
       optionOffset += 3;
     } break;
     case 4: {
-      Attr *opt = Layer_addAttr(ctx, child, ackPermToken);
+      Attr *opt = Layer_addAttr(child, ctx, ackPermToken);
       Attr_setBool(opt, true);
       Attr_setType(opt, novalueToken);
       Attr_setRange(opt, Range{optionOffset, optionOffset + 2});
@@ -170,7 +170,7 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
     // TODO: https://tools.ietf.org/html/rfc2018
     case 5: {
       uint8_t length = Slice_getUint8(reader.data, optionOffset + 1, nullptr);
-      Attr *opt = Layer_addAttr(ctx, child, selAckToken);
+      Attr *opt = Layer_addAttr(child, ctx, selAckToken);
       Attr_setSlice(opt, Slice_slice(reader.data, optionOffset + 2,
                                      optionOffset + 2 + length));
       Attr_setRange(opt, Range{optionOffset, optionOffset + length});
@@ -181,16 +181,16 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
           Slice_getUint32(reader.data, optionOffset + 2, false, nullptr);
       uint32_t et = Slice_getUint32(
           reader.data, optionOffset + 2 + sizeof(uint32_t), false, nullptr);
-      Attr *opt = Layer_addAttr(ctx, child, tsToken);
+      Attr *opt = Layer_addAttr(child, ctx, tsToken);
       const auto &optStr = std::to_string(mt) + " - " + std::to_string(et);
       Attr_setString(opt, optStr.c_str(), optStr.size());
       Attr_setRange(opt, Range{optionOffset, optionOffset + 10});
 
-      Attr *optmt = Layer_addAttr(ctx, child, mtToken);
+      Attr *optmt = Layer_addAttr(child, ctx, mtToken);
       Attr_setUint32(optmt, mt);
       Attr_setRange(optmt, Range{optionOffset + 2, optionOffset + 6});
 
-      Attr *optet = Layer_addAttr(ctx, child, etToken);
+      Attr *optet = Layer_addAttr(child, ctx, etToken);
       Attr_setUint32(optet, et);
       Attr_setRange(optet, Range{optionOffset + 6, optionOffset + 10});
 
@@ -203,7 +203,7 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
     }
   }
 
-  Payload *chunk = Layer_addPayload(ctx, child);
+  Payload *chunk = Layer_addPayload(child, ctx);
   Payload_addSlice(chunk, Slice_sliceAll(reader.data, optionDataOffset));
   Payload_setRange(chunk, Range_offset(reader.lastRange, payloadRange.begin));
 }

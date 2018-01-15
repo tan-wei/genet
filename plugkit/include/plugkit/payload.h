@@ -24,7 +24,7 @@ PLUGKIT_EXPORT const Slice *Payload_slices(const Payload *payload,
                                            size_t *size);
 
 /// Allocates a new Attr and adds it as a payload attribute.
-PLUGKIT_EXPORT Attr *Payload_addAttr(Context *ctx, Payload *payload, Token id);
+PLUGKIT_EXPORT Attr *Payload_addAttr(Payload *payload, Context *ctx, Token id);
 
 /// Return the type of the payload
 PLUGKIT_EXPORT Token Payload_type(const Payload *payload);

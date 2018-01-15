@@ -51,13 +51,13 @@ PLUGKIT_EXPORT void Layer_setWorker(Layer *layer, uint8_t id);
 PLUGKIT_EXPORT const Layer *Layer_parent(const Layer *layer);
 
 /// Allocate a new `Layer` and adds it as a child layer.
-PLUGKIT_EXPORT Layer *Layer_addLayer(Context *ctx, Layer *layer, Token id);
+PLUGKIT_EXPORT Layer *Layer_addLayer(Layer *layer, Context *ctx, Token id);
 
 /// Allocate a new `Layer` and adds it as a sub layer.
-PLUGKIT_EXPORT Layer *Layer_addSubLayer(Context *ctx, Layer *layer, Token id);
+PLUGKIT_EXPORT Layer *Layer_addSubLayer(Layer *layer, Context *ctx, Token id);
 
 /// Allocate a new `Attr` and adds it as a layer attribute.
-PLUGKIT_EXPORT Attr *Layer_addAttr(Context *ctx, Layer *layer, Token id);
+PLUGKIT_EXPORT Attr *Layer_addAttr(Layer *layer, Context *ctx, Token id);
 
 /// Find the first layer attribute with the given id and returns it.
 ///
@@ -65,7 +65,7 @@ PLUGKIT_EXPORT Attr *Layer_addAttr(Context *ctx, Layer *layer, Token id);
 PLUGKIT_EXPORT const Attr *Layer_attr(const Layer *layer, Token id);
 
 /// Allocate a new Payload and adds it as a layer payload.
-PLUGKIT_EXPORT Payload *Layer_addPayload(Context *ctx, Layer *layer);
+PLUGKIT_EXPORT Payload *Layer_addPayload(Layer *layer, Context *ctx);
 
 /// Return the first address of payloads
 /// and assigns the number of the layer payloads to size.

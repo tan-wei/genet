@@ -34,34 +34,34 @@ void analyze(Context *ctx, const Dissector *diss, Worker worker, Layer *layer) {
   Range payloadRange = Payload_range(parentPayload);
   reader.data = Payload_slices(parentPayload, nullptr)[0];
 
-  Layer *child = Layer_addLayer(ctx, layer, ethToken);
+  Layer *child = Layer_addLayer(layer, ctx, ethToken);
   Layer_addTag(child, ethToken);
   Layer_setRange(child, payloadRange);
 
   const auto &srcSlice = Reader_slice(&reader, 0, 6);
-  Attr *src = Layer_addAttr(ctx, child, srcToken);
+  Attr *src = Layer_addAttr(child, ctx, srcToken);
   Attr_setSlice(src, srcSlice);
   Attr_setType(src, macToken);
   Attr_setRange(src, reader.lastRange);
 
   const auto &dstSlice = Reader_slice(&reader, 0, 6);
-  Attr *dst = Layer_addAttr(ctx, child, dstToken);
+  Attr *dst = Layer_addAttr(child, ctx, dstToken);
   Attr_setSlice(dst, dstSlice);
   Attr_setType(dst, macToken);
   Attr_setRange(dst, reader.lastRange);
 
   auto protocolType = Reader_getUint16(&reader, false);
   if (protocolType <= 1500) {
-    Attr *length = Layer_addAttr(ctx, child, lenToken);
+    Attr *length = Layer_addAttr(child, ctx, lenToken);
     Attr_setUint32(length, protocolType);
     Attr_setRange(length, reader.lastRange);
   } else {
-    Attr *etherType = Layer_addAttr(ctx, child, ethTypeToken);
+    Attr *etherType = Layer_addAttr(child, ctx, ethTypeToken);
     Attr_setUint32(etherType, protocolType);
     Attr_setRange(etherType, reader.lastRange);
     const auto &it = typeTable.find(protocolType);
     if (it != typeTable.end()) {
-      Attr *type = Layer_addAttr(ctx, child, it->second.second);
+      Attr *type = Layer_addAttr(child, ctx, it->second.second);
       Attr_setBool(type, true);
       Attr_setType(type, novalueToken);
       Attr_setRange(type, reader.lastRange);
@@ -69,7 +69,7 @@ void analyze(Context *ctx, const Dissector *diss, Worker worker, Layer *layer) {
     }
   }
 
-  Payload *chunk = Layer_addPayload(ctx, child);
+  Payload *chunk = Layer_addPayload(child, ctx);
   Payload_addSlice(chunk, Reader_sliceAll(&reader, 0));
   Payload_setRange(chunk, Range_offset(reader.lastRange, payloadRange.begin));
 }
