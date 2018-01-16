@@ -218,27 +218,27 @@ void HTTPWorker::Stream::analyze(Context *ctx, Layer *layer) {
 
   if (state == State::HttpRequest) {
     ensureLayer();
-    Attr *version = Layer_addAttr(lastCtx, child, versionToken);
+    Attr *version = Layer_addAttr(child, lastCtx, versionToken);
     Attr_setDouble(version, reqParser.http_major + reqParser.http_minor / 10.0);
-    Attr *method = Layer_addAttr(lastCtx, child, methodToken);
+    Attr *method = Layer_addAttr(child, lastCtx, methodToken);
     Attr_setType(method, enumToken);
     Attr_setUint32(method, reqParser.method);
     Attr *methodValue =
-        Layer_addAttr(lastCtx, child, methodTable[reqParser.method]);
+        Layer_addAttr(child, lastCtx, methodTable[reqParser.method]);
     Attr_setType(methodValue, novalueToken);
     Attr_setBool(methodValue, true);
   } else if (state == State::HttpResponse) {
     ensureLayer();
-    Attr *version = Layer_addAttr(lastCtx, child, versionToken);
+    Attr *version = Layer_addAttr(child, lastCtx, versionToken);
     Attr_setDouble(version, resParser.http_major + resParser.http_minor / 10.0);
-    Attr *status = Layer_addAttr(lastCtx, child, statusToken);
+    Attr *status = Layer_addAttr(child, lastCtx, statusToken);
     Attr_setType(status, enumToken);
     Attr_setUint32(status, resParser.status_code);
 
     auto statusValueToken = statusTable.find(resParser.status_code);
     if (statusValueToken != statusTable.end()) {
       Attr *statusValue =
-          Layer_addAttr(lastCtx, child, statusValueToken->second);
+          Layer_addAttr(child, lastCtx, statusValueToken->second);
       Attr_setType(statusValue, novalueToken);
       Attr_setBool(statusValue, true);
     }
@@ -249,7 +249,7 @@ void HTTPWorker::Stream::analyze(Context *ctx, Layer *layer) {
 
 void HTTPWorker::Stream::ensureLayer() {
   if (!child) {
-    child = Layer_addLayer(lastCtx, parent, httpToken);
+    child = Layer_addLayer(parent, lastCtx, httpToken);
     Layer_addTag(child, httpToken);
   }
 }
@@ -258,7 +258,7 @@ int HTTPWorker::Stream::on_message_begin() { return 0; }
 
 int HTTPWorker::Stream::on_url(const char *at, size_t length) {
   ensureLayer();
-  Attr *attr = Layer_addAttr(lastCtx, child, pathToken);
+  Attr *attr = Layer_addAttr(child, lastCtx, pathToken);
   Attr_setString(attr, at, length);
   return 0;
 }
