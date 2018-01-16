@@ -20,15 +20,15 @@ const promiseRmdir = promisify(rimraf)
 const promiseMkpath = promisify(mkpath)
 const fields = Symbol('fields')
 async function readFile (filePath) {
-    try {
-      const data = await promiseReadFile(filePath)
-      return {
-        data,
-        filePath,
-      }
-    } catch (err) {
-      return { err }
+  try {
+    const data = await promiseReadFile(filePath)
+    return {
+      data,
+      filePath,
     }
+  } catch (err) {
+    return { err }
+  }
 }
 
 
@@ -147,9 +147,9 @@ export default class PackageManager extends EventEmitter {
             }
             return result
           })
-          .catch((err) => {
-            logger.error(err)
-          }))
+            .catch((err) => {
+              logger.error(err)
+            }))
         }
       })
 
@@ -176,9 +176,9 @@ export default class PackageManager extends EventEmitter {
             }
             return result
           })
-          .catch((err) => {
-            logger.error(err)
-          }))
+            .catch((err) => {
+              logger.error(err)
+            }))
         }
       })
 

@@ -70,7 +70,7 @@ class StreamReader {
     let begin = 0
     for (; begin < slices.length &&
       (beginOffset += slices[begin].length) <= offset;) {
-        begin += 1
+      begin += 1
     }
     if (beginOffset <= offset) {
       return -1
@@ -112,7 +112,7 @@ class StreamReader {
     let begin = 0
     for (; begin < slices.length &&
       (beginOffset += slices[begin].length) <= offset;) {
-        begin += 1
+      begin += 1
     }
     if (beginOffset <= offset) {
       return new Uint8Array()
@@ -122,7 +122,7 @@ class StreamReader {
     let end = begin
     for (; end < slices.length &&
       (endOffset += slices[end].length) < offset + length;) {
-        end += 1
+      end += 1
     }
     const continuous = true
     const buflen = Math.min(length, endOffset - beginOffset)

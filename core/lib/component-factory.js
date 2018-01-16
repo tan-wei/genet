@@ -6,7 +6,7 @@ import StyleComponent from './component/style'
 import TokenComponent from './component/token'
 import TransformComponent from './component/transform'
 export default class ComponentFactory {
- static create (comp, dir) {
+  static create (comp, dir) {
     switch (comp.type) {
       case 'core:token':
         return new TokenComponent(comp, dir)

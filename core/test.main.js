@@ -20,9 +20,9 @@ const builtinPluginPattern =
   path.join(env.builtinPackagePath, '/**/package.json')
 const packages = glob.sync(builtinPluginPattern)
   .map((file) => ({
-      list: jsonfile.readFileSync(file).deplug.components,
-      dir: path.dirname(file),
-    }))
+    list: jsonfile.readFileSync(file).deplug.components,
+    dir: path.dirname(file),
+  }))
 
 const task = []
 for (const pkg of packages) {

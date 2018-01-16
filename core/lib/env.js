@@ -3,23 +3,23 @@ import os from 'os'
 import path from 'path'
 
 function readFile (filePath) {
-    try {
-        return jsonfile.readFileSync(filePath)
-    } catch (err) {
-        return {}
-    }
+  try {
+    return jsonfile.readFileSync(filePath)
+  } catch (err) {
+    return {}
+  }
 }
 
 function getRootPath () {
-    let root = __dirname
-    while (root !== '/') {
-        const pkg = path.join(root, 'package.json')
-        if (readFile(pkg).name === 'deplug') {
-            return root
-        }
-        root = path.dirname(root)
+  let root = __dirname
+  while (root !== '/') {
+    const pkg = path.join(root, 'package.json')
+    if (readFile(pkg).name === 'deplug') {
+      return root
     }
-    return root
+    root = path.dirname(root)
+  }
+  return root
 }
 
 const root = getRootPath()

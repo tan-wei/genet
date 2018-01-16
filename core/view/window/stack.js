@@ -11,9 +11,9 @@ export default class Stack {
       ])
     ].concat(
       m('main', parent.tabs.map((tab) => m(WebView, {
-      tab,
-      key: tab.id,
-      active: parent.activeTab === tab.id,
-    }))))
+        tab,
+        key: tab.id,
+        active: parent.activeTab === tab.id,
+      }))))
   }
 }

@@ -43,10 +43,10 @@ class StreamView {
     const indices = this.sess.getFilteredFrames('stream-filter', 0, count)
     const frames = indices.map((index) => this.sess.getFrames(index - 1, 1)[0])
     return m('div', { class: 'view' }, frames.map((frame) => m('ul', [
-        frame.primaryLayer.payloads.map(
-          (payload) => payload.slices.map(
-            (slice) => m('li', [`${slice.length} bytes`, payload.type])))
-      ])))
+      frame.primaryLayer.payloads.map(
+        (payload) => payload.slices.map(
+          (slice) => m('li', [`${slice.length} bytes`, payload.type])))
+    ])))
   }
 }
 

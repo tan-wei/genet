@@ -21,55 +21,55 @@ class BinaryItem {
         class: 'hex-list',
         style: {
           display: showHex
-          ? 'block'
-          : 'none',
+            ? 'block'
+            : 'none',
         },
       }, [
         (new Array(Math.ceil(payload.length / 16))).fill()
-        .map((idx, line) => {
-          const slice = payload.slice(line * 16, (line + 1) * 16)
-          return m('li', [
-            (new Array(slice.length)).fill()
-            .map((item, byte) => {
-              const index = (line * 16) + byte
-              return m('span',
-                {
-                  'data-selected':
+          .map((idx, line) => {
+            const slice = payload.slice(line * 16, (line + 1) * 16)
+            return m('li', [
+              (new Array(slice.length)).fill()
+                .map((item, byte) => {
+                  const index = (line * 16) + byte
+                  return m('span',
+                    {
+                      'data-selected':
                   this.range[0] <= index && index < this.range[1],
-                },
-                [(`0${payload[index].toString(16)}`).slice(-2)])
-            })
-          ])
-        })
+                    },
+                    [(`0${payload[index].toString(16)}`).slice(-2)])
+                })
+            ])
+          })
       ]),
       m('ul', {
         class: 'ascii-list',
         style: {
           display: showAscii
-          ? 'block'
-          : 'none',
+            ? 'block'
+            : 'none',
         },
       }, [
         (new Array(Math.ceil(payload.length / 16))).fill()
-        .map((str, line) => {
-          const slice = payload.slice(line * 16, (line + 1) * 16)
-          return m('li', [
-            (new Array(slice.length)).fill()
-            .map((item, byte) => {
-              const index = (line * 16) + byte
-              const char = payload[index]
-              const ascii = (char >= 0x21 && char <= 0x7e)
-                ? String.fromCharCode(char)
-                : '.'
-              return m('span',
-                {
-                  'data-selected':
-                    this.range[0] <= index && index < this.range[1],
-                },
-                [ascii])
-            })
-          ])
-        })
+          .map((str, line) => {
+            const slice = payload.slice(line * 16, (line + 1) * 16)
+            return m('li', [
+              (new Array(slice.length)).fill()
+                .map((item, byte) => {
+                  const index = (line * 16) + byte
+                  const char = payload[index]
+                  const ascii = (char >= 0x21 && char <= 0x7e)
+                    ? String.fromCharCode(char)
+                    : '.'
+                  return m('span',
+                    {
+                      'data-selected':
+                      this.range[0] <= index && index < this.range[1],
+                    },
+                    [ascii])
+                })
+            ])
+          })
       ])
     ])
   }

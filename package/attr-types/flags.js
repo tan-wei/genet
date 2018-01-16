@@ -4,12 +4,12 @@ class Flags {
     const { value } = vnode.attrs.attr
     const flags = vnode.attrs.layer.attrs
       .filter((attr) => attr.value && attr.id
-      .startsWith(`${vnode.attrs.attr.id}.`))
+        .startsWith(`${vnode.attrs.attr.id}.`))
       .map((attr) => {
         const { id } = attr
         return deplug.session.token(id).name
-    })
-    .join(', ')
+      })
+      .join(', ')
     return m('span', [flags, ' (', value, ')'])
   }
 }

@@ -15,8 +15,8 @@ class MacHelper {
       m('input', {
         type: 'button',
         value: Pcap.permission
-        ? '✔ Successfully Installed'
-        : 'Install',
+          ? '✔ Successfully Installed'
+          : 'Install',
         disabled: Pcap.permission,
         onclick: () => {
           require('@deplug/osx-helper').install()
@@ -88,13 +88,13 @@ export default class PermissionMassage {
   view () {
     switch (process.platform) {
       case 'darwin':
-      return m(MacHelper, {})
+        return m(MacHelper, {})
       case 'linux':
-      return m(LinuxHelper, {})
+        return m(LinuxHelper, {})
       case 'win32':
-      return m(WinHelper, {})
+        return m(WinHelper, {})
       default:
-      return m('p')
+        return m('p')
     }
   }
 }

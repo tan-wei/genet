@@ -19,9 +19,9 @@ class SideView {
 
   searchKeyPress (event) {
     switch (event.code) {
-    case 'Enter':
+      case 'Enter':
         deplug.action.emit('core:filter:set', event.target.value.trim())
-      break
+        break
       default:
     }
   }
@@ -87,11 +87,11 @@ class SideView {
         }, [counter])
       ]),
       this.sess
-      ? m(FrameListView, {
-        sess: this.sess,
-        scrollLock: this.scrollLock,
-      })
-      : m('nav')
+        ? m(FrameListView, {
+          sess: this.sess,
+          scrollLock: this.scrollLock,
+        })
+        : m('nav')
     ]
   }
 
@@ -101,7 +101,7 @@ class SideView {
       const browserWindow = remote.getCurrentWindow()
       deplug.packages.once('updated', () => {
         deplug.session.create().then((sess) => {
-        deplug.action.emit('core:session:created', sess)
+          deplug.action.emit('core:session:created', sess)
           this.sess = sess
           sess.on('frame', () => {
             m.redraw()
@@ -170,9 +170,9 @@ class SideView {
       } catch (err) {
         deplug.notify.show(
           err.message, {
-          type: 'error',
-          title: 'Filter Error',
-        })
+            type: 'error',
+            title: 'Filter Error',
+          })
       }
     })
   }

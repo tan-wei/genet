@@ -41,7 +41,7 @@ export default class PrefernceView {
         m('ul', this.tabs.map((item) => m('li', [
           m('a', {
             onclick: () => {
-             this.activeTab = item.name
+              this.activeTab = item.name
             },
             active: this.activeTab === item.name,
           }, [item.name])

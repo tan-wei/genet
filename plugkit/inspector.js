@@ -33,15 +33,15 @@ class InspectorServer {
       })
     })
 
-  httpServer.listen(0, '127.0.0.1', () => {
-    const { port } = httpServer.address()
-    this[fields].port = port
-  })
- }
+    httpServer.listen(0, '127.0.0.1', () => {
+      const { port } = httpServer.address()
+      this[fields].port = port
+    })
+  }
 
- get sessions () {
-   const { port, sess } = this[fields]
-   return sess.inspectors.map((id) => ({
+  get sessions () {
+    const { port, sess } = this[fields]
+    return sess.inspectors.map((id) => ({
       description: 'Deplug Worker',
       devtoolsFrontendUrl:
         'chrome-devtools://devtools/bundled/inspector.html' +

@@ -38,17 +38,17 @@ function processOperators (ast) {
       switch (node.type) {
         case 'BinaryExpression':
         case 'LogicalExpression':
-        return makeOp(node.operator, node.left, node.right)
+          return makeOp(node.operator, node.left, node.right)
         case 'UnaryExpression':
-        return makeOp(node.operator, node.argument)
+          return makeOp(node.operator, node.argument)
         case 'ConditionalExpression':
-        node.test = {
-          type: 'UnaryExpression',
-          operator: '!',
-          argument: makeOp('!', node.test),
-          prefix: true,
-        }
-        return node
+          node.test = {
+            type: 'UnaryExpression',
+            operator: '!',
+            argument: makeOp('!', node.test),
+            prefix: true,
+          }
+          return node
         default:
       }
     },

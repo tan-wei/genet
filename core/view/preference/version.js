@@ -21,9 +21,9 @@ class LicenseInfo {
     return [
       m('h4', ['License Information']),
       m('p', { class: 'license' }, this.license.map((item) => m('details', [
-          m('pre', [item.body]),
-          m('summary', [item.name])
-        ])))
+        m('pre', [item.body]),
+        m('summary', [item.name])
+      ])))
     ]
   }
 

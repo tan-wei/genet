@@ -43,7 +43,7 @@ describe('Token', () => {
         Token.get('eth'))
       assert.strictEqual(Token.join(Token.get('0f73db21-11f6-'),
         '4987-81f6-1a8bb5f26704'),
-        Token.get('0f73db21-11f6-4987-81f6-1a8bb5f26704'))
+      Token.get('0f73db21-11f6-4987-81f6-1a8bb5f26704'))
     })
   })
   describe('#string()', () => {

@@ -34,7 +34,7 @@ export class VSplitter {
       m('div', {
         class: 'right',
         style: { left: `${width}px` },
-       }, [
+      }, [
         m(right, vnode.attrs)
       ]),
       m('div', {
@@ -111,7 +111,7 @@ export class HSplitter {
       m('div', {
         class: 'top',
         style: { bottom: `${height}px` },
-       }, [
+      }, [
         m(top, vnode.attrs)
       ]),
       m('div', {

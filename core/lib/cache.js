@@ -12,18 +12,18 @@ const promiseUnlink = promisify(fs.unlink)
 const promiseWriteFile = promisify(writeFileAtomic)
 const fields = Symbol('fields')
 async function readExpiryFile (filePath) {
-    try {
-      return {
-        filePath,
-        expiry: Number.parseInt(
-          await promiseReadFile(`${filePath}.expiry`), 10),
-      }
-    } catch (err) {
-      return {
-        filePath,
-        expiry: 0,
-      }
+  try {
+    return {
+      filePath,
+      expiry: Number.parseInt(
+        await promiseReadFile(`${filePath}.expiry`), 10),
     }
+  } catch (err) {
+    return {
+      filePath,
+      expiry: 0,
+    }
+  }
 }
 
 export default class Cache {

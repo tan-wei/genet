@@ -102,8 +102,8 @@ class NTP {
     const ideitifier = child.addAttr(ctx, 'ntp.ideitifier')
     ideitifier.value = reader.slice(0, 4)
     ideitifier.type = stratum.value >= 2
-                      ? '@ipv4:addr'
-                      : ''
+      ? '@ipv4:addr'
+      : ''
     ideitifier.range = reader.lastRange
     ideitifier.error = reader.lastError
 

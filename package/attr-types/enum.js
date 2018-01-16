@@ -7,8 +7,8 @@ class Enum {
       .map((attr) => {
         const { id } = attr
         return deplug.session.token(id).name
-    })
-    .join(', ')
+      })
+      .join(', ')
     return m('span', [flags, ' (', value, ')'])
   }
 }

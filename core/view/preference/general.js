@@ -14,7 +14,7 @@ export default class General {
             schema,
           }),
           m('p', { class: 'description' }, [schema.description])
-      ])))
+        ])))
     ]
   }
 

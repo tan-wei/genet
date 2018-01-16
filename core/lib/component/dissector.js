@@ -33,9 +33,9 @@ export default class DissectorComponent extends BaseComponent {
 
     this.samples = objpath.get(comp, 'samples', [])
       .map((sample) => ({
-          pcap: path.join(dir, sample.pcap),
-          assert: path.join(dir, sample.assert),
-        }))
+        pcap: path.join(dir, sample.pcap),
+        assert: path.join(dir, sample.assert),
+      }))
 
     switch (comp.type) {
       case 'core:dissector:packet':

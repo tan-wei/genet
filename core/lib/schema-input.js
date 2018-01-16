@@ -127,18 +127,18 @@ class IntegerEnumInput extends InputBase {
     const titles = schema.enumTitles || schema.enum
     return m('select', {}, [
       (schema.enum).map((item, index) => m('option', {
-          selected: item === value,
-          value: item,
-        }, [
-          titles[index]
-        ]))
+        selected: item === value,
+        value: item,
+      }, [
+        titles[index]
+      ]))
     ])
   }
 
   oncreate (vnode) {
     vnode.dom.addEventListener('change', (event) => {
       const value = Number.parseInt(
-            event.target.options[event.target.selectedIndex].value, 10)
+        event.target.options[event.target.selectedIndex].value, 10)
       this.writeValue(vnode, value)
     })
   }
@@ -151,11 +151,11 @@ class StringEnumInput extends InputBase {
     const titles = schema.enumTitles || schema.enum
     return m('select', {}, [
       (schema.enum).map((item, index) => m('option', {
-          selected: item === value,
-          value: item,
-        }, [
-          titles[index]
-        ]))
+        selected: item === value,
+        value: item,
+      }, [
+        titles[index]
+      ]))
     ])
   }
 

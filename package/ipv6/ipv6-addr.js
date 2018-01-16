@@ -25,7 +25,7 @@ class IPv6Addr {
     }
     if (maxSeq.length) {
       addr = `${addr.substr(0, maxIndex)
-         }::${addr.substr(maxSeq.length + maxIndex)}`
+      }::${addr.substr(maxSeq.length + maxIndex)}`
     }
     return m('span', [addr])
   }

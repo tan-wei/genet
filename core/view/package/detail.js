@@ -108,13 +108,13 @@ export default class DetailView {
       m('p', [pkg.data.description]),
       m(ButtonBoxView, { pkg }),
       m('p', config.map(([id, schema]) => m('section', [
-          m('h4', [
-            schema.title, m('span', { class: 'schema-path' }, [id])]),
-          m(SchemaInput, {
-            id,
-            schema,
-          }),
-          m('p', { class: 'description' }, [schema.description])
+        m('h4', [
+          schema.title, m('span', { class: 'schema-path' }, [id])]),
+        m(SchemaInput, {
+          id,
+          schema,
+        }),
+        m('p', { class: 'description' }, [schema.description])
       ])))
     ])
   }

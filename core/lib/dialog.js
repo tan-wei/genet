@@ -37,9 +37,9 @@ export default class Dialog {
 
       m.mount(base, {
         view: () => m('div', {
-            style: { width: `${opt.width}px` },
-            class: 'dialog',
-          }, [m(this.view, { callback })]),
+          style: { width: `${opt.width}px` },
+          class: 'dialog',
+        }, [m(this.view, { callback })]),
       })
     })
   }

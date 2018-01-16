@@ -59,16 +59,16 @@ class AttributeItem {
             class: 'label error',
             style: {
               display: attr.error
-              ? 'inline'
-              : 'none',
+                ? 'inline'
+                : 'none',
             },
           }, [m('i', { class: 'fa fa-exclamation-triangle' }), ' ', attr.error])
         ]),
         m('ul', [
           children.map((child) => m(AttributeItem, {
-              item: child,
-              layer,
-            }))
+            item: child,
+            layer,
+          }))
         ])
       ])
     ])
@@ -153,26 +153,26 @@ class LayerItem {
             m('i', { class: 'fa fa-arrow-circle-down' }, [' ']),
             name, ' ',
             m('span', {
-               style: {
+              style: {
                 display: layer.streamId > 0
                   ? 'inline'
                   : 'none',
-                },
               },
-              [
-                m('i', { class: 'fa fa-exchange' }),
-                ' Stream #', layer.streamId]),
-                m('span', {
-                style: {
+            },
+            [
+              m('i', { class: 'fa fa-exchange' }),
+              ' Stream #', layer.streamId]),
+            m('span', {
+              style: {
                 display: layer.confidence < 1.0
-                                  ? 'inline'
-                                  : 'none',
-                },
-              }, [
-                m('i', { class: 'fa fa-question-circle' }),
-                ' ',
-                layer.confidence * 100, '%'
-              ])
+                  ? 'inline'
+                  : 'none',
+              },
+            }, [
+              m('i', { class: 'fa fa-question-circle' }),
+              ' ',
+              layer.confidence * 100, '%'
+            ])
           ]),
           attrArray[0].children.map((item) =>
             m(AttributeItem, {
@@ -267,9 +267,9 @@ export default class PcapDetailView {
           m('span', { class: 'label' }, [' Evaluated Filter: ']),
           m('span', [
             this.displayFilter
-            ? `${this.displayFilter.expression} =>`
-            : '',
-           ' ']),
+              ? `${this.displayFilter.expression} =>`
+              : '',
+            ' ']),
           m('span', [m(AttributeValueItem, { attr: { value: filterValue } })])
         ])
       ]),

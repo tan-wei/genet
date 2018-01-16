@@ -73,15 +73,15 @@ export default class PackageView {
         }, [
           m('ul', deplug.packages.list.map((pkg) =>
             m('li', [
-            m('a', {
-              active: this.selectedLocalPackage === pkg.data.name,
-              onclick: () => {
-                this.selectedLocalPackage = pkg.data.name
-              },
-            }, [
-              m('h4', { disabled: pkg.disabled === true }, [pkg.data.name]),
-              m('span', [pkg.data.description])
-            ])])))
+              m('a', {
+                active: this.selectedLocalPackage === pkg.data.name,
+                onclick: () => {
+                  this.selectedLocalPackage = pkg.data.name
+                },
+              }, [
+                m('h4', { disabled: pkg.disabled === true }, [pkg.data.name]),
+                m('span', [pkg.data.description])
+              ])])))
         ]),
         m('div', {
           class: 'registry-packages',
@@ -93,15 +93,15 @@ export default class PackageView {
         }, [
           m('ul', deplug.registry.packages.map((pkg) =>
             m('li', [
-            m('a', {
-              active: this.selectedRegistryPackage === pkg.data.name,
-              onclick: () => {
-                this.selectedRegistryPackage = pkg.data.name
-              },
-            }, [
-              m('h4', [pkg.data.name]),
-              m('span', [pkg.data.description])
-            ])])))
+              m('a', {
+                active: this.selectedRegistryPackage === pkg.data.name,
+                onclick: () => {
+                  this.selectedRegistryPackage = pkg.data.name
+                },
+              }, [
+                m('h4', [pkg.data.name]),
+                m('span', [pkg.data.description])
+              ])])))
         ])
       ]),
       m('main', [m(DetailView, { pkg: selectedPackage })]),

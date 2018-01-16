@@ -105,10 +105,10 @@ export default class FrameListView {
     return m('nav', { class: 'frame-list' }, [
       m('style', { class: 'scrollbar-style' }),
       m('canvas', {
-         style: 'opacity: 0; position: absolute;',
-         class: 'dummy-item',
-         width: '1',
-         height: this.mapHeight,
+        style: 'opacity: 0; position: absolute;',
+        class: 'dummy-item',
+        width: '1',
+        height: this.mapHeight,
       }),
       m('div', {
         class: 'padding',
@@ -143,7 +143,7 @@ export default class FrameListView {
           this.height = entry.contentRect.height
           m.redraw()
         }
-       }
+      }
     })
     resizeObserver.observe(vnode.dom)
     vnode.dom.addEventListener('scroll', (event) => {

@@ -187,11 +187,11 @@ class SessionFactory extends kit.SessionFactory {
   registerDissector (dissector) {
     if (typeof dissector.main === 'string') {
       const task = promiseReadFile(dissector.main, 'utf8')
-      .then((script) => {
-        const func = `(function(module){${script}})`
-        super.registerDissector(func, dissector.type)
-        return Promise.resolve()
-      })
+        .then((script) => {
+          const func = `(function(module){${script}})`
+          super.registerDissector(func, dissector.type)
+          return Promise.resolve()
+        })
       this[fields].tasks.push(task)
     } else {
       super.registerDissector(dissector.main, dissector.type)

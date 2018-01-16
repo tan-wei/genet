@@ -139,9 +139,9 @@ export default class Session {
         }
       }
       return Array.from(map.entries()).map(([name, exts]) => ({
-          name,
-          extensions: Array.from(exts),
-        }))
+        name,
+        extensions: Array.from(exts),
+      }))
     }
     return {
       importer: merge(this[fields].fileImporterExtensions),

@@ -29,7 +29,7 @@ class Reader {
     }
     if (end < begin) {
       throw new
-        RangeError('Second argument must be greater than first argument')
+      RangeError('Second argument must be greater than first argument')
     }
     const [, offset] = this[fields].lastRange
     const { length } = this[fields].data

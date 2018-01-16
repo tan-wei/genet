@@ -4,7 +4,7 @@ import m from 'mithril'
 import moment from '@deplug/moment.min'
 
 const { dialog } = remote
- class BooleanValueItem {
+class BooleanValueItem {
   view (vnode) {
     const faClass = vnode.attrs.value
       ? 'fa-check-square-o'
@@ -18,7 +18,7 @@ const { dialog } = remote
     ])
   }
 }
- class DateValueItem {
+class DateValueItem {
   view (vnode) {
     const ts = moment(vnode.attrs.value)
     const tsString = ts.format('YYYY-MM-DDTHH:mm:ss.SSSZ')
@@ -83,21 +83,21 @@ export class BufferValueItem {
     }, ['[', buffer.length, ' bytes] 0x', hex])
   }
 }
- class ArrayValueItem {
+class ArrayValueItem {
   view (vnode) {
     return m('ul', [vnode.attrs.value.map(
       (value) => m('li', [m(AttributeValueItem, { attr: { value } })]))])
   }
 }
- class ObjectValueItem {
+class ObjectValueItem {
   view (vnode) {
     const obj = vnode.attrs.value
     return m('ul', [Object.keys(obj).map(
       (key) => m('li', [m('span', { class: 'label' }, [key]),
-      m(AttributeValueItem, { attr: { value: obj[key] } })]))])
+        m(AttributeValueItem, { attr: { value: obj[key] } })]))])
   }
 }
- class LayerValueItem {
+class LayerValueItem {
   view (vnode) {
     const layer = vnode.attrs.value
     if (layer.payloads.length) {

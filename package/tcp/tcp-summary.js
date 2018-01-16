@@ -15,11 +15,11 @@ class TCPSummary {
         ']:',
         m('b', [srcPort]),
         ' -> [',
-         m(renderer, { attr: dstAddr }),
-         ']:',
-         m('b', [dstPort]),
-         ' [', layer.payloads.length, '] '
-       ])
+        m(renderer, { attr: dstAddr }),
+        ']:',
+        m('b', [dstPort]),
+        ' [', layer.payloads.length, '] '
+      ])
     }
     return m('span', [
       ' ',

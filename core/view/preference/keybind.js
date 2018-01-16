@@ -24,10 +24,10 @@ export default class KeyBind {
         m('th', ['Label'])
       ])
     ].concat(combinations.map(({ combo, selector, action, label }) => m('tr', [
-        m('td', [combo]),
-        m('td', [selector]),
-        m('td', [action]),
-        m('td', [label])
-      ]))))
+      m('td', [combo]),
+      m('td', [selector]),
+      m('td', [action]),
+      m('td', [label])
+    ]))))
   }
 }
