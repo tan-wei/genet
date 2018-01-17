@@ -5,6 +5,8 @@
 
 #if defined(PLUGKIT_OS_LINUX) || defined(PLUGKIT_OS_MAC)
 #include <dlfcn.h>
+#elif defined(PLUGKIT_OS_WIN)
+#include <windows.h>
 #endif
 
 namespace plugkit {
@@ -21,6 +23,7 @@ private:
 
 template <class T>
 T *ModuleLoader<T>::load(const std::string &path) {
+#if defined(PLUGKIT_OS_LINUX) || defined(PLUGKIT_OS_MAC)
   void *lib = dlopen(path.c_str(), RTLD_LOCAL | RTLD_LAZY);
   if (!lib) {
     mError = dlerror();
@@ -31,6 +34,18 @@ T *ModuleLoader<T>::load(const std::string &path) {
     mError = dlerror();
     return nullptr;
   }
+#elif defined(PLUGKIT_OS_WIN)
+  HINSTANCE lib = LoadLibrary(path.c_str());
+  if (!lib) {
+    mError = "LoadLibrary() failed";
+    return nullptr;
+  }
+  FARPROC init = GetProcAddress(lib, "plugkit_module_init");
+  if (!init) {
+    mError = "GetProcAddress() failed";
+    return nullptr;
+  }
+#endif
   return static_cast<T *>(reinterpret_cast<void *(*)()>(init)());
 }
 
