@@ -14,7 +14,7 @@ namespace plugkit {
 
 namespace {
 
-struct WorkerData {
+struct DissectorContext {
   const Dissector *dissector;
   TagFilter filter;
   Worker worker;
@@ -30,7 +30,7 @@ public:
 
 public:
   std::vector<Dissector> dissectors;
-  std::vector<WorkerData> workers;
+  std::vector<DissectorContext> dissectorContexts;
   LayerConfidence confidenceThreshold;
 
   Context ctx;
@@ -74,7 +74,7 @@ void DissectorThread::enter() {
   }
 
   for (const auto &diss : d->dissectors) {
-    WorkerData data;
+    DissectorContext data;
     data.dissector = &diss;
 
     std::vector<Token> tags;
@@ -90,7 +90,7 @@ void DissectorThread::enter() {
     if (diss.createWorker) {
       data.worker = diss.createWorker(&d->ctx, &diss);
     }
-    d->workers.push_back(data);
+    d->dissectorContexts.push_back(data);
   }
 }
 
@@ -111,21 +111,21 @@ bool DissectorThread::loop() {
     if (!rootLayer)
       continue;
 
-    std::vector<const WorkerData *> workers;
+    std::vector<const DissectorContext *> dissectorContexts;
     std::vector<Layer *> leafLayers = {rootLayer};
     while (!leafLayers.empty()) {
       std::vector<Layer *> nextlayers;
       for (const auto &layer : leafLayers) {
         dissectedIds.insert(layer->id());
 
-        workers.clear();
-        for (const auto &data : d->workers) {
+        dissectorContexts.clear();
+        for (const auto &data : d->dissectorContexts) {
           if (data.filter.match(layer->tags())) {
-            workers.push_back(&data);
+            dissectorContexts.push_back(&data);
           }
         }
 
-        for (const WorkerData *data : workers) {
+        for (const DissectorContext *data : dissectorContexts) {
           data->dissector->analyze(&d->ctx, data->dissector, data->worker,
                                    layer);
           layer->removeUnconfidentLayers(&d->ctx, d->confidenceThreshold);
@@ -156,6 +156,6 @@ void DissectorThread::exit() {
       diss.terminate(&d->ctx, &diss);
     }
   }
-  d->workers.clear();
+  d->dissectorContexts.clear();
 }
 } // namespace plugkit
