@@ -75,9 +75,13 @@ void analyze(Context *ctx, const Dissector *diss, Worker worker, Layer *layer) {
 }
 } // namespace
 
-PLUGKIT_MODULE([]() {
+extern "C" {
+PLUGKIT_EXPORT void *plugkit_module_init() {
   static Dissector diss;
   diss.layerHints[0] = (Token_get("[eth]"));
   diss.analyze = analyze;
   return &diss;
-})
+}
+}
+
+PLUGKIT_MODULE(plugkit_module_init)
