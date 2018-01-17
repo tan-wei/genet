@@ -15,7 +15,7 @@ namespace plugkit {
 namespace {
 
 struct DissectorContext {
-  const Dissector *dissector;
+  const Dissector *dissector = nullptr;
   TagFilter filter;
   Worker worker;
 };
@@ -86,10 +86,8 @@ void DissectorThread::enter() {
     if (tags.empty()) {
       continue;
     }
+    data.worker.data = nullptr;
     data.filter = TagFilter(tags);
-    if (diss.createWorker) {
-      data.worker = diss.createWorker(&d->ctx, &diss);
-    }
     d->dissectorContexts.push_back(data);
   }
 }
@@ -111,7 +109,7 @@ bool DissectorThread::loop() {
     if (!rootLayer)
       continue;
 
-    std::vector<const DissectorContext *> dissectorContexts;
+    std::vector<DissectorContext *> dissectorContexts;
     std::vector<Layer *> leafLayers = {rootLayer};
     while (!leafLayers.empty()) {
       std::vector<Layer *> nextlayers;
@@ -119,15 +117,18 @@ bool DissectorThread::loop() {
         dissectedIds.insert(layer->id());
 
         dissectorContexts.clear();
-        for (const auto &data : d->dissectorContexts) {
+        for (DissectorContext &data : d->dissectorContexts) {
           if (data.filter.match(layer->tags())) {
             dissectorContexts.push_back(&data);
           }
         }
 
-        for (const DissectorContext *data : dissectorContexts) {
-          data->dissector->analyze(&d->ctx, data->dissector, data->worker,
-                                   layer);
+        for (DissectorContext *data : dissectorContexts) {
+          const Dissector *diss = data->dissector;
+          if (diss->createWorker && !data->worker.data) {
+            data->worker = diss->createWorker(&d->ctx, diss);
+          }
+          diss->analyze(&d->ctx, diss, data->worker, layer);
           layer->removeUnconfidentLayers(&d->ctx, d->confidenceThreshold);
           for (Layer *childLayer : layer->layers()) {
             if (childLayer->confidence() >= d->confidenceThreshold) {
