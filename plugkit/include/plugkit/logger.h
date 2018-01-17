@@ -26,22 +26,22 @@ typedef struct Context Context;
 #define PLUGKIT_LOGGER_ATTR
 #endif
 
-void PLUGKIT_EXPORT Log_debug_(Context *ctx,
+PLUGKIT_EXPORT void  Log_debug_(Context *ctx,
                                const char *file,
                                int line,
                                const char *format,
                                ...) PLUGKIT_LOGGER_ATTR;
-void PLUGKIT_EXPORT Log_warn_(Context *ctx,
+PLUGKIT_EXPORT void Log_warn_(Context *ctx,
                               const char *file,
                               int line,
                               const char *format,
                               ...) PLUGKIT_LOGGER_ATTR;
-void PLUGKIT_EXPORT Log_info_(Context *ctx,
+PLUGKIT_EXPORT void Log_info_(Context *ctx,
                               const char *file,
                               int line,
                               const char *format,
                               ...) PLUGKIT_LOGGER_ATTR;
-void PLUGKIT_EXPORT Log_error_(Context *ctx,
+PLUGKIT_EXPORT void Log_error_(Context *ctx,
                                const char *file,
                                int line,
                                const char *format,
