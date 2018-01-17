@@ -1,6 +1,5 @@
 import BaseComponent from './base'
 import { CompositeDisposable } from 'disposables'
-import { _load } from 'module'
 import exists from 'file-exists'
 import objpath from 'object-path'
 import path from 'path'
