@@ -27,6 +27,7 @@ const auto statusToken = Token_get("http.status");
 const auto methodToken = Token_get("http.method");
 const auto headersToken = Token_get("http.headers");
 const auto keepAliveToken = Token_get("http.keepAlive");
+const auto upgradeToken = Token_get("http.upgrade");
 const auto streamToken = Token_get("@stream");
 
 const Token methodTable[] = {
@@ -229,8 +230,16 @@ void HTTPWorker::Stream::analyze(Context *ctx, Layer *layer) {
     Attr_setType(methodValue, novalueToken);
     Attr_setBool(methodValue, true);
 
-    Attr *keepAliveValue = Layer_addAttr(child, lastCtx, keepAliveToken);
-    Attr_setBool(keepAliveValue, http_should_keep_alive(&resParser));
+    if (http_should_keep_alive(&reqParser)) {
+      Attr *keepAliveValue = Layer_addAttr(child, lastCtx, keepAliveToken);
+      Attr_setType(keepAliveValue, novalueToken);
+      Attr_setBool(keepAliveValue, true);
+    }
+    if (reqParser.upgrade) {
+      Attr *upgradeValue = Layer_addAttr(child, lastCtx, upgradeToken);
+      Attr_setType(upgradeValue, novalueToken);
+      Attr_setBool(upgradeValue, true);
+    }
   } else if (state == State::HttpResponse) {
     ensureLayer();
     Attr *version = Layer_addAttr(child, lastCtx, versionToken);
@@ -247,8 +256,16 @@ void HTTPWorker::Stream::analyze(Context *ctx, Layer *layer) {
       Attr_setBool(statusValue, true);
     }
 
-    Attr *keepAliveValue = Layer_addAttr(child, lastCtx, keepAliveToken);
-    Attr_setBool(keepAliveValue, http_should_keep_alive(&resParser));
+    if (http_should_keep_alive(&resParser)) {
+      Attr *keepAliveValue = Layer_addAttr(child, lastCtx, keepAliveToken);
+      Attr_setType(keepAliveValue, novalueToken);
+      Attr_setBool(keepAliveValue, true);
+    }
+    if (resParser.upgrade) {
+      Attr *upgradeValue = Layer_addAttr(child, lastCtx, upgradeToken);
+      Attr_setType(upgradeValue, novalueToken);
+      Attr_setBool(upgradeValue, true);
+    }
   }
 
   child = nullptr;
