@@ -185,7 +185,7 @@ class SessionFactory extends kit.SessionFactory {
   }
 
   registerDissector (dissector) {
-    if (typeof dissector.main === 'string') {
+    if (dissector.main.endsWith('.js')) {
       const task = promiseReadFile(dissector.main, 'utf8')
         .then((script) => {
           const func = `(function(module){${script}})`

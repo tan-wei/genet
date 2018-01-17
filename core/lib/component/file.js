@@ -45,12 +45,12 @@ export default class FileComponent extends BaseComponent {
   async load () {
     if (this.type === 'importer') {
       this.disposable = new CompositeDisposable([
-        deplug.session.registerImporter(_load(this.mainFile).data),
+        deplug.session.registerImporter(this.mainFile),
         deplug.session.registerFileImporterExtensions(this.extensions)
       ])
     } else if (this.type === 'exporter') {
       this.disposable = new CompositeDisposable([
-        deplug.session.registerExporter(_load(this.mainFile).data),
+        deplug.session.registerExporter(this.mainFile),
         deplug.session.registerFileExporterExtensions(this.extensions)
       ])
     }

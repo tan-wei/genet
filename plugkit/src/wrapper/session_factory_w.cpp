@@ -4,6 +4,7 @@
 #include "plugkit_module.hpp"
 #include "session.hpp"
 #include "session_factory.hpp"
+#include "module_loader.hpp"
 
 namespace plugkit {
 
@@ -139,12 +140,16 @@ NAN_METHOD(SessionFactoryWrapper::registerDissector) {
     if (std::strcmp("stream", *Nan::Utf8String(info[1])) == 0) {
       type = DISSECTOR_STREAM;
     }
-    if (info[0]->IsExternal()) {
-      Dissector dissector =
-          *static_cast<const Dissector *>(info[0].As<v8::External>()->Value());
-      factory->registerDissector(dissector, type);
-    } else if (info[0]->IsString()) {
-      factory->registerDissector(std::string(*Nan::Utf8String(info[0])), type);
+    if (info[0]->IsString()) {
+      const std::string& path = *Nan::Utf8String(info[0]);
+      if (path.rfind(".node") == path.size() - 5) {
+        ModuleLoader<Dissector> loader;
+        if (Dissector *diss = loader.load(path)) {
+          factory->registerDissector(*diss, type);
+        }
+      } else {
+        factory->registerDissector(path, type);
+      }
     }
   }
 }
@@ -153,10 +158,14 @@ NAN_METHOD(SessionFactoryWrapper::registerImporter) {
   SessionFactoryWrapper *wrapper =
       ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
   if (const auto &factory = wrapper->factory) {
-    if (info[0]->IsExternal()) {
-      FileImporter importer = *static_cast<const FileImporter *>(
-          info[0].As<v8::External>()->Value());
-      factory->registerImporter(importer);
+    if (info[0]->IsString()) {
+      const std::string& path = *Nan::Utf8String(info[0]);
+      if (path.rfind(".node") == path.size() - 5) {
+        ModuleLoader<FileImporter> loader;
+        if (FileImporter *importer = loader.load(path)) {
+          factory->registerImporter(*importer);
+        }
+      }
     }
   }
 }
@@ -165,10 +174,14 @@ NAN_METHOD(SessionFactoryWrapper::registerExporter) {
   SessionFactoryWrapper *wrapper =
       ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
   if (const auto &factory = wrapper->factory) {
-    if (info[0]->IsExternal()) {
-      FileExporter exporter = *static_cast<const FileExporter *>(
-          info[0].As<v8::External>()->Value());
-      factory->registerExporter(exporter);
+    if (info[0]->IsString()) {
+      const std::string& path = *Nan::Utf8String(info[0]);
+      if (path.rfind(".node") == path.size() - 5) {
+        ModuleLoader<FileExporter> loader;
+        if (FileExporter *exporter = loader.load(path)) {
+          factory->registerExporter(*exporter);
+        }
+      }
     }
   }
 }

@@ -52,11 +52,6 @@ export default class DissectorComponent extends BaseComponent {
     const ext = path.extname(this.mainFile)
     switch (ext) {
       case '.node':
-        this.disposable = deplug.session.registerDissector({
-          type: this.type,
-          main: _load(this.mainFile).data,
-        })
-        break
       case '.js':
         this.disposable = deplug.session.registerDissector({
           type: this.type,
