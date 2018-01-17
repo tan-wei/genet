@@ -19,7 +19,7 @@ typedef void(IntializeFunc)(Context *ctx, Dissector *);
 typedef void(TerminateFunc)(Context *ctx, Dissector *);
 typedef Worker(CreateWorkerFunc)(Context *ctx, const Dissector *);
 typedef void(DestroyWorkerFunc)(Context *ctx, const Dissector *, Worker);
-typedef void(AnalyzeFunc)(Context *ctx, const Dissector *, Worker, Layer *);
+typedef bool(AnalyzeFunc)(Context *ctx, const Dissector *, Worker, Layer *);
 
 typedef struct Dissector {
   IntializeFunc *initialize;

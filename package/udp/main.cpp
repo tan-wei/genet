@@ -18,7 +18,7 @@ const auto lengthToken = Token_get("udp.length");
 const auto checksumToken = Token_get("udp.checksum");
 
 namespace {
-void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
+bool analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
 
@@ -53,6 +53,7 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Payload *chunk = Layer_addPayload(child, ctx);
   Payload_addSlice(chunk, Reader_slice(&reader, 0, lengthNumber - 8));
   Payload_setRange(chunk, Range_offset(reader.lastRange, payloadRange.begin));
+  return true;
 }
 } // namespace
 

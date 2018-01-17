@@ -26,7 +26,7 @@ static const std::unordered_map<uint16_t, std::pair<Token, Token>> typeTable = {
     {0x86DD, std::make_pair(Token_get("[ipv6]"), Token_get("eth.type.ipv6"))},
 };
 
-void analyze(Context *ctx, const Dissector *diss, Worker worker, Layer *layer) {
+bool analyze(Context *ctx, const Dissector *diss, Worker worker, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
 
@@ -72,6 +72,7 @@ void analyze(Context *ctx, const Dissector *diss, Worker worker, Layer *layer) {
   Payload *chunk = Layer_addPayload(child, ctx);
   Payload_addSlice(chunk, Reader_sliceAll(&reader, 0));
   Payload_setRange(chunk, Range_offset(reader.lastRange, payloadRange.begin));
+  return true;
 }
 } // namespace
 

@@ -90,7 +90,7 @@ struct TCPWorker {
   std::unordered_map<StreamID, Stream> idMap;
 };
 
-void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
+bool analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   TCPWorker *worker = static_cast<TCPWorker *>(data.data);
 
   const auto parentLayerId = Layer_id(Layer_parent(layer));
@@ -155,6 +155,7 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
 
   Layer *sub = Layer_addSubLayer(layer, ctx, tcpStreamToken);
   Layer_addTag(sub, tcpStreamToken);
+  return true;
 }
 } // namespace
 

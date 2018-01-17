@@ -52,7 +52,7 @@ const auto flagsTypeToken = Token_get("@flags");
 const auto nestedToken = Token_get("@nested");
 const auto novalueToken = Token_get("@novalue");
 
-void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
+bool analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
 
@@ -206,6 +206,7 @@ void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Payload *chunk = Layer_addPayload(child, ctx);
   Payload_addSlice(chunk, Slice_sliceAll(reader.data, optionDataOffset));
   Payload_setRange(chunk, Range_offset(reader.lastRange, payloadRange.begin));
+  return true;
 }
 } // namespace
 

@@ -94,6 +94,7 @@ Dissector ScriptDissector::create(char *script) {
                                      LayerWrapper::wrap(layer)};
       analyze->Call(obj, 2, args);
     }
+    return true;
   };
   return dissector;
 }

@@ -359,6 +359,7 @@ PLUGKIT_EXPORT void *plugkit_module_init() {
                     Layer *layer) {
     HTTPWorker *worker = static_cast<HTTPWorker *>(data.data);
     worker->analyze(ctx, layer);
+    return true;
   };
   diss.createWorker = [](Context *ctx, const Dissector *diss) {
     HTTPWorker *worker = new HTTPWorker();
