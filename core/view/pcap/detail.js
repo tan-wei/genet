@@ -128,7 +128,8 @@ class LayerItem {
         m('details', { open: true }, [
           m('summary', {
             class: 'layer children',
-            'data-layer': layer.tags.join(' '),
+            'data-layer': layer.id,
+            'data-tags': layer.tags.join(' '),
             onmouseover: () => selectRange(layer.range),
             onmouseout: () => selectRange(),
             oncontextmenu: (event) => {
