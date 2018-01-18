@@ -17,6 +17,12 @@
         "files": [
           "tokens.json"
         ]
+      },
+      {
+        "type": "core:style",
+        "files": [
+          "style.less"
+        ]
       }
     ]
   }
