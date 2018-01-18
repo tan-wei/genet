@@ -1,7 +1,6 @@
 #include <fstream>
 #include <plugkit/context.h>
 #include <plugkit/file.h>
-#include <plugkit/module.h>
 #include <plugkit/variant.h>
 
 using namespace plugkit;

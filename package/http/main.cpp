@@ -3,7 +3,6 @@
 #include <plugkit/context.h>
 #include <plugkit/dissector.h>
 #include <plugkit/layer.h>
-#include <plugkit/module.h>
 #include <plugkit/payload.h>
 #include <plugkit/stream_reader.h>
 #include <plugkit/token.h>
