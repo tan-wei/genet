@@ -59,7 +59,7 @@ exportFile(Context *ctx, const char *filename, FileExporterCallback callback) {
 }
 
 extern "C" {
-PLUGKIT_EXPORT void plugkit_module_init(FileExporter *target) {
+PLUGKIT_MODULE_EXPORT void plugkit_module_init(FileExporter *target) {
   target->func = exportFile;
 }
 }

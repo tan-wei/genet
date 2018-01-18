@@ -351,7 +351,7 @@ void HTTPWorker::analyze(Context *ctx, Layer *layer) {
 } // namespace
 
 extern "C" {
-PLUGKIT_EXPORT void plugkit_module_init(Dissector *target) {
+PLUGKIT_MODULE_EXPORT void plugkit_module_init(Dissector *target) {
   target->layerHints[0] = Token_get("tcp-stream");
   target->analyze = [](Context *ctx, const Dissector *diss, Worker data,
                        Layer *layer) {

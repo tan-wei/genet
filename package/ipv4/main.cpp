@@ -152,7 +152,7 @@ bool analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
 } // namespace
 
 extern "C" {
-PLUGKIT_EXPORT void plugkit_module_init(Dissector *target) {
+PLUGKIT_MODULE_EXPORT void plugkit_module_init(Dissector *target) {
   target->layerHints[0] = (Token_get("[ipv4]"));
   target->analyze = analyze;
 }

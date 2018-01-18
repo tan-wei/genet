@@ -113,7 +113,7 @@ import(Context *ctx, const char *filename, FileImporterCallback callback) {
 }
 
 extern "C" {
-PLUGKIT_EXPORT void plugkit_module_init(FileImporter *target) {
+PLUGKIT_MODULE_EXPORT void plugkit_module_init(FileImporter *target) {
   target->func = import;
 }
 }
