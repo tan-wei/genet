@@ -1,10 +1,11 @@
 #include "../src/session.hpp"
 #include "dissector.h"
 #include "file.h"
-#include "module_loader.hpp"
 #include "plugkit_module.hpp"
 #include "session.hpp"
 #include "session_factory.hpp"
+
+#include "module_loader.hpp"
 
 namespace plugkit {
 
