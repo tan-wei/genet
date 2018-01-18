@@ -1,10 +1,10 @@
 #include "../src/session.hpp"
 #include "dissector.h"
 #include "file.h"
+#include "module_loader.hpp"
 #include "plugkit_module.hpp"
 #include "session.hpp"
 #include "session_factory.hpp"
-#include "module_loader.hpp"
 
 namespace plugkit {
 
@@ -141,9 +141,9 @@ NAN_METHOD(SessionFactoryWrapper::registerDissector) {
       type = DISSECTOR_STREAM;
     }
     if (info[0]->IsString()) {
-      const std::string& path = *Nan::Utf8String(info[0]);
+      const std::string &path = *Nan::Utf8String(info[0]);
       if (path.rfind(".node") == path.size() - 5) {
-        Dissector diss= { 0};
+        Dissector diss = {0};
         ModuleLoader<Dissector> loader;
         if (loader.load(&diss, path)) {
           factory->registerDissector(diss, type);
@@ -160,9 +160,9 @@ NAN_METHOD(SessionFactoryWrapper::registerImporter) {
       ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
   if (const auto &factory = wrapper->factory) {
     if (info[0]->IsString()) {
-      const std::string& path = *Nan::Utf8String(info[0]);
-      if (path.rfind(".node") == path.size() - 5) {;
-        FileImporter importer= { 0};
+      const std::string &path = *Nan::Utf8String(info[0]);
+      if (path.rfind(".node") == path.size() - 5) {
+        FileImporter importer = {0};
         ModuleLoader<FileImporter> loader;
         if (loader.load(&importer, path)) {
           factory->registerImporter(importer);
@@ -177,9 +177,9 @@ NAN_METHOD(SessionFactoryWrapper::registerExporter) {
       ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
   if (const auto &factory = wrapper->factory) {
     if (info[0]->IsString()) {
-      const std::string& path = *Nan::Utf8String(info[0]);
+      const std::string &path = *Nan::Utf8String(info[0]);
       if (path.rfind(".node") == path.size() - 5) {
-        FileExporter exporter = { 0};
+        FileExporter exporter = {0};
         ModuleLoader<FileExporter> loader;
         if (loader.load(&exporter, path)) {
           factory->registerExporter(exporter);

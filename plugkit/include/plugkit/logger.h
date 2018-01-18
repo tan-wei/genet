@@ -26,7 +26,7 @@ typedef struct Context Context;
 #define PLUGKIT_LOGGER_ATTR
 #endif
 
-PLUGKIT_EXPORT void  Log_debug_(Context *ctx,
+PLUGKIT_EXPORT void Log_debug_(Context *ctx,
                                const char *file,
                                int line,
                                const char *format,
