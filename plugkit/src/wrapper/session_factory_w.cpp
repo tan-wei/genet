@@ -143,9 +143,10 @@ NAN_METHOD(SessionFactoryWrapper::registerDissector) {
     if (info[0]->IsString()) {
       const std::string& path = *Nan::Utf8String(info[0]);
       if (path.rfind(".node") == path.size() - 5) {
+        Dissector diss= { 0};
         ModuleLoader<Dissector> loader;
-        if (Dissector *diss = loader.load(path)) {
-          factory->registerDissector(*diss, type);
+        if (loader.load(&diss, path)) {
+          factory->registerDissector(diss, type);
         }
       } else {
         factory->registerDissector(path, type);
@@ -160,10 +161,11 @@ NAN_METHOD(SessionFactoryWrapper::registerImporter) {
   if (const auto &factory = wrapper->factory) {
     if (info[0]->IsString()) {
       const std::string& path = *Nan::Utf8String(info[0]);
-      if (path.rfind(".node") == path.size() - 5) {
+      if (path.rfind(".node") == path.size() - 5) {;
+        FileImporter importer= { 0};
         ModuleLoader<FileImporter> loader;
-        if (FileImporter *importer = loader.load(path)) {
-          factory->registerImporter(*importer);
+        if (loader.load(&importer, path)) {
+          factory->registerImporter(importer);
         }
       }
     }
@@ -177,9 +179,10 @@ NAN_METHOD(SessionFactoryWrapper::registerExporter) {
     if (info[0]->IsString()) {
       const std::string& path = *Nan::Utf8String(info[0]);
       if (path.rfind(".node") == path.size() - 5) {
+        FileExporter exporter = { 0};
         ModuleLoader<FileExporter> loader;
-        if (FileExporter *exporter = loader.load(path)) {
-          factory->registerExporter(*exporter);
+        if (loader.load(&exporter, path)) {
+          factory->registerExporter(exporter);
         }
       }
     }

@@ -14,7 +14,7 @@ namespace plugkit {
 template <class T>
 class ModuleLoader {
 public:
-  T *load(const std::string &path);
+  bool load(T *target, const std::string &path);
   const std::string error() const;
 
 private:
@@ -22,31 +22,32 @@ private:
 };
 
 template <class T>
-T *ModuleLoader<T>::load(const std::string &path) {
+bool ModuleLoader<T>::load(T *target, const std::string &path) {
 #if defined(PLUGKIT_OS_LINUX) || defined(PLUGKIT_OS_MAC)
   void *lib = dlopen(path.c_str(), RTLD_LOCAL | RTLD_LAZY);
   if (!lib) {
     mError = dlerror();
-    return nullptr;
+    return false;
   }
   void *init = dlsym(lib, "plugkit_module_init");
   if (!init) {
     mError = dlerror();
-    return nullptr;
+    return false;
   }
 #elif defined(PLUGKIT_OS_WIN)
   HINSTANCE lib = LoadLibrary(path.c_str());
   if (!lib) {
     mError = "LoadLibrary() failed";
-    return nullptr;
+    return false;
   }
   FARPROC init = GetProcAddress(lib, "plugkit_module_init");
   if (!init) {
     mError = "GetProcAddress() failed";
-    return nullptr;
+    return false;
   }
 #endif
-  return static_cast<T *>(reinterpret_cast<void *(*)()>(init)());
+  reinterpret_cast<void (*)(T *)>(init)(target);
+  return true;
 }
 
 template <class T>

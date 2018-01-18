@@ -4,7 +4,6 @@
 #include <plugkit/context.h>
 #include <plugkit/dissector.h>
 #include <plugkit/layer.h>
-#include <plugkit/module.h>
 #include <plugkit/payload.h>
 #include <plugkit/reader.h>
 #include <plugkit/token.h>
@@ -160,19 +159,15 @@ bool analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
 } // namespace
 
 extern "C" {
-PLUGKIT_EXPORT void *plugkit_module_init() {
-  static Dissector diss;
-  diss.layerHints[0] = Token_get("tcp");
-  diss.analyze = analyze;
-  diss.createWorker = [](Context *ctx, const Dissector *diss) {
+PLUGKIT_EXPORT void plugkit_module_init(Dissector *target) {
+  target->layerHints[0] = Token_get("tcp");
+  target->analyze = analyze;
+  target->createWorker = [](Context *ctx, const Dissector *diss) {
     return Worker{new TCPWorker()};
   };
-  diss.destroyWorker = [](Context *ctx, const Dissector *diss, Worker data) {
+  target->destroyWorker = [](Context *ctx, const Dissector *diss, Worker data) {
     TCPWorker *worker = static_cast<TCPWorker *>(data.data);
     delete worker;
   };
-  return &diss;
 }
 }
-
-PLUGKIT_MODULE(plugkit_module_init)

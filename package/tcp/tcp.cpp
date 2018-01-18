@@ -211,12 +211,8 @@ bool analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
 } // namespace
 
 extern "C" {
-PLUGKIT_EXPORT void *plugkit_module_init() {
-  static Dissector diss;
-  diss.layerHints[0] = (Token_get("[tcp]"));
-  diss.analyze = analyze;
-  return &diss;
+PLUGKIT_EXPORT void plugkit_module_init(Dissector *target) {
+  target->layerHints[0] = (Token_get("[tcp]"));
+  target->analyze = analyze;
 }
 }
-
-PLUGKIT_MODULE(plugkit_module_init)
