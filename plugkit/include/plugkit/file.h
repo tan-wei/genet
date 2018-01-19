@@ -41,14 +41,6 @@ typedef FileStatus(FileExporterFunc)(Context *ctx,
                                      const char *filename,
                                      FileExporterCallback callback);
 
-typedef struct FileImporter {
-  FileImporterFunc *func;
-} FileImporter;
-
-typedef struct FileExporter {
-  FileExporterFunc *func;
-} FileExporter;
-
 PLUGKIT_NAMESPACE_END
 
 #endif

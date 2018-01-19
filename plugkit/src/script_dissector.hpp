@@ -1,7 +1,7 @@
 #ifndef PLUGKIT_SCRIPT_DISSECTOR_H
 #define PLUGKIT_SCRIPT_DISSECTOR_H
 
-#include "dissector.h"
+#include "dissector.hpp"
 #include <string>
 #include <v8.h>
 

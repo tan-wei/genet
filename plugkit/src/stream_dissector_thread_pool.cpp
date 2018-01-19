@@ -1,5 +1,5 @@
 #include "stream_dissector_thread_pool.hpp"
-#include "dissector.h"
+#include "dissector.hpp"
 #include "frame.hpp"
 #include "frame_store.hpp"
 #include "frame_view.hpp"

@@ -1,6 +1,6 @@
 #include "../src/session.hpp"
-#include "dissector.h"
-#include "file.h"
+#include "dissector.hpp"
+#include "file.hpp"
 #include "plugkit_module.hpp"
 #include "session.hpp"
 #include "session_factory.hpp"

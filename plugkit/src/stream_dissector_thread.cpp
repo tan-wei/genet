@@ -5,7 +5,7 @@
 #include "variant.hpp"
 
 #include "context.hpp"
-#include "dissector.h"
+#include "dissector.hpp"
 
 #include <algorithm>
 #include <cstring>

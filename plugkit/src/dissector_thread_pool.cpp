@@ -1,5 +1,5 @@
 #include "dissector_thread_pool.hpp"
-#include "dissector.h"
+#include "dissector.hpp"
 #include "dissector_thread.hpp"
 #include "random_id.hpp"
 #include "variant.hpp"

@@ -21,16 +21,6 @@ typedef Worker(CreateWorkerFunc)(Context *ctx, const Dissector *);
 typedef void(DestroyWorkerFunc)(Context *ctx, const Dissector *, Worker);
 typedef bool(AnalyzeFunc)(Context *ctx, const Dissector *, Worker, Layer *);
 
-typedef struct Dissector {
-  IntializeFunc *initialize;
-  TerminateFunc *terminate;
-  CreateWorkerFunc *createWorker;
-  DestroyWorkerFunc *destroyWorker;
-  AnalyzeFunc *analyze;
-  Token layerHints[8];
-  void *data;
-} Dissector;
-
 PLUGKIT_NAMESPACE_END
 
 #endif

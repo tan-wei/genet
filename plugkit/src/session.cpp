@@ -2,7 +2,7 @@
 #include "allocator.hpp"
 #include "dissector_thread.hpp"
 #include "dissector_thread_pool.hpp"
-#include "file.h"
+#include "file.hpp"
 #include "file_exporter_thread.hpp"
 #include "file_importer_thread.hpp"
 #include "filter_thread.hpp"

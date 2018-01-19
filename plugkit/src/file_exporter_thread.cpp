@@ -1,6 +1,6 @@
 #include "file_exporter_thread.hpp"
 #include "context.hpp"
-#include "file.h"
+#include "file.hpp"
 #include "filter.hpp"
 #include "frame.hpp"
 #include "frame_store.hpp"

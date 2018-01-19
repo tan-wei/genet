@@ -1,6 +1,6 @@
 #include "dissector_thread.hpp"
 #include "context.hpp"
-#include "dissector.h"
+#include "dissector.hpp"
 #include "frame.hpp"
 #include "layer.hpp"
 #include "tag_filter.hpp"
