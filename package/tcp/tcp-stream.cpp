@@ -182,16 +182,4 @@ plugkit_v1_destroy_worker(Context *ctx, const Dissector *diss, Worker worker) {
   TCPWorker *tcp = static_cast<TCPWorker *>(worker.data);
   delete tcp;
 }
-
-PLUGKIT_MODULE_EXPORT void plugkit_module_init(Dissector *target) {
-  target->layerHints[0] = Token_get("tcp");
-  target->analyze = analyze;
-  target->createWorker = [](Context *ctx, const Dissector *diss) {
-    return Worker{new TCPWorker()};
-  };
-  target->destroyWorker = [](Context *ctx, const Dissector *diss, Worker data) {
-    TCPWorker *worker = static_cast<TCPWorker *>(data.data);
-    delete worker;
-  };
-}
 }

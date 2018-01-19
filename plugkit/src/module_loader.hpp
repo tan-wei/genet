@@ -11,49 +11,42 @@
 
 namespace plugkit {
 
-template <class T>
 class ModuleLoader {
 public:
-  bool load(T *target, const std::string &path);
+  ModuleLoader(const std::string &path);
+  template <class V>
+  V load(const char *name) const;
   const std::string error() const;
 
 private:
+  void *lib;
   std::string mError;
 };
 
-template <class T>
-bool ModuleLoader<T>::load(T *target, const std::string &path) {
+inline ModuleLoader::ModuleLoader(const std::string &path) : lib(nullptr) {
 #if defined(PLUGKIT_OS_LINUX) || defined(PLUGKIT_OS_MAC)
-  void *lib = dlopen(path.c_str(), RTLD_LOCAL | RTLD_LAZY);
+  lib = dlopen(path.c_str(), RTLD_LOCAL | RTLD_LAZY);
   if (!lib) {
     mError = dlerror();
-    return false;
-  }
-  void *init = dlsym(lib, "plugkit_module_init");
-  if (!init) {
-    mError = dlerror();
-    return false;
   }
 #elif defined(PLUGKIT_OS_WIN)
-  HINSTANCE lib = LoadLibrary(path.c_str());
+  lib = LoadLibrary(path.c_str());
   if (!lib) {
     mError = "LoadLibrary() failed";
-    return false;
-  }
-  FARPROC init = GetProcAddress(lib, "plugkit_module_init");
-  if (!init) {
-    mError = "GetProcAddress() failed";
-    return false;
   }
 #endif
-  reinterpret_cast<void (*)(T *)>(init)(target);
-  return true;
 }
 
 template <class T>
-const std::string ModuleLoader<T>::error() const {
-  return mError;
+T ModuleLoader::load(const char *name) const {
+#if defined(PLUGKIT_OS_LINUX) || defined(PLUGKIT_OS_MAC)
+  return reinterpret_cast<T>(dlsym(lib, name));
+#elif defined(PLUGKIT_OS_WIN)
+  return reinterpret_cast<T>(GetProcAddress(lib, name));
+#endif
 }
+
+inline const std::string ModuleLoader::error() const { return mError; }
 
 } // namespace plugkit
 

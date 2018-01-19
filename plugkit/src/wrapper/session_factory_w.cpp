@@ -145,10 +145,22 @@ NAN_METHOD(SessionFactoryWrapper::registerDissector) {
       const std::string &path = *Nan::Utf8String(info[0]);
       if (path.rfind(".node") == path.size() - 5) {
         Dissector diss = {0};
-        ModuleLoader<Dissector> loader;
-        if (loader.load(&diss, path)) {
-          factory->registerDissector(diss, type);
+        ModuleLoader loader(path);
+        if (auto func = loader.load<AnalyzeFunc*>("plugkit_v1_analyze")) {
+          diss.analyze = func;
         }
+        if (auto func = loader.load<CreateWorkerFunc*>("plugkit_v1_create_worker")) {
+          diss.createWorker = func;
+        }
+        if (auto func = loader.load<DestroyWorkerFunc*>("plugkit_v1_destroy_worker")) {
+          diss.destroyWorker = func;
+        }
+        if (auto func = loader.load<Token(*)(int)>("plugkit_v1_layer_hints")) {
+          for (size_t i = 0; i < sizeof(diss.layerHints) / sizeof(Token); ++i) {
+            if (!(diss.layerHints[i] = func(i))) break;
+          }
+        }
+        factory->registerDissector(diss, type);
       } else {
         factory->registerDissector(path, type);
       }
@@ -164,9 +176,9 @@ NAN_METHOD(SessionFactoryWrapper::registerImporter) {
       const std::string &path = *Nan::Utf8String(info[0]);
       if (path.rfind(".node") == path.size() - 5) {
         FileImporter importer = {0};
-        ModuleLoader<FileImporter> loader;
-        if (loader.load(&importer, path)) {
-          factory->registerImporter(importer);
+        ModuleLoader loader(path);
+        if (auto func = loader.load<FileImporterFunc*>("plugkit_v1_file_import")) {
+          factory->registerImporter(FileImporter{func});
         }
       }
     }
@@ -181,9 +193,9 @@ NAN_METHOD(SessionFactoryWrapper::registerExporter) {
       const std::string &path = *Nan::Utf8String(info[0]);
       if (path.rfind(".node") == path.size() - 5) {
         FileExporter exporter = {0};
-        ModuleLoader<FileExporter> loader;
-        if (loader.load(&exporter, path)) {
-          factory->registerExporter(exporter);
+        ModuleLoader loader(path);
+        if (auto func = loader.load<FileExporterFunc*>("plugkit_v1_file_export")) {
+          factory->registerExporter(FileExporter{func});
         }
       }
     }

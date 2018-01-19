@@ -377,22 +377,4 @@ plugkit_v1_destroy_worker(Context *ctx, const Dissector *diss, Worker worker) {
   HTTPWorker *http = static_cast<HTTPWorker *>(worker.data);
   delete http;
 }
-
-PLUGKIT_MODULE_EXPORT void plugkit_module_init(Dissector *target) {
-  target->layerHints[0] = Token_get("tcp-stream");
-  target->analyze = [](Context *ctx, const Dissector *diss, Worker data,
-                       Layer *layer) {
-    HTTPWorker *worker = static_cast<HTTPWorker *>(data.data);
-    worker->analyze(ctx, layer);
-    return true;
-  };
-  target->createWorker = [](Context *ctx, const Dissector *diss) {
-    HTTPWorker *worker = new HTTPWorker();
-    return Worker{worker};
-  };
-  target->destroyWorker = [](Context *ctx, const Dissector *diss, Worker data) {
-    HTTPWorker *worker = static_cast<HTTPWorker *>(data.data);
-    delete worker;
-  };
-}
 }
