@@ -31,8 +31,6 @@ typedef struct Dissector {
   void *data;
 } Dissector;
 
-PLUGKIT_EXPORT void Dissector_reset(Dissector *diss);
-
 PLUGKIT_NAMESPACE_END
 
 #endif
