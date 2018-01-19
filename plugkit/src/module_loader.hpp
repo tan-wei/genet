@@ -42,7 +42,7 @@ T ModuleLoader::load(const char *name) {
 #if defined(PLUGKIT_OS_LINUX) || defined(PLUGKIT_OS_MAC)
   return reinterpret_cast<T>(dlsym(lib, name));
 #elif defined(PLUGKIT_OS_WIN)
-  return reinterpret_cast<T>(GetProcAddress(lib, name));
+  return reinterpret_cast<T>(GetProcAddress(static_cast<HMODULE>(lib), name));
 #endif
 }
 
