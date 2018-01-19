@@ -15,7 +15,7 @@ class ModuleLoader {
 public:
   ModuleLoader(const std::string &path);
   template <class V>
-  V load(const char *name) const;
+  V load(const char *name);
   const std::string error() const;
 
 private:
@@ -38,7 +38,7 @@ inline ModuleLoader::ModuleLoader(const std::string &path) : lib(nullptr) {
 }
 
 template <class T>
-T ModuleLoader::load(const char *name) const {
+T ModuleLoader::load(const char *name) {
 #if defined(PLUGKIT_OS_LINUX) || defined(PLUGKIT_OS_MAC)
   return reinterpret_cast<T>(dlsym(lib, name));
 #elif defined(PLUGKIT_OS_WIN)
