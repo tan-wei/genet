@@ -76,6 +76,18 @@ bool analyze(Context *ctx, const Dissector *diss, Worker worker, Layer *layer) {
 } // namespace
 
 extern "C" {
+PLUGKIT_MODULE_EXPORT bool plugkit_v1_analyze(Context *ctx,
+                                              const Dissector *diss,
+                                              Worker worker,
+                                              Layer *layer) {
+  return analyze(ctx, diss, worker, layer);
+}
+
+PLUGKIT_MODULE_EXPORT Token plugkit_v1_layer_hints(int index) {
+  Token layerHints[2] = {Token_get("[eth]")};
+  return layerHints[index];
+}
+
 PLUGKIT_MODULE_EXPORT void plugkit_module_init(Dissector *target) {
   target->layerHints[0] = (Token_get("[eth]"));
   target->analyze = analyze;

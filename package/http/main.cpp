@@ -351,6 +351,33 @@ void HTTPWorker::analyze(Context *ctx, Layer *layer) {
 } // namespace
 
 extern "C" {
+
+PLUGKIT_MODULE_EXPORT Token plugkit_v1_layer_hints(int index) {
+  Token layerHints[2] = {Token_get("tcp-stream")};
+  return layerHints[index];
+}
+
+PLUGKIT_MODULE_EXPORT bool plugkit_v1_analyze(Context *ctx,
+                                              const Dissector *diss,
+                                              Worker worker,
+                                              Layer *layer) {
+  HTTPWorker *http = static_cast<HTTPWorker *>(worker.data);
+  http->analyze(ctx, layer);
+  return true;
+}
+
+PLUGKIT_MODULE_EXPORT Worker plugkit_v1_create_worker(Context *ctx,
+                                                      const Dissector *diss) {
+  HTTPWorker *http = new HTTPWorker();
+  return Worker{http};
+}
+
+PLUGKIT_MODULE_EXPORT void
+plugkit_v1_destroy_worker(Context *ctx, const Dissector *diss, Worker worker) {
+  HTTPWorker *http = static_cast<HTTPWorker *>(worker.data);
+  delete http;
+}
+
 PLUGKIT_MODULE_EXPORT void plugkit_module_init(Dissector *target) {
   target->layerHints[0] = Token_get("tcp-stream");
   target->analyze = [](Context *ctx, const Dissector *diss, Worker data,
