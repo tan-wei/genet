@@ -13,4 +13,8 @@ fix:
 fmt:
 	-clang-format -i plugkit/**/*.{cpp,hpp,h,c} package/**/*.{cpp,hpp}
 
-.PHONY: all build fix fmt
+gperf:
+	gperf -LANSI-C -G plugkit/src/token.keys --output-file=plugkit/src/token_hash.h
+	gperf -t -LANSI-C -G plugkit/src/function.keys --output-file=plugkit/src/function_hash.h
+
+.PHONY: all build fix fmt gperf

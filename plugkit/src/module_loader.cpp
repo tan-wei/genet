@@ -3,7 +3,7 @@
 namespace {
 
 #define register
-#include "functions_hash.h"
+#include "function_hash.h"
 #undef register
 
 } // namespace

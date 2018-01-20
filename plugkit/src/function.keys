@@ -3,6 +3,7 @@
 %}
 struct Functions
 {
+  Functions(const char *name = nullptr, void *func = nullptr) : name(name), func(func) {}
   const char *name;
   void *func;
 };

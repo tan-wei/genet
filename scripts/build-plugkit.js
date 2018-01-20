@@ -16,9 +16,6 @@ const dstBin = path.resolve(__dirname, '../deplug-modules/bin/plugkit')
 const cache = path.resolve(dst, '.last-updated')
 const scriptFiles = glob.sync(path.resolve(src, '*.{js,json}'))
 const embeddedFiles = glob.sync(path.resolve(src, 'js/*.js'))
-const gperf = (process.platform === 'win32')
-  ? path.resolve(__dirname, '../node_modules/.bin/gperf')
-  : '/usr/bin/gperf'
 
 const env = Object.assign(process.env, {
   npm_config_target: negatronVersion,
@@ -47,21 +44,6 @@ const srcLastUpdated = lastmod(src).getTime()
 if (srcLastUpdated > lastUpdated) {
   execa.sync(path.resolve(__dirname, 'text-to-cpp.js'),
     embeddedFiles.concat(path.resolve(src, 'src/embedded_files.hpp')))
-
-  execa.sync(gperf, [
-    '-LANSI-C',
-    path.resolve(src, 'src/token.keys'),
-    '-G',
-    `--output-file=${path.resolve(src, 'src/token_hash.h')}`
-  ])
-
-  execa.sync(gperf, [
-    '-LANSI-C',
-    '-t',
-    path.resolve(src, 'src/functions.keys'),
-    '-G',
-    `--output-file=${path.resolve(src, 'src/functions_hash.h')}`
-  ])
 
   execa('node-gyp', ['configure'], { env, cwd: src }).then(() => {
   	const proc = execa('node-gyp', ['build'], { env, cwd: src })
