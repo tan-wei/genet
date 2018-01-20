@@ -17,25 +17,12 @@ public:
   template <class V>
   V load(const char *name);
   const std::string error() const;
+  static void *resolve(const char *name);
 
 private:
   void *lib;
   std::string mError;
 };
-
-inline ModuleLoader::ModuleLoader(const std::string &path) : lib(nullptr) {
-#if defined(PLUGKIT_OS_LINUX) || defined(PLUGKIT_OS_MAC)
-  lib = dlopen(path.c_str(), RTLD_LOCAL | RTLD_LAZY);
-  if (!lib) {
-    mError = dlerror();
-  }
-#elif defined(PLUGKIT_OS_WIN)
-  lib = LoadLibrary(path.c_str());
-  if (!lib) {
-    mError = "LoadLibrary() failed";
-  }
-#endif
-}
 
 template <class T>
 T ModuleLoader::load(const char *name) {
@@ -45,8 +32,6 @@ T ModuleLoader::load(const char *name) {
   return reinterpret_cast<T>(GetProcAddress(static_cast<HMODULE>(lib), name));
 #endif
 }
-
-inline const std::string ModuleLoader::error() const { return mError; }
 
 } // namespace plugkit
 
