@@ -15,11 +15,6 @@ typedef struct Attr Attr;
 /// Return the ID of the attr.
 PLUGKIT_EXPORT Token Attr_id(const Attr *attr);
 
-/// Find the first child `Attr` with the given `id` and return it.
-///
-/// If no attribute is found, return `NULL`.
-PLUGKIT_EXPORT const Attr *Attr_attr(const Attr *attr, Token id);
-
 /// Return the range of the attr.
 PLUGKIT_EXPORT Range Attr_range(const Attr *attr);
 
