@@ -1,0 +1,12 @@
+%{
+#include "attr.h"
+%}
+struct Functions
+{
+  const char *name;
+  void *func;
+};
+%%
+Token_get, reinterpret_cast<void *>(&plugkit::Token_literal_)
+Token_string, reinterpret_cast<void *>(&plugkit::Token_string)
+Token_join, reinterpret_cast<void *>(&plugkit::Token_join)

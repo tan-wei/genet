@@ -25,6 +25,7 @@
       "src/uvloop_logger.cpp",
       "src/pcap_platform.cpp",
       "src/pcap_dummy.cpp",
+      "src/module_loader.cpp",
       "src/wrapper/pcap_w.cpp",
       "src/wrapper/session_w.cpp",
       "src/wrapper/frame_w.cpp",

@@ -19,11 +19,9 @@ namespace plugkit {
 
 namespace {
 
-extern "C" {
 #define register
 #include "token_hash.h"
 #undef register
-}
 
 thread_local std::unordered_map<std::string, Token> localMap;
 thread_local std::unordered_map<Token, const char *> localReverseMap;

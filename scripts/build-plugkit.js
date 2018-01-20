@@ -55,6 +55,14 @@ if (srcLastUpdated > lastUpdated) {
     `--output-file=${path.resolve(src, 'src/token_hash.h')}`
   ])
 
+  execa.sync(gperf, [
+    '-LANSI-C',
+    '-t',
+    path.resolve(src, 'src/functions.keys'),
+    '-G',
+    `--output-file=${path.resolve(src, 'src/functions_hash.h')}`
+  ])
+
   execa('node-gyp', ['configure'], { env, cwd: src }).then(() => {
   	const proc = execa('node-gyp', ['build'], { env, cwd: src })
     proc.stdout.pipe(process.stdout)
