@@ -50,6 +50,10 @@ export default {
       uniqueItems: true,
       default: ['https://deplug.net/registry/list.yml'],
     },
+    '_.package.rustPath': {
+      title: 'Rust Path',
+      type: 'string',
+    },
     '_.package.noPrebuilt': {
       title: 'Don\'t Use Pre-Built Binaries',
       description: 'Force to build native add-ons from source',
