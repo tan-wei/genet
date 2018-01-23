@@ -89,7 +89,7 @@ struct TCPWorker {
   std::unordered_map<StreamID, Stream> idMap;
 };
 
-bool analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
+void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   TCPWorker *worker = static_cast<TCPWorker *>(data.data);
 
   const auto parentLayerId = Layer_id(Layer_parent(layer));
@@ -154,7 +154,6 @@ bool analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
 
   Layer *sub = Layer_addSubLayer(layer, ctx, tcpStreamToken);
   Layer_addTag(sub, tcpStreamToken);
-  return true;
 }
 } // namespace
 
@@ -165,11 +164,11 @@ PLUGKIT_MODULE_EXPORT Token plugkit_v1_layer_hints(int index) {
   return layerHints[index];
 }
 
-PLUGKIT_MODULE_EXPORT bool plugkit_v1_analyze(Context *ctx,
+PLUGKIT_MODULE_EXPORT void plugkit_v1_analyze(Context *ctx,
                                               const Dissector *diss,
                                               Worker worker,
                                               Layer *layer) {
-  return analyze(ctx, diss, worker, layer);
+  analyze(ctx, diss, worker, layer);
 }
 
 PLUGKIT_MODULE_EXPORT Worker plugkit_v1_create_worker(Context *ctx,

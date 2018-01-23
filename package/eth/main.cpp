@@ -25,7 +25,7 @@ static const std::unordered_map<uint16_t, std::pair<Token, Token>> typeTable = {
     {0x86DD, std::make_pair(Token_get("[ipv6]"), Token_get("eth.type.ipv6"))},
 };
 
-bool analyze(Context *ctx, const Dissector *diss, Worker worker, Layer *layer) {
+void analyze(Context *ctx, const Dissector *diss, Worker worker, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
 
@@ -71,16 +71,15 @@ bool analyze(Context *ctx, const Dissector *diss, Worker worker, Layer *layer) {
   Payload *chunk = Layer_addPayload(child, ctx);
   Payload_addSlice(chunk, Reader_sliceAll(&reader, 0));
   Payload_setRange(chunk, Range_offset(reader.lastRange, payloadRange.begin));
-  return true;
 }
 } // namespace
 
 extern "C" {
-PLUGKIT_MODULE_EXPORT bool plugkit_v1_analyze(Context *ctx,
+PLUGKIT_MODULE_EXPORT void plugkit_v1_analyze(Context *ctx,
                                               const Dissector *diss,
                                               Worker worker,
                                               Layer *layer) {
-  return analyze(ctx, diss, worker, layer);
+  analyze(ctx, diss, worker, layer);
 }
 
 PLUGKIT_MODULE_EXPORT Token plugkit_v1_layer_hints(int index) {

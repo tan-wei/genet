@@ -357,13 +357,12 @@ PLUGKIT_MODULE_EXPORT Token plugkit_v1_layer_hints(int index) {
   return layerHints[index];
 }
 
-PLUGKIT_MODULE_EXPORT bool plugkit_v1_analyze(Context *ctx,
+PLUGKIT_MODULE_EXPORT void plugkit_v1_analyze(Context *ctx,
                                               const Dissector *diss,
                                               Worker worker,
                                               Layer *layer) {
   HTTPWorker *http = static_cast<HTTPWorker *>(worker.data);
   http->analyze(ctx, layer);
-  return true;
 }
 
 PLUGKIT_MODULE_EXPORT Worker plugkit_v1_create_worker(Context *ctx,

@@ -17,7 +17,7 @@ const auto lengthToken = Token_get("udp.length");
 const auto checksumToken = Token_get("udp.checksum");
 
 namespace {
-bool analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
+void analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Reader reader;
   Reader_reset(&reader);
 
@@ -52,17 +52,16 @@ bool analyze(Context *ctx, const Dissector *diss, Worker data, Layer *layer) {
   Payload *chunk = Layer_addPayload(child, ctx);
   Payload_addSlice(chunk, Reader_slice(&reader, 0, lengthNumber - 8));
   Payload_setRange(chunk, Range_offset(reader.lastRange, payloadRange.begin));
-  return true;
 }
 } // namespace
 
 extern "C" {
 
-PLUGKIT_MODULE_EXPORT bool plugkit_v1_analyze(Context *ctx,
+PLUGKIT_MODULE_EXPORT void plugkit_v1_analyze(Context *ctx,
                                               const Dissector *diss,
                                               Worker worker,
                                               Layer *layer) {
-  return analyze(ctx, diss, worker, layer);
+  analyze(ctx, diss, worker, layer);
 }
 
 PLUGKIT_MODULE_EXPORT Token plugkit_v1_layer_hints(int index) {
