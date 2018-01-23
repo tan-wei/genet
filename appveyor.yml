@@ -6,7 +6,7 @@ environment:
 install:
 - ps: Start-FileDownload 'https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe'
 - rustup-init.exe -y
-- SET PATH=%PATH%;%HOME%\.cargo\bin
+- SET PATH=%PATH%;%USERPROFILE%\.cargo\bin
 - rustc -V
 - cargo -V
 - ps: git submodule update --init --recursive; true
