@@ -49,17 +49,17 @@ impl fmt::Display for Variant {
 
 pub trait Value<T> {
   fn get(&self) -> T;
-  fn set(&mut self, T);
+  fn set(&mut self, &T);
 }
 
 pub trait ValueMap<T> {
   fn get(&self, &str) -> T;
-  fn set(&mut self, &str, T);
+  fn set(&mut self, &str, &T);
 }
 
 pub trait ValueArray<T> {
   fn get(&self, usize) -> T;
-  fn set(&mut self, usize, T);
+  fn set(&mut self, usize, &T);
 }
 
 impl<T> ValueArray<T> for Variant where Variant: Value<T> {
@@ -71,7 +71,7 @@ impl<T> ValueArray<T> for Variant where Variant: Value<T> {
         }
     }
 
-    fn set(&mut self, index: usize, val: T) {
+    fn set(&mut self, index: usize, val: &T) {
         unsafe {
             let var = &mut *symbol::Variant_arrayValueRef.unwrap()(self, index);
             Value::set(var, val);
@@ -89,7 +89,7 @@ impl<T> ValueMap<T> for Variant where Variant: Value<T> {
         }
     }
 
-    fn set(&mut self, key: &str, val: T) {
+    fn set(&mut self, key: &str, val: &T) {
         unsafe {
             let c = key.as_ptr() as *const i8;
             let var = &mut *symbol::Variant_mapValueRef.unwrap()(self, c);
@@ -105,9 +105,9 @@ impl Value<bool> for Variant {
         }
     }
 
-    fn set(&mut self, val: bool) {
+    fn set(&mut self, val: &bool) {
         unsafe {
-            symbol::Variant_setBool.unwrap()(self, val)
+            symbol::Variant_setBool.unwrap()(self, *val)
         }
     }
 }
@@ -119,9 +119,9 @@ impl Value<i32> for Variant {
         }
     }
 
-    fn set(&mut self, val: i32) {
+    fn set(&mut self, val: &i32) {
         unsafe {
-            symbol::Variant_setInt32.unwrap()(self, val)
+            symbol::Variant_setInt32.unwrap()(self, *val)
         }
     }
 }
@@ -133,9 +133,9 @@ impl Value<u32> for Variant {
         }
     }
 
-    fn set(&mut self, val: u32) {
+    fn set(&mut self, val: &u32) {
         unsafe {
-            symbol::Variant_setUint32.unwrap()(self, val)
+            symbol::Variant_setUint32.unwrap()(self, *val)
         }
     }
 }
@@ -147,9 +147,9 @@ impl Value<f64> for Variant {
         }
     }
 
-    fn set(&mut self, val: f64) {
+    fn set(&mut self, val: &f64) {
         unsafe {
-            symbol::Variant_setDouble.unwrap()(self, val)
+            symbol::Variant_setDouble.unwrap()(self, *val)
         }
     }
 }
@@ -162,7 +162,7 @@ impl Value<String> for Variant {
         }
     }
 
-    fn set(&mut self, val: String) {
+    fn set(&mut self, val: &String) {
         unsafe {
             symbol::Variant_setString.unwrap()(self, val.as_str().as_ptr() as *const i8)
         }
@@ -177,7 +177,7 @@ impl Value<&'static[u8]> for Variant {
         }
     }
 
-    fn set(&mut self, val: &'static[u8]) {
+    fn set(&mut self, val: &&'static[u8]) {
         unsafe {
             let begin = val.as_ptr();
             let end = begin.offset(val.len() as isize);

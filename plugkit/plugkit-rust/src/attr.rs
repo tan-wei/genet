@@ -1,3 +1,5 @@
+use std::io::Error;
+use std::error;
 use super::token::Token;
 use super::range::Range;
 use super::variant::{Variant,Value,ValueArray,ValueMap};
@@ -10,7 +12,7 @@ impl<T> Value<T> for Attr where Variant: Value<T> {
         Value::get(self.value())
     }
 
-    fn set(&mut self, val: T) {
+    fn set(&mut self, val: &T) {
         Value::set(self.value_mut(), val)
     }
 }
@@ -20,7 +22,7 @@ impl<T> ValueArray<T> for Attr where Variant: ValueArray<T> {
         ValueArray::get(self.value(), index)
     }
 
-    fn set(&mut self, index: usize, val: T) {
+    fn set(&mut self, index: usize, val: &T) {
         ValueArray::set(self.value_mut(), index, val)
     }
 }
@@ -30,8 +32,28 @@ impl<T> ValueMap<T> for Attr where Variant: ValueMap<T> {
         ValueMap::get(self.value(), key)
     }
 
-    fn set(&mut self, key: &str, val: T) {
+    fn set(&mut self, key: &str, val: &T) {
         ValueMap::set(self.value_mut(), key, val)
+    }
+}
+
+pub trait ResultValue<T> {
+  fn set_result(&mut self, res: Result<(T, Range), Error>) -> Result<(), Error>;
+}
+
+impl<T> ResultValue<T> for Attr where Variant: Value<T> {
+    fn set_result(&mut self, res: Result<(T, Range), Error>) -> Result<(), Error> {
+        match &res {
+            &Ok(ref r) => {
+                let &(ref val, ref range) = r;
+                Value::set(self.value_mut(), val);
+                self.set_range(range.clone())
+            },
+            &Err(ref e) => {
+                return Err(Error::new(e.kind(), error::Error::description(e)))
+            }
+        }
+        Ok(())
     }
 }
 

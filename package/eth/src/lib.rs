@@ -51,13 +51,13 @@ impl Worker for ETHWorker {
         child.set_range(range);
         {
             let attr = child.add_attr(ctx, *SRC_TOKEN);
-            attr.set(&slice[0 .. 6]);
+            attr.set(&&slice[0 .. 6]);
             attr.set_typ(*MAC_TOKEN);
             attr.set_range((0..6));
         }
         {
             let attr = child.add_attr(ctx, *DST_TOKEN);
-            attr.set(&slice[6 .. 12]);
+            attr.set(&&slice[6 .. 12]);
             attr.set_typ(*MAC_TOKEN);
             attr.set_range((6..12));
         }
@@ -66,12 +66,12 @@ impl Worker for ETHWorker {
         let typ = rdr.read_u16::<BigEndian>().unwrap();
         if typ <= 1500 {
             let attr = child.add_attr(ctx, *LEN_TOKEN);
-            attr.set(typ as u32);
+            attr.set(&(typ as u32));
             attr.set_range((12..14));
         } else {
             {
                 let attr = child.add_attr(ctx, *TYPE_TOKEN);
-                attr.set(typ as u32);
+                attr.set(&(typ as u32));
                 attr.set_typ(*ENUM_TOKEN);
                 attr.set_range((12..14));
             }
@@ -79,7 +79,7 @@ impl Worker for ETHWorker {
                 let &(tag, id) = item;
                 child.add_tag(tag);
                 let attr = child.add_attr(ctx, id);
-                attr.set(true);
+                attr.set(&true);
                 attr.set_typ(*NOVALUE_TOKEN);
                 attr.set_range((12..14));
             }
