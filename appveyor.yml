@@ -4,6 +4,11 @@ init:
 environment:
   CL: -DDELAYIMP_INSECURE_WRITABLE_HOOKS
 install:
+- ps: Start-FileDownload 'https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe'
+- x86_64-pc-windows-msvc/rustup-init.exe /VERYSILENT /NORESTART /DIR="C:\Program Files\Rust"
+- SET PATH=%PATH%;C:\Program Files\Rust\bin
+- rustc -V
+- cargo -V
 - ps: git submodule update --init --recursive; true
 - ps: npm install; true
 - ps: npm install -g eslint eslint-plugin-mocha
