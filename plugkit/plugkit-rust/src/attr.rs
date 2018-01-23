@@ -47,7 +47,7 @@ impl<T> ResultValue<T> for Attr where Variant: Value<T> {
             &Ok(ref r) => {
                 let &(ref val, ref range) = r;
                 Value::set(self.value_mut(), val);
-                self.set_range(range.clone())
+                self.set_range(range)
             },
             &Err(ref e) => {
                 return Err(Error::new(e.kind(), error::Error::description(e)))
@@ -71,7 +71,7 @@ impl Attr {
         }
     }
 
-    pub fn set_range(&mut self, range: Range) {
+    pub fn set_range(&mut self, range: &Range) {
         unsafe {
             symbol::Attr_setRange.unwrap()(self, (range.start, range.end))
         }

@@ -35,7 +35,7 @@ impl Payload {
         }
     }
 
-    pub fn set_range(&mut self, range: Range) {
+    pub fn set_range(&mut self, range: &Range) {
         unsafe {
             symbol::Payload_setRange.unwrap()(self, (range.start, range.end))
         }

@@ -53,13 +53,13 @@ impl Worker for ETHWorker {
             let attr = child.add_attr(ctx, *SRC_TOKEN);
             attr.set(&&slice[0 .. 6]);
             attr.set_typ(*MAC_TOKEN);
-            attr.set_range((0..6));
+            attr.set_range(&(0..6));
         }
         {
             let attr = child.add_attr(ctx, *DST_TOKEN);
             attr.set(&&slice[6 .. 12]);
             attr.set_typ(*MAC_TOKEN);
-            attr.set_range((6..12));
+            attr.set_range(&(6..12));
         }
 
         let mut rdr = Cursor::new(&slice[12 .. ]);
@@ -67,13 +67,13 @@ impl Worker for ETHWorker {
         if typ <= 1500 {
             let attr = child.add_attr(ctx, *LEN_TOKEN);
             attr.set(&(typ as u32));
-            attr.set_range((12..14));
+            attr.set_range(&(12..14));
         } else {
             {
                 let attr = child.add_attr(ctx, *TYPE_TOKEN);
                 attr.set(&(typ as u32));
                 attr.set_typ(*ENUM_TOKEN);
-                attr.set_range((12..14));
+                attr.set_range(&(12..14));
             }
             if let Some(item) = TYPEMAP.get(&typ) {
                 let &(tag, id) = item;
@@ -81,13 +81,13 @@ impl Worker for ETHWorker {
                 let attr = child.add_attr(ctx, id);
                 attr.set(&true);
                 attr.set_typ(*NOVALUE_TOKEN);
-                attr.set_range((12..14));
+                attr.set_range(&(12..14));
             }
         }
         {
             let payload = child.add_payload(ctx);
             payload.add_slice(&slice[14 .. ]);
-            payload.set_range((14 .. slice.len()));
+            payload.set_range(&(14 .. slice.len()));
         }
 
         child.set_confidence(Confidence::Exact);
