@@ -40,7 +40,7 @@ Token Token_literal_(const char *str, size_t length) {
     unsigned int key = hash(str, length);
     if (key <= MAX_HASH_VALUE) {
       const char *s = wordlist[key];
-      if (strcmp(str, s) == 0) {
+      if (strncmp(str, s, length) == 0) {
         return key + 1;
       }
     }
@@ -51,7 +51,8 @@ Token Token_literal_(const char *str, size_t length) {
     in_word_set(nullptr, 0);
   }
 
-  auto it = localMap.find(str);
+  const std::string key(str, length);
+  auto it = localMap.find(key);
   if (it != localMap.end()) {
     return it->second;
   }
@@ -60,7 +61,6 @@ Token Token_literal_(const char *str, size_t length) {
   char *data = new char[length + 1]();
   {
     std::lock_guard<std::mutex> lock(mutex);
-    const std::string &key = str;
     auto it = map.find(key);
     if (it != map.end()) {
       localMap.insert(*it);
