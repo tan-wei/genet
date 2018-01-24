@@ -19,6 +19,7 @@ addons:
 before_install:
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source scripts/linux-before-install.sh; fi
 install:
+- curl https://sh.rustup.rs -sSf | sh -s -- -y
 - npm install
 - npm install -g eslint eslint-plugin-mocha
 - npm run build
