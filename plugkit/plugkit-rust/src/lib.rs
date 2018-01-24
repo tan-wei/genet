@@ -18,3 +18,4 @@ pub mod worker;
 pub mod payload;
 pub mod range;
 pub mod reader;
+pub mod file;
