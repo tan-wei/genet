@@ -12,8 +12,7 @@ use std::io::{Cursor,Error,ErrorKind};
 use byteorder::{BigEndian};
 use plugkit::token;
 use plugkit::reader::ByteReader;
-use plugkit::layer::Layer;
-use plugkit::layer::Confidence;
+use plugkit::layer::{Layer,Confidence};
 use plugkit::context::Context;
 use plugkit::worker::Worker;
 use plugkit::variant::Value;
@@ -29,7 +28,7 @@ lazy_static! {
     static ref MAC_TOKEN: token::Token = token::get("@eth:mac");
     static ref NOVALUE_TOKEN: token::Token = token::get("@novalue");
 
-    static ref TYPEMAP: HashMap<u16, (token::Token, token::Token)> = {
+    static ref TYPEMAP: HashMap<u32, (token::Token, token::Token)> = {
         let mut m = HashMap::new();
         m.insert(0x0800, (token::get("[ipv4]"), token::get("eth.type.ipv4")));
         m.insert(0x86DD, (token::get("[ipv6]"), token::get("eth.type.ipv6")));
@@ -76,7 +75,7 @@ impl Worker for ETHWorker {
                 attr.set_typ(*ENUM_TOKEN);
                 attr.set_range(&range);
             }
-            if let Some(item) = TYPEMAP.get(&(typ as u16)) {
+            if let Some(item) = TYPEMAP.get(&typ) {
                 let &(tag, id) = item;
                 child.add_tag(tag);
                 let attr = child.add_attr(ctx, id);
