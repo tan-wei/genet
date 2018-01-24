@@ -1,8 +1,15 @@
-use std::io::Error;
+use std::io::{Error,ErrorKind};
+use super::token;
 use super::token::Token;
 use super::range::Range;
 use super::variant::{Variant,Value,ValueArray,ValueMap};
 use super::symbol;
+
+lazy_static! {
+    static ref ERROR_TOKEN: Token   = token::get("!error");
+    static ref EOF_TOKEN: Token     = token::get("!out-of-bounds");
+    static ref INVALID_TOKEN: Token = token::get("!invalid-value");
+}
 
 pub enum Attr {}
 
@@ -49,6 +56,13 @@ impl<T> ResultValue<T> for Attr where Variant: Value<T> {
                 self.set_range(&range)
             },
             Err(e) => {
+                let err = match e.kind() {
+                    ErrorKind::InvalidInput => *INVALID_TOKEN,
+                    ErrorKind::InvalidData => *INVALID_TOKEN,
+                    ErrorKind::UnexpectedEof => *EOF_TOKEN,
+                    _ => *ERROR_TOKEN
+                };
+                self.set_error(err);
                 return Err(e)
             }
         }
