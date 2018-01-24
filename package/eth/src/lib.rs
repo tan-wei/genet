@@ -18,6 +18,8 @@ use plugkit::worker::Worker;
 use plugkit::variant::Value;
 use plugkit::attr::ResultValue;
 
+pub mod file;
+
 lazy_static! {
     static ref ETH_TOKEN: token::Token = token::get("eth");
     static ref SRC_TOKEN: token::Token = token::get("eth.src");
