@@ -1,6 +1,3 @@
-.length
-.dst
-.src
 !out-of-bounds
 !invalid-value
 !out-of-memory
