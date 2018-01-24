@@ -1,5 +1,4 @@
 use std::io::Error;
-use std::error;
 use super::token::Token;
 use super::range::Range;
 use super::variant::{Variant,Value,ValueArray,ValueMap};
@@ -43,14 +42,14 @@ pub trait ResultValue<T> {
 
 impl<T> ResultValue<T> for Attr where Variant: Value<T> {
     fn set_result(&mut self, res: Result<(T, Range), Error>) -> Result<(), Error> {
-        match &res {
-            &Ok(ref r) => {
-                let &(ref val, ref range) = r;
-                Value::set(self.value_mut(), val);
-                self.set_range(range)
+        match { res } {
+            Ok(r) => {
+                let (val, range) = r;
+                Value::set(self.value_mut(), &val);
+                self.set_range(&range)
             },
-            &Err(ref e) => {
-                return Err(Error::new(e.kind(), error::Error::description(e)))
+            Err(e) => {
+                return Err(e)
             }
         }
         Ok(())
