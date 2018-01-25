@@ -1,14 +1,14 @@
-extern crate libc;
 extern crate byteorder;
+extern crate libc;
 
 #[macro_use]
 extern crate plugkit;
 
-use std::io::{Cursor,Error,ErrorKind};
-use byteorder::{BigEndian};
+use std::io::{Cursor, Error, ErrorKind};
+use byteorder::BigEndian;
 use plugkit::token::Token;
 use plugkit::reader::ByteReader;
-use plugkit::layer::{Layer,Confidence};
+use plugkit::layer::{Confidence, Layer};
 use plugkit::context::Context;
 use plugkit::worker::Worker;
 use plugkit::variant::Value;
@@ -20,7 +20,7 @@ fn eth_type(val: u32) -> Option<(Token, Token)> {
     match val {
         0x0800 => Some((token!("[ipv4]"), token!("eth.type.ipv4"))),
         0x86DD => Some((token!("[ipv6]"), token!("eth.type.ipv6"))),
-        _ => None
+        _ => None,
     }
 }
 
@@ -29,8 +29,14 @@ struct ETHWorker {}
 impl Worker for ETHWorker {
     fn analyze(&self, ctx: &mut Context, layer: &mut Layer) -> Result<(), Error> {
         let (slice, range) = {
-            let payload = layer.payloads().next().ok_or(Error::new(ErrorKind::Other, "no payload"))?;
-            let slice = payload.slices().next().ok_or(Error::new(ErrorKind::Other, "no slice"))?;
+            let payload = layer
+                .payloads()
+                .next()
+                .ok_or(Error::new(ErrorKind::Other, "no payload"))?;
+            let slice = payload
+                .slices()
+                .next()
+                .ok_or(Error::new(ErrorKind::Other, "no slice"))?;
             (slice, payload.range())
         };
 
@@ -84,6 +90,6 @@ impl Worker for ETHWorker {
     }
 }
 
-plugkit_module! ({});
-plugkit_api_layer_hints! (token!("[eth]"));
-plugkit_api_worker! (ETHWorker, ETHWorker{});
+plugkit_module!({});
+plugkit_api_layer_hints!(token!("[eth]"));
+plugkit_api_worker!(ETHWorker, ETHWorker {});

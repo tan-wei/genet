@@ -1,4 +1,4 @@
-use std::io::{Result,Error,ErrorKind};
+use std::io::{Error, ErrorKind, Result};
 use std::path::Path;
 
 pub struct RawFrame {}
@@ -8,7 +8,7 @@ pub trait Exporter {
         Err(Error::new(ErrorKind::Other, "not implemented"))
     }
 
-    fn run(&mut self, &[RawFrame]) -> Result<()>  {
+    fn run(&mut self, &[RawFrame]) -> Result<()> {
         Err(Error::new(ErrorKind::Other, "not implemented"))
     }
 }
@@ -18,7 +18,7 @@ pub trait Importer<'a> {
         Err(Error::new(ErrorKind::Other, "not implemented"))
     }
 
-    fn run(&mut self) -> Result<(&'a[RawFrame], f32)>  {
+    fn run(&mut self) -> Result<(&'a [RawFrame], f32)> {
         Err(Error::new(ErrorKind::Other, "not implemented"))
     }
 }

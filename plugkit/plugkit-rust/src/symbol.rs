@@ -21,7 +21,8 @@ macro_rules! def_func {
         pub fn init(resolve: fn(*const libc::c_char) -> *const ()) {
             unsafe {
                 $(
-                    $x = std::mem::transmute(resolve(CString::new(stringify!($x)).unwrap().as_ptr()));
+                    $x = std::mem::transmute(
+                        resolve(CString::new(stringify!($x)).unwrap().as_ptr()));
                 )*
             }
         }

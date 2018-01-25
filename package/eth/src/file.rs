@@ -1,20 +1,18 @@
 use std::io;
-use std::io::{Error,ErrorKind};
+use std::io::{Error, ErrorKind};
 use std::fs::File;
-use std::io::{BufReader,Read};
+use std::io::{BufReader, Read};
 use std::path::Path;
-use plugkit::file::{Importer,RawFrame};
+use plugkit::file::{Importer, RawFrame};
 
 pub struct PcapImporter {
-    reader: Option<BufReader<File>>
+    reader: Option<BufReader<File>>,
 }
 
 impl PcapImporter {
     pub fn new() -> PcapImporter {
-       PcapImporter {
-           reader: None,
-       }
-   }
+        PcapImporter { reader: None }
+    }
 }
 
 impl<'a> Importer<'a> for PcapImporter {
@@ -28,7 +26,7 @@ impl<'a> Importer<'a> for PcapImporter {
         }
     }
 
-    fn run(&mut self) -> io::Result<(&'a[RawFrame], f32)>  {
+    fn run(&mut self) -> io::Result<(&'a [RawFrame], f32)> {
         let mut buffer = [0; 10];
         let reader = self.reader.as_mut().unwrap();
         reader.read(&mut buffer[..])?;

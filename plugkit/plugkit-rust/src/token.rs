@@ -5,9 +5,7 @@ use std::ffi::CStr;
 pub type Token = u32;
 
 pub fn get(name: &str) -> Token {
-    unsafe {
-        symbol::Token_literal_.unwrap()(name.as_ptr() as *const i8, name.len())
-    }
+    unsafe { symbol::Token_literal_.unwrap()(name.as_ptr() as *const i8, name.len()) }
 }
 
 pub fn string(token: Token) -> &'static str {
@@ -17,10 +15,8 @@ pub fn string(token: Token) -> &'static str {
     }
 }
 
-pub fn join(prefix: Token, token: Token) -> Token{
-    unsafe {
-        symbol::Token_join.unwrap()(prefix, token)
-    }
+pub fn join(prefix: Token, token: Token) -> Token {
+    unsafe { symbol::Token_join.unwrap()(prefix, token) }
 }
 
 #[macro_export]

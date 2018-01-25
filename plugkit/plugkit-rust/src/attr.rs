@@ -1,8 +1,8 @@
-use std::io::{Error,ErrorKind};
+use std::io::{Error, ErrorKind};
 use super::token;
 use super::token::Token;
 use super::range::Range;
-use super::variant::{Variant,Value,ValueArray,ValueMap};
+use super::variant::{Value, ValueArray, ValueMap, Variant};
 use super::symbol;
 
 lazy_static! {
@@ -13,7 +13,10 @@ lazy_static! {
 
 pub enum Attr {}
 
-impl<T> Value<T> for Attr where Variant: Value<T> {
+impl<T> Value<T> for Attr
+where
+    Variant: Value<T>,
+{
     fn get(&self) -> T {
         Value::get(self.value())
     }
@@ -23,7 +26,10 @@ impl<T> Value<T> for Attr where Variant: Value<T> {
     }
 }
 
-impl<T> ValueArray<T> for Attr where Variant: ValueArray<T> {
+impl<T> ValueArray<T> for Attr
+where
+    Variant: ValueArray<T>,
+{
     fn get(&self, index: usize) -> T {
         ValueArray::get(self.value(), index)
     }
@@ -33,7 +39,10 @@ impl<T> ValueArray<T> for Attr where Variant: ValueArray<T> {
     }
 }
 
-impl<T> ValueMap<T> for Attr where Variant: ValueMap<T> {
+impl<T> ValueMap<T> for Attr
+where
+    Variant: ValueMap<T>,
+{
     fn get(&self, key: &str) -> T {
         ValueMap::get(self.value(), key)
     }
@@ -44,26 +53,29 @@ impl<T> ValueMap<T> for Attr where Variant: ValueMap<T> {
 }
 
 pub trait ResultValue<T> {
-  fn set_result(&mut self, res: Result<(T, Range), Error>) -> Result<(), Error>;
+    fn set_result(&mut self, res: Result<(T, Range), Error>) -> Result<(), Error>;
 }
 
-impl<T> ResultValue<T> for Attr where Variant: Value<T> {
+impl<T> ResultValue<T> for Attr
+where
+    Variant: Value<T>,
+{
     fn set_result(&mut self, res: Result<(T, Range), Error>) -> Result<(), Error> {
         match { res } {
             Ok(r) => {
                 let (val, range) = r;
                 Value::set(self.value_mut(), &val);
                 self.set_range(&range)
-            },
+            }
             Err(e) => {
                 let err = match e.kind() {
                     ErrorKind::InvalidInput => *INVALID_TOKEN,
                     ErrorKind::InvalidData => *INVALID_TOKEN,
                     ErrorKind::UnexpectedEof => *EOF_TOKEN,
-                    _ => *ERROR_TOKEN
+                    _ => *ERROR_TOKEN,
                 };
                 self.set_error(err);
-                return Err(e)
+                return Err(e);
             }
         }
         Ok(())
@@ -72,58 +84,45 @@ impl<T> ResultValue<T> for Attr where Variant: Value<T> {
 
 impl Attr {
     pub fn id(&self) -> Token {
-        unsafe {
-            symbol::Attr_id.unwrap()(self)
-        }
+        unsafe { symbol::Attr_id.unwrap()(self) }
     }
 
     pub fn range(&self) -> Range {
         unsafe {
             let (start, end) = symbol::Attr_range.unwrap()(self);
-            Range { start: start, end: end }
+            Range {
+                start: start,
+                end: end,
+            }
         }
     }
 
     pub fn set_range(&mut self, range: &Range) {
-        unsafe {
-            symbol::Attr_setRange.unwrap()(self, (range.start, range.end))
-        }
+        unsafe { symbol::Attr_setRange.unwrap()(self, (range.start, range.end)) }
     }
 
     pub fn typ(&self) -> Token {
-        unsafe {
-            symbol::Attr_type.unwrap()(self)
-        }
+        unsafe { symbol::Attr_type.unwrap()(self) }
     }
 
     pub fn set_typ(&mut self, id: Token) {
-        unsafe {
-            symbol::Attr_setType.unwrap()(self, id)
-        }
+        unsafe { symbol::Attr_setType.unwrap()(self, id) }
     }
 
     pub fn error(&self) -> Token {
-        unsafe {
-            symbol::Attr_error.unwrap()(self)
-        }
+        unsafe { symbol::Attr_error.unwrap()(self) }
     }
 
     pub fn set_error(&mut self, id: Token) {
-        unsafe {
-            symbol::Attr_setError.unwrap()(self, id)
-        }
+        unsafe { symbol::Attr_setError.unwrap()(self, id) }
     }
 
     pub fn value(&self) -> &Variant {
-        unsafe {
-            &*symbol::Attr_value.unwrap()(self)
-        }
+        unsafe { &*symbol::Attr_value.unwrap()(self) }
     }
 
     pub fn value_mut(&mut self) -> &mut Variant {
-        unsafe {
-            &mut *symbol::Attr_valueRef.unwrap()(self)
-        }
+        unsafe { &mut *symbol::Attr_valueRef.unwrap()(self) }
     }
 
     pub fn set_nil(&mut self) {
