@@ -60,12 +60,12 @@ impl Worker for ETHWorker {
         let (typ, range) = ByteReader::read_u16::<BigEndian>(&mut rdr)?;
         if typ <= 1500 {
             let attr = child.add_attr(ctx, token!("eth.len"));
-            attr.set(&(typ as u32));
+            attr.set(&typ);
             attr.set_range(&(12..14));
         } else {
             {
                 let attr = child.add_attr(ctx, token!("eth.type"));
-                attr.set(&(typ as u32));
+                attr.set(&typ);
                 attr.set_typ(token!("@enum"));
                 attr.set_range(&range);
             }
