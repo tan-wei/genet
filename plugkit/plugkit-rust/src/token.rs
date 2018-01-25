@@ -22,3 +22,13 @@ pub fn join(prefix: Token, token: Token) -> Token{
         symbol::Token_join.unwrap()(prefix, token)
     }
 }
+
+#[macro_export]
+macro_rules! token {
+    ($name:expr) => {{
+        thread_local! (
+            static TOKEN: plugkit::token::Token = plugkit::token::get($name);
+        );
+        TOKEN.with(|&t| t)
+    }}
+}

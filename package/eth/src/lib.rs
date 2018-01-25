@@ -2,15 +2,12 @@ extern crate libc;
 extern crate byteorder;
 
 #[macro_use]
-extern crate lazy_static;
-
-#[macro_use]
 extern crate plugkit;
 
-use std::collections::HashMap;
 use std::io::{Cursor,Error,ErrorKind};
 use byteorder::{BigEndian};
 use plugkit::token;
+use plugkit::token::Token;
 use plugkit::reader::ByteReader;
 use plugkit::layer::{Layer,Confidence};
 use plugkit::context::Context;
@@ -20,22 +17,12 @@ use plugkit::attr::ResultValue;
 
 pub mod file;
 
-lazy_static! {
-    static ref ETH_TOKEN: token::Token = token::get("eth");
-    static ref SRC_TOKEN: token::Token = token::get("eth.src");
-    static ref DST_TOKEN: token::Token = token::get("eth.dst");
-    static ref LEN_TOKEN: token::Token = token::get("eth.len");
-    static ref TYPE_TOKEN: token::Token = token::get("eth.type");
-    static ref ENUM_TOKEN: token::Token = token::get("@enum");
-    static ref MAC_TOKEN: token::Token = token::get("@eth:mac");
-    static ref NOVALUE_TOKEN: token::Token = token::get("@novalue");
-
-    static ref TYPEMAP: HashMap<u32, (token::Token, token::Token)> = {
-        let mut m = HashMap::new();
-        m.insert(0x0800, (token::get("[ipv4]"), token::get("eth.type.ipv4")));
-        m.insert(0x86DD, (token::get("[ipv6]"), token::get("eth.type.ipv6")));
-        m
- };
+fn eth_type(val: u32) -> Option<(Token, Token)> {
+    match val {
+        0x0800 => Some((token::get("[ipv4]"), token::get("eth.type.ipv4"))),
+        0x86DD => Some((token::get("[ipv6]"), token::get("eth.type.ipv6"))),
+        _ => None
+    }
 }
 
 struct ETHWorker {}
@@ -50,39 +37,39 @@ impl Worker for ETHWorker {
 
         let mut rdr = Cursor::new(slice);
 
-        let child = layer.add_layer(ctx, *ETH_TOKEN);
+        let child = layer.add_layer(ctx, token!("eth"));
         child.set_confidence(Confidence::Error);
-        child.add_tag(*ETH_TOKEN);
+        child.add_tag(token!("eth"));
         child.set_range(range);
         {
-            let attr = child.add_attr(ctx, *SRC_TOKEN);
-            attr.set_typ(*MAC_TOKEN);
+            let attr = child.add_attr(ctx, token!("eth.src"));
+            attr.set_typ(token!("@eth:mac"));
             attr.set_result(ByteReader::read_slice(&mut rdr, 6))?;
         }
         {
-            let attr = child.add_attr(ctx, *DST_TOKEN);
-            attr.set_typ(*MAC_TOKEN);
+            let attr = child.add_attr(ctx, token!("eth.dst"));
+            attr.set_typ(token!("@eth:mac"));
             attr.set_result(ByteReader::read_slice(&mut rdr, 6))?;
         }
 
         let (typ, range) = ByteReader::read_u16::<BigEndian>(&mut rdr)?;
         if typ <= 1500 {
-            let attr = child.add_attr(ctx, *LEN_TOKEN);
+            let attr = child.add_attr(ctx, token!("eth.len"));
             attr.set(&(typ as u32));
             attr.set_range(&(12..14));
         } else {
             {
-                let attr = child.add_attr(ctx, *TYPE_TOKEN);
+                let attr = child.add_attr(ctx, token!("eth.type"));
                 attr.set(&(typ as u32));
-                attr.set_typ(*ENUM_TOKEN);
+                attr.set_typ(token!("@enum"));
                 attr.set_range(&range);
             }
-            if let Some(item) = TYPEMAP.get(&typ) {
-                let &(tag, id) = item;
+            if let Some(item) = eth_type(typ) {
+                let (tag, id) = item;
                 child.add_tag(tag);
                 let attr = child.add_attr(ctx, id);
                 attr.set(&true);
-                attr.set_typ(*NOVALUE_TOKEN);
+                attr.set_typ(token!("@novalue"));
                 attr.set_range(&range);
             }
         }

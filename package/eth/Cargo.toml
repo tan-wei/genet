@@ -9,6 +9,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 libc = "*"
-lazy_static = "1.0"
 byteorder = "1"
 plugkit = { path = "../../plugkit/plugkit-rust" }
