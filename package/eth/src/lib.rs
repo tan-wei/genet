@@ -6,7 +6,6 @@ extern crate plugkit;
 
 use std::io::{Cursor,Error,ErrorKind};
 use byteorder::{BigEndian};
-use plugkit::token;
 use plugkit::token::Token;
 use plugkit::reader::ByteReader;
 use plugkit::layer::{Layer,Confidence};
@@ -19,8 +18,8 @@ pub mod file;
 
 fn eth_type(val: u32) -> Option<(Token, Token)> {
     match val {
-        0x0800 => Some((token::get("[ipv4]"), token::get("eth.type.ipv4"))),
-        0x86DD => Some((token::get("[ipv6]"), token::get("eth.type.ipv6"))),
+        0x0800 => Some((token!("[ipv4]"), token!("eth.type.ipv4"))),
+        0x86DD => Some((token!("[ipv6]"), token!("eth.type.ipv6"))),
         _ => None
     }
 }
@@ -86,5 +85,5 @@ impl Worker for ETHWorker {
 }
 
 plugkit_module! ({});
-plugkit_api_layer_hints! (token::get("[eth]"));
+plugkit_api_layer_hints! (token!("[eth]"));
 plugkit_api_worker! (ETHWorker, ETHWorker{});
