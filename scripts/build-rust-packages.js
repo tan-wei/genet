@@ -18,7 +18,7 @@ async function exec() {
     proc.stderr.pipe(process.stderr)
     await proc
     const libs = glob.sync(
-      path.join(__dirname, '../package/**/target/release/*.{dylib,so,dll}'))
+      path.join(dir, 'target/release/*.{dylib,so,dll}'))
     if (libs.length > 0) {
       const [lib] = libs
       const dst = path.join(dir, 'build/Release')
