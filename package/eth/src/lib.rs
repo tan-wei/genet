@@ -45,7 +45,7 @@ impl Worker for ETHWorker {
         let child = layer.add_layer(ctx, token!("eth"));
         child.set_confidence(Confidence::Error);
         child.add_tag(token!("eth"));
-        child.set_range(range);
+        child.set_range(&range);
         {
             let attr = child.add_attr(ctx, token!("eth.src"));
             attr.set_typ(token!("@eth:mac"));
