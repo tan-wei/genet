@@ -121,7 +121,15 @@ where
 
 impl Value<bool> for Variant {
     fn get(&self) -> bool {
-        unsafe { symbol::Variant_bool.unwrap()(self) }
+        unsafe {
+            match self.typ() {
+                Type::Bool => self.val.boolean,
+                Type::Int32 => self.val.int32 != 0,
+                Type::Uint32 => self.val.uint32 != 0,
+                Type::Double => self.val.double != 0.0,
+                _ => false
+            }
+        }
     }
 
     fn set(&mut self, val: &bool) {
@@ -136,7 +144,15 @@ impl Value<bool> for Variant {
 
 impl Value<i32> for Variant {
     fn get(&self) -> i32 {
-        unsafe { symbol::Variant_int32.unwrap()(self) }
+        unsafe {
+            match self.typ() {
+                Type::Bool => self.val.boolean as i32,
+                Type::Int32 => self.val.int32 as i32,
+                Type::Uint32 => self.val.uint32 as i32,
+                Type::Double => self.val.double as i32,
+                _ => 0
+            }
+        }
     }
 
     fn set(&mut self, val: &i32) {
@@ -151,7 +167,15 @@ impl Value<i32> for Variant {
 
 impl Value<u32> for Variant {
     fn get(&self) -> u32 {
-        unsafe { symbol::Variant_uint32.unwrap()(self) }
+        unsafe {
+            match self.typ() {
+                Type::Bool => self.val.boolean as u32,
+                Type::Int32 => self.val.int32 as u32,
+                Type::Uint32 => self.val.uint32 as u32,
+                Type::Double => self.val.double as u32,
+                _ => 0
+            }
+        }
     }
 
     fn set(&mut self, val: &u32) {
@@ -166,7 +190,15 @@ impl Value<u32> for Variant {
 
 impl Value<f64> for Variant {
     fn get(&self) -> f64 {
-        unsafe { symbol::Variant_double.unwrap()(self) }
+        unsafe {
+            match self.typ() {
+                Type::Bool => self.val.boolean as u8 as f64,
+                Type::Int32 => self.val.int32 as f64,
+                Type::Uint32 => self.val.uint32 as f64,
+                Type::Double => self.val.double as f64,
+                _ => 0.0
+            }
+        }
     }
 
     fn set(&mut self, val: &f64) {
@@ -195,8 +227,13 @@ impl Value<String> for Variant {
 impl Value<&'static [u8]> for Variant {
     fn get(&self) -> &'static [u8] {
         unsafe {
-            let (begin, end) = symbol::Variant_slice.unwrap()(self);
-            slice::from_raw_parts(begin, (end as usize) - (begin as usize))
+            match self.typ() {
+                Type::Slice => {
+                    let (begin, end) = *self.val.slice;
+                    slice::from_raw_parts(begin, (end as usize) - (begin as usize))
+                },
+                _ => &[]
+            }
         }
     }
 

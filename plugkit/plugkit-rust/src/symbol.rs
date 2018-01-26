@@ -21,6 +21,7 @@ macro_rules! def_func {
                 $(
                     $x = std::mem::transmute(
                         resolve(CString::new(stringify!($x)).unwrap().as_ptr()));
+                    $x.expect(concat!("symbol not found: ", stringify!($x)));
                 )*
             }
         }
@@ -33,17 +34,12 @@ def_func!(
     Token_join,            extern "C" fn(Token, Token) -> Token;
     Context_getOption,     extern "C" fn(*const Context, *const libc::c_char) -> *const Variant;
     Variant_setNil,        extern "C" fn(*mut Variant);
-    Variant_bool,          extern "C" fn(*const Variant) -> bool;
     Variant_setBool,       extern "C" fn(*mut Variant, bool);
-    Variant_int32,         extern "C" fn(*const Variant) -> i32;
     Variant_setInt32,      extern "C" fn(*mut Variant, i32);
-    Variant_uint32,        extern "C" fn(*const Variant) -> u32;
     Variant_setUint32,     extern "C" fn(*mut Variant, u32);
-    Variant_double,        extern "C" fn(*const Variant) -> f64;
     Variant_setDouble,     extern "C" fn(*mut Variant, f64);
     Variant_string,        extern "C" fn(*const Variant) -> *const libc::c_char;
     Variant_setString,     extern "C" fn(*mut Variant, *const libc::c_char);
-    Variant_slice,         extern "C" fn(*const Variant) -> (*const u8, *const u8);
     Variant_setSlice,      extern "C" fn(*mut Variant, (*const u8, *const u8));
     Variant_arrayValue,    extern "C" fn(*const Variant, libc::size_t) -> *const Variant;
     Variant_arrayValueRef, extern "C" fn(*mut Variant, libc::size_t) -> *mut Variant;
