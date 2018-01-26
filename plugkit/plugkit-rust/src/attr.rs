@@ -1,4 +1,5 @@
 use std::io::{Error, ErrorKind};
+use std::mem;
 use super::token;
 use super::token::Token;
 use super::range::Range;
@@ -118,11 +119,11 @@ impl Attr {
     }
 
     pub fn value(&self) -> &Variant {
-        unsafe { &*symbol::Attr_value.unwrap()(self) }
+        unsafe { mem::transmute(&*self as *const _) }
     }
 
     pub fn value_mut(&mut self) -> &mut Variant {
-        unsafe { &mut *symbol::Attr_valueRef.unwrap()(self) }
+        unsafe { mem::transmute(&mut *self as *mut _) }
     }
 
     pub fn set_nil(&mut self) {

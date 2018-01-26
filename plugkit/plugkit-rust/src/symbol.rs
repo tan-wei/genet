@@ -67,8 +67,6 @@ def_func!(
     Layer_addPayload,      extern "C" fn(*mut Layer, *mut Context) -> *mut Payload;
     Layer_addTag,          extern "C" fn(*mut Layer, Token);
     Attr_id,               extern "C" fn(*const Attr) -> Token;
-    Attr_value,            extern "C" fn(*const Attr) -> *const Variant;
-    Attr_valueRef,         extern "C" fn(*mut Attr) -> *mut Variant;
     Attr_range,            extern "C" fn(*const Attr) -> (libc::size_t, libc::size_t);
     Attr_setRange,         extern "C" fn(*mut Attr, (libc::size_t, libc::size_t));
     Attr_type,             extern "C" fn(*const Attr) -> Token;
