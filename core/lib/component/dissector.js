@@ -49,11 +49,12 @@ export default class DissectorComponent extends BaseComponent {
   }
   async load () {
     const ext = path.extname(this.mainFile)
+    console.log(this.mainFile)
     switch (ext) {
       case '.node':
         this.disposable = deplug.session.registerDissector({
           type: this.type,
-          main: this.mainFile.replace('/app.asar/', '/app.asar.unpacked/'),
+          main: this.mainFile.replace(/\bapp\.asar\b/, 'app.asar.unpacked'),
         })
         break
       case '.js':

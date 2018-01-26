@@ -45,13 +45,13 @@ export default class FileComponent extends BaseComponent {
     if (this.type === 'importer') {
       this.disposable = new CompositeDisposable([
         deplug.session.registerImporter(
-          this.mainFile.replace('/app.asar/', '/app.asar.unpacked/')),
+          this.mainFile.replace(/\bapp\.asar\b/, 'app.asar.unpacked')),
         deplug.session.registerFileImporterExtensions(this.extensions)
       ])
     } else if (this.type === 'exporter') {
       this.disposable = new CompositeDisposable([
         deplug.session.registerExporter(
-          this.mainFile.replace('/app.asar/', '/app.asar.unpacked/')),
+          this.mainFile.replace(/\bapp\.asar\b/, 'app.asar.unpacked')),
         deplug.session.registerFileExporterExtensions(this.extensions)
       ])
     }
