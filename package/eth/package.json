@@ -10,7 +10,7 @@
     "components": [
       {
         "type": "core:dissector:packet",
-        "main": "main.node",
+        "main": "eth",
         "linkLayers": [
           {
             "link": 1,

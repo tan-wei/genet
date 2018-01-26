@@ -143,7 +143,9 @@ NAN_METHOD(SessionFactoryWrapper::registerDissector) {
     }
     if (info[0]->IsString()) {
       const std::string &path = *Nan::Utf8String(info[0]);
-      if (path.rfind(".node") == path.size() - 5) {
+      if (path.rfind(".js") == path.size() - 3) {
+          factory->registerDissector(path, type);
+      } else {
         Dissector diss = {0};
         ModuleLoader loader(path);
         if (auto func =
@@ -165,8 +167,6 @@ NAN_METHOD(SessionFactoryWrapper::registerDissector) {
           }
         }
         factory->registerDissector(diss, type);
-      } else {
-        factory->registerDissector(path, type);
       }
     }
   }
@@ -178,7 +178,7 @@ NAN_METHOD(SessionFactoryWrapper::registerImporter) {
   if (const auto &factory = wrapper->factory) {
     if (info[0]->IsString()) {
       const std::string &path = *Nan::Utf8String(info[0]);
-      if (path.rfind(".node") == path.size() - 5) {
+      if (path.rfind(".js") != path.size() - 3) {
         ModuleLoader loader(path);
         if (auto func =
             loader.load<void(*)(void*(*)(const char*))>("plugkit_v1_init")) {
@@ -198,7 +198,7 @@ NAN_METHOD(SessionFactoryWrapper::registerExporter) {
   if (const auto &factory = wrapper->factory) {
     if (info[0]->IsString()) {
       const std::string &path = *Nan::Utf8String(info[0]);
-      if (path.rfind(".node") == path.size() - 5) {
+      if (path.rfind(".js") != path.size() - 3) {
         ModuleLoader loader(path);
         if (auto func =
             loader.load<void(*)(void*(*)(const char*))>("plugkit_v1_init")) {

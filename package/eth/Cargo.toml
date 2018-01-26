@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Ron Hashimoto <mail@h2so5.net>"]
 
 [lib]
-name = "main"
+name = "eth"
 crate-type = ["cdylib"]
 path = "src/eth.rs"
 

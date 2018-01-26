@@ -1,6 +1,7 @@
 import BaseComponent from './base'
 import { CompositeDisposable } from 'disposables'
 import exists from 'file-exists'
+import glob from 'glob'
 import objpath from 'object-path'
 import path from 'path'
 
@@ -22,6 +23,14 @@ export default class DissectorComponent extends BaseComponent {
       if (exists.sync(absolute)) {
         this.mainFile = absolute
         break
+      }
+    }
+    if (!this.mainFile) {
+      const libs = glob.sync(
+        `target/{debug,release}/?(lib)${file}.{dll,so,dylib}`,
+        { cwd: dir })
+      if (libs.length > 0) {
+        this.mainFile = path.join(dir, libs[0])
       }
     }
     if (!this.mainFile) {
@@ -49,8 +58,10 @@ export default class DissectorComponent extends BaseComponent {
   }
   async load () {
     const ext = path.extname(this.mainFile)
-    console.log(this.mainFile)
     switch (ext) {
+      case '.dll':
+      case '.so':
+      case '.dylib':
       case '.node':
         this.disposable = deplug.session.registerDissector({
           type: this.type,
