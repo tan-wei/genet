@@ -200,14 +200,6 @@ std::string Variant::string(const std::string &defaultValue) const {
     } else {
       return std::string();
     }
-  case VARTYPE_BOOL:
-    return boolValue() ? "true" : "false";
-  case VARTYPE_INT32:
-    return std::to_string(int32Value());
-  case VARTYPE_UINT32:
-    return std::to_string(uint32Value());
-  case VARTYPE_DOUBLE:
-    return std::to_string(doubleValue());
   default:
     return defaultValue;
   }
