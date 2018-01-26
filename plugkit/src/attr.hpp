@@ -30,8 +30,8 @@ private:
   Attr &operator=(const Attr &attr) = delete;
 
 private:
-  Variant mValue;
   Token mId = 0;
+  Variant mValue;
   Range mRange = {0, 0};
   Token mType = 0;
   Token mError = 0;

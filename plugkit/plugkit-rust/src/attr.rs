@@ -1,10 +1,10 @@
+extern crate libc;
+
 use std::io::{Error, ErrorKind};
-use std::mem;
 use super::token;
 use super::token::Token;
 use super::range::Range;
 use super::variant::{Value, ValueArray, ValueMap, Variant};
-use super::symbol;
 
 lazy_static! {
     static ref ERROR_TOKEN: Token   = token::get("!error");
@@ -12,7 +12,14 @@ lazy_static! {
     static ref INVALID_TOKEN: Token = token::get("!invalid-value");
 }
 
-pub enum Attr {}
+#[repr(C)]
+pub struct Attr {
+    id: Token,
+    val: Variant,
+    range: (libc::size_t, libc::size_t),
+    typ: Token,
+    error: Token
+}
 
 impl<T> Value<T> for Attr
 where
@@ -85,45 +92,42 @@ where
 
 impl Attr {
     pub fn id(&self) -> Token {
-        unsafe { symbol::Attr_id.unwrap()(self) }
+        self.id
     }
 
     pub fn range(&self) -> Range {
-        unsafe {
-            let (start, end) = symbol::Attr_range.unwrap()(self);
-            Range {
-                start: start,
-                end: end,
-            }
+        Range {
+            start: self.range.0,
+            end: self.range.1,
         }
     }
 
     pub fn set_range(&mut self, range: &Range) {
-        unsafe { symbol::Attr_setRange.unwrap()(self, (range.start, range.end)) }
+        self.range = (range.start, range.end)
     }
 
     pub fn typ(&self) -> Token {
-        unsafe { symbol::Attr_type.unwrap()(self) }
+        self.typ
     }
 
     pub fn set_typ(&mut self, id: Token) {
-        unsafe { symbol::Attr_setType.unwrap()(self, id) }
+        self.typ = id
     }
 
     pub fn error(&self) -> Token {
-        unsafe { symbol::Attr_error.unwrap()(self) }
+        self.error
     }
 
     pub fn set_error(&mut self, id: Token) {
-        unsafe { symbol::Attr_setError.unwrap()(self, id) }
+        self.error = id
     }
 
     pub fn value(&self) -> &Variant {
-        unsafe { mem::transmute(&*self as *const _) }
+        &self.val
     }
 
     pub fn value_mut(&mut self) -> &mut Variant {
-        unsafe { mem::transmute(&mut *self as *mut _) }
+        &mut self.val
     }
 
     pub fn set_nil(&mut self) {

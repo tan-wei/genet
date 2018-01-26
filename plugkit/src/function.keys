@@ -13,13 +13,6 @@ struct Functions
   void *func;
 };
 %%
-Attr_id, reinterpret_cast<void *>(&plugkit::Attr_id)
-Attr_range, reinterpret_cast<void *>(&plugkit::Attr_range)
-Attr_setRange, reinterpret_cast<void *>(&plugkit::Attr_setRange)
-Attr_type, reinterpret_cast<void *>(&plugkit::Attr_type)
-Attr_setType, reinterpret_cast<void *>(&plugkit::Attr_setType)
-Attr_error, reinterpret_cast<void *>(&plugkit::Attr_error)
-Attr_setError, reinterpret_cast<void *>(&plugkit::Attr_setError)
 Context_getOption, reinterpret_cast<void *>(&plugkit::Context_getOption)
 Layer_id, reinterpret_cast<void *>(&plugkit::Layer_id)
 Layer_confidence, reinterpret_cast<void *>(&plugkit::Layer_confidence)
