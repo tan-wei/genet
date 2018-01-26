@@ -1,0 +1,14 @@
+[package]
+name = "udp"
+version = "0.1.0"
+authors = ["Ron Hashimoto <mail@h2so5.net>"]
+
+[lib]
+name = "udp"
+crate-type = ["cdylib"]
+path = "src/udp.rs"
+
+[dependencies]
+libc = "*"
+byteorder = "1"
+plugkit = { path = "../../plugkit/plugkit-rust" }
