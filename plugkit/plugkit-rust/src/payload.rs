@@ -5,7 +5,10 @@ use std::slice;
 
 extern crate libc;
 
-pub enum Payload {}
+pub struct Payload {
+    typ: Token,
+    range: (libc::size_t, libc::size_t)
+}
 
 impl Payload {
     pub fn add_slice(&mut self, data: &'static [u8]) {
@@ -29,24 +32,21 @@ impl Payload {
     }
 
     pub fn range(&self) -> Range {
-        unsafe {
-            let (start, end) = symbol::Payload_range.unwrap()(self);
-            Range {
-                start: start,
-                end: end,
-            }
+        Range {
+            start: self.range.0,
+            end: self.range.1,
         }
     }
 
     pub fn set_range(&mut self, range: &Range) {
-        unsafe { symbol::Payload_setRange.unwrap()(self, (range.start, range.end)) }
+        self.range = (range.start, range.end)
     }
 
     pub fn typ(&self) -> Token {
-        unsafe { symbol::Payload_type.unwrap()(self) }
+        self.typ
     }
 
     pub fn set_typ(&mut self, id: Token) {
-        unsafe { symbol::Payload_setType.unwrap()(self, id) }
+        self.typ = id
     }
 }

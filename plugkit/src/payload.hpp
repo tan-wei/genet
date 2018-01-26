@@ -37,9 +37,9 @@ private:
 private:
   Token mType;
   Range mRange = {0, 0};
+  size_t mLength = 0;
   std::vector<Slice> mSlices;
   std::vector<const Attr *> mAttrs;
-  size_t mLength = 0;
 };
 } // namespace plugkit
 

@@ -59,10 +59,6 @@ def_func!(
     Payload_addSlice,      extern "C" fn(*mut Payload, (*const u8, *const u8));
     Payload_slices,        extern "C" fn(*const Payload, *mut libc::size_t) -> *const (*const u8, *const u8);
     Payload_addAttr,       extern "C" fn(*mut Payload, *mut Context, Token) -> *mut Attr;
-    Payload_type,          extern "C" fn(*const Payload) -> Token;
-    Payload_setType,       extern "C" fn(*mut Payload, Token);
-    Payload_range,         extern "C" fn(*const Payload) -> (libc::size_t, libc::size_t);
-    Payload_setRange,      extern "C" fn(*mut Payload, (libc::size_t, libc::size_t));
 );
 
 #[macro_export]
