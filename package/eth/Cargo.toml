@@ -6,6 +6,7 @@ authors = ["Ron Hashimoto <mail@h2so5.net>"]
 [lib]
 name = "main"
 crate-type = ["cdylib"]
+path = "src/eth.rs"
 
 [dependencies]
 libc = "*"
