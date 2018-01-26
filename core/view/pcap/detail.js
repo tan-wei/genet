@@ -49,7 +49,7 @@ class AttributeItem {
             m('i', { class: 'fa fa-circle-o' }, [' ']),
             m('i', { class: 'fa fa-arrow-circle-right' }, [' ']),
             m('i', { class: 'fa fa-arrow-circle-down' }, [' ']),
-            name, ': '
+            name
           ]),
           m(attrRenderer, {
             attr,
