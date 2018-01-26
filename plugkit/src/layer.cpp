@@ -8,21 +8,18 @@
 
 namespace plugkit {
 
-Layer::Layer(Token id) : mId(id) {
-  setWorker(0);
-  setConfidence(LAYER_CONF_EXACT);
-}
+Layer::Layer(Token id) : mId(id) { setConfidence(LAYER_CONF_EXACT); }
 
 Layer::~Layer() {}
 
 Token Layer::id() const { return mId; }
 
 LayerConfidence Layer::confidence() const {
-  return static_cast<LayerConfidence>(mConfidence);
+  return static_cast<LayerConfidence>((mData >> 4) & 0x3);
 }
 
 void Layer::setConfidence(LayerConfidence confidence) {
-  mConfidence = confidence;
+  mData = ((mData & 0xcf) | (confidence << 4));
 }
 
 Range Layer::range() const { return mRange; }
@@ -37,9 +34,11 @@ const std::vector<Layer *> &Layer::subLayers() const { return mSubLayers; }
 
 void Layer::addSubLayer(Layer *child) { mSubLayers.push_back(child); }
 
-uint8_t Layer::worker() const { return mWorker; }
+uint8_t Layer::worker() const { return mData & 0xf; }
 
-void Layer::setWorker(uint8_t id) { mWorker = id % LAYER_MAX_WORKER; }
+void Layer::setWorker(uint8_t id) {
+  mData = ((mData & 0xf0) | (id % LAYER_MAX_WORKER));
+}
 
 const std::vector<Token> &Layer::tags() const { return mTags; }
 

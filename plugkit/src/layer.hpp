@@ -62,8 +62,7 @@ private:
 
 private:
   Token mId = 0;
-  uint8_t mWorker : 4;
-  LayerConfidence mConfidence : 2;
+  uint8_t mData = 0;
   Layer *mParent = nullptr;
   const Layer *mMaster = nullptr;
   const Frame *mFrame = nullptr;
