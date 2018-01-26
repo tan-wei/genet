@@ -4,11 +4,24 @@ use super::payload::Payload;
 use super::context::Context;
 use super::symbol;
 use super::range::Range;
+use std::mem;
 use std::slice;
 
 extern crate libc;
 
-pub enum Layer {}
+enum Frame {}
+
+pub const MAX_WORKER: u8 = 16;
+
+#[repr(C)]
+pub struct Layer {
+    id: Token,
+    data: u8,
+    parent: *mut Layer,
+    master: *const Layer,
+    frame: *const Frame,
+    range: (libc::size_t, libc::size_t)
+}
 
 #[derive(Debug)]
 pub enum Confidence {
@@ -20,7 +33,7 @@ pub enum Confidence {
 
 impl Layer {
     pub fn id(&self) -> Token {
-        unsafe { symbol::Layer_id.unwrap()(self) }
+        self.id
     }
 
     pub fn attr(&self, id: Token) -> Option<&Attr> {
@@ -59,32 +72,29 @@ impl Layer {
     }
 
     pub fn range(&self) -> Range {
-        unsafe {
-            let (start, end) = symbol::Layer_range.unwrap()(self);
-            Range {
-                start: start,
-                end: end,
-            }
+        Range {
+            start: self.range.0,
+            end: self.range.1,
         }
     }
 
     pub fn set_range(&mut self, range: &Range) {
-        unsafe { symbol::Layer_setRange.unwrap()(self, (range.start, range.end)) }
+        self.range = (range.start, range.end)
     }
 
     pub fn confidence(&self) -> Confidence {
-        unsafe { symbol::Layer_confidence.unwrap()(self) }
+        unsafe { mem::transmute((self.data >> 4) & 0b0000_0011) }
     }
 
     pub fn set_confidence(&mut self, conf: Confidence) {
-        unsafe { symbol::Layer_setConfidence.unwrap()(self, conf) }
+        self.data = (self.data & 0b1100_1111) | ((conf as u8) << 4)
     }
 
     pub fn worker(&self) -> u8 {
-        unsafe { symbol::Layer_worker.unwrap()(self) }
+        self.data & 0b0000_1111
     }
 
     pub fn set_worker(&mut self, worker: u8) {
-        unsafe { symbol::Layer_setWorker.unwrap()(self, worker) }
+        self.data = (self.data & 0b1111_0000) | (worker % MAX_WORKER)
     }
 }

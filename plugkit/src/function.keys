@@ -14,14 +14,6 @@ struct Functions
 };
 %%
 Context_getOption, reinterpret_cast<void *>(&plugkit::Context_getOption)
-Layer_id, reinterpret_cast<void *>(&plugkit::Layer_id)
-Layer_confidence, reinterpret_cast<void *>(&plugkit::Layer_confidence)
-Layer_range, reinterpret_cast<void *>(&plugkit::Layer_range)
-Layer_setRange, reinterpret_cast<void *>(&plugkit::Layer_setRange)
-Layer_setConfidence, reinterpret_cast<void *>(&plugkit::Layer_setConfidence)
-Layer_worker, reinterpret_cast<void *>(&plugkit::Layer_worker)
-Layer_setWorker, reinterpret_cast<void *>(&plugkit::Layer_setWorker)
-Layer_parent, reinterpret_cast<void *>(&plugkit::Layer_parent)
 Layer_addLayer, reinterpret_cast<void *>(&plugkit::Layer_addLayer)
 Layer_addSubLayer, reinterpret_cast<void *>(&plugkit::Layer_addSubLayer)
 Layer_addAttr, reinterpret_cast<void *>(&plugkit::Layer_addAttr)
