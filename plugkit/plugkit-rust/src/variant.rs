@@ -1,10 +1,9 @@
 use std::fmt;
+use std::mem;
 use std::string::String;
 use std::slice;
 use std::ffi::CStr;
 use super::symbol;
-
-pub enum Variant {}
 
 #[derive(Debug)]
 pub enum Type {
@@ -17,6 +16,22 @@ pub enum Type {
     Slice = 8,
     Array = 9,
     Map = 10,
+}
+
+#[repr(C)]
+union ValueUnion {
+    boolean: bool,
+    double: f64,
+    int32: i32,
+    uint32: u32,
+    slice: *mut (*const u8, *const u8),
+    ptr: *mut (),
+}
+
+#[repr(C)]
+pub struct Variant {
+    typ_tag: u8,
+    val: ValueUnion
 }
 
 impl fmt::Display for Variant {
@@ -176,7 +191,7 @@ impl Value<&'static [u8]> for Variant {
 
 impl Variant {
     pub fn typ(&self) -> Type {
-        unsafe { symbol::Variant_type.unwrap()(self) }
+        unsafe { mem::transmute(self.typ_tag & 0b0000_1111) }
     }
 
     pub fn set_nil(&mut self) {

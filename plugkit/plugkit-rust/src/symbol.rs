@@ -4,7 +4,6 @@ extern crate libc;
 
 use std;
 use std::ffi::CString;
-use super::variant;
 use super::variant::Variant;
 use super::layer;
 use super::layer::Layer;
@@ -34,7 +33,6 @@ def_func!(
     Token_string,          extern "C" fn(Token) -> *const libc::c_char;
     Token_join,            extern "C" fn(Token, Token) -> Token;
     Context_getOption,     extern "C" fn(*const Context, *const libc::c_char) -> *const Variant;
-    Variant_type,          extern "C" fn(*const Variant) -> variant::Type;
     Variant_setNil,        extern "C" fn(*mut Variant);
     Variant_bool,          extern "C" fn(*const Variant) -> bool;
     Variant_setBool,       extern "C" fn(*mut Variant, bool);
