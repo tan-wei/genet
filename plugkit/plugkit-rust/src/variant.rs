@@ -125,7 +125,12 @@ impl Value<bool> for Variant {
     }
 
     fn set(&mut self, val: &bool) {
-        unsafe { symbol::Variant_setBool.unwrap()(self, *val) }
+        if self.is_fat() {
+            unsafe { symbol::Variant_setBool.unwrap()(self, *val) }
+        } else {
+            self.set_typ(Type::Bool);
+            self.val.boolean = *val
+        }
     }
 }
 
@@ -135,7 +140,12 @@ impl Value<i32> for Variant {
     }
 
     fn set(&mut self, val: &i32) {
-        unsafe { symbol::Variant_setInt32.unwrap()(self, *val) }
+        if self.is_fat() {
+            unsafe { symbol::Variant_setInt32.unwrap()(self, *val) }
+        } else {
+            self.set_typ(Type::Int32);
+            self.val.int32 = *val
+        }
     }
 }
 
@@ -145,7 +155,12 @@ impl Value<u32> for Variant {
     }
 
     fn set(&mut self, val: &u32) {
-        unsafe { symbol::Variant_setUint32.unwrap()(self, *val) }
+        if self.is_fat() {
+            unsafe { symbol::Variant_setUint32.unwrap()(self, *val) }
+        } else {
+            self.set_typ(Type::Uint32);
+            self.val.uint32 = *val
+        }
     }
 }
 
@@ -155,7 +170,12 @@ impl Value<f64> for Variant {
     }
 
     fn set(&mut self, val: &f64) {
-        unsafe { symbol::Variant_setDouble.unwrap()(self, *val) }
+        if self.is_fat() {
+            unsafe { symbol::Variant_setDouble.unwrap()(self, *val) }
+        } else {
+            self.set_typ(Type::Double);
+            self.val.double = *val;
+        }
     }
 }
 
@@ -190,11 +210,26 @@ impl Value<&'static [u8]> for Variant {
 }
 
 impl Variant {
+    pub fn set_typ(&mut self, typ: Type) {
+        self.typ_tag = (self.typ_tag & 0b1111_0000) | (typ as u8)
+    }
+
     pub fn typ(&self) -> Type {
         unsafe { mem::transmute(self.typ_tag & 0b0000_1111) }
     }
 
     pub fn set_nil(&mut self) {
-        unsafe { symbol::Variant_setNil.unwrap()(self) }
+        if self.is_fat() {
+            unsafe { symbol::Variant_setNil.unwrap()(self) }
+        } else {
+            self.set_typ(Type::Nil);
+        }
+    }
+
+    fn is_fat(&self) -> bool {
+        match self.typ() {
+            Type::Nil | Type::Bool | Type::Int32 | Type::Uint32 | Type::Double => false,
+            _ => true
+        }
     }
 }
