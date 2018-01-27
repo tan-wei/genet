@@ -30,12 +30,15 @@ macro_rules! plugkit_api_worker {
 
         #[no_mangle]
         pub extern "C" fn plugkit_v1_analyze(ctx: *mut (), _diss: *const (), worker: *mut(), layer: *mut ()) {
+            use std::panic;
+            use plugkit::context::Context;
+            use plugkit::layer::Layer;
             unsafe {
                 let w: &$x = &*(worker as *mut $x);
-                let c: &mut ::plugkit::context::Context =
-                    &mut *(ctx as *mut ::plugkit::context::Context);
-                let l: &mut ::plugkit::layer::Layer = &mut *(layer as *mut ::plugkit::layer::Layer);
-                let result = ::std::panic::catch_unwind(::std::panic::AssertUnwindSafe(|| {
+                let c: &mut Context =
+                    &mut *(ctx as *mut Context);
+                let l: &mut Layer = &mut *(layer as *mut Layer);
+                let result = panic::catch_unwind(panic::AssertUnwindSafe(|| {
                     w.analyze(c, l)
                 }));
                 match result {
