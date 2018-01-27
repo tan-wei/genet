@@ -1,0 +1,14 @@
+[package]
+name = "pcap-file"
+version = "0.1.0"
+authors = ["Ron Hashimoto <mail@h2so5.net>"]
+
+[lib]
+name = "importer"
+crate-type = ["cdylib"]
+path = "src/importer.rs"
+
+[dependencies]
+libc = "*"
+byteorder = "1"
+plugkit = { path = "../../plugkit/plugkit-rust" }

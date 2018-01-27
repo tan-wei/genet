@@ -5,14 +5,22 @@ use std::slice;
 use std::io::{Error, ErrorKind, Result};
 use std::path::Path;
 use super::layer::Layer;
+use super::context::Context;
 
+pub enum Status {
+    Done        = 0,
+    Error       = 1,
+    Unsupported = 2
+}
+
+#[repr(C)]
 pub struct RawFrame {
     link: u32,
     data: *const libc::c_char,
-    len: u64,
-    actlen: u64,
-    ts_sec: u64,
-    ts_nsec: u64,
+    len: libc::size_t,
+    actlen: libc::size_t,
+    ts_sec: i64,
+    ts_nsec: i64,
     root: *const Layer
 }
 
@@ -31,23 +39,23 @@ impl RawFrame {
 
     pub fn set_data_and_forget(&mut self, data: Box<[u8]>) {
         self.data = data.as_ptr() as *const i8;
-        self.len = data.len() as u64;
+        self.len = data.len() as usize;
         mem::forget(data);
     }
 
-    pub fn actlen(&self) -> u64 {
+    pub fn actlen(&self) -> usize {
         self.actlen
     }
 
-    pub fn set_actlen(&mut self, val: u64) {
+    pub fn set_actlen(&mut self, val: usize) {
         self.actlen = val;
     }
 
-    pub fn ts(&self) -> (u64, u64) {
+    pub fn ts(&self) -> (i64, i64) {
         (self.ts_sec, self.ts_nsec)
     }
 
-    pub fn set_ts(&mut self, val: (u64, u64)) {
+    pub fn set_ts(&mut self, val: (i64, i64)) {
         self.ts_sec = val.0;
         self.ts_nsec = val.1;
     }
@@ -61,28 +69,14 @@ impl RawFrame {
     }
 }
 
-pub trait Exp {
-    fn start() -> Result<(f32)> {
+pub trait Importer {
+    fn start(_ctx: &mut Context, _path: &Path, _dst: &mut [RawFrame], _cb: &Fn(&mut Context, usize, f64)) -> Result<()> {
         Err(Error::new(ErrorKind::InvalidInput, "unsupported"))
     }
 }
 
 pub trait Exporter {
-    fn open(&mut self, _path: &Path) -> Result<()> {
-        Err(Error::new(ErrorKind::Other, "not implemented"))
-    }
-
-    fn run(&mut self, &[RawFrame]) -> Result<()> {
-        Err(Error::new(ErrorKind::Other, "not implemented"))
-    }
-}
-
-pub trait Importer<'a> {
-    fn open(&mut self, _path: &Path) -> Result<()> {
-        Err(Error::new(ErrorKind::Other, "not implemented"))
-    }
-
-    fn run(&mut self) -> Result<(&'a [RawFrame], f32)> {
-        Err(Error::new(ErrorKind::Other, "not implemented"))
+    fn start<'a>(_ctx: &mut Context, _path: &Path, _cb: fn(&mut Context) -> &'a[&'a RawFrame]) -> Result<()> {
+        Err(Error::new(ErrorKind::InvalidInput, "unsupported"))
     }
 }

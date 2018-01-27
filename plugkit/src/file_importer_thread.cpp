@@ -110,7 +110,7 @@ int FileImporterThread::start(const std::string &file) {
     data.id = id;
     data.callback = d->callback;
     data.linkLayers = d->linkLayers;
-    data.frames.resize(1024);
+    data.frames.resize(10240);
     ctx.rootAllocator = d->allocator;
     ctx.data = &data;
     for (const FileImporter &importer : importers) {

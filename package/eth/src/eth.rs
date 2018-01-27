@@ -14,8 +14,6 @@ use plugkit::worker::Worker;
 use plugkit::variant::Value;
 use plugkit::attr::ResultValue;
 
-pub mod file;
-
 fn eth_type(val: u32) -> Option<(Token, Token)> {
     match val {
         0x0800 => Some((token!("[ipv4]"), token!("eth.type.ipv4"))),

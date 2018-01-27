@@ -10,7 +10,7 @@
     "components": [
       {
         "type": "core:file:importer",
-        "main": "importer.node",
+        "main": "importer",
         "extensions": {
           "pcap": "Pcap File"
         }
