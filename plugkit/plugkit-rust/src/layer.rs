@@ -71,6 +71,22 @@ impl Layer {
         }
     }
 
+    pub fn parent(&self) -> Option<&Layer> {
+        if self.parent.is_null() {
+            None
+        } else {
+            unsafe { Some(&*self.parent) }
+        }
+    }
+
+    pub fn parent_mut(&mut self) -> Option<&mut Layer> {
+        if self.parent.is_null() {
+            None
+        } else {
+            unsafe { Some(&mut *self.parent) }
+        }
+    }
+
     pub fn range(&self) -> Range {
         Range {
             start: self.range.0,
