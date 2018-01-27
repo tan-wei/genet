@@ -92,7 +92,8 @@ const RawFrame *apiCallback(Context *ctx, size_t *length) {
 
 class FileExporterWorkerThread : public WorkerThread {
 public:
-  FileExporterWorkerThread(const ContextData &data) : data(data) {}
+  FileExporterWorkerThread(const VariantMap &options, const ContextData &data)
+      : options(options), data(data) {}
 
   ~FileExporterWorkerThread() {}
 
@@ -104,6 +105,7 @@ public:
   bool loop() override {
     Context ctx;
     data.filter = filter.get();
+    ctx.options = options;
     ctx.data = &data;
 
     for (const FileExporter &exporter : data.exporters) {
@@ -119,6 +121,7 @@ public:
   void exit() override { filter.reset(); }
 
 private:
+  VariantMap options;
   ContextData data;
   std::unique_ptr<Filter> filter;
 };
@@ -129,6 +132,7 @@ class FileExporterThread::Private {
 public:
   int counter = 0;
   Callback callback;
+  VariantMap options;
   LoggerPtr logger = std::make_shared<StreamLogger>();
   std::unordered_map<Token, int> linkLayers;
   std::unique_ptr<FileExporterWorkerThread> worker;
@@ -146,6 +150,10 @@ FileExporterThread::~FileExporterThread() {
   if (d->worker) {
     d->worker->join();
   }
+}
+
+void FileExporterThread::setOptions(const VariantMap &options) {
+  d->options = options;
 }
 
 void FileExporterThread::setLogger(const LoggerPtr &logger) {
@@ -188,7 +196,7 @@ int FileExporterThread::start(const std::string &file,
   data.file = file;
   data.filterBody = filter;
 
-  d->worker.reset(new FileExporterWorkerThread(data));
+  d->worker.reset(new FileExporterWorkerThread(d->options, data));
   d->worker->setLogger(d->logger);
   d->worker->start();
   return id;

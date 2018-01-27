@@ -17,7 +17,7 @@
       },
       {
         "type": "core:file:exporter",
-        "main": "exporter.node",
+        "main": "exporter",
         "extensions": {
           "pcap": "Pcap File"
         }

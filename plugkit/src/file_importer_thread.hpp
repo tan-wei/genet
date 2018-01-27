@@ -2,6 +2,7 @@
 #define PLUGKIT_FILE_IMPORTEER_THREAD_H
 
 #include "token.h"
+#include "variant_map.hpp"
 #include <functional>
 #include <memory>
 #include <string>
@@ -20,6 +21,7 @@ public:
 public:
   FileImporterThread();
   ~FileImporterThread();
+  void setOptions(const VariantMap &options);
   void setCallback(const Callback &callback);
   void setAllocator(RootAllocator *allocator);
   void registerLinkLayer(int link, Token token);

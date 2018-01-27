@@ -200,6 +200,7 @@ Session::Session(const Config &config) : d(new Private(config)) {
   }
 
   d->fileImporter.reset(new FileImporterThread());
+  d->fileImporter->setOptions(d->config.options);
   d->fileImporter->setAllocator(&d->allocator);
   for (const auto &pair : d->config.linkLayers) {
     d->fileImporter->registerLinkLayer(pair.first, pair.second);
@@ -218,6 +219,7 @@ Session::Session(const Config &config) : d(new Private(config)) {
       });
 
   d->fileExporter.reset(new FileExporterThread(d->frameStore));
+  d->fileExporter->setOptions(d->config.options);
   d->fileExporter->setLogger(d->logger);
   for (const auto &pair : d->config.linkLayers) {
     d->fileExporter->registerLinkLayer(pair.second, pair.first);

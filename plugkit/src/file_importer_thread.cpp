@@ -65,6 +65,7 @@ bool apiCallback(Context *ctx, size_t length, double progress) {
 class FileImporterThread::Private {
 public:
   int counter = 0;
+  VariantMap options;
   Callback callback;
   std::unordered_map<int, Token> linkLayers;
   std::vector<FileImporter> importers;
@@ -78,6 +79,10 @@ FileImporterThread::~FileImporterThread() {
   if (d->thread.joinable()) {
     d->thread.join();
   }
+}
+
+void FileImporterThread::setOptions(const VariantMap &options) {
+  d->options = options;
 }
 
 void FileImporterThread::setAllocator(RootAllocator *allocator) {
@@ -111,6 +116,7 @@ int FileImporterThread::start(const std::string &file) {
     data.callback = d->callback;
     data.linkLayers = d->linkLayers;
     data.frames.resize(10240);
+    ctx.options = d->options;
     ctx.rootAllocator = d->allocator;
     ctx.data = &data;
     for (const FileImporter &importer : importers) {

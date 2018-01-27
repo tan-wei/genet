@@ -1,3 +1,4 @@
+#[macro_use]
 extern crate plugkit;
 extern crate byteorder;
 extern crate libc;
@@ -138,3 +139,5 @@ pub extern "C" fn plugkit_v1_file_import(c: *mut Context, p: *const libc::c_char
         Status::Done
     }
 }
+
+plugkit_module!({});

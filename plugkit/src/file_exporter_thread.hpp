@@ -2,6 +2,7 @@
 #define PLUGKIT_FILE_EXPORTER_THREAD_H
 
 #include "token.h"
+#include "variant_map.hpp"
 #include <functional>
 #include <memory>
 #include <string>
@@ -24,6 +25,7 @@ public:
 public:
   FileExporterThread(const FrameStorePtr &store);
   ~FileExporterThread();
+  void setOptions(const VariantMap &options);
   void setLogger(const LoggerPtr &logger);
   void setCallback(const Callback &callback);
   void addExporter(const FileExporter &exporter);

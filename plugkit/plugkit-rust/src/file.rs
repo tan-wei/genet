@@ -76,7 +76,7 @@ pub trait Importer {
 }
 
 pub trait Exporter {
-    fn start<'a>(_ctx: &mut Context, _path: &Path, _cb: fn(&mut Context) -> &'a[&'a RawFrame]) -> Result<()> {
+    fn start(_ctx: &mut Context, _path: &Path, _cb: &Fn(&mut Context) -> &[RawFrame]) -> Result<()> {
         Err(Error::new(ErrorKind::InvalidInput, "unsupported"))
     }
 }
