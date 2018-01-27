@@ -24,18 +24,18 @@ typedef struct RawFrame {
 typedef enum FileStatus {
   FILE_STATUS_DONE,
   FILE_STATUS_ERROR,
-  FILE_STATUS_UNSUPPORTED,
-  FILE_STATUS_CANCELED
+  FILE_STATUS_UNSUPPORTED
 } FileStatus;
 
 typedef bool(FileImporterCallback)(Context *ctx,
-                                   const RawFrame *frames,
                                    size_t length,
                                    double progress);
 typedef const RawFrame *(FileExporterCallback)(Context *ctx, size_t *length);
 
 typedef FileStatus(FileImporterFunc)(Context *ctx,
                                      const char *filename,
+                                     RawFrame *frames,
+                                     size_t capacity,
                                      FileImporterCallback callback);
 typedef FileStatus(FileExporterFunc)(Context *ctx,
                                      const char *filename,

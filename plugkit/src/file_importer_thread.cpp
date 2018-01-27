@@ -16,6 +16,7 @@ struct CallbackData {
   int id;
   FileImporterThread::Callback callback;
   std::unordered_map<int, Token> linkLayers;
+  std::vector<RawFrame> frames;
 };
 
 Frame *createFrame(Context *ctx, Token tag, const RawFrame &raw) {
@@ -39,17 +40,14 @@ Frame *createFrame(Context *ctx, Token tag, const RawFrame &raw) {
   return frame;
 }
 
-bool apiCallback(Context *ctx,
-                 const RawFrame *begin,
-                 size_t length,
-                 double progress) {
+bool apiCallback(Context *ctx, size_t length, double progress) {
   std::vector<Frame *> frames;
   frames.reserve(length);
 
   const CallbackData *data = static_cast<const CallbackData *>(ctx->data);
 
   for (size_t i = 0; i < length; ++i) {
-    const RawFrame &raw = begin[i];
+    const RawFrame &raw = data->frames[i];
     const auto &linkLayer = data->linkLayers.find(raw.link);
     Token tag = Token_get("[unknown]");
     if (linkLayer != data->linkLayers.end()) {
@@ -112,12 +110,14 @@ int FileImporterThread::start(const std::string &file) {
     data.id = id;
     data.callback = d->callback;
     data.linkLayers = d->linkLayers;
+    data.frames.resize(1024);
     ctx.rootAllocator = d->allocator;
     ctx.data = &data;
     for (const FileImporter &importer : importers) {
       if (!importer.func)
         continue;
-      FileStatus status = importer.func(&ctx, file.c_str(), apiCallback);
+      FileStatus status = importer.func(&ctx, file.c_str(), data.frames.data(),
+                                        data.frames.size(), apiCallback);
       if (status != FILE_STATUS_UNSUPPORTED) {
         return;
       }

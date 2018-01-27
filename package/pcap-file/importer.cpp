@@ -6,8 +6,11 @@
 
 using namespace plugkit;
 
-FileStatus
-import(Context *ctx, const char *filename, FileImporterCallback callback) {
+FileStatus import(Context *ctx,
+                  const char *filename,
+                  RawFrame *dst,
+                  size_t capacity,
+                  FileImporterCallback callback) {
 
   std::ifstream ifs(filename, std::ios::binary);
   if (!ifs.is_open()) {
@@ -61,61 +64,61 @@ import(Context *ctx, const char *filename, FileImporterCallback callback) {
   size_t dataLength = ifs.tellg();
   ifs.seekg(headerOffset, ifs.beg);
 
-  const size_t bufferSize = 1024;
-  std::vector<RawFrame> frames;
-  frames.reserve(bufferSize);
-  while (1) {
-    char frameHeader[16];
-    ifs.read(frameHeader, sizeof frameHeader);
-    if (!ifs) {
-      break;
+  while (ifs) {
+    size_t count = 0;
+
+    for (count = 0; count < capacity; ++count) {
+      char frameHeader[16];
+      ifs.read(frameHeader, sizeof frameHeader);
+      if (!ifs) {
+        break;
+      }
+
+      Reader frameReader;
+      Reader_reset(&frameReader);
+
+      frameReader.data.begin = frameHeader;
+      frameReader.data.end = frameHeader + sizeof frameHeader;
+
+      uint32_t tsSec = Reader_getUint32(&frameReader, littleEndian);
+      uint32_t tsUsec = Reader_getUint32(&frameReader, littleEndian);
+      uint32_t inclLen = Reader_getUint32(&frameReader, littleEndian);
+      uint32_t origLen = Reader_getUint32(&frameReader, littleEndian);
+
+      char *buffer = static_cast<char *>(Context_alloc(ctx, inclLen));
+      ifs.read(buffer, inclLen);
+      if (!ifs) {
+        break;
+      }
+
+      if (!nanosec) {
+        tsUsec *= 1000;
+      }
+
+      RawFrame &frame = dst[count];
+      frame.link = network;
+      frame.data = buffer;
+      frame.length = inclLen;
+      frame.actualLength = origLen;
+      frame.tsSec = tsSec;
+      frame.tsNsec = tsUsec;
     }
 
-    Reader frameReader;
-    Reader_reset(&frameReader);
-
-    frameReader.data.begin = frameHeader;
-    frameReader.data.end = frameHeader + sizeof frameHeader;
-
-    uint32_t tsSec = Reader_getUint32(&frameReader, littleEndian);
-    uint32_t tsUsec = Reader_getUint32(&frameReader, littleEndian);
-    uint32_t inclLen = Reader_getUint32(&frameReader, littleEndian);
-    uint32_t origLen = Reader_getUint32(&frameReader, littleEndian);
-
-    char *buffer = static_cast<char *>(Context_alloc(ctx, inclLen));
-    ifs.read(buffer, inclLen);
-    if (!ifs) {
-      break;
-    }
-
-    if (!nanosec) {
-      tsUsec *= 1000;
-    }
-
-    frames.resize(frames.size() + 1);
-    RawFrame &frame = frames[frames.size() - 1];
-    frame.link = network;
-    frame.data = buffer;
-    frame.length = inclLen;
-    frame.actualLength = origLen;
-    frame.tsSec = tsSec;
-    frame.tsNsec = tsUsec;
-
-    if (frames.size() >= bufferSize) {
-      callback(ctx, frames.data(), frames.size(),
-               1.0 * ifs.tellg() / dataLength);
-      frames.clear();
-    }
+    callback(ctx, count, 1.0 * ifs.tellg() / dataLength);
   }
 
-  callback(ctx, frames.data(), frames.size(), 1.0);
+  callback(ctx, 0, 1.0);
   return FILE_STATUS_DONE;
 }
 
 extern "C" {
 
-PLUGKIT_MODULE_EXPORT FileStatus plugkit_v1_file_import(
-    Context *ctx, const char *filename, FileImporterCallback callback) {
-  return import(ctx, filename, callback);
+PLUGKIT_MODULE_EXPORT FileStatus
+plugkit_v1_file_import(Context *ctx,
+                       const char *filename,
+                       RawFrame *dst,
+                       size_t capacity,
+                       FileImporterCallback callback) {
+  return import(ctx, filename, dst, capacity, callback);
 }
 }
