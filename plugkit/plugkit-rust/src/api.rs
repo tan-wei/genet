@@ -1,4 +1,73 @@
 #[macro_export]
+macro_rules! plugkit_api_file_import {
+    ( $x:ident ) => {
+        #[no_mangle]
+        pub extern "C" fn plugkit_v1_file_import(c: *mut Context, p: *const libc::c_char, d: *mut RawFrame,
+                s: libc::size_t, callback: extern "C" fn (*mut Context, libc::size_t, f64)) -> plugkit::file::Status {
+            use std::ffi::CStr;
+            use std::{str,slice};
+            use std::path::Path;
+            use plugkit::file::Status;
+            let path = unsafe {
+                let slice = CStr::from_ptr(p);
+                Path::new(str::from_utf8_unchecked(slice.to_bytes()))
+            };
+            let dst = unsafe {
+                slice::from_raw_parts_mut(d, s as usize)
+            };
+            let ctx = unsafe { &mut *c };
+
+            let result = $x::start(ctx, path, dst, &|ctx, len, prog| {
+                callback(ctx as *mut Context, len, prog);
+            });
+            callback(c, 0, 1.0);
+            if let Err(e) = result {
+                match e.kind() {
+                    ErrorKind::InvalidInput => Status::Unsupported,
+                    _ => Status::Error,
+                }
+            } else {
+                Status::Done
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! plugkit_api_file_export {
+    ( $x:ident ) => {
+        #[no_mangle]
+        pub extern "C" fn plugkit_v1_file_export(c: *mut Context, p: *const libc::c_char,
+            callback: extern "C" fn (*mut Context, *mut libc::size_t) -> *const RawFrame) -> plugkit::file::Status {
+            use std::ffi::CStr;
+            use std::{str,slice};
+            use std::path::Path;
+            use plugkit::file::Status;
+            let path = unsafe {
+                let slice = CStr::from_ptr(p);
+                Path::new(str::from_utf8_unchecked(slice.to_bytes()))
+            };
+            let ctx = unsafe { &mut *c };
+            let result = $x::start(ctx, path, &|ctx| {
+                let mut len : libc::size_t = 0;
+                unsafe {
+                    let ptr = &*callback(ctx as *mut Context, &mut len as *mut libc::size_t);
+                    slice::from_raw_parts(ptr, len as usize)
+                }
+            });
+            if let Err(e) = result {
+                match e.kind() {
+                    ErrorKind::InvalidInput => Status::Unsupported,
+                    _ => Status::Error,
+                }
+            } else {
+                Status::Done
+            }
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! plugkit_api_layer_hints {
     ( $( $x:expr ), * ) => {
         #[no_mangle]

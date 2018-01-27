@@ -63,33 +63,5 @@ impl Exporter for PcapExporter {
     }
 }
 
-#[no_mangle]
-pub extern "C" fn plugkit_v1_file_export(c: *mut Context, p: *const libc::c_char,
-    callback: extern "C" fn (*mut Context, *mut libc::size_t) -> *const RawFrame) -> plugkit::file::Status {
-    use std::ffi::CStr;
-    use std::{str,slice};
-    use std::path::Path;
-    use plugkit::file::Status;
-    let path = unsafe {
-        let slice = CStr::from_ptr(p);
-        Path::new(str::from_utf8_unchecked(slice.to_bytes()))
-    };
-    let ctx = unsafe { &mut *c };
-    let result = PcapExporter::start(ctx, path, &|ctx| {
-        let mut len : libc::size_t = 0;
-        unsafe {
-            let ptr = &*callback(ctx as *mut Context, &mut len as *mut libc::size_t);
-            slice::from_raw_parts(ptr, len as usize)
-        }
-    });
-    if let Err(e) = result {
-        match e.kind() {
-            ErrorKind::InvalidInput => Status::Unsupported,
-            _ => Status::Error,
-        }
-    } else {
-        Status::Done
-    }
-}
-
 plugkit_module!({});
+plugkit_api_file_export!(PcapExporter);
