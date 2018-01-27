@@ -1,14 +1,13 @@
 [package]
-name = "eth"
+name = "ipv6"
 version = "0.1.0"
 authors = ["Ron Hashimoto <mail@h2so5.net>"]
 
 [lib]
-name = "eth"
+name = "main"
 crate-type = ["cdylib"]
-path = "src/eth.rs"
 
 [dependencies]
 libc = "*"
 byteorder = "1"
-plugkit = { path = "../../plugkit/plugkit-rust" }
+plugkit = { path = "../../../../plugkit/plugkit-rust" }

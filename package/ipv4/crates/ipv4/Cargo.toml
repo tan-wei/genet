@@ -1,14 +1,13 @@
 [package]
-name = "ipv6"
+name = "ipv4"
 version = "0.1.0"
 authors = ["Ron Hashimoto <mail@h2so5.net>"]
 
 [lib]
-name = "ipv6"
+name = "main"
 crate-type = ["cdylib"]
-path = "src/ipv6.rs"
 
 [dependencies]
 libc = "*"
 byteorder = "1"
-plugkit = { path = "../../plugkit/plugkit-rust" }
+plugkit = { path = "../../../../plugkit/plugkit-rust" }

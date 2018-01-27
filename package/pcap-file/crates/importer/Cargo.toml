@@ -1,14 +1,13 @@
 [package]
-name = "ipv4"
+name = "pcap-file"
 version = "0.1.0"
 authors = ["Ron Hashimoto <mail@h2so5.net>"]
 
 [lib]
-name = "ipv4"
+name = "main"
 crate-type = ["cdylib"]
-path = "src/ipv4.rs"
 
 [dependencies]
 libc = "*"
 byteorder = "1"
-plugkit = { path = "../../plugkit/plugkit-rust" }
+plugkit = { path = "../../../../plugkit/plugkit-rust" }

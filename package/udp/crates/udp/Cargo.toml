@@ -1,14 +1,13 @@
 [package]
-name = "pcap-file"
+name = "udp"
 version = "0.1.0"
 authors = ["Ron Hashimoto <mail@h2so5.net>"]
 
 [lib]
-name = "importer"
+name = "main"
 crate-type = ["cdylib"]
-path = "src/importer.rs"
 
 [dependencies]
 libc = "*"
 byteorder = "1"
-plugkit = { path = "../../plugkit/plugkit-rust" }
+plugkit = { path = "../../../../plugkit/plugkit-rust" }

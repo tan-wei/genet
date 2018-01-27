@@ -27,7 +27,7 @@ export default class FileComponent extends BaseComponent {
     }
     if (!this.mainFile) {
       const libs = glob.sync(
-        `target/{debug,release}/?(lib)${file}.{dll,so,dylib}`,
+        `crates/${file}/target/{debug,release}/*.{dll,so,dylib}`,
         { cwd: dir })
       if (libs.length > 0) {
         this.mainFile = path.join(dir, libs[0])
