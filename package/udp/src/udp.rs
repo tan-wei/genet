@@ -13,9 +13,9 @@ use plugkit::worker::Worker;
 use plugkit::variant::Value;
 use plugkit::attr::ResultValue;
 
-struct IPv4Worker {}
+struct UDPWorker {}
 
-impl Worker for IPv4Worker {
+impl Worker for UDPWorker {
     fn analyze(&self, ctx: &mut Context, layer: &mut Layer) -> Result<(), Error> {
         let (slice, payload_range) = {
             let payload = layer
@@ -68,4 +68,4 @@ impl Worker for IPv4Worker {
 
 plugkit_module!({});
 plugkit_api_layer_hints!(token!("[udp]"));
-plugkit_api_worker!(IPv4Worker, IPv4Worker {});
+plugkit_api_worker!(UDPWorker, UDPWorker {});
