@@ -150,7 +150,8 @@ impl Worker for TCPWorker {
             attr.set_typ(token!("@nested"));
         }
 
-        loop {
+        let data_offset_byte = (data_offset * 4) as u64;
+        while rdr.position() < data_offset_byte {
             let (typ, range) = ByteReader::read_u8(&mut rdr)?;
             match typ {
                 1 => {
@@ -163,25 +164,55 @@ impl Worker for TCPWorker {
                     rdr.consume(1);
                     let attr = child.add_attr(ctx, token!("tcp.options.mss"));
                     attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
+                    attr.set_range(&(range.start..rdr.position() as usize));
                 }
                 3 => {
                     rdr.consume(1);
                     let attr = child.add_attr(ctx, token!("tcp.options.scale"));
                     attr.set_result(ByteReader::read_u8(&mut rdr))?;
+                    attr.set_range(&(range.start..rdr.position() as usize));
                 }
                 4 => {
                     rdr.consume(1);
                     let attr = child.add_attr(ctx, token!("tcp.options.selectiveAckPermitted"));
                     attr.set(&true);
                     attr.set_range(&range);
+                    attr.set_range(&(range.start..rdr.position() as usize));
+                }
+                5 => {
+                    let (len, _) = ByteReader::read_u8(&mut rdr)?;
+                    let (slice, _) = ByteReader::read_slice(&mut rdr, len as usize)?;
+                    let attr = child.add_attr(ctx, token!("tcp.options.selectiveAck"));
+                    attr.set(&slice);
+                    attr.set_range(&(range.start..rdr.position() as usize));
+                }
+                8 => {
+                    rdr.consume(1);
+                    let (mt, mt_range) = ByteReader::read_u32::<BigEndian>(&mut rdr)?;
+                    let (et, et_range) = ByteReader::read_u32::<BigEndian>(&mut rdr)?;
+                    {
+                        let attr = child.add_attr(ctx, token!("tcp.options.ts"));
+                        attr.set_typ(token!("nested"));
+                        attr.set_range(&(range.start..rdr.position() as usize));
+                    }
+                    {
+                        let attr = child.add_attr(ctx, token!("tcp.options.ts.my"));
+                        attr.set(&mt);
+                        attr.set_range(&mt_range);
+                    }
+                    {
+                        let attr = child.add_attr(ctx, token!("tcp.options.ts.echo"));
+                        attr.set(&et);
+                        attr.set_range(&et_range);
+                    }
                 }
                 _ => break
             }
         }
 
-        let option_data_offset = data_offset * 4;
+        rdr.set_position(data_offset_byte);
         {
-            let (data, range) = ByteReader::read_slice(&mut rdr, option_data_offset as usize)?;
+            let (data, range) = ByteReader::read_slice_to_end(&mut rdr)?;
             let payload = child.add_payload(ctx);
             let offset = payload_range.start;
             payload.add_slice(data);
