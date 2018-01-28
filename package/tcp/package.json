@@ -10,7 +10,7 @@
     "components": [
       {
         "type": "core:dissector:packet",
-        "main": "tcp.node"
+        "main": "tcp"
       },
       {
         "type": "core:dissector:stream",
