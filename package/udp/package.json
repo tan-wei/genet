@@ -19,6 +19,11 @@
         ]
       },
       {
+        "type": "core:renderer:layer",
+        "id": "udp",
+        "main": "summary.js"
+      },
+      {
         "type": "core:token",
         "files": [
           "tokens.json"

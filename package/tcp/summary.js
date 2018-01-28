@@ -10,29 +10,14 @@ class TCPSummary {
     const renderer = deplug.session.attrRenderer(srcAddr.type)
     if (srcAddr.type === '@ipv6:addr') {
       return m('span', [
-        ' [',
-        m(renderer, { attr: srcAddr }),
-        ']:',
-        m('b', [srcPort]),
-        ' -> [',
-        m(renderer, { attr: dstAddr }),
-        ']:',
-        m('b', [dstPort]),
-        ' [', layer.payloads.length, '] '
+        ' [', m(renderer, { attr: srcAddr }), ']:',
+        m('b', [srcPort]), ' -> [', m(renderer, { attr: dstAddr }), ']:',
+        m('b', [dstPort])
       ])
     }
-    return m('span', [
-      ' ',
-      m(renderer, { attr: srcAddr }),
-      ':',
-      m('b', [srcPort]),
-      ' ->',
-      m(renderer, { attr: dstAddr }),
-      ':',
-      m('b', [dstPort]),
-      ' [',
-      layer.payloads.length,
-      '] '
+    return m('span', [' ',
+      m(renderer, { attr: srcAddr }), ':', m('b', [srcPort]),
+      ' ->', m(renderer, { attr: dstAddr }), ':', m('b', [dstPort])
     ])
   }
 }

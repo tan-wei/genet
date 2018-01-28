@@ -1,3 +1,4 @@
+import DefaultSummary from './default-summary'
 import m from 'mithril'
 import throttle from 'lodash.throttle'
 
@@ -11,7 +12,7 @@ class FrameView {
       return m('div')
     }
     const { id } = this.frame.primaryLayer
-    const renderer = deplug.session.layerRenderer(id) || 'p'
+    const renderer = deplug.session.layerRenderer(id) || DefaultSummary
     return m('div', {
       class: 'frame',
       style: vnode.attrs.style,

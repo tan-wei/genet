@@ -19,7 +19,7 @@
       {
         "type": "core:renderer:layer",
         "id": "tcp",
-        "main": "tcp-summary.js"
+        "main": "summary.js"
       },
       {
         "type": "core:style",
