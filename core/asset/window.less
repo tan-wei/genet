@@ -36,6 +36,10 @@ nav {
         cursor: pointer;
         text-decoration: none;
 
+        &:hover {
+          background: fade(@theme-default-fg, 20%);
+        }
+
         &[active] {
           background: @theme-default-fg;
           color: @theme-default-bg;
