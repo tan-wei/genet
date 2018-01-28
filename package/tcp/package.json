@@ -14,7 +14,7 @@
       },
       {
         "type": "core:dissector:stream",
-        "main": "tcp-stream.node"
+        "main": "tcp-stream"
       },
       {
         "type": "core:renderer:layer",
