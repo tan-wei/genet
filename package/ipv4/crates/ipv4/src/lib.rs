@@ -27,7 +27,7 @@ fn get_protocol(val: u32) -> Option<(Token, Token)> {
 struct IPv4Worker {}
 
 impl Worker for IPv4Worker {
-    fn analyze(&self, ctx: &mut Context, layer: &mut Layer) -> Result<(), Error> {
+    fn analyze(&mut self, ctx: &mut Context, layer: &mut Layer) -> Result<(), Error> {
         let (slice, payload_range) = {
             let payload = layer
                 .payloads()

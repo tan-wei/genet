@@ -142,6 +142,26 @@ impl Value<bool> for Variant {
     }
 }
 
+impl Value<i8> for Variant {
+    fn get(&self) -> i8 {
+        Value::<i32>::get(self) as i8
+    }
+
+    fn set(&mut self, val: &i8) {
+        Value::<i32>::set(self, &(*val as i32))
+    }
+}
+
+impl Value<i16> for Variant {
+    fn get(&self) -> i16 {
+        Value::<i32>::get(self) as i16
+    }
+
+    fn set(&mut self, val: &i16) {
+        Value::<i32>::set(self, &(*val as i32))
+    }
+}
+
 impl Value<i32> for Variant {
     fn get(&self) -> i32 {
         unsafe {
@@ -165,6 +185,27 @@ impl Value<i32> for Variant {
     }
 }
 
+
+impl Value<u8> for Variant {
+    fn get(&self) -> u8 {
+        Value::<i32>::get(self) as u8
+    }
+
+    fn set(&mut self, val: &u8) {
+        Value::<i32>::set(self, &(*val as i32))
+    }
+}
+
+impl Value<u16> for Variant {
+    fn get(&self) -> u16 {
+        Value::<i32>::get(self) as u16
+    }
+
+    fn set(&mut self, val: &u16) {
+        Value::<i32>::set(self, &(*val as i32))
+    }
+}
+
 impl Value<u32> for Variant {
     fn get(&self) -> u32 {
         unsafe {
@@ -185,6 +226,16 @@ impl Value<u32> for Variant {
             self.set_typ(Type::Uint32);
             self.val.uint32 = *val
         }
+    }
+}
+
+impl Value<f32> for Variant {
+    fn get(&self) -> f32 {
+        Value::<f64>::get(self) as f32
+    }
+
+    fn set(&mut self, val: &f32) {
+        Value::<f64>::set(self, &(*val as f64))
     }
 }
 

@@ -25,7 +25,7 @@ fn eth_type(val: u32) -> Option<(Token, Token)> {
 struct ETHWorker {}
 
 impl Worker for ETHWorker {
-    fn analyze(&self, ctx: &mut Context, layer: &mut Layer) -> Result<(), Error> {
+    fn analyze(&mut self, ctx: &mut Context, layer: &mut Layer) -> Result<(), Error> {
         let (slice, range) = {
             let payload = layer
                 .payloads()

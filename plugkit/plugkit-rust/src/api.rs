@@ -103,7 +103,7 @@ macro_rules! plugkit_api_worker {
             use plugkit::context::Context;
             use plugkit::layer::Layer;
             unsafe {
-                let w: &$x = &*(worker as *mut $x);
+                let w: &mut $x = &mut *(worker as *mut $x);
                 let c: &mut Context =
                     &mut *(ctx as *mut Context);
                 let l: &mut Layer = &mut *(layer as *mut Layer);

@@ -18,7 +18,7 @@ use plugkit::token;
 struct TCPWorker {}
 
 impl Worker for TCPWorker {
-    fn analyze(&self, ctx: &mut Context, layer: &mut Layer) -> Result<(), Error> {
+    fn analyze(&mut self, ctx: &mut Context, layer: &mut Layer) -> Result<(), Error> {
         let (slice, payload_range) = {
             let payload = layer
                 .payloads()
