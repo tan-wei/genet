@@ -1,4 +1,5 @@
 import BaseComponent from './base'
+import { CompositeDisposable } from 'disposables'
 import Script from '../script'
 import objpath from 'object-path'
 import path from 'path'
@@ -25,12 +26,23 @@ export default class RendererComponent extends BaseComponent {
       default:
         throw new Error(`unknown renderer type: ${comp.type}`)
     }
+    const macro = objpath.get(comp, 'macro', '')
+    if (macro !== '') {
+      this.macroFile = path.resolve(dir, macro)
+    }
   }
   async load () {
     const component = await Script.execute(this.mainFile)
     if (this.type === 'attr') {
       this.disposable =
         deplug.session.registerAttrRenderer(this.id, component)
+      if (this.macroFile) {
+        const func = await Script.execute(this.macroFile)
+        this.disposable = new CompositeDisposable([
+          this.disposable,
+          deplug.session.registerAttrMacro(this.id, func)
+        ])
+      }
     } else if (this.type === 'layer') {
       this.disposable =
         deplug.session.registerLayerRenderer(this.id, component)

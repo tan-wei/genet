@@ -71,6 +71,11 @@ export default {
       minimum: 0,
       default: 10,
     },
+    '_.filter.macroPrefix': {
+      title: 'Macro Prefix',
+      type: 'string',
+      default: '@',
+    },
     '_.debug.enableDebugSession': {
       title: 'Enable Debug Session',
       type: 'boolean',

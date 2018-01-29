@@ -1,5 +1,6 @@
 import DissectorComponent from './component/dissector'
 import FileComponent from './component/file'
+import MacroComponent from './component/macro'
 import PanelComponent from './component/panel'
 import RendererComponent from './component/renderer'
 import StyleComponent from './component/style'
@@ -25,6 +26,8 @@ export default class ComponentFactory {
       case 'core:filter:ast':
       case 'core:filter:template':
         return new TransformComponent(comp, dir)
+      case 'core:filter:macro':
+        return new MacroComponent(comp, dir)
       case 'core:file:importer':
       case 'core:file:exporter':
         return new FileComponent(comp, dir)

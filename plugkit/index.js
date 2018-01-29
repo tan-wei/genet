@@ -20,6 +20,9 @@ class Session extends EventEmitter {
     }
 
     const filterCompiler = new FilterCompiler()
+    for (const macro of options.macros) {
+      filterCompiler.registerMacro(macro.func)
+    }
     for (const trans of options.transforms) {
       switch (trans.type) {
         case 'string':
@@ -142,6 +145,7 @@ class SessionFactory extends kit.SessionFactory {
       tasks: [],
       linkLayers: [],
       transforms: [],
+      macros: [],
       attributes: {},
       enableDebugSession: false,
     }
@@ -162,6 +166,10 @@ class SessionFactory extends kit.SessionFactory {
 
   registerFilterTransform (trans) {
     this[fields].transforms.push(trans)
+  }
+
+  registerFilterMacro (macro) {
+    this[fields].macros.push(macro)
   }
 
   registerImporter (importer) {

@@ -13,7 +13,9 @@ export default class Session {
       dissectors: new Set(),
       layerRenderers: new Map(),
       attrRenderers: new Map(),
+      attrMacros: new Map(),
       filterTransforms: new Set(),
+      filterMacros: new Set(),
       samples: new Set(),
       importers: new Set(),
       exporters: new Set(),
@@ -61,10 +63,24 @@ export default class Session {
     })
   }
 
+  registerAttrMacro (id, macro) {
+    this[fields].attrMacros.set(id, macro)
+    return new Disposable(() => {
+      this[fields].attrMacros.delete(id)
+    })
+  }
+
   registerFilterTransform (renderer) {
     this[fields].filterTransforms.add(renderer)
     return new Disposable(() => {
       this[fields].filterTransforms.delete(renderer)
+    })
+  }
+
+  registerFilterMacro (macro) {
+    this[fields].filterMacros.add(macro)
+    return new Disposable(() => {
+      this[fields].filterMacros.delete(macro)
     })
   }
 
@@ -129,6 +145,14 @@ export default class Session {
     return null
   }
 
+  attrMacro (id) {
+    const data = this[fields].attrMacros.get(id)
+    if (typeof data !== 'undefined') {
+      return data
+    }
+    return null
+  }
+
   get fileExtensions () {
     function merge (fileExtensions) {
       const map = new Map()
@@ -152,7 +176,7 @@ export default class Session {
   async create (ifs = '') {
     const {
       config, tokens, linkLayers,
-      dissectors, filterTransforms,
+      dissectors, filterTransforms, filterMacros,
       importers, exporters,
     } = this[fields]
     const factory = new SessionFactory()
@@ -166,6 +190,9 @@ export default class Session {
     }
     for (const diss of dissectors) {
       factory.registerDissector(diss)
+    }
+    for (const macro of filterMacros) {
+      factory.registerFilterMacro(macro)
     }
     for (const trans of filterTransforms) {
       factory.registerFilterTransform(trans)

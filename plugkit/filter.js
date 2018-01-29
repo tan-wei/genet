@@ -157,11 +157,17 @@ function processIdentifiers (tokens) {
 class Filter {
   constructor () {
     this[fields] = {
+      macros: [],
       stringTransforms: [],
       tokenTransforms: [],
       astTransforms: [],
       templateTransforms: [],
     }
+  }
+
+  registerMacro (macro) {
+    const { macros } = this[fields]
+    macros.push(macro)
   }
 
   registerStringTransform (trans) {
@@ -187,12 +193,20 @@ class Filter {
   compile (filter) {
     const {
       stringTransforms, tokenTransforms,
-      astTransforms, templateTransforms,
+      astTransforms, templateTransforms, macros,
     } = this[fields]
     if (!filter) {
       return ''
     }
-    let str = filter
+    let str = filter.replace(/@([^ ]+)(?: |$)/g, (match, exp) => {
+      for (const macro of macros) {
+        const result = macro(exp)
+        if (typeof result === 'string') {
+          return result
+        }
+      }
+      throw new Error(`unrecognized macro: @${exp}`)
+    })
     for (const trans of stringTransforms) {
       str = trans(str)
     }

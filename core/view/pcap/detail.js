@@ -1,78 +1,10 @@
 import { BufferValueItem, AttributeValueItem } from './value'
+import AttributeItem from './attr'
 import m from 'mithril'
 import moment from '@deplug/moment.min'
 
 function selectRange (range = []) {
   deplug.action.emit('core:frame:range-selected', range)
-}
-
-class AttributeItem {
-  view (vnode) {
-    const { item, layer } = vnode.attrs
-    const { attr, children } = item
-    let faClass = 'attribute'
-    if (children.length) {
-      faClass = 'attribute children'
-    }
-    const { name } = deplug.session.token(attr.id)
-    const attrRenderer =
-      deplug.session.attrRenderer(attr.type) || AttributeValueItem
-    return m('li', [
-      m('details', [
-        m('summary', {
-          class: faClass,
-          onmouseover: () => selectRange([
-            layer.range[0] + attr.range[0],
-            layer.range[0] + attr.range[1]
-          ]),
-          onmouseout: () => selectRange(),
-          oncontextmenu: (event) => {
-            const { id } = attr
-            deplug.menu.showContextMenu(event, [
-              {
-                label: `Apply Filter: ${id}`,
-                click: () => deplug.action
-                  .emit('core:filter:set', id),
-              },
-              {
-                label: 'Reveal in Developer Tools...',
-                click: () => {
-                  // eslint-disable-next-line no-console
-                  console.log(attr)
-                  deplug.action.global.emit('core:tab:open-devtool')
-                },
-              }
-            ])
-          },
-        }, [
-          m('span', { class: 'label' }, [
-            m('i', { class: 'fa fa-circle-o' }, [' ']),
-            m('i', { class: 'fa fa-arrow-circle-right' }, [' ']),
-            m('i', { class: 'fa fa-arrow-circle-down' }, [' ']),
-            name
-          ]),
-          m(attrRenderer, {
-            attr,
-            layer: vnode.attrs.layer,
-          }),
-          m('span', {
-            class: 'label error',
-            style: {
-              display: attr.error
-                ? 'inline'
-                : 'none',
-            },
-          }, [m('i', { class: 'fa fa-exclamation-triangle' }), ' ', attr.error])
-        ]),
-        m('ul', [
-          children.map((child) => m(AttributeItem, {
-            item: child,
-            layer,
-          }))
-        ])
-      ])
-    ])
-  }
 }
 
 class LayerItem {
