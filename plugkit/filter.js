@@ -162,7 +162,16 @@ class Filter {
       tokenTransforms: [],
       astTransforms: [],
       templateTransforms: [],
+      macroPrefix: '@',
     }
+  }
+
+  get macroPrefix () {
+    return this[fields].macroPrefix
+  }
+
+  set macroPrefix (val) {
+    this[fields].macroPrefix = val
   }
 
   registerMacro (macro) {
@@ -193,19 +202,20 @@ class Filter {
   compile (filter) {
     const {
       stringTransforms, tokenTransforms,
-      astTransforms, templateTransforms, macros,
+      astTransforms, templateTransforms, macros, macroPrefix,
     } = this[fields]
     if (!filter) {
       return ''
     }
-    let str = filter.replace(/@([^ ]+)(?: |$)/g, (match, exp) => {
+    const pattern = new RegExp(`(${macroPrefix})([^ ]+)(?: |$)`, 'g')
+    let str = filter.replace(pattern, (match, prefix, exp) => {
       for (const macro of macros) {
         const result = macro(exp)
         if (typeof result === 'string') {
           return result
         }
       }
-      throw new Error(`unrecognized macro: @${exp}`)
+      throw new Error(`unrecognized macro: ${prefix}${exp}`)
     })
     for (const trans of stringTransforms) {
       str = trans(str)

@@ -180,6 +180,7 @@ export default class Session {
       importers, exporters,
     } = this[fields]
     const factory = new SessionFactory()
+    factory.macroPrefix = config.get('_.filter.macroPrefix', '@')
     factory.enableDebugSession = config.get('_.debug.enableDebugSession', false)
     for (const [key, value] of Object.entries(flatten(config.toJSON()))) {
       factory.setOption(key, value)

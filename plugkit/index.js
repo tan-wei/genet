@@ -20,6 +20,7 @@ class Session extends EventEmitter {
     }
 
     const filterCompiler = new FilterCompiler()
+    filterCompiler.macroPrefix = options.macroPrefix
     for (const macro of options.macros) {
       filterCompiler.registerMacro(macro.func)
     }
@@ -148,6 +149,7 @@ class SessionFactory extends kit.SessionFactory {
       macros: [],
       attributes: {},
       enableDebugSession: false,
+      macroPrefix: '@',
     }
   }
 
@@ -158,6 +160,14 @@ class SessionFactory extends kit.SessionFactory {
       }
       return new Session(super.create(), this[fields])
     })
+  }
+
+  get macroPrefix () {
+    return this[fields].macroPrefix
+  }
+
+  set macroPrefix (val) {
+    this[fields].macroPrefix = val
   }
 
   registerLinkLayer (layer) {
