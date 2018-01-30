@@ -10,7 +10,7 @@
     "components": [
       {
         "type": "core:dissector:stream",
-        "main": "main.node"
+        "main": "http"
       },
       {
         "type": "core:style",
