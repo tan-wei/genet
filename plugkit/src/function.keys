@@ -1,10 +1,4 @@
 %{
-#include "attr.h"
-#include "context.h"
-#include "layer.h"
-#include "logger.h"
-#include "payload.h"
-#include "variant.h"
 %}
 struct Functions
 {
@@ -21,10 +15,6 @@ Layer_attr, reinterpret_cast<void *>(&plugkit::Layer_attr)
 Layer_addPayload, reinterpret_cast<void *>(&plugkit::Layer_addPayload)
 Layer_payloads, reinterpret_cast<void *>(&plugkit::Layer_payloads)
 Layer_addTag, reinterpret_cast<void *>(&plugkit::Layer_addTag)
-Log_debug_, reinterpret_cast<void *>(&plugkit::Log_debug_)
-Log_warn_, reinterpret_cast<void *>(&plugkit::Log_warn_)
-Log_info_, reinterpret_cast<void *>(&plugkit::Log_info_)
-Log_error_, reinterpret_cast<void *>(&plugkit::Log_error_)
 Payload_addSlice, reinterpret_cast<void *>(&plugkit::Payload_addSlice)
 Payload_slices, reinterpret_cast<void *>(&plugkit::Payload_slices)
 Payload_addAttr, reinterpret_cast<void *>(&plugkit::Payload_addAttr)

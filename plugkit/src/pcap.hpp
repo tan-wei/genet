@@ -1,7 +1,7 @@
 #ifndef PLUGKIT_PCAP_HPP
 #define PLUGKIT_PCAP_HPP
 
-#include "token.h"
+#include "token.hpp"
 #include <functional>
 #include <memory>
 #include <string>

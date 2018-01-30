@@ -1,4 +1,3 @@
-#include "payload.h"
 #include "payload.hpp"
 #include <catch.hpp>
 

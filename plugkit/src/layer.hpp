@@ -1,17 +1,25 @@
 #ifndef PLUGKIT_LAYER_HPP
 #define PLUGKIT_LAYER_HPP
 
-#include "layer.h"
-#include "range.h"
-#include "token.h"
+#include "range.hpp"
+#include "token.hpp"
 #include "types.hpp"
 #include <memory>
 #include <string>
 #include <vector>
 
+#define LAYER_MAX_WORKER 16
+
 namespace plugkit {
 
 struct Context;
+
+enum LayerConfidence {
+  LAYER_CONF_ERROR = 0,
+  LAYER_CONF_POSSIBLE = 1,
+  LAYER_CONF_PROBABLE = 2,
+  LAYER_CONF_EXACT = 3
+};
 
 struct Layer final {
 public:
@@ -73,6 +81,60 @@ private:
   std::vector<Layer *> mSubLayers;
   std::vector<Attr *> mAttrs;
 };
+
+extern "C" {
+
+/// Return the ID of the layer.
+Token Layer_id(const Layer *layer);
+
+/// Return the confidence of the layer.
+LayerConfidence Layer_confidence(const Layer *layer);
+
+/// Return the range of the layer.
+Range Layer_range(const Layer *layer);
+
+/// Set the range of the layer.
+void Layer_setRange(Layer *layer, Range range);
+
+/// Set the confidence of the layer.
+void Layer_setConfidence(Layer *layer, LayerConfidence confidence);
+
+/// Return the worker ID of the layer.
+uint8_t Layer_worker(const Layer *layer);
+
+/// Set the worker ID of the layer.
+void Layer_setWorker(Layer *layer, uint8_t id);
+
+/// Return the parent of the layer.
+/// If this is a root layer, return `NULL`.
+const Layer *Layer_parent(const Layer *layer);
+
+/// Allocate a new `Layer` and adds it as a child layer.
+Layer *Layer_addLayer(Layer *layer, Context *ctx, Token id);
+
+/// Allocate a new `Layer` and adds it as a sub layer.
+Layer *Layer_addSubLayer(Layer *layer, Context *ctx, Token id);
+
+/// Allocate a new `Attr` and adds it as a layer attribute.
+Attr *Layer_addAttr(Layer *layer, Context *ctx, Token id);
+
+/// Find the first layer attribute with the given id and returns it.
+///
+/// If no attribute is found, returns nullptr.
+const Attr *Layer_attr(const Layer *layer, Token id);
+
+/// Allocate a new Payload and adds it as a layer payload.
+Payload *Layer_addPayload(Layer *layer, Context *ctx);
+
+/// Return the first address of payloads
+/// and assigns the number of the layer payloads to size.
+/// Returns the address of an empty payload if the layer has no payloads.
+const Payload *const *Layer_payloads(const Layer *layer, size_t *size);
+
+/// Add a layer tag
+void Layer_addTag(Layer *layer, Token tag);
+}
+
 } // namespace plugkit
 
 #endif

@@ -1,7 +1,6 @@
 #ifndef PLUGKIT_LOGGER_HPP
 #define PLUGKIT_LOGGER_HPP
 
-#include "export.h"
 #include <chrono>
 #include <functional>
 #include <memory>

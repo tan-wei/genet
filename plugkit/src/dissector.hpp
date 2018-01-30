@@ -1,11 +1,25 @@
 #ifndef PLUGKIT_DISSECTOR_PRIVATE_H
 #define PLUGKIT_DISSECTOR_PRIVATE_H
 
-#include "dissector.h"
+#include "token.hpp"
 
 namespace plugkit {
 
-typedef struct Dissector {
+struct Context;
+struct Dissector;
+struct Layer;
+
+struct Worker {
+  void *data;
+};
+
+typedef void(IntializeFunc)(Context *ctx, Dissector *);
+typedef void(TerminateFunc)(Context *ctx, Dissector *);
+typedef Worker(CreateWorkerFunc)(Context *ctx, const Dissector *);
+typedef void(DestroyWorkerFunc)(Context *ctx, const Dissector *, Worker);
+typedef void(AnalyzeFunc)(Context *ctx, const Dissector *, Worker, Layer *);
+
+struct Dissector {
   IntializeFunc *initialize;
   TerminateFunc *terminate;
   CreateWorkerFunc *createWorker;
@@ -13,7 +27,7 @@ typedef struct Dissector {
   AnalyzeFunc *analyze;
   Token layerHints[8];
   void *data;
-} Dissector;
+};
 
 } // namespace plugkit
 

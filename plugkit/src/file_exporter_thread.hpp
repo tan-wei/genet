@@ -1,7 +1,7 @@
 #ifndef PLUGKIT_FILE_EXPORTER_THREAD_H
 #define PLUGKIT_FILE_EXPORTER_THREAD_H
 
-#include "token.h"
+#include "token.hpp"
 #include "variant_map.hpp"
 #include <functional>
 #include <memory>

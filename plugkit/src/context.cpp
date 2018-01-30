@@ -1,5 +1,4 @@
 #include "context.hpp"
-#include "logger.h"
 #include <cstdio>
 
 namespace plugkit {

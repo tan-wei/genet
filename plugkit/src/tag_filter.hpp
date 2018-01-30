@@ -1,7 +1,7 @@
 #ifndef PLUGKIT_TAG_FILTER_HPP
 #define PLUGKIT_TAG_FILTER_HPP
 
-#include "token.h"
+#include "token.hpp"
 #include <vector>
 
 namespace plugkit {

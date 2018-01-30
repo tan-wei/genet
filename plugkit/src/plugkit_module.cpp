@@ -2,7 +2,7 @@
 #include "embedded_files.hpp"
 #include "extended_slot.hpp"
 #include "plugkit_testing.hpp"
-#include "token.h"
+#include "token.hpp"
 #include "variant.hpp"
 #include "wrapper/attr.hpp"
 #include "wrapper/context.hpp"

@@ -1,4 +1,4 @@
-#include "slice.h"
+#include "slice.hpp"
 #include <algorithm>
 
 namespace plugkit {

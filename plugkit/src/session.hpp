@@ -2,7 +2,7 @@
 #define PLUGKIT_SESSION_H
 
 #include "logger.hpp"
-#include "token.h"
+#include "token.hpp"
 #include "types.hpp"
 #include "variant.hpp"
 #include <memory>

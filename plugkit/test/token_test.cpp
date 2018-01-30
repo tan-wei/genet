@@ -1,4 +1,4 @@
-#include "token.h"
+#include "token.hpp"
 #include <catch.hpp>
 
 using namespace plugkit;

@@ -7,7 +7,7 @@
 #include "layer.hpp"
 #include "null_logger.hpp"
 #include "payload.hpp"
-#include "token.h"
+#include "token.hpp"
 #include "wrapper/attr.hpp"
 #include "wrapper/context.hpp"
 #include "wrapper/frame.hpp"

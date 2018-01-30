@@ -2,7 +2,7 @@
 #define PLUGKIT_FRAME_VIEW_H
 
 #include "attr.hpp"
-#include "token.h"
+#include "token.hpp"
 #include <map>
 #include <memory>
 #include <vector>
