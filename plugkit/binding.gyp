@@ -45,7 +45,6 @@
       "src/layer.cpp",
       "src/slice.cpp",
       "src/tag_filter.cpp",
-      "src/capi.c",
       "vendor/json11/json11.cpp"
     ],
     "plugkit_test_sources":[
