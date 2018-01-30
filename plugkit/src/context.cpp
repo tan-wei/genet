@@ -1,4 +1,5 @@
 #include "context.hpp"
+#include <cstdarg>
 #include <cstdio>
 
 namespace plugkit {
