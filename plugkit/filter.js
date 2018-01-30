@@ -55,33 +55,6 @@ function processOperators (ast) {
   })
 }
 
-function processTemplates (ast, templateTransforms) {
-  return estraverse.replace(ast, {
-    enter: (node, parent) => {
-      let tag = ''
-      let value = ''
-      if (node.type === 'TemplateLiteral') {
-        for (const quasi of node.quasis) {
-          if (quasi.type === 'TemplateElement') {
-            value += quasi.value.raw
-          }
-        }
-        if (parent.type === 'TaggedTemplateExpression') {
-          if (parent.tag.type === 'Identifier') {
-            tag = parent.tag.name
-          }
-        }
-        for (const trans of templateTransforms) {
-          const code = trans(tag, value)
-          if (typeof code === 'string' && code.length > 0) {
-            return esprima.parse(code).body[0].expression
-          }
-        }
-      }
-    },
-  })
-}
-
 function processIdentifiers (tokens) {
   const resolvedTokens = []
   let identifiers = []
@@ -158,10 +131,6 @@ class Filter {
   constructor () {
     this[fields] = {
       macros: [],
-      stringTransforms: [],
-      tokenTransforms: [],
-      astTransforms: [],
-      templateTransforms: [],
       macroPrefix: '@',
     }
   }
@@ -179,36 +148,13 @@ class Filter {
     macros.push(macro)
   }
 
-  registerStringTransform (trans) {
-    const { stringTransforms } = this[fields]
-    stringTransforms.push(trans)
-  }
-
-  registerTokenTransform (trans) {
-    const { tokenTransforms } = this[fields]
-    tokenTransforms.push(trans)
-  }
-
-  registerAstTransform (trans) {
-    const { astTransforms } = this[fields]
-    astTransforms.push(trans)
-  }
-
-  registerTemplateTransform (trans) {
-    const { templateTransforms } = this[fields]
-    templateTransforms.push(trans)
-  }
-
   compile (filter) {
-    const {
-      stringTransforms, tokenTransforms,
-      astTransforms, templateTransforms, macros, macroPrefix,
-    } = this[fields]
+    const { macros, macroPrefix } = this[fields]
     if (!filter) {
       return ''
     }
     const pattern = new RegExp(`(${macroPrefix})([^ ]+)(?: |$)`, 'g')
-    let str = filter.replace(pattern, (match, prefix, exp) => {
+    const str = filter.replace(pattern, (match, prefix, exp) => {
       for (const macro of macros) {
         const result = macro(exp)
         if (typeof result === 'string') {
@@ -217,24 +163,9 @@ class Filter {
       }
       throw new Error(`unrecognized macro: ${prefix}${exp}`)
     })
-    for (const trans of stringTransforms) {
-      str = trans(str)
-    }
-    let tokens = esprima.tokenize(str)
-    for (const trans of tokenTransforms) {
-      tokens = trans(tokens)
-    }
-    let ast = esprima.parse(tokens.map((token) => token.value).join(' '))
-    ast = processTemplates(ast, templateTransforms)
-    tokens = esprima.tokenize(escodegen.generate(ast))
-    tokens = processIdentifiers(tokens)
-    ast = esprima.parse(tokens.map((token) => token.value).join(' '))
-    for (const trans of astTransforms) {
-      ast = trans(ast)
-    }
-    ast = ast.body[0].expression
-    ast = processOperators(ast)
-    ast = makeValue(ast)
+    const tokens = processIdentifiers(esprima.tokenize(str))
+    const tree = esprima.parse(tokens.map((token) => token.value).join(' '))
+    const ast = makeValue(processOperators(tree.body[0].expression))
     return runtime.replace('@@@', escodegen.generate(ast))
   }
 

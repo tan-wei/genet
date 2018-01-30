@@ -10,10 +10,6 @@ const components = [
   'core:renderer:attr',
   'core:renderer:layer',
   'core:filter:macro',
-  'core:filter:string',
-  'core:filter:token',
-  'core:filter:ast',
-  'core:filter:template',
   'core:file:importer',
   'core:file:exporter'
 ]

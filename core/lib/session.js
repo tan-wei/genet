@@ -14,7 +14,6 @@ export default class Session {
       layerRenderers: new Map(),
       attrRenderers: new Map(),
       attrMacros: new Map(),
-      filterTransforms: new Set(),
       filterMacros: new Set(),
       samples: new Set(),
       importers: new Set(),
@@ -67,13 +66,6 @@ export default class Session {
     this[fields].attrMacros.set(id, macro)
     return new Disposable(() => {
       this[fields].attrMacros.delete(id)
-    })
-  }
-
-  registerFilterTransform (renderer) {
-    this[fields].filterTransforms.add(renderer)
-    return new Disposable(() => {
-      this[fields].filterTransforms.delete(renderer)
     })
   }
 
@@ -176,7 +168,7 @@ export default class Session {
   async create (ifs = '') {
     const {
       config, tokens, linkLayers,
-      dissectors, filterTransforms, filterMacros,
+      dissectors, filterMacros,
       importers, exporters,
     } = this[fields]
     const factory = new SessionFactory()
@@ -194,9 +186,6 @@ export default class Session {
     }
     for (const macro of filterMacros) {
       factory.registerFilterMacro(macro)
-    }
-    for (const trans of filterTransforms) {
-      factory.registerFilterTransform(trans)
     }
     for (const imp of importers) {
       factory.registerImporter(imp.importer)
