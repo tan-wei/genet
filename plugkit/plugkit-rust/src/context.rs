@@ -1,10 +1,14 @@
 use super::variant::Variant;
 use super::symbol;
+use std::ffi::CString;
 
 pub enum Context {}
 
 impl Context {
     pub fn get_option(&self, name: &str) -> &Variant {
-        unsafe { &*symbol::Context_getOption.unwrap()(self, name.as_ptr() as *const i8) }
+        unsafe {
+            let cstr = CString::new(name).unwrap_or_else(|_| CString::new("").unwrap());
+            &*symbol::Context_getOption.unwrap()(self, cstr.as_ptr())
+        }
     }
 }
