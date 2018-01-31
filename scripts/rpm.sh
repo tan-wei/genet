@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DEPLUG_VER=$(jq -r '.version' package.json)
+DEPLUG_VER=$(jq -r '.version | gsub("-";"~")' package.json)
 mkdir -p out/.rpm
 (cd out/.rpm && mkdir -p SOURCES BUILD RPMS SRPMS)
 sed -e "s/{{DEPLUG_VERSION}}/$DEPLUG_VER/g" deplug.rpm.spec > out/.rpm/deplug.rpm.spec
