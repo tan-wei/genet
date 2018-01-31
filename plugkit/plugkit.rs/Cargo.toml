@@ -1,0 +1,17 @@
+[package]
+name = "plugkit"
+version = "0.0.1"
+authors = ["Ron Hashimoto <mail@h2so5.net>"]
+description = "Deplug Package Development Kit"
+documentation = "https://docs.deplug.net"
+homepage = "https://deplug.net"
+repository = "https://github.com/deplug/deplug"
+license = "MIT"
+
+[lib]
+name = "plugkit"
+
+[dependencies]
+libc = "*"
+lazy_static = "1.0"
+byteorder = "1"
