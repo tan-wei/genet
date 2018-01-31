@@ -12,6 +12,6 @@ license = "MIT"
 name = "plugkit"
 
 [dependencies]
-libc = "*"
+libc = "0.2"
 lazy_static = "1.0"
 byteorder = "1"
