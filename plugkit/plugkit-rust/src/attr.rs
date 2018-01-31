@@ -77,8 +77,7 @@ where
             }
             Err(e) => {
                 let err = match e.kind() {
-                    ErrorKind::InvalidInput => *INVALID_TOKEN,
-                    ErrorKind::InvalidData => *INVALID_TOKEN,
+                    ErrorKind::InvalidInput | ErrorKind::InvalidData => *INVALID_TOKEN,
                     ErrorKind::UnexpectedEof => *EOF_TOKEN,
                     _ => *ERROR_TOKEN,
                 };

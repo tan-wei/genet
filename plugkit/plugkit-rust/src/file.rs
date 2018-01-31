@@ -34,7 +34,7 @@ impl RawFrame {
     }
 
     pub fn data(&self) -> &[u8] {
-        unsafe { &slice::from_raw_parts(self.data as *const u8, self.len as usize) }
+        unsafe { slice::from_raw_parts(self.data as *const u8, self.len as usize) }
     }
 
     pub fn set_data_and_forget(&mut self, data: Box<[u8]>) {

@@ -148,7 +148,7 @@ impl Value<i8> for Variant {
     }
 
     fn set(&mut self, val: &i8) {
-        Value::<i32>::set(self, &(*val as i32))
+        Value::<i32>::set(self, &i32::from(*val))
     }
 }
 
@@ -158,7 +158,7 @@ impl Value<i16> for Variant {
     }
 
     fn set(&mut self, val: &i16) {
-        Value::<i32>::set(self, &(*val as i32))
+        Value::<i32>::set(self, &i32::from(*val))
     }
 }
 
@@ -192,7 +192,7 @@ impl Value<u8> for Variant {
     }
 
     fn set(&mut self, val: &u8) {
-        Value::<i32>::set(self, &(*val as i32))
+        Value::<i32>::set(self, &i32::from(*val))
     }
 }
 
@@ -202,7 +202,7 @@ impl Value<u16> for Variant {
     }
 
     fn set(&mut self, val: &u16) {
-        Value::<i32>::set(self, &(*val as i32))
+        Value::<i32>::set(self, &i32::from(*val))
     }
 }
 
@@ -235,7 +235,7 @@ impl Value<f32> for Variant {
     }
 
     fn set(&mut self, val: &f32) {
-        Value::<f64>::set(self, &(*val as f64))
+        Value::<f64>::set(self, &(f64::from(*val)))
     }
 }
 
@@ -243,10 +243,10 @@ impl Value<f64> for Variant {
     fn get(&self) -> f64 {
         unsafe {
             match self.typ() {
-                Type::Bool => self.val.boolean as u8 as f64,
-                Type::Int32 => self.val.int32 as f64,
-                Type::Uint32 => self.val.uint32 as f64,
-                Type::Double => self.val.double as f64,
+                Type::Bool => f64::from(self.val.boolean as u8),
+                Type::Int32 => f64::from(self.val.int32),
+                Type::Uint32 => f64::from(self.val.uint32),
+                Type::Double => self.val.double,
                 _ => 0.0
             }
         }
