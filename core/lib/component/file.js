@@ -13,11 +13,7 @@ export default class FileComponent extends BaseComponent {
       throw new Error('main field required')
     }
 
-    const searchPaths = [
-      '.',
-      'build/Debug',
-      'build/Release'
-    ]
+    const searchPaths = ['.']
     for (const spath of searchPaths) {
       const absolute = path.join(dir, spath, file)
       if (exists.sync(absolute)) {

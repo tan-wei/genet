@@ -13,11 +13,7 @@ export default class DissectorComponent extends BaseComponent {
       throw new Error('main field required')
     }
 
-    const searchPaths = [
-      '.',
-      'build/Debug',
-      'build/Release'
-    ]
+    const searchPaths = ['.']
     for (const spath of searchPaths) {
       const absolute = path.join(dir, spath, file)
       if (exists.sync(absolute)) {
@@ -27,7 +23,7 @@ export default class DissectorComponent extends BaseComponent {
     }
     if (!this.mainFile) {
       const libs = glob.sync(
-        `crates/${file}/target/{debug,release}/*.{dll,so,dylib}`,
+        `crates/${file}/target/{release,debug}/*.{dll,so,dylib}`,
         { cwd: dir })
       if (libs.length > 0) {
         this.mainFile = path.join(dir, libs[0])
@@ -62,7 +58,6 @@ export default class DissectorComponent extends BaseComponent {
       case '.dll':
       case '.so':
       case '.dylib':
-      case '.node':
         this.disposable = deplug.session.registerDissector({
           type: this.type,
           main: this.mainFile.replace(/\bapp\.asar\b/, 'app.asar.unpacked'),
