@@ -16,6 +16,7 @@ void SessionFactoryWrapper::init(v8::Isolate *isolate,
   tpl->SetClassName(Nan::New("SessionFactory").ToLocalChecked());
   SetPrototypeMethod(tpl, "setOptions", setOptions);
   SetPrototypeMethod(tpl, "registerDissector", registerDissector);
+  SetPrototypeMethod(tpl, "registerScriptDissector", registerScriptDissector);
   SetPrototypeMethod(tpl, "registerLinkLayer", registerLinkLayer);
   SetPrototypeMethod(tpl, "registerImporter", registerImporter);
   SetPrototypeMethod(tpl, "registerExporter", registerExporter);
@@ -139,6 +140,21 @@ NAN_METHOD(SessionFactoryWrapper::registerLinkLayer) {
   }
 }
 
+NAN_METHOD(SessionFactoryWrapper::registerScriptDissector) {
+  SessionFactoryWrapper *wrapper =
+      ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
+  if (const auto &factory = wrapper->factory) {
+    DissectorType type = DISSECTOR_PACKET;
+    if (std::strcmp("stream", *Nan::Utf8String(info[1])) == 0) {
+      type = DISSECTOR_STREAM;
+    }
+    if (info[0]->IsString()) {
+      const std::string &path = *Nan::Utf8String(info[0]);
+      factory->registerDissector(path, type);
+    }
+  }
+}
+
 NAN_METHOD(SessionFactoryWrapper::registerDissector) {
   SessionFactoryWrapper *wrapper =
       ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
@@ -149,31 +165,27 @@ NAN_METHOD(SessionFactoryWrapper::registerDissector) {
     }
     if (info[0]->IsString()) {
       const std::string &path = *Nan::Utf8String(info[0]);
-      if (path.rfind(".js") == path.size() - 3) {
-          factory->registerDissector(path, type);
-      } else {
-        Dissector diss = {0};
-        ModuleLoader loader(path);
-        if (auto func =
-            loader.load<void(*)(void*(*)(const char*))>("plugkit_v1_init")) {
-          func(&ModuleLoader::resolve);
-        }
-        if (auto func = loader.load<AnalyzeFunc*>("plugkit_v1_analyze")) {
-          diss.analyze = func;
-        }
-        if (auto func = loader.load<CreateWorkerFunc*>("plugkit_v1_create_worker")) {
-          diss.createWorker = func;
-        }
-        if (auto func = loader.load<DestroyWorkerFunc*>("plugkit_v1_destroy_worker")) {
-          diss.destroyWorker = func;
-        }
-        if (auto func = loader.load<Token(*)(int)>("plugkit_v1_layer_hints")) {
-          for (size_t i = 0; i < sizeof(diss.layerHints) / sizeof(Token); ++i) {
-            if (!(diss.layerHints[i] = func(i))) break;
-          }
-        }
-        factory->registerDissector(diss, type);
+      Dissector diss = {0};
+      ModuleLoader loader(path);
+      if (auto func =
+          loader.load<void(*)(void*(*)(const char*))>("plugkit_v1_init")) {
+        func(&ModuleLoader::resolve);
       }
+      if (auto func = loader.load<AnalyzeFunc*>("plugkit_v1_analyze")) {
+        diss.analyze = func;
+      }
+      if (auto func = loader.load<CreateWorkerFunc*>("plugkit_v1_create_worker")) {
+        diss.createWorker = func;
+      }
+      if (auto func = loader.load<DestroyWorkerFunc*>("plugkit_v1_destroy_worker")) {
+        diss.destroyWorker = func;
+      }
+      if (auto func = loader.load<Token(*)(int)>("plugkit_v1_layer_hints")) {
+        for (size_t i = 0; i < sizeof(diss.layerHints) / sizeof(Token); ++i) {
+          if (!(diss.layerHints[i] = func(i))) break;
+        }
+      }
+      factory->registerDissector(diss, type);
     }
   }
 }

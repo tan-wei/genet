@@ -25,6 +25,7 @@ public:
   static NAN_SETTER(setBpf);
   static NAN_METHOD(setOptions);
   static NAN_METHOD(registerLinkLayer);
+  static NAN_METHOD(registerScriptDissector);
   static NAN_METHOD(registerDissector);
   static NAN_METHOD(registerImporter);
   static NAN_METHOD(registerExporter);

@@ -53,25 +53,10 @@ export default class DissectorComponent extends BaseComponent {
     }
   }
   async load () {
-    const ext = path.extname(this.mainFile)
-    switch (ext) {
-      case '.dll':
-      case '.so':
-      case '.dylib':
-        this.disposable = deplug.session.registerDissector({
-          type: this.type,
-          main: this.mainFile.replace(/\bapp\.asar\b/, 'app.asar.unpacked'),
-        })
-        break
-      case '.js':
-        this.disposable = deplug.session.registerDissector({
-          type: this.type,
-          main: this.mainFile,
-        })
-        break
-      default:
-        throw new Error(`unknown extension type: ${ext}`)
-    }
+    this.disposable = deplug.session.registerDissector({
+      type: this.type,
+      main: this.mainFile.replace(/\bapp\.asar\b/, 'app.asar.unpacked'),
+    })
     for (const layer of this.linkLayers) {
       this.disposable = new CompositeDisposable([
         this.disposable,
