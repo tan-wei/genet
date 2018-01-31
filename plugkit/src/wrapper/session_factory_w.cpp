@@ -14,7 +14,7 @@ void SessionFactoryWrapper::init(v8::Isolate *isolate,
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("SessionFactory").ToLocalChecked());
-  SetPrototypeMethod(tpl, "setOption", setOption);
+  SetPrototypeMethod(tpl, "setOptions", setOptions);
   SetPrototypeMethod(tpl, "registerDissector", registerDissector);
   SetPrototypeMethod(tpl, "registerLinkLayer", registerLinkLayer);
   SetPrototypeMethod(tpl, "registerImporter", registerImporter);
@@ -114,13 +114,19 @@ NAN_SETTER(SessionFactoryWrapper::setBpf) {
   }
 }
 
-NAN_METHOD(SessionFactoryWrapper::setOption) {
+NAN_METHOD(SessionFactoryWrapper::setOptions) {
   SessionFactoryWrapper *wrapper =
       ObjectWrap::Unwrap<SessionFactoryWrapper>(info.Holder());
   if (auto factory = wrapper->factory) {
-    std::string key = *Nan::Utf8String(info[0]);
-    const Variant &value = Variant::getVariant(info[1]);
-    factory->setOption(key, value);
+    std::unordered_map<std::string, Variant> map;
+    auto obj = info[0].As<v8::Object>();
+    auto keys = obj->GetOwnPropertyNames();
+    for (size_t i = 0; i < keys->Length(); ++i) {
+      auto key = keys->Get(i).As<v8::String>();
+      auto value = obj->Get(key);
+      map[*Nan::Utf8String(key)] = Variant::getVariant(value);
+    }
+    factory->setOption(map);
   }
 }
 

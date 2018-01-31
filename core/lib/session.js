@@ -174,9 +174,7 @@ export default class Session {
     const factory = new SessionFactory()
     factory.macroPrefix = config.get('_.filter.macroPrefix', '@')
     factory.enableDebugSession = config.get('_.debug.enableDebugSession', false)
-    for (const [key, value] of Object.entries(flatten(config.toJSON()))) {
-      factory.setOption(key, value)
-    }
+    factory.setOptions(flatten(config.toJSON()))
     factory.networkInterface = ifs
     for (const layer of linkLayers) {
       factory.registerLinkLayer(layer)

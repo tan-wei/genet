@@ -2,11 +2,13 @@
 
 namespace plugkit {
 
-Variant &VariantMap::operator[](const std::string &key) { return map[key]; }
+VariantMap::VariantMap() {}
+
+VariantMap::VariantMap(const Map &map) : map(std::make_shared<Map>(map)) {}
 
 const Variant &VariantMap::operator[](const std::string &key) const {
-  auto it = map.find(key);
-  if (it != map.end()) {
+  auto it = map->find(key);
+  if (it != map->end()) {
     return it->second;
   }
   static Variant null;

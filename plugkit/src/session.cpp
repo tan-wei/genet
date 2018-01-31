@@ -417,9 +417,7 @@ void SessionFactory::setBpf(const std::string &filter) { d->bpf = filter; }
 
 std::string SessionFactory::bpf() const { return d->bpf; }
 
-void SessionFactory::setOption(const std::string &key, const Variant &value) {
-  d->options[key] = value;
-}
+void SessionFactory::setOption(const VariantMap &map) { d->options = map; }
 
 void SessionFactory::registerLinkLayer(int link, Token token) {
   d->linkLayers[link] = token;

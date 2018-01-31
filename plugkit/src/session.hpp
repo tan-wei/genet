@@ -5,6 +5,7 @@
 #include "token.hpp"
 #include "types.hpp"
 #include "variant.hpp"
+#include "variant_map.hpp"
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -114,7 +115,7 @@ public:
   int snaplen() const;
   void setBpf(const std::string &filter);
   std::string bpf() const;
-  void setOption(const std::string &key, const Variant &value);
+  void setOption(const VariantMap &map);
 
   void registerLinkLayer(int link, Token token);
   void registerDissector(const Dissector &diss, DissectorType type);
