@@ -139,6 +139,12 @@ export default class Config {
   }
 
   toJSON () {
-    return this[fields].tree
+    const obj = {}
+    for (const [key, value] of Object.entries(this.schema)) {
+      if ('default' in value) {
+        objpath.set(obj, key, value.default)
+      }
+    }
+    return Object.assign(obj, this[fields].tree)
   }
 }
