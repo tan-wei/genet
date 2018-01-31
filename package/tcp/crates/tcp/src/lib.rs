@@ -75,7 +75,7 @@ impl Worker for TCPWorker {
         let (ofs_and_flag, range) = ByteReader::read_u8(&mut rdr)?;
         let data_offset = ofs_and_flag as u32 >> 4;
         {
-            let attr = child.add_attr(ctx, token!("tcp.offset"));
+            let attr = child.add_attr(ctx, token!("tcp.dataOffset"));
             attr.set(&data_offset);
             attr.set_range(&range);
         }
