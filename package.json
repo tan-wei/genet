@@ -1,7 +1,7 @@
 {
   "name": "deplug",
   "productName": "Deplug",
-  "version": "0.0.47",
+  "version": "0.0.48-beta",
   "description": "Next generation packet analyzer",
   "repository": {
     "type": "git",
