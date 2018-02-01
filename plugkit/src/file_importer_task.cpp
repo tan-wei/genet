@@ -73,8 +73,7 @@ public:
   RootAllocator *allocator = nullptr;
 };
 
-FileImporterTask::FileImporterTask(const std::string &file)
-    : d(new Private()) {
+FileImporterTask::FileImporterTask(const std::string &file) : d(new Private()) {
   d->file = file;
 }
 

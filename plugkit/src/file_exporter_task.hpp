@@ -1,6 +1,7 @@
 #ifndef PLUGKIT_FILE_EXPORTER_THREAD_H
 #define PLUGKIT_FILE_EXPORTER_THREAD_H
 
+#include "task.hpp"
 #include "token.hpp"
 #include "variant_map.hpp"
 #include <functional>
@@ -18,19 +19,21 @@ using LoggerPtr = std::shared_ptr<Logger>;
 class FrameStore;
 using FrameStorePtr = std::shared_ptr<FrameStore>;
 
-class FileExporterThread final {
+class FileExporterTask final : public Task {
 public:
   using Callback = std::function<void(int, double)>;
 
 public:
-  FileExporterThread(const FrameStorePtr &store);
-  ~FileExporterThread();
+  FileExporterTask(const std::string &file,
+                   const std::string &filter,
+                   const FrameStorePtr &store);
+  ~FileExporterTask();
+  void run(int id) override;
   void setOptions(const VariantMap &options);
   void setLogger(const LoggerPtr &logger);
   void setCallback(const Callback &callback);
   void addExporter(const FileExporter &exporter);
   void registerLinkLayer(Token token, int link);
-  int start(const std::string &file, const std::string &filter);
 
 private:
   class Private;

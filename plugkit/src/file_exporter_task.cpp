@@ -1,4 +1,4 @@
-#include "file_exporter_thread.hpp"
+#include "file_exporter_task.hpp"
 #include "context.hpp"
 #include "file.hpp"
 #include "filter.hpp"
@@ -17,7 +17,7 @@ namespace {
 struct ContextData {
   int id;
   FrameStorePtr store;
-  FileExporterThread::Callback callback;
+  FileExporterTask::Callback callback;
   std::unordered_map<Token, int> linkLayers;
   std::vector<FileExporter> exporters;
   std::vector<RawFrame> frames;
@@ -128,9 +128,10 @@ private:
 
 } // namespace
 
-class FileExporterThread::Private {
+class FileExporterTask::Private {
 public:
-  int counter = 0;
+  std::string file;
+  std::string filter;
   Callback callback;
   VariantMap options;
   LoggerPtr logger = std::make_shared<StreamLogger>();
@@ -141,51 +142,38 @@ public:
   FrameStorePtr store;
 };
 
-FileExporterThread::FileExporterThread(const FrameStorePtr &store)
+FileExporterTask::FileExporterTask(const std::string &file,
+                                   const std::string &filter,
+                                   const FrameStorePtr &store)
     : d(new Private()) {
+  d->file = file;
+  d->filter = filter;
   d->store = store;
 }
 
-FileExporterThread::~FileExporterThread() {
-  if (d->worker) {
-    d->worker->join();
-  }
-}
+FileExporterTask::~FileExporterTask() {}
 
-void FileExporterThread::setOptions(const VariantMap &options) {
+void FileExporterTask::setOptions(const VariantMap &options) {
   d->options = options;
 }
 
-void FileExporterThread::setLogger(const LoggerPtr &logger) {
+void FileExporterTask::setLogger(const LoggerPtr &logger) {
   d->logger = logger;
 }
 
-void FileExporterThread::registerLinkLayer(Token token, int link) {
+void FileExporterTask::registerLinkLayer(Token token, int link) {
   d->linkLayers[token] = link;
 }
 
-void FileExporterThread::setCallback(const Callback &callback) {
+void FileExporterTask::setCallback(const Callback &callback) {
   d->callback = callback;
 }
 
-void FileExporterThread::addExporter(const FileExporter &exporters) {
+void FileExporterTask::addExporter(const FileExporter &exporters) {
   d->exporters.push_back(exporters);
 }
 
-int FileExporterThread::start(const std::string &file,
-                              const std::string &filter) {
-  int id = d->counter++;
-  d->callback(id, 0.0);
-
-  if (d->store->dissectedSize() == 0) {
-    d->callback(id, 1.0);
-    return id;
-  }
-
-  if (d->worker) {
-    d->worker->join();
-  }
-
+void FileExporterTask::run(int id) {
   ContextData data;
   data.id = id;
   data.callback = d->callback;
@@ -193,13 +181,13 @@ int FileExporterThread::start(const std::string &file,
   data.length = d->store->dissectedSize();
   data.linkLayers = d->linkLayers;
   data.exporters = d->exporters;
-  data.file = file;
-  data.filterBody = filter;
+  data.file = d->file;
+  data.filterBody = d->filter;
 
   d->worker.reset(new FileExporterWorkerThread(d->options, data));
   d->worker->setLogger(d->logger);
   d->worker->start();
-  return id;
+  d->worker->join();
 }
 
 } // namespace plugkit

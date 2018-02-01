@@ -3,7 +3,7 @@
 #include "dissector_thread.hpp"
 #include "dissector_thread_pool.hpp"
 #include "file.hpp"
-#include "file_exporter_thread.hpp"
+#include "file_exporter_task.hpp"
 #include "file_importer_task.hpp"
 #include "filter_thread.hpp"
 #include "filter_thread_pool.hpp"
@@ -78,8 +78,6 @@ public:
   std::unique_ptr<Status> status;
   std::unique_ptr<FilterStatusMap> filterStatus;
   std::unique_ptr<FrameStatus> frameStatus;
-
-  std::unique_ptr<FileExporterThread> fileExporter;
 
   SwapQueue<std::pair<std::string, std::string>> inspectorQueue;
 
@@ -200,20 +198,6 @@ Session::Session(const Config &config) : d(new Private(config)) {
     d->pcap->registerLinkLayer(pair.first, pair.second);
   }
 
-  d->fileExporter.reset(new FileExporterThread(d->frameStore));
-  d->fileExporter->setOptions(d->config.options);
-  d->fileExporter->setLogger(d->logger);
-  for (const auto &pair : d->config.linkLayers) {
-    d->fileExporter->registerLinkLayer(pair.second, pair.first);
-  }
-  for (const FileExporter &exporter : config.exporters) {
-    d->fileExporter->addExporter(exporter);
-  }
-  d->fileExporter->setCallback([this](int id, double progress) {
-    d->exporterProgress.store(progress, std::memory_order_relaxed);
-    d->notifyStatus(Private::UPDATE_EVENT);
-  });
-
   auto dissectors = d->config.dissectors;
   for (auto &pair : d->config.scriptDissectors) {
     const Dissector dissector = ScriptDissector::create(&pair.first[0]);
@@ -238,7 +222,6 @@ Session::~Session() {
   stopPcap();
   d->updateStatus();
   d->runner.close();
-  d->fileExporter.reset();
   d->frameStore->close();
   d->filters.clear();
   d->pcap.reset();
@@ -351,7 +334,20 @@ int Session::importFile(const std::string &file) {
 }
 
 int Session::exportFile(const std::string &file, const std::string &filter) {
-  return d->fileExporter->start(file, filter);
+  auto exporter = new FileExporterTask(file, filter, d->frameStore);
+  exporter->setOptions(d->config.options);
+  exporter->setLogger(d->logger);
+  for (const auto &pair : d->config.linkLayers) {
+    exporter->registerLinkLayer(pair.second, pair.first);
+  }
+  for (const FileExporter &exp : d->config.exporters) {
+    exporter->addExporter(exp);
+  }
+  exporter->setCallback([this](int id, double progress) {
+    d->exporterProgress.store(progress, std::memory_order_relaxed);
+    d->notifyStatus(Private::UPDATE_EVENT);
+  });
+  return d->runner.add(std::unique_ptr<Task>(exporter));
 }
 
 std::vector<std::string> Session::inspectors() const {
