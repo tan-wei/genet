@@ -30,7 +30,7 @@ struct ContextData {
 
 RawFrame createRawFrame(const ContextData *data, const Frame *frame) {
   RawFrame raw;
-  raw.data = nullptr;
+  raw.payload = nullptr;
   raw.length = 0;
 
   const Layer *root = frame->rootLayer();
@@ -39,7 +39,7 @@ RawFrame createRawFrame(const ContextData *data, const Frame *frame) {
     const auto &slices = payloads[0]->slices();
     if (!slices.empty()) {
       const auto &slice = slices[0];
-      raw.data = slice.begin;
+      raw.payload = slice.begin;
       raw.length = slice.end - slice.begin;
     }
   }

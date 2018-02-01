@@ -95,7 +95,7 @@ impl Importer for PcapImporter {
                     let frame = &mut dst[idx];
                     frame.set_link(network);
                     frame.set_actlen(orig_len as usize);
-                    frame.set_data_and_forget(vec.into_boxed_slice());
+                    frame.set_payload_and_forget(vec.into_boxed_slice());
                     frame.set_ts((ts_sec as i64, ts_usec as i64));
                     cnt += 1;
                 }

@@ -24,7 +24,7 @@ Frame *createFrame(Context *ctx, Token tag, const RawFrame &raw) {
   layer->addTag(tag);
 
   auto payload = Context_allocPayload(ctx);
-  payload->addSlice(Slice{raw.data, raw.data + raw.length});
+  payload->addSlice(Slice{raw.payload, raw.payload + raw.length});
   payload->setRange(Range{0, raw.length});
   layer->addPayload(payload);
 

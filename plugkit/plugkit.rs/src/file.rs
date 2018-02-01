@@ -5,6 +5,7 @@ use std::slice;
 use std::io::{Error, ErrorKind, Result};
 use std::path::Path;
 use super::layer::Layer;
+use super::variant::Variant;
 use super::context::Context;
 
 pub enum Status {
@@ -16,12 +17,13 @@ pub enum Status {
 #[repr(C)]
 pub struct RawFrame {
     link: u32,
-    data: *const libc::c_char,
+    payload: *const libc::c_char,
     len: libc::size_t,
     actlen: libc::size_t,
     ts_sec: i64,
     ts_nsec: i64,
-    root: *const Layer
+    root: *const Layer,
+    data: Variant
 }
 
 impl RawFrame {
@@ -33,14 +35,22 @@ impl RawFrame {
         self.link = val;
     }
 
-    pub fn data(&self) -> &[u8] {
-        unsafe { slice::from_raw_parts(self.data as *const u8, self.len as usize) }
+    pub fn payload(&self) -> &[u8] {
+        unsafe { slice::from_raw_parts(self.payload as *const u8, self.len as usize) }
     }
 
-    pub fn set_data_and_forget(&mut self, data: Box<[u8]>) {
-        self.data = data.as_ptr() as *const i8;
+    pub fn set_payload_and_forget(&mut self, data: Box<[u8]>) {
+        self.payload = data.as_ptr() as *const i8;
         self.len = data.len() as usize;
         mem::forget(data);
+    }
+
+    pub fn data(&self) -> &Variant {
+        &self.data
+    }
+
+    pub fn data_mut(&mut self) -> &mut Variant {
+        &mut self.data
     }
 
     pub fn actlen(&self) -> usize {

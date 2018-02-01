@@ -50,13 +50,13 @@ impl Exporter for PcapExporter {
 
             for f in frames {
                 let (ts_sec, ts_usec) = f.ts();
-                let incl_len = f.data().len();
+                let incl_len = f.payload().len();
                 let orig_len = f.actlen();
                 wtr.write_u32::<LittleEndian>(ts_sec as u32)?;
                 wtr.write_u32::<LittleEndian>(ts_usec as u32)?;
                 wtr.write_u32::<LittleEndian>(incl_len as u32)?;
                 wtr.write_u32::<LittleEndian>(orig_len as u32)?;
-                wtr.write_all(f.data())?;
+                wtr.write_all(f.payload())?;
             }
         }
         Ok(())
