@@ -18,6 +18,7 @@
       "src/frame_store.cpp",
       "src/filter.cpp",
       "src/token.cpp",
+      "src/task.cpp",
       "src/logger.cpp",
       "src/context.cpp",
       "src/null_logger.cpp",

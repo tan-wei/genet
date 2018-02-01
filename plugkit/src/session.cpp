@@ -15,6 +15,7 @@
 #include "script_dissector.hpp"
 #include "stream_dissector_thread_pool.hpp"
 #include "swap_queue.hpp"
+#include "task.hpp"
 #include "uvloop_logger.hpp"
 #include <atomic>
 #include <unordered_map>
@@ -70,6 +71,7 @@ public:
   FrameCallback frameCallback;
   LoggerCallback loggerCallback;
   InspectorCallback inspectorCallback;
+  TaskRunner runner;
 
   RootAllocator allocator;
 
@@ -255,6 +257,7 @@ Session::Session(const Config &config) : d(new Private(config)) {
 Session::~Session() {
   stopPcap();
   d->updateStatus();
+  d->runner.close();
   d->fileImporter.reset();
   d->fileExporter.reset();
   d->frameStore->close();
