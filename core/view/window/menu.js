@@ -30,4 +30,11 @@ export default class Menu {
       ])
     ])))
   }
+
+  onupdate () {
+    const view = document.querySelector('webview[active]')
+    if (view !== null) {
+      view.focus()
+    }
+  }
 }
