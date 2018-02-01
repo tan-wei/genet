@@ -13,8 +13,8 @@ namespace plugkit {
 enum VariantType {
   VARTYPE_NIL = 0,
   VARTYPE_BOOL = 1,
-  VARTYPE_INT32 = 2,
-  VARTYPE_UINT32 = 3,
+  VARTYPE_INT64 = 2,
+  VARTYPE_UINT64 = 3,
   VARTYPE_DOUBLE = 6,
   VARTYPE_STRING = 7,
   VARTYPE_SLICE = 8,
@@ -36,6 +36,8 @@ public:
   Variant(uint16_t value);
   Variant(int32_t value);
   Variant(uint32_t value);
+  Variant(int64_t value);
+  Variant(uint64_t value);
   Variant(double value);
   Variant(const std::string &str);
   Variant(const Slice &slice);
@@ -50,8 +52,8 @@ public:
   VariantType type() const;
   bool isNil() const;
   bool isBool() const;
-  bool isInt32() const;
-  bool isUint32() const;
+  bool isInt64() const;
+  bool isUint64() const;
   bool isDouble() const;
   bool isString() const;
   bool isSlice() const;
@@ -60,8 +62,8 @@ public:
 
 public:
   bool boolValue(bool defaultValue = bool()) const;
-  int32_t int32Value(int32_t defaultValue = int32_t()) const;
-  uint32_t uint32Value(uint32_t defaultValue = uint32_t()) const;
+  int64_t int64Value(int64_t defaultValue = int64_t()) const;
+  uint64_t uint64Value(uint64_t defaultValue = uint64_t()) const;
   double doubleValue(double defaultValue = double()) const;
   std::string string(const std::string &defaultValue = std::string()) const;
   Slice slice() const;
@@ -86,8 +88,8 @@ public:
   union {
     bool bool_;
     double double_;
-    int32_t int_;
-    uint32_t uint_;
+    int64_t int_;
+    uint64_t uint_;
     std::shared_ptr<std::string> *str;
     Slice *slice;
     Array *array;
@@ -109,17 +111,17 @@ bool Variant_bool(const Variant *var);
 /// Set the value of the variant to the given `bool` value.
 void Variant_setBool(Variant *var, bool value);
 
-/// Return the value of the variant as `int32_t`.
-int32_t Variant_int32(const Variant *var);
+/// Return the value of the variant as `int64_t`.
+int64_t Variant_int64(const Variant *var);
 
-/// Set the value of the variant to the given `int32_t` value.
-void Variant_setInt32(Variant *var, int32_t value);
+/// Set the value of the variant to the given `int64_t` value.
+void Variant_setInt64(Variant *var, int64_t value);
 
-/// Return the value of the variant as `uint32_t`.
-uint32_t Variant_uint32(const Variant *var);
+/// Return the value of the variant as `uint64_t`.
+uint64_t Variant_uint64(const Variant *var);
 
-/// Set the value of the variant to the given `uint32_t` value.
-void Variant_setUint32(Variant *var, uint32_t value);
+/// Set the value of the variant to the given `uint64_t` value.
+void Variant_setUint64(Variant *var, uint64_t value);
 
 /// Return the value of the variant as `double`.
 double Variant_double(const Variant *var);

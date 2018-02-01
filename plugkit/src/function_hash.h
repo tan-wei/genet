@@ -121,8 +121,8 @@ static struct Functions wordlist[] = {
 #line 31 "plugkit/src/function.keys"
     {"Variant_mapValue", reinterpret_cast<void *>(&plugkit::Variant_mapValue)},
 #line 24 "plugkit/src/function.keys"
-    {"Variant_setUint32",
-     reinterpret_cast<void *>(&plugkit::Variant_setUint32)},
+    {"Variant_setUint64",
+     reinterpret_cast<void *>(&plugkit::Variant_setUint64)},
 #line 29 "plugkit/src/function.keys"
     {"Variant_arrayValue",
      reinterpret_cast<void *>(&plugkit::Variant_arrayValue)},
@@ -170,7 +170,7 @@ static struct Functions wordlist[] = {
     {"Payload_slices", reinterpret_cast<void *>(&plugkit::Payload_slices)},
     {""},
 #line 23 "plugkit/src/function.keys"
-    {"Variant_setInt32", reinterpret_cast<void *>(&plugkit::Variant_setInt32)},
+    {"Variant_setInt64", reinterpret_cast<void *>(&plugkit::Variant_setInt64)},
 #line 10 "plugkit/src/function.keys"
     {"Context_getOption",
      reinterpret_cast<void *>(&plugkit::Context_getOption)},

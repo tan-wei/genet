@@ -94,7 +94,7 @@ void FilterThreadPool::start() {
     uv_rwlock_wrunlock(&d->rwlock);
   };
 
-  int concurrency = d->options["_.dissector.concurrency"].uint32Value(0);
+  int concurrency = d->options["_.dissector.concurrency"].uint64Value(0);
   if (concurrency == 0)
     concurrency = std::thread::hardware_concurrency();
   if (concurrency == 0)

@@ -125,7 +125,7 @@ void StreamDissectorThreadPool::start() {
   if (d->thread.joinable() || !d->threads.empty())
     return;
 
-  int concurrency = d->options["_.dissector.concurrency"].uint32Value(0);
+  int concurrency = d->options["_.dissector.concurrency"].uint64Value(0);
   if (concurrency == 0)
     concurrency = std::thread::hardware_concurrency();
   if (concurrency == 0)

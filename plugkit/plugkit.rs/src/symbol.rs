@@ -35,8 +35,8 @@ def_func!(
     Context_getOption,     extern "C" fn(*const Context, *const libc::c_char) -> *const Variant;
     Variant_setNil,        extern "C" fn(*mut Variant);
     Variant_setBool,       extern "C" fn(*mut Variant, bool);
-    Variant_setInt32,      extern "C" fn(*mut Variant, i32);
-    Variant_setUint32,     extern "C" fn(*mut Variant, u32);
+    Variant_setInt64,      extern "C" fn(*mut Variant, i64);
+    Variant_setUint64,     extern "C" fn(*mut Variant, u64);
     Variant_setDouble,     extern "C" fn(*mut Variant, f64);
     Variant_string,        extern "C" fn(*const Variant) -> *const libc::c_char;
     Variant_setString,     extern "C" fn(*mut Variant, *const libc::c_char);

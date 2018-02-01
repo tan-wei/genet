@@ -69,21 +69,21 @@ bool Attr_bool(const Attr *attr) {
 
 void Attr_setBool(Attr *attr, bool value) { attr->setValue(value); }
 
-int32_t Attr_int32(const Attr *attr) {
+int64_t Attr_int64(const Attr *attr) {
   if (!attr)
     return 0ll;
-  return attr->value().int32Value();
+  return attr->value().int64Value();
 }
 
-void Attr_setInt32(Attr *attr, int32_t value) { attr->setValue(value); }
+void Attr_setInt64(Attr *attr, int64_t value) { attr->setValue(value); }
 
-uint32_t Attr_uint32(const Attr *attr) {
+uint64_t Attr_uint64(const Attr *attr) {
   if (!attr)
     return 0ull;
-  return attr->value().uint32Value();
+  return attr->value().uint64Value();
 }
 
-void Attr_setUint32(Attr *attr, uint32_t value) { attr->setValue(value); }
+void Attr_setUint64(Attr *attr, uint64_t value) { attr->setValue(value); }
 
 double Attr_double(const Attr *attr) {
   if (!attr)

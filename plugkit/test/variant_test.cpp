@@ -12,10 +12,10 @@ TEST_CASE("Variant_type", "[variant]") {
   CHECK(Variant_type(&variant) == VARTYPE_NIL);
   Variant_setBool(&variant, false);
   CHECK(Variant_type(&variant) == VARTYPE_BOOL);
-  Variant_setInt32(&variant, 0);
-  CHECK(Variant_type(&variant) == VARTYPE_INT32);
-  Variant_setUint32(&variant, 0);
-  CHECK(Variant_type(&variant) == VARTYPE_UINT32);
+  Variant_setInt64(&variant, 0);
+  CHECK(Variant_type(&variant) == VARTYPE_INT64);
+  Variant_setUint64(&variant, 0);
+  CHECK(Variant_type(&variant) == VARTYPE_UINT64);
   Variant_setDouble(&variant, 0.0);
   CHECK(Variant_type(&variant) == VARTYPE_DOUBLE);
   Variant_setString(&variant, "HELLO", -1);
@@ -46,26 +46,26 @@ TEST_CASE("Variant_bool", "[variant]") {
   CHECK(Variant_bool(nullptr) == false);
 }
 
-TEST_CASE("Variant_int32", "[variant]") {
+TEST_CASE("Variant_int64", "[variant]") {
   Variant variant;
-  CHECK(Variant_int32(&variant) == 0l);
-  Variant_setInt32(&variant, INT32_MAX);
-  CHECK(Variant_int32(&variant) == INT32_MAX);
-  Variant_setInt32(&variant, UINT32_MAX);
-  CHECK(Variant_int32(&variant) == -1);
-  CHECK(Variant_int32(nullptr) == 0l);
+  CHECK(Variant_int64(&variant) == 0l);
+  Variant_setInt64(&variant, INT64_MAX);
+  CHECK(Variant_int64(&variant) == INT64_MAX);
+  Variant_setInt64(&variant, UINT64_MAX);
+  CHECK(Variant_int64(&variant) == -1);
+  CHECK(Variant_int64(nullptr) == 0l);
 }
 
-TEST_CASE("Variant_uint32", "[variant]") {
+TEST_CASE("Variant_uint64", "[variant]") {
   Variant variant;
-  CHECK(Variant_uint32(&variant) == 0ul);
-  Variant_setUint32(&variant, UINT32_MAX);
-  CHECK(Variant_uint32(&variant) == UINT32_MAX);
-  Variant_setUint32(&variant, INT32_MAX);
-  CHECK(Variant_uint32(&variant) == INT32_MAX);
-  Variant_setUint32(&variant, -1);
-  CHECK(Variant_uint32(&variant) == UINT32_MAX);
-  CHECK(Variant_int32(nullptr) == 0ul);
+  CHECK(Variant_uint64(&variant) == 0ul);
+  Variant_setUint64(&variant, UINT64_MAX);
+  CHECK(Variant_uint64(&variant) == UINT64_MAX);
+  Variant_setUint64(&variant, INT64_MAX);
+  CHECK(Variant_uint64(&variant) == INT64_MAX);
+  Variant_setUint64(&variant, -1);
+  CHECK(Variant_uint64(&variant) == UINT64_MAX);
+  CHECK(Variant_int64(nullptr) == 0ul);
 }
 
 TEST_CASE("Variant_double", "[variant]") {

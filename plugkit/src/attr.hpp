@@ -71,17 +71,17 @@ bool Attr_bool(const Attr *attr);
 /// Set the value of the attr to the given `bool` value.
 void Attr_setBool(Attr *attr, bool value);
 
-/// Return the value associated with the attr as `int32_t`.
-int32_t Attr_int32(const Attr *attr);
+/// Return the value associated with the attr as `int64_t`.
+int64_t Attr_int64(const Attr *attr);
 
-/// Set the value of the attr to the given `int32_t` value.
-void Attr_setInt32(Attr *attr, int32_t value);
+/// Set the value of the attr to the given `int64_t` value.
+void Attr_setInt64(Attr *attr, int64_t value);
 
-/// Return the value associated with the attr as `uint32_t`.
-uint32_t Attr_uint32(const Attr *attr);
+/// Return the value associated with the attr as `uint64_t`.
+uint64_t Attr_uint64(const Attr *attr);
 
-/// Set the value of the attr to the given `uint32_t` value.
-void Attr_setUint32(Attr *attr, uint32_t value);
+/// Set the value of the attr to the given `uint64_t` value.
+void Attr_setUint64(Attr *attr, uint64_t value);
 
 /// Return the value associated with the attr as `double`.
 double Attr_double(const Attr *attr);
