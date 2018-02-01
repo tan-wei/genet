@@ -61,7 +61,7 @@ class NTP {
     if (mode.value in modeTable) {
       const attr = child.addAttr(ctx, modeTable[mode.value])
       attr.value = true
-      mode.type = '@novalue'
+      attr.type = '@novalue'
       attr.range = reader.lastRange
       attr.error = reader.lastError
     }
