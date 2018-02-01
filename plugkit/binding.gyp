@@ -45,8 +45,7 @@
       "src/payload.cpp",
       "src/layer.cpp",
       "src/slice.cpp",
-      "src/tag_filter.cpp",
-      "vendor/json11/json11.cpp"
+      "src/tag_filter.cpp"
     ],
     "plugkit_test_sources":[
       "src/plugkit_testing.cpp",
@@ -60,7 +59,6 @@
   "target_defaults":{
     "include_dirs":[
       "vendor/nan",
-      "vendor/json11",
       "vendor/Catch/include",
       "include/plugkit",
       "src"
