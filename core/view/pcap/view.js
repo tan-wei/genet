@@ -147,6 +147,9 @@ class SideView {
         this.sess.exportFile(file, this.displayFilter)
       }
     })
+    deplug.action.global.on('core:pcap:focus-display-filter', () => {
+      document.querySelector('input[name=display-filter]').focus()
+    })
     deplug.action.on('core:filter:set', (value) => {
       try {
         filterInput.value = value

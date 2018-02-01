@@ -30,6 +30,12 @@ const template = [
       },
       { type: 'separator' },
       {
+        label: 'Display Filter',
+        action: 'core:pcap:focus-display-filter',
+        accelerator: 'CommandOrControl+F',
+      },
+      { type: 'separator' },
+      {
         label: 'Import File...',
         action: 'core:file:import',
         accelerator: 'CommandOrControl+O',
