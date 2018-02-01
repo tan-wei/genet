@@ -6,7 +6,7 @@ namespace plugkit {
 struct Context;
 struct Layer;
 
-typedef struct RawFrame {
+struct RawFrame {
   int link;
   const char *data;
   size_t length;
@@ -14,7 +14,7 @@ typedef struct RawFrame {
   int64_t tsSec;
   int64_t tsNsec;
   const Layer *root;
-} RawFrame;
+};
 
 enum FileStatus {
   FILE_STATUS_DONE,
@@ -36,13 +36,13 @@ typedef FileStatus(FileExporterFunc)(Context *ctx,
                                      const char *filename,
                                      FileExporterCallback callback);
 
-typedef struct FileImporter {
+struct FileImporter {
   FileImporterFunc *func;
-} FileImporter;
+};
 
-typedef struct FileExporter {
+struct FileExporter {
   FileExporterFunc *func;
-} FileExporter;
+};
 
 } // namespace plugkit
 
