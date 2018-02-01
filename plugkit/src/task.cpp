@@ -9,7 +9,6 @@ namespace plugkit {
 class TaskRunner::Private {
 public:
   int count = 0;
-  std::function<void(int, Task::Status)> callback;
   std::queue<std::pair<int, std::unique_ptr<Task>>> queue;
 
   std::mutex mutex;
@@ -29,11 +28,8 @@ TaskRunner::TaskRunner() : d(new Private()) {
       std::unique_ptr<Task> task(std::move(d->queue.front().second));
       d->queue.pop();
 
-      task->setCallback(
-          [this, id](Task::Status status) { d->callback(id, status); });
-
       lock.unlock();
-      task->run();
+      task->run(id);
       lock.lock();
     }
   });
@@ -60,12 +56,6 @@ int TaskRunner::add(std::unique_ptr<Task> &&task) {
   }
   d->cond.notify_one();
   return count;
-}
-
-void TaskRunner::setCallback(
-    const std::function<void(int, Task::Status)> &func) {
-  std::lock_guard<std::mutex> lock(d->mutex);
-  d->callback = func;
 }
 
 } // namespace plugkit

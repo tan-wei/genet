@@ -38,7 +38,7 @@
       "src/wrapper/logger_w.cpp",
       "src/session.cpp",
       "src/script_dissector.cpp",
-      "src/file_importer_thread.cpp",
+      "src/file_importer_task.cpp",
       "src/file_exporter_thread.cpp",
       "src/frame.cpp",
       "src/attr.cpp",

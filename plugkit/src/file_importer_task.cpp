@@ -1,4 +1,4 @@
-#include "file_importer_thread.hpp"
+#include "file_importer_task.hpp"
 #include "context.hpp"
 #include "file.hpp"
 #include "frame.hpp"
@@ -14,7 +14,7 @@ namespace {
 
 struct CallbackData {
   int id;
-  FileImporterThread::Callback callback;
+  FileImporterTask::Callback callback;
   std::unordered_map<int, Token> linkLayers;
   std::vector<RawFrame> frames;
 };
@@ -62,9 +62,9 @@ bool apiCallback(Context *ctx, size_t length, double progress) {
 
 } // namespace
 
-class FileImporterThread::Private {
+class FileImporterTask::Private {
 public:
-  int counter = 0;
+  std::string file;
   VariantMap options;
   Callback callback;
   std::unordered_map<int, Token> linkLayers;
@@ -73,63 +73,51 @@ public:
   RootAllocator *allocator = nullptr;
 };
 
-FileImporterThread::FileImporterThread() : d(new Private()) {}
-
-FileImporterThread::~FileImporterThread() {
-  if (d->thread.joinable()) {
-    d->thread.join();
-  }
+FileImporterTask::FileImporterTask(const std::string &file)
+    : d(new Private()) {
+  d->file = file;
 }
 
-void FileImporterThread::setOptions(const VariantMap &options) {
+FileImporterTask::~FileImporterTask() {}
+
+void FileImporterTask::setOptions(const VariantMap &options) {
   d->options = options;
 }
 
-void FileImporterThread::setAllocator(RootAllocator *allocator) {
+void FileImporterTask::setAllocator(RootAllocator *allocator) {
   d->allocator = allocator;
 }
 
-void FileImporterThread::setCallback(const Callback &callback) {
+void FileImporterTask::setCallback(const Callback &callback) {
   d->callback = callback;
 }
 
-void FileImporterThread::registerLinkLayer(int link, Token token) {
+void FileImporterTask::registerLinkLayer(int link, Token token) {
   d->linkLayers[link] = token;
 }
 
-void FileImporterThread::addImporter(const FileImporter &importer) {
+void FileImporterTask::addImporter(const FileImporter &importer) {
   d->importers.push_back(importer);
 }
 
-int FileImporterThread::start(const std::string &file) {
-  if (d->thread.joinable())
-    return -1;
-
-  int id = d->counter++;
-  d->callback(id, nullptr, 0, 0.0);
-
-  auto importers = d->importers;
-  d->thread = std::thread([this, id, file, importers]() {
-    Context ctx;
-    CallbackData data;
-    data.id = id;
-    data.callback = d->callback;
-    data.linkLayers = d->linkLayers;
-    data.frames.resize(10240);
-    ctx.options = d->options;
-    ctx.rootAllocator = d->allocator;
-    ctx.data = &data;
-    for (const FileImporter &importer : importers) {
-      if (!importer.func)
-        continue;
-      FileStatus status = importer.func(&ctx, file.c_str(), data.frames.data(),
-                                        data.frames.size(), apiCallback);
-      if (status != FILE_STATUS_UNSUPPORTED) {
-        return;
-      }
+void FileImporterTask::run(int id) {
+  Context ctx;
+  CallbackData data;
+  data.callback = d->callback;
+  data.linkLayers = d->linkLayers;
+  data.frames.resize(10240);
+  ctx.options = d->options;
+  ctx.rootAllocator = d->allocator;
+  ctx.data = &data;
+  for (const FileImporter &importer : d->importers) {
+    if (!importer.func)
+      continue;
+    FileStatus status = importer.func(&ctx, d->file.c_str(), data.frames.data(),
+                                      data.frames.size(), apiCallback);
+    if (status != FILE_STATUS_UNSUPPORTED) {
+      return;
     }
-  });
-  return id;
+  }
 }
 
 } // namespace plugkit

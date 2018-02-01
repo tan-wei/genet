@@ -4,7 +4,7 @@
 #include "dissector_thread_pool.hpp"
 #include "file.hpp"
 #include "file_exporter_thread.hpp"
-#include "file_importer_thread.hpp"
+#include "file_importer_task.hpp"
 #include "filter_thread.hpp"
 #include "filter_thread_pool.hpp"
 #include "frame.hpp"
@@ -79,7 +79,6 @@ public:
   std::unique_ptr<FilterStatusMap> filterStatus;
   std::unique_ptr<FrameStatus> frameStatus;
 
-  std::unique_ptr<FileImporterThread> fileImporter;
   std::unique_ptr<FileExporterThread> fileExporter;
 
   SwapQueue<std::pair<std::string, std::string>> inspectorQueue;
@@ -201,25 +200,6 @@ Session::Session(const Config &config) : d(new Private(config)) {
     d->pcap->registerLinkLayer(pair.first, pair.second);
   }
 
-  d->fileImporter.reset(new FileImporterThread());
-  d->fileImporter->setOptions(d->config.options);
-  d->fileImporter->setAllocator(&d->allocator);
-  for (const auto &pair : d->config.linkLayers) {
-    d->fileImporter->registerLinkLayer(pair.first, pair.second);
-  }
-  for (const FileImporter &importer : config.importers) {
-    d->fileImporter->addImporter(importer);
-  }
-  d->fileImporter->setCallback(
-      [this](int id, Frame **begin, size_t length, double progress) {
-        for (size_t i = 0; i < length; ++i) {
-          begin[i]->setIndex(d->getSeq());
-        }
-        d->dissectorPool->push(begin, length);
-        d->importerProgress.store(progress, std::memory_order_relaxed);
-        d->notifyStatus(Private::UPDATE_EVENT);
-      });
-
   d->fileExporter.reset(new FileExporterThread(d->frameStore));
   d->fileExporter->setOptions(d->config.options);
   d->fileExporter->setLogger(d->logger);
@@ -258,7 +238,6 @@ Session::~Session() {
   stopPcap();
   d->updateStatus();
   d->runner.close();
-  d->fileImporter.reset();
   d->fileExporter.reset();
   d->frameStore->close();
   d->filters.clear();
@@ -350,7 +329,25 @@ void Session::sendInspectorMessage(const std::string &id,
 }
 
 int Session::importFile(const std::string &file) {
-  return d->fileImporter->start(file);
+  auto importer = new FileImporterTask(file);
+  importer->setOptions(d->config.options);
+  importer->setAllocator(&d->allocator);
+  for (const auto &pair : d->config.linkLayers) {
+    importer->registerLinkLayer(pair.first, pair.second);
+  }
+  for (const FileImporter &imp : d->config.importers) {
+    importer->addImporter(imp);
+  }
+  importer->setCallback(
+      [this](int id, Frame **begin, size_t length, double progress) {
+        for (size_t i = 0; i < length; ++i) {
+          begin[i]->setIndex(d->getSeq());
+        }
+        d->dissectorPool->push(begin, length);
+        d->importerProgress.store(progress, std::memory_order_relaxed);
+        d->notifyStatus(Private::UPDATE_EVENT);
+      });
+  return d->runner.add(std::unique_ptr<Task>(importer));
 }
 
 int Session::exportFile(const std::string &file, const std::string &filter) {

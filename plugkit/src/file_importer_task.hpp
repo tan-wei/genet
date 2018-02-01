@@ -1,6 +1,7 @@
 #ifndef PLUGKIT_FILE_IMPORTEER_THREAD_H
 #define PLUGKIT_FILE_IMPORTEER_THREAD_H
 
+#include "task.hpp"
 #include "token.hpp"
 #include "variant_map.hpp"
 #include <functional>
@@ -14,19 +15,19 @@ struct FileImporter;
 
 class RootAllocator;
 
-class FileImporterThread final {
+class FileImporterTask final : public Task {
 public:
   using Callback = std::function<void(int, Frame **, size_t, double)>;
 
 public:
-  FileImporterThread();
-  ~FileImporterThread();
+  FileImporterTask(const std::string &file);
+  ~FileImporterTask();
+  void run(int id) override;
   void setOptions(const VariantMap &options);
   void setCallback(const Callback &callback);
   void setAllocator(RootAllocator *allocator);
   void registerLinkLayer(int link, Token token);
   void addImporter(const FileImporter &importer);
-  int start(const std::string &file);
 
 private:
   class Private;
