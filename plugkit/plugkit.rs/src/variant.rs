@@ -298,7 +298,7 @@ impl Value<&'static [u8]> for Variant {
 }
 
 impl Variant {
-    pub fn set_typ(&mut self, typ: Type) {
+    fn set_typ(&mut self, typ: Type) {
         self.typ_tag = (self.typ_tag & 0b1111_0000) | (typ as u8)
     }
 
