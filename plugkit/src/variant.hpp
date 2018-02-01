@@ -2,7 +2,6 @@
 #define PLUGKIT_VARIANT_HPP
 
 #include "slice.hpp"
-#include <json11.hpp>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -80,7 +79,6 @@ public:
   static Slice getSlice(v8::Local<v8::ArrayBufferView> obj);
   static v8::Local<v8::Value> getValue(const Variant &var);
   static Variant getVariant(v8::Local<v8::Value> var);
-  static json11::Json getJson(const Variant &var);
   static void init(v8::Isolate *isolate);
 
 public:
