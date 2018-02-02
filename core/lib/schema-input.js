@@ -24,7 +24,7 @@ class StringArrayInput extends InputBase {
   view (vnode) {
     const { schema } = vnode.attrs
     const placeholder = ('default' in schema)
-      ? schema.default.join(', ')
+      ? `Default: ${schema.default.join(', ')}`
       : ''
     return m('input', {
       type: 'text',
@@ -45,7 +45,7 @@ class IntegerArrayInput extends InputBase {
   view (vnode) {
     const { schema } = vnode.attrs
     const placeholder = ('default' in schema)
-      ? schema.default.join(', ')
+      ? `Default: ${schema.default.join(', ')}`
       : ''
     return m('input', {
       type: 'text',
@@ -82,7 +82,7 @@ class StringInput extends InputBase {
   view (vnode) {
     const { schema } = vnode.attrs
     const placeholder = ('default' in schema)
-      ? schema.default
+      ? `Default: ${schema.default}`
       : ''
     return m('input', {
       type: 'text',
