@@ -24,13 +24,13 @@ bool virtualAttr(Token id,
   if (id == frameToken) {
     ret.Set(FrameWrapper::wrap(view));
   } else if (id == tsToken) {
-    ret.Set(AttributeWrapper::wrap(&wrapper->tsAttr));
+    ret.Set(AttrWrapper::wrap(&wrapper->tsAttr));
   } else if (id == payloadToken) {
-    ret.Set(AttributeWrapper::wrap(&wrapper->payloadAttr));
+    ret.Set(AttrWrapper::wrap(&wrapper->payloadAttr));
   } else if (id == actLenToken) {
-    ret.Set(AttributeWrapper::wrap(&wrapper->actLenAttr));
+    ret.Set(AttrWrapper::wrap(&wrapper->actLenAttr));
   } else if (id == indexToken) {
-    ret.Set(AttributeWrapper::wrap(&wrapper->indexAttr));
+    ret.Set(AttrWrapper::wrap(&wrapper->indexAttr));
   } else {
     return false;
   }
@@ -122,7 +122,7 @@ NAN_METHOD(FrameWrapper::query) {
     if (layer) {
       info.GetReturnValue().Set(LayerWrapper::wrap(layer));
     } else if (attr) {
-      info.GetReturnValue().Set(AttributeWrapper::wrap(attr));
+      info.GetReturnValue().Set(AttrWrapper::wrap(attr));
     } else {
       info.GetReturnValue().Set(Nan::Null());
     }

@@ -179,7 +179,7 @@ NAN_GETTER(LayerWrapper::attrs) {
     const auto &attrs = layer->attrs();
     auto array = v8::Array::New(isolate, attrs.size());
     for (size_t i = 0; i < attrs.size(); ++i) {
-      array->Set(i, AttributeWrapper::wrap(attrs[i]));
+      array->Set(i, AttrWrapper::wrap(attrs[i]));
     }
     info.GetReturnValue().Set(array);
   }
@@ -212,7 +212,7 @@ NAN_METHOD(LayerWrapper::attr) {
       return;
     }
     if (const auto &attr = layer->attr(token)) {
-      info.GetReturnValue().Set(AttributeWrapper::wrap(attr));
+      info.GetReturnValue().Set(AttrWrapper::wrap(attr));
     } else {
       info.GetReturnValue().Set(Nan::Null());
     }
@@ -290,7 +290,7 @@ NAN_METHOD(LayerWrapper::addAttr) {
     }
     if (auto ctx = ContextWrapper::unwrap(info[0])) {
       info.GetReturnValue().Set(
-          AttributeWrapper::wrap(Layer_addAttr(layer, ctx, token)));
+          AttrWrapper::wrap(Layer_addAttr(layer, ctx, token)));
     } else {
       Nan::ThrowTypeError("First argument must be a context");
     }

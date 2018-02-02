@@ -38,7 +38,7 @@ void externalize(v8::FunctionCallbackInfo<v8::Value> const &info) {
 void createAttrInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
   Token id = Token_get(*Nan::Utf8String(info[0]));
   auto attr = new Attr(id);
-  Nan::Persistent<v8::Object> persistent(AttributeWrapper::wrap(attr));
+  Nan::Persistent<v8::Object> persistent(AttrWrapper::wrap(attr));
   persistent.SetWeak(attr,
                      [](const Nan::WeakCallbackInfo<Attr> &data) {
                        delete data.GetParameter();

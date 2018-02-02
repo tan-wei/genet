@@ -91,7 +91,7 @@ NAN_GETTER(PayloadWrapper::attrs) {
     const auto &attrs = payload->attrs();
     auto array = v8::Array::New(isolate, attrs.size());
     for (size_t i = 0; i < attrs.size(); ++i) {
-      array->Set(i, AttributeWrapper::wrap(attrs[i]));
+      array->Set(i, AttrWrapper::wrap(attrs[i]));
     }
     info.GetReturnValue().Set(array);
   }
@@ -112,7 +112,7 @@ NAN_METHOD(PayloadWrapper::attr) {
     }
 
     if (const auto &child = payload->attr(token)) {
-      info.GetReturnValue().Set(AttributeWrapper::wrap(child));
+      info.GetReturnValue().Set(AttrWrapper::wrap(child));
     } else {
       info.GetReturnValue().Set(Nan::Null());
     }
@@ -134,7 +134,7 @@ NAN_METHOD(PayloadWrapper::addAttr) {
     }
     if (auto ctx = ContextWrapper::unwrap(info[0])) {
       info.GetReturnValue().Set(
-          AttributeWrapper::wrap(Payload_addAttr(payload, ctx, token)));
+          AttrWrapper::wrap(Payload_addAttr(payload, ctx, token)));
     } else {
       Nan::ThrowTypeError("First argument must be a context");
     }

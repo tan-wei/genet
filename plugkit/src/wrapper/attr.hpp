@@ -8,7 +8,7 @@ namespace plugkit {
 
 struct Attr;
 
-struct AttributeWrapper final : public Nan::ObjectWrap {
+struct AttrWrapper final : public Nan::ObjectWrap {
 public:
   static void init(v8::Isolate *isolate, v8::Local<v8::Object> exports);
   static v8::Local<v8::Object> wrap(Attr *attr);
@@ -28,11 +28,11 @@ public:
   static NAN_SETTER(setError);
 
 private:
-  AttributeWrapper(Attr *attr);
-  AttributeWrapper(const Attr *attr);
-  AttributeWrapper(const std::shared_ptr<Attr> &attr);
-  AttributeWrapper(const AttributeWrapper &) = delete;
-  AttributeWrapper &operator=(const AttributeWrapper &) = delete;
+  AttrWrapper(Attr *attr);
+  AttrWrapper(const Attr *attr);
+  AttrWrapper(const std::shared_ptr<Attr> &attr);
+  AttrWrapper(const AttrWrapper &) = delete;
+  AttrWrapper &operator=(const AttrWrapper &) = delete;
 
 private:
   Attr *attr;
