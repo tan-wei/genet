@@ -23,7 +23,8 @@ class FrameView {
     }, [
       m('div', { class: 'header' }, [
         m('span', [deplug.session.token(id).name]),
-        m('span', { class: 'right' }, [`${this.frame.length} bytes`])
+        m('span', { class: 'right' },
+          [`${this.frame.query('_.actualLength').value} bytes`])
       ]),
       m('div', { class: 'content' }, [
         m(renderer, { layer: this.frame.primaryLayer })
