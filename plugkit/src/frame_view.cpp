@@ -1,6 +1,7 @@
 #include "frame_view.hpp"
 #include "frame.hpp"
 #include "layer.hpp"
+#include "payload.hpp"
 #include <algorithm>
 #include <functional>
 #include <vector>
@@ -66,6 +67,27 @@ const Layer *FrameView::layer(Token id) const {
     }
   }
   return nullptr;
+}
+
+double FrameView::timestamp() const {
+  return static_cast<double>(
+      std::chrono::duration_cast<std::chrono::nanoseconds>(
+          mFrame->timestamp().time_since_epoch())
+          .count() /
+      1000000.0);
+}
+
+Slice FrameView::payload() const {
+  if (const Layer *root = mFrame->rootLayer()) {
+    const auto &payloads = root->payloads();
+    if (!payloads.empty()) {
+      const auto &payload = payloads[0];
+      if (!payload->slices().empty()) {
+        return payload->slices()[0];
+      }
+    }
+  }
+  return Slice();
 }
 
 void FrameView::query(Token id, const Layer **layer, const Attr **attr) const {

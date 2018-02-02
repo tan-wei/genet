@@ -160,11 +160,14 @@ export default class PcapDetailView {
     const frame = this.selectedFrame
 
     const tsString =
-      moment(frame.timestamp).format('YYYY-MM-DDTHH:mm:ss.SSSZ')
+      moment(frame.query('_.timestamp').value)
+        .format('YYYY-MM-DDTHH:mm:ss.SSSZ')
 
-    let length = `${frame.rootLayer.payloads[0].slices[0].length}`
-    if (frame.length > frame.rootLayer.payloads[0].slices[0].length) {
-      length += ` (actual: ${frame.length})`
+    const payload = frame.query('_.payload')
+    const actual = frame.query('_.actualLength')
+    let length = `${payload.length}`
+    if (actual > payload.length) {
+      length += ` (actual: ${actual})`
     }
 
     let children = frame.rootLayer.layers

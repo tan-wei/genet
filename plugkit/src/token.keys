@@ -20,6 +20,11 @@
 [tcp]
 [udp]
 [unknown]
+_
+_.timestamp
+_.payload
+_.actualLength
+_.index
 eth
 eth.type
 eth.type.ipv4
