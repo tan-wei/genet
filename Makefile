@@ -11,7 +11,7 @@ fix:
 	eslint --fix .
 
 fmt:
-	-clang-format -i plugkit/**/*.{cpp,hpp,h,c} package/**/*.{cpp,hpp}
+	-clang-format -i plugkit/**/*.{cpp,hpp} plugkit/src/wrapper/*.{cpp,hpp} package/**/*.{cpp,hpp}
 
 gperf:
 	gperf -LANSI-C -G plugkit/src/token.keys --output-file=plugkit/src/token_hash.h
