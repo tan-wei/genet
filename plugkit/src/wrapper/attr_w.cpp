@@ -4,8 +4,7 @@
 
 namespace plugkit {
 
-void AttrWrapper::init(v8::Isolate *isolate,
-                            v8::Local<v8::Object> exports) {
+void AttrWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Attr").ToLocalChecked());
@@ -19,9 +18,8 @@ void AttrWrapper::init(v8::Isolate *isolate,
 
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
-  ctor->Set(
-      Nan::New("create").ToLocalChecked(),
-      Nan::New<v8::FunctionTemplate>(AttrWrapper::create)->GetFunction());
+  ctor->Set(Nan::New("create").ToLocalChecked(),
+            Nan::New<v8::FunctionTemplate>(AttrWrapper::create)->GetFunction());
   module->attribute.proto.Reset(
       isolate, ctor->Get(Nan::New("prototype").ToLocalChecked()));
   module->attribute.ctor.Reset(isolate, ctor);
@@ -30,8 +28,7 @@ void AttrWrapper::init(v8::Isolate *isolate,
 
 AttrWrapper::AttrWrapper(Attr *attr) : attr(attr), constProp(attr) {}
 
-AttrWrapper::AttrWrapper(const Attr *attr)
-    : attr(nullptr), constProp(attr) {}
+AttrWrapper::AttrWrapper(const Attr *attr) : attr(nullptr), constProp(attr) {}
 
 AttrWrapper::AttrWrapper(const std::shared_ptr<Attr> &attr)
     : attr(attr.get()), constProp(attr.get()), shared(attr) {}
@@ -47,15 +44,13 @@ NAN_METHOD(AttrWrapper::create) {
     Nan::ThrowTypeError("First argument must be a string or token-id");
     return;
   }
-  info.GetReturnValue().Set(
-      AttrWrapper::wrap(std::make_shared<Attr>(token)));
+  info.GetReturnValue().Set(AttrWrapper::wrap(std::make_shared<Attr>(token)));
 }
 
 NAN_METHOD(AttrWrapper::New) { info.GetReturnValue().Set(info.This()); }
 
 NAN_GETTER(AttrWrapper::id) {
-  AttrWrapper *wrapper =
-      ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
+  AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
   if (auto attr = wrapper->constProp) {
     info.GetReturnValue().Set(
         Nan::New(Token_string(attr->id())).ToLocalChecked());
@@ -63,8 +58,7 @@ NAN_GETTER(AttrWrapper::id) {
 }
 
 NAN_GETTER(AttrWrapper::range) {
-  AttrWrapper *wrapper =
-      ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
+  AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
   if (auto attr = wrapper->constProp) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
     auto array = v8::Array::New(isolate, 2);
@@ -75,8 +69,7 @@ NAN_GETTER(AttrWrapper::range) {
 }
 
 NAN_SETTER(AttrWrapper::setRange) {
-  AttrWrapper *wrapper =
-      ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
+  AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
   if (auto attr = wrapper->attr) {
     if (value->IsArray()) {
       auto array = value.As<v8::Array>();
@@ -89,24 +82,21 @@ NAN_SETTER(AttrWrapper::setRange) {
 }
 
 NAN_GETTER(AttrWrapper::value) {
-  AttrWrapper *wrapper =
-      ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
+  AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
   if (auto attr = wrapper->constProp) {
     info.GetReturnValue().Set(Variant::getValue(attr->value()));
   }
 }
 
 NAN_SETTER(AttrWrapper::setValue) {
-  AttrWrapper *wrapper =
-      ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
+  AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
   if (auto attr = wrapper->attr) {
     attr->setValue(Variant::getVariant(value));
   }
 }
 
 NAN_GETTER(AttrWrapper::type) {
-  AttrWrapper *wrapper =
-      ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
+  AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
   if (auto attr = wrapper->constProp) {
     info.GetReturnValue().Set(
         Nan::New(Token_string(attr->type())).ToLocalChecked());
@@ -114,8 +104,7 @@ NAN_GETTER(AttrWrapper::type) {
 }
 
 NAN_SETTER(AttrWrapper::setType) {
-  AttrWrapper *wrapper =
-      ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
+  AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
   if (auto attr = wrapper->attr) {
     Token token = value->IsUint32() ? value->Uint32Value()
                                     : Token_get(*Nan::Utf8String(value));
@@ -124,8 +113,7 @@ NAN_SETTER(AttrWrapper::setType) {
 }
 
 NAN_GETTER(AttrWrapper::error) {
-  AttrWrapper *wrapper =
-      ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
+  AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
   if (auto attr = wrapper->constProp) {
     info.GetReturnValue().Set(
         Nan::New(Token_string(attr->error())).ToLocalChecked());
@@ -133,8 +121,7 @@ NAN_GETTER(AttrWrapper::error) {
 }
 
 NAN_SETTER(AttrWrapper::setError) {
-  AttrWrapper *wrapper =
-      ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
+  AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
   if (auto attr = wrapper->attr) {
     Token token = value->IsUint32() ? value->Uint32Value()
                                     : Token_get(*Nan::Utf8String(value));
@@ -168,8 +155,7 @@ v8::Local<v8::Object> AttrWrapper::wrap(const Attr *attr) {
   return obj;
 }
 
-v8::Local<v8::Object>
-AttrWrapper::wrap(const std::shared_ptr<Attr> &attr) {
+v8::Local<v8::Object> AttrWrapper::wrap(const std::shared_ptr<Attr> &attr) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto cons = v8::Local<v8::Function>::New(isolate, module->attribute.ctor);
