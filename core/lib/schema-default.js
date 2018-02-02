@@ -54,6 +54,11 @@ export default {
       title: 'Rust Path',
       type: 'string',
     },
+    '_.package.rustflags': {
+      title: 'RUSTFLAGS',
+      type: 'string',
+      default: '-C target-cpu=native',
+    },
     '_.package.noPrebuilt': {
       title: 'Don\'t Use Pre-Built Binaries',
       description: 'Force to build native add-ons from source',
