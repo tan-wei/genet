@@ -167,22 +167,25 @@ NAN_METHOD(SessionFactoryWrapper::registerDissector) {
       const std::string &path = *Nan::Utf8String(info[0]);
       Dissector diss = {0};
       ModuleLoader loader(path);
-      if (auto func =
-          loader.load<void(*)(void*(*)(const char*))>("plugkit_v1_init")) {
+      if (auto func = loader.load<void (*)(void *(*)(const char *))>(
+              "plugkit_v1_init")) {
         func(&ModuleLoader::resolve);
       }
-      if (auto func = loader.load<AnalyzeFunc*>("plugkit_v1_analyze")) {
+      if (auto func = loader.load<AnalyzeFunc *>("plugkit_v1_analyze")) {
         diss.analyze = func;
       }
-      if (auto func = loader.load<CreateWorkerFunc*>("plugkit_v1_create_worker")) {
+      if (auto func =
+              loader.load<CreateWorkerFunc *>("plugkit_v1_create_worker")) {
         diss.createWorker = func;
       }
-      if (auto func = loader.load<DestroyWorkerFunc*>("plugkit_v1_destroy_worker")) {
+      if (auto func =
+              loader.load<DestroyWorkerFunc *>("plugkit_v1_destroy_worker")) {
         diss.destroyWorker = func;
       }
-      if (auto func = loader.load<Token(*)(int)>("plugkit_v1_layer_hints")) {
+      if (auto func = loader.load<Token (*)(int)>("plugkit_v1_layer_hints")) {
         for (size_t i = 0; i < sizeof(diss.layerHints) / sizeof(Token); ++i) {
-          if (!(diss.layerHints[i] = func(i))) break;
+          if (!(diss.layerHints[i] = func(i)))
+            break;
         }
       }
       factory->registerDissector(diss, type);
@@ -198,11 +201,12 @@ NAN_METHOD(SessionFactoryWrapper::registerImporter) {
       const std::string &path = *Nan::Utf8String(info[0]);
       if (path.rfind(".js") != path.size() - 3) {
         ModuleLoader loader(path);
-        if (auto func =
-            loader.load<void(*)(void*(*)(const char*))>("plugkit_v1_init")) {
+        if (auto func = loader.load<void (*)(void *(*)(const char *))>(
+                "plugkit_v1_init")) {
           func(&ModuleLoader::resolve);
         }
-        if (auto func = loader.load<FileImporterFunc*>("plugkit_v1_file_import")) {
+        if (auto func =
+                loader.load<FileImporterFunc *>("plugkit_v1_file_import")) {
           factory->registerImporter(FileImporter{func});
         }
       }
@@ -218,11 +222,12 @@ NAN_METHOD(SessionFactoryWrapper::registerExporter) {
       const std::string &path = *Nan::Utf8String(info[0]);
       if (path.rfind(".js") != path.size() - 3) {
         ModuleLoader loader(path);
-        if (auto func =
-            loader.load<void(*)(void*(*)(const char*))>("plugkit_v1_init")) {
+        if (auto func = loader.load<void (*)(void *(*)(const char *))>(
+                "plugkit_v1_init")) {
           func(&ModuleLoader::resolve);
         }
-        if (auto func = loader.load<FileExporterFunc*>("plugkit_v1_file_export")) {
+        if (auto func =
+                loader.load<FileExporterFunc *>("plugkit_v1_file_export")) {
           factory->registerExporter(FileExporter{func});
         }
       }
