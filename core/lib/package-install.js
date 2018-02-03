@@ -7,12 +7,14 @@ import mkpath from 'mkpath'
 import objpath from 'object-path'
 import path from 'path'
 import promisify from 'es6-promisify'
+import rimraf from 'rimraf'
 import tar from 'tar'
 import zlib from 'zlib'
 
 const promiseReadJsonFile = promisify(jsonfile.readFile)
 const promiseGlob = promisify(glob)
 const promiseMkpath = promisify(mkpath)
+const promiseRmdir = promisify(rimraf)
 const fields = Symbol('fields')
 export default class PackageInstaller extends EventEmitter {
   constructor () {
@@ -40,6 +42,19 @@ export default class PackageInstaller extends EventEmitter {
   }
 
   async install (dir, url) {
+    try {
+      await this.download(dir, url)
+      await this.build(dir)
+      await this.npm(dir)
+      this.emit('output', 'Done\n')
+    } catch (err) {
+      this.emit('output', 'Failed\n')
+      await promiseRmdir(dir)
+      throw err
+    }
+  }
+
+  async download (dir, url) {
     this.emit('output', `Downloading ${url} ...\n`)
     const response = await axios({
       method: 'get',
@@ -52,15 +67,12 @@ export default class PackageInstaller extends EventEmitter {
       strip: 1,
     })
     await promiseMkpath(dir)
-    await new Promise((res, rej) => {
+    return new Promise((res, rej) => {
       response.data.pipe(gunzip)
         .pipe(extractor)
         .on('error', rej)
         .on('finish', res)
     })
-    await this.build(dir)
-    await this.npm(dir)
-    this.emit('output', 'Done\n')
   }
 
   async build (dir) {
