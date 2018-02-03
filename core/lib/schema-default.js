@@ -50,7 +50,7 @@ export default {
       uniqueItems: true,
       default: ['https://deplug.net/registry/list.yml'],
     },
-    '_.package.rustPath': {
+    '_.package.rustpath': {
       title: 'Rust Path',
       type: 'string',
     },

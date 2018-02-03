@@ -1,21 +1,23 @@
-import Installer from '@deplug/package-install'
+import Installer from '../../lib/package-install'
 import SchemaInput from '../../lib/schema-input'
 import env from '../../lib/env'
 import m from 'mithril'
 import path from 'path'
 
+let installerCallback = null
 async function install (pkg) {
   const shortName = pkg.data.name.replace(/@\w+\//, '')
-  const installer = new Installer({
-    dir: path.join(env.userPackagePath, shortName),
-    url: pkg.archive,
-    version: env.deplug.devDependencies.negatron,
-    noPrebuilt: false,
-    plugkitPath: path.resolve(__dirname, '../..', 'deplug-modules/plugkit'),
+  const installer = new Installer()
+  installer.rustpath = deplug.config.get('_.package.rustpath', '')
+  installer.rustflags = deplug.config.get('_.package.rustflags', '')
+  installer.on('output', (chunk) => {
+    if (installerCallback !== null) {
+      installerCallback(chunk)
+    }
   })
   try {
-    await installer.setup()
-    await installer.install()
+    await installer.install(
+      path.join(env.userPackagePath, shortName), pkg.archive)
     deplug.notify.show(
       `package: ${shortName}`, {
         type: 'success',
@@ -93,6 +95,10 @@ class ButtonBoxView {
 }
 
 export default class DetailView {
+  constructor () {
+    this.output = {}
+  }
+
   view (vnode) {
     const { pkg } = vnode.attrs
     if (pkg === null) {
@@ -115,7 +121,20 @@ export default class DetailView {
           schema,
         }),
         m('p', { class: 'description' }, [schema.description])
-      ])))
+      ]))),
+      m('pre', { class: 'output' }, [
+        this.output[pkg.data.name]
+      ])
     ])
+  }
+
+  onupdate (vnode) {
+    const { pkg } = vnode.attrs
+    if (pkg !== null) {
+      installerCallback = (chunk) => {
+        this.output[pkg.data.name] = (this.output[pkg.data.name] || '') + chunk
+        m.redraw()
+      }
+    }
   }
 }
