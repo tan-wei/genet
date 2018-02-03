@@ -132,7 +132,7 @@ Payload *Layer_addPayload(Layer *layer, Context *ctx);
 const Payload *const *Layer_payloads(const Layer *layer, size_t *size);
 
 /// Add a layer tag
-void Layer_addTag(Layer *layer, Token tag);
+void Layer_addTag(Layer *layer, Context *ctx, Token tag);
 }
 
 } // namespace plugkit

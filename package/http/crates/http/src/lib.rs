@@ -92,7 +92,7 @@ impl Worker for HTTPWorker {
         match self.status {
             Status::Request | Status::Response => {
                 let child = layer.add_layer(ctx, token!("http"));
-                child.add_tag(token!("http"));
+                child.add_tag(ctx, token!("http"));
             }
             _ => ()
         }

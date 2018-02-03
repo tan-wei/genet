@@ -42,7 +42,7 @@ impl Worker for ETHWorker {
 
         let child = layer.add_layer(ctx, token!("eth"));
         child.set_confidence(Confidence::Error);
-        child.add_tag(token!("eth"));
+        child.add_tag(ctx, token!("eth"));
         child.set_range(&range);
         {
             let attr = child.add_attr(ctx, token!("eth.src"));
@@ -69,7 +69,7 @@ impl Worker for ETHWorker {
             }
             if let Some(item) = eth_type(typ) {
                 let (tag, id) = item;
-                child.add_tag(tag);
+                child.add_tag(ctx, tag);
                 let attr = child.add_attr(ctx, id);
                 attr.set(&true);
                 attr.set_typ(token!("@novalue"));

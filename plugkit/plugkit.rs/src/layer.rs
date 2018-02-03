@@ -65,9 +65,9 @@ impl Layer {
         unsafe { &mut *symbol::Layer_addPayload.unwrap()(self, ctx) }
     }
 
-    pub fn add_tag(&mut self, id: Token) {
+    pub fn add_tag(&mut self, ctx: &mut Context, id: Token) {
         unsafe {
-            symbol::Layer_addTag.unwrap()(self, id);
+            symbol::Layer_addTag.unwrap()(self, ctx, id);
         }
     }
 

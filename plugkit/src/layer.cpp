@@ -171,6 +171,6 @@ const Payload *const *Layer_payloads(const Layer *layer, size_t *size) {
   return payloads.data();
 }
 
-void Layer_addTag(Layer *layer, Token tag) { layer->addTag(tag); }
+void Layer_addTag(Layer *layer, Context *ctx, Token tag) { layer->addTag(tag); }
 
 } // namespace plugkit

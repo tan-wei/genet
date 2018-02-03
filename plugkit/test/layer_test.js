@@ -50,9 +50,10 @@ describe('Layer', () => {
   })
   describe('#addTag()', () => {
     it('should throw for wrong arguments', () => {
+      const ctx = Testing.createContextInstance()
       const layer = Testing.createLayerInstance('eth')
       assert.throws(() => layer.addTag(), TypeError)
-      assert.throws(() => layer.addTag([]), TypeError)
+      assert.throws(() => layer.addTag(ctx, []), TypeError)
     })
   })
   describe('#attr()', () => {
@@ -105,9 +106,10 @@ describe('Layer', () => {
   })
   describe('#tags', () => {
     it('should return layer tags', () => {
+      const ctx = Testing.createContextInstance()
       const layer = Testing.createLayerInstance('eth')
       assert.deepEqual([], layer.tags)
-      layer.addTag('@test')
+      layer.addTag(ctx, '@test')
       assert.deepEqual('@test', layer.tags[0])
     })
   })

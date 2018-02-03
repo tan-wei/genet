@@ -42,7 +42,7 @@ impl Worker for IPv4Worker {
 
         let child = layer.add_layer(ctx, token!("ipv4"));
         child.set_confidence(Confidence::Error);
-        child.add_tag(token!("ipv4"));
+        child.add_tag(ctx, token!("ipv4"));
         child.set_range(&payload_range);
 
         let mut rdr = Cursor::new(slice);
@@ -120,7 +120,7 @@ impl Worker for IPv4Worker {
         }
         if let Some(item) = get_protocol(protocol) {
             let (tag, id) = item;
-            child.add_tag(tag);
+            child.add_tag(ctx, tag);
             let attr = child.add_attr(ctx, id);
             attr.set(&true);
             attr.set_typ(token!("@novalue"));

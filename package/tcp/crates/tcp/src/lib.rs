@@ -40,7 +40,7 @@ impl Worker for TCPWorker {
 
         let child = layer.add_layer(ctx, token!("tcp"));
         child.set_confidence(Confidence::Error);
-        child.add_tag(token!("tcp"));
+        child.add_tag(ctx, token!("tcp"));
         child.set_range(&payload_range);
 
         let mut rdr = Cursor::new(slice);

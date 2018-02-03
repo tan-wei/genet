@@ -31,7 +31,7 @@ impl Worker for UDPWorker {
 
         let child = layer.add_layer(ctx, token!("udp"));
         child.set_confidence(Confidence::Error);
-        child.add_tag(token!("udp"));
+        child.add_tag(ctx, token!("udp"));
         child.set_range(&payload_range);
 
         let mut rdr = Cursor::new(slice);

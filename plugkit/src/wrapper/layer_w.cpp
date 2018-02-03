@@ -301,15 +301,19 @@ NAN_METHOD(LayerWrapper::addTag) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
     Token token = Token_get(nullptr);
-    if (info[0]->IsUint32()) {
-      token = info[0]->Uint32Value();
-    } else if (info[0]->IsString()) {
-      token = Token_get(*Nan::Utf8String(info[0]));
+    if (info[1]->IsUint32()) {
+      token = info[1]->Uint32Value();
+    } else if (info[1]->IsString()) {
+      token = Token_get(*Nan::Utf8String(info[1]));
     } else {
       Nan::ThrowTypeError("First argument must be a string or token-id");
       return;
     }
-    layer->addTag(token);
+    if (auto ctx = ContextWrapper::unwrap(info[0])) {
+      Layer_addTag(layer, ctx, token);
+    } else {
+      Nan::ThrowTypeError("First argument must be a context");
+    }
   }
 }
 
