@@ -26,11 +26,11 @@ async function install (pkg) {
   } catch (err) {
     deplug.notify.show(
       m('section', [
-        m('p', [`${err.message}`]),
-        m('p', [`See ${installer.logFile} for details.`])
+        m('p', [`${err.message}`])
       ]), {
         type: 'error',
         title: 'Installation failed',
+        ttl: 0,
       })
   }
   deplug.packages.update()
