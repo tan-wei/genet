@@ -20,7 +20,7 @@ const modeTable = {
 class NTP {
   analyze (ctx, layer) {
     const child = layer.addLayer(ctx, 'ntp')
-    child.addTag('ntp')
+    child.addTag(ctx, 'ntp')
     child.confidence = Layer.ConfProbable
 
     if (layer.attr(`${layer.id}.src`).value !== 123 ||
