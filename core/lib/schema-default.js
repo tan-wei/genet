@@ -59,12 +59,6 @@ export default {
       type: 'string',
       default: '-C target-cpu=native',
     },
-    '_.package.noPrebuilt': {
-      title: 'Don\'t Use Pre-Built Binaries',
-      description: 'Force to build native add-ons from source',
-      type: 'boolean',
-      default: false,
-    },
     '_.package.noConfUpdated': {
       title: 'Don\'t Show "Config Updated" Message',
       type: 'boolean',

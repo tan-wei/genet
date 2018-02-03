@@ -10,7 +10,7 @@ async function install (pkg) {
     dir: path.join(env.userPackagePath, shortName),
     url: pkg.archive,
     version: env.deplug.devDependencies.negatron,
-    noPrebuilt: deplug.config.get('_.package.noPrebuilt'),
+    noPrebuilt: false,
     plugkitPath: path.resolve(__dirname, '../..', 'deplug-modules/plugkit'),
   })
   try {
