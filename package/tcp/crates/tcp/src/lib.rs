@@ -181,7 +181,7 @@ impl Worker for TCPWorker {
                 }
                 5 => {
                     let (len, _) = ByteReader::read_u8(&mut rdr)?;
-                    let (slice, _) = ByteReader::read_slice(&mut rdr, len as usize)?;
+                    let (slice, _) = ByteReader::read_slice(&mut rdr, len as usize - 2)?;
                     let attr = child.add_attr(ctx, token!("tcp.options.selectiveAck"));
                     attr.set(&slice);
                     attr.set_range(&(range.start..rdr.position() as usize));
