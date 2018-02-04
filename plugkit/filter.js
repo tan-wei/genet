@@ -56,40 +56,8 @@ function processOperators (ast) {
   })
 }
 
-function processIdentifiers (tokens) {
-  const resolvedTokens = []
-  let identifiers = []
-  for (const token of tokens) {
-    if (token.type === 'Identifier') {
-      identifiers.push(token.value)
-    } else if (identifiers.length === 0 || token.value !== '.') {
-      if (identifiers.length > 0) {
-        resolvedTokens.push(
-          {
-            type: 'Identifier',
-            value: '__resolve',
-          },
-          {
-            type: 'Punctuator',
-            value: '(',
-          }
-        )
-        resolvedTokens.push(
-          {
-            type: 'Literal',
-            value: Token.get(identifiers.join('.')),
-          }
-        )
-        resolvedTokens.push({
-          type: 'Punctuator',
-          value: ')',
-        })
-        identifiers = []
-      }
-      resolvedTokens.push(token)
-    }
-  }
-  if (identifiers.length > 0) {
+function processIdentifiers (tokens, attrs) {
+  function resolve (identifiers, resolvedTokens) {
     resolvedTokens.push(
       {
         type: 'Identifier',
@@ -100,23 +68,50 @@ function processIdentifiers (tokens) {
         value: '(',
       }
     )
-    for (const id of identifiers) {
+    let index = identifiers.findIndex((id, pos) =>
+      !(identifiers.slice(0, pos + 1).join('.') in attrs))
+    if (index < 0) {
+      index = identifiers.length
+    }
+    resolvedTokens.push(
+      {
+        type: 'Literal',
+        value: Token.get(identifiers.slice(0, index).join('.')),
+      }
+    )
+    for (const id of identifiers.slice(index)) {
       resolvedTokens.push(
-        {
-          type: 'String',
-          value: JSON.stringify(id),
-        },
         {
           type: 'Punctuator',
           value: ',',
+        },
+        {
+          type: 'String',
+          value: JSON.stringify(id),
         }
       )
     }
-    resolvedTokens.pop()
     resolvedTokens.push({
       type: 'Punctuator',
       value: ')',
     })
+  }
+
+  const resolvedTokens = []
+  let identifiers = []
+  for (const token of tokens) {
+    if (token.type === 'Identifier') {
+      identifiers.push(token.value)
+    } else if (identifiers.length === 0 || token.value !== '.') {
+      if (identifiers.length > 0) {
+        resolve(identifiers, resolvedTokens)
+        identifiers = []
+      }
+      resolvedTokens.push(token)
+    }
+  }
+  if (identifiers.length > 0) {
+    resolve(identifiers, resolvedTokens)
   }
   return resolvedTokens
 }

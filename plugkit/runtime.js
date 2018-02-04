@@ -8,9 +8,25 @@ function value (val) {
 }
 
 function resolver(root) {
-  return function (id) {
+  return function (id, ...args) {
     const attr = root.query(id)
-    return attr === null ? undefined : attr
+    if (attr === null) return undefined
+    let result = attr
+    for (const id of args) {
+      if (typeof result !== 'object') return undefined
+      if (id in result) {
+        result = result[id]
+        continue
+      }
+      const val = value(result)
+      if (typeof val !== 'object') return undefined
+      if (id in val) {
+        result = val[id]
+        continue
+      }
+      return undefined
+    }
+    return result
   }
 }
 
