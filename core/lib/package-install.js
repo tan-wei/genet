@@ -82,7 +82,9 @@ export default class PackageInstaller extends EventEmitter {
     } catch (err) {
       throw new Error(`
 Cargo command is not found:
+
 You need a rust toolchain to install native packages.
+
 Visit https://www.rustup.rs/ for installation details.
       `)
     }
@@ -122,7 +124,9 @@ Visit https://www.rustup.rs/ for installation details.
     } catch (err) {
       throw new Error(`
 NPM command is not found:
+
 You need NPM (Node Package Manager) to resolve dependencies for the package.
+
 Visit https://www.npmjs.com/get-npm for installation details.
       `)
     }

@@ -25,9 +25,7 @@ async function install (pkg) {
       })
   } catch (err) {
     deplug.notify.show(
-      m('section', [
-        m('p', [`${err.message}`])
-      ]), {
+      err.message, {
         type: 'error',
         title: 'Installation failed',
         ttl: 0,

@@ -1,7 +1,18 @@
 import { Disposable } from 'disposables'
 import m from 'mithril'
+import marked from 'marked'
 
 const fields = Symbol('fields')
+class Markdown {
+  view () {
+    return m('p')
+  }
+
+  oncreate (vnode) {
+    vnode.dom.innerHTML = marked(vnode.attrs.content)
+  }
+}
+
 class Container {
   view (vnode) {
     const { opt, content, handler } = vnode.attrs
@@ -21,7 +32,7 @@ class Container {
           },
         }, [m('i', { class: 'fa fa-close' })])
       ]),
-      m('p', [content])
+      m(Markdown, { content })
     ]
   }
 }
