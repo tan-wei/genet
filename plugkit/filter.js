@@ -1,3 +1,4 @@
+const { Token } = require('./plugkit')
 const estraverse = require('estraverse')
 const esprima = require('esprima')
 const escodegen = require('escodegen')
@@ -73,19 +74,12 @@ function processIdentifiers (tokens) {
             value: '(',
           }
         )
-        for (const id of identifiers) {
-          resolvedTokens.push(
-            {
-              type: 'String',
-              value: JSON.stringify(id),
-            },
-            {
-              type: 'Punctuator',
-              value: ',',
-            }
-          )
-        }
-        resolvedTokens.pop()
+        resolvedTokens.push(
+          {
+            type: 'Literal',
+            value: Token.get(identifiers.join('.')),
+          }
+        )
         resolvedTokens.push({
           type: 'Punctuator',
           value: ')',
@@ -161,7 +155,7 @@ class Filter {
   }
 
   compile (filter) {
-    const { macros, macroPrefix } = this[fields]
+    const { macros, attrs, macroPrefix } = this[fields]
     if (!filter) {
       return ''
     }
@@ -175,7 +169,7 @@ class Filter {
       }
       throw new Error(`unrecognized macro: ${prefix}${exp}`)
     })
-    const tokens = processIdentifiers(esprima.tokenize(str))
+    const tokens = processIdentifiers(esprima.tokenize(str), attrs)
     const tree = esprima.parse(tokens.map((token) => token.value).join(' '))
     const ast = makeValue(processOperators(tree.body[0].expression))
     return runtime.replace('@@@', escodegen.generate(ast))

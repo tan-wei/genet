@@ -8,8 +8,8 @@ function value (val) {
 }
 
 function resolver(root) {
-  return function (...args) {
-    const attr = root.query(args.join('.'))
+  return function (id) {
+    const attr = root.query(id)
     return attr === null ? undefined : attr
   }
 }
