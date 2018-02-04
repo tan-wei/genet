@@ -168,7 +168,7 @@ class Filter {
     const pattern = new RegExp(`(${macroPrefix})([^ ]+)(?: |$)`, 'g')
     const str = filter.replace(pattern, (match, prefix, exp) => {
       for (const macro of macros) {
-        const result = macro(exp)
+        const result = macro.func(exp)
         if (typeof result === 'string') {
           return result
         }
