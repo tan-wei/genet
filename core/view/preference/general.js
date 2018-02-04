@@ -1,5 +1,16 @@
 import SchemaInput from '../../lib/schema-input'
 import m from 'mithril'
+import marked from 'marked'
+
+class Markdown {
+  view () {
+    return m('p', { class: 'description' })
+  }
+
+  oncreate (vnode) {
+    vnode.dom.innerHTML = marked(vnode.attrs.content)
+  }
+}
 
 export default class General {
   view (vnode) {
@@ -13,7 +24,7 @@ export default class General {
             id,
             schema,
           }),
-          m('p', { class: 'description' }, [schema.description])
+          m(Markdown, { content: schema.description || '' })
         ])))
     ]
   }

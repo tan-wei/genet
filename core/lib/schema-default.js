@@ -58,6 +58,9 @@ export default {
       title: 'RUSTFLAGS',
       type: 'string',
       default: '-C target-cpu=native',
+      description:
+        '[Learn More..](https://doc.rust-lang.org/' +
+        'cargo/reference/environment-variables.html)',
     },
     '_.package.noConfUpdated': {
       title: 'Don\'t Show "Config Updated" Message',
