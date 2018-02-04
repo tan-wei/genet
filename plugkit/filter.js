@@ -131,6 +131,7 @@ class Filter {
   constructor () {
     this[fields] = {
       macros: [],
+      attrs: {},
       macroPrefix: '@',
     }
   }
@@ -143,9 +144,20 @@ class Filter {
     this[fields].macroPrefix = val
   }
 
-  registerMacro (macro) {
-    const { macros } = this[fields]
-    macros.push(macro)
+  set macros (macros) {
+    this[fields].macros = macros
+  }
+
+  get macros () {
+    return this[fields].macros
+  }
+
+  set attrs (attrs) {
+    this[fields].attrs = attrs
+  }
+
+  get attrs () {
+    return this[fields].attrs
   }
 
   compile (filter) {

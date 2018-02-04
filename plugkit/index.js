@@ -21,27 +21,8 @@ class Session extends EventEmitter {
 
     const filterCompiler = new FilterCompiler()
     filterCompiler.macroPrefix = options.macroPrefix
-    for (const macro of options.macros) {
-      filterCompiler.registerMacro(macro.func)
-    }
-    for (const trans of options.transforms) {
-      switch (trans.type) {
-        case 'string':
-          filterCompiler.registerStringTransform(trans.func)
-          break
-        case 'token':
-          filterCompiler.registerTokenTransform(trans.func)
-          break
-        case 'ast':
-          filterCompiler.registerAstTransform(trans.func)
-          break
-        case 'template':
-          filterCompiler.registerTemplateTransform(trans.func)
-          break
-        default:
-          throw new Error(`unknown transform type: ${trans.type}`)
-      }
-    }
+    filterCompiler.macros = options.macros
+    filterCompiler.attrs = options.attributes
     this[fields].filterCompiler = filterCompiler
 
     this.status = { capture: false }
@@ -145,7 +126,6 @@ class SessionFactory extends kit.SessionFactory {
     this[fields] = {
       tasks: [],
       linkLayers: [],
-      transforms: [],
       macros: [],
       attributes: {},
       enableDebugSession: false,
@@ -172,10 +152,6 @@ class SessionFactory extends kit.SessionFactory {
 
   registerLinkLayer (layer) {
     this[fields].linkLayers.push(layer)
-  }
-
-  registerFilterTransform (trans) {
-    this[fields].transforms.push(trans)
   }
 
   registerFilterMacro (macro) {
