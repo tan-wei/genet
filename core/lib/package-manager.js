@@ -24,7 +24,7 @@ async function readFile (filePath) {
     const data = await promiseReadFile(filePath)
     return {
       data,
-      filePath,
+      filePath: path.normalize(filePath),
     }
   } catch (err) {
     return { err }
