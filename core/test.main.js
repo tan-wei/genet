@@ -28,6 +28,7 @@ const task = []
 for (const pkg of packages) {
   for (const comp of pkg.list) {
     if (comp.type.startsWith('core:dissector:') ||
+        comp.type.startsWith('core:token') ||
         comp.type.startsWith('core:file:')) {
       task.push(ComponentFactory.create(comp, pkg.dir).load())
     }
