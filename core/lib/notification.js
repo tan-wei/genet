@@ -17,13 +17,7 @@ class Container {
   view (vnode) {
     const { opt, content, handler } = vnode.attrs
     return [
-      m('h4', {
-        style: {
-          display: opt.title
-            ? 'block'
-            : 'none',
-        },
-      }, [
+      m('h4', [
         opt.title,
         m('button', {
           style: { visible: opt.closeButton },
