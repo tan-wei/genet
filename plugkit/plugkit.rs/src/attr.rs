@@ -61,31 +61,50 @@ where
 }
 
 pub trait ResultValue<T> {
-    fn set_result(&mut self, res: Result<(T, Range), Error>) -> Result<(), Error>;
+    fn set_result(&mut self, res: Result<(T, Range), Error>) -> Result<(T, Range), Error>;
+    fn set_result_map<F: FnOnce(&T) -> T>(&mut self, res: Result<(T, Range), Error>, op: F) -> Result<(T, Range), Error>;
 }
 
 impl<T> ResultValue<T> for Attr
 where
     Variant: Value<T>,
 {
-    fn set_result(&mut self, res: Result<(T, Range), Error>) -> Result<(), Error> {
-        match { res } {
-            Ok(r) => {
-                let (val, range) = r;
+    fn set_result(&mut self, res: Result<(T, Range), Error>) -> Result<(T, Range), Error> {
+        match &res {
+            &Ok(ref r) => {
+                let &(ref val, ref range) = r;
                 Value::set(self.value_mut(), &val);
                 self.set_range(&range)
             }
-            Err(e) => {
+            &Err(ref e) => {
                 let err = match e.kind() {
                     ErrorKind::InvalidInput | ErrorKind::InvalidData => *INVALID_TOKEN,
                     ErrorKind::UnexpectedEof => *EOF_TOKEN,
                     _ => *ERROR_TOKEN,
                 };
                 self.set_error(err);
-                return Err(e);
             }
         }
-        Ok(())
+        res
+    }
+
+    fn set_result_map<F: FnOnce(&T) -> T>(&mut self, res: Result<(T, Range), Error>, op: F) -> Result<(T, Range), Error> {
+        match &res {
+            &Ok(ref r) => {
+                let &(ref val, ref range) = r;
+                Value::set(self.value_mut(), &op(val));
+                self.set_range(&range)
+            }
+            &Err(ref e) => {
+                let err = match e.kind() {
+                    ErrorKind::InvalidInput | ErrorKind::InvalidData => *INVALID_TOKEN,
+                    ErrorKind::UnexpectedEof => *EOF_TOKEN,
+                    _ => *ERROR_TOKEN,
+                };
+                self.set_error(err);
+            }
+        }
+        res
     }
 }
 

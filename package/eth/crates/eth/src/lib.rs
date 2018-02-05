@@ -56,18 +56,13 @@ impl Worker for ETHWorker {
             attr.set_result(ByteReader::read_slice(&mut rdr, 6))?;
         }
 
-        let (typ, range) = ByteReader::read_u16::<BigEndian>(&mut rdr)?;
-        if typ <= 1500 {
-            let attr = child.add_attr(ctx, token!("eth.len"));
-            attr.set(&typ);
-            attr.set_range(&(12..14));
-        } else {
-            {
+        let result = ByteReader::read_u16::<BigEndian>(&mut rdr);
+        if result.is_err() || result.as_ref().unwrap().0 > 1500 {
+            let (typ, range) =  {
                 let attr = child.add_attr(ctx, token!("eth.type"));
-                attr.set(&typ);
                 attr.set_typ(token!("@enum"));
-                attr.set_range(&range);
-            }
+                attr.set_result(result)?
+            };
             if let Some(item) = eth_type(typ) {
                 let (tag, id) = item;
                 child.add_tag(ctx, tag);
@@ -76,6 +71,9 @@ impl Worker for ETHWorker {
                 attr.set_typ(token!("@novalue"));
                 attr.set_range(&range);
             }
+        } else {
+            let attr = child.add_attr(ctx, token!("eth.len"));
+            attr.set_result(result)?;
         }
         {
             let (data, range) = ByteReader::read_slice_to_end(&mut rdr)?;

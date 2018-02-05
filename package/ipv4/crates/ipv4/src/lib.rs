@@ -46,18 +46,14 @@ impl Worker for IPv4Worker {
         child.set_range(&payload_range);
 
         let mut rdr = Cursor::new(slice);
-        let (header, range) = ByteReader::read_u8(&mut rdr)?;
-        let version = header >> 4;
-        let header_len = header & 0b00001111;
-        {
+
+        let result = {
             let attr = child.add_attr(ctx, token!("ipv4.version"));
-            attr.set(&version);
-            attr.set_range(&range);
-        }
+            attr.set_result_map(ByteReader::read_u8(&mut rdr), |v| v >> 4)
+        };
         {
             let attr = child.add_attr(ctx, token!("ipv4.headerLength"));
-            attr.set(&header_len);
-            attr.set_range(&range);
+            attr.set_result_map(result, |v| v & 0b00001111)?;
         }
         {
             let attr = child.add_attr(ctx, token!("ipv4.type"));
