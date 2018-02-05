@@ -59,12 +59,9 @@ impl Worker for IPv4Worker {
             let attr = child.add_attr(ctx, token!("ipv4.type"));
             attr.set_result(ByteReader::read_u8(&mut rdr))?;
         }
-
-        let (total_length, range) = ByteReader::read_u16::<BigEndian>(&mut rdr)?;
         {
             let attr = child.add_attr(ctx, token!("ipv4.totalLength"));
-            attr.set(&total_length);
-            attr.set_range(&range);
+            attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
         }
         {
             let attr = child.add_attr(ctx, token!("ipv4.id"));
@@ -94,12 +91,10 @@ impl Worker for IPv4Worker {
             attr.set(&(flag & 0x04 != 0));
             attr.set_range(&range);
         }
-
-        let (fg_offset, _) = ByteReader::read_u8(&mut rdr)?;
         {
             let attr = child.add_attr(ctx, token!("ipv4.fragmentOffset"));
-            let offset = ((flag_and_offset & 0b00011111) << 8) | fg_offset;
-            attr.set(&offset);
+            attr.set_result_map(ByteReader::read_u8(&mut rdr),
+                |v| ((flag_and_offset & 0b00011111) << 8) | v)?;
             attr.set_range(&(6 .. 8));
         }
         {
@@ -107,13 +102,11 @@ impl Worker for IPv4Worker {
             attr.set_result(ByteReader::read_u8(&mut rdr))?;
         }
 
-        let (protocol, range) = ByteReader::read_u8(&mut rdr)?;
-        {
+        let (protocol, range) = {
             let attr = child.add_attr(ctx, token!("ipv4.protocol"));
             attr.set_typ(token!("@enum"));
-            attr.set(&protocol);
-            attr.set_range(&range);
-        }
+            attr.set_result(ByteReader::read_u8(&mut rdr))?
+        };
         if let Some(item) = get_protocol(protocol) {
             let (tag, id) = item;
             child.add_tag(ctx, tag);

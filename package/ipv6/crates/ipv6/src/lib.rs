@@ -63,10 +63,10 @@ impl Worker for IPv6Worker {
             attr.set_range(&(0..2));
         }
 
-        let (flow_level, _) = ByteReader::read_u16::<BigEndian>(&mut rdr)?;
         {
             let attr = child.add_attr(ctx, token!("ipv6.flowLevel"));
-            attr.set(&(flow_level | ((header2 & 0b00001111) << 16)));
+            attr.set_result_map(ByteReader::read_u16::<BigEndian>(&mut rdr),
+                |v| v | ((header2 & 0b00001111) << 16))?;
             attr.set_range(&(1..4));
         }
         {
@@ -74,12 +74,10 @@ impl Worker for IPv6Worker {
             attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
         }
 
-        let (mut next_header, mut next_range) = ByteReader::read_u8(&mut rdr)?;
-        {
+        let (mut next_header, mut next_range) = {
             let attr = child.add_attr(ctx, token!("ipv6.nextHeader"));
-            attr.set(&next_header);
-            attr.set_range(&next_range);
-        }
+            attr.set_result(ByteReader::read_u8(&mut rdr))?
+        };
         {
             let attr = child.add_attr(ctx, token!("ipv6.hopLimit"));
             attr.set_result(ByteReader::read_u8(&mut rdr))?;
