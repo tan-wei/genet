@@ -5,6 +5,7 @@ import glob from 'glob'
 import jsonfile from 'jsonfile'
 import mkpath from 'mkpath'
 import objpath from 'object-path'
+import os from 'os'
 import path from 'path'
 import promisify from 'es6-promisify'
 import rimraf from 'rimraf'
@@ -92,8 +93,9 @@ Visit https://www.rustup.rs/ for installation details.
       await promiseGlob(path.join(dir, 'crates/*/Cargo.toml'))
     const cargoDirs = cargoFiles.map((toml) => path.dirname(toml))
     for (const cdir of cargoDirs) {
+      const rustdir = path.join(os.homedir(), '.cargo', 'bin')
       const flags = `${process.env.RUSTFLAGS || ''} ${this.rustflags}`
-      const envpath = `${process.env.PATH || ''};${this.rustpath}`
+      const envpath = `${process.env.PATH || ''};${this.rustpath || rustdir}`
       const proc = execa.shell(
         'cargo build -v --release', {
           cwd: cdir,
