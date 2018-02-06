@@ -39,7 +39,7 @@ impl Worker for TCPWorker {
         };
 
         let child = layer.add_layer(ctx, token!("tcp"));
-        child.set_confidence(Confidence::Error);
+        child.set_confidence(Confidence::Probable);
         child.add_tag(ctx, token!("tcp"));
         child.set_range(&payload_range);
 

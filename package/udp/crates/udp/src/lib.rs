@@ -29,7 +29,7 @@ impl Worker for UDPWorker {
         };
 
         let child = layer.add_layer(ctx, token!("udp"));
-        child.set_confidence(Confidence::Error);
+        child.set_confidence(Confidence::Probable);
         child.add_tag(ctx, token!("udp"));
         child.set_range(&payload_range);
 

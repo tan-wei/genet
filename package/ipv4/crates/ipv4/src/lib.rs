@@ -41,7 +41,7 @@ impl Worker for IPv4Worker {
         };
 
         let child = layer.add_layer(ctx, token!("ipv4"));
-        child.set_confidence(Confidence::Error);
+        child.set_confidence(Confidence::Probable);
         child.add_tag(ctx, token!("ipv4"));
         child.set_range(&payload_range);
 
