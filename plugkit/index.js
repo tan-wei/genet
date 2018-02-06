@@ -107,15 +107,17 @@ class Session extends EventEmitter {
 
   setDisplayFilter (name, filter) {
     const { filterCompiler } = this[fields]
-    const body = filterCompiler.compile(filter)
+    const body = filterCompiler.link(filterCompiler.compile(filter))
     return this[fields].sess.setDisplayFilter(name, body)
   }
 
   createFilter (filter) {
     const { filterCompiler } = this[fields]
+    const code = filterCompiler.compile(filter)
     return {
       expression: filter,
-      test: filterCompiler.compileFunction(filter),
+      code,
+      test: filterCompiler.build(filterCompiler.link(code)),
     }
   }
 }

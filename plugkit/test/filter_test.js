@@ -2,7 +2,7 @@ const assert = require('assert')
 const FilterCompiler = require('../filter')
 function execute (filter) {
   const compiler = new FilterCompiler()
-  return compiler.compileFunction(filter)()
+  return compiler.build(compiler.link(compiler.compile(filter)))()
 }
 describe('FilterCompiler', () => {
   describe('#compile', () => {

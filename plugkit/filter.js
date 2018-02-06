@@ -75,10 +75,11 @@ function processIdentifiers (tokens, attrs) {
     if (index < 0) {
       index = identifiers.length
     }
+    const token = identifiers.slice(0, index).join('.')
     resolvedTokens.push(
       {
         type: 'Literal',
-        value: Token.get(identifiers.slice(0, index).join('.')),
+        value: Token.get(token),
       }
     )
     for (const id of identifiers.slice(index)) {
@@ -169,15 +170,22 @@ class Filter {
     const tokens = processIdentifiers(esprima.tokenize(str), attrs)
     const tree = esprima.parse(tokens.map((token) => token.value).join(' '))
     const ast = makeValue(processOperators(tree.body[0].expression))
-    return runtime.replace('@@@', escodegen.generate(ast))
+    return escodegen.generate(ast)
   }
 
-  compileFunction (filter) {
+  link (code) {
+    if (code === '') {
+      return ''
+    }
+    return runtime.replace('@@@', code)
+  }
+
+  build (prog) {
     const options = { displayErrors: true }
-    if (filter.length === 0) {
+    if (prog === '') {
       return (() => true)
     }
-    return vm.runInThisContext(this.compile(filter), options)
+    return vm.runInThisContext(prog, options)
   }
 }
 
