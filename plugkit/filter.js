@@ -68,8 +68,10 @@ function processIdentifiers (tokens, attrs) {
         value: '(',
       }
     )
-    let index = identifiers.findIndex((id, pos) =>
-      !(identifiers.slice(0, pos + 1).join('.') in attrs))
+    let index = identifiers.findIndex((id, pos) => {
+      const token = identifiers.slice(0, pos + 1).join('.')
+      return !(token in attrs && attrs[token].property !== true)
+    })
     if (index < 0) {
       index = identifiers.length
     }
