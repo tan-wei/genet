@@ -12,7 +12,6 @@ namespace plugkit {
 struct Context final {
 public:
   VariantMap options;
-  VariantMap variables;
   LoggerPtr logger = std::make_shared<StreamLogger>();
 
   RootAllocator *rootAllocator = nullptr;

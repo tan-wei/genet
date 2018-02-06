@@ -78,7 +78,8 @@ const Variant *Context_getOption(Context *ctx, const char *key) {
   if (!value.isNil()) {
     return &value;
   }
-  return &ctx->variables[key];
+  static const Variant null;
+  return &null;
 }
 
 namespace {
