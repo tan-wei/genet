@@ -30,6 +30,7 @@ public:
   static NAN_GETTER(attrs);
   static NAN_GETTER(payloads);
   static NAN_GETTER(tags);
+  static NAN_GETTER(error);
   static NAN_METHOD(attr);
   static NAN_METHOD(addLayer);
   static NAN_METHOD(addSubLayer);

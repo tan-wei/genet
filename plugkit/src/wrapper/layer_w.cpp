@@ -34,6 +34,7 @@ void LayerWrapper::init(v8::Isolate *isolate) {
   Nan::SetAccessor(otl, Nan::New("layers").ToLocalChecked(), layers);
   Nan::SetAccessor(otl, Nan::New("subLayers").ToLocalChecked(), layers);
   Nan::SetAccessor(otl, Nan::New("tags").ToLocalChecked(), tags);
+  Nan::SetAccessor(otl, Nan::New("error").ToLocalChecked(), error);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
@@ -195,6 +196,14 @@ NAN_GETTER(LayerWrapper::tags) {
       array->Set(i, Nan::New(Token_string(tags[i])).ToLocalChecked());
     }
     info.GetReturnValue().Set(array);
+  }
+}
+
+NAN_GETTER(LayerWrapper::error) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->constLayer) {
+    info.GetReturnValue().Set(
+        Nan::New(Token_string(layer->error())).ToLocalChecked());
   }
 }
 
