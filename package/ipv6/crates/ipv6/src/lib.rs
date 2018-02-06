@@ -66,8 +66,7 @@ impl Worker for IPv6Worker {
         {
             let attr = child.add_attr(ctx, token!("ipv6.flowLevel"));
             attr.set_result_map(ByteReader::read_u16::<BigEndian>(&mut rdr),
-                |v| v | ((header2 & 0b00001111) << 16))?;
-            attr.set_range(&(1..4));
+                |v| v | ((header2 & 0b00001111) << 16), |_| &(1..4))?;
         }
         {
             let attr = child.add_attr(ctx, token!("ipv6.payloadLength"));
