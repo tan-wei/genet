@@ -25,6 +25,7 @@ _.timestamp
 _.payload
 _.actualLength
 _.index
+_.error
 eth
 eth.type
 eth.type.ipv4

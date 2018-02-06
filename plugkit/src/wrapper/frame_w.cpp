@@ -1,4 +1,5 @@
 #include "../frame.hpp"
+#include "../layer.hpp"
 #include "frame.hpp"
 #include "frame_view.hpp"
 #include "layer.hpp"
@@ -15,6 +16,7 @@ const auto tsToken = Token_get("_.timestamp");
 const auto payloadToken = Token_get("_.payload");
 const auto actLenToken = Token_get("_.actualLength");
 const auto indexToken = Token_get("_.index");
+const auto errorToken = Token_get("_.error");
 const auto dateToken = Token_get("@date:unix");
 
 bool virtualAttr(Token id,
@@ -31,6 +33,10 @@ bool virtualAttr(Token id,
     ret.Set(AttrWrapper::wrap(&wrapper->actLenAttr));
   } else if (id == indexToken) {
     ret.Set(AttrWrapper::wrap(&wrapper->indexAttr));
+  } else if (id == errorToken) {
+    if (const Layer *layer = view->primaryLayer()) {
+      ret.Set(Nan::New(Token_string(layer->error())).ToLocalChecked());
+    }
   } else {
     return false;
   }
