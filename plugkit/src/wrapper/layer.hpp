@@ -29,13 +29,14 @@ public:
   static NAN_GETTER(subLayers);
   static NAN_GETTER(attrs);
   static NAN_GETTER(payloads);
+  static NAN_GETTER(errors);
   static NAN_GETTER(tags);
-  static NAN_GETTER(error);
   static NAN_METHOD(attr);
   static NAN_METHOD(addLayer);
   static NAN_METHOD(addSubLayer);
   static NAN_METHOD(addPayload);
   static NAN_METHOD(addAttr);
+  static NAN_METHOD(addError);
   static NAN_METHOD(addTag);
   static NAN_METHOD(toJSON);
 

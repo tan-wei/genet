@@ -66,7 +66,6 @@ public:
   const Frame *frame() const;
   void setFrame(const Frame *frame);
 
-  Token error() const;
   void removeUnconfidentLayers(Context *ctx, LayerConfidence confidence);
 
 private:

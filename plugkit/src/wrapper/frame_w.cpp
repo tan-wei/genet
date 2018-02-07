@@ -5,6 +5,7 @@
 #include "layer.hpp"
 #include "plugkit_module.hpp"
 #include "wrapper/attr.hpp"
+#include "wrapper/error.hpp"
 #include <vector>
 
 namespace plugkit {
@@ -35,7 +36,12 @@ bool virtualAttr(Token id,
     ret.Set(AttrWrapper::wrap(&wrapper->indexAttr));
   } else if (id == errorToken) {
     if (const Layer *layer = view->primaryLayer()) {
-      ret.Set(Nan::New(Token_string(layer->error())).ToLocalChecked());
+      const auto &errors = layer->errors();
+      if (errors.empty()) {
+        ret.Set(Nan::Null());
+      } else {
+        ret.Set(ErrorWrapper::wrap(errors[0]));
+      }
     }
   } else {
     return false;

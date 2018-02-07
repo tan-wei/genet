@@ -78,16 +78,6 @@ const Attr *Layer::attr(Token id) const {
 
 void Layer::addAttr(Attr *attr) { mAttrs.push_back(attr); }
 
-Token Layer::error() const {
-  for (auto it = mAttrs.rbegin(); it != mAttrs.rend(); ++it) {
-    Token err = (*it)->error();
-    if (err != Token_null()) {
-      return err;
-    }
-  }
-  return Token_null();
-}
-
 void Layer::removeUnconfidentLayers(Context *ctx, LayerConfidence confidence) {
   for (auto &layer : mLayers) {
     if (layer->confidence() < confidence) {

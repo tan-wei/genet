@@ -1,5 +1,7 @@
+#include "../error.hpp"
 #include "../frame.hpp"
 #include "../layer.hpp"
+#include "error.hpp"
 #include "layer.hpp"
 #include "payload.hpp"
 #include "plugkit_module.hpp"
@@ -17,6 +19,7 @@ void LayerWrapper::init(v8::Isolate *isolate) {
   SetPrototypeMethod(tpl, "addLayer", addLayer);
   SetPrototypeMethod(tpl, "addSubLayer", addSubLayer);
   SetPrototypeMethod(tpl, "addPayload", addPayload);
+  SetPrototypeMethod(tpl, "addError", addError);
   SetPrototypeMethod(tpl, "addAttr", addAttr);
   SetPrototypeMethod(tpl, "addTag", addTag);
   SetPrototypeMethod(tpl, "toJSON", toJSON);
@@ -30,11 +33,11 @@ void LayerWrapper::init(v8::Isolate *isolate) {
   Nan::SetAccessor(otl, Nan::New("parent").ToLocalChecked(), parent);
   Nan::SetAccessor(otl, Nan::New("frame").ToLocalChecked(), frame);
   Nan::SetAccessor(otl, Nan::New("payloads").ToLocalChecked(), payloads);
+  Nan::SetAccessor(otl, Nan::New("errors").ToLocalChecked(), errors);
   Nan::SetAccessor(otl, Nan::New("attrs").ToLocalChecked(), attrs);
   Nan::SetAccessor(otl, Nan::New("layers").ToLocalChecked(), layers);
   Nan::SetAccessor(otl, Nan::New("subLayers").ToLocalChecked(), layers);
   Nan::SetAccessor(otl, Nan::New("tags").ToLocalChecked(), tags);
-  Nan::SetAccessor(otl, Nan::New("error").ToLocalChecked(), error);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
@@ -147,6 +150,19 @@ NAN_GETTER(LayerWrapper::payloads) {
   }
 }
 
+NAN_GETTER(LayerWrapper::errors) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->constLayer) {
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    const auto &errors = layer->errors();
+    auto array = v8::Array::New(isolate, errors.size());
+    for (size_t i = 0; i < errors.size(); ++i) {
+      array->Set(i, ErrorWrapper::wrap(errors[i]));
+    }
+    info.GetReturnValue().Set(array);
+  }
+}
+
 NAN_GETTER(LayerWrapper::layers) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->constLayer) {
@@ -196,14 +212,6 @@ NAN_GETTER(LayerWrapper::tags) {
       array->Set(i, Nan::New(Token_string(tags[i])).ToLocalChecked());
     }
     info.GetReturnValue().Set(array);
-  }
-}
-
-NAN_GETTER(LayerWrapper::error) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->constLayer) {
-    info.GetReturnValue().Set(
-        Nan::New(Token_string(layer->error())).ToLocalChecked());
   }
 }
 
@@ -266,6 +274,28 @@ NAN_METHOD(LayerWrapper::addSubLayer) {
     if (auto ctx = ContextWrapper::unwrap(info[0])) {
       info.GetReturnValue().Set(
           LayerWrapper::wrap(Layer_addSubLayer(layer, ctx, token)));
+    } else {
+      Nan::ThrowTypeError("First argument must be a context");
+    }
+  }
+}
+
+NAN_METHOD(LayerWrapper::addError) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->layer) {
+    Token token = Token_null();
+    auto id = info[1];
+    if (id->IsUint32()) {
+      token = id->Uint32Value();
+    } else if (id->IsString()) {
+      token = Token_get(*Nan::Utf8String(id));
+    } else {
+      Nan::ThrowTypeError("Second argument must be a string or token-id");
+      return;
+    }
+    if (auto ctx = ContextWrapper::unwrap(info[0])) {
+      info.GetReturnValue().Set(
+          ErrorWrapper::wrap(Layer_addError(layer, ctx, token)));
     } else {
       Nan::ThrowTypeError("First argument must be a context");
     }
