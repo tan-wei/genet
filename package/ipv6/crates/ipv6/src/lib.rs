@@ -46,17 +46,23 @@ impl Worker for IPv6Worker {
         child.set_range(&payload_range);
 
         let mut rdr = Cursor::new(slice);
-        let (header, _) = {
+        let (header, _) = ByteReader::read_u8(&mut rdr)?;
+        let (header2, _) = ByteReader::read_u8(&mut rdr)?;
+
+        let version = header >> 4;
+        let traffic_class = (header & 0b00001111 << 4) | ((header2 & 0b11110000) >> 4);
+
+        {
             let attr = child.add_attr(ctx, token!("ipv6.version"));
-            attr.set_result_map(ByteReader::read_u8(&mut rdr),
-                |v| v >> 4, |r| r)?
-        };
-        let (header2, _) = {
+            attr.set(&version);
+            attr.set_range(&(0..1));
+        }
+        {
             let attr = child.add_attr(ctx, token!("ipv6.trafficClass"));
-            attr.set_result_map(ByteReader::read_u8(&mut rdr),
-                |v| (header & 0b00001111 << 4) | ((v & 0b11110000) >> 4),
-                |_| &(0..2))?
-        };
+            attr.set(&traffic_class);
+            attr.set_range(&(0..2));
+        }
+
         {
             let attr = child.add_attr(ctx, token!("ipv6.flowLevel"));
             attr.set_result_map(ByteReader::read_u16::<BigEndian>(&mut rdr),

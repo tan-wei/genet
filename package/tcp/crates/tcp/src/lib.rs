@@ -44,14 +44,19 @@ impl Worker for TCPWorker {
         child.set_range(&payload_range);
 
         let mut rdr = Cursor::new(slice);
-        let (src, _) = {
+        let (src, src_range) = ByteReader::read_u16::<BigEndian>(&mut rdr)?;
+        let (dst, dst_range) = ByteReader::read_u16::<BigEndian>(&mut rdr)?;
+
+        {
             let attr = child.add_attr(ctx, token!("tcp.src"));
-            attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?
-        };
-        let (dst, _) = {
+            attr.set(&src);
+            attr.set_range(&src_range);
+        }
+        {
             let attr = child.add_attr(ctx, token!("tcp.dst"));
-            attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?
-        };
+            attr.set(&dst);
+            attr.set_range(&dst_range);
+        }
 
         let worker = src as u32 + dst as u32  +
             src_addr.iter().fold(0, |acc, &x| acc + x as u32) +
@@ -67,27 +72,21 @@ impl Worker for TCPWorker {
             attr.set_result(ByteReader::read_u32::<BigEndian>(&mut rdr))?;
         }
 
-        fn get_offset(val: &u32) -> u32 {
-            *val as u32 >> 4
-        }
-
-        let (ofs_and_flag, _) = {
+        let (ofs_and_flag, range) = ByteReader::read_u8(&mut rdr)?;
+        let data_offset = ofs_and_flag as u32 >> 4;
+        {
             let attr = child.add_attr(ctx, token!("tcp.dataOffset"));
-            attr.set_result_map(ByteReader::read_u8(&mut rdr),
-                get_offset, |r| r)?
-        };
-        let data_offset = get_offset(&ofs_and_flag);
-
-        let get_flag = &|val: &u32| *val | ((ofs_and_flag & 0x1) << 8);
-
-        let (flag, _) = {
+            attr.set(&data_offset);
+            attr.set_range(&range);
+        }
+        let (flag, _) = ByteReader::read_u8(&mut rdr)?;
+        let flags = flag | ((ofs_and_flag & 0x1) << 8);
+        {
             let attr = child.add_attr(ctx, token!("tcp.flags"));
+            attr.set(&flags);
+            attr.set_range(&(12..14));
             attr.set_typ(token!("@flags"));
-            attr.set_result_map(ByteReader::read_u8(&mut rdr),
-                get_flag, |_| &(12..14))?
-        };
-
-        let flags = get_flag(&flag);
+        }
         {
             let attr = child.add_attr(ctx, token!("tcp.flags.ns"));
             attr.set(&((flags & (0x1 << 8)) != 0));
@@ -177,6 +176,7 @@ impl Worker for TCPWorker {
                     rdr.consume(1);
                     let attr = child.add_attr(ctx, token!("tcp.options.selectiveAckPermitted"));
                     attr.set(&true);
+                    attr.set_range(&range);
                     attr.set_range(&(range.start..rdr.position() as usize));
                 }
                 5 => {
