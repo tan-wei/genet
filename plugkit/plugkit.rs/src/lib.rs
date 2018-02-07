@@ -1,9 +1,6 @@
 extern crate libc;
 
 #[macro_use]
-extern crate lazy_static;
-
-#[macro_use]
 pub mod api;
 
 #[macro_use]

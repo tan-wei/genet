@@ -41,51 +41,54 @@ impl Worker for ETHWorker {
 
         let mut rdr = Cursor::new(slice);
 
-        let child = layer.add_layer(ctx, token!("eth"));
-        child.set_confidence(Confidence::Probable);
+        let child = &mut layer.add_layer(ctx, token!("eth"));
+        child.set_confidence(Confidence::Exact);
         child.add_tag(ctx, token!("eth"));
         child.set_range(&range);
-        {
-            let attr = child.add_attr(ctx, token!("eth.src"));
-            attr.set_typ(token!("@eth:mac"));
-            attr.set_result(ByteReader::read_slice(&mut rdr, 6))?;
-        }
-        {
-            let attr = child.add_attr(ctx, token!("eth.dst"));
-            attr.set_typ(token!("@eth:mac"));
-            attr.set_result(ByteReader::read_slice(&mut rdr, 6))?;
-        }
 
-        let (typ, range) = ByteReader::read_u16::<BigEndian>(&mut rdr)?;
-        if typ <= 1500 {
-            let attr = child.add_attr(ctx, token!("eth.len"));
-            attr.set(&typ);
-            attr.set_range(&(12..14));
-        } else {
+        (|| -> Result<(), Error> {
             {
-                let attr = child.add_attr(ctx, token!("eth.type"));
+                let attr = child.add_attr(ctx, token!("eth.src"));
+                attr.set_typ(token!("@eth:mac"));
+                attr.set_result(ByteReader::read_slice(&mut rdr, 6))?;
+            }
+            {
+                let attr = child.add_attr(ctx, token!("eth.dst"));
+                attr.set_typ(token!("@eth:mac"));
+                attr.set_result(ByteReader::read_slice(&mut rdr, 6))?;
+            }
+            let (typ, range) = ByteReader::read_u16::<BigEndian>(&mut rdr)?;
+            if typ <= 1500 {
+                let attr = child.add_attr(ctx, token!("eth.len"));
                 attr.set(&typ);
-                attr.set_typ(token!("@enum"));
-                attr.set_range(&range);
+                attr.set_range(&(12..14));
+            } else {
+                {
+                    let attr = child.add_attr(ctx, token!("eth.type"));
+                    attr.set(&typ);
+                    attr.set_typ(token!("@enum"));
+                    attr.set_range(&range);
+                }
+                if let Some(item) = eth_type(typ) {
+                    let (tag, id) = item;
+                    child.add_tag(ctx, tag);
+                    let attr = child.add_attr(ctx, id);
+                    attr.set(&true);
+                    attr.set_typ(token!("@novalue"));
+                    attr.set_range(&range);
+                }
             }
-            if let Some(item) = eth_type(typ) {
-                let (tag, id) = item;
-                child.add_tag(ctx, tag);
-                let attr = child.add_attr(ctx, id);
-                attr.set(&true);
-                attr.set_typ(token!("@novalue"));
-                attr.set_range(&range);
-            }
-        }
-        {
+
             let (data, range) = ByteReader::read_slice_to_end(&mut rdr)?;
             let payload = child.add_payload(ctx);
             payload.add_slice(data);
             payload.set_range(&range);
-        }
-
-        child.set_confidence(Confidence::Exact);
-        Ok(())
+            Ok(())
+        })().or_else(|_| {
+            child.add_error(ctx, token!("!out-of-bounds"));
+            child.set_confidence(Confidence::Probable);
+            Ok(())
+        })
     }
 }
 

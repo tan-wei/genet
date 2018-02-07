@@ -22,8 +22,6 @@ public:
   void setValue(const Variant &value);
   Token type() const;
   void setType(Token type);
-  Token error() const;
-  void setError(Token error);
 
 private:
   Attr(const Attr &attr) = delete;
@@ -34,7 +32,6 @@ private:
   Variant mValue;
   Range mRange = {0, 0};
   Token mType = 0;
-  Token mError = 0;
 };
 
 extern "C" {
@@ -52,12 +49,6 @@ Token Attr_type(const Attr *attr);
 
 /// Set the type of the attr.
 void Attr_setType(Attr *attr, Token type);
-
-/// Return the error of the attr.
-Token Attr_error(const Attr *attr);
-
-/// Set the error of the attr.
-void Attr_setError(Attr *attr, Token error);
 
 /// Return the value associated with the attr.
 const Variant *Attr_value(const Attr *attr);

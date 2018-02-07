@@ -30,39 +30,42 @@ impl Worker for UDPWorker {
         };
 
         let child = layer.add_layer(ctx, token!("udp"));
-        child.set_confidence(Confidence::Probable);
+        child.set_confidence(Confidence::Exact);
         child.add_tag(ctx, token!("udp"));
         child.set_range(&payload_range);
 
-        let mut rdr = Cursor::new(slice);
-        {
-            let attr = child.add_attr(ctx, token!("udp.src"));
-            attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
-        }
-        {
-            let attr = child.add_attr(ctx, token!("udp.dst"));
-            attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
-        }
-        let (len, len_range) = ByteReader::read_u16::<BigEndian>(&mut rdr)?;
-        {
-            let attr = child.add_attr(ctx, token!("udp.length"));
-            attr.set(&len);
-            attr.set_range(&len_range);
-        }
-        {
-            let attr = child.add_attr(ctx, token!("udp.checksum"));
-            attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
-        }
-        {
+        (|| -> Result<(), Error> {
+            let mut rdr = Cursor::new(slice);
+            {
+                let attr = child.add_attr(ctx, token!("udp.src"));
+                attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
+            }
+            {
+                let attr = child.add_attr(ctx, token!("udp.dst"));
+                attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
+            }
+            let (len, len_range) = ByteReader::read_u16::<BigEndian>(&mut rdr)?;
+            {
+                let attr = child.add_attr(ctx, token!("udp.length"));
+                attr.set(&len);
+                attr.set_range(&len_range);
+            }
+            {
+                let attr = child.add_attr(ctx, token!("udp.checksum"));
+                attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
+            }
             let (data, range) = ByteReader::read_slice(&mut rdr, len as usize - 8)?;
             let payload = child.add_payload(ctx);
             let offset = payload_range.start;
             payload.add_slice(data);
             payload.set_range(&(range.start + offset..range.end + offset));
-        }
 
-        child.set_confidence(Confidence::Exact);
-        Ok(())
+            Ok(())
+        })().or_else(|_| {
+            child.add_error(ctx, token!("!out-of-bounds"));
+            child.set_confidence(Confidence::Probable);
+            Ok(())
+        })
     }
 }
 

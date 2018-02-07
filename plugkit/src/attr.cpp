@@ -27,10 +27,6 @@ Token Attr::type() const { return mType; }
 
 void Attr::setType(Token type) { mType = type; }
 
-Token Attr::error() const { return mError; }
-
-void Attr::setError(Token error) { mError = error; }
-
 Token Attr_id(const Attr *attr) {
   if (!attr)
     return Token_null();
@@ -52,10 +48,6 @@ Token Attr_type(const Attr *attr) {
 }
 
 void Attr_setType(Attr *attr, Token type) { attr->setType(type); }
-
-Token Attr_error(const Attr *attr) { return attr->error(); }
-
-void Attr_setError(Attr *attr, Token error) { attr->setError(error); }
 
 const Variant *Attr_value(const Attr *attr) { return attr->valueRef(); }
 

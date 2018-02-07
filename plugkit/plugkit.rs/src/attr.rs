@@ -1,24 +1,16 @@
 extern crate libc;
 
-use std::io::{Error, ErrorKind};
-use super::token;
+use std::io::Error;
 use super::token::Token;
 use super::range::Range;
 use super::variant::{Value, ValueArray, ValueMap, Variant};
-
-lazy_static! {
-    static ref ERROR_TOKEN: Token   = token::get("!error");
-    static ref EOF_TOKEN: Token     = token::get("!out-of-bounds");
-    static ref INVALID_TOKEN: Token = token::get("!invalid-value");
-}
 
 #[repr(C)]
 pub struct Attr {
     id: Token,
     val: Variant,
     range: (libc::size_t, libc::size_t),
-    typ: Token,
-    error: Token
+    typ: Token
 }
 
 impl<T> Value<T> for Attr
@@ -69,20 +61,13 @@ where
     Variant: Value<T>,
 {
     fn set_result(&mut self, res: Result<(T, Range), Error>) -> Result<(T, Range), Error> {
-         match &res {
-             &Ok(ref r) => {
-                 let &(ref val, ref range) = r;
-                 Value::set(self.value_mut(), &val);
-                 self.set_range(&range)
-             }
-             &Err(ref e) => {
-                 let err = match e.kind() {
-                     ErrorKind::InvalidInput | ErrorKind::InvalidData => *INVALID_TOKEN,
-                     ErrorKind::UnexpectedEof => *EOF_TOKEN,
-                     _ => *ERROR_TOKEN,
-                 };
-                 self.set_error(err);
-             }
+        match &res {
+            &Ok(ref r) => {
+                let &(ref val, ref range) = r;
+                Value::set(self.value_mut(), &val);
+                self.set_range(&range)
+            }
+            _ => ()
          }
          res
     }
@@ -110,14 +95,6 @@ impl Attr {
 
     pub fn set_typ(&mut self, id: Token) {
         self.typ = id
-    }
-
-    pub fn error(&self) -> Token {
-        self.error
-    }
-
-    pub fn set_error(&mut self, id: Token) {
-        self.error = id
     }
 
     pub fn value(&self) -> &Variant {

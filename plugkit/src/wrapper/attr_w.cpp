@@ -14,7 +14,6 @@ void AttrWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   Nan::SetAccessor(otl, Nan::New("range").ToLocalChecked(), range, setRange);
   Nan::SetAccessor(otl, Nan::New("value").ToLocalChecked(), value, setValue);
   Nan::SetAccessor(otl, Nan::New("type").ToLocalChecked(), type, setType);
-  Nan::SetAccessor(otl, Nan::New("error").ToLocalChecked(), error, setError);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
@@ -109,23 +108,6 @@ NAN_SETTER(AttrWrapper::setType) {
     Token token = value->IsUint32() ? value->Uint32Value()
                                     : Token_get(*Nan::Utf8String(value));
     attr->setType(token);
-  }
-}
-
-NAN_GETTER(AttrWrapper::error) {
-  AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
-  if (auto attr = wrapper->constProp) {
-    info.GetReturnValue().Set(
-        Nan::New(Token_string(attr->error())).ToLocalChecked());
-  }
-}
-
-NAN_SETTER(AttrWrapper::setError) {
-  AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
-  if (auto attr = wrapper->attr) {
-    Token token = value->IsUint32() ? value->Uint32Value()
-                                    : Token_get(*Nan::Utf8String(value));
-    attr->setError(token);
   }
 }
 

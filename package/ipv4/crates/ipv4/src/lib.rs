@@ -41,116 +41,119 @@ impl Worker for IPv4Worker {
         };
 
         let child = layer.add_layer(ctx, token!("ipv4"));
-        child.set_confidence(Confidence::Probable);
+        child.set_confidence(Confidence::Exact);
         child.add_tag(ctx, token!("ipv4"));
         child.set_range(&payload_range);
 
-        let mut rdr = Cursor::new(slice);
-        let (header, range) = ByteReader::read_u8(&mut rdr)?;
-        let version = header >> 4;
-        let header_len = header & 0b00001111;
-        {
-            let attr = child.add_attr(ctx, token!("ipv4.version"));
-            attr.set(&version);
-            attr.set_range(&range);
-        }
-        {
-            let attr = child.add_attr(ctx, token!("ipv4.headerLength"));
-            attr.set(&header_len);
-            attr.set_range(&range);
-        }
-        {
-            let attr = child.add_attr(ctx, token!("ipv4.type"));
-            attr.set_result(ByteReader::read_u8(&mut rdr))?;
-        }
+        (|| -> Result<(), Error> {
+            let mut rdr = Cursor::new(slice);
+            let (header, range) = ByteReader::read_u8(&mut rdr)?;
+            let version = header >> 4;
+            let header_len = header & 0b00001111;
+            {
+                let attr = child.add_attr(ctx, token!("ipv4.version"));
+                attr.set(&version);
+                attr.set_range(&range);
+            }
+            {
+                let attr = child.add_attr(ctx, token!("ipv4.headerLength"));
+                attr.set(&header_len);
+                attr.set_range(&range);
+            }
+            {
+                let attr = child.add_attr(ctx, token!("ipv4.type"));
+                attr.set_result(ByteReader::read_u8(&mut rdr))?;
+            }
 
-        let (total_length, range) = ByteReader::read_u16::<BigEndian>(&mut rdr)?;
-        {
-            let attr = child.add_attr(ctx, token!("ipv4.totalLength"));
-            attr.set(&total_length);
-            attr.set_range(&range);
-        }
-        {
-            let attr = child.add_attr(ctx, token!("ipv4.id"));
-            attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
-        }
+            let (total_length, range) = ByteReader::read_u16::<BigEndian>(&mut rdr)?;
+            {
+                let attr = child.add_attr(ctx, token!("ipv4.totalLength"));
+                attr.set(&total_length);
+                attr.set_range(&range);
+            }
+            {
+                let attr = child.add_attr(ctx, token!("ipv4.id"));
+                attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
+            }
 
-        let (flag_and_offset, range) = ByteReader::read_u8(&mut rdr)?;
-        let flag = (flag_and_offset >> 5) & 0b00000111;
-        {
-            let attr = child.add_attr(ctx, token!("ipv4.flags"));
-            attr.set_typ(token!("@flags"));
-            attr.set(&flag);
-            attr.set_range(&range);
-        }
-        {
-            let attr = child.add_attr(ctx, token!("ipv4.flags.reserved"));
-            attr.set(&(flag & 0x01 != 0));
-            attr.set_range(&range);
-        }
-        {
-            let attr = child.add_attr(ctx, token!("ipv4.flags.dontFragment"));
-            attr.set(&(flag & 0x02 != 0));
-            attr.set_range(&range);
-        }
-        {
-            let attr = child.add_attr(ctx, token!("ipv4.flags.moreFragments"));
-            attr.set(&(flag & 0x04 != 0));
-            attr.set_range(&range);
-        }
+            let (flag_and_offset, range) = ByteReader::read_u8(&mut rdr)?;
+            let flag = (flag_and_offset >> 5) & 0b00000111;
+            {
+                let attr = child.add_attr(ctx, token!("ipv4.flags"));
+                attr.set_typ(token!("@flags"));
+                attr.set(&flag);
+                attr.set_range(&range);
+            }
+            {
+                let attr = child.add_attr(ctx, token!("ipv4.flags.reserved"));
+                attr.set(&(flag & 0x01 != 0));
+                attr.set_range(&range);
+            }
+            {
+                let attr = child.add_attr(ctx, token!("ipv4.flags.dontFragment"));
+                attr.set(&(flag & 0x02 != 0));
+                attr.set_range(&range);
+            }
+            {
+                let attr = child.add_attr(ctx, token!("ipv4.flags.moreFragments"));
+                attr.set(&(flag & 0x04 != 0));
+                attr.set_range(&range);
+            }
 
-        let (fg_offset, _) = ByteReader::read_u8(&mut rdr)?;
-        {
-            let attr = child.add_attr(ctx, token!("ipv4.fragmentOffset"));
-            let offset = ((flag_and_offset & 0b00011111) << 8) | fg_offset;
-            attr.set(&offset);
-            attr.set_range(&(6 .. 8));
-        }
-        {
-            let attr = child.add_attr(ctx, token!("ipv4.ttl"));
-            attr.set_result(ByteReader::read_u8(&mut rdr))?;
-        }
+            let (fg_offset, _) = ByteReader::read_u8(&mut rdr)?;
+            {
+                let attr = child.add_attr(ctx, token!("ipv4.fragmentOffset"));
+                let offset = ((flag_and_offset & 0b00011111) << 8) | fg_offset;
+                attr.set(&offset);
+                attr.set_range(&(6 .. 8));
+            }
+            {
+                let attr = child.add_attr(ctx, token!("ipv4.ttl"));
+                attr.set_result(ByteReader::read_u8(&mut rdr))?;
+            }
 
-        let (protocol, range) = ByteReader::read_u8(&mut rdr)?;
-        {
-            let attr = child.add_attr(ctx, token!("ipv4.protocol"));
-            attr.set_typ(token!("@enum"));
-            attr.set(&protocol);
-            attr.set_range(&range);
-        }
-        if let Some(item) = get_protocol(protocol) {
-            let (tag, id) = item;
-            child.add_tag(ctx, tag);
-            let attr = child.add_attr(ctx, id);
-            attr.set(&true);
-            attr.set_typ(token!("@novalue"));
-            attr.set_range(&range);
-        }
+            let (protocol, range) = ByteReader::read_u8(&mut rdr)?;
+            {
+                let attr = child.add_attr(ctx, token!("ipv4.protocol"));
+                attr.set_typ(token!("@enum"));
+                attr.set(&protocol);
+                attr.set_range(&range);
+            }
+            if let Some(item) = get_protocol(protocol) {
+                let (tag, id) = item;
+                child.add_tag(ctx, tag);
+                let attr = child.add_attr(ctx, id);
+                attr.set(&true);
+                attr.set_typ(token!("@novalue"));
+                attr.set_range(&range);
+            }
 
-        {
-            let attr = child.add_attr(ctx, token!("ipv4.checksum"));
-            attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
-        }
-        {
-            let attr = child.add_attr(ctx, token!("ipv4.src"));
-            attr.set_typ(token!("@ipv4:addr"));
-            attr.set_result(ByteReader::read_slice(&mut rdr, 4))?;
-        }
-        {
-            let attr = child.add_attr(ctx, token!("ipv4.dst"));
-            attr.set_typ(token!("@ipv4:addr"));
-            attr.set_result(ByteReader::read_slice(&mut rdr, 4))?;
-        }
-        {
+            {
+                let attr = child.add_attr(ctx, token!("ipv4.checksum"));
+                attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
+            }
+            {
+                let attr = child.add_attr(ctx, token!("ipv4.src"));
+                attr.set_typ(token!("@ipv4:addr"));
+                attr.set_result(ByteReader::read_slice(&mut rdr, 4))?;
+            }
+            {
+                let attr = child.add_attr(ctx, token!("ipv4.dst"));
+                attr.set_typ(token!("@ipv4:addr"));
+                attr.set_result(ByteReader::read_slice(&mut rdr, 4))?;
+            }
             let (data, range) = ByteReader::read_slice_to_end(&mut rdr)?;
             let payload = child.add_payload(ctx);
             let offset = payload_range.start;
             payload.add_slice(data);
             payload.set_range(&(range.start + offset..range.end + offset));
-        }
 
-        child.set_confidence(Confidence::Exact);
-        Ok(())
+            Ok(())
+        })().or_else(|_| {
+            child.add_error(ctx, token!("!out-of-bounds"));
+            child.set_confidence(Confidence::Probable);
+            Ok(())
+        })
     }
 }
 
