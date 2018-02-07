@@ -34,7 +34,7 @@ AttrWrapper::AttrWrapper(const std::shared_ptr<Attr> &attr)
     : attr(attr.get()), constProp(attr.get()), shared(attr) {}
 
 NAN_METHOD(AttrWrapper::create) {
-  Token token = Token_get(nullptr);
+  Token token = Token_null();
   auto id = info[0];
   if (id->IsUint32()) {
     token = id->Uint32Value();

@@ -210,7 +210,7 @@ NAN_GETTER(LayerWrapper::error) {
 NAN_METHOD(LayerWrapper::attr) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->constLayer) {
-    Token token = Token_get(nullptr);
+    Token token = Token_null();
     auto id = info[0];
     if (id->IsUint32()) {
       token = id->Uint32Value();
@@ -231,7 +231,7 @@ NAN_METHOD(LayerWrapper::attr) {
 NAN_METHOD(LayerWrapper::addLayer) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
-    Token token = Token_get(nullptr);
+    Token token = Token_null();
     auto id = info[1];
     if (id->IsUint32()) {
       token = id->Uint32Value();
@@ -253,7 +253,7 @@ NAN_METHOD(LayerWrapper::addLayer) {
 NAN_METHOD(LayerWrapper::addSubLayer) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
-    Token token = Token_get(nullptr);
+    Token token = Token_null();
     auto id = info[1];
     if (id->IsUint32()) {
       token = id->Uint32Value();
@@ -287,7 +287,7 @@ NAN_METHOD(LayerWrapper::addPayload) {
 NAN_METHOD(LayerWrapper::addAttr) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
-    Token token = Token_get(nullptr);
+    Token token = Token_null();
     auto id = info[1];
     if (id->IsUint32()) {
       token = id->Uint32Value();
@@ -309,7 +309,7 @@ NAN_METHOD(LayerWrapper::addAttr) {
 NAN_METHOD(LayerWrapper::addTag) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
-    Token token = Token_get(nullptr);
+    Token token = Token_null();
     if (info[1]->IsUint32()) {
       token = info[1]->Uint32Value();
     } else if (info[1]->IsString()) {

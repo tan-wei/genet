@@ -11,6 +11,8 @@ typedef uint32_t Token;
 Token Token_literal_(const char *str, size_t length);
 Token Token_join(Token prefix, Token token);
 
+constexpr Token Token_null() { return static_cast<Token>(0); }
+
 #ifdef PLUGKIT_OS_WIN
 #pragma intrinsic(strlen)
 #endif
@@ -18,7 +20,7 @@ Token Token_join(Token prefix, Token token);
 /// Return a token corresponded with the given string.
 inline Token Token_get(const char *str) {
   if (str == NULL || str[0] == '\0') {
-    return (Token)0;
+    return Token_null();
   }
   return Token_literal_(str, strlen(str));
 }

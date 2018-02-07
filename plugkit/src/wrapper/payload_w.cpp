@@ -100,7 +100,7 @@ NAN_GETTER(PayloadWrapper::attrs) {
 NAN_METHOD(PayloadWrapper::attr) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->constPayload) {
-    Token token = Token_get(nullptr);
+    Token token = Token_null();
     auto id = info[0];
     if (id->IsUint32()) {
       token = id->Uint32Value();
@@ -122,7 +122,7 @@ NAN_METHOD(PayloadWrapper::attr) {
 NAN_METHOD(PayloadWrapper::addAttr) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->payload) {
-    Token token = Token_get(nullptr);
+    Token token = Token_null();
     auto id = info[1];
     if (id->IsUint32()) {
       token = id->Uint32Value();

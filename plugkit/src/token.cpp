@@ -33,7 +33,7 @@ std::mutex mutex;
 
 Token Token_literal_(const char *str, size_t length) {
   if (str == nullptr || str[0] == '\0') {
-    return Token_get(nullptr);
+    return Token_null();
   }
 
   if (length <= MAX_WORD_LENGTH && length >= MIN_WORD_LENGTH) {
@@ -90,7 +90,7 @@ Token Token_join(Token prefix, Token token) {
 }
 
 const char *Token_string(Token token) {
-  if (token == Token_get(nullptr)) {
+  if (token == Token_null()) {
     return "";
   }
   if (token <= MAX_HASH_VALUE + 1) {

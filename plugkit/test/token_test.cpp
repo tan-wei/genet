@@ -5,10 +5,13 @@ using namespace plugkit;
 
 namespace {
 
-TEST_CASE("Token_null") { CHECK(Token_get(nullptr) == 0); }
+TEST_CASE("Token_null") {
+  CHECK(Token_get(nullptr) == 0);
+  CHECK(Token_null() == 0);
+}
 
 TEST_CASE("Token_get", "[Token]") {
-  CHECK(Token_get("") == Token_get(nullptr));
+  CHECK(Token_get("") == Token_null());
   CHECK(Token_get("a") == Token_get("a"));
   CHECK(Token_get("eth") == Token_get("eth"));
   CHECK(Token_get("[eth]") == Token_get("[eth]"));
@@ -78,12 +81,11 @@ TEST_CASE("Token_string", "[Token]") {
 }
 
 TEST_CASE("Token_join", "[Token]") {
-  CHECK(Token_join(Token_get(nullptr), Token_get(nullptr)) ==
-        Token_get(nullptr));
+  CHECK(Token_join(Token_null(), Token_null()) == Token_null());
   CHECK(Token_join(Token_get("eth"), Token_get(".dst")) ==
         Token_get("eth.dst"));
-  CHECK(Token_join(Token_get(nullptr), Token_get(".dst")) == Token_get(".dst"));
-  CHECK(Token_join(Token_get("eth"), Token_get(nullptr)) == Token_get("eth"));
+  CHECK(Token_join(Token_null(), Token_get(".dst")) == Token_get(".dst"));
+  CHECK(Token_join(Token_get("eth"), Token_null()) == Token_get("eth"));
   CHECK(Token_join(Token_get("0f73db21-11f6-"),
                    Token_get("4987-81f6-1a8bb5f26704")) ==
         Token_get("0f73db21-11f6-4987-81f6-1a8bb5f26704"));
