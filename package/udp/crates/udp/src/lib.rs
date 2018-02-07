@@ -10,6 +10,7 @@ use plugkit::reader::ByteReader;
 use plugkit::layer::{Confidence, Layer};
 use plugkit::context::Context;
 use plugkit::worker::Worker;
+use plugkit::variant::Value;
 use plugkit::attr::ResultValue;
 
 struct UDPWorker {}
@@ -42,10 +43,12 @@ impl Worker for UDPWorker {
             let attr = child.add_attr(ctx, token!("udp.dst"));
             attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
         }
-        let (len, _) = {
+        let (len, len_range) = ByteReader::read_u16::<BigEndian>(&mut rdr)?;
+        {
             let attr = child.add_attr(ctx, token!("udp.length"));
-            attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?
-        };
+            attr.set(&len);
+            attr.set_range(&len_range);
+        }
         {
             let attr = child.add_attr(ctx, token!("udp.checksum"));
             attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
