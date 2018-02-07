@@ -41,6 +41,7 @@ class NTP {
 
     if (leapIndicator.value in liTable) {
       const attr = child.addAttr(ctx, liTable[leapIndicator.value])
+      attr.type = '@novalue'
       attr.value = true
       attr.range = reader.lastRange
       attr.error = reader.lastError
