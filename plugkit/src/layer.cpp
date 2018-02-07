@@ -183,7 +183,7 @@ const Payload *const *Layer_payloads(const Layer *layer, size_t *size) {
 }
 
 Error *Layer_addError(Layer *layer, Context *ctx, Token id) {
-  Error *error = Context_allocError(ctx);
+  Error *error = Context_allocError(ctx, id);
   layer->addError(error);
   return error;
 }
@@ -193,7 +193,7 @@ const Error *const *Layer_errors(const Layer *layer, size_t *size) {
   if (size)
     *size = errors.size();
   if (errors.empty()) {
-    static const Error empty;
+    static const Error empty{Token_null(), Token_null()};
     static const Error *ptr = &empty;
     return &ptr;
   }

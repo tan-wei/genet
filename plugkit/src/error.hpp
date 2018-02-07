@@ -6,8 +6,8 @@
 namespace plugkit {
 
 struct Error {
-  Token id = Token_null();
-  Token target = Token_null();
+  Token id;
+  Token target;
 };
 
 } // namespace plugkit

@@ -73,13 +73,13 @@ void Context_deallocPayload(Context *ctx, Payload *payload) {
   ctx->payloadAllocator->dealloc(payload);
 }
 
-Error *Context_allocError(Context *ctx) {
+Error *Context_allocError(Context *ctx, Token id) {
   if (!ctx->rootAllocator)
     return nullptr;
   if (!ctx->errorAllocator) {
     ctx->errorAllocator.reset(new BlockAllocator<Error>(ctx->rootAllocator));
   }
-  return ctx->errorAllocator->alloc();
+  return ctx->errorAllocator->alloc(Error{id, 0});
 }
 
 void Context_deallocError(Context *ctx, Error *error) {

@@ -33,7 +33,7 @@ Attr *Context_allocAttr(Context *ctx, Token id);
 void Context_deallocAttr(Context *ctx, Attr *attr);
 Payload *Context_allocPayload(Context *ctx);
 void Context_deallocPayload(Context *ctx, Payload *payload);
-Error *Context_allocError(Context *ctx);
+Error *Context_allocError(Context *ctx, Token id);
 void Context_deallocError(Context *ctx, Error *error);
 
 extern "C" {

@@ -9,7 +9,6 @@ class Reader {
     this[fields] = {
       data,
       lastRange: [0, 0],
-      lastError: '',
       getDateView: () =>
         new DataView(data.buffer, data.byteOffset, data.byteLength),
       nextRange: (size) => {
@@ -36,8 +35,7 @@ class Reader {
     const sliceBegin = offset + begin
     const sliceEnd = offset + end
     if (sliceBegin >= length || sliceEnd > length) {
-      this[fields].lastError = '!out-of-bounds'
-      return this[fields].data.slice(0, 0)
+      throw new Error('Out of bounds access')
     }
     const slice = this[fields].data.slice(sliceBegin, sliceEnd);
     [, this[fields].lastRange[0]] = this[fields].lastRange
@@ -54,8 +52,7 @@ class Reader {
     const { length } = this[fields].data
     const sliceBegin = offset + begin
     if (sliceBegin >= length) {
-      this[fields].lastError = '!out-of-bounds'
-      return this[fields].data.slice(0, 0)
+      throw new Error('Out of bounds access')
     }
     const slice = this[fields].data.slice(sliceBegin);
     [, this[fields].lastRange[0]] = this[fields].lastRange
@@ -66,28 +63,18 @@ class Reader {
   // Returns an unsigned 8-bit integer
   // @return Integer
   getUint8 () {
-    try {
-      const value =
-        this[fields].getDateView().getUint8(this[fields].lastRange[1])
-      this[fields].nextRange(1)
-      return value
-    } catch (err) {
-      this[fields].lastError = '!out-of-bounds'
-      return 0
-    }
+    const value =
+      this[fields].getDateView().getUint8(this[fields].lastRange[1])
+    this[fields].nextRange(1)
+    return value
   }
 
   // @return Integer
   getInt8 () {
-    try {
-      const value =
-        this[fields].getDateView().getInt8(this[fields].lastRange[1])
-      this[fields].nextRange(1)
-      return value
-    } catch (err) {
-      this[fields].lastError = '!out-of-bounds'
-      return 0
-    }
+    const value =
+      this[fields].getDateView().getInt8(this[fields].lastRange[1])
+    this[fields].nextRange(1)
+    return value
   }
 
   // @return Integer
@@ -95,16 +82,11 @@ class Reader {
     if (typeof littleEndian !== 'boolean') {
       throw new TypeError('First argument must be boolean')
     }
-    try {
-      const value =
-        this[fields].getDateView().getUint16(
-          this[fields].lastRange[1], littleEndian)
-      this[fields].nextRange(2)
-      return value
-    } catch (err) {
-      this[fields].lastError = '!out-of-bounds'
-      return 0
-    }
+    const value =
+      this[fields].getDateView().getUint16(
+        this[fields].lastRange[1], littleEndian)
+    this[fields].nextRange(2)
+    return value
   }
 
   // @return Integer
@@ -112,16 +94,11 @@ class Reader {
     if (typeof littleEndian !== 'boolean') {
       throw new TypeError('First argument must be boolean')
     }
-    try {
-      const value = this[fields]
-        .getDateView()
-        .getUint32(this[fields].lastRange[1], littleEndian)
-      this[fields].nextRange(4)
-      return value
-    } catch (err) {
-      this[fields].lastError = '!out-of-bounds'
-      return 0
-    }
+    const value = this[fields]
+      .getDateView()
+      .getUint32(this[fields].lastRange[1], littleEndian)
+    this[fields].nextRange(4)
+    return value
   }
 
   // @return Integer
@@ -129,16 +106,11 @@ class Reader {
     if (typeof littleEndian !== 'boolean') {
       throw new TypeError('First argument must be boolean')
     }
-    try {
-      const value = this[fields]
-        .getDateView()
-        .getInt16(this[fields].lastRange[1], littleEndian)
-      this[fields].nextRange(2)
-      return value
-    } catch (err) {
-      this[fields].lastError = '!out-of-bounds'
-      return 0
-    }
+    const value = this[fields]
+      .getDateView()
+      .getInt16(this[fields].lastRange[1], littleEndian)
+    this[fields].nextRange(2)
+    return value
   }
 
   // @return Integer
@@ -146,16 +118,11 @@ class Reader {
     if (typeof littleEndian !== 'boolean') {
       throw new TypeError('First argument must be boolean')
     }
-    try {
-      const value = this[fields]
-        .getDateView()
-        .getInt32(this[fields].lastRange[1], littleEndian)
-      this[fields].nextRange(4)
-      return value
-    } catch (err) {
-      this[fields].lastError = '!out-of-bounds'
-      return 0
-    }
+    const value = this[fields]
+      .getDateView()
+      .getInt32(this[fields].lastRange[1], littleEndian)
+    this[fields].nextRange(4)
+    return value
   }
 
   // @return Double
@@ -163,16 +130,11 @@ class Reader {
     if (typeof littleEndian !== 'boolean') {
       throw new TypeError('First argument must be boolean')
     }
-    try {
-      const value = this[fields]
-        .getDateView()
-        .getFloat32(this[fields].lastRange[1], littleEndian)
-      this[fields].nextRange(4)
-      return value
-    } catch (err) {
-      this[fields].lastError = '!out-of-bounds'
-      return 0
-    }
+    const value = this[fields]
+      .getDateView()
+      .getFloat32(this[fields].lastRange[1], littleEndian)
+    this[fields].nextRange(4)
+    return value
   }
 
   // @return Double
@@ -180,16 +142,11 @@ class Reader {
     if (typeof littleEndian !== 'boolean') {
       throw new TypeError('First argument must be boolean')
     }
-    try {
-      const value = this[fields]
-        .getDateView()
-        .getFloat64(this[fields].lastRange[1], littleEndian)
-      this[fields].nextRange(8)
-      return value
-    } catch (err) {
-      this[fields].lastError = '!out-of-bounds'
-      return 0
-    }
+    const value = this[fields]
+      .getDateView()
+      .getFloat64(this[fields].lastRange[1], littleEndian)
+    this[fields].nextRange(8)
+    return value
   }
 
   // @property [Integer, Integer]
@@ -202,11 +159,6 @@ class Reader {
     if (Array.isArray(value) && value.length >= 2) {
       this[fields].lastRange = value.slice(0, 2)
     }
-  }
-
-  // @property String
-  get lastError () {
-    return this[fields].lastError
   }
 
   // @property Uint8Array
