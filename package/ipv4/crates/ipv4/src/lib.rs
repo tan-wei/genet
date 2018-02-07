@@ -75,17 +75,14 @@ impl Worker for IPv4Worker {
             attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
         }
 
-        fn get_flag(val: &u32) -> u32 {
-            (val >> 5) & 0b00000111u32
-        }
-
-        let (flag_and_offset, range) = {
+        let (flag_and_offset, range) = ByteReader::read_u8(&mut rdr)?;
+        let flag = (flag_and_offset >> 5) & 0b00000111;
+        {
             let attr = child.add_attr(ctx, token!("ipv4.flags"));
             attr.set_typ(token!("@flags"));
-            attr.set_result_map(ByteReader::read_u8(&mut rdr), get_flag, |r| r)?
-        };
-
-        let flag = get_flag(&flag_and_offset);
+            attr.set(&flag);
+            attr.set_range(&range);
+        }
         {
             let attr = child.add_attr(ctx, token!("ipv4.flags.reserved"));
             attr.set(&(flag & 0x01 != 0));
