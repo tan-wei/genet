@@ -42,13 +42,4 @@ describe('Attr', () => {
       assert.deepEqual('@type', attr.type)
     })
   })
-  describe('#error', () => {
-    it('should return attribute error', () => {
-      const token = Token.get('eth')
-      const attr = Testing.createAttrInstance(token)
-      assert.strictEqual('', attr.error)
-      attr.error = '!out-of-bounds'
-      assert.deepEqual('!out-of-bounds', attr.error)
-    })
-  })
 })
