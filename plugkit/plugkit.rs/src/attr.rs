@@ -62,8 +62,6 @@ where
 
 pub trait ResultValue<T> {
     fn set_result(&mut self, res: Result<(T, Range), Error>) -> Result<(T, Range), Error>;
-    fn set_result_map<V: FnOnce(&T) -> T, R: FnOnce(&Range) -> &Range>
-        (&mut self, res: Result<(T, Range), Error>, vop: V, rop: R) -> Result<(T, Range), Error>;
 }
 
 impl<T> ResultValue<T> for Attr
@@ -71,42 +69,22 @@ where
     Variant: Value<T>,
 {
     fn set_result(&mut self, res: Result<(T, Range), Error>) -> Result<(T, Range), Error> {
-        match &res {
-            &Ok(ref r) => {
-                let &(ref val, ref range) = r;
-                Value::set(self.value_mut(), &val);
-                self.set_range(&range)
-            }
-            &Err(ref e) => {
-                let err = match e.kind() {
-                    ErrorKind::InvalidInput | ErrorKind::InvalidData => *INVALID_TOKEN,
-                    ErrorKind::UnexpectedEof => *EOF_TOKEN,
-                    _ => *ERROR_TOKEN,
-                };
-                self.set_error(err);
-            }
-        }
-        res
-    }
-
-    fn set_result_map<V: FnOnce(&T) -> T, R: FnOnce(&Range) -> &Range>
-        (&mut self, res: Result<(T, Range), Error>, vop: V, rop: R) -> Result<(T, Range), Error> {
-        match &res {
-            &Ok(ref r) => {
-                let &(ref val, ref range) = r;
-                Value::set(self.value_mut(), &vop(val));
-                self.set_range(&rop(range));
-            }
-            &Err(ref e) => {
-                let err = match e.kind() {
-                    ErrorKind::InvalidInput | ErrorKind::InvalidData => *INVALID_TOKEN,
-                    ErrorKind::UnexpectedEof => *EOF_TOKEN,
-                    _ => *ERROR_TOKEN,
-                };
-                self.set_error(err);
-            }
-        }
-        res
+         match &res {
+             &Ok(ref r) => {
+                 let &(ref val, ref range) = r;
+                 Value::set(self.value_mut(), &val);
+                 self.set_range(&range)
+             }
+             &Err(ref e) => {
+                 let err = match e.kind() {
+                     ErrorKind::InvalidInput | ErrorKind::InvalidData => *INVALID_TOKEN,
+                     ErrorKind::UnexpectedEof => *EOF_TOKEN,
+                     _ => *ERROR_TOKEN,
+                 };
+                 self.set_error(err);
+             }
+         }
+         res
     }
 }
 
