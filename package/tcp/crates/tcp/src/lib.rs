@@ -66,11 +66,11 @@ impl Worker for TCPWorker {
 
             {
                 let attr = child.add_attr(ctx, token!("tcp.seq"));
-                attr.set_result(ByteReader::read_u32::<BigEndian>(&mut rdr))?;
+                attr.set_with_range(&ByteReader::read_u32::<BigEndian>(&mut rdr)?);
             }
             {
                 let attr = child.add_attr(ctx, token!("tcp.ack"));
-                attr.set_result(ByteReader::read_u32::<BigEndian>(&mut rdr))?;
+                attr.set_with_range(&ByteReader::read_u32::<BigEndian>(&mut rdr)?);
             }
 
             let (ofs_and_flag, range) = ByteReader::read_u8(&mut rdr)?;
@@ -136,15 +136,15 @@ impl Worker for TCPWorker {
 
             {
                 let attr = child.add_attr(ctx, token!("tcp.window"));
-                attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
+                attr.set_with_range(&ByteReader::read_u16::<BigEndian>(&mut rdr)?);
             }
             {
                 let attr = child.add_attr(ctx, token!("tcp.checksum"));
-                attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
+                attr.set_with_range(&ByteReader::read_u16::<BigEndian>(&mut rdr)?);
             }
             {
                 let attr = child.add_attr(ctx, token!("tcp.urgent"));
-                attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
+                attr.set_with_range(&ByteReader::read_u16::<BigEndian>(&mut rdr)?);
             }
             {
                 let attr = child.add_attr(ctx, token!("tcp.options"));
@@ -164,13 +164,13 @@ impl Worker for TCPWorker {
                     2 => {
                         rdr.consume(1);
                         let attr = child.add_attr(ctx, token!("tcp.options.mss"));
-                        attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
+                        attr.set_with_range(&ByteReader::read_u16::<BigEndian>(&mut rdr)?);
                         attr.set_range(&(range.start..rdr.position() as usize));
                     }
                     3 => {
                         rdr.consume(1);
                         let attr = child.add_attr(ctx, token!("tcp.options.scale"));
-                        attr.set_result(ByteReader::read_u8(&mut rdr))?;
+                        attr.set_with_range(&ByteReader::read_u8(&mut rdr)?);
                         attr.set_range(&(range.start..rdr.position() as usize));
                     }
                     4 => {

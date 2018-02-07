@@ -1,6 +1,5 @@
 extern crate libc;
 
-use std::io::Error;
 use super::token::Token;
 use super::range::Range;
 use super::variant::{Value, ValueArray, ValueMap, Variant};
@@ -53,23 +52,16 @@ where
 }
 
 pub trait ResultValue<T> {
-    fn set_result(&mut self, res: Result<(T, Range), Error>) -> Result<(T, Range), Error>;
+    fn set_with_range(&mut self, val: &(T, Range));
 }
 
 impl<T> ResultValue<T> for Attr
 where
     Variant: Value<T>,
 {
-    fn set_result(&mut self, res: Result<(T, Range), Error>) -> Result<(T, Range), Error> {
-        match &res {
-            &Ok(ref r) => {
-                let &(ref val, ref range) = r;
-                Value::set(self.value_mut(), &val);
-                self.set_range(&range)
-            }
-            _ => ()
-         }
-         res
+    fn set_with_range(&mut self, val: &(T, Range)) {
+        Value::set(self.value_mut(), &val.0);
+        self.set_range(&val.1)
     }
 }
 

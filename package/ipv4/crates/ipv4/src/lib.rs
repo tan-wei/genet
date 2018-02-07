@@ -62,7 +62,7 @@ impl Worker for IPv4Worker {
             }
             {
                 let attr = child.add_attr(ctx, token!("ipv4.type"));
-                attr.set_result(ByteReader::read_u8(&mut rdr))?;
+                attr.set_with_range(&ByteReader::read_u8(&mut rdr)?);
             }
 
             let (total_length, range) = ByteReader::read_u16::<BigEndian>(&mut rdr)?;
@@ -73,7 +73,7 @@ impl Worker for IPv4Worker {
             }
             {
                 let attr = child.add_attr(ctx, token!("ipv4.id"));
-                attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
+                attr.set_with_range(&ByteReader::read_u16::<BigEndian>(&mut rdr)?);
             }
 
             let (flag_and_offset, range) = ByteReader::read_u8(&mut rdr)?;
@@ -109,7 +109,7 @@ impl Worker for IPv4Worker {
             }
             {
                 let attr = child.add_attr(ctx, token!("ipv4.ttl"));
-                attr.set_result(ByteReader::read_u8(&mut rdr))?;
+                attr.set_with_range(&ByteReader::read_u8(&mut rdr)?);
             }
 
             let (protocol, range) = ByteReader::read_u8(&mut rdr)?;
@@ -130,17 +130,17 @@ impl Worker for IPv4Worker {
 
             {
                 let attr = child.add_attr(ctx, token!("ipv4.checksum"));
-                attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
+                attr.set_with_range(&ByteReader::read_u16::<BigEndian>(&mut rdr)?);
             }
             {
                 let attr = child.add_attr(ctx, token!("ipv4.src"));
                 attr.set_typ(token!("@ipv4:addr"));
-                attr.set_result(ByteReader::read_slice(&mut rdr, 4))?;
+                attr.set_with_range(&ByteReader::read_slice(&mut rdr, 4)?);
             }
             {
                 let attr = child.add_attr(ctx, token!("ipv4.dst"));
                 attr.set_typ(token!("@ipv4:addr"));
-                attr.set_result(ByteReader::read_slice(&mut rdr, 4))?;
+                attr.set_with_range(&ByteReader::read_slice(&mut rdr, 4)?);
             }
             let (data, range) = ByteReader::read_slice_to_end(&mut rdr)?;
             let payload = child.add_payload(ctx);

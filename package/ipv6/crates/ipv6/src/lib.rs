@@ -72,7 +72,7 @@ impl Worker for IPv6Worker {
             }
             {
                 let attr = child.add_attr(ctx, token!("ipv6.payloadLength"));
-                attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
+                attr.set_with_range(&ByteReader::read_u16::<BigEndian>(&mut rdr)?);
             }
 
             let (mut next_header, mut next_range) = ByteReader::read_u8(&mut rdr)?;
@@ -83,18 +83,18 @@ impl Worker for IPv6Worker {
             }
             {
                 let attr = child.add_attr(ctx, token!("ipv6.hopLimit"));
-                attr.set_result(ByteReader::read_u8(&mut rdr))?;
+                attr.set_with_range(&ByteReader::read_u8(&mut rdr)?);
             }
 
             {
                 let attr = child.add_attr(ctx, token!("ipv6.src"));
                 attr.set_typ(token!("@ipv6:addr"));
-                attr.set_result(ByteReader::read_slice(&mut rdr, 16))?;
+                attr.set_with_range(&ByteReader::read_slice(&mut rdr, 16)?);
             }
             {
                 let attr = child.add_attr(ctx, token!("ipv6.dst"));
                 attr.set_typ(token!("@ipv6:addr"));
-                attr.set_result(ByteReader::read_slice(&mut rdr, 16))?;
+                attr.set_with_range(&ByteReader::read_slice(&mut rdr, 16)?);
             }
 
             loop {

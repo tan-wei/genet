@@ -38,11 +38,11 @@ impl Worker for UDPWorker {
             let mut rdr = Cursor::new(slice);
             {
                 let attr = child.add_attr(ctx, token!("udp.src"));
-                attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
+                attr.set_with_range(&ByteReader::read_u16::<BigEndian>(&mut rdr)?);
             }
             {
                 let attr = child.add_attr(ctx, token!("udp.dst"));
-                attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
+                attr.set_with_range(&ByteReader::read_u16::<BigEndian>(&mut rdr)?);
             }
             let (len, len_range) = ByteReader::read_u16::<BigEndian>(&mut rdr)?;
             {
@@ -52,7 +52,7 @@ impl Worker for UDPWorker {
             }
             {
                 let attr = child.add_attr(ctx, token!("udp.checksum"));
-                attr.set_result(ByteReader::read_u16::<BigEndian>(&mut rdr))?;
+                attr.set_with_range(&ByteReader::read_u16::<BigEndian>(&mut rdr)?);
             }
             let (data, range) = ByteReader::read_slice(&mut rdr, len as usize - 8)?;
             let payload = child.add_payload(ctx);
