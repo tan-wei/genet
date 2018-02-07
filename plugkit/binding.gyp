@@ -32,6 +32,7 @@
       "src/wrapper/frame_w.cpp",
       "src/wrapper/attr_w.cpp",
       "src/wrapper/layer_w.cpp",
+      "src/wrapper/error_w.cpp",
       "src/wrapper/payload_w.cpp",
       "src/wrapper/session_factory_w.cpp",
       "src/wrapper/context_w.cpp",

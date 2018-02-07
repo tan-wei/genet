@@ -6,6 +6,7 @@
 #include "variant.hpp"
 #include "wrapper/attr.hpp"
 #include "wrapper/context.hpp"
+#include "wrapper/error.hpp"
 #include "wrapper/frame.hpp"
 #include "wrapper/layer.hpp"
 #include "wrapper/logger.hpp"
@@ -71,6 +72,7 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
   Variant::init(isolate);
   AttrWrapper::init(isolate, exports);
   PayloadWrapper::init(isolate, exports);
+  ErrorWrapper::init(isolate, exports);
   LayerWrapper::init(isolate);
   FrameWrapper::init(isolate);
   ContextWrapper::init(isolate);

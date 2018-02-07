@@ -12,6 +12,7 @@ pub mod symbol;
 #[macro_use]
 pub mod token;
 
+pub mod error;
 pub mod variant;
 pub mod attr;
 pub mod layer;

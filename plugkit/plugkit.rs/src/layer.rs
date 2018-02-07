@@ -2,6 +2,7 @@ use super::token::Token;
 use super::attr::Attr;
 use super::payload::Payload;
 use super::context::Context;
+use super::error::Error;
 use super::symbol;
 use super::range::Range;
 use std::mem;
@@ -49,6 +50,15 @@ impl Layer {
         }
     }
 
+    pub fn errors(&self) -> Box<Iterator<Item = &Error>> {
+        unsafe {
+            let mut size: libc::size_t = 0;
+            let ptr = symbol::Layer_errors.unwrap()(self, &mut size);
+            let s = slice::from_raw_parts(ptr, size);
+            Box::new(s.iter().map(|elem| &**elem))
+        }
+    }
+
     pub fn add_layer(&mut self, ctx: &mut Context, id: Token) -> &mut Layer {
         unsafe { &mut *symbol::Layer_addLayer.unwrap()(self, ctx, id) }
     }
@@ -63,6 +73,10 @@ impl Layer {
 
     pub fn add_payload(&mut self, ctx: &mut Context) -> &mut Payload {
         unsafe { &mut *symbol::Layer_addPayload.unwrap()(self, ctx) }
+    }
+
+    pub fn add_error(&mut self, ctx: &mut Context, id: Token) -> &mut Error {
+        unsafe { &mut *symbol::Layer_addError.unwrap()(self, ctx, id) }
     }
 
     pub fn add_tag(&mut self, ctx: &mut Context, id: Token) {
