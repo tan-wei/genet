@@ -151,8 +151,8 @@ function operator(opcode, lhs, rhs) {
         : rhs
     case '&&':
       return left
-        ? lhs
-        : rhs
+        ? rhs
+        : lhs
     default:
       return false
   }
