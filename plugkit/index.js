@@ -52,7 +52,7 @@ class Session extends EventEmitter {
 
   exportFile (file, filter = '') {
     const { filterCompiler } = this[fields]
-    const body = filterCompiler.compile(filter)
+    const body = filterCompiler.link(filterCompiler.compile(filter))
     return this[fields].sess.exportFile(file, body)
   }
 

@@ -62,31 +62,43 @@ RawFrame createRawFrame(const ContextData *data, const Frame *frame) {
 }
 
 const RawFrame *apiCallback(Context *ctx, size_t *length) {
+  constexpr size_t blockSize = 1024;
   ContextData *data = static_cast<ContextData *>(ctx->data);
-  size_t size = 1024;
-  if (data->offset + size >= data->length) {
-    size = data->length - data->offset;
-  }
-  *length = size;
-  data->callback(data->id, 1.0 * data->offset / data->length);
-  if (size == 0) {
-    return nullptr;
-  }
-  const std::vector<const FrameView *> views =
-      data->store->get(data->offset, size);
-  data->frames.resize(size);
 
-  std::vector<char> results;
-  if (data->filter) {
-    results.resize(views.size());
-    data->filter->test(results.data(), views.data(), views.size());
-  }
-  for (size_t i = 0; i < size; ++i) {
-    if (!data->filter || results[i]) {
-      data->frames[i] = createRawFrame(data, views[i]->frame());
+  size_t size = blockSize;
+  data->frames.clear();
+
+  while (data->frames.empty()) {
+    if (data->offset + size >= data->length) {
+      size = data->length - data->offset;
     }
+
+    data->callback(data->id, 1.0 * data->offset / data->length);
+    if (size == 0) {
+      *length = 0;
+      return nullptr;
+    }
+
+    const std::vector<const FrameView *> views =
+        data->store->get(data->offset, size);
+
+    char results[blockSize];
+    if (data->filter) {
+      data->filter->test(results, views.data(), views.size());
+    }
+
+    data->frames.reserve(size);
+
+    for (size_t i = 0; i < size; ++i) {
+      if (!data->filter || results[i]) {
+        data->frames.push_back(createRawFrame(data, views[i]->frame()));
+      }
+    }
+
+    data->offset += size;
   }
-  data->offset += size;
+
+  *length = data->frames.size();
   return data->frames.data();
 }
 
