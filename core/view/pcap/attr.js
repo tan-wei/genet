@@ -70,15 +70,7 @@ export default class AttributeItem {
           m(attrRenderer, {
             attr,
             layer: vnode.attrs.layer,
-          }),
-          m('span', {
-            class: 'label error',
-            style: {
-              display: attr.error
-                ? 'inline'
-                : 'none',
-            },
-          }, [m('i', { class: 'fa fa-exclamation-triangle' }), ' ', attr.error])
+          })
         ]),
         m('ul', [
           children.map((child) => m(AttributeItem, {
