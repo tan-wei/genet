@@ -93,9 +93,13 @@ Visit https://www.rustup.rs/ for installation details.
       await promiseGlob(path.join(dir, 'crates/*/Cargo.toml'))
     const cargoDirs = cargoFiles.map((toml) => path.dirname(toml))
     for (const cdir of cargoDirs) {
+      const sep = (process.platform === 'win32')
+        ? ';'
+        : ':'
       const rustdir = path.join(os.homedir(), '.cargo', 'bin')
       const flags = `${process.env.RUSTFLAGS || ''} ${this.rustflags}`
-      const envpath = `${process.env.PATH || ''};${this.rustpath || rustdir}`
+      const envpath =
+        `${process.env.PATH || ''}${sep}${this.rustpath || rustdir}`
       const proc = execa.shell(
         'cargo build -v --release', {
           cwd: cdir,
