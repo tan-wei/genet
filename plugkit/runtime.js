@@ -30,7 +30,15 @@ function resolver(root) {
   }
 }
 
-function operator(opcode, lhs, rhs) {
+function operator(opcode, lhs, ...args) {
+  if (opcode === '()') {
+    if (typeof lhs === 'function') {
+      return lhs(...args)
+    }
+    return undefined
+  }
+
+  const rhs = args[0]
   if (arguments.length === 2) {
     switch (opcode) {
       case '+':

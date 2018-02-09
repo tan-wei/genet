@@ -50,6 +50,11 @@ function processOperators (ast) {
             prefix: true,
           }
           return node
+        case 'CallExpression':
+          if (!(node.callee.name || '').startsWith('__')) {
+            return makeOp('()', node.callee, ...node.arguments)
+          }
+          return node
         default:
       }
     },
