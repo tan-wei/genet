@@ -61,7 +61,13 @@ function processOperators (ast) {
   })
 }
 
-function processIdentifiers (tokens, attrs) {
+let counter = 0
+function symbolName (base) {
+  counter += 1
+  return `__$${base.replace(/[^0-9a-zA-Z]/g, '_')}_${counter}`
+}
+
+function processIdentifiers (tokens, attrs, globals) {
   function resolve (identifiers, resolvedTokens) {
     resolvedTokens.push(
       {
@@ -81,10 +87,12 @@ function processIdentifiers (tokens, attrs) {
       index = identifiers.length
     }
     const token = identifiers.slice(0, index).join('.')
+    const sym = symbolName(token)
+    globals.push(`const ${sym} = ${Token.get(token)};`)
     resolvedTokens.push(
       {
-        type: 'Literal',
-        value: Token.get(token),
+        type: 'Identifier',
+        value: sym,
       }
     )
     for (const id of identifiers.slice(index)) {
@@ -160,7 +168,10 @@ class Filter {
   compile (filter) {
     const { macros, attrs, macroPrefix } = this[fields]
     if (!filter) {
-      return ''
+      return {
+        expression: '',
+        globals: [],
+      }
     }
     const pattern = new RegExp(`(${macroPrefix})([^ ]+)(?: |$)`, 'g')
     const str = filter.replace(pattern, (match, prefix, exp) => {
@@ -172,17 +183,23 @@ class Filter {
       }
       throw new Error(`unrecognized macro: ${prefix}${exp}`)
     })
-    const tokens = processIdentifiers(esprima.tokenize(str), attrs)
+    const globals = []
+    const tokens = processIdentifiers(esprima.tokenize(str), attrs, globals)
     const tree = esprima.parse(tokens.map((token) => token.value).join(' '))
     const ast = makeValue(processOperators(tree.body[0].expression))
-    return escodegen.generate(ast)
+    return {
+      expression: escodegen.generate(ast),
+      globals,
+    }
   }
 
   link (code) {
-    if (code === '') {
+    if (code.expression === '') {
       return ''
     }
-    return runtime.replace('@@@', code)
+    return runtime
+      .replace('@@globals@@', code.globals.join('\n'))
+      .replace('@@expression@@', code.expression)
   }
 
   build (prog) {

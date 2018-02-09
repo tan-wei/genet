@@ -16,7 +16,10 @@ class FilterInspectorView {
       return m('div')
     }
     return m('div', { class: 'view' }, [
-      m('pre', [this.displayFilter.code])
+      m('pre', [
+        this.displayFilter.code.globals.join('\n')
+      ]),
+      m('pre', [this.displayFilter.code.expression])
     ])
   }
 }
