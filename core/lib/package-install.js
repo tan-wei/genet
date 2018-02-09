@@ -78,8 +78,15 @@ export default class PackageInstaller extends EventEmitter {
 
   async build (dir) {
     this.emit('output', 'Building package ...\n')
+    const sep = (process.platform === 'win32')
+      ? ';'
+      : ':'
+    const rustdir = path.join(os.homedir(), '.cargo', 'bin')
+    const envpath =
+      `${process.env.PATH || ''}${sep}${this.rustpath || rustdir}`
     try {
-      await execa.shell('cargo -V')
+      await execa.shell('cargo -V',
+        { env: Object.assign(process.env, { PATH: envpath }) })
     } catch (err) {
       throw new Error(`
 Cargo command is not found:
@@ -93,13 +100,7 @@ Visit https://www.rustup.rs/ for installation details.
       await promiseGlob(path.join(dir, 'crates/*/Cargo.toml'))
     const cargoDirs = cargoFiles.map((toml) => path.dirname(toml))
     for (const cdir of cargoDirs) {
-      const sep = (process.platform === 'win32')
-        ? ';'
-        : ':'
-      const rustdir = path.join(os.homedir(), '.cargo', 'bin')
       const flags = `${process.env.RUSTFLAGS || ''} ${this.rustflags}`
-      const envpath =
-        `${process.env.PATH || ''}${sep}${this.rustpath || rustdir}`
       const proc = execa.shell(
         'cargo build -v --release', {
           cwd: cdir,
