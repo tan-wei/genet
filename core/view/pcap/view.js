@@ -1,8 +1,9 @@
 import { HSplitter, VSplitter } from '../../lib/splitter'
 import Dialog from '../../lib/dialog'
+import ExportDialog from './export-dialog'
 import FrameListView from './frame-list-view'
 import PcapDetailView from './detail'
-import PcapDialog from './dialog'
+import PcapDialog from './pcap-dialog'
 import PcapToolView from './tool'
 import m from 'mithril'
 import path from 'path'
@@ -141,11 +142,15 @@ class SideView {
     }
     const filterInput = document.querySelector('input[name=display-filter]')
     deplug.action.global.on('core:file:export', () => {
-      const file = dialog.showSaveDialog(
-        { filters: deplug.session.fileExtensions.exporter })
-      if (typeof file !== 'undefined') {
-        this.sess.exportFile(file, this.displayFilter)
-      }
+      const exportDialog = new Dialog(ExportDialog,
+        { displayFilter: this.displayFilter })
+      exportDialog.show({ cancelable: true }).then(async (filter) => {
+        const file = dialog.showSaveDialog(
+          { filters: deplug.session.fileExtensions.exporter })
+        if (typeof file !== 'undefined') {
+          this.sess.exportFile(file, filter)
+        }
+      })
     })
     deplug.action.global.on('core:pcap:focus-display-filter', () => {
       document.querySelector('input[name=display-filter]').focus()

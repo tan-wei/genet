@@ -1,8 +1,9 @@
 import m from 'mithril'
 
 export default class Dialog {
-  constructor (view) {
+  constructor (view, attrs = {}) {
     this.view = view
+    this.attrs = attrs
   }
   async show (options = {}) {
     const opt = Object.assign({
@@ -10,6 +11,9 @@ export default class Dialog {
       height: 320,
       cancelable: true,
     }, options)
+    if (document.querySelector('div.dialog-base') !== null) {
+      throw new Error('another dialog is showing')
+    }
 
     const base = document.createElement('div')
     base.className = 'dialog-base'
@@ -30,7 +34,6 @@ export default class Dialog {
         if (event.target === base) {
           if (opt.cancelable) {
             close()
-            res(null)
           }
         }
       })
@@ -39,7 +42,7 @@ export default class Dialog {
         view: () => m('div', {
           style: { width: `${opt.width}px` },
           class: 'dialog',
-        }, [m(this.view, { callback })]),
+        }, [m(this.view, Object.assign(this.attrs, { callback }))]),
       })
     })
   }
