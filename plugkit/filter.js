@@ -67,6 +67,25 @@ function symbolName (base) {
   return `__$${base.replace(/[^0-9a-zA-Z]/g, '_')}_${counter}`
 }
 
+function processArrays (ast, globals) {
+  return estraverse.replace(ast, {
+    enter: (node) => {
+      if (node.type === 'ArrayExpression') {
+        if (node.elements.every((elem) =>
+          elem.type === 'Literal' && typeof elem.value === 'number')) {
+          const sym = symbolName('array')
+          const literal = node.elements.map((elem) => elem.value).join(',')
+          globals.push(`const ${sym} = [${literal}];`)
+          return {
+            'type': 'Identifier',
+            'name': sym,
+          }
+        }
+      }
+    },
+  })
+}
+
 function processIdentifiers (tokens, attrs, globals) {
   function resolve (identifiers, resolvedTokens) {
     resolvedTokens.push(
@@ -186,7 +205,8 @@ class Filter {
     const globals = []
     const tokens = processIdentifiers(esprima.tokenize(str), attrs, globals)
     const tree = esprima.parse(tokens.map((token) => token.value).join(' '))
-    const ast = makeValue(processOperators(tree.body[0].expression))
+    const ast = makeValue(
+      processArrays(processOperators(tree.body[0].expression), globals))
     return {
       expression: escodegen.generate(ast),
       globals,
