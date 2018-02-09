@@ -106,7 +106,7 @@ function operator(opcode, lhs, ...args) {
           if (leftValue.done || rightValue.done) return true
         }
       default:
-        return false
+        ;
     }
   }
 
