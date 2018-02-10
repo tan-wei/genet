@@ -15,13 +15,21 @@ function resolver(root) {
     for (const id of args) {
       if (typeof result !== 'object') return undefined
       if (id in result) {
-        result = result[id]
+        if (typeof result[id] === 'function') {
+          result = result[id].bind(result)
+        } else {
+          result = result[id]
+        }
         continue
       }
       const val = value(result)
       if (typeof val !== 'object') return undefined
       if (id in val) {
-        result = val[id]
+        if (typeof val[id] === 'function') {
+          result = val[id].bind(val)
+        } else {
+          result = val[id]
+        }
         continue
       }
       return undefined
