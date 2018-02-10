@@ -16,10 +16,10 @@ use plugkit::attr::ResultValue;
 
 fn get_protocol(val: u32) -> Option<(Token, Token)> {
     match val {
-        0x01 => Some((token!("[icmp]"), token!("ipv6.protocol.icmp"))),
         0x02 => Some((token!("[igmp]"), token!("ipv6.protocol.igmp"))),
         0x06 => Some((token!("[tcp]"), token!("ipv6.protocol.tcp"))),
         0x11 => Some((token!("[udp]"), token!("ipv6.protocol.udp"))),
+        0x3a => Some((token!("[icmp]"), token!("ipv6.protocol.icmp"))),
         _ => None,
     }
 }
