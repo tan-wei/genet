@@ -18,7 +18,9 @@ fn eth_type(val: u32) -> Option<(Token, Token)> {
     match val {
         0x0800 => Some((token!("[ipv4]"), token!("eth.type.ipv4"))),
         0x0806 => Some((token!("[arp]"), token!("eth.type.arp"))),
+        0x0842 => Some((token!("[wol]"), token!("eth.type.wol"))),
         0x86DD => Some((token!("[ipv6]"), token!("eth.type.ipv6"))),
+        0x888E => Some((token!("[eap]"), token!("eth.type.eap"))),
         _ => None,
     }
 }
