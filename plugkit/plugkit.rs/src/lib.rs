@@ -2,12 +2,9 @@ extern crate libc;
 
 #[macro_use]
 pub mod api;
-
-#[macro_use]
 pub mod symbol;
-
-#[macro_use]
 pub mod token;
+pub mod logger;
 
 pub mod error;
 pub mod variant;

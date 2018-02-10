@@ -1,4 +1,5 @@
 #include "logger.hpp"
+#include "context.hpp"
 #include <iomanip>
 #include <mutex>
 #include <nan.h>
@@ -76,4 +77,17 @@ Logger::MessagePtr Logger::fromV8Message(v8::Local<v8::Message> msg,
   logmsg->endColumn = msg->GetEndColumn(context).FromMaybe(0);
   return logmsg;
 }
+
+void Logger_log(Context *ctx, const char *msg, const Logger::Metadata *meta) {
+  if (auto logger = ctx->logger) {
+    Logger::MessagePtr logmsg(new Logger::Message());
+    logmsg->message = msg;
+    logmsg->level = meta->level;
+    logmsg->resourceName = meta->file;
+    logmsg->lineNumber = meta->line;
+    logmsg->startColumn = meta->column;
+    logger->log(std::move(logmsg));
+  }
+}
+
 } // namespace plugkit

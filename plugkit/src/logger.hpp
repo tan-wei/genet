@@ -10,9 +10,23 @@
 
 namespace plugkit {
 
+struct Context;
+
 class Logger {
 public:
-  enum Level { LEVEL_DEBUG, LEVEL_INFO, LEVEL_WARN, LEVEL_ERROR };
+  enum Level {
+    LEVEL_DEBUG = 0,
+    LEVEL_INFO = 1,
+    LEVEL_WARN = 2,
+    LEVEL_ERROR = 3
+  };
+
+  struct Metadata {
+    Level level;
+    const char *file;
+    uint32_t line;
+    uint32_t column;
+  };
 
   struct Message final {
     Level level = LEVEL_INFO;
@@ -56,6 +70,13 @@ public:
   class Private;
 };
 using LoggerPtr = std::shared_ptr<Logger>;
+
+extern "C" {
+
+/// Return the ID of the layer.
+void Logger_log(Context *ctx, const char *msg, const Logger::Metadata *meta);
+}
+
 } // namespace plugkit
 
 #endif

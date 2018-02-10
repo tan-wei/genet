@@ -11,6 +11,7 @@ use super::error::Error;
 use super::attr::Attr;
 use super::context::Context;
 use super::token::Token;
+use super::logger::Metadata;
 
 macro_rules! def_func {
     ( $( $x:ident, $y:ty ); *; ) => {
@@ -58,6 +59,7 @@ def_func!(
     Payload_addSlice,      extern "C" fn(*mut Payload, (*const u8, *const u8));
     Payload_slices,        extern "C" fn(*const Payload, *mut libc::size_t) -> *const (*const u8, *const u8);
     Payload_addAttr,       extern "C" fn(*mut Payload, *mut Context, Token) -> *mut Attr;
+    Logger_log,            extern "C" fn(*mut Context, *const libc::c_char, *const Metadata);
 );
 
 #[macro_export]

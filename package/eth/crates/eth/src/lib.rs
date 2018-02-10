@@ -41,6 +41,8 @@ impl Worker for ETHWorker {
             (slice, payload.range())
         };
 
+        debug!(ctx, "hello");
+
         let mut rdr = Cursor::new(slice);
 
         let child = &mut layer.add_layer(ctx, token!("eth"));
