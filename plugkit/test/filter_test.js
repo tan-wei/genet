@@ -5,13 +5,7 @@ function execute (filter) {
   return compiler.build(compiler.link(compiler.compile(filter)))()
 }
 describe('FilterCompiler', () => {
-  describe('#compile', () => {
-    it('should return empty string for empty input', () => {
-      const compiler = new FilterCompiler()
-      assert.strictEqual('', compiler.compile(''))
-    })
-  })
-  describe('#compileFunction', () => {
+  describe('#build', () => {
     it('should return a filter function', () => {
       assert.strictEqual(true, execute(''))
       assert.strictEqual(false, execute('false'))
