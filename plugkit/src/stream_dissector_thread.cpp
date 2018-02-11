@@ -64,7 +64,7 @@ void StreamDissectorThread::pushStreamDissector(const Dissector &diss) {
 
 void StreamDissectorThread::enter() {
   d->ctx.logger = logger;
-  
+
   for (auto &diss : d->dissectors) {
     if (diss.initialize) {
       diss.initialize(&d->ctx, &diss);

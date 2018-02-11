@@ -68,7 +68,7 @@ void DissectorThread::pushDissector(const Dissector &diss) {
 
 void DissectorThread::enter() {
   d->ctx.logger = logger;
-  
+
   for (auto &diss : d->dissectors) {
     if (diss.initialize) {
       diss.initialize(&d->ctx, &diss);

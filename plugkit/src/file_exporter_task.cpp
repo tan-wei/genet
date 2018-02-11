@@ -119,6 +119,7 @@ public:
     data.filter = filter.get();
     ctx.options = options;
     ctx.data = &data;
+    ctx.logger = logger;
 
     for (const FileExporter &exporter : data.exporters) {
       if (!exporter.func)

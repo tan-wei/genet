@@ -13,6 +13,9 @@ namespace plugkit {
 class Frame;
 struct FileImporter;
 
+class Logger;
+using LoggerPtr = std::shared_ptr<Logger>;
+
 class RootAllocator;
 
 class FileImporterTask final : public Task {
@@ -24,6 +27,7 @@ public:
   ~FileImporterTask();
   void run(int id) override;
   void setOptions(const VariantMap &options);
+  void setLogger(const LoggerPtr &logger);
   void setCallback(const Callback &callback);
   void setAllocator(RootAllocator *allocator);
   void registerLinkLayer(int link, Token token);

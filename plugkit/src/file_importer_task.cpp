@@ -66,6 +66,7 @@ class FileImporterTask::Private {
 public:
   std::string file;
   VariantMap options;
+  LoggerPtr logger = std::make_shared<StreamLogger>();
   Callback callback;
   std::unordered_map<int, Token> linkLayers;
   std::vector<FileImporter> importers;
@@ -81,6 +82,10 @@ FileImporterTask::~FileImporterTask() {}
 
 void FileImporterTask::setOptions(const VariantMap &options) {
   d->options = options;
+}
+
+void FileImporterTask::setLogger(const LoggerPtr &logger) {
+  d->logger = logger;
 }
 
 void FileImporterTask::setAllocator(RootAllocator *allocator) {
@@ -105,6 +110,7 @@ void FileImporterTask::run(int id) {
   data.callback = d->callback;
   data.linkLayers = d->linkLayers;
   data.frames.resize(10240);
+  ctx.logger = d->logger;
   ctx.options = d->options;
   ctx.rootAllocator = d->allocator;
   ctx.data = &data;
