@@ -16,7 +16,7 @@ header {
     border-bottom: 1px solid @theme-selection-bg;
   }
 
-  div.candidate {
+  div.suggest {
     position: relative;
     top: 0;
     left: 0;
@@ -24,6 +24,21 @@ header {
     z-index: 1;
     background-color: @theme-default-bg;
     box-shadow: 0 0 5px 5px rgba(0,0,0,0.1);
+
+    ul {
+      margin: 0;
+      padding: 4px 0;
+      list-style: none;
+
+      li {
+        padding: 4px 8px;
+        cursor: default;
+      }
+
+      span.description {
+        opacity: 0.7;
+      }
+    }
   }
 
   span {

@@ -1,5 +1,6 @@
 import Dialog from '../../lib/dialog'
 import ExportDialog from './export-dialog'
+import FilterSuggest from './filter-suggest'
 import FrameListView from './frame-list-view'
 import PcapDialog from './pcap-dialog'
 import m from 'mithril'
@@ -13,6 +14,8 @@ export default class TopView {
     this.filtered = null
     this.scrollLock = false
     this.displayFilter = ''
+    this.suggestEnabled = false
+    this.suggestHint = ''
   }
 
   searchKeyPress (event) {
@@ -39,9 +42,21 @@ export default class TopView {
           onkeydown: (event) => {
             this.searchKeyPress(event)
           },
+          onkeyup: (event) => {
+            this.suggestHint = event.target.value
+          },
+          onfocus: () => {
+            this.suggestEnabled = true
+          },
+          onblur: () => {
+            this.suggestEnabled = false
+          },
           name: 'display-filter',
         }),
-        m('div', { class: 'candidate' }),
+        m(FilterSuggest, {
+          enabled: this.suggestEnabled,
+          hint: this.suggestHint,
+        }),
         m('span', {
           class: 'button',
           'data-balloon': `Capture ${this.capture

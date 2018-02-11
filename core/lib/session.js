@@ -23,6 +23,10 @@ export default class Session {
     }
   }
 
+  get tokens () {
+    return this[fields].tokens
+  }
+
   registerTokens (tokens) {
     for (const [id, data] of Object.entries(tokens)) {
       this[fields].tokens.set(id, data)
