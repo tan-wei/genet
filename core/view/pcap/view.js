@@ -9,7 +9,7 @@ import m from 'mithril'
 import path from 'path'
 import { remote } from 'electron'
 const { dialog } = remote
-class SideView {
+class BottomView {
   constructor () {
     this.sess = null
     this.capture = false
@@ -189,12 +189,12 @@ class SideView {
 class MainView {
   view () {
     return m('main', [
-      m(HSplitter, {
-        top: PcapDetailView,
-        bottom: PcapToolView,
+      m(VSplitter, {
+        right: PcapDetailView,
+        left: PcapToolView,
         parent: this,
-        height: 280,
-        workspace: '_.pcapToolHeight',
+        width: 350,
+        workspace: '_.pcapToolWidth',
       })
     ])
   }
@@ -203,12 +203,12 @@ class MainView {
 export default class PcapView {
   view () {
     return [
-      m(VSplitter, {
-        left: SideView,
-        right: MainView,
+      m(HSplitter, {
+        top: BottomView,
+        bottom: MainView,
         parent: this,
-        width: 400,
-        workspace: '_.pcapSideWidth',
+        height: 300,
+        workspace: '_.pcapBottomHeight',
       }),
       m('div', { class: 'notification' })
     ]
