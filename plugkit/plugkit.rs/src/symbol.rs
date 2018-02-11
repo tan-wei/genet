@@ -1,3 +1,5 @@
+//! C API Symbols
+
 #![allow(non_upper_case_globals)]
 
 extern crate libc;
@@ -62,6 +64,7 @@ def_func!(
     Logger_log,            extern "C" fn(*mut Context, *const libc::c_char, *const Metadata);
 );
 
+/// Define module entry point
 #[macro_export]
 macro_rules! plugkit_module(
     ($body:expr) => (

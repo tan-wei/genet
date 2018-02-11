@@ -1,3 +1,5 @@
+//! Worker Traits
+
 use std::io;
 use super::layer::Layer;
 use super::context::Context;

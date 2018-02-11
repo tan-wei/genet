@@ -1,3 +1,5 @@
+//! Error
+
 use super::token::Token;
 
 #[repr(C)]

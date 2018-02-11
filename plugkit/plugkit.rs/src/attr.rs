@@ -1,3 +1,5 @@
+//! Attribute
+
 extern crate libc;
 
 use super::token::Token;

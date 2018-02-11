@@ -1,3 +1,5 @@
+//! File I/O
+
 extern crate libc;
 
 use std::mem;

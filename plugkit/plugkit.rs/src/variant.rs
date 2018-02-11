@@ -1,3 +1,5 @@
+//! Variant
+
 use std::fmt;
 use std::mem;
 use std::string::String;

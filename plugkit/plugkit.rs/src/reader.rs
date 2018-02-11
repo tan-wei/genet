@@ -1,3 +1,5 @@
+//! Reader
+
 extern crate byteorder;
 
 use std::mem;

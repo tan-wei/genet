@@ -1,3 +1,6 @@
+//! API Entry Points
+
+/// Define file importer
 #[macro_export]
 macro_rules! plugkit_api_file_import {
     ( $x:ident ) => {
@@ -33,6 +36,7 @@ macro_rules! plugkit_api_file_import {
     };
 }
 
+/// Define file exporter
 #[macro_export]
 macro_rules! plugkit_api_file_export {
     ( $x:ident ) => {
@@ -67,6 +71,7 @@ macro_rules! plugkit_api_file_export {
     };
 }
 
+/// Define layer hints
 #[macro_export]
 macro_rules! plugkit_api_layer_hints {
     ( $( $x:expr ), * ) => {
@@ -82,6 +87,7 @@ macro_rules! plugkit_api_layer_hints {
     };
 }
 
+/// Define worker
 #[macro_export]
 macro_rules! plugkit_api_worker {
     ( $x: ty, $y:expr ) => {

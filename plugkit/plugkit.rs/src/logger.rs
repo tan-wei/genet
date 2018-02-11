@@ -1,3 +1,5 @@
+//! Logger
+
 use super::symbol;
 use super::context::Context;
 use std::ffi::CString;
@@ -30,6 +32,7 @@ pub fn write_log(ctx: &mut Context, msg: String, level: Level, file: &'static st
     }
 }
 
+/// Write debug-level log
 #[macro_export]
 macro_rules! debug {
     ($ctx:ident, $fmt:expr) =>
@@ -40,6 +43,7 @@ macro_rules! debug {
         file!(), line!(), column!()));
 }
 
+/// Write info-level log
 #[macro_export]
 macro_rules! info {
     ($ctx:ident, $fmt:expr) =>
@@ -50,6 +54,7 @@ macro_rules! info {
         file!(), line!(), column!()));
 }
 
+/// Write warn-level log
 #[macro_export]
 macro_rules! warn {
     ($ctx:ident, $fmt:expr) =>
@@ -60,6 +65,7 @@ macro_rules! warn {
         file!(), line!(), column!()));
 }
 
+/// Write error-level log
 #[macro_export]
 macro_rules! error {
     ($ctx:ident, $fmt:expr) =>

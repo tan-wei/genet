@@ -1,3 +1,5 @@
+//! Token
+
 use super::symbol;
 use std::str;
 use std::ffi::CStr;
@@ -19,6 +21,16 @@ pub fn join(prefix: Token, token: Token) -> Token {
     unsafe { symbol::Token_join.unwrap()(prefix, token) }
 }
 
+/// Return a token corresponded with the given string.
+///
+/// # Examples
+///
+/// ```
+/// #[macro_use]
+/// use plugkit::token;
+///
+/// let tk = token!("tcp");
+/// ```
 #[macro_export]
 macro_rules! token {
     ($name:expr) => {{

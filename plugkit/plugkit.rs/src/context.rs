@@ -1,3 +1,5 @@
+//! Context
+
 use super::variant::Variant;
 use super::symbol;
 use std::ffi::CString;
