@@ -23,11 +23,9 @@ class FrameView {
     }, [
       m('div', { class: 'header' }, [
         m('span', [deplug.session.token(id).name]),
+        m(renderer, { layer: this.frame.primaryLayer }),
         m('span', { class: 'right' },
           [`${this.frame.query('_.actualLength').value} bytes`])
-      ]),
-      m('div', { class: 'content' }, [
-        m(renderer, { layer: this.frame.primaryLayer })
       ])
     ])
   }
@@ -35,7 +33,7 @@ class FrameView {
 
 export default class FrameListView {
   constructor () {
-    this.itemHeight = 60
+    this.itemHeight = 30
     this.height = 0
     this.scrollTop = 0
     this.prevFrames = 0
