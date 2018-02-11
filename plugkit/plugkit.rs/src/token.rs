@@ -35,7 +35,7 @@ pub fn join(prefix: Token, token: Token) -> Token {
 macro_rules! token {
     ($name:expr) => {{
         thread_local! (
-            static TOKEN: plugkit::token::Token = plugkit::token::get($name);
+            static TOKEN: plugkit::token::Token = plugkit::token::get($name as &'static str);
         );
         TOKEN.with(|&t| t)
     }}
