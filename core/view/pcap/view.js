@@ -189,7 +189,7 @@ class BottomView {
 class MainView {
   view () {
     return m('main', [
-      m(VSplitter, {
+      m(HSplitter, {
         right: PcapDetailView,
         left: PcapToolView,
         parent: this,
@@ -203,7 +203,7 @@ class MainView {
 export default class PcapView {
   view () {
     return [
-      m(HSplitter, {
+      m(VSplitter, {
         top: BottomView,
         bottom: MainView,
         parent: this,

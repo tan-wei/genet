@@ -1,7 +1,7 @@
 import m from 'mithril'
 
 const fields = Symbol('fields')
-export class VSplitter {
+export class HSplitter {
   constructor () {
     this[fields] = {
       width: 320,
@@ -78,7 +78,7 @@ export class VSplitter {
   }
 }
 
-export class HSplitter {
+export class VSplitter {
   constructor () {
     this[fields] = {
       height: 320,

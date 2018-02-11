@@ -1,7 +1,7 @@
 import { remote, ipcRenderer, shell } from 'electron'
+import { HSplitter } from '../../lib/splitter'
 import Menu from './menu'
 import Stack from './stack'
-import { VSplitter } from '../../lib/splitter'
 import env from '../../lib/env'
 import fs from 'fs'
 import m from 'mithril'
@@ -137,7 +137,7 @@ export default class WindowView {
 
   view () {
     return [
-      m(VSplitter, {
+      m(HSplitter, {
         left: Menu,
         right: Stack,
         parent: this,
