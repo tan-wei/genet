@@ -21,9 +21,11 @@ export default class TopView {
   searchKeyPress (event) {
     switch (event.code) {
       case 'Enter':
+        this.suggestEnabled = false
         deplug.action.emit('core:filter:set', event.target.value.trim())
         break
       default:
+        this.suggestEnabled = true
     }
   }
 
