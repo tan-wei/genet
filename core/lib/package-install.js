@@ -20,10 +20,7 @@ const fields = Symbol('fields')
 export default class PackageInstaller extends EventEmitter {
   constructor () {
     super()
-    this[fields] = {
-      rustpath: '',
-      rustflags: '',
-    }
+    this[fields] = { rustpath: '' }
   }
 
   get rustpath () {
@@ -32,14 +29,6 @@ export default class PackageInstaller extends EventEmitter {
 
   set rustpath (rpath) {
     this[fields].rustpath = rpath
-  }
-
-  get rustflags () {
-    return this[fields].rustflags
-  }
-
-  set rustflags (flags) {
-    this[fields].rustflags = flags
   }
 
   async install (dir, url) {
@@ -100,7 +89,7 @@ Visit https://www.rustup.rs/ for installation details.
       await promiseGlob(path.join(dir, 'crates/*/Cargo.toml'))
     const cargoDirs = cargoFiles.map((toml) => path.dirname(toml))
     for (const cdir of cargoDirs) {
-      const flags = `${process.env.RUSTFLAGS || ''} ${this.rustflags}`
+      const flags = process.env.RUSTFLAGS || '-C target-cpu=native'
       const proc = execa.shell(
         'cargo build -v --release', {
           cwd: cdir,

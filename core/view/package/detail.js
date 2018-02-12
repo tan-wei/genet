@@ -9,7 +9,6 @@ async function install (pkg) {
   const shortName = pkg.data.name.replace(/@\w+\//, '')
   const installer = new Installer()
   installer.rustpath = deplug.config.get('_.package.rustpath', '')
-  installer.rustflags = deplug.config.get('_.package.rustflags', '')
   installer.on('output', (chunk) => {
     if (installerCallback !== null) {
       installerCallback(chunk)
