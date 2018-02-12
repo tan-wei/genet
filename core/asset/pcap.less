@@ -33,6 +33,11 @@ header {
       li {
         padding: 4px 8px;
         cursor: default;
+
+        &[active] {
+          color: @theme-default-bg;
+          background-color: @theme-default-fg;
+        }
       }
 
       span.description {

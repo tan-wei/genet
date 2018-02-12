@@ -16,15 +16,24 @@ export default class TopView {
     this.filtered = null
     this.scrollLock = false
     this.displayFilter = ''
+    this.suggestMaxCount = 6
     this.suggestEnabled = false
     this.suggestHint = ''
+    this.suggestIndex = -1
   }
 
   searchKeyPress (event) {
     switch (event.code) {
       case 'Enter':
+        this.suggestIndex = -1
         this.suggestEnabled = false
         deplug.action.emit('core:filter:set', event.target.value.trim())
+        break
+      case 'ArrowDown':
+        deplug.action.emit('core:filter:suggest:next')
+        break
+      case 'ArrowUp':
+        deplug.action.emit('core:filter:suggest:prev')
         break
       default:
         this.suggestEnabled = true
@@ -122,6 +131,10 @@ export default class TopView {
       })
     }
     const filterInput = document.querySelector('input[name=display-filter]')
+    deplug.action.on('core:filter:suggest:hint-selected', (hint) => {
+      filterInput.value = hint
+      filterInput.selectionStart = filterInput.value.length
+    })
     deplug.action.global.on('core:file:export', () => {
       const exportDialog = new Dialog(ExportDialog,
         { displayFilter: this.displayFilter })

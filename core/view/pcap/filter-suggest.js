@@ -6,6 +6,8 @@ export default class FilterSuggest {
   constructor () {
     this.items = []
     this.hint = ''
+    this.index = -1
+    this.locked = 0
     this.update = debounce(() => {
       const source = Array.from(deplug.session.tokens.entries())
         .map(([id, item]) => ({
@@ -21,9 +23,50 @@ export default class FilterSuggest {
       m.redraw()
     }, 200)
   }
+
+  oncreate () {
+    deplug.action.on('core:filter:suggest:next', () => {
+      this.locked = 1
+      if (this.index < 0) {
+        this.locked += 1
+      }
+      if (this.items.length > 0) {
+        this.index = (this.index + 1) % this.items.length
+        this.updateCursor()
+      }
+    })
+    deplug.action.on('core:filter:suggest:prev', () => {
+      if (this.items.length > 0) {
+        this.locked = 1
+        if (this.index < 0) {
+          this.index = this.items.length
+          this.locked += 1
+        }
+        this.index = (this.items.length + this.index - 1) % this.items.length
+        this.updateCursor()
+      }
+    })
+  }
+
+  updateCursor () {
+    this.locked = 2
+    this.hint = this.items[this.index].id
+    deplug.action.emit('core:filter:suggest:hint-selected', this.hint)
+  }
+
   view (vnode) {
     const { enabled, hint } = vnode.attrs
-    if (this.hint !== hint) {
+    if (this.items.length === 0 ||
+        !this.items.some((item) => item.id === hint)) {
+      if (this.locked > 0) {
+        this.locked -= 1
+      }
+    }
+    if (hint === '') {
+      this.locked = 0
+    }
+    if (this.hint !== hint && this.locked === 0) {
+      this.index = -1
       this.hint = hint
       this.update()
     }
@@ -35,10 +78,11 @@ export default class FilterSuggest {
           : 'none',
       },
     }, [
-      m('ul', this.items.map(({ id, item }) => m('li', [
-        id,
-        m('span', { class: 'description' }, [item.name])
-      ])))
+      m('ul', this.items.map(({ id, item }, index) => m('li',
+        { active: index === this.index }, [
+          id,
+          m('span', { class: 'description' }, [item.name])
+        ])))
     ])
   }
 }
