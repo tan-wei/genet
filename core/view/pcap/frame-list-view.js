@@ -17,7 +17,7 @@ class FrameView {
       class: 'frame',
       style: vnode.attrs.style,
       'data-layer': this.frame.primaryLayer.tags.join(' '),
-      onclick: () => {
+      onmousedown: () => {
         deplug.action.emit('core:frame:selected', [this.frame])
       },
     }, [
