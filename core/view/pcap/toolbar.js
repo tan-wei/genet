@@ -3,7 +3,7 @@ import m from 'mithril'
 export default class ToolBar {
   view (vnode) {
     const { counter, capture, sess } = vnode.attrs
-    return m('div', [
+    return m('div', { class: 'toolbar' }, [
       m('span', {
         class: 'button',
         'data-balloon': `Capture ${capture

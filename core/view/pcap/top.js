@@ -1,6 +1,7 @@
 import Dialog from '../../lib/dialog'
 import ExportDialog from './export-dialog'
 import FilterSuggest from './filter-suggest'
+import FrameHeader from './frame-header'
 import FrameListView from './frame-list-view'
 import PcapDialog from './pcap-dialog'
 import ToolBar from './toolbar'
@@ -64,7 +65,8 @@ export default class TopView {
           counter,
           capture: this.capture,
           sess: this.sess,
-        })
+        }),
+        m(FrameHeader, {})
       ]),
       this.sess
         ? m(FrameListView, {
