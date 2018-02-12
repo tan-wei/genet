@@ -12,6 +12,10 @@ export default class FilterSuggest {
           id,
           item,
         }))
+        .concat(deplug.workspace.get('_.filter.history', []).map((history) => ({
+          id: history,
+          item: { name: '(history)' },
+        })))
       const fuse = new Fuse(source, { keys: ['id', 'item.name'] })
       this.items = fuse.search(this.hint).slice(0, 6)
       m.redraw()
