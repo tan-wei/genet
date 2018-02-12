@@ -3,6 +3,7 @@ import ExportDialog from './export-dialog'
 import FilterSuggest from './filter-suggest'
 import FrameListView from './frame-list-view'
 import PcapDialog from './pcap-dialog'
+import ToolBar from './toolbar'
 import m from 'mithril'
 import path from 'path'
 import { remote } from 'electron'
@@ -59,48 +60,11 @@ export default class TopView {
           enabled: this.suggestEnabled,
           hint: this.suggestHint,
         }),
-        m('span', {
-          class: 'button',
-          'data-balloon': `Capture ${this.capture
-            ? 'Running'
-            : 'Paused'}`,
-          'data-balloon-pos': 'right',
-          onclick: () => {
-            const { sess } = this
-            if (this.capture) {
-              sess.stopPcap()
-            } else {
-              sess.startPcap()
-            }
-            this.capture = !this.capture
-          },
-        }, [
-          m('i', {
-            class: this.capture
-              ? 'fa fa-play-circle'
-              : 'fa fa-pause-circle',
-          })
-        ]),
-        m('span', {
-          class: 'button',
-          'data-balloon': `Scroll ${this.scrollLock
-            ? 'Locked'
-            : 'Unlocked'}`,
-          'data-balloon-pos': 'right',
-          onclick: () => {
-            this.scrollLock = !this.scrollLock
-          },
-        }, [
-          m('i', {
-            class: this.scrollLock
-              ? 'fa fa-lock'
-              : 'fa fa-unlock-alt',
-          })
-        ]),
-        m('span', {
-          'data-balloon': 'Frame Counter',
-          'data-balloon-pos': 'right',
-        }, [counter])
+        m(ToolBar, {
+          counter,
+          capture: this.capture,
+          sess: this.sess,
+        })
       ]),
       this.sess
         ? m(FrameListView, {
