@@ -29,6 +29,7 @@ header {
       margin: 0;
       padding: 4px 0;
       list-style: none;
+      -webkit-user-select: none;
 
       li {
         padding: 4px 8px;
@@ -37,6 +38,10 @@ header {
         &[active] {
           color: @theme-default-bg;
           background-color: @theme-default-fg;
+        }
+
+        &:hover {
+          background-color: @theme-selection-bg;
         }
       }
 
@@ -47,9 +52,22 @@ header {
   }
 
   div.frame-header {
+    position: absolute;
+    top: 60px;
     height: 24px;
     border-top: 1px solid @theme-selection-bg;
     box-sizing: border-box;
+    overflow: hidden;
+    -webkit-user-select: none;
+
+    > .handle {
+      width: 5px;
+      height: 100%;
+      top: 0;
+      position: absolute;
+      transform: translateX(-2px);
+      cursor: ew-resize;
+    }
 
     span {
       padding: 0 10px;

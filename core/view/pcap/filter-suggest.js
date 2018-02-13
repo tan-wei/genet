@@ -10,6 +10,7 @@ export default class FilterSuggest {
     this.locked = 0
     this.update = debounce(() => {
       const source = Array.from(deplug.session.tokens.entries())
+        .filter(([id]) => (/^[^!@[]/).test(id))
         .map(([id, item]) => ({
           id,
           item,
@@ -48,10 +49,10 @@ export default class FilterSuggest {
     })
   }
 
-  updateCursor () {
+  updateCursor (enter = false) {
     this.locked = 2
     this.hint = this.items[this.index].id
-    deplug.action.emit('core:filter:suggest:hint-selected', this.hint)
+    deplug.action.emit('core:filter:suggest:hint-selected', this.hint, enter)
   }
 
   view (vnode) {
@@ -79,7 +80,14 @@ export default class FilterSuggest {
       },
     }, [
       m('ul', this.items.map(({ id, item }, index) => m('li',
-        { active: index === this.index }, [
+        {
+          active: index === this.index,
+          onmousedown: (event) => {
+            this.index = index
+            this.updateCursor(true)
+            event.preventDefault()
+          },
+        }, [
           id,
           m('span', { class: 'description' }, [item.name])
         ])))

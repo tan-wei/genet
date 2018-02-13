@@ -30,10 +30,15 @@ export default class TopView {
         deplug.action.emit('core:filter:set', event.target.value.trim())
         break
       case 'ArrowDown':
-        deplug.action.emit('core:filter:suggest:next')
+        if (this.suggestEnabled) {
+          deplug.action.emit('core:filter:suggest:next')
+        }
         break
       case 'ArrowUp':
-        deplug.action.emit('core:filter:suggest:prev')
+        if (this.suggestEnabled) {
+          event.preventDefault()
+          deplug.action.emit('core:filter:suggest:prev')
+        }
         break
       default:
         this.suggestEnabled = true
@@ -131,9 +136,14 @@ export default class TopView {
       })
     }
     const filterInput = document.querySelector('input[name=display-filter]')
-    deplug.action.on('core:filter:suggest:hint-selected', (hint) => {
+    deplug.action.on('core:filter:suggest:hint-selected', (hint, enter) => {
       filterInput.value = hint
       filterInput.selectionStart = filterInput.value.length
+      if (enter) {
+        this.suggestIndex = -1
+        this.suggestEnabled = false
+        deplug.action.emit('core:filter:set', hint.trim())
+      }
     })
     deplug.action.global.on('core:file:export', () => {
       const exportDialog = new Dialog(ExportDialog,
