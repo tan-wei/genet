@@ -12,12 +12,12 @@ namespace plugkit {
 
 namespace {
 
-const auto frameToken = Token_get("_");
-const auto tsToken = Token_get("_.timestamp");
-const auto payloadToken = Token_get("_.payload");
-const auto actLenToken = Token_get("_.actualLength");
-const auto indexToken = Token_get("_.index");
-const auto errorToken = Token_get("_.error");
+const auto frameToken = Token_get("$");
+const auto tsToken = Token_get("$.timestamp");
+const auto payloadToken = Token_get("$.payload");
+const auto actLenToken = Token_get("$.actualLength");
+const auto indexToken = Token_get("$.index");
+const auto errorToken = Token_get("$.error");
 const auto dateToken = Token_get("@date:unix");
 
 bool virtualAttr(Token id,

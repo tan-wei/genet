@@ -44,7 +44,7 @@ function parseRange (exp) {
     if (range[1] === Number.MAX_SAFE_INTEGER) {
       return `(${range[0]} <= index)`
     }
-    return `(${range[0]} <= _.index && _.index <= ${range[1]})`
+    return `(${range[0]} <= $.index && $.index <= ${range[1]})`
   }).join(' || ')
 }
 

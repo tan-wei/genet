@@ -178,11 +178,11 @@ export default class PcapDetailView {
     const frame = this.selectedFrame
 
     const tsString =
-      moment(frame.query('_.timestamp').value)
+      moment(frame.query('$.timestamp').value)
         .format('YYYY-MM-DDTHH:mm:ss.SSSZ')
 
-    const payload = frame.query('_.payload').value
-    const actual = frame.query('_.actualLength').value
+    const payload = frame.query('$.payload').value
+    const actual = frame.query('$.actualLength').value
     let length = `${payload.length}`
     if (actual > payload.length) {
       length += ` (actual: ${actual})`

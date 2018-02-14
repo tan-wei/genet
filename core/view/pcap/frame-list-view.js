@@ -25,7 +25,7 @@ class FrameView {
         m('span', [deplug.session.token(id).name]),
         m(renderer, { layer: this.frame.primaryLayer }),
         m('span', { class: 'right' },
-          [`${this.frame.query('_.actualLength').value} bytes`])
+          [`${this.frame.query('$.actualLength').value} bytes`])
       ])
     ])
   }
