@@ -1,4 +1,6 @@
-//! Layer
+//! Layer values.
+//!
+//! Type Layer represents a layer of a protocol stack.
 
 use super::token::Token;
 use super::attr::Attr;

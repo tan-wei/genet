@@ -1,4 +1,4 @@
-//! Worker Traits
+//! Worker traits.
 
 use std::io;
 use super::layer::Layer;

@@ -1,4 +1,4 @@
-//! C API Symbols
+//! C symbols for FFI.
 
 #![allow(non_upper_case_globals)]
 

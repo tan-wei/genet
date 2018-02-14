@@ -1,4 +1,6 @@
-//! Reader
+//! Byte sequence reader.
+//!
+//! Type Reader provides convenient functions to reading numbers and slices from a byte sequence.
 
 extern crate byteorder;
 

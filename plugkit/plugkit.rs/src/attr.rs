@@ -1,4 +1,6 @@
-//! Attribute
+//! Attribute values.
+//!
+//! Type Attr represents an attribute of a Layer.
 
 extern crate libc;
 

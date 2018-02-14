@@ -1,4 +1,6 @@
-//! Error
+//! Error values.
+//!
+//! Type Error represents an error associated with a Layer.
 
 use super::token::Token;
 

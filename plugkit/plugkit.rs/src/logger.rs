@@ -1,4 +1,4 @@
-//! Logger
+//! Macros for logging.
 
 use super::symbol;
 use super::context::Context;

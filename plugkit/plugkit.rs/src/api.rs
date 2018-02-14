@@ -1,6 +1,5 @@
-//! API Entry Points
+//! Macros for defining plugin functions.
 
-/// Define file importer
 #[macro_export]
 macro_rules! plugkit_api_file_import {
     ( $x:ident ) => {

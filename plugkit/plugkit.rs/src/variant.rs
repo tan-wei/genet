@@ -1,4 +1,17 @@
-//! Variant
+//! Dynamic-typed values.
+//!
+//! Type Variant represents a dynamic-typed value.
+//! Variant can contain one of these types:
+//!
+//! - Nil
+//! - Bool - [`bool`](https://doc.rust-lang.org/std/primitive.bool.html)
+//! - Int64 - [`i64`](https://doc.rust-lang.org/std/primitive.i64.html)
+//! - Uint64 - [`u64`](https://doc.rust-lang.org/std/primitive.u64.html)
+//! - Double - [`f64`](https://doc.rust-lang.org/std/primitive.f64.html)
+//! - String - [`String`](https://doc.rust-lang.org/std/string/struct.String.html)
+//! - Slice - `&'static[u8]`
+//! - Array - An array of `Variant`s.
+//! - Map - A map of key `String`s and `Variant`s
 
 use std::fmt;
 use std::mem;

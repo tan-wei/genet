@@ -1,4 +1,7 @@
-//! Token
+//! Token values.
+//!
+//! Token is a process-wide constant integer value associated with a string,
+//! similar to Symbol in Ruby or Atom in Erlang.
 
 use super::symbol;
 use std::str;

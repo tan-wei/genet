@@ -1,4 +1,6 @@
-//! Context
+//! Theread context.
+//!
+//! Type Context holds data for thread-local features such as allocator and logger.
 
 use super::variant::Variant;
 use super::symbol;

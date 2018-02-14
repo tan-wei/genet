@@ -1,4 +1,6 @@
-//! Payload
+//! Payload values.
+//!
+//! Type Attr represents an attribute of a Payload.
 
 use super::token::Token;
 use super::range::Range;

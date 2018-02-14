@@ -1,4 +1,4 @@
-//! File I/O
+//! File I/O traits.
 
 extern crate libc;
 

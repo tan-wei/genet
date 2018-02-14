@@ -1,4 +1,4 @@
-//! Range
+//! Integral range values.
 
 use std::ops;
 
