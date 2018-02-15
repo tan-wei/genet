@@ -36,6 +36,7 @@ public:
   static NAN_METHOD(addSubLayer);
   static NAN_METHOD(addPayload);
   static NAN_METHOD(addAttr);
+  static NAN_METHOD(addAttrAlias);
   static NAN_METHOD(addError);
   static NAN_METHOD(addTag);
   static NAN_METHOD(toJSON);

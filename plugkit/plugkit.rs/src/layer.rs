@@ -75,6 +75,10 @@ impl Layer {
         unsafe { &mut *symbol::Layer_addAttr.unwrap()(self, ctx, id) }
     }
 
+    pub fn add_attr_alias(&mut self, ctx: &mut Context, alias: Token, target: Token) {
+        unsafe { symbol::Layer_addAttrAlias.unwrap()(self, ctx, alias, target) }
+    }
+
     pub fn add_payload(&mut self, ctx: &mut Context) -> &mut Payload {
         unsafe { &mut *symbol::Layer_addPayload.unwrap()(self, ctx) }
     }

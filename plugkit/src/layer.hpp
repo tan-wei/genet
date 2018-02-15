@@ -123,6 +123,8 @@ Layer *Layer_addSubLayer(Layer *layer, Context *ctx, Token id);
 /// Allocate a new `Attr` and adds it as a layer attribute.
 Attr *Layer_addAttr(Layer *layer, Context *ctx, Token id);
 
+void Layer_addAttrAlias(Layer *layer, Context *ctx, Token alias, Token target);
+
 /// Find the first layer attribute with the given id and returns it.
 ///
 /// If no attribute is found, returns nullptr.

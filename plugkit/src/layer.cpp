@@ -9,6 +9,10 @@
 
 namespace plugkit {
 
+namespace {
+const auto aliasToken = Token_get("--alias");
+}
+
 Layer::Layer(Token id) : mId(id) { setConfidence(LAYER_CONF_EXACT); }
 
 Layer::~Layer() {}
@@ -160,6 +164,13 @@ Attr *Layer_addAttr(Layer *layer, Context *context, Token id) {
   Attr *attr = Context_allocAttr(context, id);
   layer->addAttr(attr);
   return attr;
+}
+
+void Layer_addAttrAlias(Layer *layer, Context *ctx, Token alias, Token target) {
+  Attr *attr = Context_allocAttr(ctx, alias);
+  attr->setType(aliasToken);
+  attr->setValue(target);
+  layer->addAttr(attr);
 }
 
 const Attr *Layer_attr(const Layer *layer, Token id) { return layer->attr(id); }

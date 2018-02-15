@@ -55,6 +55,7 @@ def_func!(
     Layer_addLayer,        extern "C" fn(*mut Layer, *mut Context, Token) -> *mut Layer;
     Layer_addSubLayer,     extern "C" fn(*mut Layer, *mut Context, Token) -> *mut Layer;
     Layer_addAttr,         extern "C" fn(*mut Layer, *mut Context, Token) -> *mut Attr;
+    Layer_addAttrAlias,    extern "C" fn(*mut Layer, *mut Context, Token, Token);
     Layer_addPayload,      extern "C" fn(*mut Layer, *mut Context) -> *mut Payload;
     Layer_addError,        extern "C" fn(*mut Layer, *mut Context, Token) -> *mut Error;
     Layer_addTag,          extern "C" fn(*mut Layer, *mut Context, Token);
