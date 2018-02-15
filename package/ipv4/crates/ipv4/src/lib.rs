@@ -133,7 +133,7 @@ impl Worker for IPv4Worker {
                 attr.set_with_range(&ByteReader::read_u16::<BigEndian>(&mut rdr)?);
             }
             {
-                child.add_attr_alias(ctx, token!("_.src"), token!("eth.src"));
+                child.add_attr_alias(ctx, token!("_.src"), token!("ipv4.src"));
                 let attr = child.add_attr(ctx, token!("ipv4.src"));
                 attr.set_typ(token!("@ipv4:addr"));
                 attr.set_with_range(&ByteReader::read_slice(&mut rdr, 4)?);
