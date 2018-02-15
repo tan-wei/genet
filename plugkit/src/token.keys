@@ -11,6 +11,8 @@
 @eth:mac
 @ipv4:addr
 @ipv6:addr
+@tcp:port
+@udp:port
 @flags
 @enum
 @nested

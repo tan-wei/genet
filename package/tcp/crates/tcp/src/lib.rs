@@ -50,12 +50,14 @@ impl Worker for TCPWorker {
             {
                 child.add_attr_alias(ctx, token!("_.src"), token!("tcp.src"));
                 let attr = child.add_attr(ctx, token!("tcp.src"));
+                attr.set_typ(token!("@tcp:port"));
                 attr.set(&src);
                 attr.set_range(&src_range);
             }
             {
                 child.add_attr_alias(ctx, token!("_.dst"), token!("tcp.dst"));
                 let attr = child.add_attr(ctx, token!("tcp.dst"));
+                attr.set_typ(token!("@tcp:port"));
                 attr.set(&dst);
                 attr.set_range(&dst_range);
             }

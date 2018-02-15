@@ -39,11 +39,13 @@ impl Worker for UDPWorker {
             {
                 child.add_attr_alias(ctx, token!("_.src"), token!("udp.src"));
                 let attr = child.add_attr(ctx, token!("udp.src"));
+                attr.set_typ(token!("@udp:port"));
                 attr.set_with_range(&ByteReader::read_u16::<BigEndian>(&mut rdr)?);
             }
             {
                 child.add_attr_alias(ctx, token!("_.dst"), token!("udp.dst"));
                 let attr = child.add_attr(ctx, token!("udp.dst"));
+                attr.set_typ(token!("@udp:port"));
                 attr.set_with_range(&ByteReader::read_u16::<BigEndian>(&mut rdr)?);
             }
             let (len, len_range) = ByteReader::read_u16::<BigEndian>(&mut rdr)?;
