@@ -9,9 +9,6 @@ function value (val) {
 
 function resolver(root) {
   return function (id, ...args) {
-    if (typeof id === 'string' && id.startsWith('_')) {
-      id = root.primaryLayer.id + id.slice(1)
-    }
     const attr = root.query(id)
     if (attr === null) return undefined
     let result = attr
