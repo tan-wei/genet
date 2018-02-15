@@ -20,10 +20,6 @@ pub fn string(token: Token) -> &'static str {
     }
 }
 
-pub fn join(prefix: Token, token: Token) -> Token {
-    unsafe { symbol::Token_join.unwrap()(prefix, token) }
-}
-
 /// Return a token corresponded with the given string.
 ///
 /// # Examples

@@ -23,9 +23,6 @@ suite
   .add('Token#string [9bbb35e6...]', () => {
     Token.string(longToken)
   })
-  .add('Token#join [eth + 9bbb35e6...]', () => {
-    Token.join(ethToken, '9bbb35e6-cde1-419b-8d7b-ea04c87e7320')
-  })
   .on('cycle', (event) => {
     console.log(String(event.target))
   })

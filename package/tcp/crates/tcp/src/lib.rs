@@ -13,7 +13,6 @@ use plugkit::context::Context;
 use plugkit::worker::Worker;
 use plugkit::variant::Value;
 use plugkit::attr::ResultValue;
-use plugkit::token;
 
 struct TCPWorker {}
 
@@ -33,8 +32,8 @@ impl Worker for TCPWorker {
         };
 
         let (src_addr, dst_addr) = {
-            let src : &[u8] = layer.attr(token::join(layer.id(), token!(".src"))).unwrap().get();
-            let dst : &[u8] = layer.attr(token::join(layer.id(), token!(".dst"))).unwrap().get();
+            let src : &[u8] = layer.attr(token!("_.src")).unwrap().get();
+            let dst : &[u8] = layer.attr(token!("_.dst")).unwrap().get();
             (src, dst)
         };
 

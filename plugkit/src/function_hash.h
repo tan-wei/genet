@@ -42,7 +42,7 @@ struct Functions {
   void *func;
 };
 
-#define TOTAL_KEYWORDS 30
+#define TOTAL_KEYWORDS 29
 #define MIN_WORD_LENGTH 10
 #define MAX_WORD_LENGTH 21
 #define MIN_HASH_VALUE 10
@@ -62,9 +62,9 @@ inline
       50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
       50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
       50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-      50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 15, 5,  50, 25, 50, 50, 50,
-      50, 0,  50, 50, 50, 50, 30, 15, 50, 50, 50, 10, 50, 15, 20, 50, 50, 50,
-      50, 50, 50, 50, 50, 50, 50, 10, 0,  25, 50, 50, 50, 10, 50, 15, 50, 5,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 10, 0,  50, 25, 50, 50, 50,
+      50, 20, 50, 50, 50, 50, 30, 15, 50, 50, 50, 5,  50, 15, 10, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 10, 15, 30, 50, 50, 50, 5,  50, 20, 50, 5,
       50, 50, 10, 50, 50, 50, 5,  0,  0,  50, 50, 50, 50, 0,  50, 50, 50, 50,
       50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
       50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
@@ -115,36 +115,26 @@ static struct Functions wordlist[] = {
     {"Layer_addAttr", reinterpret_cast<void *>(&plugkit::Layer_addAttr)},
 #line 11 "plugkit/src/function.keys"
     {"Layer_addLayer", reinterpret_cast<void *>(&plugkit::Layer_addLayer)},
-#line 37 "plugkit/src/function.keys"
-    {"Token_join", reinterpret_cast<void *>(&plugkit::Token_join)},
+#line 38 "plugkit/src/function.keys"
+    {"Logger_log", reinterpret_cast<void *>(&plugkit::Logger_log)},
 #line 16 "plugkit/src/function.keys"
     {"Layer_addPayload", reinterpret_cast<void *>(&plugkit::Layer_addPayload)},
-#line 12 "plugkit/src/function.keys"
-    {"Layer_addSubLayer",
-     reinterpret_cast<void *>(&plugkit::Layer_addSubLayer)},
+#line 20 "plugkit/src/function.keys"
+    {"Layer_addTag", reinterpret_cast<void *>(&plugkit::Layer_addTag)},
 #line 14 "plugkit/src/function.keys"
     {"Layer_addAttrAlias",
      reinterpret_cast<void *>(&plugkit::Layer_addAttrAlias)},
 #line 18 "plugkit/src/function.keys"
     {"Layer_addError", reinterpret_cast<void *>(&plugkit::Layer_addError)},
-#line 39 "plugkit/src/function.keys"
-    {"Logger_log", reinterpret_cast<void *>(&plugkit::Logger_log)},
-#line 26 "plugkit/src/function.keys"
-    {"Variant_setInt64", reinterpret_cast<void *>(&plugkit::Variant_setInt64)},
-#line 20 "plugkit/src/function.keys"
-    {"Layer_addTag", reinterpret_cast<void *>(&plugkit::Layer_addTag)},
-    {""},
-#line 17 "plugkit/src/function.keys"
-    {"Layer_payloads", reinterpret_cast<void *>(&plugkit::Layer_payloads)},
 #line 25 "plugkit/src/function.keys"
     {"Variant_setBool", reinterpret_cast<void *>(&plugkit::Variant_setBool)},
 #line 21 "plugkit/src/function.keys"
     {"Payload_addSlice", reinterpret_cast<void *>(&plugkit::Payload_addSlice)},
-#line 38 "plugkit/src/function.keys"
+#line 37 "plugkit/src/function.keys"
     {"Token_string", reinterpret_cast<void *>(&plugkit::Token_string)},
     {""},
-#line 36 "plugkit/src/function.keys"
-    {"Token_literal_", reinterpret_cast<void *>(&plugkit::Token_literal_)},
+#line 17 "plugkit/src/function.keys"
+    {"Layer_payloads", reinterpret_cast<void *>(&plugkit::Layer_payloads)},
 #line 23 "plugkit/src/function.keys"
     {"Payload_addAttr", reinterpret_cast<void *>(&plugkit::Payload_addAttr)},
 #line 31 "plugkit/src/function.keys"
@@ -152,11 +142,21 @@ static struct Functions wordlist[] = {
 #line 30 "plugkit/src/function.keys"
     {"Variant_setString",
      reinterpret_cast<void *>(&plugkit::Variant_setString)},
+    {""},
+#line 36 "plugkit/src/function.keys"
+    {"Token_literal_", reinterpret_cast<void *>(&plugkit::Token_literal_)},
+    {""},
+#line 34 "plugkit/src/function.keys"
+    {"Variant_mapValue", reinterpret_cast<void *>(&plugkit::Variant_mapValue)},
+#line 12 "plugkit/src/function.keys"
+    {"Layer_addSubLayer",
+     reinterpret_cast<void *>(&plugkit::Layer_addSubLayer)},
 #line 32 "plugkit/src/function.keys"
     {"Variant_arrayValue",
      reinterpret_cast<void *>(&plugkit::Variant_arrayValue)},
-#line 29 "plugkit/src/function.keys"
-    {"Variant_string", reinterpret_cast<void *>(&plugkit::Variant_string)},
+#line 35 "plugkit/src/function.keys"
+    {"Variant_mapValueRef",
+     reinterpret_cast<void *>(&plugkit::Variant_mapValueRef)},
     {""},
 #line 33 "plugkit/src/function.keys"
     {"Variant_arrayValueRef",
@@ -165,18 +165,17 @@ static struct Functions wordlist[] = {
     {"Variant_setUint64",
      reinterpret_cast<void *>(&plugkit::Variant_setUint64)},
     {""},
-#line 22 "plugkit/src/function.keys"
-    {"Payload_slices", reinterpret_cast<void *>(&plugkit::Payload_slices)},
+#line 29 "plugkit/src/function.keys"
+    {"Variant_string", reinterpret_cast<void *>(&plugkit::Variant_string)},
     {""},
-#line 34 "plugkit/src/function.keys"
-    {"Variant_mapValue", reinterpret_cast<void *>(&plugkit::Variant_mapValue)},
+#line 26 "plugkit/src/function.keys"
+    {"Variant_setInt64", reinterpret_cast<void *>(&plugkit::Variant_setInt64)},
 #line 10 "plugkit/src/function.keys"
     {"Context_getOption",
      reinterpret_cast<void *>(&plugkit::Context_getOption)},
     {""},
-#line 35 "plugkit/src/function.keys"
-    {"Variant_mapValueRef",
-     reinterpret_cast<void *>(&plugkit::Variant_mapValueRef)},
+#line 22 "plugkit/src/function.keys"
+    {"Payload_slices", reinterpret_cast<void *>(&plugkit::Payload_slices)},
     {""},
     {""},
 #line 28 "plugkit/src/function.keys"

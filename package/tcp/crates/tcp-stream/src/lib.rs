@@ -10,7 +10,6 @@ use plugkit::layer::{Layer};
 use plugkit::context::Context;
 use plugkit::worker::Worker;
 use plugkit::variant::Value;
-use plugkit::token;
 
 #[derive(Debug)]
 struct Stream {
@@ -66,19 +65,19 @@ impl Stream {
     }
 }
 
-struct TCPWorker {
+struct TCPStreamWorker {
     map: HashMap<(&'static[u8],&'static[u8],u32,u32), Stream>
 }
 
-impl TCPWorker {
-    fn new() -> TCPWorker {
-        return TCPWorker {
+impl TCPStreamWorker {
+    fn new() -> TCPStreamWorker {
+        return TCPStreamWorker {
             map: HashMap::new()
         }
     }
 }
 
-impl Worker for TCPWorker {
+impl Worker for TCPStreamWorker {
     fn analyze(&mut self, ctx: &mut Context, layer: &mut Layer) -> Result<(), Error> {
         let (slice, _) = {
             let payload = layer
@@ -95,8 +94,8 @@ impl Worker for TCPWorker {
 
         let stream_id = {
             let parent = layer.parent().unwrap();
-            let parent_src : &[u8] = parent.attr(token::join(parent.id(), token!(".src"))).unwrap().get();
-            let parent_dst : &[u8] = parent.attr(token::join(parent.id(), token!(".dst"))).unwrap().get();
+            let parent_src : &[u8] = parent.attr(token!("_.src")).unwrap().get();
+            let parent_dst : &[u8] = parent.attr(token!("_.dst")).unwrap().get();
             let src : u32 = layer.attr(token!("tcp.src")).unwrap().get();
             let dst : u32 = layer.attr(token!("tcp.dst")).unwrap().get();
             (parent_src, parent_dst, src, dst)
@@ -155,4 +154,4 @@ impl Worker for TCPWorker {
 
 plugkit_module!({});
 plugkit_api_layer_hints!(token!("tcp"));
-plugkit_api_worker!(TCPWorker, TCPWorker::new());
+plugkit_api_worker!(TCPStreamWorker, TCPStreamWorker::new());

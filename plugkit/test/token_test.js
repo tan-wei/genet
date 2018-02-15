@@ -27,25 +27,6 @@ describe('Token', () => {
       assert.notEqual(Token.get('ab'), Token.get('ba'))
     })
   })
-  describe('#join()', () => {
-    it('should throw for wrong arguments', () => {
-      assert.throws(() => Token.join(), TypeError)
-      assert.throws(() => Token.join(0), TypeError)
-      assert.throws(() => Token.join('ipv4'), TypeError)
-      assert.throws(() => Token.join(0, 1), TypeError)
-      assert.throws(() => Token.join('ipv4', 1), TypeError)
-    })
-    it('should return a joined token', () => {
-      assert.strictEqual(Token.join(Token.get(), ''), Token.get())
-      assert.strictEqual(Token.join(Token.get('eth'), '.dst'),
-        Token.get('eth.dst'))
-      assert.strictEqual(Token.join(Token.get('eth'), ''),
-        Token.get('eth'))
-      assert.strictEqual(Token.join(Token.get('0f73db21-11f6-'),
-        '4987-81f6-1a8bb5f26704'),
-      Token.get('0f73db21-11f6-4987-81f6-1a8bb5f26704'))
-    })
-  })
   describe('#string()', () => {
     it('should throw for wrong arguments', () => {
       assert.throws(() => Token.string(), TypeError)

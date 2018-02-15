@@ -9,7 +9,6 @@ namespace plugkit {
 typedef uint32_t Token;
 
 Token Token_literal_(const char *str, size_t length);
-Token Token_join(Token prefix, Token token);
 
 constexpr Token Token_null() { return static_cast<Token>(0); }
 

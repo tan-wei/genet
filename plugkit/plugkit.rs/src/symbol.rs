@@ -35,7 +35,6 @@ macro_rules! def_func {
 def_func!(
     Token_literal_,        extern "C" fn(*const libc::c_char, libc::size_t) -> Token;
     Token_string,          extern "C" fn(Token) -> *const libc::c_char;
-    Token_join,            extern "C" fn(Token, Token) -> Token;
     Context_getOption,     extern "C" fn(*const Context, *const libc::c_char) -> *const Variant;
     Variant_setNil,        extern "C" fn(*mut Variant);
     Variant_setBool,       extern "C" fn(*mut Variant, bool);
