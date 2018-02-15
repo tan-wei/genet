@@ -71,10 +71,15 @@ const Frame *Layer::frame() const { return mFrame; }
 
 void Layer::setFrame(const Frame *frame) { mFrame = frame; }
 
-const Attr *Layer::attr(Token id) const {
+const Attr *Layer::attr(Token token) const {
+  Token id = token;
   for (const auto &child : mAttrs) {
     if (child->id() == id) {
-      return child;
+      if (child->type() == aliasToken) {
+        id = child->value().uint64Value();
+      } else {
+        return child;
+      }
     }
   }
   return nullptr;

@@ -98,10 +98,13 @@ function processIdentifiers (tokens, attrs, globals) {
         value: '(',
       }
     )
-    let index = identifiers.findIndex((id, pos) => {
-      const token = identifiers.slice(0, pos + 1).join('.')
-      return !(token in attrs && attrs[token].property !== true)
-    })
+    let index = identifiers.length
+    for (; index > 0; index -= 1) {
+      const token = identifiers.slice(0, index).join('.')
+      if (token in attrs && attrs[token].property !== true) {
+        break
+      }
+    }
     if (index < 0) {
       index = identifiers.length
     }

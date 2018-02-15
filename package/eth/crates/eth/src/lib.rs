@@ -50,11 +50,13 @@ impl Worker for ETHWorker {
 
         (|| -> Result<(), Error> {
             {
+                child.add_attr_alias(ctx, token!("_.src"), token!("eth.src"));
                 let attr = child.add_attr(ctx, token!("eth.src"));
                 attr.set_typ(token!("@eth:mac"));
                 attr.set_with_range(&ByteReader::read_slice(&mut rdr, 6)?);
             }
             {
+                child.add_attr_alias(ctx, token!("_.dst"), token!("eth.dst"));
                 let attr = child.add_attr(ctx, token!("eth.dst"));
                 attr.set_typ(token!("@eth:mac"));
                 attr.set_with_range(&ByteReader::read_slice(&mut rdr, 6)?);

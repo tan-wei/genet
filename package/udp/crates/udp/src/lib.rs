@@ -37,10 +37,12 @@ impl Worker for UDPWorker {
         (|| -> Result<(), Error> {
             let mut rdr = Cursor::new(slice);
             {
+                child.add_attr_alias(ctx, token!("_.src"), token!("udp.src"));
                 let attr = child.add_attr(ctx, token!("udp.src"));
                 attr.set_with_range(&ByteReader::read_u16::<BigEndian>(&mut rdr)?);
             }
             {
+                child.add_attr_alias(ctx, token!("_.dst"), token!("udp.dst"));
                 let attr = child.add_attr(ctx, token!("udp.dst"));
                 attr.set_with_range(&ByteReader::read_u16::<BigEndian>(&mut rdr)?);
             }

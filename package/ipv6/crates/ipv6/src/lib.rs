@@ -87,11 +87,13 @@ impl Worker for IPv6Worker {
             }
 
             {
+                child.add_attr_alias(ctx, token!("_.src"), token!("ipv6.src"));
                 let attr = child.add_attr(ctx, token!("ipv6.src"));
                 attr.set_typ(token!("@ipv6:addr"));
                 attr.set_with_range(&ByteReader::read_slice(&mut rdr, 16)?);
             }
             {
+                child.add_attr_alias(ctx, token!("_.dst"), token!("ipv6.dst"));
                 let attr = child.add_attr(ctx, token!("ipv6.dst"));
                 attr.set_typ(token!("@ipv6:addr"));
                 attr.set_with_range(&ByteReader::read_slice(&mut rdr, 16)?);
