@@ -29,6 +29,8 @@ $.payload
 $.actualLength
 $.index
 $.error
+_.src
+_.dst
 eth
 eth.type
 eth.type.ipv4
