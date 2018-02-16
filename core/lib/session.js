@@ -212,13 +212,11 @@ export default class Session {
           const results = []
           const frames = sess.getFrames(0, asserts.length)
           for (let index = 0; index < frames.length; index += 1) {
-            const assertionResults = asserts[index].map((assert) => {
-              const filter = sess.createFilter(assert)
-              return {
-                filter: assert,
-                match: Boolean(filter.test(frames[index])),
-              }
-            })
+            const assertionResults = asserts[index].map((assert) => ({
+              filter: assert,
+              match: Boolean(sess.filterCompiler
+                .compile(assert).built(frames[index])),
+            }))
             results.push({
               frame: frames[index],
               assert: assertionResults,

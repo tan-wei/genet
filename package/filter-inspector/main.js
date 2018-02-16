@@ -17,9 +17,9 @@ class FilterInspectorView {
     }
     return m('div', { class: 'view' }, [
       m('pre', [
-        this.displayFilter.code.globals.join('\n')
+        this.displayFilter.transpiled.globals.join('\n')
       ]),
-      m('pre', [this.displayFilter.code.expression])
+      m('pre', [this.displayFilter.transpiled.expression])
     ])
   }
 }

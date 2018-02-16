@@ -176,7 +176,7 @@ export default class TopView {
           deplug.workspace.set('_.filter.history', history)
         }
         const filter = value.length > 0
-          ? this.sess.createFilter(value)
+          ? this.sess.filterCompiler.compile(value, { bareResult: true })
           : null
         deplug.action.emit('core:filter:updated', filter)
       } catch (err) {

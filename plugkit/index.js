@@ -52,7 +52,7 @@ class Session extends EventEmitter {
 
   exportFile (file, filter = '') {
     const { filterCompiler } = this[fields]
-    const body = filterCompiler.link(filterCompiler.compile(filter))
+    const body = filterCompiler.compile(filter, { built: false }).linked
     return this[fields].sess.exportFile(file, body)
   }
 
@@ -84,6 +84,10 @@ class Session extends EventEmitter {
     return null
   }
 
+  get filterCompiler () {
+    return this[fields].filterCompiler
+  }
+
   startPcap () {
     return this[fields].sess.startPcap()
   }
@@ -107,18 +111,8 @@ class Session extends EventEmitter {
 
   setDisplayFilter (name, filter) {
     const { filterCompiler } = this[fields]
-    const body = filterCompiler.link(filterCompiler.compile(filter))
+    const body = filterCompiler.compile(filter, { built: false }).linked
     return this[fields].sess.setDisplayFilter(name, body)
-  }
-
-  createFilter (filter) {
-    const { filterCompiler } = this[fields]
-    const code = filterCompiler.compile(filter)
-    return {
-      expression: filter,
-      code,
-      test: filterCompiler.build(filterCompiler.link(code)),
-    }
   }
 }
 

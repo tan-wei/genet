@@ -154,7 +154,7 @@ function processIdentifiers (tokens, attrs, globals) {
   return resolvedTokens
 }
 
-class Filter {
+class FilterCompiler {
   constructor () {
     this[fields] = {
       macros: [],
@@ -187,7 +187,7 @@ class Filter {
     return this[fields].attrs
   }
 
-  compile (filter) {
+  transpile (filter, bareResult = false) {
     const { macros, attrs, macroPrefix } = this[fields]
     if (!filter) {
       return {
@@ -208,8 +208,11 @@ class Filter {
     const globals = []
     const tokens = processIdentifiers(esprima.tokenize(str), attrs, globals)
     const tree = esprima.parse(tokens.map((token) => token.value).join(' '))
-    const ast = makeValue(
-      processArrays(processOperators(tree.body[0].expression), globals))
+    let ast =
+      processArrays(processOperators(tree.body[0].expression), globals)
+    if (!bareResult) {
+      ast = makeValue(ast)
+    }
     return {
       expression: escodegen.generate(ast),
       globals,
@@ -232,6 +235,22 @@ class Filter {
     }
     return vm.runInThisContext(prog, options)
   }
+
+  compile (filter, opt = {}) {
+    const options = Object.assign({
+      bareResult: false,
+      built: true,
+    }, opt)
+    const result = {
+      filter,
+      transpiled: this.transpile(filter, options.bareResult),
+    }
+    result.linked = this.link(result.transpiled)
+    if (options.built) {
+      result.built = this.build(result.linked)
+    }
+    return result
+  }
 }
 
-module.exports = Filter
+module.exports = FilterCompiler

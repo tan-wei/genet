@@ -196,7 +196,7 @@ export default class PcapDetailView {
 
     let filterValue = '(null)'
     if (this.displayFilter) {
-      const value = this.displayFilter.test(frame)
+      const value = this.displayFilter.built(frame)
       if (value !== null) {
         filterValue = value
       }
@@ -221,7 +221,7 @@ export default class PcapDetailView {
           m('span', { class: 'label' }, [' Evaluated Filter: ']),
           m('span', [
             this.displayFilter
-              ? `${this.displayFilter.expression} =>`
+              ? `${this.displayFilter.filter} =>`
               : '',
             ' ']),
           m('span', [m(AttributeValueItem, { attr: { value: filterValue } })])
