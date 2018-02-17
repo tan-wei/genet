@@ -10,20 +10,11 @@ const promiseReadFile = promisify(fs.readFile)
 class Session extends EventEmitter {
   constructor (sess, options) {
     super()
-    this[fields] = Object.assign({
-      sess,
-      filterCompiler: new FilterCompiler(),
-    }, options)
+    this[fields] = Object.assign({ sess }, options)
 
     if (options.enableDebugSession) {
       this[fields].inspector = new InspectorServer(sess)
     }
-
-    const filterCompiler = new FilterCompiler()
-    filterCompiler.macroPrefix = options.macroPrefix
-    filterCompiler.macros = options.macros
-    filterCompiler.attrs = options.attributes
-    this[fields].filterCompiler = filterCompiler
 
     this.status = { capture: false }
     this.filter = {}
@@ -84,10 +75,6 @@ class Session extends EventEmitter {
     return null
   }
 
-  get filterCompiler () {
-    return this[fields].filterCompiler
-  }
-
   startPcap () {
     return this[fields].sess.startPcap()
   }
@@ -122,10 +109,8 @@ class SessionFactory extends kit.SessionFactory {
     this[fields] = {
       tasks: [],
       linkLayers: [],
-      macros: [],
-      attributes: {},
       enableDebugSession: false,
-      macroPrefix: '@',
+      filterCompiler: null,
     }
   }
 
@@ -138,20 +123,16 @@ class SessionFactory extends kit.SessionFactory {
     })
   }
 
-  get macroPrefix () {
-    return this[fields].macroPrefix
+  get filterCompiler () {
+    return this[fields].filterCompiler
   }
 
-  set macroPrefix (val) {
-    this[fields].macroPrefix = val
+  set filterCompiler (val) {
+    this[fields].filterCompiler = val
   }
 
   registerLinkLayer (layer) {
     this[fields].linkLayers.push(layer)
-  }
-
-  registerFilterMacro (macro) {
-    this[fields].macros.push(macro)
   }
 
   registerImporter (importer) {
@@ -160,10 +141,6 @@ class SessionFactory extends kit.SessionFactory {
 
   registerExporter (exporter) {
     super.registerExporter(exporter)
-  }
-
-  registerAttributes (attrs) {
-    this[fields].attributes = Object.assign(this[fields].attributes, attrs)
   }
 
   get enableDebugSession () {
@@ -197,4 +174,5 @@ module.exports = {
   Reader: kit.Reader,
   StreamReader: kit.StreamReader,
   Testing: kit.Testing,
+  FilterCompiler,
 }

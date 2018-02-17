@@ -1,5 +1,5 @@
+import { SessionFactory, FilterCompiler } from '@deplug/plugkit'
 import { Disposable } from 'disposables'
-import { SessionFactory } from '@deplug/plugkit'
 import flatten from 'flat'
 import jsonfile from 'jsonfile'
 
@@ -171,12 +171,10 @@ export default class Session {
 
   async create (ifs = '') {
     const {
-      config, tokens, linkLayers,
-      dissectors, filterMacros,
+      config, linkLayers, dissectors,
       importers, exporters,
     } = this[fields]
     const factory = new SessionFactory()
-    factory.macroPrefix = config.get('_.filter.macroPrefix', '@')
     factory.enableDebugSession = config.get('_.debug.enableDebugSession', false)
     factory.setOptions(flatten(config.toJSON()))
     factory.networkInterface = ifs
@@ -186,21 +184,27 @@ export default class Session {
     for (const diss of dissectors) {
       factory.registerDissector(diss)
     }
-    for (const macro of filterMacros) {
-      factory.registerFilterMacro(macro)
-    }
     for (const imp of importers) {
       factory.registerImporter(imp.importer)
     }
     for (const exp of exporters) {
       factory.registerExporter(exp.exporter)
     }
+    factory.filterCompiler = this.createFilterCompiler()
+    return factory.create()
+  }
+
+  createFilterCompiler () {
+    const { config, tokens, filterMacros } = this[fields]
+    const filterCompiler = new FilterCompiler()
+    filterCompiler.macroPrefix = config.get('_.filter.macroPrefix', '@')
+    filterCompiler.macros = Array.from(filterMacros)
     const attributes = {}
     for (const [key, value] of tokens.entries()) {
       attributes[key] = value
     }
-    factory.registerAttributes(attributes)
-    return factory.create()
+    filterCompiler.attrs = attributes
+    return filterCompiler
   }
 
   async runSampleTesting (sample) {
@@ -211,10 +215,11 @@ export default class Session {
         if (stat.frames >= asserts.length) {
           const results = []
           const frames = sess.getFrames(0, asserts.length)
+          const filterCompiler = this.createFilterCompiler()
           for (let index = 0; index < frames.length; index += 1) {
             const assertionResults = asserts[index].map((assert) => ({
               filter: assert,
-              match: Boolean(sess.filterCompiler
+              match: Boolean(filterCompiler
                 .compile(assert).built(frames[index])),
             }))
             results.push({
