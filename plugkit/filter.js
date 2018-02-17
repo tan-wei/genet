@@ -187,7 +187,7 @@ class FilterCompiler {
     return this[fields].attrs
   }
 
-  transpile (filter, bareResult = false) {
+  transpile (filter, rawResult = false) {
     const { macros, attrs, macroPrefix } = this[fields]
     if (!filter) {
       return {
@@ -210,7 +210,7 @@ class FilterCompiler {
     const tree = esprima.parse(tokens.map((token) => token.value).join(' '))
     let ast =
       processArrays(processOperators(tree.body[0].expression), globals)
-    if (!bareResult) {
+    if (!rawResult) {
       ast = makeValue(ast)
     }
     return {
@@ -238,12 +238,12 @@ class FilterCompiler {
 
   compile (filter, opt = {}) {
     const options = Object.assign({
-      bareResult: false,
+      rawResult: false,
       built: true,
     }, opt)
     const result = {
       filter,
-      transpiled: this.transpile(filter, options.bareResult),
+      transpiled: this.transpile(filter, options.rawResult),
     }
     result.linked = this.link(result.transpiled)
     if (options.built) {

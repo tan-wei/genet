@@ -177,7 +177,7 @@ export default class TopView {
         }
         const filter = value.length > 0
           ? deplug.session.createFilterCompiler()
-            .compile(value, { bareResult: true })
+            .compile(value)
           : null
         deplug.action.emit('core:filter:updated', filter)
       } catch (err) {
