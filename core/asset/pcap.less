@@ -153,15 +153,20 @@ nav.frame-list {
     cursor: default;
 
     div.header {
-      display: flex;
       width: 100%;
-      flex-grow: 0;
+      white-space: nowrap;
 
-      span {
-        flex-grow: 1;
-      }
-      span.right {
-        text-align: right;
+      span.column {
+        width: 60px;
+        display: inline-block;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        padding: 0 10px;
+
+        &:last-child {
+          width: auto;
+        }
       }
     }
 

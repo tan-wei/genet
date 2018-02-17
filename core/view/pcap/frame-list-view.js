@@ -21,7 +21,10 @@ class FrameView {
       },
     }, [
       m('div', { class: 'header' },
-        vnode.attrs.columns.map((column) => column.func(this.frame)))
+        vnode.attrs.columns.map((column) =>
+          m('span', { class: 'column' }, [
+            column.func(this.frame)
+          ])))
     ])
   }
 }
