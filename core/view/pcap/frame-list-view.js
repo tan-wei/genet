@@ -1,3 +1,4 @@
+import { AttributeValueItem } from './value'
 import DefaultSummary from './default-summary'
 import m from 'mithril'
 import throttle from 'lodash.throttle'
@@ -11,8 +12,6 @@ class FrameView {
     if (!this.frame) {
       return m('div')
     }
-    const { id } = this.frame.primaryLayer
-    const renderer = deplug.session.layerRenderer(id) || DefaultSummary
     return m('div', {
       class: 'frame',
       style: vnode.attrs.style,
@@ -21,12 +20,8 @@ class FrameView {
         deplug.action.emit('core:frame:selected', [this.frame])
       },
     }, [
-      m('div', { class: 'header' }, [
-        m('span', [deplug.session.token(id).name]),
-        m(renderer, { layer: this.frame.primaryLayer }),
-        m('span', { class: 'right' },
-          [`${this.frame.query('$.actualLength').value} bytes`])
-      ])
+      m('div', { class: 'header' },
+        vnode.attrs.columns.map((column) => column.func(this.frame)))
     ])
   }
 }
@@ -38,6 +33,7 @@ export default class FrameListView {
     this.scrollTop = 0
     this.prevFrames = 0
     this.mapHeight = 256
+    this.columns = []
     this.updateMapThrottle = throttle((vnode) => {
       this.updateMap(vnode)
     }, 500)
@@ -100,6 +96,7 @@ export default class FrameListView {
         style: itemStyle,
         key: seq,
         sess: vnode.attrs.sess,
+        columns: this.columns,
       }))
     }
     return m('nav', { class: 'frame-list' }, [
@@ -149,6 +146,41 @@ export default class FrameListView {
     vnode.dom.addEventListener('scroll', (event) => {
       this.scrollTop = event.target.scrollTop
       m.redraw()
+    })
+
+    this.columns = [
+      {
+        func: (frame) => {
+          const { id } = frame.primaryLayer
+          return m('span', [deplug.session.token(id).name])
+        },
+      }
+    ]
+
+    const compiler = deplug.session.createFilterCompiler()
+    this.columns.push(...['_.src', '_.dst', '$.payload.length']
+      .map((fitler) => {
+        const filerFunc = compiler.compile(fitler, { bareResult: true }).built
+        return {
+          func: (frame) => {
+            const result = filerFunc(frame)
+            let renderer = AttributeValueItem
+            if (typeof result === 'object' &&
+              result.constructor.name === 'Attr') {
+              renderer = deplug.session.attrRenderer(result.type) || renderer
+              return m(renderer, { attr: result })
+            }
+            return m(renderer, { attr: { value: result } })
+          },
+        }
+      }))
+
+    this.columns.push({
+      func: (frame) => {
+        const { id } = frame.primaryLayer
+        const renderer = deplug.session.layerRenderer(id) || DefaultSummary
+        return m(renderer, { layer: frame.primaryLayer })
+      },
     })
   }
 }
