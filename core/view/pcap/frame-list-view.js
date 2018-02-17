@@ -102,7 +102,7 @@ export default class FrameListView {
     return m('nav', { class: 'frame-list' }, [
       m('style', { class: 'scrollbar-style' }),
       m('canvas', {
-        style: 'opacity: 0; position: absolute;',
+        style: 'opacity: 0; position: absolute; display: none;',
         class: 'dummy-item',
         width: '1',
         height: this.mapHeight,
