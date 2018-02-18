@@ -7,18 +7,28 @@
 
 ## Latest Releases
 
- - macOS
-   - [Download .dmg](https://cdn.deplug.net/deplug/release/latest/deplug-darwin-amd64.dmg)
- - Linux
-   - [Download .deb](https://cdn.deplug.net/deplug/release/latest/deplug-linux-amd64.deb)
-   - [Download .rpm](https://cdn.deplug.net/deplug/release/latest/deplug-linux-amd64.rpm)
- - Windows
-   - [Download .exe (Installer)](https://cdn.deplug.net/deplug/release/latest/deplug-win-amd64.exe)
+(via CDN)
+
+- macOS
+- [![](https://cdn.deplug.net/deplug/release/latest/deplug-darwin-amd64.dmg.ver.svg) Download .dmg](https://cdn.deplug.net/deplug/release/latest/deplug-darwin-amd64.dmg)
+- Linux
+- [![](https://cdn.deplug.net/deplug/release/latest/deplug-linux-amd64.deb.ver.svg) Download .deb](https://cdn.deplug.net/deplug/release/latest/deplug-linux-amd64.deb)
+- [![](https://cdn.deplug.net/deplug/release/latest/deplug-linux-amd64.rpm.ver.svg) Download .rpm](https://cdn.deplug.net/deplug/release/latest/deplug-linux-amd64.rpm)
+- Windows
+- [![](https://cdn.deplug.net/deplug/release/latest/deplug-win-amd64.exe.ver.svg) Download .exe (Installer)](https://cdn.deplug.net/deplug/release/latest/deplug-win-amd64.exe)
+
+## Nightly Builds
+
+- macOS
+- [![](https://cdn.deplug.net/deplug/nightly/deplug-darwin-amd64.dmg.ver.svg) Download .dmg](https://cdn.deplug.net/deplug/nightly/deplug-darwin-amd64.dmg)
+- Linux
+- [![](https://cdn.deplug.net/deplug/nightly/deplug-linux-amd64.deb.ver.svg) Download .deb](https://cdn.deplug.net/deplug/nightly/deplug-linux-amd64.deb)
+- [![](https://cdn.deplug.net/deplug/nightly/deplug-linux-amd64.rpm.ver.svg) Download .rpm](https://cdn.deplug.net/deplug/nightly/deplug-linux-amd64.rpm)
 
 ## Older Releases
 
- - [GitHub Releases](https://github.com/deplug/deplug/releases)
+- https://github.com/deplug/release-build/releases
 
 # Build from Source
 
-See https://deplug.net/#/build
+See https://docs.deplug.net/build-from-source.html
