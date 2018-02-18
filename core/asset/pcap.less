@@ -156,6 +156,20 @@ nav.frame-list {
       width: 100%;
       white-space: nowrap;
 
+      input[type=checkbox] {
+        display: inline;
+        margin: 0;
+        width: auto;
+        height: 100%;
+        padding: 0 8px;
+        background-color: transparent;
+        line-height: 8px;
+
+        &:checked {
+          background-color: @theme-default-bg;
+        }
+      }
+
       span.column {
         width: 60px;
         display: inline-block;
@@ -163,6 +177,7 @@ nav.frame-list {
         white-space: nowrap;
         text-overflow: ellipsis;
         padding: 0 10px;
+        line-height: 20px;
 
         &:last-child {
           width: auto;
