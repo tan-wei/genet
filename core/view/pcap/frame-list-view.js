@@ -38,7 +38,7 @@ export default class FrameListView {
     this.height = 0
     this.scrollTop = 0
     this.prevFrames = 0
-    this.mapHeight = 256
+    this.mapHeight = 128
     this.columns = []
     this.updateMapThrottle = throttle((vnode) => {
       this.updateMap(vnode)
@@ -125,15 +125,17 @@ export default class FrameListView {
   }
 
   onupdate (vnode) {
-    const { frames } = vnode.attrs.sess.frame
+    const { frame, filter } = vnode.attrs.sess
+    const frames = filter.main
+      ? filter.main.frames
+      : frame.frames
     if (this.prevFrames !== frames) {
+      this.updateMapThrottle(vnode)
       this.prevFrames = frames
       if (!vnode.attrs.scrollLock) {
         vnode.dom.scrollTop = vnode.dom.scrollHeight - vnode.dom.clientHeight
       }
     }
-
-    this.updateMapThrottle(vnode)
   }
 
   oncreate (vnode) {
