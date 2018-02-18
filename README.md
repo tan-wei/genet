@@ -24,6 +24,8 @@
 - Linux
   - [![](https://cdn.deplug.net/deplug/nightly/deplug-linux-amd64.deb.ver.svg) Download .deb](https://cdn.deplug.net/deplug/nightly/deplug-linux-amd64.deb)
   - [![](https://cdn.deplug.net/deplug/nightly/deplug-linux-amd64.rpm.ver.svg) Download .rpm](https://cdn.deplug.net/deplug/nightly/deplug-linux-amd64.rpm)
+- Windows
+  - [![](https://cdn.deplug.net/deplug/nightly/deplug-win-amd64.exe.ver.svg) Download .exe (Installer)](https://cdn.deplug.net/deplug/nightly/deplug-win-amd64.exe) 
 
 ## Older Releases
 
