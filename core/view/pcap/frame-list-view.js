@@ -1,6 +1,7 @@
 import { AttributeValueItem } from './value'
 import DefaultSummary from './default-summary'
 import m from 'mithril'
+import parseColor from 'parse-color'
 import throttle from 'lodash.throttle'
 
 class FrameView {
@@ -44,22 +45,33 @@ export default class FrameListView {
     this.height = 0
     this.scrollTop = 0
     this.prevFrames = 0
-    this.mapHeight = 128
+    this.mapHeight = 256
     this.columns = []
     this.updateMapThrottle = throttle((vnode) => {
       this.updateMap(vnode)
     }, 500)
+
+    this.mapHeader = [
+      0x42, 0x4d, 0x36, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x36, 0x00,
+      0x00, 0x00, 0x28, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0xff,
+      0xff, 0xff, 0x01, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x13, 0x0b, 0x00, 0x00, 0x13, 0x0b, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    ]
+    this.mapBuffer = Buffer.allocUnsafe(
+      this.mapHeader.length + (4 * this.mapHeight))
+    for (let index = 0; index < this.mapHeader.length; index += 1) {
+      this.mapBuffer[index] = this.mapHeader[index]
+    }
   }
 
   updateMap (vnode) {
     const { sess } = vnode.attrs
     if (sess && sess.frame.frames > 0) {
-      const dummy = this.dummyCanvas
-      const ctx = dummy.getContext('2d')
+      const dummy = this.dummyItem
       const frames = (sess.filter.main
         ? sess.filter.main.frames
         : sess.frame.frames)
-      ctx.clearRect(0, 0, 1, this.mapHeight)
       if (frames > 0) {
         for (let line = 0; line < this.mapHeight; line += 1) {
           let index = Math.floor(frames / this.mapHeight * (line + 0.5))
@@ -68,12 +80,15 @@ export default class FrameListView {
           }
           const [frame] = sess.getFrames(index, 1)
           dummy.setAttribute('data-layer', frame.primaryLayer.tags.join(' '))
-          ctx.fillStyle =
-            getComputedStyle(dummy, null).getPropertyValue('background-color')
-          ctx.fillRect(0, line, 1, 1)
+          const [red, green, blue] = parseColor(getComputedStyle(dummy, null)
+            .getPropertyValue('background-color')).rgb
+          const offset = this.mapHeader.length
+          this.mapBuffer[offset + (line * 4) + 0] = blue
+          this.mapBuffer[offset + (line * 4) + 1] = green
+          this.mapBuffer[offset + (line * 4) + 2] = red
         }
       }
-      const data = dummy.toDataURL('image/png')
+      const data = `data:image/bmp;base64,${this.mapBuffer.toString('base64')}`
       this.barStyle.textContent = `
       nav.frame-list .padding, nav.frame-list::-webkit-scrollbar {
         background-image: url(${data});
@@ -113,11 +128,9 @@ export default class FrameListView {
     }
     return m('nav', { class: 'frame-list' }, [
       m('style', { class: 'scrollbar-style' }),
-      m('canvas', {
-        style: 'opacity: 0; position: absolute; display: none;',
+      m('div', {
+        style: 'display: none;',
         class: 'dummy-item',
-        width: '1',
-        height: this.mapHeight,
       }),
       m('div', {
         class: 'padding',
@@ -145,7 +158,7 @@ export default class FrameListView {
   }
 
   oncreate (vnode) {
-    this.dummyCanvas = vnode.dom.parentNode.querySelector('.dummy-item')
+    this.dummyItem = vnode.dom.parentNode.querySelector('.dummy-item')
     this.barStyle = vnode.dom.parentNode.querySelector('.scrollbar-style')
 
     const resizeObserver = new ResizeObserver((entries) => {
