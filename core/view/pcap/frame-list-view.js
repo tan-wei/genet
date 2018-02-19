@@ -67,8 +67,7 @@ export default class FrameListView {
 
   updateMap (vnode) {
     const { sess } = vnode.attrs
-    if (sess && sess.frame.frames > 0) {
-      const dummy = this.dummyItem
+    if (sess && sess.frame.frames > 0 && this.dummyItem) {
       const frames = (sess.filter.main
         ? sess.filter.main.frames
         : sess.frame.frames)
@@ -79,9 +78,11 @@ export default class FrameListView {
             index = sess.getFilteredFrames('main', index, 1)[0] - 1
           }
           const [frame] = sess.getFrames(index, 1)
-          dummy.setAttribute('data-layer', frame.primaryLayer.tags.join(' '))
-          const [red, green, blue] = parseColor(getComputedStyle(dummy, null)
-            .getPropertyValue('background-color')).rgb
+          this.dummyItem.setAttribute('data-layer',
+            frame.primaryLayer.tags.join(' '))
+          const [red, green, blue] =
+            parseColor(getComputedStyle(this.dummyItem, null)
+              .getPropertyValue('background-color')).rgb
           const offset = this.mapHeader.length
           this.mapBuffer[offset + (line * 4) + 0] = blue
           this.mapBuffer[offset + (line * 4) + 1] = green
