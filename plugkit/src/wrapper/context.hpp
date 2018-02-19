@@ -13,6 +13,7 @@ public:
   static void init(v8::Isolate *isolate);
   static NAN_METHOD(New);
   static NAN_METHOD(getOption);
+  static NAN_METHOD(closeStream);
   static v8::Local<v8::Object> wrap(Context *ctx);
   static Context *unwrap(v8::Local<v8::Value> value);
 

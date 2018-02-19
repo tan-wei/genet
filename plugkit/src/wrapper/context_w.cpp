@@ -11,6 +11,7 @@ void ContextWrapper::init(v8::Isolate *isolate) {
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Context").ToLocalChecked());
   SetPrototypeMethod(tpl, "getOption", getOption);
+  SetPrototypeMethod(tpl, "closeStream", closeStream);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
   module->context.ctor.Reset(isolate, Nan::GetFunction(tpl).ToLocalChecked());
@@ -25,6 +26,13 @@ NAN_METHOD(ContextWrapper::getOption) {
   if (Context *ctx = wrapper->ctx) {
     info.GetReturnValue().Set(
         Variant::getValue(Context_getOption(ctx, *Nan::Utf8String(info[0]))));
+  }
+}
+
+NAN_METHOD(ContextWrapper::closeStream) {
+  ContextWrapper *wrapper = ObjectWrap::Unwrap<ContextWrapper>(info.Holder());
+  if (Context *ctx = wrapper->ctx) {
+    Context_closeStream(ctx);
   }
 }
 

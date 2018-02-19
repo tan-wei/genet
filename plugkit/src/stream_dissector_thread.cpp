@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <map>
 #include <unordered_map>
 #include <unordered_set>
 #include <v8.h>
@@ -17,7 +18,8 @@ namespace plugkit {
 
 namespace {
 struct WorkerContext {
-  std::vector<std::pair<const Dissector *, Worker>> list;
+  std::vector<const Dissector *> dissectors;
+  std::map<const Dissector *, Worker> workers;
 };
 } // namespace
 
@@ -83,9 +85,7 @@ void StreamDissectorThread::Private::analyze(
   dissectedIds.insert(id);
   auto &streamWorkers = workers[id][layer->worker()];
 
-  if (streamWorkers.list.empty()) {
-    std::vector<const Dissector *> workerDissectors;
-
+  if (streamWorkers.dissectors.empty()) {
     std::unordered_set<Token> tags;
     for (const Token &token : layer->tags()) {
       tags.insert(token);
@@ -104,28 +104,45 @@ void StreamDissectorThread::Private::analyze(
         }
       }
       if (match) {
-        workerDissectors.push_back(&diss);
+        streamWorkers.dissectors.push_back(&diss);
       }
     }
-    for (const Dissector *diss : workerDissectors) {
+  }
+
+  for (const Dissector *diss : streamWorkers.dissectors) {
+    auto it = streamWorkers.workers.find(diss);
+    if (it == streamWorkers.workers.end()) {
       Worker worker = {nullptr};
       if (diss->createWorker) {
         worker = diss->createWorker(&ctx, diss);
       }
-      streamWorkers.list.emplace_back(diss, worker);
+      streamWorkers.workers[diss] = worker;
     }
   }
 
+  std::vector<std::pair<const Dissector *, Worker>> closedWorkers;
   if (subLayer) {
-    for (const auto &pair : streamWorkers.list) {
+    for (const auto &pair : streamWorkers.workers) {
+      const Dissector *diss = pair.first;
+      Worker worker = pair.second;
       if (Layer *parent = layer->parent()) {
-        pair.first->analyze(&ctx, pair.first, pair.second, parent);
+        diss->analyze(&ctx, diss, worker, parent);
+      }
+      if (ctx.closeStream) {
+        closedWorkers.emplace_back(diss, worker);
+        ctx.closeStream = false;
       }
     }
   } else {
-    for (const auto &pair : streamWorkers.list) {
-      pair.first->analyze(&ctx, pair.first, pair.second, layer);
+    for (const auto &pair : streamWorkers.workers) {
+      const Dissector *diss = pair.first;
+      Worker worker = pair.second;
+      diss->analyze(&ctx, diss, worker, layer);
       layer->removeUnconfidentLayers(&ctx, confidenceThreshold);
+      if (ctx.closeStream) {
+        closedWorkers.emplace_back(diss, worker);
+        ctx.closeStream = false;
+      }
 
       for (Layer *childLayer : layer->layers()) {
         if (childLayer->confidence() >= confidenceThreshold) {
@@ -146,6 +163,15 @@ void StreamDissectorThread::Private::analyze(
         }
       }
     }
+  }
+
+  for (const auto &pair : closedWorkers) {
+    const Dissector *diss = pair.first;
+    Worker worker = pair.second;
+    if (diss->destroyWorker) {
+      diss->destroyWorker(&ctx, diss, worker);
+    }
+    streamWorkers.workers.erase(diss);
   }
 }
 

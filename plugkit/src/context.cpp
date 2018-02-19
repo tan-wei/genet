@@ -97,6 +97,8 @@ const Variant *Context_getOption(Context *ctx, const char *key) {
   return &null;
 }
 
+void Context_closeStream(Context *ctx) { ctx->closeStream = true; }
+
 namespace {
 void Log(Context *ctx,
          const char *file,

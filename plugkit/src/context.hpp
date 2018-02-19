@@ -12,6 +12,8 @@ namespace plugkit {
 
 struct Context final {
 public:
+  bool closeStream = false;
+
   VariantMap options;
   LoggerPtr logger = std::make_shared<StreamLogger>();
 
@@ -51,6 +53,8 @@ void Context_dealloc(Context *ctx, void *ptr);
 
 /// Return the value of the option in the current context.
 const Variant *Context_getOption(Context *ctx, const char *key);
+
+void Context_closeStream(Context *ctx);
 }
 
 } // namespace plugkit
