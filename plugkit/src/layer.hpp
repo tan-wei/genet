@@ -73,7 +73,7 @@ private:
   Layer &operator=(const Layer &layer) = delete;
 
 private:
-  Token mId = 0;
+  Token mId = Token_null();
   uint8_t mData = 0;
   Layer *mParent = nullptr;
   const Layer *mMaster = nullptr;

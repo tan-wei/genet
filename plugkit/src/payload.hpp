@@ -36,7 +36,7 @@ private:
   Payload &operator=(const Payload &payload) = delete;
 
 private:
-  Token mType;
+  Token mType = Token_null();
   Range mRange = {0, 0};
   size_t mLength = 0;
   std::vector<Slice> mSlices;

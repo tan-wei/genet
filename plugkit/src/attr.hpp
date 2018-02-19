@@ -28,7 +28,7 @@ private:
   Attr &operator=(const Attr &attr) = delete;
 
 private:
-  Token mId = 0;
+  Token mId = Token_null();
   Variant mValue;
   Range mRange = {0, 0};
   Token mType = 0;
