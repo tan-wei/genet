@@ -49,7 +49,7 @@ Needless to say, GUI is fully accessible by scripts.
 In addition, JavaScript is also used in the display filter and the analyzer.
 Those JavaScript environments can be shared with the Chrome's V8 runtime.
 
-### Packet analyzer does not need performance-critical GUI
-One of the big downside of using electron is the performance problem due to the heavy DOM manipulation.
+### Packet analyzer does not need a performance-critical GUI
+One of the big downside of using electron is the performance issue due to the heavy DOM manipulation.
 However, this is not a serious issue in this project, compared to writing a text editor etc.  
 (This does not mean unconcern about the lightweight GUI, indeed)
