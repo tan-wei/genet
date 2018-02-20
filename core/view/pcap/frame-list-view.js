@@ -31,12 +31,6 @@ class FrameView {
             ]))))
     ])
   }
-
-  onbeforeupdate () {
-    if (this.frame) {
-      return false
-    }
-  }
 }
 
 export default class FrameListView {
