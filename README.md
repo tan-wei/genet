@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/deplug/deplug.svg)](https://travis-ci.org/deplug/deplug)
 [![Build status](https://ci.appveyor.com/api/projects/status/37ek4o97h0kqr0p9?svg=true)](https://ci.appveyor.com/project/h2so5/deplug)
+[![Current Version](https://img.shields.io/crates/v/plugkit.svg)](https://crates.io/crates/plugkit)
 
 # Download
 
