@@ -139,14 +139,15 @@ export default class FrameListView {
   }
 
   onupdate (vnode) {
-    const { frame, filter } = vnode.attrs.sess
+    const { sess, viewState } = vnode.attrs
+    const { frame, filter } = sess
     const frames = filter.main
       ? filter.main.frames
       : frame.frames
     if (this.prevFrames !== frames) {
       this.updateMapThrottle(vnode)
       this.prevFrames = frames
-      if (!vnode.attrs.scrollLock) {
+      if (!viewState.scrollLock) {
         vnode.dom.scrollTop = vnode.dom.scrollHeight - vnode.dom.clientHeight
       }
     }

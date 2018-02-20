@@ -2,41 +2,41 @@ import m from 'mithril'
 
 export default class ToolBar {
   view (vnode) {
-    const { counter, capture, sess } = vnode.attrs
+    const { viewState, sess } = vnode.attrs
     return m('div', { class: 'toolbar' }, [
       m('span', {
         class: 'button',
-        'data-balloon': `Capture ${capture
+        'data-balloon': `Capture ${viewState.capture
           ? 'Running'
           : 'Paused'}`,
         'data-balloon-pos': 'right',
         onclick: () => {
-          if (capture) {
+          if (viewState.capture) {
             sess.stopPcap()
           } else {
             sess.startPcap()
           }
-          this.capture = !this.capture
+          viewState.capture = !viewState.capture
         },
       }, [
         m('i', {
-          class: this.capture
+          class: viewState.capture
             ? 'fa fa-play-circle'
             : 'fa fa-pause-circle',
         })
       ]),
       m('span', {
         class: 'button',
-        'data-balloon': `Scroll ${this.scrollLock
+        'data-balloon': `Scroll ${viewState.scrollLock
           ? 'Locked'
           : 'Unlocked'}`,
         'data-balloon-pos': 'right',
         onclick: () => {
-          this.scrollLock = !this.scrollLock
+          viewState.scrollLock = !viewState.scrollLock
         },
       }, [
         m('i', {
-          class: this.scrollLock
+          class: viewState.scrollLock
             ? 'fa fa-lock'
             : 'fa fa-unlock-alt',
         })
@@ -44,7 +44,7 @@ export default class ToolBar {
       m('span', {
         'data-balloon': 'Frame Counter',
         'data-balloon-pos': 'right',
-      }, [counter])
+      }, [viewState.counter])
     ])
   }
 }

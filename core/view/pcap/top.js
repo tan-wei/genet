@@ -12,14 +12,16 @@ const { dialog } = remote
 export default class TopView {
   constructor () {
     this.sess = null
-    this.capture = false
     this.filtered = null
-    this.scrollLock = false
     this.displayFilter = ''
     this.suggestMaxCount = 6
     this.suggestEnabled = false
     this.suggestHint = ''
     this.suggestIndex = -1
+    this.viewState = {
+      capture: false,
+      scrollLock: false,
+    }
   }
 
   searchKeyPress (event) {
@@ -46,9 +48,9 @@ export default class TopView {
   }
 
   view () {
-    let counter = '0'
+    this.viewState.counter = '0'
     if (this.sess) {
-      counter = this.sess.filter.main
+      this.viewState.counter = this.sess.filter.main
         ? `${this.sess.filter.main.frames} / ${this.sess.frame.frames}`
         : `${this.sess.frame.frames}`
     }
@@ -76,8 +78,7 @@ export default class TopView {
           hint: this.suggestHint,
         }),
         m(ToolBar, {
-          counter,
-          capture: this.capture,
+          viewState: this.viewState,
           sess: this.sess,
         }),
         m(FrameHeader, {})
@@ -85,7 +86,7 @@ export default class TopView {
       this.sess
         ? m(FrameListView, {
           sess: this.sess,
-          scrollLock: this.scrollLock,
+          viewState: this.viewState,
         })
         : m('nav')
     ]
@@ -107,7 +108,7 @@ export default class TopView {
               ? -1
               : stat.importerProgress
             browserWindow.setProgressBar(progress)
-            this.capture = stat.capture
+            this.viewState.capture = stat.capture
             m.redraw()
           })
           sess.on('filter', () => {
@@ -127,7 +128,7 @@ export default class TopView {
           m.redraw()
         })
         sess.on('status', (stat) => {
-          this.capture = stat.capture
+          this.viewState.capture = stat.capture
           m.redraw()
         })
         sess.on('filter', () => {
