@@ -71,6 +71,6 @@
     "webpack-node-externals": "^1.6.0"
   },
   "optionalDependencies": {
-    "@deplug/osx-helper": "^0.2.2"
+    "@deplug/osx-helper": "^0.2.3"
   }
 }
