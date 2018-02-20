@@ -20,7 +20,6 @@ export default class WindowFactory {
     const options = {
       width: size[0],
       height: size[1],
-      show: false,
       titleBarStyle: conf.get('_.window.titleBarStyle'),
       vibrancy: conf.get('_.window.vibrancy'),
     }
