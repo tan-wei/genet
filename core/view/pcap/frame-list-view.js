@@ -6,8 +6,9 @@ import throttle from 'lodash.throttle'
 
 class FrameView {
   view (vnode) {
+    const { viewState, key } = vnode.attrs
     if (!this.frame) {
-      const { sess, key } = vnode.attrs;
+      const { sess } = vnode.attrs;
       [this.frame] = sess.getFrames(key, 1)
     }
     if (!this.frame) {
@@ -23,7 +24,18 @@ class FrameView {
     }, [
       m('div', { class: 'header' },
         [
-          m('input', { type: 'checkbox' })
+          m('input', {
+            type: 'checkbox',
+            checked: viewState.checkedFrames.has(key),
+            onchange: (event) => {
+              if (event.target.checked) {
+                viewState.checkedFrames.add(key)
+              } else {
+                viewState.checkedFrames.delete(key)
+              }
+              return false
+            },
+          })
         ].concat(
           vnode.attrs.columns.map((column) =>
             m('span', { class: 'column' }, [
@@ -119,6 +131,7 @@ export default class FrameListView {
         key: seq,
         sess: vnode.attrs.sess,
         columns: this.columns,
+        viewState: vnode.attrs.viewState,
       }))
     }
     return m('nav', { class: 'frame-list' }, [

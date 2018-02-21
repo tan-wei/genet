@@ -21,6 +21,7 @@ export default class TopView {
     this.viewState = {
       capture: false,
       scrollLock: false,
+      checkedFrames: new Set(),
     }
   }
 
