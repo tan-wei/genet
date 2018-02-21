@@ -187,6 +187,7 @@ export default class FrameListView {
     })
 
     this.columns = [
+      { func: (frame) => m('span', [frame.query('$.index').value]) },
       {
         func: (frame) => {
           const { id } = frame.primaryLayer
