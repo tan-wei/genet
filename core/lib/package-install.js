@@ -88,7 +88,6 @@ Visit https://www.rustup.rs/ for installation details.
     const cargoFiles =
       await promiseGlob(path.join(dir, 'crates/*/Cargo.toml'))
     const cargoDirs = cargoFiles.map((toml) => path.dirname(toml))
-    // eslint-disable-next-line no-await-in-loop
     for (const cdir of cargoDirs) {
       const flags = process.env.RUSTFLAGS || '-C target-cpu=native'
       const proc = execa.shell(
@@ -105,6 +104,7 @@ Visit https://www.rustup.rs/ for installation details.
       proc.stderr.on('data', (chunk) => {
         this.emit('output', chunk.toString('utf8'))
       })
+      // eslint-disable-next-line no-await-in-loop
       await proc
     }
   }
