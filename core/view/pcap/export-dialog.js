@@ -107,6 +107,17 @@ export default class ExportDialog {
             m('input', {
               type: 'radio',
               name: 'filter',
+              value: 'checked',
+              onchange: () => this.update(vnode),
+            }),
+            ` Checked Frames (${vnode.attrs.checkedFrames.size})`
+          ])
+        ]),
+        m('li', [
+          m('label', [
+            m('input', {
+              type: 'radio',
+              name: 'filter',
               value: 'range',
               onchange: () => this.update(vnode),
             }),
@@ -155,6 +166,13 @@ export default class ExportDialog {
                 case 'range':
                   filter = parseRange(vnode.dom.querySelector(
                     'input[type=text][name=range]').value)
+                  break
+                case 'checked':
+                  {
+                    const list = Array.from(
+                      vnode.attrs.checkedFrames.values()).join(',')
+                    filter = parseRange(list)
+                  }
                   break
                 case 'filter':
                   filter = vnode.dom.querySelector(

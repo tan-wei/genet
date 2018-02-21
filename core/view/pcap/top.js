@@ -149,7 +149,10 @@ export default class TopView {
     })
     deplug.action.global.on('core:file:export', () => {
       const exportDialog = new Dialog(ExportDialog,
-        { displayFilter: this.displayFilter })
+        {
+          displayFilter: this.displayFilter,
+          checkedFrames: this.viewState.checkedFrames,
+        })
       exportDialog.show({ cancelable: true }).then(async (filter) => {
         const file = dialog.showSaveDialog(
           { filters: deplug.session.fileExtensions.exporter })

@@ -26,12 +26,12 @@ class FrameView {
         [
           m('input', {
             type: 'checkbox',
-            checked: viewState.checkedFrames.has(key),
+            checked: viewState.checkedFrames.has(key + 1),
             onchange: (event) => {
               if (event.target.checked) {
-                viewState.checkedFrames.add(key)
+                viewState.checkedFrames.add(key + 1)
               } else {
-                viewState.checkedFrames.delete(key)
+                viewState.checkedFrames.delete(key + 1)
               }
               return false
             },
