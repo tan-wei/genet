@@ -9,7 +9,7 @@ class FrameView {
     const { viewState, key } = vnode.attrs
     if (!this.frame) {
       const { sess } = vnode.attrs;
-      [this.frame] = sess.getFrames(key, 1)
+      [this.frame] = sess.getFrames(key - 1, 1)
     }
     if (!this.frame) {
       return m('div')
@@ -18,7 +18,9 @@ class FrameView {
       class: 'frame',
       style: vnode.attrs.style,
       'data-layer': this.frame.primaryLayer.tags.join(' '),
+      active: viewState.selectedFrame === key,
       onmousedown: () => {
+        viewState.selectedFrame = key
         deplug.action.emit('core:frame:selected', [this.frame])
       },
     }, [
@@ -26,12 +28,12 @@ class FrameView {
         [
           m('input', {
             type: 'checkbox',
-            checked: viewState.checkedFrames.has(key + 1),
+            checked: viewState.checkedFrames.has(key),
             onchange: (event) => {
               if (event.target.checked) {
-                viewState.checkedFrames.add(key + 1)
+                viewState.checkedFrames.add(key)
               } else {
-                viewState.checkedFrames.delete(key + 1)
+                viewState.checkedFrames.delete(key)
               }
               return false
             },
@@ -120,8 +122,8 @@ export default class FrameListView {
     const items = []
     for (let index = 0; index < visibleItems; index += 1) {
       const seq = (filter.main)
-        ? filteredFrames[index] - 1
-        : index + startIndex
+        ? filteredFrames[index]
+        : index + startIndex + 1
       const itemStyle = {
         height: `${this.itemHeight}px`,
         top: `${(index + startIndex) * this.itemHeight}px`,

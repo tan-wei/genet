@@ -152,6 +152,12 @@ nav.frame-list {
     box-sizing: border-box;
     cursor: default;
 
+    &[active] {
+      background-color: @theme-default-bg;
+      color: @theme-default-fg;
+      font-weight: bold;
+    }
+
     div.header {
       width: 100%;
       white-space: nowrap;
@@ -159,8 +165,6 @@ nav.frame-list {
       input[type=checkbox] {
         display: inline;
         margin: 0;
-        width: auto;
-        height: 100%;
         padding: 0 8px;
         background-color: transparent;
         line-height: 8px;
