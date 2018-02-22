@@ -62,7 +62,7 @@
     "electron-packager": "^10.1.0",
     "electron-winstaller": "^2.6.3",
     "mocha": "^3.5.3",
-    "negatron": "1.7.1",
+    "negatron": "1.8.2",
     "node-gyp": "^3.6.2",
     "node-notifier": "^5.1.2",
     "pretty-bytes": "^4.0.2",
