@@ -25,7 +25,6 @@
     "deep-equal": "^1.0.1",
     "disposables": "^1.0.1",
     "electron-squirrel-startup": "^1.0.0",
-    "es6-promisify": "^5.0.0",
     "escodegen": "^1.8.1",
     "esprima": "^4.0.0",
     "estraverse": "^4.2.0",

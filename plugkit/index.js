@@ -1,6 +1,6 @@
 const kit = require('./plugkit')
 const fs = require('fs')
-const promisify = require('es6-promisify')
+const { promisify } = require('util')
 const EventEmitter = require('events')
 const FilterCompiler = require('./filter')
 const InspectorServer = require('./inspector')

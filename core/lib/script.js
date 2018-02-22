@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import promisify from 'es6-promisify'
+import { promisify } from 'util'
 import vm from 'vm'
 
 const promiseReadFile = promisify(fs.readFile)

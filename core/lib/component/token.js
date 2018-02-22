@@ -3,7 +3,7 @@ import { CompositeDisposable } from 'disposables'
 import jsonfile from 'jsonfile'
 import objpath from 'object-path'
 import path from 'path'
-import promisify from 'es6-promisify'
+import { promisify } from 'util'
 
 const promiseReadFile = promisify(jsonfile.readFile)
 export default class TokenComponent extends BaseComponent {

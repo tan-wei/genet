@@ -3,7 +3,7 @@ import env from './env'
 import fs from 'fs'
 import glob from 'glob'
 import path from 'path'
-import promisify from 'es6-promisify'
+import { promisify } from 'util'
 import writeFileAtomic from 'write-file-atomic'
 
 const promiseGlob = promisify(glob)

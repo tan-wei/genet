@@ -2,7 +2,7 @@ import { Disposable } from 'disposables'
 import fs from 'fs'
 import less from 'less'
 import path from 'path'
-import promisify from 'es6-promisify'
+import { promisify } from 'util'
 
 const fields = Symbol('fields')
 const readFile = promisify(fs.readFile)
