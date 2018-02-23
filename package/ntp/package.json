@@ -21,7 +21,7 @@
       {
         "type": "core:style",
         "files": [
-          "style.less"
+          "ntp.css"
         ]
       }
     ]

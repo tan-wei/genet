@@ -39,7 +39,7 @@
       {
         "type": "core:style",
         "files": [
-          "eth.less"
+          "eth.css"
         ]
       },
       {

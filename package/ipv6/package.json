@@ -28,7 +28,7 @@
       {
         "type": "core:style",
         "files": [
-          "ipv6.less"
+          "ipv6.css"
         ]
       },
       {

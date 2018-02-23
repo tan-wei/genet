@@ -24,7 +24,7 @@
       {
         "type": "core:style",
         "files": [
-          "tcp.less"
+          "tcp.css"
         ]
       },
       {
