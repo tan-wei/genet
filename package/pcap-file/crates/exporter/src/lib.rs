@@ -14,12 +14,11 @@ use plugkit::variant::Value;
 pub struct PcapExporter {}
 
 impl Exporter for PcapExporter {
-    fn start(ctx: &mut Context, path: &Path, cb: &Fn(&mut Context) -> &[RawFrame]) -> Result<()> {
+    fn start(ctx: &mut Context, path: &Path, file: &mut File, cb: &Fn(&mut Context) -> &[RawFrame]) -> Result<()> {
         let ext = path.extension();
         if ext.is_none() || ext.unwrap() != "pcap" {
             return Err(Error::new(ErrorKind::InvalidInput, "unsupported"))
         }
-        let file = File::create(path)?;
         let mut wtr = BufWriter::new(file);
         wtr.write_all(&[0x4d, 0x3c, 0xb2, 0xa1])?;
 

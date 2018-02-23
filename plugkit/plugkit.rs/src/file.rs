@@ -6,6 +6,7 @@ use std::mem;
 use std::slice;
 use std::io::{Error, ErrorKind, Result};
 use std::path::Path;
+use std::fs::File;
 use super::layer::Layer;
 use super::variant::Variant;
 use super::context::Context;
@@ -82,13 +83,13 @@ impl RawFrame {
 }
 
 pub trait Importer {
-    fn start(_ctx: &mut Context, _path: &Path, _dst: &mut [RawFrame], _cb: &Fn(&mut Context, usize, f64)) -> Result<()> {
+    fn start(_ctx: &mut Context, _path: &Path, _file: &mut File, _dst: &mut [RawFrame], _cb: &Fn(&mut Context, usize, f64)) -> Result<()> {
         Err(Error::new(ErrorKind::InvalidInput, "unsupported"))
     }
 }
 
 pub trait Exporter {
-    fn start(_ctx: &mut Context, _path: &Path, _cb: &Fn(&mut Context) -> &[RawFrame]) -> Result<()> {
+    fn start(_ctx: &mut Context, _path: &Path, _file: &mut File, _cb: &Fn(&mut Context) -> &[RawFrame]) -> Result<()> {
         Err(Error::new(ErrorKind::InvalidInput, "unsupported"))
     }
 }
