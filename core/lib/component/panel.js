@@ -1,9 +1,11 @@
 import BaseComponent from './base'
 import Script from '../script'
-import Style from '../style'
+import fs from 'fs'
 import objpath from 'object-path'
 import path from 'path'
+import { promisify } from 'util'
 
+const promiseReadFile = promisify(fs.readFile)
 export default class PanelComponent extends BaseComponent {
   constructor (comp, dir) {
     super()
@@ -29,9 +31,7 @@ export default class PanelComponent extends BaseComponent {
   async load () {
     let style = ''
     if (this.styleFile) {
-      const loader = new Style()
-      const result = await loader.compileLess(this.styleFile)
-      style = result.css
+      style = await promiseReadFile(this.styleFile, 'utf8')
     }
     const component = await Script.execute(this.mainFile)
     this.disposable =

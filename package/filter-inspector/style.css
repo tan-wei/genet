@@ -1,17 +1,11 @@
-@import "common";
-
 .view {
   position: absolute;
   top: 0;
   bottom: 0;
   right: 0;
   left: 0;
-  padding: 10px;
+  padding: 10px 30px;
   flex-grow: 1;
   user-select: text;
   overflow-y: scroll;
-
-  ul {
-    padding: 5px;
-  }
 }

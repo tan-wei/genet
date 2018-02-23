@@ -13,7 +13,7 @@
         "main": "main.js",
         "name": "Filter",
         "id": "core:panel:filter-inspector",
-        "style": "theme.less"
+        "style": "style.css"
       }
     ]
   }

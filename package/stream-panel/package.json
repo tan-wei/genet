@@ -13,7 +13,7 @@
         "main": "main.js",
         "name": "Stream",
         "id": "core:panel:stream",
-        "style": "theme.less"
+        "style": "style.css"
       }
     ]
   }

@@ -13,7 +13,7 @@
         "main": "main.js",
         "name": "Binary",
         "id": "core:panel:binary",
-        "style": "theme.less"
+        "style": "style.css"
       }
     ]
   }

@@ -6,7 +6,7 @@ const components = [
 ]
 
 const content = new Content(PreferenceView,
-  'preference.less',
+  'preference.main.css',
   [
     `--components=${components.join(',')}`,
     '--loggerDomain=preference',

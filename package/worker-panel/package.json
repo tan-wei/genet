@@ -13,7 +13,7 @@
         "main": "main.js",
         "name": "Worker",
         "id": "core:panel:worker",
-        "style": "theme.less"
+        "style": "style.css"
       }
     ]
   }

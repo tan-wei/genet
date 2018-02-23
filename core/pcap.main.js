@@ -16,7 +16,7 @@ const components = [
 
 const content = new Content(
   PcapView,
-  'pcap.less',
+  'pcap.main.css',
   [
     `--components=${components.join(',')}`,
     '--loggerDomain=pcap',

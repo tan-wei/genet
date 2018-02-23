@@ -1,6 +1,5 @@
 import { Disposable } from 'disposables'
 import fs from 'fs'
-import less from 'less'
 import path from 'path'
 import { promisify } from 'util'
 
@@ -14,25 +13,15 @@ export default class Style {
     }
   }
 
-  async compileLess (file) {
-    const options = {
-      paths: [
-        path.dirname(file),
-        __dirname
-      ],
-      filename: file,
-      compress: true,
-      globalVars: { 'node-platform': process.platform },
-    }
-    const code = await readFile(file, 'utf8')
-    return less.render(code, options)
+  get themeFile () {
+    return this[fields].themeFile
   }
 
   async applyLess (file) {
-    const result = await this.compileLess(file)
+    const css = await readFile(file, 'utf8')
     const styleTag = document.createElement('style')
     const theme = this[fields].themeFile
-    styleTag.textContent = `${theme}\n${result.css}`
+    styleTag.textContent = `${theme}\n${css}`
     document.querySelector(`#${this[fields].scope}-style`).appendChild(styleTag)
     return new Disposable(() => {
       styleTag.remove()

@@ -6,7 +6,7 @@ const components = [
 ]
 
 const content = new Content(PackageView,
-  'package.less',
+  'package.main.css',
   [
     `--components=${components.join(',')}`,
     '--loggerDomain=pacakge',

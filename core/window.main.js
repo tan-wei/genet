@@ -9,7 +9,7 @@ const components = [
 
 const content = new Content(
   WindowView,
-  'window.less',
+  'window.main.css',
   [
     `--components=${components.join(',')}`
   ]

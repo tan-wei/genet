@@ -1,5 +1,3 @@
-@import "common";
-
 .view {
   position: absolute;
   top: 0;
@@ -10,4 +8,8 @@
   flex-grow: 1;
   user-select: text;
   overflow-y: scroll;
+}
+
+.view ul {
+  padding: 5px;
 }
