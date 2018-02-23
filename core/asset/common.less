@@ -1,5 +1,4 @@
 @import "deplug-theme";
-@import "protocol";
 @import "component";
 @import "form";
 @import "scrollbar";
@@ -95,15 +94,11 @@ article {
   --vibrancy: @theme-vibrancy;
 }
 
-[data-layer] {
-  .protocol-color(@theme-lighter-bg);
-}
-
 [data-layer-error] {
-  .protocol-color(#e0352f);
+  background-color: #e0352f;
 }
 
 [data-selected] {
-  .protocol-color(#221E1F);
+  background-color: #221E1F;
   font-weight: bold;
 }
