@@ -1,10 +1,7 @@
 @import "common";
 
 body {
-  .mixin (@b) when not (@b = darwin) {
-    background-color: darken(@theme-default-bg, 5%);
-  }
-  .mixin (@node-platform);
+  background-color: #101216;
 }
 
 nav {
@@ -37,12 +34,12 @@ nav {
         text-decoration: none;
 
         &:hover {
-          background: fade(@theme-default-fg, 20%);
+          background: rgba(255, 255, 255, 0.2);
         }
 
         &[active] {
-          background: @theme-default-fg;
-          color: @theme-default-bg;
+          background: var(--theme-default-fg);
+          color: var(--theme-default-bg);
         }
       }
 
@@ -61,7 +58,7 @@ main {
   right: 0;
 
   &.loading {
-    background-color: @theme-default-bg;
+    background-color: var(--theme-default-bg);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -83,7 +80,7 @@ main {
 
     &[active] {
       visibility: visible;
-      background-color: @theme-default-bg;
+      background-color: var(--theme-default-bg);
     }
   }
 }

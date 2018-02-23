@@ -4,8 +4,8 @@
 @import "scrollbar";
 
 * {
-  font-family: @theme-font-family;
-  font-size: @theme-font-size;
+  font-family: var(--theme-font-family);
+  font-size: var(--theme-font-size);
   -webkit-appearance: none;
 }
 
@@ -15,7 +15,7 @@ html {
 }
 
 body {
-  color: @theme-default-fg;
+  color: var(--theme-default-fg);
 }
 
 .fa {
@@ -28,8 +28,8 @@ a {
 }
 
 ::selection {
-  background: @theme-default-fg;
-  color: @theme-default-bg;
+  background: var(--theme-default-fg);
+  color: var(--theme-default-bg);
 }
 
 h1, h2, h3, h4, h5, h6, label, summary {
@@ -40,40 +40,40 @@ h1, h2, h3, h4, h5, h6, label, summary {
 
 h1 {
   font-size: 2.0em;
-  color: @theme-light-fg;
+  color: var(--theme-light-fg);
 }
 
 h2 {
   font-size: 1.8em;
-  color: @theme-light-fg;
+  color: var(--theme-light-fg);
 }
 
 h3 {
   font-size: 1.6em;
-  color: @theme-light-fg;
+  color: var(--theme-light-fg);
 }
 
 h4 {
   font-size: 1.4em;
-  color: @theme-light-fg;
+  color: var(--theme-light-fg);
 }
 
 h5 {
   font-size: 1.2em;
-  color: @theme-light-fg;
+  color: var(--theme-light-fg);
 }
 
 h6 {
   font-size: 1.0em;
-  color: @theme-light-fg;
+  color: var(--theme-light-fg);
 }
 
 th {
-  color: @theme-dark-fg;
+  color: var(--theme-dark-fg);
 }
 
 label {
-  color: @theme-dark-fg;
+  color: var(--theme-dark-fg);
 }
 
 table {
@@ -88,10 +88,6 @@ table {
 
 article {
   padding: 0 20px;
-}
-
-:root {
-  --vibrancy: @theme-vibrancy;
 }
 
 [data-layer-error] {

@@ -6,7 +6,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: fade(@theme-default-bg, 80%);
+  background-color: rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -14,9 +14,9 @@
   z-index: 100;
 
   .dialog {
-    background-color: @theme-default-bg;
+    background-color: var(--theme-default-bg);
     border-radius: 5px;
-    border: 1px solid @theme-dark-fg;
+    border: 1px solid var(--theme-dark-fg);
     padding: 0 20px;
     box-shadow: 0 0 35px 15px rgba(0,0,0,0.1);
   }
@@ -35,9 +35,9 @@
   justify-content: flex-start;
 
   > div {
-    color: @theme-default-bg;
-    background-color: @theme-dark-fg;
-    border: 1px solid @theme-default-fg;
+    color: var(--theme-default-bg);
+    background-color: var(--theme-dark-fg);
+    border: 1px solid var(--theme-default-fg);
     padding: 10px;
     margin-top: 10px;
     min-height: 40px;
@@ -46,15 +46,15 @@
     animation: fadein 0.2s linear;
 
     &.success {
-      background-color: @theme-info;
+      background-color: var(--theme-info);
     }
 
     &.error {
-      background-color: @theme-error;
+      background-color: var(--theme-error);
     }
 
     button {
-      color: @theme-default-bg;
+      color: var(--theme-default-bg);
       border: none;
       background: none;
       float: right;
@@ -63,7 +63,7 @@
 
     h4 {
       margin: 0;
-      color: @theme-default-bg;
+      color: var(--theme-default-bg);
       font-size: 1.2em;
     }
 
@@ -109,7 +109,7 @@
 
   > .handle {
     position: absolute;
-    background-color: @theme-info;
+    background-color: var(--theme-info);
     opacity: 0;
     -webkit-app-region: no-drag;
 
@@ -141,7 +141,7 @@
     left: 0;
     right: 0;
     -webkit-app-region: no-drag;
-    background-color: @theme-lighter-bg;
+    background-color: var(--theme-lighter-bg);
     opacity: 0.3;
 
     &.vertical {

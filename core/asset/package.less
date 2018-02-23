@@ -15,7 +15,7 @@ nav {
   padding: 0;
   -webkit-app-region: drag;
   overflow-y: hidden;
-  border-right: 1px solid @theme-lighter-bg;
+  border-right: 1px solid var(--theme-lighter-bg);
 
   .mode-selector {
     position: absolute;
@@ -24,21 +24,21 @@ nav {
     left: 0;
     height: 40px;
     display: flex;
-    border-bottom: 1px solid @theme-lighter-bg;
+    border-bottom: 1px solid var(--theme-lighter-bg);
 
     button {
       flex-grow: 1;
       border: none;
-      color: @theme-default-fg;
-      background-color: @theme-default-bg;
+      color: var(--theme-default-fg);
+      background-color: var(--theme-default-bg);
 
       &:hover {
-        background: @theme-lighter-bg;
+        background: var(--theme-lighter-bg);
       }
 
       &[active] {
-        color: @theme-default-bg;
-        background-color: @theme-default-fg;
+        color: var(--theme-default-bg);
+        background-color: var(--theme-default-fg);
       }
     }
   }
@@ -80,15 +80,15 @@ nav {
         text-decoration: none;
 
         &:hover {
-          background: @theme-lighter-bg;
+          background: var(--theme-lighter-bg);
         }
 
         &[active] {
-          color: @theme-default-bg;
-          background-color: @theme-default-fg;
+          color: var(--theme-default-bg);
+          background-color: var(--theme-default-fg);
 
           h4 {
-            color: @theme-default-bg;
+            color: var(--theme-default-bg);
           }
         }
       }
@@ -108,7 +108,7 @@ main {
   span.version, span.schema-path {
     margin: 10px 25px;
     font-weight: normal;
-    color: @theme-dark-fg;
+    color: var(--theme-dark-fg);
   }
 
   pre.output {

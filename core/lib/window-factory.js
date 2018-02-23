@@ -21,7 +21,7 @@ export default class WindowFactory {
       width: size[0],
       height: size[1],
       titleBarStyle: conf.get('_.window.titleBarStyle'),
-      vibrancy: conf.get('_.window.vibrancy'),
+      show: false,
     }
     if (process.platform === 'linux') {
       options.icon = env.linuxIconPath

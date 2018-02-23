@@ -11,7 +11,7 @@ nav {
   padding: 0;
   -webkit-app-region: drag;
   overflow-y: hidden;
-  border-right: 1px solid @theme-lighter-bg;
+  border-right: 1px solid var(--theme-lighter-bg);
 
   ul {
     list-style: none;
@@ -29,12 +29,12 @@ nav {
         text-decoration: none;
 
         &:hover {
-          background: @theme-lighter-bg;
+          background: var(--theme-lighter-bg);
         }
 
         &[active] {
-          color: @theme-default-bg;
-          background-color: @theme-default-fg;
+          color: var(--theme-default-bg);
+          background-color: var(--theme-default-fg);
         }
       }
     }
@@ -69,7 +69,7 @@ main {
     span.schema-path {
       margin: 10px 25px;
       font-weight: normal;
-      color: @theme-dark-fg;
+      color: var(--theme-dark-fg);
     }
 
     section {
@@ -82,7 +82,7 @@ main {
       }
 
       summary {
-        background-color: @theme-selection-bg;
+        background-color: var(--theme-selection-bg);
         font-size: 1em;
         border-radius: 2px;
         padding: 5px;

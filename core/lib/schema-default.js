@@ -92,9 +92,5 @@ export default {
       type: 'string',
       default: 'hidden-inset',
     },
-    '_.window.vibrancy': {
-      type: 'string',
-      default: 'ultra-dark',
-    },
   },
 }

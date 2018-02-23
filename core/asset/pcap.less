@@ -9,11 +9,11 @@ header {
   left: 0;
   right: 0;
   height: @header-height;
-  background: @theme-lighter-bg;
+  background: var(--theme-lighter-bg);
 
   input[type=text] {
     border: none;
-    border-bottom: 1px solid @theme-selection-bg;
+    border-bottom: 1px solid var(--theme-selection-bg);
   }
 
   div.suggest {
@@ -22,7 +22,7 @@ header {
     left: 0;
     right: 0;
     z-index: 1;
-    background-color: @theme-default-bg;
+    background-color: var(--theme-default-bg);
     box-shadow: 0 0 5px 5px rgba(0,0,0,0.1);
 
     ul {
@@ -36,12 +36,12 @@ header {
         cursor: default;
 
         &[active] {
-          color: @theme-default-bg;
-          background-color: @theme-default-fg;
+          color: var(--theme-default-bg);
+          background-color: var(--theme-default-fg);
         }
 
         &:hover {
-          background-color: @theme-selection-bg;
+          background-color: var(--theme-selection-bg);
         }
       }
 
@@ -57,7 +57,7 @@ header {
     left: 0;
     right: 0;
     height: 24px;
-    border-top: 1px solid @theme-selection-bg;
+    border-top: 1px solid var(--theme-selection-bg);
     box-sizing: border-box;
     overflow: hidden;
     -webkit-user-select: none;
@@ -78,7 +78,7 @@ header {
       left: 0;
       right: 0;
       -webkit-app-region: no-drag;
-      background-color: @theme-lighter-bg;
+      background-color: var(--theme-lighter-bg);
       opacity: 0.3;
       cursor: ew-resize;
     }
@@ -92,7 +92,7 @@ header {
       overflow: hidden;
       text-overflow: ellipsis;
       box-sizing: border-box;
-      border-right: 1px solid @theme-selection-bg;
+      border-right: 1px solid var(--theme-selection-bg);
 
       &:last-child {
         border-right: none;
@@ -107,7 +107,7 @@ header {
   span.button {
     background: none;
     border: none;
-    color: @theme-default-fg;
+    color: var(--theme-default-fg);
     cursor: pointer;
 
     i {
@@ -127,7 +127,7 @@ nav.frame-list {
   overflow-y: scroll;
 
   .padding {
-    background-color: @theme-default-bg;
+    background-color: var(--theme-default-bg);
     background-size: 100% 100%;
     image-rendering: pixelated;
   }
@@ -147,14 +147,14 @@ nav.frame-list {
     padding: 5px;
     display: flex;
     flex-direction: column;
-    border-bottom: 1px solid @theme-default-bg;
-    border-right: 1px solid @theme-default-bg;
+    border-bottom: 1px solid var(--theme-default-bg);
+    border-right: 1px solid var(--theme-default-bg);
     box-sizing: border-box;
     cursor: default;
 
     &[active] {
-      background-color: @theme-default-bg;
-      color: @theme-default-fg;
+      background-color: var(--theme-default-bg);
+      color: var(--theme-default-fg);
       font-weight: bold;
     }
 
@@ -170,7 +170,7 @@ nav.frame-list {
         line-height: 8px;
 
         &:checked {
-          background-color: @theme-default-bg;
+          background-color: var(--theme-default-bg);
         }
       }
 
@@ -203,14 +203,14 @@ nav.frame-list {
   }
 
   &::-webkit-scrollbar {
-    background-color: @theme-lighter-bg;
+    background-color: var(--theme-lighter-bg);
     background-size: 100% 100%;
     image-rendering: pixelated;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: fade(@theme-default-fg, 20%);
-    border: 3px solid @theme-default-bg;
+    background: rgba(255, 255, 255, 0.2);
+    border: 3px solid var(--theme-default-bg);
   }
 }
 
@@ -237,7 +237,7 @@ main {
     bottom: 0;
     left: 0;
     right: 0;
-    border-top: 1px solid @theme-lighter-bg;
+    border-top: 1px solid var(--theme-lighter-bg);
 
     .tab-container {
       position: absolute;
@@ -245,7 +245,7 @@ main {
       right: 0;
       left: 0;
       height: @tab-height;
-      border-bottom: 1px solid @theme-lighter-bg;
+      border-bottom: 1px solid var(--theme-lighter-bg);
 
       span {
         -webkit-user-select: none;
@@ -255,7 +255,7 @@ main {
         padding: 0 20px;
 
         &[active] {
-          background: @theme-lighter-bg;
+          background: var(--theme-lighter-bg);
         }
       }
     }
@@ -353,14 +353,14 @@ main {
     span.label {
       min-width: 200px;
       margin: auto 10px;
-      color: @theme-keywords;
+      color: var(--theme-keywords);
 
       &.summary {
-        color: @theme-classes;
+        color: var(--theme-classes);
       }
 
       &.error {
-        color: @theme-error;
+        color: var(--theme-error);
       }
     }
   }
