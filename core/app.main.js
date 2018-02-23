@@ -8,6 +8,7 @@ if (require('electron-squirrel-startup')) {
 }
 
 app.commandLine.appendSwitch('--enable-experimental-web-platform-features')
+app.commandLine.appendSwitch('--ignore-gpu-blacklist')
 
 async function init () {
   await PackageManager.init()
