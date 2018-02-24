@@ -48,7 +48,7 @@ export default {
         format: 'uri',
       },
       uniqueItems: true,
-      default: ['https://deplug.net/registry/cache'],
+      default: ['https://deplug.net/registry/cache.txt'],
     },
     '_.package.rustpath': {
       title: 'Rust Path',
