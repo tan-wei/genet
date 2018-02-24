@@ -1,3 +1,4 @@
+import Style from '../../lib/style'
 import m from 'mithril'
 
 class PanelView {
@@ -11,9 +12,21 @@ class PanelView {
     const node = this.container.attachShadow({ mode: 'open' })
     m.mount(node, vnode.attrs.component)
 
-    const styleTag = document.createElement('style')
-    styleTag.textContent = vnode.attrs.style
-    node.appendChild(styleTag)
+    const themeStyleTag = document.createElement('style')
+    themeStyleTag.id = 'theme-style'
+    node.appendChild(themeStyleTag)
+
+    const globalStyleTag = document.createElement('style')
+    globalStyleTag.id = 'global-style'
+    node.appendChild(globalStyleTag)
+
+    const customStyleTag = document.createElement('style')
+    customStyleTag.id = 'custom-style'
+    customStyleTag.textContent = vnode.attrs.style
+    node.appendChild(customStyleTag)
+
+    const loader = new Style()
+    loader.applyCommon(node)
 
     vnode.dom.appendChild(this.container)
   }

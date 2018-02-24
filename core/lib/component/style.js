@@ -13,7 +13,7 @@ export default class StyleComponent extends BaseComponent {
   async load () {
     const loader = new Style('custom')
     const files = await Promise.all(
-      this.styleFiles.map((file) => loader.applyLess(file)))
+      this.styleFiles.map((file) => loader.applyCss(document, file)))
     this.disposable = new CompositeDisposable(files)
     return true
   }

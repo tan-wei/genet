@@ -5,9 +5,9 @@ import m from 'mithril'
 import path from 'path'
 
 export default class Content {
-  constructor (view, less, argv = []) {
+  constructor (view, css, argv = []) {
     this.view = view
-    this.less = less
+    this.css = css
     this.argv = argv
   }
 
@@ -32,12 +32,19 @@ export default class Content {
       }
     })
 
+    await new Promise((res) => {
+      document.addEventListener('DOMContentLoaded', res)
+    })
+
+    const loader = new Style()
+    loader.applyTheme(document)
+    loader.applyCommon(document)
+    await loader.applyCss(document, path.join(__dirname, this.css))
+
     const argv = JSON.parse(decodeURIComponent(location.search.substr(1)))
       .concat(this.argv)
     Reflect.defineProperty(window, 'deplug', { value: new Deplug(argv) })
 
-    const loader = new Style()
-    await loader.applyLess(path.join(__dirname, this.less))
     m.mount(document.body, this.view)
     await document.fonts.ready
   }
