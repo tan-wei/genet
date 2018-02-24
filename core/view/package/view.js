@@ -19,18 +19,18 @@ export default class PackageView {
   }
 
   view () {
-    if (deplug.packages.list.map((pkg) => pkg.data.name)
+    if (deplug.packages.list.map((pkg) => pkg.id)
       .indexOf(this.selectedLocalPackage) < 0) {
       if (deplug.packages.list.length > 0) {
-        this.selectedLocalPackage = deplug.packages.list[0].data.name
+        this.selectedLocalPackage = deplug.packages.list[0].id
       } else {
         this.selectedLocalPackage = ''
       }
     }
-    if (deplug.registry.packages.map((pkg) => pkg.data.name)
+    if (deplug.registry.packages.map((pkg) => pkg.id)
       .indexOf(this.selectedRegistryPackage) < 0) {
       if (deplug.registry.packages.length > 0) {
-        this.selectedRegistryPackage = deplug.registry.packages[0].data.name
+        this.selectedRegistryPackage = deplug.registry.packages[0].id
       } else {
         this.selectedRegistryPackage = ''
       }
@@ -38,10 +38,10 @@ export default class PackageView {
     let selectedPackage = null
     if (this.mode === 'local') {
       selectedPackage = deplug.packages.list.find((pkg) =>
-        pkg.data.name === this.selectedLocalPackage) || null
+        pkg.id === this.selectedLocalPackage) || null
     } else {
       selectedPackage = deplug.registry.packages.find((pkg) =>
-        pkg.data.name === this.selectedRegistryPackage) || null
+        pkg.id === this.selectedRegistryPackage) || null
     }
     if (selectedPackage !== null) {
       const installedPkg = deplug.packages.get(selectedPackage.data.name)
@@ -74,9 +74,9 @@ export default class PackageView {
           m('ul', deplug.packages.list.map((pkg) =>
             m('li', [
               m('a', {
-                active: this.selectedLocalPackage === pkg.data.name,
+                active: this.selectedLocalPackage === pkg.id,
                 onclick: () => {
-                  this.selectedLocalPackage = pkg.data.name
+                  this.selectedLocalPackage = pkg.id
                 },
               }, [
                 m('h4', { disabled: pkg.disabled === true }, [pkg.data.name]),
@@ -94,9 +94,9 @@ export default class PackageView {
           m('ul', deplug.registry.packages.map((pkg) =>
             m('li', [
               m('a', {
-                active: this.selectedRegistryPackage === pkg.data.name,
+                active: this.selectedRegistryPackage === pkg.id,
                 onclick: () => {
-                  this.selectedRegistryPackage = pkg.data.name
+                  this.selectedRegistryPackage = pkg.id
                 },
               }, [
                 m('h4', [pkg.data.name]),

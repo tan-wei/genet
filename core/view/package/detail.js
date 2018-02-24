@@ -6,7 +6,7 @@ import path from 'path'
 
 let installerCallback = null
 async function install (pkg) {
-  const shortName = pkg.data.name.replace(/@\w+\//, '')
+  const shortName = pkg.id
   const installer = new Installer()
   installer.rustpath = deplug.config.get('_.package.rustpath', '')
   installer.on('output', (chunk) => {
@@ -36,7 +36,7 @@ async function install (pkg) {
 class ButtonBoxView {
   view (vnode) {
     const { pkg } = vnode.attrs
-    if (pkg.url) {
+    if (pkg.archive) {
       return m('span', { class: 'button-box' }, [
         m('input', {
           type: 'button',

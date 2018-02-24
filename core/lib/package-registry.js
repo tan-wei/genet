@@ -65,10 +65,10 @@ async function resolveEntry (entry) {
     }
 
     return {
-      id: 'npm.' + name.replace('/', '.'),
+      id: `npm.${name.replace('/', '.')}`,
       data: pkg,
       timestamp: new Date(meta.time.modified),
-      archive: tarball
+      archive: tarball,
     }
   }
   throw new Error('Unsupported source type')
