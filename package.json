@@ -45,6 +45,7 @@
     "mithril": "^1.1.1",
     "mkpath": "^1.0.0",
     "mousetrap": "^1.6.1",
+    "normalize-url": "^2.0.1",
     "object-path": "^0.11.4",
     "parse-color": "^1.0.0",
     "rimraf": "^2.6.2",

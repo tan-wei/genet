@@ -2,9 +2,9 @@ import { EventEmitter } from 'events'
 import axios from 'axios'
 import deepEqual from 'deep-equal'
 import env from './env'
+import normalize from 'normalize-url'
 import objpath from 'object-path'
 import semver from 'semver'
-import yaml from 'js-yaml'
 
 axios.defaults.adapter = require('axios/lib/adapters/http')
 
@@ -39,8 +39,11 @@ function promiseFilter (proms, errorCb) {
 }
 
 async function resolveEntry (entry) {
-  if (entry.source === 'npm') {
-    const encodedName = entry.name.replace('/', '%2F')
+  const normalized = normalize(entry, { stripWWW: false })
+  const prefix = 'https://www.npmjs.com/package/'
+  if (normalized.startsWith(prefix)) {
+    const name = normalized.slice(prefix.length)
+    const encodedName = name.replace('/', '%2F')
     const url = `https://registry.npmjs.org/${encodedName}`
     const meta = await axios.get(url)
       .then((res) => res.data)
@@ -62,10 +65,10 @@ async function resolveEntry (entry) {
     }
 
     return {
+      id: 'npm.' + name.replace('/', '.'),
       data: pkg,
       timestamp: new Date(meta.time.modified),
-      archive: tarball,
-      url: entry.url || null,
+      archive: tarball
     }
   }
   throw new Error('Unsupported source type')
@@ -77,7 +80,7 @@ async function crawlRegistries (registries, errorCb) {
     tasks.push(
       axios(reg)
         .then((res) => res.data)
-        .then((data) => Object.values(yaml.safeLoad(data)))
+        .then((data) => data.split('\n').filter((url) => url.trim()))
         .then((entries) => promiseFilter(entries.map(resolveEntry), errorCb))
     )
   }
