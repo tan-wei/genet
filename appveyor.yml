@@ -11,7 +11,7 @@ install:
 - cargo -V
 - ps: git submodule update --init --recursive; true
 - ps: npm install; true
-- ps: npm install -g eslint eslint-plugin-mocha
+- ps: npm install -g eslint eslint-plugin-mocha; true
 build_script:
 - ps: npm run build; true
 test_script:
