@@ -16,10 +16,10 @@ use http_muncher::{Parser, ParserHandler};
 use std::cell::RefCell;
 use std::rc::Rc;
 
+#[derive(PartialEq)]
 enum Status {
     None,
-    Request,
-    Response,
+    Active,
     Error
 }
 
@@ -90,8 +90,7 @@ fn get_status_code(val: u16) -> Option<Token> {
 
 struct HTTPSession {
     status: Status,
-    req_parser: Rc<RefCell<Parser>>,
-    res_parser: Rc<RefCell<Parser>>
+    parser: Rc<RefCell<Parser>>
 }
 
 impl ParserHandler for HTTPSession {}
@@ -100,19 +99,12 @@ impl HTTPSession {
     pub fn new() -> HTTPSession {
         HTTPSession {
             status: Status::None,
-            req_parser: Rc::new(RefCell::new(Parser::request())),
-            res_parser: Rc::new(RefCell::new(Parser::response()))
+            parser: Rc::new(RefCell::new(Parser::request_and_response()))
         }
     }
 
-    fn parse_request(&mut self, slice: &'static[u8]) -> usize {
-        let parser = Rc::clone(&self.req_parser);
-        let size = parser.borrow_mut().parse(self, &slice);
-        size
-    }
-
-    fn parse_response(&mut self, slice: &'static[u8]) -> usize {
-        let parser = Rc::clone(&self.res_parser);
+    fn parse(&mut self, slice: &'static[u8]) -> usize {
+        let parser = Rc::clone(&self.parser);
         let size = parser.borrow_mut().parse(self, &slice);
         size
     }
@@ -134,35 +126,27 @@ impl HTTPSession {
             Status::None => {
                 self.status = if slice.len() == 0 {
                     Status::None
-                } else if self.parse_request(slice) == slice.len() {
-                    Status::Request
-                } else if self.parse_response(slice) == slice.len() {
-                    Status::Response
+                } else if self.parse(slice) == slice.len() {
+                    Status::Active
                 } else {
                     Status::Error
                 }
             },
-            Status::Request => {
-                if self.parse_request(slice) != slice.len() {
+            Status::Active => {
+                if self.parse(slice) != slice.len() {
                     self.status = Status::Error;
                 }
             },
-            Status::Response => {
-                if self.parse_response(slice) != slice.len() {
-                    self.status = Status::Error;
-                }
-            }
             _ => ()
         }
 
-        let parser;
-        match self.status {
-            Status::Request => parser = Rc::clone(&self.req_parser),
-            Status::Response => parser = Rc::clone(&self.res_parser),
-            _ => return Ok(())
+        if self.status != Status::Active {
+            return Ok(())
         }
 
+        let parser = Rc::clone(&self.parser);
         let parser = &parser.borrow();
+
         let child = layer.add_layer(ctx, token!("http"));
         child.add_tag(ctx, token!("http"));
 
