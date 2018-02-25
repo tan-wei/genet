@@ -9,7 +9,7 @@ function filterExpression (attr) {
   const macro = deplug.session.attrMacro(attr.type)
   if (macro !== null) {
     const exp = macro(attr)
-    const prefix = deplug.config.get('_.filter.macroPrefix', '@')
+    const prefix = '@'
     return `${attr.id} == ${prefix}${exp}`
   }
   if (attr.value === true) {

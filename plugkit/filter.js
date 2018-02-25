@@ -159,16 +159,7 @@ class FilterCompiler {
     this[fields] = {
       macros: [],
       attrs: {},
-      macroPrefix: '@',
     }
-  }
-
-  get macroPrefix () {
-    return this[fields].macroPrefix
-  }
-
-  set macroPrefix (val) {
-    this[fields].macroPrefix = val
   }
 
   set macros (macros) {
@@ -188,14 +179,14 @@ class FilterCompiler {
   }
 
   transpile (filter, rawResult = false) {
-    const { macros, attrs, macroPrefix } = this[fields]
+    const { macros, attrs } = this[fields]
     if (!filter) {
       return {
         expression: '',
         globals: [],
       }
     }
-    const pattern = new RegExp(`(${macroPrefix})([^ ]+)(?: |$)`, 'g')
+    const pattern = new RegExp('(@)([^ ]+)(?: |$)', 'g')
     const str = filter.replace(pattern, (match, prefix, exp) => {
       for (const macro of macros) {
         const result = macro.func(exp)
@@ -203,7 +194,7 @@ class FilterCompiler {
           return result
         }
       }
-      throw new Error(`unrecognized macro: ${prefix}${exp}`)
+      throw new Error(`unrecognized macro: @${exp}`)
     })
     const globals = []
     const tokens = processIdentifiers(esprima.tokenize(str), attrs, globals)

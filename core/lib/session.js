@@ -195,9 +195,8 @@ export default class Session {
   }
 
   createFilterCompiler () {
-    const { config, tokens, filterMacros } = this[fields]
+    const { tokens, filterMacros } = this[fields]
     const filterCompiler = new FilterCompiler()
-    filterCompiler.macroPrefix = config.get('_.filter.macroPrefix', '@')
     filterCompiler.macros = Array.from(filterMacros)
     const attributes = {}
     for (const [key, value] of tokens.entries()) {
