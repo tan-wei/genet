@@ -21,10 +21,19 @@ const promiseMkpath = promisify(mkpath)
 const fields = Symbol('fields')
 async function readFile (filePath) {
   try {
-    const data = await promiseReadFile(filePath)
+    const normPath = path.normalize(filePath)
+    const data = await promiseReadFile(normPath)
+    const dir = path.dirname(normPath)
+    const builtin = !normPath.startsWith(env.userPackagePath)
+    const id = builtin
+      ? `builtin.${path.basename(dir)}`
+      : path.basename(dir)
     return {
       data,
-      filePath: path.normalize(filePath),
+      filePath: normPath,
+      dir,
+      builtin,
+      id,
     }
   } catch (err) {
     return { err }
@@ -126,12 +135,9 @@ export default class PackageManager extends EventEmitter {
 
       cache.data = pkg.data
       cache.removal = pkg.removal
-      cache.dir = path.dirname(pkg.filePath)
-      cache.id = path.basename(cache.dir)
-      cache.builtin = !pkg.filePath.startsWith(env.userPackagePath)
-      if (cache.builtin) {
-        cache.id = `builtin.${cache.id}`
-      }
+      cache.dir = pkg.dir
+      cache.id = pkg.id
+      cache.builtin = pkg.builtin
       packages.set(pkg.data.name, cache)
       removedPackages.delete(pkg.data.name)
     }
