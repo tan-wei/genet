@@ -9,6 +9,7 @@ use std::slice;
 
 extern crate libc;
 
+#[repr(C)]
 pub struct Payload {
     typ: Token,
     range: (libc::size_t, libc::size_t)
