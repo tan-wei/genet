@@ -8,7 +8,8 @@ const readFile = promisify(fs.readFile)
 export default class Style {
   constructor (scope = 'global') {
     this[fields] = {
-      themeStyle: fs.readFileSync(path.join(__dirname, 'theme.main.css'), 'utf8'),
+      themeStyle:
+        fs.readFileSync(path.join(__dirname, 'theme.main.css'), 'utf8'),
       commonStyle:
         fs.readFileSync(path.join(__dirname, 'common.main.css'), 'utf8'),
       scope,
