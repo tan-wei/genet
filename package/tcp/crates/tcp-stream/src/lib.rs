@@ -103,6 +103,10 @@ impl Worker for TCPStreamWorker {
 
         let id = (self.map.len() << 8) | layer.worker() as usize;
         let stream = self.map.entry(stream_id).or_insert_with(|| Stream::new(id as u32));
+        {
+            let attr = layer.add_attr(ctx, token!("_.streamId"));
+            attr.set(&stream.id);
+        }
 
         let (seq, window, flags) = {
             let seq : u32 = layer.attr(token!("tcp.seq")).unwrap().get();

@@ -5,10 +5,12 @@ extern crate libc;
 #[macro_use]
 extern crate plugkit;
 
+use std::collections::HashMap;
 use std::io::{Error, ErrorKind};
 use plugkit::layer::{Layer};
 use plugkit::context::Context;
 use plugkit::worker::Worker;
+use plugkit::variant::Value;
 use http_muncher::{Parser, ParserHandler};
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -20,17 +22,17 @@ enum Status {
     Error
 }
 
-struct HTTPWorker {
+struct HTTPSession {
     status: Status,
     req_parser: Rc<RefCell<Parser>>,
     res_parser: Rc<RefCell<Parser>>
 }
 
-impl ParserHandler for HTTPWorker {}
+impl ParserHandler for HTTPSession {}
 
-impl HTTPWorker {
-    pub fn new() -> HTTPWorker {
-        HTTPWorker {
+impl HTTPSession {
+    pub fn new() -> HTTPSession {
+        HTTPSession {
             status: Status::None,
             req_parser: Rc::new(RefCell::new(Parser::request())),
             res_parser: Rc::new(RefCell::new(Parser::response()))
@@ -48,9 +50,7 @@ impl HTTPWorker {
         let size = parser.borrow_mut().parse(self, &slice);
         size
     }
-}
 
-impl Worker for HTTPWorker {
     fn analyze(&mut self, ctx: &mut Context, layer: &mut Layer) -> Result<(), Error> {
         let (slice, _) = {
             let payload = layer
@@ -94,10 +94,33 @@ impl Worker for HTTPWorker {
                 let child = layer.add_layer(ctx, token!("http"));
                 child.add_tag(ctx, token!("http"));
             }
+            Status::Error => ctx.close_stream(),
             _ => ()
         }
 
         Ok(())
+    }
+}
+
+struct HTTPWorker {
+    map: HashMap<u32, HTTPSession>
+}
+
+impl HTTPWorker {
+    pub fn new() -> HTTPWorker {
+        HTTPWorker {
+            map: HashMap::new()
+        }
+    }
+}
+
+impl Worker for HTTPWorker {
+    fn analyze(&mut self, ctx: &mut Context, layer: &mut Layer) -> Result<(), Error> {
+        let stream_id: u32 = {
+            layer.attr(token!("_.streamId")).unwrap().get()
+        };
+        let session = self.map.entry(stream_id).or_insert_with(|| HTTPSession::new());
+        session.analyze(ctx, layer)
     }
 }
 
