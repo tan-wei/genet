@@ -110,27 +110,27 @@ export default class PackageManager extends EventEmitter {
       if (typeof removeme[index].data === 'undefined') {
         pkg.removal = false
       } else {
-        disabledPackages.add(pkg.data.name)
+        disabledPackages.add(pkg.id)
         pkg.removal = true
       }
     }
 
     for (const pkg of pkgs) {
-      const disabled = disabledPackages.has(pkg.data.name)
-      const cache = packages.get(pkg.data.name) || { components: [] }
-      if (!packages.has(pkg.data.name) && !disabled) {
-        addedPackages.add(pkg.data.name)
+      const disabled = disabledPackages.has(pkg.id)
+      const cache = packages.get(pkg.id) || { components: [] }
+      if (!packages.has(pkg.id) && !disabled) {
+        addedPackages.add(pkg.id)
       } else if (disabled) {
         if (cache.disabled === true) {
-          disabledPackages.delete(pkg.data.name)
+          disabledPackages.delete(pkg.id)
         } else {
           cache.disabled = true
         }
       } else if (cache.disabled === true) {
-        enabledPackages.add(pkg.data.name)
+        enabledPackages.add(pkg.id)
         cache.disabled = false
       } else if (semver.neq(pkg.data.version, cache.data.version)) {
-        updatedPackages.add(pkg.data.name)
+        updatedPackages.add(pkg.id)
       }
 
       cache.data = pkg.data
@@ -138,22 +138,22 @@ export default class PackageManager extends EventEmitter {
       cache.dir = pkg.dir
       cache.id = pkg.id
       cache.builtin = pkg.builtin
-      packages.set(pkg.data.name, cache)
-      removedPackages.delete(pkg.data.name)
+      packages.set(pkg.id, cache)
+      removedPackages.delete(pkg.id)
     }
 
     const task = []
     Array.from(disabledPackages)
       .concat(Array.from(removedPackages))
       .concat(Array.from(updatedPackages))
-      .map((name) => packages.get(name))
+      .map((id) => packages.get(id))
       .filter((pkg) => typeof pkg !== 'undefined')
       .forEach((pkg) => {
         for (const comp of pkg.components) {
-          logger.debug(`unloading package: ${pkg.data.name}`)
+          logger.debug(`unloading package: ${pkg.id}`)
           task.push(comp.unload().then((result) => {
             if (!result) {
-              dirtyPackages.add(pkg.data.name)
+              dirtyPackages.add(pkg.id)
             }
             return result
           })
@@ -165,7 +165,7 @@ export default class PackageManager extends EventEmitter {
 
     Array.from(addedPackages)
       .concat(Array.from(updatedPackages))
-      .map((name) => packages.get(name))
+      .map((id) => packages.get(id))
       .forEach((pkg) => {
         const components = objpath.get(pkg.data, 'deplug.components', [])
         pkg.components = components
@@ -176,13 +176,13 @@ export default class PackageManager extends EventEmitter {
     Array.from(enabledPackages)
       .concat(Array.from(addedPackages))
       .concat(Array.from(updatedPackages))
-      .map((name) => packages.get(name))
+      .map((id) => packages.get(id))
       .forEach((pkg) => {
         for (const comp of pkg.components) {
-          logger.debug(`loading package: ${pkg.data.name}`)
+          logger.debug(`loading package: ${pkg.id}`)
           task.push(comp.load().then((result) => {
             if (!result && !initialLoad) {
-              dirtyPackages.add(pkg.data.name)
+              dirtyPackages.add(pkg.id)
             }
             return result
           })
@@ -192,15 +192,15 @@ export default class PackageManager extends EventEmitter {
         }
       })
 
-    for (const name of dirtyPackages) {
-      const pkg = packages.get(name)
+    for (const id of dirtyPackages) {
+      const pkg = packages.get(id)
       if (typeof pkg !== 'undefined') {
         pkg.dirty = true
       }
     }
 
-    for (const name of removedPackages) {
-      packages.delete(name)
+    for (const id of removedPackages) {
+      packages.delete(id)
     }
 
     for (const [, pkg] of packages) {
@@ -224,31 +224,31 @@ export default class PackageManager extends EventEmitter {
     return Array.from(this[fields].packages.values())
   }
 
-  get (name) {
-    return this[fields].packages.get(name)
+  get (id) {
+    return this[fields].packages.get(id)
   }
 
-  enable (name) {
+  enable (id) {
     const { config } = this[fields]
     const disabledPackages = new Set(config.get('_.disabledPackages', []))
-    if (disabledPackages.delete(name)) {
+    if (disabledPackages.delete(id)) {
       config.set('_.disabledPackages', Array.from(disabledPackages))
       this.triggerUpdate()
     }
   }
 
-  disable (name) {
+  disable (id) {
     const { config } = this[fields]
     const disabledPackages = new Set(config.get('_.disabledPackages', []))
-    if (!disabledPackages.has(name)) {
-      disabledPackages.add(name)
+    if (!disabledPackages.has(id)) {
+      disabledPackages.add(id)
       config.set('_.disabledPackages', Array.from(disabledPackages))
       this.triggerUpdate()
     }
   }
 
-  setUninstallFlag (name, flag) {
-    const pkg = this.get(name)
+  setUninstallFlag (id, flag) {
+    const pkg = this.get(id)
     if (typeof pkg !== 'undefined') {
       const removeme = path.join(pkg.dir, '.removeme')
       if (flag) {

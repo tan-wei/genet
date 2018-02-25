@@ -44,7 +44,7 @@ export default class PackageView {
         pkg.id === this.selectedRegistryPackage) || null
     }
     if (selectedPackage !== null) {
-      const installedPkg = deplug.packages.get(selectedPackage.data.name)
+      const installedPkg = deplug.packages.get(selectedPackage.id)
       selectedPackage = installedPkg || selectedPackage
     }
     return [

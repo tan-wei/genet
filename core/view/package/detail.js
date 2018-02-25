@@ -55,7 +55,7 @@ class ButtonBoxView {
             type: 'button',
             value: 'Undo',
             onclick: () => {
-              deplug.packages.setUninstallFlag(pkg.data.name, false)
+              deplug.packages.setUninstallFlag(pkg.id, false)
             },
           })
         ])
@@ -69,9 +69,9 @@ class ButtonBoxView {
           : 'Disable',
         onclick: () => {
           if (pkg.disabled) {
-            deplug.packages.enable(pkg.data.name)
+            deplug.packages.enable(pkg.id)
           } else {
-            deplug.packages.disable(pkg.data.name)
+            deplug.packages.disable(pkg.id)
           }
         },
       }),
@@ -84,7 +84,7 @@ class ButtonBoxView {
             : 'block',
         },
         onclick: () => {
-          deplug.packages.setUninstallFlag(pkg.data.name, true)
+          deplug.packages.setUninstallFlag(pkg.id, true)
         },
       })
     ])
@@ -103,7 +103,7 @@ export default class DetailView {
     }
 
     const config = Object.entries(deplug.config.schema)
-      .filter(([id]) => id.startsWith(`${pkg.data.name}.`))
+      .filter(([id]) => id.startsWith(`${pkg.id}.`))
     return m('article', [
       m('h1', { disabled: pkg.disabled === true }, [pkg.data.name,
         m('span', { class: 'version' },
@@ -120,7 +120,7 @@ export default class DetailView {
         m('p', { class: 'description' }, [schema.description])
       ]))),
       m('pre', { class: 'output' }, [
-        this.output[pkg.data.name]
+        this.output[pkg.id]
       ])
     ])
   }
@@ -129,7 +129,7 @@ export default class DetailView {
     const { pkg } = vnode.attrs
     if (pkg !== null) {
       installerCallback = (chunk) => {
-        this.output[pkg.data.name] = (this.output[pkg.data.name] || '') + chunk
+        this.output[pkg.id] = (this.output[pkg.id] || '') + chunk
         m.redraw()
       }
     }
