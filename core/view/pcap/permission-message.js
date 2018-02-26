@@ -51,7 +51,7 @@ class MacHelper {
 class LinuxHelper {
   view () {
     return m('section', [
-      m('h1', ['Not enougth capabilities']),
+      m('h1', ['Not enough capabilities']),
       m('p', [
         'This executable does not have enough capabilities to ' +
         'start a live capture.',
