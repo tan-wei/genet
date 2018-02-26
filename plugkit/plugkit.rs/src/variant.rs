@@ -82,6 +82,11 @@ pub trait Value<T> {
     fn set(&mut self, &T);
 }
 
+pub trait ValueString {
+    fn get(&self) -> String;
+    fn set(&mut self, &str);
+}
+
 pub trait ValueMap<T> {
     fn get(&self, &str) -> T;
     fn set(&mut self, &str, &T);
@@ -296,16 +301,16 @@ impl Value<f64> for Variant {
     }
 }
 
-impl Value<String> for Variant {
-    fn get(&self) -> String {
+impl ValueString for Variant {
+     fn get(&self) -> String {
         unsafe {
             let slice = CStr::from_ptr(symbol::Variant_string.unwrap()(self));
             String::from_utf8_unchecked(slice.to_bytes().to_vec())
         }
     }
 
-    fn set(&mut self, val: &String) {
-        unsafe { symbol::Variant_setString.unwrap()(self, val.as_str().as_ptr() as *const i8) }
+    fn set(&mut self, val: &str) {
+        unsafe { symbol::Variant_setString.unwrap()(self, val.as_ptr() as *const i8) }
     }
 }
 
