@@ -11,8 +11,9 @@ use plugkit::layer::{Layer};
 use plugkit::context::Context;
 use plugkit::worker::Worker;
 use plugkit::token::Token;
+use plugkit::variant;
 use plugkit::variant::Value;
-use http_muncher::{Parser, ParserHandler, Method};
+use http_muncher::{Parser, ParserHandler, ParserType, Method};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -88,42 +89,42 @@ fn get_status_code(val: u16) -> Option<Token> {
     }
 }
 
-fn get_method(val: Method) -> Option<Token> {
+fn get_method(val: Method) -> Token {
     match val {
-        Method::HttpDelete => Some(token!("http.method.delete")),
-        Method::HttpGet => Some(token!("http.method.get")),
-        Method::HttpHead => Some(token!("http.method.head")),
-        Method::HttpPost => Some(token!("http.method.post")),
-        Method::HttpPut => Some(token!("http.method.put")),
-        Method::HttpConnect => Some(token!("http.method.connect")),
-        Method::HttpOptions => Some(token!("http.method.options")),
-        Method::HttpTrace => Some(token!("http.method.trace")),
-        Method::HttpCopy => Some(token!("http.method.copy")),
-        Method::HttpLock => Some(token!("http.method.lock")),
-        Method::HttpMkcol => Some(token!("http.method.mkcol")),
-        Method::HttpMove => Some(token!("http.method.move")),
-        Method::HttpPropfind => Some(token!("http.method.propfind")),
-        Method::HttpProppatch => Some(token!("http.method.proppatch")),
-        Method::HttpSearch => Some(token!("http.method.search")),
-        Method::HttpUnlock => Some(token!("http.method.unlock")),
-        Method::HttpBind => Some(token!("http.method.bind")),
-        Method::HttpRebind => Some(token!("http.method.rebind")),
-        Method::HttpUnbind => Some(token!("http.method.unbind")),
-        Method::HttpAcl => Some(token!("http.method.acl")),
-        Method::HttpReport => Some(token!("http.method.report")),
-        Method::HttpMkactivity => Some(token!("http.method.mkactivity")),
-        Method::HttpCheckout => Some(token!("http.method.checkout")),
-        Method::HttpMerge => Some(token!("http.method.merge")),
-        Method::HttpMSearch => Some(token!("http.method.mSearch")),
-        Method::HttpNotify => Some(token!("http.method.notify")),
-        Method::HttpSubscribe => Some(token!("http.method.subscribe")),
-        Method::HttpUnsubscribe => Some(token!("http.method.unsubscribe")),
-        Method::HttpPatch => Some(token!("http.method.patch")),
-        Method::HttpPurge => Some(token!("http.method.purge")),
-        Method::HttpMkcalendar => Some(token!("http.method.mkcalendar")),
-        Method::HttpLink => Some(token!("http.method.link")),
-        Method::HttpUnlink => Some(token!("http.method.unlink")),
-        Method::HttpSource => Some(token!("http.method.source")),
+        Method::HttpDelete => token!("http.method.delete"),
+        Method::HttpGet => token!("http.method.get"),
+        Method::HttpHead => token!("http.method.head"),
+        Method::HttpPost => token!("http.method.post"),
+        Method::HttpPut => token!("http.method.put"),
+        Method::HttpConnect => token!("http.method.connect"),
+        Method::HttpOptions => token!("http.method.options"),
+        Method::HttpTrace => token!("http.method.trace"),
+        Method::HttpCopy => token!("http.method.copy"),
+        Method::HttpLock => token!("http.method.lock"),
+        Method::HttpMkcol => token!("http.method.mkcol"),
+        Method::HttpMove => token!("http.method.move"),
+        Method::HttpPropfind => token!("http.method.propfind"),
+        Method::HttpProppatch => token!("http.method.proppatch"),
+        Method::HttpSearch => token!("http.method.search"),
+        Method::HttpUnlock => token!("http.method.unlock"),
+        Method::HttpBind => token!("http.method.bind"),
+        Method::HttpRebind => token!("http.method.rebind"),
+        Method::HttpUnbind => token!("http.method.unbind"),
+        Method::HttpAcl => token!("http.method.acl"),
+        Method::HttpReport => token!("http.method.report"),
+        Method::HttpMkactivity => token!("http.method.mkactivity"),
+        Method::HttpCheckout => token!("http.method.checkout"),
+        Method::HttpMerge => token!("http.method.merge"),
+        Method::HttpMSearch => token!("http.method.mSearch"),
+        Method::HttpNotify => token!("http.method.notify"),
+        Method::HttpSubscribe => token!("http.method.subscribe"),
+        Method::HttpUnsubscribe => token!("http.method.unsubscribe"),
+        Method::HttpPatch => token!("http.method.patch"),
+        Method::HttpPurge => token!("http.method.purge"),
+        Method::HttpMkcalendar => token!("http.method.mkcalendar"),
+        Method::HttpLink => token!("http.method.link"),
+        Method::HttpUnlink => token!("http.method.unlink"),
+        Method::HttpSource => token!("http.method.source"),
     }
 }
 
@@ -195,22 +196,31 @@ impl HTTPSession {
             attr.set(&(version.0 as f64 + (version.1 as f64) / 10.0));
         }
 
-        if let Some(id) = get_method(parser.http_method()) {
-            let attr = child.add_attr(ctx, id);
-            attr.set(&true);
-            attr.set_typ(token!("@novalue"));
-        }
-
-        if let Some(id) = get_status_code(parser.status_code()) {
+        if parser.parser_type() == ParserType::HttpRequest {
             {
-                let attr = child.add_attr(ctx, token!("http.status"));
+                let attr = child.add_attr(ctx, token!("http.method"));
+                variant::ValueString::set(attr, parser.http_method_str());
                 attr.set_typ(token!("@enum"));
-                attr.set(&parser.status_code());
             }
             {
-                let attr = child.add_attr(ctx, id);
+                let attr = child.add_attr(ctx, get_method(parser.http_method()));
                 attr.set(&true);
                 attr.set_typ(token!("@novalue"));
+            }
+        }
+
+        if parser.parser_type() == ParserType::HttpResponse {
+            if let Some(id) = get_status_code(parser.status_code()) {
+                {
+                    let attr = child.add_attr(ctx, token!("http.status"));
+                    attr.set_typ(token!("@enum"));
+                    attr.set(&parser.status_code());
+                }
+                {
+                    let attr = child.add_attr(ctx, id);
+                    attr.set(&true);
+                    attr.set_typ(token!("@novalue"));
+                }
             }
         }
 
