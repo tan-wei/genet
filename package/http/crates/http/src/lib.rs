@@ -230,12 +230,6 @@ impl HTTPSession {
             attr.set(&true);
         }
 
-        if parser.is_upgrade() {
-            let attr = child.add_attr(ctx, token!("http.upgrade"));
-            attr.set_typ(token!("@novalue"));
-            attr.set(&true);
-        }
-
         Ok(())
     }
 }
