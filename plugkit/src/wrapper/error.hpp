@@ -17,6 +17,8 @@ public:
   static NAN_GETTER(id);
   static NAN_GETTER(target);
   static NAN_SETTER(setTarget);
+  static NAN_GETTER(message);
+  static NAN_SETTER(setMessage);
 
 private:
   ErrorWrapper(Error *error);

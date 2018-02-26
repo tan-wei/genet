@@ -62,6 +62,8 @@ def_func!(
     Payload_slices,        extern "C" fn(*const Payload, *mut libc::size_t) -> *const (*const u8, *const u8);
     Payload_addAttr,       extern "C" fn(*mut Payload, *mut Context, Token) -> *mut Attr;
     Logger_log,            extern "C" fn(*mut Context, *const libc::c_char, *const Metadata);
+    Error_message,         extern "C" fn(*const Error) -> *const libc::c_char;
+    Error_setMessage,      extern "C" fn(*mut Error, *const libc::c_char);
 );
 
 /// Define module entry point

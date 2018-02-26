@@ -16,6 +16,7 @@
       "src/variant_map.cpp",
       "src/frame_view.cpp",
       "src/frame_store.cpp",
+      "src/error.cpp",
       "src/filter.cpp",
       "src/token.cpp",
       "src/task.cpp",

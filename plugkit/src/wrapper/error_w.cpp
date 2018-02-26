@@ -12,6 +12,8 @@ void ErrorWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
   Nan::SetAccessor(otl, Nan::New("target").ToLocalChecked(), target, setTarget);
+  Nan::SetAccessor(otl, Nan::New("message").ToLocalChecked(), message,
+                   setMessage);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
@@ -50,6 +52,20 @@ NAN_SETTER(ErrorWrapper::setTarget) {
     Token token = value->IsUint32() ? value->Uint32Value()
                                     : Token_get(*Nan::Utf8String(value));
     error->target = token;
+  }
+}
+
+NAN_GETTER(ErrorWrapper::message) {
+  ErrorWrapper *wrapper = ObjectWrap::Unwrap<ErrorWrapper>(info.Holder());
+  if (auto error = wrapper->constError) {
+    info.GetReturnValue().Set(Nan::New(error->message).ToLocalChecked());
+  }
+}
+
+NAN_SETTER(ErrorWrapper::setMessage) {
+  ErrorWrapper *wrapper = ObjectWrap::Unwrap<ErrorWrapper>(info.Holder());
+  if (auto error = wrapper->error) {
+    error->message = *Nan::Utf8String(value);
   }
 }
 
