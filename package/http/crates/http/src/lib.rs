@@ -12,9 +12,10 @@ use plugkit::context::Context;
 use plugkit::worker::Worker;
 use plugkit::token::Token;
 use plugkit::variant;
-use plugkit::variant::Value;
+use plugkit::variant::{Value};
 use http_muncher::{Parser, ParserHandler, ParserType, Method};
 use std::cell::RefCell;
+use std::str;
 use std::rc::Rc;
 
 #[derive(PartialEq)]
@@ -128,18 +129,29 @@ fn get_method(val: Method) -> Token {
     }
 }
 
-struct HTTPSession {
-    status: Status,
-    parser: Rc<RefCell<Parser>>
+enum Entry {
+    Url(&'static[u8])
 }
 
-impl ParserHandler for HTTPSession {}
+struct HTTPSession {
+    status: Status,
+    parser: Rc<RefCell<Parser>>,
+    entries: Vec<Entry>
+}
+
+impl ParserHandler for HTTPSession {
+    fn on_url(&mut self, _parser: &mut Parser, data: &'static[u8]) -> bool {
+        self.entries.push(Entry::Url(data));
+        return true
+    }
+}
 
 impl HTTPSession {
     pub fn new() -> HTTPSession {
         HTTPSession {
             status: Status::None,
-            parser: Rc::new(RefCell::new(Parser::request_and_response()))
+            parser: Rc::new(RefCell::new(Parser::request_and_response())),
+            entries: Vec::new()
         }
     }
 
@@ -228,6 +240,17 @@ impl HTTPSession {
             let attr = child.add_attr(ctx, token!("http.keepAlive"));
             attr.set_typ(token!("@novalue"));
             attr.set(&true);
+        }
+
+        while let Some(top) = self.entries.pop() {
+            match top {
+                Entry::Url(data) => {
+                    if let Ok(path) = str::from_utf8(data) {
+                        let attr = child.add_attr(ctx, token!("http.path"));
+                        variant::ValueString::set(attr, &path);
+                    }
+                }
+            }
         }
 
         Ok(())
