@@ -18,9 +18,7 @@ pub struct Payload {
 impl Payload {
     pub fn add_slice(&mut self, data: &'static [u8]) {
         unsafe {
-            let begin = data.as_ptr();
-            let end = begin.offset(data.len() as isize);
-            symbol::Payload_addSlice.unwrap()(self, (begin, end));
+            symbol::Payload_addSlice.unwrap()(self, (data.as_ptr(), data.len()));
         }
     }
 
@@ -30,8 +28,8 @@ impl Payload {
             let ptr = symbol::Payload_slices.unwrap()(self, &mut size);
             let s = slice::from_raw_parts(ptr, size);
             Box::new(s.iter().map(|elem| {
-                let (begin, end) = *elem;
-                slice::from_raw_parts(begin, (end as usize) - (begin as usize))
+                let (data, len) = *elem;
+                slice::from_raw_parts(data, len)
             }))
         }
     }

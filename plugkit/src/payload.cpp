@@ -15,7 +15,7 @@ Payload::~Payload() {
 
 void Payload::addSlice(const Slice &slice) {
   mSlices.push_back(slice);
-  mLength += Slice_length(slice);
+  mLength += slice.length;
 }
 
 const std::vector<Slice> &Payload::slices() const { return mSlices; }
@@ -52,7 +52,7 @@ const Slice *Payload_slices(const Payload *payload, size_t *size) {
   if (size)
     *size = slices.size();
   if (slices.empty()) {
-    static const Slice nil = {nullptr, nullptr};
+    static const Slice nil = {nullptr, 0};
     return &nil;
   }
   return slices.data();

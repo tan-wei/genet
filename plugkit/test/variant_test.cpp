@@ -97,17 +97,17 @@ TEST_CASE("Variant_string", "[variant]") {
 TEST_CASE("Variant_slice", "[variant]") {
   Variant variant;
   char data[256];
-  Slice slice = {data, data + sizeof(data)};
+  Slice slice = {data, sizeof(data)};
   Slice slice2 = Variant_slice(&variant);
-  CHECK(slice2.begin == nullptr);
-  CHECK(slice2.end == nullptr);
+  CHECK(slice2.data == nullptr);
+  CHECK(slice2.length == 0);
   Variant_setSlice(&variant, slice);
   slice2 = Variant_slice(&variant);
-  CHECK(slice2.begin == slice.begin);
-  CHECK(slice2.end == slice.end);
+  CHECK(slice2.data == slice.data);
+  CHECK(slice2.length == slice.length);
   slice2 = Variant_slice(nullptr);
-  CHECK(slice2.begin == nullptr);
-  CHECK(slice2.end == nullptr);
+  CHECK(slice2.data == nullptr);
+  CHECK(slice2.length == 0);
 }
 
 TEST_CASE("Variant_arrayValue", "[variant]") {

@@ -39,7 +39,7 @@ union ValueUnion {
     double: f64,
     int64: i64,
     uint64: u64,
-    slice: *mut (*const u8, *const u8),
+    slice: *mut (*const u8, usize),
     ptr: *mut (),
 }
 
@@ -319,8 +319,8 @@ impl Value<&'static [u8]> for Variant {
         unsafe {
             match self.typ() {
                 Type::Slice => {
-                    let (begin, end) = *self.val.slice;
-                    slice::from_raw_parts(begin, (end as usize) - (begin as usize))
+                    let (data, len) = *self.val.slice;
+                    slice::from_raw_parts(data, len)
                 },
                 _ => &[]
             }
@@ -329,9 +329,7 @@ impl Value<&'static [u8]> for Variant {
 
     fn set(&mut self, val: &&'static [u8]) {
         unsafe {
-            let begin = val.as_ptr();
-            let end = begin.offset(val.len() as isize);
-            symbol::Variant_setSlice.unwrap()(self, (begin, end));
+            symbol::Variant_setSlice.unwrap()(self, (val.as_ptr(), val.len()));
         }
     }
 }

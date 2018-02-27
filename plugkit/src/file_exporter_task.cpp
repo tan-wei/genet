@@ -39,8 +39,8 @@ RawFrame createRawFrame(const ContextData *data, const Frame *frame) {
     const auto &slices = payloads[0]->slices();
     if (!slices.empty()) {
       const auto &slice = slices[0];
-      raw.payload = slice.begin;
-      raw.length = slice.end - slice.begin;
+      raw.payload = slice.data;
+      raw.length = slice.length;
     }
   }
 

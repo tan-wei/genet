@@ -294,23 +294,22 @@ v8::Local<v8::Object> Variant::getNodeBuffer(const Slice &slice) {
 
   Isolate *isolate = Isolate::GetCurrent();
   if (!isolate->GetData(1)) { // Node.js is not installed
-    size_t sliceLen = Slice_length(slice);
     return v8::Uint8Array::New(
-        v8::ArrayBuffer::New(isolate, const_cast<char *>(slice.begin),
-                             sliceLen),
-        0, sliceLen);
+        v8::ArrayBuffer::New(isolate, const_cast<char *>(slice.data),
+                             slice.length),
+        0, slice.length);
   }
-  auto nodeBuf = node::Buffer::New(isolate, const_cast<char *>(slice.begin),
-                                   Slice_length(slice),
-                                   [](char *data, void *hint) {}, nullptr)
-                     .ToLocalChecked();
+  auto nodeBuf =
+      node::Buffer::New(isolate, const_cast<char *>(slice.data), slice.length,
+                        [](char *data, void *hint) {}, nullptr)
+          .ToLocalChecked();
 
   auto addr = Nan::New<v8::Array>(2);
   addr->Set(0,
             Nan::New(static_cast<uint32_t>(
-                0xffffffff & (reinterpret_cast<uint64_t>(slice.begin) >> 32))));
+                0xffffffff & (reinterpret_cast<uint64_t>(slice.data) >> 32))));
   addr->Set(1, Nan::New(static_cast<uint32_t>(
-                   0xffffffff & reinterpret_cast<uint64_t>(slice.begin))));
+                   0xffffffff & reinterpret_cast<uint64_t>(slice.data))));
   nodeBuf->Set(Nan::New("addr").ToLocalChecked(), addr);
   return nodeBuf;
 }
@@ -321,7 +320,7 @@ Slice Variant::getSlice(v8::Local<v8::ArrayBufferView> obj) {
   size_t len = obj->ByteLength();
   char *data =
       static_cast<char *>(buf->GetContents().Data()) + obj->ByteOffset();
-  return Slice{data, data + len};
+  return Slice{data, len};
 }
 
 v8::Local<v8::Value> Variant::getValue(const Variant &var) {
@@ -441,7 +440,7 @@ Slice Variant_slice(const Variant *var) {
   if (var && var->isSlice()) {
     return var->slice();
   }
-  return Slice{nullptr, nullptr};
+  return Slice{nullptr, 0};
 }
 void Variant_setSlice(Variant *var, Slice slice) { *var = Variant(slice); }
 

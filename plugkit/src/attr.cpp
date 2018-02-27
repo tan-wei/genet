@@ -97,7 +97,7 @@ void Attr_setString(Attr *attr, const char *str, int length) {
 
 Slice Attr_slice(const Attr *attr) {
   if (!attr)
-    return Slice{nullptr, nullptr};
+    return Slice{nullptr, 0};
   return attr->value().slice();
 }
 

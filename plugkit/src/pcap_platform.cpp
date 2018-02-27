@@ -221,7 +221,7 @@ bool PcapPlatform::start() {
             char *data = new char[h->caplen];
             std::memcpy(data, bytes, h->caplen);
             auto payload = self.d->payloadAllocator->alloc();
-            payload->addSlice(Slice{data, data + h->caplen});
+            payload->addSlice(Slice{data, h->caplen});
             payload->setRange(Range{0, h->caplen});
             layer->addPayload(payload);
 

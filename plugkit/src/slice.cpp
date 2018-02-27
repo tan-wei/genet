@@ -12,39 +12,39 @@ Token outOfBoundError() {
 
 template <class T>
 T readLE(const Slice &slice, size_t offset, Token *err) {
-  if (Slice_length(slice) < sizeof(T) + offset) {
+  if (slice.length < sizeof(T) + offset) {
     if (err) {
       *err = outOfBoundError();
     }
     return T();
   }
-  return *reinterpret_cast<const T *>(slice.begin + offset);
+  return *reinterpret_cast<const T *>(slice.data + offset);
 }
 
 template <class T>
 T readBE(const Slice &slice, size_t offset, Token *err) {
-  if (Slice_length(slice) < sizeof(T) + offset) {
+  if (slice.length < sizeof(T) + offset) {
     if (err) {
       *err = outOfBoundError();
     }
     return T();
   }
   char data[sizeof(T)];
-  std::reverse_copy(slice.begin + offset, slice.begin + offset + sizeof(T),
-                    data);
+  std::reverse_copy(slice.data + offset, slice.data + offset + sizeof(T), data);
   return *reinterpret_cast<const T *>(data);
 }
 } // namespace
 
 Slice Slice_slice(Slice slice, size_t begin, size_t end) {
-  Slice subview;
-  subview.begin = std::min(slice.begin + begin, slice.end);
-  subview.end = std::min(subview.begin + (end - begin), slice.end);
-  return subview;
+  return Slice{std::min(slice.data + begin, slice.data + slice.length),
+               (end > begin && slice.length > begin)
+                   ? std::min(end - begin, slice.length - begin)
+                   : 0};
 }
 
-Slice Slice_sliceAll(Slice slice, size_t begin) {
-  return Slice{std::min(slice.begin + begin, slice.end), slice.end};
+Slice Slice_sliceAll(Slice slice, size_t offset) {
+  return Slice{std::min(slice.data + offset, slice.data + slice.length),
+               slice.length > offset ? slice.length - offset : 0};
 }
 
 uint8_t Slice_getUint8(Slice slice, size_t offset, Token *err) {

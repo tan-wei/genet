@@ -11,20 +11,15 @@
 namespace plugkit {
 
 struct Slice {
-  const char *begin;
-  const char *end;
+  const char *data;
+  size_t length;
 };
-
-/// Return the length of the slice.
-inline size_t Slice_length(Slice slice) { return slice.end - slice.begin; }
 
 /// Return a `Slice` cropped by `begin` and `end` indices.
 Slice Slice_slice(Slice slice, size_t begin, size_t end);
 
 /// Return a `Slice` offset by `begin` bytes.
-///
-/// Equivalent to `Slice_slice(slice, begin, Slice_length(slice))`.
-Slice Slice_sliceAll(Slice slice, size_t begin);
+Slice Slice_sliceAll(Slice slice, size_t offset);
 
 /// Read a byte from the `offset` index of the slice
 /// and return it as `uint8_t`.

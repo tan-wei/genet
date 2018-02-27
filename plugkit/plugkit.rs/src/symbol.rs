@@ -43,7 +43,7 @@ def_func!(
     Variant_setDouble,     extern "C" fn(*mut Variant, f64);
     Variant_string,        extern "C" fn(*const Variant) -> *const libc::c_char;
     Variant_setString,     extern "C" fn(*mut Variant, *const libc::c_char);
-    Variant_setSlice,      extern "C" fn(*mut Variant, (*const u8, *const u8));
+    Variant_setSlice,      extern "C" fn(*mut Variant, (*const u8, usize));
     Variant_arrayValue,    extern "C" fn(*const Variant, libc::size_t) -> *const Variant;
     Variant_arrayValueRef, extern "C" fn(*mut Variant, libc::size_t) -> *mut Variant;
     Variant_mapValue,      extern "C" fn(*const Variant, *const libc::c_char) -> *const Variant;
@@ -58,8 +58,8 @@ def_func!(
     Layer_addPayload,      extern "C" fn(*mut Layer, *mut Context) -> *mut Payload;
     Layer_addError,        extern "C" fn(*mut Layer, *mut Context, Token) -> *mut Error;
     Layer_addTag,          extern "C" fn(*mut Layer, *mut Context, Token);
-    Payload_addSlice,      extern "C" fn(*mut Payload, (*const u8, *const u8));
-    Payload_slices,        extern "C" fn(*const Payload, *mut libc::size_t) -> *const (*const u8, *const u8);
+    Payload_addSlice,      extern "C" fn(*mut Payload, (*const u8, usize));
+    Payload_slices,        extern "C" fn(*const Payload, *mut libc::size_t) -> *const (*const u8, usize);
     Payload_addAttr,       extern "C" fn(*mut Payload, *mut Context, Token) -> *mut Attr;
     Logger_log,            extern "C" fn(*mut Context, *const libc::c_char, *const Metadata);
     Error_message,         extern "C" fn(*const Error) -> *const libc::c_char;
