@@ -91,7 +91,7 @@ public:
     int64_t int_;
     uint64_t uint_;
     std::shared_ptr<std::string> *str;
-    Slice *slice;
+    const char *data;
     Array *array;
     Map *map;
   } d;

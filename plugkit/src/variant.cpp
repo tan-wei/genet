@@ -67,8 +67,9 @@ Variant::Variant(const Array &array) : type_(VARTYPE_ARRAY) {
 
 Variant::Variant(const Map &map) : type_(VARTYPE_MAP) { d.map = new Map(map); }
 
-Variant::Variant(const Slice &slice) : type_(VARTYPE_SLICE) {
-  d.slice = new Slice(slice);
+Variant::Variant(const Slice &slice) {
+  type_ = VARTYPE_SLICE | (slice.length << 4);
+  d.data = slice.data;
 }
 
 Variant::~Variant() {
@@ -77,9 +78,6 @@ Variant::~Variant() {
     if (tag() == 0) {
       delete d.str;
     }
-    break;
-  case VARTYPE_SLICE:
-    delete d.slice;
     break;
   case VARTYPE_ARRAY:
     delete d.array;
@@ -103,9 +101,6 @@ Variant &Variant::operator=(const Variant &value) {
     } else {
       this->d.str = value.d.str;
     }
-    break;
-  case VARTYPE_SLICE:
-    this->d.slice = new Slice(*value.d.slice);
     break;
   case VARTYPE_ARRAY:
     this->d.array = new Array(*value.d.array);
@@ -211,7 +206,7 @@ std::string Variant::string(const std::string &defaultValue) const {
 
 Slice Variant::slice() const {
   if (isSlice()) {
-    return *d.slice;
+    return Slice{d.data, tag()};
   } else {
     return Slice();
   }
