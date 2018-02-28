@@ -59,12 +59,6 @@ export default {
       type: 'boolean',
       default: false,
     },
-    '_.filter.historyLength': {
-      title: 'Filter History Length',
-      type: 'integer',
-      minimum: 0,
-      default: 10,
-    },
     '_.debug.enableDebugSession': {
       title: 'Enable Debug Session',
       type: 'boolean',

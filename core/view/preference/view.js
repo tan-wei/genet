@@ -18,10 +18,6 @@ export default class PrefernceView {
       component: General,
       attrs: { prefix: '_.package.' },
     }, {
-      name: 'Filter',
-      component: General,
-      attrs: { prefix: '_.filter.' },
-    }, {
       name: 'KeyBind',
       component: KeyBind,
     }, {

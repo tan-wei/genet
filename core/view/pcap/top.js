@@ -171,7 +171,7 @@ export default class TopView {
         this.displayFilter = value
         this.sess.setDisplayFilter('main', value)
         if (value.length > 0) {
-          const maxLength = deplug.config.get('_.filter.historyLength', 10)
+          const maxLength = 10
           const history =
             [].concat(deplug.workspace.get('_.filter.history', []))
           history.push(value)
