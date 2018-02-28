@@ -210,16 +210,9 @@ impl HTTPSession {
         }
 
         if parser.parser_type() == ParserType::HttpRequest {
-            {
-                let attr = child.add_attr(ctx, token!("http.method"));
-                variant::ValueString::set(attr, parser.http_method_str());
-                attr.set_typ(token!("@enum"));
-            }
-            {
-                let attr = child.add_attr(ctx, get_method(parser.http_method()));
-                attr.set(&true);
-                attr.set_typ(token!("@novalue"));
-            }
+            let attr = child.add_attr(ctx, get_method(parser.http_method()));
+            attr.set(&true);
+            attr.set_typ(token!("@novalue"));
         }
 
         if parser.parser_type() == ParserType::HttpResponse {

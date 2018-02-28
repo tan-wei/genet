@@ -7,6 +7,20 @@ function selectRange (range = []) {
   deplug.action.emit('core:frame:range-selected', range)
 }
 
+function mergeOrphanedItems (item) {
+  const newChildren = []
+  for (const child of item.children) {
+    if (child.attr) {
+      newChildren.push(child)
+    } else {
+      for (const grand of mergeOrphanedItems(child).children) {
+        newChildren.push(grand)
+      }
+    }
+  }
+  return Object.assign(item, { children: newChildren })
+}
+
 class LayerItem {
   view (vnode) {
     const { layer } = vnode.attrs
@@ -107,12 +121,14 @@ class LayerItem {
               layer.confidence * 100, '%'
             ])
           ]),
-          attrArray[0].children.map((item) =>
-            m(AttributeItem, {
-              item,
-              layer,
-              dataOffset,
-            })),
+          mergeOrphanedItems(attrArray[0]).children
+            .filter((item) => item.attr)
+            .map((item) =>
+              m(AttributeItem, {
+                item,
+                layer,
+                dataOffset,
+              })),
           m('ul', { class: 'metadata' }, [
             layer.payloads.map(
               (payload) => payload.slices.map(
