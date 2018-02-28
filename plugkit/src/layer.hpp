@@ -60,9 +60,6 @@ public:
   Layer *parent() const;
   void setParent(Layer *layer);
 
-  const Layer *master() const;
-  void setMaster(const Layer *layer);
-
   const Frame *frame() const;
   void setFrame(const Frame *frame);
 
@@ -76,7 +73,6 @@ private:
   Token mId = Token_null();
   uint8_t mData = 0;
   Layer *mParent = nullptr;
-  const Layer *mMaster = nullptr;
   const Frame *mFrame = nullptr;
   Range mRange = {0, 0};
   std::vector<Payload *> mPayloads;

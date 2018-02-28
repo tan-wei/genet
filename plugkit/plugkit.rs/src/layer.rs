@@ -23,7 +23,6 @@ pub struct Layer {
     id: Token,
     data: u8,
     parent: *mut Layer,
-    master: *const Layer,
     frame: *const Frame,
     range: (libc::size_t, libc::size_t)
 }
