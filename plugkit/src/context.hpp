@@ -15,6 +15,8 @@ public:
   bool closeStream = false;
 
   VariantMap options;
+  std::unordered_map<uint64_t, Layer *> linkedLayers;
+
   LoggerPtr logger = std::make_shared<StreamLogger>();
 
   RootAllocator *rootAllocator = nullptr;
@@ -55,6 +57,8 @@ void Context_dealloc(Context *ctx, void *ptr);
 const Variant *Context_getOption(Context *ctx, const char *key);
 
 void Context_closeStream(Context *ctx);
+
+void Context_addLayerLinkage(Context *ctx, uint64_t id, Layer *layer);
 }
 
 } // namespace plugkit

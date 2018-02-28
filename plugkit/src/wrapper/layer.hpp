@@ -24,6 +24,8 @@ public:
   static NAN_GETTER(range);
   static NAN_SETTER(setRange);
   static NAN_GETTER(parent);
+  static NAN_GETTER(prev);
+  static NAN_GETTER(next);
   static NAN_GETTER(frame);
   static NAN_GETTER(layers);
   static NAN_GETTER(subLayers);

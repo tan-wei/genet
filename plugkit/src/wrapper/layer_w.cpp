@@ -32,6 +32,8 @@ void LayerWrapper::init(v8::Isolate *isolate) {
                    setConfidence);
   Nan::SetAccessor(otl, Nan::New("range").ToLocalChecked(), range, setRange);
   Nan::SetAccessor(otl, Nan::New("parent").ToLocalChecked(), parent);
+  Nan::SetAccessor(otl, Nan::New("prev").ToLocalChecked(), prev);
+  Nan::SetAccessor(otl, Nan::New("next").ToLocalChecked(), next);
   Nan::SetAccessor(otl, Nan::New("frame").ToLocalChecked(), frame);
   Nan::SetAccessor(otl, Nan::New("payloads").ToLocalChecked(), payloads);
   Nan::SetAccessor(otl, Nan::New("errors").ToLocalChecked(), errors);
@@ -119,6 +121,28 @@ NAN_GETTER(LayerWrapper::parent) {
   if (auto layer = wrapper->constLayer) {
     if (auto parent = layer->parent()) {
       info.GetReturnValue().Set(LayerWrapper::wrap(parent));
+    } else {
+      info.GetReturnValue().Set(Nan::Null());
+    }
+  }
+}
+
+NAN_GETTER(LayerWrapper::prev) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->constLayer) {
+    if (auto prev = layer->prev()) {
+      info.GetReturnValue().Set(LayerWrapper::wrap(prev));
+    } else {
+      info.GetReturnValue().Set(Nan::Null());
+    }
+  }
+}
+
+NAN_GETTER(LayerWrapper::next) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->constLayer) {
+    if (auto next = layer->next()) {
+      info.GetReturnValue().Set(LayerWrapper::wrap(next));
     } else {
       info.GetReturnValue().Set(Nan::Null());
     }

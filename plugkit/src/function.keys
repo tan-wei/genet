@@ -8,6 +8,7 @@ struct Functions
 };
 %%
 Context_getOption, reinterpret_cast<void *>(&plugkit::Context_getOption)
+Context_addLayerLinkage, reinterpret_cast<void *>(&plugkit::Context_addLayerLinkage)
 Layer_addLayer, reinterpret_cast<void *>(&plugkit::Layer_addLayer)
 Layer_addSubLayer, reinterpret_cast<void *>(&plugkit::Layer_addSubLayer)
 Layer_addAttr, reinterpret_cast<void *>(&plugkit::Layer_addAttr)

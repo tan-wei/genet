@@ -13,7 +13,7 @@ use plugkit::variant::Value;
 
 #[derive(Debug)]
 struct Stream {
-  pub id: u32,
+  pub id: u64,
   pub seq: i64,
   pub len: usize,
   offset: usize,
@@ -21,7 +21,7 @@ struct Stream {
 }
 
 impl Stream {
-    fn new(id: u32) -> Stream {
+    fn new(id: u64) -> Stream {
         return Stream {
             id: id,
             seq: -1,
@@ -102,7 +102,7 @@ impl Worker for TCPStreamWorker {
         };
 
         let id = (self.map.len() << 8) | layer.worker() as usize;
-        let stream = self.map.entry(stream_id).or_insert_with(|| Stream::new(id as u32));
+        let stream = self.map.entry(stream_id).or_insert_with(|| Stream::new(id as u64));
         {
             let attr = layer.add_attr(ctx, token!("_.streamId"));
             attr.set(&stream.id);

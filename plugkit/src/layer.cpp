@@ -63,6 +63,14 @@ Layer *Layer::parent() const { return mParent; }
 
 void Layer::setParent(Layer *layer) { mParent = layer; }
 
+const Layer *Layer::prev() const { return mPrev; }
+
+void Layer::setPrev(const Layer *layer) { mPrev = layer; }
+
+const Layer *Layer::next() const { return mNext; }
+
+void Layer::setNext(const Layer *layer) { mNext = layer; }
+
 const Frame *Layer::frame() const { return mFrame; }
 
 void Layer::setFrame(const Frame *frame) { mFrame = frame; }

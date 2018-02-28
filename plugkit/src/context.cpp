@@ -99,6 +99,15 @@ const Variant *Context_getOption(Context *ctx, const char *key) {
 
 void Context_closeStream(Context *ctx) { ctx->closeStream = true; }
 
+void Context_addLayerLinkage(Context *ctx, uint64_t id, Layer *layer) {
+  auto it = ctx->linkedLayers.find(id);
+  if (it != ctx->linkedLayers.end()) {
+    it->second->setNext(layer);
+    layer->setPrev(it->second);
+  }
+  ctx->linkedLayers[id] = layer;
+}
+
 namespace {
 void Log(Context *ctx,
          const char *file,

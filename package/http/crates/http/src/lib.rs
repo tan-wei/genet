@@ -161,7 +161,7 @@ impl HTTPSession {
         size
     }
 
-    fn analyze(&mut self, ctx: &mut Context, layer: &mut Layer) -> Result<(), Error> {
+    fn analyze(&mut self, ctx: &mut Context, layer: &mut Layer, stream_id: u64) -> Result<(), Error> {
         let (slice, _) = {
             let payload = layer
                 .payloads()
@@ -201,6 +201,7 @@ impl HTTPSession {
 
         let child = layer.add_layer(ctx, token!("http"));
         child.add_tag(ctx, token!("http"));
+        ctx.add_layer_linkage(stream_id, child);
 
         {
             let version = parser.http_version();
@@ -258,7 +259,7 @@ impl HTTPSession {
 }
 
 struct HTTPWorker {
-    map: HashMap<u32, HTTPSession>
+    map: HashMap<u64, HTTPSession>
 }
 
 impl HTTPWorker {
@@ -271,11 +272,11 @@ impl HTTPWorker {
 
 impl Worker for HTTPWorker {
     fn analyze(&mut self, ctx: &mut Context, layer: &mut Layer) -> Result<(), Error> {
-        let stream_id: u32 = {
+        let stream_id: u64 = {
             layer.attr(token!("_.streamId")).unwrap().get()
         };
         let session = self.map.entry(stream_id).or_insert_with(|| HTTPSession::new());
-        session.analyze(ctx, layer)
+        session.analyze(ctx, layer, stream_id)
     }
 }
 

@@ -42,9 +42,9 @@ struct Functions {
   void *func;
 };
 
-#define TOTAL_KEYWORDS 31
+#define TOTAL_KEYWORDS 32
 #define MIN_WORD_LENGTH 10
-#define MAX_WORD_LENGTH 21
+#define MAX_WORD_LENGTH 23
 #define MIN_HASH_VALUE 10
 #define MAX_HASH_VALUE 52
 /* maximum key range = 43, duplicates = 0 */
@@ -63,7 +63,7 @@ inline
       53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53,
       53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53,
       53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 10, 0,  53, 30, 53, 53, 53,
-      53, 25, 53, 53, 53, 53, 30, 15, 53, 53, 53, 5,  53, 20, 20, 53, 53, 53,
+      53, 25, 53, 53, 0,  53, 30, 15, 53, 53, 53, 5,  53, 20, 20, 53, 53, 53,
       53, 53, 53, 53, 53, 53, 53, 10, 20, 20, 53, 53, 53, 5,  53, 10, 53, 15,
       53, 53, 15, 53, 53, 53, 5,  10, 0,  53, 53, 53, 53, 0,  53, 53, 53, 53,
       53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53,
@@ -106,87 +106,89 @@ static struct Functions wordlist[] = {
     {""},
     {""},
     {""},
-#line 15 "plugkit/src/function.keys"
+#line 16 "plugkit/src/function.keys"
     {"Layer_attr", reinterpret_cast<void *>(&plugkit::Layer_attr)},
     {""},
     {""},
-#line 13 "plugkit/src/function.keys"
-    {"Layer_addAttr", reinterpret_cast<void *>(&plugkit::Layer_addAttr)},
-#line 11 "plugkit/src/function.keys"
-    {"Layer_addLayer", reinterpret_cast<void *>(&plugkit::Layer_addLayer)},
-#line 40 "plugkit/src/function.keys"
-    {"Logger_log", reinterpret_cast<void *>(&plugkit::Logger_log)},
-#line 16 "plugkit/src/function.keys"
-    {"Layer_addPayload", reinterpret_cast<void *>(&plugkit::Layer_addPayload)},
-#line 20 "plugkit/src/function.keys"
-    {"Layer_addTag", reinterpret_cast<void *>(&plugkit::Layer_addTag)},
 #line 14 "plugkit/src/function.keys"
+    {"Layer_addAttr", reinterpret_cast<void *>(&plugkit::Layer_addAttr)},
+#line 12 "plugkit/src/function.keys"
+    {"Layer_addLayer", reinterpret_cast<void *>(&plugkit::Layer_addLayer)},
+#line 41 "plugkit/src/function.keys"
+    {"Logger_log", reinterpret_cast<void *>(&plugkit::Logger_log)},
+#line 17 "plugkit/src/function.keys"
+    {"Layer_addPayload", reinterpret_cast<void *>(&plugkit::Layer_addPayload)},
+#line 21 "plugkit/src/function.keys"
+    {"Layer_addTag", reinterpret_cast<void *>(&plugkit::Layer_addTag)},
+#line 15 "plugkit/src/function.keys"
     {"Layer_addAttrAlias",
      reinterpret_cast<void *>(&plugkit::Layer_addAttrAlias)},
-#line 18 "plugkit/src/function.keys"
-    {"Layer_addError", reinterpret_cast<void *>(&plugkit::Layer_addError)},
-#line 25 "plugkit/src/function.keys"
-    {"Variant_setBool", reinterpret_cast<void *>(&plugkit::Variant_setBool)},
-#line 21 "plugkit/src/function.keys"
-    {"Payload_addSlice", reinterpret_cast<void *>(&plugkit::Payload_addSlice)},
 #line 19 "plugkit/src/function.keys"
+    {"Layer_addError", reinterpret_cast<void *>(&plugkit::Layer_addError)},
+#line 26 "plugkit/src/function.keys"
+    {"Variant_setBool", reinterpret_cast<void *>(&plugkit::Variant_setBool)},
+#line 22 "plugkit/src/function.keys"
+    {"Payload_addSlice", reinterpret_cast<void *>(&plugkit::Payload_addSlice)},
+#line 20 "plugkit/src/function.keys"
     {"Layer_errors", reinterpret_cast<void *>(&plugkit::Layer_errors)},
-#line 38 "plugkit/src/function.keys"
+#line 39 "plugkit/src/function.keys"
     {"Error_message", reinterpret_cast<void *>(&plugkit::Error_message)},
-#line 17 "plugkit/src/function.keys"
+#line 18 "plugkit/src/function.keys"
     {"Layer_payloads", reinterpret_cast<void *>(&plugkit::Layer_payloads)},
-#line 23 "plugkit/src/function.keys"
+#line 24 "plugkit/src/function.keys"
     {"Payload_addAttr", reinterpret_cast<void *>(&plugkit::Payload_addAttr)},
-#line 31 "plugkit/src/function.keys"
+#line 32 "plugkit/src/function.keys"
     {"Variant_setSlice", reinterpret_cast<void *>(&plugkit::Variant_setSlice)},
-#line 30 "plugkit/src/function.keys"
+#line 31 "plugkit/src/function.keys"
     {"Variant_setString",
      reinterpret_cast<void *>(&plugkit::Variant_setString)},
     {""},
-#line 29 "plugkit/src/function.keys"
+#line 30 "plugkit/src/function.keys"
     {"Variant_string", reinterpret_cast<void *>(&plugkit::Variant_string)},
     {""},
-#line 39 "plugkit/src/function.keys"
+#line 40 "plugkit/src/function.keys"
     {"Error_setMessage", reinterpret_cast<void *>(&plugkit::Error_setMessage)},
-#line 37 "plugkit/src/function.keys"
+#line 38 "plugkit/src/function.keys"
     {"Token_string", reinterpret_cast<void *>(&plugkit::Token_string)},
-#line 32 "plugkit/src/function.keys"
+#line 33 "plugkit/src/function.keys"
     {"Variant_arrayValue",
      reinterpret_cast<void *>(&plugkit::Variant_arrayValue)},
-#line 22 "plugkit/src/function.keys"
+#line 23 "plugkit/src/function.keys"
     {"Payload_slices", reinterpret_cast<void *>(&plugkit::Payload_slices)},
     {""},
-#line 33 "plugkit/src/function.keys"
+#line 34 "plugkit/src/function.keys"
     {"Variant_arrayValueRef",
      reinterpret_cast<void *>(&plugkit::Variant_arrayValueRef)},
-#line 12 "plugkit/src/function.keys"
+#line 13 "plugkit/src/function.keys"
     {"Layer_addSubLayer",
      reinterpret_cast<void *>(&plugkit::Layer_addSubLayer)},
-    {""},
-#line 36 "plugkit/src/function.keys"
+#line 11 "plugkit/src/function.keys"
+    {"Context_addLayerLinkage",
+     reinterpret_cast<void *>(&plugkit::Context_addLayerLinkage)},
+#line 37 "plugkit/src/function.keys"
     {"Token_literal_", reinterpret_cast<void *>(&plugkit::Token_literal_)},
     {""},
-#line 34 "plugkit/src/function.keys"
+#line 35 "plugkit/src/function.keys"
     {"Variant_mapValue", reinterpret_cast<void *>(&plugkit::Variant_mapValue)},
-#line 27 "plugkit/src/function.keys"
+#line 28 "plugkit/src/function.keys"
     {"Variant_setUint64",
      reinterpret_cast<void *>(&plugkit::Variant_setUint64)},
     {""},
-#line 35 "plugkit/src/function.keys"
+#line 36 "plugkit/src/function.keys"
     {"Variant_mapValueRef",
      reinterpret_cast<void *>(&plugkit::Variant_mapValueRef)},
     {""},
-#line 26 "plugkit/src/function.keys"
+#line 27 "plugkit/src/function.keys"
     {"Variant_setInt64", reinterpret_cast<void *>(&plugkit::Variant_setInt64)},
 #line 10 "plugkit/src/function.keys"
     {"Context_getOption",
      reinterpret_cast<void *>(&plugkit::Context_getOption)},
     {""},
-#line 24 "plugkit/src/function.keys"
+#line 25 "plugkit/src/function.keys"
     {"Variant_setNil", reinterpret_cast<void *>(&plugkit::Variant_setNil)},
     {""},
     {""},
-#line 28 "plugkit/src/function.keys"
+#line 29 "plugkit/src/function.keys"
     {"Variant_setDouble",
      reinterpret_cast<void *>(&plugkit::Variant_setDouble)}};
 
