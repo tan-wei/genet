@@ -279,7 +279,7 @@ size_t Variant::length() const {
   return 0;
 }
 
-uint8_t Variant::tag() const { return type_ >> 4; }
+uint64_t Variant::tag() const { return type_ >> 4; }
 
 bool Variant::isString() const { return type() == VARTYPE_STRING; }
 

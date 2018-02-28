@@ -69,7 +69,7 @@ public:
   Slice slice() const;
   const Array &array() const;
   const Map &map() const;
-  uint8_t tag() const;
+  uint64_t tag() const;
   Variant operator[](size_t index) const;
   Variant &operator[](size_t index);
   Variant operator[](const std::string &key) const;
@@ -84,7 +84,7 @@ public:
   static void init(v8::Isolate *isolate);
 
 public:
-  uint8_t type_;
+  uint64_t type_;
   union {
     bool bool_;
     double double_;

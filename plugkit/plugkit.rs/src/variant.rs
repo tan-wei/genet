@@ -45,7 +45,7 @@ union ValueUnion {
 
 #[repr(C)]
 pub struct Variant {
-    typ_tag: u8,
+    typ_tag: u64,
     val: ValueUnion
 }
 
@@ -336,11 +336,11 @@ impl Value<&'static [u8]> for Variant {
 
 impl Variant {
     fn set_typ(&mut self, typ: Type) {
-        self.typ_tag = (self.typ_tag & 0b1111_0000) | (typ as u8)
+        self.typ_tag = self.typ_tag | (typ as u8 & 0b1111) as u64
     }
 
     pub fn typ(&self) -> Type {
-        unsafe { mem::transmute(self.typ_tag & 0b0000_1111) }
+        unsafe { mem::transmute((self.typ_tag & 0b1111) as u8) }
     }
 
     pub fn set_nil(&mut self) {
