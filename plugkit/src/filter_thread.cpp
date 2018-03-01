@@ -3,6 +3,7 @@
 #include "frame.hpp"
 #include "frame_store.hpp"
 #include "frame_view.hpp"
+#include "sandbox.hpp"
 #include "null_logger.hpp"
 #include <array>
 
@@ -28,7 +29,10 @@ FilterThread::FilterThread(const std::string &body,
 
 FilterThread::~FilterThread() {}
 
-void FilterThread::enter() { d->filter.reset(new Filter(d->body)); }
+void FilterThread::enter() { 
+  d->filter.reset(new Filter(d->body)); 
+  Sandbox::activate(Sandbox::PROFILE_FILTER);
+}
 
 void FilterThread::exit() { d->filter.reset(); }
 
