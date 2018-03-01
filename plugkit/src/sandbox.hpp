@@ -3,7 +3,7 @@
 
 namespace plugkit {
 namespace Sandbox {
-enum Profile { PROFILE_FILTER };
+enum Profile { PROFILE_FILTER, PROFILE_DISSECTOR };
 void activate(Profile profile);
 }; // namespace Sandbox
 } // namespace plugkit

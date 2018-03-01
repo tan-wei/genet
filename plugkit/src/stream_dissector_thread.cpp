@@ -1,11 +1,11 @@
 #include "stream_dissector_thread.hpp"
+#include "context.hpp"
+#include "dissector.hpp"
 #include "frame.hpp"
 #include "layer.hpp"
 #include "queue.hpp"
+#include "sandbox.hpp"
 #include "variant.hpp"
-
-#include "context.hpp"
-#include "dissector.hpp"
 
 #include <algorithm>
 #include <cstring>
@@ -72,6 +72,8 @@ void StreamDissectorThread::enter() {
       diss.initialize(&d->ctx, &diss);
     }
   }
+
+  Sandbox::activate(Sandbox::PROFILE_DISSECTOR);
 }
 
 void StreamDissectorThread::Private::analyze(

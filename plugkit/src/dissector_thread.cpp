@@ -3,6 +3,7 @@
 #include "dissector.hpp"
 #include "frame.hpp"
 #include "layer.hpp"
+#include "sandbox.hpp"
 #include "tag_filter.hpp"
 #include <algorithm>
 #include <array>
@@ -92,6 +93,8 @@ void DissectorThread::enter() {
     data.filter = TagFilter(tags);
     d->dissectorContexts.push_back(data);
   }
+
+  Sandbox::activate(Sandbox::PROFILE_DISSECTOR);
 }
 
 bool DissectorThread::loop() {
