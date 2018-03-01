@@ -59,6 +59,33 @@ thread_local sock_filter DISSECTOR_PROFILE[] = {
     ALLOW_IF_MATCH(SYS_prctl),
     ALLOW_IF_MATCH(SYS_getrandom),
     BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_KILL)};
+
+thread_local sock_filter FILE_PROFILE[] = {
+    BPF_STMT(BPF_LD | BPF_W | BPF_ABS, (offsetof(struct seccomp_data, nr))),
+    ALLOW_IF_MATCH(SYS_open),
+    ALLOW_IF_MATCH(SYS_read),
+    ALLOW_IF_MATCH(SYS_write),
+    ALLOW_IF_MATCH(SYS_close),
+    ALLOW_IF_MATCH(SYS_madvise),
+    ALLOW_IF_MATCH(SYS_futex),
+    ALLOW_IF_MATCH(SYS_mprotect),
+    ALLOW_IF_MATCH(SYS_munmap),
+    ALLOW_IF_MATCH(SYS_mmap),
+    ALLOW_IF_MATCH(SYS_getpid),
+    ALLOW_IF_MATCH(SYS_exit),
+    ALLOW_IF_MATCH(SYS_clone),
+    ALLOW_IF_MATCH(SYS_set_robust_list),
+    ALLOW_IF_MATCH(SYS_gettid),
+    ALLOW_IF_MATCH(SYS_stat),
+    ALLOW_IF_MATCH(SYS_setpriority),
+    ALLOW_IF_MATCH(SYS_prctl),
+    ALLOW_IF_MATCH(SYS_openat),
+    ALLOW_IF_MATCH(SYS_ioctl),
+    ALLOW_IF_MATCH(SYS_epoll_create1),
+    ALLOW_IF_MATCH(SYS_pipe2),
+    ALLOW_IF_MATCH(SYS_eventfd2),
+    ALLOW_IF_MATCH(SYS_seccomp),
+    BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_KILL)};
 } // namespace
 
 void activate(Profile profile) {
@@ -72,6 +99,10 @@ void activate(Profile profile) {
   case PROFILE_DISSECTOR:
     prog.len = sizeof(DISSECTOR_PROFILE) / sizeof(sock_filter);
     prog.filter = DISSECTOR_PROFILE;
+    break;
+  case PROFILE_FILE:
+    prog.len = sizeof(FILE_PROFILE) / sizeof(sock_filter);
+    prog.filter = FILE_PROFILE;
     break;
   default:
     return;

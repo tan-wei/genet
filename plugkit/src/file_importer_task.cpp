@@ -4,6 +4,7 @@
 #include "frame.hpp"
 #include "layer.hpp"
 #include "payload.hpp"
+#include "sandbox.hpp"
 #include <chrono>
 #include <thread>
 #include <vector>
@@ -114,6 +115,8 @@ void FileImporterTask::run(int id) {
   ctx.options = d->options;
   ctx.rootAllocator = d->allocator;
   ctx.data = &data;
+
+  Sandbox::activate(Sandbox::PROFILE_FILE);
   for (const FileImporter &importer : d->importers) {
     if (!importer.func)
       continue;

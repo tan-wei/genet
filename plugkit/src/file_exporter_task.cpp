@@ -6,6 +6,7 @@
 #include "frame_store.hpp"
 #include "frame_view.hpp"
 #include "layer.hpp"
+#include "sandbox.hpp"
 #include "worker_thread.hpp"
 #include <chrono>
 #include <thread>
@@ -113,7 +114,10 @@ public:
     if (!data.filterBody.empty()) {
       filter.reset(new Filter(data.filterBody));
     }
+
+    Sandbox::activate(Sandbox::PROFILE_FILE);
   }
+
   bool loop() override {
     Context ctx;
     data.filter = filter.get();
