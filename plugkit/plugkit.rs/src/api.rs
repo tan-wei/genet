@@ -9,7 +9,6 @@ macro_rules! plugkit_api_file_import {
             use std::ffi::CStr;
             use std::{str,slice};
             use std::path::Path;
-            use std::fs::File;
             use plugkit::file::Status;
             let path = unsafe {
                 let slice = CStr::from_ptr(p);
@@ -20,11 +19,7 @@ macro_rules! plugkit_api_file_import {
             };
             let ctx = unsafe { &mut *c };
 
-            let file = File::open(path);
-            if file.is_err()  {
-                return Status::Error
-            }
-            let result = $x::start(ctx, path, &mut file.unwrap(), dst, &|ctx, len, prog| {
+            let result = $x::start(ctx, path, dst, &|ctx, len, prog| {
                 callback(ctx as *mut Context, len, prog);
             });
             callback(c, 0, 1.0);
@@ -50,18 +45,13 @@ macro_rules! plugkit_api_file_export {
             use std::ffi::CStr;
             use std::{str,slice};
             use std::path::Path;
-            use std::fs::File;
             use plugkit::file::Status;
             let path = unsafe {
                 let slice = CStr::from_ptr(p);
                 Path::new(str::from_utf8_unchecked(slice.to_bytes()))
             };
             let ctx = unsafe { &mut *c };
-            let file = File::create(path);
-            if file.is_err()  {
-                return Status::Error
-            }
-            let result = $x::start(ctx, path, &mut file.unwrap(), &|ctx| {
+            let result = $x::start(ctx, path, &|ctx| {
                 let mut len : libc::size_t = 0;
                 unsafe {
                     let ptr = &*callback(ctx as *mut Context, &mut len as *mut libc::size_t);
