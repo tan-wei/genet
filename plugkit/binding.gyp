@@ -113,8 +113,12 @@
             "NOMINMAX"
           ],
           "VCCLCompilerTool": {
-            'DisableSpecificWarnings': ['4577']
+            'DisableSpecificWarnings': ['4577'],
+            'AdditionalOptions': ['/MP', '/d2guard4']
           },
+          "VCLinkerTool": {
+            'AdditionalOptions': ['/guard:cf']
+          }
         }
       ]
     ]
