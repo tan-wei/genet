@@ -7,8 +7,6 @@ const execa = require('execa')
 const fs = require('fs')
 const os = require('os')
 const jsonfile = require('jsonfile')
-const lastmod = require('./lastmod')
-const { negatronVersion } = require('./negatron')
 
 const src = path.resolve(__dirname, '../plugkit')
 const dst = path.resolve(__dirname, '../deplug-modules/plugkit')
@@ -16,66 +14,39 @@ const dstBin = path.resolve(__dirname, '../deplug-modules/bin/plugkit')
 const cache = path.resolve(dst, '.last-updated')
 const scriptFiles = glob.sync(path.resolve(src, '*.{js,json}'))
 const embeddedFiles = glob.sync(path.resolve(src, 'js/*.js'))
-
-const env = Object.assign(process.env, {
-  npm_config_target: negatronVersion,
-  npm_config_devdir: path.resolve(os.homedir(), '.electron-gyp'),
-  npm_config_disturl: 'https://atom.io/download/electron',
-  npm_config_arch: process.arch,
-  npm_config_target_arch: process.arch,
-  npm_config_runtime: 'electron',
-  npm_config_build_from_source: 'true',
-  jobs: '4'
-})
+const env = require('./plugkit-npm-env')
 
 mkpath.sync(dst)
 mkpath.sync(dstBin)
 mkpath.sync(path.resolve(dst, 'build/Release'))
 mkpath.sync(path.resolve(dst, 'include/plugkit'))
 
-let lastUpdated = null
-try {
-  lastUpdated = Number.parseInt(fs.readFileSync(cache, 'utf8'))
-} catch (err) {
-  lastUpdated = 0
-}
+execa.sync(path.resolve(__dirname, 'text-to-cpp.js'),
+embeddedFiles.concat(path.resolve(src, 'src/embedded_files.hpp')))
 
-const srcLastUpdated = lastmod(src).getTime()
-if (srcLastUpdated > lastUpdated) {
-  execa.sync(path.resolve(__dirname, 'text-to-cpp.js'),
-    embeddedFiles.concat(path.resolve(src, 'src/embedded_files.hpp')))
-
-  execa('node-gyp', ['configure'], { env, cwd: src }).then(() => {
-  	const proc = execa('node-gyp', ['build'], { env, cwd: src })
-    proc.stdout.pipe(process.stdout)
-    proc.stderr.pipe(process.stderr)
-    return proc
-  }).then(() => {
-    const binaryFiles = glob.sync(path.resolve(src, 'build/Release/*.{node,lib}'))
-    for (const file of binaryFiles) {
-      fs.createReadStream(file)
-        .pipe(fs.createWriteStream(
-          path.resolve(dstBin, path.basename(file))))
-      fs.createReadStream(file)
-        .pipe(fs.createWriteStream(
-         path.resolve(dst, 'build/Release', path.basename(file))))
-    }
-  })
-
-  for (const file of scriptFiles) {
+execa('node-gyp', ['configure'], { env, cwd: src, stdio: 'inherit' }).then(() => {
+  return execa('node-gyp', ['build'], { env, cwd: src, stdio: 'inherit' })
+}).then(() => {
+  const binaryFiles = glob.sync(path.resolve(src, 'build/Release/*.{node,lib}'))
+  for (const file of binaryFiles) {
     fs.createReadStream(file)
       .pipe(fs.createWriteStream(
-        path.resolve(dst, path.basename(file))))
-  }
-
-  const headerFiles = glob.sync(path.resolve(src, 'include/plugkit/*.h'))
-  for (const file of headerFiles) {
+        path.resolve(dstBin, path.basename(file))))
     fs.createReadStream(file)
       .pipe(fs.createWriteStream(
-        path.resolve(dst, 'include/plugkit', path.basename(file))))
+      path.resolve(dst, 'build/Release', path.basename(file))))
   }
-}
-
-process.on('exit', () => {
-  fs.writeFileSync(cache, `${lastmod(src).getTime()}`)
 })
+
+for (const file of scriptFiles) {
+fs.createReadStream(file)
+  .pipe(fs.createWriteStream(
+    path.resolve(dst, path.basename(file))))
+}
+
+const headerFiles = glob.sync(path.resolve(src, 'include/plugkit/*.h'))
+for (const file of headerFiles) {
+fs.createReadStream(file)
+  .pipe(fs.createWriteStream(
+    path.resolve(dst, 'include/plugkit', path.basename(file))))
+}

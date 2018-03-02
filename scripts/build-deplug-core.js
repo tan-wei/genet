@@ -5,7 +5,6 @@ const path = require('path')
 const glob = require('glob')
 const execa = require('execa')
 const fs = require('fs')
-const lastmod = require('./lastmod')
 
 const src = path.resolve(__dirname, '../core')
 const dst = path.resolve(__dirname, '../deplug-modules/core')
@@ -19,32 +18,18 @@ const jsFiles = glob.sync(path.resolve(src, '*.main.js'))
 const lessFiles = glob.sync(path.resolve(src, 'asset/*.main.less'))
 const assets = glob.sync(path.resolve(src, 'asset/*.htm'))
 
-let lastUpdated = null
-try {
-  lastUpdated = Number.parseInt(fs.readFileSync(cache, 'utf8'))
-} catch (err) {
-  lastUpdated = 0
+for (const file of jsFiles) {
+  execa(webpack, [file, path.resolve(dst, path.basename(file))])
+    .stdout.pipe(process.stdout)
 }
-
-const srcLastUpdated = lastmod(src).getTime()
-if (srcLastUpdated > lastUpdated) {
-  for (const file of jsFiles) {
-    execa(webpack, [file, path.resolve(dst, path.basename(file))])
-      .stdout.pipe(process.stdout)
-  }
-  for (const file of lessFiles) {
-    const css = 
-      path.resolve(path.resolve(dst, 'asset'), path.basename(file, '.less')) + '.css'
-    execa(lessc, [file, css])
-      .stdout.pipe(process.stdout)
-  }
-  for (const file of assets) {
-    fs.createReadStream(file)
-      .pipe(fs.createWriteStream(
-        path.resolve(dst, 'asset', path.basename(file))))
-  }
+for (const file of lessFiles) {
+  const css = 
+    path.resolve(path.resolve(dst, 'asset'), path.basename(file, '.less')) + '.css'
+  execa(lessc, [file, css])
+    .stdout.pipe(process.stdout)
 }
-
-process.on('exit', () => {
-  fs.writeFileSync(cache, `${lastmod(src).getTime()}`)
-})
+for (const file of assets) {
+  fs.createReadStream(file)
+    .pipe(fs.createWriteStream(
+      path.resolve(dst, 'asset', path.basename(file))))
+}
