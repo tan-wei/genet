@@ -33,6 +33,30 @@ namespace Sandbox {
 #define SYS_getrandom 318
 #endif
 
+#ifndef SYS_copy_file_range
+#define SYS_copy_file_range 326
+#endif
+
+#ifndef SYS_execveat
+#define SYS_execveat 322
+#endif
+
+#ifndef SYS_memfd_create
+#define SYS_memfd_create 319
+#endif
+
+#ifndef SYS_mlock2
+#define SYS_mlock2 325
+#endif
+
+#ifndef SYS_preadv2
+#define SYS_preadv2 327
+#endif
+
+#ifndef SYS_pwritev2
+#define SYS_pwritev2 328
+#endif
+
 namespace {
 thread_local sock_filter FILTER_PROFILE[] = {SB_LOAD_CALL_ID,
 #include "sandbox_linux_profile.prog"
