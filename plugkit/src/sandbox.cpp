@@ -20,6 +20,14 @@ namespace Sandbox {
   BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, call, 0, 1),                             \
       BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ALLOW)
 
+#ifndef SECCOMP_FILTER_FLAG_LOG
+#define SECCOMP_FILTER_FLAG_LOG 0
+#endif
+
+#ifndef SYS_getrandom
+#define SYS_getrandom 318
+#endif
+
 namespace {
 thread_local sock_filter FILTER_PROFILE[] = {
     BPF_STMT(BPF_LD | BPF_W | BPF_ABS, (offsetof(struct seccomp_data, nr))),
