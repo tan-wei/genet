@@ -190,8 +190,11 @@ export default class FrameListView {
       { func: (frame) => m('span', [frame.query('$.index').value]) },
       {
         func: (frame) => {
-          const { id } = frame.primaryLayer
-          return m('span', [deplug.session.token(id).name])
+          const { id, tags } = frame.primaryLayer
+          return m('span', {
+            class: 'protocol',
+            'data-layer': tags.join(' '),
+          }, [deplug.session.token(id).name])
         },
       }
     ]
