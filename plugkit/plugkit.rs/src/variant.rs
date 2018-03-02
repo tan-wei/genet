@@ -13,11 +13,12 @@
 //! - Array - An array of `Variant`s.
 //! - Map - A map of key `String`s and `Variant`s
 
+extern crate libc;
+
 use std::fmt;
 use std::mem;
 use std::string::String;
 use std::slice;
-use std::ffi::CStr;
 use super::symbol;
 
 #[derive(Debug)]
@@ -26,11 +27,12 @@ pub enum Type {
     Bool = 1,
     Int64 = 2,
     Uint64 = 3,
-    Double = 6,
-    String = 7,
-    Slice = 8,
-    Array = 9,
-    Map = 10,
+    Double = 4,
+    String = 5,
+    StringRef = 6,
+    Slice = 7,
+    Array = 8,
+    Map = 9,
 }
 
 #[repr(C)]
@@ -70,6 +72,7 @@ impl fmt::Display for Variant {
                 write!(f, "Variant ({})", val)
             }
             Type::String => write!(f, "Variant (String)"),
+            Type::StringRef => write!(f, "Variant (StringRef)"),
             Type::Slice => write!(f, "Variant (Slice)"),
             Type::Array => write!(f, "Variant (Array)"),
             Type::Map => write!(f, "Variant (Map)"),
@@ -84,7 +87,8 @@ pub trait Value<T> {
 
 pub trait ValueString {
     fn get(&self) -> String;
-    fn set(&mut self, &str);
+    fn set_copy(&mut self, &str);
+    fn set_ref(&mut self, &'static str);
 }
 
 pub trait ValueMap<T> {
@@ -304,13 +308,18 @@ impl Value<f64> for Variant {
 impl ValueString for Variant {
      fn get(&self) -> String {
         unsafe {
-            let slice = CStr::from_ptr(symbol::Variant_string.unwrap()(self));
-            String::from_utf8_unchecked(slice.to_bytes().to_vec())
+            let mut size: libc::size_t = 0;
+            let slice = symbol::Variant_string.unwrap()(self, &mut size);
+            String::from_utf8_unchecked(slice::from_raw_parts(slice, size as usize).to_vec())
         }
     }
 
-    fn set(&mut self, val: &str) {
+    fn set_copy(&mut self, val: &str) {
         unsafe { symbol::Variant_setString.unwrap()(self, val.as_ptr() as *const i8) }
+    }
+
+    fn set_ref(&mut self, val: &'static str) {
+        unsafe { symbol::Variant_setStringRef.unwrap()(self, val.as_ptr() as *const i8, val.len()) }
     }
 }
 
@@ -356,7 +365,7 @@ impl Variant {
 
     fn is_fat(&self) -> bool {
         match self.typ() {
-            Type::Nil | Type::Bool | Type::Int64 | Type::Uint64 | Type::Double => false,
+            Type::Nil | Type::Bool | Type::Int64 | Type::Uint64 | Type::Double | Type::StringRef | Type::Slice => false,
             _ => true
         }
     }

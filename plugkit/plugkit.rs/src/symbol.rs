@@ -42,8 +42,9 @@ def_func!(
     Variant_setInt64,        extern "C" fn(*mut Variant, i64);
     Variant_setUint64,       extern "C" fn(*mut Variant, u64);
     Variant_setDouble,       extern "C" fn(*mut Variant, f64);
-    Variant_string,          extern "C" fn(*const Variant) -> *const libc::c_char;
+    Variant_string,          extern "C" fn(*const Variant, *mut libc::size_t) -> *const libc::c_uchar;
     Variant_setString,       extern "C" fn(*mut Variant, *const libc::c_char);
+    Variant_setStringRef,    extern "C" fn(*mut Variant, *const libc::c_char, libc::size_t);
     Variant_setSlice,        extern "C" fn(*mut Variant, (*const u8, usize));
     Variant_arrayValue,      extern "C" fn(*const Variant, libc::size_t) -> *const Variant;
     Variant_arrayValueRef,   extern "C" fn(*mut Variant, libc::size_t) -> *mut Variant;

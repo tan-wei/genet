@@ -86,7 +86,7 @@ const char *Attr_string(const Attr *attr);
 /// Set the value of the attr to the given string.
 ///
 /// See [Variant_setString](diss-api-c.md#c-func-variant-setstring) for details.
-void Attr_setString(Attr *attr, const char *str, int length);
+void Attr_setString(Attr *attr, const char *str);
 
 /// Return the value associated with the attr as `Slice`.
 Slice Attr_slice(const Attr *attr);

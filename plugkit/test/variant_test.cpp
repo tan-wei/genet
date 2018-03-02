@@ -18,8 +18,10 @@ TEST_CASE("Variant_type", "[variant]") {
   CHECK(Variant_type(&variant) == VARTYPE_UINT64);
   Variant_setDouble(&variant, 0.0);
   CHECK(Variant_type(&variant) == VARTYPE_DOUBLE);
-  Variant_setString(&variant, "HELLO", -1);
+  Variant_setString(&variant, "HELLO");
   CHECK(Variant_type(&variant) == VARTYPE_STRING);
+  Variant_setStringRef(&variant, "HELLO", 5);
+  CHECK(Variant_type(&variant) == VARTYPE_STRING_REF);
   Variant_setSlice(&variant, Slice());
   CHECK(Variant_type(&variant) == VARTYPE_SLICE);
   Variant_arrayValueRef(&variant, 0);
@@ -82,16 +84,44 @@ TEST_CASE("Variant_double", "[variant]") {
 
 TEST_CASE("Variant_string", "[variant]") {
   Variant variant;
-  CHECK(strcmp(Variant_string(&variant), "") == 0);
-  Variant_setString(&variant, "HELLO", -1);
-  CHECK(strcmp(Variant_string(&variant), "HELLO") == 0);
-  Variant_setString(&variant, "HELLO___", -1);
-  CHECK(strcmp(Variant_string(&variant), "HELLO___") == 0);
-  Variant_setString(&variant, "HELLO WORLD", -1);
-  CHECK(strcmp(Variant_string(&variant), "HELLO WORLD") == 0);
-  CHECK(strcmp(Variant_string(nullptr), "") == 0);
-  Variant_setString(&variant, "", -1);
-  CHECK(strcmp(Variant_string(&variant), "") == 0);
+  size_t len = 0;
+  CHECK(strcmp(Variant_string(&variant, &len), "") == 0);
+  CHECK(len == 0);
+  Variant_setString(&variant, "HELLO");
+  CHECK(strcmp(Variant_string(&variant, &len), "HELLO") == 0);
+  CHECK(len == 5);
+  Variant_setString(&variant, "HELLO___");
+  CHECK(strcmp(Variant_string(&variant, &len), "HELLO___") == 0);
+  CHECK(len == 8);
+  Variant_setString(&variant, "HELLO WORLD");
+  CHECK(strcmp(Variant_string(&variant, &len), "HELLO WORLD") == 0);
+  CHECK(len == 11);
+  CHECK(strcmp(Variant_string(nullptr, &len), "") == 0);
+  CHECK(len == 0);
+  Variant_setString(&variant, "");
+  CHECK(strcmp(Variant_string(&variant, &len), "") == 0);
+  CHECK(len == 0);
+}
+
+TEST_CASE("Variant_setStringRef", "[variant]") {
+  Variant variant;
+  size_t len = 0;
+  CHECK(strcmp(Variant_string(&variant, &len), "") == 0);
+  CHECK(len == 0);
+  Variant_setStringRef(&variant, "HELLO", 3);
+  CHECK(strcmp(Variant_string(&variant, &len), "HELLO") == 0);
+  CHECK(len == 3);
+  Variant_setStringRef(&variant, "HELLO___", 2);
+  CHECK(strcmp(Variant_string(&variant, &len), "HELLO___") == 0);
+  CHECK(len == 2);
+  Variant_setStringRef(&variant, "HELLO WORLD", 10);
+  CHECK(strcmp(Variant_string(&variant, &len), "HELLO WORLD") == 0);
+  CHECK(len == 10);
+  CHECK(strcmp(Variant_string(nullptr, &len), "") == 0);
+  CHECK(len == 0);
+  Variant_setStringRef(&variant, "", 0);
+  CHECK(strcmp(Variant_string(&variant, &len), "") == 0);
+  CHECK(len == 0);
 }
 
 TEST_CASE("Variant_slice", "[variant]") {

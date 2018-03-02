@@ -35,8 +35,12 @@ impl ValueString for Attr
         ValueString::get(self.value())
     }
 
-    fn set(&mut self, val: &str) {
-        ValueString::set(self.value_mut(), val)
+    fn set_copy(&mut self, val: &str) {
+        ValueString::set_copy(self.value_mut(), val)
+    }
+
+    fn set_ref(&mut self, val: &'static str) {
+        ValueString::set_ref(self.value_mut(), val)
     }
 }
 

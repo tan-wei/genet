@@ -15,11 +15,12 @@ enum VariantType {
   VARTYPE_BOOL = 1,
   VARTYPE_INT64 = 2,
   VARTYPE_UINT64 = 3,
-  VARTYPE_DOUBLE = 6,
-  VARTYPE_STRING = 7,
-  VARTYPE_SLICE = 8,
-  VARTYPE_ARRAY = 9,
-  VARTYPE_MAP = 10
+  VARTYPE_DOUBLE = 4,
+  VARTYPE_STRING = 5,
+  VARTYPE_STRING_REF = 6,
+  VARTYPE_SLICE = 7,
+  VARTYPE_ARRAY = 8,
+  VARTYPE_MAP = 9
 };
 
 struct Variant final {
@@ -39,7 +40,8 @@ public:
   Variant(int64_t value);
   Variant(uint64_t value);
   Variant(double value);
-  Variant(const std::string &str);
+  explicit Variant(const char *str);
+  Variant(const char *str, size_t length);
   Variant(const Slice &slice);
   Variant(const Array &array);
   Variant(const Map &map);
@@ -56,6 +58,7 @@ public:
   bool isUint64() const;
   bool isDouble() const;
   bool isString() const;
+  bool isStringRef() const;
   bool isSlice() const;
   bool isArray() const;
   bool isMap() const;
@@ -130,7 +133,7 @@ double Variant_double(const Variant *var);
 void Variant_setDouble(Variant *var, double value);
 
 /// Return the value of the variant as a null-terminated string.
-const char *Variant_string(const Variant *var);
+const char *Variant_string(const Variant *var, size_t *len);
 
 /// Set the value of the variant to the given string.
 ///
@@ -140,7 +143,9 @@ const char *Variant_string(const Variant *var);
 /// !> This function cannot handle a string contains NULL
 /// even if a positive`length` is given,
 /// because the given string will be copied as a null-terminated string.
-void Variant_setString(Variant *var, const char *str, int length);
+void Variant_setString(Variant *var, const char *str);
+
+void Variant_setStringRef(Variant *var, const char *str, int length);
 
 /// Return the value of the variant as `Slice`.
 Slice Variant_slice(const Variant *var);

@@ -12,7 +12,7 @@ use plugkit::context::Context;
 use plugkit::worker::Worker;
 use plugkit::token::Token;
 use plugkit::variant;
-use plugkit::variant::{Value};
+use plugkit::variant::Value;
 use http_muncher::{Parser, ParserHandler, ParserType, Method};
 use std::cell::RefCell;
 use std::str;
@@ -241,7 +241,7 @@ impl HTTPSession {
                 Entry::Url(data) => {
                     if let Ok(path) = str::from_utf8(data) {
                         let attr = child.add_attr(ctx, token!("http.path"));
-                        variant::ValueString::set(attr, &path);
+                        variant::ValueString::set_ref(attr, &path);
                     }
                 }
             }

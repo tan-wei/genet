@@ -49,7 +49,8 @@ Variant::Variant(uint64_t value) : type_(VARTYPE_UINT64) { d.uint_ = value; }
 
 Variant::Variant(double value) : type_(VARTYPE_DOUBLE) { d.double_ = value; }
 
-Variant::Variant(const std::string &str) : type_(VARTYPE_STRING) {
+Variant::Variant(const char *data) : type_(VARTYPE_STRING) {
+  const std::string &str = data;
   if (str.empty()) {
     d.str = nullptr;
   } else if (str.size() < sizeof(d.str)) {
@@ -59,6 +60,11 @@ Variant::Variant(const std::string &str) : type_(VARTYPE_STRING) {
   } else {
     d.str = new std::shared_ptr<std::string>(new std::string(str));
   }
+}
+
+Variant::Variant(const char *str, size_t length) {
+  type_ = VARTYPE_STRING_REF | (length << 4);
+  d.data = str;
 }
 
 Variant::Variant(const Array &array) : type_(VARTYPE_ARRAY) {
@@ -199,6 +205,8 @@ std::string Variant::string(const std::string &defaultValue) const {
     } else {
       return std::string();
     }
+  case VARTYPE_STRING_REF:
+    return std::string(d.data, tag());
   default:
     return defaultValue;
   }
@@ -278,6 +286,8 @@ uint64_t Variant::tag() const { return type_ >> 4; }
 
 bool Variant::isString() const { return type() == VARTYPE_STRING; }
 
+bool Variant::isStringRef() const { return type() == VARTYPE_STRING_REF; }
+
 bool Variant::isSlice() const { return type() == VARTYPE_SLICE; }
 
 bool Variant::isArray() const { return type() == VARTYPE_ARRAY; }
@@ -329,6 +339,7 @@ v8::Local<v8::Value> Variant::getValue(const Variant &var) {
   case VARTYPE_DOUBLE:
     return Nan::New(var.doubleValue());
   case VARTYPE_STRING:
+  case VARTYPE_STRING_REF:
     return Nan::New(var.string()).ToLocalChecked();
   case VARTYPE_ARRAY: {
     const auto &array = var.array();
@@ -359,7 +370,7 @@ Variant Variant::getVariant(v8::Local<v8::Value> var) {
   } else if (var->IsNumber()) {
     return var->NumberValue();
   } else if (var->IsString()) {
-    return std::string(*Nan::Utf8String(var));
+    return Variant(*Nan::Utf8String(var));
   } else if (var->IsArrayBufferView()) {
     return getSlice(var.As<v8::ArrayBufferView>());
   } else if (var->IsArray()) {
@@ -417,18 +428,30 @@ double Variant_double(const Variant *var) {
 }
 void Variant_setDouble(Variant *var, double value) { *var = Variant(value); }
 
-const char *Variant_string(const Variant *var) {
-  if (var && var->isString() && var->d.str) {
-    if (var->tag() == 0) {
-      return (*var->d.str)->c_str();
-    } else {
-      return reinterpret_cast<const char *>(&var->d.str);
+const char *Variant_string(const Variant *var, size_t *len) {
+  if (var) {
+    if (var->isString() && var->d.str) {
+      if (var->tag() == 0) {
+        const auto &str = *var->d.str;
+        *len = str->size();
+        return str->c_str();
+      } else {
+        *len = var->tag();
+        return reinterpret_cast<const char *>(&var->d.str);
+      }
+    } else if (var->isStringRef() && var->d.data) {
+      *len = var->tag();
+      return var->d.data;
     }
   }
+  *len = 0;
   return "";
 }
-void Variant_setString(Variant *var, const char *str, int length) {
-  *var = Variant(length < 0 ? std::string(str) : std::string(str, length));
+
+void Variant_setString(Variant *var, const char *data) { *var = Variant(data); }
+
+void Variant_setStringRef(Variant *var, const char *data, int length) {
+  *var = Variant(data, length);
 }
 
 Slice Variant_slice(const Variant *var) {
