@@ -33,6 +33,8 @@ private:
     Block *next;
     char data[sizeof(T)];
   };
+  static_assert(sizeof(Block) == sizeof(T),
+                "sizeof T must be larger than the pointer size");
 
   RootAllocator *mRoot;
   std::list<std::pair<Block *, Block *>> mList;
@@ -110,7 +112,7 @@ class BlockVector final {
 public:
   BlockVector();
   ~BlockVector();
-  template <class... Args> 
+  template <class... Args>
   void emplace_back(BlockAllocator<T> *alloc, Args... args);
   T *data() const;
   size_t size() const;
@@ -120,6 +122,8 @@ private:
     uint32_t size;
     T data;
   };
+  static_assert(sizeof(Item) == sizeof(T),
+                "sizeof T must be larger than 32bit");
   Item *mBegin;
 };
 
@@ -149,8 +153,7 @@ void BlockVector<T>::emplace_back(BlockAllocator<T> *alloc, Args... args) {
 }
 
 template <class T>
-T* BlockVector<T>::data() const
-{
+T *BlockVector<T>::data() const {
   if (mBegin) {
     return mBegin->data + 1;
   }
@@ -158,8 +161,7 @@ T* BlockVector<T>::data() const
 }
 
 template <class T>
-size_t BlockVector<T>::size() const
-{
+size_t BlockVector<T>::size() const {
   if (mBegin) {
     return mBegin->size;
   }
