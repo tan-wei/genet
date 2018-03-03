@@ -104,6 +104,68 @@ void BlockAllocator<T>::dealloc(T *ptr) {
     }
   }
 }
+
+template <class T>
+class BlockVector final {
+public:
+  BlockVector();
+  ~BlockVector();
+  template <class... Args> 
+  void emplace_back(BlockAllocator<T> *alloc, Args... args);
+  T *data() const;
+  size_t size() const;
+
+private:
+  union Item {
+    uint32_t size;
+    T data;
+  };
+  Item *mBegin;
+};
+
+template <class T>
+BlockVector<T>::BlockVector() : mBegin(nullptr) {}
+
+template <class T>
+BlockVector<T>::~BlockVector() {}
+
+template <class T>
+template <class... Args>
+void BlockVector<T>::emplace_back(BlockAllocator<T> *alloc, Args... args) {
+  if (mBegin) {
+    if (alloc->allocable(mBegin + mBegin->size + 1)) {
+      alloc->alloc(args...);
+    } else {
+      Item *begin = alloc->allocUninitialized(mBegin->size + 2);
+      memccpy(begin, mBegin, sizeof(Item) * (mBegin->size + 1));
+      new (&mBegin[mBegin->size + 1].data) T(args...);
+      mBegin = begin;
+    }
+  } else {
+    mBegin = alloc->allocUninitialized(2);
+    mBegin->size = 0;
+  }
+  mBegin->size += 1;
+}
+
+template <class T>
+T* BlockVector<T>::data() const
+{
+  if (mBegin) {
+    return mBegin->data + 1;
+  }
+  return nullptr;
+}
+
+template <class T>
+size_t BlockVector<T>::size() const
+{
+  if (mBegin) {
+    return mBegin->size;
+  }
+  return 0;
+}
+
 } // namespace plugkit
 
 #endif
