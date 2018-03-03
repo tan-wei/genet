@@ -51,6 +51,7 @@
       "src/tag_filter.cpp"
     ],
     "plugkit_test_sources":[
+      "test/allocator_test.cpp",
       "src/plugkit_testing.cpp",
       "test/token_test.cpp",
       "test/variant_test.cpp",

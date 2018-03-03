@@ -55,18 +55,19 @@ T *BlockAllocator<T>::alloc(Args... args) {
 
 template <class T>
 T *BlockAllocator<T>::allocUninitialized(size_t size) {
-  if (size == 0 || size >= blockSize - 1)
+  if (size == 0 || size > blockSize - 1)
     return nullptr;
   Block *chunk = nullptr;
   if (!mList.empty()) {
     Block *front = mList.front().first;
-    chunk = front->next;
-    for (size_t index = 0; index < size; index += 1) {
-      if (index > 0 && front->next != front + 1) {
-        chunk = nullptr;
-        break;
+    if ((chunk = front->next)) {
+      for (size_t index = 0; index < size; index += 1) {
+        if (index > 0 && front->next != front + 1) {
+          chunk = nullptr;
+          break;
+        }
+        front = front->next;
       }
-      front = front->next;
     }
   }
   if (chunk) {
@@ -90,7 +91,8 @@ T *BlockAllocator<T>::allocUninitialized(size_t size) {
 
 template <class T>
 bool BlockAllocator<T>::allocable(T *ptr) const {
-  return !mList.empty() && mList.front().first->next == ptr;
+  return !mList.empty() &&
+         reinterpret_cast<T *>(mList.front().first->next) == ptr;
 }
 
 template <class T>
@@ -137,16 +139,18 @@ template <class T>
 template <class... Args>
 void BlockVector<T>::emplace_back(BlockAllocator<T> *alloc, Args... args) {
   if (mBegin) {
-    if (alloc->allocable(mBegin + mBegin->size + 1)) {
+    if (alloc->allocable(&mBegin->data + mBegin->size + 1)) {
       alloc->alloc(args...);
     } else {
-      Item *begin = alloc->allocUninitialized(mBegin->size + 2);
-      memccpy(begin, mBegin, sizeof(Item) * (mBegin->size + 1));
-      new (&mBegin[mBegin->size + 1].data) T(args...);
+      Item *begin =
+          reinterpret_cast<Item *>(alloc->allocUninitialized(mBegin->size + 2));
+      memcpy(begin, mBegin, sizeof(Item) * (mBegin->size + 1));
+      new (&begin[mBegin->size + 1].data) T(args...);
       mBegin = begin;
     }
   } else {
-    mBegin = alloc->allocUninitialized(2);
+    mBegin = reinterpret_cast<Item *>(alloc->allocUninitialized(2));
+    new (&mBegin[1].data) T(args...);
     mBegin->size = 0;
   }
   mBegin->size += 1;
@@ -155,7 +159,7 @@ void BlockVector<T>::emplace_back(BlockAllocator<T> *alloc, Args... args) {
 template <class T>
 T *BlockVector<T>::data() const {
   if (mBegin) {
-    return mBegin->data + 1;
+    return &mBegin->data + 1;
   }
   return nullptr;
 }
