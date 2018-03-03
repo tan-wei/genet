@@ -3,6 +3,7 @@
 
 #include <list>
 #include <mutex>
+#include <cstring>
 
 namespace plugkit {
 class RootAllocator final {
@@ -147,7 +148,7 @@ void BlockVector<T>::emplace_back(BlockAllocator<T> *alloc, Args... args) {
     } else {
       Item *begin =
           reinterpret_cast<Item *>(alloc->allocUninitialized(mBegin->size + 2));
-      memcpy(begin, mBegin, sizeof(Item) * (mBegin->size + 1));
+      std::memcpy(begin, mBegin, sizeof(Item) * (mBegin->size + 1));
       new (&begin[mBegin->size + 1].data) T(args...);
       mBegin = begin;
     }
