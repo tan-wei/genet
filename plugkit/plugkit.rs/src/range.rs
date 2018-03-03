@@ -2,4 +2,4 @@
 
 use std::ops;
 
-pub type Range = ops::Range<usize>;
+pub type Range = ops::Range<u32>;

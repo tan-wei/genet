@@ -27,7 +27,7 @@ pub struct Layer {
     prev: *const Layer,
     next: *const Layer,
     frame: *const Frame,
-    range: (libc::size_t, libc::size_t)
+    range: (u32, u32)
 }
 
 #[derive(Debug)]

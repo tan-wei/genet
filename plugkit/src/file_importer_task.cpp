@@ -26,7 +26,7 @@ Frame *createFrame(Context *ctx, Token tag, const RawFrame &raw) {
 
   auto payload = Context_allocPayload(ctx);
   payload->addSlice(Slice{raw.payload, raw.length});
-  payload->setRange(Range{0, raw.length});
+  payload->setRange(Range{0, static_cast<uint32_t>(raw.length)});
   layer->addPayload(payload);
 
   using namespace std::chrono;

@@ -11,9 +11,9 @@ use super::variant::{Value, ValueString, ValueArray, ValueMap, Variant};
 #[repr(C)]
 pub struct Attr {
     id: Token,
+    typ: Token,
     val: Variant,
-    range: (libc::size_t, libc::size_t),
-    typ: Token
+    range: (u32, u32)
 }
 
 impl<T> Value<T> for Attr

@@ -5,7 +5,7 @@
 namespace plugkit {
 
 Attr::Attr(Token id, const Variant &value, Token type)
-    : mId(id), mValue(value), mType(type) {}
+    : mId(id), mType(type), mValue(value) {}
 
 Attr::~Attr() {}
 

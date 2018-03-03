@@ -29,9 +29,9 @@ private:
 
 private:
   Token mId = Token_null();
+  Token mType = Token_null();
   Variant mValue;
   Range mRange = {0, 0};
-  Token mType = 0;
 };
 
 extern "C" {

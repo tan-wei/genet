@@ -168,27 +168,27 @@ impl Worker for TCPWorker {
                         rdr.consume(1);
                         let attr = child.add_attr(ctx, token!("tcp.options.mss"));
                         attr.set_with_range(&ByteReader::read_u16::<BigEndian>(&mut rdr)?);
-                        attr.set_range(&(range.start..rdr.position() as usize));
+                        attr.set_range(&(range.start..rdr.position() as u32));
                     }
                     3 => {
                         rdr.consume(1);
                         let attr = child.add_attr(ctx, token!("tcp.options.scale"));
                         attr.set_with_range(&ByteReader::read_u8(&mut rdr)?);
-                        attr.set_range(&(range.start..rdr.position() as usize));
+                        attr.set_range(&(range.start..rdr.position() as u32));
                     }
                     4 => {
                         rdr.consume(1);
                         let attr = child.add_attr(ctx, token!("tcp.options.selectiveAckPermitted"));
                         attr.set(&true);
                         attr.set_range(&range);
-                        attr.set_range(&(range.start..rdr.position() as usize));
+                        attr.set_range(&(range.start..rdr.position() as u32));
                     }
                     5 => {
                         let (len, _) = ByteReader::read_u8(&mut rdr)?;
                         let (slice, _) = ByteReader::read_slice(&mut rdr, len as usize - 2)?;
                         let attr = child.add_attr(ctx, token!("tcp.options.selectiveAck"));
                         attr.set(&slice);
-                        attr.set_range(&(range.start..rdr.position() as usize));
+                        attr.set_range(&(range.start..rdr.position() as u32));
                     }
                     8 => {
                         rdr.consume(1);
@@ -197,7 +197,7 @@ impl Worker for TCPWorker {
                         {
                             let attr = child.add_attr(ctx, token!("tcp.options.ts"));
                             attr.set_typ(token!("nested"));
-                            attr.set_range(&(range.start..rdr.position() as usize));
+                            attr.set_range(&(range.start..rdr.position() as u32));
                         }
                         {
                             let attr = child.add_attr(ctx, token!("tcp.options.ts.my"));
