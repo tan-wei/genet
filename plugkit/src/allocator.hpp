@@ -23,9 +23,12 @@ public:
   ~BlockAllocator();
   template <class... Args>
   T *alloc(Args... args);
+  T *allocUninitialized(size_t size);
+  bool allocable(T *ptr) const;
   void dealloc(T *ptr);
 
 private:
+  static const size_t blockSize = 1024;
   union Block {
     Block *next;
     char data[sizeof(T)];
@@ -44,28 +47,48 @@ BlockAllocator<T>::~BlockAllocator() {}
 template <class T>
 template <class... Args>
 T *BlockAllocator<T>::alloc(Args... args) {
+  T *ptr = allocUninitialized(1);
+  return new (ptr) T(args...);
+}
+
+template <class T>
+T *BlockAllocator<T>::allocUninitialized(size_t size) {
+  if (size == 0 || size >= blockSize - 1)
+    return nullptr;
   Block *chunk = nullptr;
-  for (auto pair : mList) {
-    Block *front = pair.first;
-    if (front->next) {
-      chunk = front->next;
+  if (!mList.empty()) {
+    Block *front = mList.front().first;
+    chunk = front->next;
+    for (size_t index = 0; index < size; index += 1) {
+      if (index > 0 && front->next != front + 1) {
+        chunk = nullptr;
+        break;
+      }
+      front = front->next;
+    }
+  }
+  if (chunk) {
+    Block *front = mList.front().first;
+    for (size_t index = 0; index < size; index += 1) {
       front->next = front->next->next;
-      break;
     }
+    return reinterpret_cast<T *>(chunk->data);
   }
-  if (!chunk) {
-    size_t length = 1024;
-    Block *front =
-        static_cast<Block *>(mRoot->allocate(sizeof(Block) * length));
-    chunk = front + 1;
-    front->next = front + 2;
-    for (size_t i = 2; i < length - 1; ++i) {
-      front[i].next = front + i + 1;
-    }
-    front[length - 1].next = nullptr;
-    mList.emplace_front(front, front + length);
+  Block *front =
+      static_cast<Block *>(mRoot->allocate(sizeof(Block) * blockSize));
+  chunk = front + 1;
+  front->next = chunk + size;
+  for (size_t i = 1 + size; i < blockSize - 1; ++i) {
+    front[i].next = front + i + 1;
   }
-  return new (chunk) T(args...);
+  front[blockSize - 1].next = nullptr;
+  mList.emplace_front(front, front + blockSize);
+  return reinterpret_cast<T *>(chunk->data);
+}
+
+template <class T>
+bool BlockAllocator<T>::allocable(T *ptr) const {
+  return !mList.empty() && mList.front().first->next == ptr;
 }
 
 template <class T>
