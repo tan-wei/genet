@@ -117,6 +117,9 @@ public:
   template <class... Args>
   void emplace_back(BlockAllocator<T> *alloc, Args... args);
   T *data() const;
+  T &operator[](size_t index);
+  const T &operator[](size_t index) const;
+  bool empty() const;
   size_t size() const;
 
 private:
@@ -162,6 +165,21 @@ T *BlockVector<T>::data() const {
     return &mBegin->data + 1;
   }
   return nullptr;
+}
+
+template <class T>
+T &BlockVector<T>::operator[](size_t index) {
+  return data()[index];
+}
+
+template <class T>
+const T &BlockVector<T>::operator[](size_t index) const {
+  return data()[index];
+}
+
+template <class T>
+bool BlockVector<T>::empty() const {
+  return size() == 0;
 }
 
 template <class T>
