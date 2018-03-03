@@ -1,10 +1,12 @@
 extern crate http_muncher;
 extern crate byteorder;
 extern crate libc;
+extern crate inflector;
 
 #[macro_use]
 extern crate plugkit;
 
+use inflector::Inflector;
 use std::collections::HashMap;
 use std::io::{Error, ErrorKind};
 use plugkit::layer::{Layer};
@@ -136,13 +138,27 @@ enum Entry {
 struct HTTPSession {
     status: Status,
     parser: Rc<RefCell<Parser>>,
+    header_field: &'static[u8],
+    headers: Vec<(String, &'static[u8])>,
     entries: Vec<Entry>
 }
 
 impl ParserHandler for HTTPSession {
     fn on_url(&mut self, _parser: &mut Parser, data: &'static[u8]) -> bool {
         self.entries.push(Entry::Url(data));
-        return true
+        true
+    }
+
+    fn on_header_field(&mut self, _parser: &mut Parser, data: &'static[u8]) -> bool {
+        self.header_field = data;
+        true   
+    }
+
+    fn on_header_value(&mut self, _parser: &mut Parser, data: &'static[u8]) -> bool {
+        if let Ok(key) = str::from_utf8(self.header_field) {
+            self.headers.push((key.to_train_case(), data));
+        }
+        true
     }
 }
 
@@ -151,6 +167,8 @@ impl HTTPSession {
         HTTPSession {
             status: Status::None,
             parser: Rc::new(RefCell::new(Parser::request_and_response())),
+            header_field: &[],
+            headers: Vec::new(),
             entries: Vec::new()
         }
     }
@@ -243,6 +261,15 @@ impl HTTPSession {
                         let attr = child.add_attr(ctx, token!("http.path"));
                         variant::ValueString::set_ref(attr, &path);
                     }
+                }
+            }
+        }
+
+        if self.headers.len() > 0 {
+            let attr = child.add_attr(ctx, token!("http.headers"));
+            while let Some((key, value)) = self.headers.pop() {
+                if let Ok(value_str) = str::from_utf8(value) {
+                    variant::ValueString::set_map_ref(attr.value_mut(), key.as_str(), value_str);
                 }
             }
         }

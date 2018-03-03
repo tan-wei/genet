@@ -10,5 +10,6 @@ crate-type = ["cdylib"]
 [dependencies]
 libc = "*"
 byteorder = "1"
+Inflector = "0.11"
 plugkit = { path = "../../../../plugkit/plugkit.rs" }
 http-muncher = {git = "https://github.com/deplug/rust-streaming-http-parser"}

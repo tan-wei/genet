@@ -48,8 +48,8 @@ def_func!(
     Variant_setSlice,        extern "C" fn(*mut Variant, (*const u8, usize));
     Variant_arrayValue,      extern "C" fn(*const Variant, libc::size_t) -> *const Variant;
     Variant_arrayValueRef,   extern "C" fn(*mut Variant, libc::size_t) -> *mut Variant;
-    Variant_mapValue,        extern "C" fn(*const Variant, *const libc::c_char) -> *const Variant;
-    Variant_mapValueRef,     extern "C" fn(*mut Variant, *const libc::c_char) -> *mut Variant;
+    Variant_mapValue,        extern "C" fn(*const Variant, *const libc::c_char, libc::size_t) -> *const Variant;
+    Variant_mapValueRef,     extern "C" fn(*mut Variant, *const libc::c_char, libc::size_t) -> *mut Variant;
     Layer_attr,              extern "C" fn(*const Layer, Token) -> *const Attr;
     Layer_payloads,          extern "C" fn(*const Layer, *mut libc::size_t) -> *const *const Payload;
     Layer_errors,            extern "C" fn(*const Layer, *mut libc::size_t) -> *const *const Error;
