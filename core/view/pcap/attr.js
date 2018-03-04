@@ -5,32 +5,32 @@ function selectRange (range = []) {
   deplug.action.emit('core:frame:range-selected', range)
 }
 
-function filterExpression (attr) {
+function filterExpression (id, attr) {
   const macro = deplug.session.attrMacro(attr.type)
   if (macro !== null) {
     const exp = macro(attr)
     const prefix = '@'
-    return `${attr.id} == ${prefix}${exp}`
+    return `${id} == ${prefix}${exp}`
   }
   if (attr.value === true) {
-    return attr.id
+    return id
   } else if (attr.value === false) {
-    return `!${attr.id}`
+    return `!${id}`
   } else if (attr.value instanceof Uint8Array) {
-    return `${attr.id} == ${JSON.stringify(Array.from(attr.value))}`
+    return `${id} == ${JSON.stringify(Array.from(attr.value))}`
   }
-  return `${attr.id} == ${JSON.stringify(attr.value)}`
+  return `${id} == ${JSON.stringify(attr.value)}`
 }
 
 export default class AttributeItem {
   view (vnode) {
     const { item, layer } = vnode.attrs
-    const { attr, children } = item
+    const { attr, id, children } = item
     let faClass = 'attribute'
     if (children.length) {
       faClass = 'attribute children'
     }
-    const { name } = deplug.session.token(attr.id)
+    const { name } = deplug.session.token(id)
     const attrRenderer =
       deplug.session.attrRenderer(attr.type) || AttributeValueItem
     return m('li', [
@@ -43,7 +43,7 @@ export default class AttributeItem {
           ]),
           onmouseout: () => selectRange(),
           oncontextmenu: (event) => {
-            const filter = filterExpression(attr)
+            const filter = filterExpression(id, attr)
             deplug.menu.showContextMenu(event, [
               {
                 label: `Apply Filter: ${filter}`,
