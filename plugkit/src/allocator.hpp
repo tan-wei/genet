@@ -1,9 +1,9 @@
 #ifndef PLUGKIT_ALLOCATOR_HPP
 #define PLUGKIT_ALLOCATOR_HPP
 
+#include <cstring>
 #include <list>
 #include <mutex>
-#include <cstring>
 
 namespace plugkit {
 class RootAllocator final {

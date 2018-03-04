@@ -1,4 +1,5 @@
 --alias
+--dynamic
 !out-of-bounds
 !invalid-value
 !out-of-memory

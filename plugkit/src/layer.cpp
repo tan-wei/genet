@@ -11,7 +11,8 @@ namespace plugkit {
 
 namespace {
 const auto aliasToken = Token_get("--alias");
-}
+const auto dynamicToken = Token_get("--dynamic");
+} // namespace
 
 Layer::Layer(Token id) : mId(id) { setConfidence(LAYER_CONF_EXACT); }
 
@@ -47,7 +48,7 @@ void Layer::setWorker(uint8_t id) {
 
 const std::vector<Token> &Layer::tags() const { return mTags; }
 
-void Layer::addTag(Token token) { mTags.push_back(token); }
+void Layer::addTag(Token token) { mTags.emplace_back(token); }
 
 const std::vector<Payload *> &Layer::payloads() const { return mPayloads; }
 
@@ -180,6 +181,28 @@ void Layer_addAttrAlias(Layer *layer, Context *ctx, Token alias, Token target) {
   attr->setType(aliasToken);
   attr->setValue(target);
   layer->addAttr(attr);
+}
+
+Attr *
+Layer_addAttrStr(Layer *layer, Context *ctx, Token prefix, const char *name) {
+  Attr *dynAttr = Context_allocAttr(ctx, prefix);
+  dynAttr->setType(dynamicToken);
+  dynAttr->setValue(Variant(name));
+  layer->addAttr(dynAttr);
+  Attr *attr = Context_allocAttr(ctx, dynamicToken);
+  layer->addAttr(attr);
+  return attr;
+}
+
+Attr *Layer_addAttrStrRef(
+    Layer *layer, Context *ctx, Token prefix, const char *name, size_t length) {
+  Attr *dynAttr = Context_allocAttr(ctx, prefix);
+  dynAttr->setType(dynamicToken);
+  dynAttr->setValue(Variant(name, length));
+  layer->addAttr(dynAttr);
+  Attr *attr = Context_allocAttr(ctx, dynamicToken);
+  layer->addAttr(attr);
+  return attr;
 }
 
 const Attr *Layer_attr(const Layer *layer, Token id) { return layer->attr(id); }
