@@ -42,7 +42,7 @@ public:
   void addSubLayer(Layer *child);
 
   const std::vector<Attr *> &attrs() const;
-  const Attr *attr(Token token) const;
+  const Attr *attr(Token token, const char *name = nullptr) const;
   void addAttr(Attr *attr);
 
   uint8_t worker() const;
