@@ -49,10 +49,10 @@ const std::vector<const Layer *> &FrameView::leafLayers() const {
   return mLeafLayers;
 }
 
-const Attr *FrameView::attr(Token id) const {
+const Attr *FrameView::attr(Token id, const char *name) const {
   for (const Layer *leaf : leafLayers()) {
     for (const Layer *layer = leaf; layer; layer = layer->parent()) {
-      if (const Attr *layerProp = layer->attr(id)) {
+      if (const Attr *layerProp = layer->attr(id, name)) {
         return layerProp;
       }
     }
@@ -90,14 +90,14 @@ Slice FrameView::payload() const {
   return Slice();
 }
 
-void FrameView::query(Token id, const Layer **layer, const Attr **attr) const {
+void FrameView::query(Token id, const Layer **layer, const Attr **attr, const char *name) const {
   for (const Layer *leaf : leafLayers()) {
     for (const Layer *parent = leaf; parent; parent = parent->parent()) {
       if (parent->id() == id) {
         *layer = parent;
         return;
       }
-      if (const Attr *layerAttr = parent->attr(id)) {
+      if (const Attr *layerAttr = parent->attr(id, name)) {
         *attr = layerAttr;
         return;
       }

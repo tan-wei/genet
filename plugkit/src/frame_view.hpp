@@ -21,11 +21,11 @@ public:
   const Frame *frame() const;
   const Layer *primaryLayer() const;
   const std::vector<const Layer *> &leafLayers() const;
-  const Attr *attr(Token id) const;
+  const Attr *attr(Token id, const char *name = nullptr) const;
   const Layer *layer(Token id) const;
   double timestamp() const;
   Slice payload() const;
-  void query(Token id, const Layer **layer, const Attr **attr) const;
+  void query(Token id, const Layer **layer, const Attr **attr, const char *name = nullptr) const;
 
 private:
   FrameView(const FrameView &view) = delete;

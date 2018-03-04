@@ -88,8 +88,8 @@ const Attr *Layer::attr(Token token, const char *name) const {
     } else if (child->id() == id) {
       if (child->type() == aliasToken) {
         id = child->value().uint64Value();
-      } else if (child->type() == dynamicToken && name) {
-        if (child->value().string() == name) {
+      } else if (child->type() == dynamicToken) {
+        if (name && child->value().string() == name) {
           matchDynamicName = true;
           continue;
         }

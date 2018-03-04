@@ -254,7 +254,11 @@ NAN_METHOD(LayerWrapper::attr) {
       Nan::ThrowTypeError("First argument must be a string or token-id");
       return;
     }
-    if (const auto &attr = layer->attr(token)) {
+    const char *name = nullptr;
+    if (info[1]->IsString()) {
+      name = *Nan::Utf8String(info[1]);
+    }
+    if (const auto &attr = layer->attr(token, name)) {
       info.GetReturnValue().Set(AttrWrapper::wrap(attr));
     } else {
       info.GetReturnValue().Set(Nan::Null());
