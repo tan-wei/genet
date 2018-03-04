@@ -22,6 +22,7 @@ void LayerWrapper::init(v8::Isolate *isolate) {
   SetPrototypeMethod(tpl, "addError", addError);
   SetPrototypeMethod(tpl, "addAttr", addAttr);
   SetPrototypeMethod(tpl, "addAttrAlias", addAttrAlias);
+  SetPrototypeMethod(tpl, "addAttrStr", addAttrStr);
   SetPrototypeMethod(tpl, "addTag", addTag);
   SetPrototypeMethod(tpl, "toJSON", toJSON);
 
@@ -386,6 +387,34 @@ NAN_METHOD(LayerWrapper::addAttrAlias) {
     }
     if (auto ctx = ContextWrapper::unwrap(info[0])) {
       Layer_addAttrAlias(layer, ctx, alias, target);
+    } else {
+      Nan::ThrowTypeError("First argument must be a context");
+    }
+  }
+}
+
+NAN_METHOD(LayerWrapper::addAttrStr) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->layer) {
+    Token token = Token_null();
+    auto id = info[1];
+    if (id->IsUint32()) {
+      token = id->Uint32Value();
+    } else if (id->IsString()) {
+      token = Token_get(*Nan::Utf8String(id));
+    } else {
+      Nan::ThrowTypeError("Second argument must be a string or token-id");
+      return;
+    }
+    auto name = info[2];
+    if (!name->IsString()) {
+      Nan::ThrowTypeError("Third argument must be a string");
+      return;
+    }
+    if (auto ctx = ContextWrapper::unwrap(info[0])) {
+      const auto &str = Nan::Utf8String(name);
+      info.GetReturnValue().Set(
+          AttrWrapper::wrap(Layer_addAttrStr(layer, ctx, token, *str, str.length())));
     } else {
       Nan::ThrowTypeError("First argument must be a context");
     }

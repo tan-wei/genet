@@ -82,7 +82,7 @@ impl Layer {
     }
 
     pub fn add_attr_str(&mut self, ctx: &mut Context, prefix: Token, name: &str) -> &mut Attr {
-        unsafe { &mut *symbol::Layer_addAttrStr.unwrap()(self, ctx, prefix, name.as_ptr() as *const i8) }
+        unsafe { &mut *symbol::Layer_addAttrStr.unwrap()(self, ctx, prefix, name.as_ptr() as *const i8, name.len()) }
     }
 
     pub fn add_attr_str_ref(&mut self, ctx: &mut Context, prefix: Token, name: &'static str) -> &mut Attr {

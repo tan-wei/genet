@@ -42,10 +42,6 @@ impl ValueString for Attr
     fn set_ref(&mut self, val: &'static str) {
         ValueString::set_ref(self.value_mut(), val)
     }
-
-    fn set_map_ref(&mut self, key: &str, val: &'static str) {
-        ValueString::set_map_ref(self.value_mut(), key, val)
-    }
 }
 
 impl<T> ValueArray<T> for Attr

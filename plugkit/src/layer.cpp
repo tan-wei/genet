@@ -183,11 +183,11 @@ void Layer_addAttrAlias(Layer *layer, Context *ctx, Token alias, Token target) {
   layer->addAttr(attr);
 }
 
-Attr *
-Layer_addAttrStr(Layer *layer, Context *ctx, Token prefix, const char *name) {
+Attr *Layer_addAttrStr(
+    Layer *layer, Context *ctx, Token prefix, const char *name, size_t length) {
   Attr *dynAttr = Context_allocAttr(ctx, prefix);
   dynAttr->setType(dynamicToken);
-  dynAttr->setValue(Variant(name));
+  dynAttr->setValue(Variant(std::string(name, length).c_str()));
   layer->addAttr(dynAttr);
   Attr *attr = Context_allocAttr(ctx, dynamicToken);
   layer->addAttr(attr);

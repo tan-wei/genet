@@ -89,7 +89,6 @@ pub trait ValueString {
     fn get(&self) -> String;
     fn set_copy(&mut self, &str);
     fn set_ref(&mut self, &'static str);
-    fn set_map_ref(&mut self, &str, &'static str);
 }
 
 pub trait ValueMap<T> {
@@ -321,15 +320,6 @@ impl ValueString for Variant {
 
     fn set_ref(&mut self, val: &'static str) {
         unsafe { symbol::Variant_setStringRef.unwrap()(self, val.as_ptr() as *const i8, val.len()) }
-    }
-
-    fn set_map_ref(&mut self, key: &str, val: &'static str)
-    {
-        unsafe { 
-            let c = key.as_ptr() as *const i8;
-            let var = &mut *symbol::Variant_mapValueRef.unwrap()(self, c, key.len());
-            ValueString::set_ref(var, val);
-        }
     }
 }
 
