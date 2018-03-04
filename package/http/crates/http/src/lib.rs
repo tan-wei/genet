@@ -266,10 +266,11 @@ impl HTTPSession {
         }
 
         if self.headers.len() > 0 {
-            let attr = child.add_attr(ctx, token!("http.headers"));
+            let token = token!("http.headers");
             while let Some((key, value)) = self.headers.pop() {
                 if let Ok(value_str) = str::from_utf8(value) {
-                    variant::ValueString::set_map_ref(attr.value_mut(), key.as_str(), value_str);
+                    let attr = child.add_attr_str(ctx, token, key.as_str());
+                    variant::ValueString::set_ref(attr, &value_str);
                 }
             }
         }
