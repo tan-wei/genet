@@ -5,7 +5,7 @@
 namespace plugkit {
 
 Attr::Attr(Token id, const Variant &value, Token type)
-    : mId(id), mType(type), mValue(value) {
+    : mType(type), mId(id), mValue(value) {
   setRange({0, 0});
 }
 

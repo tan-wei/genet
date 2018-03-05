@@ -247,7 +247,7 @@ const Error *const *Layer_errors(const Layer *layer, size_t *size) {
   if (size)
     *size = errors.size();
   if (errors.empty()) {
-    static const Error empty{Token_null(), Token_null()};
+    static const Error empty{Token_null(), Token_null(), std::string()};
     static const Error *ptr = &empty;
     return &ptr;
   }
