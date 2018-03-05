@@ -126,11 +126,11 @@ public:
     ctx.logger = logger;
 
     for (const FileExporter &exporter : data.exporters) {
-      if (!exporter.func)
-        continue;
-      FileStatus status = exporter.func(&ctx, data.file.c_str(), apiCallback);
-      if (status != FILE_STATUS_UNSUPPORTED) {
-        break;
+      if (exporter.isSupported && exporter.start) {
+        if (exporter.isSupported(&ctx, data.file.c_str())) {
+          exporter.start(&ctx, data.file.c_str(), apiCallback);
+          return false;
+        }
       }
     }
     return false;

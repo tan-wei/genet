@@ -19,16 +19,14 @@ struct RawFrame {
   Variant data;
 };
 
-enum FileStatus {
-  FILE_STATUS_DONE,
-  FILE_STATUS_ERROR,
-  FILE_STATUS_UNSUPPORTED
-};
+enum FileStatus { FILE_STATUS_DONE, FILE_STATUS_ERROR };
 
 typedef bool(FileImporterCallback)(Context *ctx,
                                    size_t length,
                                    double progress);
 typedef const RawFrame *(FileExporterCallback)(Context *ctx, size_t *length);
+
+typedef bool(FileIsSupportedFunc)(Context *ctx, const char *filename);
 
 typedef FileStatus(FileImporterFunc)(Context *ctx,
                                      const char *filename,
@@ -40,11 +38,13 @@ typedef FileStatus(FileExporterFunc)(Context *ctx,
                                      FileExporterCallback callback);
 
 struct FileImporter {
-  FileImporterFunc *func;
+  FileIsSupportedFunc *isSupported;
+  FileImporterFunc *start;
 };
 
 struct FileExporter {
-  FileExporterFunc *func;
+  FileIsSupportedFunc *isSupported;
+  FileExporterFunc *start;
 };
 
 } // namespace plugkit

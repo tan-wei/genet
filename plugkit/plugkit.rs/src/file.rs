@@ -4,7 +4,7 @@ extern crate libc;
 
 use std::mem;
 use std::slice;
-use std::io::{Error, ErrorKind, Result};
+use std::io::Result;
 use std::path::Path;
 use super::layer::Layer;
 use super::variant::Variant;
@@ -12,8 +12,7 @@ use super::context::Context;
 
 pub enum Status {
     Done        = 0,
-    Error       = 1,
-    Unsupported = 2
+    Error       = 1
 }
 
 #[repr(C)]
@@ -82,13 +81,21 @@ impl RawFrame {
 }
 
 pub trait Importer {
+    fn is_supported(_ctx: &mut Context, _path: &Path) -> bool {
+        false
+    }
+
     fn start(_ctx: &mut Context, _path: &Path, _dst: &mut [RawFrame], _cb: &Fn(&mut Context, usize, f64)) -> Result<()> {
-        Err(Error::new(ErrorKind::InvalidInput, "unsupported"))
+        Ok(())
     }
 }
 
 pub trait Exporter {
+    fn is_supported(_ctx: &mut Context, _path: &Path) -> bool {
+        false
+    }
+
     fn start(_ctx: &mut Context, _path: &Path, _cb: &Fn(&mut Context) -> &[RawFrame]) -> Result<()> {
-        Err(Error::new(ErrorKind::InvalidInput, "unsupported"))
+        Ok(())
     }
 }

@@ -3,7 +3,7 @@ extern crate plugkit;
 extern crate byteorder;
 extern crate libc;
 
-use std::io::{Result, Error, ErrorKind, Write, BufWriter};
+use std::io::{Result, Write, BufWriter};
 use std::fs::File;
 use std::path::Path;
 use byteorder::{LittleEndian, WriteBytesExt};
@@ -14,10 +14,18 @@ use plugkit::variant::Value;
 pub struct PcapExporter {}
 
 impl Exporter for PcapExporter {
+    fn is_supported(_ctx: &mut Context, path: &Path) -> bool {
+        if let Some(ext) = path.extension() {
+            ext == "pcap"
+        } else {
+            false
+        }
+    }
+
     fn start(ctx: &mut Context, path: &Path, cb: &Fn(&mut Context) -> &[RawFrame]) -> Result<()> {
         let ext = path.extension();
         if ext.is_none() || ext.unwrap() != "pcap" {
-            return Err(Error::new(ErrorKind::InvalidInput, "unsupported"))
+            
         }
         let file = File::create(path)?;
         let mut wtr = BufWriter::new(file);

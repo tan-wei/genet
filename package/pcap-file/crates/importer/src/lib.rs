@@ -13,11 +13,15 @@ use plugkit::context::Context;
 pub struct PcapImporter {}
 
 impl Importer for PcapImporter {
-    fn start(ctx: &mut Context, path: &Path, dst: &mut [RawFrame], cb: &Fn(&mut Context, usize, f64)) -> Result<()> {
-        let ext = path.extension();
-        if ext.is_none() || ext.unwrap() != "pcap" {
-            return Err(Error::new(ErrorKind::InvalidInput, "unsupported"))
+    fn is_supported(_ctx: &mut Context, path: &Path) -> bool {
+        if let Some(ext) = path.extension() {
+            ext == "pcap"
+        } else {
+            false
         }
+    }
+
+    fn start(ctx: &mut Context, path: &Path, dst: &mut [RawFrame], cb: &Fn(&mut Context, usize, f64)) -> Result<()> {
         let file = File::open(path)?;
         let mut rdr = BufReader::new(file);
         let magic_number = rdr.read_u32::<BigEndian>()?;

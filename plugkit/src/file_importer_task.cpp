@@ -118,12 +118,12 @@ void FileImporterTask::run(int id) {
 
   Sandbox::activate(Sandbox::PROFILE_FILE);
   for (const FileImporter &importer : d->importers) {
-    if (!importer.func)
-      continue;
-    FileStatus status = importer.func(&ctx, d->file.c_str(), data.frames.data(),
-                                      data.frames.size(), apiCallback);
-    if (status != FILE_STATUS_UNSUPPORTED) {
-      return;
+    if (importer.isSupported && importer.start) {
+      if (importer.isSupported(&ctx, d->file.c_str())) {
+        importer.start(&ctx, d->file.c_str(), data.frames.data(),
+                       data.frames.size(), apiCallback);
+        return;
+      }
     }
   }
 }

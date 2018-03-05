@@ -4,7 +4,20 @@
 macro_rules! plugkit_api_file_import {
     ( $x:ident ) => {
         #[no_mangle]
-        pub extern "C" fn plugkit_v1_file_import(c: *mut Context, p: *const libc::c_char, d: *mut RawFrame,
+        pub extern "C" fn plugkit_v1_file_importer_is_supported(c: *mut Context, p: *const libc::c_char) -> bool {
+            use std::ffi::CStr;
+            use std::str;
+            use std::path::Path;
+            let path = unsafe {
+                let slice = CStr::from_ptr(p);
+                Path::new(str::from_utf8_unchecked(slice.to_bytes()))
+            };
+            let ctx = unsafe { &mut *c };
+            $x::is_supported(ctx, path)
+        }
+
+        #[no_mangle]
+        pub extern "C" fn plugkit_v1_file_importer_start(c: *mut Context, p: *const libc::c_char, d: *mut RawFrame,
                 s: libc::size_t, callback: extern "C" fn (*mut Context, libc::size_t, f64)) -> plugkit::file::Status {
             use std::ffi::CStr;
             use std::{str,slice};
@@ -23,11 +36,8 @@ macro_rules! plugkit_api_file_import {
                 callback(ctx as *mut Context, len, prog);
             });
             callback(c, 0, 1.0);
-            if let Err(e) = result {
-                match e.kind() {
-                    ErrorKind::InvalidInput => Status::Unsupported,
-                    _ => Status::Error,
-                }
+            if result.is_err() {
+                Status::Error
             } else {
                 Status::Done
             }
@@ -40,7 +50,20 @@ macro_rules! plugkit_api_file_import {
 macro_rules! plugkit_api_file_export {
     ( $x:ident ) => {
         #[no_mangle]
-        pub extern "C" fn plugkit_v1_file_export(c: *mut Context, p: *const libc::c_char,
+        pub extern "C" fn plugkit_v1_file_exporter_is_supported(c: *mut Context, p: *const libc::c_char) -> bool {
+            use std::ffi::CStr;
+            use std::str;
+            use std::path::Path;
+            let path = unsafe {
+                let slice = CStr::from_ptr(p);
+                Path::new(str::from_utf8_unchecked(slice.to_bytes()))
+            };
+            let ctx = unsafe { &mut *c };
+            $x::is_supported(ctx, path)
+        }
+
+        #[no_mangle]
+        pub extern "C" fn plugkit_v1_file_exporter_start(c: *mut Context, p: *const libc::c_char,
             callback: extern "C" fn (*mut Context, *mut libc::size_t) -> *const RawFrame) -> plugkit::file::Status {
             use std::ffi::CStr;
             use std::{str,slice};
@@ -58,11 +81,8 @@ macro_rules! plugkit_api_file_export {
                     slice::from_raw_parts(ptr, len as usize)
                 }
             });
-            if let Err(e) = result {
-                match e.kind() {
-                    ErrorKind::InvalidInput => Status::Unsupported,
-                    _ => Status::Error,
-                }
+            if result.is_err() {
+                Status::Error
             } else {
                 Status::Done
             }
