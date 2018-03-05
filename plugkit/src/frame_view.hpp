@@ -25,7 +25,10 @@ public:
   const Layer *layer(Token id) const;
   double timestamp() const;
   Slice payload() const;
-  void query(Token id, const Layer **layer, const Attr **attr, const char *name = nullptr) const;
+  void query(Token id,
+             const Layer **layer,
+             const Attr **attr,
+             const char *name = nullptr) const;
 
 private:
   FrameView(const FrameView &view) = delete;

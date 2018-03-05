@@ -90,7 +90,10 @@ Slice FrameView::payload() const {
   return Slice();
 }
 
-void FrameView::query(Token id, const Layer **layer, const Attr **attr, const char *name) const {
+void FrameView::query(Token id,
+                      const Layer **layer,
+                      const Attr **attr,
+                      const char *name) const {
   for (const Layer *leaf : leafLayers()) {
     for (const Layer *parent = leaf; parent; parent = parent->parent()) {
       if (parent->id() == id) {

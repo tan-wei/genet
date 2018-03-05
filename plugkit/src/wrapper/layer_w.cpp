@@ -417,8 +417,8 @@ NAN_METHOD(LayerWrapper::addAttrStr) {
     }
     if (auto ctx = ContextWrapper::unwrap(info[0])) {
       const auto &str = Nan::Utf8String(name);
-      info.GetReturnValue().Set(
-          AttrWrapper::wrap(Layer_addAttrStr(layer, ctx, token, *str, str.length())));
+      info.GetReturnValue().Set(AttrWrapper::wrap(
+          Layer_addAttrStr(layer, ctx, token, *str, str.length())));
     } else {
       Nan::ThrowTypeError("First argument must be a context");
     }

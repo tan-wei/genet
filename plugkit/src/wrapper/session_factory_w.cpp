@@ -205,8 +205,10 @@ NAN_METHOD(SessionFactoryWrapper::registerImporter) {
                 "plugkit_v1_init")) {
           func(&ModuleLoader::resolve);
         }
-        auto supportedFunc = loader.load<FileIsSupportedFunc *>("plugkit_v1_file_importer_is_supported");
-        auto startFunc = loader.load<FileImporterFunc *>("plugkit_v1_file_importer_start");
+        auto supportedFunc = loader.load<FileIsSupportedFunc *>(
+            "plugkit_v1_file_importer_is_supported");
+        auto startFunc =
+            loader.load<FileImporterFunc *>("plugkit_v1_file_importer_start");
         if (supportedFunc && startFunc) {
           factory->registerImporter(FileImporter{supportedFunc, startFunc});
         }
@@ -227,8 +229,10 @@ NAN_METHOD(SessionFactoryWrapper::registerExporter) {
                 "plugkit_v1_init")) {
           func(&ModuleLoader::resolve);
         }
-        auto supportedFunc = loader.load<FileIsSupportedFunc *>("plugkit_v1_file_exporter_is_supported");
-        auto startFunc = loader.load<FileExporterFunc *>("plugkit_v1_file_exporter_start");
+        auto supportedFunc = loader.load<FileIsSupportedFunc *>(
+            "plugkit_v1_file_exporter_is_supported");
+        auto startFunc =
+            loader.load<FileExporterFunc *>("plugkit_v1_file_exporter_start");
         if (supportedFunc && startFunc) {
           factory->registerExporter(FileExporter{supportedFunc, startFunc});
         }
