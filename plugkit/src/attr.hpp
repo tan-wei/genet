@@ -31,7 +31,10 @@ private:
   Token mId = Token_null();
   Token mType = Token_null();
   Variant mValue;
-  Range mRange = {0, 0};
+  union Data {
+    Range range;
+    void *ext;
+  } mData;
 };
 
 extern "C" {
