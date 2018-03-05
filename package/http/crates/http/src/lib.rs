@@ -156,7 +156,7 @@ impl ParserHandler for HTTPSession {
 
     fn on_header_value(&mut self, _parser: &mut Parser, data: &'static[u8]) -> bool {
         if let Ok(key) = str::from_utf8(self.header_field) {
-            self.headers.push((key.to_camel_case(), data));
+            self.headers.push((key.to_pascal_case(), data));
         }
         true
     }
