@@ -30,7 +30,7 @@ export default class AttributeItem {
     if (children.length) {
       faClass = 'attribute children'
     }
-    const { name } = deplug.session.token(id)
+    const name = deplug.session.tokenName(id)
     const attrRenderer =
       deplug.session.attrRenderer(attr.type) || AttributeValueItem
     return m('li', [

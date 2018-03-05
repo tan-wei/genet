@@ -2,6 +2,8 @@ import { SessionFactory, FilterCompiler } from '@deplug/plugkit'
 import { Disposable } from 'disposables'
 import flatten from 'flat'
 import jsonfile from 'jsonfile'
+import objpath from 'object-path'
+import sentenceCase from 'sentence-case'
 
 const fields = Symbol('fields')
 export default class Session {
@@ -117,12 +119,9 @@ export default class Session {
     })
   }
 
-  token (id) {
+  tokenName (id) {
     const data = this[fields].tokens.get(id)
-    if (typeof data !== 'undefined') {
-      return data
-    }
-    return { name: id }
+    return objpath.get(data, 'name', sentenceCase(id.split('.').slice(-1)[0]))
   }
 
   layerRenderer (id) {

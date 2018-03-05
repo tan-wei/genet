@@ -35,7 +35,7 @@ class LayerItem {
       const rootAddr = rootPayload.slices[0].addr
       dataOffset = parentAddr[1] - rootAddr[1]
     }
-    const { name } = deplug.session.token(layer.id)
+    const name = deplug.session.tokenName(layer.id)
 
     const attrArray = [{
       key: layer.id,
@@ -160,8 +160,8 @@ class LayerItem {
                 m('summary', [
                   m('span', [
                     m('i', { class: 'fa fa-exclamation-triangle' }), ' ',
-                    deplug.session.token(err.id).name, ' : ',
-                    deplug.session.token(err.target).name
+                    deplug.session.tokenName(err.id), ' : ',
+                    deplug.session.tokenName(err.target)
                   ])
                 ])
               ])

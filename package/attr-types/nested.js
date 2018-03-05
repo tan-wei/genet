@@ -5,7 +5,7 @@ class Nested {
       .filter((attr) => attr.id.startsWith(`${vnode.attrs.attr.id}.`))
       .map((attr) => {
         const { id } = attr
-        return deplug.session.token(id).name
+        return deplug.session.tokenName(id)
       })
       .join(', ')
     return m('span', [keys])

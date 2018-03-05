@@ -194,7 +194,7 @@ export default class FrameListView {
           return m('span', {
             class: 'protocol',
             'data-layer': tags.join(' '),
-          }, [deplug.session.token(id).name])
+          }, [deplug.session.tokenName(id)])
         },
       }
     ]
