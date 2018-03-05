@@ -10,8 +10,8 @@ use super::variant::{Value, ValueString, Variant};
 
 #[repr(C)]
 pub struct Attr {
-    id: Token,
     typ: Token,
+    id: Token,
     val: Variant,
     range: (u32, u32)
 }

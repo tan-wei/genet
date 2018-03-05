@@ -28,8 +28,8 @@ private:
   Attr &operator=(const Attr &attr) = delete;
 
 private:
-  Token mId = Token_null();
   Token mType = Token_null();
+  Token mId = Token_null();
   Variant mValue;
   union Data {
     Range range;
