@@ -10,8 +10,6 @@
 //! - Double - [`f64`](https://doc.rust-lang.org/std/primitive.f64.html)
 //! - String - [`String`](https://doc.rust-lang.org/std/string/struct.String.html)
 //! - Slice - `&'static[u8]`
-//! - Array - An array of `Variant`s.
-//! - Map - A map of key `String`s and `Variant`s
 
 extern crate libc;
 
@@ -31,8 +29,6 @@ pub enum Type {
     String = 5,
     StringRef = 6,
     Slice = 7,
-    Array = 8,
-    Map = 9,
 }
 
 #[repr(C)]
@@ -74,8 +70,6 @@ impl fmt::Display for Variant {
             Type::String => write!(f, "Variant (String)"),
             Type::StringRef => write!(f, "Variant (StringRef)"),
             Type::Slice => write!(f, "Variant (Slice)"),
-            Type::Array => write!(f, "Variant (Array)"),
-            Type::Map => write!(f, "Variant (Map)"),
         }
     }
 }
@@ -89,58 +83,6 @@ pub trait ValueString {
     fn get(&self) -> String;
     fn set_copy(&mut self, &str);
     fn set_ref(&mut self, &'static str);
-}
-
-pub trait ValueMap<T> {
-    fn get(&self, &str) -> T;
-    fn set(&mut self, &str, &T);
-}
-
-pub trait ValueArray<T> {
-    fn get(&self, usize) -> T;
-    fn set(&mut self, usize, &T);
-}
-
-impl<T> ValueArray<T> for Variant
-where
-    Variant: Value<T>,
-{
-    fn get(&self, index: usize) -> T {
-        unsafe {
-            let var = &*symbol::Variant_arrayValue.unwrap()(self, index);
-            let val: T = Value::get(var);
-            val
-        }
-    }
-
-    fn set(&mut self, index: usize, val: &T) {
-        unsafe {
-            let var = &mut *symbol::Variant_arrayValueRef.unwrap()(self, index);
-            Value::set(var, val);
-        }
-    }
-}
-
-impl<T> ValueMap<T> for Variant
-where
-    Variant: Value<T>,
-{
-    fn get(&self, key: &str) -> T {
-        unsafe {
-            let c = key.as_ptr() as *const i8;
-            let var = &*symbol::Variant_mapValue.unwrap()(self, c, key.len());
-            let val: T = Value::get(var);
-            val
-        }
-    }
-
-    fn set(&mut self, key: &str, val: &T) {
-        unsafe {
-            let c = key.as_ptr() as *const i8;
-            let var = &mut *symbol::Variant_mapValueRef.unwrap()(self, c, key.len());
-            Value::set(var, val);
-        }
-    }
 }
 
 impl Value<bool> for Variant {

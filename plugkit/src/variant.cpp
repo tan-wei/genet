@@ -7,13 +7,6 @@
 #include <uv.h>
 
 namespace plugkit {
-
-namespace {
-
-const Variant::Array nullArray;
-const Variant::Map nullMap;
-} // namespace
-
 void Variant::init(v8::Isolate *isolate) {
   PlugkitModule *module = PlugkitModule::get(isolate);
 
@@ -67,12 +60,6 @@ Variant::Variant(const char *str, size_t length) {
   d.data = str;
 }
 
-Variant::Variant(const Array &array) : type_(VARTYPE_ARRAY) {
-  d.array = new Array(array);
-}
-
-Variant::Variant(const Map &map) : type_(VARTYPE_MAP) { d.map = new Map(map); }
-
 Variant::Variant(const Slice &slice) {
   type_ = VARTYPE_SLICE | (slice.length << 4);
   d.data = slice.data;
@@ -84,12 +71,6 @@ Variant::~Variant() {
     if (tag() == 0) {
       delete d.str;
     }
-    break;
-  case VARTYPE_ARRAY:
-    delete d.array;
-    break;
-  case VARTYPE_MAP:
-    delete d.map;
     break;
   default:;
   }
@@ -107,12 +88,6 @@ Variant &Variant::operator=(const Variant &value) {
     } else {
       this->d.str = value.d.str;
     }
-    break;
-  case VARTYPE_ARRAY:
-    this->d.array = new Array(*value.d.array);
-    break;
-  case VARTYPE_MAP:
-    this->d.map = new Map(*value.d.map);
     break;
   default:;
   }
@@ -220,68 +195,6 @@ Slice Variant::slice() const {
   }
 }
 
-const Variant::Array &Variant::array() const {
-  if (type() == VARTYPE_ARRAY) {
-    return *d.array;
-  } else {
-    return nullArray;
-  }
-}
-
-const Variant::Map &Variant::map() const {
-  if (type() == VARTYPE_MAP) {
-    return *d.map;
-  } else {
-    return nullMap;
-  }
-}
-
-Variant Variant::operator[](size_t index) const {
-  if (type() == VARTYPE_ARRAY && index < d.array->size()) {
-    return (*d.array)[index];
-  } else {
-    return Variant();
-  }
-}
-
-Variant &Variant::operator[](size_t index) {
-  if (type() == VARTYPE_ARRAY) {
-    if (index >= d.array->size()) {
-      d.array->resize(index + 1);
-    }
-    return (*d.array)[index];
-  }
-  static Variant null;
-  return null;
-}
-
-Variant Variant::operator[](const std::string &key) const {
-  if (type() == VARTYPE_MAP) {
-    auto it = d.map->find(key);
-    if (it != d.map->end()) {
-      return it->second;
-    }
-  }
-  return Variant();
-}
-
-Variant &Variant::operator[](const std::string &key) {
-  if (type() == VARTYPE_MAP) {
-    return (*d.map)[key];
-  }
-  static Variant null;
-  return null;
-}
-
-size_t Variant::length() const {
-  if (type() == VARTYPE_ARRAY) {
-    return d.array->size();
-  } else if (type() == VARTYPE_MAP) {
-    return d.map->size();
-  }
-  return 0;
-}
-
 uint64_t Variant::tag() const { return type_ >> 4; }
 
 bool Variant::isString() const { return type() == VARTYPE_STRING; }
@@ -289,10 +202,6 @@ bool Variant::isString() const { return type() == VARTYPE_STRING; }
 bool Variant::isStringRef() const { return type() == VARTYPE_STRING_REF; }
 
 bool Variant::isSlice() const { return type() == VARTYPE_SLICE; }
-
-bool Variant::isArray() const { return type() == VARTYPE_ARRAY; }
-
-bool Variant::isMap() const { return type() == VARTYPE_MAP; }
 
 v8::Local<v8::Object> Variant::getNodeBuffer(const Slice &slice) {
   using namespace v8;
@@ -341,22 +250,6 @@ v8::Local<v8::Value> Variant::getValue(const Variant &var) {
   case VARTYPE_STRING:
   case VARTYPE_STRING_REF:
     return Nan::New(var.string()).ToLocalChecked();
-  case VARTYPE_ARRAY: {
-    const auto &array = var.array();
-    auto obj = Nan::New<v8::Array>(array.size());
-    for (size_t i = 0; i < array.size(); ++i) {
-      obj->Set(i, getValue(array[i]));
-    }
-    return obj;
-  }
-  case VARTYPE_MAP: {
-    const auto &map = var.map();
-    auto obj = Nan::New<v8::Object>();
-    for (const auto &pair : map) {
-      obj->Set(Nan::New(pair.first).ToLocalChecked(), getValue(pair.second));
-    }
-    return obj;
-  }
   case VARTYPE_SLICE:
     return getNodeBuffer(var.slice());
   default:
@@ -373,25 +266,6 @@ Variant Variant::getVariant(v8::Local<v8::Value> var) {
     return Variant(*Nan::Utf8String(var));
   } else if (var->IsArrayBufferView()) {
     return getSlice(var.As<v8::ArrayBufferView>());
-  } else if (var->IsArray()) {
-    auto obj = var.As<v8::Array>();
-    Variant::Array array;
-    array.resize(obj->Length());
-    for (size_t i = 0; i < obj->Length(); ++i) {
-      array[i] = getVariant(obj->Get(i));
-    }
-    return array;
-  } else if (var->IsObject()) {
-    auto obj = var.As<v8::Object>();
-    auto keys = obj->GetOwnPropertyNames();
-    Variant::Map map;
-    for (size_t i = 0; i < keys->Length(); ++i) {
-      const auto keyObj = keys->Get(i);
-      const std::string &key = *Nan::Utf8String(keyObj);
-      const Variant &value = getVariant(obj->Get(keyObj));
-      map.emplace(key, value);
-    }
-    return map;
   }
   return Variant();
 }
@@ -461,43 +335,4 @@ Slice Variant_slice(const Variant *var) {
   return Slice{nullptr, 0};
 }
 void Variant_setSlice(Variant *var, Slice slice) { *var = Variant(slice); }
-
-const Variant *Variant_arrayValue(const Variant *var, size_t index) {
-  if (!var)
-    return nullptr;
-  const auto &array = var->array();
-  if (index < array.size()) {
-    return &array[index];
-  }
-  return nullptr;
-}
-
-Variant *Variant_arrayValueRef(Variant *var, size_t index) {
-  if (!var->isArray()) {
-    *var = Variant::Array();
-  }
-  return &(*var)[index];
-}
-
-const Variant *
-Variant_mapValue(const Variant *var, const char *key, int length) {
-  if (!var)
-    return nullptr;
-  if (var->isMap()) {
-    const auto &map = var->map();
-    auto it =
-        map.find(length < 0 ? std::string(key) : std::string(key, length));
-    if (it != map.end()) {
-      return &it->second;
-    }
-  }
-  return nullptr;
-}
-
-Variant *Variant_mapValueRef(Variant *var, const char *key, int length) {
-  if (!var->isMap()) {
-    *var = Variant::Map();
-  }
-  return &(*var)[length < 0 ? std::string(key) : std::string(key, length)];
-}
 } // namespace plugkit

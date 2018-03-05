@@ -18,10 +18,6 @@ describe('Attr', () => {
       assert.deepEqual(-0.5, attr.value)
       attr.value = 'hello'
       assert.deepEqual('hello', attr.value)
-      attr.value = { abc: '0' }
-      assert.deepEqual({ abc: '0' }, attr.value)
-      attr.value = [123, 456]
-      assert.deepEqual([123, 456], attr.value)
     })
   })
   describe('#range', () => {

@@ -24,10 +24,6 @@ TEST_CASE("Variant_type", "[variant]") {
   CHECK(Variant_type(&variant) == VARTYPE_STRING_REF);
   Variant_setSlice(&variant, Slice());
   CHECK(Variant_type(&variant) == VARTYPE_SLICE);
-  Variant_arrayValueRef(&variant, 0);
-  CHECK(Variant_type(&variant) == VARTYPE_ARRAY);
-  Variant_mapValueRef(&variant, "aaa", -1);
-  CHECK(Variant_type(&variant) == VARTYPE_MAP);
   Variant_setNil(&variant);
   CHECK(Variant_type(&variant) == VARTYPE_NIL);
 }
@@ -138,43 +134,5 @@ TEST_CASE("Variant_slice", "[variant]") {
   slice2 = Variant_slice(nullptr);
   CHECK(slice2.data == nullptr);
   CHECK(slice2.length == 0);
-}
-
-TEST_CASE("Variant_arrayValue", "[variant]") {
-  Variant variant;
-  const Variant *value = Variant_arrayValue(&variant, 0);
-  CHECK(Variant_bool(value) == false);
-  value = Variant_arrayValue(&variant, 1);
-  CHECK(Variant_bool(value) == false);
-
-  Variant *valueRef = Variant_arrayValueRef(&variant, 2);
-  Variant_setBool(valueRef, true);
-  value = Variant_arrayValue(&variant, 0);
-  CHECK(Variant_bool(value) == false);
-  value = Variant_arrayValue(&variant, 1);
-  CHECK(Variant_bool(value) == false);
-  value = Variant_arrayValue(&variant, 2);
-  CHECK(Variant_bool(value) == true);
-  value = Variant_arrayValue(&variant, 3);
-  CHECK(Variant_bool(value) == false);
-}
-
-TEST_CASE("Variant_mapValue", "[variant]") {
-  Variant variant;
-  const Variant *value = Variant_mapValue(&variant, "aaa", -1);
-  CHECK(Variant_bool(value) == false);
-  value = Variant_mapValue(&variant, "bbb", -1);
-  CHECK(Variant_bool(value) == false);
-
-  Variant *valueRef = Variant_mapValueRef(&variant, "ccc", -1);
-  Variant_setBool(valueRef, true);
-  value = Variant_mapValue(&variant, "aaa", 3);
-  CHECK(Variant_bool(value) == false);
-  value = Variant_mapValue(&variant, "bbb", 3);
-  CHECK(Variant_bool(value) == false);
-  value = Variant_mapValue(&variant, "ccc", 3);
-  CHECK(Variant_bool(value) == true);
-  value = Variant_mapValue(&variant, "ddd", 3);
-  CHECK(Variant_bool(value) == false);
 }
 } // namespace

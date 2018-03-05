@@ -18,16 +18,10 @@ enum VariantType {
   VARTYPE_DOUBLE = 4,
   VARTYPE_STRING = 5,
   VARTYPE_STRING_REF = 6,
-  VARTYPE_SLICE = 7,
-  VARTYPE_ARRAY = 8,
-  VARTYPE_MAP = 9
+  VARTYPE_SLICE = 7
 };
 
 struct Variant final {
-public:
-  using Array = std::vector<Variant>;
-  using Map = std::unordered_map<std::string, Variant>;
-
 public:
   Variant();
   Variant(bool value);
@@ -43,8 +37,6 @@ public:
   explicit Variant(const char *str);
   Variant(const char *str, size_t length);
   Variant(const Slice &slice);
-  Variant(const Array &array);
-  Variant(const Map &map);
   Variant(void *) = delete;
   ~Variant();
   Variant(const Variant &value);
@@ -60,8 +52,6 @@ public:
   bool isString() const;
   bool isStringRef() const;
   bool isSlice() const;
-  bool isArray() const;
-  bool isMap() const;
 
 public:
   bool boolValue(bool defaultValue = bool()) const;
@@ -70,13 +60,7 @@ public:
   double doubleValue(double defaultValue = double()) const;
   std::string string(const std::string &defaultValue = std::string()) const;
   Slice slice() const;
-  const Array &array() const;
-  const Map &map() const;
   uint64_t tag() const;
-  Variant operator[](size_t index) const;
-  Variant &operator[](size_t index);
-  Variant operator[](const std::string &key) const;
-  Variant &operator[](const std::string &key);
   size_t length() const;
 
 public:
@@ -95,8 +79,6 @@ public:
     uint64_t uint_;
     std::shared_ptr<std::string> *str;
     const char *data;
-    Array *array;
-    Map *map;
   } d;
 };
 
@@ -156,36 +138,6 @@ Slice Variant_slice(const Variant *var);
 /// this function does not make a copy of the buffer.
 /// Be careful of its ownership.
 void Variant_setSlice(Variant *var, Slice slice);
-
-/// Returns an element of the array at `index`.
-/// If the variant is not an array or `index` is out of bounds, return `NULL`.
-const Variant *Variant_arrayValue(const Variant *var, size_t index);
-
-/// Returns a mutable element of the array at `index`.
-///
-/// The length of the array will be extended automatically.
-///
-/// If the variant is not an array,
-/// the type of the variant become `array` even if another value is set.
-Variant *Variant_arrayValueRef(Variant *var, size_t index);
-
-/// Returns an element of the map corresponded to `key`.
-///
-/// If `length` is less than `0`,
-/// the length of the `key` is determined by `strlen()`.
-///
-/// If the variant is not a map or `key` is not found, return `NULL`.
-const Variant *
-Variant_mapValue(const Variant *var, const char *key, int length);
-
-/// Returns a mutable element of the map corresponded to `key`.
-///
-/// If `length` is less than `0`,
-/// the length of the `key` is determined by `strlen()`.
-///
-/// If the variant is not a map,
-/// the type of the variant become `map` even if another value is set.
-Variant *Variant_mapValueRef(Variant *var, const char *key, int length);
 }
 
 } // namespace plugkit

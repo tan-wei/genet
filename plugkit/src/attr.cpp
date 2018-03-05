@@ -104,28 +104,4 @@ Slice Attr_slice(const Attr *attr) {
 }
 
 void Attr_setSlice(Attr *attr, Slice slice) { attr->setValue(slice); }
-
-const Variant *Attr_arrayValue(const Attr *attr, size_t index) {
-  if (!attr) {
-    static const Variant null;
-    return &null;
-  }
-  return Variant_arrayValue(attr->valueRef(), index);
-}
-
-Variant *Attr_arrayValueRef(Attr *attr, size_t index) {
-  return Variant_arrayValueRef(attr->valueRef(), index);
-}
-
-const Variant *Attr_mapValue(const Attr *attr, const char *key, int length) {
-  if (!attr) {
-    static const Variant null;
-    return &null;
-  }
-  return Variant_mapValue(attr->valueRef(), key, length);
-}
-
-Variant *Attr_mapValueRef(Attr *attr, const char *key, int length) {
-  return Variant_mapValueRef(attr->valueRef(), key, length);
-}
 } // namespace plugkit

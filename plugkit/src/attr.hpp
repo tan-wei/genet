@@ -98,29 +98,6 @@ Slice Attr_slice(const Attr *attr);
 ///
 /// See [Variant_setSlice](diss-api-c.md#c-func-variant-setslice) for details.
 void Attr_setSlice(Attr *attr, Slice slice);
-
-/// Returns an element of the array at `index`.
-///
-/// See [Variant_arrayValue](diss-api-c.md#c-func-variant-arrayvalue) for
-/// details.
-const Variant *Attr_arrayValue(const Attr *attr, size_t index);
-
-/// Returns a mutable element of the array at `index`.
-///
-/// See [Variant_arrayValueRef](diss-api-c.md#c-func-variant-arrayvalueref) for
-/// details.
-Variant *Attr_arrayValueRef(Attr *attr, size_t index);
-
-/// Returns an element of the map corresponded to `key`.
-///
-/// See [Variant_mapValue](diss-api-c.md#c-func-variant-mapvalue) for details.
-const Variant *Attr_mapValue(const Attr *attr, const char *key, int length);
-
-/// Returns a mutable element of the map corresponded to `key`.
-///
-/// See [Variant_mapValueRef](diss-api-c.md#c-func-variant-mapvalueref) for
-/// details.
-Variant *Attr_mapValueRef(Attr *attr, const char *key, int length);
 }
 
 } // namespace plugkit
