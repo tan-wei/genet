@@ -3,7 +3,7 @@ import { Disposable } from 'disposables'
 import flatten from 'flat'
 import jsonfile from 'jsonfile'
 import objpath from 'object-path'
-import sentenceCase from 'sentence-case'
+import titleCase from 'title-case'
 
 const fields = Symbol('fields')
 export default class Session {
@@ -121,7 +121,7 @@ export default class Session {
 
   tokenName (id) {
     const data = this[fields].tokens.get(id)
-    return objpath.get(data, 'name', sentenceCase(id.split('.').slice(-1)[0]))
+    return objpath.get(data, 'name', titleCase(id.split('.').slice(-1)[0]))
   }
 
   layerRenderer (id) {
