@@ -8,8 +8,7 @@
 namespace std {
 template <>
 struct hash<std::pair<plugkit::Token, std::string>> {
-  inline size_t
-  operator()(const pair<plugkit::Token, std::string> &v) const {
+  inline size_t operator()(const pair<plugkit::Token, std::string> &v) const {
     return v.first ^ std::hash<std::string>()(v.second);
   }
 };
@@ -98,8 +97,7 @@ const char *Token_string(Token token) {
   return "";
 }
 
-Token Token_concat(Token prefix, const char *str, size_t length)
-{
+Token Token_concat(Token prefix, const char *str, size_t length) {
   const auto &pair = std::make_pair(prefix, std::string(str, length));
   const auto it = pairMap.find(pair);
   if (it != pairMap.end()) {

@@ -82,13 +82,11 @@ TEST_CASE("Token_string", "[Token]") {
 
 TEST_CASE("Token_concat", "[Token]") {
   CHECK(Token_concat(Token_null(), "", 0) == Token_null());
-  CHECK(Token_concat(Token_get("eth"), ".dst", 4) ==
-        Token_get("eth.dst"));
+  CHECK(Token_concat(Token_get("eth"), ".dst", 4) == Token_get("eth.dst"));
   CHECK(Token_concat(Token_null(), ".dst", 4) == Token_get(".dst"));
   CHECK(Token_concat(Token_get("eth"), "", 0) == Token_get("eth"));
-  CHECK(Token_concat(Token_get("0f73db21-11f6-"),
-                   "4987-81f6-1a8bb5f26704", 22) ==
-        Token_get("0f73db21-11f6-4987-81f6-1a8bb5f26704"));
+  CHECK(Token_concat(Token_get("0f73db21-11f6-"), "4987-81f6-1a8bb5f26704",
+                     22) == Token_get("0f73db21-11f6-4987-81f6-1a8bb5f26704"));
 }
 
 } // namespace
