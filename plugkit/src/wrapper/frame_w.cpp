@@ -128,14 +128,9 @@ NAN_METHOD(FrameWrapper::query) {
     if (virtualAttr(token, view, wrapper, info.GetReturnValue()))
       return;
 
-    const char *name = nullptr;
-    if (info[1]->IsString()) {
-      name = *Nan::Utf8String(info[1]);
-    }
-
     const Layer *layer = nullptr;
     const Attr *attr = nullptr;
-    view->query(token, &layer, &attr, name);
+    view->query(token, &layer, &attr);
     if (layer) {
       info.GetReturnValue().Set(LayerWrapper::wrap(layer));
     } else if (attr) {
