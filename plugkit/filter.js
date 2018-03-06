@@ -98,17 +98,7 @@ function processIdentifiers (tokens, attrs, globals) {
         value: '(',
       }
     )
-    let index = identifiers.length
-    for (; index > 0; index -= 1) {
-      const token = identifiers.slice(0, index).join('.')
-      if (token in attrs && attrs[token].property !== true) {
-        break
-      }
-    }
-    if (index < 0) {
-      index = identifiers.length
-    }
-    const token = identifiers.slice(0, index).join('.')
+    const token = identifiers.join('.')
     const sym = symbolName(token)
     globals.push(`const ${sym} = ${Token.get(token)};`)
     resolvedTokens.push(
@@ -117,18 +107,6 @@ function processIdentifiers (tokens, attrs, globals) {
         value: sym,
       }
     )
-    for (const id of identifiers.slice(index)) {
-      resolvedTokens.push(
-        {
-          type: 'Punctuator',
-          value: ',',
-        },
-        {
-          type: 'String',
-          value: JSON.stringify(id),
-        }
-      )
-    }
     resolvedTokens.push({
       type: 'Punctuator',
       value: ')',
