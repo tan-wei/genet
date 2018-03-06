@@ -12,6 +12,7 @@ use std::io::{Error, ErrorKind};
 use plugkit::layer::{Layer};
 use plugkit::context::Context;
 use plugkit::worker::Worker;
+use plugkit::token;
 use plugkit::token::Token;
 use plugkit::variant;
 use plugkit::variant::Value;
@@ -156,7 +157,7 @@ impl ParserHandler for HTTPSession {
 
     fn on_header_value(&mut self, _parser: &mut Parser, data: &'static[u8]) -> bool {
         if let Ok(key) = str::from_utf8(self.header_field) {
-            self.headers.push((key.to_pascal_case(), data));
+            self.headers.push((key.to_camel_case(), data));
         }
         true
     }
@@ -266,10 +267,10 @@ impl HTTPSession {
         }
 
         if self.headers.len() > 0 {
-            let token = token!("http.headers");
+            let prefix = token!("http.headers.");
             while let Some((key, value)) = self.headers.pop() {
                 if let Ok(value_str) = str::from_utf8(value) {
-                    let attr = child.add_attr_str(ctx, token, key.as_str());
+                    let attr = child.add_attr(ctx, token::concat(prefix, key.as_str()));
                     variant::ValueString::set_ref(attr, &value_str);
                 }
             }

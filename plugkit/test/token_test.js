@@ -46,4 +46,23 @@ describe('Token', () => {
       assert.notEqual(Token.get('ab'), Token.get(Token.string(Token.get('ba'))))
     })
   })
+
+  describe('#concat()', () => {
+    it('should throw for wrong arguments', () => {
+      assert.throws(() => Token.concat(), TypeError)
+      assert.throws(() => Token.concat([]), TypeError)
+      assert.throws(() => Token.concat(0, []), TypeError)
+      assert.throws(() => Token.concat('ipv4', 1), TypeError)
+    })
+    it('should return a joined token', () => {
+      assert.strictEqual(Token.concat('', ''), Token.get())
+      assert.strictEqual(Token.concat(Token.get('eth'), '.dst'),
+        Token.get('eth.dst'))
+      assert.strictEqual(Token.concat('eth', ''),
+        Token.get('eth'))
+      assert.strictEqual(Token.concat(Token.get('0f73db21-11f6-'),
+        '4987-81f6-1a8bb5f26704'),
+      Token.get('0f73db21-11f6-4987-81f6-1a8bb5f26704'))
+    })
+  })
 })
