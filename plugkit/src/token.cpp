@@ -7,10 +7,10 @@
 
 namespace std {
 template <>
-struct hash<std::pair<plugkit::Token, plugkit::Token>> {
+struct hash<std::pair<plugkit::Token, std::string>> {
   inline size_t
-  operator()(const pair<plugkit::Token, plugkit::Token> &v) const {
-    return v.first ^ v.second;
+  operator()(const pair<plugkit::Token, std::string> &v) const {
+    return v.first ^ std::hash<std::string>()(v.second);
   }
 };
 } // namespace std
@@ -25,7 +25,7 @@ namespace {
 
 thread_local std::unordered_map<std::string, Token> localMap;
 thread_local std::unordered_map<Token, const char *> localReverseMap;
-thread_local std::unordered_map<std::pair<Token, Token>, Token> pairMap;
+thread_local std::unordered_map<std::pair<Token, std::string>, Token> pairMap;
 std::unordered_map<std::string, Token> map;
 std::unordered_map<Token, const char *> reverseMap;
 std::mutex mutex;
@@ -97,4 +97,18 @@ const char *Token_string(Token token) {
   }
   return "";
 }
+
+Token Token_concat(Token prefix, const char *str, size_t length)
+{
+  const auto &pair = std::make_pair(prefix, std::string(str, length));
+  const auto it = pairMap.find(pair);
+  if (it != pairMap.end()) {
+    return it->second;
+  }
+  const auto &key = Token_string(prefix) + pair.second;
+  Token token = Token_literal_(key.c_str(), key.size());
+  pairMap[pair] = token;
+  return token;
+}
+
 } // namespace plugkit

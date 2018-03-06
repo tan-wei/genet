@@ -20,6 +20,10 @@ pub fn string(token: Token) -> &'static str {
     }
 }
 
+pub fn concat(prefix: Token, name: &str) -> Token {
+    unsafe { symbol::Token_concat.unwrap()(prefix, name.as_ptr() as *const i8, name.len()) }
+}
+
 /// Return a token corresponded with the given string.
 ///
 /// # Examples

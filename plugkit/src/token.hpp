@@ -24,6 +24,8 @@ inline Token Token_get(const char *str) {
   return Token_literal_(str, strlen(str));
 }
 
+Token Token_concat(Token prefix, const char *str, size_t length);
+
 #ifdef PLUGKIT_OS_WIN
 #pragma function(strlen)
 #endif
