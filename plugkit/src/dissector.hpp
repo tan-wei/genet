@@ -20,13 +20,13 @@ typedef void(DestroyWorkerFunc)(Context *ctx, const Dissector *, Worker);
 typedef void(AnalyzeFunc)(Context *ctx, const Dissector *, Worker, Layer *);
 
 struct Dissector {
-  IntializeFunc *initialize;
-  TerminateFunc *terminate;
-  CreateWorkerFunc *createWorker;
-  DestroyWorkerFunc *destroyWorker;
-  AnalyzeFunc *analyze;
-  Token layerHints[8];
-  void *data;
+  IntializeFunc *initialize = nullptr;
+  TerminateFunc *terminate = nullptr;
+  CreateWorkerFunc *createWorker = nullptr;
+  DestroyWorkerFunc *destroyWorker = nullptr;
+  AnalyzeFunc *analyze = nullptr;
+  Token layerHints[8] = {0};
+  void *data = nullptr;
 };
 
 } // namespace plugkit

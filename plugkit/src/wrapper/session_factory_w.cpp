@@ -165,7 +165,7 @@ NAN_METHOD(SessionFactoryWrapper::registerDissector) {
     }
     if (info[0]->IsString()) {
       const std::string &path = *Nan::Utf8String(info[0]);
-      Dissector diss = {0};
+      Dissector diss;
       ModuleLoader loader(path);
       if (auto func = loader.load<void (*)(void *(*)(const char *))>(
               "plugkit_v1_init")) {
