@@ -42,39 +42,32 @@ class LayerItem {
       children: [],
     }]
     let prevDepth = 0
-    let dynamicName = ''
     for (const attr of layer.attrs) {
-      const { type, value } = attr
       let { id } = attr
-      if (type === '--dynamic') {
-        dynamicName = `${id}.${value}`
-      } else {
-        if (id === '--dynamic') {
-          id = dynamicName
-        }
-        const attrPath = id.split('.')
-        let items = attrArray
-        let child = null
-        for (let index = 0; index < attrPath.length; index += 1) {
-          const key = attrPath[index]
-          if (index < attrPath.length - 1 || prevDepth < attrPath.length) {
-            child = items.find((item) => item.key === key) || null
-          } else {
-            child = null
-          }
-          if (child === null) {
-            child = {
-              key,
-              children: [],
-            }
-            items.push(child)
-          }
-          items = child.children
-        }
-        child.attr = attr
-        child.id = id
-        prevDepth = attrPath.length
+      if (id.startsWith('.')) {
+        id = layer.id + id
       }
+      const attrPath = id.split('.')
+      let items = attrArray
+      let child = null
+      for (let index = 0; index < attrPath.length; index += 1) {
+        const key = attrPath[index]
+        if (index < attrPath.length - 1 || prevDepth < attrPath.length) {
+          child = items.find((item) => item.key === key) || null
+        } else {
+          child = null
+        }
+        if (child === null) {
+          child = {
+            key,
+            children: [],
+          }
+          items.push(child)
+        }
+        items = child.children
+      }
+      child.attr = attr
+      prevDepth = attrPath.length
     }
     return m('ul', [
       m('li', [
