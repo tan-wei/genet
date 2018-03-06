@@ -76,23 +76,12 @@ const Frame *Layer::frame() const { return mFrame; }
 
 void Layer::setFrame(const Frame *frame) { mFrame = frame; }
 
-const Attr *Layer::attr(Token token, const char *name) const {
+const Attr *Layer::attr(Token token) const {
   Token id = token;
-  bool matchDynamicName = false;
   for (const auto &child : mAttrs) {
-    if (matchDynamicName) {
-      matchDynamicName = false;
-      if (child->id() == dynamicToken) {
-        return child;
-      }
-    } else if (child->id() == id) {
+    if (child->id() == id) {
       if (child->type() == aliasToken) {
         id = child->value().uint64Value();
-      } else if (child->type() == dynamicToken) {
-        if (name && child->value().string() == name) {
-          matchDynamicName = true;
-          continue;
-        }
       } else {
         return child;
       }
