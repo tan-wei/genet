@@ -129,12 +129,6 @@ Attr *Layer_addAttr(Layer *layer, Context *ctx, Token id);
 
 void Layer_addAttrAlias(Layer *layer, Context *ctx, Token alias, Token target);
 
-Attr *Layer_addAttrStr(
-    Layer *layer, Context *ctx, Token prefix, const char *name, size_t length);
-
-Attr *Layer_addAttrStrRef(
-    Layer *layer, Context *ctx, Token prefix, const char *name, size_t length);
-
 /// Find the first layer attribute with the given id and returns it.
 ///
 /// If no attribute is found, returns nullptr.

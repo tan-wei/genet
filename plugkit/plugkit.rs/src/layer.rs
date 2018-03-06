@@ -81,14 +81,6 @@ impl Layer {
         unsafe { symbol::Layer_addAttrAlias.unwrap()(self, ctx, alias, target) }
     }
 
-    pub fn add_attr_str(&mut self, ctx: &mut Context, prefix: Token, name: &str) -> &mut Attr {
-        unsafe { &mut *symbol::Layer_addAttrStr.unwrap()(self, ctx, prefix, name.as_ptr() as *const i8, name.len()) }
-    }
-
-    pub fn add_attr_str_ref(&mut self, ctx: &mut Context, prefix: Token, name: &'static str) -> &mut Attr {
-        unsafe { &mut *symbol::Layer_addAttrStrRef.unwrap()(self, ctx, prefix, name.as_ptr() as *const i8, name.len()) }
-    }
-
     pub fn add_payload(&mut self, ctx: &mut Context) -> &mut Payload {
         unsafe { &mut *symbol::Layer_addPayload.unwrap()(self, ctx) }
     }
