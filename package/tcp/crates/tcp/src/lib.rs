@@ -223,7 +223,7 @@ impl Worker for TCPWorker {
 
             Ok(())
         })().or_else(|_| {
-            child.add_error(ctx, token!("!out-of-bounds"));
+            child.add_error(ctx, token!("!out-of-bounds"), "");
             child.set_confidence(Confidence::Probable);
             Ok(())
         })

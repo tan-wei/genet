@@ -11,6 +11,7 @@ namespace plugkit {
 
 namespace {
 const auto aliasToken = Token_get("--alias");
+const auto errorToken = Token_get("--error");
 } // namespace
 
 Layer::Layer(Token id) : mId(id) { setConfidence(LAYER_CONF_EXACT); }
@@ -202,10 +203,13 @@ const Payload *const *Layer_payloads(const Layer *layer, size_t *size) {
   return payloads.data();
 }
 
-Error *Layer_addError(Layer *layer, Context *ctx, Token id) {
-  Error *error = Context_allocError(ctx, id);
-  layer->addError(error);
-  return error;
+void Layer_addError(Layer *layer, Context *ctx, Token id, const char *msg, size_t length) {
+  Attr *attr = Context_allocAttr(ctx, id);
+  attr->setType(errorToken);
+  if (length > 0) {
+    attr->setValue(Variant::fromString(msg, length));
+  }
+  layer->addAttr(attr);
 }
 
 const Error *const *Layer_errors(const Layer *layer, size_t *size) {

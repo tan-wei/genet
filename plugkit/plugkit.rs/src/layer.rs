@@ -85,8 +85,8 @@ impl Layer {
         unsafe { &mut *symbol::Layer_addPayload.unwrap()(self, ctx) }
     }
 
-    pub fn add_error(&mut self, ctx: &mut Context, id: Token) -> &mut Error {
-        unsafe { &mut *symbol::Layer_addError.unwrap()(self, ctx, id) }
+    pub fn add_error(&mut self, ctx: &mut Context, id: Token, msg: &str) {
+        unsafe { symbol::Layer_addError.unwrap()(self, ctx, id, msg.as_ptr() as *const i8, msg.len()) }
     }
 
     pub fn add_tag(&mut self, ctx: &mut Context, id: Token) {

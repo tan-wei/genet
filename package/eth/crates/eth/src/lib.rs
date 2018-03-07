@@ -89,7 +89,7 @@ impl Worker for ETHWorker {
             payload.set_range(&range);
             Ok(())
         })().or_else(|_| {
-            child.add_error(ctx, token!("!out-of-bounds"));
+            child.add_error(ctx, token!("!out-of-bounds"), "");
             child.set_confidence(Confidence::Probable);
             Ok(())
         })

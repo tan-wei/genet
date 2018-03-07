@@ -142,7 +142,7 @@ Payload *Layer_addPayload(Layer *layer, Context *ctx);
 /// Returns the address of an empty payload if the layer has no payloads.
 const Payload *const *Layer_payloads(const Layer *layer, size_t *size);
 
-Error *Layer_addError(Layer *layer, Context *ctx, Token id);
+void Layer_addError(Layer *layer, Context *ctx, Token id, const char *msg, size_t length);
 
 const Error *const *Layer_errors(const Layer *layer, size_t *size);
 

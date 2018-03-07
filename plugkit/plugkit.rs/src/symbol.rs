@@ -55,7 +55,7 @@ def_func!(
     Layer_addAttr,           extern "C" fn(*mut Layer, *mut Context, Token) -> *mut Attr;
     Layer_addAttrAlias,      extern "C" fn(*mut Layer, *mut Context, Token, Token);
     Layer_addPayload,        extern "C" fn(*mut Layer, *mut Context) -> *mut Payload;
-    Layer_addError,          extern "C" fn(*mut Layer, *mut Context, Token) -> *mut Error;
+    Layer_addError,          extern "C" fn(*mut Layer, *mut Context, Token, *const libc::c_char, libc::size_t);
     Layer_addTag,            extern "C" fn(*mut Layer, *mut Context, Token);
     Payload_addSlice,        extern "C" fn(*mut Payload, (*const u8, usize));
     Payload_slices,          extern "C" fn(*const Payload, *mut libc::size_t) -> *const (*const u8, usize);

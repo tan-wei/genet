@@ -318,9 +318,15 @@ NAN_METHOD(LayerWrapper::addError) {
       Nan::ThrowTypeError("Second argument must be a string or token-id");
       return;
     }
+    const char *msg = nullptr;
+    size_t length = 0;
+    if (info[2]->IsString()) {
+      const auto &str = Nan::Utf8String(info[2]);
+      msg = *str;
+      length = str.length();
+    }
     if (auto ctx = ContextWrapper::unwrap(info[0])) {
-      info.GetReturnValue().Set(
-          ErrorWrapper::wrap(Layer_addError(layer, ctx, token)));
+      Layer_addError(layer, ctx, token, msg, length);
     } else {
       Nan::ThrowTypeError("First argument must be a context");
     }
