@@ -11,7 +11,7 @@
 namespace plugkit {
 
 namespace {
-  const auto errorTypeToken = Token_get("--error");
+const auto errorTypeToken = Token_get("--error");
 }
 
 void LayerWrapper::init(v8::Isolate *isolate) {
@@ -186,7 +186,10 @@ NAN_GETTER(LayerWrapper::errors) {
            bool *done) -> v8::Local<v8::Value> {
           const Layer *layer = static_cast<const Layer *>(data);
           const auto &attrs = layer->attrs();
-          for (; *index < attrs.size() && attrs[*index]->type() != errorTypeToken; (*index)++);
+          for (;
+               *index < attrs.size() && attrs[*index]->type() != errorTypeToken;
+               (*index)++)
+            ;
           if (*index < attrs.size()) {
             return AttrWrapper::wrap(attrs[(*index)++]);
           }

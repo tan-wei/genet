@@ -140,7 +140,7 @@ const Payload *const *Layer_payloads(const Layer *layer, size_t *size);
 
 void Layer_addError(
     Layer *layer, Context *ctx, Token id, const char *msg, size_t length);
-    
+
 /// Add a layer tag
 void Layer_addTag(Layer *layer, Context *ctx, Token tag);
 }
