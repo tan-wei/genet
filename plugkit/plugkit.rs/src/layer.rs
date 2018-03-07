@@ -6,7 +6,6 @@ use super::token::Token;
 use super::attr::Attr;
 use super::payload::Payload;
 use super::context::Context;
-use super::error::Error;
 use super::symbol;
 use super::range::Range;
 use std::mem;
@@ -51,15 +50,6 @@ impl Layer {
         unsafe {
             let mut size: libc::size_t = 0;
             let ptr = symbol::Layer_payloads.unwrap()(self, &mut size);
-            let s = slice::from_raw_parts(ptr, size);
-            Box::new(s.iter().map(|elem| &**elem))
-        }
-    }
-
-    pub fn errors(&self) -> Box<Iterator<Item = &Error>> {
-        unsafe {
-            let mut size: libc::size_t = 0;
-            let ptr = symbol::Layer_errors.unwrap()(self, &mut size);
             let s = slice::from_raw_parts(ptr, size);
             Box::new(s.iter().map(|elem| &**elem))
         }

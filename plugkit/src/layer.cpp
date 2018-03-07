@@ -1,7 +1,6 @@
 #include "layer.hpp"
 #include "attr.hpp"
 #include "context.hpp"
-#include "error.hpp"
 #include "payload.hpp"
 #include "wrapper/layer.hpp"
 #include <functional>
@@ -54,10 +53,6 @@ const std::vector<Payload *> &Layer::payloads() const { return mPayloads; }
 
 void Layer::addPayload(Payload *payload) { mPayloads.push_back(payload); }
 
-const std::vector<Error *> &Layer::errors() const { return mErrors; }
-
-void Layer::addError(Error *error) { mErrors.push_back(error); }
-
 const std::vector<Attr *> &Layer::attrs() const { return mAttrs; }
 
 Layer *Layer::parent() const { return mParent; }
@@ -101,9 +96,6 @@ void Layer::removeUnconfidentLayers(Context *ctx, LayerConfidence confidence) {
       for (Payload *payload : layer->mPayloads) {
         Context_deallocPayload(ctx, payload);
       }
-      for (Error *error : layer->mErrors) {
-        Context_deallocError(ctx, error);
-      }
       Context_deallocLayer(ctx, layer);
       layer = nullptr;
     }
@@ -116,9 +108,6 @@ void Layer::removeUnconfidentLayers(Context *ctx, LayerConfidence confidence) {
       }
       for (Payload *payload : layer->mPayloads) {
         Context_deallocPayload(ctx, payload);
-      }
-      for (Error *error : layer->mErrors) {
-        Context_deallocError(ctx, error);
       }
       Context_deallocLayer(ctx, layer);
       layer = nullptr;
@@ -211,18 +200,6 @@ void Layer_addError(
     attr->setValue(Variant::fromString(msg, length));
   }
   layer->addAttr(attr);
-}
-
-const Error *const *Layer_errors(const Layer *layer, size_t *size) {
-  const auto &errors = layer->errors();
-  if (size)
-    *size = errors.size();
-  if (errors.empty()) {
-    static const Error empty{Token_null(), Token_null(), std::string()};
-    static const Error *ptr = &empty;
-    return &ptr;
-  }
-  return errors.data();
 }
 
 void Layer_addTag(Layer *layer, Context *ctx, Token tag) { layer->addTag(tag); }

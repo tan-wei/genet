@@ -5,7 +5,6 @@
 #include "layer.hpp"
 #include "plugkit_module.hpp"
 #include "wrapper/attr.hpp"
-#include "wrapper/error.hpp"
 #include <vector>
 
 namespace plugkit {
@@ -19,6 +18,7 @@ const auto actLenToken = Token_get("$.actualLength");
 const auto indexToken = Token_get("$.index");
 const auto errorToken = Token_get("$.error");
 const auto dateToken = Token_get("@date:unix");
+const auto errorTypeToken = Token_get("--error");
 
 bool virtualAttr(Token id,
                  const FrameView *view,
@@ -36,11 +36,17 @@ bool virtualAttr(Token id,
     ret.Set(AttrWrapper::wrap(&wrapper->indexAttr));
   } else if (id == errorToken) {
     if (const Layer *layer = view->primaryLayer()) {
-      const auto &errors = layer->errors();
-      if (errors.empty()) {
-        ret.Set(Nan::Null());
+      const Attr *error = nullptr;
+      for (const auto &attr : layer->attrs()) {
+        if (attr->type() == errorTypeToken) {
+          error = attr;
+          break;
+        }
+      }
+      if (error) {
+        ret.Set(AttrWrapper::wrap(error));
       } else {
-        ret.Set(ErrorWrapper::wrap(errors[0]));
+        ret.Set(Nan::Null());
       }
     }
   } else {

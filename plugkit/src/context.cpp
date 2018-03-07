@@ -73,21 +73,6 @@ void Context_deallocPayload(Context *ctx, Payload *payload) {
   ctx->payloadAllocator->dealloc(payload);
 }
 
-Error *Context_allocError(Context *ctx, Token id) {
-  if (!ctx->rootAllocator)
-    return nullptr;
-  if (!ctx->errorAllocator) {
-    ctx->errorAllocator.reset(new BlockAllocator<Error>(ctx->rootAllocator));
-  }
-  return ctx->errorAllocator->alloc(Error{id, 0, std::string()});
-}
-
-void Context_deallocError(Context *ctx, Error *error) {
-  if (!ctx->rootAllocator)
-    return;
-  ctx->errorAllocator->dealloc(error);
-}
-
 const Variant *Context_getOption(Context *ctx, const char *key) {
   const Variant &value = ctx->options[key];
   if (!value.isNil()) {

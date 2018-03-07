@@ -30,7 +30,6 @@ public:
   Class frame;
   Class payload;
   Class logger;
-  Class error;
   Class session;
   Class sessionFactory;
   Class worker;

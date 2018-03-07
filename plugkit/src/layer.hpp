@@ -51,9 +51,6 @@ public:
   const std::vector<Payload *> &payloads() const;
   void addPayload(Payload *payload);
 
-  const std::vector<Error *> &errors() const;
-  void addError(Error *error);
-
   const std::vector<Token> &tags() const;
   void addTag(Token token);
 
@@ -88,7 +85,6 @@ private:
   std::vector<Layer *> mLayers;
   std::vector<Layer *> mSubLayers;
   std::vector<Attr *> mAttrs;
-  std::vector<Error *> mErrors;
 };
 
 extern "C" {
@@ -144,9 +140,7 @@ const Payload *const *Layer_payloads(const Layer *layer, size_t *size);
 
 void Layer_addError(
     Layer *layer, Context *ctx, Token id, const char *msg, size_t length);
-
-const Error *const *Layer_errors(const Layer *layer, size_t *size);
-
+    
 /// Add a layer tag
 void Layer_addTag(Layer *layer, Context *ctx, Token tag);
 }

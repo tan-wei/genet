@@ -1,7 +1,6 @@
 #include "module_loader.hpp"
 #include "attr.hpp"
 #include "context.hpp"
-#include "error.hpp"
 #include "layer.hpp"
 #include "payload.hpp"
 #include "variant.hpp"

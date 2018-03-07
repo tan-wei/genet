@@ -6,7 +6,6 @@ pub mod symbol;
 pub mod token;
 pub mod logger;
 
-pub mod error;
 pub mod variant;
 pub mod attr;
 pub mod layer;

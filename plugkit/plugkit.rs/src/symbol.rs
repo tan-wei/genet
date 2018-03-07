@@ -9,7 +9,6 @@ use std::ffi::CString;
 use super::variant::Variant;
 use super::layer::Layer;
 use super::payload::Payload;
-use super::error::Error;
 use super::attr::Attr;
 use super::context::Context;
 use super::token::Token;
@@ -49,7 +48,6 @@ def_func!(
     Variant_setSlice,        extern "C" fn(*mut Variant, (*const u8, usize));
     Layer_attr,              extern "C" fn(*const Layer, Token) -> *const Attr;
     Layer_payloads,          extern "C" fn(*const Layer, *mut libc::size_t) -> *const *const Payload;
-    Layer_errors,            extern "C" fn(*const Layer, *mut libc::size_t) -> *const *const Error;
     Layer_addLayer,          extern "C" fn(*mut Layer, *mut Context, Token) -> *mut Layer;
     Layer_addSubLayer,       extern "C" fn(*mut Layer, *mut Context, Token) -> *mut Layer;
     Layer_addAttr,           extern "C" fn(*mut Layer, *mut Context, Token) -> *mut Attr;
@@ -61,8 +59,6 @@ def_func!(
     Payload_slices,          extern "C" fn(*const Payload, *mut libc::size_t) -> *const (*const u8, usize);
     Payload_addAttr,         extern "C" fn(*mut Payload, *mut Context, Token) -> *mut Attr;
     Logger_log,              extern "C" fn(*mut Context, *const libc::c_char, *const Metadata);
-    Error_message,           extern "C" fn(*const Error) -> *const libc::c_char;
-    Error_setMessage,        extern "C" fn(*mut Error, *const libc::c_char);
 );
 
 /// Define module entry point

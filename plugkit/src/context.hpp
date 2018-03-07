@@ -1,6 +1,5 @@
 #include "allocator.hpp"
 #include "attr.hpp"
-#include "error.hpp"
 #include "frame.hpp"
 #include "layer.hpp"
 #include "payload.hpp"
@@ -24,7 +23,6 @@ public:
   std::unique_ptr<BlockAllocator<Layer>> layerAllocator;
   std::unique_ptr<BlockAllocator<Attr>> attrAllocator;
   std::unique_ptr<BlockAllocator<Payload>> payloadAllocator;
-  std::unique_ptr<BlockAllocator<Error>> errorAllocator;
 
   void *data = nullptr;
 };
@@ -37,8 +35,6 @@ Attr *Context_allocAttr(Context *ctx, Token id);
 void Context_deallocAttr(Context *ctx, Attr *attr);
 Payload *Context_allocPayload(Context *ctx);
 void Context_deallocPayload(Context *ctx, Payload *payload);
-Error *Context_allocError(Context *ctx, Token id);
-void Context_deallocError(Context *ctx, Error *error);
 
 extern "C" {
 /// Allocate a memory block in the current context.

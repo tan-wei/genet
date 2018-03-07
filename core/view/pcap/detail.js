@@ -147,7 +147,7 @@ class LayerItem {
                   ])
                 ])))
           ]),
-          m('ul', { class: 'metadata error' }, layer.errors.map((err) =>
+          m('ul', { class: 'metadata error' }, [...layer.errors].map((err) =>
             m('li', [
               m('detail', [
                 m('summary', [

@@ -1,7 +1,5 @@
-#include "../error.hpp"
 #include "../frame.hpp"
 #include "../layer.hpp"
-#include "error.hpp"
 #include "iterator.hpp"
 #include "layer.hpp"
 #include "payload.hpp"
@@ -11,6 +9,10 @@
 #include "wrapper/frame.hpp"
 
 namespace plugkit {
+
+namespace {
+  const auto errorTypeToken = Token_get("--error");
+}
 
 void LayerWrapper::init(v8::Isolate *isolate) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
@@ -179,13 +181,19 @@ NAN_GETTER(LayerWrapper::payloads) {
 NAN_GETTER(LayerWrapper::errors) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->constLayer) {
-    v8::Isolate *isolate = v8::Isolate::GetCurrent();
-    const auto &errors = layer->errors();
-    auto array = v8::Array::New(isolate, errors.size());
-    for (size_t i = 0; i < errors.size(); ++i) {
-      array->Set(i, ErrorWrapper::wrap(errors[i]));
-    }
-    info.GetReturnValue().Set(array);
+    info.GetReturnValue().Set(IteratorWrapper::wrap(
+        [](const void *data, size_t *index,
+           bool *done) -> v8::Local<v8::Value> {
+          const Layer *layer = static_cast<const Layer *>(data);
+          const auto &attrs = layer->attrs();
+          for (; *index < attrs.size() && attrs[*index]->type() != errorTypeToken; (*index)++);
+          if (*index < attrs.size()) {
+            return AttrWrapper::wrap(attrs[(*index)++]);
+          }
+          *done = true;
+          return Nan::Null();
+        },
+        layer));
   }
 }
 
