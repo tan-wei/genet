@@ -93,8 +93,8 @@ const char *Attr_string(const Attr *attr) {
   return attr->value().string().c_str();
 }
 
-void Attr_setString(Attr *attr, const char *str) {
-  Variant_setString(attr->valueRef(), str);
+void Attr_setString(Attr *attr, const char *str, size_t length) {
+  Variant_setString(attr->valueRef(), str, length);
 }
 
 Slice Attr_slice(const Attr *attr) {

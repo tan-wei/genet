@@ -18,7 +18,7 @@ TEST_CASE("Variant_type", "[variant]") {
   CHECK(Variant_type(&variant) == VARTYPE_UINT64);
   Variant_setDouble(&variant, 0.0);
   CHECK(Variant_type(&variant) == VARTYPE_DOUBLE);
-  Variant_setString(&variant, "HELLO");
+  Variant_setString(&variant, "HELLO", 5);
   CHECK(Variant_type(&variant) == VARTYPE_STRING);
   Variant_setStringRef(&variant, "HELLO", 5);
   CHECK(Variant_type(&variant) == VARTYPE_STRING_REF);
@@ -83,18 +83,18 @@ TEST_CASE("Variant_string", "[variant]") {
   size_t len = 0;
   CHECK(strcmp(Variant_string(&variant, &len), "") == 0);
   CHECK(len == 0);
-  Variant_setString(&variant, "HELLO");
+  Variant_setString(&variant, "HELLO", 5);
   CHECK(strcmp(Variant_string(&variant, &len), "HELLO") == 0);
   CHECK(len == 5);
-  Variant_setString(&variant, "HELLO___");
+  Variant_setString(&variant, "HELLO___", 8);
   CHECK(strcmp(Variant_string(&variant, &len), "HELLO___") == 0);
   CHECK(len == 8);
-  Variant_setString(&variant, "HELLO WORLD");
+  Variant_setString(&variant, "HELLO WORLD", 11);
   CHECK(strcmp(Variant_string(&variant, &len), "HELLO WORLD") == 0);
   CHECK(len == 11);
   CHECK(strcmp(Variant_string(nullptr, &len), "") == 0);
   CHECK(len == 0);
-  Variant_setString(&variant, "");
+  Variant_setString(&variant, "", 0);
   CHECK(strcmp(Variant_string(&variant, &len), "") == 0);
   CHECK(len == 0);
 }

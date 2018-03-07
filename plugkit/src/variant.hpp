@@ -35,9 +35,10 @@ public:
   Variant(int64_t value);
   Variant(uint64_t value);
   Variant(double value);
-  explicit Variant(const char *str);
-  Variant(const char *str, size_t length);
   Variant(const Slice &slice);
+
+  static Variant fromString(const char *str, size_t length);
+  static Variant fromStringRef(const char *str, size_t length);
   static Variant fromAddress(void *ptr);
   Variant(void *) = delete;
   ~Variant();
@@ -130,7 +131,7 @@ const char *Variant_string(const Variant *var, size_t *len);
 /// !> This function cannot handle a string contains NULL
 /// even if a positive`length` is given,
 /// because the given string will be copied as a null-terminated string.
-void Variant_setString(Variant *var, const char *str);
+void Variant_setString(Variant *var, const char *str, int length);
 
 void Variant_setStringRef(Variant *var, const char *str, int length);
 

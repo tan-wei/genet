@@ -260,7 +260,7 @@ impl ValueString for Variant {
     }
 
     fn set_copy(&mut self, val: &str) {
-        unsafe { symbol::Variant_setString.unwrap()(self, val.as_ptr() as *const i8) }
+        unsafe { symbol::Variant_setString.unwrap()(self, val.as_ptr() as *const i8, val.len()) }
     }
 
     fn set_ref(&mut self, val: &'static str) {

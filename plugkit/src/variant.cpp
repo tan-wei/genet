@@ -42,27 +42,34 @@ Variant::Variant(uint64_t value) : type_(VARTYPE_UINT64) { d.uint_ = value; }
 
 Variant::Variant(double value) : type_(VARTYPE_DOUBLE) { d.double_ = value; }
 
-Variant::Variant(const char *data) : type_(VARTYPE_STRING) {
-  const std::string &str = data;
-  if (str.empty()) {
-    d.str = nullptr;
-  } else if (str.size() < sizeof(d.str)) {
-    type_ = VARTYPE_STRING | (str.size() << 4);
-    d.str = nullptr;
-    str.copy(reinterpret_cast<char *>(&d.str), sizeof(d.str));
-  } else {
-    d.str = new std::shared_ptr<std::string>(new std::string(str));
-  }
-}
-
-Variant::Variant(const char *str, size_t length) {
-  type_ = VARTYPE_STRING_REF | (length << 4);
-  d.data = str;
-}
-
 Variant::Variant(const Slice &slice) {
   type_ = VARTYPE_SLICE | (slice.length << 4);
   d.data = slice.data;
+}
+
+Variant Variant::fromString(const char *str, size_t length)
+{
+  Variant var;
+  if (length == 0) {
+    var.type_ = VARTYPE_STRING;
+    var.d.str = nullptr;
+  } else if (length < sizeof(d.str)) {
+    var.type_ = VARTYPE_STRING | (length << 4);
+    var.d.str = nullptr;
+    std::memcpy(reinterpret_cast<char *>(&var.d.str), str, sizeof(var.d.str));
+  } else {
+    var.type_ = VARTYPE_STRING;
+    var.d.str = new std::shared_ptr<std::string>(new std::string(str, length));
+  }
+  return var;
+}
+
+Variant Variant::fromStringRef(const char *str, size_t length)
+{
+  Variant var;
+  var.type_ = VARTYPE_STRING_REF | (length << 4);
+  var.d.data = str;
+  return var;
 }
 
 Variant Variant::fromAddress(void *ptr)
@@ -281,7 +288,8 @@ Variant Variant::getVariant(v8::Local<v8::Value> var) {
   } else if (var->IsNumber()) {
     return var->NumberValue();
   } else if (var->IsString()) {
-    return Variant(*Nan::Utf8String(var));
+    const auto &str = Nan::Utf8String(var);
+    return Variant::fromString(*str, str.length());
   } else if (var->IsArrayBufferView()) {
     return getSlice(var.As<v8::ArrayBufferView>());
   }
@@ -340,10 +348,12 @@ const char *Variant_string(const Variant *var, size_t *len) {
   return "";
 }
 
-void Variant_setString(Variant *var, const char *data) { *var = Variant(data); }
+void Variant_setString(Variant *var, const char *data, int length) { 
+  *var = Variant::fromString(data, length); 
+}
 
 void Variant_setStringRef(Variant *var, const char *data, int length) {
-  *var = Variant(data, length);
+  *var = Variant::fromStringRef(data, length);
 }
 
 Slice Variant_slice(const Variant *var) {
