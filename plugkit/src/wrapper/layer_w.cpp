@@ -2,6 +2,7 @@
 #include "../frame.hpp"
 #include "../layer.hpp"
 #include "error.hpp"
+#include "iterator.hpp"
 #include "layer.hpp"
 #include "payload.hpp"
 #include "plugkit_module.hpp"
@@ -217,13 +218,18 @@ NAN_GETTER(LayerWrapper::subLayers) {
 NAN_GETTER(LayerWrapper::attrs) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->constLayer) {
-    v8::Isolate *isolate = v8::Isolate::GetCurrent();
-    const auto &attrs = layer->attrs();
-    auto array = v8::Array::New(isolate, attrs.size());
-    for (size_t i = 0; i < attrs.size(); ++i) {
-      array->Set(i, AttrWrapper::wrap(attrs[i]));
-    }
-    info.GetReturnValue().Set(array);
+    info.GetReturnValue().Set(IteratorWrapper::wrap(
+        [](const void *data, size_t *index,
+           bool *done) -> v8::Local<v8::Value> {
+          const Layer *layer = static_cast<const Layer *>(data);
+          const auto &attrs = layer->attrs();
+          if (*index < attrs.size()) {
+            return AttrWrapper::wrap(attrs[(*index)++]);
+          }
+          *done = true;
+          return Nan::Null();
+        },
+        layer));
   }
 }
 

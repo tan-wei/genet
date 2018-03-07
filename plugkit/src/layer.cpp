@@ -203,7 +203,8 @@ const Payload *const *Layer_payloads(const Layer *layer, size_t *size) {
   return payloads.data();
 }
 
-void Layer_addError(Layer *layer, Context *ctx, Token id, const char *msg, size_t length) {
+void Layer_addError(
+    Layer *layer, Context *ctx, Token id, const char *msg, size_t length) {
   Attr *attr = Context_allocAttr(ctx, id);
   attr->setType(errorToken);
   if (length > 0) {

@@ -34,6 +34,7 @@ public:
   Class session;
   Class sessionFactory;
   Class worker;
+  Class iterator;
 
   Function arrayToBuffer;
 };

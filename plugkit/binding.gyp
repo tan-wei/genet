@@ -39,6 +39,7 @@
       "src/wrapper/session_factory_w.cpp",
       "src/wrapper/context_w.cpp",
       "src/wrapper/logger_w.cpp",
+      "src/wrapper/iterator_w.cpp",
       "src/session.cpp",
       "src/script_dissector.cpp",
       "src/file_importer_task.cpp",

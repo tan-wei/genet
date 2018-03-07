@@ -47,8 +47,7 @@ Variant::Variant(const Slice &slice) {
   d.data = slice.data;
 }
 
-Variant Variant::fromString(const char *str, size_t length)
-{
+Variant Variant::fromString(const char *str, size_t length) {
   Variant var;
   if (length == 0) {
     var.type_ = VARTYPE_STRING;
@@ -64,16 +63,14 @@ Variant Variant::fromString(const char *str, size_t length)
   return var;
 }
 
-Variant Variant::fromStringRef(const char *str, size_t length)
-{
+Variant Variant::fromStringRef(const char *str, size_t length) {
   Variant var;
   var.type_ = VARTYPE_STRING_REF | (length << 4);
   var.d.data = str;
   return var;
 }
 
-Variant Variant::fromAddress(void *ptr)
-{
+Variant Variant::fromAddress(void *ptr) {
   Variant var;
   var.type_ = VARTYPE_ADDRESS;
   var.d.ptr = ptr;
@@ -210,7 +207,7 @@ Slice Variant::slice() const {
   }
 }
 
-void* Variant::address() const {
+void *Variant::address() const {
   if (isAddress()) {
     return d.ptr;
   } else {
@@ -348,8 +345,8 @@ const char *Variant_string(const Variant *var, size_t *len) {
   return "";
 }
 
-void Variant_setString(Variant *var, const char *data, int length) { 
-  *var = Variant::fromString(data, length); 
+void Variant_setString(Variant *var, const char *data, int length) {
+  *var = Variant::fromString(data, length);
 }
 
 void Variant_setStringRef(Variant *var, const char *data, int length) {

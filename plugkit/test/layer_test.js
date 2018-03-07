@@ -117,11 +117,11 @@ describe('Layer', () => {
     it('should return layer attrs', () => {
       const ctx = Testing.createContextInstance()
       const layer = Testing.createLayerInstance('eth')
-      assert.deepEqual([], layer.attrs)
+      assert.deepEqual([], [...layer.attrs])
       layer.addAttr(ctx, 'eth.dst')
-      assert.strictEqual(1, layer.attrs.length)
+      assert.strictEqual(1, [...layer.attrs].length)
       layer.addAttr(ctx, 'eth.src')
-      assert.strictEqual(2, layer.attrs.length)
+      assert.strictEqual(2, [...layer.attrs].length)
     })
   })
   describe('#payloads', () => {

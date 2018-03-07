@@ -8,6 +8,7 @@
 #include "wrapper/context.hpp"
 #include "wrapper/error.hpp"
 #include "wrapper/frame.hpp"
+#include "wrapper/iterator.hpp"
 #include "wrapper/layer.hpp"
 #include "wrapper/logger.hpp"
 #include "wrapper/payload.hpp"
@@ -48,6 +49,7 @@ PlugkitModule::PlugkitModule(v8::Isolate *isolate,
   LayerWrapper::init(isolate);
   FrameWrapper::init(isolate);
   ContextWrapper::init(isolate);
+  IteratorWrapper::init(isolate);
   LoggerWrapper::init(isolate);
   if (mainThread) {
     PcapWrapper::init(isolate, exports);

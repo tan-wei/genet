@@ -64,7 +64,7 @@ public:
   double doubleValue(double defaultValue = double()) const;
   std::string string(const std::string &defaultValue = std::string()) const;
   Slice slice() const;
-  void* address() const;
+  void *address() const;
   uint64_t tag() const;
   size_t length() const;
 
