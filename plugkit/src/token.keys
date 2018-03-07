@@ -1,4 +1,8 @@
 --alias
+--paylaod
+--error
+--next
+--prev
 !out-of-bounds
 !invalid-value
 !out-of-memory

@@ -1,6 +1,7 @@
-/* ANSI-C code produced by gperf version 3.1 */
-/* Command-line: gperf -LANSI-C -G --output-file=plugkit/src/token_hash.h
- * plugkit/src/token.keys  */
+/* ANSI-C code produced by gperf version 3.0.3 */
+/* Command-line:
+ * /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/gperf
+ * -LANSI-C -G --output-file=plugkit/src/token_hash.h plugkit/src/token.keys  */
 /* Computed positions: -k'2,4-5,16,$' */
 
 #if !(                                                                         \
@@ -27,10 +28,10 @@
     ('}' == 125) && ('~' == 126))
 /* The character set is not based on ISO-646.  */
 #error                                                                         \
-    "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gperf@gnu.org>."
+    "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gnu-gperf@gnu.org>."
 #endif
 
-#define TOTAL_KEYWORDS 90
+#define TOTAL_KEYWORDS 94
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 24
 #define MIN_HASH_VALUE 1
@@ -45,7 +46,7 @@ inline
 #endif
 #endif
     static unsigned int
-    hash(register const char *str, register size_t len) {
+    hash(register const char *str, register unsigned int len) {
   static unsigned short asso_values[] = {
       261, 261, 261, 261, 261, 261, 261, 261, 261, 261, 261, 261, 261, 261, 261,
       261, 261, 261, 261, 261, 261, 261, 261, 261, 261, 261, 261, 261, 261, 261,
@@ -104,7 +105,7 @@ static const char *wordlist[] = {"",
                                  "ipv4",
                                  "[udp]",
                                  "",
-                                 "",
+                                 "--error",
                                  "udp",
                                  "",
                                  "",
@@ -151,7 +152,7 @@ static const char *wordlist[] = {"",
                                  "",
                                  "ipv4.version",
                                  "eth.type.ipv4",
-                                 "",
+                                 "--paylaod",
                                  "",
                                  "",
                                  "ipv6.version",
@@ -168,7 +169,7 @@ static const char *wordlist[] = {"",
                                  "ipv6.src",
                                  "",
                                  "",
-                                 "",
+                                 "--prev",
                                  "ipv4.protocol.tcp",
                                  "ipv4.protocol.icmp",
                                  "",
@@ -243,7 +244,7 @@ static const char *wordlist[] = {"",
                                  "@novalue",
                                  "",
                                  "",
-                                 "",
+                                 "--next",
                                  "",
                                  "ipv4.flags.dontFragment",
                                  "$.actualLength",
@@ -359,9 +360,9 @@ static const char *wordlist[] = {"",
                                  "",
                                  "@enum"};
 
-const char *in_word_set(register const char *str, register size_t len) {
+const char *in_word_set(register const char *str, register unsigned int len) {
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH) {
-    register unsigned int key = hash(str, len);
+    unsigned int key = hash(str, len);
 
     if (key <= MAX_HASH_VALUE) {
       register const char *s = wordlist[key];
