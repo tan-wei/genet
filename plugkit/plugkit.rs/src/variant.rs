@@ -10,6 +10,7 @@
 //! - Double - [`f64`](https://doc.rust-lang.org/std/primitive.f64.html)
 //! - String - [`String`](https://doc.rust-lang.org/std/string/struct.String.html)
 //! - Slice - `&'static[u8]`
+//! - Address - Internal raw pointer
 
 extern crate libc;
 
@@ -19,7 +20,7 @@ use std::string::String;
 use std::slice;
 use super::symbol;
 
-#[derive(Debug)]
+#[derive(Debug,PartialEq)]
 pub enum Type {
     Nil = 0,
     Bool = 1,
@@ -29,6 +30,7 @@ pub enum Type {
     String = 5,
     StringRef = 6,
     Slice = 7,
+    Address = 12,
 }
 
 #[repr(C)]
@@ -70,6 +72,7 @@ impl fmt::Display for Variant {
             Type::String => write!(f, "Variant (String)"),
             Type::StringRef => write!(f, "Variant (StringRef)"),
             Type::Slice => write!(f, "Variant (Slice)"),
+            Type::Address => write!(f, "Variant (Address)"),
         }
     }
 }
@@ -306,9 +309,6 @@ impl Variant {
     }
 
     fn is_fat(&self) -> bool {
-        match self.typ() {
-            Type::Nil | Type::Bool | Type::Int64 | Type::Uint64 | Type::Double | Type::StringRef | Type::Slice => false,
-            _ => true
-        }
+        self.typ() == Type::String
     }
 }

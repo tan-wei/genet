@@ -18,7 +18,8 @@ enum VariantType {
   VARTYPE_DOUBLE = 4,
   VARTYPE_STRING = 5,
   VARTYPE_STRING_REF = 6,
-  VARTYPE_SLICE = 7
+  VARTYPE_SLICE = 7,
+  VARTYPE_ADDRESS = 12
 };
 
 struct Variant final {
@@ -37,6 +38,7 @@ public:
   explicit Variant(const char *str);
   Variant(const char *str, size_t length);
   Variant(const Slice &slice);
+  static Variant fromAddress(void *ptr);
   Variant(void *) = delete;
   ~Variant();
   Variant(const Variant &value);
@@ -52,6 +54,7 @@ public:
   bool isString() const;
   bool isStringRef() const;
   bool isSlice() const;
+  bool isAddress() const;
 
 public:
   bool boolValue(bool defaultValue = bool()) const;
@@ -60,6 +63,7 @@ public:
   double doubleValue(double defaultValue = double()) const;
   std::string string(const std::string &defaultValue = std::string()) const;
   Slice slice() const;
+  void* address() const;
   uint64_t tag() const;
   size_t length() const;
 
@@ -79,6 +83,7 @@ public:
     uint64_t uint_;
     std::shared_ptr<std::string> *str;
     const char *data;
+    void *ptr;
   } d;
 };
 

@@ -65,6 +65,14 @@ Variant::Variant(const Slice &slice) {
   d.data = slice.data;
 }
 
+Variant Variant::fromAddress(void *ptr)
+{
+  Variant var;
+  var.type_ = VARTYPE_ADDRESS;
+  var.d.ptr = ptr;
+  return var;
+}
+
 Variant::~Variant() {
   switch (type()) {
   case VARTYPE_STRING:
@@ -195,6 +203,14 @@ Slice Variant::slice() const {
   }
 }
 
+void* Variant::address() const {
+  if (isAddress()) {
+    return d.ptr;
+  } else {
+    return nullptr;
+  }
+}
+
 uint64_t Variant::tag() const { return type_ >> 4; }
 
 bool Variant::isString() const { return type() == VARTYPE_STRING; }
@@ -202,6 +218,8 @@ bool Variant::isString() const { return type() == VARTYPE_STRING; }
 bool Variant::isStringRef() const { return type() == VARTYPE_STRING_REF; }
 
 bool Variant::isSlice() const { return type() == VARTYPE_SLICE; }
+
+bool Variant::isAddress() const { return type() == VARTYPE_ADDRESS; }
 
 v8::Local<v8::Object> Variant::getNodeBuffer(const Slice &slice) {
   using namespace v8;
