@@ -90,8 +90,9 @@ const Variant *Context_getOption(Context *ctx, const char *key) {
 
 void Context_closeStream(Context *ctx) { ctx->closeStream = true; }
 
-void Context_addLayerLinkage(Context *ctx, uint64_t id, Layer *layer) {
-  auto it = ctx->linkedLayers.find(id);
+void Context_addLayerLinkage(Context *ctx, Token token, uint64_t id, Layer *layer) {
+  const auto &pair = std::make_pair(token, id);
+  auto it = ctx->linkedLayers.find(pair);
   if (it != ctx->linkedLayers.end()) {
     {
       Attr *attr = Context_allocAttr(ctx, nextToken);
@@ -106,7 +107,7 @@ void Context_addLayerLinkage(Context *ctx, uint64_t id, Layer *layer) {
       layer->addAttr(attr);
     }
   }
-  ctx->linkedLayers[id] = layer;
+  ctx->linkedLayers[pair] = layer;
 }
 
 namespace {

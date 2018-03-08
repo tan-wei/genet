@@ -220,7 +220,7 @@ impl HTTPSession {
 
         let child = layer.add_layer(ctx, token!("http"));
         child.add_tag(ctx, token!("http"));
-        ctx.add_layer_linkage(stream_id, child);
+        ctx.add_layer_linkage(token!("http"), stream_id, child);
 
         {
             let version = parser.http_version();

@@ -5,6 +5,7 @@
 use super::variant::Variant;
 use super::layer::Layer;
 use super::symbol;
+use super::token::Token;
 use std::ffi::CString;
 
 #[repr(C)]
@@ -24,9 +25,9 @@ impl Context {
         self.close_stream = true
     }
 
-    pub fn add_layer_linkage(&mut self, id: u64, layer: &mut Layer) {
+    pub fn add_layer_linkage(&mut self, token: Token, id: u64, layer: &mut Layer) {
         unsafe {
-            symbol::Context_addLayerLinkage.unwrap()(self, id, layer);
+            symbol::Context_addLayerLinkage.unwrap()(self, token, id, layer);
         }
     }
 }

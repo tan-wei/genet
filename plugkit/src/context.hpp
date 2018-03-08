@@ -7,6 +7,15 @@
 #include "variant_map.hpp"
 #include <unordered_map>
 
+namespace std {
+template <>
+struct hash<std::pair<plugkit::Token, uint64_t>> {
+  inline size_t operator()(const pair<plugkit::Token, uint64_t> &v) const {
+    return v.first + v.second;
+  }
+};
+} // namespace std
+
 namespace plugkit {
 
 struct Context final {
@@ -14,7 +23,7 @@ public:
   bool closeStream = false;
 
   VariantMap options;
-  std::unordered_map<uint64_t, Layer *> linkedLayers;
+  std::unordered_map<std::pair<Token, uint64_t>, Layer *> linkedLayers;
 
   LoggerPtr logger = std::make_shared<StreamLogger>();
 
@@ -54,7 +63,7 @@ const Variant *Context_getOption(Context *ctx, const char *key);
 
 void Context_closeStream(Context *ctx);
 
-void Context_addLayerLinkage(Context *ctx, uint64_t id, Layer *layer);
+void Context_addLayerLinkage(Context *ctx, Token token, uint64_t id, Layer *layer);
 }
 
 } // namespace plugkit
