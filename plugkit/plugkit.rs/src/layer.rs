@@ -23,8 +23,6 @@ pub struct Layer {
     id: Token,
     data: u8,
     parent: *mut Layer,
-    prev: *const Layer,
-    next: *const Layer,
     frame: *const Frame,
     range: (u32, u32)
 }
@@ -98,22 +96,6 @@ impl Layer {
             None
         } else {
             unsafe { Some(&mut *self.parent) }
-        }
-    }
-
-    pub fn prev(&self) -> Option<&Layer> {
-        if self.prev.is_null() {
-            None
-        } else {
-            unsafe { Some(&*self.prev) }
-        }
-    }
-
-    pub fn next(&self) -> Option<&Layer> {
-        if self.next.is_null() {
-            None
-        } else {
-            unsafe { Some(&*self.next) }
         }
     }
 

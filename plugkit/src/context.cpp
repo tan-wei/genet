@@ -1,8 +1,14 @@
 #include "context.hpp"
+#include "attr.hpp"
 #include <cstdarg>
 #include <cstdio>
 
 namespace plugkit {
+
+namespace {
+const auto nextToken = Token_get("--next");
+const auto prevToken = Token_get("--prev");
+} // namespace
 
 void *Context_alloc(Context *ctx, size_t size) { return malloc(size); }
 
@@ -87,8 +93,18 @@ void Context_closeStream(Context *ctx) { ctx->closeStream = true; }
 void Context_addLayerLinkage(Context *ctx, uint64_t id, Layer *layer) {
   auto it = ctx->linkedLayers.find(id);
   if (it != ctx->linkedLayers.end()) {
-    it->second->setNext(layer);
-    layer->setPrev(it->second);
+    {
+      Attr *attr = Context_allocAttr(ctx, nextToken);
+      attr->setType(nextToken);
+      attr->setValue(Variant::fromAddress(layer));
+      it->second->addAttr(attr);
+    }
+    {
+      Attr *attr = Context_allocAttr(ctx, prevToken);
+      attr->setType(prevToken);
+      attr->setValue(Variant::fromAddress(it->second));
+      layer->addAttr(attr);
+    }
   }
   ctx->linkedLayers[id] = layer;
 }

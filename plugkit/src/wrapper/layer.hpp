@@ -24,8 +24,6 @@ public:
   static NAN_GETTER(range);
   static NAN_SETTER(setRange);
   static NAN_GETTER(parent);
-  static NAN_GETTER(prev);
-  static NAN_GETTER(next);
   static NAN_GETTER(frame);
   static NAN_GETTER(layers);
   static NAN_GETTER(subLayers);
@@ -33,6 +31,8 @@ public:
   static NAN_GETTER(payloads);
   static NAN_GETTER(errors);
   static NAN_GETTER(tags);
+  static NAN_METHOD(prev);
+  static NAN_METHOD(next);
   static NAN_METHOD(attr);
   static NAN_METHOD(addLayer);
   static NAN_METHOD(addSubLayer);

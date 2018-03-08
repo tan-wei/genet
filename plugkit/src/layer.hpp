@@ -57,12 +57,6 @@ public:
   Layer *parent() const;
   void setParent(Layer *layer);
 
-  const Layer *prev() const;
-  void setPrev(const Layer *layer);
-
-  const Layer *next() const;
-  void setNext(const Layer *layer);
-
   const Frame *frame() const;
   void setFrame(const Frame *frame);
 
@@ -76,8 +70,6 @@ private:
   Token mId = Token_null();
   uint8_t mData = 0;
   Layer *mParent = nullptr;
-  const Layer *mPrev = nullptr;
-  const Layer *mNext = nullptr;
   const Frame *mFrame = nullptr;
   Range mRange = {0, 0};
   std::vector<Payload *> mPayloads;
@@ -140,7 +132,7 @@ const Payload *const *Layer_payloads(const Layer *layer, size_t *size);
 
 void Layer_addError(
     Layer *layer, Context *ctx, Token id, const char *msg, size_t length);
-    
+
 /// Add a layer tag
 void Layer_addTag(Layer *layer, Context *ctx, Token tag);
 }
