@@ -11,10 +11,10 @@
 namespace plugkit {
 
 namespace {
-  const auto errorTypeToken = Token_get("--error");
-  const auto nextToken = Token_get("--next");
-  const auto prevToken = Token_get("--prev");
-}
+const auto errorTypeToken = Token_get("--error");
+const auto nextToken = Token_get("--next");
+const auto prevToken = Token_get("--prev");
+} // namespace
 
 void LayerWrapper::init(v8::Isolate *isolate) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
@@ -248,7 +248,7 @@ NAN_METHOD(LayerWrapper::prev) {
       }
     }
     if (prev) {
-      const Layer *layer = static_cast<const Layer*>(prev->value().address());
+      const Layer *layer = static_cast<const Layer *>(prev->value().address());
       info.GetReturnValue().Set(LayerWrapper::wrap(layer));
     } else {
       info.GetReturnValue().Set(Nan::Null());
@@ -267,7 +267,7 @@ NAN_METHOD(LayerWrapper::next) {
       }
     }
     if (next) {
-      const Layer *layer = static_cast<const Layer*>(next->value().address());
+      const Layer *layer = static_cast<const Layer *>(next->value().address());
       info.GetReturnValue().Set(LayerWrapper::wrap(layer));
     } else {
       info.GetReturnValue().Set(Nan::Null());

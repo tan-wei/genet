@@ -1,5 +1,7 @@
-/* ANSI-C code produced by gperf version 3.1 */
-/* Command-line: gperf -t -LANSI-C -G --output-file=plugkit/src/function_hash.h
+/* ANSI-C code produced by gperf version 3.0.3 */
+/* Command-line:
+ * /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/gperf
+ * -t -LANSI-C -G --output-file=plugkit/src/function_hash.h
  * plugkit/src/function.keys  */
 /* Computed positions: -k'3,12' */
 
@@ -27,7 +29,7 @@
     ('}' == 125) && ('~' == 126))
 /* The character set is not based on ISO-646.  */
 #error                                                                         \
-    "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gperf@gnu.org>."
+    "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gnu-gperf@gnu.org>."
 #endif
 
 #line 1 "plugkit/src/function.keys"
@@ -55,7 +57,7 @@ inline
 #endif
 #endif
     static unsigned int
-    hash(register const char *str, register size_t len) {
+    hash(register const char *str, register unsigned int len) {
   static unsigned char asso_values[] = {
       53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53,
       53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53,
@@ -183,9 +185,10 @@ static struct Functions wordlist[] = {
     {"Variant_setDouble",
      reinterpret_cast<void *>(&plugkit::Variant_setDouble)}};
 
-struct Functions *in_word_set(register const char *str, register size_t len) {
+struct Functions *in_word_set(register const char *str,
+                              register unsigned int len) {
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH) {
-    register unsigned int key = hash(str, len);
+    unsigned int key = hash(str, len);
 
     if (key <= MAX_HASH_VALUE) {
       register const char *s = wordlist[key].name;

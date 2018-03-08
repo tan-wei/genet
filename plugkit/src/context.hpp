@@ -63,7 +63,10 @@ const Variant *Context_getOption(Context *ctx, const char *key);
 
 void Context_closeStream(Context *ctx);
 
-void Context_addLayerLinkage(Context *ctx, Token token, uint64_t id, Layer *layer);
+void Context_addLayerLinkage(Context *ctx,
+                             Token token,
+                             uint64_t id,
+                             Layer *layer);
 }
 
 } // namespace plugkit
