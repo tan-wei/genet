@@ -24,8 +24,9 @@ NAN_METHOD(ContextWrapper::New) { info.GetReturnValue().Set(info.This()); }
 NAN_METHOD(ContextWrapper::getOption) {
   ContextWrapper *wrapper = ObjectWrap::Unwrap<ContextWrapper>(info.Holder());
   if (Context *ctx = wrapper->ctx) {
+    const auto &str = Nan::Utf8String(info[0]);
     info.GetReturnValue().Set(
-        Variant::getValue(Context_getOption(ctx, *Nan::Utf8String(info[0]))));
+        Variant::getValue(Context_getOption(ctx, *str, str.length())));
   }
 }
 

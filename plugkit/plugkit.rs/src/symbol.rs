@@ -35,7 +35,7 @@ def_func!(
     Token_literal_,          extern "C" fn(*const libc::c_char, libc::size_t) -> Token;
     Token_string,            extern "C" fn(Token) -> *const libc::c_char;
     Token_concat,            extern "C" fn(Token, *const libc::c_char, libc::size_t) -> Token;
-    Context_getOption,       extern "C" fn(*const Context, *const libc::c_char) -> *const Variant;
+    Context_getOption,       extern "C" fn(*const Context, *const libc::c_char, libc::size_t) -> *const Variant;
     Context_addLayerLinkage, extern "C" fn(*const Context, Token, u64, *mut Layer);
     Variant_setNil,          extern "C" fn(*mut Variant);
     Variant_setBool,         extern "C" fn(*mut Variant, bool);

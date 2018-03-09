@@ -6,7 +6,6 @@ use super::variant::Variant;
 use super::layer::Layer;
 use super::symbol;
 use super::token::Token;
-use std::ffi::CString;
 
 #[repr(C)]
 pub struct Context {
@@ -16,8 +15,7 @@ pub struct Context {
 impl Context {
     pub fn get_option(&self, name: &str) -> &Variant {
         unsafe {
-            let cstr = CString::new(name).unwrap_or_else(|_| CString::new("").unwrap());
-            &*symbol::Context_getOption.unwrap()(self, cstr.as_ptr())
+            &*symbol::Context_getOption.unwrap()(self, name.as_ptr() as *const i8, name.len())
         }
     }
 

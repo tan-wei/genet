@@ -59,7 +59,7 @@ void *Context_realloc(Context *ctx, void *ptr, size_t size);
 void Context_dealloc(Context *ctx, void *ptr);
 
 /// Return the value of the option in the current context.
-const Variant *Context_getOption(Context *ctx, const char *key);
+const Variant *Context_getOption(Context *ctx, const char *key, size_t length);
 
 void Context_closeStream(Context *ctx);
 
