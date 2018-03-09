@@ -65,7 +65,7 @@ async function resolveEntry (entry) {
     }
 
     return {
-      id: `npm.${name.replace('/', '.')}`,
+      id: `npmjs.org/${name}`,
       data: pkg,
       timestamp: new Date(meta.time.modified),
       archive: tarball,

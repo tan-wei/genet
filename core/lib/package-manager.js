@@ -26,8 +26,8 @@ async function readFile (filePath) {
     const dir = path.dirname(normPath)
     const builtin = !normPath.startsWith(env.userPackagePath)
     const id = builtin
-      ? `builtin.${path.basename(dir)}`
-      : path.basename(dir)
+      ? `builtin/${path.basename(dir)}`
+      : path.relative(env.userPackagePath, dir)
     return {
       data,
       filePath: normPath,
@@ -84,8 +84,9 @@ export default class PackageManager extends EventEmitter {
     const userPluginPattern =
       path.join(env.userPackagePath, '/**/package.json')
 
-    const builtinPaths = await promiseGlob(builtinPluginPattern)
-    const userPaths = await promiseGlob(userPluginPattern)
+    const globOptions = { ignore: '**/node_modules/*/package.json' }
+    const builtinPaths = await promiseGlob(builtinPluginPattern, globOptions)
+    const userPaths = await promiseGlob(userPluginPattern, globOptions)
 
     const disabledPackages = new Set(config.get('_.disabledPackages', []))
     const updatedPackages = new Set()
