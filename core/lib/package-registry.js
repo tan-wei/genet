@@ -44,7 +44,7 @@ async function resolveEntry (entry) {
   if (normalized.startsWith(prefix)) {
     const name = normalized.slice(prefix.length)
     const encodedName = name.replace('/', '%2F')
-    const url = `https://registry.npmjs.org/${encodedName}`
+    const url = `https://registry.npmjs.com/${encodedName}`
     const meta = await axios.get(url)
       .then((res) => res.data)
 
@@ -65,7 +65,7 @@ async function resolveEntry (entry) {
     }
 
     return {
-      id: `npmjs.org/${name}`,
+      id: `npmjs.com/${name}`,
       data: pkg,
       timestamp: new Date(meta.time.modified),
       archive: tarball,
