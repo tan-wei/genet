@@ -1,3 +1,4 @@
+import ButtonBoxView from './button'
 import Installer from '../../lib/package-install'
 import SchemaInput from '../../lib/schema-input'
 import env from '../../lib/env'
@@ -33,64 +34,6 @@ async function install (pkg) {
   deplug.packages.update()
 }
 
-class ButtonBoxView {
-  view (vnode) {
-    const { pkg } = vnode.attrs
-    if (pkg.archive) {
-      return m('span', { class: 'button-box' }, [
-        m('input', {
-          type: 'button',
-          value: 'Install',
-          onclick: () => {
-            install(pkg)
-          },
-        })
-      ])
-    }
-    if (pkg.removal) {
-      return [
-        m('p', ['This package will be removed on the next startup.']),
-        m('span', { class: 'button-box' }, [
-          m('input', {
-            type: 'button',
-            value: 'Undo',
-            onclick: () => {
-              deplug.packages.setUninstallFlag(pkg.id, false)
-            },
-          })
-        ])
-      ]
-    }
-    return m('span', { class: 'button-box' }, [
-      m('input', {
-        type: 'button',
-        value: pkg.disabled
-          ? 'Enable'
-          : 'Disable',
-        onclick: () => {
-          if (pkg.disabled) {
-            deplug.packages.enable(pkg.id)
-          } else {
-            deplug.packages.disable(pkg.id)
-          }
-        },
-      }),
-      m('input', {
-        type: 'button',
-        value: 'Uninstall',
-        style: {
-          display: pkg.builtin
-            ? 'none'
-            : 'block',
-        },
-        onclick: () => {
-          deplug.packages.setUninstallFlag(pkg.id, true)
-        },
-      })
-    ])
-  }
-}
-
 export default class DetailView {
   constructor () {
     this.output = {}
@@ -105,11 +48,26 @@ export default class DetailView {
     const config = Object.entries(deplug.config.schema)
       .filter(([id]) => id.startsWith(`${pkg.id}.`))
     return m('article', [
-      m('h1', { disabled: pkg.disabled === true }, [pkg.data.name,
+      m('h1', { disabled: pkg.disabled || pkg.incompatible }, [pkg.data.name,
         m('span', { class: 'version' },
           [pkg.data.version])]),
       m('p', [pkg.data.description]),
-      m(ButtonBoxView, { pkg }),
+      m('p', {
+        style: {
+          color: 'var(--theme-error)',
+          display: pkg.incompatible
+            ? 'block'
+            : 'none',
+        },
+      }, [
+        'This package is incompatible with the running Deplug version.',
+        m('br'),
+        `Required Deplug Version: ${pkg.data.engines.deplug}`
+      ]),
+      m(ButtonBoxView, {
+        pkg,
+        install,
+      }),
       m('p', config.map(([id, schema]) => m('section', [
         m('h4', [
           schema.title, m('span', { class: 'schema-path' }, [id])]),

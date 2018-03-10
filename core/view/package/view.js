@@ -79,7 +79,9 @@ export default class PackageView {
                   this.selectedLocalPackage = pkg.id
                 },
               }, [
-                m('h4', { disabled: pkg.disabled === true }, [pkg.data.name]),
+                m('h4', { disabled: pkg.disabled || pkg.incompatible }, [
+                  pkg.data.name
+                ]),
                 m('span', [pkg.data.description])
               ])])))
         ]),

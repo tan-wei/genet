@@ -117,29 +117,29 @@ export default class PackageManager extends EventEmitter {
     }
 
     for (const pkg of pkgs) {
+      const incompatible = !semver.satisfies(
+        semver.coerce(env.deplug.version),
+        objpath.get(pkg.data, 'engines.deplug', '*'))
       const disabled = disabledPackages.has(pkg.id)
       const cache = packages.get(pkg.id) || { components: [] }
-      if (!packages.has(pkg.id) && !disabled) {
-        addedPackages.add(pkg.id)
-      } else if (disabled) {
-        if (cache.disabled === true) {
-          disabledPackages.delete(pkg.id)
-        } else {
-          cache.disabled = true
+      if (!incompatible) {
+        if (!packages.has(pkg.id) && !disabled) {
+          addedPackages.add(pkg.id)
+        } else if (disabled) {
+          if (cache.disabled === true) {
+            disabledPackages.delete(pkg.id)
+          } else {
+            cache.disabled = true
+          }
+        } else if (cache.disabled === true) {
+          enabledPackages.add(pkg.id)
+          cache.disabled = false
+        } else if (semver.neq(pkg.data.version, cache.data.version)) {
+          updatedPackages.add(pkg.id)
         }
-      } else if (cache.disabled === true) {
-        enabledPackages.add(pkg.id)
-        cache.disabled = false
-      } else if (semver.neq(pkg.data.version, cache.data.version)) {
-        updatedPackages.add(pkg.id)
       }
 
-      cache.data = pkg.data
-      cache.removal = pkg.removal
-      cache.dir = pkg.dir
-      cache.id = pkg.id
-      cache.builtin = pkg.builtin
-      packages.set(pkg.id, cache)
+      packages.set(pkg.id, Object.assign(cache, pkg, { incompatible }))
       removedPackages.delete(pkg.id)
     }
 
