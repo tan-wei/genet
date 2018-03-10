@@ -9,7 +9,7 @@ const content = new Content(PackageView,
   'package.main.css',
   [
     `--components=${components.join(',')}`,
-    '--loggerDomain=pacakge',
+    '--loggerDomain=package',
     '--contextMenu'
   ])
 content.load()
