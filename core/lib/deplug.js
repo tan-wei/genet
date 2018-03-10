@@ -7,6 +7,7 @@ import Menu from './menu'
 import Notification from './notification'
 import PackageManager from './package-manager'
 import PackageRegistry from './package-registry'
+import Resumer from './resumer'
 import Session from './session'
 import Workspace from './workspace'
 import minimist from 'minimist'
@@ -36,6 +37,9 @@ export default class Deplug {
     this.cache = cache
     this.action = new Action()
     this.argv = Object.assign(argv, options)
+    if (options.resume) {
+      this.resumer = new Resumer(options.resume, logger)
+    }
 
     this.registry.on('error', (err) => {
       logger.warn(err)

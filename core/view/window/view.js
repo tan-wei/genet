@@ -1,12 +1,12 @@
 import { remote, ipcRenderer, shell } from 'electron'
 import { HSplitter } from '../../lib/splitter'
 import Menu from './menu'
+import Resumer from '../../lib/resumer'
 import Stack from './stack'
 import env from '../../lib/env'
 import fs from 'fs'
 import m from 'mithril'
 import path from 'path'
-import tempy from 'tempy'
 import touch from 'touch'
 
 const { dialog } = remote
@@ -64,7 +64,7 @@ export default class WindowView {
       name: `Pcap ${number}`,
       src: 'pcap.htm',
       argv: deplug.argv.concat([
-        `--resume=${tempy.file({ extension: 'json' })}`
+        `--resume=${Resumer.generateFileName()}`
       ]),
       loading: true,
     })
@@ -132,7 +132,7 @@ export default class WindowView {
           src: 'pcap.htm',
           argv: deplug.argv.concat([
             `--import=${file}`,
-            `--resume=${tempy.file({ extension: 'json' })}`
+            `--resume=${Resumer.generateFileName()}`
           ]),
           loading: true,
         })

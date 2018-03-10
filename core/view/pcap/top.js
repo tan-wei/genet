@@ -120,12 +120,21 @@ export default class TopView {
         })
       })
     } else {
-      const pcapDialog = new Dialog(PcapDialog)
-      pcapDialog.show({ cancelable: false }).then(async (ifs) => {
+      let getIfs = null
+      if (deplug.resumer.has('core:session:ifs')) {
+        getIfs = Promise.resolve(deplug.resumer.get('core:session:ifs'))
+      } else {
+        const pcapDialog = new Dialog(PcapDialog)
+        getIfs = pcapDialog.show({ cancelable: false })
+      }
+      getIfs.then(async (ifs) => {
         const sess = await deplug.session.create(ifs)
         deplug.action.emit('core:session:created', sess)
         this.sess = sess
-        sess.startPcap()
+        if (!deplug.resumer.has('core:session:ifs')) {
+          sess.startPcap()
+        }
+        deplug.resumer.set('core:session:ifs', ifs)
         sess.on('frame', () => {
           m.redraw()
         })
