@@ -6,6 +6,7 @@ import env from '../../lib/env'
 import fs from 'fs'
 import m from 'mithril'
 import path from 'path'
+import tempy from 'tempy'
 import touch from 'touch'
 
 const { dialog } = remote
@@ -62,7 +63,9 @@ export default class WindowView {
       id,
       name: `Pcap ${number}`,
       src: 'pcap.htm',
-      argv: deplug.argv,
+      argv: deplug.argv.concat([
+        `--resume=${tempy.file({ extension: 'json' })}`
+      ]),
       loading: true,
     })
   }
@@ -127,7 +130,10 @@ export default class WindowView {
           id,
           name: path.basename(file),
           src: 'pcap.htm',
-          argv: deplug.argv.concat([`--import=${file}`]),
+          argv: deplug.argv.concat([
+            `--import=${file}`,
+            `--resume=${tempy.file({ extension: 'json' })}`
+          ]),
           loading: true,
         })
       }
