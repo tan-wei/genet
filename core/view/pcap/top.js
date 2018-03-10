@@ -96,10 +96,10 @@ export default class TopView {
   }
 
   oncreate () {
-    if (deplug.argv.import) {
-      const file = path.resolve(deplug.argv.import)
-      const browserWindow = remote.getCurrentWindow()
-      deplug.packages.once('updated', () => {
+    deplug.packages.once('updated', () => {
+      if (deplug.argv.import) {
+        const file = path.resolve(deplug.argv.import)
+        const browserWindow = remote.getCurrentWindow()
         deplug.session.create().then((sess) => {
           deplug.action.emit('core:session:created', sess)
           this.sess = sess
@@ -119,35 +119,36 @@ export default class TopView {
           })
           sess.importFile(file)
         })
-      })
-    } else {
-      let getIfs = null
-      if (deplug.resumer.has('core:session:ifs')) {
-        getIfs = Promise.resolve(deplug.resumer.get('core:session:ifs'))
       } else {
-        const pcapDialog = new Dialog(PcapDialog)
-        getIfs = pcapDialog.show({ cancelable: false })
-      }
-      getIfs.then(async (ifs) => {
-        const sess = await deplug.session.create(ifs)
-        deplug.action.emit('core:session:created', sess)
-        this.sess = sess
-        if (!deplug.resumer.has('core:session:ifs')) {
-          sess.startPcap()
+        let getIfs = null
+        if (deplug.resumer.has('core:session:ifs')) {
+          getIfs = Promise.resolve(deplug.resumer.get('core:session:ifs'))
+        } else {
+          const pcapDialog = new Dialog(PcapDialog)
+          getIfs = pcapDialog.show({ cancelable: false })
         }
-        deplug.resumer.set('core:session:ifs', ifs)
-        sess.on('frame', () => {
-          m.redraw()
+        getIfs.then(async (ifs) => {
+          const sess = await deplug.session.create(ifs)
+          deplug.action.emit('core:session:created', sess)
+          this.sess = sess
+          if (deplug.resumer.has('core:session:dump')) {
+            sess.importFile(deplug.resumer.get('core:session:dump'))
+          }
+          sess.startPcap()
+          deplug.resumer.set('core:session:ifs', ifs)
+          sess.on('frame', () => {
+            m.redraw()
+          })
+          sess.on('status', (stat) => {
+            this.viewState.capture = stat.capture
+            m.redraw()
+          })
+          sess.on('filter', () => {
+            m.redraw()
+          })
         })
-        sess.on('status', (stat) => {
-          this.viewState.capture = stat.capture
-          m.redraw()
-        })
-        sess.on('filter', () => {
-          m.redraw()
-        })
-      })
-    }
+      }
+    })
     const filterInput = document.querySelector('input[name=display-filter]')
     deplug.action.on('core:filter:suggest:hint-selected', (hint, enter) => {
       filterInput.value = hint
