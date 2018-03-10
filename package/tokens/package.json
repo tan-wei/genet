@@ -1,8 +1,8 @@
 {
-  "name": "@deplug/token-wellknown",
+  "name": "@deplug/tokens",
   "version": "0.1.0",
   "license": "MIT",
-  "description": "Well-known tokens",
+  "description": "Built-in tokens",
   "engines": {
     "deplug": "*"
   },
@@ -17,7 +17,7 @@
       }
     ],
     "configSchema": {
-      "@deplug/token-wellknown.snaplen": {
+      "@deplug/tokens.snaplen": {
         "title": "Snapshot Length",
         "description": "Snapshot Length",
         "type": "integer",
