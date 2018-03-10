@@ -8,6 +8,7 @@ import ToolBar from './toolbar'
 import m from 'mithril'
 import path from 'path'
 import { remote } from 'electron'
+import tempy from 'tempy'
 const { dialog } = remote
 export default class TopView {
   constructor () {
@@ -175,6 +176,20 @@ export default class TopView {
     })
     deplug.action.global.on('core:pcap:focus-display-filter', () => {
       document.querySelector('input[name=display-filter]').focus()
+    })
+    deplug.action.global.on('core:tab:graceful-reload', () => {
+      if (this.sess) {
+        this.sess.on('status', (stat) => {
+          if (stat.exporterProgress >= 1) {
+            deplug.resumer.reload()
+          }
+        })
+        const file = tempy.file({ extension: 'pcap' })
+        deplug.resumer.set('core:session:dump', file)
+        this.sess.exportFile(file, '')
+      } else {
+        deplug.resumer.reload()
+      }
     })
     deplug.action.on('core:filter:set', (value) => {
       try {

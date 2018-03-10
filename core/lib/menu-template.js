@@ -61,6 +61,12 @@ const template = [
         action: 'core:tab:open-devtool',
       },
       { type: 'separator' },
+      {
+        label: 'Graceful Reload',
+        action: 'core:tab:graceful-reload',
+        accelerator: 'CommandOrControl+Shift+R',
+      },
+      { type: 'separator' },
       { role: 'resetzoom' },
       { role: 'zoomin' },
       { role: 'zoomout' },
