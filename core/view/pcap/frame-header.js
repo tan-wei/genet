@@ -5,19 +5,21 @@ export default class FrameHeader {
     this.offset = 0
     this.active = false
     this.labels = [
+      { name: 'Index' },
       { name: 'Protocol' },
       { name: 'Source' },
       { name: 'Destination' },
       { name: 'Length' },
       { name: 'Summary' }
     ]
-    this.widthList =
-      [].concat(deplug.workspace.get('_.pcap.table.widthList', []))
   }
 
   applyWidth () {
     this.active = false
-    deplug.workspace.set('_.pcap.table.widthList', this.widthList)
+  }
+
+  oninit (vnode) {
+    this.viewState = vnode.attrs.viewState
   }
 
   view () {
@@ -36,17 +38,17 @@ export default class FrameHeader {
       },
       onmousemove: (event) => {
         const width = Math.max(10, event.offsetX - this.offset)
-        this.widthList[this.index] = width
+        this.viewState.headerWidthList[this.index] = width
       },
     })]
     let offset = 0
     for (let index = 0; index < this.labels.length; index += 1) {
       const label = this.labels[index]
       const last = index === this.labels.length - 1
-      if (!(index in this.widthList)) {
-        this.widthList[index] = 100
+      if (!(index in this.viewState.headerWidthList)) {
+        this.viewState.headerWidthList[index] = 100
       }
-      const width = this.widthList[index]
+      const width = this.viewState.headerWidthList[index]
       offset += width
       if (!last) {
         views.push(m('div', {

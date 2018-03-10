@@ -23,6 +23,7 @@ export default class TopView {
       scrollLock: false,
       selectedFrame: 0,
       checkedFrames: new Set(),
+      headerWidthList: [],
     }
   }
 
@@ -83,7 +84,7 @@ export default class TopView {
           viewState: this.viewState,
           sess: this.sess,
         }),
-        m(FrameHeader, {})
+        m(FrameHeader, { viewState: this.viewState })
       ]),
       this.sess
         ? m(FrameListView, {

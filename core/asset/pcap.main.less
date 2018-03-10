@@ -142,7 +142,7 @@ nav.frame-list {
     position: absolute;
     left: 0;
     right: 0;
-    padding: 5px;
+    padding: 5px 0;
     display: flex;
     flex-direction: column;
     border-bottom: 1px solid var(--theme-default-bg);
@@ -161,9 +161,8 @@ nav.frame-list {
       white-space: nowrap;
 
       input[type=checkbox] {
-        display: inline;
-        margin: 0;
-        padding: 0 8px;
+        margin: 0 8px;
+        padding: 0 6px;
         background-color: transparent;
         line-height: 8px;
 
@@ -173,12 +172,12 @@ nav.frame-list {
       }
 
       span.column {
-        width: 60px;
+        width: 100px;
         display: inline-block;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        padding: 0 10px;
+        padding: 0;
         line-height: 20px;
 
         &:last-child {

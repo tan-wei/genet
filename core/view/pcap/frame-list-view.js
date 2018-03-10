@@ -14,6 +14,33 @@ class FrameView {
     if (!this.frame) {
       return m('div')
     }
+    const columns = vnode.attrs.columns.map((column, index) => {
+      const content = [
+        column.func(this.frame)
+      ]
+      if (index === 0) {
+        content.unshift(m('input', {
+          type: 'checkbox',
+          checked: viewState.checkedFrames.has(key),
+          onchange: (event) => {
+            if (event.target.checked) {
+              viewState.checkedFrames.add(key)
+            } else {
+              viewState.checkedFrames.delete(key)
+            }
+            return false
+          },
+        }))
+      }
+      return m('span', {
+        class: 'column',
+        style: {
+          width: index === vnode.attrs.columns.length - 1
+            ? 'auto'
+            : `${viewState.headerWidthList[index] || 100}px`,
+        },
+      }, content)
+    })
     return m('div', {
       class: 'frame',
       style: vnode.attrs.style,
@@ -24,25 +51,7 @@ class FrameView {
         deplug.action.emit('core:frame:selected', [this.frame])
       },
     }, [
-      m('div', { class: 'header' },
-        [
-          m('input', {
-            type: 'checkbox',
-            checked: viewState.checkedFrames.has(key),
-            onchange: (event) => {
-              if (event.target.checked) {
-                viewState.checkedFrames.add(key)
-              } else {
-                viewState.checkedFrames.delete(key)
-              }
-              return false
-            },
-          })
-        ].concat(
-          vnode.attrs.columns.map((column) =>
-            m('span', { class: 'column' }, [
-              column.func(this.frame)
-            ]))))
+      m('div', { class: 'header' }, columns)
     ])
   }
 }
