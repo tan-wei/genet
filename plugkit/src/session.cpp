@@ -42,8 +42,7 @@ public:
     UPDATE_STATUS = 1,
     UPDATE_FILTER = 2,
     UPDATE_FRAME = 4,
-    UPDATE_EVENT = 8,
-    UPDATE_INSPECTOR = 16,
+    UPDATE_INSPECTOR = 8,
   };
 
 public:
@@ -98,6 +97,8 @@ void Session::Private::updateStatus() {
   if (flags & Private::UPDATE_STATUS) {
     Status status;
     status.capture = pcap->running();
+    status.importerProgress = importerProgress.load(std::memory_order_relaxed);
+    status.exporterProgress = exporterProgress.load(std::memory_order_relaxed);
     statusCallback(status);
   }
   if (flags & Private::UPDATE_FILTER) {
@@ -113,8 +114,6 @@ void Session::Private::updateStatus() {
     FrameStatus status;
     status.frames = frameStore->dissectedSize();
     frameCallback(status);
-  }
-  if (flags & Private::UPDATE_EVENT) {
   }
   if (flags & Private::UPDATE_INSPECTOR) {
     for (const auto &pair : inspectorQueue.fetch()) {
@@ -328,7 +327,7 @@ int Session::importFile(const std::string &file) {
         }
         d->dissectorPool->push(begin, length);
         d->importerProgress.store(progress, std::memory_order_relaxed);
-        d->notifyStatus(Private::UPDATE_EVENT);
+        d->notifyStatus(Private::UPDATE_STATUS);
       });
   return d->runner.add(std::unique_ptr<Task>(importer));
 }
@@ -345,7 +344,7 @@ int Session::exportFile(const std::string &file, const std::string &filter) {
   }
   exporter->setCallback([this](int id, double progress) {
     d->exporterProgress.store(progress, std::memory_order_relaxed);
-    d->notifyStatus(Private::UPDATE_EVENT);
+    d->notifyStatus(Private::UPDATE_STATUS);
   });
   return d->runner.add(std::unique_ptr<Task>(exporter));
 }
