@@ -1,12 +1,13 @@
-# deplug
+Deplug
+==
 
 [![Build Status](https://travis-ci.org/deplug/deplug.svg)](https://travis-ci.org/deplug/deplug)
 [![Build status](https://ci.appveyor.com/api/projects/status/37ek4o97h0kqr0p9?svg=true)](https://ci.appveyor.com/project/h2so5/deplug)
 [![Current Version](https://img.shields.io/crates/v/plugkit.svg)](https://crates.io/crates/plugkit)
 
-# Download
+## Download
 
-## Latest Releases
+### Latest Releases
 
 (via CDN)
 
@@ -18,7 +19,7 @@
 - Windows
   - [![](https://cdn.deplug.net/deplug/release/latest/deplug-win-amd64.exe.ver.svg) Download .exe (Installer)](https://cdn.deplug.net/deplug/release/latest/deplug-win-amd64.exe)
 
-## Nightly Builds
+### Nightly Builds
 
 - macOS
   - [![](https://cdn.deplug.net/deplug/nightly/deplug-darwin-amd64.dmg.ver.svg) Download .dmg](https://cdn.deplug.net/deplug/nightly/deplug-darwin-amd64.dmg)
@@ -28,10 +29,10 @@
 - Windows
   - [![](https://cdn.deplug.net/deplug/nightly/deplug-win-amd64.exe.ver.svg) Download .exe (Installer)](https://cdn.deplug.net/deplug/nightly/deplug-win-amd64.exe) 
 
-## Older Releases
+### Older Releases
 
 - https://github.com/deplug/release-build/releases
 
-## Build from Source
+### Build from Source
 
 See https://docs.deplug.net/build-from-source.html
