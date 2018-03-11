@@ -293,36 +293,14 @@ Variant Variant::getVariant(v8::Local<v8::Value> var) {
   return Variant();
 }
 
-VariantType Variant_type(const Variant *var) { return var->type(); }
-
 void Variant_setNil(Variant *var) { *var = Variant(); }
 
-bool Variant_bool(const Variant *var) {
-  if (!var)
-    return false;
-  return var->boolValue();
-}
 void Variant_setBool(Variant *var, bool value) { *var = Variant(value); }
 
-int64_t Variant_int64(const Variant *var) {
-  if (!var)
-    return 0;
-  return var->int64Value();
-}
 void Variant_setInt64(Variant *var, int64_t value) { *var = Variant(value); }
 
-uint64_t Variant_uint64(const Variant *var) {
-  if (!var)
-    return 0;
-  return var->uint64Value();
-}
 void Variant_setUint64(Variant *var, uint64_t value) { *var = Variant(value); }
 
-double Variant_double(const Variant *var) {
-  if (!var)
-    return 0.0;
-  return var->doubleValue();
-}
 void Variant_setDouble(Variant *var, double value) { *var = Variant(value); }
 
 const char *Variant_string(const Variant *var, size_t *len) {
@@ -353,11 +331,5 @@ void Variant_setStringRef(Variant *var, const char *data, int length) {
   *var = Variant::fromStringRef(data, length);
 }
 
-Slice Variant_slice(const Variant *var) {
-  if (var && var->isSlice()) {
-    return var->slice();
-  }
-  return Slice{nullptr, 0};
-}
 void Variant_setSlice(Variant *var, Slice slice) { *var = Variant(slice); }
 } // namespace plugkit

@@ -90,32 +90,17 @@ public:
 
 extern "C" {
 
-/// Return the type of the variant.
-VariantType Variant_type(const Variant *var);
-
 /// Set the value of the variant to `Nil`.
 void Variant_setNil(Variant *var);
-
-/// Return the value of the variant as `bool`.
-bool Variant_bool(const Variant *var);
 
 /// Set the value of the variant to the given `bool` value.
 void Variant_setBool(Variant *var, bool value);
 
-/// Return the value of the variant as `int64_t`.
-int64_t Variant_int64(const Variant *var);
-
 /// Set the value of the variant to the given `int64_t` value.
 void Variant_setInt64(Variant *var, int64_t value);
 
-/// Return the value of the variant as `uint64_t`.
-uint64_t Variant_uint64(const Variant *var);
-
 /// Set the value of the variant to the given `uint64_t` value.
 void Variant_setUint64(Variant *var, uint64_t value);
-
-/// Return the value of the variant as `double`.
-double Variant_double(const Variant *var);
 
 /// Set the value of the variant to the given `double` value.
 void Variant_setDouble(Variant *var, double value);
@@ -134,9 +119,6 @@ const char *Variant_string(const Variant *var, size_t *len);
 void Variant_setString(Variant *var, const char *str, int length);
 
 void Variant_setStringRef(Variant *var, const char *str, int length);
-
-/// Return the value of the variant as `Slice`.
-Slice Variant_slice(const Variant *var);
 
 /// Set the value of the variant to the given `Slice` value.
 ///
