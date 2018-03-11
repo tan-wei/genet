@@ -62,8 +62,8 @@ const template = [
       },
       { type: 'separator' },
       {
-        label: 'Graceful Reload',
-        action: 'core:tab:graceful-reload',
+        label: 'Reload',
+        action: 'core:tab:reload',
         accelerator: 'CommandOrControl+Shift+R',
       },
       { type: 'separator' },

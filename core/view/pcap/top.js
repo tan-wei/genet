@@ -189,7 +189,7 @@ export default class TopView {
     deplug.action.global.on('core:pcap:focus-display-filter', () => {
       document.querySelector('input[name=display-filter]').focus()
     })
-    deplug.action.global.on('core:tab:graceful-reload', () => {
+    deplug.action.global.on('core:tab:reload', () => {
       if (this.sess) {
         this.sess.on('status', (stat) => {
           if (stat.exporterProgress >= 1) {
