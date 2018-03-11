@@ -31,9 +31,13 @@ export default class TopView {
   searchKeyPress (event) {
     switch (event.code) {
       case 'Enter':
-        this.suggestIndex = -1
-        this.suggestEnabled = false
-        deplug.action.emit('core:filter:set', event.target.value.trim())
+        {
+          this.suggestIndex = -1
+          this.suggestEnabled = false
+          const filter = event.target.value.trim()
+          deplug.action.emit('core:filter:set', filter)
+          deplug.resumer.set('core:filter', filter)
+        }
         break
       case 'ArrowDown':
         if (this.suggestEnabled) {
@@ -118,6 +122,10 @@ export default class TopView {
           sess.on('filter', () => {
             m.redraw()
           })
+          if (deplug.resumer.has('core:filter')) {
+            deplug.action.emit('core:filter:set',
+              deplug.resumer.get('core:filter'))
+          }
           sess.importFile(file)
         })
       } else {
@@ -132,6 +140,10 @@ export default class TopView {
           const sess = await deplug.session.create(ifs)
           deplug.action.emit('core:session:created', sess)
           this.sess = sess
+          if (deplug.resumer.has('core:filter')) {
+            deplug.action.emit('core:filter:set',
+              deplug.resumer.get('core:filter'))
+          }
           if (deplug.resumer.has('core:session:dump')) {
             sess.importFile(deplug.resumer.get('core:session:dump'))
           }
