@@ -295,14 +295,6 @@ Variant Variant::getVariant(v8::Local<v8::Value> var) {
 
 void Variant_setNil(Variant *var) { *var = Variant(); }
 
-void Variant_setBool(Variant *var, bool value) { *var = Variant(value); }
-
-void Variant_setInt64(Variant *var, int64_t value) { *var = Variant(value); }
-
-void Variant_setUint64(Variant *var, uint64_t value) { *var = Variant(value); }
-
-void Variant_setDouble(Variant *var, double value) { *var = Variant(value); }
-
 const char *Variant_string(const Variant *var, size_t *len) {
   if (var) {
     if (var->isString() && var->d.str) {
@@ -330,6 +322,4 @@ void Variant_setString(Variant *var, const char *data, int length) {
 void Variant_setStringRef(Variant *var, const char *data, int length) {
   *var = Variant::fromStringRef(data, length);
 }
-
-void Variant_setSlice(Variant *var, Slice slice) { *var = Variant(slice); }
 } // namespace plugkit

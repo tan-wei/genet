@@ -102,12 +102,9 @@ impl Value<bool> for Variant {
     }
 
     fn set(&mut self, val: &bool) {
-        if self.is_fat() {
-            unsafe { symbol::Variant_setBool.unwrap()(self, *val) }
-        } else {
-            self.set_typ(Type::Bool);
-            self.val.boolean = *val
-        }
+        self.set_nil();
+        self.set_typ_tag(Type::Bool, 0);
+        self.val.boolean = *val;
     }
 }
 
@@ -155,12 +152,9 @@ impl Value<i64> for Variant {
     }
 
     fn set(&mut self, val: &i64) {
-        if self.is_fat() {
-            unsafe { symbol::Variant_setInt64.unwrap()(self, *val) }
-        } else {
-            self.set_typ(Type::Int64);
-            self.val.int64 = *val
-        }
+        self.set_nil();
+        self.set_typ_tag(Type::Int64, 0);
+        self.val.int64 = *val;
     }
 }
 
@@ -208,12 +202,9 @@ impl Value<u64> for Variant {
     }
 
     fn set(&mut self, val: &u64) {
-        if self.is_fat() {
-            unsafe { symbol::Variant_setUint64.unwrap()(self, *val) }
-        } else {
-            self.set_typ(Type::Uint64);
-            self.val.uint64 = *val
-        }
+        self.set_nil();
+        self.set_typ_tag(Type::Uint64, 0);
+        self.val.uint64 = *val;
     }
 }
 
@@ -241,12 +232,9 @@ impl Value<f64> for Variant {
     }
 
     fn set(&mut self, val: &f64) {
-        if self.is_fat() {
-            unsafe { symbol::Variant_setDouble.unwrap()(self, *val) }
-        } else {
-            self.set_typ(Type::Double);
-            self.val.double = *val;
-        }
+        self.set_nil();
+        self.set_typ_tag(Type::Double, 0);
+        self.val.double = *val;
     }
 }
 
@@ -281,15 +269,15 @@ impl Value<&'static [u8]> for Variant {
     }
 
     fn set(&mut self, val: &&'static [u8]) {
-        unsafe {
-            symbol::Variant_setSlice.unwrap()(self, (val.as_ptr(), val.len()));
-        }
+        self.set_nil();
+        self.set_typ_tag(Type::Slice, val.len() as u64);
+        self.val.data = val.as_ptr();
     }
 }
 
 impl Variant {
-    fn set_typ(&mut self, typ: Type) {
-        self.typ_tag = self.typ_tag | (typ as u8 & 0b1111) as u64
+    fn set_typ_tag(&mut self, typ: Type, tag: u64) {
+        self.typ_tag = (tag << 4) | (typ as u8 & 0b1111) as u64
     }
 
     pub fn typ(&self) -> Type {
@@ -301,14 +289,10 @@ impl Variant {
     }
 
     pub fn set_nil(&mut self) {
-        if self.is_fat() {
-            unsafe { symbol::Variant_setNil.unwrap()(self) }
-        } else {
-            self.set_typ(Type::Nil);
+        match self.typ() {
+            Type::String => unsafe { symbol::Variant_setNil.unwrap()(self) },
+            Type::Nil => (),
+            _ => self.set_typ_tag(Type::Nil, 0)
         }
-    }
-
-    fn is_fat(&self) -> bool {
-        self.typ() == Type::String
     }
 }

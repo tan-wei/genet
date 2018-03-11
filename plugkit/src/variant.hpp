@@ -93,18 +93,6 @@ extern "C" {
 /// Set the value of the variant to `Nil`.
 void Variant_setNil(Variant *var);
 
-/// Set the value of the variant to the given `bool` value.
-void Variant_setBool(Variant *var, bool value);
-
-/// Set the value of the variant to the given `int64_t` value.
-void Variant_setInt64(Variant *var, int64_t value);
-
-/// Set the value of the variant to the given `uint64_t` value.
-void Variant_setUint64(Variant *var, uint64_t value);
-
-/// Set the value of the variant to the given `double` value.
-void Variant_setDouble(Variant *var, double value);
-
 /// Return the value of the variant as a null-terminated string.
 const char *Variant_string(const Variant *var, size_t *len);
 
@@ -119,13 +107,6 @@ const char *Variant_string(const Variant *var, size_t *len);
 void Variant_setString(Variant *var, const char *str, int length);
 
 void Variant_setStringRef(Variant *var, const char *str, int length);
-
-/// Set the value of the variant to the given `Slice` value.
-///
-/// !> Unlike `Variant_setString`,
-/// this function does not make a copy of the buffer.
-/// Be careful of its ownership.
-void Variant_setSlice(Variant *var, Slice slice);
 }
 
 } // namespace plugkit

@@ -38,14 +38,9 @@ def_func!(
     Context_getOption,       extern "C" fn(*const Context, *const libc::c_char, libc::size_t) -> *const Variant;
     Context_addLayerLinkage, extern "C" fn(*const Context, Token, u64, *mut Layer);
     Variant_setNil,          extern "C" fn(*mut Variant);
-    Variant_setBool,         extern "C" fn(*mut Variant, bool);
-    Variant_setInt64,        extern "C" fn(*mut Variant, i64);
-    Variant_setUint64,       extern "C" fn(*mut Variant, u64);
-    Variant_setDouble,       extern "C" fn(*mut Variant, f64);
     Variant_string,          extern "C" fn(*const Variant, *mut libc::size_t) -> *const libc::c_uchar;
     Variant_setString,       extern "C" fn(*mut Variant, *const libc::c_char, libc::size_t);
     Variant_setStringRef,    extern "C" fn(*mut Variant, *const libc::c_char, libc::size_t);
-    Variant_setSlice,        extern "C" fn(*mut Variant, (*const u8, usize));
     Layer_attr,              extern "C" fn(*const Layer, Token) -> *const Attr;
     Layer_payloads,          extern "C" fn(*const Layer, *mut libc::size_t) -> *const *const Payload;
     Layer_addLayer,          extern "C" fn(*mut Layer, *mut Context, Token) -> *mut Layer;
