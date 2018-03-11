@@ -37,10 +37,6 @@ class PanelView {
 }
 
 class PcapTabView {
-  constructor () {
-    this.activeTab = ''
-  }
-
   oncreate () {
     this.activeTab = deplug.workspace.get('_.pcap.activeTab', '')
   }
@@ -66,7 +62,7 @@ class PcapTabView {
       return lhsIndex - rhsIndex
     })
 
-    const activeTabIndex = tabs.find((tab) =>
+    const activeTabIndex = tabs.findIndex((tab) =>
       typeof deplug.workspace.panel(tab) !== 'undefined')
     if (activeTabIndex >= 0) {
       this.activeTab = tabs[activeTabIndex]
