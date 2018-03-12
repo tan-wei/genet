@@ -13,8 +13,6 @@ use std::slice;
 
 extern crate libc;
 
-enum Frame {}
-
 pub const MAX_WORKER: u8 = 16;
 
 #[derive(Debug)]
@@ -23,7 +21,6 @@ pub struct Layer {
     id: Token,
     data: u32,
     parent: *mut Layer,
-    frame: *const Frame,
     range: (u32, u32)
 }
 
@@ -80,7 +77,7 @@ impl Layer {
     }
 
     pub fn parent(&self) -> Option<&Layer> {
-        if self.parent.is_null() {
+        if self.is_root() || self.parent.is_null() {
             None
         } else {
             unsafe { Some(&*self.parent) }
@@ -88,7 +85,7 @@ impl Layer {
     }
 
     pub fn parent_mut(&mut self) -> Option<&mut Layer> {
-        if self.parent.is_null() {
+        if self.is_root() || self.parent.is_null() {
             None
         } else {
             unsafe { Some(&mut *self.parent) }
@@ -120,5 +117,9 @@ impl Layer {
 
     pub fn set_worker(&mut self, worker: u8) {
         self.data = (self.data & !0b1111) | (worker % MAX_WORKER) as u32
+    }
+
+    fn is_root(&self) -> bool {
+        ((self.data >> 6) & 0b1) != 0
     }
 }

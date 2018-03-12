@@ -13,7 +13,10 @@ const auto aliasToken = Token_get("--alias");
 const auto errorToken = Token_get("--error");
 } // namespace
 
-Layer::Layer(Token id) : mId(id) { setConfidence(LAYER_CONF_EXACT); }
+Layer::Layer(Token id) : mId(id) {
+  setConfidence(LAYER_CONF_EXACT);
+  setParent(nullptr);
+}
 
 Layer::~Layer() {}
 
@@ -41,6 +44,12 @@ void Layer::setWorker(uint8_t id) {
   mData = ((mData & ~0b1111) | (id % LAYER_MAX_WORKER));
 }
 
+bool Layer::isRoot() const { return (mData >> 6) & 0b1; }
+
+void Layer::setIsRoot(bool root) {
+  mData = ((mData & ~0b1000000) | (root << 6));
+}
+
 const std::vector<Token> &Layer::tags() const { return mTags; }
 
 void Layer::addTag(Token token) { mTags.emplace_back(token); }
@@ -51,13 +60,31 @@ void Layer::addPayload(Payload *payload) { mPayloads.push_back(payload); }
 
 const std::vector<Attr *> &Layer::attrs() const { return mAttrs; }
 
-Layer *Layer::parent() const { return mParent; }
+Layer *Layer::parent() const {
+  if (isRoot())
+    return nullptr;
+  return mParent.layer;
+}
 
-void Layer::setParent(Layer *layer) { mParent = layer; }
+void Layer::setParent(Layer *layer) {
+  setIsRoot(false);
+  mParent.layer = layer;
+}
 
-const Frame *Layer::frame() const { return mFrame; }
+const Frame *Layer::frame() const {
+  const Layer *layer = this;
+  for (; !layer->isRoot() && layer->parent(); layer = layer->parent())
+    ;
+  if (layer->isRoot()) {
+    return layer->mParent.frame;
+  }
+  return nullptr;
+}
 
-void Layer::setFrame(const Frame *frame) { mFrame = frame; }
+void Layer::setFrame(const Frame *frame) {
+  setIsRoot(true);
+  mParent.frame = frame;
+}
 
 const Attr *Layer::attr(Token token) const {
   Token id = token;
@@ -96,7 +123,6 @@ void Layer::removeUnconfidentLayers(Context *ctx, LayerConfidence confidence) {
 Layer *Layer_addLayer(Layer *layer, Context *context, Token id) {
   Layer *child = Context_allocLayer(context, id);
   child->setParent(layer);
-  child->setFrame(layer->frame());
   layer->addLayer(child);
   return child;
 }

@@ -60,14 +60,20 @@ public:
   void removeUnconfidentLayers(Context *ctx, LayerConfidence confidence);
 
 private:
+  bool isRoot() const;
+  void setIsRoot(bool root);
+
+private:
   Layer(const Layer &layer) = delete;
   Layer &operator=(const Layer &layer) = delete;
 
 private:
   Token mId = Token_null();
   uint32_t mData = 0;
-  Layer *mParent = nullptr;
-  const Frame *mFrame = nullptr;
+  union {
+    Layer *layer;
+    const Frame *frame;
+  } mParent;
   Range mRange = {0, 0};
   std::vector<Payload *> mPayloads;
   std::vector<Token> mTags;

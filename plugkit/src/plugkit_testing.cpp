@@ -73,8 +73,8 @@ void createLayerInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
   auto frame = new Frame();
   new FrameView(frame);
   auto parent = new Layer(id);
+  parent->setFrame(frame);
   auto layer = new Layer(id);
-  layer->setFrame(frame);
   layer->setParent(parent);
   Nan::Persistent<v8::Object> persistent(LayerWrapper::wrap(layer));
   persistent.SetWeak(layer,
