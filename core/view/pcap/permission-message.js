@@ -11,7 +11,7 @@ class MacHelper {
         'this problem. Once it has been installed, we can start a ' +
         'live capture without running Deplug as root.'
       ]),
-      m('p', ['Press the follwing button to install the helper tool.']),
+      m('p', ['Press the following button to install the helper tool.']),
       m('input', {
         type: 'button',
         value: Pcap.permission
