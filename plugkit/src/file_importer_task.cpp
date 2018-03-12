@@ -108,6 +108,7 @@ void FileImporterTask::addImporter(const FileImporter &importer) {
 void FileImporterTask::run(int id) {
   Context ctx;
   CallbackData data;
+  data.id = id;
   data.callback = d->callback;
   data.linkLayers = d->linkLayers;
   data.frames.resize(10240);

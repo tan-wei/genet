@@ -33,6 +33,7 @@ public:
   static NAN_METHOD(setFilterCallback);
   static NAN_METHOD(setFrameCallback);
   static NAN_METHOD(setLoggerCallback);
+  static NAN_METHOD(setEventCallback);
   static NAN_METHOD(setInspectorCallback);
 
 private:
@@ -46,6 +47,7 @@ private:
   v8::UniquePersistent<v8::Function> filterCallback;
   v8::UniquePersistent<v8::Function> frameCallback;
   v8::UniquePersistent<v8::Function> loggerCallback;
+  v8::UniquePersistent<v8::Function> eventCallback;
   v8::UniquePersistent<v8::Function> inspectorCallback;
 };
 } // namespace plugkit

@@ -104,19 +104,10 @@ export default class TopView {
     deplug.packages.once('updated', () => {
       if (deplug.argv.import) {
         const file = path.resolve(deplug.argv.import)
-        const browserWindow = remote.getCurrentWindow()
         deplug.session.create().then((sess) => {
           deplug.action.emit('core:session:created', sess)
           this.sess = sess
           sess.on('frame', () => {
-            m.redraw()
-          })
-          sess.on('status', (stat) => {
-            const progress = stat.importerProgress >= 1.0
-              ? -1
-              : stat.importerProgress
-            browserWindow.setProgressBar(progress)
-            this.viewState.capture = stat.capture
             m.redraw()
           })
           sess.on('filter', () => {
@@ -190,18 +181,16 @@ export default class TopView {
       document.querySelector('input[name=display-filter]').focus()
     })
     deplug.action.global.on('core:tab:reload', () => {
+      let dump = Promise.resolve()
       if (this.sess) {
-        this.sess.on('status', (stat) => {
-          if (stat.exporterProgress >= 1) {
-            deplug.resumer.reload()
-          }
-        })
         const file = tempy.file({ extension: 'pcap' })
         deplug.resumer.set('core:session:dump', file)
-        this.sess.exportFile(file, '')
-      } else {
-        deplug.resumer.reload()
+        dump = this.sess.exportFile(file, '')
       }
+      dump.then(() => {
+        deplug.resumer.reload()
+        deplug.notify.show('Reloading...')
+      })
     })
     deplug.action.on('core:filter:set', (value) => {
       try {

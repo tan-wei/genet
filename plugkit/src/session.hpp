@@ -34,8 +34,6 @@ public:
 
   struct Status {
     bool capture = false;
-    double importerProgress = 0.0;
-    double exporterProgress = 0.0;
   };
   using StatusCallback = std::function<void(const Status &)>;
 
@@ -51,6 +49,7 @@ public:
   using FrameCallback = std::function<void(const FrameStatus &)>;
 
   using LoggerCallback = std::function<void(Logger::MessagePtr &&msg)>;
+  using EventCallback = std::function<void(std::string, std::string)>;
   using InspectorCallback = std::function<void(std::string, std::string)>;
 
 private:
@@ -85,6 +84,7 @@ public:
   void setFilterCallback(const FilterCallback &callback);
   void setFrameCallback(const FrameCallback &callback);
   void setLoggerCallback(const LoggerCallback &callback);
+  void setEventCallback(const EventCallback &callback);
   void setInspectorCallback(const InspectorCallback &callback);
 
   int id() const;

@@ -35,16 +35,37 @@ class Session extends EventEmitter {
     sess.setLoggerCallback((log) => {
       this.emit('log', log)
     })
+    sess.setEventCallback((type, data) => {
+      this.emit(`event:${type}`, JSON.parse(data))
+    })
   }
 
   importFile (file) {
-    return this[fields].sess.importFile(file)
+    return new Promise((res) => {
+      const id = this[fields].sess.importFile(file)
+      const listener = (data) => {
+        if (data.id === id && data.progress >= 1) {
+          this.removeListener('event:importer', listener)
+          res()
+        }
+      }
+      this.on('event:importer', listener)
+    })
   }
 
   exportFile (file, filter = '') {
     const { filterCompiler } = this[fields]
     const body = filterCompiler.compile(filter, { built: false }).linked
-    return this[fields].sess.exportFile(file, body)
+    return new Promise((res) => {
+      const id = this[fields].sess.exportFile(file, body)
+      const listener = (data) => {
+        if (data.id === id && data.progress >= 1) {
+          this.removeListener('event:exporter', listener)
+          res()
+        }
+      }
+      this.on('event:exporter', listener)
+    })
   }
 
   get networkInterface () {

@@ -42,7 +42,8 @@ public:
     UPDATE_STATUS = 1,
     UPDATE_FILTER = 2,
     UPDATE_FRAME = 4,
-    UPDATE_INSPECTOR = 8,
+    UPDATE_EVENT = 8,
+    UPDATE_INSPECTOR = 16,
   };
 
 public:
@@ -56,8 +57,6 @@ public:
 public:
   std::atomic<uint32_t> index;
   std::atomic<int> updates;
-  std::atomic<double> importerProgress;
-  std::atomic<double> exporterProgress;
   std::shared_ptr<UvLoopLogger> logger;
   std::unique_ptr<DissectorThreadPool> dissectorPool;
   std::unique_ptr<StreamDissectorThreadPool> streamDissectorPool;
@@ -69,6 +68,7 @@ public:
   FilterCallback filterCallback;
   FrameCallback frameCallback;
   LoggerCallback loggerCallback;
+  EventCallback eventCallback;
   InspectorCallback inspectorCallback;
   TaskRunner runner;
 
@@ -79,6 +79,7 @@ public:
   std::unique_ptr<FrameStatus> frameStatus;
 
   SwapQueue<std::pair<std::string, std::string>> inspectorQueue;
+  SwapQueue<std::pair<std::string, std::string>> eventQueue;
 
   Config config;
   uv_async_t async;
@@ -97,8 +98,6 @@ void Session::Private::updateStatus() {
   if (flags & Private::UPDATE_STATUS) {
     Status status;
     status.capture = pcap->running();
-    status.importerProgress = importerProgress.load(std::memory_order_relaxed);
-    status.exporterProgress = exporterProgress.load(std::memory_order_relaxed);
     statusCallback(status);
   }
   if (flags & Private::UPDATE_FILTER) {
@@ -114,6 +113,11 @@ void Session::Private::updateStatus() {
     FrameStatus status;
     status.frames = frameStore->dissectedSize();
     frameCallback(status);
+  }
+  if (flags & Private::UPDATE_EVENT) {
+    for (const auto &pair : eventQueue.fetch()) {
+      eventCallback(pair.first, pair.second);
+    }
   }
   if (flags & Private::UPDATE_INSPECTOR) {
     for (const auto &pair : inspectorQueue.fetch()) {
@@ -131,8 +135,6 @@ void Session::Private::notifyStatus(UpdateType type) {
 Session::Session(const Config &config) : d(new Private(config)) {
   std::atomic_init(&d->index, 1u);
   std::atomic_init(&d->updates, 0);
-  std::atomic_init(&d->importerProgress, 0.0);
-  std::atomic_init(&d->exporterProgress, 0.0);
 
   d->async.data = d;
   uv_async_init(uv_default_loop(), &d->async, [](uv_async_t *handle) {
@@ -320,15 +322,19 @@ int Session::importFile(const std::string &file) {
   for (const FileImporter &imp : d->config.importers) {
     importer->addImporter(imp);
   }
-  importer->setCallback(
-      [this](int id, Frame **begin, size_t length, double progress) {
-        for (size_t i = 0; i < length; ++i) {
-          begin[i]->setIndex(d->getSeq());
-        }
-        d->dissectorPool->push(begin, length);
-        d->importerProgress.store(progress, std::memory_order_relaxed);
-        d->notifyStatus(Private::UPDATE_STATUS);
-      });
+  importer->setCallback([this](int id, Frame **begin, size_t length,
+                               double progress) {
+    for (size_t i = 0; i < length; ++i) {
+      begin[i]->setIndex(d->getSeq());
+    }
+    d->dissectorPool->push(begin, length);
+    d->eventQueue.emplace(
+        "importer", "{"
+                    "  \"id\": " +
+                        std::to_string(id) +
+                        ", \"progress\": " + std::to_string(progress) + "}");
+    d->notifyStatus(Private::UPDATE_EVENT);
+  });
   return d->runner.add(std::unique_ptr<Task>(importer));
 }
 
@@ -343,8 +349,12 @@ int Session::exportFile(const std::string &file, const std::string &filter) {
     exporter->addExporter(exp);
   }
   exporter->setCallback([this](int id, double progress) {
-    d->exporterProgress.store(progress, std::memory_order_relaxed);
-    d->notifyStatus(Private::UPDATE_STATUS);
+    d->eventQueue.emplace(
+        "exporter", "{"
+                    "  \"id\": " +
+                        std::to_string(id) +
+                        ", \"progress\": " + std::to_string(progress) + "}");
+    d->notifyStatus(Private::UPDATE_EVENT);
   });
   return d->runner.add(std::unique_ptr<Task>(exporter));
 }
@@ -381,6 +391,9 @@ void Session::setLoggerCallback(const LoggerCallback &callback) {
   d->loggerCallback = callback;
 }
 
+void Session::setEventCallback(const EventCallback &callback) {
+  d->eventCallback = callback;
+}
 void Session::setInspectorCallback(const InspectorCallback &callback) {
   d->inspectorCallback = callback;
 }

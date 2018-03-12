@@ -23,6 +23,7 @@ void SessionWrapper::init(v8::Isolate *isolate) {
   SetPrototypeMethod(tpl, "setFilterCallback", setFilterCallback);
   SetPrototypeMethod(tpl, "setFrameCallback", setFrameCallback);
   SetPrototypeMethod(tpl, "setLoggerCallback", setLoggerCallback);
+  SetPrototypeMethod(tpl, "setEventCallback", setEventCallback);
   SetPrototypeMethod(tpl, "setInspectorCallback", setInspectorCallback);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
@@ -187,10 +188,6 @@ NAN_METHOD(SessionWrapper::setStatusCallback) {
           auto obj = Nan::New<v8::Object>();
           obj->Set(Nan::New("capture").ToLocalChecked(),
                    Nan::New(status.capture));
-          obj->Set(Nan::New("importerProgress").ToLocalChecked(),
-                   Nan::New(status.importerProgress));
-          obj->Set(Nan::New("exporterProgress").ToLocalChecked(),
-                   Nan::New(status.exporterProgress));
           v8::Local<v8::Value> args[1] = {obj};
           func->Call(obj, 1, args);
         }
@@ -266,6 +263,26 @@ NAN_METHOD(SessionWrapper::setLoggerCallback) {
                    Nan::New(msg->toString()).ToLocalChecked());
           v8::Local<v8::Value> args[1] = {obj};
           func->Call(obj, 1, args);
+        }
+      });
+    }
+  }
+}
+
+NAN_METHOD(SessionWrapper::setEventCallback) {
+  SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
+  if (const auto &session = wrapper->session) {
+    if (info[0]->IsFunction()) {
+      wrapper->eventCallback.Reset(v8::Isolate::GetCurrent(),
+                                   info[0].As<v8::Function>());
+      session->setEventCallback([wrapper](std::string type, std::string data) {
+        v8::Isolate *isolate = v8::Isolate::GetCurrent();
+        auto func =
+            v8::Local<v8::Function>::New(isolate, wrapper->eventCallback);
+        if (!func.IsEmpty()) {
+          v8::Local<v8::Value> args[2] = {Nan::New(type).ToLocalChecked(),
+                                          Nan::New(data).ToLocalChecked()};
+          func->Call(func, 2, args);
         }
       });
     }
