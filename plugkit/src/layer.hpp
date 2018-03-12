@@ -68,7 +68,7 @@ private:
 
 private:
   Token mId = Token_null();
-  uint8_t mData = 0;
+  uint32_t mData = 0;
   Layer *mParent = nullptr;
   const Frame *mFrame = nullptr;
   Range mRange = {0, 0};

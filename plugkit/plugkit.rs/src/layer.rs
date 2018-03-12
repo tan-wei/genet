@@ -21,7 +21,7 @@ pub const MAX_WORKER: u8 = 16;
 #[repr(C)]
 pub struct Layer {
     id: Token,
-    data: u8,
+    data: u32,
     parent: *mut Layer,
     frame: *const Frame,
     range: (u32, u32)
@@ -111,18 +111,18 @@ impl Layer {
     }
 
     pub fn confidence(&self) -> Confidence {
-        unsafe { mem::transmute((self.data >> 4) & 0b0000_0011) }
+        unsafe { mem::transmute(((self.data >> 4) & 0b11) as u8) }
     }
 
     pub fn set_confidence(&mut self, conf: Confidence) {
-        self.data = (self.data & 0b1100_1111) | ((conf as u8) << 4)
+        self.data = (self.data & !0b11_0000) | ((conf as u32) << 4)
     }
 
     pub fn worker(&self) -> u8 {
-        self.data & 0b0000_1111
+        (self.data & 0b1111) as u8
     }
 
     pub fn set_worker(&mut self, worker: u8) {
-        self.data = (self.data & 0b1111_0000) | (worker % MAX_WORKER)
+        self.data = (self.data & !0b1111) | (worker % MAX_WORKER) as u32
     }
 }

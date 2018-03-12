@@ -20,11 +20,11 @@ Layer::~Layer() {}
 Token Layer::id() const { return mId; }
 
 LayerConfidence Layer::confidence() const {
-  return static_cast<LayerConfidence>((mData >> 4) & 0b00000011);
+  return static_cast<LayerConfidence>((mData >> 4) & 0b11);
 }
 
 void Layer::setConfidence(LayerConfidence confidence) {
-  mData = ((mData & 0b11001111) | (confidence << 4));
+  mData = ((mData & ~0b110000) | (confidence << 4));
 }
 
 Range Layer::range() const { return mRange; }
@@ -39,10 +39,10 @@ const std::vector<Layer *> &Layer::subLayers() const { return mSubLayers; }
 
 void Layer::addSubLayer(Layer *child) { mSubLayers.push_back(child); }
 
-uint8_t Layer::worker() const { return mData & 0b00001111; }
+uint8_t Layer::worker() const { return mData & 0b1111; }
 
 void Layer::setWorker(uint8_t id) {
-  mData = ((mData & 0b11110000) | (id % LAYER_MAX_WORKER));
+  mData = ((mData & ~0b1111) | (id % LAYER_MAX_WORKER));
 }
 
 const std::vector<Token> &Layer::tags() const { return mTags; }
