@@ -113,28 +113,6 @@ void Layer::removeUnconfidentLayers(Context *ctx, LayerConfidence confidence) {
                    mSubLayers.end());
 }
 
-Token Layer_id(const Layer *layer) { return layer->id(); }
-
-uint8_t Layer_worker(const Layer *layer) { return layer->worker(); }
-
-void Layer_setWorker(Layer *layer, uint8_t id) { layer->setWorker(id); }
-
-LayerConfidence Layer_confidence(const Layer *layer) {
-  return layer->confidence();
-}
-
-void Layer_setConfidence(Layer *layer, LayerConfidence confidence) {
-  layer->setConfidence(confidence);
-}
-
-Range Layer_range(const Layer *layer) { return layer->range(); }
-
-void Layer_setRange(Layer *layer, Range range) { layer->setRange(range); }
-
-const Layer *Layer_parent(const Layer *layer) { return layer->parent(); }
-
-const Frame *Layer_frame(const Layer *layer) { return layer->frame(); }
-
 Layer *Layer_addLayer(Layer *layer, Context *context, Token id) {
   Layer *child = Context_allocLayer(context, id);
   child->setParent(layer);

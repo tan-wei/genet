@@ -80,32 +80,6 @@ private:
 };
 
 extern "C" {
-
-/// Return the ID of the layer.
-Token Layer_id(const Layer *layer);
-
-/// Return the confidence of the layer.
-LayerConfidence Layer_confidence(const Layer *layer);
-
-/// Return the range of the layer.
-Range Layer_range(const Layer *layer);
-
-/// Set the range of the layer.
-void Layer_setRange(Layer *layer, Range range);
-
-/// Set the confidence of the layer.
-void Layer_setConfidence(Layer *layer, LayerConfidence confidence);
-
-/// Return the worker ID of the layer.
-uint8_t Layer_worker(const Layer *layer);
-
-/// Set the worker ID of the layer.
-void Layer_setWorker(Layer *layer, uint8_t id);
-
-/// Return the parent of the layer.
-/// If this is a root layer, return `NULL`.
-const Layer *Layer_parent(const Layer *layer);
-
 /// Allocate a new `Layer` and adds it as a child layer.
 Layer *Layer_addLayer(Layer *layer, Context *ctx, Token id);
 
