@@ -33,9 +33,9 @@ private:
 private:
   Timestamp mTimestamp = std::chrono::system_clock::now();
   size_t mLength = 0;
-  uint32_t mSeq = 0;
   Layer *mLayer = nullptr;
   const FrameView *mView = nullptr;
+  uint32_t mSeq = 0;
   uint32_t mSourceId = 0;
 };
 } // namespace plugkit
