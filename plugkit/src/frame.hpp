@@ -14,8 +14,8 @@ public:
   virtual ~Frame();
   Timestamp timestamp() const;
   void setTimestamp(const Timestamp &timestamp);
-  size_t length() const;
-  void setLength(size_t length);
+  uint32_t length() const;
+  void setLength(uint32_t length);
   uint32_t index() const;
   void setIndex(uint32_t index);
   Layer *rootLayer() const;
@@ -29,10 +29,10 @@ private:
 
 private:
   Timestamp mTimestamp = std::chrono::system_clock::now();
-  size_t mLength = 0;
+  uint32_t mSeq = 0;
+  uint32_t mLength = 0;
   Layer *mLayer = nullptr;
   const FrameView *mView = nullptr;
-  uint32_t mSeq = 0;
 };
 } // namespace plugkit
 

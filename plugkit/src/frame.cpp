@@ -11,9 +11,9 @@ Timestamp Frame::timestamp() const { return mTimestamp; }
 
 void Frame::setTimestamp(const Timestamp &timestamp) { mTimestamp = timestamp; }
 
-size_t Frame::length() const { return mLength; }
+uint32_t Frame::length() const { return mLength; }
 
-void Frame::setLength(size_t length) { mLength = length; }
+void Frame::setLength(uint32_t length) { mLength = length; }
 
 uint32_t Frame::index() const { return mSeq; }
 
