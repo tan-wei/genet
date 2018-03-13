@@ -20,7 +20,7 @@ void Payload::addSlice(const Slice &slice) {
 
 const std::vector<Slice> &Payload::slices() const { return mSlices; }
 
-size_t Payload::length() const { return mLength; }
+uint32_t Payload::length() const { return mLength; }
 
 const std::vector<const Attr *> &Payload::attrs() const { return mAttrs; }
 

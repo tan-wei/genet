@@ -12,6 +12,7 @@ extern crate libc;
 #[repr(C)]
 pub struct Payload {
     typ: Token,
+    len: u32,
     range: (u32, u32)
 }
 
