@@ -24,7 +24,6 @@ void LayerWrapper::init(v8::Isolate *isolate) {
   SetPrototypeMethod(tpl, "next", next);
   SetPrototypeMethod(tpl, "attr", attr);
   SetPrototypeMethod(tpl, "addLayer", addLayer);
-  SetPrototypeMethod(tpl, "addSubLayer", addSubLayer);
   SetPrototypeMethod(tpl, "addPayload", addPayload);
   SetPrototypeMethod(tpl, "addError", addError);
   SetPrototypeMethod(tpl, "addAttr", addAttr);
@@ -44,7 +43,6 @@ void LayerWrapper::init(v8::Isolate *isolate) {
   Nan::SetAccessor(otl, Nan::New("errors").ToLocalChecked(), errors);
   Nan::SetAccessor(otl, Nan::New("attrs").ToLocalChecked(), attrs);
   Nan::SetAccessor(otl, Nan::New("layers").ToLocalChecked(), layers);
-  Nan::SetAccessor(otl, Nan::New("subLayers").ToLocalChecked(), layers);
   Nan::SetAccessor(otl, Nan::New("tags").ToLocalChecked(), tags);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
@@ -193,19 +191,6 @@ NAN_GETTER(LayerWrapper::layers) {
   }
 }
 
-NAN_GETTER(LayerWrapper::subLayers) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->constLayer) {
-    v8::Isolate *isolate = v8::Isolate::GetCurrent();
-    const auto &layers = layer->subLayers();
-    auto array = v8::Array::New(isolate, layers.size());
-    for (size_t i = 0; i < layers.size(); ++i) {
-      array->Set(i, LayerWrapper::wrap(layers[i]));
-    }
-    info.GetReturnValue().Set(array);
-  }
-}
-
 NAN_GETTER(LayerWrapper::attrs) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->constLayer) {
@@ -312,28 +297,6 @@ NAN_METHOD(LayerWrapper::addLayer) {
     if (auto ctx = ContextWrapper::unwrap(info[0])) {
       info.GetReturnValue().Set(
           LayerWrapper::wrap(Layer_addLayer(layer, ctx, token)));
-    } else {
-      Nan::ThrowTypeError("First argument must be a context");
-    }
-  }
-}
-
-NAN_METHOD(LayerWrapper::addSubLayer) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->layer) {
-    Token token = Token_null();
-    auto id = info[1];
-    if (id->IsUint32()) {
-      token = id->Uint32Value();
-    } else if (id->IsString()) {
-      token = Token_get(*Nan::Utf8String(id));
-    } else {
-      Nan::ThrowTypeError("Second argument must be a string or token-id");
-      return;
-    }
-    if (auto ctx = ContextWrapper::unwrap(info[0])) {
-      info.GetReturnValue().Set(
-          LayerWrapper::wrap(Layer_addSubLayer(layer, ctx, token)));
     } else {
       Nan::ThrowTypeError("First argument must be a context");
     }

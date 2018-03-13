@@ -27,10 +27,7 @@ class StreamDissectorThread::Private {
 public:
   Private(const VariantMap &options, const Callback &callback);
   ~Private();
-  void analyze(Layer *layer,
-               bool subLayer,
-               std::vector<Layer *> *nextLayers,
-               std::vector<Layer *> *nextSubLayers);
+  void analyze(Layer *layer, std::vector<Layer *> *nextLayers);
 
 public:
   Queue<Layer *> queue;
@@ -76,26 +73,42 @@ void StreamDissectorThread::enter() {
   Sandbox::activate(Sandbox::PROFILE_DISSECTOR);
 }
 
-void StreamDissectorThread::Private::analyze(
-    Layer *layer,
-    bool subLayer,
-    std::vector<Layer *> *nextLayers,
-    std::vector<Layer *> *nextSubLayers) {
+void StreamDissectorThread::Private::analyze(Layer *layer,
+                                             std::vector<Layer *> *nextLayers) {
   std::unordered_set<Token> dissectedIds;
 
   Token id = layer->id();
   dissectedIds.insert(id);
   auto &streamWorkers = workers[id][layer->worker()];
 
-  if (streamWorkers.dissectors.empty()) {
+  for (const Dissector &diss : dissectors) {
+    auto it = streamWorkers.workers.find(&diss);
+    if (it == streamWorkers.workers.end()) {
+      Worker worker = {nullptr};
+      if (diss.createWorker) {
+        worker = diss.createWorker(&ctx, &diss);
+      }
+      streamWorkers.workers[&diss] = worker;
+    }
+  }
+
+  std::vector<std::pair<const Dissector *, Worker>> closedWorkers;
+  std::unordered_set<const Dissector *> usedDissectors;
+
+  while (true) {
+    bool dissectable = false;
+
     std::unordered_set<Token> tags;
     for (const Token &token : layer->tags()) {
       tags.insert(token);
     }
 
-    for (const auto &diss : dissectors) {
+    for (const auto &pair : streamWorkers.workers) {
+      const Dissector *diss = pair.first;
+      Worker worker = pair.second;
+
       bool match = false;
-      for (const Token &token : diss.layerHints) {
+      for (const Token &token : diss->layerHints) {
         if (token != Token_null()) {
           auto it = tags.find(token);
           if (it == tags.end()) {
@@ -105,40 +118,16 @@ void StreamDissectorThread::Private::analyze(
           match = true;
         }
       }
-      if (match) {
-        streamWorkers.dissectors.push_back(&diss);
+      if (!match) {
+        continue;
       }
-    }
-  }
 
-  for (const Dissector *diss : streamWorkers.dissectors) {
-    auto it = streamWorkers.workers.find(diss);
-    if (it == streamWorkers.workers.end()) {
-      Worker worker = {nullptr};
-      if (diss->createWorker) {
-        worker = diss->createWorker(&ctx, diss);
+      if (usedDissectors.find(diss) != usedDissectors.end()) {
+        continue;
       }
-      streamWorkers.workers[diss] = worker;
-    }
-  }
+      usedDissectors.insert(diss);
+      dissectable = true;
 
-  std::vector<std::pair<const Dissector *, Worker>> closedWorkers;
-  if (subLayer) {
-    for (const auto &pair : streamWorkers.workers) {
-      const Dissector *diss = pair.first;
-      Worker worker = pair.second;
-      if (Layer *parent = layer->parent()) {
-        diss->analyze(&ctx, diss, worker, parent);
-      }
-      if (ctx.closeStream) {
-        closedWorkers.emplace_back(diss, worker);
-        ctx.closeStream = false;
-      }
-    }
-  } else {
-    for (const auto &pair : streamWorkers.workers) {
-      const Dissector *diss = pair.first;
-      Worker worker = pair.second;
       diss->analyze(&ctx, diss, worker, layer);
       layer->removeUnconfidentLayers(&ctx, confidenceThreshold);
       if (ctx.closeStream) {
@@ -155,15 +144,8 @@ void StreamDissectorThread::Private::analyze(
         }
       }
     }
-
-    for (Layer *subLayer : layer->subLayers()) {
-      if (subLayer->confidence() >= confidenceThreshold) {
-        subLayer->setWorker(layer->worker());
-        auto it = dissectedIds.find(subLayer->id());
-        if (it == dissectedIds.end()) {
-          nextSubLayers->push_back(subLayer);
-        }
-      }
+    if (!dissectable) {
+      break;
     }
   }
 
@@ -200,26 +182,14 @@ bool StreamDissectorThread::loop() {
     }
   }
 
-  std::vector<Layer *> subLayers;
-  for (const Layer *layer : layers) {
-    subLayers.insert(subLayers.end(), layer->subLayers().begin(),
-                     layer->subLayers().end());
-  }
-
-  while (!layers.empty() || !subLayers.empty()) {
+  while (!layers.empty()) {
     std::vector<Layer *> nextLayers;
-    std::vector<Layer *> nextSubLayers;
-
-    for (size_t i = 0; i < subLayers.size(); ++i) {
-      d->analyze(subLayers[i], true, &nextLayers, &nextSubLayers);
-    }
 
     for (size_t i = 0; i < layers.size(); ++i) {
-      d->analyze(layers[i], false, &nextLayers, &nextSubLayers);
+      d->analyze(layers[i], &nextLayers);
     }
 
     layers.swap(nextLayers);
-    subLayers.swap(nextSubLayers);
   }
 
   d->callback(maxFrameIndex);

@@ -42,7 +42,7 @@ struct Functions {
   void *func;
 };
 
-#define TOTAL_KEYWORDS 22
+#define TOTAL_KEYWORDS 21
 #define MIN_WORD_LENGTH 10
 #define MAX_WORD_LENGTH 23
 #define MIN_HASH_VALUE 10
@@ -63,8 +63,8 @@ inline
       45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
       45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
       45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 5,  45, 45, 45, 45, 45, 45,
-      45, 45, 45, 45, 0,  45, 30, 20, 45, 45, 45, 0,  45, 45, 45, 45, 45, 45,
-      45, 45, 45, 45, 45, 5,  45, 0,  15, 0,  5,  45, 45, 10, 45, 25, 45, 45,
+      45, 45, 45, 45, 0,  45, 30, 15, 45, 45, 45, 0,  45, 45, 45, 45, 45, 45,
+      45, 45, 45, 45, 45, 5,  45, 0,  45, 0,  5,  45, 45, 10, 45, 25, 45, 45,
       20, 45, 45, 45, 15, 45, 10, 5,  0,  45, 45, 45, 45, 0,  45, 45, 45, 45,
       45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
       45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
@@ -102,68 +102,66 @@ static struct Functions wordlist[] = {
     {""},
     {""},
     {""},
-#line 16 "plugkit/src/function.keys"
+#line 15 "plugkit/src/function.keys"
     {"Layer_attr", reinterpret_cast<void *>(&plugkit::Layer_attr)},
     {""},
-#line 30 "plugkit/src/function.keys"
+#line 29 "plugkit/src/function.keys"
     {"Token_concat", reinterpret_cast<void *>(&plugkit::Token_concat)},
-#line 14 "plugkit/src/function.keys"
+#line 13 "plugkit/src/function.keys"
     {"Layer_addAttr", reinterpret_cast<void *>(&plugkit::Layer_addAttr)},
 #line 12 "plugkit/src/function.keys"
     {"Layer_addLayer", reinterpret_cast<void *>(&plugkit::Layer_addLayer)},
-#line 31 "plugkit/src/function.keys"
+#line 30 "plugkit/src/function.keys"
     {"Logger_log", reinterpret_cast<void *>(&plugkit::Logger_log)},
-#line 17 "plugkit/src/function.keys"
+#line 16 "plugkit/src/function.keys"
     {"Layer_addPayload", reinterpret_cast<void *>(&plugkit::Layer_addPayload)},
-#line 26 "plugkit/src/function.keys"
+#line 25 "plugkit/src/function.keys"
     {"Variant_setString",
      reinterpret_cast<void *>(&plugkit::Variant_setString)},
-#line 15 "plugkit/src/function.keys"
+#line 14 "plugkit/src/function.keys"
     {"Layer_addAttrAlias",
      reinterpret_cast<void *>(&plugkit::Layer_addAttrAlias)},
-#line 22 "plugkit/src/function.keys"
+#line 21 "plugkit/src/function.keys"
     {"Payload_slices", reinterpret_cast<void *>(&plugkit::Payload_slices)},
-#line 27 "plugkit/src/function.keys"
+#line 26 "plugkit/src/function.keys"
     {"Variant_setStringRef",
      reinterpret_cast<void *>(&plugkit::Variant_setStringRef)},
-#line 21 "plugkit/src/function.keys"
-    {"Payload_addSlice", reinterpret_cast<void *>(&plugkit::Payload_addSlice)},
 #line 20 "plugkit/src/function.keys"
+    {"Payload_addSlice", reinterpret_cast<void *>(&plugkit::Payload_addSlice)},
+#line 19 "plugkit/src/function.keys"
     {"Layer_addTag", reinterpret_cast<void *>(&plugkit::Layer_addTag)},
 #line 11 "plugkit/src/function.keys"
     {"Context_addLayerLinkage",
      reinterpret_cast<void *>(&plugkit::Context_addLayerLinkage)},
-#line 19 "plugkit/src/function.keys"
+#line 18 "plugkit/src/function.keys"
     {"Layer_addError", reinterpret_cast<void *>(&plugkit::Layer_addError)},
-#line 23 "plugkit/src/function.keys"
+#line 22 "plugkit/src/function.keys"
     {"Payload_addAttr", reinterpret_cast<void *>(&plugkit::Payload_addAttr)},
     {""},
-#line 29 "plugkit/src/function.keys"
+#line 28 "plugkit/src/function.keys"
     {"Token_string", reinterpret_cast<void *>(&plugkit::Token_string)},
     {""},
-#line 18 "plugkit/src/function.keys"
+#line 17 "plugkit/src/function.keys"
     {"Layer_payloads", reinterpret_cast<void *>(&plugkit::Layer_payloads)},
-    {""},
-    {""},
-#line 13 "plugkit/src/function.keys"
-    {"Layer_addSubLayer",
-     reinterpret_cast<void *>(&plugkit::Layer_addSubLayer)},
-    {""},
-#line 28 "plugkit/src/function.keys"
-    {"Token_literal_", reinterpret_cast<void *>(&plugkit::Token_literal_)},
     {""},
     {""},
 #line 10 "plugkit/src/function.keys"
     {"Context_getOption",
      reinterpret_cast<void *>(&plugkit::Context_getOption)},
     {""},
-#line 25 "plugkit/src/function.keys"
-    {"Variant_string", reinterpret_cast<void *>(&plugkit::Variant_string)},
+#line 27 "plugkit/src/function.keys"
+    {"Token_literal_", reinterpret_cast<void *>(&plugkit::Token_literal_)},
     {""},
     {""},
     {""},
     {""},
 #line 24 "plugkit/src/function.keys"
+    {"Variant_string", reinterpret_cast<void *>(&plugkit::Variant_string)},
+    {""},
+    {""},
+    {""},
+    {""},
+#line 23 "plugkit/src/function.keys"
     {"Variant_setNil", reinterpret_cast<void *>(&plugkit::Variant_setNil)}};
 
 struct Functions *in_word_set(register const char *str,

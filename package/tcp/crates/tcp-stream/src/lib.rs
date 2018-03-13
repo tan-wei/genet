@@ -150,9 +150,7 @@ impl Worker for TCPStreamWorker {
                 chunk.add_slice(s);
             }
         }
-
-        let child = layer.add_sublayer(ctx, token!("tcp-stream"));
-        child.add_tag(ctx, token!("tcp-stream"));
+        layer.add_tag(ctx, token!("tcp-stream"));
         Ok(())
     }
 }

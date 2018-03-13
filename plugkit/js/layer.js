@@ -16,9 +16,6 @@ class Layer {
   // @return Layer
   addLayer (id) {}
 
-  // @return Layer
-  addSubLayer (id) {}
-
   // @return Paylaod
   addPayload () {}
 

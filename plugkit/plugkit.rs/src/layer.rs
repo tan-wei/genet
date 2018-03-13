@@ -57,10 +57,6 @@ impl Layer {
         unsafe { &mut *symbol::Layer_addLayer.unwrap()(self, ctx, id) }
     }
 
-    pub fn add_sublayer(&mut self, ctx: &mut Context, id: Token) -> &mut Layer {
-        unsafe { &mut *symbol::Layer_addSubLayer.unwrap()(self, ctx, id) }
-    }
-
     pub fn add_attr(&mut self, ctx: &mut Context, id: Token) -> &mut Attr {
         unsafe { &mut *symbol::Layer_addAttr.unwrap()(self, ctx, id) }
     }

@@ -35,10 +35,6 @@ const std::vector<Layer *> &Layer::layers() const { return mLayers; }
 
 void Layer::addLayer(Layer *child) { mLayers.push_back(child); }
 
-const std::vector<Layer *> &Layer::subLayers() const { return mSubLayers; }
-
-void Layer::addSubLayer(Layer *child) { mSubLayers.push_back(child); }
-
 uint8_t Layer::worker() const { return mData & 0b1111; }
 
 void Layer::setWorker(uint8_t id) {
@@ -93,24 +89,8 @@ void Layer::removeUnconfidentLayers(Context *ctx, LayerConfidence confidence) {
     }
   }
 
-  for (auto &layer : mSubLayers) {
-    if (layer->confidence() < confidence) {
-      for (Attr *attr : layer->mAttrs) {
-        Context_deallocAttr(ctx, attr);
-      }
-      for (Payload *payload : layer->mPayloads) {
-        Context_deallocPayload(ctx, payload);
-      }
-      Context_deallocLayer(ctx, layer);
-      layer = nullptr;
-    }
-  }
-
   mLayers.erase(std::remove(mLayers.begin(), mLayers.end(), nullptr),
                 mLayers.end());
-
-  mSubLayers.erase(std::remove(mSubLayers.begin(), mSubLayers.end(), nullptr),
-                   mSubLayers.end());
 }
 
 Layer *Layer_addLayer(Layer *layer, Context *context, Token id) {
@@ -118,14 +98,6 @@ Layer *Layer_addLayer(Layer *layer, Context *context, Token id) {
   child->setParent(layer);
   child->setFrame(layer->frame());
   layer->addLayer(child);
-  return child;
-}
-
-Layer *Layer_addSubLayer(Layer *layer, Context *context, Token id) {
-  Layer *child = Context_allocLayer(context, id);
-  child->setParent(layer);
-  child->setFrame(layer->frame());
-  layer->addSubLayer(child);
   return child;
 }
 

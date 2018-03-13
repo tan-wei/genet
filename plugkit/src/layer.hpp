@@ -38,9 +38,6 @@ public:
   const std::vector<Layer *> &layers() const;
   void addLayer(Layer *child);
 
-  const std::vector<Layer *> &subLayers() const;
-  void addSubLayer(Layer *child);
-
   const std::vector<Attr *> &attrs() const;
   const Attr *attr(Token token) const;
   void addAttr(Attr *attr);
@@ -75,16 +72,12 @@ private:
   std::vector<Payload *> mPayloads;
   std::vector<Token> mTags;
   std::vector<Layer *> mLayers;
-  std::vector<Layer *> mSubLayers;
   std::vector<Attr *> mAttrs;
 };
 
 extern "C" {
 /// Allocate a new `Layer` and adds it as a child layer.
 Layer *Layer_addLayer(Layer *layer, Context *ctx, Token id);
-
-/// Allocate a new `Layer` and adds it as a sub layer.
-Layer *Layer_addSubLayer(Layer *layer, Context *ctx, Token id);
 
 /// Allocate a new `Attr` and adds it as a layer attribute.
 Attr *Layer_addAttr(Layer *layer, Context *ctx, Token id);
