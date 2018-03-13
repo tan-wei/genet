@@ -23,10 +23,6 @@ Layer *Frame::rootLayer() const { return mLayer; }
 
 void Frame::setRootLayer(Layer *layer) { mLayer = layer; }
 
-uint32_t Frame::sourceId() const { return mSourceId; }
-
-void Frame::setSourceId(uint32_t id) { mSourceId = id; }
-
 const FrameView *Frame::view() const { return mView; }
 
 void Frame::setView(const FrameView *view) { mView = view; }

@@ -17,9 +17,6 @@ class Frame {
   // @property Array<Layer>
   get leafLayers () {}
 
-  // @property Integer
-  get sourceId () {}
-
   // @return Attr | null
   attr (id) {}
 

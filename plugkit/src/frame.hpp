@@ -23,9 +23,6 @@ public:
   const FrameView *view() const;
   void setView(const FrameView *view);
 
-  uint32_t sourceId() const;
-  void setSourceId(uint32_t id);
-
 private:
   Frame(const Frame &) = delete;
   Frame &operator=(const Frame &) = delete;
@@ -36,7 +33,6 @@ private:
   Layer *mLayer = nullptr;
   const FrameView *mView = nullptr;
   uint32_t mSeq = 0;
-  uint32_t mSourceId = 0;
 };
 } // namespace plugkit
 

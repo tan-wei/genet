@@ -29,7 +29,6 @@ public:
     Slice payload;
     size_t length = 0;
     Timestamp timestamp = std::chrono::system_clock::now();
-    uint32_t sourceId = 0;
   };
 
   struct Status {
