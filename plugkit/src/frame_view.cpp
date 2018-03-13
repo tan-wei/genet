@@ -15,7 +15,6 @@ FrameView::FrameView(Frame *frame) : mFrame(frame), mPrimaryLayer(nullptr) {
       [this, &findLeafLayers](const Layer *layer) {
         if (!layer)
           return;
-        mLayers.push_back(layer);
         if (layer->layers().empty()) {
           mLeafLayers.push_back(layer);
         } else {
@@ -55,15 +54,6 @@ const Attr *FrameView::attr(Token id) const {
       if (const Attr *layerProp = layer->attr(id)) {
         return layerProp;
       }
-    }
-  }
-  return nullptr;
-}
-
-const Layer *FrameView::layer(Token id) const {
-  for (const auto &layer : mLayers) {
-    if (layer->id() == id) {
-      return layer;
     }
   }
   return nullptr;

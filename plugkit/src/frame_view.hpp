@@ -22,7 +22,6 @@ public:
   const Layer *primaryLayer() const;
   const std::vector<const Layer *> &leafLayers() const;
   const Attr *attr(Token id) const;
-  const Layer *layer(Token id) const;
   double timestamp() const;
   Slice payload() const;
   void query(Token id, const Layer **layer, const Attr **attr) const;
@@ -35,7 +34,6 @@ private:
   const Frame *mFrame;
   const Layer *mPrimaryLayer;
   std::vector<const Layer *> mLeafLayers;
-  std::vector<const Layer *> mLayers;
 };
 } // namespace plugkit
 
