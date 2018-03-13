@@ -8,7 +8,7 @@
 
 namespace plugkit {
 
-FrameView::FrameView(Frame *frame) : mFrame(frame), mPrimaryLayer(nullptr) {
+FrameView::FrameView(Frame *frame) : mFrame(frame) {
   frame->setView(this);
 
   std::function<void(const Layer *)> findLeafLayers =
@@ -32,17 +32,18 @@ FrameView::FrameView(Frame *frame) : mFrame(frame), mPrimaryLayer(nullptr) {
               }
               return a->confidence() > b->confidence();
             });
-
-  if (!mLeafLayers.empty()) {
-    mPrimaryLayer = mLeafLayers.front();
-  }
 }
 
 FrameView::~FrameView() {}
 
 const Frame *FrameView::frame() const { return mFrame; }
 
-const Layer *FrameView::primaryLayer() const { return mPrimaryLayer; }
+const Layer *FrameView::primaryLayer() const {
+  if (mLeafLayers.empty()) {
+    return nullptr;
+  }
+  return mLeafLayers.front();
+}
 
 const std::vector<const Layer *> &FrameView::leafLayers() const {
   return mLeafLayers;

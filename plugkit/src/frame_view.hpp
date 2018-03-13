@@ -32,7 +32,6 @@ private:
 
 private:
   const Frame *mFrame;
-  const Layer *mPrimaryLayer;
   std::vector<const Layer *> mLeafLayers;
 };
 } // namespace plugkit
