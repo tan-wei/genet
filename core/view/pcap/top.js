@@ -125,7 +125,7 @@ export default class TopView {
 
   oncreate () {
     deplug.config.watch('', () => {
-      if (!deplug.config.get('_.package.noConfUpdate', false)) {
+      if (!deplug.config.get('_.package.noConfUpdated', false)) {
         this.showReloadBalloon = true
         m.redraw()
       }
