@@ -165,7 +165,8 @@ void Layer_addError(
   Attr *attr = Context_allocAttr(ctx, id);
   attr->setType(errorToken);
   if (length > 0) {
-    attr->setValue(Variant::fromString(ctx->stringPool.get(msg, length), length));
+    attr->setValue(
+        Variant::fromString(ctx->stringPool.get(msg, length), length));
   }
   layer->addAttr(attr);
 }
