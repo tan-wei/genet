@@ -54,6 +54,11 @@ export default {
       title: 'Rust Path',
       type: 'string',
     },
+    '_.package.noConfUpdated': {
+      title: 'Don\'t Show "Config Updated" Message',
+      type: 'boolean',
+      default: false,
+    },
     '_.debug.enableDebugSession': {
       title: 'Enable Debug Session',
       type: 'boolean',
