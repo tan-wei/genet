@@ -17,8 +17,7 @@ enum VariantType {
   VARTYPE_UINT64 = 3,
   VARTYPE_DOUBLE = 4,
   VARTYPE_STRING = 5,
-  VARTYPE_STRING_REF = 6,
-  VARTYPE_SLICE = 7,
+  VARTYPE_SLICE = 6,
   VARTYPE_ADDRESS = 12
 };
 
@@ -36,9 +35,8 @@ public:
   Variant(uint64_t value);
   Variant(double value);
   Variant(const Slice &slice);
-
+  
   static Variant fromString(const char *str, size_t length);
-  static Variant fromStringRef(const char *str, size_t length);
   static Variant fromAddress(void *ptr);
   Variant(void *) = delete;
   ~Variant();
@@ -53,7 +51,6 @@ public:
   bool isUint64() const;
   bool isDouble() const;
   bool isString() const;
-  bool isStringRef() const;
   bool isSlice() const;
   bool isAddress() const;
 
@@ -73,7 +70,6 @@ public:
   static Slice getSlice(v8::Local<v8::ArrayBufferView> obj);
   static v8::Local<v8::Value> getValue(const Variant &var);
   static Variant getVariant(v8::Local<v8::Value> var);
-  static void init(v8::Isolate *isolate);
 
 public:
   uint64_t type_;
@@ -82,33 +78,10 @@ public:
     double double_;
     int64_t int_;
     uint64_t uint_;
-    std::shared_ptr<std::string> *str;
     const char *data;
     void *ptr;
   } d;
 };
-
-extern "C" {
-
-/// Set the value of the variant to `Nil`.
-void Variant_setNil(Variant *var);
-
-/// Return the value of the variant as a null-terminated string.
-const char *Variant_string(const Variant *var, size_t *len);
-
-/// Set the value of the variant to the given string.
-///
-/// If `length` is less than `0`,
-/// the length of the string is determined by `strlen()`.
-///
-/// !> This function cannot handle a string contains NULL
-/// even if a positive`length` is given,
-/// because the given string will be copied as a null-terminated string.
-void Variant_setString(Variant *var, const char *str, int length);
-
-void Variant_setStringRef(Variant *var, const char *str, int length);
-}
-
 } // namespace plugkit
 
 #endif

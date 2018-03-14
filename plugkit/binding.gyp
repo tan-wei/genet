@@ -26,6 +26,7 @@
       "src/uvloop_logger.cpp",
       "src/pcap_platform.cpp",
       "src/pcap_dummy.cpp",
+      "src/string_pool.cpp",
       "src/sandbox.cpp",
       "src/module_loader.cpp",
       "src/wrapper/pcap_w.cpp",
@@ -53,7 +54,6 @@
       "test/allocator_test.cpp",
       "src/plugkit_testing.cpp",
       "test/token_test.cpp",
-      "test/variant_test.cpp",
       "test/tag_filter_test.cpp",
       "test/slice_test.cpp",
       "test/payload_test.cpp"

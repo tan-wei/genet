@@ -7,19 +7,6 @@
 #include <uv.h>
 
 namespace plugkit {
-void Variant::init(v8::Isolate *isolate) {
-  PlugkitModule *module = PlugkitModule::get(isolate);
-
-  auto script =
-      Nan::CompileScript(Nan::New("(function (buf) { return "
-                                  "require('buffer').Buffer.from(buf) })")
-                             .ToLocalChecked());
-  auto func = Nan::RunScript(script.ToLocalChecked())
-                  .ToLocalChecked()
-                  .As<v8::Function>();
-  module->arrayToBuffer.Reset(isolate, func);
-}
-
 Variant::Variant() : type_(VARTYPE_NIL) {}
 
 Variant::Variant(bool value) : type_(VARTYPE_BOOL) { d.bool_ = value; }
@@ -49,23 +36,7 @@ Variant::Variant(const Slice &slice) {
 
 Variant Variant::fromString(const char *str, size_t length) {
   Variant var;
-  if (length == 0) {
-    var.type_ = VARTYPE_STRING;
-    var.d.str = nullptr;
-  } else if (length < sizeof(d.str)) {
-    var.type_ = VARTYPE_STRING | (length << 4);
-    var.d.str = nullptr;
-    std::memcpy(reinterpret_cast<char *>(&var.d.str), str, sizeof(var.d.str));
-  } else {
-    var.type_ = VARTYPE_STRING;
-    var.d.str = new std::shared_ptr<std::string>(new std::string(str, length));
-  }
-  return var;
-}
-
-Variant Variant::fromStringRef(const char *str, size_t length) {
-  Variant var;
-  var.type_ = VARTYPE_STRING_REF | (length << 4);
+  var.type_ = VARTYPE_STRING | (length << 4);
   var.d.data = str;
   return var;
 }
@@ -78,14 +49,7 @@ Variant Variant::fromAddress(void *ptr) {
 }
 
 Variant::~Variant() {
-  switch (type()) {
-  case VARTYPE_STRING:
-    if (tag() == 0) {
-      delete d.str;
-    }
-    break;
-  default:;
-  }
+
 }
 
 Variant::Variant(const Variant &value) { *this = value; }
@@ -93,16 +57,6 @@ Variant::Variant(const Variant &value) { *this = value; }
 Variant &Variant::operator=(const Variant &value) {
   this->type_ = value.type_;
   this->d = value.d;
-  switch (this->type()) {
-  case VARTYPE_STRING:
-    if (value.d.str && tag() == 0) {
-      this->d.str = new std::shared_ptr<std::string>(*value.d.str);
-    } else {
-      this->d.str = value.d.str;
-    }
-    break;
-  default:;
-  }
   return *this;
 }
 
@@ -183,16 +137,6 @@ double Variant::doubleValue(double defaultValue) const {
 std::string Variant::string(const std::string &defaultValue) const {
   switch (type()) {
   case VARTYPE_STRING:
-    if (d.str) {
-      if (tag() == 0) {
-        return **d.str;
-      } else {
-        return std::string(reinterpret_cast<const char *>(&d.str), tag());
-      }
-    } else {
-      return std::string();
-    }
-  case VARTYPE_STRING_REF:
     return std::string(d.data, tag());
   default:
     return defaultValue;
@@ -218,8 +162,6 @@ void *Variant::address() const {
 uint64_t Variant::tag() const { return type_ >> 4; }
 
 bool Variant::isString() const { return type() == VARTYPE_STRING; }
-
-bool Variant::isStringRef() const { return type() == VARTYPE_STRING_REF; }
 
 bool Variant::isSlice() const { return type() == VARTYPE_SLICE; }
 
@@ -270,7 +212,6 @@ v8::Local<v8::Value> Variant::getValue(const Variant &var) {
   case VARTYPE_DOUBLE:
     return Nan::New(var.doubleValue());
   case VARTYPE_STRING:
-  case VARTYPE_STRING_REF:
     return Nan::New(var.string()).ToLocalChecked();
   case VARTYPE_SLICE:
     return getNodeBuffer(var.slice());
@@ -285,41 +226,13 @@ Variant Variant::getVariant(v8::Local<v8::Value> var) {
   } else if (var->IsNumber()) {
     return var->NumberValue();
   } else if (var->IsString()) {
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    PlugkitModule *module = PlugkitModule::get(isolate);
     const auto &str = Nan::Utf8String(var);
-    return Variant::fromString(*str, str.length());
+    return Variant::fromString(module->stringPool.get(*str, str.length()), str.length());
   } else if (var->IsArrayBufferView()) {
     return getSlice(var.As<v8::ArrayBufferView>());
   }
   return Variant();
-}
-
-void Variant_setNil(Variant *var) { *var = Variant(); }
-
-const char *Variant_string(const Variant *var, size_t *len) {
-  if (var) {
-    if (var->isString() && var->d.str) {
-      if (var->tag() == 0) {
-        const auto &str = *var->d.str;
-        *len = str->size();
-        return str->c_str();
-      } else {
-        *len = var->tag();
-        return reinterpret_cast<const char *>(&var->d.str);
-      }
-    } else if (var->isStringRef() && var->d.data) {
-      *len = var->tag();
-      return var->d.data;
-    }
-  }
-  *len = 0;
-  return "";
-}
-
-void Variant_setString(Variant *var, const char *data, int length) {
-  *var = Variant::fromString(data, length);
-}
-
-void Variant_setStringRef(Variant *var, const char *data, int length) {
-  *var = Variant::fromStringRef(data, length);
 }
 } // namespace plugkit

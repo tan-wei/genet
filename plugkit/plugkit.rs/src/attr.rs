@@ -6,7 +6,7 @@ extern crate libc;
 
 use super::token::Token;
 use super::range::Range;
-use super::variant::{Value, ValueString, Variant};
+use super::variant::{Value, Variant};
 
 #[repr(C)]
 pub struct Attr {
@@ -26,21 +26,6 @@ where
 
     fn set(&mut self, val: &T) {
         Value::set(self.value_mut(), val)
-    }
-}
-
-impl ValueString for Attr
-{
-    fn get(&self) -> String {
-        ValueString::get(self.value())
-    }
-
-    fn set_copy(&mut self, val: &str) {
-        ValueString::set_copy(self.value_mut(), val)
-    }
-
-    fn set_ref(&mut self, val: &'static str) {
-        ValueString::set_ref(self.value_mut(), val)
     }
 }
 

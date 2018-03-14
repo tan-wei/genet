@@ -2,6 +2,7 @@
 #define PLUGKIT_PLUGKIT_MODULE_HPP
 
 #include <v8.h>
+#include "string_pool.hpp"
 
 namespace plugkit {
 
@@ -35,7 +36,7 @@ public:
   Class worker;
   Class iterator;
 
-  Function arrayToBuffer;
+  StringPool stringPool;
 };
 } // namespace plugkit
 

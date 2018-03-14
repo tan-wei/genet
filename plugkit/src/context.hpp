@@ -5,6 +5,7 @@
 #include "payload.hpp"
 #include "stream_logger.hpp"
 #include "variant_map.hpp"
+#include "string_pool.hpp"
 #include <unordered_map>
 
 namespace std {
@@ -32,6 +33,8 @@ public:
   std::unique_ptr<BlockAllocator<Layer>> layerAllocator;
   std::unique_ptr<BlockAllocator<Attr>> attrAllocator;
   std::unique_ptr<BlockAllocator<Payload>> payloadAllocator;
+
+  StringPool stringPool;
 
   void *data = nullptr;
 };

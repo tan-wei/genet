@@ -16,9 +16,8 @@ extern crate libc;
 
 use std::fmt;
 use std::mem;
-use std::string::String;
 use std::slice;
-use super::symbol;
+use std::str;
 
 #[derive(Debug,PartialEq)]
 pub enum Type {
@@ -28,8 +27,7 @@ pub enum Type {
     Uint64 = 3,
     Double = 4,
     String = 5,
-    StringRef = 6,
-    Slice = 7,
+    Slice = 6,
     Address = 12,
 }
 
@@ -70,7 +68,6 @@ impl fmt::Display for Variant {
                 write!(f, "Variant ({})", val)
             }
             Type::String => write!(f, "Variant (String)"),
-            Type::StringRef => write!(f, "Variant (StringRef)"),
             Type::Slice => write!(f, "Variant (Slice)"),
             Type::Address => write!(f, "Variant (Address)"),
         }
@@ -80,12 +77,6 @@ impl fmt::Display for Variant {
 pub trait Value<T> {
     fn get(&self) -> T;
     fn set(&mut self, &T);
-}
-
-pub trait ValueString {
-    fn get(&self) -> String;
-    fn set_copy(&mut self, &str);
-    fn set_ref(&mut self, &'static str);
 }
 
 impl Value<bool> for Variant {
@@ -102,7 +93,6 @@ impl Value<bool> for Variant {
     }
 
     fn set(&mut self, val: &bool) {
-        self.set_nil();
         self.set_typ_tag(Type::Bool, 0);
         self.val.boolean = *val;
     }
@@ -152,7 +142,6 @@ impl Value<i64> for Variant {
     }
 
     fn set(&mut self, val: &i64) {
-        self.set_nil();
         self.set_typ_tag(Type::Int64, 0);
         self.val.int64 = *val;
     }
@@ -202,7 +191,6 @@ impl Value<u64> for Variant {
     }
 
     fn set(&mut self, val: &u64) {
-        self.set_nil();
         self.set_typ_tag(Type::Uint64, 0);
         self.val.uint64 = *val;
     }
@@ -232,27 +220,21 @@ impl Value<f64> for Variant {
     }
 
     fn set(&mut self, val: &f64) {
-        self.set_nil();
         self.set_typ_tag(Type::Double, 0);
         self.val.double = *val;
     }
 }
 
-impl ValueString for Variant {
-     fn get(&self) -> String {
+impl Value<&'static str> for Variant {
+     fn get(&self) -> &'static str {
         unsafe {
-            let mut size: libc::size_t = 0;
-            let slice = symbol::Variant_string.unwrap()(self, &mut size);
-            String::from_utf8_unchecked(slice::from_raw_parts(slice, size as usize).to_vec())
+            str::from_utf8_unchecked(slice::from_raw_parts(self.val.data, self.tag() as usize))
         }
     }
 
-    fn set_copy(&mut self, val: &str) {
-        unsafe { symbol::Variant_setString.unwrap()(self, val.as_ptr() as *const i8, val.len()) }
-    }
-
-    fn set_ref(&mut self, val: &'static str) {
-        unsafe { symbol::Variant_setStringRef.unwrap()(self, val.as_ptr() as *const i8, val.len()) }
+    fn set(&mut self, val: &&'static str) {
+        self.set_typ_tag(Type::String, val.len() as u64);
+        self.val.data = val.as_ptr();
     }
 }
 
@@ -269,7 +251,6 @@ impl Value<&'static [u8]> for Variant {
     }
 
     fn set(&mut self, val: &&'static [u8]) {
-        self.set_nil();
         self.set_typ_tag(Type::Slice, val.len() as u64);
         self.val.data = val.as_ptr();
     }
@@ -289,10 +270,6 @@ impl Variant {
     }
 
     pub fn set_nil(&mut self) {
-        match self.typ() {
-            Type::String => unsafe { symbol::Variant_setNil.unwrap()(self) },
-            Type::Nil => (),
-            _ => self.set_typ_tag(Type::Nil, 0)
-        }
+        self.set_typ_tag(Type::Nil, 0)
     }
 }

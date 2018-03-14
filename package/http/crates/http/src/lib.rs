@@ -14,7 +14,6 @@ use plugkit::context::Context;
 use plugkit::worker::Worker;
 use plugkit::token;
 use plugkit::token::Token;
-use plugkit::variant;
 use plugkit::variant::Value;
 use http_muncher::{Parser, ParserHandler, ParserType, Method};
 use std::cell::RefCell;
@@ -260,7 +259,7 @@ impl HTTPSession {
                 Entry::Url(data) => {
                     if let Ok(path) = str::from_utf8(data) {
                         let attr = child.add_attr(ctx, token!("http.path"));
-                        variant::ValueString::set_ref(attr, &path);
+                        attr.set(&path);
                     }
                 }
             }
@@ -271,7 +270,7 @@ impl HTTPSession {
             while let Some((key, value)) = self.headers.pop() {
                 if let Ok(value_str) = str::from_utf8(value) {
                     let attr = child.add_attr(ctx, token::concat(prefix, key.as_str()));
-                    variant::ValueString::set_ref(attr, &value_str);
+                    attr.set(&value_str);
                 }
             }
         }
