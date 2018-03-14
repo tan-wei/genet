@@ -19,6 +19,7 @@ export default class TopView {
     this.suggestEnabled = false
     this.suggestHint = ''
     this.suggestIndex = -1
+    this.showReloadBalloon = false
     this.viewState = {
       capture: false,
       scrollLock: false,
@@ -64,6 +65,28 @@ export default class TopView {
     }
     return [
       m('header', [
+        m('div', {
+          class: 'balloon',
+          style: {
+            display: this.showReloadBalloon
+              ? 'block'
+              : 'none',
+          },
+        }, [
+          m('a', {
+            onclick: () => {
+              deplug.action.global.emit('core:tab:reload')
+            },
+          }, [
+            'Reload to apply changed configurations'
+          ]),
+          m('i', {
+            class: 'fa fa-close',
+            onclick: () => {
+              this.showReloadBalloon = false
+            },
+          })
+        ]),
         m('input', {
           type: 'text',
           placeholder: 'Display Filter',
@@ -101,6 +124,12 @@ export default class TopView {
   }
 
   oncreate () {
+    deplug.config.watch('', () => {
+      if (!deplug.config.get('_.package.noConfUpdate', false)) {
+        this.showReloadBalloon = true
+        m.redraw()
+      }
+    })
     deplug.packages.once('updated', () => {
       if (deplug.argv.import) {
         const file = path.resolve(deplug.argv.import)
