@@ -48,18 +48,6 @@ Variant Variant::fromAddress(void *ptr) {
   return var;
 }
 
-Variant::~Variant() {
-
-}
-
-Variant::Variant(const Variant &value) { *this = value; }
-
-Variant &Variant::operator=(const Variant &value) {
-  this->type_ = value.type_;
-  this->d = value.d;
-  return *this;
-}
-
 VariantType Variant::type() const {
   return static_cast<VariantType>(type_ & 0x0f);
 }

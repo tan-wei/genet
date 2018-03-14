@@ -39,9 +39,9 @@ public:
   static Variant fromString(const char *str, size_t length);
   static Variant fromAddress(void *ptr);
   Variant(void *) = delete;
-  ~Variant();
-  Variant(const Variant &value);
-  Variant &operator=(const Variant &value);
+  ~Variant() = default;
+  Variant(const Variant &value) = default;
+  Variant &operator=(const Variant &value) = default;
 
 public:
   VariantType type() const;
