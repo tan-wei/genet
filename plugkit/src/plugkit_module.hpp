@@ -1,8 +1,8 @@
 #ifndef PLUGKIT_PLUGKIT_MODULE_HPP
 #define PLUGKIT_PLUGKIT_MODULE_HPP
 
-#include <v8.h>
 #include "string_pool.hpp"
+#include <v8.h>
 
 namespace plugkit {
 

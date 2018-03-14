@@ -4,8 +4,8 @@
 #include "layer.hpp"
 #include "payload.hpp"
 #include "stream_logger.hpp"
-#include "variant_map.hpp"
 #include "string_pool.hpp"
+#include "variant_map.hpp"
 #include <unordered_map>
 
 namespace std {

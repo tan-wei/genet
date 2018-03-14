@@ -217,7 +217,8 @@ Variant Variant::getVariant(v8::Local<v8::Value> var) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
     PlugkitModule *module = PlugkitModule::get(isolate);
     const auto &str = Nan::Utf8String(var);
-    return Variant::fromString(module->stringPool.get(*str, str.length()), str.length());
+    return Variant::fromString(module->stringPool.get(*str, str.length()),
+                               str.length());
   } else if (var->IsArrayBufferView()) {
     return getSlice(var.As<v8::ArrayBufferView>());
   }

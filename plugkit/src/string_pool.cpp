@@ -1,9 +1,8 @@
-#include <cstring>
 #include "string_pool.hpp"
+#include <cstring>
 
 namespace plugkit {
-const char *StringPool::get(const char *str, size_t length)
-{
+const char *StringPool::get(const char *str, size_t length) {
   if (length == 0) {
     return "";
   }
@@ -20,6 +19,6 @@ const char *StringPool::get(const char *str, size_t length)
 }
 
 bool StringPool::Comp::operator()(const View &lhs, const View &rhs) {
-    return strncmp(lhs.data, rhs.data, std::min(lhs.length, rhs.length)) < 0;
-}	
+  return strncmp(lhs.data, rhs.data, std::min(lhs.length, rhs.length)) < 0;
 }
+} // namespace plugkit

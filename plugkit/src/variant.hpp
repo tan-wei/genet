@@ -35,7 +35,7 @@ public:
   Variant(uint64_t value);
   Variant(double value);
   Variant(const Slice &slice);
-  
+
   static Variant fromString(const char *str, size_t length);
   static Variant fromAddress(void *ptr);
   Variant(void *) = delete;
