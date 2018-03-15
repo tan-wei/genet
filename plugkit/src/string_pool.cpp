@@ -19,7 +19,7 @@ const char *StringPool::get(const char *str, size_t length) {
   return view.data;
 }
 
-bool StringPool::Comp::operator()(const View &lhs, const View &rhs) {
+bool StringPool::Comp::operator()(const View &lhs, const View &rhs) const {
   return strncmp(lhs.data, rhs.data, std::min(lhs.length, rhs.length)) < 0;
 }
 } // namespace plugkit
