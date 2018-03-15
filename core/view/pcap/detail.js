@@ -3,6 +3,7 @@ import AttributeItem from './attr'
 import m from 'mithril'
 import moment from '@deplug/moment.min'
 
+let selectedLayer = null
 function selectRange (range = []) {
   deplug.action.emit('core:frame:range-selected', range)
 }
@@ -76,6 +77,14 @@ class LayerItem {
             class: 'layer children',
             'data-layer': layer.id,
             'data-tags': layer.tags.join(' '),
+            active: selectedLayer.id === layer.id,
+            onclick: () => {
+              if (selectedLayer.id !== layer.id) {
+                selectedLayer = layer
+                deplug.action.emit('core:frame:layer:selected', selectedLayer)
+                return false
+              }
+            },
             onmouseover: () => selectRange(layer.range),
             onmouseout: () => selectRange(),
             oncontextmenu: (event) => {
@@ -98,7 +107,12 @@ class LayerItem {
           }, [
             m('i', { class: 'fa fa-arrow-circle-right' }, [' ']),
             m('i', { class: 'fa fa-arrow-circle-down' }, [' ']),
-            name, ' ',
+            m('span', {
+              class: 'protocol',
+              'data-layer': layer.tags.join(' '),
+            }, [
+              name, ' '
+            ]),
             m('span', {
               style: {
                 display: layer.streamId > 0
@@ -174,13 +188,17 @@ export default class PcapDetailView {
   constructor () {
     this.selectedFrame = null
     this.displayFilter = null
-    deplug.action.on('core:frame:selected', (frame) => {
-      this.selectedFrame = frame
-      m.redraw()
-    })
   }
 
   oncreate () {
+    deplug.action.on('core:frame:selected', (frame) => {
+      this.selectedFrame = frame
+      selectedLayer = frame
+        ? frame.primaryLayer
+        : null
+      deplug.action.emit('core:frame:layer:selected', selectedLayer)
+      m.redraw()
+    })
     deplug.action.on('core:filter:updated', (filter) => {
       this.displayFilter = filter
       m.redraw()

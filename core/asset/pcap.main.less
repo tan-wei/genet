@@ -326,6 +326,19 @@ main {
       &::-webkit-details-marker {
         display: none;
       }
+
+      &[active] {
+        background-color: 1px solid var(--theme-default-fg);
+        border: 1px solid var(--theme-default-fg);
+        border-color: var(--theme-default-fg);
+        color: var(--theme-default-fg);
+        font-weight: bold;
+      }
+
+      span.protocol {
+        padding: 1px 8px;
+        border-radius: 12px;
+      }
     }
 
     details > summary {
