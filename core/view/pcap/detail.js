@@ -174,8 +174,8 @@ export default class PcapDetailView {
   constructor () {
     this.selectedFrame = null
     this.displayFilter = null
-    deplug.action.on('core:frame:selected', (frames) => {
-      this.selectedFrame = frames[0] || null
+    deplug.action.on('core:frame:selected', (frame) => {
+      this.selectedFrame = frame
       m.redraw()
     })
   }

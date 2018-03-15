@@ -48,7 +48,7 @@ class FrameView {
       active: viewState.selectedFrame === key,
       onmousedown: () => {
         viewState.selectedFrame = key
-        deplug.action.emit('core:frame:selected', [this.frame])
+        deplug.action.emit('core:frame:selected', this.frame)
       },
     }, [
       m('div', { class: 'header' }, columns)
