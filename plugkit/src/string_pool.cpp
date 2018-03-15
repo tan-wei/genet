@@ -1,4 +1,5 @@
 #include "string_pool.hpp"
+#include <algorithm>
 #include <cstring>
 
 namespace plugkit {
