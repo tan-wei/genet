@@ -31,10 +31,7 @@ private:
   Token mId = Token_null();
   Token mType = Token_null();
   Variant mValue;
-  union Data {
-    Range range;
-    void *ext;
-  } mData;
+  Range mRange;
 };
 
 } // namespace plugkit
