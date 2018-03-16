@@ -7,6 +7,24 @@ export default {
       minimum: 0,
       default: 2048,
     },
+    '_.framelist.columns': {
+      title: 'FrameList Columns',
+      type: 'array',
+      default: [
+        {
+          name: 'Source',
+          value: '_.src',
+        },
+        {
+          name: 'Destination',
+          value: '_.dst',
+        },
+        {
+          name: 'Length',
+          value: '$.actualLength',
+        }
+      ],
+    },
     '_.dissector.confidenceThreshold': {
       title: 'Confidence Threshold',
       type: 'integer',

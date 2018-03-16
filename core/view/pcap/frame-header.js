@@ -6,12 +6,14 @@ export default class FrameHeader {
     this.active = false
     this.labels = [
       { name: 'Index' },
-      { name: 'Protocol' },
-      { name: 'Source' },
-      { name: 'Destination' },
-      { name: 'Length' },
-      { name: 'Summary' }
+      { name: 'Protocol' }
     ]
+    const columns =
+      deplug.config.get('_.framelist.columns', [])
+    for (const col of columns) {
+      this.labels.push(col)
+    }
+    this.labels.push({ name: 'Summary' })
   }
 
   applyWidth () {

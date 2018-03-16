@@ -209,9 +209,11 @@ export default class FrameListView {
     ]
 
     const compiler = deplug.session.createFilterCompiler()
-    this.columns.push(...['_.src', '_.dst', '$.actualLength']
-      .map((fitler) => {
-        const filerFunc = compiler.compile(fitler, { rawResult: true }).built
+    const columns =
+      deplug.config.get('_.framelist.columns', [])
+    this.columns.push(...columns
+      .map((col) => {
+        const filerFunc = compiler.compile(col.value, { rawResult: true }).built
         return {
           func: (frame) => {
             const result = filerFunc(frame)
