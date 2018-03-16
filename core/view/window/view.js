@@ -125,7 +125,7 @@ export default class WindowView {
       })
       if (typeof files !== 'undefined' && files.length > 0) {
         const [file] = files
-        const id = `import-${file}`
+        const id = `import-${Date.now()}`
         this.addTab({
           id,
           name: path.basename(file),
