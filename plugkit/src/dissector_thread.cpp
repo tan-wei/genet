@@ -114,36 +114,43 @@ bool DissectorThread::loop() {
     if (!rootLayer)
       continue;
 
-    std::vector<DissectorContext *> dissectorContexts;
     std::vector<Layer *> leafLayers = {rootLayer};
     while (!leafLayers.empty()) {
       std::vector<Layer *> nextlayers;
       for (const auto &layer : leafLayers) {
+        std::unordered_set<const DissectorContext *> usedDissectors;
         dissectedIds.insert(layer->id());
 
-        dissectorContexts.clear();
-        for (DissectorContext &data : d->dissectorContexts) {
-          if (data.filter.match(layer->tags())) {
-            dissectorContexts.push_back(&data);
+        while (true) {
+          std::vector<DissectorContext *> dissectorContexts;
+          for (DissectorContext &data : d->dissectorContexts) {
+            if (usedDissectors.find(&data) == usedDissectors.end() &&
+              data.filter.match(layer->tags())) {
+              dissectorContexts.push_back(&data);
+              usedDissectors.insert(&data);
+            }
           }
-        }
 
-        for (DissectorContext *data : dissectorContexts) {
-          const Dissector *diss = data->dissector;
-          if (diss->createWorker && !data->worker.data) {
-            data->worker = diss->createWorker(&d->ctx, diss);
-          }
-          diss->analyze(&d->ctx, diss, data->worker, layer);
-          layer->removeUnconfidentLayers(&d->ctx, d->confidenceThreshold);
-          for (Layer *childLayer : layer->layers()) {
-            if (childLayer->confidence() >= d->confidenceThreshold) {
-              auto it = dissectedIds.find(childLayer->id());
-              if (it == dissectedIds.end()) {
-                nextlayers.push_back(childLayer);
+          if (dissectorContexts.empty()) break;
+
+          for (DissectorContext *data : dissectorContexts) {
+            const Dissector *diss = data->dissector;
+            if (diss->createWorker && !data->worker.data) {
+              data->worker = diss->createWorker(&d->ctx, diss);
+            }
+            diss->analyze(&d->ctx, diss, data->worker, layer);
+            layer->removeUnconfidentLayers(&d->ctx, d->confidenceThreshold);
+            for (Layer *childLayer : layer->layers()) {
+              if (childLayer->confidence() >= d->confidenceThreshold) {
+                auto it = dissectedIds.find(childLayer->id());
+                if (it == dissectedIds.end()) {
+                  nextlayers.push_back(childLayer);
+                }
               }
             }
           }
         }
+
       }
       leafLayers.swap(nextlayers);
     }
