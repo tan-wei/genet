@@ -41,6 +41,16 @@ export default class PcapDialog {
               vnode.attrs.callback(opt.value)
             },
           })
+        ]),
+        m('hr'),
+        m('li', [
+          m('input', {
+            type: 'button',
+            value: 'Import File...',
+            onclick: () => {
+              deplug.action.global.emit('core:file:import')
+            },
+          })
         ])
       ])
     ])
