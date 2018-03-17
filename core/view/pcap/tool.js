@@ -62,8 +62,11 @@ class PcapTabView {
       return lhsIndex - rhsIndex
     })
 
-    const activeTabIndex = tabs.findIndex((tab) =>
-      typeof deplug.workspace.panel(tab) !== 'undefined')
+    let activeTabIndex = tabs.findIndex((tab) => tab === this.activeTab)
+    if (activeTabIndex < 0) {
+      activeTabIndex = tabs.findIndex((tab) =>
+        typeof deplug.workspace.panel(tab) !== 'undefined')
+    }
     if (activeTabIndex >= 0) {
       this.activeTab = tabs[activeTabIndex]
     }
