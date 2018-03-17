@@ -1,5 +1,6 @@
 import { BufferValueItem, AttributeValueItem } from './value'
 import AttributeItem from './attr'
+import DefaultSummary from './default-summary'
 import m from 'mithril'
 import moment from '@deplug/moment.min'
 
@@ -70,6 +71,7 @@ class LayerItem {
       child.attr = attr
       prevDepth = attrPath.length
     }
+    const renderer = deplug.session.layerRenderer(layer.id) || DefaultSummary
     return m('ul', [
       m('li', [
         m('details', { open: true }, [
@@ -111,8 +113,9 @@ class LayerItem {
               class: 'protocol',
               'data-layer': layer.tags.join(' '),
             }, [
-              name, ' '
+              name
             ]),
+            m(renderer, { layer }),
             m('span', {
               style: {
                 display: layer.streamId > 0
