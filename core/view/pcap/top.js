@@ -202,7 +202,12 @@ export default class TopView {
         const file = dialog.showSaveDialog(
           { filters: deplug.session.fileExtensions.exporter })
         if (typeof file !== 'undefined') {
-          this.sess.exportFile(file, filter)
+          this.sess.exportFile(file, filter).then(() => {
+            deplug.notify.show(file, {
+              type: 'sussess',
+              title: 'Exported',
+            })
+          })
         }
       })
     })
