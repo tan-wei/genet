@@ -15,6 +15,7 @@ public:
   static v8::Local<v8::Object> wrap(const FrameView *view);
   static const FrameView *unwrap(v8::Local<v8::Value> value);
   static NAN_METHOD(New);
+  static NAN_GETTER(index);
   static NAN_GETTER(rootLayer);
   static NAN_GETTER(primaryLayer);
   static NAN_GETTER(leafLayers);

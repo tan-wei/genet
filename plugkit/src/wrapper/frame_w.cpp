@@ -64,6 +64,7 @@ void FrameWrapper::init(v8::Isolate *isolate) {
   SetPrototypeMethod(tpl, "query", query);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
+  Nan::SetAccessor(otl, Nan::New("index").ToLocalChecked(), index);
   Nan::SetAccessor(otl, Nan::New("rootLayer").ToLocalChecked(), rootLayer);
   Nan::SetAccessor(otl, Nan::New("primaryLayer").ToLocalChecked(),
                    primaryLayer);
@@ -81,6 +82,13 @@ FrameWrapper::FrameWrapper(const FrameView *view)
     , indexAttr(indexToken, view->frame()->index()) {}
 
 NAN_METHOD(FrameWrapper::New) { info.GetReturnValue().Set(info.This()); }
+
+NAN_GETTER(FrameWrapper::index) {
+  FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
+  if (const auto &view = wrapper->view) {
+    info.GetReturnValue().Set(view->frame()->index());
+  }
+}
 
 NAN_GETTER(FrameWrapper::rootLayer) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
