@@ -255,7 +255,7 @@ export default class PcapDetailView {
         ]),
         m('li', [
           m('i', { class: 'fa fa-circle-o' }),
-          m('span', { class: 'label' }, [' Evaluated Filter: ']),
+          m('span', { class: 'label' }, [' Filter Result: ']),
           m('span', [
             this.displayFilter
               ? `${this.displayFilter.filter} =>`
