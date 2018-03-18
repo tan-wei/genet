@@ -97,20 +97,17 @@ void Context_addLayerLinkage(Context *ctx,
   const auto &pair = std::make_pair(token, id);
   auto it = ctx->linkedLayers.find(pair);
   if (it != ctx->linkedLayers.end()) {
-    {
-      Attr *attr = Context_allocAttr(ctx, nextToken);
-      attr->setType(nextToken);
-      attr->value() = Variant::fromAddress(layer);
-      it->second->addAttr(attr);
-    }
-    {
-      Attr *attr = Context_allocAttr(ctx, prevToken);
-      attr->setType(prevToken);
-      attr->value() = Variant::fromAddress(it->second);
-      layer->addAttr(attr);
-    }
+    Context::PrevLayer prev = it->second;
+    Attr *attr = Context_allocAttr(ctx, prevToken);
+    attr->setType(prevToken);
+    attr->value() = Variant::fromAddress(prev.layer);
+    layer->addAttr(attr);
+    prev.attr->value() = Variant::fromAddress(layer);
   }
-  ctx->linkedLayers[pair] = layer;
+  Attr *attr = Context_allocAttr(ctx, nextToken);
+  attr->setType(nextToken);
+  layer->addAttr(attr);
+  ctx->linkedLayers[pair] = Context::PrevLayer{layer, attr};
 }
 
 namespace {

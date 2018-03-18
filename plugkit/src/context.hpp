@@ -24,7 +24,12 @@ public:
   bool closeStream = false;
 
   VariantMap options;
-  std::unordered_map<std::pair<Token, uint64_t>, Layer *> linkedLayers;
+
+  struct PrevLayer {
+    Layer *layer;
+    Attr *attr;
+  };
+  std::unordered_map<std::pair<Token, uint64_t>, PrevLayer> linkedLayers;
 
   LoggerPtr logger = std::make_shared<StreamLogger>();
 

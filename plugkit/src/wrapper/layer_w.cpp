@@ -233,11 +233,12 @@ NAN_METHOD(LayerWrapper::prev) {
       }
     }
     if (prev) {
-      const Layer *layer = static_cast<const Layer *>(prev->value().address());
-      info.GetReturnValue().Set(LayerWrapper::wrap(layer));
-    } else {
-      info.GetReturnValue().Set(Nan::Null());
+      if (const Layer *layer = static_cast<const Layer *>(prev->value().address())) {
+        info.GetReturnValue().Set(LayerWrapper::wrap(layer));
+        return;
+      }
     }
+    info.GetReturnValue().Set(Nan::Null());
   }
 }
 
@@ -252,11 +253,12 @@ NAN_METHOD(LayerWrapper::next) {
       }
     }
     if (next) {
-      const Layer *layer = static_cast<const Layer *>(next->value().address());
-      info.GetReturnValue().Set(LayerWrapper::wrap(layer));
-    } else {
-      info.GetReturnValue().Set(Nan::Null());
+      if (const Layer *layer = static_cast<const Layer *>(next->value().address())) {
+        info.GetReturnValue().Set(LayerWrapper::wrap(layer));
+        return;
+      }
     }
+    info.GetReturnValue().Set(Nan::Null());
   }
 }
 
