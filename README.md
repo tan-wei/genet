@@ -1,38 +1,139 @@
-Deplug
-==
+# Deplug
 
-[![Build Status](https://travis-ci.org/deplug/deplug.svg)](https://travis-ci.org/deplug/deplug)
-[![Build status](https://ci.appveyor.com/api/projects/status/37ek4o97h0kqr0p9?svg=true)](https://ci.appveyor.com/project/h2so5/deplug)
-[![Current Version](https://img.shields.io/crates/v/plugkit.svg)](https://crates.io/crates/plugkit)
+Deplug is a graphical network analyzer powered by web technologies.
 
-## Download
+## Features
 
-### Latest Releases
+- Cross-Platform (macOS, Linux, Windows)
+- Web-based UI
+- Built-in Package Manager
+- SDK for JavaScript and Rust
+- Concurrency Support
 
-(via CDN)
+## Import / Export
 
-- macOS
-  - [![](https://cdn.deplug.net/deplug/release/latest/deplug-darwin-amd64.dmg.ver.svg) Download .dmg](https://cdn.deplug.net/deplug/release/latest/deplug-darwin-amd64.dmg)
-- Linux
-  - [![](https://cdn.deplug.net/deplug/release/latest/deplug-linux-amd64.deb.ver.svg) Download .deb](https://cdn.deplug.net/deplug/release/latest/deplug-linux-amd64.deb)
-  - [![](https://cdn.deplug.net/deplug/release/latest/deplug-linux-amd64.rpm.ver.svg) Download .rpm](https://cdn.deplug.net/deplug/release/latest/deplug-linux-amd64.rpm)
-- Windows
-  - [![](https://cdn.deplug.net/deplug/release/latest/deplug-win-amd64.exe.ver.svg) Download .exe (Installer)](https://cdn.deplug.net/deplug/release/latest/deplug-win-amd64.exe)
+Deplug supports following formats by default.
 
-### Nightly Builds
+- Pcap File (*.pcap)
 
-- macOS
-  - [![](https://cdn.deplug.net/deplug/nightly/deplug-darwin-amd64.dmg.ver.svg) Download .dmg](https://cdn.deplug.net/deplug/nightly/deplug-darwin-amd64.dmg)
-- Linux
-  - [![](https://cdn.deplug.net/deplug/nightly/deplug-linux-amd64.deb.ver.svg) Download .deb](https://cdn.deplug.net/deplug/nightly/deplug-linux-amd64.deb)
-  - [![](https://cdn.deplug.net/deplug/nightly/deplug-linux-amd64.rpm.ver.svg) Download .rpm](https://cdn.deplug.net/deplug/nightly/deplug-linux-amd64.rpm)
-- Windows
-  - [![](https://cdn.deplug.net/deplug/nightly/deplug-win-amd64.exe.ver.svg) Download .exe (Installer)](https://cdn.deplug.net/deplug/nightly/deplug-win-amd64.exe) 
+## Preferences
 
-### Older Releases
+Configuration files are located in `$HOME/.deplug/profile/default`.
 
-- https://github.com/deplug/release-build/releases
+- `config.yml` General and Package-specific Configs
+- `keybind.yml` Keybind Configs
+- `workspace.yml` Workspace Configs (Window Size, Layout, Filter History, etc.)
 
-### Build from Source
+## Packages
 
-See https://docs.deplug.net/build-from-source.html
+Installed packages are located in `$HOME/.deplug/package`.
+
+## Display Filter
+
+Deplug has a simple DSL(Domain Specific Language) to filter packets. It is very similar to JavaScript.
+
+Display filter applies the filter program to each frame and shows them only if the result value is _truthy_. Therefore, following filters do nothing: always show all frames.
+
+- `true`
+- `!0`
+- `1`
+- `1 + 2 == 3`
+- `'ok!'`
+
+There are some language extensions suitable for the packet filtering:
+
+- Extended operators
+- ~~Pipeline syntax~~ (Not implemented yet)
+- Macro syntax
+
+### Extended operators
+
+Some operators (`==`, `===`, `!=`, `!==`, `<`, `<=`, `>`, `>=`) can take an iterable object as the operand.
+
+```js
+ipv4.src == [127, 0, 0, 1] // IPv4 source address equals 127.0.0.1
+```
+
+### ~~Pipeline syntax~~
+
+(Not implemented yet)
+
+Pipeline syntax provides chained function calls.
+You can put a function after the expression to manipulate the returned value.
+
+```js
+http.path toLowerCase === '/login'
+
+// almost equivalent to:
+('toLowerCase' in Object(http.path)) 
+  ? http.path.toLowerCase()
+  : null
+    === '/login'
+```
+
+Use `:` to pass arguments:
+
+```js
+http.path split:/\d+/:2
+
+// almost equivalent to:
+('slice' in Object(http.path)) 
+  ? http.path.split(/\d+/, 2)
+  : null
+```
+
+<p class="warning">
+Note that you can not write a method call like `http.path.toLowerCase()` because Deplug resolves `http.path.toLowerCase` as a layer attribute named `http.path.toLowerCase`.
+</p>
+
+### Macro syntax
+
+Macro provides a familiar way to write compound constants.
+
+For example, an IPv4 address is represented as just an array of integers but you are also able to write it as `@127.0.0.1`. That will be converted into `[127, 0, 0, 1]` before parsing.
+
+```js
+ipv4.src == @127.0.0.1 // Same as ipv4.src == [127, 0, 0, 1]
+```
+
+A macro expression starts with `@` and ends with whitespace or the line ending. You can create an extension package to add custom macros, of course.
+
+There are some macros defined in the built-in packages:
+
+| Name | Format | Example | Expanded |
+|------|--------|---------|----------|
+|MAC Address|`@XX:XX:XX:XX:XX:XX`|`@11:22:33:44:55:66`|`[0x11, 0x22, 0x33, 0x44, 0x55, 0x66]`|
+|IPv4 Address|`@X.X.X.X`|`@127.0.0.1`|`[127, 0, 0, 1]`|
+|IPv6 Address|`@XXXX:XXXX:...:XXXX`|`@::ffff`|`[0, 0, ..., 0, 0, 0xff, 0xff]`|
+|DateTime|`@YYYY-MM-DDThh:mm:ss`|`@2018-03-01T00:00:00`|`1519862400000` (Depends on timezone)|
+
+
+### Examples
+
+#### Protocol
+
+| Expression | Description |
+|------------|-------------|
+| `tcp` | TCP only |
+| `udp` | UDP only |
+| `udp && ipv6` | UDP over IPv6 only |
+| <code>udp &#124;&#124; arp</code> | UDP or ARP |
+| `!arp` | All frames except ARP |
+
+#### Attributes
+
+| Expression | Description |
+|------------|-------------|
+| `tcp.flags.ack` | TCP frames with the ACK flag |
+| `tcp.flags & 0b000010000` | TCP frames with the ACK flag |
+| `tcp.flags.ack && tcp.flags.fin` | TCP frames with the ACK and the FIN flag |
+| `tcp.flags == 16` | TCP frames with only the ACK flag |
+| <code>tcp.src < 1024 &#124;&#124; tcp.dst < 1024</code> | TCP with well-known ports |
+| `http.method.get` | HTTP GET Requests |
+
+#### Frame Metadata
+
+| Expression | Description |
+|------------|-------------|
+| `$.actualLength > 1024` | Actual frame length is larger than 1024 |
+| `$.timestamp < @2018-03-15T22:00:00` | Frame timestamp is before `2018-03-15T22:00:00` |
