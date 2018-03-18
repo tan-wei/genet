@@ -90,7 +90,7 @@ NAN_GETTER(AttrWrapper::value) {
 NAN_SETTER(AttrWrapper::setValue) {
   AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
   if (auto attr = wrapper->attr) {
-    attr->setValue(Variant::getVariant(value));
+    attr->value() = Variant::getVariant(value);
   }
 }
 

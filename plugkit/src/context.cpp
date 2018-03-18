@@ -100,13 +100,13 @@ void Context_addLayerLinkage(Context *ctx,
     {
       Attr *attr = Context_allocAttr(ctx, nextToken);
       attr->setType(nextToken);
-      attr->setValue(Variant::fromAddress(layer));
+      attr->value() = Variant::fromAddress(layer);
       it->second->addAttr(attr);
     }
     {
       Attr *attr = Context_allocAttr(ctx, prevToken);
       attr->setType(prevToken);
-      attr->setValue(Variant::fromAddress(it->second));
+      attr->value() = Variant::fromAddress(it->second);
       layer->addAttr(attr);
     }
   }

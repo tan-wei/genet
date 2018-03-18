@@ -16,10 +16,8 @@ public:
   Token id() const;
   Range range() const;
   void setRange(const Range &range);
-  Variant value() const;
-  const Variant *valueRef() const;
-  Variant *valueRef();
-  void setValue(const Variant &value);
+  const Variant& value() const;
+  Variant& value();
   Token type() const;
   void setType(Token type);
 

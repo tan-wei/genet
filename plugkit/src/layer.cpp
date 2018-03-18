@@ -136,7 +136,7 @@ Attr *Layer_addAttr(Layer *layer, Context *context, Token id) {
 void Layer_addAttrAlias(Layer *layer, Context *ctx, Token alias, Token target) {
   Attr *attr = Context_allocAttr(ctx, alias);
   attr->setType(aliasToken);
-  attr->setValue(target);
+  attr->value() = target;
   layer->addAttr(attr);
 }
 
@@ -165,8 +165,8 @@ void Layer_addError(
   Attr *attr = Context_allocAttr(ctx, id);
   attr->setType(errorToken);
   if (length > 0) {
-    attr->setValue(
-        Variant::fromString(ctx->stringPool.get(msg, length), length));
+    attr->value() =
+        Variant::fromString(ctx->stringPool.get(msg, length), length);
   }
   layer->addAttr(attr);
 }
