@@ -137,3 +137,18 @@ There are some macros defined in the built-in packages:
 |------------|-------------|
 | `$.actualLength > 1024` | Actual frame length is larger than 1024 |
 | `$.timestamp < @2018-03-15T22:00:00` | Frame timestamp is before `2018-03-15T22:00:00` |
+
+## Confidence
+
+Confidence is a 2-bit value represents an accuracy of the dissected layer.
+
+| Confidence | Value | Description | Example |
+|------------|-------|-------------|---------|
+| Exact | 3 | Protocol is specified in the lower layer. | IPv4 over Ethernet |
+| Probable | 2 | Protocol could not be determined precisely, but a usual port or parameter is used. | SSH on TCP port 20 |
+| Possible | 1 | Protocol is decodable but an unusual port or parameter is used. | SSH on TCP port 5555 |
+| Error | 0 | Not decodable | - |
+
+Increasing the confidence threshold level produces cleaner results.
+
+On the other hand, the lower threshold level is a better choice for catching broken packets and camouflaged packets.
