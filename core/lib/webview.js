@@ -25,6 +25,15 @@ export default class WebView {
   }
 
   oncreate (vnode) {
+    vnode.dom.addEventListener('crashed', () => {
+      const localUrl = url.format({
+        protocol: 'file',
+        slashes: true,
+        pathname: path.join(__dirname, '..', 'asset', 'crashed.htm'),
+        search: Buffer.from(vnode.dom.getURL(), 'utf8').toString('base64'),
+      })
+      vnode.dom.loadURL(localUrl)
+    })
     vnode.dom.addEventListener('did-finish-load', () => {
       this.loading = false
       m.redraw()
