@@ -65,6 +65,9 @@ public:
   uint64_t tag() const;
   size_t length() const;
 
+  void *loadAddress() const;
+  void storeAddress(void *ptr);
+
 public:
   static v8::Local<v8::Object> getNodeBuffer(const Slice &slice);
   static Slice getSlice(v8::Local<v8::ArrayBufferView> obj);

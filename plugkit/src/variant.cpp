@@ -147,6 +147,21 @@ void *Variant::address() const {
   }
 }
 
+void *Variant::loadAddress() const
+{
+  if (isAddress()) {
+    return d.ptr;
+  }
+  return nullptr;
+}
+
+void Variant::storeAddress(void *ptr)
+{
+  if (isAddress()) {
+    d.ptr = ptr;
+  }
+}
+
 uint64_t Variant::tag() const { return type_ >> 4; }
 
 bool Variant::isString() const { return type() == VARTYPE_STRING; }
