@@ -20,8 +20,10 @@ pub fn string(token: Token) -> &'static str {
     }
 }
 
-pub fn concat(prefix: Token, name: &str) -> Token {
-    unsafe { symbol::Token_concat.unwrap()(prefix, name.as_ptr() as *const i8, name.len()) }
+pub fn concat(prefix: &str, name: &str) -> Token {
+    let mut s = String::from(prefix);
+    s.push_str(name);
+    get(s.as_str())
 }
 
 /// Return a token corresponded with the given string.
@@ -37,6 +39,16 @@ pub fn concat(prefix: Token, name: &str) -> Token {
 #[macro_export]
 macro_rules! token {
     ($name:expr) => {{
+        thread_local! (
+            static TOKEN: plugkit::token::Token = plugkit::token::get($name as &'static str);
+        );
+        TOKEN.with(|&t| t)
+    }}
+}
+
+#[macro_export]
+macro_rules! token_concat {
+    ($prefix:expr, $name:expr) => {{
         thread_local! (
             static TOKEN: plugkit::token::Token = plugkit::token::get($name as &'static str);
         );

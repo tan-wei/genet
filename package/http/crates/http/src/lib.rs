@@ -266,10 +266,9 @@ impl HTTPSession {
         }
 
         if self.headers.len() > 0 {
-            let prefix = token!("http.headers.");
             while let Some((key, value)) = self.headers.pop() {
                 if let Ok(value_str) = str::from_utf8(value) {
-                    let attr = child.add_attr(ctx, token::concat(prefix, key.as_str()));
+                    let attr = child.add_attr(ctx, token::concat("http.headers.", key.as_str()));
                     attr.set(&value_str);
                 }
             }
