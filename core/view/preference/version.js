@@ -1,3 +1,4 @@
+import ConfigList from './configlist'
 import env from '../../lib/env'
 import fs from 'fs'
 import m from 'mithril'
@@ -55,7 +56,8 @@ export default class Plugin {
       m('h4', ['Deplug version']),
       m('span', [this.version]),
       m('h4', ['Negatron version']),
-      m('span', [this.electronVersion])
+      m('span', [this.electronVersion]),
+      m(ConfigList, { prefix: '_.update.' })
     ]
     const { active } = vnode.attrs
     if (active) {
