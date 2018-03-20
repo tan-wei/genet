@@ -6,6 +6,7 @@ describe('Token', () => {
   })
   it('should return consistent values', () => {
     assert.strictEqual(Token`ipv4`, Token`ipv4`)
+    assert.strictEqual(Token`ipv4.${'src'}`, Token`ipv4.src`)
     assert.strictEqual(Token`[ipv4]`, Token`[ipv4]`)
     assert.strictEqual(Token`9bbb35e6-cde1-419b-8d7b-ea04c87e7320`,
       Token`9bbb35e6-cde1-419b-8d7b-ea04c87e7320`)
