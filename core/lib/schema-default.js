@@ -88,7 +88,7 @@ export default {
       type: 'string',
       format: 'uri',
       uniqueItems: true,
-      default: ['https://deplug-update.now.sh'],
+      default: 'https://deplug-update.now.sh',
     },
   },
   workspace: {
