@@ -13,8 +13,7 @@
     "url": "git+https://github.com/deplug/deplug.git"
   },
   "dependencies": {
-    "bindings": "^1.2.1",
-    "esprima": "^4.0.0"
+    "bindings": "^1.2.1"
   },
   "devDependencies": {
     "mkpath": "^1.0.0",

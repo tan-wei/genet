@@ -174,8 +174,6 @@ function operator(opcode, lhs, ...args) {
   }
 }
 
-@@globals@@
-
 (function (root) {
   return (function(__resolve, __operator, __value) {
     return @@expression@@
