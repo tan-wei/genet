@@ -7,7 +7,7 @@ struct Functions
   void *func;
 };
 %%
-Context_getOption, reinterpret_cast<void *>(&plugkit::Context_getOption)
+Context_getConfig, reinterpret_cast<void *>(&plugkit::Context_getConfig)
 Context_addLayerLinkage, reinterpret_cast<void *>(&plugkit::Context_addLayerLinkage)
 Layer_addLayer, reinterpret_cast<void *>(&plugkit::Layer_addLayer)
 Layer_addAttr, reinterpret_cast<void *>(&plugkit::Layer_addAttr)

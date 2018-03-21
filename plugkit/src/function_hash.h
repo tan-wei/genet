@@ -114,8 +114,8 @@ static struct Functions wordlist[] = {
 #line 16 "plugkit/src/function.keys"
     {"Layer_addPayload", reinterpret_cast<void *>(&plugkit::Layer_addPayload)},
 #line 10 "plugkit/src/function.keys"
-    {"Context_getOption",
-     reinterpret_cast<void *>(&plugkit::Context_getOption)},
+    {"Context_getConfig",
+     reinterpret_cast<void *>(&plugkit::Context_getConfig)},
 #line 11 "plugkit/src/function.keys"
     {"Context_addLayerLinkage",
      reinterpret_cast<void *>(&plugkit::Context_addLayerLinkage)},

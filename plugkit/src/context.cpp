@@ -79,7 +79,7 @@ void Context_deallocPayload(Context *ctx, Payload *payload) {
   ctx->payloadAllocator->dealloc(payload);
 }
 
-const Variant *Context_getOption(Context *ctx, const char *key, size_t length) {
+const Variant *Context_getConfig(Context *ctx, const char *key, size_t length) {
   const Variant &value = ctx->options[std::string(key, length)];
   if (!value.isNil()) {
     return &value;

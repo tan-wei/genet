@@ -13,9 +13,9 @@ pub struct Context {
 }
 
 impl Context {
-    pub fn get_option(&self, name: &str) -> &Variant {
+    pub fn get_config(&self, name: &str) -> &Variant {
         unsafe {
-            &*symbol::Context_getOption.unwrap()(self, name.as_ptr() as *const i8, name.len())
+            &*symbol::Context_getConfig.unwrap()(self, name.as_ptr() as *const i8, name.len())
         }
     }
 

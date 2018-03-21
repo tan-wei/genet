@@ -32,7 +32,7 @@ impl Exporter for PcapExporter {
         wtr.write_all(&[0x4d, 0x3c, 0xb2, 0xa1])?;
 
         let mut header = false;
-        let snaplen : u32 = ctx.get_option("_.pcap.snaplen").get();
+        let snaplen : u32 = ctx.get_config("_.pcap.snaplen").get();
 
         loop {
             let frames = cb(ctx);
