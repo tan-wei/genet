@@ -83,13 +83,6 @@ export default {
       default: false,
       description: 'Enabling this option may affect performance',
     },
-    '_.update.server': {
-      title: 'Update Server',
-      type: 'string',
-      format: 'uri',
-      uniqueItems: true,
-      default: 'https://deplug-update.now.sh',
-    },
   },
   workspace: {
     '_.window.size': {

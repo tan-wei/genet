@@ -56,8 +56,7 @@ export default class Plugin {
       m('h4', ['Deplug version']),
       m('span', [this.version]),
       m('h4', ['Negatron version']),
-      m('span', [this.electronVersion]),
-      m(ConfigList, { prefix: '_.update.' })
+      m('span', [this.electronVersion])
     ]
     const { active } = vnode.attrs
     if (active) {
