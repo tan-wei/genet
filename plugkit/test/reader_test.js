@@ -4,22 +4,17 @@ describe('Reader', () => {
   describe('#slice()', () => {
     it('should throw for wrong arguments', () => {
       const reader = new Reader(new Uint8Array())
-      assert.throws(() => reader.slice(), TypeError)
-      assert.throws(() => reader.slice(0), TypeError)
       assert.throws(() => reader.slice(0, []), TypeError)
       assert.throws(() => reader.slice(5, 0), RangeError)
     })
     it('should return a sliced data', () => {
-      const reader = new Reader(new Uint8Array([200, 250, 1, 2]))
+      const reader = new Reader(new Uint8Array([200, 250, 1, 2, 10, 11, 16]))
       assert.strictEqual('250,1', reader.slice(1, 3).toString())
       assert.strictEqual('2', reader.slice(0, 1).toString())
+      assert.strictEqual('11,16', reader.slice(1).toString())
+      reader.lastRange = [0, 0]
+      assert.strictEqual('200,250,1,2,10,11,16', reader.slice().toString())
       assert.throws(() => reader.slice(4, 10).toString())
-    })
-  })
-  describe('#sliceAll()', () => {
-    it('should throw for wrong arguments', () => {
-      const reader = new Reader(new Uint8Array())
-      assert.throws(() => reader.sliceAll([]), TypeError)
     })
   })
   describe('#getUint8()', () => {

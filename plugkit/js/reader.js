@@ -19,10 +19,18 @@ class Reader {
   }
 
   // @return UInt8Array
-  slice (begin, end) {
+  slice (...args) {
+    const begin = (args.length >= 1)
+      ? args[0]
+      : 0
     if (!Number.isInteger(begin)) {
       throw new TypeError('First argument must be an integer')
     }
+    const { length } = this[fields].data
+    const [, offset] = this[fields].lastRange
+    const end = (args.length >= 2)
+      ? args[1]
+      : length - offset
     if (!Number.isInteger(end)) {
       throw new TypeError('Second argument must be an integer')
     }
@@ -30,8 +38,6 @@ class Reader {
       throw new
       RangeError('Second argument must be greater than first argument')
     }
-    const [, offset] = this[fields].lastRange
-    const { length } = this[fields].data
     const sliceBegin = offset + begin
     const sliceEnd = offset + end
     if (sliceBegin >= length || sliceEnd > length) {
@@ -40,23 +46,6 @@ class Reader {
     const slice = this[fields].data.slice(sliceBegin, sliceEnd);
     [, this[fields].lastRange[0]] = this[fields].lastRange
     this[fields].lastRange[1] = sliceEnd
-    return slice
-  }
-
-  // @return UInt8Array
-  sliceAll (begin = 0) {
-    if (!Number.isInteger(begin)) {
-      throw new TypeError('First argument must be an integer')
-    }
-    const [, offset] = this[fields].lastRange
-    const { length } = this[fields].data
-    const sliceBegin = offset + begin
-    if (sliceBegin >= length) {
-      throw new Error('Out of bounds access')
-    }
-    const slice = this[fields].data.slice(sliceBegin);
-    [, this[fields].lastRange[0]] = this[fields].lastRange
-    this[fields].lastRange[1] = length
     return slice
   }
 
