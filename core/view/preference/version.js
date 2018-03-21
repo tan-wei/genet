@@ -1,4 +1,3 @@
-import ConfigList from './configlist'
 import env from '../../lib/env'
 import fs from 'fs'
 import m from 'mithril'
