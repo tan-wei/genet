@@ -125,13 +125,14 @@ bool DissectorThread::loop() {
           std::vector<DissectorContext *> dissectorContexts;
           for (DissectorContext &data : d->dissectorContexts) {
             if (usedDissectors.find(&data) == usedDissectors.end() &&
-              data.filter.match(layer->tags())) {
+                data.filter.match(layer->tags())) {
               dissectorContexts.push_back(&data);
               usedDissectors.insert(&data);
             }
           }
 
-          if (dissectorContexts.empty()) break;
+          if (dissectorContexts.empty())
+            break;
 
           for (DissectorContext *data : dissectorContexts) {
             const Dissector *diss = data->dissector;
@@ -150,7 +151,6 @@ bool DissectorThread::loop() {
             }
           }
         }
-
       }
       leafLayers.swap(nextlayers);
     }

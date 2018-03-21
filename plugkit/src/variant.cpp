@@ -147,16 +147,14 @@ void *Variant::address() const {
   }
 }
 
-void *Variant::loadAddress() const
-{
+void *Variant::loadAddress() const {
   if (isAddress()) {
     return d.ptr;
   }
   return nullptr;
 }
 
-void Variant::storeAddress(void *ptr)
-{
+void Variant::storeAddress(void *ptr) {
   if (isAddress()) {
     d.ptr = ptr;
   }

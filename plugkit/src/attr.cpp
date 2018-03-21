@@ -15,9 +15,9 @@ Range Attr::range() const { return mRange; }
 
 void Attr::setRange(const Range &range) { mRange = range; }
 
-const Variant& Attr::value() const { return mValue; }
+const Variant &Attr::value() const { return mValue; }
 
-Variant& Attr::value() { return mValue; }
+Variant &Attr::value() { return mValue; }
 
 Token Attr::type() const { return mType; }
 

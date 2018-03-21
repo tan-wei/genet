@@ -233,7 +233,8 @@ NAN_METHOD(LayerWrapper::prev) {
       }
     }
     if (prev) {
-      if (const Layer *layer = static_cast<const Layer *>(prev->value().loadAddress())) {
+      if (const Layer *layer =
+              static_cast<const Layer *>(prev->value().loadAddress())) {
         info.GetReturnValue().Set(LayerWrapper::wrap(layer));
         return;
       }
@@ -253,7 +254,8 @@ NAN_METHOD(LayerWrapper::next) {
       }
     }
     if (next) {
-      if (const Layer *layer = static_cast<const Layer *>(next->value().loadAddress())) {
+      if (const Layer *layer =
+              static_cast<const Layer *>(next->value().loadAddress())) {
         info.GetReturnValue().Set(LayerWrapper::wrap(layer));
         return;
       }
