@@ -47,7 +47,6 @@
       "src/attr.cpp",
       "src/payload.cpp",
       "src/layer.cpp",
-      "src/slice.cpp",
       "src/tag_filter.cpp"
     ],
     "plugkit_test_sources":[
@@ -55,7 +54,6 @@
       "src/plugkit_testing.cpp",
       "test/token_test.cpp",
       "test/tag_filter_test.cpp",
-      "test/slice_test.cpp",
       "test/payload_test.cpp"
     ]
   },
