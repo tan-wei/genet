@@ -150,5 +150,4 @@ Confidence is a 2-bit value represents an accuracy of the dissected layer.
 | Error | 0 | Not decodable | - |
 
 Increasing the confidence threshold level produces cleaner results.
-
-On the other hand, the lower threshold level is a better choice for catching broken packets and camouflaged packets.
+On the other hand, the lower level is a better choice for catching broken/camouflaged packets.
