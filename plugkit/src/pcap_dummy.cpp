@@ -69,10 +69,14 @@ bool PcapDummy::start() {
   if (d->thread.joinable())
     return false;
 
-  Token tag = Token_get("[unknown]");
+  Token tag;
   const auto &link = d->linkLayers.find(d->link);
   if (link != d->linkLayers.end()) {
     tag = link->second;
+  } else {
+    const auto &tagStr =
+        "link_" + std::to_string(static_cast<unsigned int>(d->link));
+    tag = Token_get(tagStr.c_str());
   }
 
   d->thread = std::thread([this, tag]() {

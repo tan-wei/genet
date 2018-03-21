@@ -207,7 +207,9 @@ bool PcapPlatform::start() {
   if (linkLayer != d->linkLayers.end()) {
     d->tag = linkLayer->second;
   } else {
-    d->tag = Token_get("[unknown]");
+    const auto &tagStr =
+        "link_" + std::to_string(static_cast<unsigned int>(link));
+    d->tag = Token_get(tagStr.c_str());
   }
 
   d->thread = std::thread([this]() {

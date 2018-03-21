@@ -26,7 +26,6 @@
 [ipv6]
 [tcp]
 [udp]
-[unknown]
 $
 $.timestamp
 $.payload
