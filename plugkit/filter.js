@@ -106,7 +106,7 @@ class FilterCompiler {
     if (!rawResult) {
       ast = makeValue(ast.body[0].expression)
     }
-    return { expression: escodegen.generate(ast, { semicolons: false }) }
+    return { expression: escodegen.generate(ast) }
   }
 
   link (code) {

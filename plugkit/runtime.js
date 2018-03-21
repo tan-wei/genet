@@ -38,6 +38,10 @@ function resolver(root) {
   }
 }
 
+function pipeline(name, self, ...args) {
+  return true
+}
+
 function operator(opcode, lhs, ...args) {
   if (opcode === '()') {
     if (typeof lhs === 'function') {
@@ -175,7 +179,7 @@ function operator(opcode, lhs, ...args) {
 }
 
 (function (root) {
-  return (function(__resolve, __operator, __value) {
+  return (function(__resolve, __operator, __value, __pipeline) {
     return @@expression@@
-  })(resolver(root), operator, value)
+  })(resolver(root), operator, value, pipeline)
 })
