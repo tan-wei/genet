@@ -5,7 +5,7 @@ Deplug is a graphical network analyzer powered by web technologies.
 ## Features
 
 - Cross-Platform (macOS, Linux, Windows)
-- Web-based UI
+- Web-based UI (Electron)
 - Built-in Package Manager
 - SDK for JavaScript and Rust
 - Concurrency Support
