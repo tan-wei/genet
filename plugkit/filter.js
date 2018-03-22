@@ -9,17 +9,6 @@ const vm = require('vm')
 
 const fields = Symbol('fields')
 const runtime = fs.readFileSync(path.join(__dirname, 'runtime.js'), 'utf8')
-function makeValue (val) {
-  return {
-    type: 'CallExpression',
-    callee: {
-      type: 'Identifier',
-      name: '__value',
-    },
-    arguments: [val],
-  }
-}
-
 function makeOp (opcode, ...args) {
   return {
     type: 'CallExpression',
@@ -58,7 +47,7 @@ class FilterCompiler {
     return this[fields].attrs
   }
 
-  transpile (filter, rawResult = false) {
+  transpile (filter) {
     const { macros } = this[fields]
     if (!filter) {
       return { expression: '' }
@@ -116,9 +105,6 @@ class FilterCompiler {
         }
       },
     })
-    if (!rawResult) {
-      ast = makeValue(ast.body[0].expression)
-    }
     return { expression: escodegen.generate(ast) }
   }
 
@@ -139,13 +125,10 @@ class FilterCompiler {
   }
 
   compile (filter, opt = {}) {
-    const options = Object.assign({
-      rawResult: false,
-      built: true,
-    }, opt)
+    const options = Object.assign({ built: true }, opt)
     const result = {
       filter,
-      transpiled: this.transpile(filter, options.rawResult),
+      transpiled: this.transpile(filter),
     }
     result.linked = this.link(result.transpiled)
     if (options.built) {

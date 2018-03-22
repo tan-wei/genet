@@ -213,7 +213,7 @@ export default class FrameListView {
       deplug.config.get('_.framelist.columns', [])
     this.columns.push(...columns
       .map((col) => {
-        const filerFunc = compiler.compile(col.value, { rawResult: true }).built
+        const filerFunc = compiler.compile(col.value).built
         return {
           func: (frame) => {
             const result = filerFunc(frame)

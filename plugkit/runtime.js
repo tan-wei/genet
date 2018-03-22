@@ -1,45 +1,16 @@
-function value (val) {
-  if (typeof val === 'object' && val !== null) {
-    if (val.constructor.name === 'Attr') {
-      return val.value
-    }
-  }
-  return val
-}
-
 function resolver(root) {
-  return function (id, ...args) {
+  return function (id) {
     const attr = root.query(id)
     if (attr === null) return undefined
-    let result = attr
-    for (const id of args) {
-      if (typeof result !== 'object') return undefined
-      if (id in result) {
-        if (typeof result[id] === 'function') {
-          result = result[id].bind(result)
-        } else {
-          result = result[id]
-        }
-        continue
-      }
-      const val = value(result)
-      if (typeof val !== 'object') return undefined
-      if (id in val) {
-        if (typeof val[id] === 'function') {
-          result = val[id].bind(val)
-        } else {
-          result = val[id]
-        }
-        continue
-      }
-      return undefined
+    if ('value' in attr) {
+      return attr.value
     }
-    return result
+    return attr
   }
 }
 
 function pipeline(name, self, ...args) {
-  const val = Object(value(self))
+  const val = Object(self)
   if (name in val && typeof val[name] === 'function') {
     return val[name](...args)
   }
@@ -58,13 +29,13 @@ function operator(opcode, lhs, ...args) {
   if (arguments.length === 2) {
     switch (opcode) {
       case '+':
-        return Number(value(lhs))
+        return +lhs
       case '-':
-        return -value(lhs)
+        return -lhs
       case '~':
-        return ~value(lhs)
+        return ~lhs
       case '!':
-        return !value(lhs)
+        return !lhs
       case 'typeof':
         return typeof lhs
       default:
@@ -72,8 +43,8 @@ function operator(opcode, lhs, ...args) {
     }
   }
 
-  const left = value(lhs)
-  const right = value(rhs)
+  const left = lhs
+  const right = rhs
   if (typeof left === 'object' && left !== null && Symbol.iterator in left &&
     typeof right === 'object' && right !== null && Symbol.iterator in right) {
     const leftIt = left[Symbol.iterator]()
@@ -112,6 +83,14 @@ function operator(opcode, lhs, ...args) {
           if (leftValue.value > rightValue.value) return true
           if (leftValue.value < rightValue.value) return false
           if (leftValue.done || rightValue.done) return false
+        }
+      case '<=':
+        for (;;) {
+          const leftValue = leftIt.next()
+          const rightValue = rightIt.next()
+          if (leftValue.value < rightValue.value) return true
+          if (leftValue.value > rightValue.value) return false
+          if (leftValue.done || rightValue.done) return true
         }
       case '>=':
         for (;;) {
@@ -163,6 +142,8 @@ function operator(opcode, lhs, ...args) {
       return left > right
     case '<=':
       return left <= right
+    case '>=':
+      return left >= right
     case '<<':
       return left << right
     case '>>':
@@ -183,7 +164,7 @@ function operator(opcode, lhs, ...args) {
 }
 
 (function (root) {
-  return (function(__resolve, __operator, __value, __pipeline) {
+  return (function(__resolve, __operator, __pipeline) {
     return @@expression@@
-  })(resolver(root), operator, value, pipeline)
+  })(resolver(root), operator, pipeline)
 })
