@@ -29,9 +29,6 @@ public:
 
   Token id() const;
 
-  LayerConfidence confidence() const;
-  void setConfidence(LayerConfidence confidence);
-
   Range range() const;
   void setRange(const Range &range);
 
@@ -56,8 +53,6 @@ public:
 
   const Frame *frame() const;
   void setFrame(const Frame *frame);
-
-  void removeUnconfidentLayers(Context *ctx, LayerConfidence confidence);
 
 private:
   bool isRoot() const;

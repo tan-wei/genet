@@ -8,7 +8,7 @@ use std::io::{Cursor, Error, ErrorKind};
 use byteorder::BigEndian;
 use plugkit::token::Token;
 use plugkit::reader::ByteReader;
-use plugkit::layer::{Confidence, Layer};
+use plugkit::layer::Layer;
 use plugkit::context::Context;
 use plugkit::worker::Worker;
 use plugkit::variant::Value;
@@ -44,7 +44,6 @@ impl Worker for ETHWorker {
         let mut rdr = Cursor::new(slice);
 
         let child = &mut layer.add_layer(ctx, token!("eth"));
-        child.set_confidence(Confidence::Exact);
         child.add_tag(ctx, token!("eth"));
         child.set_range(&range);
 
@@ -90,7 +89,6 @@ impl Worker for ETHWorker {
             Ok(())
         })().or_else(|_| {
             child.add_error(ctx, token!("!out-of-bounds"), "");
-            child.set_confidence(Confidence::Probable);
             Ok(())
         })
     }

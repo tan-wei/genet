@@ -36,8 +36,6 @@ void LayerWrapper::init(v8::Isolate *isolate) {
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
   Nan::SetAccessor(otl, Nan::New("worker").ToLocalChecked(), worker, setWorker);
-  Nan::SetAccessor(otl, Nan::New("confidence").ToLocalChecked(), confidence,
-                   setConfidence);
   Nan::SetAccessor(otl, Nan::New("range").ToLocalChecked(), range, setRange);
   Nan::SetAccessor(otl, Nan::New("parent").ToLocalChecked(), parent);
   Nan::SetAccessor(otl, Nan::New("frame").ToLocalChecked(), frame);
@@ -78,20 +76,6 @@ NAN_SETTER(LayerWrapper::setWorker) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer) {
     layer->setWorker(value->Uint32Value());
-  }
-}
-
-NAN_GETTER(LayerWrapper::confidence) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->constLayer) {
-    info.GetReturnValue().Set(layer->confidence());
-  }
-}
-
-NAN_SETTER(LayerWrapper::setConfidence) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->layer) {
-    layer->setConfidence(static_cast<LayerConfidence>(value->Uint32Value()));
   }
 }
 

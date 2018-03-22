@@ -19,14 +19,15 @@ const modeTable = {
 }
 class NTP {
   analyze (ctx, layer) {
-    const child = layer.addLayer(ctx, 'ntp')
-    child.addTag(ctx, 'ntp')
-    child.confidence = Layer.ConfProbable
+    ctx.assertConfidence(Layer.ConfProbable)
 
     if (layer.attr(`${layer.id}.src`).value !== 123 ||
         layer.attr(`${layer.id}.dst`).value !== 123) {
-      child.confidence = Layer.ConfPossible
+      ctx.assertConfidence(Layer.ConfPossible)
     }
+
+    const child = layer.addLayer(ctx, 'ntp')
+    child.addTag(ctx, 'ntp')
 
     const [parentPayload] = layer.payloads
     const reader = new Reader(parentPayload.slices[0])
@@ -134,7 +135,6 @@ class NTP {
       transmitTs.type = '@ntp:time'
     } catch (err) {
       child.addError(ctx, '!out-of-bounds')
-      child.confidence = Layer.ConfError
     }
   }
 

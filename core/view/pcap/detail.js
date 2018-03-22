@@ -125,18 +125,7 @@ class LayerItem {
             },
             [
               m('i', { class: 'fa fa-exchange' }),
-              ' Stream #', layer.streamId]),
-            m('span', {
-              style: {
-                display: layer.confidence < 1.0
-                  ? 'inline'
-                  : 'none',
-              },
-            }, [
-              m('i', { class: 'fa fa-question-circle' }),
-              ' ',
-              layer.confidence * 100, '%'
-            ])
+              ' Stream #', layer.streamId])
           ]),
           mergeOrphanedItems(attrArray[0]).children
             .filter((item) => item.attr)

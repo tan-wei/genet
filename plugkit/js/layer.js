@@ -37,12 +37,6 @@ class Layer {
   // @property Integer
   set worker (worker) {}
 
-  // @property Integer
-  get confidence () {}
-
-  // @property Integer
-  set confidence (confidence) {}
-
   // @property Layer | null
   get parent () {}
 
