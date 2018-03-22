@@ -1,4 +1,3 @@
-
 /* eslint prefer-reflect: "off"*/
 /* eslint consistent-this: "off" */
 /* eslint no-invalid-this: "off" */
@@ -9,7 +8,6 @@ class Parser {
   constructor (inst) {
     this.override(inst, this.getTokenFromCode)
     this.override(inst, this.parseExprAtom)
-    this.override(inst, this.parseExpressionStatement)
     this.override(inst, this.parseIdent)
   }
 
@@ -46,13 +44,6 @@ class Parser {
     return super_(refDestructuringErrors)
   }
 
-  parseExpressionStatement (super_, node, expr) {
-    if (super_.inst.type === acorn.tokTypes.name) {
-      return this.parsePipeline(super_, node, expr)
-    }
-    return super_(node, expr)
-  }
-
   parseIdent (super_, liberal, isBinding) {
     if (super_.inst.type === acorn.tokTypes.name &&
          (/^[a-z_$]\w*$/).test(super_.inst.value)) {
@@ -68,12 +59,13 @@ class Parser {
       const node = super_.inst.startNode()
       node.name = name
       node.extended = 'attr'
+      this.parsePipeline(super_, node)
       return super_.inst.finishNode(node, 'Identifier')
     }
     return super_(liberal, isBinding)
   }
 
-  parsePipeline (super_, node, expr) {
+  parsePipeline (super_, node) {
     const funcs = []
     for (;;) {
       const funcname = super_.inst.value
@@ -89,16 +81,14 @@ class Parser {
           if (!super_.inst.eat(acorn.tokTypes.colon)) {
             break
           }
-          const arg = super_.inst.parseExpression()
+          const arg = super_.inst.parseExprAtom()
           funcs[funcs.length - 1].args.push(arg)
         }
       }
     }
     if (funcs.length > 0) {
-      node.extended = 'pipeline'
       node.pipeline = funcs
     }
-    return super_(node, expr)
   }
 }
 

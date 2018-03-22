@@ -39,7 +39,11 @@ function resolver(root) {
 }
 
 function pipeline(name, self, ...args) {
-  return true
+  const val = Object(value(self))
+  if (name in val && typeof val[name] === 'function') {
+    return val[name](...args)
+  }
+  return val
 }
 
 function operator(opcode, lhs, ...args) {

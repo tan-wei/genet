@@ -84,22 +84,35 @@ class FilterCompiler {
             return node
           default:
         }
-        switch (node.extended) {
-          case 'macro':
-            for (const macro of macros) {
-              const result = macro.func(node.name)
-              if (typeof result === 'string') {
-                return acorn.parse(result)
-                  .body[0].expression
-              }
+        if (node.extended === 'macro') {
+          for (const macro of macros) {
+            const result = macro.func(node.name)
+            if (typeof result === 'string') {
+              return acorn.parse(result)
+                .body[0].expression
             }
-            throw new Error(`unrecognized macro: @${node.name}`)
-          case 'attr':
-            return acorn.parse(`__resolve(${Token.get(node.name)})`)
-              .body[0].expression
-          case 'pipeline':
-            break
-          default:
+          }
+          throw new Error(`unrecognized macro: @${node.name}`)
+        } else if (node.extended === 'attr') {
+          let expr = acorn.parse(`__resolve(${Token.get(node.name)})`)
+            .body[0].expression
+          for (const func of (node.pipeline || [])) {
+            expr = {
+              type: 'CallExpression',
+              callee: {
+                type: 'Identifier',
+                name: '__pipeline',
+              },
+              arguments: [
+                {
+                  type: 'Literal',
+                  value: func.name,
+                },
+                expr
+              ].concat(func.args),
+            }
+          }
+          return expr
         }
       },
     })
