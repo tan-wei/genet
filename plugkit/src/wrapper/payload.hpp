@@ -21,7 +21,7 @@ public:
   static NAN_GETTER(slices);
   static NAN_GETTER(length);
   static NAN_METHOD(addAttr);
-  static NAN_GETTER(attrs);
+  static NAN_METHOD(attrs);
   static NAN_METHOD(attr);
   static NAN_GETTER(type);
   static NAN_SETTER(setType);

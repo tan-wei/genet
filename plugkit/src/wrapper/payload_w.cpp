@@ -1,5 +1,6 @@
 #include "../payload.hpp"
 #include "attr.hpp"
+#include "iterator.hpp"
 #include "payload.hpp"
 #include "plugkit_module.hpp"
 #include "variant.hpp"
@@ -12,13 +13,13 @@ void PayloadWrapper::init(v8::Isolate *isolate, v8::Local<v8::Object> exports) {
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Payload").ToLocalChecked());
   SetPrototypeMethod(tpl, "addSlice", addSlice);
+  SetPrototypeMethod(tpl, "attrs", attrs);
   SetPrototypeMethod(tpl, "attr", attr);
   SetPrototypeMethod(tpl, "addAttr", addAttr);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("slices").ToLocalChecked(), slices);
   Nan::SetAccessor(otl, Nan::New("length").ToLocalChecked(), length);
-  Nan::SetAccessor(otl, Nan::New("attrs").ToLocalChecked(), attrs);
   Nan::SetAccessor(otl, Nan::New("type").ToLocalChecked(), type, setType);
   Nan::SetAccessor(otl, Nan::New("range").ToLocalChecked(), range, setRange);
   Nan::SetIndexedPropertyHandler(otl, indexGetter);
@@ -84,16 +85,21 @@ NAN_GETTER(PayloadWrapper::length) {
   }
 }
 
-NAN_GETTER(PayloadWrapper::attrs) {
+NAN_METHOD(PayloadWrapper::attrs) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->constPayload) {
-    v8::Isolate *isolate = v8::Isolate::GetCurrent();
-    const auto &attrs = payload->attrs();
-    auto array = v8::Array::New(isolate, attrs.size());
-    for (size_t i = 0; i < attrs.size(); ++i) {
-      array->Set(i, AttrWrapper::wrap(attrs[i]));
-    }
-    info.GetReturnValue().Set(array);
+    info.GetReturnValue().Set(IteratorWrapper::wrap(
+        [](const void *data, size_t *index,
+           bool *done) -> v8::Local<v8::Value> {
+          const Payload *payload = static_cast<const Payload *>(data);
+          const auto &attrs = payload->attrs();
+          if (*index < attrs.size()) {
+            return AttrWrapper::wrap(attrs[(*index)++]);
+          }
+          *done = true;
+          return Nan::Null();
+        },
+        payload));
   }
 }
 

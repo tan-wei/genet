@@ -72,11 +72,11 @@ describe('Payload', () => {
     it('should return payload attrs', () => {
       const payload = Testing.createPayloadInstance()
       const ctx = Testing.createContextInstance()
-      assert.deepEqual([], payload.attrs)
+      assert.deepEqual([], [...payload.attrs()])
       payload.addAttr(ctx, 'eth.dst')
-      assert.strictEqual(1, payload.attrs.length)
+      assert.strictEqual(1, [...payload.attrs()].length)
       payload.addAttr(ctx, 'eth.src')
-      assert.strictEqual(2, payload.attrs.length)
+      assert.strictEqual(2, [...payload.attrs()].length)
     })
   })
   describe('#type', () => {

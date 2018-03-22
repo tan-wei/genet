@@ -20,6 +20,8 @@ void LayerWrapper::init(v8::Isolate *isolate) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Layer").ToLocalChecked());
+  SetPrototypeMethod(tpl, "attrs", attrs);
+  SetPrototypeMethod(tpl, "errors", errors);
   SetPrototypeMethod(tpl, "prev", prev);
   SetPrototypeMethod(tpl, "next", next);
   SetPrototypeMethod(tpl, "attr", attr);
@@ -40,8 +42,6 @@ void LayerWrapper::init(v8::Isolate *isolate) {
   Nan::SetAccessor(otl, Nan::New("parent").ToLocalChecked(), parent);
   Nan::SetAccessor(otl, Nan::New("frame").ToLocalChecked(), frame);
   Nan::SetAccessor(otl, Nan::New("payloads").ToLocalChecked(), payloads);
-  Nan::SetAccessor(otl, Nan::New("errors").ToLocalChecked(), errors);
-  Nan::SetAccessor(otl, Nan::New("attrs").ToLocalChecked(), attrs);
   Nan::SetAccessor(otl, Nan::New("layers").ToLocalChecked(), layers);
   Nan::SetAccessor(otl, Nan::New("tags").ToLocalChecked(), tags);
 
@@ -156,7 +156,7 @@ NAN_GETTER(LayerWrapper::payloads) {
   }
 }
 
-NAN_GETTER(LayerWrapper::errors) {
+NAN_METHOD(LayerWrapper::errors) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->constLayer) {
     info.GetReturnValue().Set(IteratorWrapper::wrap(
@@ -191,7 +191,7 @@ NAN_GETTER(LayerWrapper::layers) {
   }
 }
 
-NAN_GETTER(LayerWrapper::attrs) {
+NAN_METHOD(LayerWrapper::attrs) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->constLayer) {
     info.GetReturnValue().Set(IteratorWrapper::wrap(

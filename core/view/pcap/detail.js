@@ -44,7 +44,7 @@ class LayerItem {
       children: [],
     }]
     let prevDepth = 0
-    for (const attr of layer.attrs) {
+    for (const attr of layer.attrs()) {
       let { id } = attr
       if (id.startsWith('.')) {
         id = layer.id + id
@@ -164,7 +164,7 @@ class LayerItem {
                   ])
                 ])))
           ]),
-          m('ul', { class: 'metadata error' }, [...layer.errors].map((err) =>
+          m('ul', { class: 'metadata error' }, [...layer.errors()].map((err) =>
             m('li', [
               m('detail', [
                 m('summary', [
