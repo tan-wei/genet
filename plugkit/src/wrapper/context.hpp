@@ -14,6 +14,7 @@ public:
   static NAN_METHOD(New);
   static NAN_METHOD(getConfig);
   static NAN_METHOD(closeStream);
+  static NAN_METHOD(assertConfidence);
   static NAN_METHOD(addLayerLinkage);
   static v8::Local<v8::Object> wrap(Context *ctx);
   static Context *unwrap(v8::Local<v8::Value> value);

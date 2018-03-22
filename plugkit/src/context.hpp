@@ -22,6 +22,7 @@ namespace plugkit {
 struct Context final {
 public:
   bool closeStream = false;
+  uint32_t confidenceThreshold = 0;
 
   VariantMap options;
 

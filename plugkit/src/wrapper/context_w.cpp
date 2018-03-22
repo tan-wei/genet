@@ -13,6 +13,7 @@ void ContextWrapper::init(v8::Isolate *isolate) {
   tpl->SetClassName(Nan::New("Context").ToLocalChecked());
   SetPrototypeMethod(tpl, "getConfig", getConfig);
   SetPrototypeMethod(tpl, "closeStream", closeStream);
+  SetPrototypeMethod(tpl, "assertConfidence", assertConfidence);
   SetPrototypeMethod(tpl, "addLayerLinkage", addLayerLinkage);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
@@ -36,6 +37,15 @@ NAN_METHOD(ContextWrapper::closeStream) {
   ContextWrapper *wrapper = ObjectWrap::Unwrap<ContextWrapper>(info.Holder());
   if (Context *ctx = wrapper->ctx) {
     Context_closeStream(ctx);
+  }
+}
+
+NAN_METHOD(ContextWrapper::assertConfidence) {
+  ContextWrapper *wrapper = ObjectWrap::Unwrap<ContextWrapper>(info.Holder());
+  if (Context *ctx = wrapper->ctx) {
+    if (info[0]->Uint32Value() < ctx->confidenceThreshold) {
+      Nan::ThrowError("Insufficient confidence");
+    }
   }
 }
 
