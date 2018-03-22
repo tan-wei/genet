@@ -1,5 +1,6 @@
 #include "../context.hpp"
 #include "context.hpp"
+#include "layer.hpp"
 #include "plugkit_module.hpp"
 #include "variant.hpp"
 #include <vector>
@@ -12,6 +13,7 @@ void ContextWrapper::init(v8::Isolate *isolate) {
   tpl->SetClassName(Nan::New("Context").ToLocalChecked());
   SetPrototypeMethod(tpl, "getConfig", getConfig);
   SetPrototypeMethod(tpl, "closeStream", closeStream);
+  SetPrototypeMethod(tpl, "addLayerLinkage", addLayerLinkage);
 
   PlugkitModule *module = PlugkitModule::get(isolate);
   module->context.ctor.Reset(isolate, Nan::GetFunction(tpl).ToLocalChecked());
@@ -34,6 +36,31 @@ NAN_METHOD(ContextWrapper::closeStream) {
   ContextWrapper *wrapper = ObjectWrap::Unwrap<ContextWrapper>(info.Holder());
   if (Context *ctx = wrapper->ctx) {
     Context_closeStream(ctx);
+  }
+}
+
+NAN_METHOD(ContextWrapper::addLayerLinkage) {
+  ContextWrapper *wrapper = ObjectWrap::Unwrap<ContextWrapper>(info.Holder());
+  if (Context *ctx = wrapper->ctx) {
+    Token token = Token_null();
+    auto tok = info[0];
+    if (tok->IsUint32()) {
+      token = tok->Uint32Value();
+    } else if (tok->IsString()) {
+      token = Token_get(*Nan::Utf8String(tok));
+    } else {
+      Nan::ThrowTypeError("First argument must be a string or token-id");
+      return;
+    }
+    if (!info[1]->IsUint32()) {
+      Nan::ThrowTypeError("Second argument must be an integer");
+      return;
+    }
+    if (Layer *layer = LayerWrapper::unwrap(info[2])) {
+      Context_addLayerLinkage(ctx, token, info[1]->Uint32Value(), layer);
+    } else {
+      Nan::ThrowTypeError("Third argument must be a Layer");
+    }
   }
 }
 
