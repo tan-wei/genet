@@ -149,7 +149,7 @@ Confidence is a 2-bit value represents an accuracy of the dissected layer.
 | Exact | 3 | Protocol is specified in the lower layer. | IPv4 over Ethernet |
 | Probable | 2 | Protocol could not be determined precisely, but a usual port or parameter is used. | SSH on TCP port 20 |
 | Possible | 1 | Protocol is decodable but an unusual port or parameter is used. | SSH on TCP port 5555 |
-| Error | 0 | Not decodable | - |
+| Error | 0 | Protocol has an invalid parameter. | - |
 
 Increasing the confidence threshold level produces cleaner results.
 On the other hand, the lower level is a better choice for catching broken/camouflaged packets.
