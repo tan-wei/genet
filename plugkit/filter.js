@@ -25,10 +25,7 @@ function makeOp (opcode, ...args) {
 
 class FilterCompiler {
   constructor () {
-    this[fields] = {
-      macros: [],
-      attrs: {},
-    }
+    this[fields] = { macros: [] }
   }
 
   set macros (macros) {
@@ -37,14 +34,6 @@ class FilterCompiler {
 
   get macros () {
     return this[fields].macros
-  }
-
-  set attrs (attrs) {
-    this[fields].attrs = attrs
-  }
-
-  get attrs () {
-    return this[fields].attrs
   }
 
   transpile (filter) {

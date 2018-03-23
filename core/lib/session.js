@@ -194,14 +194,9 @@ export default class Session {
   }
 
   createFilterCompiler () {
-    const { tokens, filterMacros } = this[fields]
+    const { filterMacros } = this[fields]
     const filterCompiler = new FilterCompiler()
     filterCompiler.macros = Array.from(filterMacros)
-    const attributes = {}
-    for (const [key, value] of tokens.entries()) {
-      attributes[key] = value
-    }
-    filterCompiler.attrs = attributes
     return filterCompiler
   }
 
