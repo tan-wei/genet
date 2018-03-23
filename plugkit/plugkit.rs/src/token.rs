@@ -45,13 +45,3 @@ macro_rules! token {
         TOKEN.with(|&t| t)
     }}
 }
-
-#[macro_export]
-macro_rules! token_concat {
-    ($prefix:expr, $name:expr) => {{
-        thread_local! (
-            static TOKEN: plugkit::token::Token = plugkit::token::get($name as &'static str);
-        );
-        TOKEN.with(|&t| t)
-    }}
-}
