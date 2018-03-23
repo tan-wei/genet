@@ -1,3 +1,18 @@
+const pipelineFuncs = {
+  length: function () {
+    if ('length' in this) {
+      return this.length
+    }
+    return 0
+  },
+  slice: function (...args) {
+    if ('slice' in this) {
+      return this.slice(...args)
+    }
+    return this
+  }
+}
+
 function resolver(root) {
   return function (id) {
     const attr = root.query(id)
@@ -10,11 +25,11 @@ function resolver(root) {
 }
 
 function pipeline(name, self, ...args) {
-  const val = Object(self)
-  if (name in val && typeof val[name] === 'function') {
-    return val[name](...args)
+  const func = pipelineFuncs[name]
+  if (typeof func === 'function') {
+    return func.call(Object(self), ...args)
   }
-  return val
+  return self
 }
 
 function operator(opcode, lhs, ...args) {

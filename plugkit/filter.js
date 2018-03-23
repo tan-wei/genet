@@ -110,7 +110,7 @@ class FilterCompiler {
     if (prog === '') {
       return (() => true)
     }
-    return vm.runInThisContext(prog, options)
+    return vm.runInNewContext(prog, options)
   }
 
   compile (filter, opt = {}) {
