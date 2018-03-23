@@ -74,8 +74,4 @@ impl Attr {
     pub fn value_mut(&mut self) -> &mut Variant {
         &mut self.val
     }
-
-    pub fn set_nil(&mut self) {
-        self.value_mut().set_nil()
-    }
 }

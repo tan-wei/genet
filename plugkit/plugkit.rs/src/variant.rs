@@ -31,6 +31,8 @@ pub enum Type {
     Address = 12,
 }
 
+pub struct Nil {}
+
 #[repr(C)]
 union ValueUnion {
     boolean: bool,
@@ -77,6 +79,16 @@ impl fmt::Display for Variant {
 pub trait Value<T> {
     fn get(&self) -> T;
     fn set(&mut self, &T);
+}
+
+impl Value<Nil> for Variant {
+    fn get(&self) -> Nil {
+        Nil {}
+    }
+
+    fn set(&mut self, _: &Nil) {
+        self.set_typ_tag(Type::Nil, 0)
+    }
 }
 
 impl Value<bool> for Variant {
@@ -258,11 +270,6 @@ impl Variant {
     /// Returns the type of self.
     pub fn typ(&self) -> Type {
         unsafe { mem::transmute((self.typ_tag & 0b1111) as u8) }
-    }
-
-    /// Sets the value of self to nil.
-    pub fn set_nil(&mut self) {
-        self.set_typ_tag(Type::Nil, 0)
     }
 
     fn set_typ_tag(&mut self, typ: Type, tag: u64) {
