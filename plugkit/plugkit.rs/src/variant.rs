@@ -8,7 +8,7 @@
 //! - Int64 - [`i64`](https://doc.rust-lang.org/std/primitive.i64.html)
 //! - Uint64 - [`u64`](https://doc.rust-lang.org/std/primitive.u64.html)
 //! - Double - [`f64`](https://doc.rust-lang.org/std/primitive.f64.html)
-//! - String - [`String`](https://doc.rust-lang.org/std/string/struct.String.html)
+//! - String - [`&'static str`](https://doc.rust-lang.org/std/primitive.str.html)
 //! - Slice - `&'static[u8]`
 //! - Address - Internal raw pointer
 
@@ -255,19 +255,21 @@ impl Value<&'static [u8]> for Variant {
 }
 
 impl Variant {
-    fn set_typ_tag(&mut self, typ: Type, tag: u64) {
-        self.typ_tag = (tag << 4) | (typ as u8 & 0b1111) as u64
-    }
-
+    /// Returns the type of self.
     pub fn typ(&self) -> Type {
         unsafe { mem::transmute((self.typ_tag & 0b1111) as u8) }
     }
 
-    pub fn tag(&self) -> u64 {
-        (self.typ_tag >> 4) as u64
-    }
-
+    /// Sets the value of self to nil.
     pub fn set_nil(&mut self) {
         self.set_typ_tag(Type::Nil, 0)
+    }
+
+    fn set_typ_tag(&mut self, typ: Type, tag: u64) {
+        self.typ_tag = (tag << 4) | (typ as u8 & 0b1111) as u64
+    }
+
+    fn tag(&self) -> u64 {
+        (self.typ_tag >> 4) as u64
     }
 }
