@@ -8,6 +8,7 @@ use super::token::Token;
 use super::range::Range;
 use super::variant::{Value, Variant};
 
+/// An attribute object.
 #[repr(C)]
 pub struct Attr {
     id: Token,
@@ -44,10 +45,12 @@ where
 }
 
 impl Attr {
+    /// Returns the ID of `self`.
     pub fn id(&self) -> Token {
         self.id
     }
 
+    /// Returns the range of `self`.
     pub fn range(&self) -> Range {
         Range {
             start: self.range.0,
@@ -55,22 +58,27 @@ impl Attr {
         }
     }
 
+    /// Sets the range of `self`.
     pub fn set_range(&mut self, range: &Range) {
         self.range = (range.start, range.end)
     }
 
+    /// Returns the type of `self`.
     pub fn typ(&self) -> Token {
         self.typ
     }
 
+    /// Sets the type of `self`.
     pub fn set_typ(&mut self, id: Token) {
         self.typ = id
     }
 
+    /// Returns a reference to the value of `self`.
     pub fn value(&self) -> &Variant {
         &self.val
     }
 
+    /// Returns a mutable reference to the value of `self`.
     pub fn value_mut(&mut self) -> &mut Variant {
         &mut self.val
     }

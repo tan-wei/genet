@@ -15,7 +15,7 @@ extern crate libc;
 /// Maximum value of worker ID.
 pub const MAX_WORKER: u8 = 16;
 
-/// A protocol stack layer.
+/// A layer object.
 #[derive(Debug)]
 #[repr(C)]
 pub struct Layer {
