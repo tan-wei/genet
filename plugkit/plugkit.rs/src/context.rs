@@ -3,7 +3,7 @@
 //! Type Context holds data for thread-local features such as allocator and logger.
 
 use super::variant::Variant;
-use super::layer::{Layer, Confidence};
+use super::layer::{Confidence, Layer};
 use super::symbol;
 use super::token::Token;
 use std::io::{Error, ErrorKind};
@@ -11,7 +11,7 @@ use std::io::{Error, ErrorKind};
 #[repr(C)]
 pub struct Context {
     close_stream: bool,
-    confidence_threshold: u32
+    confidence_threshold: u32,
 }
 
 impl Context {

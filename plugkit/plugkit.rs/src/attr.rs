@@ -13,7 +13,7 @@ pub struct Attr {
     id: Token,
     typ: Token,
     val: Variant,
-    range: (u32, u32)
+    range: (u32, u32),
 }
 
 impl<T> Value<T> for Attr

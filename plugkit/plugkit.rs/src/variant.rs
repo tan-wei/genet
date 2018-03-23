@@ -19,7 +19,7 @@ use std::mem;
 use std::slice;
 use std::str;
 
-#[derive(Debug,PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum Type {
     Nil = 0,
     Bool = 1,
@@ -44,7 +44,7 @@ union ValueUnion {
 #[repr(C)]
 pub struct Variant {
     typ_tag: u64,
-    val: ValueUnion
+    val: ValueUnion,
 }
 
 impl fmt::Display for Variant {
@@ -87,7 +87,7 @@ impl Value<bool> for Variant {
                 Type::Int64 => self.val.int64 != 0,
                 Type::Uint64 => self.val.uint64 != 0,
                 Type::Double => self.val.double != 0.0,
-                _ => false
+                _ => false,
             }
         }
     }
@@ -136,7 +136,7 @@ impl Value<i64> for Variant {
                 Type::Int64 => self.val.int64 as i64,
                 Type::Uint64 => self.val.uint64 as i64,
                 Type::Double => self.val.double as i64,
-                _ => 0
+                _ => 0,
             }
         }
     }
@@ -185,7 +185,7 @@ impl Value<u64> for Variant {
                 Type::Int64 => self.val.int64 as u64,
                 Type::Uint64 => self.val.uint64 as u64,
                 Type::Double => self.val.double as u64,
-                _ => 0
+                _ => 0,
             }
         }
     }
@@ -214,7 +214,7 @@ impl Value<f64> for Variant {
                 Type::Int64 => self.val.int64 as f64,
                 Type::Uint64 => self.val.uint64 as f64,
                 Type::Double => self.val.double,
-                _ => 0.0
+                _ => 0.0,
             }
         }
     }
@@ -226,7 +226,7 @@ impl Value<f64> for Variant {
 }
 
 impl Value<&'static str> for Variant {
-     fn get(&self) -> &'static str {
+    fn get(&self) -> &'static str {
         unsafe {
             str::from_utf8_unchecked(slice::from_raw_parts(self.val.data, self.tag() as usize))
         }
@@ -242,10 +242,8 @@ impl Value<&'static [u8]> for Variant {
     fn get(&self) -> &'static [u8] {
         unsafe {
             match self.typ() {
-                Type::Slice => {
-                    slice::from_raw_parts(self.val.data, self.tag() as usize)
-                },
-                _ => &[]
+                Type::Slice => slice::from_raw_parts(self.val.data, self.tag() as usize),
+                _ => &[],
             }
         }
     }

@@ -11,8 +11,8 @@ use super::variant::Variant;
 use super::context::Context;
 
 pub enum Status {
-    Done        = 0,
-    Error       = 1
+    Done = 0,
+    Error = 1,
 }
 
 #[repr(C)]
@@ -24,7 +24,7 @@ pub struct RawFrame {
     ts_sec: i64,
     ts_nsec: i64,
     root: *const Layer,
-    data: Variant
+    data: Variant,
 }
 
 impl RawFrame {
@@ -85,7 +85,12 @@ pub trait Importer {
         false
     }
 
-    fn start(_ctx: &mut Context, _path: &Path, _dst: &mut [RawFrame], _cb: &Fn(&mut Context, usize, f64)) -> Result<()> {
+    fn start(
+        _ctx: &mut Context,
+        _path: &Path,
+        _dst: &mut [RawFrame],
+        _cb: &Fn(&mut Context, usize, f64),
+    ) -> Result<()> {
         Ok(())
     }
 }
@@ -95,7 +100,11 @@ pub trait Exporter {
         false
     }
 
-    fn start(_ctx: &mut Context, _path: &Path, _cb: &Fn(&mut Context) -> &[RawFrame]) -> Result<()> {
+    fn start(
+        _ctx: &mut Context,
+        _path: &Path,
+        _cb: &Fn(&mut Context) -> &[RawFrame],
+    ) -> Result<()> {
         Ok(())
     }
 }

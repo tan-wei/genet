@@ -1,7 +1,7 @@
-extern crate http_muncher;
 extern crate byteorder;
-extern crate libc;
+extern crate http_muncher;
 extern crate inflector;
+extern crate libc;
 
 #[macro_use]
 extern crate plugkit;
@@ -9,13 +9,13 @@ extern crate plugkit;
 use inflector::Inflector;
 use std::collections::HashMap;
 use std::io::{Error, ErrorKind};
-use plugkit::layer::{Layer};
+use plugkit::layer::Layer;
 use plugkit::context::Context;
 use plugkit::worker::Worker;
 use plugkit::token;
 use plugkit::token::Token;
 use plugkit::variant::Value;
-use http_muncher::{Parser, ParserHandler, ParserType, Method};
+use http_muncher::{Method, Parser, ParserHandler, ParserType};
 use std::cell::RefCell;
 use std::str;
 use std::rc::Rc;
@@ -24,7 +24,7 @@ use std::rc::Rc;
 enum Status {
     None,
     Active,
-    Error
+    Error,
 }
 
 fn get_status_code(val: u16) -> Option<Token> {
@@ -132,29 +132,29 @@ fn get_method(val: Method) -> Token {
 }
 
 enum Entry {
-    Url(&'static[u8])
+    Url(&'static [u8]),
 }
 
 struct HTTPSession {
     status: Status,
     parser: Rc<RefCell<Parser>>,
-    header_field: &'static[u8],
-    headers: Vec<(String, &'static[u8])>,
-    entries: Vec<Entry>
+    header_field: &'static [u8],
+    headers: Vec<(String, &'static [u8])>,
+    entries: Vec<Entry>,
 }
 
 impl ParserHandler for HTTPSession {
-    fn on_url(&mut self, _parser: &mut Parser, data: &'static[u8]) -> bool {
+    fn on_url(&mut self, _parser: &mut Parser, data: &'static [u8]) -> bool {
         self.entries.push(Entry::Url(data));
         true
     }
 
-    fn on_header_field(&mut self, _parser: &mut Parser, data: &'static[u8]) -> bool {
+    fn on_header_field(&mut self, _parser: &mut Parser, data: &'static [u8]) -> bool {
         self.header_field = data;
-        true   
+        true
     }
 
-    fn on_header_value(&mut self, _parser: &mut Parser, data: &'static[u8]) -> bool {
+    fn on_header_value(&mut self, _parser: &mut Parser, data: &'static [u8]) -> bool {
         if let Ok(key) = str::from_utf8(self.header_field) {
             self.headers.push((key.to_camel_case(), data));
         }
@@ -169,17 +169,22 @@ impl HTTPSession {
             parser: Rc::new(RefCell::new(Parser::request_and_response())),
             header_field: &[],
             headers: Vec::new(),
-            entries: Vec::new()
+            entries: Vec::new(),
         }
     }
 
-    fn parse(&mut self, slice: &'static[u8]) -> usize {
+    fn parse(&mut self, slice: &'static [u8]) -> usize {
         let parser = Rc::clone(&self.parser);
         let size = parser.borrow_mut().parse(self, &slice);
         size
     }
 
-    fn analyze(&mut self, ctx: &mut Context, layer: &mut Layer, stream_id: u64) -> Result<(), Error> {
+    fn analyze(
+        &mut self,
+        ctx: &mut Context,
+        layer: &mut Layer,
+        stream_id: u64,
+    ) -> Result<(), Error> {
         let (slice, _) = {
             let payload = layer
                 .payloads()
@@ -201,17 +206,17 @@ impl HTTPSession {
                 } else {
                     Status::Error
                 }
-            },
+            }
             Status::Active => {
                 if self.parse(slice) != slice.len() {
                     self.status = Status::Error;
                 }
-            },
-            _ => ()
+            }
+            _ => (),
         }
 
         if self.status != Status::Active {
-            return Ok(())
+            return Ok(());
         }
 
         let parser = Rc::clone(&self.parser);
@@ -279,23 +284,23 @@ impl HTTPSession {
 }
 
 struct HTTPWorker {
-    map: HashMap<u64, HTTPSession>
+    map: HashMap<u64, HTTPSession>,
 }
 
 impl HTTPWorker {
     pub fn new() -> HTTPWorker {
         HTTPWorker {
-            map: HashMap::new()
+            map: HashMap::new(),
         }
     }
 }
 
 impl Worker for HTTPWorker {
     fn analyze(&mut self, ctx: &mut Context, layer: &mut Layer) -> Result<(), Error> {
-        let stream_id: u64 = {
-            layer.attr(token!("_.streamId")).unwrap().get()
-        };
-        let session = self.map.entry(stream_id).or_insert_with(|| HTTPSession::new());
+        let stream_id: u64 = { layer.attr(token!("_.streamId")).unwrap().get() };
+        let session = self.map
+            .entry(stream_id)
+            .or_insert_with(|| HTTPSession::new());
         session.analyze(ctx, layer, stream_id)
     }
 }

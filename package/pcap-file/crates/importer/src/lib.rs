@@ -1,9 +1,9 @@
-#[macro_use]
-extern crate plugkit;
 extern crate byteorder;
 extern crate libc;
+#[macro_use]
+extern crate plugkit;
 
-use std::io::{Result, Error, ErrorKind, Read, BufReader};
+use std::io::{BufReader, Error, ErrorKind, Read, Result};
 use std::fs::File;
 use std::path::Path;
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
@@ -21,7 +21,12 @@ impl Importer for PcapImporter {
         }
     }
 
-    fn start(ctx: &mut Context, path: &Path, dst: &mut [RawFrame], cb: &Fn(&mut Context, usize, f64)) -> Result<()> {
+    fn start(
+        ctx: &mut Context,
+        path: &Path,
+        dst: &mut [RawFrame],
+        cb: &Fn(&mut Context, usize, f64),
+    ) -> Result<()> {
         let file = File::open(path)?;
         let mut rdr = BufReader::new(file);
         let magic_number = rdr.read_u32::<BigEndian>()?;
@@ -31,24 +36,17 @@ impl Importer for PcapImporter {
             0xa1b2c3d4 => (false, false),
             0x4d3cb2a1 => (true, true),
             0xa1b23c4d => (false, true),
-            _ => return Err(Error::new(ErrorKind::InvalidData, "wrong magic number"))
+            _ => return Err(Error::new(ErrorKind::InvalidData, "wrong magic number")),
         };
 
-        let (
-            _ver_major,
-            _var_minor,
-            _thiszone,
-            _sigfigs,
-            _snaplen,
-            network
-        ) = if le {
+        let (_ver_major, _var_minor, _thiszone, _sigfigs, _snaplen, network) = if le {
             (
                 rdr.read_u16::<LittleEndian>()?,
                 rdr.read_u16::<LittleEndian>()?,
                 rdr.read_i32::<LittleEndian>()?,
                 rdr.read_u32::<LittleEndian>()?,
                 rdr.read_u32::<LittleEndian>()?,
-                rdr.read_u32::<LittleEndian>()?
+                rdr.read_u32::<LittleEndian>()?,
             )
         } else {
             (
@@ -57,7 +55,7 @@ impl Importer for PcapImporter {
                 rdr.read_i32::<BigEndian>()?,
                 rdr.read_u32::<BigEndian>()?,
                 rdr.read_u32::<BigEndian>()?,
-                rdr.read_u32::<BigEndian>()?
+                rdr.read_u32::<BigEndian>()?,
             )
         };
 
@@ -65,24 +63,19 @@ impl Importer for PcapImporter {
             let mut cnt = 0;
             let result = (|| -> Result<()> {
                 for idx in 0..dst.len() {
-                    let (
-                        ts_sec,
-                        mut ts_usec,
-                        inc_len,
-                        orig_len
-                    ) = if le {
+                    let (ts_sec, mut ts_usec, inc_len, orig_len) = if le {
                         (
                             rdr.read_u32::<LittleEndian>()?,
                             rdr.read_u32::<LittleEndian>()?,
                             rdr.read_u32::<LittleEndian>()?,
-                            rdr.read_u32::<LittleEndian>()?
+                            rdr.read_u32::<LittleEndian>()?,
                         )
                     } else {
                         (
                             rdr.read_u32::<BigEndian>()?,
                             rdr.read_u32::<BigEndian>()?,
                             rdr.read_u32::<BigEndian>()?,
-                            rdr.read_u32::<BigEndian>()?
+                            rdr.read_u32::<BigEndian>()?,
                         )
                     };
 
@@ -107,7 +100,7 @@ impl Importer for PcapImporter {
             })();
             cb(ctx, cnt, 0.5);
             if result.is_err() {
-                break
+                break;
             }
         }
         Ok(())

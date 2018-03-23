@@ -64,7 +64,8 @@ impl Worker for UDPWorker {
             payload.set_range(&(range.start + offset..range.end + offset));
 
             Ok(())
-        })().or_else(|_| {
+        })()
+            .or_else(|_| {
             child.add_error(ctx, token!("!out-of-bounds"), "");
             Ok(())
         })

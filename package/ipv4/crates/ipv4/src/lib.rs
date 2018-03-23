@@ -104,7 +104,7 @@ impl Worker for IPv4Worker {
                 let attr = child.add_attr(ctx, token!("ipv4.fragmentOffset"));
                 let offset = ((flag_and_offset & 0b00011111) << 8) | fg_offset;
                 attr.set(&offset);
-                attr.set_range(&(6 .. 8));
+                attr.set_range(&(6..8));
             }
             {
                 let attr = child.add_attr(ctx, token!("ipv4.ttl"));
@@ -150,7 +150,8 @@ impl Worker for IPv4Worker {
             payload.set_range(&(range.start + offset..range.end + offset));
 
             Ok(())
-        })().or_else(|_| {
+        })()
+            .or_else(|_| {
             child.add_error(ctx, token!("!out-of-bounds"), "");
             Ok(())
         })

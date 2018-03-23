@@ -20,7 +20,7 @@ pub struct Layer {
     id: Token,
     data: u32,
     parent: *mut Layer,
-    range: (u32, u32)
+    range: (u32, u32),
 }
 
 #[derive(Debug)]
@@ -66,7 +66,9 @@ impl Layer {
     }
 
     pub fn add_error(&mut self, ctx: &mut Context, id: Token, msg: &str) {
-        unsafe { symbol::Layer_addError.unwrap()(self, ctx, id, msg.as_ptr() as *const i8, msg.len()) }
+        unsafe {
+            symbol::Layer_addError.unwrap()(self, ctx, id, msg.as_ptr() as *const i8, msg.len())
+        }
     }
 
     pub fn add_tag(&mut self, ctx: &mut Context, id: Token) {

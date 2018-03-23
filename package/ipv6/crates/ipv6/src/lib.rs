@@ -108,7 +108,7 @@ impl Worker for IPv6Worker {
                         let (ext_len, _) = ByteReader::read_u8(&mut rdr)?;
                         let byte_len = (ext_len + 1) * 8;
                         ByteReader::read_slice(&mut rdr, byte_len as usize)?;
-                    },
+                    }
                     // TODO:
                     // case 43  # Routing
                     // case 44  # Fragment
@@ -117,7 +117,7 @@ impl Worker for IPv6Worker {
                     // case 135 # Mobility
                     // No Next Header
                     59 => break,
-                    _ => break
+                    _ => break,
                 }
             }
 
@@ -144,7 +144,8 @@ impl Worker for IPv6Worker {
             payload.set_range(&(range.start + offset..range.end + offset));
 
             Ok(())
-        })().or_else(|_| {
+        })()
+            .or_else(|_| {
             child.add_error(ctx, token!("!out-of-bounds"), "");
             Ok(())
         })

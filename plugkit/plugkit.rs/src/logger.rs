@@ -6,9 +6,9 @@ use std::ffi::CString;
 
 pub enum Level {
     Debug = 0,
-    Info  = 1,
-    Warn  = 2,
-    Error = 3
+    Info = 1,
+    Warn = 2,
+    Error = 3,
 }
 
 #[repr(C)]
@@ -16,19 +16,28 @@ pub(crate) struct Metadata {
     pub level: Level,
     pub file: &'static str,
     pub line: u32,
-    pub column: u32
+    pub column: u32,
 }
 
-pub fn write_log(ctx: &mut Context, msg: String, level: Level, file: &'static str, line: u32, column: u32) {
+pub fn write_log(
+    ctx: &mut Context,
+    msg: String,
+    level: Level,
+    file: &'static str,
+    line: u32,
+    column: u32,
+) {
     unsafe {
-        symbol::Logger_log.unwrap()(ctx,
+        symbol::Logger_log.unwrap()(
+            ctx,
             CString::new(msg).unwrap().as_ptr(),
-            &Metadata{
+            &Metadata {
                 level: level,
                 file: file,
                 line: line,
                 column: column,
-            });
+            },
+        );
     }
 }
 

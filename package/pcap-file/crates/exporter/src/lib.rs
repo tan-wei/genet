@@ -1,9 +1,9 @@
-#[macro_use]
-extern crate plugkit;
 extern crate byteorder;
 extern crate libc;
+#[macro_use]
+extern crate plugkit;
 
-use std::io::{Result, Write, BufWriter};
+use std::io::{BufWriter, Result, Write};
 use std::fs::File;
 use std::path::Path;
 use byteorder::{LittleEndian, WriteBytesExt};
@@ -24,20 +24,18 @@ impl Exporter for PcapExporter {
 
     fn start(ctx: &mut Context, path: &Path, cb: &Fn(&mut Context) -> &[RawFrame]) -> Result<()> {
         let ext = path.extension();
-        if ext.is_none() || ext.unwrap() != "pcap" {
-            
-        }
+        if ext.is_none() || ext.unwrap() != "pcap" {}
         let file = File::create(path)?;
         let mut wtr = BufWriter::new(file);
         wtr.write_all(&[0x4d, 0x3c, 0xb2, 0xa1])?;
 
         let mut header = false;
-        let snaplen : u32 = ctx.get_config("_.pcap.snaplen").get();
+        let snaplen: u32 = ctx.get_config("_.pcap.snaplen").get();
 
         loop {
             let frames = cb(ctx);
             if frames.len() == 0 {
-                break
+                break;
             }
 
             if !header {

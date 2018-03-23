@@ -87,7 +87,8 @@ impl Worker for ETHWorker {
             payload.add_slice(data);
             payload.set_range(&range);
             Ok(())
-        })().or_else(|_| {
+        })()
+            .or_else(|_| {
             child.add_error(ctx, token!("!out-of-bounds"), "");
             Ok(())
         })

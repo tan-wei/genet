@@ -25,56 +25,64 @@ pub trait ByteReader<T> {
 impl ByteReader<&'static [u8]> for Cursor<&'static [u8]> {
     fn read_i8(&mut self) -> Result<(i32, Range)> {
         ReadBytesExt::read_i8(self).and_then(|val| {
-            let range = self.position() as u32 - mem::size_of_val(&val) as u32..self.position() as u32;
+            let range =
+                self.position() as u32 - mem::size_of_val(&val) as u32..self.position() as u32;
             Ok((i32::from(val), range))
         })
     }
 
     fn read_i16<B: ByteOrder>(&mut self) -> Result<(i32, Range)> {
         ReadBytesExt::read_i16::<B>(self).and_then(|val| {
-            let range = self.position() as u32 - mem::size_of_val(&val) as u32..self.position() as u32;
+            let range =
+                self.position() as u32 - mem::size_of_val(&val) as u32..self.position() as u32;
             Ok((i32::from(val), range))
         })
     }
 
     fn read_i32<B: ByteOrder>(&mut self) -> Result<(i32, Range)> {
         ReadBytesExt::read_i32::<B>(self).and_then(|val| {
-            let range = self.position() as u32 - mem::size_of_val(&val) as u32..self.position() as u32;
+            let range =
+                self.position() as u32 - mem::size_of_val(&val) as u32..self.position() as u32;
             Ok((val as i32, range))
         })
     }
 
     fn read_u8(&mut self) -> Result<(u32, Range)> {
         ReadBytesExt::read_u8(self).and_then(|val| {
-            let range = self.position() as u32 - mem::size_of_val(&val) as u32..self.position() as u32;
+            let range =
+                self.position() as u32 - mem::size_of_val(&val) as u32..self.position() as u32;
             Ok((u32::from(val), range))
         })
     }
 
     fn read_u16<B: ByteOrder>(&mut self) -> Result<(u32, Range)> {
         ReadBytesExt::read_u16::<B>(self).and_then(|val| {
-            let range = self.position() as u32 - mem::size_of_val(&val) as u32..self.position() as u32;
+            let range =
+                self.position() as u32 - mem::size_of_val(&val) as u32..self.position() as u32;
             Ok((u32::from(val), range))
         })
     }
 
     fn read_u32<B: ByteOrder>(&mut self) -> Result<(u32, Range)> {
         ReadBytesExt::read_u32::<B>(self).and_then(|val| {
-            let range = self.position() as u32 - mem::size_of_val(&val) as u32..self.position() as u32;
+            let range =
+                self.position() as u32 - mem::size_of_val(&val) as u32..self.position() as u32;
             Ok((val as u32, range))
         })
     }
 
     fn read_f32<B: ByteOrder>(&mut self) -> Result<(f64, Range)> {
         ReadBytesExt::read_f32::<B>(self).and_then(|val| {
-            let range = self.position() as u32 - mem::size_of_val(&val) as u32..self.position() as u32;
+            let range =
+                self.position() as u32 - mem::size_of_val(&val) as u32..self.position() as u32;
             Ok((f64::from(val), range))
         })
     }
 
     fn read_f64<B: ByteOrder>(&mut self) -> Result<(f64, Range)> {
         ReadBytesExt::read_f64::<B>(self).and_then(|val| {
-            let range = self.position() as u32 - mem::size_of_val(&val) as u32..self.position() as u32;
+            let range =
+                self.position() as u32 - mem::size_of_val(&val) as u32..self.position() as u32;
             Ok((val as f64, range))
         })
     }
@@ -89,7 +97,10 @@ impl ByteReader<&'static [u8]> for Cursor<&'static [u8]> {
             {
                 self.set_position(end as u64)
             }
-            Ok((&self.get_ref()[begin as usize..end as usize], begin as u32..end as u32))
+            Ok((
+                &self.get_ref()[begin as usize..end as usize],
+                begin as u32..end as u32,
+            ))
         }
     }
 

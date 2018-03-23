@@ -4,20 +4,20 @@ extern crate libc;
 #[macro_use]
 extern crate plugkit;
 
-use std::collections::{HashMap, BTreeMap};
+use std::collections::{BTreeMap, HashMap};
 use std::io::{Error, ErrorKind};
-use plugkit::layer::{Layer};
+use plugkit::layer::Layer;
 use plugkit::context::Context;
 use plugkit::worker::Worker;
 use plugkit::variant::Value;
 
 #[derive(Debug)]
 struct Stream {
-  pub id: u64,
-  pub seq: i64,
-  pub len: usize,
-  offset: usize,
-  slices: BTreeMap<usize, &'static[u8]>
+    pub id: u64,
+    pub seq: i64,
+    pub len: usize,
+    offset: usize,
+    slices: BTreeMap<usize, &'static [u8]>,
 }
 
 impl Stream {
@@ -27,25 +27,23 @@ impl Stream {
             seq: -1,
             len: 0,
             offset: 0,
-            slices: BTreeMap::new()
-        }
+            slices: BTreeMap::new(),
+        };
     }
 
-    fn put(&mut self, start: usize, data: &'static[u8]) {
+    fn put(&mut self, start: usize, data: &'static [u8]) {
         if data.len() > 0 {
             self.slices.insert(start, data);
             let mut end = self.offset;
             for (start, slice) in self.slices.iter_mut() {
-                if *start < end {
-
-                }
+                if *start < end {}
                 end = *start + slice.len();
             }
         }
     }
 
-    fn fetch(&mut self) -> Box<[&'static[u8]]> {
-        let mut slices = Vec::<&'static[u8]>::new();
+    fn fetch(&mut self) -> Box<[&'static [u8]]> {
+        let mut slices = Vec::<&'static [u8]>::new();
         loop {
             let pos;
             if let Some((key, value)) = self.slices.iter().next() {
@@ -54,10 +52,10 @@ impl Stream {
                     self.offset += value.len();
                     slices.push(value);
                 } else {
-                    break
+                    break;
                 }
             } else {
-                break
+                break;
             }
             self.slices.remove(&pos);
         }
@@ -66,14 +64,14 @@ impl Stream {
 }
 
 struct TCPStreamWorker {
-    map: HashMap<(&'static[u8],&'static[u8],u32,u32), Stream>
+    map: HashMap<(&'static [u8], &'static [u8], u32, u32), Stream>,
 }
 
 impl TCPStreamWorker {
     fn new() -> TCPStreamWorker {
         return TCPStreamWorker {
-            map: HashMap::new()
-        }
+            map: HashMap::new(),
+        };
     }
 }
 
@@ -94,15 +92,17 @@ impl Worker for TCPStreamWorker {
 
         let stream_id = {
             let parent = layer.parent().unwrap();
-            let parent_src : &[u8] = parent.attr(token!("_.src")).unwrap().get();
-            let parent_dst : &[u8] = parent.attr(token!("_.dst")).unwrap().get();
-            let src : u32 = layer.attr(token!("tcp.src")).unwrap().get();
-            let dst : u32 = layer.attr(token!("tcp.dst")).unwrap().get();
+            let parent_src: &[u8] = parent.attr(token!("_.src")).unwrap().get();
+            let parent_dst: &[u8] = parent.attr(token!("_.dst")).unwrap().get();
+            let src: u32 = layer.attr(token!("tcp.src")).unwrap().get();
+            let dst: u32 = layer.attr(token!("tcp.dst")).unwrap().get();
             (parent_src, parent_dst, src, dst)
         };
 
         let id = (self.map.len() << 8) | layer.worker() as usize;
-        let stream = self.map.entry(stream_id).or_insert_with(|| Stream::new(id as u64));
+        let stream = self.map
+            .entry(stream_id)
+            .or_insert_with(|| Stream::new(id as u64));
         ctx.add_layer_linkage(token!("tcp"), stream.id, layer);
         {
             let attr = layer.add_attr(ctx, token!("_.streamId"));
@@ -110,9 +110,9 @@ impl Worker for TCPStreamWorker {
         }
 
         let (seq, window, flags) = {
-            let seq : u32 = layer.attr(token!("tcp.seq")).unwrap().get();
-            let window : u16 = layer.attr(token!("tcp.window")).unwrap().get();
-            let flags : u8 = layer.attr(token!("tcp.flags")).unwrap().get();
+            let seq: u32 = layer.attr(token!("tcp.seq")).unwrap().get();
+            let window: u16 = layer.attr(token!("tcp.window")).unwrap().get();
+            let flags: u8 = layer.attr(token!("tcp.flags")).unwrap().get();
             (seq, window, flags)
         };
 
@@ -132,7 +132,8 @@ impl Worker for TCPStreamWorker {
                     stream.put(offset, slice);
                     stream.len += slice.len();
                 } else if stream.seq - seq as i64 > window as i64 {
-                    let offset = stream.len + ((std::u32::MAX as u32 - stream.seq as u32) + seq) as usize;
+                    let offset =
+                        stream.len + ((std::u32::MAX as u32 - stream.seq as u32) + seq) as usize;
                     stream.seq = seq as i64;
                     stream.put(offset, slice);
                     stream.len += slice.len();

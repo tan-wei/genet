@@ -4,7 +4,7 @@ extern crate libc;
 #[macro_use]
 extern crate plugkit;
 
-use std::io::{Cursor, Error, ErrorKind, BufRead};
+use std::io::{BufRead, Cursor, Error, ErrorKind};
 use byteorder::BigEndian;
 use plugkit::reader::ByteReader;
 use plugkit::layer;
@@ -32,8 +32,8 @@ impl Worker for TCPWorker {
         };
 
         let (src_addr, dst_addr) = {
-            let src : &[u8] = layer.attr(token!("_.src")).unwrap().get();
-            let dst : &[u8] = layer.attr(token!("_.dst")).unwrap().get();
+            let src: &[u8] = layer.attr(token!("_.src")).unwrap().get();
+            let dst: &[u8] = layer.attr(token!("_.dst")).unwrap().get();
             (src, dst)
         };
 
@@ -61,9 +61,8 @@ impl Worker for TCPWorker {
                 attr.set_range(&dst_range);
             }
 
-            let worker = src as u32 + dst as u32  +
-                src_addr.iter().fold(0, |acc, &x| acc + x as u32) +
-                dst_addr.iter().fold(0, |acc, &x| acc + x as u32);
+            let worker = src as u32 + dst as u32 + src_addr.iter().fold(0, |acc, &x| acc + x as u32)
+                + dst_addr.iter().fold(0, |acc, &x| acc + x as u32);
             child.set_worker((worker % layer::MAX_WORKER as u32) as u8);
 
             {
@@ -209,7 +208,7 @@ impl Worker for TCPWorker {
                             attr.set_range(&et_range);
                         }
                     }
-                    _ => break
+                    _ => break,
                 }
             }
 
@@ -221,7 +220,8 @@ impl Worker for TCPWorker {
             payload.set_range(&(range.start + offset..range.end + offset));
 
             Ok(())
-        })().or_else(|_| {
+        })()
+            .or_else(|_| {
             child.add_error(ctx, token!("!out-of-bounds"), "");
             Ok(())
         })
