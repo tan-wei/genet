@@ -1,6 +1,6 @@
 [package]
 name = "plugkit"
-version = "0.0.8"
+version = "0.0.9"
 authors = ["Ron Hashimoto <mail@h2so5.net>"]
 description = "Deplug Package Development Kit"
 documentation = "https://docs.rs/plugkit"
