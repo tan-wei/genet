@@ -208,25 +208,21 @@ export default class FrameListView {
       }
     ]
 
-    const compiler = deplug.session.createFilterCompiler()
     const columns =
       deplug.config.get('_.framelist.columns', [])
     this.columns.push(...columns
-      .map((col) => {
-        const filerFunc = compiler.compile(col.value).built
-        return {
-          func: (frame) => {
-            const result = filerFunc(frame)
-            let renderer = AttributeValueItem
-            if (typeof result === 'object' &&
+      .map((col) => ({
+        func: (frame) => {
+          const result = frame.query(col.value)
+          let renderer = AttributeValueItem
+          if (typeof result === 'object' &&
               result.constructor.name === 'Attr') {
-              renderer = deplug.session.attrRenderer(result.type) || renderer
-              return m(renderer, { attr: result })
-            }
-            return m(renderer, { attr: { value: result } })
-          },
-        }
-      }))
+            renderer = deplug.session.attrRenderer(result.type) || renderer
+            return m(renderer, { attr: result })
+          }
+          return m(renderer, { attr: { value: result } })
+        },
+      })))
 
     this.columns.push({
       func: (frame) => {
