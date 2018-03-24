@@ -10,6 +10,18 @@ const pipelineFuncs = {
       return this.slice(...args)
     }
     return this
+  },
+  lower: function () {
+    if ('.toLowerCase' in this) {
+      return this.toLowerCase()
+    }
+    return this
+  },
+  upper: function () {
+    if ('.toUpperCase' in this) {
+      return this.toUpperCase()
+    }
+    return this
   }
 }
 

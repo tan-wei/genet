@@ -55,7 +55,7 @@ Display filter applies the filter program to each frame and shows them only if t
 There are some language extensions suitable for the packet filtering:
 
 - Extended operators
-- ~~Pipeline syntax~~ (Not implemented yet)
+- Pipeline syntax
 - Macro syntax
 
 ### Extended operators
@@ -66,37 +66,48 @@ Some operators (`==`, `===`, `!=`, `!==`, `<`, `<=`, `>`, `>=`) can take an iter
 ipv4.src == [127, 0, 0, 1] // IPv4 source address equals 127.0.0.1
 ```
 
-### ~~Pipeline syntax~~
+### Pipeline syntax
 
-(Not implemented yet)
-
-Pipeline syntax provides chained function calls.
-You can put a function after the expression to manipulate the returned value.
+Pipeline syntax provides a convenient way to transfrom the returned value.
 
 ```js
-http.path toLowerCase === '/login'
+http.path lower == '/login'
 
 // almost equivalent to:
 ('toLowerCase' in Object(http.path)) 
   ? http.path.toLowerCase()
-  : null
+  : http.path
     === '/login'
 ```
 
 Use `:` to pass arguments:
 
 ```js
-http.path split:/\d+/:2
+http.path slice:0:6 == '/login'
 
 // almost equivalent to:
 ('slice' in Object(http.path)) 
-  ? http.path.split(/\d+/, 2)
-  : null
+  ? http.path.slice(0, 6)
+  : http.path
+    == '/login'
 ```
 
 <p class="warning">
 Note that you can not write a method call like `http.path.toLowerCase()` because Deplug resolves `http.path.toLowerCase` as a layer attribute named `http.path.toLowerCase`.
 </p>
+
+#### Builtin Manipulators
+
+There are some built-in manipulator functions:
+
+- `length`
+  - Return the `length` property if it exists. Otherwise, return `0`.
+- `slice(begin, end)`
+  - Apply the `slice` function if it exists.
+- `lower`
+  - Apply the `toLowerCase` function if it exists.
+- `upper`
+  - Apply the `toUpperCase` function if it exists.
 
 ### Macro syntax
 
