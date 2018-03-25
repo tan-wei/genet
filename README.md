@@ -15,21 +15,28 @@ Deplug is a graphical network analyzer powered by web technologies.
 ## Why Deplug?
 
 ### Package Management
+__Everything up-to-date.__
+Decoding latest protocol specs without updating Deplug itself.
 
-(TODO)
+__Custom protocols.__
+You can easily publish & install extensions for custom protocols.
 
 ### Extensible
+__No protocol-dependent features.__
+Deplug core provides only fundamental functionality and 
+every protocol is implemented as an independent package.
 
-(TODO)
+For example, display filter does not have a syntax for IPv4 address like `ipv4.src === 127.0.0.1`.  
+Instead, there is an extensible macro expression: `ipv4.src === @127.0.0.1` (Defined in `ipv4` package).
 
 ### Security
-#### Writing a secure dissector in C/C++ is hard.
+__Writing a secure dissector in C/C++ is hard.__ 
 Deplug provides a safer & modern SDK for JavaScript and Rust.
 
-#### Enabling packages only what you need. 
+__Enabling packages only what you need.__
 Decreases the risk of loading vulnerable modules.
 
-#### Sandboxing
+__Sandboxing.__
 Dissectors can run under seccomp. (Linux only)
 
 ## Built-in Supported Protocols
@@ -62,7 +69,10 @@ Installed packages are located in `$HOME/.deplug/package`.
 
 ## Display Filter
 
-Deplug has a simple DSL(Domain Specific Language) to filter packets. It is very similar to JavaScript.
+Deplug has a simple DSL(Domain Specific Language) to filter packets. 
+
+It is very similar to JavaScript.
+(And actually, it will be transpiled into JavaScript and executed on V8 JIT!)
 
 Display filter applies the filter program to each frame and shows them only if the result value is _truthy_. Therefore, following filters do nothing: always show all frames.
 
