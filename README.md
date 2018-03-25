@@ -16,27 +16,33 @@ Deplug is a graphical network analyzer powered by web technologies.
 
 ### Package Management
 __Everything up-to-date.__
+
 Decoding latest protocol specs without updating Deplug itself.
 
 __Custom protocols.__
+
 You can easily publish & install extensions for custom protocols.
 
 ### Extensible
 __No protocol-dependent features.__
+
 Deplug core provides only fundamental functionality and 
 every protocol is implemented as an independent package.
 
-For example, display filter does not have a syntax for IPv4 address like `ipv4.src === 127.0.0.1`.  
+For example, display filter does not have a syntax for IPv4 address like `ipv4.src === 127.0.0.1`.
 Instead, there is an extensible macro expression: `ipv4.src === @127.0.0.1` (Defined in `ipv4` package).
 
 ### Security
 __Writing a secure dissector in C/C++ is hard.__ 
+
 Deplug provides a safer & modern SDK for JavaScript and Rust.
 
 __Enabling packages only what you need.__
+
 Decreases the risk of loading vulnerable modules.
 
 __Sandboxing.__
+
 Dissectors can run under seccomp. (Linux only)
 
 ## Built-in Supported Protocols
