@@ -12,6 +12,26 @@ Deplug is a graphical network analyzer powered by web technologies.
 
 <img src="https://raw.githubusercontent.com/deplug/images/master/screenshot.png" alt="Screenshot in Ubuntu" width="560"/>
 
+## Why Deplug?
+
+### Package Management
+
+(TODO)
+
+### Extensible
+
+(TODO)
+
+### Security
+#### Writing a secure dissector in C/C++ is hard.
+Deplug provides a safer & modern SDK for JavaScript and Rust.
+
+#### Enabling packages only what you need. 
+Decreases the risk of loading vulnerable modules.
+
+#### Sandboxing
+Dissectors can run under seccomp. (Linux only)
+
 ## Built-in Supported Protocols
 
 - Ethernet
