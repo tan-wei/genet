@@ -12,6 +12,10 @@ Deplug is a graphical network analyzer powered by web technologies.
 
 <img src="https://raw.githubusercontent.com/deplug/images/master/screenshot.png" alt="Screenshot in Ubuntu" width="560"/>
 
+## Download
+
+https://deplug.net/#/inst?id=download
+
 ## Why Deplug?
 
 ### Package Management
