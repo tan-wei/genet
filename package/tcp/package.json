@@ -17,11 +17,6 @@
         "main": "tcp-stream"
       },
       {
-        "type": "core:renderer:layer",
-        "id": "tcp",
-        "main": "summary.js"
-      },
-      {
         "type": "core:style",
         "files": [
           "tcp.css"
