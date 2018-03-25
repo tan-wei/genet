@@ -112,6 +112,9 @@ export default class WindowView {
     deplug.action.global.on('core:window:new', () => {
       ipcRenderer.send('core:window:create')
     })
+    deplug.action.global.on('core:menu:reload', () => {
+      ipcRenderer.send('core:menu:reload', windowId)
+    })
     deplug.action.global.on('core:file:browse-user-dir', () => {
       shell.showItemInFolder(env.userProfilePath)
     })

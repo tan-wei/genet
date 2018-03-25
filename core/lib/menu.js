@@ -8,11 +8,25 @@ const { Menu } = remote
 const fields = Symbol('fields')
 export default class MainMenu {
   constructor () {
-    this[fields] = { contextMenuTemplates: new Set() }
+    this[fields] = {
+      contextMenuTemplates: new Set(),
+      submenuTemplates: new Map(),
+    }
   }
 
   get template () {
-    return template
+    const { submenuTemplates } = this[fields]
+    const tmp = JSON.parse(JSON.stringify(template))
+    const keys = Object.keys(flatten(template))
+      .filter((key) => key.endsWith('.submenu'))
+    for (const key of keys) {
+      const val = objpath.get(tmp, key)
+      if (typeof val === 'string') {
+        const menu = submenuTemplates.get(val) || []
+        objpath.set(tmp, key, menu)
+      }
+    }
+    return tmp
   }
 
   get keymap () {
@@ -34,6 +48,14 @@ export default class MainMenu {
       }]
     }
     return map
+  }
+
+  registerSubMenu (name, menu) {
+    const { submenuTemplates } = this[fields]
+    submenuTemplates.set(name, menu)
+    return new Disposable(() => {
+      submenuTemplates.delete(name)
+    })
   }
 
   registerContextMenu (menu) {
