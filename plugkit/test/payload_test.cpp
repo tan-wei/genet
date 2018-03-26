@@ -5,14 +5,6 @@ using namespace plugkit;
 
 namespace {
 
-TEST_CASE("Payload_type", "[Payload]") {
-  Payload payload;
-
-  Token token = Token_get("@stream");
-  Payload_setType(&payload, token);
-  CHECK(Payload_type(&payload) == token);
-}
-
 TEST_CASE("Payload_slices", "[Payload]") {
   Payload payload;
   char data[256];
@@ -37,17 +29,4 @@ TEST_CASE("Payload_slices", "[Payload]") {
   CHECK(slice[1].data == data);
   CHECK(slice[1].length == 100);
 }
-
-TEST_CASE("Payload_range", "[Payload]") {
-  Payload payload;
-
-  Range range = Payload_range(&payload);
-  CHECK(range.begin == 0);
-  CHECK(range.end == 0);
-  Payload_setRange(&payload, Range{123, 456});
-  range = Payload_range(&payload);
-  CHECK(range.begin == 123);
-  CHECK(range.end == 456);
-}
-
 } // namespace

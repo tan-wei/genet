@@ -58,16 +58,6 @@ const Slice *Payload_slices(const Payload *payload, size_t *size) {
   return slices.data();
 }
 
-Token Payload_type(const Payload *payload) { return payload->type(); }
-
-void Payload_setType(Payload *payload, Token type) { payload->setType(type); }
-
-Range Payload_range(const Payload *payload) { return payload->range(); }
-
-void Payload_setRange(Payload *payload, Range range) {
-  payload->setRange(range);
-}
-
 Attr *Payload_addAttr(Payload *payload, Context *ctx, Token id) {
   Attr *attr = Context_allocAttr(ctx, id);
   payload->addAttr(attr);
