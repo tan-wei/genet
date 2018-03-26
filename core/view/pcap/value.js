@@ -29,7 +29,11 @@ export class BufferValueItem {
   view (vnode) {
     const maxLen = 6
     const buffer = vnode.attrs.value
-    const hex = buffer.slice(0, maxLen).toString('hex') +
+    const hex = (
+      buffer.length > 0
+        ? '0x'
+        : '') +
+      buffer.slice(0, maxLen).toString('hex') +
       (buffer.length > maxLen
         ? '...'
         : '')
@@ -80,7 +84,7 @@ export class BufferValueItem {
           }
         ])
       },
-    }, ['[', buffer.length, ' bytes] 0x', hex])
+    }, ['[', buffer.length, ' bytes] ', hex])
   }
 }
 class ArrayValueItem {
