@@ -13,20 +13,6 @@ export default class ButtonBoxView {
         })
       ])
     }
-    if (pkg.removal) {
-      return [
-        m('p', ['This package will be removed on the next startup.']),
-        m('span', { class: 'button-box' }, [
-          m('input', {
-            type: 'button',
-            value: 'Undo',
-            onclick: () => {
-              deplug.packages.setUninstallFlag(pkg.id, false)
-            },
-          })
-        ])
-      ]
-    }
     return m('span', { class: 'button-box' }, [
       m('input', {
         type: 'button',
@@ -50,7 +36,7 @@ export default class ButtonBoxView {
             : 'block',
         },
         onclick: () => {
-          deplug.packages.setUninstallFlag(pkg.id, true)
+          deplug.packages.uninstall(pkg.id)
         },
       })
     ])

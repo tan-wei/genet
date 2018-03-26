@@ -1,7 +1,6 @@
 import ComponentFactory from './component-factory'
 import { EventEmitter } from 'events'
 import env from './env'
-import fs from 'fs'
 import glob from 'glob'
 import jsonfile from 'jsonfile'
 import mkpath from 'mkpath'
@@ -15,7 +14,6 @@ import writeFileAtomic from 'write-file-atomic'
 const promiseGlob = promisify(glob)
 const promiseReadFile = promisify(jsonfile.readFile)
 const promiseWriteFile = promisify(writeFileAtomic)
-const promiseUnlink = promisify(fs.unlink)
 const promiseRmdir = promisify(rimraf)
 const promiseMkpath = promisify(mkpath)
 const fields = Symbol('fields')
@@ -103,19 +101,6 @@ export default class PackageManager extends EventEmitter {
       }
     }
     const pkgs = metaDataList.filter((pkg) => pkg.data)
-
-    const removeme = await Promise.all(pkgs.map((pkg) =>
-      readFile(path.join(path.dirname(pkg.filePath), '.removeme'))))
-    for (let index = 0; index < pkgs.length; index += 1) {
-      const pkg = pkgs[index]
-      if (typeof removeme[index].data === 'undefined') {
-        pkg.removal = false
-      } else {
-        disabledPackages.add(pkg.id)
-        pkg.removal = true
-      }
-    }
-
     for (const pkg of pkgs) {
       const incompatible = !semver.satisfies(
         semver.coerce(env.deplug.version),
@@ -248,19 +233,11 @@ export default class PackageManager extends EventEmitter {
     }
   }
 
-  setUninstallFlag (id, flag) {
+  async uninstall (id) {
     const pkg = this.get(id)
     if (typeof pkg !== 'undefined') {
-      const removeme = path.join(pkg.dir, '.removeme')
-      if (flag) {
-        promiseWriteFile(removeme, '{}').then(() => {
-          this.triggerUpdate()
-        })
-      } else {
-        promiseUnlink(removeme).then(() => {
-          this.triggerUpdate()
-        })
-      }
+      await promiseRmdir(pkg.dir)
+      this.triggerUpdate()
     }
   }
 
