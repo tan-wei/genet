@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events'
 import axios from 'axios'
 import execa from 'execa'
+import fs from 'fs'
 import glob from 'glob'
 import jsonfile from 'jsonfile'
 import mkpath from 'mkpath'
@@ -10,12 +11,14 @@ import path from 'path'
 import { promisify } from 'util'
 import rimraf from 'rimraf'
 import tar from 'tar'
+import tmp from 'tmp-promise'
 import zlib from 'zlib'
 
 const promiseReadJsonFile = promisify(jsonfile.readFile)
 const promiseGlob = promisify(glob)
 const promiseMkpath = promisify(mkpath)
 const promiseRmdir = promisify(rimraf)
+const promiseRename = promisify(fs.rename)
 const fields = Symbol('fields')
 export default class PackageInstaller extends EventEmitter {
   constructor () {
@@ -33,9 +36,12 @@ export default class PackageInstaller extends EventEmitter {
 
   async install (dir, url) {
     try {
-      await this.download(dir, url)
-      await this.build(dir)
-      await this.npm(dir)
+      const tmpdir = await tmp.dir()
+      await this.download(tmpdir.path, url)
+      await this.build(tmpdir.path)
+      await this.npm(tmpdir.path)
+      await promiseRmdir(dir).catch((err) => this.emit('output', `${err}\n`))
+      await promiseRename(tmpdir.path, dir)
       this.emit('output', 'Done\n')
     } catch (err) {
       this.emit('output', 'Failed\n')
