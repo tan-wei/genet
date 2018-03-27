@@ -1,11 +1,11 @@
 #include "allocator.hpp"
 #include "attr.hpp"
+#include "config_map.hpp"
 #include "frame.hpp"
 #include "layer.hpp"
 #include "payload.hpp"
 #include "stream_logger.hpp"
 #include "string_pool.hpp"
-#include "variant_map.hpp"
 #include <unordered_map>
 
 namespace std {
@@ -24,7 +24,7 @@ public:
   bool closeStream = false;
   uint32_t confidenceThreshold = 0;
 
-  VariantMap options;
+  ConfigMap options;
 
   struct PrevLayer {
     Layer *layer;

@@ -1,8 +1,8 @@
 #ifndef PLUGKIT_DISSECTOR_THREAD_H
 #define PLUGKIT_DISSECTOR_THREAD_H
 
+#include "config_map.hpp"
 #include "queue.hpp"
-#include "variant_map.hpp"
 #include "worker_thread.hpp"
 
 namespace plugkit {
@@ -23,7 +23,7 @@ public:
   using Callback = std::function<void(Frame **, size_t)>;
 
 public:
-  DissectorThread(const VariantMap &options,
+  DissectorThread(const ConfigMap &options,
                   const FrameQueuePtr &queue,
                   const Callback &callback);
   ~DissectorThread() override;

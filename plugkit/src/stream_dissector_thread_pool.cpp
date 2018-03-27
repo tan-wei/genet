@@ -25,7 +25,7 @@ public:
   std::thread thread;
   std::vector<std::pair<uint32_t, uint32_t>> threadStats;
   std::mutex mutex;
-  VariantMap options;
+  ConfigMap options;
   FrameStorePtr store;
   Callback callback;
   RootAllocator *allocator = nullptr;
@@ -78,7 +78,7 @@ StreamDissectorThreadPool::~StreamDissectorThreadPool() {
     d->thread.join();
 }
 
-void StreamDissectorThreadPool::setOptions(const VariantMap &options) {
+void StreamDissectorThreadPool::setConfigs(const ConfigMap &options) {
   d->options = options;
 }
 

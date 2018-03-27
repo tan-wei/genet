@@ -1,8 +1,8 @@
 #ifndef PLUGKIT_DISSECTOR_THREAD_POOL_H
 #define PLUGKIT_DISSECTOR_THREAD_POOL_H
 
+#include "config_map.hpp"
 #include "queue.hpp"
-#include "variant_map.hpp"
 #include <functional>
 #include <memory>
 #include <unordered_map>
@@ -30,7 +30,7 @@ public:
   DissectorThreadPool &operator=(const DissectorThreadPool &) = delete;
   void start();
   void registerDissector(const Dissector &diss);
-  void setOptions(const VariantMap &options);
+  void setConfigs(const ConfigMap &options);
   void setCallback(const Callback &callback);
   void setLogger(const LoggerPtr &logger);
   void setAllocator(RootAllocator *allocator);

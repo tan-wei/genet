@@ -175,7 +175,7 @@ export default class Session {
     } = this[fields]
     const factory = new SessionFactory()
     factory.enableDebugSession = config.get('_.debug.enableDebugSession', false)
-    factory.setOptions(flatten(config.toJSON()))
+    factory.setConfigs(flatten(config.toJSON()))
     factory.networkInterface = ifs
     for (const layer of linkLayers) {
       factory.registerLinkLayer(layer)

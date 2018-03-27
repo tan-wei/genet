@@ -24,7 +24,7 @@ struct DissectorContext {
 
 class DissectorThread::Private {
 public:
-  Private(const VariantMap &options,
+  Private(const ConfigMap &options,
           const FrameQueuePtr &queue,
           const Callback &callback);
   ~Private();
@@ -34,12 +34,12 @@ public:
   std::vector<DissectorContext> dissectorContexts;
 
   Context ctx;
-  const VariantMap options;
+  const ConfigMap options;
   const FrameQueuePtr queue;
   const Callback callback;
 };
 
-DissectorThread::Private::Private(const VariantMap &options,
+DissectorThread::Private::Private(const ConfigMap &options,
                                   const FrameQueuePtr &queue,
                                   const Callback &callback)
     : options(options), queue(queue), callback(callback) {
@@ -48,7 +48,7 @@ DissectorThread::Private::Private(const VariantMap &options,
 
 DissectorThread::Private::~Private() {}
 
-DissectorThread::DissectorThread(const VariantMap &options,
+DissectorThread::DissectorThread(const ConfigMap &options,
                                  const FrameQueuePtr &queue,
                                  const Callback &callback)
     : d(new Private(options, queue, callback)) {

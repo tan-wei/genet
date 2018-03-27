@@ -105,7 +105,7 @@ const RawFrame *apiCallback(Context *ctx, size_t *length) {
 
 class FileExporterWorkerThread : public WorkerThread {
 public:
-  FileExporterWorkerThread(const VariantMap &options, const ContextData &data)
+  FileExporterWorkerThread(const ConfigMap &options, const ContextData &data)
       : options(options), data(data) {}
 
   ~FileExporterWorkerThread() {}
@@ -138,7 +138,7 @@ public:
   void exit() override { filter.reset(); }
 
 private:
-  VariantMap options;
+  ConfigMap options;
   ContextData data;
   std::unique_ptr<Filter> filter;
 };
@@ -150,7 +150,7 @@ public:
   std::string file;
   std::string filter;
   Callback callback;
-  VariantMap options;
+  ConfigMap options;
   LoggerPtr logger = std::make_shared<StreamLogger>();
   std::unordered_map<Token, int> linkLayers;
   std::unique_ptr<FileExporterWorkerThread> worker;
@@ -170,7 +170,7 @@ FileExporterTask::FileExporterTask(const std::string &file,
 
 FileExporterTask::~FileExporterTask() {}
 
-void FileExporterTask::setOptions(const VariantMap &options) {
+void FileExporterTask::setConfigs(const ConfigMap &options) {
   d->options = options;
 }
 

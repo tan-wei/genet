@@ -10,7 +10,7 @@ namespace plugkit {
 class FilterThreadPool::Private {
 public:
   Private(const std::string &body,
-          const VariantMap &options,
+          const ConfigMap &options,
           const FrameStorePtr &store,
           const Callback &callback);
   ~Private();
@@ -23,7 +23,7 @@ public:
   LoggerPtr logger = std::make_shared<StreamLogger>();
   uv_rwlock_t rwlock;
   const std::string body;
-  const VariantMap options;
+  const ConfigMap options;
   const FrameStorePtr store;
   const Callback callback;
   const std::string inspectorId = ":" + RandomID::generate<8>();
@@ -32,7 +32,7 @@ public:
 };
 
 FilterThreadPool::Private::Private(const std::string &body,
-                                   const VariantMap &options,
+                                   const ConfigMap &options,
                                    const FrameStorePtr &store,
                                    const Callback &callback)
     : body(body), options(options), store(store), callback(callback) {
@@ -42,7 +42,7 @@ FilterThreadPool::Private::Private(const std::string &body,
 FilterThreadPool::Private::~Private() { uv_rwlock_destroy(&rwlock); }
 
 FilterThreadPool::FilterThreadPool(const std::string &body,
-                                   const VariantMap &options,
+                                   const ConfigMap &options,
                                    const FrameStorePtr &store,
                                    const Callback &callback)
     : d(new Private(body, options, store, callback)) {}

@@ -1,11 +1,11 @@
 #ifndef PLUGKIT_SESSION_H
 #define PLUGKIT_SESSION_H
 
+#include "config_map.hpp"
 #include "logger.hpp"
 #include "token.hpp"
 #include "types.hpp"
 #include "variant.hpp"
-#include "variant_map.hpp"
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -114,7 +114,7 @@ public:
   int snaplen() const;
   void setBpf(const std::string &filter);
   std::string bpf() const;
-  void setOption(const VariantMap &map);
+  void setConfig(const ConfigMap &map);
 
   void registerLinkLayer(int link, Token token);
   void registerDissector(const Dissector &diss, DissectorType type);

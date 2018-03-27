@@ -13,7 +13,7 @@
       "src/plugkit_module.cpp",
       "src/allocator.cpp",
       "src/variant.cpp",
-      "src/variant_map.cpp",
+      "src/config_map.cpp",
       "src/frame_view.cpp",
       "src/frame_store.cpp",
       "src/filter.cpp",

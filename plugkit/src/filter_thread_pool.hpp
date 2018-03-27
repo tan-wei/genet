@@ -1,7 +1,7 @@
 #ifndef PLUGKIT_FILTER_THREAD_POOL_H
 #define PLUGKIT_FILTER_THREAD_POOL_H
 
-#include "variant_map.hpp"
+#include "config_map.hpp"
 #include <functional>
 #include <memory>
 #include <unordered_map>
@@ -23,7 +23,7 @@ public:
 
 public:
   FilterThreadPool(const std::string &body,
-                   const VariantMap &options,
+                   const ConfigMap &options,
                    const FrameStorePtr &store,
                    const Callback &callback);
   ~FilterThreadPool();

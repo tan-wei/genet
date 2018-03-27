@@ -33,7 +33,7 @@ struct Session::Config {
   std::vector<std::pair<std::string, DissectorType>> scriptDissectors;
   std::vector<FileImporter> importers;
   std::vector<FileExporter> exporters;
-  VariantMap options;
+  ConfigMap options;
 };
 
 class Session::Private {
@@ -164,7 +164,7 @@ Session::Session(const Config &config) : d(new Private(config)) {
   d->frameStore->setAllocator(&d->allocator);
 
   d->dissectorPool.reset(new DissectorThreadPool());
-  d->dissectorPool->setOptions(d->config.options);
+  d->dissectorPool->setConfigs(d->config.options);
   d->dissectorPool->setCallback([this](Frame **begin, size_t size) {
     d->frameStore->insert(begin, size);
   });
@@ -177,7 +177,7 @@ Session::Session(const Config &config) : d(new Private(config)) {
       });
 
   d->streamDissectorPool.reset(new StreamDissectorThreadPool());
-  d->streamDissectorPool->setOptions(d->config.options);
+  d->streamDissectorPool->setConfigs(d->config.options);
   d->streamDissectorPool->setFrameStore(d->frameStore);
   d->streamDissectorPool->setCallback(
       [this](uint32_t maxSeq) { d->frameStore->update(maxSeq); });
@@ -314,7 +314,7 @@ void Session::sendInspectorMessage(const std::string &id,
 
 int Session::importFile(const std::string &file) {
   auto importer = new FileImporterTask(file);
-  importer->setOptions(d->config.options);
+  importer->setConfigs(d->config.options);
   importer->setAllocator(&d->allocator);
   for (const auto &pair : d->config.linkLayers) {
     importer->registerLinkLayer(pair.first, pair.second);
@@ -340,7 +340,7 @@ int Session::importFile(const std::string &file) {
 
 int Session::exportFile(const std::string &file, const std::string &filter) {
   auto exporter = new FileExporterTask(file, filter, d->frameStore);
-  exporter->setOptions(d->config.options);
+  exporter->setConfigs(d->config.options);
   exporter->setLogger(d->logger);
   for (const auto &pair : d->config.linkLayers) {
     exporter->registerLinkLayer(pair.second, pair.first);
@@ -425,7 +425,7 @@ void SessionFactory::setBpf(const std::string &filter) { d->bpf = filter; }
 
 std::string SessionFactory::bpf() const { return d->bpf; }
 
-void SessionFactory::setOption(const VariantMap &map) { d->options = map; }
+void SessionFactory::setConfig(const ConfigMap &map) { d->options = map; }
 
 void SessionFactory::registerLinkLayer(int link, Token token) {
   d->linkLayers[link] = token;

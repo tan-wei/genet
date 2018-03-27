@@ -1,9 +1,9 @@
 #ifndef PLUGKIT_FILE_IMPORTEER_THREAD_H
 #define PLUGKIT_FILE_IMPORTEER_THREAD_H
 
+#include "config_map.hpp"
 #include "task.hpp"
 #include "token.hpp"
-#include "variant_map.hpp"
 #include <functional>
 #include <memory>
 #include <string>
@@ -26,7 +26,7 @@ public:
   FileImporterTask(const std::string &file);
   ~FileImporterTask();
   void run(int id) override;
-  void setOptions(const VariantMap &options);
+  void setConfigs(const ConfigMap &options);
   void setLogger(const LoggerPtr &logger);
   void setCallback(const Callback &callback);
   void setAllocator(RootAllocator *allocator);

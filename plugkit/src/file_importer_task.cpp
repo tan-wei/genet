@@ -71,7 +71,7 @@ bool apiCallback(Context *ctx, size_t length, double progress) {
 class FileImporterTask::Private {
 public:
   std::string file;
-  VariantMap options;
+  ConfigMap options;
   LoggerPtr logger = std::make_shared<StreamLogger>();
   Callback callback;
   std::unordered_map<int, Token> linkLayers;
@@ -86,7 +86,7 @@ FileImporterTask::FileImporterTask(const std::string &file) : d(new Private()) {
 
 FileImporterTask::~FileImporterTask() {}
 
-void FileImporterTask::setOptions(const VariantMap &options) {
+void FileImporterTask::setConfigs(const ConfigMap &options) {
   d->options = options;
 }
 

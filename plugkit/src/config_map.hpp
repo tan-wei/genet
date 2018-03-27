@@ -1,5 +1,5 @@
-#ifndef PLUGKIT_VARIANT_MAP_HPP
-#define PLUGKIT_VARIANT_MAP_HPP
+#ifndef PLUGKI_CONFIG_MAP_HPP
+#define PLUGKI_CONFIG_MAP_HPP
 
 #include "variant.hpp"
 #include <memory>
@@ -7,13 +7,13 @@
 
 namespace plugkit {
 
-class VariantMap final {
+class ConfigMap final {
 public:
   using Map = std::unordered_map<std::string, Variant>;
 
 public:
-  VariantMap();
-  VariantMap(const Map &map);
+  ConfigMap();
+  ConfigMap(const Map &map);
   const Variant &operator[](const std::string &key) const;
 
 private:

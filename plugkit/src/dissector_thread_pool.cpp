@@ -13,7 +13,7 @@ public:
   std::vector<Dissector> dissectors;
   LoggerPtr logger = std::make_shared<StreamLogger>();
   FrameQueuePtr queue = std::make_shared<FrameQueue>();
-  VariantMap options;
+  ConfigMap options;
   Callback callback;
   RootAllocator *allocator = nullptr;
   const std::string inspectorId = ":" + RandomID::generate<8>();
@@ -68,7 +68,7 @@ void DissectorThreadPool::start() {
   }
 }
 
-void DissectorThreadPool::setOptions(const VariantMap &options) {
+void DissectorThreadPool::setConfigs(const ConfigMap &options) {
   d->options = options;
 }
 
