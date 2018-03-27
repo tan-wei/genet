@@ -51,7 +51,7 @@ StreamDissectorThread::StreamDissectorThread(const ConfigMap &options,
                                              const Callback &callback)
     : d(new Private(options, callback)) {
   d->ctx.confidenceThreshold = static_cast<LayerConfidence>(
-      options["_.dissector.confidenceThreshold"].uint64Value(2));
+      std::stoi(options["_.dissector.confidenceThreshold"]));
 }
 
 StreamDissectorThread::~StreamDissectorThread() {}

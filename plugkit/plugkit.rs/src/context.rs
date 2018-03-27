@@ -2,11 +2,14 @@
 //!
 //! Type Context holds data for thread-local features such as allocator and logger.
 
-use super::variant::Variant;
 use super::layer::{Confidence, Layer};
 use super::symbol;
 use super::token::Token;
 use std::io::{Error, ErrorKind};
+use std::str;
+use std::ffi::CStr;
+extern crate serde_json;
+use self::serde_json::Value;
 
 /// A Context object.
 #[repr(C)]
@@ -17,9 +20,16 @@ pub struct Context {
 
 impl Context {
     /// Returns a config value in the current profile.
-    pub fn get_config(&self, name: &str) -> &Variant {
+    pub fn get_config(&self, name: &str) -> Value {
         unsafe {
-            &*symbol::Context_getConfig.unwrap()(self, name.as_ptr() as *const i8, name.len())
+            let slice = CStr::from_ptr(symbol::Context_getConfig.unwrap()(
+                self,
+                name.as_ptr() as *const i8,
+                name.len(),
+            ));
+            let v: Result<Value, self::serde_json::Error> =
+                serde_json::from_str(str::from_utf8_unchecked(slice.to_bytes()));
+            v.unwrap_or_else(|_| Value::Null)
         }
     }
 

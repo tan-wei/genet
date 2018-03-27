@@ -38,7 +38,7 @@ void DissectorThreadPool::start() {
     d->callback(begin, size);
   };
 
-  int concurrency = d->options["_.dissector.concurrency"].uint64Value(0);
+  int concurrency = std::stoi(d->options["_.dissector.concurrency"]);
   if (concurrency == 0)
     concurrency = std::thread::hardware_concurrency();
   if (concurrency == 0)
@@ -68,7 +68,7 @@ void DissectorThreadPool::start() {
   }
 }
 
-void DissectorThreadPool::setConfigs(const ConfigMap &options) {
+void DissectorThreadPool::setConfig(const ConfigMap &options) {
   d->options = options;
 }
 

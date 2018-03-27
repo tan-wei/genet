@@ -170,7 +170,7 @@ FileExporterTask::FileExporterTask(const std::string &file,
 
 FileExporterTask::~FileExporterTask() {}
 
-void FileExporterTask::setConfigs(const ConfigMap &options) {
+void FileExporterTask::setConfig(const ConfigMap &options) {
   d->options = options;
 }
 

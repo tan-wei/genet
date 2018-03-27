@@ -79,13 +79,9 @@ void Context_deallocPayload(Context *ctx, Payload *payload) {
   ctx->payloadAllocator->dealloc(payload);
 }
 
-const Variant *Context_getConfig(Context *ctx, const char *key, size_t length) {
-  const Variant &value = ctx->options[std::string(key, length)];
-  if (!value.isNil()) {
-    return &value;
-  }
-  static const Variant null;
-  return &null;
+const char *Context_getConfig(Context *ctx, const char *key, size_t length) {
+  const auto &value = ctx->options[std::string(key, length)];
+  return value.c_str();
 }
 
 void Context_closeStream(Context *ctx) { ctx->closeStream = true; }

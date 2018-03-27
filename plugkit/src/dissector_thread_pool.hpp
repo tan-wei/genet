@@ -30,7 +30,7 @@ public:
   DissectorThreadPool &operator=(const DissectorThreadPool &) = delete;
   void start();
   void registerDissector(const Dissector &diss);
-  void setConfigs(const ConfigMap &options);
+  void setConfig(const ConfigMap &options);
   void setCallback(const Callback &callback);
   void setLogger(const LoggerPtr &logger);
   void setAllocator(RootAllocator *allocator);

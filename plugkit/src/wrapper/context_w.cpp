@@ -28,8 +28,17 @@ NAN_METHOD(ContextWrapper::getConfig) {
   ContextWrapper *wrapper = ObjectWrap::Unwrap<ContextWrapper>(info.Holder());
   if (Context *ctx = wrapper->ctx) {
     const auto &str = Nan::Utf8String(info[0]);
-    info.GetReturnValue().Set(
-        Variant::getValue(Context_getConfig(ctx, *str, str.length())));
+    const auto &value = ctx->options[std::string(*str, str.length())];
+    if (!value.empty()) {
+      Nan::JSON nanJson;
+      Nan::MaybeLocal<v8::Value> result =
+          nanJson.Parse(info[0].As<v8::String>());
+      if (!result.IsEmpty()) {
+        info.GetReturnValue().Set(result.ToLocalChecked());
+        return;
+      }
+    }
+    info.GetReturnValue().Set(Nan::Null());
   }
 }
 

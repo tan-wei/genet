@@ -1,20 +1,20 @@
 #ifndef PLUGKI_CONFIG_MAP_HPP
 #define PLUGKI_CONFIG_MAP_HPP
 
-#include "variant.hpp"
 #include <memory>
+#include <string>
 #include <unordered_map>
 
 namespace plugkit {
 
 class ConfigMap final {
 public:
-  using Map = std::unordered_map<std::string, Variant>;
+  using Map = std::unordered_map<std::string, std::string>;
 
 public:
   ConfigMap();
   ConfigMap(const Map &map);
-  const Variant &operator[](const std::string &key) const;
+  const std::string &operator[](const std::string &key) const;
 
 private:
   std::shared_ptr<Map> map;

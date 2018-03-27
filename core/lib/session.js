@@ -1,6 +1,5 @@
 import { SessionFactory, FilterCompiler } from '@deplug/plugkit'
 import { Disposable } from 'disposables'
-import flatten from 'flat'
 import jsonfile from 'jsonfile'
 import objpath from 'object-path'
 import titleCase from 'title-case'
@@ -174,8 +173,12 @@ export default class Session {
       importers, exporters,
     } = this[fields]
     const factory = new SessionFactory()
+    const map = {}
+    for (const [key, value] of Object.entries(config.toJSON())) {
+      map[key] = JSON.stringify(value)
+    }
+    factory.setConfig(map)
     factory.enableDebugSession = config.get('_.debug.enableDebugSession', false)
-    factory.setConfigs(flatten(config.toJSON()))
     factory.networkInterface = ifs
     for (const layer of linkLayers) {
       factory.registerLinkLayer(layer)

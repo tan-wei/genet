@@ -9,7 +9,6 @@ use std::path::Path;
 use byteorder::{LittleEndian, WriteBytesExt};
 use plugkit::file::{Exporter, RawFrame};
 use plugkit::context::Context;
-use plugkit::variant::Value;
 
 pub struct PcapExporter {}
 
@@ -30,7 +29,7 @@ impl Exporter for PcapExporter {
         wtr.write_all(&[0x4d, 0x3c, 0xb2, 0xa1])?;
 
         let mut header = false;
-        let snaplen: u32 = ctx.get_config("_.pcap.snaplen").get();
+        let snaplen: u32 = ctx.get_config("_.pcap.snaplen").as_u64().unwrap_or(0) as u32;
 
         loop {
             let frames = cb(ctx);

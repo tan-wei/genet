@@ -142,9 +142,13 @@ export default class Config {
     const obj = {}
     for (const [key, value] of Object.entries(this.schema)) {
       if ('default' in value) {
-        objpath.set(obj, key, value.default)
+        obj[key] = value.default
+      }
+      const val = objpath.get(this[fields].tree, key)
+      if (typeof val !== 'undefined') {
+        obj[key] = val
       }
     }
-    return Object.assign(obj, this[fields].tree)
+    return obj
   }
 }

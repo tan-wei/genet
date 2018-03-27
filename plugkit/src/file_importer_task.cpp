@@ -86,7 +86,7 @@ FileImporterTask::FileImporterTask(const std::string &file) : d(new Private()) {
 
 FileImporterTask::~FileImporterTask() {}
 
-void FileImporterTask::setConfigs(const ConfigMap &options) {
+void FileImporterTask::setConfig(const ConfigMap &options) {
   d->options = options;
 }
 

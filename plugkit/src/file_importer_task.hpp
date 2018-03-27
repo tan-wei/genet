@@ -26,7 +26,7 @@ public:
   FileImporterTask(const std::string &file);
   ~FileImporterTask();
   void run(int id) override;
-  void setConfigs(const ConfigMap &options);
+  void setConfig(const ConfigMap &options);
   void setLogger(const LoggerPtr &logger);
   void setCallback(const Callback &callback);
   void setAllocator(RootAllocator *allocator);

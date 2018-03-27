@@ -31,7 +31,7 @@ public:
   StreamDissectorThreadPool();
   ~StreamDissectorThreadPool();
   void registerDissector(const Dissector &diss);
-  void setConfigs(const ConfigMap &options);
+  void setConfig(const ConfigMap &options);
   void setFrameStore(const FrameStorePtr &store);
   void setCallback(const Callback &callback);
   void setAllocator(RootAllocator *allocator);
