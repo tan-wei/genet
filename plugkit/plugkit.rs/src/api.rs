@@ -124,6 +124,29 @@ macro_rules! plugkit_api_worker {
         }
 
         #[no_mangle]
+        pub extern "C" fn plugkit_v1_examine(ctx: *mut (), _diss: *const (), worker: *mut(), layer: *const ()) -> u32 {
+            use std::panic;
+            use plugkit::context::Context;
+            use plugkit::layer::Layer;
+            unsafe {
+                let w: &mut $x = &mut *(worker as *mut $x);
+                let c: &mut Context =
+                    &mut *(ctx as *mut Context);
+                let l: &Layer = &*(layer as *const Layer);
+                let result = panic::catch_unwind(panic::AssertUnwindSafe(|| {
+                    w.examine(c, l)
+                }));
+                match result {
+                    Ok(conf) => conf as u32,
+                    Err(e) => {
+                        println!("{:?}", e);
+                        0
+                    },
+                }
+            }
+        }
+
+        #[no_mangle]
         pub extern "C" fn plugkit_v1_analyze(ctx: *mut (), _diss: *const (), worker: *mut(), layer: *mut ()) {
             use std::panic;
             use plugkit::context::Context;

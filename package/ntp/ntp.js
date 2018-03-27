@@ -18,6 +18,14 @@ const modeTable = {
   7: Token`ntp.mode.reservedForPrivate`,
 }
 class NTP {
+  examine (ctx, layer) {
+    if (layer.attr(`${layer.id}.src`).value !== 123 ||
+      layer.attr(`${layer.id}.dst`).value !== 123) {
+      return Layer.ConfPossible
+    }
+    return Layer.ConfProbable
+  }
+
   analyze (ctx, layer) {
     const child = layer.addLayer(ctx, 'ntp')
     child.addTag(ctx, 'ntp')

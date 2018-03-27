@@ -127,6 +127,9 @@ void StreamDissectorThread::Private::analyze(Layer *layer,
       usedDissectors.insert(diss);
       dissectable = true;
 
+      if (diss->examine(&ctx, diss, worker, layer) < ctx.confidenceThreshold) {
+        continue;
+      }
       diss->analyze(&ctx, diss, worker, layer);
       if (ctx.closeStream) {
         closedWorkers.emplace_back(diss, worker);

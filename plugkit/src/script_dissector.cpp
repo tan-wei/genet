@@ -1,4 +1,5 @@
 #include "script_dissector.hpp"
+#include "layer.hpp"
 #include "wrapper/context.hpp"
 #include "wrapper/layer.hpp"
 #include <nan.h>
@@ -8,6 +9,7 @@ namespace plugkit {
 namespace {
 struct WorkerHolder {
   v8::UniquePersistent<v8::Object> worker;
+  v8::UniquePersistent<v8::Function> examine;
   v8::UniquePersistent<v8::Function> analyze;
 };
 } // namespace
@@ -62,18 +64,21 @@ Dissector ScriptDissector::create(char *script) {
     delete static_cast<ScriptDissector *>(diss->data);
   };
   dissector.createWorker = [](Context *ctx, const Dissector *diss) {
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
     ScriptDissector *scriptDissector =
         static_cast<ScriptDissector *>(diss->data);
-    auto ctor = v8::Local<v8::Function>::New(v8::Isolate::GetCurrent(),
-                                             scriptDissector->func);
+    auto ctor = v8::Local<v8::Function>::New(isolate, scriptDissector->func);
     auto worker = Nan::NewInstance(ctor).ToLocalChecked();
+    auto examine = worker->Get(Nan::New("examine").ToLocalChecked());
     auto analyze = worker->Get(Nan::New("analyze").ToLocalChecked());
     WorkerHolder *holder = nullptr;
-    if (analyze->IsFunction()) {
+    if (examine->IsFunction() || analyze->IsFunction()) {
       holder = new WorkerHolder();
-      holder->worker.Reset(v8::Isolate::GetCurrent(), worker);
-      holder->analyze.Reset(v8::Isolate::GetCurrent(),
-                            analyze.As<v8::Function>());
+      holder->worker.Reset(isolate, worker);
+      if (examine->IsFunction())
+        holder->examine.Reset(isolate, examine.As<v8::Function>());
+      if (analyze->IsFunction())
+        holder->analyze.Reset(isolate, analyze.As<v8::Function>());
     }
     return Worker{holder};
   };
@@ -82,10 +87,29 @@ Dissector ScriptDissector::create(char *script) {
     auto holder = static_cast<WorkerHolder *>(worker.data);
     delete holder;
   };
+  dissector.examine = [](Context *ctx, const Dissector *diss, Worker worker,
+                         const Layer *layer) -> uint32_t {
+    auto holder = static_cast<WorkerHolder *>(worker.data);
+    if (holder && !holder->examine.IsEmpty()) {
+      auto obj =
+          v8::Local<v8::Object>::New(v8::Isolate::GetCurrent(), holder->worker);
+      auto examine = v8::Local<v8::Function>::New(v8::Isolate::GetCurrent(),
+                                                  holder->examine);
+      v8::Local<v8::Value> args[] = {ContextWrapper::wrap(ctx),
+                                     LayerWrapper::wrap(layer)};
+      v8::Local<v8::Value> result = examine->Call(obj, 2, args);
+      if (result.IsEmpty()) {
+        return LAYER_CONF_ERROR;
+      } else {
+        return result->Uint32Value();
+      }
+    }
+    return LAYER_CONF_EXACT;
+  };
   dissector.analyze = [](Context *ctx, const Dissector *diss, Worker worker,
                          Layer *layer) {
     auto holder = static_cast<WorkerHolder *>(worker.data);
-    if (holder) {
+    if (holder && !holder->analyze.IsEmpty()) {
       auto obj =
           v8::Local<v8::Object>::New(v8::Isolate::GetCurrent(), holder->worker);
       auto analyze = v8::Local<v8::Function>::New(v8::Isolate::GetCurrent(),

@@ -171,6 +171,9 @@ NAN_METHOD(SessionFactoryWrapper::registerDissector) {
               "plugkit_v1_init")) {
         func(&ModuleLoader::resolve);
       }
+      if (auto func = loader.load<ExamineFunc *>("plugkit_v1_examine")) {
+        diss.examine = func;
+      }
       if (auto func = loader.load<AnalyzeFunc *>("plugkit_v1_analyze")) {
         diss.analyze = func;
       }

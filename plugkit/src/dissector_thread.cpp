@@ -138,6 +138,10 @@ bool DissectorThread::loop() {
             if (diss->createWorker && !data->worker.data) {
               data->worker = diss->createWorker(&d->ctx, diss);
             }
+            if (diss->examine(&d->ctx, diss, data->worker, layer) <
+                d->ctx.confidenceThreshold) {
+              continue;
+            }
             diss->analyze(&d->ctx, diss, data->worker, layer);
             for (Layer *childLayer : layer->layers()) {
               auto it = dissectedIds.find(childLayer->id());
