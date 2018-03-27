@@ -8,6 +8,7 @@ use super::payload::Payload;
 use super::context::Context;
 use super::symbol;
 use super::range::Range;
+use std::mem;
 use std::slice;
 
 extern crate libc;
@@ -118,6 +119,16 @@ impl Layer {
     /// Sets the range of `self`.
     pub fn set_range(&mut self, range: &Range) {
         self.range = (range.start, range.end)
+    }
+
+    /// Returns the confidence of `self`.
+    pub fn confidence(&self) -> Confidence {
+        unsafe { mem::transmute(((self.data >> 4) & 0b11) as u8) }
+    }
+
+    /// Sets the confidence of `self`.
+    pub fn set_confidence(&mut self, conf: Confidence) {
+        self.data = (self.data & !0b11_0000) | ((conf as u32) << 4)
     }
 
     /// Returns the worker ID of `self`.

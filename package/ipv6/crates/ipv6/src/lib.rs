@@ -7,7 +7,7 @@ extern crate plugkit;
 use std::io::{Cursor, Error, ErrorKind};
 use byteorder::BigEndian;
 use plugkit::reader::ByteReader;
-use plugkit::layer::Layer;
+use plugkit::layer::{Confidence, Layer};
 use plugkit::context::Context;
 use plugkit::worker::Worker;
 use plugkit::variant::Value;
@@ -41,6 +41,7 @@ impl Worker for IPv6Worker {
         };
 
         let child = layer.add_layer(ctx, token!("ipv6"));
+        child.set_confidence(Confidence::Exact);
         child.add_tag(ctx, token!("ipv6"));
         child.set_range(&payload_range);
 
@@ -147,6 +148,7 @@ impl Worker for IPv6Worker {
         })()
             .or_else(|_| {
             child.add_error(ctx, token!("!out-of-bounds"), "");
+            child.set_confidence(Confidence::Probable);
             Ok(())
         })
     }

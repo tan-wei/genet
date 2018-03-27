@@ -19,6 +19,8 @@ public:
   static NAN_GETTER(id);
   static NAN_GETTER(worker);
   static NAN_SETTER(setWorker);
+  static NAN_GETTER(confidence);
+  static NAN_SETTER(setConfidence);
   static NAN_GETTER(range);
   static NAN_SETTER(setRange);
   static NAN_GETTER(parent);

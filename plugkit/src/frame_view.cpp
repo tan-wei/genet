@@ -24,6 +24,14 @@ FrameView::FrameView(Frame *frame) : mFrame(frame) {
         }
       };
   findLeafLayers(mFrame->rootLayer());
+
+  std::sort(mLeafLayers.begin(), mLeafLayers.end(),
+            [](const Layer *a, const Layer *b) {
+              if (a->confidence() == b->confidence()) {
+                return a->id() < b->id();
+              }
+              return a->confidence() > b->confidence();
+            });
 }
 
 FrameView::~FrameView() {}

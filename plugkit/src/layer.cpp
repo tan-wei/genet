@@ -13,11 +13,22 @@ const auto aliasToken = Token_get("--alias");
 const auto errorToken = Token_get("--error");
 } // namespace
 
-Layer::Layer(Token id) : mId(id) { setParent(nullptr); }
+Layer::Layer(Token id) : mId(id) {
+  setConfidence(LAYER_CONF_EXACT);
+  setParent(nullptr);
+}
 
 Layer::~Layer() {}
 
 Token Layer::id() const { return mId; }
+
+LayerConfidence Layer::confidence() const {
+  return static_cast<LayerConfidence>((mData >> 4) & 0b11);
+}
+
+void Layer::setConfidence(LayerConfidence confidence) {
+  mData = ((mData & ~0b110000) | (confidence << 4));
+}
 
 Range Layer::range() const { return mRange; }
 
@@ -90,6 +101,24 @@ const Attr *Layer::attr(Token token) const {
 }
 
 void Layer::addAttr(Attr *attr) { mAttrs.push_back(attr); }
+
+void Layer::removeUnconfidentLayers(Context *ctx, LayerConfidence confidence) {
+  for (auto &layer : mLayers) {
+    if (layer->confidence() < confidence) {
+      for (Attr *attr : layer->mAttrs) {
+        Context_deallocAttr(ctx, attr);
+      }
+      for (Payload *payload : layer->mPayloads) {
+        Context_deallocPayload(ctx, payload);
+      }
+      Context_deallocLayer(ctx, layer);
+      layer = nullptr;
+    }
+  }
+
+  mLayers.erase(std::remove(mLayers.begin(), mLayers.end(), nullptr),
+                mLayers.end());
+}
 
 Layer *Layer_addLayer(Layer *layer, Context *context, Token id) {
   Layer *child = Context_allocLayer(context, id);

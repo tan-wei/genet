@@ -83,9 +83,21 @@ describe('Layer', () => {
   describe('#worker', () => {
     it('should return layer worker', () => {
       const layer = Testing.createLayerInstance('eth')
+      layer.confidence = 99999
       assert.strictEqual(0, layer.worker)
       layer.worker = 15
+      layer.confidence = 99999
       assert.strictEqual(15, layer.worker)
+    })
+  })
+  describe('#confidence', () => {
+    it('should return layer confidence', () => {
+      const layer = Testing.createLayerInstance('eth')
+      layer.worker = 15
+      assert.strictEqual(3, layer.confidence)
+      layer.confidence = 1
+      layer.worker = 15
+      assert.strictEqual(1, layer.confidence)
     })
   })
   describe('#range', () => {
