@@ -9,12 +9,10 @@ const dirs = glob.sync(path.join(__dirname, '../package/*/crates/*/Cargo.toml'))
 
 async function exec() {
   for (const dir of dirs) {
-    const proc = execa.shell('cargo build --release --color=always', {
-      cwd: dir
+    await execa.shell('cargo build --release', {
+      cwd: dir,
+      stdio: 'inherit'
     })
-    proc.stdout.pipe(process.stdout)
-    proc.stderr.pipe(process.stderr)
-    await proc
   }
 }
 

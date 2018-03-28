@@ -69,7 +69,8 @@
         "OS=='linux'",
         {
           "libraries":[
-            "-Wl,-dn,-lpcap,-lcap,-lrt,-dy,-lpthread,-ldl"
+            "-Wl,-dn,-lpcap,-lcap,-lrt,-dy,-lpthread,-ldl",
+            "../plugkit.rs/target/release/libplugkit.a"
           ],
           "cflags_cc":[
             "-fno-strict-aliasing"
@@ -84,7 +85,8 @@
         {
           "libraries":[
             "-L/usr/local/lib",
-            "-lpcap"
+            "-lpcap",
+            "../plugkit.rs/target/release/libplugkit.a"
           ],
           "link_settings":{
             "libraries":[
@@ -105,6 +107,11 @@
         {
           "include_dirs":[
             "vendor/winpcap/Include"
+          ],
+          "libraries": [
+            '../plugkit.rs/target/release/plugkit.lib',
+            'Ws2_32.lib',
+            'Userenv.lib'
           ],
           "defines":[
             "PLUGKIT_OS_WIN",
