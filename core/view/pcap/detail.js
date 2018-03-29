@@ -170,8 +170,7 @@ class LayerItem {
                 m('summary', [
                   m('span', [
                     m('i', { class: 'fa fa-exclamation-triangle' }), ' ',
-                    deplug.session.tokenName(err.id), ' : ',
-                    deplug.session.tokenName(err.target)
+                    deplug.session.tokenName(err.id), ' : ', err.value
                   ])
                 ])
               ])
