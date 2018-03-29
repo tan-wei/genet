@@ -21,20 +21,15 @@ class NTP {
   examine (ctx, layer) {
     if (layer.attr(`${layer.id}.src`).value !== 123 ||
       layer.attr(`${layer.id}.dst`).value !== 123) {
-      return Layer.ConfPossible
+      return (this.confidence = Layer.ConfPossible)
     }
-    return Layer.ConfProbable
+    return (this.confidence = Layer.ConfProbable)
   }
 
   analyze (ctx, layer) {
     const child = layer.addLayer(ctx, 'ntp')
     child.addTag(ctx, 'ntp')
-    child.confidence = Layer.ConfProbable
-
-    if (layer.attr(`${layer.id}.src`).value !== 123 ||
-        layer.attr(`${layer.id}.dst`).value !== 123) {
-      child.confidence = Layer.ConfPossible
-    }
+    child.confidence = this.confidence
 
     const [parentPayload] = layer.payloads
     const reader = new Reader(parentPayload.slices[0])
