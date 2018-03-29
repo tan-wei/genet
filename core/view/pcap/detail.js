@@ -72,6 +72,19 @@ class LayerItem {
       prevDepth = attrPath.length
     }
     const renderer = deplug.session.layerRenderer(layer.id) || DefaultSummary
+    let confidence = ''
+    switch (layer.confidence) {
+      case 0:
+        confidence = 'Error'
+        break
+      case 1:
+        confidence = 'Possible'
+        break
+      case 2:
+        confidence = 'Probable'
+        break
+      default:
+    }
     return m('ul', [
       m('li', [
         m('details', { open: true }, [
@@ -128,14 +141,13 @@ class LayerItem {
               ' Stream #', layer.streamId]),
             m('span', {
               style: {
-                display: layer.confidence < 1.0
+                display: confidence
                   ? 'inline'
                   : 'none',
               },
             }, [
               m('i', { class: 'fa fa-question-circle' }),
-              ' ',
-              layer.confidence * 100, '%'
+              ' ', confidence
             ])
           ]),
           mergeOrphanedItems(attrArray[0]).children
