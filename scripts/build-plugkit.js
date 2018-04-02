@@ -26,8 +26,7 @@ execa.sync(path.resolve(__dirname, 'text-to-cpp.js'),
 embeddedFiles.concat(path.resolve(src, 'src/embedded_files.hpp')))
 
 async function exec() {
-  const mode = process.env.CI ? '--release' : ''
-  await execa.shell(`cargo build ${mode}`, {
+  await execa.shell('cargo build --release', {
     cwd: rustSrc,
     stdio: 'inherit'
   })

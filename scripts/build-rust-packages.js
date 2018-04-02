@@ -8,9 +8,8 @@ const dirs = glob.sync(path.join(__dirname, '../package/*/crates/*/Cargo.toml'))
   .map((toml) => path.dirname(toml))
 
 async function exec() {
-  const mode = process.env.CI ? '--release' : ''
   for (const dir of dirs) {
-    await execa.shell(`cargo build ${mode}`, {
+    await execa.shell('cargo build --release', {
       cwd: dir,
       stdio: 'inherit'
     })
