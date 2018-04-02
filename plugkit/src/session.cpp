@@ -13,6 +13,7 @@
 #include "payload.hpp"
 #include "pcap.hpp"
 #include "script_dissector.hpp"
+#include "session_context.hpp"
 #include "stream_dissector_thread_pool.hpp"
 #include "swap_queue.hpp"
 #include "task.hpp"
@@ -72,6 +73,7 @@ public:
   InspectorCallback inspectorCallback;
   TaskRunner runner;
 
+  SessionContext ctx;
   RootAllocator allocator;
 
   std::unique_ptr<Status> status;

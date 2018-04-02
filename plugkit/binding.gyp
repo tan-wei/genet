@@ -26,6 +26,7 @@
       "src/uvloop_logger.cpp",
       "src/pcap_platform.cpp",
       "src/pcap_dummy.cpp",
+      "src/session_context.cpp",
       "src/string_pool.cpp",
       "src/sandbox.cpp",
       "src/module_loader.cpp",

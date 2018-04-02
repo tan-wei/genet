@@ -10,6 +10,8 @@ use std::str;
 use std::ffi::CStr;
 extern crate serde_json;
 use self::serde_json::Value;
+use std::mem;
+use std::borrow::BorrowMut;
 
 /// A Context object.
 #[repr(C)]
@@ -57,5 +59,24 @@ impl Context {
         unsafe {
             symbol::Context_addLayerLinkage.unwrap()(self, token, id, layer);
         }
+    }
+}
+
+pub struct SharedContext {
+    
+}
+
+#[no_mangle]
+pub extern "C" fn plugkit_in_create_shared_ctx() -> *mut SharedContext {
+    let mut heap = Box::new(SharedContext{});
+    let ptr = heap.borrow_mut() as *mut SharedContext;
+    mem::forget(heap);
+    ptr
+}
+
+#[no_mangle]
+pub extern "C" fn plugkit_in_destroy_shared_ctx(ctx: *mut SharedContext) {
+    unsafe {
+        Box::from_raw(ctx);
     }
 }

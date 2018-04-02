@@ -11,7 +11,6 @@ class Frame;
 class FrameView;
 struct Payload;
 class Plugin;
-struct SessionContext;
 
 class Logger;
 using LoggerPtr = std::shared_ptr<Logger>;
