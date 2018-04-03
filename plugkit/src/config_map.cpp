@@ -2,7 +2,7 @@
 
 namespace plugkit {
 
-ConfigMap::ConfigMap() {}
+ConfigMap::ConfigMap() : map(std::make_shared<Map>()) {}
 
 ConfigMap::ConfigMap(const Map &map) : map(std::make_shared<Map>(map)) {}
 
