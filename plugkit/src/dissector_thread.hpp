@@ -8,7 +8,6 @@
 namespace plugkit {
 
 class Frame;
-class RootAllocator;
 class SessionContext;
 
 using FrameQueue = Queue<Frame *>;

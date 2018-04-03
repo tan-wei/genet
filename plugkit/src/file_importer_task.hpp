@@ -13,11 +13,7 @@ namespace plugkit {
 class Frame;
 struct FileImporter;
 
-class Logger;
-using LoggerPtr = std::shared_ptr<Logger>;
-
 class SessionContext;
-class RootAllocator;
 
 class FileImporterTask final : public Task {
 public:

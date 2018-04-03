@@ -10,16 +10,12 @@
 
 namespace plugkit {
 
-class Logger;
-using LoggerPtr = std::shared_ptr<Logger>;
-
 class Frame;
 
 class FrameStore;
 using FrameStorePtr = std::shared_ptr<FrameStore>;
 
 struct Dissector;
-class RootAllocator;
 class SessionContext;
 
 class StreamDissectorThreadPool final {

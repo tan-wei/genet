@@ -9,13 +9,9 @@
 
 namespace plugkit {
 
-class Logger;
-using LoggerPtr = std::shared_ptr<Logger>;
-
 class Frame;
 
 struct Dissector;
-class RootAllocator;
 class SessionContext;
 
 class DissectorThreadPool final {

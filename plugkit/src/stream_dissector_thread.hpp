@@ -13,7 +13,6 @@ class Frame;
 struct Layer;
 
 struct Dissector;
-class RootAllocator;
 class SessionContext;
 
 class StreamDissectorThread final : public WorkerThread {
