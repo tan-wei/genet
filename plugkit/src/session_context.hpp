@@ -2,7 +2,7 @@
 #define PLUGKIT_SESSION_CONTEXT_H
 
 namespace plugkit {
-struct SharedContext;
+struct SharedContextWrapper;
 
 class SessionContext {
 public:
@@ -10,7 +10,7 @@ public:
   ~SessionContext();
 
 private:
-  SharedContext *shared;
+  SharedContextWrapper *shared;
 };
 } // namespace plugkit
 

@@ -3,8 +3,8 @@
 
 namespace plugkit {
 extern "C" {
-SharedContext *plugkit_in_create_shared_ctx();
-void plugkit_in_destroy_shared_ctx(SharedContext *ctx);
+SharedContextWrapper *plugkit_in_create_shared_ctx();
+void plugkit_in_destroy_shared_ctx(SharedContextWrapper *ctx);
 }
 
 SessionContext::SessionContext() : shared(plugkit_in_create_shared_ctx()) {}

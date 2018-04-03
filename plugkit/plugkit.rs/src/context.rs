@@ -10,8 +10,7 @@ use std::str;
 use std::ffi::CStr;
 extern crate serde_json;
 use self::serde_json::Value;
-use std::mem;
-use std::borrow::BorrowMut;
+use std::sync::{Arc, Mutex};
 
 /// A Context object.
 #[repr(C)]
@@ -62,20 +61,39 @@ impl Context {
     }
 }
 
+
+pub struct SharedContextWrapper {
+    _shared: Arc<Mutex<SharedContext>>,
+}
+
+impl SharedContextWrapper {
+    fn new() -> SharedContextWrapper {
+        let shared = Arc::new(Mutex::new(SharedContext::new()));
+        SharedContextWrapper{
+            _shared: shared
+        }
+    }
+}
+
 pub struct SharedContext {
-    
+
+}
+
+impl SharedContext {
+    fn new() -> SharedContext {
+        SharedContext{
+           
+        }
+    }
 }
 
 #[no_mangle]
-pub extern "C" fn plugkit_in_create_shared_ctx() -> *mut SharedContext {
-    let mut heap = Box::new(SharedContext{});
-    let ptr = heap.borrow_mut() as *mut SharedContext;
-    mem::forget(heap);
-    ptr
+pub extern "C" fn plugkit_in_create_shared_ctx() -> *mut SharedContextWrapper {
+    Box::into_raw(Box::new(SharedContextWrapper::new()))
 }
 
 #[no_mangle]
-pub extern "C" fn plugkit_in_destroy_shared_ctx(ctx: *mut SharedContext) {
+pub extern "C" fn plugkit_in_destroy_shared_ctx(ctx: *mut SharedContextWrapper) {
     unsafe {
         Box::from_raw(ctx);
     }
