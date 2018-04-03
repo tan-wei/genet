@@ -24,7 +24,6 @@ public:
   StreamDissectorThread(const SessionContext *sctx, const Callback &callback);
   ~StreamDissectorThread() override;
   void pushStreamDissector(const Dissector &diss);
-  void setAllocator(RootAllocator *allocator);
   void enter() override;
   bool loop() override;
   void exit() override;

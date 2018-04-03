@@ -29,7 +29,6 @@ public:
                   const Callback &callback);
   ~DissectorThread() override;
   void pushDissector(const Dissector &diss);
-  void setAllocator(RootAllocator *allocator);
   void enter() override;
   bool loop() override;
   void exit() override;

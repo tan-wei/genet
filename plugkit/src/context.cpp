@@ -14,63 +14,49 @@ const auto prevToken = Token_get("--prev");
 Context::Context(const SessionContext *sctx) : sctx(sctx) {}
 
 Frame *Context_allocFrame(Context *ctx) {
-  if (!ctx->rootAllocator)
-    return nullptr;
   if (!ctx->frameAllocator) {
-    ctx->frameAllocator.reset(new BlockAllocator<Frame>(ctx->rootAllocator));
+    ctx->frameAllocator.reset(
+        new BlockAllocator<Frame>(ctx->sctx->allocator()));
   }
   return ctx->frameAllocator->alloc();
 }
 
 void Context_deallocFrame(Context *ctx, Frame *frame) {
-  if (!ctx->rootAllocator)
-    return;
   ctx->frameAllocator->dealloc(frame);
 }
 
 Layer *Context_allocLayer(Context *ctx, Token id) {
-  if (!ctx->rootAllocator)
-    return nullptr;
   if (!ctx->layerAllocator) {
-    ctx->layerAllocator.reset(new BlockAllocator<Layer>(ctx->rootAllocator));
+    ctx->layerAllocator.reset(
+        new BlockAllocator<Layer>(ctx->sctx->allocator()));
   }
   return ctx->layerAllocator->alloc(id);
 }
 
 void Context_deallocLayer(Context *ctx, Layer *layer) {
-  if (!ctx->rootAllocator)
-    return;
   ctx->layerAllocator->dealloc(layer);
 }
 
 Attr *Context_allocAttr(Context *ctx, Token id) {
-  if (!ctx->rootAllocator)
-    return nullptr;
   if (!ctx->attrAllocator) {
-    ctx->attrAllocator.reset(new BlockAllocator<Attr>(ctx->rootAllocator));
+    ctx->attrAllocator.reset(new BlockAllocator<Attr>(ctx->sctx->allocator()));
   }
   return ctx->attrAllocator->alloc(id);
 }
 
 void Context_deallocAttr(Context *ctx, Attr *attr) {
-  if (!ctx->rootAllocator)
-    return;
   ctx->attrAllocator->dealloc(attr);
 }
 
 Payload *Context_allocPayload(Context *ctx) {
-  if (!ctx->rootAllocator)
-    return nullptr;
   if (!ctx->payloadAllocator) {
     ctx->payloadAllocator.reset(
-        new BlockAllocator<Payload>(ctx->rootAllocator));
+        new BlockAllocator<Payload>(ctx->sctx->allocator()));
   }
   return ctx->payloadAllocator->alloc();
 }
 
 void Context_deallocPayload(Context *ctx, Payload *payload) {
-  if (!ctx->rootAllocator)
-    return;
   ctx->payloadAllocator->dealloc(payload);
 }
 

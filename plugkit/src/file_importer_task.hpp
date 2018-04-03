@@ -28,7 +28,6 @@ public:
   ~FileImporterTask();
   void run(int id) override;
   void setCallback(const Callback &callback);
-  void setAllocator(RootAllocator *allocator);
   void registerLinkLayer(int link, Token token);
   void addImporter(const FileImporter &importer);
 

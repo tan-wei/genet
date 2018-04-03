@@ -1,5 +1,4 @@
 #include "session.hpp"
-#include "allocator.hpp"
 #include "dissector_thread.hpp"
 #include "dissector_thread_pool.hpp"
 #include "file.hpp"
@@ -74,7 +73,6 @@ public:
   TaskRunner runner;
 
   SessionContext ctx;
-  RootAllocator allocator;
 
   std::unique_ptr<Status> status;
   std::unique_ptr<FilterStatusMap> filterStatus;
@@ -161,18 +159,17 @@ Session::Session(const Config &config) : d(new Private(config)) {
   d->pcap->setSnaplen(config.snaplen);
   d->pcap->setBpf(config.bpf);
   d->pcap->setLogger(d->logger);
-  d->pcap->setAllocator(&d->allocator);
+  d->pcap->setAllocator(d->ctx.allocator());
 
   d->frameStore = std::make_shared<FrameStore>();
   d->frameStore->setCallback(
       [this]() { d->notifyStatus(Private::UPDATE_FRAME); });
-  d->frameStore->setAllocator(&d->allocator);
+  d->frameStore->setAllocator(d->ctx.allocator());
 
   d->dissectorPool.reset(new DissectorThreadPool(&d->ctx));
   d->dissectorPool->setCallback([this](Frame **begin, size_t size) {
     d->frameStore->insert(begin, size);
   });
-  d->dissectorPool->setAllocator(&d->allocator);
   d->dissectorPool->setInspectorCallback(
       [this](const std::string &id, const std::string &msg) {
         d->inspectorQueue.emplace(id, msg);
@@ -183,7 +180,6 @@ Session::Session(const Config &config) : d(new Private(config)) {
   d->streamDissectorPool->setFrameStore(d->frameStore);
   d->streamDissectorPool->setCallback(
       [this](uint32_t maxSeq) { d->frameStore->update(maxSeq); });
-  d->streamDissectorPool->setAllocator(&d->allocator);
   d->streamDissectorPool->setInspectorCallback(
       [this](const std::string &id, const std::string &msg) {
         d->inspectorQueue.emplace(id, msg);
@@ -315,7 +311,6 @@ void Session::sendInspectorMessage(const std::string &id,
 
 int Session::importFile(const std::string &file) {
   auto importer = new FileImporterTask(&d->ctx, file);
-  importer->setAllocator(&d->allocator);
   for (const auto &pair : d->config.linkLayers) {
     importer->registerLinkLayer(pair.first, pair.second);
   }

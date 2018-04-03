@@ -58,7 +58,6 @@ void DissectorThreadPool::start() {
     for (const auto &diss : d->dissectors) {
       dissectorThread->pushDissector(diss);
     }
-    dissectorThread->setAllocator(d->allocator);
 
     const auto &inspector =
         "worker:dissector:" + std::to_string(i) + d->inspectorId;
@@ -77,10 +76,6 @@ void DissectorThreadPool::start() {
 
 void DissectorThreadPool::setCallback(const Callback &callback) {
   d->callback = callback;
-}
-
-void DissectorThreadPool::setAllocator(RootAllocator *allocator) {
-  d->allocator = allocator;
 }
 
 void DissectorThreadPool::registerDissector(const Dissector &diss) {

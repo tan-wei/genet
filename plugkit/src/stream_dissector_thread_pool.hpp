@@ -35,7 +35,6 @@ public:
   void setConfig(const ConfigMap &options);
   void setFrameStore(const FrameStorePtr &store);
   void setCallback(const Callback &callback);
-  void setAllocator(RootAllocator *allocator);
   void start();
 
   void sendInspectorMessage(const std::string &id, const std::string &msg);

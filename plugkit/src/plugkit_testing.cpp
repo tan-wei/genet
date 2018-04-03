@@ -51,7 +51,6 @@ void createContextInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
   static RootAllocator allocator;
   static SessionContext sctx;
   auto ctx = new Context(&sctx);
-  ctx->rootAllocator = &allocator;
   Nan::Persistent<v8::Object> persistent(ContextWrapper::wrap(ctx));
   persistent.SetWeak(ctx,
                      [](const Nan::WeakCallbackInfo<Context> &data) {

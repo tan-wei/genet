@@ -36,7 +36,6 @@ public:
   };
   std::unordered_map<std::pair<Token, uint64_t>, PrevLayer> linkedLayers;
 
-  RootAllocator *rootAllocator = nullptr;
   std::unique_ptr<BlockAllocator<Frame>> frameAllocator;
   std::unique_ptr<BlockAllocator<Layer>> layerAllocator;
   std::unique_ptr<BlockAllocator<Attr>> attrAllocator;

@@ -97,10 +97,6 @@ void StreamDissectorThreadPool::setCallback(const Callback &callback) {
   d->callback = callback;
 }
 
-void StreamDissectorThreadPool::setAllocator(RootAllocator *allocator) {
-  d->allocator = allocator;
-}
-
 void StreamDissectorThreadPool::registerDissector(const Dissector &diss) {
   d->dissectors.push_back(diss);
 }
@@ -143,7 +139,6 @@ void StreamDissectorThreadPool::start() {
     for (const auto &diss : d->dissectors) {
       dissectorThread->pushStreamDissector(diss);
     }
-    dissectorThread->setAllocator(d->allocator);
 
     const auto &inspector =
         "worker:stream-dissector:" + std::to_string(i) + d->inspectorId;

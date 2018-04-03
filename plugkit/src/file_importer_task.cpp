@@ -94,10 +94,6 @@ FileImporterTask::FileImporterTask(const SessionContext *sctx,
 
 FileImporterTask::~FileImporterTask() {}
 
-void FileImporterTask::setAllocator(RootAllocator *allocator) {
-  d->allocator = allocator;
-}
-
 void FileImporterTask::setCallback(const Callback &callback) {
   d->callback = callback;
 }
@@ -116,7 +112,6 @@ void FileImporterTask::run(int id) {
   data.callback = d->callback;
   data.linkLayers = d->linkLayers;
   data.frames.resize(10240);
-  d->ctx.rootAllocator = d->allocator;
   d->ctx.data = &data;
 
   Sandbox::activate(Sandbox::PROFILE_FILE);
