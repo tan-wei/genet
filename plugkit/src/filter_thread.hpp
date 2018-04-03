@@ -2,7 +2,9 @@
 #define PLUGKIT_FILTER_THREAD_H
 
 #include "worker_thread.hpp"
+#include <cstdint>
 #include <memory>
+#include <vector>
 
 namespace plugkit {
 
