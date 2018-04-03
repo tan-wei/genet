@@ -1,6 +1,7 @@
 #include "filter_thread_pool.hpp"
 #include "filter_thread.hpp"
 #include "random_id.hpp"
+#include "session_context.hpp"
 #include "variant.hpp"
 #include <map>
 #include <uv.h>
@@ -9,21 +10,20 @@ namespace plugkit {
 
 class FilterThreadPool::Private {
 public:
-  Private(const std::string &body,
-          const ConfigMap &options,
+  Private(const SessionContext *sctx,
+          const std::string &body,
           const FrameStorePtr &store,
           const Callback &callback);
   ~Private();
 
 public:
+  const SessionContext *sctx;
   std::vector<std::unique_ptr<FilterThread>> threads;
   std::map<uint32_t, bool> sequence;
   std::vector<uint32_t> frames;
   uint32_t maxSeq = 0;
-  LoggerPtr logger = std::make_shared<StreamLogger>();
   uv_rwlock_t rwlock;
   const std::string body;
-  const ConfigMap options;
   const FrameStorePtr store;
   const Callback callback;
   const std::string inspectorId = ":" + RandomID::generate<8>();
@@ -31,21 +31,21 @@ public:
   std::vector<std::string> inspectors;
 };
 
-FilterThreadPool::Private::Private(const std::string &body,
-                                   const ConfigMap &options,
+FilterThreadPool::Private::Private(const SessionContext *sctx,
+                                   const std::string &body,
                                    const FrameStorePtr &store,
                                    const Callback &callback)
-    : body(body), options(options), store(store), callback(callback) {
+    : sctx(sctx), body(body), store(store), callback(callback) {
   uv_rwlock_init(&rwlock);
 }
 
 FilterThreadPool::Private::~Private() { uv_rwlock_destroy(&rwlock); }
 
-FilterThreadPool::FilterThreadPool(const std::string &body,
-                                   const ConfigMap &options,
+FilterThreadPool::FilterThreadPool(const SessionContext *sctx,
+                                   const std::string &body,
                                    const FrameStorePtr &store,
                                    const Callback &callback)
-    : d(new Private(body, options, store, callback)) {}
+    : d(new Private(sctx, body, store, callback)) {}
 
 FilterThreadPool::~FilterThreadPool() {
   for (const auto &thread : d->threads) {
@@ -94,7 +94,7 @@ void FilterThreadPool::start() {
     uv_rwlock_wrunlock(&d->rwlock);
   };
 
-  int concurrency = std::stoi(d->options["_.dissector.concurrency"]);
+  int concurrency = std::stoi(d->sctx->config()["_.dissector.concurrency"]);
   if (concurrency == 0)
     concurrency = std::thread::hardware_concurrency();
   if (concurrency == 0)
@@ -102,7 +102,6 @@ void FilterThreadPool::start() {
 
   for (int i = 0; i < concurrency; ++i) {
     auto thread = new FilterThread(d->body, d->store, threadCallback);
-    thread->setLogger(d->logger);
 
     const auto &inspector =
         "worker:filter:" + std::to_string(i) + d->inspectorId;
@@ -116,10 +115,6 @@ void FilterThreadPool::start() {
   for (const auto &thread : d->threads) {
     thread->start();
   }
-}
-
-void FilterThreadPool::setLogger(const LoggerPtr &logger) {
-  d->logger = logger;
 }
 
 void FilterThreadPool::setInspectorCallback(const InspectorCallback &callback) {

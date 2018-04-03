@@ -15,6 +15,8 @@ using LoggerPtr = std::shared_ptr<Logger>;
 class FrameStore;
 using FrameStorePtr = std::shared_ptr<FrameStore>;
 
+class SessionContext;
+
 class FilterThreadPool final {
 public:
   using Callback = std::function<void()>;
@@ -22,13 +24,12 @@ public:
       std::function<void(const std::string &id, const std::string &msg)>;
 
 public:
-  FilterThreadPool(const std::string &body,
-                   const ConfigMap &options,
+  FilterThreadPool(const SessionContext *sctx,
+                   const std::string &body,
                    const FrameStorePtr &store,
                    const Callback &callback);
   ~FilterThreadPool();
   void start();
-  void setLogger(const LoggerPtr &logger);
 
   void sendInspectorMessage(const std::string &id, const std::string &msg);
   void setInspectorCallback(const InspectorCallback &callback);

@@ -57,7 +57,6 @@ public:
 public:
   std::atomic<uint32_t> index;
   std::atomic<int> updates;
-  std::shared_ptr<UvLoopLogger> logger;
   std::unique_ptr<DissectorThreadPool> dissectorPool;
   std::unique_ptr<StreamDissectorThreadPool> streamDissectorPool;
   std::unordered_map<std::string, std::unique_ptr<FilterThreadPool>> filters;
@@ -145,12 +144,12 @@ Session::Session(const Config &config) : d(new Private(config)) {
   static int id = 0;
   d->id = id++;
 
-  d->logger = std::make_shared<UvLoopLogger>(
+  auto logger = std::make_shared<UvLoopLogger>(
       uv_default_loop(), [this](Logger::MessagePtr &&msg) {
         if (d->loggerCallback)
           d->loggerCallback(std::move(msg));
       });
-  d->ctx.setLogger(d->logger);
+  d->ctx.setLogger(logger);
   d->ctx.setConfig(d->config.options);
 
   d->pcap = Pcap::create();
@@ -158,7 +157,7 @@ Session::Session(const Config &config) : d(new Private(config)) {
   d->pcap->setPromiscuous(config.promiscuous);
   d->pcap->setSnaplen(config.snaplen);
   d->pcap->setBpf(config.bpf);
-  d->pcap->setLogger(d->logger);
+  d->pcap->setLogger(logger);
   d->pcap->setAllocator(d->ctx.allocator());
 
   d->frameStore = std::make_shared<FrameStore>();
@@ -225,7 +224,6 @@ Session::~Session() {
   d->pcap.reset();
   d->dissectorPool.reset();
   d->streamDissectorPool.reset();
-  d->logger.reset();
   uv_run(uv_default_loop(), UV_RUN_ONCE);
 
   uv_close(reinterpret_cast<uv_handle_t *>(&d->async), [](uv_handle_t *handle) {
@@ -270,7 +268,7 @@ void Session::setDisplayFilter(const std::string &name,
     }
   } else {
     auto pool = std::unique_ptr<FilterThreadPool>(
-        new FilterThreadPool(body, d->config.options, d->frameStore, [this]() {
+        new FilterThreadPool(&d->ctx, body, d->frameStore, [this]() {
           d->notifyStatus(Private::UPDATE_FILTER);
         }));
     pool->setInspectorCallback(
@@ -278,7 +276,6 @@ void Session::setDisplayFilter(const std::string &name,
           d->inspectorQueue.emplace(id, msg);
           d->notifyStatus(Private::UPDATE_INSPECTOR);
         });
-    pool->setLogger(d->logger);
     pool->start();
     d->filters[name] = std::move(pool);
   }
