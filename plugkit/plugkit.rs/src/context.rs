@@ -61,7 +61,16 @@ impl Context {
     }
 }
 
+/// A thread-wide context object.
+pub struct SharedContext {}
 
+impl SharedContext {
+    fn new() -> SharedContext {
+        SharedContext {}
+    }
+}
+
+/// A wrapper for SharedContext.
 pub struct SharedContextWrapper {
     _shared: Arc<Mutex<SharedContext>>,
 }
@@ -69,29 +78,17 @@ pub struct SharedContextWrapper {
 impl SharedContextWrapper {
     fn new() -> SharedContextWrapper {
         let shared = Arc::new(Mutex::new(SharedContext::new()));
-        SharedContextWrapper{
-            _shared: shared
-        }
+        SharedContextWrapper { _shared: shared }
     }
 }
 
-pub struct SharedContext {
-
-}
-
-impl SharedContext {
-    fn new() -> SharedContext {
-        SharedContext{
-           
-        }
-    }
-}
-
+#[doc(hidden)]
 #[no_mangle]
 pub extern "C" fn plugkit_in_create_shared_ctx() -> *mut SharedContextWrapper {
     Box::into_raw(Box::new(SharedContextWrapper::new()))
 }
 
+#[doc(hidden)]
 #[no_mangle]
 pub extern "C" fn plugkit_in_destroy_shared_ctx(ctx: *mut SharedContextWrapper) {
     unsafe {
