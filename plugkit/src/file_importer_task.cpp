@@ -80,7 +80,6 @@ public:
   std::vector<FileImporter> importers;
   std::thread thread;
   Context ctx;
-  RootAllocator *allocator = nullptr;
 };
 
 FileImporterTask::Private::Private(const SessionContext *sctx) : ctx(sctx) {}

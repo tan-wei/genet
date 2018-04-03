@@ -1,7 +1,6 @@
 #ifndef PLUGKIT_FILE_EXPORTER_THREAD_H
 #define PLUGKIT_FILE_EXPORTER_THREAD_H
 
-#include "config_map.hpp"
 #include "task.hpp"
 #include "token.hpp"
 #include <functional>
@@ -12,9 +11,6 @@ namespace plugkit {
 
 class Frame;
 struct FileExporter;
-
-class Logger;
-using LoggerPtr = std::shared_ptr<Logger>;
 
 class FrameStore;
 using FrameStorePtr = std::shared_ptr<FrameStore>;

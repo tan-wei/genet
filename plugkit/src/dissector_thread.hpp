@@ -1,7 +1,6 @@
 #ifndef PLUGKIT_DISSECTOR_THREAD_H
 #define PLUGKIT_DISSECTOR_THREAD_H
 
-#include "config_map.hpp"
 #include "queue.hpp"
 #include "worker_thread.hpp"
 

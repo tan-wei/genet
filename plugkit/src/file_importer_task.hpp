@@ -1,7 +1,6 @@
 #ifndef PLUGKIT_FILE_IMPORTEER_THREAD_H
 #define PLUGKIT_FILE_IMPORTEER_THREAD_H
 
-#include "config_map.hpp"
 #include "task.hpp"
 #include "token.hpp"
 #include <functional>

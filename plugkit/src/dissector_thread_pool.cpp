@@ -1,4 +1,5 @@
 #include "dissector_thread_pool.hpp"
+#include "config_map.hpp"
 #include "dissector.hpp"
 #include "dissector_thread.hpp"
 #include "random_id.hpp"
@@ -18,7 +19,6 @@ public:
   std::vector<Dissector> dissectors;
   FrameQueuePtr queue = std::make_shared<FrameQueue>();
   Callback callback;
-  RootAllocator *allocator = nullptr;
   const std::string inspectorId = ":" + RandomID::generate<8>();
   InspectorCallback inspectorCallback;
   std::vector<std::string> inspectors;

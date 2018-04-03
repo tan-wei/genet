@@ -1,7 +1,6 @@
 #ifndef PLUGKIT_DISSECTOR_THREAD_POOL_H
 #define PLUGKIT_DISSECTOR_THREAD_POOL_H
 
-#include "config_map.hpp"
 #include "queue.hpp"
 #include <functional>
 #include <memory>
@@ -27,7 +26,6 @@ public:
   DissectorThreadPool &operator=(const DissectorThreadPool &) = delete;
   void start();
   void registerDissector(const Dissector &diss);
-  void setConfig(const ConfigMap &options);
   void setCallback(const Callback &callback);
   void push(Frame **begin, size_t length);
 

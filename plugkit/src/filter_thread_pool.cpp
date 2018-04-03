@@ -1,4 +1,5 @@
 #include "filter_thread_pool.hpp"
+#include "config_map.hpp"
 #include "filter_thread.hpp"
 #include "random_id.hpp"
 #include "session_context.hpp"

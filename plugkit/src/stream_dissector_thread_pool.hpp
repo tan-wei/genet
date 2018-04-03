@@ -1,7 +1,6 @@
 #ifndef PLUGKIT_STREAM_DISSECTOR_THREAD_POOL_H
 #define PLUGKIT_STREAM_DISSECTOR_THREAD_POOL_H
 
-#include "config_map.hpp"
 #include "queue.hpp"
 #include <functional>
 #include <memory>
@@ -28,7 +27,6 @@ public:
   StreamDissectorThreadPool(const SessionContext *sctx);
   ~StreamDissectorThreadPool();
   void registerDissector(const Dissector &diss);
-  void setConfig(const ConfigMap &options);
   void setFrameStore(const FrameStorePtr &store);
   void setCallback(const Callback &callback);
   void start();

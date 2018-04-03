@@ -1,4 +1,5 @@
 #include "stream_dissector_thread_pool.hpp"
+#include "config_map.hpp"
 #include "dissector.hpp"
 #include "frame.hpp"
 #include "frame_store.hpp"
@@ -27,10 +28,8 @@ public:
   std::thread thread;
   std::vector<std::pair<uint32_t, uint32_t>> threadStats;
   std::mutex mutex;
-  ConfigMap options;
   FrameStorePtr store;
   Callback callback;
-  RootAllocator *allocator = nullptr;
   const std::string inspectorId = ":" + RandomID::generate<8>();
   InspectorCallback inspectorCallback;
   std::vector<std::string> inspectors;
@@ -82,10 +81,6 @@ StreamDissectorThreadPool::~StreamDissectorThreadPool() {
   d->store->close();
   if (d->thread.joinable())
     d->thread.join();
-}
-
-void StreamDissectorThreadPool::setConfig(const ConfigMap &options) {
-  d->options = options;
 }
 
 void StreamDissectorThreadPool::setFrameStore(const FrameStorePtr &store) {

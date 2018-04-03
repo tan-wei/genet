@@ -1,7 +1,6 @@
 #ifndef PLUGKIT_FILTER_THREAD_POOL_H
 #define PLUGKIT_FILTER_THREAD_POOL_H
 
-#include "config_map.hpp"
 #include <functional>
 #include <memory>
 #include <unordered_map>
