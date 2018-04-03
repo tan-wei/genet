@@ -61,7 +61,7 @@ impl Context {
     }
 }
 
-/// A thread-wide context object.
+/// A process-wide context object.
 pub struct SharedContext {}
 
 impl SharedContext {
