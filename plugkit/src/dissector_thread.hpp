@@ -25,7 +25,6 @@ public:
 
 public:
   DissectorThread(const SessionContext *sctx,
-                  const ConfigMap &options,
                   const FrameQueuePtr &queue,
                   const Callback &callback);
   ~DissectorThread() override;

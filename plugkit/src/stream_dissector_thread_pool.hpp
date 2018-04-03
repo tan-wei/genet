@@ -37,7 +37,6 @@ public:
   void setCallback(const Callback &callback);
   void setAllocator(RootAllocator *allocator);
   void start();
-  void setLogger(const LoggerPtr &logger);
 
   void sendInspectorMessage(const std::string &id, const std::string &msg);
   void setInspectorCallback(const InspectorCallback &callback);

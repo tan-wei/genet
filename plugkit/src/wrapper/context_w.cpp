@@ -2,6 +2,7 @@
 #include "context.hpp"
 #include "layer.hpp"
 #include "plugkit_module.hpp"
+#include "session_context.hpp"
 #include "variant.hpp"
 #include <vector>
 
@@ -28,7 +29,7 @@ NAN_METHOD(ContextWrapper::getConfig) {
   ContextWrapper *wrapper = ObjectWrap::Unwrap<ContextWrapper>(info.Holder());
   if (Context *ctx = wrapper->ctx) {
     const auto &str = Nan::Utf8String(info[0]);
-    const auto &value = ctx->options[std::string(*str, str.length())];
+    const auto &value = ctx->sctx->config()[std::string(*str, str.length())];
     if (!value.empty()) {
       Nan::JSON nanJson;
       Nan::MaybeLocal<v8::Value> result =

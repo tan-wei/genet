@@ -33,7 +33,6 @@ public:
   void registerDissector(const Dissector &diss);
   void setConfig(const ConfigMap &options);
   void setCallback(const Callback &callback);
-  void setLogger(const LoggerPtr &logger);
   void setAllocator(RootAllocator *allocator);
   void push(Frame **begin, size_t length);
 

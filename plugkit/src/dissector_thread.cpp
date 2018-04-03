@@ -4,6 +4,7 @@
 #include "frame.hpp"
 #include "layer.hpp"
 #include "sandbox.hpp"
+#include "session_context.hpp"
 #include "tag_filter.hpp"
 #include <algorithm>
 #include <array>
@@ -25,7 +26,6 @@ struct DissectorContext {
 class DissectorThread::Private {
 public:
   Private(const SessionContext *sctx,
-          const ConfigMap &options,
           const FrameQueuePtr &queue,
           const Callback &callback);
   ~Private();
@@ -41,22 +41,18 @@ public:
 };
 
 DissectorThread::Private::Private(const SessionContext *sctx,
-                                  const ConfigMap &options,
                                   const FrameQueuePtr &queue,
                                   const Callback &callback)
-    : ctx(sctx), options(options), queue(queue), callback(callback) {
-  ctx.options = options;
-}
+    : ctx(sctx), queue(queue), callback(callback) {}
 
 DissectorThread::Private::~Private() {}
 
 DissectorThread::DissectorThread(const SessionContext *sctx,
-                                 const ConfigMap &options,
                                  const FrameQueuePtr &queue,
                                  const Callback &callback)
-    : d(new Private(sctx, options, queue, callback)) {
+    : d(new Private(sctx, queue, callback)) {
   d->ctx.confidenceThreshold = static_cast<LayerConfidence>(
-      std::stoi(options["_.dissector.confidenceThreshold"]));
+      std::stoi(sctx->config()["_.dissector.confidenceThreshold"]));
 }
 
 DissectorThread::~DissectorThread() {}
@@ -70,8 +66,6 @@ void DissectorThread::pushDissector(const Dissector &diss) {
 }
 
 void DissectorThread::enter() {
-  d->ctx.logger = logger;
-
   for (auto &diss : d->dissectors) {
     if (diss.initialize) {
       diss.initialize(&d->ctx, &diss);

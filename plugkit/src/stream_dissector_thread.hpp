@@ -21,9 +21,7 @@ public:
   using Callback = std::function<void(uint32_t)>;
 
 public:
-  StreamDissectorThread(const SessionContext *sctx,
-                        const ConfigMap &options,
-                        const Callback &callback);
+  StreamDissectorThread(const SessionContext *sctx, const Callback &callback);
   ~StreamDissectorThread() override;
   void pushStreamDissector(const Dissector &diss);
   void setAllocator(RootAllocator *allocator);

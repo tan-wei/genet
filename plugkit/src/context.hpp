@@ -29,15 +29,12 @@ public:
   uint32_t confidenceThreshold = 0;
 
   const SessionContext *sctx;
-  ConfigMap options;
 
   struct PrevLayer {
     Layer *layer;
     Attr *attr;
   };
   std::unordered_map<std::pair<Token, uint64_t>, PrevLayer> linkedLayers;
-
-  LoggerPtr logger = std::make_shared<StreamLogger>();
 
   RootAllocator *rootAllocator = nullptr;
   std::unique_ptr<BlockAllocator<Frame>> frameAllocator;

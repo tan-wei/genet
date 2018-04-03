@@ -2,6 +2,7 @@
 #include "dissector.hpp"
 #include "dissector_thread.hpp"
 #include "random_id.hpp"
+#include "session_context.hpp"
 #include "variant.hpp"
 #include <array>
 
@@ -17,7 +18,6 @@ public:
   std::vector<Dissector> dissectors;
   LoggerPtr logger = std::make_shared<StreamLogger>();
   FrameQueuePtr queue = std::make_shared<FrameQueue>();
-  ConfigMap options;
   Callback callback;
   RootAllocator *allocator = nullptr;
   const std::string inspectorId = ":" + RandomID::generate<8>();
@@ -46,7 +46,7 @@ void DissectorThreadPool::start() {
     d->callback(begin, size);
   };
 
-  int concurrency = std::stoi(d->options["_.dissector.concurrency"]);
+  int concurrency = std::stoi(d->sctx->config()["_.dissector.concurrency"]);
   if (concurrency == 0)
     concurrency = std::thread::hardware_concurrency();
   if (concurrency == 0)
@@ -54,12 +54,11 @@ void DissectorThreadPool::start() {
 
   for (int i = 0; i < concurrency; ++i) {
     auto dissectorThread =
-        new DissectorThread(d->sctx, d->options, d->queue, threadCallback);
+        new DissectorThread(d->sctx, d->queue, threadCallback);
     for (const auto &diss : d->dissectors) {
       dissectorThread->pushDissector(diss);
     }
     dissectorThread->setAllocator(d->allocator);
-    dissectorThread->setLogger(d->logger);
 
     const auto &inspector =
         "worker:dissector:" + std::to_string(i) + d->inspectorId;
@@ -76,10 +75,6 @@ void DissectorThreadPool::start() {
   }
 }
 
-void DissectorThreadPool::setConfig(const ConfigMap &options) {
-  d->options = options;
-}
-
 void DissectorThreadPool::setCallback(const Callback &callback) {
   d->callback = callback;
 }
@@ -90,10 +85,6 @@ void DissectorThreadPool::setAllocator(RootAllocator *allocator) {
 
 void DissectorThreadPool::registerDissector(const Dissector &diss) {
   d->dissectors.push_back(diss);
-}
-
-void DissectorThreadPool::setLogger(const LoggerPtr &logger) {
-  d->logger = logger;
 }
 
 void DissectorThreadPool::push(Frame **begin, size_t length) {

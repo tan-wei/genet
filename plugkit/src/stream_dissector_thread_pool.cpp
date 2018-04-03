@@ -5,6 +5,7 @@
 #include "frame_view.hpp"
 #include "layer.hpp"
 #include "random_id.hpp"
+#include "session_context.hpp"
 #include "stream_dissector_thread.hpp"
 #include "stream_logger.hpp"
 #include "variant.hpp"
@@ -104,10 +105,6 @@ void StreamDissectorThreadPool::registerDissector(const Dissector &diss) {
   d->dissectors.push_back(diss);
 }
 
-void StreamDissectorThreadPool::setLogger(const LoggerPtr &logger) {
-  d->logger = logger;
-}
-
 void StreamDissectorThreadPool::sendInspectorMessage(const std::string &id,
                                                      const std::string &msg) {
   for (size_t i = 0; i < d->inspectors.size(); ++i) {
@@ -131,15 +128,15 @@ void StreamDissectorThreadPool::start() {
   if (d->thread.joinable() || !d->threads.empty())
     return;
 
-  int concurrency = std::stoi(d->options["_.dissector.concurrency"]);
+  int concurrency = std::stoi(d->sctx->config()["_.dissector.concurrency"]);
   if (concurrency == 0)
     concurrency = std::thread::hardware_concurrency();
   if (concurrency == 0)
     concurrency = 1;
 
   for (int i = 0; i < concurrency; ++i) {
-    auto dissectorThread = new StreamDissectorThread(
-        d->sctx, d->options, [this, i](uint32_t maxFrameIndex) {
+    auto dissectorThread =
+        new StreamDissectorThread(d->sctx, [this, i](uint32_t maxFrameIndex) {
           uint32_t index = d->updateIndex(i, 0, maxFrameIndex);
           d->callback(index);
         });
@@ -147,7 +144,6 @@ void StreamDissectorThreadPool::start() {
       dissectorThread->pushStreamDissector(diss);
     }
     dissectorThread->setAllocator(d->allocator);
-    dissectorThread->setLogger(d->logger);
 
     const auto &inspector =
         "worker:stream-dissector:" + std::to_string(i) + d->inspectorId;

@@ -105,10 +105,8 @@ const RawFrame *apiCallback(Context *ctx, size_t *length) {
 
 class FileExporterWorkerThread : public WorkerThread {
 public:
-  FileExporterWorkerThread(const SessionContext *sctx,
-                           const ConfigMap &options,
-                           const ContextData &data)
-      : ctx(sctx), options(options), data(data) {}
+  FileExporterWorkerThread(const SessionContext *sctx, const ContextData &data)
+      : ctx(sctx), data(data) {}
 
   ~FileExporterWorkerThread() {}
 
@@ -122,9 +120,7 @@ public:
 
   bool loop() override {
     data.filter = filter.get();
-    ctx.options = options;
     ctx.data = &data;
-    ctx.logger = logger;
 
     for (const FileExporter &exporter : data.exporters) {
       if (exporter.isSupported && exporter.start) {
@@ -140,7 +136,6 @@ public:
 
 private:
   Context ctx;
-  ConfigMap options;
   ContextData data;
   std::unique_ptr<Filter> filter;
 };
@@ -152,7 +147,6 @@ public:
   std::string file;
   std::string filter;
   Callback callback;
-  ConfigMap options;
   LoggerPtr logger = std::make_shared<StreamLogger>();
   std::unordered_map<Token, int> linkLayers;
   std::unique_ptr<FileExporterWorkerThread> worker;
@@ -174,14 +168,6 @@ FileExporterTask::FileExporterTask(const SessionContext *sctx,
 }
 
 FileExporterTask::~FileExporterTask() {}
-
-void FileExporterTask::setConfig(const ConfigMap &options) {
-  d->options = options;
-}
-
-void FileExporterTask::setLogger(const LoggerPtr &logger) {
-  d->logger = logger;
-}
 
 void FileExporterTask::registerLinkLayer(Token token, int link) {
   d->linkLayers[token] = link;
@@ -206,8 +192,7 @@ void FileExporterTask::run(int id) {
   data.file = d->file;
   data.filterBody = d->filter;
 
-  d->worker.reset(new FileExporterWorkerThread(d->sctx, d->options, data));
-  d->worker->setLogger(d->logger);
+  d->worker.reset(new FileExporterWorkerThread(d->sctx, data));
   d->worker->start();
   d->worker->join();
 }

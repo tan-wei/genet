@@ -1,5 +1,6 @@
 #include "context.hpp"
 #include "attr.hpp"
+#include "session_context.hpp"
 #include <cstdarg>
 #include <cstdio>
 
@@ -74,7 +75,7 @@ void Context_deallocPayload(Context *ctx, Payload *payload) {
 }
 
 const char *Context_getConfig(Context *ctx, const char *key, size_t length) {
-  const auto &value = ctx->options[std::string(key, length)];
+  const auto &value = ctx->sctx->config()[std::string(key, length)];
   return value.c_str();
 }
 
@@ -114,8 +115,8 @@ void Log(Context *ctx,
   msg->resourceName = file;
   msg->lineNumber = line;
   msg->trivial = level != Logger::LEVEL_ERROR;
-  if (ctx->logger) {
-    ctx->logger->log(std::move(msg));
+  if (auto logger = ctx->sctx->logger()) {
+    logger->log(std::move(msg));
   }
 }
 } // namespace

@@ -5,6 +5,7 @@
 #include "layer.hpp"
 #include "queue.hpp"
 #include "sandbox.hpp"
+#include "session_context.hpp"
 #include "variant.hpp"
 
 #include <algorithm>
@@ -25,9 +26,7 @@ struct WorkerContext {
 
 class StreamDissectorThread::Private {
 public:
-  Private(const SessionContext *sctx,
-          const ConfigMap &options,
-          const Callback &callback);
+  Private(const SessionContext *sctx, const Callback &callback);
   ~Private();
   void analyze(Layer *layer, std::vector<Layer *> *nextLayers);
 
@@ -38,24 +37,19 @@ public:
   std::unordered_map<Token, IdMap> workers;
 
   Context ctx;
-  const ConfigMap options;
   const Callback callback;
 };
 
 StreamDissectorThread::Private::Private(const SessionContext *sctx,
-                                        const ConfigMap &options,
                                         const Callback &callback)
-    : ctx(sctx), options(options), callback(callback) {
-  ctx.options = options;
-}
+    : ctx(sctx), callback(callback) {}
 StreamDissectorThread::Private::~Private() {}
 
 StreamDissectorThread::StreamDissectorThread(const SessionContext *sctx,
-                                             const ConfigMap &options,
                                              const Callback &callback)
-    : d(new Private(sctx, options, callback)) {
+    : d(new Private(sctx, callback)) {
   d->ctx.confidenceThreshold = static_cast<LayerConfidence>(
-      std::stoi(options["_.dissector.confidenceThreshold"]));
+      std::stoi(sctx->config()["_.dissector.confidenceThreshold"]));
 }
 
 StreamDissectorThread::~StreamDissectorThread() {}
@@ -65,8 +59,6 @@ void StreamDissectorThread::pushStreamDissector(const Dissector &diss) {
 }
 
 void StreamDissectorThread::enter() {
-  d->ctx.logger = logger;
-
   for (auto &diss : d->dissectors) {
     if (diss.initialize) {
       diss.initialize(&d->ctx, &diss);

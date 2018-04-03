@@ -1,5 +1,6 @@
 #include "logger.hpp"
 #include "context.hpp"
+#include "session_context.hpp"
 #include <iomanip>
 #include <mutex>
 #include <nan.h>
@@ -79,7 +80,7 @@ Logger::MessagePtr Logger::fromV8Message(v8::Local<v8::Message> msg,
 }
 
 void Logger_log(Context *ctx, const char *msg, const Logger::Metadata *meta) {
-  if (auto logger = ctx->logger) {
+  if (auto logger = ctx->sctx->logger()) {
     Logger::MessagePtr logmsg(new Logger::Message());
     logmsg->message = msg;
     logmsg->level = meta->level;

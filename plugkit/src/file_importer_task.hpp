@@ -27,8 +27,6 @@ public:
   FileImporterTask(const SessionContext *sctx, const std::string &file);
   ~FileImporterTask();
   void run(int id) override;
-  void setConfig(const ConfigMap &options);
-  void setLogger(const LoggerPtr &logger);
   void setCallback(const Callback &callback);
   void setAllocator(RootAllocator *allocator);
   void registerLinkLayer(int link, Token token);

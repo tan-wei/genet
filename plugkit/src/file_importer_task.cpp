@@ -94,14 +94,6 @@ FileImporterTask::FileImporterTask(const SessionContext *sctx,
 
 FileImporterTask::~FileImporterTask() {}
 
-void FileImporterTask::setConfig(const ConfigMap &options) {
-  d->options = options;
-}
-
-void FileImporterTask::setLogger(const LoggerPtr &logger) {
-  d->logger = logger;
-}
-
 void FileImporterTask::setAllocator(RootAllocator *allocator) {
   d->allocator = allocator;
 }
@@ -124,8 +116,6 @@ void FileImporterTask::run(int id) {
   data.callback = d->callback;
   data.linkLayers = d->linkLayers;
   data.frames.resize(10240);
-  d->ctx.logger = d->logger;
-  d->ctx.options = d->options;
   d->ctx.rootAllocator = d->allocator;
   d->ctx.data = &data;
 
