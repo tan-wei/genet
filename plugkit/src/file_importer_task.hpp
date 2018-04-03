@@ -16,6 +16,7 @@ struct FileImporter;
 class Logger;
 using LoggerPtr = std::shared_ptr<Logger>;
 
+class SessionContext;
 class RootAllocator;
 
 class FileImporterTask final : public Task {
@@ -23,7 +24,7 @@ public:
   using Callback = std::function<void(int, Frame **, size_t, double)>;
 
 public:
-  FileImporterTask(const std::string &file);
+  FileImporterTask(const SessionContext *sctx, const std::string &file);
   ~FileImporterTask();
   void run(int id) override;
   void setConfig(const ConfigMap &options);

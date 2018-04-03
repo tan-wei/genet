@@ -19,12 +19,15 @@ using LoggerPtr = std::shared_ptr<Logger>;
 class FrameStore;
 using FrameStorePtr = std::shared_ptr<FrameStore>;
 
+class SessionContext;
+
 class FileExporterTask final : public Task {
 public:
   using Callback = std::function<void(int, double)>;
 
 public:
-  FileExporterTask(const std::string &file,
+  FileExporterTask(const SessionContext *sctx,
+                   const std::string &file,
                    const std::string &filter,
                    const FrameStorePtr &store);
   ~FileExporterTask();

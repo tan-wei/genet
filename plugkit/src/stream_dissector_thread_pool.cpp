@@ -16,9 +16,11 @@ namespace plugkit {
 
 class StreamDissectorThreadPool::Private {
 public:
+  Private(const SessionContext *sctx);
   uint32_t updateIndex(int thread, uint32_t pushed = 0, uint32_t dissected = 0);
 
 public:
+  const SessionContext *sctx;
   LoggerPtr logger = std::make_shared<StreamLogger>();
   std::vector<std::unique_ptr<StreamDissectorThread>> threads;
   std::vector<Dissector> dissectors;
@@ -33,6 +35,9 @@ public:
   InspectorCallback inspectorCallback;
   std::vector<std::string> inspectors;
 };
+
+StreamDissectorThreadPool::Private::Private(const SessionContext *sctx)
+    : sctx(sctx) {}
 
 uint32_t StreamDissectorThreadPool::Private::updateIndex(int thread,
                                                          uint32_t pushed,
@@ -64,7 +69,8 @@ uint32_t StreamDissectorThreadPool::Private::updateIndex(int thread,
   return min;
 }
 
-StreamDissectorThreadPool::StreamDissectorThreadPool() : d(new Private()) {}
+StreamDissectorThreadPool::StreamDissectorThreadPool(const SessionContext *sctx)
+    : d(new Private(sctx)) {}
 
 StreamDissectorThreadPool::~StreamDissectorThreadPool() {
   for (const auto &thread : d->threads) {
@@ -133,7 +139,7 @@ void StreamDissectorThreadPool::start() {
 
   for (int i = 0; i < concurrency; ++i) {
     auto dissectorThread = new StreamDissectorThread(
-        d->options, [this, i](uint32_t maxFrameIndex) {
+        d->sctx, d->options, [this, i](uint32_t maxFrameIndex) {
           uint32_t index = d->updateIndex(i, 0, maxFrameIndex);
           d->callback(index);
         });

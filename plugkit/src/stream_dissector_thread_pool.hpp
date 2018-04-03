@@ -20,6 +20,7 @@ using FrameStorePtr = std::shared_ptr<FrameStore>;
 
 struct Dissector;
 class RootAllocator;
+class SessionContext;
 
 class StreamDissectorThreadPool final {
 public:
@@ -28,7 +29,7 @@ public:
       std::function<void(const std::string &id, const std::string &msg)>;
 
 public:
-  StreamDissectorThreadPool();
+  StreamDissectorThreadPool(const SessionContext *sctx);
   ~StreamDissectorThreadPool();
   void registerDissector(const Dissector &diss);
   void setConfig(const ConfigMap &options);

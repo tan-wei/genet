@@ -70,6 +70,9 @@ bool apiCallback(Context *ctx, size_t length, double progress) {
 
 class FileImporterTask::Private {
 public:
+  Private(const SessionContext *shared);
+
+public:
   std::string file;
   ConfigMap options;
   LoggerPtr logger = std::make_shared<StreamLogger>();
@@ -77,10 +80,15 @@ public:
   std::unordered_map<int, Token> linkLayers;
   std::vector<FileImporter> importers;
   std::thread thread;
+  Context ctx;
   RootAllocator *allocator = nullptr;
 };
 
-FileImporterTask::FileImporterTask(const std::string &file) : d(new Private()) {
+FileImporterTask::Private::Private(const SessionContext *sctx) : ctx(sctx) {}
+
+FileImporterTask::FileImporterTask(const SessionContext *sctx,
+                                   const std::string &file)
+    : d(new Private(sctx)) {
   d->file = file;
 }
 
@@ -111,22 +119,21 @@ void FileImporterTask::addImporter(const FileImporter &importer) {
 }
 
 void FileImporterTask::run(int id) {
-  Context ctx;
   CallbackData data;
   data.id = id;
   data.callback = d->callback;
   data.linkLayers = d->linkLayers;
   data.frames.resize(10240);
-  ctx.logger = d->logger;
-  ctx.options = d->options;
-  ctx.rootAllocator = d->allocator;
-  ctx.data = &data;
+  d->ctx.logger = d->logger;
+  d->ctx.options = d->options;
+  d->ctx.rootAllocator = d->allocator;
+  d->ctx.data = &data;
 
   Sandbox::activate(Sandbox::PROFILE_FILE);
   for (const FileImporter &importer : d->importers) {
     if (importer.isSupported && importer.start) {
-      if (importer.isSupported(&ctx, d->file.c_str())) {
-        importer.start(&ctx, d->file.c_str(), data.frames.data(),
+      if (importer.isSupported(&d->ctx, d->file.c_str())) {
+        importer.start(&d->ctx, d->file.c_str(), data.frames.data(),
                        data.frames.size(), apiCallback);
         return;
       }

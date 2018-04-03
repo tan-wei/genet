@@ -105,8 +105,10 @@ const RawFrame *apiCallback(Context *ctx, size_t *length) {
 
 class FileExporterWorkerThread : public WorkerThread {
 public:
-  FileExporterWorkerThread(const ConfigMap &options, const ContextData &data)
-      : options(options), data(data) {}
+  FileExporterWorkerThread(const SessionContext *sctx,
+                           const ConfigMap &options,
+                           const ContextData &data)
+      : ctx(sctx), options(options), data(data) {}
 
   ~FileExporterWorkerThread() {}
 
@@ -119,7 +121,6 @@ public:
   }
 
   bool loop() override {
-    Context ctx;
     data.filter = filter.get();
     ctx.options = options;
     ctx.data = &data;
@@ -138,6 +139,7 @@ public:
   void exit() override { filter.reset(); }
 
 private:
+  Context ctx;
   ConfigMap options;
   ContextData data;
   std::unique_ptr<Filter> filter;
@@ -157,12 +159,15 @@ public:
   std::vector<FileExporter> exporters;
   std::thread thread;
   FrameStorePtr store;
+  const SessionContext *sctx;
 };
 
-FileExporterTask::FileExporterTask(const std::string &file,
+FileExporterTask::FileExporterTask(const SessionContext *sctx,
+                                   const std::string &file,
                                    const std::string &filter,
                                    const FrameStorePtr &store)
     : d(new Private()) {
+  d->sctx = sctx;
   d->file = file;
   d->filter = filter;
   d->store = store;
@@ -201,7 +206,7 @@ void FileExporterTask::run(int id) {
   data.file = d->file;
   data.filterBody = d->filter;
 
-  d->worker.reset(new FileExporterWorkerThread(d->options, data));
+  d->worker.reset(new FileExporterWorkerThread(d->sctx, d->options, data));
   d->worker->setLogger(d->logger);
   d->worker->start();
   d->worker->join();

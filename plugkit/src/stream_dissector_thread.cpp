@@ -25,7 +25,9 @@ struct WorkerContext {
 
 class StreamDissectorThread::Private {
 public:
-  Private(const ConfigMap &options, const Callback &callback);
+  Private(const SessionContext *sctx,
+          const ConfigMap &options,
+          const Callback &callback);
   ~Private();
   void analyze(Layer *layer, std::vector<Layer *> *nextLayers);
 
@@ -40,16 +42,18 @@ public:
   const Callback callback;
 };
 
-StreamDissectorThread::Private::Private(const ConfigMap &options,
+StreamDissectorThread::Private::Private(const SessionContext *sctx,
+                                        const ConfigMap &options,
                                         const Callback &callback)
-    : options(options), callback(callback) {
+    : ctx(sctx), options(options), callback(callback) {
   ctx.options = options;
 }
 StreamDissectorThread::Private::~Private() {}
 
-StreamDissectorThread::StreamDissectorThread(const ConfigMap &options,
+StreamDissectorThread::StreamDissectorThread(const SessionContext *sctx,
+                                             const ConfigMap &options,
                                              const Callback &callback)
-    : d(new Private(options, callback)) {
+    : d(new Private(sctx, options, callback)) {
   d->ctx.confidenceThreshold = static_cast<LayerConfidence>(
       std::stoi(options["_.dissector.confidenceThreshold"]));
 }

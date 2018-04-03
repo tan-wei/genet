@@ -19,11 +19,16 @@ struct hash<std::pair<plugkit::Token, uint64_t>> {
 
 namespace plugkit {
 
+class SessionContext;
+
 struct Context final {
 public:
+  Context(const SessionContext *sctx);
+
   bool closeStream = false;
   uint32_t confidenceThreshold = 0;
 
+  const SessionContext *sctx;
   ConfigMap options;
 
   struct PrevLayer {

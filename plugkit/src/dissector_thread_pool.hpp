@@ -16,6 +16,7 @@ class Frame;
 
 struct Dissector;
 class RootAllocator;
+class SessionContext;
 
 class DissectorThreadPool final {
 public:
@@ -24,7 +25,7 @@ public:
       std::function<void(const std::string &id, const std::string &msg)>;
 
 public:
-  DissectorThreadPool();
+  DissectorThreadPool(const SessionContext *sctx);
   ~DissectorThreadPool();
   DissectorThreadPool(const DissectorThreadPool &) = delete;
   DissectorThreadPool &operator=(const DissectorThreadPool &) = delete;

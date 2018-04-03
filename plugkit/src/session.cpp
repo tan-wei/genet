@@ -165,7 +165,7 @@ Session::Session(const Config &config) : d(new Private(config)) {
       [this]() { d->notifyStatus(Private::UPDATE_FRAME); });
   d->frameStore->setAllocator(&d->allocator);
 
-  d->dissectorPool.reset(new DissectorThreadPool());
+  d->dissectorPool.reset(new DissectorThreadPool(&d->ctx));
   d->dissectorPool->setConfig(d->config.options);
   d->dissectorPool->setCallback([this](Frame **begin, size_t size) {
     d->frameStore->insert(begin, size);
@@ -178,7 +178,7 @@ Session::Session(const Config &config) : d(new Private(config)) {
         d->notifyStatus(Private::UPDATE_INSPECTOR);
       });
 
-  d->streamDissectorPool.reset(new StreamDissectorThreadPool());
+  d->streamDissectorPool.reset(new StreamDissectorThreadPool(&d->ctx));
   d->streamDissectorPool->setConfig(d->config.options);
   d->streamDissectorPool->setFrameStore(d->frameStore);
   d->streamDissectorPool->setCallback(
@@ -315,7 +315,7 @@ void Session::sendInspectorMessage(const std::string &id,
 }
 
 int Session::importFile(const std::string &file) {
-  auto importer = new FileImporterTask(file);
+  auto importer = new FileImporterTask(&d->ctx, file);
   importer->setConfig(d->config.options);
   importer->setAllocator(&d->allocator);
   for (const auto &pair : d->config.linkLayers) {
@@ -341,7 +341,7 @@ int Session::importFile(const std::string &file) {
 }
 
 int Session::exportFile(const std::string &file, const std::string &filter) {
-  auto exporter = new FileExporterTask(file, filter, d->frameStore);
+  auto exporter = new FileExporterTask(&d->ctx, file, filter, d->frameStore);
   exporter->setConfig(d->config.options);
   exporter->setLogger(d->logger);
   for (const auto &pair : d->config.linkLayers) {

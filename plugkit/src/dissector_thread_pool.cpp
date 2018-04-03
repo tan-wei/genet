@@ -9,6 +9,10 @@ namespace plugkit {
 
 class DissectorThreadPool::Private {
 public:
+  Private(const SessionContext *sctx);
+
+public:
+  const SessionContext *sctx;
   std::vector<std::unique_ptr<DissectorThread>> threads;
   std::vector<Dissector> dissectors;
   LoggerPtr logger = std::make_shared<StreamLogger>();
@@ -21,7 +25,11 @@ public:
   std::vector<std::string> inspectors;
 };
 
-DissectorThreadPool::DissectorThreadPool() : d(new Private()) {}
+DissectorThreadPool::Private::Private(const SessionContext *sctx)
+    : sctx(sctx) {}
+
+DissectorThreadPool::DissectorThreadPool(const SessionContext *sctx)
+    : d(new Private(sctx)) {}
 
 DissectorThreadPool::~DissectorThreadPool() {
   d->queue->close();
@@ -46,7 +54,7 @@ void DissectorThreadPool::start() {
 
   for (int i = 0; i < concurrency; ++i) {
     auto dissectorThread =
-        new DissectorThread(d->options, d->queue, threadCallback);
+        new DissectorThread(d->sctx, d->options, d->queue, threadCallback);
     for (const auto &diss : d->dissectors) {
       dissectorThread->pushDissector(diss);
     }

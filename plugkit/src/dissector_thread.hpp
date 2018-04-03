@@ -9,6 +9,7 @@ namespace plugkit {
 
 class Frame;
 class RootAllocator;
+class SessionContext;
 
 using FrameQueue = Queue<Frame *>;
 using FrameQueuePtr = std::shared_ptr<FrameQueue>;
@@ -23,7 +24,8 @@ public:
   using Callback = std::function<void(Frame **, size_t)>;
 
 public:
-  DissectorThread(const ConfigMap &options,
+  DissectorThread(const SessionContext *sctx,
+                  const ConfigMap &options,
                   const FrameQueuePtr &queue,
                   const Callback &callback);
   ~DissectorThread() override;

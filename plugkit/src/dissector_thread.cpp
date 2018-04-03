@@ -24,7 +24,8 @@ struct DissectorContext {
 
 class DissectorThread::Private {
 public:
-  Private(const ConfigMap &options,
+  Private(const SessionContext *sctx,
+          const ConfigMap &options,
           const FrameQueuePtr &queue,
           const Callback &callback);
   ~Private();
@@ -39,19 +40,21 @@ public:
   const Callback callback;
 };
 
-DissectorThread::Private::Private(const ConfigMap &options,
+DissectorThread::Private::Private(const SessionContext *sctx,
+                                  const ConfigMap &options,
                                   const FrameQueuePtr &queue,
                                   const Callback &callback)
-    : options(options), queue(queue), callback(callback) {
+    : ctx(sctx), options(options), queue(queue), callback(callback) {
   ctx.options = options;
 }
 
 DissectorThread::Private::~Private() {}
 
-DissectorThread::DissectorThread(const ConfigMap &options,
+DissectorThread::DissectorThread(const SessionContext *sctx,
+                                 const ConfigMap &options,
                                  const FrameQueuePtr &queue,
                                  const Callback &callback)
-    : d(new Private(options, queue, callback)) {
+    : d(new Private(sctx, options, queue, callback)) {
   d->ctx.confidenceThreshold = static_cast<LayerConfidence>(
       std::stoi(options["_.dissector.confidenceThreshold"]));
 }
