@@ -22,7 +22,6 @@ public:
 
 public:
   const SessionContext *sctx;
-  LoggerPtr logger = std::make_shared<StreamLogger>();
   std::vector<std::unique_ptr<StreamDissectorThread>> threads;
   std::vector<Dissector> dissectors;
   std::thread thread;

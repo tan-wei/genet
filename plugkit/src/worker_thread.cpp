@@ -1,6 +1,8 @@
 #include "worker_thread.hpp"
 #include "extended_slot.hpp"
+#include "logger.hpp"
 #include "plugkit_module.hpp"
+#include "session_context.hpp"
 #include "swap_queue.hpp"
 #include "wrapper/logger.hpp"
 #include <cstdlib>
@@ -81,13 +83,19 @@ private:
 
 class WorkerThread::Private {
 public:
+  Private(const SessionContext *sctx);
+
+public:
+  const SessionContext *sctx;
   std::string inspectorId;
   InspectorCallback inspectorCallback;
   SwapQueue<std::string> inspectorQueue;
   bool inspectorActivated = false;
 };
 
-WorkerThread::WorkerThread() : d(new Private()) {}
+WorkerThread::Private::Private(const SessionContext *sctx) : sctx(sctx) {}
+
+WorkerThread::WorkerThread(const SessionContext *sctx) : d(new Private(sctx)) {}
 
 WorkerThread::~WorkerThread() {}
 
@@ -101,6 +109,8 @@ void WorkerThread::start() {
     return;
 
   thread = std::thread([this]() {
+    auto logger = d->sctx->logger();
+
     logger->log(Logger::LEVEL_DEBUG, "start", "worker_thread");
 
     v8::Isolate::CreateParams create_params;
@@ -186,8 +196,6 @@ void WorkerThread::start() {
 }
 
 bool WorkerThread::inspectorActivated() const { return d->inspectorActivated; }
-
-void WorkerThread::setLogger(const LoggerPtr &logger) { this->logger = logger; }
 
 void WorkerThread::sendInspectorMessage(const std::string &msg) {
   d->inspectorQueue.push(msg);

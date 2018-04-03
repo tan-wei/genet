@@ -101,7 +101,7 @@ void FilterThreadPool::start() {
     concurrency = 1;
 
   for (int i = 0; i < concurrency; ++i) {
-    auto thread = new FilterThread(d->body, d->store, threadCallback);
+    auto thread = new FilterThread(d->sctx, d->body, d->store, threadCallback);
 
     const auto &inspector =
         "worker:filter:" + std::to_string(i) + d->inspectorId;

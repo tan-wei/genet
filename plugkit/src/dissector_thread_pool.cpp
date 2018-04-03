@@ -16,7 +16,6 @@ public:
   const SessionContext *sctx;
   std::vector<std::unique_ptr<DissectorThread>> threads;
   std::vector<Dissector> dissectors;
-  LoggerPtr logger = std::make_shared<StreamLogger>();
   FrameQueuePtr queue = std::make_shared<FrameQueue>();
   Callback callback;
   RootAllocator *allocator = nullptr;

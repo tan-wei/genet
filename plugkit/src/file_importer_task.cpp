@@ -75,7 +75,6 @@ public:
 public:
   std::string file;
   ConfigMap options;
-  LoggerPtr logger = std::make_shared<StreamLogger>();
   Callback callback;
   std::unordered_map<int, Token> linkLayers;
   std::vector<FileImporter> importers;

@@ -18,10 +18,11 @@ public:
   size_t offset = 0;
 };
 
-FilterThread::FilterThread(const std::string &body,
+FilterThread::FilterThread(const SessionContext *sctx,
+                           const std::string &body,
                            const FrameStorePtr &store,
                            const Callback &callback)
-    : d(new Private()) {
+    : WorkerThread(sctx), d(new Private()) {
   d->store = store;
   d->callback = callback;
   d->body = body;

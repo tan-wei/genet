@@ -47,7 +47,7 @@ StreamDissectorThread::Private::~Private() {}
 
 StreamDissectorThread::StreamDissectorThread(const SessionContext *sctx,
                                              const Callback &callback)
-    : d(new Private(sctx, callback)) {
+    : WorkerThread(sctx), d(new Private(sctx, callback)) {
   d->ctx.confidenceThreshold = static_cast<LayerConfidence>(
       std::stoi(sctx->config()["_.dissector.confidenceThreshold"]));
 }

@@ -106,7 +106,7 @@ const RawFrame *apiCallback(Context *ctx, size_t *length) {
 class FileExporterWorkerThread : public WorkerThread {
 public:
   FileExporterWorkerThread(const SessionContext *sctx, const ContextData &data)
-      : ctx(sctx), data(data) {}
+      : WorkerThread(sctx), ctx(sctx), data(data) {}
 
   ~FileExporterWorkerThread() {}
 
@@ -147,7 +147,6 @@ public:
   std::string file;
   std::string filter;
   Callback callback;
-  LoggerPtr logger = std::make_shared<StreamLogger>();
   std::unordered_map<Token, int> linkLayers;
   std::unique_ptr<FileExporterWorkerThread> worker;
   std::vector<FileExporter> exporters;

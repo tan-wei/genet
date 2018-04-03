@@ -50,7 +50,7 @@ DissectorThread::Private::~Private() {}
 DissectorThread::DissectorThread(const SessionContext *sctx,
                                  const FrameQueuePtr &queue,
                                  const Callback &callback)
-    : d(new Private(sctx, queue, callback)) {
+    : WorkerThread(sctx), d(new Private(sctx, queue, callback)) {
   d->ctx.confidenceThreshold = static_cast<LayerConfidence>(
       std::stoi(sctx->config()["_.dissector.confidenceThreshold"]));
 }
