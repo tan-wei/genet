@@ -3,6 +3,7 @@
 #include "frame.hpp"
 #include "layer.hpp"
 #include "payload.hpp"
+#include "session_context.hpp"
 #include "stream_logger.hpp"
 #include <chrono>
 #include <mutex>
@@ -13,11 +14,11 @@ namespace plugkit {
 
 class PcapDummy::Private {
 public:
-  Private();
+  Private(const SessionContext *sctx, int link);
   ~Private();
 
 public:
-  LoggerPtr logger = std::make_shared<StreamLogger>();
+  const SessionContext *sctx;
   Callback callback;
   std::unordered_map<int, Token> linkLayers;
   int link;
@@ -35,15 +36,19 @@ public:
   bool closed = false;
 };
 
-PcapDummy::Private::Private() {}
+PcapDummy::Private::Private(const SessionContext *sctx, int link)
+    : sctx(sctx)
+    , link(link)
+    , frameAllocator(new BlockAllocator<Frame>(sctx->allocator()))
+    , layerAllocator(new BlockAllocator<Layer>(sctx->allocator()))
+    , payloadAllocator(new BlockAllocator<Payload>(sctx->allocator())) {}
 
 PcapDummy::Private::~Private() {}
 
-PcapDummy::PcapDummy(int link) : d(new Private()) { d->link = link; }
+PcapDummy::PcapDummy(const SessionContext *sctx, int link)
+    : d(new Private(sctx, link)) {}
 
 PcapDummy::~PcapDummy() { stop(); }
-
-void PcapDummy::setLogger(const LoggerPtr &logger) { d->logger = logger; }
 
 void PcapDummy::setCallback(const Callback &callback) {
   d->callback = callback;
@@ -134,12 +139,6 @@ bool PcapDummy::running() const { return d->thread.joinable(); }
 
 void PcapDummy::registerLinkLayer(int link, Token token) {
   d->linkLayers[link] = token;
-}
-
-void PcapDummy::setAllocator(RootAllocator *allocator) {
-  d->frameAllocator.reset(new BlockAllocator<Frame>(allocator));
-  d->layerAllocator.reset(new BlockAllocator<Layer>(allocator));
-  d->payloadAllocator.reset(new BlockAllocator<Payload>(allocator));
 }
 
 } // namespace plugkit

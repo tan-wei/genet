@@ -5,14 +5,15 @@
 
 namespace plugkit {
 
+class SessionContext;
+
 class PcapPlatform final : public Pcap {
 public:
-  PcapPlatform();
+  PcapPlatform(const SessionContext *sctx);
   ~PcapPlatform();
   PcapPlatform(const PcapPlatform &) = delete;
   PcapPlatform &operator=(const PcapPlatform &) = delete;
 
-  void setLogger(const LoggerPtr &logger) override;
   void setCallback(const Callback &callback) override;
 
   void setNetworkInterface(const std::string &id) override;
@@ -28,7 +29,6 @@ public:
   bool running() const override;
 
   void registerLinkLayer(int link, Token token) override;
-  void setAllocator(RootAllocator *allocator) override;
 
   bool start() override;
   bool stop() override;

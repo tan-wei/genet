@@ -152,18 +152,15 @@ Session::Session(const Config &config) : d(new Private(config)) {
   d->ctx.setLogger(logger);
   d->ctx.setConfig(d->config.options);
 
-  d->pcap = Pcap::create();
+  d->pcap = Pcap::create(&d->ctx);
   d->pcap->setNetworkInterface(config.networkInterface);
   d->pcap->setPromiscuous(config.promiscuous);
   d->pcap->setSnaplen(config.snaplen);
   d->pcap->setBpf(config.bpf);
-  d->pcap->setLogger(logger);
-  d->pcap->setAllocator(d->ctx.allocator());
 
-  d->frameStore = std::make_shared<FrameStore>();
+  d->frameStore = std::make_shared<FrameStore>(&d->ctx);
   d->frameStore->setCallback(
       [this]() { d->notifyStatus(Private::UPDATE_FRAME); });
-  d->frameStore->setAllocator(d->ctx.allocator());
 
   d->dissectorPool.reset(new DissectorThreadPool(&d->ctx));
   d->dissectorPool->setCallback([this](Frame **begin, size_t size) {

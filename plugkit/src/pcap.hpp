@@ -18,10 +18,7 @@ struct NetworkInterface {
 };
 
 class Frame;
-class RootAllocator;
-
-class Logger;
-using LoggerPtr = std::shared_ptr<Logger>;
+class SessionContext;
 
 class Pcap {
 public:
@@ -29,7 +26,6 @@ public:
 
 public:
   virtual ~Pcap();
-  virtual void setLogger(const LoggerPtr &logger) = 0;
   virtual void setCallback(const Callback &callback) = 0;
   virtual void setNetworkInterface(const std::string &id) = 0;
   virtual std::string networkInterface() const = 0;
@@ -44,13 +40,12 @@ public:
   virtual bool running() const = 0;
 
   virtual void registerLinkLayer(int link, Token token) = 0;
-  virtual void setAllocator(RootAllocator *allocator) = 0;
 
   virtual bool start() = 0;
   virtual bool stop() = 0;
 
 public:
-  static std::unique_ptr<Pcap> create();
+  static std::unique_ptr<Pcap> create(const SessionContext *sctx);
 };
 } // namespace plugkit
 

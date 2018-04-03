@@ -15,7 +15,7 @@ PcapWrapper::PcapWrapper() {}
 NAN_GETTER(PcapWrapper::devices) {
   using namespace v8;
   Isolate *isolate = Isolate::GetCurrent();
-  const std::vector<NetworkInterface> &devs = Pcap::create()->devices();
+  const std::vector<NetworkInterface> &devs = Pcap::create(nullptr)->devices();
   Local<Array> array = Array::New(isolate, devs.size());
   for (size_t i = 0; i < devs.size(); ++i) {
     const NetworkInterface &dev = devs[i];
@@ -34,6 +34,6 @@ NAN_GETTER(PcapWrapper::devices) {
 }
 
 NAN_GETTER(PcapWrapper::permission) {
-  info.GetReturnValue().Set(Pcap::create()->hasPermission());
+  info.GetReturnValue().Set(Pcap::create(nullptr)->hasPermission());
 }
 } // namespace plugkit

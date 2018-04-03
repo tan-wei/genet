@@ -2,6 +2,7 @@
 #include "allocator.hpp"
 #include "frame.hpp"
 #include "frame_view.hpp"
+#include "session_context.hpp"
 #include <condition_variable>
 #include <map>
 #include <mutex>
@@ -12,10 +13,11 @@ namespace plugkit {
 
 class FrameStore::Private {
 public:
-  Private();
+  Private(const SessionContext *sctx);
   ~Private();
 
 public:
+  const SessionContext *sctx;
   std::map<uint32_t, Frame *> sequence;
   std::vector<Frame *> frames;
   std::vector<const FrameView *> views;
@@ -28,11 +30,13 @@ public:
   Callback callback;
 };
 
-FrameStore::Private::Private() {}
+FrameStore::Private::Private(const SessionContext *sctx)
+    : sctx(sctx)
+    , frameViewAllocator(new BlockAllocator<FrameView>(sctx->allocator())) {}
 
 FrameStore::Private::~Private() {}
 
-FrameStore::FrameStore() : d(new Private()) {}
+FrameStore::FrameStore(const SessionContext *sctx) : d(new Private(sctx)) {}
 
 FrameStore::~FrameStore() { close(); }
 
@@ -144,7 +148,4 @@ void FrameStore::setCallback(const Callback &callback) {
   d->callback = callback;
 }
 
-void FrameStore::setAllocator(RootAllocator *allocator) {
-  d->frameViewAllocator.reset(new BlockAllocator<FrameView>(allocator));
-}
 } // namespace plugkit

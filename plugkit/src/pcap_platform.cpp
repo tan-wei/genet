@@ -3,6 +3,7 @@
 #include "frame.hpp"
 #include "layer.hpp"
 #include "payload.hpp"
+#include "session_context.hpp"
 #include "stream_logger.hpp"
 #include <cstring>
 #include <mutex>
@@ -33,11 +34,11 @@ namespace plugkit {
 
 class PcapPlatform::Private {
 public:
-  Private();
+  Private(const SessionContext *sctx);
   ~Private();
 
 public:
-  LoggerPtr logger = std::make_shared<StreamLogger>();
+  const SessionContext *sctx;
   Callback callback;
   std::unordered_map<int, Token> linkLayers;
 
@@ -74,7 +75,11 @@ public:
 #endif
 };
 
-PcapPlatform::Private::Private() {
+PcapPlatform::Private::Private(const SessionContext *sctx)
+    : sctx(sctx)
+    , frameAllocator(new BlockAllocator<Frame>(sctx->allocator()))
+    , layerAllocator(new BlockAllocator<Layer>(sctx->allocator()))
+    , payloadAllocator(new BlockAllocator<Payload>(sctx->allocator())) {
 #if defined(PLUGKIT_OS_WIN)
   if (hLib = LoadLibrary("Wpcap.dll")) {
     pcapFreecode = reinterpret_cast<decltype(::pcap_freecode) *>(
@@ -123,11 +128,9 @@ PcapPlatform::Private::~Private() {
 #endif
 }
 
-PcapPlatform::PcapPlatform() : d(new Private()) {}
+PcapPlatform::PcapPlatform(const SessionContext *sctx) : d(new Private(sctx)) {}
 
 PcapPlatform::~PcapPlatform() { stop(); }
-
-void PcapPlatform::setLogger(const LoggerPtr &logger) { d->logger = logger; }
 
 void PcapPlatform::setCallback(const Callback &callback) {
   d->callback = callback;
@@ -163,13 +166,14 @@ bool PcapPlatform::setBpf(const std::string &filter) {
   pcap_t *pcap = d->pcapOpenLive(d->networkInterface.c_str(), d->snaplen,
                                  d->promiscuous, 1, err);
   if (!pcap) {
-    d->logger->log(Logger::LEVEL_ERROR, err, "pcap/bpf");
+    d->sctx->logger()->log(Logger::LEVEL_ERROR, err, "pcap/bpf");
     return false;
   }
 
   if (d->pcapCompile(pcap, &d->bpf, filter.c_str(), true,
                      PCAP_NETMASK_UNKNOWN) < 0) {
-    d->logger->log(Logger::LEVEL_ERROR, d->pcapGeterr(pcap), "pcap/bpf");
+    d->sctx->logger()->log(Logger::LEVEL_ERROR, d->pcapGeterr(pcap),
+                           "pcap/bpf");
     d->pcapClose(pcap);
     return false;
   }
@@ -190,13 +194,15 @@ bool PcapPlatform::start() {
   d->pcap = d->pcapOpenLive(d->networkInterface.c_str(), d->snaplen,
                             d->promiscuous, 1, err);
   if (!d->pcap) {
-    d->logger->log(Logger::LEVEL_ERROR,
-                   std::string("pcap_open_live() failed: ") + err, "pcap");
+    d->sctx->logger()->log(Logger::LEVEL_ERROR,
+                           std::string("pcap_open_live() failed: ") + err,
+                           "pcap");
     return false;
   }
 
   if (d->bpf.bf_len > 0 && d->pcapSetfilter(d->pcap, &d->bpf) < 0) {
-    d->logger->log(Logger::LEVEL_ERROR, "pcap_setfilter() failed", "pcap");
+    d->sctx->logger()->log(Logger::LEVEL_ERROR, "pcap_setfilter() failed",
+                           "pcap");
     d->pcapClose(d->pcap);
     d->pcap = nullptr;
     return false;
@@ -266,12 +272,6 @@ bool PcapPlatform::stop() {
 
 void PcapPlatform::registerLinkLayer(int link, Token token) {
   d->linkLayers[link] = token;
-}
-
-void PcapPlatform::setAllocator(RootAllocator *allocator) {
-  d->frameAllocator.reset(new BlockAllocator<Frame>(allocator));
-  d->layerAllocator.reset(new BlockAllocator<Layer>(allocator));
-  d->payloadAllocator.reset(new BlockAllocator<Payload>(allocator));
 }
 
 std::vector<NetworkInterface> PcapPlatform::devices() const {
