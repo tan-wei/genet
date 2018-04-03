@@ -55,18 +55,6 @@ Payload *Context_allocPayload(Context *ctx);
 void Context_deallocPayload(Context *ctx, Payload *payload);
 
 extern "C" {
-/// Allocate a memory block in the current context.
-/// @remark Currently, this function is just a wrapper for `malloc()`.
-void *Context_alloc(Context *ctx, size_t size);
-
-/// Reallocate a memory block in the current context.
-/// @remark Currently, this function is just a wrapper for `realloc()`.
-void *Context_realloc(Context *ctx, void *ptr, size_t size);
-
-/// Deallocate a memory block in the current context.
-/// @remark Currently, this function is just a wrapper for `free()`.
-void Context_dealloc(Context *ctx, void *ptr);
-
 /// Return the value of the option in the current context.
 const char *Context_getConfig(Context *ctx, const char *key, size_t length);
 

@@ -10,14 +10,6 @@ const auto nextToken = Token_get("--next");
 const auto prevToken = Token_get("--prev");
 } // namespace
 
-void *Context_alloc(Context *ctx, size_t size) { return malloc(size); }
-
-void *Context_realloc(Context *ctx, void *ptr, size_t size) {
-  return realloc(ptr, size);
-}
-
-void Context_dealloc(Context *ctx, void *ptr) { free(ptr); }
-
 Frame *Context_allocFrame(Context *ctx) {
   if (!ctx->rootAllocator)
     return nullptr;
