@@ -76,22 +76,8 @@ pub struct SharedContextWrapper {
 }
 
 impl SharedContextWrapper {
-    fn new() -> SharedContextWrapper {
+    pub fn new() -> SharedContextWrapper {
         let shared = Arc::new(Mutex::new(SharedContext::new()));
         SharedContextWrapper { _shared: shared }
-    }
-}
-
-#[doc(hidden)]
-#[no_mangle]
-pub extern "C" fn plugkit_in_create_shared_ctx() -> *mut SharedContextWrapper {
-    Box::into_raw(Box::new(SharedContextWrapper::new()))
-}
-
-#[doc(hidden)]
-#[no_mangle]
-pub extern "C" fn plugkit_in_destroy_shared_ctx(ctx: *mut SharedContextWrapper) {
-    unsafe {
-        Box::from_raw(ctx);
     }
 }

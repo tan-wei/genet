@@ -9,7 +9,7 @@ const os = require('os')
 const jsonfile = require('jsonfile')
 
 const src = path.resolve(__dirname, '../plugkit')
-const rustSrc = path.resolve(src, 'plugkit.rs')
+const rustSrc = path.resolve(src, 'binding')
 const dst = path.resolve(__dirname, '../deplug-modules/plugkit')
 const dstBin = path.resolve(__dirname, '../deplug-modules/bin/plugkit')
 const cache = path.resolve(dst, '.last-updated')

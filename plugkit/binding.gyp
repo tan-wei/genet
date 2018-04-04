@@ -71,7 +71,7 @@
         {
           "libraries":[
             "-Wl,-dn,-lpcap,-lcap,-lrt,-dy,-lpthread,-ldl",
-            "../plugkit.rs/target/release/libplugkit.a"
+            "../binding/target/release/libbinding.a"
           ],
           "cflags_cc":[
             "-fno-strict-aliasing"
@@ -87,7 +87,7 @@
           "libraries":[
             "-L/usr/local/lib",
             "-lpcap",
-            "../plugkit.rs/target/release/libplugkit.a"
+            "../binding/target/release/libbinding.a"
           ],
           "link_settings":{
             "libraries":[
@@ -110,7 +110,7 @@
             "vendor/winpcap/Include"
           ],
           "libraries": [
-            '../plugkit.rs/target/release/plugkit.lib',
+            '../binding/target/release/binding.lib',
             'Ws2_32.lib',
             'Userenv.lib'
           ],
