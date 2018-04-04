@@ -1,41 +1,62 @@
 use std::collections::HashMap;
+use std::ops::Range;
+use std::result;
+
+#[derive(Debug, Clone)]
+pub struct Error {
+    typ: String,
+    msg: String,
+}
+
+impl Error {
+    pub fn new(typ: &str, msg: &str) -> Error {
+        Error {
+            typ: String::from(typ),
+            msg: String::from(msg),
+        }
+    }
+
+    pub fn new_out_of_bound() -> Error {
+        Error::new("!out-of-bounds", "")
+    }
+
+    pub fn typ(&self) -> &str {
+        self.typ.as_str()
+    }
+
+    pub fn msg(&self) -> &str {
+        self.msg.as_str()
+    }
+}
+
+type Result = result::Result<Value, Error>;
 
 #[derive(Debug, Clone)]
 pub enum Value {
-    Nil,
     Boolean(bool),
     Int64(i64),
     Uint64(u64),
     Float64(f64),
     Str(String),
-    Slice((u32, u32)),
+    Slice(Range<u32>),
 }
 
-pub enum ValueFn {
-    Const(Value),
-    Func(fn(&Field, &[u8]) -> Option<Value>),
-    Script((String, fn(&Field, &str, &[u8]) -> Option<Value>)),
-}
-
-pub enum LengthFn {
-    Const(u32),
-    Func(fn(&Field, &[u8]) -> u32),
-    Script((String, fn(&Field, &str, &[u8]) -> u32)),
+pub trait ValueFn {
+    fn get(&self, &Field, &[u8]) -> Result;
+    fn len(&self, &Field, &[u8]) -> u32;
 }
 
 pub struct Field {
     id: String,
     typ: String,
-    len: LengthFn,
-    val: ValueFn,
+    val: Box<ValueFn>,
 }
 
 impl Field {
-    pub fn new(id: &str, typ: &str, len: LengthFn, val: ValueFn) -> Field {
+    pub fn new(id: &str, typ: &str, val: Box<ValueFn>) -> Field {
         Field {
             id: String::from(id),
             typ: String::from(typ),
-            len,
             val,
         }
     }
@@ -49,16 +70,8 @@ impl Field {
     }
 
     pub fn apply(&self, data: &[u8]) -> Box<BoundValue> {
-        let len = match self.len {
-            LengthFn::Const(val) => val,
-            LengthFn::Func(func) => func(self, data),
-            LengthFn::Script((ref code, func)) => func(self, code.as_str(), data),
-        };
-        let val = match self.val {
-            ValueFn::Const(ref val) => Some(val.clone()),
-            ValueFn::Func(func) => func(self, data),
-            ValueFn::Script((ref code, func)) => func(self, code.as_str(), data),
-        };
+        let len = self.val.len(self, data);
+        let val = self.val.get(self, data);
         Box::new(BoundValue { len, val })
     }
 }
@@ -66,7 +79,7 @@ impl Field {
 #[derive(Debug)]
 pub struct BoundValue {
     pub len: u32,
-    pub val: Option<Value>,
+    pub val: Result,
 }
 
 #[derive(Debug)]
@@ -100,16 +113,10 @@ impl Registry {
         }
     }
 
-    pub fn register(
-        &mut self,
-        id: &str,
-        typ: &str,
-        len: LengthFn,
-        val: ValueFn,
-    ) -> &mut Field {
+    pub fn register(&mut self, id: &str, typ: &str, val: Box<ValueFn>) -> &mut Field {
         self.map
             .entry(String::from(id))
-            .or_insert_with(|| Field::new(id, typ, len, val))
+            .or_insert_with(|| Field::new(id, typ, val))
     }
 
     pub fn get(&mut self, id: &str) -> Option<&Field> {
