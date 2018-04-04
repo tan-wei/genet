@@ -5,6 +5,7 @@
 use super::layer::{Confidence, Layer};
 use super::symbol;
 use super::token::Token;
+use super::field::Registry;
 use std::io::{Error, ErrorKind};
 use std::str;
 use std::ffi::CStr;
@@ -62,11 +63,15 @@ impl Context {
 }
 
 /// A process-wide context object.
-pub struct SharedContext {}
+pub struct SharedContext {
+    _fields: Registry,
+}
 
 impl SharedContext {
     fn new() -> SharedContext {
-        SharedContext {}
+        SharedContext {
+            _fields: Registry::new(),
+        }
     }
 }
 

@@ -8,6 +8,7 @@ pub mod logger;
 
 pub mod variant;
 pub mod attr;
+pub mod field;
 pub mod layer;
 pub mod context;
 pub mod worker;
