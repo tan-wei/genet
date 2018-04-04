@@ -16,7 +16,7 @@ pub extern "C" fn plugkit_in_destroy_shared_ctx(ctx: *mut SharedContextWrapper) 
 #[cfg(test)]
 mod tests {
     #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
+    fn alloc_shared_ctx() {
+        super::plugkit_in_destroy_shared_ctx(super::plugkit_in_create_shared_ctx());
     }
 }
