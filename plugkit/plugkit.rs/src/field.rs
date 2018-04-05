@@ -38,31 +38,37 @@ pub enum Value {
     Uint64(u64),
     Float64(f64),
     Str(String),
-    Slice(Range<u32>),
+    Slice(Range<usize>),
 }
 
 pub trait ValueFn {
     fn get(&self, &Field, &[u8]) -> Result;
-    fn len(&self, &Field, &[u8]) -> u32;
+    fn len(&self, &Field, &[u8]) -> usize;
 }
 
 pub struct Field {
-    id: String,
+    id: u32,
+    name: String,
     typ: String,
     val: Box<ValueFn>,
 }
 
 impl Field {
-    pub fn new(id: &str, typ: &str, val: Box<ValueFn>) -> Field {
+    pub fn new(id: u32, name: &str, typ: &str, val: Box<ValueFn>) -> Field {
         Field {
-            id: String::from(id),
+            id,
+            name: String::from(name),
             typ: String::from(typ),
             val,
         }
     }
 
-    pub fn id(&self) -> &str {
-        self.id.as_str()
+    pub fn id(&self) -> u32 {
+        self.id
+    }
+
+    pub fn name(&self) -> &str {
+        self.name.as_str()
     }
 
     pub fn typ(&self) -> &str {
@@ -78,18 +84,18 @@ impl Field {
 
 #[derive(Debug)]
 pub struct BoundValue {
-    pub len: u32,
+    pub len: usize,
     pub val: Result,
 }
 
 #[derive(Debug)]
 pub struct BoundField {
     id: u32,
-    offset: u32,
+    offset: usize,
 }
 
 impl BoundField {
-    pub fn new(id: u32, offset: u32) -> BoundField {
+    pub fn new(id: u32, offset: usize) -> BoundField {
         BoundField { id, offset }
     }
 
@@ -97,7 +103,7 @@ impl BoundField {
         self.id
     }
 
-    pub fn offset(&self) -> u32 {
+    pub fn offset(&self) -> usize {
         self.offset
     }
 }
@@ -113,10 +119,11 @@ impl Registry {
         }
     }
 
-    pub fn register(&mut self, id: &str, typ: &str, val: Box<ValueFn>) -> &mut Field {
+    pub fn register(&mut self, name: &str, typ: &str, val: Box<ValueFn>) -> &mut Field {
+        let id = self.map.len() as u32;
         self.map
-            .entry(String::from(id))
-            .or_insert_with(|| Field::new(id, typ, val))
+            .entry(String::from(name))
+            .or_insert_with(|| Field::new(id, name, typ, val))
     }
 
     pub fn get(&mut self, id: &str) -> Option<&Field> {
