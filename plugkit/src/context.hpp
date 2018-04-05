@@ -20,6 +20,7 @@ struct hash<std::pair<plugkit::Token, uint64_t>> {
 namespace plugkit {
 
 class SessionContext;
+struct SharedContextWrapper;
 
 struct Context final {
 public:
@@ -28,6 +29,7 @@ public:
   bool closeStream = false;
   uint32_t confidenceThreshold = 0;
 
+  SharedContextWrapper *shared;
   const SessionContext *sctx;
 
   struct PrevLayer {

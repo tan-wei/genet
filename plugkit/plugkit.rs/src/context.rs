@@ -5,7 +5,7 @@
 use super::layer::{Confidence, Layer};
 use super::symbol;
 use super::token::Token;
-use super::field::{Registry, Field};
+use super::field::{Field, Registry};
 use super::field::value;
 use std::io::{Error, ErrorKind};
 use std::str;

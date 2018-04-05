@@ -11,7 +11,8 @@ const auto nextToken = Token_get("--next");
 const auto prevToken = Token_get("--prev");
 } // namespace
 
-Context::Context(const SessionContext *sctx) : sctx(sctx) {}
+Context::Context(const SessionContext *sctx)
+    : shared(sctx->context()), sctx(sctx) {}
 
 Frame *Context_allocFrame(Context *ctx) {
   if (!ctx->frameAllocator) {

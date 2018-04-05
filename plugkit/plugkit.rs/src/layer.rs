@@ -8,6 +8,7 @@ use super::payload::Payload;
 use super::context::Context;
 use super::symbol;
 use super::range::Range;
+use super::field::{Field, TempBoundField};
 use std::mem;
 use std::slice;
 
@@ -143,5 +144,9 @@ impl Layer {
 
     fn is_root(&self) -> bool {
         ((self.data >> 6) & 0b1) != 0
+    }
+
+    pub fn bind_field<'a>(&mut self, field: &'a Field, offset: u64) -> TempBoundField<'a> {
+        TempBoundField::new(field, offset)
     }
 }

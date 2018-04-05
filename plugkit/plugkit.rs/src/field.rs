@@ -94,7 +94,9 @@ pub mod value {
         }
 
         fn clone(&self) -> Box<Fn> {
-            Box::from(Slice { range: self.range.clone() })
+            Box::from(Slice {
+                range: self.range.clone(),
+            })
         }
     }
 
@@ -141,7 +143,7 @@ impl Clone for Field {
             id: self.id,
             name: self.name.clone(),
             typ: self.typ.clone(),
-            val: self.val.clone()
+            val: self.val.clone(),
         }
     }
 }
@@ -168,17 +170,9 @@ impl Field {
         self.typ.as_str()
     }
 
-    pub fn apply(&self, data: &[u8]) -> Box<BoundValue> {
-        let len = self.val.len(data);
-        let val = self.val.get(data);
-        Box::new(BoundValue { len, val })
+    pub fn get(&self, data: &[u8]) -> value::Result {
+        self.val.get(data)
     }
-}
-
-#[derive(Debug)]
-pub struct BoundValue {
-    pub len: usize,
-    pub val: value::Result,
 }
 
 #[derive(Debug)]
@@ -198,6 +192,25 @@ impl BoundField {
 
     pub fn offset(&self) -> usize {
         self.offset
+    }
+}
+
+pub struct TempBoundField<'a> {
+    field: &'a Field,
+    offset: u64,
+}
+
+impl<'a> TempBoundField<'a> {
+    pub fn new(field: &'a Field, offset: u64) -> TempBoundField<'a> {
+        TempBoundField { field, offset }
+    }
+
+    pub fn get(&self, data: &[u8]) -> value::Result {
+        if data.len() < self.offset as usize {
+            Err(value::Error::new_out_of_bound())
+        } else {
+            self.field.get(&data[self.offset as usize..])
+        }
     }
 }
 
