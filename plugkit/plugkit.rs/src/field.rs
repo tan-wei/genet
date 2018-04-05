@@ -1,60 +1,137 @@
 use std::collections::HashMap;
-use std::ops::Range;
-use std::result;
 
-#[derive(Debug, Clone)]
-pub struct Error {
-    typ: String,
-    msg: String,
-}
+pub mod value {
+    use std::result;
+    use std::ops;
+    use std::ptr;
 
-impl Error {
-    pub fn new(typ: &str, msg: &str) -> Error {
-        Error {
-            typ: String::from(typ),
-            msg: String::from(msg),
+    #[derive(Debug, Clone, PartialEq)]
+    pub struct Error {
+        typ: String,
+        msg: String,
+    }
+
+    impl Error {
+        pub fn new(typ: &str, msg: &str) -> Error {
+            Error {
+                typ: String::from(typ),
+                msg: String::from(msg),
+            }
+        }
+
+        pub fn new_out_of_bound() -> Error {
+            Error::new("!out-of-bounds", "")
+        }
+
+        pub fn typ(&self) -> &str {
+            self.typ.as_str()
+        }
+
+        pub fn msg(&self) -> &str {
+            self.msg.as_str()
         }
     }
 
-    pub fn new_out_of_bound() -> Error {
-        Error::new("!out-of-bounds", "")
+    pub trait Fn {
+        fn get(&self, &[u8]) -> Result;
+        fn len(&self, &[u8]) -> usize;
     }
 
-    pub fn typ(&self) -> &str {
-        self.typ.as_str()
+    pub type Range = ops::Range<usize>;
+    pub type Result = result::Result<Value, Error>;
+
+    #[derive(Debug, Clone, PartialEq)]
+    pub enum Value {
+        Boolean(bool),
+        Int64(i64),
+        Uint64(u64),
+        Float64(f64),
+        Str(String),
+        Slice((*const u8, usize)),
     }
 
-    pub fn msg(&self) -> &str {
-        self.msg.as_str()
+    pub struct Slice {
+        range: Option<Range>,
     }
-}
 
-type Result = result::Result<Value, Error>;
+    impl Slice {
+        pub fn new() -> Box<Slice> {
+            Box::from(Slice { range: None })
+        }
 
-#[derive(Debug, Clone)]
-pub enum Value {
-    Boolean(bool),
-    Int64(i64),
-    Uint64(u64),
-    Float64(f64),
-    Str(String),
-    Slice(Range<usize>),
-}
+        pub fn with_range(range: Range) -> Box<Slice> {
+            Box::from(Slice { range: Some(range) })
+        }
+    }
 
-pub trait ValueFn {
-    fn get(&self, &Field, &[u8]) -> Result;
-    fn len(&self, &Field, &[u8]) -> usize;
+    impl Fn for Slice {
+        fn get(&self, data: &[u8]) -> Result {
+            if let Some(ref range) = self.range {
+                if range.start <= range.end && data.len() >= range.end {
+                    if data.len() == 0 {
+                        return Ok(Value::Slice((ptr::null(), 0)));
+                    }
+                    let ptr = unsafe { (&data[0] as *const u8).offset(range.start as isize) };
+                    Ok(Value::Slice((ptr, range.len())))
+                } else {
+                    Err(Error::new_out_of_bound())
+                }
+            } else if data.len() == 0 {
+                Ok(Value::Slice((ptr::null(), 0)))
+            } else {
+                let ptr = &data[0] as *const u8;
+                Ok(Value::Slice((ptr, data.len())))
+            }
+        }
+
+        fn len(&self, data: &[u8]) -> usize {
+            if let Some(ref range) = self.range {
+                range.len()
+            } else {
+                data.len()
+            }
+        }
+    }
+
+    #[test]
+    fn default_slice() {
+        let s = Slice::new();
+        let buf = "abc".as_bytes();
+        assert_eq!(s.len("".as_bytes()), 0);
+        assert_eq!(s.len(buf), buf.len());
+        assert_eq!(
+            s.get("".as_bytes()).unwrap(),
+            Value::Slice((ptr::null(), 0))
+        );
+        assert_eq!(
+            s.get(buf).unwrap(),
+            Value::Slice((&buf[0] as *const u8, buf.len()))
+        );
+    }
+
+    #[test]
+    fn range_slice() {
+        let s = Slice::with_range(1..3);
+        let buf = "abc".as_bytes();
+        assert_eq!(s.len("".as_bytes()), 2);
+        assert_eq!(s.len(buf), 2);
+        assert_eq!(
+            s.get("".as_bytes()).err().unwrap(),
+            Error::new_out_of_bound()
+        );
+        assert_eq!(s.get(buf).unwrap(), Value::Slice((&buf[1] as *const u8, 2)));
+    }
 }
 
 pub struct Field {
     id: u32,
     name: String,
     typ: String,
-    val: Box<ValueFn>,
+    val: Box<value::Fn>,
 }
 
 impl Field {
-    pub fn new(id: u32, name: &str, typ: &str, val: Box<ValueFn>) -> Field {
+    pub fn new(id: u32, name: &str, typ: &str, val: Box<value::Fn>) -> Field {
         Field {
             id,
             name: String::from(name),
@@ -76,8 +153,8 @@ impl Field {
     }
 
     pub fn apply(&self, data: &[u8]) -> Box<BoundValue> {
-        let len = self.val.len(self, data);
-        let val = self.val.get(self, data);
+        let len = self.val.len(data);
+        let val = self.val.get(data);
         Box::new(BoundValue { len, val })
     }
 }
@@ -85,7 +162,7 @@ impl Field {
 #[derive(Debug)]
 pub struct BoundValue {
     pub len: usize,
-    pub val: Result,
+    pub val: value::Result,
 }
 
 #[derive(Debug)]
@@ -119,7 +196,7 @@ impl Registry {
         }
     }
 
-    pub fn register(&mut self, name: &str, typ: &str, val: Box<ValueFn>) -> &mut Field {
+    pub fn register(&mut self, name: &str, typ: &str, val: Box<value::Fn>) -> &mut Field {
         let id = self.map.len() as u32;
         self.map
             .entry(String::from(name))
