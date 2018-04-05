@@ -1,4 +1,5 @@
 #include "../src/pcap.hpp"
+#include "session_context.hpp"
 #include "pcap.hpp"
 
 namespace plugkit {
@@ -14,8 +15,9 @@ PcapWrapper::PcapWrapper() {}
 
 NAN_GETTER(PcapWrapper::devices) {
   using namespace v8;
+  SessionContext ctx;
   Isolate *isolate = Isolate::GetCurrent();
-  const std::vector<NetworkInterface> &devs = Pcap::create(nullptr)->devices();
+  const std::vector<NetworkInterface> &devs = Pcap::create(&ctx)->devices();
   Local<Array> array = Array::New(isolate, devs.size());
   for (size_t i = 0; i < devs.size(); ++i) {
     const NetworkInterface &dev = devs[i];
@@ -34,6 +36,7 @@ NAN_GETTER(PcapWrapper::devices) {
 }
 
 NAN_GETTER(PcapWrapper::permission) {
-  info.GetReturnValue().Set(Pcap::create(nullptr)->hasPermission());
+  SessionContext ctx;
+  info.GetReturnValue().Set(Pcap::create(&ctx)->hasPermission());
 }
 } // namespace plugkit
