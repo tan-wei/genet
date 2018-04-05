@@ -5,19 +5,21 @@
 use super::layer::{Confidence, Layer};
 use super::symbol;
 use super::token::Token;
-use super::field::Registry;
+use super::field::{Registry, Field};
+use super::field::value;
 use std::io::{Error, ErrorKind};
 use std::str;
 use std::ffi::CStr;
 extern crate serde_json;
 use self::serde_json::Value;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, MutexGuard};
 
 /// A Context object.
 #[repr(C)]
 pub struct Context {
     close_stream: bool,
     confidence_threshold: u32,
+    shared: *mut SharedContextWrapper,
 }
 
 impl Context {
@@ -60,29 +62,42 @@ impl Context {
             symbol::Context_addLayerLinkage.unwrap()(self, token, id, layer);
         }
     }
+
+    fn shared_ctx(&self) -> &mut SharedContextWrapper {
+        unsafe { &mut *self.shared }
+    }
+
+    pub fn create_field(&mut self, name: &str, typ: &str, val: Box<value::Fn>) -> Field {
+        let mut ctx = self.shared_ctx().lock();
+        ctx.fields.register(name, typ, val)
+    }
 }
 
 /// A process-wide context object.
-pub struct SharedContext {
-    _fields: Registry,
+pub(crate) struct SharedContext {
+    pub fields: Registry,
 }
 
 impl SharedContext {
     fn new() -> SharedContext {
         SharedContext {
-            _fields: Registry::new(),
+            fields: Registry::new(),
         }
     }
 }
 
 /// A wrapper for SharedContext.
 pub struct SharedContextWrapper {
-    _shared: Arc<Mutex<SharedContext>>,
+    shared: Arc<Mutex<SharedContext>>,
 }
 
 impl SharedContextWrapper {
     pub fn new() -> SharedContextWrapper {
         let shared = Arc::new(Mutex::new(SharedContext::new()));
-        SharedContextWrapper { _shared: shared }
+        SharedContextWrapper { shared }
+    }
+
+    pub(crate) fn lock(&mut self) -> MutexGuard<SharedContext> {
+        self.shared.lock().unwrap()
     }
 }

@@ -35,6 +35,7 @@ pub mod value {
     pub trait Fn {
         fn get(&self, &[u8]) -> Result;
         fn len(&self, &[u8]) -> usize;
+        fn clone(&self) -> Box<Fn>;
     }
 
     pub type Range = ops::Range<usize>;
@@ -91,6 +92,10 @@ pub mod value {
                 data.len()
             }
         }
+
+        fn clone(&self) -> Box<Fn> {
+            Box::from(Slice { range: self.range.clone() })
+        }
     }
 
     #[test]
@@ -128,6 +133,17 @@ pub struct Field {
     name: String,
     typ: String,
     val: Box<value::Fn>,
+}
+
+impl Clone for Field {
+    fn clone(&self) -> Self {
+        Field {
+            id: self.id,
+            name: self.name.clone(),
+            typ: self.typ.clone(),
+            val: self.val.clone()
+        }
+    }
 }
 
 impl Field {
@@ -196,14 +212,15 @@ impl Registry {
         }
     }
 
-    pub fn register(&mut self, name: &str, typ: &str, val: Box<value::Fn>) -> &mut Field {
+    pub fn register(&mut self, name: &str, typ: &str, val: Box<value::Fn>) -> Field {
         let id = self.map.len() as u32;
         self.map
             .entry(String::from(name))
             .or_insert_with(|| Field::new(id, name, typ, val))
+            .clone()
     }
 
-    pub fn get(&mut self, id: &str) -> Option<&Field> {
-        self.map.get(&String::from(id)).map(|attr| attr.clone())
+    pub fn get(&mut self, id: &str) -> Option<Field> {
+        self.map.get(&String::from(id)).map(|f| f.clone())
     }
 }
