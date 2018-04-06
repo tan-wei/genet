@@ -51,23 +51,15 @@ pub mod value {
         Slice((*const u8, usize)),
     }
 
-    pub struct Slice {
-        range: Option<Range>,
-    }
-
-    impl Slice {
-        pub fn new() -> Box<Slice> {
-            Box::from(Slice { range: None })
-        }
-
-        pub fn with_range(range: Range) -> Box<Slice> {
-            Box::from(Slice { range: Some(range) })
-        }
+    #[derive(Debug, Clone)]
+    pub enum Slice {
+        All,
+        Range(Range),
     }
 
     impl Fn for Slice {
         fn get(&self, data: &[u8]) -> Result {
-            if let Some(ref range) = self.range {
+            if let &Slice::Range(ref range) = self {
                 if range.start <= range.end && data.len() >= range.end {
                     if data.len() == 0 {
                         return Ok(Value::Slice((ptr::null(), 0)));
@@ -86,7 +78,7 @@ pub mod value {
         }
 
         fn len(&self, data: &[u8]) -> usize {
-            if let Some(ref range) = self.range {
+            if let &Slice::Range(ref range) = self {
                 range.len()
             } else {
                 data.len()
@@ -94,9 +86,8 @@ pub mod value {
         }
 
         fn clone(&self) -> Box<Fn> {
-            Box::from(Slice {
-                range: self.range.clone(),
-            })
+            use std::clone::Clone;
+            Box::from(Clone::clone(self))
         }
     }
 
