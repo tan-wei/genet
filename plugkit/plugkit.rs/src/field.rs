@@ -32,10 +32,28 @@ pub mod value {
         }
     }
 
-    pub trait Fn {
+    pub trait Fn: FnClone {
         fn get(&self, &[u8]) -> Result;
         fn len(&self, &[u8]) -> usize;
-        fn clone(&self) -> Box<Fn>;
+    }
+
+    pub trait FnClone {
+        fn clone_box(&self) -> Box<Fn>;
+    }
+
+    impl<T> FnClone for T
+    where
+        T: 'static + Fn + Clone,
+    {
+        fn clone_box(&self) -> Box<Fn> {
+            Box::new(self.clone())
+        }
+    }
+
+    impl Clone for Box<Fn> {
+        fn clone(&self) -> Box<Fn> {
+            self.clone_box()
+        }
     }
 
     pub type Range = ops::Range<usize>;
@@ -83,11 +101,6 @@ pub mod value {
             } else {
                 data.len()
             }
-        }
-
-        fn clone(&self) -> Box<Fn> {
-            use std::clone::Clone;
-            Box::from(Clone::clone(self))
         }
     }
 
@@ -140,12 +153,12 @@ impl Clone for Field {
 }
 
 impl Field {
-    pub fn new(id: u32, name: &str, typ: &str, val: Box<value::Fn>) -> Field {
+    pub fn new<V: 'static + value::Fn + Clone>(id: u32, name: &str, typ: &str, val: V) -> Field {
         Field {
             id,
             name: String::from(name),
             typ: String::from(typ),
-            val,
+            val: Box::new(val.clone()),
         }
     }
 
@@ -216,7 +229,12 @@ impl Registry {
         }
     }
 
-    pub fn register(&mut self, name: &str, typ: &str, val: Box<value::Fn>) -> Field {
+    pub fn register<V: 'static + value::Fn + Clone>(
+        &mut self,
+        name: &str,
+        typ: &str,
+        val: V,
+    ) -> Field {
         let id = self.map.len() as u32;
         self.map
             .entry(String::from(name))

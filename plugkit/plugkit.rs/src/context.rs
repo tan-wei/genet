@@ -67,7 +67,12 @@ impl Context {
         unsafe { &mut *self.shared }
     }
 
-    pub fn create_field(&mut self, name: &str, typ: &str, val: Box<value::Fn>) -> Field {
+    pub fn create_field<V: 'static + value::Fn + Clone>(
+        &mut self,
+        name: &str,
+        typ: &str,
+        val: V,
+    ) -> Field {
         let mut ctx = self.shared_ctx().lock();
         ctx.fields.register(name, typ, val)
     }
