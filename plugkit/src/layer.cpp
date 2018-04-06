@@ -102,24 +102,6 @@ const Attr *Layer::attr(Token token) const {
 
 void Layer::addAttr(Attr *attr) { mAttrs.push_back(attr); }
 
-void Layer::removeUnconfidentLayers(Context *ctx, LayerConfidence confidence) {
-  for (auto &layer : mLayers) {
-    if (layer->confidence() < confidence) {
-      for (Attr *attr : layer->mAttrs) {
-        Context_deallocAttr(ctx, attr);
-      }
-      for (Payload *payload : layer->mPayloads) {
-        Context_deallocPayload(ctx, payload);
-      }
-      Context_deallocLayer(ctx, layer);
-      layer = nullptr;
-    }
-  }
-
-  mLayers.erase(std::remove(mLayers.begin(), mLayers.end(), nullptr),
-                mLayers.end());
-}
-
 Layer *Layer_addLayer(Layer *layer, Context *context, Token id) {
   Layer *child = Context_allocLayer(context, id);
   child->setParent(layer);
