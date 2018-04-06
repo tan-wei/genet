@@ -57,8 +57,6 @@ public:
   const Frame *frame() const;
   void setFrame(const Frame *frame);
 
-  void removeUnconfidentLayers(Context *ctx, LayerConfidence confidence);
-
 private:
   bool isRoot() const;
   void setIsRoot(bool root);
