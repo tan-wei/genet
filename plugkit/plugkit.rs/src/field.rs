@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 pub mod value {
     use std::result;
     use std::ops;
@@ -135,7 +133,7 @@ pub mod value {
 }
 
 pub struct Field {
-    id: u32,
+    id: u8,
     name: String,
     typ: String,
     val: Box<value::Fn>,
@@ -153,7 +151,12 @@ impl Clone for Field {
 }
 
 impl Field {
-    pub fn new<V: 'static + value::Fn + Clone>(id: u32, name: &str, typ: &str, val: V) -> Field {
+    pub(crate) fn new<V: 'static + value::Fn + Clone>(
+        id: u8,
+        name: &str,
+        typ: &str,
+        val: V,
+    ) -> Field {
         Field {
             id,
             name: String::from(name),
@@ -162,7 +165,7 @@ impl Field {
         }
     }
 
-    pub fn id(&self) -> u32 {
+    pub fn id(&self) -> u8 {
         self.id
     }
 
@@ -181,32 +184,32 @@ impl Field {
 
 #[derive(Debug)]
 pub struct BoundField {
-    id: u32,
-    offset: usize,
+    id: u8,
+    offset: u32,
 }
 
 impl BoundField {
-    pub fn new(id: u32, offset: usize) -> BoundField {
+    pub fn new(id: u8, offset: u32) -> BoundField {
         BoundField { id, offset }
     }
 
-    pub fn id(&self) -> u32 {
+    pub fn id(&self) -> u8 {
         self.id
     }
 
-    pub fn offset(&self) -> usize {
+    pub fn offset(&self) -> u32 {
         self.offset
     }
 }
 
 pub struct TempBoundField<'a> {
     field: &'a Field,
-    offset: u64,
+    offset: u32,
 }
 
 impl<'a> TempBoundField<'a> {
     pub fn new(field: &'a Field, offset: u64) -> TempBoundField<'a> {
-        TempBoundField { field, offset }
+        TempBoundField { field, offset: offset as u32 }
     }
 
     pub fn get(&self, data: &[u8]) -> value::Result {
@@ -215,34 +218,5 @@ impl<'a> TempBoundField<'a> {
         } else {
             self.field.get(&data[self.offset as usize..])
         }
-    }
-}
-
-pub struct Registry {
-    map: HashMap<String, Field>,
-}
-
-impl Registry {
-    pub fn new() -> Registry {
-        Registry {
-            map: HashMap::new(),
-        }
-    }
-
-    pub fn register<V: 'static + value::Fn + Clone>(
-        &mut self,
-        name: &str,
-        typ: &str,
-        val: V,
-    ) -> Field {
-        let id = self.map.len() as u32;
-        self.map
-            .entry(String::from(name))
-            .or_insert_with(|| Field::new(id, name, typ, val))
-            .clone()
-    }
-
-    pub fn get(&mut self, id: &str) -> Option<Field> {
-        self.map.get(&String::from(id)).map(|f| f.clone())
     }
 }

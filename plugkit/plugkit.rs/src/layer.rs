@@ -9,6 +9,7 @@ use super::context::Context;
 use super::symbol;
 use super::range::Range;
 use super::field::{Field, TempBoundField};
+use super::field::value;
 use std::mem;
 use std::slice;
 
@@ -148,5 +149,31 @@ impl Layer {
 
     pub fn bind_field<'a>(&mut self, field: &'a Field, offset: u64) -> TempBoundField<'a> {
         TempBoundField::new(field, offset)
+    }
+}
+
+pub struct LayerType {
+    fields: Vec<Field>,
+}
+
+impl LayerType {
+    pub fn new() -> LayerType {
+        LayerType { fields: Vec::new() }
+    }
+
+    pub fn add_field<V: 'static + value::Fn + Clone>(
+        &mut self,
+        name: &str,
+        typ: &str,
+        val: V,
+    ) -> Field {
+        let id = self.fields.len() as u8;
+        let f = Field::new(id, name, typ, val);
+        self.fields.push(f.clone());
+        f
+    }
+
+    pub fn get_field(&self, index: u8) -> Option<&Field> {
+        self.fields.get(index as usize)
     }
 }

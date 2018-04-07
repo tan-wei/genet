@@ -2,11 +2,9 @@
 //!
 //! Type Context holds data for thread-local features such as allocator and logger.
 
-use super::layer::{Confidence, Layer};
+use super::layer::{Confidence, Layer, LayerType};
 use super::symbol;
 use super::token::Token;
-use super::field::{Field, Registry};
-use super::field::value;
 use std::io::{Error, ErrorKind};
 use std::str;
 use std::ffi::CStr;
@@ -67,27 +65,20 @@ impl Context {
         unsafe { &mut *self.shared }
     }
 
-    pub fn create_field<V: 'static + value::Fn + Clone>(
-        &mut self,
-        name: &str,
-        typ: &str,
-        val: V,
-    ) -> Field {
+    pub fn add_layer_type(&mut self, layer: LayerType) {
         let mut ctx = self.shared_ctx().lock();
-        ctx.fields.register(name, typ, val)
+        ctx.layers.push(layer);
     }
 }
 
 /// A process-wide context object.
 pub(crate) struct SharedContext {
-    pub fields: Registry,
+    layers: Vec<LayerType>,
 }
 
 impl SharedContext {
     fn new() -> SharedContext {
-        SharedContext {
-            fields: Registry::new(),
-        }
+        SharedContext { layers: Vec::new() }
     }
 }
 
