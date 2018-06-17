@@ -1,17 +1,34 @@
 const m = require('mithril')
 const path = require('path')
 const { execFile } = require('child_process')
+const PermissionMassage = require(`${__dirname}/permission-message`)
 class PcapView {
   constructor () {
     this.devices = []
+    this.permission = true
   }
-  view (vnode) {
-    const ifs = deplug.workspace.get('_.pcap.interface')
+
+  checkDevices () {
     const cli = path.join(__dirname, 'crates/pcap_cli/target/release/pcap_cli')
     execFile(cli, ['devices'], (error, stdout) => {
-      this.devices = JSON.parse(stdout)
+      if (error) {
+        this.permission = false
+      } else {
+        this.permission = true
+        this.devices = JSON.parse(stdout)
+      }
       m.redraw()
     })
+  }
+
+  view (vnode) {
+    const ifs = deplug.workspace.get('_.pcap.interface')
+    this.checkDevices()
+    if (!this.permission) {
+      return m('div', [
+        m(PermissionMassage, {})
+      ])
+    }
     return m('div', { class: 'livecap-view' }, [
       m('p', [
         m('i', { class: 'fa fa-check' }), ' Live capture is ready.'
