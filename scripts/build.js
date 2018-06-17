@@ -25,7 +25,7 @@ function build() {
   runAsNode('scripts/generate-version-file.js')
   //run('node', 'scripts/build-plugkit.js')
   run('node', 'scripts/build-dyr-core.js')
-  //run('node', 'scripts/build-rust-packages.js')
+  run('node', 'scripts/build-rust-packages.js')
   run('node', 'scripts/build-deplug-core.js')
   touch.sync(reloadFile)
   if (watchMode) {
