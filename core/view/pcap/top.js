@@ -3,7 +3,6 @@ import ExportDialog from './export-dialog'
 import FilterSuggest from './filter-suggest'
 import FrameHeader from './frame-header'
 import FrameListView from './frame-list-view'
-import PcapDialog from './pcap-dialog'
 import ToolBar from './toolbar'
 import m from 'mithril'
 import path from 'path'
@@ -152,9 +151,6 @@ export default class TopView {
         let getIfs = null
         if (deplug.resumer.has('core:session:ifs')) {
           getIfs = Promise.resolve(deplug.resumer.get('core:session:ifs'))
-        } else {
-          const pcapDialog = new Dialog(PcapDialog)
-          getIfs = pcapDialog.show({ cancelable: false })
         }
         getIfs.then(async (ifs) => {
           const sess = await deplug.session.create(ifs)
