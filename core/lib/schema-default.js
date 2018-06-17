@@ -77,12 +77,6 @@ export default {
       type: 'boolean',
       default: false,
     },
-    '_.debug.enableDebugSession': {
-      title: 'Enable Debug Session',
-      type: 'boolean',
-      default: false,
-      description: 'Enabling this option may affect performance',
-    },
   },
   workspace: {
     '_.window.size': {

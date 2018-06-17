@@ -178,7 +178,6 @@ export default class Session {
       map[key] = JSON.stringify(value)
     }
     factory.setConfig(map)
-    factory.enableDebugSession = config.get('_.debug.enableDebugSession', false)
     factory.networkInterface = ifs
     for (const layer of linkLayers) {
       factory.registerLinkLayer(layer)

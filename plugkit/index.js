@@ -3,7 +3,6 @@ const fs = require('fs')
 const { promisify } = require('util')
 const EventEmitter = require('events')
 const FilterCompiler = require('./filter')
-const InspectorServer = require('./inspector')
 
 const fields = Symbol('fields')
 const promiseReadFile = promisify(fs.readFile)
@@ -11,10 +10,6 @@ class Session extends EventEmitter {
   constructor (sess, options) {
     super()
     this[fields] = Object.assign({ sess }, options)
-
-    if (options.enableDebugSession) {
-      this[fields].inspector = new InspectorServer(sess)
-    }
 
     this.status = { capture: false }
     this.filter = {}
@@ -130,7 +125,6 @@ class SessionFactory extends kit.SessionFactory {
     this[fields] = {
       tasks: [],
       linkLayers: [],
-      enableDebugSession: false,
       filterCompiler: null,
     }
   }
@@ -162,14 +156,6 @@ class SessionFactory extends kit.SessionFactory {
 
   registerExporter (exporter) {
     super.registerExporter(exporter)
-  }
-
-  get enableDebugSession () {
-    return this[fields].enableDebugSession
-  }
-
-  set enableDebugSession (flag) {
-    this[fields].enableDebugSession = flag
   }
 
   registerDissector (dissector) {
