@@ -16,3 +16,6 @@
 [submodule "dyr-core/dyr_node/vendor/Catch"]
 	path = dyr-core/dyr_node/vendor/Catch
 	url = https://github.com/philsquared/Catch.git
+[submodule "dyr-core/dyr_node/vendor/Catch2"]
+	path = dyr-core/dyr_node/vendor/Catch2
+	url = https://github.com/catchorg/Catch2.git
