@@ -21,6 +21,7 @@ export default class PanelComponent extends BaseComponent {
     if (!this.name) {
       throw new Error('name field required')
     }
+    this.slot = objpath.get(comp, 'slot', 'tools:bottom')
     this.mainFile = path.resolve(dir, file)
     const style = objpath.get(comp, 'style', '')
     if (style.length > 0) {
@@ -38,6 +39,7 @@ export default class PanelComponent extends BaseComponent {
       deplug.workspace.registerPanel(this.id, {
         component,
         style,
+        slot: this.slot,
         id: this.id,
         name: this.name,
       })

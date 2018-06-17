@@ -96,7 +96,7 @@ class PcapTabView {
 
 export default class PcapToolView {
   view () {
-    const panels = deplug.workspace.panelLayout.bottom || []
+    const panels = deplug.workspace.panelLayout['tools:bottom'] || []
     return m('div', { class: 'tool-view' },
       panels.map((group) => m(PcapTabView, { tabs: group })))
   }

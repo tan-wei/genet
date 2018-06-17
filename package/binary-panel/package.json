@@ -13,6 +13,7 @@
         "main": "main.js",
         "name": "Binary",
         "id": "core:panel:binary",
+        "slot": "tools:bottom",
         "style": "style.css"
       }
     ]

@@ -1,9 +1,21 @@
 {
-    "name": "@dyr/pcap",
-    "version": "0.0.1",
-    "license": "MIT",
-    "description": "Pcap Module",
-    "engines": {
-      "deplug": "*"
-    }
+  "name": "@dyr/pcap",
+  "version": "0.0.1",
+  "license": "MIT",
+  "description": "Pcap Module",
+  "engines": {
+    "deplug": "*"
+  },
+  "deplug": {
+    "components": [
+      {
+        "type": "core:panel",
+        "main": "main.js",
+        "name": "Pcap",
+        "id": "core:panel:pcap",
+        "slot": "dialog:input",
+        "style": "style.css"
+      }
+    ]
+  }
 }
