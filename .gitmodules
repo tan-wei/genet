@@ -10,3 +10,9 @@
 [submodule "plugkit/vendor/Catch"]
 	path = plugkit/vendor/Catch
 	url = https://github.com/philsquared/Catch.git
+[submodule "dyr-core/dyr_node/vendor/nan"]
+	path = dyr-core/dyr_node/vendor/nan
+	url = https://github.com/nodejs/nan.git
+[submodule "dyr-core/dyr_node/vendor/Catch"]
+	path = dyr-core/dyr_node/vendor/Catch
+	url = https://github.com/philsquared/Catch.git

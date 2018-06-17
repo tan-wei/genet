@@ -1,0 +1,11 @@
+[package]
+name = "pcap"
+version = "0.1.0"
+authors = ["Ron Hashimoto <mail@h2so5.net>"]
+
+[dependencies]
+libc = "0.2"
+libloading = "0.5"
+serde = "1"
+serde_derive = "1"
+capabilities = { git = 'https://github.com/h2so5/rust-capabilities', branch = 'fix-cfg-scope' }

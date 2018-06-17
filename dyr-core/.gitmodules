@@ -1,0 +1,6 @@
+[submodule "dyr_node/vendor/Catch2"]
+	path = dyr_node/vendor/Catch2
+	url = https://github.com/catchorg/Catch2.git
+[submodule "dyr_node/vendor/nan"]
+	path = dyr_node/vendor/nan
+	url = https://github.com/nodejs/nan.git

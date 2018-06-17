@@ -1,0 +1,9 @@
+{
+    "name": "@dyr/pcap",
+    "version": "0.0.1",
+    "license": "MIT",
+    "description": "Pcap Module",
+    "engines": {
+      "deplug": "*"
+    }
+}
