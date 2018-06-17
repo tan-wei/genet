@@ -151,6 +151,9 @@ export default class TopView {
         let getIfs = null
         if (deplug.resumer.has('core:session:ifs')) {
           getIfs = Promise.resolve(deplug.resumer.get('core:session:ifs'))
+        } else {
+          m.redraw()
+          return
         }
         getIfs.then(async (ifs) => {
           const sess = await deplug.session.create(ifs)
