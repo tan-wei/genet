@@ -11,8 +11,8 @@
       {
         "type": "core:panel",
         "main": "main.js",
-        "name": "Pcap",
-        "id": "core:panel:pcap",
+        "name": "Live Capture",
+        "id": "core:panel:live-capture",
         "slot": "dialog:input",
         "style": "style.css"
       }

@@ -1,36 +1,3 @@
-.binary-view {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  left: 0;
-  padding: 10px;
-  flex-grow: 1;
-  user-select: text;
-  overflow-y: scroll;
-}
-.binary-view ul {
+.livecap-view ul {
   list-style: none;
-  padding: 0;
-  margin: 0;
-  margin-right: 20px;
-  float: left;
-}
-.binary-view ul li {
-  padding: 6px 0;
-}
-.binary-view ul li span {
-  display: inline-block;
-  width: 20px;
-  text-align: center;
-}
-.binary-view ul li span:nth-child(8n) {
-  margin-right: 10px;
-}
-.binary-view .ascii-list span {
-  width: 15px;
-}
-.binary-view [data-selected] {
-  background-color: var(--theme-keywords);
-  color: var(--theme-default-bg);
 }

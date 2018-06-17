@@ -3,6 +3,7 @@ import ExportDialog from './export-dialog'
 import FilterSuggest from './filter-suggest'
 import FrameHeader from './frame-header'
 import FrameListView from './frame-list-view'
+import InputDialog from './input-dialog'
 import ToolBar from './toolbar'
 import m from 'mithril'
 import path from 'path'
@@ -152,6 +153,8 @@ export default class TopView {
         if (deplug.resumer.has('core:session:ifs')) {
           getIfs = Promise.resolve(deplug.resumer.get('core:session:ifs'))
         } else {
+          const inputDialog = new Dialog(InputDialog)
+          inputDialog.show({ cancelable: false })
           m.redraw()
           return
         }
