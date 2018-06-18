@@ -62,7 +62,7 @@ export default class DetailView {
       }, [
         'This package is incompatible with the running Deplug version.',
         m('br'),
-        `Required Deplug Version: ${pkg.data.engines.deplug}`
+        `Required Deplug Version: ${pkg.data.engines.genet}`
       ]),
       m(ButtonBoxView, {
         pkg,

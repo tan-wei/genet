@@ -14,7 +14,7 @@ function getRootPath () {
   let root = __dirname
   while (root !== '/') {
     const pkg = path.join(root, 'package.json')
-    if (readFile(pkg).name === 'deplug') {
+    if (readFile(pkg).name === 'genet') {
       return root
     }
     root = path.dirname(root)
@@ -23,14 +23,14 @@ function getRootPath () {
 }
 
 const root = getRootPath()
-const deplug = jsonfile.readFileSync(path.join(root, 'package.json'))
-const userPath = path.join(os.homedir(), '.deplug')
+const genet = jsonfile.readFileSync(path.join(root, 'package.json'))
+const userPath = path.join(os.homedir(), '.genet')
 const userPackagePath = path.join(userPath, 'package')
 const userProfilePath = path.join(userPath, 'profile')
 const builtinPackagePath = path.join(root, 'package')
-const cachePath = path.join(os.homedir(), '.deplug-cache')
+const cachePath = path.join(os.homedir(), '.genet-cache')
 export default {
-  deplug,
+  genet,
   userPath,
   userPackagePath,
   userProfilePath,

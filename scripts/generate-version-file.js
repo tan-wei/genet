@@ -4,16 +4,16 @@ const fs = require('fs')
 const jsonfile = require('jsonfile')
 const mkpath = require('mkpath')
 
-const userPath = path.resolve(os.homedir(), '.deplug')
+const userPath = path.resolve(os.homedir(), '.genet')
 const versionFile = path.join(userPath, '.version')
 
 mkpath.sync(userPath)
-const deplug = jsonfile.readFileSync(
+const genet = jsonfile.readFileSync(
   path.join(__dirname, '../package.json'))
 
 fs.writeFileSync(versionFile, JSON.stringify({
-  deplug: deplug.version,
-  negatron: deplug.devDependencies.negatron,
+  genet: genet.version,
+  negatron: genet.devDependencies.negatron,
   abi: process.versions.modules,
   resourcePath: path.resolve(__dirname, '..'),
 }))

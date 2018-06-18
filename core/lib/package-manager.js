@@ -103,8 +103,8 @@ export default class PackageManager extends EventEmitter {
     const pkgs = metaDataList.filter((pkg) => pkg.data)
     for (const pkg of pkgs) {
       const incompatible = !semver.satisfies(
-        semver.coerce(env.deplug.version),
-        objpath.get(pkg.data, 'engines.deplug', '*'))
+        semver.coerce(env.genet.version),
+        objpath.get(pkg.data, 'engines.genet', '*'))
       const disabled = disabledPackages.has(pkg.id)
       const cache = packages.get(pkg.id) || { components: [] }
       if (!incompatible) {
@@ -153,7 +153,7 @@ export default class PackageManager extends EventEmitter {
       .concat(Array.from(updatedPackages))
       .map((id) => packages.get(id))
       .forEach((pkg) => {
-        const components = objpath.get(pkg.data, 'deplug.components', [])
+        const components = objpath.get(pkg.data, 'genet.components', [])
         pkg.components = components
           .filter((comp) => activatedComponents.has(comp.type))
           .map((comp) => ComponentFactory.create(comp, pkg.dir))
@@ -193,7 +193,7 @@ export default class PackageManager extends EventEmitter {
       if (pkg.configSchemaDisposer) {
         pkg.configSchemaDisposer.dispose()
       }
-      const configSchema = objpath.get(pkg.data, 'deplug.configSchema')
+      const configSchema = objpath.get(pkg.data, 'genet.configSchema')
       if (typeof configSchema === 'object') {
         pkg.configSchemaDisposer =
           deplug.config.registerSchema(configSchema)
@@ -247,8 +247,8 @@ export default class PackageManager extends EventEmitter {
 
     const versionFile = path.join(env.userPath, '.version')
     await promiseWriteFile(versionFile, JSON.stringify({
-      deplug: env.deplug.version,
-      negatron: env.deplug.devDependencies.negatron,
+      deplug: env.genet.version,
+      negatron: env.genet.devDependencies.negatron,
       abi: process.versions.modules,
       resourcePath: path.resolve(__dirname, '../..'),
     }))

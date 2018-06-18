@@ -48,7 +48,7 @@ export default class WindowFactory {
     contents.on('unresponsive', () => mainWindow.reload())
 
     function reloadMenu () {
-      const script = 'deplug.menu.template'
+      const script = 'genet.menu.template'
       contents.executeJavaScript(script).then((template) => {
         const flatMenu = flatten({ template })
         for (const [key, channel] of Object.entries(flatMenu)) {

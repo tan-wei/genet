@@ -4,9 +4,9 @@
   "license": "MIT",
   "description": "Generic attribute types",
   "engines": {
-    "deplug": "*"
+    "genet": "*"
   },
-  "deplug": {
+  "genet": {
     "components": [
       {
         "type": "core:renderer:attr",

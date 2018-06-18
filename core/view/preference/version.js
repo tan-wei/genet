@@ -46,9 +46,9 @@ class LicenseInfo {
 
 export default class Plugin {
   constructor () {
-    this.version = objpath.get(env.deplug, 'version', 'n/a')
+    this.version = objpath.get(env.genet, 'version', 'n/a')
     this.electronVersion =
-      objpath.get(env.deplug, 'devDependencies.negatron', 'n/a')
+      objpath.get(env.genet, 'devDependencies.negatron', 'n/a')
   }
   view (vnode) {
     const nodes = [

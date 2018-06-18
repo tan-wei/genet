@@ -52,11 +52,11 @@ async function resolveEntry (entry) {
     vers.sort(semver.rcompare)
 
     const pkg = meta.versions[vers[0]]
-    const engineVersion = objpath.get(pkg, 'engines.deplug', null)
+    const engineVersion = objpath.get(pkg, 'engines.genet', null)
     if (engineVersion === null) {
       throw new Error('Incompatible package')
     }
-    if (!semver.satisfies(semver.coerce(env.deplug.version), engineVersion)) {
+    if (!semver.satisfies(semver.coerce(env.genet.version), engineVersion)) {
       throw new Error('Deplug version mismatch')
     }
     const tarball = objpath.get(pkg, 'dist.tarball', null)

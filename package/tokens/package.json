@@ -4,10 +4,10 @@
   "license": "MIT",
   "description": "Built-in tokens",
   "engines": {
-    "deplug": "*"
+    "genet": "*"
   },
   "homepage": "https://deplug.net/",
-  "deplug": {
+  "genet": {
     "components": [
       {
         "type": "core:token",
