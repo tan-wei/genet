@@ -8,27 +8,26 @@
 namespace genet_node {
 
 class IteratorWrapper final : public Nan::ObjectWrap {
- public:
-  using Callback = v8::Local<v8::Value> (*)(void*, uint8_t*);
+public:
+  using Callback = v8::Local<v8::Value> (*)(void *, uint8_t *);
 
- public:
+public:
   static void init(v8::Local<v8::Object> exports);
-  static v8::Local<v8::Object> wrap(v8::Local<v8::Object> self,
-                                    const Callback cb,
-                                    void* data);
+  static v8::Local<v8::Object>
+  wrap(v8::Local<v8::Object> self, const Callback cb, void *data);
   static NAN_METHOD(New);
   static NAN_METHOD(next);
 
- private:
-  IteratorWrapper(const Callback func, void* data);
-  IteratorWrapper(const IteratorWrapper&) = delete;
-  IteratorWrapper& operator=(const IteratorWrapper&) = delete;
+private:
+  IteratorWrapper(const Callback func, void *data);
+  IteratorWrapper(const IteratorWrapper &) = delete;
+  IteratorWrapper &operator=(const IteratorWrapper &) = delete;
 
- private:
+private:
   Callback cb;
-  void* data = nullptr;
+  void *data = nullptr;
   uint8_t done = 0;
 };
-}  // namespace genet_node
+} // namespace genet_node
 
 #endif

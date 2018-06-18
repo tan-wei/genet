@@ -5,9 +5,7 @@
 using namespace genet_node;
 
 namespace {
-void Init(v8::Local<v8::Object> exports) {
-  Module::init(exports);
-}
-}  // namespace
+void Init(v8::Local<v8::Object> exports) { Module::init(exports); }
+} // namespace
 
 NODE_MODULE(genet_node, Init)

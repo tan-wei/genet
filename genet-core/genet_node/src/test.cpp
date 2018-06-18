@@ -16,6 +16,6 @@ void Init(v8::Local<v8::Object> exports) {
   }
   Module::destroy();
 }
-}  // namespace
+} // namespace
 
 NODE_MODULE(genet_node_test, Init)

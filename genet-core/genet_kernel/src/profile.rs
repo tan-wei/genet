@@ -69,8 +69,9 @@ impl Profile {
             let func = unsafe { lib.get::<FnRegisterGetEnv>(b"genet_ffi_v1_register_get_env")? };
             func(env::ffi_genet_get_env);
 
-            let func =
-                unsafe { lib.get::<FnRegisterGetAllocator>(b"genet_ffi_v1_register_get_allocator")? };
+            let func = unsafe {
+                lib.get::<FnRegisterGetAllocator>(b"genet_ffi_v1_register_get_allocator")?
+            };
             func(env::ffi_genet_get_allocator);
 
             let func = unsafe { lib.get::<FnGetDissectors>(b"genet_ffi_v1_get_dissectors")? };

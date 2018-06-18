@@ -1,8 +1,8 @@
 use chan;
 use dissector::{parallel, serial};
-use genet_ffi::{context::Context, layer::Layer, ptr::MutPtr, token::Token};
 use filter::{self, Filter};
 use frame::Frame;
+use genet_ffi::{context::Context, layer::Layer, ptr::MutPtr, token::Token};
 use io::{Input, InputCallback, Output};
 use profile::Profile;
 use std::{

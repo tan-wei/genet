@@ -4,12 +4,12 @@
 namespace genet_node {
 
 class ArrayBufferAllocator final : public v8::ArrayBuffer::Allocator {
- public:
+public:
   ArrayBufferAllocator() {}
   ~ArrayBufferAllocator() override {}
-  void* Allocate(size_t size) override { return calloc(1, size); }
-  void* AllocateUninitialized(size_t size) override { return malloc(size); }
-  void Free(void* data, size_t) override { free(data); }
+  void *Allocate(size_t size) override { return calloc(1, size); }
+  void *AllocateUninitialized(size_t size) override { return malloc(size); }
+  void Free(void *data, size_t) override { free(data); }
 };
 
 namespace {
@@ -20,7 +20,7 @@ struct Context {
   v8::UniquePersistent<v8::Context> context;
 };
 thread_local Context global = Context();
-}  // namespace
+} // namespace
 
 Script::Script() : isolate(nullptr) {
   if (global.refCount == 0) {
@@ -59,4 +59,4 @@ Script::~Script() {
   }
 }
 
-}  // namespace genet_node
+} // namespace genet_node

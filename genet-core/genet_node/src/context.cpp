@@ -13,9 +13,9 @@ void ContextWrapper::init(v8::Local<v8::Object> exports) {
   Nan::SetPrototypeMethod(tpl, "closeStream", closeStream);
   Nan::SetPrototypeMethod(tpl, "getConfig", getConfig);
 
-  v8::Isolate* isolate = v8::Isolate::GetCurrent();
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
-  auto& cls = Module::current().get(Module::CLASS_CONTEXT);
+  auto &cls = Module::current().get(Module::CLASS_CONTEXT);
   cls.ctor.Reset(isolate, ctor);
 }
 
@@ -23,7 +23,7 @@ NAN_METHOD(ContextWrapper::New) {
   if (info.IsConstructCall()) {
     auto ctx = info[0];
     if (ctx->IsExternal()) {
-      auto obj = static_cast<ContextWrapper*>(ctx.As<v8::External>()->Value());
+      auto obj = static_cast<ContextWrapper *>(ctx.As<v8::External>()->Value());
       obj->Wrap(info.This());
       info.GetReturnValue().Set(info.This());
     }
@@ -48,7 +48,7 @@ NAN_METHOD(ContextWrapper::string) {
   }
   uint32_t token = info[0]->Uint32Value();
   if (auto wrapper = Nan::ObjectWrap::Unwrap<ContextWrapper>(info.Holder())) {
-    char* str = genet_token_string(token);
+    char *str = genet_token_string(token);
     info.GetReturnValue().Set(Nan::New(str).ToLocalChecked());
     genet_str_free(str);
   }
@@ -67,7 +67,7 @@ NAN_METHOD(ContextWrapper::getConfig) {
   }
   Nan::Utf8String key(info[0]);
   if (auto wrapper = Nan::ObjectWrap::Unwrap<ContextWrapper>(info.Holder())) {
-    char* json = genet_context_get_config(wrapper->ctx.get(), *key);
+    char *json = genet_context_get_config(wrapper->ctx.get(), *key);
     v8::Local<v8::String> json_string = Nan::New(json).ToLocalChecked();
     genet_str_free(json);
     Nan::JSON NanJSON;
@@ -78,19 +78,17 @@ NAN_METHOD(ContextWrapper::getConfig) {
   }
 }
 
-ContextWrapper::ContextWrapper(const Pointer<Context>& ctx) : ctx(ctx) {}
+ContextWrapper::ContextWrapper(const Pointer<Context> &ctx) : ctx(ctx) {}
 
-ContextWrapper::~ContextWrapper() {
-  genet_context_free(ctx.getOwned());
-}
+ContextWrapper::~ContextWrapper() { genet_context_free(ctx.getOwned()); }
 
-v8::Local<v8::Object> ContextWrapper::wrap(const Pointer<Context>& ctx) {
-  v8::Isolate* isolate = v8::Isolate::GetCurrent();
-  const auto& cls = Module::current().get(Module::CLASS_CONTEXT);
+v8::Local<v8::Object> ContextWrapper::wrap(const Pointer<Context> &ctx) {
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
+  const auto &cls = Module::current().get(Module::CLASS_CONTEXT);
   auto cons = v8::Local<v8::Function>::New(isolate, cls.ctor);
   auto ptr = new ContextWrapper(ctx);
   v8::Local<v8::Value> args[] = {Nan::New<v8::External>(ptr)};
   return Nan::NewInstance(cons, 1, args).ToLocalChecked();
 }
 
-}  // namespace genet_node
+} // namespace genet_node

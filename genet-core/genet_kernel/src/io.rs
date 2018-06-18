@@ -1,5 +1,5 @@
-use genet_ffi::{layer::Layer, ptr::MutPtr};
 use frame::Frame;
+use genet_ffi::{layer::Layer, ptr::MutPtr};
 use std::fmt::Debug;
 use std::io::Result;
 

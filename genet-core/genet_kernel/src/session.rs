@@ -1,7 +1,7 @@
+use frame::Frame;
 use genet_ffi::dissector::Dissector;
 use genet_ffi::layer::Layer;
 use genet_ffi::ptr::MutPtr;
-use frame::Frame;
 use profile::Profile;
 use serde::ser::{Serialize, SerializeMap, Serializer};
 use std::ops::Range;

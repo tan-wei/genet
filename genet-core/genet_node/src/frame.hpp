@@ -9,24 +9,24 @@ struct Frame;
 namespace genet_node {
 
 class FrameWrapper final : public Nan::ObjectWrap {
- public:
+public:
   static void init(v8::Local<v8::Object> exports);
-  static v8::Local<v8::Object> wrap(const Frame* frame);
+  static v8::Local<v8::Object> wrap(const Frame *frame);
   static NAN_METHOD(New);
   static NAN_GETTER(index);
 
- public:
+public:
   ~FrameWrapper();
 
- private:
-  FrameWrapper(const Frame* frame);
-  FrameWrapper(const FrameWrapper&) = delete;
-  FrameWrapper& operator=(const FrameWrapper&) = delete;
+private:
+  FrameWrapper(const Frame *frame);
+  FrameWrapper(const FrameWrapper &) = delete;
+  FrameWrapper &operator=(const FrameWrapper &) = delete;
 
- private:
-  const Frame* frame;
+private:
+  const Frame *frame;
 };
 
-}  // namespace genet_node
+} // namespace genet_node
 
 #endif

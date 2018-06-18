@@ -9,14 +9,14 @@ namespace genet_node {
 class ArrayBufferAllocator;
 
 class Script {
- public:
+public:
   Script();
   virtual ~Script();
 
- protected:
-  v8::Isolate* isolate;
+protected:
+  v8::Isolate *isolate;
 };
 
-}  // namespace genet_node
+} // namespace genet_node
 
 #endif

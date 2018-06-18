@@ -7,7 +7,7 @@
 namespace genet_node {
 
 class Module final {
- public:
+public:
   using FunctionTemplate = v8::UniquePersistent<v8::FunctionTemplate>;
   using Function = v8::UniquePersistent<v8::Function>;
   using Prototype = v8::UniquePersistent<v8::Value>;
@@ -26,19 +26,19 @@ class Module final {
     CLASS_ATTR
   };
 
- public:
+public:
   static void init(v8::Local<v8::Object> exports);
   static void destroy();
-  static Module& current();
-  Class& get(Slot slot);
+  static Module &current();
+  Class &get(Slot slot);
 
- private:
+private:
   Module();
 
- private:
+private:
   std::vector<Class> classes;
 };
 
-}  // namespace genet_node
+} // namespace genet_node
 
 #endif

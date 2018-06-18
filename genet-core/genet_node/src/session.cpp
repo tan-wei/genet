@@ -19,16 +19,16 @@ void SessionProfileWrapper::init(v8::Local<v8::Object> exports) {
   Nan::SetPrototypeMethod(tpl, "setConfig", setConfig);
   Nan::SetPrototypeMethod(tpl, "addLinkLayer", addLinkLayer);
 
-  v8::Isolate* isolate = v8::Isolate::GetCurrent();
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
-  auto& cls = Module::current().get(Module::CLASS_SESSION_PROFILE);
+  auto &cls = Module::current().get(Module::CLASS_SESSION_PROFILE);
   cls.ctor.Reset(isolate, ctor);
   Nan::Set(exports, Nan::New("SessionProfile").ToLocalChecked(), ctor);
 }
 
 NAN_METHOD(SessionProfileWrapper::New) {
   if (info.IsConstructCall()) {
-    SessionProfileWrapper* obj = new SessionProfileWrapper(
+    SessionProfileWrapper *obj = new SessionProfileWrapper(
         Pointer<SessionProfile>::owned(genet_session_profile_new()));
     obj->Wrap(info.This());
     Nan::SetInternalFieldPointer(info.This(), 1, &marker);
@@ -71,15 +71,15 @@ NAN_METHOD(SessionProfileWrapper::addLinkLayer) {
 }
 
 SessionProfileWrapper::SessionProfileWrapper(
-    const Pointer<SessionProfile>& profile)
+    const Pointer<SessionProfile> &profile)
     : profile(profile) {}
 
 SessionProfileWrapper::~SessionProfileWrapper() {
   genet_session_profile_free(profile.getOwned());
 }
 
-Pointer<SessionProfile> SessionProfileWrapper::unwrap(
-    v8::Local<v8::Value> value) {
+Pointer<SessionProfile>
+SessionProfileWrapper::unwrap(v8::Local<v8::Value> value) {
   if (!value.IsEmpty() && value->IsObject()) {
     auto object = value.As<v8::Object>();
     if (Nan::GetInternalFieldPointer(object, 1) == &marker) {
@@ -107,9 +107,9 @@ void SessionWrapper::init(v8::Local<v8::Object> exports) {
   Nan::SetAccessor(otl, Nan::New("length").ToLocalChecked(), length);
   Nan::SetAccessor(otl, Nan::New("context").ToLocalChecked(), context);
 
-  v8::Isolate* isolate = v8::Isolate::GetCurrent();
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
-  auto& cls = Module::current().get(Module::CLASS_SESSION);
+  auto &cls = Module::current().get(Module::CLASS_SESSION);
   cls.ctor.Reset(isolate, ctor);
   Nan::Set(exports, Nan::New("Session").ToLocalChecked(), ctor);
 }
@@ -117,18 +117,18 @@ void SessionWrapper::init(v8::Local<v8::Object> exports) {
 NAN_METHOD(SessionWrapper::New) {
   if (info.IsConstructCall()) {
     if (auto profile = SessionProfileWrapper::unwrap(info[0]).getConst()) {
-      SessionWrapper* obj = new SessionWrapper();
+      SessionWrapper *obj = new SessionWrapper();
       obj->event->session =
           genet_session_new(profile,
-                           [](void* data, char* event) {
-                             auto ev = static_cast<Event*>(data);
-                             {
-                               std::lock_guard<std::mutex> lock(ev->mutex);
-                               ev->queue.push_back(event);
-                             }
-                             uv_async_send(&ev->async);
-                           },
-                           obj->event);
+                            [](void *data, char *event) {
+                              auto ev = static_cast<Event *>(data);
+                              {
+                                std::lock_guard<std::mutex> lock(ev->mutex);
+                                ev->queue.push_back(event);
+                              }
+                              uv_async_send(&ev->async);
+                            },
+                            obj->event);
       obj->Wrap(info.This());
       Nan::SetInternalFieldPointer(info.This(), 1, &marker);
       info.GetReturnValue().Set(info.This());
@@ -139,13 +139,13 @@ NAN_METHOD(SessionWrapper::New) {
 }
 
 NAN_GETTER(SessionWrapper::context) {
-  SessionWrapper* wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
+  SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
   if (!wrapper->event) {
     Nan::ThrowReferenceError("Session has been closed");
     return;
   }
-  Session* session = wrapper->event->session;
-  Context* ctx = genet_session_context(session);
+  Session *session = wrapper->event->session;
+  Context *ctx = genet_session_context(session);
   info.GetReturnValue().Set(ContextWrapper::wrap(Pointer<Context>::owned(ctx)));
 }
 
@@ -165,7 +165,7 @@ NAN_METHOD(SessionWrapper::pushFrames) {
     }
     auto array = info[0].As<v8::Array>();
     int32_t link = info[1]->Int32Value();
-    Session* session = wrapper->event->session;
+    Session *session = wrapper->event->session;
     for (uint32_t i = 0; i < array->Length(); ++i) {
       auto value = array->Get(i);
       if (value->IsObject()) {
@@ -174,8 +174,9 @@ NAN_METHOD(SessionWrapper::pushFrames) {
         if (data->IsArrayBufferView()) {
           auto view = data.As<v8::ArrayBufferView>();
           size_t len = view->ByteLength();
-          char* buf = static_cast<char*>(view->Buffer()->GetContents().Data()) +
-                      view->ByteOffset();
+          char *buf =
+              static_cast<char *>(view->Buffer()->GetContents().Data()) +
+              view->ByteOffset();
           genet_session_push_frame(session, buf, len, link);
         }
       }
@@ -204,10 +205,10 @@ NAN_METHOD(SessionWrapper::frames) {
       Nan::ThrowReferenceError("Session has been closed");
       return;
     }
-    Session* session = wrapper->event->session;
+    Session *session = wrapper->event->session;
 
     size_t length = end - start;
-    std::vector<const Frame*> dst;
+    std::vector<const Frame *> dst;
     dst.resize(length);
     genet_session_frames(session, start, end, &length, dst.data());
     dst.resize(length);
@@ -248,10 +249,10 @@ NAN_METHOD(SessionWrapper::filteredFrames) {
       Nan::ThrowReferenceError("Session has been closed");
       return;
     }
-    Session* session = wrapper->event->session;
+    Session *session = wrapper->event->session;
 
     size_t length = end - start;
-    std::vector<const Frame*> dst;
+    std::vector<const Frame *> dst;
     dst.resize(length);
     genet_session_filtered_frames(session, id, start, end, &length, dst.data());
     dst.resize(length);
@@ -265,18 +266,18 @@ NAN_METHOD(SessionWrapper::filteredFrames) {
 }
 
 NAN_GETTER(SessionWrapper::callback) {
-  SessionWrapper* wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
+  SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
   if (!wrapper->event->callback.IsEmpty()) {
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
     auto func = v8::Local<v8::Function>::New(isolate, wrapper->event->callback);
     info.GetReturnValue().Set(func);
   }
 }
 
 NAN_SETTER(SessionWrapper::setCallback) {
-  SessionWrapper* wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
+  SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
   if (value->IsFunction()) {
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
     wrapper->event->callback.Reset(isolate, value.As<v8::Function>());
   }
 }
@@ -287,24 +288,24 @@ NAN_GETTER(SessionWrapper::length) {
       Nan::ThrowReferenceError("Session has been closed");
       return;
     }
-    Session* session = wrapper->event->session;
+    Session *session = wrapper->event->session;
     info.GetReturnValue().Set(genet_session_len(session));
   }
 }
 
 SessionWrapper::SessionWrapper() : event(new Event()) {
   event->async.data = event;
-  uv_async_init(uv_default_loop(), &event->async, [](uv_async_t* handle) {
-    Event* event = reinterpret_cast<Event*>(handle->data);
+  uv_async_init(uv_default_loop(), &event->async, [](uv_async_t *handle) {
+    Event *event = reinterpret_cast<Event *>(handle->data);
     std::lock_guard<std::mutex> lock(event->mutex);
 
     if (!event->callback.IsEmpty()) {
-      v8::Isolate* isolate = v8::Isolate::GetCurrent();
+      v8::Isolate *isolate = v8::Isolate::GetCurrent();
       v8::HandleScope handle_scope(isolate);
       auto global = isolate->GetCurrentContext()->Global();
       auto func = v8::Local<v8::Function>::New(isolate, event->callback);
 
-      for (char* json : event->queue) {
+      for (char *json : event->queue) {
         v8::Local<v8::String> json_string = Nan::New(json).ToLocalChecked();
         genet_str_free(json);
         Nan::JSON NanJSON;
@@ -320,14 +321,14 @@ SessionWrapper::SessionWrapper() : event(new Event()) {
   });
 }
 
-void SessionWrapper::handleEvent(const char* event) {}
+void SessionWrapper::handleEvent(const char *event) {}
 
 void SessionWrapper::close() {
   if (event) {
     genet_session_free(event->session);
-    uv_close(reinterpret_cast<uv_handle_t*>(&event->async),
-             [](uv_handle_t* handle) {
-               Event* event = reinterpret_cast<Event*>(handle->data);
+    uv_close(reinterpret_cast<uv_handle_t *>(&event->async),
+             [](uv_handle_t *handle) {
+               Event *event = reinterpret_cast<Event *>(handle->data);
                delete event;
              });
     event = nullptr;
@@ -337,8 +338,8 @@ void SessionWrapper::close() {
 SessionWrapper::~SessionWrapper() {}
 
 NAN_METHOD(SessionWrapper::close) {
-  SessionWrapper* wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
+  SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
   wrapper->close();
 }
 
-}  // namespace genet_node
+} // namespace genet_node

@@ -15,27 +15,27 @@ struct SessionProfile;
 namespace genet_node {
 
 class SessionProfileWrapper final : public Nan::ObjectWrap {
- public:
+public:
   static void init(v8::Local<v8::Object> exports);
   static Pointer<SessionProfile> unwrap(v8::Local<v8::Value> value);
   static NAN_METHOD(New);
   static NAN_METHOD(setConfig);
   static NAN_METHOD(addLinkLayer);
 
- public:
+public:
   ~SessionProfileWrapper();
 
- private:
-  SessionProfileWrapper(const Pointer<SessionProfile>& session);
-  SessionProfileWrapper(const SessionProfileWrapper&) = delete;
-  SessionProfileWrapper& operator=(const SessionProfileWrapper&) = delete;
+private:
+  SessionProfileWrapper(const Pointer<SessionProfile> &session);
+  SessionProfileWrapper(const SessionProfileWrapper &) = delete;
+  SessionProfileWrapper &operator=(const SessionProfileWrapper &) = delete;
 
- private:
+private:
   Pointer<SessionProfile> profile;
 };
 
 class SessionWrapper final : public Nan::ObjectWrap {
- public:
+public:
   static void init(v8::Local<v8::Object> exports);
   static NAN_METHOD(New);
   static NAN_GETTER(context);
@@ -47,30 +47,30 @@ class SessionWrapper final : public Nan::ObjectWrap {
   static NAN_SETTER(setCallback);
   static NAN_GETTER(length);
 
- public:
+public:
   ~SessionWrapper();
 
- private:
+private:
   SessionWrapper();
-  void handleEvent(const char* event);
+  void handleEvent(const char *event);
   void close();
 
-  SessionWrapper(const SessionWrapper&) = delete;
-  SessionWrapper& operator=(const SessionWrapper&) = delete;
+  SessionWrapper(const SessionWrapper &) = delete;
+  SessionWrapper &operator=(const SessionWrapper &) = delete;
 
- private:
+private:
   struct Event {
-    Session* session;
+    Session *session;
     std::mutex mutex;
     uv_async_t async;
-    std::vector<char*> queue;
+    std::vector<char *> queue;
     v8::UniquePersistent<v8::Function> callback;
   };
 
- private:
-  Event* event;
+private:
+  Event *event;
 };
 
-}  // namespace genet_node
+} // namespace genet_node
 
 #endif

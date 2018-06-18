@@ -18,9 +18,9 @@ void LayerWrapper::init(v8::Local<v8::Object> exports) {
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
   Nan::SetAccessor(otl, Nan::New("tags").ToLocalChecked(), tags);
 
-  v8::Isolate* isolate = v8::Isolate::GetCurrent();
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
-  auto& cls = Module::current().get(Module::CLASS_LAYER);
+  auto &cls = Module::current().get(Module::CLASS_LAYER);
   cls.ctor.Reset(isolate, ctor);
   Nan::Set(exports, Nan::New("Layer").ToLocalChecked(), ctor);
 }
@@ -29,11 +29,11 @@ NAN_METHOD(LayerWrapper::New) {
   if (info.IsConstructCall()) {
     auto id = info[0];
     if (id->IsUint32()) {
-      LayerWrapper* obj = new LayerWrapper(
+      LayerWrapper *obj = new LayerWrapper(
           Pointer<Layer>::owned(genet_layer_new(id->Uint32Value())));
       obj->Wrap(info.This());
     } else if (id->IsExternal()) {
-      auto obj = static_cast<LayerWrapper*>(id.As<v8::External>()->Value());
+      auto obj = static_cast<LayerWrapper *>(id.As<v8::External>()->Value());
       obj->Wrap(info.This());
     } else {
       Nan::ThrowTypeError("First argument must be a token-id");
@@ -45,7 +45,7 @@ NAN_METHOD(LayerWrapper::New) {
 }
 
 NAN_GETTER(LayerWrapper::id) {
-  LayerWrapper* wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer.getConst()) {
     info.GetReturnValue().Set(genet_layer_id(layer));
   } else {
@@ -54,7 +54,7 @@ NAN_GETTER(LayerWrapper::id) {
 }
 
 NAN_METHOD(LayerWrapper::addChild) {
-  LayerWrapper* wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer.get()) {
     auto child = LayerWrapper::unwrap(info[0]).get();
     if (child && layer != child) {
@@ -70,7 +70,7 @@ NAN_METHOD(LayerWrapper::addChild) {
 }
 
 NAN_GETTER(LayerWrapper::tags) {
-  LayerWrapper* wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer.getConst()) {
     auto iter = genet_layer_tags(layer);
     auto array = Nan::New<v8::Array>();
@@ -82,15 +82,13 @@ NAN_GETTER(LayerWrapper::tags) {
   }
 }
 
-LayerWrapper::LayerWrapper(const Pointer<Layer>& layer) : layer(layer) {}
+LayerWrapper::LayerWrapper(const Pointer<Layer> &layer) : layer(layer) {}
 
-LayerWrapper::~LayerWrapper() {
-  genet_layer_free(layer.getOwned());
-}
+LayerWrapper::~LayerWrapper() { genet_layer_free(layer.getOwned()); }
 
-v8::Local<v8::Object> LayerWrapper::wrap(const Pointer<Layer>& layer) {
-  v8::Isolate* isolate = v8::Isolate::GetCurrent();
-  const auto& cls = Module::current().get(Module::CLASS_LAYER);
+v8::Local<v8::Object> LayerWrapper::wrap(const Pointer<Layer> &layer) {
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
+  const auto &cls = Module::current().get(Module::CLASS_LAYER);
   auto cons = v8::Local<v8::Function>::New(isolate, cls.ctor);
   auto ptr = new LayerWrapper(layer);
   v8::Local<v8::Value> args[] = {Nan::New<v8::External>(ptr)};
@@ -109,4 +107,4 @@ Pointer<Layer> LayerWrapper::unwrap(v8::Local<v8::Value> value) {
   return Pointer<Layer>::null();
 }
 
-}  // namespace genet_node
+} // namespace genet_node

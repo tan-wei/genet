@@ -7,28 +7,28 @@ namespace genet_node {
 
 template <class T>
 class Pointer {
- public:
+public:
   static Pointer null();
-  static Pointer ref(T* ptr);
-  static Pointer ref(const T* ptr);
-  static Pointer owned(T* ptr);
-  static Pointer owned(const T* ptr);
-  Pointer(const Pointer<T>& ptr) = default;
-  bool operator==(const Pointer<T>& ptr) const;
-  bool operator!=(const Pointer<T>& ptr) const;
+  static Pointer ref(T *ptr);
+  static Pointer ref(const T *ptr);
+  static Pointer owned(T *ptr);
+  static Pointer owned(const T *ptr);
+  Pointer(const Pointer<T> &ptr) = default;
+  bool operator==(const Pointer<T> &ptr) const;
+  bool operator!=(const Pointer<T> &ptr) const;
   operator bool() const;
-  T* get();
-  const T* getConst();
-  T* getOwned();
-  const T* getConstOwned();
+  T *get();
+  const T *getConst();
+  T *getOwned();
+  const T *getConstOwned();
 
- private:
+private:
   Pointer(intptr_t data);
-  T* ptr() const;
+  T *ptr() const;
   bool isMutable() const;
   bool isOwned() const;
 
- private:
+private:
   intptr_t data;
 };
 
@@ -38,22 +38,22 @@ Pointer<T> Pointer<T>::null() {
 }
 
 template <class T>
-Pointer<T> Pointer<T>::ref(T* ptr) {
+Pointer<T> Pointer<T>::ref(T *ptr) {
   return Pointer<T>(reinterpret_cast<intptr_t>(ptr) | 0b01);
 }
 
 template <class T>
-Pointer<T> Pointer<T>::ref(const T* ptr) {
+Pointer<T> Pointer<T>::ref(const T *ptr) {
   return Pointer<T>(reinterpret_cast<intptr_t>(ptr) | 0b00);
 }
 
 template <class T>
-Pointer<T> Pointer<T>::owned(T* ptr) {
+Pointer<T> Pointer<T>::owned(T *ptr) {
   return Pointer<T>(reinterpret_cast<intptr_t>(ptr) | 0b11);
 }
 
 template <class T>
-Pointer<T> Pointer<T>::owned(const T* ptr) {
+Pointer<T> Pointer<T>::owned(const T *ptr) {
   return Pointer<T>(reinterpret_cast<intptr_t>(ptr) | 0b10);
 }
 
@@ -61,12 +61,12 @@ template <class T>
 Pointer<T>::Pointer(intptr_t data) : data(data) {}
 
 template <class T>
-bool Pointer<T>::operator==(const Pointer<T>& ptr) const {
+bool Pointer<T>::operator==(const Pointer<T> &ptr) const {
   return data == ptr.data;
 }
 
 template <class T>
-bool Pointer<T>::operator!=(const Pointer<T>& ptr) const {
+bool Pointer<T>::operator!=(const Pointer<T> &ptr) const {
   return data != ptr.data;
 }
 
@@ -76,7 +76,7 @@ Pointer<T>::operator bool() const {
 }
 
 template <class T>
-T* Pointer<T>::get() {
+T *Pointer<T>::get() {
   if (isMutable()) {
     return ptr();
   }
@@ -84,12 +84,12 @@ T* Pointer<T>::get() {
 }
 
 template <class T>
-const T* Pointer<T>::getConst() {
+const T *Pointer<T>::getConst() {
   return ptr();
 }
 
 template <class T>
-T* Pointer<T>::getOwned() {
+T *Pointer<T>::getOwned() {
   if (isMutable() && isOwned()) {
     return ptr();
   }
@@ -97,7 +97,7 @@ T* Pointer<T>::getOwned() {
 }
 
 template <class T>
-const T* Pointer<T>::getConstOwned() {
+const T *Pointer<T>::getConstOwned() {
   if (isOwned()) {
     return ptr();
   }
@@ -105,8 +105,8 @@ const T* Pointer<T>::getConstOwned() {
 }
 
 template <class T>
-T* Pointer<T>::ptr() const {
-  return reinterpret_cast<T*>(data & (~0b11));
+T *Pointer<T>::ptr() const {
+  return reinterpret_cast<T *>(data & (~0b11));
 }
 
 template <class T>
@@ -119,6 +119,6 @@ bool Pointer<T>::isOwned() const {
   return data & 0b10;
 }
 
-}  // namespace genet_node
+} // namespace genet_node
 
 #endif
