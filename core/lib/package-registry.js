@@ -57,7 +57,7 @@ async function resolveEntry (entry) {
       throw new Error('Incompatible package')
     }
     if (!semver.satisfies(semver.coerce(env.genet.version), engineVersion)) {
-      throw new Error('Deplug version mismatch')
+      throw new Error('Genet version mismatch')
     }
     const tarball = objpath.get(pkg, 'dist.tarball', null)
     if (tarball === null) {

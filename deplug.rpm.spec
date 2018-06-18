@@ -12,7 +12,7 @@ Requires(post): libcap-progs
 AutoReqProv: no
 
 %description
-Deplug is a modern packet analyzer based on Electron.
+Genet is a modern packet analyzer based on Electron.
 
 %prep
 

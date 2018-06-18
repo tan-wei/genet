@@ -12,7 +12,7 @@ import Session from './session'
 import Workspace from './workspace'
 import minimist from 'minimist'
 
-export default class Deplug {
+export default class Genet {
   constructor (argv) {
     const options = minimist(argv, { boolean: true })
     let components = options.components || ''

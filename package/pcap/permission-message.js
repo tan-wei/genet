@@ -6,9 +6,9 @@ class MacHelper {
       m('h1', ['Install Helper Tool']),
       m('p', [
         'macOS does not allow normal users to access pcap devices ' +
-        'by default.  Deplug provides a tiny helper tool to handle ' +
+        'by default.  Genet provides a tiny helper tool to handle ' +
         'this problem. Once it has been installed, we can start a ' +
-        'live capture without running Deplug as root.'
+        'live capture without running Genet as root.'
       ]),
       m('p', ['Press the following button to install the helper tool.']),
       m('input', {

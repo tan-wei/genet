@@ -60,9 +60,9 @@ export default class DetailView {
             : 'none',
         },
       }, [
-        'This package is incompatible with the running Deplug version.',
+        'This package is incompatible with the running Genet version.',
         m('br'),
-        `Required Deplug Version: ${pkg.data.engines.genet}`
+        `Required Genet Version: ${pkg.data.engines.genet}`
       ]),
       m(ButtonBoxView, {
         pkg,

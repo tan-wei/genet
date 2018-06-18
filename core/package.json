@@ -1,7 +1,7 @@
 {
   "name": "@deplug/core",
   "version": "0.0.1",
-  "description": "Deplug core modules",
+  "description": "Genet core modules",
   "repository": {
     "type": "git",
     "url": "https://github.com/deplug/deplug.git"

@@ -52,7 +52,7 @@ export default class Plugin {
   }
   view (vnode) {
     const nodes = [
-      m('h4', ['Deplug version']),
+      m('h4', ['Genet version']),
       m('span', [this.version]),
       m('h4', ['Negatron version']),
       m('span', [this.electronVersion])
