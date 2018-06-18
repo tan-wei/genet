@@ -23,7 +23,7 @@
         "OS=='linux'",
         {
           "libraries":[
-            "../../dyr_kernel/target/debug/libdyr_kernel.a",
+            "../../dyr_kernel/target/release/libdyr_kernel.a",
             "-Wl,-dn,-lpcap,-lcap,-lrt,-dy,-lpthread,-ldl",
           ],
           "cflags_cc":[
@@ -40,7 +40,7 @@
           "libraries":[
             "-L/usr/local/lib",
             "-lpcap",
-            "../../dyr_kernel/target/debug/libdyr_kernel.a"
+            "../../dyr_kernel/target/release/libdyr_kernel.a"
           ],
           "link_settings":{
             "libraries":[
@@ -67,7 +67,7 @@
         "OS=='win'",
         {
           "libraries": [
-            '../../dyr_kernel/target/debug/dyr_kernel.lib',
+            '../../dyr_kernel/target/release/dyr_kernel.lib',
             'Ws2_32.lib',
             'Userenv.lib',
             'Iphlpapi.lib'

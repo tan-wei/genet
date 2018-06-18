@@ -1,4 +1,5 @@
 const m = require('mithril')
+const path = require('path')
 class MacHelper {
   view () {
     return m('section', [
@@ -24,19 +25,16 @@ class MacHelper {
 
 class LinuxHelper {
   view () {
+    const cli = path.join(__dirname, 'crates/pcap_cli/target/release/pcap_cli')
     return m('section', [
       m('h1', ['Not enough capabilities']),
       m('p', [
         'This executable does not have enough capabilities to ' +
         'start a live capture.',
         m('br'),
-        'Please run setcap to the executable and don’t forget ' +
-        'to change RPATH.',
-        m('ul', [
-          m('li', ['$ DEPLUG_BIN=', process.execPath]),
-          m('li', ['$ patchelf --set-rpath ' +
-          '$(dirname $DEPLUG_BIN) $DEPLUG_BIN']),
-          m('li', ['$ sudo setcap cap_net_raw,cap_net_admin=p $DEPLUG_BIN'])
+        'Please apply setcap to the executable.',
+        m('p', [
+          m('code', ['$ sudo setcap cap_net_raw,cap_net_admin=ep ', cli])
         ])
       ])
     ])

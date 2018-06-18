@@ -9,6 +9,11 @@
 
 namespace dyr_node {
 
+extern "C" const char* plug_embedded_js()
+{
+  return "(function(){})";
+}
+
 namespace {
 thread_local Module* globalInstance = nullptr;
 }
