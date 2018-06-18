@@ -5,7 +5,7 @@ sed -e "s/{{DEPLUG_VERSION}}/$DEPLUG_VER/g" debian/DEBIAN/control > out/.debian/
 chmod 755 out/.debian/DEBIAN/postinst
 mkdir -p out/.debian/usr/share/icons/hicolor/256x256/apps
 cp images/deplug.png out/.debian/usr/share/icons/hicolor/256x256/apps
-cp -r out/Genet-linux-x64/. out/.debian/usr/share/deplug
-mv out/.debian/usr/share/deplug/Genet out/.debian/usr/share/deplug/deplug
-chrpath -r /usr/share/deplug out/.debian/usr/share/deplug/deplug
-(cd out/.debian && fakeroot dpkg-deb --build . ../deplug-linux-amd64.deb)
+cp -r out/Genet-linux-x64/. out/.debian/usr/share/genet
+mv out/.debian/usr/share/genet/Genet out/.debian/usr/share/genet/genet
+chrpath -r /usr/share/genet out/.debian/usr/share/genet/genet
+(cd out/.debian && fakeroot dpkg-deb --build . ../genet-linux-amd64.deb)

@@ -25,7 +25,6 @@ function build() {
   runAsNode('scripts/generate-version-file.js')
   run('node', 'scripts/build-genet-core.js')
   run('node', 'scripts/build-rust-packages.js')
-  run('node', 'scripts/build-deplug-core.js')
   touch.sync(reloadFile)
   if (watchMode) {
     notifier.notify({

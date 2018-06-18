@@ -3,7 +3,7 @@
 %define        __os_install_post %{_dbpath}/brp-compress
 
 Summary: Next generation packet analyzer
-Name: deplug
+Name: genet
 Version: {{DEPLUG_VERSION}}
 Release: 1
 License: MIT
@@ -29,14 +29,14 @@ cp -a * %{buildroot}
 %defattr(-,root,root)
 %doc
 
-/usr/share/deplug/
-/usr/share/applications/deplug.desktop
-/usr/share/doc/deplug/copyright
-/usr/share/icons/hicolor/256x256/apps/deplug.png
-/usr/share/lintian/overrides/deplug
+/usr/share/genet/
+/usr/share/applications/genet.desktop
+/usr/share/doc/genet/copyright
+/usr/share/icons/hicolor/256x256/apps/genet.png
+/usr/share/lintian/overrides/genet
 
 
 %changelog
 
 %post
-setcap cap_net_raw,cap_net_admin=p /usr/share/deplug/deplug
+setcap cap_net_raw,cap_net_admin=p /usr/share/genet/genet

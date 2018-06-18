@@ -1,4 +1,4 @@
-Package: deplug
+Package: genet
 Version: {{DEPLUG_VERSION}}
 Architecture: amd64
 Maintainer: h2so5 <mail@h2so5.net>
