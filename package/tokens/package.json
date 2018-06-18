@@ -1,5 +1,5 @@
 {
-  "name": "@deplug/tokens",
+  "name": "@genet/tokens",
   "version": "0.1.0",
   "license": "MIT",
   "description": "Built-in tokens",
@@ -17,7 +17,7 @@
       }
     ],
     "configSchema": {
-      "@deplug/tokens.snaplen": {
+      "@genet/tokens.snaplen": {
         "title": "Snapshot Length",
         "description": "Snapshot Length",
         "type": "integer",
