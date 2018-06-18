@@ -2,7 +2,7 @@
   "name": "genet",
   "productName": "Genet",
   "version": "0.0.68",
-  "description": "Next generation packet analyzer",
+  "description": "General-purpose Network Analyzer",
   "repository": {
     "type": "git",
     "url": "https://github.com/deplug/deplug.git"

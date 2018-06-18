@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Genet
-Comment=Next generation packet analyzer
+Comment=General-purpose Network Analyzer
 Exec=/usr/share/genet/genet
 Terminal=false
 Type=Application

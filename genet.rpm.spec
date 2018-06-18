@@ -2,7 +2,7 @@
 %define          debug_package %{nil}
 %define        __os_install_post %{_dbpath}/brp-compress
 
-Summary: Next generation packet analyzer
+Summary: General-purpose Network Analyzer
 Name: genet
 Version: {{DEPLUG_VERSION}}
 Release: 1
