@@ -1,44 +1,35 @@
 #!/usr/bin/env node
 
-const path = require('path')
-const execa = require('execa')
-const glob = require('glob')
 const mkpath = require('mkpath')
+const path = require('path')
+const glob = require('glob')
+const execa = require('execa')
 const fs = require('fs')
 
-const src = path.resolve(__dirname, '../genet-core')
-const rustSrc = path.resolve(src, 'genet_kernel')
-const nodeSrc = path.resolve(src, 'genet_node')
-const scriptFiles = glob.sync(path.resolve(nodeSrc, '*.{js,json}'))
-const dst = path.resolve(__dirname, '../genet-modules/genet_node')
-const dstBin = path.resolve(__dirname, '../genet-modules/bin/genet_node')
-
-const env = require('./plugkit-npm-env')
-
+const src = path.resolve(__dirname, '../core')
+const dst = path.resolve(__dirname, '../genet-modules/core')
+const cache = path.resolve(dst, '.last-updated')
+const webpack = path.resolve(__dirname, '../node_modules/.bin/webpack')
+const lessc = path.resolve(__dirname, '../node_modules/.bin/lessc')
 mkpath.sync(dst)
-mkpath.sync(dstBin)
+mkpath.sync(path.resolve(dst, 'asset'))
 
-async function exec() {
-  await execa.shell('cargo build --release', {
-    cwd: rustSrc,
-    stdio: 'inherit'
-  })
-  
-  await execa('node-gyp', ['configure'], { env, cwd: nodeSrc, stdio: 'inherit' })
-  await execa('node-gyp', ['build'], { env, cwd: nodeSrc, stdio: 'inherit' })
+const jsFiles = glob.sync(path.resolve(src, '*.main.js'))
+const lessFiles = glob.sync(path.resolve(src, 'asset/*.main.less'))
+const assets = glob.sync(path.resolve(src, 'asset/*.htm'))
 
-  const binaryFiles = glob.sync(path.resolve(nodeSrc, 'build/Release/*.{node,lib}'))
-  for (const file of binaryFiles) {
-    fs.createReadStream(file)
-      .pipe(fs.createWriteStream(
-        path.resolve(dstBin, path.basename(file))))
-  }
-
-  for (const file of scriptFiles) {
-    fs.createReadStream(file)
-      .pipe(fs.createWriteStream(
-        path.resolve(dst, path.basename(file))))
-  }
+for (const file of jsFiles) {
+  execa(webpack, [file, path.resolve(dst, path.basename(file))])
+    .stdout.pipe(process.stdout)
 }
-
-exec()
+for (const file of lessFiles) {
+  const css = 
+    path.resolve(path.resolve(dst, 'asset'), path.basename(file, '.less')) + '.css'
+  execa(lessc, [file, css])
+    .stdout.pipe(process.stdout)
+}
+for (const file of assets) {
+  fs.createReadStream(file)
+    .pipe(fs.createWriteStream(
+      path.resolve(dst, 'asset', path.basename(file))))
+}
