@@ -10,12 +10,9 @@
 [submodule "plugkit/vendor/Catch"]
 	path = plugkit/vendor/Catch
 	url = https://github.com/philsquared/Catch.git
-[submodule "dyr-core/dyr_node/vendor/nan"]
-	path = dyr-core/dyr_node/vendor/nan
+[submodule "genet-core/genet_node/vendor/nan"]
+	path = genet-core/genet_node/vendor/nan
 	url = https://github.com/nodejs/nan.git
-[submodule "dyr-core/dyr_node/vendor/Catch"]
-	path = dyr-core/dyr_node/vendor/Catch
-	url = https://github.com/philsquared/Catch.git
-[submodule "dyr-core/dyr_node/vendor/Catch2"]
-	path = dyr-core/dyr_node/vendor/Catch2
+[submodule "genet-core/genet_node/vendor/Catch2"]
+	path = genet-core/genet_node/vendor/Catch2
 	url = https://github.com/catchorg/Catch2.git

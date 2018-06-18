@@ -1,0 +1,8 @@
+[package]
+name = "genet_sdk"
+version = "0.1.0"
+authors = ["Ron Hashimoto <mail@h2so5.net>"]
+
+[dependencies]
+byteorder = "1"
+genet_ffi = { path = "../genet_ffi" }

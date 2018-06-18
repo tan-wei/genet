@@ -1,8 +1,0 @@
-[package]
-name = "dyr_sdk"
-version = "0.1.0"
-authors = ["Ron Hashimoto <mail@h2so5.net>"]
-
-[dependencies]
-byteorder = "1"
-dyr_ffi = { path = "../dyr_ffi" }

@@ -1,5 +1,5 @@
 {
-  "name": "@dyr/pcap",
+  "name": "@genet/pcap",
   "version": "0.0.1",
   "license": "MIT",
   "description": "Pcap Module",
