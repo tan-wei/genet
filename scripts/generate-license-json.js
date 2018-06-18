@@ -19,7 +19,7 @@ const contents = files.map((file) => {
 })
 
 const json = JSON.stringify(contents)
-const out = fs.createWriteStream('genet-modules/core/asset/license.json.gz')
+const out = fs.createWriteStream('genet-modules/src/asset/license.json.gz')
 const gzip = zlib.createGzip({ level: zlib.constants.Z_BEST_COMPRESSION })
 gzip.pipe(out)
 gzip.end(json, 'utf8')

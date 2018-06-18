@@ -9,7 +9,7 @@ const options = {
   download: { mirror: 'https://cdn.deplug.net/electron/v' },
   asar: { unpackDir: '{node_modules/@deplug/osx-helper,node_modules/nan,package,genet-modules/bin}' },
   icon: 'images/deplug',
-  ignore: /^(core|plugkit|scripts|debian|images)/,
+  ignore: /^(src|lib|scripts|debian|images)/,
   electronVersion: negatronVersion,
   win32metadata: {
     CompanyName: 'Genet',
