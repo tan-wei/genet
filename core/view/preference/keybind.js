@@ -1,13 +1,13 @@
 import m from 'mithril'
 export default class KeyBind {
   oncreate () {
-    deplug.keybind.on('update', () => {
+    genet.keybind.on('update', () => {
       m.redraw()
     })
   }
   view () {
-    const map = Object.assign({}, deplug.keybind.keymap)
-    for (const [combo, binds] of Object.entries(deplug.menu.keymap)) {
+    const map = Object.assign({}, genet.keybind.keymap)
+    for (const [combo, binds] of Object.entries(genet.menu.keymap)) {
       map[combo] = (map[combo] || []).concat(binds)
     }
     const combinations = []

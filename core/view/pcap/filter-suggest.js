@@ -9,13 +9,13 @@ export default class FilterSuggest {
     this.index = -1
     this.locked = 0
     this.update = debounce(() => {
-      const source = Array.from(deplug.session.tokens.entries())
+      const source = Array.from(genet.session.tokens.entries())
         .filter(([id]) => (/^[^!@[]/).test(id))
         .map(([id, item]) => ({
           id,
           item,
         }))
-        .concat(deplug.workspace.get('_.filter.history', []).map((history) => ({
+        .concat(genet.workspace.get('_.filter.history', []).map((history) => ({
           id: history,
           item: { name: '(history)' },
         })))
@@ -26,7 +26,7 @@ export default class FilterSuggest {
   }
 
   oncreate () {
-    deplug.action.on('core:filter:suggest:next', () => {
+    genet.action.on('core:filter:suggest:next', () => {
       this.locked = 1
       if (this.index < 0) {
         this.locked += 1
@@ -36,7 +36,7 @@ export default class FilterSuggest {
         this.updateCursor()
       }
     })
-    deplug.action.on('core:filter:suggest:prev', () => {
+    genet.action.on('core:filter:suggest:prev', () => {
       if (this.items.length > 0) {
         this.locked = 1
         if (this.index < 0) {
@@ -52,7 +52,7 @@ export default class FilterSuggest {
   updateCursor (enter = false) {
     this.locked = 2
     this.hint = this.items[this.index].id
-    deplug.action.emit('core:filter:suggest:hint-selected', this.hint, enter)
+    genet.action.emit('core:filter:suggest:hint-selected', this.hint, enter)
   }
 
   view (vnode) {

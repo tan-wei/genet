@@ -16,7 +16,7 @@ export default class TokenComponent extends BaseComponent {
     const tokenList =
       await Promise.all(this.tokenFiles.map((file) => promiseReadFile(file)))
     this.disposable = new CompositeDisposable(
-      tokenList.map((tokens) => deplug.session.registerTokens(tokens)))
+      tokenList.map((tokens) => genet.session.registerTokens(tokens)))
     return true
   }
   async unload () {

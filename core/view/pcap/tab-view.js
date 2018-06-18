@@ -3,13 +3,13 @@ import m from 'mithril'
 
 export default class TabView {
   oncreate () {
-    this.activeTab = deplug.workspace.get('_.pcap.activeTab', '')
+    this.activeTab = genet.workspace.get('_.pcap.activeTab', '')
   }
 
   view (vnode) {
     const { tabs } = vnode.attrs
 
-    const tabOrders = deplug.workspace.get('_.pcap.tabOrders', [])
+    const tabOrders = genet.workspace.get('_.pcap.tabOrders', [])
     tabs.sort((lhs, rhs) => {
       const lhsIndex = tabOrders.indexOf(lhs)
       const rhsIndex = tabOrders.indexOf(rhs)
@@ -30,13 +30,13 @@ export default class TabView {
     let activeTabIndex = tabs.findIndex((tab) => tab === this.activeTab)
     if (activeTabIndex < 0) {
       activeTabIndex = tabs.findIndex((tab) =>
-        typeof deplug.workspace.panel(tab) !== 'undefined')
+        typeof genet.workspace.panel(tab) !== 'undefined')
     }
     if (activeTabIndex >= 0) {
       this.activeTab = tabs[activeTabIndex]
     }
 
-    const panels = tabs.map((tab) => deplug.workspace.panel(tab))
+    const panels = tabs.map((tab) => genet.workspace.panel(tab))
       .filter((panel) => typeof panel !== 'undefined')
     return ('div', [
       m('div', { class: 'tab-container' }, panels.map((panel) =>
@@ -44,7 +44,7 @@ export default class TabView {
           active: panel.id === this.activeTab,
           onclick: () => {
             this.activeTab = panel.id
-            deplug.workspace.set('_.pcap.activeTab', this.activeTab)
+            genet.workspace.set('_.pcap.activeTab', this.activeTab)
           },
         }, panel.name))),
       m('div', { class: 'panel-container' }, panels.map((panel) =>

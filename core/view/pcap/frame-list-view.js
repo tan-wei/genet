@@ -48,7 +48,7 @@ class FrameView {
       active: viewState.selectedFrame === key,
       onmousedown: () => {
         viewState.selectedFrame = key
-        deplug.action.emit('core:frame:selected', this.frame)
+        genet.action.emit('core:frame:selected', this.frame)
       },
     }, [
       m('div', { class: 'header' }, columns)
@@ -203,13 +203,13 @@ export default class FrameListView {
           return m('span', {
             class: 'protocol',
             'data-layer': tags.join(' '),
-          }, [deplug.session.tokenName(id)])
+          }, [genet.session.tokenName(id)])
         },
       }
     ]
 
     const columns =
-      deplug.config.get('_.framelist.columns', [])
+      genet.config.get('_.framelist.columns', [])
     this.columns.push(...columns
       .map((col) => ({
         func: (frame) => {
@@ -217,7 +217,7 @@ export default class FrameListView {
           let renderer = AttributeValueItem
           if (typeof result === 'object' &&
               result.constructor.name === 'Attr') {
-            renderer = deplug.session.attrRenderer(result.type) || renderer
+            renderer = genet.session.attrRenderer(result.type) || renderer
             return m(renderer, { attr: result })
           }
           return m(renderer, { attr: { value: result } })
@@ -227,7 +227,7 @@ export default class FrameListView {
     this.columns.push({
       func: (frame) => {
         const { id } = frame.primaryLayer
-        const renderer = deplug.session.layerRenderer(id) || DefaultSummary
+        const renderer = genet.session.layerRenderer(id) || DefaultSummary
         return m(renderer, { layer: frame.primaryLayer })
       },
     })

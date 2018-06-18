@@ -4,7 +4,7 @@ class BinaryItem {
     this.range = [-1, -1]
   }
   oncreate () {
-    deplug.action.on('core:frame:range-selected', (range) => {
+    genet.action.on('core:frame:range-selected', (range) => {
       this.range = range.length === 2
         ? range
         : [-1, -1]
@@ -78,7 +78,7 @@ class BinaryItem {
 class BinaryView {
   constructor () {
     this.selectedFrame = null
-    deplug.action.on('core:frame:selected', (frame) => {
+    genet.action.on('core:frame:selected', (frame) => {
       this.selectedFrame = frame
       m.redraw()
     })

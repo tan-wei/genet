@@ -9,42 +9,42 @@ export default class PackageView {
   }
 
   oncreate () {
-    deplug.packages.on('updated', () => {
+    genet.packages.on('updated', () => {
       m.redraw()
     })
-    deplug.registry.on('updated', () => {
+    genet.registry.on('updated', () => {
       m.redraw()
     })
-    deplug.registry.update()
+    genet.registry.update()
   }
 
   view () {
-    if (deplug.packages.list.map((pkg) => pkg.id)
+    if (genet.packages.list.map((pkg) => pkg.id)
       .indexOf(this.selectedLocalPackage) < 0) {
-      if (deplug.packages.list.length > 0) {
-        this.selectedLocalPackage = deplug.packages.list[0].id
+      if (genet.packages.list.length > 0) {
+        this.selectedLocalPackage = genet.packages.list[0].id
       } else {
         this.selectedLocalPackage = ''
       }
     }
-    if (deplug.registry.packages.map((pkg) => pkg.id)
+    if (genet.registry.packages.map((pkg) => pkg.id)
       .indexOf(this.selectedRegistryPackage) < 0) {
-      if (deplug.registry.packages.length > 0) {
-        this.selectedRegistryPackage = deplug.registry.packages[0].id
+      if (genet.registry.packages.length > 0) {
+        this.selectedRegistryPackage = genet.registry.packages[0].id
       } else {
         this.selectedRegistryPackage = ''
       }
     }
     let selectedPackage = null
     if (this.mode === 'local') {
-      selectedPackage = deplug.packages.list.find((pkg) =>
+      selectedPackage = genet.packages.list.find((pkg) =>
         pkg.id === this.selectedLocalPackage) || null
     } else {
-      selectedPackage = deplug.registry.packages.find((pkg) =>
+      selectedPackage = genet.registry.packages.find((pkg) =>
         pkg.id === this.selectedRegistryPackage) || null
     }
     if (selectedPackage !== null) {
-      const installedPkg = deplug.packages.get(selectedPackage.id)
+      const installedPkg = genet.packages.get(selectedPackage.id)
       selectedPackage = installedPkg || selectedPackage
     }
     return [
@@ -71,7 +71,7 @@ export default class PackageView {
               : 'none',
           },
         }, [
-          m('ul', deplug.packages.list.map((pkg) =>
+          m('ul', genet.packages.list.map((pkg) =>
             m('li', [
               m('a', {
                 active: this.selectedLocalPackage === pkg.id,
@@ -93,7 +93,7 @@ export default class PackageView {
               : 'none',
           },
         }, [
-          m('ul', deplug.registry.packages.map((pkg) =>
+          m('ul', genet.registry.packages.map((pkg) =>
             m('li', [
               m('a', {
                 active: this.selectedRegistryPackage === pkg.id,

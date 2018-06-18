@@ -97,7 +97,7 @@ export default class PackageManager extends EventEmitter {
       builtinPaths.map(readFile).concat(userPaths.map(readFile)))
     for (const data of metaDataList) {
       if (data.err) {
-        deplug.logger.error(data.err)
+        genet.logger.error(data.err)
       }
     }
     const pkgs = metaDataList.filter((pkg) => pkg.data)
@@ -196,7 +196,7 @@ export default class PackageManager extends EventEmitter {
       const configSchema = objpath.get(pkg.data, 'genet.configSchema')
       if (typeof configSchema === 'object') {
         pkg.configSchemaDisposer =
-          deplug.config.registerSchema(configSchema)
+          genet.config.registerSchema(configSchema)
       }
     }
 
@@ -247,7 +247,7 @@ export default class PackageManager extends EventEmitter {
 
     const versionFile = path.join(env.userPath, '.version')
     await promiseWriteFile(versionFile, JSON.stringify({
-      deplug: env.genet.version,
+      genet: env.genet.version,
       negatron: env.genet.devDependencies.negatron,
       abi: process.versions.modules,
       resourcePath: path.resolve(__dirname, '../..'),

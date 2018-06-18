@@ -67,7 +67,7 @@ Deplug supports following formats by default.
 
 ## Preferences
 
-Configuration files are located in `$HOME/.deplug/profile/default`.
+Configuration files are located in `$HOME/.genet/profile/default`.
 
 - `config.yml` General and Package-specific Configs
 - `keybind.yml` Keybind Configs
@@ -75,7 +75,7 @@ Configuration files are located in `$HOME/.deplug/profile/default`.
 
 ## Packages
 
-Installed packages are located in `$HOME/.deplug/package`.
+Installed packages are located in `$HOME/.genet/package`.
 
 ## Display Filter
 

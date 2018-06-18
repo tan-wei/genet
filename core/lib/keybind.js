@@ -80,7 +80,7 @@ export default class KeyBind extends EventEmitter {
           Mousetrap.bind(key, (event, combo) => {
             for (const binds of this[fields].map[combo]) {
               if (event.target.matches(binds.selector)) {
-                deplug.action.global.emit(binds.action)
+                genet.action.global.emit(binds.action)
                 event.preventDefault()
                 event.stopPropagation()
                 break

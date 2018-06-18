@@ -2,11 +2,11 @@ import { AttributeValueItem } from './value'
 import m from 'mithril'
 
 function selectRange (range = []) {
-  deplug.action.emit('core:frame:range-selected', range)
+  genet.action.emit('core:frame:range-selected', range)
 }
 
 function filterExpression (attr) {
-  const macro = deplug.session.attrMacro(attr.type)
+  const macro = genet.session.attrMacro(attr.type)
   if (macro !== null) {
     const exp = macro(attr)
     const prefix = '@'
@@ -30,9 +30,9 @@ export default class AttributeItem {
     if (children.length) {
       faClass = 'attribute children'
     }
-    const name = deplug.session.tokenName(attr.id)
+    const name = genet.session.tokenName(attr.id)
     const attrRenderer =
-      deplug.session.attrRenderer(attr.type) || AttributeValueItem
+      genet.session.attrRenderer(attr.type) || AttributeValueItem
     return m('li', [
       m('details', [
         m('summary', {
@@ -44,10 +44,10 @@ export default class AttributeItem {
           onmouseout: () => selectRange(),
           oncontextmenu: (event) => {
             const filter = filterExpression(attr)
-            deplug.menu.showContextMenu(event, [
+            genet.menu.showContextMenu(event, [
               {
                 label: `Apply Filter: ${filter}`,
-                click: () => deplug.action
+                click: () => genet.action
                   .emit('core:filter:set', filter),
               },
               {
@@ -55,7 +55,7 @@ export default class AttributeItem {
                 click: () => {
                   // eslint-disable-next-line no-console
                   console.log(attr)
-                  deplug.action.global.emit('core:tab:open-devtool')
+                  genet.action.global.emit('core:tab:open-devtool')
                 },
               }
             ])

@@ -6,12 +6,12 @@ class InputBase {
     const { id, schema } = vnode.attrs
     const result = validate(value, schema)
     if (result.errors.length === 0) {
-      deplug.config.set(id, value)
+      genet.config.set(id, value)
     } else {
       if ('default' in schema) {
-        deplug.config.set(id, schema.default)
+        genet.config.set(id, schema.default)
       }
-      deplug.notify.show(
+      genet.notify.show(
         `${result.errors[0].name}: ${result.errors[0].message}`, {
           type: 'error',
           title: 'Validation failed',
@@ -28,7 +28,7 @@ class StringArrayInput extends InputBase {
       : ''
     return m('input', {
       type: 'text',
-      value: deplug.config.get(vnode.attrs.id).join(', '),
+      value: genet.config.get(vnode.attrs.id).join(', '),
       placeholder,
     })
   }
@@ -49,7 +49,7 @@ class IntegerArrayInput extends InputBase {
       : ''
     return m('input', {
       type: 'text',
-      value: deplug.config.get(vnode.attrs.id).join(', '),
+      value: genet.config.get(vnode.attrs.id).join(', '),
       placeholder,
     })
   }
@@ -67,7 +67,7 @@ class BooleanInput extends InputBase {
   view (vnode) {
     return m('input', {
       type: 'checkbox',
-      checked: deplug.config.get(vnode.attrs.id),
+      checked: genet.config.get(vnode.attrs.id),
     })
   }
 
@@ -86,7 +86,7 @@ class StringInput extends InputBase {
       : ''
     return m('input', {
       type: 'text',
-      value: deplug.config.get(vnode.attrs.id),
+      value: genet.config.get(vnode.attrs.id),
       placeholder,
     })
   }
@@ -107,7 +107,7 @@ class IntegerInput extends InputBase {
       : ''
     return m('input', {
       type: 'number',
-      value: deplug.config.get(id),
+      value: genet.config.get(id),
       placeholder,
     })
   }
@@ -123,7 +123,7 @@ class IntegerInput extends InputBase {
 class IntegerEnumInput extends InputBase {
   view (vnode) {
     const { schema } = vnode.attrs
-    const value = deplug.config.get(vnode.attrs.id)
+    const value = genet.config.get(vnode.attrs.id)
     const titles = schema.enumTitles || schema.enum
     return m('select', {}, [
       (schema.enum).map((item, index) => m('option', {
@@ -147,7 +147,7 @@ class IntegerEnumInput extends InputBase {
 class StringEnumInput extends InputBase {
   view (vnode) {
     const { schema } = vnode.attrs
-    const value = deplug.config.get(vnode.attrs.id)
+    const value = genet.config.get(vnode.attrs.id)
     const titles = schema.enumTitles || schema.enum
     return m('select', {}, [
       (schema.enum).map((item, index) => m('option', {

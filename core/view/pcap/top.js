@@ -36,19 +36,19 @@ export default class TopView {
           this.suggestIndex = -1
           this.suggestEnabled = false
           const filter = event.target.value.trim()
-          deplug.action.emit('core:filter:set', filter)
-          deplug.resumer.set('core:filter', filter)
+          genet.action.emit('core:filter:set', filter)
+          genet.resumer.set('core:filter', filter)
         }
         break
       case 'ArrowDown':
         if (this.suggestEnabled) {
-          deplug.action.emit('core:filter:suggest:next')
+          genet.action.emit('core:filter:suggest:next')
         }
         break
       case 'ArrowUp':
         if (this.suggestEnabled) {
           event.preventDefault()
-          deplug.action.emit('core:filter:suggest:prev')
+          genet.action.emit('core:filter:suggest:prev')
         }
         break
       default:
@@ -75,7 +75,7 @@ export default class TopView {
         }, [
           m('a', {
             onclick: () => {
-              deplug.action.global.emit('core:tab:reload')
+              genet.action.global.emit('core:tab:reload')
             },
           }, [
             'Reload to apply changed configurations'
@@ -124,17 +124,17 @@ export default class TopView {
   }
 
   oncreate () {
-    deplug.config.watch('', () => {
-      if (!deplug.config.get('_.package.noConfUpdated', false)) {
+    genet.config.watch('', () => {
+      if (!genet.config.get('_.package.noConfUpdated', false)) {
         this.showReloadBalloon = true
         m.redraw()
       }
     })
-    deplug.packages.once('updated', () => {
-      if (deplug.argv.import) {
-        const file = path.resolve(deplug.argv.import)
-        deplug.session.create().then((sess) => {
-          deplug.action.emit('core:session:created', sess)
+    genet.packages.once('updated', () => {
+      if (genet.argv.import) {
+        const file = path.resolve(genet.argv.import)
+        genet.session.create().then((sess) => {
+          genet.action.emit('core:session:created', sess)
           this.sess = sess
           sess.on('frame', () => {
             m.redraw()
@@ -142,16 +142,16 @@ export default class TopView {
           sess.on('filter', () => {
             m.redraw()
           })
-          if (deplug.resumer.has('core:filter')) {
-            deplug.action.emit('core:filter:set',
-              deplug.resumer.get('core:filter'))
+          if (genet.resumer.has('core:filter')) {
+            genet.action.emit('core:filter:set',
+              genet.resumer.get('core:filter'))
           }
           sess.importFile(file)
         })
       } else {
         let getIfs = null
-        if (deplug.resumer.has('core:session:ifs')) {
-          getIfs = Promise.resolve(deplug.resumer.get('core:session:ifs'))
+        if (genet.resumer.has('core:session:ifs')) {
+          getIfs = Promise.resolve(genet.resumer.get('core:session:ifs'))
         } else {
           const inputDialog = new Dialog(InputDialog)
           inputDialog.show({ cancelable: false })
@@ -159,18 +159,18 @@ export default class TopView {
           return
         }
         getIfs.then(async (ifs) => {
-          const sess = await deplug.session.create(ifs)
-          deplug.action.emit('core:session:created', sess)
+          const sess = await genet.session.create(ifs)
+          genet.action.emit('core:session:created', sess)
           this.sess = sess
-          if (deplug.resumer.has('core:filter')) {
-            deplug.action.emit('core:filter:set',
-              deplug.resumer.get('core:filter'))
+          if (genet.resumer.has('core:filter')) {
+            genet.action.emit('core:filter:set',
+              genet.resumer.get('core:filter'))
           }
-          if (deplug.resumer.has('core:session:dump')) {
-            sess.importFile(deplug.resumer.get('core:session:dump'))
+          if (genet.resumer.has('core:session:dump')) {
+            sess.importFile(genet.resumer.get('core:session:dump'))
           }
           sess.startPcap()
-          deplug.resumer.set('core:session:ifs', ifs)
+          genet.resumer.set('core:session:ifs', ifs)
           sess.on('frame', () => {
             m.redraw()
           })
@@ -185,16 +185,16 @@ export default class TopView {
       }
     })
     const filterInput = document.querySelector('input[name=display-filter]')
-    deplug.action.on('core:filter:suggest:hint-selected', (hint, enter) => {
+    genet.action.on('core:filter:suggest:hint-selected', (hint, enter) => {
       filterInput.value = hint
       filterInput.selectionStart = filterInput.value.length
       if (enter) {
         this.suggestIndex = -1
         this.suggestEnabled = false
-        deplug.action.emit('core:filter:set', hint.trim())
+        genet.action.emit('core:filter:set', hint.trim())
       }
     })
-    deplug.action.global.on('core:file:export', () => {
+    genet.action.global.on('core:file:export', () => {
       const exportDialog = new Dialog(ExportDialog,
         {
           displayFilter: this.displayFilter,
@@ -202,10 +202,10 @@ export default class TopView {
         })
       exportDialog.show({ cancelable: true }).then(async (filter) => {
         const file = dialog.showSaveDialog(
-          { filters: deplug.session.fileExtensions.exporter })
+          { filters: genet.session.fileExtensions.exporter })
         if (typeof file !== 'undefined') {
           this.sess.exportFile(file, filter).then(() => {
-            deplug.notify.show(file, {
+            genet.notify.show(file, {
               type: 'sussess',
               title: 'Exported',
             })
@@ -213,22 +213,22 @@ export default class TopView {
         }
       })
     })
-    deplug.action.global.on('core:pcap:focus-display-filter', () => {
+    genet.action.global.on('core:pcap:focus-display-filter', () => {
       document.querySelector('input[name=display-filter]').focus()
     })
-    deplug.action.global.on('core:tab:reload', () => {
+    genet.action.global.on('core:tab:reload', () => {
       let dump = Promise.resolve()
       if (this.sess) {
         const file = tempy.file({ extension: 'pcap' })
-        deplug.resumer.set('core:session:dump', file)
+        genet.resumer.set('core:session:dump', file)
         dump = this.sess.exportFile(file, '')
       }
       dump.then(() => {
-        deplug.resumer.reload()
-        deplug.notify.show('Reloading...')
+        genet.resumer.reload()
+        genet.notify.show('Reloading...')
       })
     })
-    deplug.action.on('core:filter:set', (value) => {
+    genet.action.on('core:filter:set', (value) => {
       try {
         filterInput.value = value
         this.displayFilter = value
@@ -236,21 +236,21 @@ export default class TopView {
         if (value.length > 0) {
           const maxLength = 10
           const history =
-            [].concat(deplug.workspace.get('_.filter.history', []))
+            [].concat(genet.workspace.get('_.filter.history', []))
           history.push(value)
           const overflow = history.length - maxLength
           if (overflow > 0) {
             history.splice(0, overflow)
           }
-          deplug.workspace.set('_.filter.history', history)
+          genet.workspace.set('_.filter.history', history)
         }
         const filter = value.length > 0
-          ? deplug.session.createFilterCompiler()
+          ? genet.session.createFilterCompiler()
             .compile(value)
           : null
-        deplug.action.emit('core:filter:updated', filter)
+        genet.action.emit('core:filter:updated', filter)
       } catch (err) {
-        deplug.notify.show(
+        genet.notify.show(
           err.message, {
             type: 'error',
             title: 'Filter Error',

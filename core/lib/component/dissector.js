@@ -53,20 +53,20 @@ export default class DissectorComponent extends BaseComponent {
     }
   }
   async load () {
-    this.disposable = deplug.session.registerDissector({
+    this.disposable = genet.session.registerDissector({
       type: this.type,
       main: this.mainFile.replace(/\bapp\.asar\b/, 'app.asar.unpacked'),
     })
     for (const layer of this.linkLayers) {
       this.disposable = new CompositeDisposable([
         this.disposable,
-        deplug.session.registerLinkLayer(layer)
+        genet.session.registerLinkLayer(layer)
       ])
     }
     for (const sample of this.samples) {
       this.disposable = new CompositeDisposable([
         this.disposable,
-        deplug.session.registerSample(sample)
+        genet.session.registerSample(sample)
       ])
     }
     return false

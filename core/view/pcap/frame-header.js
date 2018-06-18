@@ -9,7 +9,7 @@ export default class FrameHeader {
       { name: 'Protocol' }
     ]
     const columns =
-      deplug.config.get('_.framelist.columns', [])
+      genet.config.get('_.framelist.columns', [])
     for (const col of columns) {
       this.labels.push(col)
     }

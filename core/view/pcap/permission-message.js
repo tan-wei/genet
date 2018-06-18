@@ -21,13 +21,13 @@ class MacHelper {
         onclick: () => {
           require('@deplug/osx-helper').install()
           if (Pcap.permission) {
-            deplug.notify.show(
+            genet.notify.show(
               'Successfully installed.', {
                 type: 'success',
                 title: 'Helper Tool',
               })
           } else {
-            deplug.notify.show(
+            genet.notify.show(
               'Installation failed.', {
                 type: 'error',
                 title: 'Helper Tool',

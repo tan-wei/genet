@@ -16,7 +16,7 @@ export class HSplitter {
       this[fields].width = width
     }
     if (typeof workspace === 'string') {
-      this[fields].width = deplug.workspace.get(workspace, this[fields].width)
+      this[fields].width = genet.workspace.get(workspace, this[fields].width)
     }
     this[fields].handle = this[fields].width
   }
@@ -73,7 +73,7 @@ export class HSplitter {
     this[fields].width = this[fields].handle
     this[fields].active = false
     if (typeof workspace === 'string') {
-      deplug.workspace.set(workspace, this[fields].width)
+      genet.workspace.set(workspace, this[fields].width)
     }
   }
 }
@@ -93,7 +93,7 @@ export class VSplitter {
       this[fields].height = height
     }
     if (typeof workspace === 'string') {
-      this[fields].height = deplug.workspace.get(workspace, this[fields].height)
+      this[fields].height = genet.workspace.get(workspace, this[fields].height)
     }
     this[fields].handle = this[fields].height
   }
@@ -149,7 +149,7 @@ export class VSplitter {
     this[fields].height = this[fields].handle
     this[fields].active = false
     if (typeof workspace === 'string') {
-      deplug.workspace.set(workspace, this[fields].height)
+      genet.workspace.set(workspace, this[fields].height)
     }
   }
 }

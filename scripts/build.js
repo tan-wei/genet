@@ -58,7 +58,7 @@ if (watchMode) {
 
   spawn(negatronBin, [
       '--enable-logging',
-      `--deplug-dev-watch-file=./${reloadFile}`,
+      `--genet-dev-watch-file=./${reloadFile}`,
       '.'
     ], {
       stdio: 'inherit'

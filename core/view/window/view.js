@@ -21,7 +21,7 @@ export default class WindowView {
           id: 'preferences',
           name: 'Preferences',
           src: 'preference.htm',
-          argv: deplug.argv,
+          argv: genet.argv,
           loading: true,
           system: true,
           icon: 'fa-cog',
@@ -30,7 +30,7 @@ export default class WindowView {
           id: 'packages',
           name: 'Packages',
           src: 'package.htm',
-          argv: deplug.argv,
+          argv: genet.argv,
           loading: true,
           system: true,
           icon: 'fa-gift',
@@ -63,7 +63,7 @@ export default class WindowView {
       id,
       name: `Pcap ${number}`,
       src: 'pcap.htm',
-      argv: deplug.argv.concat([
+      argv: genet.argv.concat([
         `--resume=${Resumer.generateFileName()}`
       ]),
       loading: true,
@@ -81,7 +81,7 @@ export default class WindowView {
   }
 
   oncreate () {
-    const watcherFile = deplug.argv['deplug-dev-watch-file']
+    const watcherFile = genet.argv['genet-dev-watch-file']
     if (watcherFile) {
       touch.sync(watcherFile)
       fs.watchFile(watcherFile, remote.getCurrentWindow().reload)
@@ -95,36 +95,36 @@ export default class WindowView {
         .getCurrentWebContents()
         .send(`${channel} #${windowId}`)
     })
-    deplug.action.global.on('core:tab:open-devtool', () => {
+    genet.action.global.on('core:tab:open-devtool', () => {
       document.querySelector('webview[active]').openDevTools()
     })
-    deplug.action.global.on('core:tab:new-pcap', () => {
+    genet.action.global.on('core:tab:new-pcap', () => {
       this.createPcapTab()
     })
-    deplug.action.global.on('core:tab:show-preferences', () => {
+    genet.action.global.on('core:tab:show-preferences', () => {
       this.activeTab = 'preferences'
       m.redraw()
     })
-    deplug.action.global.on('core:tab:show-packages', () => {
+    genet.action.global.on('core:tab:show-packages', () => {
       this.activeTab = 'packages'
       m.redraw()
     })
-    deplug.action.global.on('core:window:new', () => {
+    genet.action.global.on('core:window:new', () => {
       ipcRenderer.send('core:window:create')
     })
-    deplug.action.global.on('core:menu:reload', () => {
+    genet.action.global.on('core:menu:reload', () => {
       ipcRenderer.send('core:menu:reload', windowId)
     })
-    deplug.action.global.on('core:file:browse-user-dir', () => {
+    genet.action.global.on('core:file:browse-user-dir', () => {
       shell.showItemInFolder(env.userProfilePath)
     })
-    deplug.action.global.on('core:pcap:uninstall-helper', () => {
+    genet.action.global.on('core:pcap:uninstall-helper', () => {
       require('@deplug/osx-helper').uninstall()
     })
-    deplug.action.global.on('core:file:import', () => {
+    genet.action.global.on('core:file:import', () => {
       const files = dialog.showOpenDialog({
         properties: ['openFile'],
-        filters: deplug.session.fileExtensions.importer,
+        filters: genet.session.fileExtensions.importer,
       })
       if (typeof files !== 'undefined' && files.length > 0) {
         const [file] = files
@@ -133,7 +133,7 @@ export default class WindowView {
           id,
           name: path.basename(file),
           src: 'pcap.htm',
-          argv: deplug.argv.concat([
+          argv: genet.argv.concat([
             `--import=${file}`,
             `--resume=${Resumer.generateFileName()}`
           ]),

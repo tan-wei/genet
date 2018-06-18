@@ -15,8 +15,8 @@ export default class Script {
     }
     const func = vm.runInThisContext(wrapper, options)
     function req (name) {
-      if (name === 'deplug') {
-        return deplug
+      if (name === 'genet') {
+        return genet
       }
       return global.require(name)
     }

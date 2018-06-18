@@ -36,7 +36,7 @@ export default class PanelComponent extends BaseComponent {
     }
     const component = await Script.execute(this.mainFile)
     this.disposable =
-      deplug.workspace.registerPanel(this.id, {
+      genet.workspace.registerPanel(this.id, {
         component,
         style,
         slot: this.slot,

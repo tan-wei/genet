@@ -4,7 +4,7 @@ import m from 'mithril'
 
 export default class PcapDialog {
   view (vnode) {
-    const ifs = deplug.workspace.get('_.pcap.interface')
+    const ifs = genet.workspace.get('_.pcap.interface')
     if (!Pcap.permission) {
       return m('div', [
         m(PermissionMassage, {})
@@ -37,7 +37,7 @@ export default class PcapDialog {
             onclick: () => {
               const ifsElem = vnode.dom.querySelector('[name=ifs]')
               const opt = ifsElem.options[ifsElem.selectedIndex]
-              deplug.workspace.set('_.pcap.interface', opt.value)
+              genet.workspace.set('_.pcap.interface', opt.value)
               vnode.attrs.callback(opt.value)
             },
           })
@@ -48,7 +48,7 @@ export default class PcapDialog {
             type: 'button',
             value: 'Import File...',
             onclick: () => {
-              deplug.action.global.emit('core:file:import')
+              genet.action.global.emit('core:file:import')
             },
           })
         ])

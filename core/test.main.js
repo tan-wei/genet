@@ -14,7 +14,7 @@ console.log('')
 
 const config = new Config('default', 'config')
 const session = new Session(config)
-global.deplug = { session }
+global.genet = { session }
 
 const builtinPluginPattern =
   path.join(env.builtinPackagePath, '/**/package.json')

@@ -9,7 +9,7 @@ let installerCallback = null
 async function install (pkg) {
   const shortName = pkg.id
   const installer = new Installer()
-  installer.rustpath = deplug.config.get('_.package.rustpath', '')
+  installer.rustpath = genet.config.get('_.package.rustpath', '')
   installer.on('output', (chunk) => {
     if (installerCallback !== null) {
       installerCallback(chunk)
@@ -18,20 +18,20 @@ async function install (pkg) {
   try {
     await installer.install(
       path.join(env.userPackagePath, shortName), pkg.archive)
-    deplug.notify.show(
+    genet.notify.show(
       `package: ${shortName}`, {
         type: 'success',
         title: 'Successfully installed',
       })
   } catch (err) {
-    deplug.notify.show(
+    genet.notify.show(
       err.message, {
         type: 'error',
         title: 'Installation failed',
         ttl: 0,
       })
   }
-  deplug.packages.update()
+  genet.packages.update()
 }
 
 export default class DetailView {
@@ -45,7 +45,7 @@ export default class DetailView {
       return m('p', ['No package selected'])
     }
 
-    const config = Object.entries(deplug.config.schema)
+    const config = Object.entries(genet.config.schema)
       .filter(([id]) => id.startsWith(`${pkg.id}.`))
     return m('article', [
       m('h1', { disabled: pkg.disabled || pkg.incompatible }, [pkg.data.name,

@@ -16,7 +16,7 @@ export default class TransformComponent extends BaseComponent {
   }
   async load () {
     const module = await Script.execute(this.mainFile)
-    this.disposable = deplug.session.registerFilterMacro({
+    this.disposable = genet.session.registerFilterMacro({
       name: this.name,
       description: this.description,
       func: module,

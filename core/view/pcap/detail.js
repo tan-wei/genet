@@ -6,7 +6,7 @@ import moment from '@deplug/moment.min'
 
 let selectedLayer = null
 function selectRange (range = []) {
-  deplug.action.emit('core:frame:range-selected', range)
+  genet.action.emit('core:frame:range-selected', range)
 }
 
 function mergeOrphanedItems (item) {
@@ -37,7 +37,7 @@ class LayerItem {
       const rootAddr = rootPayload.slices[0].addr
       dataOffset = parentAddr[1] - rootAddr[1]
     }
-    const name = deplug.session.tokenName(layer.id)
+    const name = genet.session.tokenName(layer.id)
 
     const attrArray = [{
       key: layer.id,
@@ -71,7 +71,7 @@ class LayerItem {
       child.attr = attr
       prevDepth = attrPath.length
     }
-    const renderer = deplug.session.layerRenderer(layer.id) || DefaultSummary
+    const renderer = genet.session.layerRenderer(layer.id) || DefaultSummary
     let confidence = ''
     switch (layer.confidence) {
       case 0:
@@ -96,17 +96,17 @@ class LayerItem {
             onclick: () => {
               if (selectedLayer.id !== layer.id) {
                 selectedLayer = layer
-                deplug.action.emit('core:frame:layer:selected', selectedLayer)
+                genet.action.emit('core:frame:layer:selected', selectedLayer)
                 return false
               }
             },
             onmouseover: () => selectRange(layer.range),
             onmouseout: () => selectRange(),
             oncontextmenu: (event) => {
-              deplug.menu.showContextMenu(event, [
+              genet.menu.showContextMenu(event, [
                 {
                   label: `Apply Filter: ${layer.id}`,
-                  click: () => deplug.action
+                  click: () => genet.action
                     .emit('core:filter:set', layer.id),
                 },
                 {
@@ -114,7 +114,7 @@ class LayerItem {
                   click: () => {
                     // eslint-disable-next-line no-console
                     console.log(layer)
-                    deplug.action.global.emit('core:tab:open-devtool')
+                    genet.action.global.emit('core:tab:open-devtool')
                   },
                 }
               ])
@@ -182,7 +182,7 @@ class LayerItem {
                 m('summary', [
                   m('span', [
                     m('i', { class: 'fa fa-exclamation-triangle' }), ' ',
-                    deplug.session.tokenName(err.id), ' : ', err.value
+                    genet.session.tokenName(err.id), ' : ', err.value
                   ])
                 ])
               ])
@@ -205,15 +205,15 @@ export default class PcapDetailView {
   }
 
   oncreate () {
-    deplug.action.on('core:frame:selected', (frame) => {
+    genet.action.on('core:frame:selected', (frame) => {
       this.selectedFrame = frame
       selectedLayer = frame
         ? frame.primaryLayer
         : null
-      deplug.action.emit('core:frame:layer:selected', selectedLayer)
+      genet.action.emit('core:frame:layer:selected', selectedLayer)
       m.redraw()
     })
-    deplug.action.on('core:filter:updated', (filter) => {
+    genet.action.on('core:filter:updated', (filter) => {
       this.displayFilter = filter
       m.redraw()
     })

@@ -14,7 +14,7 @@ class Markdown {
 
 export default class ConfigList {
   view (vnode) {
-    const config = Object.entries(deplug.config.schema)
+    const config = Object.entries(genet.config.schema)
       .filter(([id]) => id.startsWith(vnode.attrs.prefix))
     return [
       m('div',
@@ -30,7 +30,7 @@ export default class ConfigList {
   }
 
   oncreate () {
-    deplug.config.watch('_', () => {
+    genet.config.watch('_', () => {
       m.redraw()
     })
   }

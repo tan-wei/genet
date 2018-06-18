@@ -14,7 +14,7 @@ export default class ButtonBoxView {
       ])
     }
     const remote =
-      deplug.registry.packages.find((rem) => rem.id === pkg.id)
+      genet.registry.packages.find((rem) => rem.id === pkg.id)
     return m('span', { class: 'button-box' }, [
       m('input', {
         type: 'button',
@@ -23,9 +23,9 @@ export default class ButtonBoxView {
           : 'Disable',
         onclick: () => {
           if (pkg.disabled) {
-            deplug.packages.enable(pkg.id)
+            genet.packages.enable(pkg.id)
           } else {
-            deplug.packages.disable(pkg.id)
+            genet.packages.disable(pkg.id)
           }
         },
       }),
@@ -50,7 +50,7 @@ export default class ButtonBoxView {
             : 'block',
         },
         onclick: () => {
-          deplug.packages.uninstall(pkg.id)
+          genet.packages.uninstall(pkg.id)
         },
       })
     ])

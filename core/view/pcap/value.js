@@ -39,7 +39,7 @@ export class BufferValueItem {
         : '')
     return m('span', {
       oncontextmenu: (event) => {
-        deplug.menu.showContextMenu(event, [
+        genet.menu.showContextMenu(event, [
           {
             label: 'Copy As',
             submenu: [
@@ -47,28 +47,28 @@ export class BufferValueItem {
                 label: 'Hex',
                 click: () => {
                   clipboard.writeText(buffer.toString('hex'))
-                  deplug.notify.show('Copied!')
+                  genet.notify.show('Copied!')
                 },
               },
               {
                 label: 'Base64',
                 click: () => {
                   clipboard.writeText(buffer.toString('base64'))
-                  deplug.notify.show('Copied!')
+                  genet.notify.show('Copied!')
                 },
               },
               {
                 label: 'JSON Array',
                 click: () => {
                   clipboard.writeText(JSON.stringify(Array.from(buffer)))
-                  deplug.notify.show('Copied!')
+                  genet.notify.show('Copied!')
                 },
               },
               {
                 label: 'UTF-8',
                 click: () => {
                   clipboard.writeText(buffer.toString('utf8'))
-                  deplug.notify.show('Copied!')
+                  genet.notify.show('Copied!')
                 },
               }
             ],

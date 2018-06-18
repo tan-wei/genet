@@ -35,17 +35,17 @@ export default class RendererComponent extends BaseComponent {
     const component = await Script.execute(this.mainFile)
     if (this.type === 'attr') {
       this.disposable =
-        deplug.session.registerAttrRenderer(this.id, component)
+        genet.session.registerAttrRenderer(this.id, component)
       if (this.macroFile) {
         const func = await Script.execute(this.macroFile)
         this.disposable = new CompositeDisposable([
           this.disposable,
-          deplug.session.registerAttrMacro(this.id, func)
+          genet.session.registerAttrMacro(this.id, func)
         ])
       }
     } else if (this.type === 'layer') {
       this.disposable =
-        deplug.session.registerLayerRenderer(this.id, component)
+        genet.session.registerLayerRenderer(this.id, component)
     }
     return true
   }

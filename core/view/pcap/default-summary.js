@@ -17,8 +17,8 @@ export default class Summary {
     if (!src || !dst) {
       return m('span', [])
     }
-    const srcRenderer = deplug.session.attrRenderer(src.type) || AttrRenderer
-    const dstRenderer = deplug.session.attrRenderer(dst.type) || AttrRenderer
+    const srcRenderer = genet.session.attrRenderer(src.type) || AttrRenderer
+    const dstRenderer = genet.session.attrRenderer(dst.type) || AttrRenderer
     return m('span', [' ',
       m(srcRenderer, { attr: src }), ' ->', m(dstRenderer, { attr: dst })
     ])

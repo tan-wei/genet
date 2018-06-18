@@ -22,7 +22,7 @@ class PcapView {
   }
 
   view (vnode) {
-    const ifs = deplug.workspace.get('_.pcap.interface')
+    const ifs = genet.workspace.get('_.pcap.interface')
     this.checkDevices()
     if (!this.permission) {
       return m('div', [
@@ -54,7 +54,7 @@ class PcapView {
             onclick: () => {
               const ifsElem = vnode.dom.querySelector('[name=ifs]')
               const opt = ifsElem.options[ifsElem.selectedIndex]
-              deplug.workspace.set('_.pcap.interface', opt.value)
+              genet.workspace.set('_.pcap.interface', opt.value)
               vnode.attrs.callback(opt.value)
             },
           })

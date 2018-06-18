@@ -50,7 +50,7 @@ function parseRange (exp) {
 
 export default class ExportDialog {
   constructor () {
-    this.mode = deplug.workspace.get('_.pcap.exporter.mode', 'all')
+    this.mode = genet.workspace.get('_.pcap.exporter.mode', 'all')
   }
 
   oncreate (vnode) {
@@ -58,10 +58,10 @@ export default class ExportDialog {
       `input[type=radio][value=${this.mode}]`).checked = true
     vnode.dom.querySelector(
       'input[type=text][name=range]').value =
-        deplug.workspace.get('_.pcap.exporter.range', '')
+        genet.workspace.get('_.pcap.exporter.range', '')
     vnode.dom.querySelector(
       'input[type=text][name=filter]').value =
-        deplug.workspace.get('_.pcap.exporter.filter', '')
+        genet.workspace.get('_.pcap.exporter.filter', '')
   }
 
   update (vnode) {
@@ -69,10 +69,10 @@ export default class ExportDialog {
       'input[type=radio]:checked').value
 
     process.nextTick(() => {
-      deplug.workspace.set('_.pcap.exporter.mode', this.mode)
-      deplug.workspace.set('_.pcap.exporter.range', vnode.dom.querySelector(
+      genet.workspace.set('_.pcap.exporter.mode', this.mode)
+      genet.workspace.set('_.pcap.exporter.range', vnode.dom.querySelector(
         'input[type=text][name=range]').value)
-      deplug.workspace.set('_.pcap.exporter.filter', vnode.dom.querySelector(
+      genet.workspace.set('_.pcap.exporter.filter', vnode.dom.querySelector(
         'input[type=text][name=filter]').value)
     })
   }
