@@ -1,5 +1,5 @@
 #include "context.hpp"
-#include "genet_kernel.hpp"
+#include "exports.hpp"
 #include "module.hpp"
 
 namespace genet_node {

@@ -1,4 +1,3 @@
-import { SessionFactory, FilterCompiler } from '@deplug/plugkit'
 import { Disposable } from 'disposables'
 import jsonfile from 'jsonfile'
 import objpath from 'object-path'

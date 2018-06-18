@@ -1,4 +1,4 @@
-#include "genet_kernel.hpp"
+#include "exports.hpp"
 #include "module.hpp"
 #include <nan.h>
 

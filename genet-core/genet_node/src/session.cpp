@@ -1,6 +1,6 @@
 #include "session.hpp"
 #include "context.hpp"
-#include "genet_kernel.hpp"
+#include "exports.hpp"
 #include "frame.hpp"
 #include "module.hpp"
 #include "script.hpp"

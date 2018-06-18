@@ -1,6 +1,6 @@
 #include "module.hpp"
 #include "context.hpp"
-#include "genet_kernel.hpp"
+#include "exports.hpp"
 #include "frame.hpp"
 #include "iterator.hpp"
 #include "layer.hpp"

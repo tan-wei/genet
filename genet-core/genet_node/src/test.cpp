@@ -2,7 +2,7 @@
 #include <catch.hpp>
 #include <nan.h>
 
-#include "genet_kernel.hpp"
+#include "exports.hpp"
 #include "module.hpp"
 
 using namespace genet_node;

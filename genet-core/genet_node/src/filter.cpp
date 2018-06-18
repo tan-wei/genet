@@ -1,5 +1,5 @@
 #include "filter.hpp"
-#include "genet_kernel.hpp"
+#include "exports.hpp"
 #include "frame.hpp"
 
 namespace genet_node {
