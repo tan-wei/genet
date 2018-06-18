@@ -23,9 +23,9 @@ function build() {
   if (building) return
   building = true
   runAsNode('scripts/generate-version-file.js')
-  run('node', 'scripts/build-genet-node.js')
+  run('node', 'scripts/build-src.js')
+  run('node', 'scripts/build-lib.js')
   run('node', 'scripts/build-rust-packages.js')
-  run('node', 'scripts/build-genet-core.js')
   touch.sync(reloadFile)
   if (watchMode) {
     notifier.notify({

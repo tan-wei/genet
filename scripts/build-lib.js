@@ -6,7 +6,7 @@ const glob = require('glob')
 const mkpath = require('mkpath')
 const fs = require('fs')
 
-const src = path.resolve(__dirname, '../genet-core')
+const src = path.resolve(__dirname, '../lib')
 const rustSrc = path.resolve(src, 'genet_kernel')
 const nodeSrc = path.resolve(src, 'genet_node')
 const scriptFiles = glob.sync(path.resolve(nodeSrc, '*.{js,json}'))

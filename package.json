@@ -13,7 +13,7 @@
     "test": "node scripts/test.js",
     "bench": "node scripts/bench.js plugkit/bench/*.js"
   },
-  "main": "genet-modules/core/app.main.js",
+  "main": "genet-modules/src/app.main.js",
   "author": "h2so5",
   "license": "MIT",
   "dependencies": {
