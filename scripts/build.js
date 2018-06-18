@@ -23,7 +23,6 @@ function build() {
   if (building) return
   building = true
   runAsNode('scripts/generate-version-file.js')
-  run('node', 'scripts/build-plugkit.js')
   run('node', 'scripts/build-genet-core.js')
   run('node', 'scripts/build-rust-packages.js')
   run('node', 'scripts/build-deplug-core.js')

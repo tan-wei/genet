@@ -7,7 +7,7 @@ const execa = require('execa')
 const fs = require('fs')
 
 const src = path.resolve(__dirname, '../core')
-const dst = path.resolve(__dirname, '../deplug-modules/core')
+const dst = path.resolve(__dirname, '../genet-modules/core')
 const cache = path.resolve(dst, '.last-updated')
 const webpack = path.resolve(__dirname, '../node_modules/.bin/webpack')
 const lessc = path.resolve(__dirname, '../node_modules/.bin/lessc')

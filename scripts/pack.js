@@ -7,7 +7,7 @@ const packager = require('electron-packager')
 const options = {
   dir: process.cwd(),
   download: { mirror: 'https://cdn.deplug.net/electron/v' },
-  asar: { unpackDir: '{node_modules/@deplug/osx-helper,node_modules/nan,package,deplug-modules/bin}' },
+  asar: { unpackDir: '{node_modules/@deplug/osx-helper,node_modules/nan,package,genet-modules/bin}' },
   icon: 'images/deplug',
   ignore: /^(core|plugkit|scripts|debian|images)/,
   electronVersion: negatronVersion,

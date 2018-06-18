@@ -10,8 +10,8 @@ const src = path.resolve(__dirname, '../genet-core')
 const rustSrc = path.resolve(src, 'genet_kernel')
 const nodeSrc = path.resolve(src, 'genet_node')
 const scriptFiles = glob.sync(path.resolve(nodeSrc, '*.{js,json}'))
-const dst = path.resolve(__dirname, '../deplug-modules/genet_node')
-const dstBin = path.resolve(__dirname, '../deplug-modules/bin/genet_node')
+const dst = path.resolve(__dirname, '../genet-modules/genet_node')
+const dstBin = path.resolve(__dirname, '../genet-modules/bin/genet_node')
 
 const env = require('./plugkit-npm-env')
 

@@ -3,4 +3,4 @@
 **/node_modules/**
 plugkit/runtime.js
 plugkit/plugkit.rs/target/**
-/deplug-modules
+/genet-modules
