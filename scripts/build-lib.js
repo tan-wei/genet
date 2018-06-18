@@ -13,7 +13,7 @@ const scriptFiles = glob.sync(path.resolve(nodeSrc, '*.{js,json}'))
 const dst = path.resolve(__dirname, '../genet-modules/genet_node')
 const dstBin = path.resolve(__dirname, '../genet-modules/bin/genet_node')
 
-const env = require('./plugkit-npm-env')
+const env = require('./npm-env')
 
 mkpath.sync(dst)
 mkpath.sync(dstBin)
