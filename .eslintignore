@@ -1,6 +1,4 @@
 /scripts/**
 **/vendor/**
 **/node_modules/**
-plugkit/runtime.js
-plugkit/plugkit.rs/target/**
 /genet-modules
