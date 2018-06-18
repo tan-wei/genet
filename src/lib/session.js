@@ -21,6 +21,7 @@ export default class Session {
       fileImporterExtensions: new Set(),
       fileExporterExtensions: new Set(),
     }
+    console.log(require('@genet/load-module'))
   }
 
   get tokens () {
@@ -166,7 +167,7 @@ export default class Session {
     }
   }
 
-  async create (ifs = '') {
+  async create () {
     const {
       config, linkLayers, dissectors,
       importers, exporters,
@@ -177,7 +178,6 @@ export default class Session {
       map[key] = JSON.stringify(value)
     }
     factory.setConfig(map)
-    factory.networkInterface = ifs
     for (const layer of linkLayers) {
       factory.registerLinkLayer(layer)
     }
