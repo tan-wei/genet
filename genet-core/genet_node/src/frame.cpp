@@ -32,7 +32,7 @@ NAN_METHOD(FrameWrapper::New) {
 NAN_GETTER(FrameWrapper::index) {
   FrameWrapper* wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
   if (auto frame = wrapper->frame) {
-    info.GetReturnValue().Set(plug_frame_index(frame));
+    info.GetReturnValue().Set(genet_frame_index(frame));
   }
 }
 

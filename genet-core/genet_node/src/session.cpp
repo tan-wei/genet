@@ -29,7 +29,7 @@ void SessionProfileWrapper::init(v8::Local<v8::Object> exports) {
 NAN_METHOD(SessionProfileWrapper::New) {
   if (info.IsConstructCall()) {
     SessionProfileWrapper* obj = new SessionProfileWrapper(
-        Pointer<SessionProfile>::owned(plug_session_profile_new()));
+        Pointer<SessionProfile>::owned(genet_session_profile_new()));
     obj->Wrap(info.This());
     Nan::SetInternalFieldPointer(info.This(), 1, &marker);
     info.GetReturnValue().Set(info.This());
@@ -48,7 +48,7 @@ NAN_METHOD(SessionProfileWrapper::setConfig) {
     Nan::Utf8String value(result.ToLocalChecked());
     if (auto wrapper =
             Nan::ObjectWrap::Unwrap<SessionProfileWrapper>(info.Holder())) {
-      plug_session_profile_set_config(wrapper->profile.get(), *key, *value);
+      genet_session_profile_set_config(wrapper->profile.get(), *key, *value);
     }
   }
 }
@@ -66,7 +66,7 @@ NAN_METHOD(SessionProfileWrapper::addLinkLayer) {
           Nan::ObjectWrap::Unwrap<SessionProfileWrapper>(info.Holder())) {
     int32_t link = info[0]->Int32Value();
     Nan::Utf8String id(info[1]);
-    plug_session_profile_add_link_layer(wrapper->profile.get(), link, *id);
+    genet_session_profile_add_link_layer(wrapper->profile.get(), link, *id);
   }
 }
 
@@ -75,7 +75,7 @@ SessionProfileWrapper::SessionProfileWrapper(
     : profile(profile) {}
 
 SessionProfileWrapper::~SessionProfileWrapper() {
-  plug_session_profile_free(profile.getOwned());
+  genet_session_profile_free(profile.getOwned());
 }
 
 Pointer<SessionProfile> SessionProfileWrapper::unwrap(
@@ -119,7 +119,7 @@ NAN_METHOD(SessionWrapper::New) {
     if (auto profile = SessionProfileWrapper::unwrap(info[0]).getConst()) {
       SessionWrapper* obj = new SessionWrapper();
       obj->event->session =
-          plug_session_new(profile,
+          genet_session_new(profile,
                            [](void* data, char* event) {
                              auto ev = static_cast<Event*>(data);
                              {
@@ -145,7 +145,7 @@ NAN_GETTER(SessionWrapper::context) {
     return;
   }
   Session* session = wrapper->event->session;
-  Context* ctx = plug_session_context(session);
+  Context* ctx = genet_session_context(session);
   info.GetReturnValue().Set(ContextWrapper::wrap(Pointer<Context>::owned(ctx)));
 }
 
@@ -176,7 +176,7 @@ NAN_METHOD(SessionWrapper::pushFrames) {
           size_t len = view->ByteLength();
           char* buf = static_cast<char*>(view->Buffer()->GetContents().Data()) +
                       view->ByteOffset();
-          plug_session_push_frame(session, buf, len, link);
+          genet_session_push_frame(session, buf, len, link);
         }
       }
     }
@@ -209,7 +209,7 @@ NAN_METHOD(SessionWrapper::frames) {
     size_t length = end - start;
     std::vector<const Frame*> dst;
     dst.resize(length);
-    plug_session_frames(session, start, end, &length, dst.data());
+    genet_session_frames(session, start, end, &length, dst.data());
     dst.resize(length);
 
     auto array = Nan::New<v8::Array>(length);
@@ -253,7 +253,7 @@ NAN_METHOD(SessionWrapper::filteredFrames) {
     size_t length = end - start;
     std::vector<const Frame*> dst;
     dst.resize(length);
-    plug_session_filtered_frames(session, id, start, end, &length, dst.data());
+    genet_session_filtered_frames(session, id, start, end, &length, dst.data());
     dst.resize(length);
 
     auto array = Nan::New<v8::Array>(length);
@@ -288,7 +288,7 @@ NAN_GETTER(SessionWrapper::length) {
       return;
     }
     Session* session = wrapper->event->session;
-    info.GetReturnValue().Set(plug_session_len(session));
+    info.GetReturnValue().Set(genet_session_len(session));
   }
 }
 
@@ -306,7 +306,7 @@ SessionWrapper::SessionWrapper() : event(new Event()) {
 
       for (char* json : event->queue) {
         v8::Local<v8::String> json_string = Nan::New(json).ToLocalChecked();
-        plug_str_free(json);
+        genet_str_free(json);
         Nan::JSON NanJSON;
         Nan::MaybeLocal<v8::Value> result = NanJSON.Parse(json_string);
         if (!result.IsEmpty()) {
@@ -324,7 +324,7 @@ void SessionWrapper::handleEvent(const char* event) {}
 
 void SessionWrapper::close() {
   if (event) {
-    plug_session_free(event->session);
+    genet_session_free(event->session);
     uv_close(reinterpret_cast<uv_handle_t*>(&event->async),
              [](uv_handle_t* handle) {
                Event* event = reinterpret_cast<Event*>(handle->data);

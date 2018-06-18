@@ -37,7 +37,7 @@ NAN_METHOD(ContextWrapper::token) {
   }
   Nan::Utf8String id(info[0]);
   if (auto wrapper = Nan::ObjectWrap::Unwrap<ContextWrapper>(info.Holder())) {
-    info.GetReturnValue().Set(plug_token_get(*id));
+    info.GetReturnValue().Set(genet_token_get(*id));
   }
 }
 
@@ -48,15 +48,15 @@ NAN_METHOD(ContextWrapper::string) {
   }
   uint32_t token = info[0]->Uint32Value();
   if (auto wrapper = Nan::ObjectWrap::Unwrap<ContextWrapper>(info.Holder())) {
-    char* str = plug_token_string(token);
+    char* str = genet_token_string(token);
     info.GetReturnValue().Set(Nan::New(str).ToLocalChecked());
-    plug_str_free(str);
+    genet_str_free(str);
   }
 }
 
 NAN_METHOD(ContextWrapper::closeStream) {
   if (auto wrapper = Nan::ObjectWrap::Unwrap<ContextWrapper>(info.Holder())) {
-    plug_context_close_stream(wrapper->ctx.get());
+    genet_context_close_stream(wrapper->ctx.get());
   }
 }
 
@@ -67,9 +67,9 @@ NAN_METHOD(ContextWrapper::getConfig) {
   }
   Nan::Utf8String key(info[0]);
   if (auto wrapper = Nan::ObjectWrap::Unwrap<ContextWrapper>(info.Holder())) {
-    char* json = plug_context_get_config(wrapper->ctx.get(), *key);
+    char* json = genet_context_get_config(wrapper->ctx.get(), *key);
     v8::Local<v8::String> json_string = Nan::New(json).ToLocalChecked();
-    plug_str_free(json);
+    genet_str_free(json);
     Nan::JSON NanJSON;
     Nan::MaybeLocal<v8::Value> result = NanJSON.Parse(json_string);
     if (!result.IsEmpty()) {
@@ -81,7 +81,7 @@ NAN_METHOD(ContextWrapper::getConfig) {
 ContextWrapper::ContextWrapper(const Pointer<Context>& ctx) : ctx(ctx) {}
 
 ContextWrapper::~ContextWrapper() {
-  plug_context_free(ctx.getOwned());
+  genet_context_free(ctx.getOwned());
 }
 
 v8::Local<v8::Object> ContextWrapper::wrap(const Pointer<Context>& ctx) {

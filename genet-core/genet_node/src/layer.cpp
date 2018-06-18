@@ -30,7 +30,7 @@ NAN_METHOD(LayerWrapper::New) {
     auto id = info[0];
     if (id->IsUint32()) {
       LayerWrapper* obj = new LayerWrapper(
-          Pointer<Layer>::owned(plug_layer_new(id->Uint32Value())));
+          Pointer<Layer>::owned(genet_layer_new(id->Uint32Value())));
       obj->Wrap(info.This());
     } else if (id->IsExternal()) {
       auto obj = static_cast<LayerWrapper*>(id.As<v8::External>()->Value());
@@ -47,7 +47,7 @@ NAN_METHOD(LayerWrapper::New) {
 NAN_GETTER(LayerWrapper::id) {
   LayerWrapper* wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer.getConst()) {
-    info.GetReturnValue().Set(plug_layer_id(layer));
+    info.GetReturnValue().Set(genet_layer_id(layer));
   } else {
     Nan::ThrowReferenceError("The layer has been moved");
   }
@@ -60,7 +60,7 @@ NAN_METHOD(LayerWrapper::addChild) {
     if (child && layer != child) {
       ObjectWrap::Unwrap<LayerWrapper>(info[0].As<v8::Object>())->layer =
           Pointer<Layer>::null();
-      plug_layer_add_child_move(layer, child);
+      genet_layer_add_child_move(layer, child);
     } else {
       Nan::ThrowTypeError("First argument should be a layer");
     }
@@ -72,10 +72,10 @@ NAN_METHOD(LayerWrapper::addChild) {
 NAN_GETTER(LayerWrapper::tags) {
   LayerWrapper* wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer.getConst()) {
-    auto iter = plug_layer_tags(layer);
+    auto iter = genet_layer_tags(layer);
     auto array = Nan::New<v8::Array>();
     Token token;
-    for (uint32_t i = 0; plug_layer_tags_next(iter, &token); ++i) {
+    for (uint32_t i = 0; genet_layer_tags_next(iter, &token); ++i) {
       array->Set(i, Nan::New(token));
     }
     info.GetReturnValue().Set(array);
@@ -85,7 +85,7 @@ NAN_GETTER(LayerWrapper::tags) {
 LayerWrapper::LayerWrapper(const Pointer<Layer>& layer) : layer(layer) {}
 
 LayerWrapper::~LayerWrapper() {
-  plug_layer_free(layer.getOwned());
+  genet_layer_free(layer.getOwned());
 }
 
 v8::Local<v8::Object> LayerWrapper::wrap(const Pointer<Layer>& layer) {

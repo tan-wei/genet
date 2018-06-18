@@ -20,68 +20,68 @@ struct Range {
   uint32_t end;
 };
 
-const char* plug_embedded_js();
+const char* genet_embedded_js();
 
-void plug_str_free(char* data);
+void genet_str_free(char* data);
 
-Token plug_token_get(const char* str);
-char* plug_token_string(Token id);
+Token genet_token_get(const char* str);
+char* genet_token_string(Token id);
 
-void plug_context_close_stream(Context* context);
-char* plug_context_get_config(Context* context, const char* str);
-void plug_context_free(Context* context);
+void genet_context_close_stream(Context* context);
+char* genet_context_get_config(Context* context, const char* str);
+void genet_context_free(Context* context);
 
-Layer* plug_layer_new(Token id);
-Token plug_layer_id(const Layer* layer);
-Range plug_layer_range(const Layer* layer);
-void plug_layer_set_range(Layer* layer, Range range);
-uint8_t plug_layer_worker(const Layer* layer);
-void plug_layer_set_worker(Layer* layer, uint8_t worker);
-void plug_layer_add_tag(Layer* layer, Token tag);
-const Layer* plug_layer_children(const Layer* layer, size_t* len);
-void plug_layer_add_child_move(Layer* layer, Layer* child);
-void plug_layer_free(Layer* layer);
+Layer* genet_layer_new(Token id);
+Token genet_layer_id(const Layer* layer);
+Range genet_layer_range(const Layer* layer);
+void genet_layer_set_range(Layer* layer, Range range);
+uint8_t genet_layer_worker(const Layer* layer);
+void genet_layer_set_worker(Layer* layer, uint8_t worker);
+void genet_layer_add_tag(Layer* layer, Token tag);
+const Layer* genet_layer_children(const Layer* layer, size_t* len);
+void genet_layer_add_child_move(Layer* layer, Layer* child);
+void genet_layer_free(Layer* layer);
 
-Iter* plug_layer_tags(const Layer* layer);
-uint8_t plug_layer_tags_next(Iter* iter, Token* dst);
+Iter* genet_layer_tags(const Layer* layer);
+uint8_t genet_layer_tags_next(Iter* iter, Token* dst);
 
-uint32_t plug_frame_index(const Frame* frame);
-Layer* plug_frame_root_mut(Frame* frame);
+uint32_t genet_frame_index(const Frame* frame);
+Layer* genet_frame_root_mut(Frame* frame);
 
-SessionProfile* plug_session_profile_new();
-uint32_t plug_session_profile_concurrency(const SessionProfile* SessionProfile);
-void plug_session_profile_set_concurrency(SessionProfile* SessionProfile,
+SessionProfile* genet_session_profile_new();
+uint32_t genet_session_profile_concurrency(const SessionProfile* SessionProfile);
+void genet_session_profile_set_concurrency(SessionProfile* SessionProfile,
                                           uint32_t concurrency);
-void plug_session_profile_add_link_layer(SessionProfile* SessionProfile,
+void genet_session_profile_add_link_layer(SessionProfile* SessionProfile,
                                          int32_t link,
                                          const char* id);
-void plug_session_profile_set_config(SessionProfile* SessionProfile,
+void genet_session_profile_set_config(SessionProfile* SessionProfile,
                                      const char* key,
                                      const char* value);
-void plug_session_profile_free(SessionProfile* SessionProfile);
+void genet_session_profile_free(SessionProfile* SessionProfile);
 
-Session* plug_session_new(const SessionProfile* SessionProfile,
+Session* genet_session_new(const SessionProfile* SessionProfile,
                           void (*callback)(void*, char*),
                           void* data);
-Context* plug_session_context(Session* session);
-void plug_session_push_frame(Session* session,
+Context* genet_session_context(Session* session);
+void genet_session_push_frame(Session* session,
                              const char* data,
                              uint32_t len,
                              int32_t link);
-void plug_session_frames(const Session* session,
+void genet_session_frames(const Session* session,
                          uint32_t start,
                          uint32_t end,
                          size_t* len,
                          Frame const** dst);
-void plug_session_filtered_frames(const Session* session,
+void genet_session_filtered_frames(const Session* session,
                                   uint32_t id,
                                   uint32_t start,
                                   uint32_t end,
                                   size_t* len,
                                   Frame const** dst);
-void plug_session_set_filter(Session* session, uint32_t id, Filter* filter);
-uint32_t plug_session_len(const Session* session);
-void plug_session_free(Session* session);
+void genet_session_set_filter(Session* session, uint32_t id, Filter* filter);
+uint32_t genet_session_len(const Session* session);
+void genet_session_free(Session* session);
 }
 
 namespace genet_node {

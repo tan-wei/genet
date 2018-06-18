@@ -9,7 +9,7 @@
 
 namespace genet_node {
 
-extern "C" const char* plug_embedded_js()
+extern "C" const char* genet_embedded_js()
 {
   return "(function(){})";
 }
@@ -34,7 +34,7 @@ void Module::init(v8::Local<v8::Object> exports) {
   auto global = isolate->GetCurrentContext()->Global();
   v8::Local<v8::Value> args[1] = {exports};
   auto script =
-      Nan::CompileScript(Nan::New(plug_embedded_js()).ToLocalChecked());
+      Nan::CompileScript(Nan::New(genet_embedded_js()).ToLocalChecked());
   auto func = Nan::RunScript(script.ToLocalChecked())
                   .ToLocalChecked()
                   .As<v8::Function>();
