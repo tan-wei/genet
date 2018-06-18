@@ -3,7 +3,7 @@
 DEPLUG_VER=$(jq -r '.version | gsub("-";"~")' package.json)
 mkdir -p out/.rpm
 (cd out/.rpm && mkdir -p SOURCES BUILD RPMS SRPMS)
-sed -e "s/{{DEPLUG_VERSION}}/$DEPLUG_VER/g" genet.rpm.spec > out/.rpm/genet.rpm.spec
+sed -e "s/{{GENET_VERSION}}/$DEPLUG_VER/g" genet.rpm.spec > out/.rpm/genet.rpm.spec
 cp -r debian/usr out/.rpm/BUILD
 mkdir -p out/.rpm/BUILD/usr/share/icons/hicolor/256x256/apps
 cp images/deplug.png out/.rpm/BUILD/usr/share/icons/hicolor/256x256/apps

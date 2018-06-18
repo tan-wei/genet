@@ -4,7 +4,7 @@
 
 Summary: General-purpose Network Analyzer
 Name: genet
-Version: {{DEPLUG_VERSION}}
+Version: {{GENET_VERSION}}
 Release: 1
 License: MIT
 Requires: libcap1
