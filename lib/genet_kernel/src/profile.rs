@@ -50,10 +50,6 @@ impl Profile {
             .or_insert(String::from(value));
     }
 
-    pub fn add_dissector(&mut self, diss: DissectorBox) {
-        self.dissectors.push(diss)
-    }
-
     pub fn dissectors(&self) -> impl Iterator<Item = &DissectorBox> {
         self.dissectors.iter()
     }
@@ -78,7 +74,8 @@ impl Profile {
             let mut len = 0;
             let ptr = func(&mut len);
             for i in 0..len {
-                self.add_dissector(unsafe { (*ptr.offset(i as isize)).clone() });
+                self.dissectors
+                    .push(unsafe { (*ptr.offset(i as isize)).clone() });
             }
         }
 
@@ -86,15 +83,3 @@ impl Profile {
         Ok(())
     }
 }
-
-/*
-#[no_mangle]
-pub extern "C" fn genet_ffi_v1_register_get_env(ptr: extern "C" fn() -> MutPtr<Env>) {
-    unsafe { GENET_GET_ENV = ptr };
-}
-
-#[no_mangle]
-pub extern "C" fn genet_ffi_v1_register_get_allocator(ptr: extern "C" fn() -> Ptr<Allocator>) {
-    unsafe { GENET_GET_ALLOCATOR = ptr };
-}
-*/

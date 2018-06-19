@@ -1,7 +1,9 @@
 use libc;
 use profile::Profile;
 use session::{Callback, Event, Session};
+use std::error::Error;
 use std::ffi::{CStr, CString};
+use std::ptr;
 use std::str;
 
 #[no_mangle]
@@ -20,12 +22,18 @@ pub extern "C" fn genet_session_profile_set_concurrency(profile: *mut Profile, c
 }
 
 #[no_mangle]
-pub extern "C" fn genet_session_profile_add_link_layer(
+pub extern "C" fn genet_session_profile_load_library(
     profile: *mut Profile,
-    link: i32,
-    id: *const libc::c_char,
-) {
-
+    path: *const libc::c_char,
+) -> *mut libc::c_char {
+    unsafe {
+        let path = str::from_utf8_unchecked(CStr::from_ptr(path).to_bytes());
+        if let Err(err) = (*profile).load_library(path) {
+            CString::new(err.description()).unwrap().into_raw()
+        } else {
+            ptr::null_mut()
+        }
+    }
 }
 
 #[no_mangle]

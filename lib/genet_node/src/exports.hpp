@@ -53,6 +53,8 @@ uint32_t
 genet_session_profile_concurrency(const SessionProfile *SessionProfile);
 void genet_session_profile_set_concurrency(SessionProfile *SessionProfile,
                                            uint32_t concurrency);
+char *genet_session_profile_load_library(SessionProfile *SessionProfile,
+                                         const char *path);
 void genet_session_profile_set_config(SessionProfile *SessionProfile,
                                       const char *key,
                                       const char *value);

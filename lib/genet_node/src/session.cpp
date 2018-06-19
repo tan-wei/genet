@@ -17,6 +17,7 @@ void SessionProfileWrapper::init(v8::Local<v8::Object> exports) {
   tpl->InstanceTemplate()->SetInternalFieldCount(2);
   tpl->SetClassName(Nan::New("Profile").ToLocalChecked());
   Nan::SetPrototypeMethod(tpl, "setConfig", setConfig);
+  Nan::SetPrototypeMethod(tpl, "loadLibrary", loadLibrary);
 
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
@@ -48,6 +49,22 @@ NAN_METHOD(SessionProfileWrapper::setConfig) {
     if (auto wrapper =
             Nan::ObjectWrap::Unwrap<SessionProfileWrapper>(info.Holder())) {
       genet_session_profile_set_config(wrapper->profile.get(), *key, *value);
+    }
+  }
+}
+
+NAN_METHOD(SessionProfileWrapper::loadLibrary) {
+  if (!info[0]->IsString()) {
+    Nan::ThrowTypeError("First argument must be a string");
+    return;
+  }
+  Nan::Utf8String path(info[0]);
+  if (auto wrapper =
+          Nan::ObjectWrap::Unwrap<SessionProfileWrapper>(info.Holder())) {
+    if (char *error =
+            genet_session_profile_load_library(wrapper->profile.get(), *path)) {
+      Nan::ThrowError(Nan::New(error).ToLocalChecked());
+      genet_str_free(error);
     }
   }
 }
