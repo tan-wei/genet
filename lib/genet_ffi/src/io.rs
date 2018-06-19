@@ -3,7 +3,7 @@ use layer::Layer;
 use ptr::MutPtr;
 use result::Result;
 
-pub trait Writer {
+pub trait Writer: Send {
     fn new_worker(&self, ctx: &Context, args: &str) -> Box<WriterWorker>;
     fn id(&self) -> &str;
 }
@@ -22,7 +22,7 @@ impl WriterBox {
     }
 }
 
-pub trait Reader {
+pub trait Reader: Send {
     fn new_worker(&self, ctx: &Context, arg: &str) -> Box<ReaderWorker>;
     fn id(&self) -> &str;
 }
