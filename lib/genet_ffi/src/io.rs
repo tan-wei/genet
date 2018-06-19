@@ -5,18 +5,32 @@ use result::Result;
 
 pub trait Writer {
     fn new_worker(&self, ctx: &Context, args: &str) -> Box<WriterWorker>;
+    fn id(&self) -> &str;
 }
 
 pub struct WriterBox {
     writer: *mut Box<Writer>,
 }
 
+impl WriterBox {
+    pub fn id(&self) -> &str {
+        ""
+    }
+}
+
 pub trait Reader {
     fn new_worker(&self, ctx: &Context, arg: &str) -> Box<ReaderWorker>;
+    fn id(&self) -> &str;
 }
 
 pub struct ReaderBox {
     reader: *mut Box<Reader>,
+}
+
+impl ReaderBox {
+    pub fn id(&self) -> &str {
+        ""
+    }
 }
 
 pub trait WriterWorker: Drop {

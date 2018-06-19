@@ -11,6 +11,7 @@ pub mod attr;
 pub mod context;
 pub mod decoder;
 pub mod error;
+pub mod io;
 pub mod layer;
 pub mod ptr;
 pub mod result;
