@@ -1,5 +1,5 @@
 import Content from './lib/content'
-import PcapView from './view/pcap/view'
+import PcapView from './view/display/view'
 
 const components = [
   'core:style',
@@ -16,10 +16,10 @@ const components = [
 
 const content = new Content(
   PcapView,
-  'pcap.main.css',
+  'display.main.css',
   [
     `--components=${components.join(',')}`,
-    '--loggerDomain=pcap',
+    '--loggerDomain=display',
     '--contextMenu'
   ])
 content.load()

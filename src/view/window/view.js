@@ -58,11 +58,11 @@ export default class WindowView {
     const { counter } = this[fields]
     const number = counter
     this[fields].counter += 1
-    const id = `pcap-${number}`
+    const id = `display-${number}`
     this.addTab({
       id,
-      name: `Pcap ${number}`,
-      src: 'pcap.htm',
+      name: `Session ${number}`,
+      src: 'display.htm',
       argv: genet.argv.concat([
         `--resume=${Resumer.generateFileName()}`
       ]),
@@ -132,7 +132,7 @@ export default class WindowView {
         this.addTab({
           id,
           name: path.basename(file),
-          src: 'pcap.htm',
+          src: 'display.htm',
           argv: genet.argv.concat([
             `--import=${file}`,
             `--resume=${Resumer.generateFileName()}`
