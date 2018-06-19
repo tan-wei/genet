@@ -104,7 +104,7 @@ void SessionWrapper::init(v8::Local<v8::Object> exports) {
   Nan::SetAccessor(otl, Nan::New("callback").ToLocalChecked(), callback,
                    setCallback);
   Nan::SetAccessor(otl, Nan::New("length").ToLocalChecked(), length);
-  Nan::SetAccessor(otl, Nan::New("context").ToLocalChecked(), context);
+  // Nan::SetAccessor(otl, Nan::New("context").ToLocalChecked(), context);
 
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();

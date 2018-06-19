@@ -21,7 +21,12 @@ export default class Session {
       fileImporterExtensions: new Set(),
       fileExporterExtensions: new Set(),
     }
-    console.log(require('@genet/load-module'))
+    const { Session: SESS } = require('@genet/load-module')
+    const { Profile } = SESS
+    const prof = new Profile()
+    const sess = new SESS(prof)
+    sess.on('event', (e) => console.log(e))
+    console.log(sess)
   }
 
   get tokens () {

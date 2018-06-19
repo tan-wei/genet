@@ -1,5 +1,6 @@
 use libc;
 use profile::Profile;
+use serde_json;
 use session::{Callback, Event, Session};
 use std::error::Error;
 use std::ffi::{CStr, CString};
@@ -58,17 +59,6 @@ pub extern "C" fn genet_session_profile_free(profile: *mut Profile) {
     }
 }
 
-/*
-use libc;
-use plugkit::{
-    context::Context, frame::{Frame, Raw},
-};
-use profile::Profile;
-use serde_json;
-use session::{Callback, Event, Session};
-use std::ptr;
-use std::slice;
-
 struct DataHolder {
     callback: extern "C" fn(*mut libc::c_void, *mut libc::c_char),
     data: *mut libc::c_void,
@@ -96,6 +86,7 @@ pub extern "C" fn genet_session_new(
     unsafe { Box::into_raw(Box::new(Session::new((*profile).clone(), holder))) }
 }
 
+/*
 #[no_mangle]
 pub extern "C" fn genet_session_frames(
     session: *const Session,
@@ -155,6 +146,7 @@ pub extern "C" fn genet_session_push_frame(
 pub extern "C" fn genet_session_context(session: *const Session) -> *mut Context {
     unsafe { Box::into_raw(Box::new((*session).context())) }
 }
+*/
 
 #[no_mangle]
 pub extern "C" fn genet_session_len(session: *const Session) -> u32 {
@@ -169,4 +161,3 @@ pub extern "C" fn genet_session_free(session: *mut Session) {
         }
     }
 }
-*/
