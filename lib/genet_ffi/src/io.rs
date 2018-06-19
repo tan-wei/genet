@@ -8,9 +8,13 @@ pub trait Writer {
     fn id(&self) -> &str;
 }
 
+#[repr(C)]
+#[derive(Clone, Copy)]
 pub struct WriterBox {
     writer: *mut Box<Writer>,
 }
+
+unsafe impl Send for WriterBox {}
 
 impl WriterBox {
     pub fn id(&self) -> &str {
@@ -23,9 +27,13 @@ pub trait Reader {
     fn id(&self) -> &str;
 }
 
+#[repr(C)]
+#[derive(Clone, Copy)]
 pub struct ReaderBox {
     reader: *mut Box<Reader>,
 }
+
+unsafe impl Send for ReaderBox {}
 
 impl ReaderBox {
     pub fn id(&self) -> &str {

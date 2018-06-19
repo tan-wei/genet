@@ -32,4 +32,4 @@ impl Dissector for EthDissector {
     }
 }
 
-genet_dissector!(EthDissector {});
+genet_dissectors!(EthDissector {});

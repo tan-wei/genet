@@ -1,7 +1,7 @@
 pub use genet_ffi::dissector::{Dissector, DissectorBox, Status, Worker};
 
 #[macro_export]
-macro_rules! genet_dissector {
+macro_rules! genet_dissectors {
     ( $( $x:expr ), * ) => {
         thread_local! {
             static DISSECTORS: Vec<genet_sdk::dissector::DissectorBox> = {
