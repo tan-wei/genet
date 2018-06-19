@@ -53,9 +53,6 @@ uint32_t
 genet_session_profile_concurrency(const SessionProfile *SessionProfile);
 void genet_session_profile_set_concurrency(SessionProfile *SessionProfile,
                                            uint32_t concurrency);
-void genet_session_profile_add_link_layer(SessionProfile *SessionProfile,
-                                          int32_t link,
-                                          const char *id);
 void genet_session_profile_set_config(SessionProfile *SessionProfile,
                                       const char *key,
                                       const char *value);

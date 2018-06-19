@@ -20,7 +20,6 @@ public:
   static Pointer<SessionProfile> unwrap(v8::Local<v8::Value> value);
   static NAN_METHOD(New);
   static NAN_METHOD(setConfig);
-  static NAN_METHOD(addLinkLayer);
 
 public:
   ~SessionProfileWrapper();
