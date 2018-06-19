@@ -1,26 +1,43 @@
+use context::Context;
 use layer::Layer;
 use ptr::MutPtr;
 use result::Result;
 
-pub trait Writer: Drop {
-    fn write(&mut self, layers: &[Layer]) -> Result<()>;
-}
-
-pub trait Reader: Drop {
-    fn read(&mut self, max: usize) -> Result<Box<[Layer]>>;
+pub trait Writer {
+    fn new_worker(&self, ctx: &Context, args: &str) -> Box<WriterWorker>;
 }
 
 pub struct WriterBox {
     writer: *mut Box<Writer>,
-    drop_writer: extern "C" fn(*mut Box<Writer>),
 }
 
-impl WriterBox {
-    pub fn new<T: 'static + Writer>(writer: T) -> WriterBox {
-        let writer: Box<Writer> = Box::new(writer);
+pub trait Reader {
+    fn new_worker(&self, ctx: &Context, arg: &str) -> Box<ReaderWorker>;
+}
+
+pub struct ReaderBox {
+    reader: *mut Box<Reader>,
+}
+
+pub trait WriterWorker: Drop {
+    fn write(&mut self, layers: &[Layer]) -> Result<()>;
+}
+
+pub trait ReaderWorker: Drop {
+    fn read(&mut self, max: usize) -> Result<Box<[Layer]>>;
+}
+
+pub struct WriterWorkerBox {
+    worker: *mut Box<WriterWorker>,
+    drop_writer_worker: extern "C" fn(*mut Box<WriterWorker>),
+}
+
+impl WriterWorkerBox {
+    pub fn new<T: 'static + WriterWorker>(worker: T) -> WriterWorkerBox {
+        let worker: Box<WriterWorker> = Box::new(worker);
         Self {
-            writer: Box::into_raw(Box::new(writer)),
-            drop_writer: ffi_drop_writer,
+            worker: Box::into_raw(Box::new(worker)),
+            drop_writer_worker: ffi_drop_writer_worker,
         }
     }
 
@@ -29,23 +46,23 @@ impl WriterBox {
     }
 }
 
-impl Drop for WriterBox {
+impl Drop for WriterWorkerBox {
     fn drop(&mut self) {
-        (self.drop_writer)(self.writer);
+        (self.drop_writer_worker)(self.worker);
     }
 }
 
-pub struct ReaderBox {
-    reader: *mut Box<Reader>,
-    drop_reader: extern "C" fn(*mut Box<Reader>),
+pub struct ReaderWorkerBox {
+    worker: *mut Box<ReaderWorker>,
+    drop_reader_worker: extern "C" fn(*mut Box<ReaderWorker>),
 }
 
-impl ReaderBox {
-    pub fn new<T: 'static + Reader>(reader: T) -> ReaderBox {
-        let reader: Box<Reader> = Box::new(reader);
+impl ReaderWorkerBox {
+    pub fn new<T: 'static + ReaderWorker>(worker: T) -> ReaderWorkerBox {
+        let worker: Box<ReaderWorker> = Box::new(worker);
         Self {
-            reader: Box::into_raw(Box::new(reader)),
-            drop_reader: ffi_drop_reader,
+            worker: Box::into_raw(Box::new(worker)),
+            drop_reader_worker: ffi_drop_reader_worker,
         }
     }
 
@@ -54,16 +71,16 @@ impl ReaderBox {
     }
 }
 
-impl Drop for ReaderBox {
+impl Drop for ReaderWorkerBox {
     fn drop(&mut self) {
-        (self.drop_reader)(self.reader);
+        (self.drop_reader_worker)(self.worker);
     }
 }
 
-extern "C" fn ffi_drop_writer(writer: *mut Box<Writer>) {
-    unsafe { Box::from_raw(writer) };
+extern "C" fn ffi_drop_writer_worker(worker: *mut Box<WriterWorker>) {
+    unsafe { Box::from_raw(worker) };
 }
 
-extern "C" fn ffi_drop_reader(reader: *mut Box<Reader>) {
-    unsafe { Box::from_raw(reader) };
+extern "C" fn ffi_drop_reader_worker(worker: *mut Box<ReaderWorker>) {
+    unsafe { Box::from_raw(worker) };
 }
