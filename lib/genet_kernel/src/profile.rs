@@ -59,6 +59,14 @@ impl Profile {
         self.dissectors.iter()
     }
 
+    pub fn readers(&self) -> impl Iterator<Item = &ReaderBox> {
+        self.readers.iter()
+    }
+
+    pub fn writers(&self) -> impl Iterator<Item = &WriterBox> {
+        self.writers.iter()
+    }
+
     pub fn load_library(&mut self, path: &str) -> Result<(), io::Error> {
         let lib = Library::new(path)?;
 

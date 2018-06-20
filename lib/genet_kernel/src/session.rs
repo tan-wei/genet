@@ -11,6 +11,7 @@ use store::{self, Store};
 pub struct Session {
     store: Store,
     profile: Profile,
+    io_cnt: u32,
 }
 
 pub struct Context {
@@ -43,6 +44,7 @@ impl Session {
                 },
             ),
             profile,
+            io_cnt: 0,
         }
     }
 
@@ -63,14 +65,26 @@ impl Session {
     }
 
     pub fn create_reader(&mut self, id: &str, arg: &str) -> u32 {
-        0
+        if let Some(reader) = self.profile.readers().find(|&&r| r.id() == id) {
+            self.io_cnt += 1;
+            self.io_cnt
+        } else {
+            0
+        }
     }
 
     pub fn create_writer(&mut self, id: &str, arg: &str) -> u32 {
-        0
+        if let Some(reader) = self.profile.writers().find(|&&r| r.id() == id) {
+            self.io_cnt += 1;
+            self.io_cnt
+        } else {
+            0
+        }
     }
 
-    pub fn close_reader(&mut self, handle: u32) {}
+    pub fn close_reader(&mut self, handle: u32) {
+        self.store.unset_input(handle);
+    }
 
     pub fn len(&self) -> usize {
         self.store.len()
