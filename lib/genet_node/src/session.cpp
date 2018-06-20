@@ -99,6 +99,10 @@ void SessionWrapper::init(v8::Local<v8::Object> exports) {
   Nan::SetPrototypeMethod(tpl, "pushFrames", pushFrames);
   Nan::SetPrototypeMethod(tpl, "frames", frames);
   Nan::SetPrototypeMethod(tpl, "filteredFrames", filteredFrames);
+  Nan::SetPrototypeMethod(tpl, "createReader", createReader);
+  Nan::SetPrototypeMethod(tpl, "createWriter", createWriter);
+  Nan::SetPrototypeMethod(tpl, "closeReader", closeReader);
+  Nan::SetPrototypeMethod(tpl, "closeWriter", closeWriter);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("callback").ToLocalChecked(), callback,
@@ -219,6 +223,69 @@ NAN_METHOD(SessionWrapper::frames) {
     info.GetReturnValue().Set(array);
   }
 }
+
+NAN_METHOD(SessionWrapper::createReader) {
+  if (!info[0]->IsString()) {
+    Nan::ThrowTypeError("First argument must be a string");
+    return;
+  }
+  if (!info[1]->IsString()) {
+    Nan::ThrowTypeError("Second argument must be a string");
+    return;
+  }
+  Nan::Utf8String id(info[0]);
+  Nan::Utf8String arg(info[1]);
+
+  if (auto wrapper = Nan::ObjectWrap::Unwrap<SessionWrapper>(info.Holder())) {
+    if (!wrapper->event) {
+      Nan::ThrowReferenceError("Session has been closed");
+      return;
+    }
+    Session *session = wrapper->event->session;
+    info.GetReturnValue().Set(genet_session_create_reader(session, *id, *arg));
+  }
+}
+
+NAN_METHOD(SessionWrapper::createWriter) {
+  if (!info[0]->IsString()) {
+    Nan::ThrowTypeError("First argument must be a string");
+    return;
+  }
+  if (!info[1]->IsString()) {
+    Nan::ThrowTypeError("Second argument must be a string");
+    return;
+  }
+  Nan::Utf8String id(info[0]);
+  Nan::Utf8String arg(info[1]);
+
+  if (auto wrapper = Nan::ObjectWrap::Unwrap<SessionWrapper>(info.Holder())) {
+    if (!wrapper->event) {
+      Nan::ThrowReferenceError("Session has been closed");
+      return;
+    }
+    Session *session = wrapper->event->session;
+    info.GetReturnValue().Set(genet_session_create_writer(session, *id, *arg));
+  }
+}
+
+NAN_METHOD(SessionWrapper::closeReader) {
+  if (!info[0]->IsUint32()) {
+    Nan::ThrowTypeError("First argument must be an integer");
+    return;
+  }
+  uint32_t handle = info[0]->Uint32Value();
+
+  if (auto wrapper = Nan::ObjectWrap::Unwrap<SessionWrapper>(info.Holder())) {
+    if (!wrapper->event) {
+      Nan::ThrowReferenceError("Session has been closed");
+      return;
+    }
+    Session *session = wrapper->event->session;
+    genet_session_close_reader(session, handle);
+  }
+}
+
+NAN_METHOD(SessionWrapper::closeWriter) {}
 
 NAN_METHOD(SessionWrapper::filteredFrames) {
   uint32_t id = 0;

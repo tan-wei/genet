@@ -149,6 +149,39 @@ pub extern "C" fn genet_session_context(session: *const Session) -> *mut Context
 */
 
 #[no_mangle]
+pub extern "C" fn genet_session_create_reader(
+    session: *mut Session,
+    id: *const libc::c_char,
+    arg: *const libc::c_char,
+) -> u32 {
+    unsafe {
+        let id = str::from_utf8_unchecked(CStr::from_ptr(id).to_bytes());
+        let arg = str::from_utf8_unchecked(CStr::from_ptr(arg).to_bytes());
+        (*session).create_reader(id, arg)
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn genet_session_create_writer(
+    session: *mut Session,
+    id: *const libc::c_char,
+    arg: *const libc::c_char,
+) -> u32 {
+    unsafe {
+        let id = str::from_utf8_unchecked(CStr::from_ptr(id).to_bytes());
+        let arg = str::from_utf8_unchecked(CStr::from_ptr(arg).to_bytes());
+        (*session).create_writer(id, arg)
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn genet_session_close_reader(session: *mut Session, handle: u32) {
+    unsafe {
+        (*session).close_reader(handle);
+    }
+}
+
+#[no_mangle]
 pub extern "C" fn genet_session_len(session: *const Session) -> u32 {
     unsafe { (*session).len() as u32 }
 }

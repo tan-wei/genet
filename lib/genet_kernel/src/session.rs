@@ -62,6 +62,16 @@ impl Session {
         self.store.filtered_frames(id, range)
     }
 
+    pub fn create_reader(&mut self, id: &str, arg: &str) -> u32 {
+        0
+    }
+
+    pub fn create_writer(&mut self, id: &str, arg: &str) -> u32 {
+        0
+    }
+
+    pub fn close_reader(&mut self, handle: u32) {}
+
     pub fn len(&self) -> usize {
         self.store.len()
     }

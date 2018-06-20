@@ -80,6 +80,11 @@ void genet_session_filtered_frames(const Session *session,
                                    size_t *len,
                                    Frame const **dst);
 void genet_session_set_filter(Session *session, uint32_t id, Filter *filter);
+uint32_t
+genet_session_create_reader(Session *session, const char *id, const char *arg);
+uint32_t
+genet_session_create_writer(Session *session, const char *id, const char *arg);
+void genet_session_close_reader(Session *session, uint32_t handle);
 uint32_t genet_session_len(const Session *session);
 void genet_session_free(Session *session);
 }
