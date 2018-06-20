@@ -1,3 +1,4 @@
+use array_vec::ArrayVec;
 use chan;
 use dissector::{parallel, serial};
 use filter::{self, Filter};
@@ -32,7 +33,7 @@ enum Command {
     Close,
 }
 
-type FrameStore = Arc<Mutex<Vec<Frame>>>;
+type FrameStore = Arc<Mutex<ArrayVec<Frame>>>;
 type FilteredFrameStore = Arc<Mutex<HashMap<u32, Vec<u32>>>>;
 
 #[derive(Debug)]
@@ -46,7 +47,7 @@ pub struct Store {
 
 impl Store {
     pub fn new<C: 'static + Callback>(profile: Profile, callback: C) -> Store {
-        let frames = Arc::new(Mutex::new(Vec::new()));
+        let frames = Arc::new(Mutex::new(ArrayVec::new()));
         let filtered = Arc::new(Mutex::new(HashMap::new()));
         let (ev, send) = EventLoop::new(profile, callback, frames.clone(), filtered.clone());
         Store {
@@ -217,8 +218,9 @@ impl EventLoop {
                         }
                         Command::StoreFrames(mut vec) => {
                             let mut frames = frames.lock().unwrap();
-                            let mut vec = vec.into_iter().collect::<Vec<_>>();
-                            frames.append(&mut vec);
+                            for f in vec.into_iter() {
+                                frames.push(f);
+                            }
                             callback.on_frames_updated(frames.len() as u32);
                         }
                         Command::SetFilter(id, filter) => Self::process_push_filter(

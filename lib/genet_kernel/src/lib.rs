@@ -9,6 +9,7 @@ pub mod binding;
 pub mod profile;
 pub mod session;
 
+mod array_vec;
 mod dissector;
 mod filter;
 mod frame;
