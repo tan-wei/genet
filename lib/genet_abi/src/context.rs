@@ -3,7 +3,7 @@ use ptr::MutPtr;
 #[repr(C)]
 pub struct Context {
     class: &'static ContextClass,
-    ffi_unsafe_data: MutPtr<ContextData>,
+    abi_unsafe_data: MutPtr<ContextData>,
 }
 
 struct ContextData {}
@@ -12,7 +12,7 @@ impl Context {
     pub fn new() -> Context {
         Self {
             class: &CONTEXT_CLASS,
-            ffi_unsafe_data: MutPtr::new(ContextData {}),
+            abi_unsafe_data: MutPtr::new(ContextData {}),
         }
     }
 }

@@ -1,5 +1,5 @@
 extern crate byteorder;
-extern crate genet_ffi;
+extern crate genet_abi;
 
 #[macro_export]
 pub mod token;

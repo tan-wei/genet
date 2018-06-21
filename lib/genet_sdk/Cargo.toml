@@ -5,4 +5,4 @@ authors = ["Ron Hashimoto <mail@h2so5.net>"]
 
 [dependencies]
 byteorder = "1"
-genet_ffi = { path = "../genet_ffi" }
+genet_abi = { path = "../genet_abi" }

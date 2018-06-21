@@ -1,4 +1,4 @@
-extern crate genet_ffi;
+extern crate genet_abi;
 extern crate genet_kernel;
 extern crate libloading;
 mod data;

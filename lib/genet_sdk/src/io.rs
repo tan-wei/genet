@@ -1,4 +1,4 @@
-pub use genet_ffi::io::{Reader, ReaderBox, Writer, WriterBox};
+pub use genet_abi::io::{Reader, ReaderBox, Writer, WriterBox};
 
 #[macro_export]
 macro_rules! genet_readers {
@@ -14,7 +14,7 @@ macro_rules! genet_readers {
             };
         }
         #[no_mangle]
-        pub extern "C" fn genet_ffi_v1_get_readers(len: *mut u64) -> *const genet_sdk::io::ReaderBox {
+        pub extern "C" fn genet_abi_v1_get_readers(len: *mut u64) -> *const genet_sdk::io::ReaderBox {
             READERS.with(|d| {
                 unsafe {
                     *len = d.len() as u64;
@@ -39,7 +39,7 @@ macro_rules! genet_writers {
             };
         }
         #[no_mangle]
-        pub extern "C" fn genet_ffi_v1_get_writers(len: *mut u64) -> *const genet_sdk::io::WriterBox {
+        pub extern "C" fn genet_abi_v1_get_writers(len: *mut u64) -> *const genet_sdk::io::WriterBox {
             WRITERS.with(|d| {
                 unsafe {
                     *len = d.len() as u64;

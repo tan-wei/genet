@@ -1,6 +1,6 @@
-use genet_ffi::layer::Layer;
-use genet_ffi::ptr::MutPtr;
-use genet_ffi::slice::Slice;
+use genet_abi::layer::Layer;
+use genet_abi::ptr::MutPtr;
+use genet_abi::slice::Slice;
 use std::fmt;
 
 pub struct Frame {

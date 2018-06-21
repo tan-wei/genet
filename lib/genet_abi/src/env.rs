@@ -9,31 +9,31 @@ use std::sync::Mutex;
 use token::Token;
 
 #[no_mangle]
-pub extern "C" fn genet_ffi_v1_register_get_env(ptr: extern "C" fn() -> MutPtr<Env>) {
+pub extern "C" fn genet_abi_v1_register_get_env(ptr: extern "C" fn() -> MutPtr<Env>) {
     unsafe { GENET_GET_ENV = ptr };
 }
 
 #[no_mangle]
-pub extern "C" fn genet_ffi_v1_register_get_allocator(ptr: extern "C" fn() -> Ptr<Allocator>) {
+pub extern "C" fn genet_abi_v1_register_get_allocator(ptr: extern "C" fn() -> Ptr<Allocator>) {
     unsafe { GENET_GET_ALLOCATOR = ptr };
 }
 
-static mut GENET_GET_ENV: extern "C" fn() -> MutPtr<Env> = ffi_genet_get_env;
-static mut GENET_GET_ALLOCATOR: extern "C" fn() -> Ptr<Allocator> = ffi_genet_get_allocator;
+static mut GENET_GET_ENV: extern "C" fn() -> MutPtr<Env> = abi_genet_get_env;
+static mut GENET_GET_ALLOCATOR: extern "C" fn() -> Ptr<Allocator> = abi_genet_get_allocator;
 
-pub extern "C" fn ffi_genet_get_env() -> MutPtr<Env> {
+pub extern "C" fn abi_genet_get_env() -> MutPtr<Env> {
     MutPtr::new(Env {
         rev: Revision::String,
         data: MutPtr::new(EnvData {
             tokens: HashMap::new(),
             strings: vec![String::new()],
         }),
-        token: ffi_token,
-        string: ffi_string,
+        token: abi_token,
+        string: abi_string,
     })
 }
 
-pub extern "C" fn ffi_genet_get_allocator() -> Ptr<Allocator> {
+pub extern "C" fn abi_genet_get_allocator() -> Ptr<Allocator> {
     extern "C" fn alloc(size: u64) -> *mut u8 {
         unsafe { libc::malloc(size as usize) as *mut u8 }
     }
@@ -95,7 +95,7 @@ impl Env {
     }
 }
 
-extern "C" fn ffi_token(env: *mut EnvData, data: *const u8, len: u64) -> Token {
+extern "C" fn abi_token(env: *mut EnvData, data: *const u8, len: u64) -> Token {
     let tokens = unsafe { &mut (*env).tokens };
     let strings = unsafe { &mut (*env).strings };
     let id = unsafe { str::from_utf8_unchecked(slice::from_raw_parts(data, len as usize)) };
@@ -110,7 +110,7 @@ extern "C" fn ffi_token(env: *mut EnvData, data: *const u8, len: u64) -> Token {
     *entry.or_insert(next as u64)
 }
 
-extern "C" fn ffi_string(env: *const EnvData, token: Token, len: *mut u64) -> *const u8 {
+extern "C" fn abi_string(env: *const EnvData, token: Token, len: *mut u64) -> *const u8 {
     let strings = unsafe { &(*env).strings };
     let index = token as usize;
     let s = if index < strings.len() {

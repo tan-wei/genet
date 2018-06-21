@@ -1,7 +1,7 @@
-use genet_ffi::dissector::DissectorBox;
-use genet_ffi::env::{self, Allocator, Env};
-use genet_ffi::io::{ReaderBox, WriterBox};
-use genet_ffi::ptr::{MutPtr, Ptr};
+use genet_abi::dissector::DissectorBox;
+use genet_abi::env::{self, Allocator, Env};
+use genet_abi::io::{ReaderBox, WriterBox};
+use genet_abi::ptr::{MutPtr, Ptr};
 use libloading::Library;
 use std::collections::HashMap;
 use std::fmt;
@@ -77,16 +77,16 @@ impl Profile {
         type FnGetWriters = extern "C" fn(*mut u64) -> *const WriterBox;
 
         {
-            let func = unsafe { lib.get::<FnRegisterGetEnv>(b"genet_ffi_v1_register_get_env")? };
-            func(env::ffi_genet_get_env);
+            let func = unsafe { lib.get::<FnRegisterGetEnv>(b"genet_abi_v1_register_get_env")? };
+            func(env::abi_genet_get_env);
 
             let func = unsafe {
-                lib.get::<FnRegisterGetAllocator>(b"genet_ffi_v1_register_get_allocator")?
+                lib.get::<FnRegisterGetAllocator>(b"genet_abi_v1_register_get_allocator")?
             };
-            func(env::ffi_genet_get_allocator);
+            func(env::abi_genet_get_allocator);
         }
 
-        if let Ok(func) = unsafe { lib.get::<FnGetDissectors>(b"genet_ffi_v1_get_dissectors") } {
+        if let Ok(func) = unsafe { lib.get::<FnGetDissectors>(b"genet_abi_v1_get_dissectors") } {
             let mut len = 0;
             let ptr = func(&mut len);
             for i in 0..len {
@@ -95,7 +95,7 @@ impl Profile {
             }
         }
 
-        if let Ok(func) = unsafe { lib.get::<FnGetReaders>(b"genet_ffi_v1_get_readers") } {
+        if let Ok(func) = unsafe { lib.get::<FnGetReaders>(b"genet_abi_v1_get_readers") } {
             let mut len = 0;
             let ptr = func(&mut len);
             for i in 0..len {
@@ -104,7 +104,7 @@ impl Profile {
             }
         }
 
-        if let Ok(func) = unsafe { lib.get::<FnGetWriters>(b"genet_ffi_v1_get_writers") } {
+        if let Ok(func) = unsafe { lib.get::<FnGetWriters>(b"genet_abi_v1_get_writers") } {
             let mut len = 0;
             let ptr = func(&mut len);
             for i in 0..len {

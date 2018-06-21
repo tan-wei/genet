@@ -1,4 +1,4 @@
-pub use genet_ffi::dissector::{Dissector, DissectorBox, Status, Worker};
+pub use genet_abi::dissector::{Dissector, DissectorBox, Status, Worker};
 
 #[macro_export]
 macro_rules! genet_dissectors {
@@ -14,7 +14,7 @@ macro_rules! genet_dissectors {
             };
         }
         #[no_mangle]
-        pub extern "C" fn genet_ffi_v1_get_dissectors(len: *mut u64) -> *const genet_sdk::dissector::DissectorBox {
+        pub extern "C" fn genet_abi_v1_get_dissectors(len: *mut u64) -> *const genet_sdk::dissector::DissectorBox {
             DISSECTORS.with(|d| {
                 unsafe {
                     *len = d.len() as u64;

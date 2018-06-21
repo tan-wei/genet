@@ -7,7 +7,7 @@ use token::Token;
 #[repr(C)]
 pub struct Layer {
     class: Ptr<LayerClass>,
-    ffi_unsafe_data: LayerData,
+    abi_unsafe_data: LayerData,
 }
 
 unsafe impl Send for Layer {}
@@ -22,7 +22,7 @@ impl Layer {
     pub fn new(class: &Ptr<LayerClass>, data: Slice) -> Layer {
         Layer {
             class: class.clone(),
-            ffi_unsafe_data: LayerData {
+            abi_unsafe_data: LayerData {
                 data,
                 attrs: Vec::new(),
                 payloads: Vec::new(),
@@ -88,7 +88,7 @@ struct LayerClassData {
 #[repr(C)]
 pub struct LayerClass {
     rev: Revision,
-    ffi_unsafe_data: Ptr<LayerClassData>,
+    abi_unsafe_data: Ptr<LayerClassData>,
     id: extern "C" fn(class: *const LayerClass) -> Token,
     data: extern "C" fn(*const Layer, *mut u64) -> *const u8,
     attrs_len: extern "C" fn(*const Layer) -> u64,
@@ -103,15 +103,15 @@ impl LayerClass {
     pub fn new(id: Token) -> Ptr<LayerClass> {
         Ptr::new(LayerClass {
             rev: Revision::AddPayload,
-            ffi_unsafe_data: Ptr::from_box(Box::new(LayerClassData { id })),
-            id: ffi_id,
-            data: ffi_data,
-            attrs_len: ffi_attrs_len,
-            attrs_data: ffi_attrs_data,
-            add_attr: ffi_add_attr,
-            payloads_len: ffi_payloads_len,
-            payloads_data: ffi_payloads_data,
-            add_payload: ffi_add_payload,
+            abi_unsafe_data: Ptr::from_box(Box::new(LayerClassData { id })),
+            id: abi_id,
+            data: abi_data,
+            attrs_len: abi_attrs_len,
+            attrs_data: abi_attrs_data,
+            add_attr: abi_add_attr,
+            payloads_len: abi_payloads_len,
+            payloads_data: abi_payloads_data,
+            add_payload: abi_add_payload,
         })
     }
 
@@ -140,41 +140,41 @@ impl LayerClass {
     }
 }
 
-extern "C" fn ffi_id(class: *const LayerClass) -> Token {
-    unsafe { (*class).ffi_unsafe_data.id }
+extern "C" fn abi_id(class: *const LayerClass) -> Token {
+    unsafe { (*class).abi_unsafe_data.id }
 }
 
-extern "C" fn ffi_data(layer: *const Layer, len: *mut u64) -> *const u8 {
+extern "C" fn abi_data(layer: *const Layer, len: *mut u64) -> *const u8 {
     unsafe {
-        let data = (*layer).ffi_unsafe_data.data;
+        let data = (*layer).abi_unsafe_data.data;
         *len = data.len() as u64;
         data.as_ptr()
     }
 }
 
-extern "C" fn ffi_attrs_len(layer: *const Layer) -> u64 {
-    unsafe { (*layer).ffi_unsafe_data.attrs.len() as u64 }
+extern "C" fn abi_attrs_len(layer: *const Layer) -> u64 {
+    unsafe { (*layer).abi_unsafe_data.attrs.len() as u64 }
 }
 
-extern "C" fn ffi_attrs_data(layer: *const Layer) -> *const Ptr<Attr> {
-    unsafe { (*layer).ffi_unsafe_data.attrs.as_ptr() }
+extern "C" fn abi_attrs_data(layer: *const Layer) -> *const Ptr<Attr> {
+    unsafe { (*layer).abi_unsafe_data.attrs.as_ptr() }
 }
 
-extern "C" fn ffi_add_attr(layer: *mut Layer, attr: Ptr<Attr>) {
-    let attrs = unsafe { &mut (*layer).ffi_unsafe_data.attrs };
+extern "C" fn abi_add_attr(layer: *mut Layer, attr: Ptr<Attr>) {
+    let attrs = unsafe { &mut (*layer).abi_unsafe_data.attrs };
     attrs.push(attr);
 }
 
-extern "C" fn ffi_payloads_len(layer: *const Layer) -> u64 {
-    unsafe { (*layer).ffi_unsafe_data.payloads.len() as u64 }
+extern "C" fn abi_payloads_len(layer: *const Layer) -> u64 {
+    unsafe { (*layer).abi_unsafe_data.payloads.len() as u64 }
 }
 
-extern "C" fn ffi_payloads_data(layer: *const Layer) -> *const Payload {
-    unsafe { (*layer).ffi_unsafe_data.payloads.as_ptr() }
+extern "C" fn abi_payloads_data(layer: *const Layer) -> *const Payload {
+    unsafe { (*layer).abi_unsafe_data.payloads.as_ptr() }
 }
 
-extern "C" fn ffi_add_payload(layer: *mut Layer, data: *const u8, len: u64, typ: Token) {
-    let payloads = unsafe { &mut (*layer).ffi_unsafe_data.payloads };
+extern "C" fn abi_add_payload(layer: *mut Layer, data: *const u8, len: u64, typ: Token) {
+    let payloads = unsafe { &mut (*layer).abi_unsafe_data.payloads };
     payloads.push(Payload { data, len, typ });
 }
 

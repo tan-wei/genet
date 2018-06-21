@@ -1,5 +1,5 @@
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
-pub use genet_ffi::decoder::{Decoder, Typed};
+pub use genet_abi::decoder::{Decoder, Typed};
 use slice;
 use std::io::Cursor;
 use std::io::Result;

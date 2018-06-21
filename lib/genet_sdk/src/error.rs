@@ -1,1 +1,1 @@
-pub use genet_ffi::error::Error;
+pub use genet_abi::error::Error;

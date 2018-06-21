@@ -29,7 +29,7 @@ const MAX_CHILDREN: usize = <u8>::max_value() as usize - 2;
 impl WorkerBox {
     fn new(worker: Box<Worker>) -> WorkerBox {
         Self {
-            analyze: ffi_analyze,
+            analyze: abi_analyze,
             worker: Box::into_raw(Box::new(worker)),
         }
     }
@@ -56,7 +56,7 @@ impl WorkerBox {
     }
 }
 
-extern "C" fn ffi_analyze(
+extern "C" fn abi_analyze(
     worker: *mut WorkerBox,
     layer: *mut Layer,
     children: *mut MutPtr<Layer>,
@@ -120,7 +120,7 @@ impl DissectorBox {
     pub fn new<T: 'static + Dissector>(diss: T) -> DissectorBox {
         let diss: Box<Dissector> = Box::new(diss);
         Self {
-            new_worker: ffi_new_worker,
+            new_worker: abi_new_worker,
             dissector: Box::into_raw(Box::new(diss)),
         }
     }
@@ -140,7 +140,7 @@ impl DissectorBox {
     }
 }
 
-extern "C" fn ffi_new_worker(
+extern "C" fn abi_new_worker(
     diss: *mut DissectorBox,
     typ: SafeString,
     ctx: *const Context,

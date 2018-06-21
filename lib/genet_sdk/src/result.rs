@@ -1,1 +1,1 @@
-pub use genet_ffi::result::Result;
+pub use genet_abi::result::Result;

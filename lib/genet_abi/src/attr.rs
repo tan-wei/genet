@@ -15,7 +15,7 @@ use vec::SafeVec;
 #[repr(C)]
 pub struct Attr {
     class: Ptr<AttrClass>,
-    ffi_unsafe_data: AttrData,
+    abi_unsafe_data: AttrData,
 }
 
 impl fmt::Debug for Attr {
@@ -33,14 +33,14 @@ impl Attr {
     pub fn new(class: &Ptr<AttrClass>, range: Range<usize>) -> Attr {
         Attr {
             class: class.clone(),
-            ffi_unsafe_data: AttrData { range, value: None },
+            abi_unsafe_data: AttrData { range, value: None },
         }
     }
 
     pub fn with_value(class: Ptr<AttrClass>, range: Range<usize>, value: Variant) -> Attr {
         Attr {
             class: class.clone(),
-            ffi_unsafe_data: AttrData {
+            abi_unsafe_data: AttrData {
                 range,
                 value: Some(Ptr::new(value)),
             },
@@ -89,7 +89,7 @@ enum Revision {
 #[repr(C)]
 pub struct AttrClass {
     rev: Revision,
-    ffi_unsafe_data: Ptr<AttrClassData>,
+    abi_unsafe_data: Ptr<AttrClassData>,
     id: extern "C" fn(class: *const AttrClass) -> Token,
     typ: extern "C" fn(class: *const AttrClass) -> Token,
     range: extern "C" fn(*const Attr, *mut u64, *mut u64),
@@ -106,15 +106,15 @@ impl AttrClass {
     pub fn new<T: Decoder>(id: Token, typ: Token, decoder: T) -> Ptr<AttrClass> {
         Ptr::new(AttrClass {
             rev: Revision::Range,
-            ffi_unsafe_data: Ptr::new(AttrClassData {
+            abi_unsafe_data: Ptr::new(AttrClassData {
                 id,
                 typ,
                 decoder: decoder.clone_box(),
             }),
-            id: ffi_id,
-            typ: ffi_typ,
-            range: ffi_range,
-            get: ffi_get,
+            id: abi_id,
+            typ: abi_typ,
+            range: abi_range,
+            get: abi_get,
         })
     }
 
@@ -173,31 +173,31 @@ impl AttrClass {
     }
 }
 
-extern "C" fn ffi_range(attr: *const Attr, start: *mut u64, end: *mut u64) {
+extern "C" fn abi_range(attr: *const Attr, start: *mut u64, end: *mut u64) {
     unsafe {
-        let range = &(*attr).ffi_unsafe_data.range;
+        let range = &(*attr).abi_unsafe_data.range;
         *start = range.start as u64;
         *end = range.end as u64;
     }
 }
 
-extern "C" fn ffi_id(class: *const AttrClass) -> Token {
-    unsafe { (*class).ffi_unsafe_data.id }
+extern "C" fn abi_id(class: *const AttrClass) -> Token {
+    unsafe { (*class).abi_unsafe_data.id }
 }
 
-extern "C" fn ffi_typ(class: *const AttrClass) -> Token {
-    unsafe { (*class).ffi_unsafe_data.typ }
+extern "C" fn abi_typ(class: *const AttrClass) -> Token {
+    unsafe { (*class).abi_unsafe_data.typ }
 }
 
-extern "C" fn ffi_get(
+extern "C" fn abi_get(
     attr: *const Attr,
     data: *mut *const u8,
     len: u64,
     num: *mut i64,
     err: *mut Error,
 ) -> ValueType {
-    let value = unsafe { &(*attr).ffi_unsafe_data.value };
-    let decoder = unsafe { &(*attr).class.ffi_unsafe_data.decoder };
+    let value = unsafe { &(*attr).abi_unsafe_data.value };
+    let decoder = unsafe { &(*attr).class.abi_unsafe_data.decoder };
     let slice = unsafe { slice::from_raw_parts(*data, len as usize) };
     let mut res = Ok(Variant::Nil);
     let result = if let Some(val) = value {

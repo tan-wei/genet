@@ -1,6 +1,6 @@
 #[macro_use]
 extern crate genet_sdk;
-extern crate genet_ffi;
+extern crate genet_abi;
 
 use genet_sdk::{
     context::Context,

@@ -1,7 +1,7 @@
 use chan;
 use dissector::dispatcher::Dispatcher;
 use frame::Frame;
-use genet_ffi::layer::Layer;
+use genet_abi::layer::Layer;
 use profile::Profile;
 use std::collections::BTreeMap;
 use std::thread::{self, JoinHandle};

@@ -1,8 +1,8 @@
 #[macro_export]
 macro_rules! token {
     ($name:expr) => {{
-        pub use genet_ffi::env;
-        pub use genet_ffi::token::Token;
+        pub use genet_abi::env;
+        pub use genet_abi::token::Token;
         thread_local!(static TOKEN: Token = { env::token($name as &'static str) };);
         TOKEN.with(|&t| t)
     }};
@@ -12,7 +12,7 @@ macro_rules! token {
 mod tests {
     #[test]
     fn token() {
-        pub use genet_ffi::env;
+        pub use genet_abi::env;
         assert_eq!(token!(""), 0);
         let token = token!("eth");
         assert_eq!(env::string(token), "eth");

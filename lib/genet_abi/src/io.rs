@@ -26,8 +26,8 @@ impl WriterBox {
         let writer: Box<Writer> = Box::new(writer);
         Self {
             writer: Box::into_raw(Box::new(writer)),
-            id: ffi_writer_id,
-            new_worker: ffi_writer_new_worker,
+            id: abi_writer_id,
+            new_worker: abi_writer_new_worker,
         }
     }
 
@@ -40,11 +40,11 @@ impl WriterBox {
     }
 }
 
-extern "C" fn ffi_writer_id(writer: *mut Box<Writer>) -> SafeString {
+extern "C" fn abi_writer_id(writer: *mut Box<Writer>) -> SafeString {
     SafeString::from(unsafe { (*writer).id() })
 }
 
-extern "C" fn ffi_writer_new_worker(
+extern "C" fn abi_writer_new_worker(
     writer: *mut Box<Writer>,
     ctx: *const Context,
     arg: SafeString,
@@ -74,8 +74,8 @@ impl ReaderBox {
         let reader: Box<Reader> = Box::new(reader);
         Self {
             reader: Box::into_raw(Box::new(reader)),
-            id: ffi_reader_id,
-            new_worker: ffi_reader_new_worker,
+            id: abi_reader_id,
+            new_worker: abi_reader_new_worker,
         }
     }
 
@@ -88,11 +88,11 @@ impl ReaderBox {
     }
 }
 
-extern "C" fn ffi_reader_id(reader: *mut Box<Reader>) -> SafeString {
+extern "C" fn abi_reader_id(reader: *mut Box<Reader>) -> SafeString {
     SafeString::from(unsafe { (*reader).id() })
 }
 
-extern "C" fn ffi_reader_new_worker(
+extern "C" fn abi_reader_new_worker(
     reader: *mut Box<Reader>,
     ctx: *const Context,
     arg: SafeString,
@@ -121,7 +121,7 @@ impl WriterWorkerBox {
     pub fn new(worker: Box<WriterWorker>) -> WriterWorkerBox {
         Self {
             worker: Box::into_raw(Box::new(worker)),
-            drop: ffi_writer_worker_drop,
+            drop: abi_writer_worker_drop,
         }
     }
 
@@ -153,7 +153,7 @@ impl ReaderWorkerBox {
     pub fn new(worker: Box<ReaderWorker>) -> ReaderWorkerBox {
         Self {
             worker: Box::into_raw(Box::new(worker)),
-            drop: ffi_reader_worker_drop,
+            drop: abi_reader_worker_drop,
         }
     }
 
@@ -174,10 +174,10 @@ impl Drop for ReaderWorkerBox {
     }
 }
 
-extern "C" fn ffi_writer_worker_drop(worker: *mut Box<WriterWorker>) {
+extern "C" fn abi_writer_worker_drop(worker: *mut Box<WriterWorker>) {
     unsafe { Box::from_raw(worker) };
 }
 
-extern "C" fn ffi_reader_worker_drop(worker: *mut Box<ReaderWorker>) {
+extern "C" fn abi_reader_worker_drop(worker: *mut Box<ReaderWorker>) {
     unsafe { Box::from_raw(worker) };
 }

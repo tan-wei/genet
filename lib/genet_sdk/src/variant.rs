@@ -1,1 +1,1 @@
-pub use genet_ffi::variant::Variant;
+pub use genet_abi::variant::Variant;

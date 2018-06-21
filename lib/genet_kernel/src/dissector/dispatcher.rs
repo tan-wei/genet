@@ -1,4 +1,4 @@
-use genet_ffi::{
+use genet_abi::{
     context::Context,
     dissector::{DissectorBox, WorkerBox},
     layer::Layer,

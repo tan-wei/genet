@@ -1,10 +1,10 @@
 use frame::Frame;
-use genet_ffi::context;
-use genet_ffi::dissector::Dissector;
-use genet_ffi::io::{ReaderWorkerBox, WriterWorkerBox};
-use genet_ffi::layer::Layer;
-use genet_ffi::ptr::MutPtr;
-use genet_ffi::result::Result;
+use genet_abi::context;
+use genet_abi::dissector::Dissector;
+use genet_abi::io::{ReaderWorkerBox, WriterWorkerBox};
+use genet_abi::layer::Layer;
+use genet_abi::ptr::MutPtr;
+use genet_abi::result::Result;
 use io::{Input, Output};
 use profile::Profile;
 use serde::ser::{Serialize, SerializeMap, Serializer};

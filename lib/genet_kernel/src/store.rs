@@ -3,8 +3,8 @@ use chan;
 use dissector::{parallel, serial};
 use filter::{self, Filter};
 use frame::Frame;
-use genet_ffi::result::Result;
-use genet_ffi::{context::Context, layer::Layer, ptr::MutPtr, token::Token};
+use genet_abi::result::Result;
+use genet_abi::{context::Context, layer::Layer, ptr::MutPtr, token::Token};
 use io::{Input, Output};
 use profile::Profile;
 use std::{

@@ -1,1 +1,1 @@
-pub use genet_ffi::context::Context;
+pub use genet_abi::context::Context;

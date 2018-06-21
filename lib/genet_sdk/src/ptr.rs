@@ -1,1 +1,1 @@
-pub use genet_ffi::ptr::{MutPtr, Ptr};
+pub use genet_abi::ptr::{MutPtr, Ptr};

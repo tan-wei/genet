@@ -1,6 +1,6 @@
 use frame::Frame;
-use genet_ffi::result::Result;
-use genet_ffi::{layer::Layer, ptr::MutPtr};
+use genet_abi::result::Result;
+use genet_abi::{layer::Layer, ptr::MutPtr};
 use std::fmt::Debug;
 use std::time::Duration;
 
