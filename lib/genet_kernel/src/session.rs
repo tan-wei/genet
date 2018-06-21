@@ -65,7 +65,7 @@ impl Session {
     }
 
     pub fn create_reader(&mut self, id: &str, arg: &str) -> u32 {
-        if let Some(reader) = self.profile.readers().find(|&&r| r.id() == id) {
+        if let Some(reader) = self.profile.readers().find(|&&r| r.id().as_str() == id) {
             self.io_cnt += 1;
             self.io_cnt
         } else {
@@ -74,7 +74,7 @@ impl Session {
     }
 
     pub fn create_writer(&mut self, id: &str, arg: &str) -> u32 {
-        if let Some(reader) = self.profile.writers().find(|&&r| r.id() == id) {
+        if let Some(reader) = self.profile.writers().find(|&&r| r.id().as_str() == id) {
             self.io_cnt += 1;
             self.io_cnt
         } else {
