@@ -3,11 +3,11 @@ use error::Error;
 use layer::Layer;
 use ptr::MutPtr;
 use result::Result;
-use std::ffi::{CStr, CString};
 use std::io;
 use std::mem;
 use std::ptr;
 use std::str;
+use string::SafeString;
 
 pub enum Status {
     Done(Vec<Layer>),
@@ -110,7 +110,7 @@ impl Clone for Box<Dissector> {
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct DissectorBox {
-    new_worker: extern "C" fn(*mut DissectorBox, *const i8, *const Context, *mut WorkerBox) -> u8,
+    new_worker: extern "C" fn(*mut DissectorBox, SafeString, *const Context, *mut WorkerBox) -> u8,
     dissector: *mut Box<Dissector>,
 }
 
@@ -126,12 +126,12 @@ impl DissectorBox {
     }
 
     pub fn new_worker(&mut self, typ: &str, ctx: &Context) -> Option<WorkerBox> {
-        let typ = CString::new(typ).unwrap();
+        let typ = SafeString::from(typ);
         let mut worker;
         unsafe {
             worker = mem::uninitialized();
         }
-        if (self.new_worker)(self, typ.as_ptr(), ctx, &mut worker) == 1 {
+        if (self.new_worker)(self, typ, ctx, &mut worker) == 1 {
             Some(worker)
         } else {
             mem::forget(worker);
@@ -142,14 +142,13 @@ impl DissectorBox {
 
 extern "C" fn ffi_new_worker(
     diss: *mut DissectorBox,
-    typ: *const i8,
+    typ: SafeString,
     ctx: *const Context,
     dst: *mut WorkerBox,
 ) -> u8 {
     let diss = unsafe { &mut *((*diss).dissector) };
-    let typ = unsafe { str::from_utf8_unchecked(CStr::from_ptr(typ).to_bytes()) };
     let ctx = unsafe { &(*ctx) };
-    if let Some(worker) = diss.new_worker(typ, ctx) {
+    if let Some(worker) = diss.new_worker(typ.as_str(), ctx) {
         unsafe { ptr::write(dst, WorkerBox::new(worker)) };
         1
     } else {
