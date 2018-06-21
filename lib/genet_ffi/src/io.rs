@@ -103,7 +103,7 @@ extern "C" fn ffi_reader_new_worker(
 }
 
 pub trait WriterWorker: Send {
-    fn write(&mut self, layers: &[Layer]) -> Result<()>;
+    fn write(&mut self, layers: Option<&[&Layer]>) -> Result<()>;
 }
 
 pub trait ReaderWorker: Send {
@@ -125,7 +125,7 @@ impl WriterWorkerBox {
         }
     }
 
-    fn write(&mut self, layers: &[Layer]) -> Result<()> {
+    fn write(&mut self, layers: Option<&[&Layer]>) -> Result<()> {
         Ok(())
     }
 }

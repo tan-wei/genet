@@ -1,4 +1,5 @@
 use frame::Frame;
+use genet_ffi::context;
 use genet_ffi::dissector::Dissector;
 use genet_ffi::io::{ReaderWorkerBox, WriterWorkerBox};
 use genet_ffi::layer::Layer;
@@ -72,6 +73,11 @@ impl Session {
     pub fn create_reader(&mut self, id: &str, arg: &str) -> u32 {
         if let Some(reader) = self.profile.readers().find(|&&r| r.id().as_str() == id) {
             self.io_cnt += 1;
+            let ctx = context::Context::new();
+            self.store.set_input(
+                self.io_cnt,
+                ReaderWorkerInput::new(reader.new_worker(&ctx, arg)),
+            );
             self.io_cnt
         } else {
             0
@@ -79,8 +85,13 @@ impl Session {
     }
 
     pub fn create_writer(&mut self, id: &str, arg: &str) -> u32 {
-        if let Some(reader) = self.profile.writers().find(|&&r| r.id().as_str() == id) {
+        if let Some(writer) = self.profile.writers().find(|&&r| r.id().as_str() == id) {
             self.io_cnt += 1;
+            let ctx = context::Context::new();
+            self.store.push_output(
+                self.io_cnt,
+                WriterWorkerOutput::new(writer.new_worker(&ctx, arg)),
+            );
             self.io_cnt
         } else {
             0
@@ -169,8 +180,14 @@ struct WriterWorkerOutput {
     worker: WriterWorkerBox,
 }
 
+impl WriterWorkerOutput {
+    fn new(worker: WriterWorkerBox) -> WriterWorkerOutput {
+        Self { worker }
+    }
+}
+
 impl Output for WriterWorkerOutput {
-    fn write(&self, frames: Option<&[&Frame]>) -> Result<()> {
+    fn write(&mut self, frames: Option<&[&Frame]>) -> Result<()> {
         Ok(())
     }
 }
@@ -178,11 +195,16 @@ impl Output for WriterWorkerOutput {
 #[derive(Debug)]
 struct ReaderWorkerInput {
     worker: ReaderWorkerBox,
-    handle: Option<JoinHandle<()>>,
+}
+
+impl ReaderWorkerInput {
+    fn new(worker: ReaderWorkerBox) -> ReaderWorkerInput {
+        Self { worker }
+    }
 }
 
 impl Input for ReaderWorkerInput {
-    fn read(&self, timeout: Duration) -> Result<Vec<MutPtr<Layer>>> {
-        Ok(vec![])
+    fn read(&mut self, timeout: Duration) -> Result<Vec<MutPtr<Layer>>> {
+        self.worker.read(timeout)
     }
 }

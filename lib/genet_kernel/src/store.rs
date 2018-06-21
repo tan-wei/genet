@@ -111,6 +111,7 @@ impl Store {
     pub fn set_input<I: 'static + Input>(&mut self, id: u32, input: I) {
         let holder = Arc::new(self.sender.clone());
         let sender = Arc::downgrade(&holder);
+        let mut input = input;
         let handle = thread::spawn(move || loop {
             if let Some(sender) = sender.upgrade() {
                 match input.read(Duration::new(1, 0)) {
@@ -284,7 +285,7 @@ impl EventLoop {
         }
     }
 
-    fn process_output(id: u32, output: Box<Output>, frames: &FrameStore, callback: &Callback) {
+    fn process_output(id: u32, mut output: Box<Output>, frames: &FrameStore, callback: &Callback) {
         let frames = frames.lock().unwrap();
         let mut offset = 0;
         while offset < frames.len() {

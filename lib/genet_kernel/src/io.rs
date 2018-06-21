@@ -5,9 +5,9 @@ use std::fmt::Debug;
 use std::time::Duration;
 
 pub trait Output: Send + Debug {
-    fn write(&self, frames: Option<&[&Frame]>) -> Result<()>;
+    fn write(&mut self, frames: Option<&[&Frame]>) -> Result<()>;
 }
 
 pub trait Input: Send + Debug {
-    fn read(&self, timeout: Duration) -> Result<Vec<MutPtr<Layer>>>;
+    fn read(&mut self, timeout: Duration) -> Result<Vec<MutPtr<Layer>>>;
 }
