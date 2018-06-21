@@ -144,7 +144,7 @@ impl AttrClass {
         let mut err = Error::new("");
         let typ = (self.get)(attr, &mut buf, data.len() as u64, &mut num, &mut err);
         match typ {
-            ValueType::Error => Err(From::from(err)),
+            ValueType::Error => Err(Box::new(err)),
             ValueType::Bool => Ok(Variant::Bool(num == 1)),
             ValueType::Int64 => Ok(Variant::Int64(num)),
             ValueType::UInt64 => Ok(Variant::UInt64(unsafe { mem::transmute_copy(&num) })),

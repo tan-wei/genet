@@ -51,7 +51,7 @@ impl WorkerBox {
             }
             Ok(result >= 2)
         } else {
-            Err(From::from(error))
+            Err(Box::new(error))
         }
     }
 }

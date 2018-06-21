@@ -1,4 +1,4 @@
 use std::error::Error;
 use std::result;
 
-pub type Result<T> = result::Result<T, Box<Error>>;
+pub type Result<T> = result::Result<T, Box<Error + Send>>;

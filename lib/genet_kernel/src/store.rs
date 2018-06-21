@@ -3,6 +3,7 @@ use chan;
 use dissector::{parallel, serial};
 use filter::{self, Filter};
 use frame::Frame;
+use genet_ffi::result::Result;
 use genet_ffi::{context::Context, layer::Layer, ptr::MutPtr, token::Token};
 use io::{Input, InputCallback, Output};
 use profile::Profile;
@@ -10,7 +11,6 @@ use std::{
     cmp,
     collections::HashMap,
     fmt,
-    io::Result,
     ops::Range,
     sync::{Arc, Mutex, Weak},
     thread::{self, JoinHandle},
@@ -19,8 +19,8 @@ use std::{
 pub trait Callback: Send {
     fn on_frames_updated(&self, _frames: u32) {}
     fn on_filtered_frames_updated(&self, _id: u32, _frames: u32) {}
-    fn on_output_done(&self, _id: u32, _error: Option<::std::io::Error>) {}
-    fn on_input_done(&self, _id: u32, _error: Option<::std::io::Error>) {}
+    fn on_output_done(&self, _id: u32, _error: Option<Box<::std::error::Error + Send>>) {}
+    fn on_input_done(&self, _id: u32, _error: Option<Box<::std::error::Error + Send>>) {}
 }
 
 #[derive(Debug)]

@@ -1,7 +1,10 @@
 use frame::Frame;
 use genet_ffi::dissector::Dissector;
+use genet_ffi::io::{ReaderWorkerBox, WriterWorkerBox};
 use genet_ffi::layer::Layer;
 use genet_ffi::ptr::MutPtr;
+use genet_ffi::result::Result;
+use io::{Input, InputCallback, Output};
 use profile::Profile;
 use serde::ser::{Serialize, SerializeMap, Serializer};
 use std::ops::Range;
@@ -102,10 +105,10 @@ impl store::Callback for StoreCallback {
     fn on_filtered_frames_updated(&self, id: u32, frames: u32) {
         self.callback.on_event(Event::FilteredFrames(id, frames));
     }
-    fn on_output_done(&self, id: u32, error: Option<::std::io::Error>) {
+    fn on_output_done(&self, id: u32, error: Option<Box<::std::error::Error + Send>>) {
         self.callback.on_event(Event::Input(id, error));
     }
-    fn on_input_done(&self, id: u32, error: Option<::std::io::Error>) {
+    fn on_input_done(&self, id: u32, error: Option<Box<::std::error::Error + Send>>) {
         self.callback.on_event(Event::Output(id, error));
     }
 }
@@ -114,8 +117,8 @@ impl store::Callback for StoreCallback {
 pub enum Event {
     Frames(u32),
     FilteredFrames(u32, u32),
-    Input(u32, Option<::std::io::Error>),
-    Output(u32, Option<::std::io::Error>),
+    Input(u32, Option<Box<::std::error::Error + Send>>),
+    Output(u32, Option<Box<::std::error::Error + Send>>),
 }
 
 pub trait Callback: Send {
@@ -123,7 +126,7 @@ pub trait Callback: Send {
 }
 
 impl Serialize for Event {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    fn serialize<S>(&self, serializer: S) -> ::std::result::Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
@@ -157,4 +160,20 @@ impl Serialize for Event {
             }
         }
     }
+}
+
+#[derive(Debug)]
+struct WriterWorkerOutput {}
+
+impl Output for WriterWorkerOutput {
+    fn write(&self, frames: Option<&[&Frame]>) -> Result<()> {
+        Ok(())
+    }
+}
+
+#[derive(Debug)]
+struct ReaderWorkerInput {}
+
+impl Input for ReaderWorkerInput {
+    fn start(&self, callback: Box<InputCallback>) {}
 }
