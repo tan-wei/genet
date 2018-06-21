@@ -112,7 +112,7 @@ pub trait ReaderWorker: Send {
 
 pub struct WriterWorkerBox {
     worker: *mut Box<WriterWorker>,
-    worker_drop: extern "C" fn(*mut Box<WriterWorker>),
+    drop: extern "C" fn(*mut Box<WriterWorker>),
 }
 
 unsafe impl Send for WriterWorkerBox {}
@@ -121,7 +121,7 @@ impl WriterWorkerBox {
     pub fn new(worker: Box<WriterWorker>) -> WriterWorkerBox {
         Self {
             worker: Box::into_raw(Box::new(worker)),
-            worker_drop: ffi_writer_worker_drop,
+            drop: ffi_writer_worker_drop,
         }
     }
 
@@ -138,13 +138,13 @@ impl fmt::Debug for WriterWorkerBox {
 
 impl Drop for WriterWorkerBox {
     fn drop(&mut self) {
-        (self.worker_drop)(self.worker);
+        (self.drop)(self.worker);
     }
 }
 
 pub struct ReaderWorkerBox {
     worker: *mut Box<ReaderWorker>,
-    worker_drop: extern "C" fn(*mut Box<ReaderWorker>),
+    drop: extern "C" fn(*mut Box<ReaderWorker>),
 }
 
 unsafe impl Send for ReaderWorkerBox {}
@@ -153,7 +153,7 @@ impl ReaderWorkerBox {
     pub fn new(worker: Box<ReaderWorker>) -> ReaderWorkerBox {
         Self {
             worker: Box::into_raw(Box::new(worker)),
-            worker_drop: ffi_reader_worker_drop,
+            drop: ffi_reader_worker_drop,
         }
     }
 
@@ -170,7 +170,7 @@ impl fmt::Debug for ReaderWorkerBox {
 
 impl Drop for ReaderWorkerBox {
     fn drop(&mut self) {
-        (self.worker_drop)(self.worker);
+        (self.drop)(self.worker);
     }
 }
 
