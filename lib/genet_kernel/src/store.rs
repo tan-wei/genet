@@ -5,7 +5,7 @@ use filter::{self, Filter};
 use frame::Frame;
 use genet_ffi::result::Result;
 use genet_ffi::{context::Context, layer::Layer, ptr::MutPtr, token::Token};
-use io::{Input, InputCallback, Output};
+use io::{Input, Output};
 use profile::Profile;
 use std::{
     cmp,
@@ -14,6 +14,7 @@ use std::{
     ops::Range,
     sync::{Arc, Mutex, Weak},
     thread::{self, JoinHandle},
+    time::Duration,
 };
 
 pub trait Callback: Send {
@@ -109,16 +110,26 @@ impl Store {
 
     pub fn set_input<I: 'static + Input>(&mut self, id: u32, input: I) {
         let holder = Arc::new(self.sender.clone());
-        let cb = InputContextCallback {
-            id,
-            sender: Arc::downgrade(&holder),
-        };
-        input.start(Box::new(cb));
+        let sender = Arc::downgrade(&holder);
+        let handle = thread::spawn(move || loop {
+            if let Some(sender) = sender.upgrade() {
+                match input.read(Duration::new(1, 0)) {
+                    Ok(layers) => {
+                        if !layers.is_empty() {
+                            sender.send(Command::PushFrames(Some(id), Ok(layers)));
+                        }
+                    }
+                    _ => break,
+                }
+            } else {
+                break;
+            }
+        });
         self.inputs.insert(
             id,
             InputContext {
-                input: Box::new(input),
-                holder,
+                handle: Some(handle),
+                holder: Some(holder),
             },
         );
     }
@@ -130,23 +141,14 @@ impl Store {
 
 #[derive(Debug)]
 struct InputContext {
-    input: Box<Input>,
-    holder: Arc<chan::Sender<Command>>,
+    handle: Option<JoinHandle<()>>,
+    holder: Option<Arc<chan::Sender<Command>>>,
 }
 
-struct InputContextCallback {
-    id: u32,
-    sender: Weak<chan::Sender<Command>>,
-}
-
-impl InputCallback for InputContextCallback {
-    fn write(&self, result: Result<Vec<MutPtr<Layer>>>) -> bool {
-        if let Some(sender) = self.sender.upgrade() {
-            sender.send(Command::PushFrames(Some(self.id), result));
-            true
-        } else {
-            false
-        }
+impl Drop for InputContext {
+    fn drop(&mut self) {
+        self.holder = None;
+        self.handle.take().unwrap().join().expect("failed to join");
     }
 }
 

@@ -2,6 +2,8 @@ use context::Context;
 use layer::Layer;
 use ptr::MutPtr;
 use result::Result;
+use std::fmt;
+use std::time::Duration;
 use string::SafeString;
 
 pub trait Writer: Send {
@@ -100,18 +102,20 @@ extern "C" fn ffi_reader_new_worker(
     ReaderWorkerBox::new(reader.new_worker(ctx, arg.as_str()))
 }
 
-pub trait WriterWorker: Drop {
+pub trait WriterWorker: Send {
     fn write(&mut self, layers: &[Layer]) -> Result<()>;
 }
 
-pub trait ReaderWorker: Drop {
-    fn read(&mut self, max: usize) -> Result<Box<[Layer]>>;
+pub trait ReaderWorker: Send {
+    fn read(&mut self, timeout: Duration) -> Result<Box<[Layer]>>;
 }
 
 pub struct WriterWorkerBox {
     worker: *mut Box<WriterWorker>,
     worker_drop: extern "C" fn(*mut Box<WriterWorker>),
 }
+
+unsafe impl Send for WriterWorkerBox {}
 
 impl WriterWorkerBox {
     pub fn new(worker: Box<WriterWorker>) -> WriterWorkerBox {
@@ -126,6 +130,12 @@ impl WriterWorkerBox {
     }
 }
 
+impl fmt::Debug for WriterWorkerBox {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "WriterWorkerBox")
+    }
+}
+
 impl Drop for WriterWorkerBox {
     fn drop(&mut self) {
         (self.worker_drop)(self.worker);
@@ -137,6 +147,8 @@ pub struct ReaderWorkerBox {
     worker_drop: extern "C" fn(*mut Box<ReaderWorker>),
 }
 
+unsafe impl Send for ReaderWorkerBox {}
+
 impl ReaderWorkerBox {
     pub fn new(worker: Box<ReaderWorker>) -> ReaderWorkerBox {
         Self {
@@ -145,8 +157,14 @@ impl ReaderWorkerBox {
         }
     }
 
-    pub fn read(&mut self, max: usize) -> Result<Vec<MutPtr<Layer>>> {
+    pub fn read(&mut self, timeout: Duration) -> Result<Vec<MutPtr<Layer>>> {
         Ok(vec![])
+    }
+}
+
+impl fmt::Debug for ReaderWorkerBox {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "ReaderWorkerBox")
     }
 }
 

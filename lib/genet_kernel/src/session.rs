@@ -4,10 +4,12 @@ use genet_ffi::io::{ReaderWorkerBox, WriterWorkerBox};
 use genet_ffi::layer::Layer;
 use genet_ffi::ptr::MutPtr;
 use genet_ffi::result::Result;
-use io::{Input, InputCallback, Output};
+use io::{Input, Output};
 use profile::Profile;
 use serde::ser::{Serialize, SerializeMap, Serializer};
 use std::ops::Range;
+use std::thread::{self, JoinHandle};
+use std::time::Duration;
 use store::{self, Store};
 
 #[derive(Debug)]
@@ -163,7 +165,9 @@ impl Serialize for Event {
 }
 
 #[derive(Debug)]
-struct WriterWorkerOutput {}
+struct WriterWorkerOutput {
+    worker: WriterWorkerBox,
+}
 
 impl Output for WriterWorkerOutput {
     fn write(&self, frames: Option<&[&Frame]>) -> Result<()> {
@@ -172,8 +176,13 @@ impl Output for WriterWorkerOutput {
 }
 
 #[derive(Debug)]
-struct ReaderWorkerInput {}
+struct ReaderWorkerInput {
+    worker: ReaderWorkerBox,
+    handle: Option<JoinHandle<()>>,
+}
 
 impl Input for ReaderWorkerInput {
-    fn start(&self, callback: Box<InputCallback>) {}
+    fn read(&self, timeout: Duration) -> Result<Vec<MutPtr<Layer>>> {
+        Ok(vec![])
+    }
 }
