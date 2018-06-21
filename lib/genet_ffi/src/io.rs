@@ -14,6 +14,7 @@ pub trait Writer: Send {
 pub struct WriterBox {
     writer: *mut Box<Writer>,
     id: extern "C" fn(*mut Box<Writer>) -> SafeString,
+    new_worker: extern "C" fn(*mut Box<Writer>, *const Context, SafeString) -> WriterWorkerBox,
 }
 
 unsafe impl Send for WriterBox {}
@@ -24,16 +25,31 @@ impl WriterBox {
         Self {
             writer: Box::into_raw(Box::new(writer)),
             id: ffi_writer_id,
+            new_worker: ffi_writer_new_worker,
         }
     }
 
     pub fn id(&self) -> SafeString {
         (self.id)(self.writer)
     }
+
+    pub fn new_worker(&self, ctx: &Context, args: &str) -> WriterWorkerBox {
+        (self.new_worker)(self.writer, ctx, SafeString::from(args))
+    }
 }
 
 extern "C" fn ffi_writer_id(writer: *mut Box<Writer>) -> SafeString {
     SafeString::from(unsafe { (*writer).id() })
+}
+
+extern "C" fn ffi_writer_new_worker(
+    writer: *mut Box<Writer>,
+    ctx: *const Context,
+    arg: SafeString,
+) -> WriterWorkerBox {
+    let writer = unsafe { &*writer };
+    let ctx = unsafe { &*ctx };
+    WriterWorkerBox::new(writer.new_worker(ctx, arg.as_str()))
 }
 
 pub trait Reader: Send {
@@ -46,6 +62,7 @@ pub trait Reader: Send {
 pub struct ReaderBox {
     reader: *mut Box<Reader>,
     id: extern "C" fn(*mut Box<Reader>) -> SafeString,
+    new_worker: extern "C" fn(*mut Box<Reader>, *const Context, SafeString) -> ReaderWorkerBox,
 }
 
 unsafe impl Send for ReaderBox {}
@@ -56,16 +73,31 @@ impl ReaderBox {
         Self {
             reader: Box::into_raw(Box::new(reader)),
             id: ffi_reader_id,
+            new_worker: ffi_reader_new_worker,
         }
     }
 
     pub fn id(&self) -> SafeString {
         (self.id)(self.reader)
     }
+
+    pub fn new_worker(&self, ctx: &Context, args: &str) -> ReaderWorkerBox {
+        (self.new_worker)(self.reader, ctx, SafeString::from(args))
+    }
 }
 
 extern "C" fn ffi_reader_id(reader: *mut Box<Reader>) -> SafeString {
     SafeString::from(unsafe { (*reader).id() })
+}
+
+extern "C" fn ffi_reader_new_worker(
+    reader: *mut Box<Reader>,
+    ctx: *const Context,
+    arg: SafeString,
+) -> ReaderWorkerBox {
+    let reader = unsafe { &*reader };
+    let ctx = unsafe { &*ctx };
+    ReaderWorkerBox::new(reader.new_worker(ctx, arg.as_str()))
 }
 
 pub trait WriterWorker: Drop {
@@ -78,15 +110,14 @@ pub trait ReaderWorker: Drop {
 
 pub struct WriterWorkerBox {
     worker: *mut Box<WriterWorker>,
-    writer_worker_drop: extern "C" fn(*mut Box<WriterWorker>),
+    worker_drop: extern "C" fn(*mut Box<WriterWorker>),
 }
 
 impl WriterWorkerBox {
-    pub fn new<T: 'static + WriterWorker>(worker: T) -> WriterWorkerBox {
-        let worker: Box<WriterWorker> = Box::new(worker);
+    pub fn new(worker: Box<WriterWorker>) -> WriterWorkerBox {
         Self {
             worker: Box::into_raw(Box::new(worker)),
-            writer_worker_drop: ffi_writer_worker_drop,
+            worker_drop: ffi_writer_worker_drop,
         }
     }
 
@@ -97,21 +128,20 @@ impl WriterWorkerBox {
 
 impl Drop for WriterWorkerBox {
     fn drop(&mut self) {
-        (self.writer_worker_drop)(self.worker);
+        (self.worker_drop)(self.worker);
     }
 }
 
 pub struct ReaderWorkerBox {
     worker: *mut Box<ReaderWorker>,
-    reader_worker_drop: extern "C" fn(*mut Box<ReaderWorker>),
+    worker_drop: extern "C" fn(*mut Box<ReaderWorker>),
 }
 
 impl ReaderWorkerBox {
-    pub fn new<T: 'static + ReaderWorker>(worker: T) -> ReaderWorkerBox {
-        let worker: Box<ReaderWorker> = Box::new(worker);
+    pub fn new(worker: Box<ReaderWorker>) -> ReaderWorkerBox {
         Self {
             worker: Box::into_raw(Box::new(worker)),
-            reader_worker_drop: ffi_reader_worker_drop,
+            worker_drop: ffi_reader_worker_drop,
         }
     }
 
@@ -122,7 +152,7 @@ impl ReaderWorkerBox {
 
 impl Drop for ReaderWorkerBox {
     fn drop(&mut self) {
-        (self.reader_worker_drop)(self.worker);
+        (self.worker_drop)(self.worker);
     }
 }
 
