@@ -10,7 +10,6 @@ use profile::Profile;
 use serde::ser::{Serialize, SerializeMap, Serializer};
 use std::ops::Range;
 use std::thread::{self, JoinHandle};
-use std::time::Duration;
 use store::{self, Store};
 
 #[derive(Debug)]
@@ -204,7 +203,7 @@ impl ReaderWorkerInput {
 }
 
 impl Input for ReaderWorkerInput {
-    fn read(&mut self, timeout: Duration) -> Result<Vec<MutPtr<Layer>>> {
-        self.worker.read(timeout)
+    fn read(&mut self) -> Result<Vec<MutPtr<Layer>>> {
+        self.worker.read()
     }
 }

@@ -3,7 +3,6 @@ use layer::Layer;
 use ptr::MutPtr;
 use result::Result;
 use std::fmt;
-use std::time::Duration;
 use string::SafeString;
 
 pub trait Writer: Send {
@@ -107,7 +106,7 @@ pub trait WriterWorker: Send {
 }
 
 pub trait ReaderWorker: Send {
-    fn read(&mut self, timeout: Duration) -> Result<Box<[Layer]>>;
+    fn read(&mut self) -> Result<Box<[Layer]>>;
 }
 
 pub struct WriterWorkerBox {
@@ -157,7 +156,7 @@ impl ReaderWorkerBox {
         }
     }
 
-    pub fn read(&mut self, timeout: Duration) -> Result<Vec<MutPtr<Layer>>> {
+    pub fn read(&mut self) -> Result<Vec<MutPtr<Layer>>> {
         Ok(vec![])
     }
 }

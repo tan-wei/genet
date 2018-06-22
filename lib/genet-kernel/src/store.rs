@@ -14,7 +14,6 @@ use std::{
     ops::Range,
     sync::{Arc, Mutex, Weak},
     thread::{self, JoinHandle},
-    time::Duration,
 };
 
 pub trait Callback: Send {
@@ -114,7 +113,7 @@ impl Store {
         let mut input = input;
         let handle = thread::spawn(move || loop {
             if let Some(sender) = sender.upgrade() {
-                match input.read(Duration::new(1, 0)) {
+                match input.read() {
                     Ok(layers) => {
                         if !layers.is_empty() {
                             sender.send(Command::PushFrames(Some(id), Ok(layers)));
