@@ -1,9 +1,11 @@
 use context::Context;
+use error::Error;
 use layer::Layer;
 use ptr::MutPtr;
 use result::Result;
 use std::fmt;
 use string::SafeString;
+use vec::SafeVec;
 
 pub trait Writer: Send {
     fn new_worker(&self, ctx: &Context, args: &str) -> Box<WriterWorker>;
@@ -106,7 +108,7 @@ pub trait WriterWorker: Send {
 }
 
 pub trait ReaderWorker: Send {
-    fn read(&mut self) -> Result<Box<[Layer]>>;
+    fn read(&mut self, layers: &mut Vec<Layer>) -> Result<()>;
 }
 
 pub struct WriterWorkerBox {
@@ -143,6 +145,7 @@ impl Drop for WriterWorkerBox {
 
 pub struct ReaderWorkerBox {
     worker: *mut Box<ReaderWorker>,
+    read: extern "C" fn(*mut Box<ReaderWorker>, *mut SafeVec<MutPtr<Layer>>, *mut Error) -> u8,
     drop: extern "C" fn(*mut Box<ReaderWorker>),
 }
 
@@ -152,12 +155,19 @@ impl ReaderWorkerBox {
     pub fn new(worker: Box<ReaderWorker>) -> ReaderWorkerBox {
         Self {
             worker: Box::into_raw(Box::new(worker)),
+            read: abi_reader_worker_read,
             drop: abi_reader_worker_drop,
         }
     }
 
     pub fn read(&mut self) -> Result<Vec<MutPtr<Layer>>> {
-        Ok(vec![])
+        let mut v = SafeVec::new();
+        let mut e = Error::new("");
+        if (self.read)(self.worker, &mut v, &mut e) == 0 {
+            Err(Box::new(e))
+        } else {
+            Ok(v.into_iter().collect())
+        }
     }
 }
 
@@ -179,4 +189,27 @@ extern "C" fn abi_writer_worker_drop(worker: *mut Box<WriterWorker>) {
 
 extern "C" fn abi_reader_worker_drop(worker: *mut Box<ReaderWorker>) {
     unsafe { Box::from_raw(worker) };
+}
+
+extern "C" fn abi_reader_worker_read(
+    worker: *mut Box<ReaderWorker>,
+    layers: *mut SafeVec<MutPtr<Layer>>,
+    err: *mut Error,
+) -> u8 {
+    let mut worker = unsafe { &mut *worker };
+    let mut v = Vec::new();
+    match worker.read(&mut v) {
+        Ok(()) => {
+            let mut safe = SafeVec::with_capacity(v.len() as u32);
+            for l in v.into_iter() {
+                safe.push(MutPtr::new(l));
+            }
+            unsafe { *layers = safe };
+            1
+        }
+        Err(e) => {
+            unsafe { *err = Error::new(e.description()) };
+            0
+        }
+    }
 }
