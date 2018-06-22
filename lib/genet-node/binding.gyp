@@ -1,6 +1,6 @@
 {
   "variables":{
-    "genet_node_sources":[
+    "genet-node_sources":[
       "src/main.cpp",
       "src/module.cpp",
       "src/frame.cpp",
@@ -90,9 +90,9 @@
   },
   "targets":[
     {
-      "target_name":"genet_node",
+      "target_name":"genet-node",
       "sources":[
-        "<@(genet_node_sources)"
+        "<@(genet-node_sources)"
       ],
       "xcode_settings":{
         "GCC_ENABLE_CPP_EXCEPTIONS":"YES"
@@ -102,9 +102,9 @@
       ]
     },
     {
-      "target_name":"genet_node-test",
+      "target_name":"genet-node-test",
       "sources":[
-        "<@(genet_node_sources)",
+        "<@(genet-node_sources)",
         "src/test.cpp"
       ],
       "xcode_settings":{

@@ -1,9 +1,9 @@
 [submodule "images"]
 	path = images
 	url = https://github.com/deplug/images.git
-[submodule "lib/genet_node/vendor/nan"]
-	path = lib/genet_node/vendor/nan
+[submodule "lib/genet-node/vendor/nan"]
+	path = lib/genet-node/vendor/nan
 	url = https://github.com/nodejs/nan.git
-[submodule "lib/genet_node/vendor/Catch2"]
-	path = lib/genet_node/vendor/Catch2
+[submodule "lib/genet-node/vendor/Catch2"]
+	path = lib/genet-node/vendor/Catch2
 	url = https://github.com/catchorg/Catch2.git

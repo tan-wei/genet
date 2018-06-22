@@ -1,11 +1,11 @@
 {
-  "name": "genet_node",
+  "name": "genet-node",
   "version": "0.0.1",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
     "install": "node-gyp configure && node-gyp build",
-    "test": "node_modules/.bin/mocha && node build/Release/genet_node-test.node"
+    "test": "node_modules/.bin/mocha && node build/Release/genet-node-test.node"
   },
   "dependencies": {
     "bindings": "^1.2.1",

@@ -10,7 +10,7 @@ serde = "1"
 serde_json = "1"
 libloading = "0.5"
 genet_abi = { path = "../genet_abi" }
-genet_sdk = { path = "../genet_sdk" }
+genet-sdk = { path = "../genet-sdk" }
 
 [lib]
 crate-type = ["staticlib", "rlib"]

@@ -1,5 +1,5 @@
 [package]
-name = "genet_sdk"
+name = "genet-sdk"
 version = "0.1.0"
 authors = ["Ron Hashimoto <mail@h2so5.net>"]
 
