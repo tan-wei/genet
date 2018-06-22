@@ -1,5 +1,5 @@
 [package]
-name = "genet_kernel"
+name = "genet-kernel"
 version = "0.1.0"
 authors = ["Ron Hashimoto <mail@h2so5.net>"]
 

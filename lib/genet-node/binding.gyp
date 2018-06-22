@@ -23,7 +23,7 @@
         "OS=='linux'",
         {
           "libraries":[
-            "../../genet_kernel/target/release/libgenet_kernel.a",
+            "../../genet-kernel/target/release/libgenet_kernel.a",
             "-Wl,-dn,-lpcap,-lcap,-lrt,-dy,-lpthread,-ldl",
           ],
           "cflags_cc":[
@@ -40,7 +40,7 @@
           "libraries":[
             "-L/usr/local/lib",
             "-lpcap",
-            "../../genet_kernel/target/release/libgenet_kernel.a"
+            "../../genet-kernel/target/release/libgenet_kernel.a"
           ],
           "link_settings":{
             "libraries":[
@@ -67,7 +67,7 @@
         "OS=='win'",
         {
           "libraries": [
-            '../../genet_kernel/target/release/genet_kernel.lib',
+            '../../genet-kernel/target/release/genet_kernel.lib',
             'Ws2_32.lib',
             'Userenv.lib',
             'Iphlpapi.lib'
