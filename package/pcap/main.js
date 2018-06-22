@@ -9,7 +9,7 @@ class PcapView {
   }
 
   checkDevices () {
-    const cli = path.join(__dirname, 'crates/pcap_cli/target/release/pcap_cli')
+    const cli = path.join(__dirname, 'crates/pcap-cli/target/release/pcap-cli')
     execFile(cli, ['devices'], (error, stdout) => {
       if (error) {
         this.permission = false

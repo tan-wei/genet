@@ -19,7 +19,7 @@ fn main() {
 
     let status = SubCommand::with_name("devices");
 
-    let matches = App::new("pcap_cli")
+    let matches = App::new("pcap-cli")
         .arg(
             Arg::with_name("timeout")
                 .takes_value(true)
