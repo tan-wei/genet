@@ -53,7 +53,7 @@ impl ReaderWorker for TestReaderWorker {
 }
 
 lazy_static! {
-    static ref ETH_CLASS: Ptr<LayerClass> = LayerClass::new(token!("[eth]"));
+    static ref ETH_CLASS: Ptr<LayerClass> = LayerClass::new(token!("[link-1]"));
 }
 
 genet_readers!(TestReader {});

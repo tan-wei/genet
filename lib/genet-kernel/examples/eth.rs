@@ -12,10 +12,14 @@ use genet_sdk::{
 struct EthWorker {}
 
 impl Worker for EthWorker {
-    fn analyze(&mut self, _: &mut Layer) -> Result<Status> {
-        let class = LayerClass::new(token!("eth"));
-        let layer = Layer::new(&class, &[]);
-        Ok(Status::Done(vec![layer]))
+    fn analyze(&mut self, parent: &mut Layer) -> Result<Status> {
+        if parent.id() == token!("[link-1]") {
+            let class = LayerClass::new(token!("eth"));
+            let layer = Layer::new(&class, &[]);
+            Ok(Status::Done(vec![layer]))
+        } else {
+            Ok(Status::Skip)
+        }
     }
 }
 
