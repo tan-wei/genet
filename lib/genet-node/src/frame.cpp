@@ -1,6 +1,7 @@
 #include "frame.hpp"
 #include "exports.hpp"
 #include "layer.hpp"
+#include "attr.hpp"
 #include "module.hpp"
 
 namespace genet_node {
@@ -9,6 +10,7 @@ void FrameWrapper::init(v8::Local<v8::Object> exports) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Frame").ToLocalChecked());
+  Nan::SetPrototypeMethod(tpl, "attr", attr);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("index").ToLocalChecked(), index);
@@ -62,6 +64,28 @@ NAN_GETTER(FrameWrapper::treeIndices) {
       array->Set(index, Nan::New(static_cast<uint32_t>(indices[index])));
     }
     info.GetReturnValue().Set(array);
+  }
+}
+
+NAN_METHOD(FrameWrapper::attr) {
+  Token id = 0;
+  Token layer = 0;
+  if (info[0]->IsUint32()) {
+    id = info[0]->Uint32Value();
+  } else {
+    Nan::ThrowTypeError("First argument must be an integer");
+    return;
+  }
+  if (info[1]->IsUint32()) {
+    layer = info[1]->Uint32Value();
+  }
+  FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
+  if (auto frame = wrapper->frame) {
+    if (const Attr *attr = genet_frame_attr(frame, id, layer)) {
+      info.GetReturnValue().Set(AttrWrapper::wrap(attr));
+    } else {
+      info.GetReturnValue().Set(Nan::Null());
+    }
   }
 }
 

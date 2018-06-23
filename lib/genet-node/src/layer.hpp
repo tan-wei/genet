@@ -16,6 +16,7 @@ public:
   static Pointer<Layer> unwrap(v8::Local<v8::Value> value);
   static NAN_METHOD(New);
   static NAN_GETTER(id);
+  static NAN_METHOD(attr);
 
 public:
   ~LayerWrapper();

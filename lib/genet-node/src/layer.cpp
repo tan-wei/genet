@@ -1,4 +1,5 @@
 #include "layer.hpp"
+#include "attr.hpp"
 #include "exports.hpp"
 #include "module.hpp"
 
@@ -12,6 +13,7 @@ void LayerWrapper::init(v8::Local<v8::Object> exports) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(2);
   tpl->SetClassName(Nan::New("Layer").ToLocalChecked());
+  Nan::SetPrototypeMethod(tpl, "attr", attr);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
@@ -46,8 +48,24 @@ NAN_GETTER(LayerWrapper::id) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer.getConst()) {
     info.GetReturnValue().Set(genet_layer_id(layer));
+  }
+}
+
+NAN_METHOD(LayerWrapper::attr) {
+  Token id = 0;
+  if (info[0]->IsUint32()) {
+    id = info[0]->Uint32Value();
   } else {
-    Nan::ThrowReferenceError("The layer has been moved");
+    Nan::ThrowTypeError("First argument must be an integer");
+    return;
+  }
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->layer.getConst()) {
+    if (const Attr *attr = genet_layer_attr(layer, id)) {
+      info.GetReturnValue().Set(AttrWrapper::wrap(attr));
+    } else {
+      info.GetReturnValue().Set(Nan::Null());
+    }
   }
 }
 

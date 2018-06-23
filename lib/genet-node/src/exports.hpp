@@ -9,6 +9,7 @@ extern "C" {
 typedef uint32_t Token;
 struct Context;
 struct Layer;
+struct Attr;
 struct Frame;
 struct Session;
 struct SessionProfile;
@@ -33,20 +34,12 @@ void genet_context_free(Context *context);
 
 Layer *genet_layer_new(Token id);
 Token genet_layer_id(const Layer *layer);
-Range genet_layer_range(const Layer *layer);
-void genet_layer_set_range(Layer *layer, Range range);
-uint8_t genet_layer_worker(const Layer *layer);
-void genet_layer_set_worker(Layer *layer, uint8_t worker);
-void genet_layer_add_tag(Layer *layer, Token tag);
-const Layer *genet_layer_children(const Layer *layer, size_t *len);
-void genet_layer_add_child_move(Layer *layer, Layer *child);
-
-Iter *genet_layer_tags(const Layer *layer);
-uint8_t genet_layer_tags_next(Iter *iter, Token *dst);
+const Attr *genet_layer_attr(const Layer *layer, Token id);
 
 uint32_t genet_frame_index(const Frame *frame);
 Layer const *const *genet_frame_layers(const Frame *frame, uint32_t *len);
 uint8_t *genet_frame_tree_indices(const Frame *frame, uint32_t *len);
+const Attr *genet_frame_attr(const Frame *frame, Token id, Token layer);
 
 SessionProfile *genet_session_profile_new();
 uint32_t
