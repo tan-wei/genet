@@ -138,7 +138,11 @@ impl AttrClass {
     }
 
     fn get(&self, attr: &Attr, layer: &Layer) -> Result<Variant> {
-        let data = &layer.data()[self.range(attr)];
+        let data = if let Some(data) = layer.data().get(self.range(attr)) {
+            data
+        } else {
+            return Err(Box::new(Error::new("out of bounds")));
+        };
         let mut buf: *const u8 = data.as_ptr();
         let mut num = 0;
         let mut err = Error::new("");

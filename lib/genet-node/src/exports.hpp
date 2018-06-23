@@ -48,7 +48,6 @@ struct Variant {
 const char *genet_embedded_js();
 
 void genet_str_free(char *data);
-void genet_data_free(char *data);
 
 Token genet_token_get(const char *str);
 char *genet_token_string(Token id);

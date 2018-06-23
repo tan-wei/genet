@@ -83,7 +83,7 @@ NAN_METHOD(AttrWrapper::get) {
       break;
     case Buffer:
       val = Nan::CopyBuffer(var.data, var.value.u64).ToLocalChecked();
-      genet_data_free(var.data);
+      genet_str_free(var.data);
       break;
     case Slice:
       val = Nan::NewBuffer(var.data, var.value.u64,

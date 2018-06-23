@@ -20,7 +20,7 @@ struct EthWorker {}
 impl Worker for EthWorker {
     fn analyze(&mut self, parent: &mut Layer) -> Result<Status> {
         if parent.id() == token!("[link-1]") {
-            let mut layer = Layer::new(&ETH_CLASS, &[]);
+            let mut layer = Layer::new(&ETH_CLASS, parent.data());
             let attr = Attr::new(&SRC_CLASS, 0..6);
             layer.add_attr(attr);
             Ok(Status::Done(vec![layer]))
