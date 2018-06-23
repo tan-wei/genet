@@ -40,16 +40,13 @@ fn session() {
         .load_library(libdir.join("libeth.dylib").to_str().unwrap())
         .expect("failed to load dylib");
 
+    profile
+        .load_library(libdir.join("libreader.dylib").to_str().unwrap())
+        .expect("failed to load dylib");
+
     let mut session = Session::new(profile, SessionCallback {});
 
-    let class = LayerClass::new(token!("[eth]"));
-    for _ in 0..4000 {
-        let frames = iter::repeat(data::tcp_ipv4_pcap())
-            .take(100)
-            .map(|data| MutPtr::new(Layer::new(&class, data)))
-            .collect::<Vec<_>>();
-        session.push_frames(frames);
-    }
+    assert_eq!(session.create_reader("test-input", ""), 1);
 
     loop {}
 }

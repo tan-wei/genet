@@ -1,4 +1,4 @@
-pub use genet_abi::io::{Reader, ReaderBox, Writer, WriterBox};
+pub use genet_abi::io::{Reader, ReaderBox, ReaderWorker, Writer, WriterBox, WriterWorker};
 
 #[macro_export]
 macro_rules! genet_readers {

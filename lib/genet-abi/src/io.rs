@@ -108,7 +108,7 @@ pub trait WriterWorker: Send {
 }
 
 pub trait ReaderWorker: Send {
-    fn read(&mut self, layers: &mut Vec<Layer>) -> Result<()>;
+    fn read(&mut self) -> Result<Vec<Layer>>;
 }
 
 pub struct WriterWorkerBox {
@@ -193,18 +193,17 @@ extern "C" fn abi_reader_worker_drop(worker: *mut Box<ReaderWorker>) {
 
 extern "C" fn abi_reader_worker_read(
     worker: *mut Box<ReaderWorker>,
-    layers: *mut SafeVec<MutPtr<Layer>>,
+    out: *mut SafeVec<MutPtr<Layer>>,
     err: *mut Error,
 ) -> u8 {
     let mut worker = unsafe { &mut *worker };
-    let mut v = Vec::new();
-    match worker.read(&mut v) {
-        Ok(()) => {
-            let mut safe = SafeVec::with_capacity(v.len() as u32);
-            for l in v.into_iter() {
+    match worker.read() {
+        Ok(layers) => {
+            let mut safe = SafeVec::with_capacity(layers.len() as u32);
+            for l in layers.into_iter() {
                 safe.push(MutPtr::new(l));
             }
-            unsafe { *layers = safe };
+            unsafe { *out = safe };
             1
         }
         Err(e) => {
