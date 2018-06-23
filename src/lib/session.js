@@ -21,12 +21,21 @@ export default class Session {
       fileImporterExtensions: new Set(),
       fileExporterExtensions: new Set(),
     }
-    const { Session: SESS } = require('@genet/load-module')
-    const { Profile } = SESS
-    const prof = new Profile()
-    const sess = new SESS(prof)
-    sess.on('event', (e) => console.log(e))
-    console.log(sess)
+    setTimeout(() => {
+      const { Session: SESS } = require('@genet/load-module')
+      const { Profile } = SESS
+      const prof = new Profile()
+      prof.loadLibrary('./lib/genet-kernel/target/debug/examples/libreader.dylib')
+      const sess = new SESS(prof)
+      const input = sess.createReader('test-input')
+      sess.on('event', (e) => {
+        console.log(e)
+        if (e.length > 10000) {
+          input.dispose()
+        }
+      })
+      console.log(sess)
+    }, 0)
   }
 
   get tokens () {
