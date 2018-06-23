@@ -53,7 +53,7 @@ NAN_GETTER(LayerWrapper::id) {
 
 LayerWrapper::LayerWrapper(const Pointer<Layer> &layer) : layer(layer) {}
 
-LayerWrapper::~LayerWrapper() { genet_layer_free(layer.getOwned()); }
+LayerWrapper::~LayerWrapper() {}
 
 v8::Local<v8::Object> LayerWrapper::wrap(const Pointer<Layer> &layer) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();

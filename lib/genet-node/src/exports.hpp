@@ -40,7 +40,6 @@ void genet_layer_set_worker(Layer *layer, uint8_t worker);
 void genet_layer_add_tag(Layer *layer, Token tag);
 const Layer *genet_layer_children(const Layer *layer, size_t *len);
 void genet_layer_add_child_move(Layer *layer, Layer *child);
-void genet_layer_free(Layer *layer);
 
 Iter *genet_layer_tags(const Layer *layer);
 uint8_t genet_layer_tags_next(Iter *iter, Token *dst);

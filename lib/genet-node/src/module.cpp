@@ -9,8 +9,6 @@
 
 namespace genet_node {
 
-extern "C" const char *genet_embedded_js() { return "(function(){})"; }
-
 namespace {
 thread_local Module *globalInstance = nullptr;
 }
