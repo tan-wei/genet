@@ -66,13 +66,17 @@ impl Store {
     }
 
     pub fn frames(&self, range: Range<usize>) -> Vec<*const Frame> {
-        let frames = self.frames.lock().unwrap();
+        let frames = {
+            self.frames
+                .lock()
+                .unwrap()
+                .iter()
+                .skip(range.start)
+                .take(range.end - range.start)
+                .map(|f| f as *const Frame)
+                .collect::<Vec<_>>()
+        };
         frames
-            .iter()
-            .skip(range.start)
-            .take(range.end - range.start)
-            .map(|f| f as *const Frame)
-            .collect::<Vec<_>>()
     }
 
     pub fn filtered_frames(&self, id: u32, range: Range<usize>) -> Vec<*const Frame> {
@@ -219,11 +223,14 @@ impl EventLoop {
                             spool.process(vec);
                         }
                         Command::StoreFrames(mut vec) => {
-                            let mut frames = frames.lock().unwrap();
-                            for f in vec.into_iter() {
-                                frames.push(f);
-                            }
-                            callback.on_frames_updated(frames.len() as u32);
+                            let len = {
+                                let mut frames = frames.lock().unwrap();
+                                for f in vec.into_iter() {
+                                    frames.push(f);
+                                }
+                                frames.len()
+                            };
+                            callback.on_frames_updated(len as u32);
                         }
                         Command::SetFilter(id, filter) => Self::process_push_filter(
                             id,
@@ -331,9 +338,10 @@ impl EventLoop {
         filter_map: &mut HashMap<u32, FilterContext>,
         callback: &Callback,
     ) {
-        let frames = frames.lock().unwrap();
         for (id, filter) in filter_map.iter_mut() {
             let mut indices = frames
+                .lock()
+                .unwrap()
                 .iter()
                 .skip(filter.offset)
                 .filter_map(|frame| {
@@ -350,7 +358,6 @@ impl EventLoop {
                 frames.append(&mut indices);
                 callback.on_filtered_frames_updated(*id, frames.len() as u32);
             }
-            filter.offset = frames.len();
         }
     }
 }

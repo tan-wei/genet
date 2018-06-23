@@ -30,9 +30,8 @@ export default class Session {
       const input = sess.createReader('test-input')
       sess.on('event', (e) => {
         console.log(e)
-        if (e.length > 10000) {
-          input.dispose()
-        }
+        input.dispose()
+        console.log(sess.frames(0, 10))
       })
       console.log(sess)
     }, 0)

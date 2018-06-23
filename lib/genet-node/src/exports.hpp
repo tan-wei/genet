@@ -71,13 +71,13 @@ void genet_session_push_frame(Session *session,
 void genet_session_frames(const Session *session,
                           uint32_t start,
                           uint32_t end,
-                          size_t *len,
+                          uint32_t *len,
                           Frame const **dst);
 void genet_session_filtered_frames(const Session *session,
                                    uint32_t id,
                                    uint32_t start,
                                    uint32_t end,
-                                   size_t *len,
+                                   uint32_t *len,
                                    Frame const **dst);
 void genet_session_set_filter(Session *session, uint32_t id, Filter *filter);
 uint32_t

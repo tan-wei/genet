@@ -1,6 +1,7 @@
 use libc::c_char;
 use std::ffi::CString;
 
+pub mod frame;
 pub mod session;
 
 #[no_mangle]

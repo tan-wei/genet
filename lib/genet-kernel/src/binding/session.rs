@@ -1,3 +1,4 @@
+use frame::Frame;
 use libc;
 use profile::Profile;
 use serde_json;
@@ -86,23 +87,20 @@ pub extern "C" fn genet_session_new(
     unsafe { Box::into_raw(Box::new(Session::new((*profile).clone(), holder))) }
 }
 
-/*
 #[no_mangle]
 pub extern "C" fn genet_session_frames(
     session: *const Session,
     start: u32,
     end: u32,
-    len: *mut libc::size_t,
+    len: *mut u32,
     dst: *mut *const Frame,
 ) {
     let frames = unsafe { (*session).frames(start as usize..end as usize) };
-    let mut frames = frames
-        .into_iter()
-        .map(|f| f.as_ref() as *const Frame)
-        .collect::<Vec<_>>();
     unsafe {
-        ptr::copy_nonoverlapping(frames.as_ptr(), dst, *len);
-        *len = frames.len();
+        if !frames.is_empty() {
+            ptr::copy_nonoverlapping(frames.as_ptr(), dst, *len as usize);
+        }
+        *len = frames.len() as u32;
     }
 }
 
@@ -112,20 +110,17 @@ pub extern "C" fn genet_session_filtered_frames(
     id: u32,
     start: u32,
     end: u32,
-    len: *mut libc::size_t,
+    len: *mut u32,
     dst: *mut *const Frame,
 ) {
     let frames = unsafe { (*session).filtered_frames(id, start as usize..end as usize) };
-    let mut frames = frames
-        .into_iter()
-        .map(|f| f.as_ref() as *const Frame)
-        .collect::<Vec<_>>();
     unsafe {
-        ptr::copy_nonoverlapping(frames.as_ptr(), dst, *len);
-        *len = frames.len();
+        ptr::copy_nonoverlapping(frames.as_ptr(), dst, *len as usize);
+        *len = frames.len() as u32;
     }
 }
 
+/*
 #[no_mangle]
 pub extern "C" fn genet_session_push_frame(
     session: *mut Session,

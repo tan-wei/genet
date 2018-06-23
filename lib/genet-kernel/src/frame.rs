@@ -1,12 +1,10 @@
-use genet_abi::layer::Layer;
-use genet_abi::ptr::MutPtr;
-use genet_abi::slice::Slice;
+use genet_abi::{layer::Layer, ptr::MutPtr, slice::Slice};
 use std::fmt;
 
 pub struct Frame {
     index: u32,
     layers: Vec<MutPtr<Layer>>,
-    offsets: Vec<u8>,
+    tree_indices: Vec<u8>,
 }
 
 impl fmt::Debug for Frame {
@@ -22,12 +20,16 @@ impl Frame {
         Frame {
             index,
             layers: vec![root],
-            offsets: Vec::new(),
+            tree_indices: Vec::new(),
         }
     }
 
     pub fn index(&self) -> u32 {
         self.index
+    }
+
+    pub fn layers(&self) -> &[MutPtr<Layer>] {
+        &self.layers
     }
 
     pub fn layers_mut(&mut self) -> &mut Vec<MutPtr<Layer>> {
@@ -38,7 +40,11 @@ impl Frame {
         self.layers.append(&mut layers);
     }
 
-    pub fn append_offsets(&mut self, mut offsets: &mut Vec<u8>) {
-        self.offsets.append(offsets);
+    pub fn tree_indices(&self) -> &[u8] {
+        &self.tree_indices
+    }
+
+    pub fn append_tree_indices(&mut self, mut tree_indices: &mut Vec<u8>) {
+        self.tree_indices.append(tree_indices);
     }
 }

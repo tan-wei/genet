@@ -42,14 +42,14 @@ impl Pool {
                             let mut nextlayers = Vec::new();
                             let mut runners = disp.runners();
                             loop {
-                                let mut offsets = Vec::new();
+                                let mut indices = Vec::new();
                                 for mut child in sublayers.iter_mut() {
                                     let mut results = Dispatcher::execute(&mut runners, &mut child);
-                                    offsets.push(results.len() as u8);
+                                    indices.push(results.len() as u8);
                                     nextlayers.append(&mut results);
                                 }
                                 f.append_layers(&mut sublayers);
-                                f.append_offsets(&mut offsets);
+                                f.append_tree_indices(&mut indices);
                                 if nextlayers.is_empty() {
                                     break;
                                 } else {
