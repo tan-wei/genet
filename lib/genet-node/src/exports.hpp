@@ -32,6 +32,9 @@ void genet_context_close_stream(Context *context);
 char *genet_context_get_config(Context *context, const char *str);
 void genet_context_free(Context *context);
 
+Token genet_attr_id(const Attr *layer);
+Token genet_attr_type(const Attr *layer);
+
 Layer *genet_layer_new(Token id);
 Token genet_layer_id(const Layer *layer);
 const Attr *genet_layer_attr(const Layer *layer, Token id);

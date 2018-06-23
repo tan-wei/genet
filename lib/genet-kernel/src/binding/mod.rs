@@ -1,6 +1,7 @@
 use libc::c_char;
 use std::ffi::CString;
 
+pub mod attr;
 pub mod embed;
 pub mod frame;
 pub mod layer;

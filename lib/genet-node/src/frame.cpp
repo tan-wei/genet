@@ -1,7 +1,7 @@
 #include "frame.hpp"
+#include "attr.hpp"
 #include "exports.hpp"
 #include "layer.hpp"
-#include "attr.hpp"
 #include "module.hpp"
 
 namespace genet_node {

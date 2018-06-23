@@ -10,6 +10,8 @@ void AttrWrapper::init(v8::Local<v8::Object> exports) {
   tpl->SetClassName(Nan::New("Attr").ToLocalChecked());
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
+  Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
+  Nan::SetAccessor(otl, Nan::New("type").ToLocalChecked(), type);
 
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
@@ -19,24 +21,38 @@ void AttrWrapper::init(v8::Local<v8::Object> exports) {
 
 NAN_METHOD(AttrWrapper::New) {
   if (info.IsConstructCall()) {
-    auto frame = info[0];
-    if (frame->IsExternal()) {
-      auto obj = static_cast<AttrWrapper *>(frame.As<v8::External>()->Value());
+    auto attr = info[0];
+    if (attr->IsExternal()) {
+      auto obj = static_cast<AttrWrapper *>(attr.As<v8::External>()->Value());
       obj->Wrap(info.This());
       info.GetReturnValue().Set(info.This());
     }
   }
 }
 
-AttrWrapper::AttrWrapper(const Attr *frame) : frame(frame) {}
+AttrWrapper::AttrWrapper(const Attr *attr) : attr(attr) {}
 
 AttrWrapper::~AttrWrapper() {}
 
-v8::Local<v8::Object> AttrWrapper::wrap(const Attr *frame) {
+NAN_GETTER(AttrWrapper::id) {
+  AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
+  if (auto attr = wrapper->attr) {
+    info.GetReturnValue().Set(genet_attr_id(attr));
+  }
+}
+
+NAN_GETTER(AttrWrapper::type) {
+  AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
+  if (auto attr = wrapper->attr) {
+    info.GetReturnValue().Set(genet_attr_type(attr));
+  }
+}
+
+v8::Local<v8::Object> AttrWrapper::wrap(const Attr *attr) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   const auto &cls = Module::current().get(Module::CLASS_ATTR);
   auto cons = v8::Local<v8::Function>::New(isolate, cls.ctor);
-  auto ptr = new AttrWrapper(frame);
+  auto ptr = new AttrWrapper(attr);
   v8::Local<v8::Value> args[] = {Nan::New<v8::External>(ptr)};
   return Nan::NewInstance(cons, 1, args).ToLocalChecked();
 }

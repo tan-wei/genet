@@ -25,6 +25,7 @@ export default class Session {
       const { Session: SESS } = require('@genet/load-module')
       const { Profile } = SESS
       const prof = new Profile()
+      prof.loadLibrary('./lib/genet-kernel/target/debug/examples/libeth.dylib')
       prof.loadLibrary('./lib/genet-kernel/target/debug/examples/libreader.dylib')
       const sess = new SESS(prof)
       const input = sess.createReader('test-input')

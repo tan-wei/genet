@@ -1,9 +1,5 @@
 use frame::Frame;
-use genet_abi::{
-    layer::Layer,
-    token::Token,
-    attr::Attr,
-};
+use genet_abi::{attr::Attr, layer::Layer, token::Token};
 use std::mem;
 use std::ptr;
 
@@ -32,11 +28,7 @@ pub extern "C" fn genet_frame_tree_indices(frame: *const Frame, len: *mut u32) -
 
 #[no_mangle]
 pub extern "C" fn genet_frame_attr(frame: *const Frame, id: Token, layer: Token) -> *const Attr {
-    let layer = if layer == 0 {
-        None
-    } else {
-        Some(layer)
-    };
+    let layer = if layer == 0 { None } else { Some(layer) };
     unsafe {
         let frame = &*frame;
         if let Some(attr) = frame.attr(id, layer) {
