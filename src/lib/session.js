@@ -31,7 +31,7 @@ export default class Session {
       sess.on('event', (e) => {
         console.log(e)
         input.dispose()
-        console.log(sess.frames(0, 10))
+        console.log(sess.frames(0, 10).map((f) => f.root))
       })
       console.log(sess)
     }, 0)
