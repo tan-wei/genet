@@ -59,8 +59,8 @@ impl Attr {
         self.class.range(self)
     }
 
-    pub fn data(&self, layer: &Layer) -> Result<Variant> {
-        self.class.data(self, layer)
+    pub fn get(&self, layer: &Layer) -> Result<Variant> {
+        self.class.get(self, layer)
     }
 }
 
@@ -137,7 +137,7 @@ impl AttrClass {
         start as usize..end as usize
     }
 
-    fn data(&self, attr: &Attr, layer: &Layer) -> Result<Variant> {
+    fn get(&self, attr: &Attr, layer: &Layer) -> Result<Variant> {
         let data = &layer.data()[self.range(attr)];
         let mut buf: *const u8 = data.as_ptr();
         let mut num = 0;
@@ -286,7 +286,7 @@ mod tests {
 
         let class = LayerClass::new(0);
         let layer = Layer::new(&class, &[]);
-        match attr.data(&layer).unwrap() {
+        match attr.get(&layer).unwrap() {
             Variant::Nil => (),
             _ => panic!(),
         };
@@ -310,7 +310,7 @@ mod tests {
 
         let class = LayerClass::new(0);
         let layer = Layer::new(&class, &[1]);
-        match attr.data(&layer).unwrap() {
+        match attr.get(&layer).unwrap() {
             Variant::Bool(val) => assert!(val),
             _ => panic!(),
         };
@@ -334,7 +334,7 @@ mod tests {
 
         let class = LayerClass::new(0);
         let layer = Layer::new(&class, b"123456789");
-        match attr.data(&layer).unwrap() {
+        match attr.get(&layer).unwrap() {
             Variant::UInt64(val) => assert_eq!(val, 123456),
             _ => panic!(),
         };
@@ -358,7 +358,7 @@ mod tests {
 
         let class = LayerClass::new(0);
         let layer = Layer::new(&class, b"-123456789");
-        match attr.data(&layer).unwrap() {
+        match attr.get(&layer).unwrap() {
             Variant::Int64(val) => assert_eq!(val, -12345),
             _ => panic!(),
         };
@@ -382,7 +382,7 @@ mod tests {
 
         let class = LayerClass::new(0);
         let layer = Layer::new(&class, b"123456789");
-        match attr.data(&layer).unwrap() {
+        match attr.get(&layer).unwrap() {
             Variant::Buffer(val) => assert_eq!(&*val, b"123456"),
             _ => panic!(),
         };
@@ -408,7 +408,7 @@ mod tests {
 
         let class = LayerClass::new(0);
         let layer = Layer::new(&class, b"123456789");
-        match attr.data(&layer).unwrap() {
+        match attr.get(&layer).unwrap() {
             Variant::String(val) => assert_eq!(&*val, "123456"),
             _ => panic!(),
         };
@@ -432,7 +432,7 @@ mod tests {
 
         let class = LayerClass::new(0);
         let layer = Layer::new(&class, b"123456789");
-        match attr.data(&layer).unwrap() {
+        match attr.get(&layer).unwrap() {
             Variant::Slice(val) => assert_eq!(val, b"123"),
             _ => panic!(),
         };
@@ -456,7 +456,7 @@ mod tests {
 
         let class = LayerClass::new(0);
         let layer = Layer::new(&class, b"123456789");
-        match attr.data(&layer) {
+        match attr.get(&layer) {
             Err(err) => assert_eq!(err.description(), "oh no!"),
             _ => panic!(),
         };

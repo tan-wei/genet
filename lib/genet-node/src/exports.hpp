@@ -21,9 +21,34 @@ struct Range {
   uint32_t end;
 };
 
+enum VariantType {
+  Error = -1,
+  Nil = 0,
+  Bool = 1,
+  Int64 = 2,
+  UInt64 = 3,
+  Float64 = 4,
+  String = 5,
+  Buffer = 6,
+  Slice = 7,
+};
+
+union VariantValue {
+  uint64_t u64;
+  int64_t i64;
+  double f64;
+};
+
+struct Variant {
+  int8_t type;
+  VariantValue value;
+  char *data;
+};
+
 const char *genet_embedded_js();
 
 void genet_str_free(char *data);
+void genet_data_free(char *data);
 
 Token genet_token_get(const char *str);
 char *genet_token_string(Token id);
@@ -32,8 +57,9 @@ void genet_context_close_stream(Context *context);
 char *genet_context_get_config(Context *context, const char *str);
 void genet_context_free(Context *context);
 
-Token genet_attr_id(const Attr *layer);
-Token genet_attr_type(const Attr *layer);
+Token genet_attr_id(const Attr *attr);
+Token genet_attr_type(const Attr *attr);
+Variant genet_attr_get(const Attr *attr, const Layer *layer);
 
 Layer *genet_layer_new(Token id);
 Token genet_layer_id(const Layer *layer);
