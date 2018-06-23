@@ -12,11 +12,9 @@ void LayerWrapper::init(v8::Local<v8::Object> exports) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(2);
   tpl->SetClassName(Nan::New("Layer").ToLocalChecked());
-  Nan::SetPrototypeMethod(tpl, "addChild", addChild);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
-  Nan::SetAccessor(otl, Nan::New("tags").ToLocalChecked(), tags);
 
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
@@ -50,35 +48,6 @@ NAN_GETTER(LayerWrapper::id) {
     info.GetReturnValue().Set(genet_layer_id(layer));
   } else {
     Nan::ThrowReferenceError("The layer has been moved");
-  }
-}
-
-NAN_METHOD(LayerWrapper::addChild) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->layer.get()) {
-    auto child = LayerWrapper::unwrap(info[0]).get();
-    if (child && layer != child) {
-      ObjectWrap::Unwrap<LayerWrapper>(info[0].As<v8::Object>())->layer =
-          Pointer<Layer>::null();
-      genet_layer_add_child_move(layer, child);
-    } else {
-      Nan::ThrowTypeError("First argument should be a layer");
-    }
-  } else {
-    Nan::ThrowTypeError("The layer is read-only");
-  }
-}
-
-NAN_GETTER(LayerWrapper::tags) {
-  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
-  if (auto layer = wrapper->layer.getConst()) {
-    auto iter = genet_layer_tags(layer);
-    auto array = Nan::New<v8::Array>();
-    Token token;
-    for (uint32_t i = 0; genet_layer_tags_next(iter, &token); ++i) {
-      array->Set(i, Nan::New(token));
-    }
-    info.GetReturnValue().Set(array);
   }
 }
 

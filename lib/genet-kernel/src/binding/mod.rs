@@ -2,6 +2,7 @@ use libc::c_char;
 use std::ffi::CString;
 
 pub mod frame;
+pub mod layer;
 pub mod session;
 
 #[no_mangle]

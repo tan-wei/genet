@@ -1,5 +1,6 @@
 #include "frame.hpp"
 #include "exports.hpp"
+#include "layer.hpp"
 #include "module.hpp"
 
 namespace genet_node {
@@ -11,6 +12,8 @@ void FrameWrapper::init(v8::Local<v8::Object> exports) {
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("index").ToLocalChecked(), index);
+  Nan::SetAccessor(otl, Nan::New("layers").ToLocalChecked(), layers);
+  Nan::SetAccessor(otl, Nan::New("treeIndices").ToLocalChecked(), treeIndices);
 
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
@@ -33,6 +36,32 @@ NAN_GETTER(FrameWrapper::index) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
   if (auto frame = wrapper->frame) {
     info.GetReturnValue().Set(genet_frame_index(frame));
+  }
+}
+
+NAN_GETTER(FrameWrapper::layers) {
+  FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
+  if (auto frame = wrapper->frame) {
+    uint32_t length = 0;
+    auto layers = genet_frame_layers(frame, &length);
+    auto array = Nan::New<v8::Array>(length);
+    for (uint32_t index = 0; index < length; ++index) {
+      array->Set(index, LayerWrapper::wrap(Pointer<Layer>::ref(layers[index])));
+    }
+    info.GetReturnValue().Set(array);
+  }
+}
+
+NAN_GETTER(FrameWrapper::treeIndices) {
+  FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
+  if (auto frame = wrapper->frame) {
+    uint32_t length = 0;
+    auto indices = genet_frame_tree_indices(frame, &length);
+    auto array = Nan::New<v8::Array>(length);
+    for (uint32_t index = 0; index < length; ++index) {
+      array->Set(index, Nan::New(static_cast<uint32_t>(indices[index])));
+    }
+    info.GetReturnValue().Set(array);
   }
 }
 

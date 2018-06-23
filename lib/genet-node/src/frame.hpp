@@ -14,6 +14,8 @@ public:
   static v8::Local<v8::Object> wrap(const Frame *frame);
   static NAN_METHOD(New);
   static NAN_GETTER(index);
+  static NAN_GETTER(layers);
+  static NAN_GETTER(treeIndices);
 
 public:
   ~FrameWrapper();

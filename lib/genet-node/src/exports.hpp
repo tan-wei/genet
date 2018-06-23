@@ -46,7 +46,8 @@ Iter *genet_layer_tags(const Layer *layer);
 uint8_t genet_layer_tags_next(Iter *iter, Token *dst);
 
 uint32_t genet_frame_index(const Frame *frame);
-Layer *genet_frame_root_mut(Frame *frame);
+Layer const *const *genet_frame_layers(const Frame *frame, uint32_t *len);
+uint8_t *genet_frame_tree_indices(const Frame *frame, uint32_t *len);
 
 SessionProfile *genet_session_profile_new();
 uint32_t
