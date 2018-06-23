@@ -1,5 +1,5 @@
-#ifndef PLUGNODE_PLUGNEL_H
-#define PLUGNODE_PLUGNEL_H
+#ifndef GENET_NODE_PLUGNEL_H
+#define GENET_NODE_PLUGNEL_H
 
 #include <stdint.h>
 #include <string>

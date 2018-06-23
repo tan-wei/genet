@@ -1,4 +1,4 @@
-use genet_abi::{layer::Layer, ptr::MutPtr, slice::Slice};
+use genet_abi::{attr::Attr, layer::Layer, ptr::MutPtr, slice::Slice, token::Token};
 use std::fmt;
 
 pub struct Frame {
@@ -30,6 +30,15 @@ impl Frame {
 
     pub fn layers(&self) -> &[MutPtr<Layer>] {
         &self.layers
+    }
+
+    pub fn attr(&self, id: Token, layer: Option<Token>) -> Option<&Attr> {
+        for layer in self.layers().iter().rev() {
+            if let Some(attr) = layer.attr(id) {
+                return Some(attr);
+            }
+        }
+        None
     }
 
     pub fn layers_mut(&mut self) -> &mut Vec<MutPtr<Layer>> {

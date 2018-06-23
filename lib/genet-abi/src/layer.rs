@@ -42,6 +42,10 @@ impl Layer {
         self.class.attrs(self)
     }
 
+    pub fn attr(&self, id: Token) -> Option<&Attr> {
+        self.attrs().find(|attr| attr.id() == id)
+    }
+
     pub fn add_attr(&mut self, attr: Attr) {
         let func = self.class.add_attr;
         (func)(self, Ptr::new(attr));

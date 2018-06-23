@@ -1,5 +1,5 @@
-#ifndef PLUGNODE_SESSION_WRAPPER_H
-#define PLUGNODE_SESSION_WRAPPER_H
+#ifndef GENET_NODE_SESSION_WRAPPER_H
+#define GENET_NODE_SESSION_WRAPPER_H
 
 #include "pointer.hpp"
 #include <memory>

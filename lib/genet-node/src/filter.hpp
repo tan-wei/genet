@@ -1,5 +1,5 @@
-#ifndef PLUGNODE_FILTER_H
-#define PLUGNODE_FILTER_H
+#ifndef GENET_NODE_FILTER_H
+#define GENET_NODE_FILTER_H
 
 #include "script.hpp"
 

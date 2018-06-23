@@ -1,5 +1,5 @@
-#ifndef PLUGNODE_SCRIPT_H
-#define PLUGNODE_SCRIPT_H
+#ifndef GENET_NODE_SCRIPT_H
+#define GENET_NODE_SCRIPT_H
 
 #include <memory>
 #include <nan.h>

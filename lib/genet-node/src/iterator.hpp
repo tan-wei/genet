@@ -1,5 +1,5 @@
-#ifndef PLUGNODE_ITERATOR_WRAPPER_H
-#define PLUGNODE_ITERATOR_WRAPPER_H
+#ifndef GENET_NODE_ITERATOR_WRAPPER_H
+#define GENET_NODE_ITERATOR_WRAPPER_H
 
 #include <functional>
 #include <memory>

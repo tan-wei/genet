@@ -1,4 +1,5 @@
 #include "module.hpp"
+#include "attr.hpp"
 #include "context.hpp"
 #include "exports.hpp"
 #include "frame.hpp"
@@ -23,6 +24,7 @@ void Module::init(v8::Local<v8::Object> exports) {
   SessionWrapper::init(exports);
   LayerWrapper::init(exports);
   FrameWrapper::init(exports);
+  AttrWrapper::init(exports);
   ContextWrapper::init(exports);
 
   v8::Isolate *isolate = v8::Isolate::GetCurrent();

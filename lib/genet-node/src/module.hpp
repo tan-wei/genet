@@ -1,5 +1,5 @@
-#ifndef PLUGNODE_MODULE_HPP
-#define PLUGNODE_MODULE_HPP
+#ifndef GENET_NODE_MODULE_HPP
+#define GENET_NODE_MODULE_HPP
 
 #include <nan.h>
 #include <vector>

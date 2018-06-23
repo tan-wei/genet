@@ -1,5 +1,5 @@
-#ifndef PLUGNODE_CONTEXT_WRAPPER_H
-#define PLUGNODE_CONTEXT_WRAPPER_H
+#ifndef GENET_NODE_CONTEXT_WRAPPER_H
+#define GENET_NODE_CONTEXT_WRAPPER_H
 
 #include "pointer.hpp"
 #include <nan.h>

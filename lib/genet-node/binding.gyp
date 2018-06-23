@@ -8,6 +8,7 @@
       "src/script.cpp",
       "src/context.cpp",
       "src/session.cpp",
+      "src/attr.cpp",
       "src/iterator.cpp",
       "src/layer.cpp",
     ]
@@ -30,7 +31,7 @@
             "-fno-strict-aliasing"
           ],
           "defines":[
-            "PLUGNODE_OS_LINUX"
+            "GENET_NODE_OS_LINUX"
           ]
         }
       ],
@@ -59,7 +60,7 @@
             ],
           },
           "defines":[
-            "PLUGNODE_OS_MAC"
+            "GENET_NODE_OS_MAC"
           ]
         }
       ],
@@ -73,8 +74,8 @@
             'Iphlpapi.lib'
           ],
           "defines":[
-            "PLUGNODE_OS_WIN",
-            "PLUGNODE_DLL_EXPORT",
+            "GENET_NODE_OS_WIN",
+            "GENET_NODE_DLL_EXPORT",
             "NOMINMAX"
           ],
           "VCCLCompilerTool": {

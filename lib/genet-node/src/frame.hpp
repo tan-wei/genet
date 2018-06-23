@@ -1,5 +1,5 @@
-#ifndef PLUGNODE_FRAME_WRAPPER_H
-#define PLUGNODE_FRAME_WRAPPER_H
+#ifndef GENET_NODE_FRAME_WRAPPER_H
+#define GENET_NODE_FRAME_WRAPPER_H
 
 #include <memory>
 #include <nan.h>
