@@ -32,8 +32,6 @@ struct TestReader {}
 
 impl Reader for TestReader {
     fn new_worker(&self, ctx: &Context, arg: &str) -> Box<ReaderWorker> {
-        println!("TestReader qqqq {:?}", token!("qqqq"));
-        println!("TestReader cccc {:?}", token!("cccc"));
         Box::new(TestReaderWorker {})
     }
 

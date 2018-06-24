@@ -28,10 +28,11 @@ export default class Session {
       prof.loadLibrary('./lib/genet-kernel/target/debug/examples/libeth.dylib')
       prof.loadLibrary('./lib/genet-kernel/target/debug/examples/libreader.dylib')
       const sess = new SESS(prof)
-      const input = sess.createReader('test-input')
+      sess.setFilter('main', 'eth.src')
+      // Const input = sess.createReader('test-input')
       sess.on('event', (e) => {
         console.log(e)
-        input.dispose()
+        // Input.dispose()
         console.log(sess.frames(0, 10).map((f) => f.root))
       })
       console.log(sess)
