@@ -1,3 +1,4 @@
+use filter::{Filter, Worker};
 use frame::Frame;
 use libc;
 use profile::Profile;
@@ -136,11 +137,6 @@ pub extern "C" fn genet_session_push_frame(
         (*session).push_frames(v, link);
     }
 }
-
-#[no_mangle]
-pub extern "C" fn genet_session_context(session: *const Session) -> *mut Context {
-    unsafe { Box::into_raw(Box::new((*session).context())) }
-}
 */
 
 #[no_mangle]
@@ -187,5 +183,65 @@ pub extern "C" fn genet_session_free(session: *mut Session) {
         if !session.is_null() {
             Box::from_raw(session);
         }
+    }
+}
+
+#[repr(C)]
+pub struct FilterBase {
+    new_worker: extern "C" fn(*mut FilterBase) -> *mut FilterWorkerBase,
+    destroy: extern "C" fn(*mut FilterBase),
+}
+
+#[derive(Debug)]
+pub struct FilterBaseHolder(*mut FilterBase);
+
+unsafe impl Send for FilterBaseHolder {}
+
+impl Drop for FilterBaseHolder {
+    fn drop(&mut self) {
+        unsafe { ((*self.0).destroy)(self.0) };
+    }
+}
+
+#[repr(C)]
+pub struct FilterWorkerBase {
+    test: extern "C" fn(*mut FilterWorkerBase, *const Frame) -> u8,
+    destroy: extern "C" fn(*mut FilterWorkerBase),
+}
+
+pub struct FilterWorkerBaseHolder(*mut FilterWorkerBase);
+
+unsafe impl Send for FilterWorkerBaseHolder {}
+
+impl Drop for FilterWorkerBaseHolder {
+    fn drop(&mut self) {
+        unsafe { ((*self.0).destroy)(self.0) };
+    }
+}
+
+#[derive(Debug)]
+pub struct FFIFilter {
+    base: FilterBaseHolder,
+}
+
+impl Filter for FFIFilter {
+    fn new_worker(&self) -> Box<Worker> {
+        let filter: *mut FilterBase = self.base.0;
+        unsafe {
+            Box::new(FFIFilterWorker {
+                base: FilterWorkerBaseHolder(((*filter).new_worker)(filter)),
+            })
+        }
+    }
+}
+
+pub struct FFIFilterWorker {
+    base: FilterWorkerBaseHolder,
+}
+
+impl Worker for FFIFilterWorker {
+    fn test(&mut self, frame: &Frame) -> bool {
+        let worker: *mut FilterWorkerBase = self.base.0;
+        unsafe { ((*worker).test)(worker, frame) != 0 }
     }
 }

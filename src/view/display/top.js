@@ -232,7 +232,7 @@ export default class TopView {
       try {
         filterInput.value = value
         this.displayFilter = value
-        this.sess.setDisplayFilter('main', value)
+        this.sess.setFilter('main', value)
         if (value.length > 0) {
           const maxLength = 10
           const history =

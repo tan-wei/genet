@@ -69,6 +69,8 @@ impl Session {
         self.store.filtered_frames(id, range)
     }
 
+    pub fn set_filter(&self, id: u32, filter: Option<&str>) {}
+
     pub fn create_reader(&mut self, id: &str, arg: &str) -> u32 {
         if let Some(reader) = self.profile.readers().find(|&&r| r.id().as_str() == id) {
             self.io_cnt += 1;

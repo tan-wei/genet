@@ -99,6 +99,7 @@ void SessionWrapper::init(v8::Local<v8::Object> exports) {
   Nan::SetPrototypeMethod(tpl, "pushFrames", pushFrames);
   Nan::SetPrototypeMethod(tpl, "frames", frames);
   Nan::SetPrototypeMethod(tpl, "filteredFrames", filteredFrames);
+  Nan::SetPrototypeMethod(tpl, "setFilter", setFilter);
   Nan::SetPrototypeMethod(tpl, "createReader", createReader);
   Nan::SetPrototypeMethod(tpl, "createWriter", createWriter);
   Nan::SetPrototypeMethod(tpl, "closeReader", closeReader);
@@ -284,6 +285,28 @@ NAN_METHOD(SessionWrapper::closeReader) {
 }
 
 NAN_METHOD(SessionWrapper::closeWriter) {}
+
+NAN_METHOD(SessionWrapper::setFilter) {
+  if (!info[0]->IsString()) {
+    Nan::ThrowTypeError("First argument must be a string");
+    return;
+  }
+  if (!info[1]->IsString()) {
+    Nan::ThrowTypeError("Second argument must be a string");
+    return;
+  }
+  Nan::Utf8String id(info[0]);
+  Nan::Utf8String filter(info[1]);
+
+  if (auto wrapper = Nan::ObjectWrap::Unwrap<SessionWrapper>(info.Holder())) {
+    if (!wrapper->event) {
+      Nan::ThrowReferenceError("Session has been closed");
+      return;
+    }
+    Session *session = wrapper->event->session;
+    // genet_session_set_filter(session, *id, *filter);
+  }
+}
 
 NAN_METHOD(SessionWrapper::filteredFrames) {
   uint32_t id = 0;

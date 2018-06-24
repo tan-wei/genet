@@ -43,6 +43,7 @@ public:
   static NAN_METHOD(pushFrames);
   static NAN_METHOD(frames);
   static NAN_METHOD(filteredFrames);
+  static NAN_METHOD(setFilter);
   static NAN_METHOD(createReader);
   static NAN_METHOD(createWriter);
   static NAN_METHOD(closeReader);
