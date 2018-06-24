@@ -43,6 +43,12 @@ impl Layer {
     }
 
     pub fn attr(&self, id: Token) -> Option<&Attr> {
+        let id = self
+            .class
+            .aliases()
+            .find(|alias| alias.id == id)
+            .map(|alias| alias.id)
+            .unwrap_or(id);
         self.attrs().find(|attr| attr.id() == id)
     }
 
@@ -78,22 +84,70 @@ impl Payload {
     }
 }
 
+pub struct LayerClassBuilder {
+    id: Token,
+    aliases: Vec<Alias>,
+}
+
+impl LayerClassBuilder {
+    pub fn new(id: Token) -> LayerClassBuilder {
+        Self {
+            id,
+            aliases: Vec::new(),
+        }
+    }
+
+    pub fn alias(mut self, id: Token, target: Token) -> LayerClassBuilder {
+        self.aliases.push(Alias { id, target });
+        self
+    }
+
+    pub fn build(self) -> Ptr<LayerClass> {
+        Ptr::new(LayerClass {
+            rev: Revision::AddPayload,
+            abi_unsafe_data: Ptr::from_box(Box::new(LayerClassData {
+                id: self.id,
+                aliases: self.aliases,
+            })),
+            id: abi_id,
+            data: abi_data,
+            attrs_len: abi_attrs_len,
+            attrs_data: abi_attrs_data,
+            aliases_len: abi_aliases_len,
+            aliases_data: abi_aliases_data,
+            add_attr: abi_add_attr,
+            payloads_len: abi_payloads_len,
+            payloads_data: abi_payloads_data,
+            add_payload: abi_add_payload,
+        })
+    }
+}
+
 #[repr(u64)]
 #[derive(PartialEq, PartialOrd)]
 #[allow(dead_code)]
 enum Revision {
-    AddPayload = 6,
+    AddPayload = 9,
+}
+
+#[repr(C)]
+struct Alias {
+    id: Token,
+    target: Token,
 }
 
 struct LayerClassData {
     id: Token,
+    aliases: Vec<Alias>,
 }
 
 #[repr(C)]
 pub struct LayerClass {
     rev: Revision,
     abi_unsafe_data: Ptr<LayerClassData>,
-    id: extern "C" fn(class: *const LayerClass) -> Token,
+    id: extern "C" fn(*const LayerClass) -> Token,
+    aliases_len: extern "C" fn(*const LayerClass) -> u64,
+    aliases_data: extern "C" fn(*const LayerClass) -> *const Alias,
     data: extern "C" fn(*const Layer, *mut u64) -> *const u8,
     attrs_len: extern "C" fn(*const Layer) -> u64,
     attrs_data: extern "C" fn(*const Layer) -> *const Ptr<Attr>,
@@ -104,23 +158,15 @@ pub struct LayerClass {
 }
 
 impl LayerClass {
-    pub fn new(id: Token) -> Ptr<LayerClass> {
-        Ptr::new(LayerClass {
-            rev: Revision::AddPayload,
-            abi_unsafe_data: Ptr::from_box(Box::new(LayerClassData { id })),
-            id: abi_id,
-            data: abi_data,
-            attrs_len: abi_attrs_len,
-            attrs_data: abi_attrs_data,
-            add_attr: abi_add_attr,
-            payloads_len: abi_payloads_len,
-            payloads_data: abi_payloads_data,
-            add_payload: abi_add_payload,
-        })
-    }
-
     fn id(&self) -> Token {
         (self.id)(self)
+    }
+
+    fn aliases(&self) -> impl Iterator<Item = &Alias> {
+        let data = (self.aliases_data)(self);
+        let len = (self.aliases_len)(self) as usize;
+        let iter = unsafe { slice::from_raw_parts(data, len).iter() };
+        iter.map(|v| &*v)
     }
 
     fn data(&self, layer: &Layer) -> Slice {
@@ -146,6 +192,14 @@ impl LayerClass {
 
 extern "C" fn abi_id(class: *const LayerClass) -> Token {
     unsafe { (*class).abi_unsafe_data.id }
+}
+
+extern "C" fn abi_aliases_len(class: *const LayerClass) -> u64 {
+    unsafe { (*class).abi_unsafe_data.aliases.len() as u64 }
+}
+
+extern "C" fn abi_aliases_data(class: *const LayerClass) -> *const Alias {
+    unsafe { (*class).abi_unsafe_data.aliases.as_ptr() }
 }
 
 extern "C" fn abi_data(layer: *const Layer, len: *mut u64) -> *const u8 {
@@ -188,7 +242,7 @@ mod tests {
     use decoder::Decoder;
     use env;
     use layer::*;
-    use layer::{Layer, LayerClass};
+    use layer::{Layer, LayerClass, LayerClassBuilder};
     use slice::Slice;
     use std::io::Result;
     use variant::Variant;
@@ -196,7 +250,7 @@ mod tests {
     #[test]
     fn id() {
         let id = 123;
-        let class = LayerClass::new(id);
+        let class = LayerClassBuilder::new(id).build();
         let layer = Layer::new(&class, &[]);
         assert_eq!(layer.id(), id);
     }
@@ -204,14 +258,14 @@ mod tests {
     #[test]
     fn data() {
         let data = b"hello";
-        let class = LayerClass::new(0);
+        let class = LayerClassBuilder::new(0).build();
         let layer = Layer::new(&class, &data[..]);
         assert_eq!(layer.data(), &data[..]);
     }
 
     #[test]
     fn payloads() {
-        let class = LayerClass::new(0);
+        let class = LayerClassBuilder::new(0).build();
         let mut layer = Layer::new(&class, &[]);
         assert!(layer.payloads().next().is_none());
 
@@ -233,7 +287,7 @@ mod tests {
 
     #[test]
     fn attrs() {
-        let class = LayerClass::new(0);
+        let class = LayerClassBuilder::new(0).build();
         let mut layer = Layer::new(&class, &[]);
         assert!(layer.attrs().next().is_none());
 

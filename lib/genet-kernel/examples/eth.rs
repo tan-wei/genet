@@ -10,7 +10,7 @@ use genet_sdk::{
     context::Context,
     decoder,
     dissector::{Dissector, Status, Worker},
-    layer::{Layer, LayerClass},
+    layer::{Layer, LayerClass, LayerClassBuilder},
     ptr::Ptr,
     result::Result,
 };
@@ -44,7 +44,10 @@ impl Dissector for EthDissector {
 }
 
 lazy_static! {
-    static ref ETH_CLASS: Ptr<LayerClass> = LayerClass::new(token!("eth"));
+    static ref ETH_CLASS: Ptr<LayerClass> = LayerClassBuilder::new(token!("eth"))
+        .alias(token!("_.src"), token!("eth.src"))
+        .alias(token!("_.dst"), token!("eth.dst"))
+        .build();
     static ref SRC_CLASS: Ptr<AttrClass> =
         AttrClass::new(token!("eth"), token!("eth:mac"), decoder::Slice());
 }

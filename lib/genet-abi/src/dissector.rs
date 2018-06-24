@@ -160,7 +160,7 @@ extern "C" fn abi_new_worker(
 mod tests {
     use context::Context;
     use dissector::{Dissector, DissectorBox, Status, Worker, WorkerBox};
-    use layer::{Layer, LayerClass};
+    use layer::{Layer, LayerClass, LayerClassBuilder};
     use result::Result;
     use std::io;
 
@@ -170,7 +170,7 @@ mod tests {
 
         impl Worker for TestWorker {
             fn analyze(&mut self, _: &mut Layer) -> Result<Status> {
-                let class = LayerClass::new(1234);
+                let class = LayerClassBuilder::new(1234).build();
                 let layer = Layer::new(&class, &[]);
                 Ok(Status::Done(vec![layer]))
             }
@@ -190,7 +190,7 @@ mod tests {
         let mut diss = DissectorBox::new(TestDissector {});
         let mut worker = diss.new_worker("serial", &ctx).unwrap();
 
-        let class = LayerClass::new(0);
+        let class = LayerClassBuilder::new(0).build();
         let mut layer = Layer::new(&class, &[]);
         let mut results = Vec::new();
 
