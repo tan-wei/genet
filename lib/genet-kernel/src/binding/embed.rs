@@ -17,4 +17,4 @@ macro_rules! embed {
     }
 }
 
-embed!();
+embed!("../js/token.js");

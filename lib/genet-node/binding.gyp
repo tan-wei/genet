@@ -9,6 +9,7 @@
       "src/context.cpp",
       "src/session.cpp",
       "src/attr.cpp",
+      "src/token.cpp",
       "src/iterator.cpp",
       "src/layer.cpp",
     ]

@@ -2,6 +2,7 @@
 #include "attr.hpp"
 #include "context.hpp"
 #include "exports.hpp"
+#include "token.hpp"
 #include "frame.hpp"
 #include "iterator.hpp"
 #include "layer.hpp"
@@ -19,6 +20,7 @@ Module::Module() {}
 void Module::init(v8::Local<v8::Object> exports) {
   assert(!globalInstance);
   globalInstance = new Module();
+  Token::init(exports);
   IteratorWrapper::init(exports);
   SessionProfileWrapper::init(exports);
   SessionWrapper::init(exports);
