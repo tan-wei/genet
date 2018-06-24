@@ -47,9 +47,12 @@ impl Layer {
             .class
             .aliases()
             .find(|alias| alias.id == id)
-            .map(|alias| alias.id)
+            .map(|alias| alias.target)
             .unwrap_or(id);
-        self.attrs().find(|attr| attr.id() == id)
+        self.class
+            .headers()
+            .find(|attr| attr.id() == id)
+            .or_else(|| self.attrs().find(|attr| attr.id() == id))
     }
 
     pub fn add_attr(&mut self, attr: Attr) {
@@ -87,6 +90,7 @@ impl Payload {
 pub struct LayerClassBuilder {
     id: Token,
     aliases: Vec<Alias>,
+    headers: Vec<Ptr<Attr>>,
 }
 
 impl LayerClassBuilder {
@@ -94,11 +98,17 @@ impl LayerClassBuilder {
         Self {
             id,
             aliases: Vec::new(),
+            headers: Vec::new(),
         }
     }
 
     pub fn alias(mut self, id: Token, target: Token) -> LayerClassBuilder {
         self.aliases.push(Alias { id, target });
+        self
+    }
+
+    pub fn header(mut self, attr: Attr) -> LayerClassBuilder {
+        self.headers.push(Ptr::new(attr));
         self
     }
 
@@ -108,6 +118,7 @@ impl LayerClassBuilder {
             abi_unsafe_data: Ptr::from_box(Box::new(LayerClassData {
                 id: self.id,
                 aliases: self.aliases,
+                headers: self.headers,
             })),
             id: abi_id,
             data: abi_data,
@@ -115,6 +126,8 @@ impl LayerClassBuilder {
             attrs_data: abi_attrs_data,
             aliases_len: abi_aliases_len,
             aliases_data: abi_aliases_data,
+            headers_len: abi_headers_len,
+            headers_data: abi_headers_data,
             add_attr: abi_add_attr,
             payloads_len: abi_payloads_len,
             payloads_data: abi_payloads_data,
@@ -139,6 +152,7 @@ struct Alias {
 struct LayerClassData {
     id: Token,
     aliases: Vec<Alias>,
+    headers: Vec<Ptr<Attr>>,
 }
 
 #[repr(C)]
@@ -148,6 +162,8 @@ pub struct LayerClass {
     id: extern "C" fn(*const LayerClass) -> Token,
     aliases_len: extern "C" fn(*const LayerClass) -> u64,
     aliases_data: extern "C" fn(*const LayerClass) -> *const Alias,
+    headers_len: extern "C" fn(*const LayerClass) -> u64,
+    headers_data: extern "C" fn(*const LayerClass) -> *const Ptr<Attr>,
     data: extern "C" fn(*const Layer, *mut u64) -> *const u8,
     attrs_len: extern "C" fn(*const Layer) -> u64,
     attrs_data: extern "C" fn(*const Layer) -> *const Ptr<Attr>,
@@ -167,6 +183,13 @@ impl LayerClass {
         let len = (self.aliases_len)(self) as usize;
         let iter = unsafe { slice::from_raw_parts(data, len).iter() };
         iter.map(|v| &*v)
+    }
+
+    fn headers(&self) -> impl Iterator<Item = &Attr> {
+        let data = (self.headers_data)(self);
+        let len = (self.headers_len)(self) as usize;
+        let iter = unsafe { slice::from_raw_parts(data, len).iter() };
+        iter.map(|v| &**v)
     }
 
     fn data(&self, layer: &Layer) -> Slice {
@@ -200,6 +223,14 @@ extern "C" fn abi_aliases_len(class: *const LayerClass) -> u64 {
 
 extern "C" fn abi_aliases_data(class: *const LayerClass) -> *const Alias {
     unsafe { (*class).abi_unsafe_data.aliases.as_ptr() }
+}
+
+extern "C" fn abi_headers_len(class: *const LayerClass) -> u64 {
+    unsafe { (*class).abi_unsafe_data.headers.len() as u64 }
+}
+
+extern "C" fn abi_headers_data(class: *const LayerClass) -> *const Ptr<Attr> {
+    unsafe { (*class).abi_unsafe_data.headers.as_ptr() }
 }
 
 extern "C" fn abi_data(layer: *const Layer, len: *mut u64) -> *const u8 {
