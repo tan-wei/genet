@@ -1,7 +1,8 @@
 use genet_abi::dissector::DissectorBox;
-use genet_abi::env::{self, Allocator, Env};
+use genet_abi::env::{self, Allocator};
 use genet_abi::io::{ReaderBox, WriterBox};
 use genet_abi::ptr::{MutPtr, Ptr};
+use genet_abi::token::Token;
 use libloading::Library;
 use std::collections::HashMap;
 use std::fmt;
@@ -70,15 +71,21 @@ impl Profile {
     pub fn load_library(&mut self, path: &str) -> Result<(), io::Error> {
         let lib = Library::new(path)?;
 
-        type FnRegisterGetEnv = extern "C" fn(extern "C" fn() -> MutPtr<Env>);
+        type FnRegisterGetToken = extern "C" fn(extern "C" fn(*const u8, u64) -> Token);
+        type FnRegisterGetString = extern "C" fn(extern "C" fn(Token, *mut u64) -> *const u8);
         type FnRegisterGetAllocator = extern "C" fn(extern "C" fn() -> Ptr<Allocator>);
         type FnGetDissectors = extern "C" fn(*mut u64) -> *const DissectorBox;
         type FnGetReaders = extern "C" fn(*mut u64) -> *const ReaderBox;
         type FnGetWriters = extern "C" fn(*mut u64) -> *const WriterBox;
 
         {
-            let func = unsafe { lib.get::<FnRegisterGetEnv>(b"genet_abi_v1_register_get_env")? };
-            func(env::abi_genet_get_env);
+            let func =
+                unsafe { lib.get::<FnRegisterGetToken>(b"genet_abi_v1_register_get_token")? };
+            func(env::abi_genet_get_token);
+
+            let func =
+                unsafe { lib.get::<FnRegisterGetString>(b"genet_abi_v1_register_get_string")? };
+            func(env::abi_genet_get_string);
 
             let func = unsafe {
                 lib.get::<FnRegisterGetAllocator>(b"genet_abi_v1_register_get_allocator")?

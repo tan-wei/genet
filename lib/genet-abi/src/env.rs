@@ -9,8 +9,15 @@ use std::sync::Mutex;
 use token::Token;
 
 #[no_mangle]
-pub extern "C" fn genet_abi_v1_register_get_env(ptr: extern "C" fn() -> MutPtr<Env>) {
-    unsafe { GENET_GET_ENV = ptr };
+pub extern "C" fn genet_abi_v1_register_get_token(ptr: extern "C" fn(*const u8, u64) -> Token) {
+    unsafe { GENET_GET_TOKEN = ptr };
+}
+
+#[no_mangle]
+pub extern "C" fn genet_abi_v1_register_get_string(
+    ptr: extern "C" fn(Token, *mut u64) -> *const u8,
+) {
+    unsafe { GENET_GET_STRING = ptr };
 }
 
 #[no_mangle]
@@ -18,20 +25,9 @@ pub extern "C" fn genet_abi_v1_register_get_allocator(ptr: extern "C" fn() -> Pt
     unsafe { GENET_GET_ALLOCATOR = ptr };
 }
 
-static mut GENET_GET_ENV: extern "C" fn() -> MutPtr<Env> = abi_genet_get_env;
+static mut GENET_GET_TOKEN: extern "C" fn(*const u8, u64) -> Token = abi_genet_get_token;
+static mut GENET_GET_STRING: extern "C" fn(Token, *mut u64) -> *const u8 = abi_genet_get_string;
 static mut GENET_GET_ALLOCATOR: extern "C" fn() -> Ptr<Allocator> = abi_genet_get_allocator;
-
-pub extern "C" fn abi_genet_get_env() -> MutPtr<Env> {
-    MutPtr::new(Env {
-        rev: Revision::String,
-        data: MutPtr::new(EnvData {
-            tokens: HashMap::new(),
-            strings: vec![String::new()],
-        }),
-        token: abi_token,
-        string: abi_string,
-    })
-}
 
 pub extern "C" fn abi_genet_get_allocator() -> Ptr<Allocator> {
     extern "C" fn alloc(size: u64) -> *mut u8 {
@@ -50,54 +46,11 @@ pub extern "C" fn abi_genet_get_allocator() -> Ptr<Allocator> {
     })
 }
 
-lazy_static! {
-    static ref GLOBAL_ENV: Mutex<RefCell<MutPtr<Env>>> =
-        unsafe { Mutex::new(RefCell::new(GENET_GET_ENV())) };
-    static ref GLOBAL_ALLOCATOR: Ptr<Allocator> = unsafe { GENET_GET_ALLOCATOR() };
-}
-
-#[repr(C)]
-pub struct Allocator {
-    alloc: extern "C" fn(u64) -> *mut u8,
-    realloc: extern "C" fn(*mut u8, u64) -> *mut u8,
-    dealloc: extern "C" fn(*mut u8),
-}
-
-#[repr(u64)]
-#[derive(PartialEq, PartialOrd)]
-#[allow(dead_code)]
-enum Revision {
-    String = 1,
-}
-
-#[repr(C)]
-pub struct Env {
-    rev: Revision,
-    data: MutPtr<EnvData>,
-    token: extern "C" fn(*mut EnvData, *const u8, u64) -> Token,
-    string: extern "C" fn(*const EnvData, Token, *mut u64) -> *const u8,
-}
-
-struct EnvData {
-    tokens: HashMap<String, Token>,
-    strings: Vec<String>,
-}
-
-impl Env {
-    pub fn token(&mut self, id: &str) -> Token {
-        (self.token)(self.data.as_mut_ptr(), id.as_ptr(), id.len() as u64)
-    }
-
-    pub fn string(&self, id: Token) -> String {
-        let mut len: u64 = 0;
-        let s = (self.string)(self.data.as_ptr(), id, &mut len);
-        unsafe { str::from_utf8_unchecked(slice::from_raw_parts(s, len as usize)).to_string() }
-    }
-}
-
-extern "C" fn abi_token(env: *mut EnvData, data: *const u8, len: u64) -> Token {
-    let tokens = unsafe { &mut (*env).tokens };
-    let strings = unsafe { &mut (*env).strings };
+pub extern "C" fn abi_genet_get_token(data: *const u8, len: u64) -> Token {
+    let tokens = GLOBAL_TOKENS.lock().unwrap();
+    let mut tokens = tokens.borrow_mut();
+    let strings = GLOBAL_STRINGS.lock().unwrap();
+    let mut strings = strings.borrow_mut();
     let id = unsafe { str::from_utf8_unchecked(slice::from_raw_parts(data, len as usize)) };
     if id.is_empty() {
         return 0;
@@ -110,8 +63,9 @@ extern "C" fn abi_token(env: *mut EnvData, data: *const u8, len: u64) -> Token {
     *entry.or_insert(next as u64)
 }
 
-extern "C" fn abi_string(env: *const EnvData, token: Token, len: *mut u64) -> *const u8 {
-    let strings = unsafe { &(*env).strings };
+pub extern "C" fn abi_genet_get_string(token: Token, len: *mut u64) -> *const u8 {
+    let strings = GLOBAL_STRINGS.lock().unwrap();
+    let strings = strings.borrow();
     let index = token as usize;
     let s = if index < strings.len() {
         strings[index].as_str()
@@ -122,16 +76,29 @@ extern "C" fn abi_string(env: *const EnvData, token: Token, len: *mut u64) -> *c
     s.as_ptr()
 }
 
+lazy_static! {
+    static ref GLOBAL_ALLOCATOR: Ptr<Allocator> = unsafe { GENET_GET_ALLOCATOR() };
+    static ref GLOBAL_TOKENS: Mutex<RefCell<HashMap<String, Token>>> =
+        Mutex::new(RefCell::new(HashMap::new()));
+    static ref GLOBAL_STRINGS: Mutex<RefCell<Vec<String>>> =
+        Mutex::new(RefCell::new(vec![String::new()]));
+}
+
+#[repr(C)]
+pub struct Allocator {
+    alloc: extern "C" fn(u64) -> *mut u8,
+    realloc: extern "C" fn(*mut u8, u64) -> *mut u8,
+    dealloc: extern "C" fn(*mut u8),
+}
+
 pub fn token(id: &str) -> Token {
-    let env = GLOBAL_ENV.lock().unwrap();
-    let mut env = env.borrow_mut();
-    env.token(id)
+    unsafe { GENET_GET_TOKEN(id.as_ptr(), id.len() as u64) }
 }
 
 pub fn string(id: Token) -> String {
-    let env = GLOBAL_ENV.lock().unwrap();
-    let env = env.borrow();
-    env.string(id)
+    let mut len: u64 = 0;
+    let s = unsafe { GENET_GET_STRING(id, &mut len) };
+    unsafe { str::from_utf8_unchecked(slice::from_raw_parts(s, len as usize)).to_string() }
 }
 
 pub fn alloc(len: usize) -> *mut u8 {

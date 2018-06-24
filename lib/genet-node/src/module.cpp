@@ -2,11 +2,11 @@
 #include "attr.hpp"
 #include "context.hpp"
 #include "exports.hpp"
-#include "token.hpp"
 #include "frame.hpp"
 #include "iterator.hpp"
 #include "layer.hpp"
 #include "session.hpp"
+#include "token.hpp"
 #include <cassert>
 
 namespace genet_node {

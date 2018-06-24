@@ -1,8 +1,7 @@
-
 use genet_abi::env;
 use genet_abi::token::Token;
-use std::ffi::{CStr, CString};
 use libc;
+use std::ffi::{CStr, CString};
 use std::str;
 
 #[no_mangle]

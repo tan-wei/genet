@@ -16,15 +16,15 @@ NAN_METHOD(Token_string_wrap) {
     Nan::ThrowTypeError("First argument must be a number");
     return;
   }
-  auto str = Nan::New(genet_token_string(info[0]->Uint32Value())).ToLocalChecked();
+  auto str =
+      Nan::New(genet_token_string(info[0]->Uint32Value())).ToLocalChecked();
   info.GetReturnValue().Set(str);
 }
-}
+} // namespace
 
 namespace genet_node {
 namespace Token {
-void init(v8::Local<v8::Object> exports)
-{
+void init(v8::Local<v8::Object> exports) {
   auto token = Nan::New<v8::Object>();
   token->Set(Nan::New("get").ToLocalChecked(),
              Nan::New<v8::FunctionTemplate>(Token_get_wrap)->GetFunction());
@@ -32,5 +32,5 @@ void init(v8::Local<v8::Object> exports)
              Nan::New<v8::FunctionTemplate>(Token_string_wrap)->GetFunction());
   exports->Set(Nan::New("Token").ToLocalChecked(), token);
 }
-}
-}
+} // namespace Token
+} // namespace genet_node

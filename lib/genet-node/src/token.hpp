@@ -7,6 +7,6 @@ namespace genet_node {
 namespace Token {
 void init(v8::Local<v8::Object> exports);
 }
-}
+} // namespace genet_node
 
 #endif

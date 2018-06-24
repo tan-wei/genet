@@ -35,6 +35,8 @@ struct EthDissector {}
 
 impl Dissector for EthDissector {
     fn new_worker(&self, typ: &str, _ctx: &Context) -> Option<Box<Worker>> {
+        println!("EthDissector qqqq {:?}", token!("qqqq"));
+        println!("EthDissector bbbb {:?}", token!("bbbb"));
         if typ == "parallel" {
             Some(Box::new(EthWorker {}))
         } else {
