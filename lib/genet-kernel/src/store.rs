@@ -334,19 +334,22 @@ impl EventLoop {
         callback: &Callback,
     ) {
         for (id, filter) in filter_map.iter_mut() {
-            let mut indices = frames
-                .lock()
-                .unwrap()
-                .iter()
-                .skip(filter.offset)
-                .filter_map(|frame| {
-                    if filter.worker.test(frame) {
-                        Some(frame.index())
-                    } else {
-                        None
-                    }
-                })
-                .collect::<Vec<_>>();
+            let mut indices: Vec<u32> = {
+                let frames = frames.lock().unwrap();
+                let mut indeces = frames
+                    .iter()
+                    .skip(filter.offset)
+                    .filter_map(|frame| {
+                        if filter.worker.test(frame) {
+                            Some(frame.index())
+                        } else {
+                            None
+                        }
+                    })
+                    .collect::<Vec<_>>();
+                filter.offset = frames.len();
+                indeces
+            };
             if !indices.is_empty() {
                 let mut filtered = filtered.lock().unwrap();
                 let mut frames = filtered.entry(*id).or_insert_with(|| Vec::new());
