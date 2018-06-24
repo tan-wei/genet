@@ -69,19 +69,15 @@ NAN_GETTER(FrameWrapper::treeIndices) {
 
 NAN_METHOD(FrameWrapper::attr) {
   Token id = 0;
-  Token layer = 0;
   if (info[0]->IsUint32()) {
     id = info[0]->Uint32Value();
   } else {
     Nan::ThrowTypeError("First argument must be an integer");
     return;
   }
-  if (info[1]->IsUint32()) {
-    layer = info[1]->Uint32Value();
-  }
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
   if (auto frame = wrapper->frame) {
-    if (const Attr *attr = genet_frame_attr(frame, id, layer)) {
+    if (const Attr *attr = genet_frame_attr(frame, id)) {
       info.GetReturnValue().Set(AttrWrapper::wrap(attr));
     } else {
       info.GetReturnValue().Set(Nan::Null());

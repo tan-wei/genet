@@ -67,7 +67,7 @@ const Attr *genet_layer_attr(const Layer *layer, Token id);
 uint32_t genet_frame_index(const Frame *frame);
 Layer const *const *genet_frame_layers(const Frame *frame, uint32_t *len);
 uint8_t *genet_frame_tree_indices(const Frame *frame, uint32_t *len);
-const Attr *genet_frame_attr(const Frame *frame, Token id, Token layer);
+const Attr *genet_frame_attr(const Frame *frame, Token id);
 
 SessionProfile *genet_session_profile_new();
 uint32_t
