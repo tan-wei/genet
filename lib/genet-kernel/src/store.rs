@@ -98,13 +98,8 @@ impl Store {
         frames.len()
     }
 
-    pub fn set_filter<F: 'static + Filter>(&mut self, id: u32, filter: F) {
-        self.sender
-            .send(Command::SetFilter(id, Some(Box::new(filter))));
-    }
-
-    pub fn unset_filter(&mut self, id: u32) {
-        self.sender.send(Command::SetFilter(id, None));
+    pub fn set_filter(&mut self, id: u32, filter: Option<Box<Filter>>) {
+        self.sender.send(Command::SetFilter(id, filter));
     }
 
     pub fn push_output<O: 'static + Output>(&mut self, id: u32, output: O) {

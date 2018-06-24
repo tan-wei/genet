@@ -1,6 +1,7 @@
 #include "session.hpp"
 #include "context.hpp"
 #include "exports.hpp"
+#include "filter.hpp"
 #include "frame.hpp"
 #include "module.hpp"
 #include "script.hpp"
@@ -287,24 +288,28 @@ NAN_METHOD(SessionWrapper::closeReader) {
 NAN_METHOD(SessionWrapper::closeWriter) {}
 
 NAN_METHOD(SessionWrapper::setFilter) {
-  if (!info[0]->IsString()) {
-    Nan::ThrowTypeError("First argument must be a string");
+  if (!info[0]->IsUint32()) {
+    Nan::ThrowTypeError("First argument must be an integer");
     return;
   }
   if (!info[1]->IsString()) {
     Nan::ThrowTypeError("Second argument must be a string");
     return;
   }
-  Nan::Utf8String id(info[0]);
-  Nan::Utf8String filter(info[1]);
+  uint32_t id = info[0]->Uint32Value();
+  Nan::Utf8String script(info[1]);
 
+  Filter *filter = nullptr;
+  if (script.length() > 0) {
+    filter = FilterIsolate::createFilter(*script, script.length());
+  }
   if (auto wrapper = Nan::ObjectWrap::Unwrap<SessionWrapper>(info.Holder())) {
     if (!wrapper->event) {
       Nan::ThrowReferenceError("Session has been closed");
       return;
     }
     Session *session = wrapper->event->session;
-    // genet_session_set_filter(session, *id, *filter);
+    genet_session_set_filter(session, id, filter);
   }
 }
 

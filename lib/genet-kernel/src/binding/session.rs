@@ -171,6 +171,24 @@ pub extern "C" fn genet_session_close_reader(session: *mut Session, handle: u32)
         (*session).close_reader(handle);
     }
 }
+#[no_mangle]
+pub extern "C" fn genet_session_set_filter(
+    session: *mut Session,
+    id: u32,
+    filter: *mut FilterBase,
+) {
+    let filter = if filter.is_null() {
+        None
+    } else {
+        let b: Box<Filter> = Box::new(FFIFilter {
+            base: FilterBaseHolder(filter),
+        });
+        Some(b)
+    };
+    unsafe {
+        (*session).set_filter(id, filter);
+    }
+}
 
 #[no_mangle]
 pub extern "C" fn genet_session_len(session: *const Session) -> u32 {

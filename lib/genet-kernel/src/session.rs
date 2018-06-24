@@ -1,3 +1,4 @@
+use filter::Filter;
 use frame::Frame;
 use genet_abi::context;
 use genet_abi::dissector::Dissector;
@@ -69,7 +70,9 @@ impl Session {
         self.store.filtered_frames(id, range)
     }
 
-    pub fn set_filter(&self, id: u32, filter: Option<&str>) {}
+    pub fn set_filter(&mut self, id: u32, filter: Option<Box<Filter>>) {
+        self.store.set_filter(id, filter);
+    }
 
     pub fn create_reader(&mut self, id: &str, arg: &str) -> u32 {
         if let Some(reader) = self.profile.readers().find(|&&r| r.id().as_str() == id) {
