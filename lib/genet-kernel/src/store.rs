@@ -12,6 +12,7 @@ use std::{
     collections::HashMap,
     fmt,
     ops::Range,
+    panic::{self, AssertUnwindSafe},
     sync::{Arc, Mutex, Weak},
     thread::{self, JoinHandle},
 };
@@ -193,54 +194,59 @@ impl EventLoop {
         let (send, recv) = chan::async();
         let sender = send.clone();
         let handle = thread::spawn(move || {
-            let mut filter_map = HashMap::new();
-            let mut ppool = parallel::Pool::new(
-                profile.clone(),
-                ParallelCallback {
-                    sender: sender.clone(),
-                },
-            );
-            let mut spool = serial::Pool::new(
-                profile.clone(),
-                SerialCallback {
-                    sender: sender.clone(),
-                },
-            );
-            let mut cnt = 0;
-            callback.on_frames_updated(0);
-            loop {
-                if let Some(cmd) = recv.recv() {
-                    match cmd {
-                        Command::PushFrames(id, result) => {
-                            Self::process_input(id, result, &mut cnt, &mut ppool, &callback)
+            let result = panic::catch_unwind(AssertUnwindSafe(move || {
+                let mut filter_map = HashMap::new();
+                let mut ppool = parallel::Pool::new(
+                    profile.clone(),
+                    ParallelCallback {
+                        sender: sender.clone(),
+                    },
+                );
+                let mut spool = serial::Pool::new(
+                    profile.clone(),
+                    SerialCallback {
+                        sender: sender.clone(),
+                    },
+                );
+                let mut cnt = 0;
+                callback.on_frames_updated(0);
+                loop {
+                    if let Some(cmd) = recv.recv() {
+                        match cmd {
+                            Command::PushFrames(id, result) => {
+                                Self::process_input(id, result, &mut cnt, &mut ppool, &callback)
+                            }
+                            Command::PushSerialFrames(vec) => {
+                                spool.process(vec);
+                            }
+                            Command::StoreFrames(mut vec) => {
+                                let len = {
+                                    let mut frames = frames.lock().unwrap();
+                                    for f in vec.into_iter() {
+                                        frames.push(f);
+                                    }
+                                    frames.len()
+                                };
+                                callback.on_frames_updated(len as u32);
+                            }
+                            Command::SetFilter(id, filter) => Self::process_push_filter(
+                                id,
+                                filter,
+                                &filtered,
+                                &mut filter_map,
+                                &callback,
+                            ),
+                            Command::PushOutput(id, output) => {
+                                Self::process_output(id, output, &frames, &callback)
+                            }
+                            Command::Close => return,
                         }
-                        Command::PushSerialFrames(vec) => {
-                            spool.process(vec);
-                        }
-                        Command::StoreFrames(mut vec) => {
-                            let len = {
-                                let mut frames = frames.lock().unwrap();
-                                for f in vec.into_iter() {
-                                    frames.push(f);
-                                }
-                                frames.len()
-                            };
-                            callback.on_frames_updated(len as u32);
-                        }
-                        Command::SetFilter(id, filter) => Self::process_push_filter(
-                            id,
-                            filter,
-                            &filtered,
-                            &mut filter_map,
-                            &callback,
-                        ),
-                        Command::PushOutput(id, output) => {
-                            Self::process_output(id, output, &frames, &callback)
-                        }
-                        Command::Close => return,
                     }
+                    Self::process_filters(&frames, &filtered, &mut filter_map, &callback);
                 }
-                Self::process_filters(&frames, &filtered, &mut filter_map, &callback);
+            }));
+            if let Err(err) = result {
+                println!("{:?}", err);
             }
         });
         let ev = EventLoop {
