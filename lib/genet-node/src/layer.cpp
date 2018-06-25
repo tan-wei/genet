@@ -79,12 +79,12 @@ NAN_GETTER(LayerWrapper::attrs) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer.getConst()) {
 
-    uint64_t attrLength = 0;
+    uint32_t attrLength = 0;
     auto attrs = genet_layer_attrs(layer, &attrLength);
-    uint64_t headerLength = 0;
+    uint32_t headerLength = 0;
     auto headers = genet_layer_headers(layer, &headerLength);
 
-    uint64_t length = headerLength + attrLength;
+    uint32_t length = headerLength + attrLength;
     auto array = Nan::New<v8::Array>(length);
 
     for (uint32_t index = 0; index < headerLength; ++index) {

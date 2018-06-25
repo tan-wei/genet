@@ -25,19 +25,19 @@ pub extern "C" fn genet_layer_attr(layer: *const Layer, id: Token) -> *const Att
 }
 
 #[no_mangle]
-pub extern "C" fn genet_layer_attrs(layer: *const Layer, len: *mut u64) -> *const *const Attr {
+pub extern "C" fn genet_layer_attrs(layer: *const Layer, len: *mut u32) -> *const *const Attr {
     unsafe {
         let layer = &*layer;
-        *len = layer.attrs().len() as u64;
+        *len = layer.attrs().len() as u32;
         mem::transmute(layer.attrs().as_ptr())
     }
 }
 
 #[no_mangle]
-pub extern "C" fn genet_layer_headers(layer: *const Layer, len: *mut u64) -> *const *const Attr {
+pub extern "C" fn genet_layer_headers(layer: *const Layer, len: *mut u32) -> *const *const Attr {
     unsafe {
         let layer = &*layer;
-        *len = layer.headers().len() as u64;
+        *len = layer.headers().len() as u32;
         mem::transmute(layer.headers().as_ptr())
     }
 }

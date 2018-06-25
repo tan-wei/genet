@@ -329,7 +329,7 @@ mod tests {
     fn attrs() {
         let class = LayerClassBuilder::new(0).build();
         let mut layer = Layer::new(&class, &[]);
-        assert!(layer.attrs().next().is_none());
+        assert!(layer.attrs().is_empty());
 
         #[derive(Clone)]
         struct TestDecoder {}
@@ -346,7 +346,7 @@ mod tests {
             let attr = Attr::new(&class, 0..i);
             layer.add_attr(attr);
         }
-        let mut iter = layer.attrs();
+        let mut iter = layer.attrs().iter();
         for i in 0..count {
             let attr = iter.next().unwrap();
             assert_eq!(attr.id(), env::token("nil"));
