@@ -41,6 +41,15 @@ pub extern "C" fn genet_attr_type(attr: *const Attr) -> Token {
 }
 
 #[no_mangle]
+pub extern "C" fn genet_attr_range(attr: *const Attr, start: *mut u64, end: *mut u64) {
+    unsafe {
+        let range = (*attr).range();
+        *start = range.start as u64;
+        *end = range.end as u64;
+    }
+}
+
+#[no_mangle]
 pub extern "C" fn genet_attr_get(attr: *const Attr, layer: *const Layer) -> Var {
     let var = unsafe { (*attr).get(&*layer) };
     let mut typ = ValueType::Nil;

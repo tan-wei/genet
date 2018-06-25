@@ -38,7 +38,11 @@ impl Layer {
         self.class.data(self)
     }
 
-    pub fn attrs(&self) -> impl Iterator<Item = &Attr> {
+    pub fn headers(&self) -> &[Ptr<Attr>] {
+        self.class.headers()
+    }
+
+    pub fn attrs(&self) -> &[Ptr<Attr>] {
         self.class.attrs(self)
     }
 
@@ -51,8 +55,15 @@ impl Layer {
             .unwrap_or(id);
         self.class
             .headers()
+            .iter()
             .find(|attr| attr.id() == id)
-            .or_else(|| self.attrs().find(|attr| attr.id() == id))
+            .map(|attr| attr.as_ref())
+            .or_else(|| {
+                self.attrs()
+                    .iter()
+                    .find(|attr| attr.id() == id)
+                    .map(|attr| attr.as_ref())
+            })
     }
 
     pub fn add_attr(&mut self, attr: Attr) {
@@ -185,11 +196,10 @@ impl LayerClass {
         iter.map(|v| &*v)
     }
 
-    fn headers(&self) -> impl Iterator<Item = &Attr> {
+    fn headers(&self) -> &[Ptr<Attr>] {
         let data = (self.headers_data)(self);
         let len = (self.headers_len)(self) as usize;
-        let iter = unsafe { slice::from_raw_parts(data, len).iter() };
-        iter.map(|v| &**v)
+        unsafe { slice::from_raw_parts(data, len) }
     }
 
     fn data(&self, layer: &Layer) -> Slice {
@@ -198,11 +208,10 @@ impl LayerClass {
         unsafe { slice::from_raw_parts(data, len as usize) }
     }
 
-    fn attrs(&self, layer: &Layer) -> impl Iterator<Item = &Attr> {
+    fn attrs(&self, layer: &Layer) -> &[Ptr<Attr>] {
         let data = (self.attrs_data)(layer);
         let len = (self.attrs_len)(layer) as usize;
-        let iter = unsafe { slice::from_raw_parts(data, len).iter() };
-        iter.map(|v| &**v)
+        unsafe { slice::from_raw_parts(data, len) }
     }
 
     fn payloads(&self, layer: &Layer) -> impl Iterator<Item = &Payload> {

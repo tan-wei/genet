@@ -71,8 +71,11 @@ NAN_METHOD(FrameWrapper::attr) {
   Token id = 0;
   if (info[0]->IsUint32()) {
     id = info[0]->Uint32Value();
+  } else if (info[0]->IsString()) {
+    Nan::Utf8String str(info[0]);
+    id = genet_token_get(*str);
   } else {
-    Nan::ThrowTypeError("First argument must be an integer");
+    Nan::ThrowTypeError("First argument must be an integer or a string");
     return;
   }
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());

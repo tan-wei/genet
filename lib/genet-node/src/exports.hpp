@@ -58,11 +58,14 @@ void genet_context_free(Context *context);
 
 Token genet_attr_id(const Attr *attr);
 Token genet_attr_type(const Attr *attr);
+void genet_attr_range(const Attr *attr, uint64_t *start, uint64_t *end);
 Variant genet_attr_get(const Attr *attr, const Layer *layer);
 
 Layer *genet_layer_new(Token id);
 Token genet_layer_id(const Layer *layer);
 const Attr *genet_layer_attr(const Layer *layer, Token id);
+Attr const *const *genet_layer_attrs(const Layer *layer, uint64_t *len);
+Attr const *const *genet_layer_headers(const Layer *layer, uint64_t *len);
 
 uint32_t genet_frame_index(const Frame *frame);
 Layer const *const *genet_frame_layers(const Frame *frame, uint32_t *len);

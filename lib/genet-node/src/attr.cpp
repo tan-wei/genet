@@ -14,6 +14,7 @@ void AttrWrapper::init(v8::Local<v8::Object> exports) {
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
   Nan::SetAccessor(otl, Nan::New("type").ToLocalChecked(), type);
+  Nan::SetAccessor(otl, Nan::New("range").ToLocalChecked(), range);
 
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
@@ -39,14 +40,31 @@ AttrWrapper::~AttrWrapper() {}
 NAN_GETTER(AttrWrapper::id) {
   AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
   if (auto attr = wrapper->attr) {
-    info.GetReturnValue().Set(genet_attr_id(attr));
+    auto id =
+        Nan::New(genet_token_string(genet_attr_id(attr))).ToLocalChecked();
+    info.GetReturnValue().Set(id);
   }
 }
 
 NAN_GETTER(AttrWrapper::type) {
   AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
   if (auto attr = wrapper->attr) {
-    info.GetReturnValue().Set(genet_attr_type(attr));
+    auto id =
+        Nan::New(genet_token_string(genet_attr_type(attr))).ToLocalChecked();
+    info.GetReturnValue().Set(id);
+  }
+}
+
+NAN_GETTER(AttrWrapper::range) {
+  AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
+  if (auto attr = wrapper->attr) {
+    uint64_t start;
+    uint64_t end;
+    genet_attr_range(attr, &start, &end);
+    auto array = Nan::New<v8::Array>(2);
+    array->Set(0, Nan::New(static_cast<uint32_t>(start)));
+    array->Set(1, Nan::New(static_cast<uint32_t>(end)));
+    info.GetReturnValue().Set(array);
   }
 }
 

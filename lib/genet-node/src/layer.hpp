@@ -17,6 +17,7 @@ public:
   static NAN_METHOD(New);
   static NAN_GETTER(id);
   static NAN_METHOD(attr);
+  static NAN_GETTER(attrs);
 
 public:
   ~LayerWrapper();

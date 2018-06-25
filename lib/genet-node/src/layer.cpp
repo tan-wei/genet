@@ -17,6 +17,7 @@ void LayerWrapper::init(v8::Local<v8::Object> exports) {
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
+  Nan::SetAccessor(otl, Nan::New("attrs").ToLocalChecked(), attrs);
 
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
@@ -47,7 +48,9 @@ NAN_METHOD(LayerWrapper::New) {
 NAN_GETTER(LayerWrapper::id) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer.getConst()) {
-    info.GetReturnValue().Set(genet_layer_id(layer));
+    auto id =
+        Nan::New(genet_token_string(genet_layer_id(layer))).ToLocalChecked();
+    info.GetReturnValue().Set(id);
   }
 }
 
@@ -55,8 +58,11 @@ NAN_METHOD(LayerWrapper::attr) {
   Token id = 0;
   if (info[0]->IsUint32()) {
     id = info[0]->Uint32Value();
+  } else if (info[0]->IsString()) {
+    Nan::Utf8String str(info[0]);
+    id = genet_token_get(*str);
   } else {
-    Nan::ThrowTypeError("First argument must be an integer");
+    Nan::ThrowTypeError("First argument must be an integer or a string");
     return;
   }
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
@@ -66,6 +72,28 @@ NAN_METHOD(LayerWrapper::attr) {
     } else {
       info.GetReturnValue().Set(Nan::Null());
     }
+  }
+}
+
+NAN_GETTER(LayerWrapper::attrs) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->layer.getConst()) {
+
+    uint64_t attrLength = 0;
+    auto attrs = genet_layer_attrs(layer, &attrLength);
+    uint64_t headerLength = 0;
+    auto headers = genet_layer_headers(layer, &headerLength);
+
+    uint64_t length = headerLength + attrLength;
+    auto array = Nan::New<v8::Array>(length);
+
+    for (uint32_t index = 0; index < headerLength; ++index) {
+      array->Set(index, AttrWrapper::wrap(headers[index]));
+    }
+    for (uint32_t index = 0; index < attrLength; ++index) {
+      array->Set(index + headerLength, AttrWrapper::wrap(attrs[index]));
+    }
+    info.GetReturnValue().Set(array);
   }
 }
 

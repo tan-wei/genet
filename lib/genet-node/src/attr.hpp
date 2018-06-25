@@ -15,6 +15,7 @@ public:
   static NAN_METHOD(New);
   static NAN_GETTER(id);
   static NAN_GETTER(type);
+  static NAN_GETTER(range);
   static NAN_METHOD(get);
 
 public:
