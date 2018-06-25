@@ -64,6 +64,7 @@ Variant genet_attr_get(const Attr *attr, const Layer *layer);
 Layer *genet_layer_new(Token id);
 Token genet_layer_id(const Layer *layer);
 const Attr *genet_layer_attr(const Layer *layer, Token id);
+char *genet_layer_data(const Layer *layer, uint64_t *len);
 Attr const *const *genet_layer_attrs(const Layer *layer, uint32_t *len);
 Attr const *const *genet_layer_headers(const Layer *layer, uint32_t *len);
 

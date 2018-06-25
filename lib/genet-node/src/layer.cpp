@@ -18,6 +18,7 @@ void LayerWrapper::init(v8::Local<v8::Object> exports) {
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
   Nan::SetAccessor(otl, Nan::New("attrs").ToLocalChecked(), attrs);
+  Nan::SetAccessor(otl, Nan::New("data").ToLocalChecked(), data);
 
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
@@ -94,6 +95,17 @@ NAN_GETTER(LayerWrapper::attrs) {
       array->Set(index + headerLength, AttrWrapper::wrap(attrs[index]));
     }
     info.GetReturnValue().Set(array);
+  }
+}
+
+NAN_GETTER(LayerWrapper::data) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->layer.getConst()) {
+    uint64_t length = 0;
+    auto data = genet_layer_data(layer, &length);
+    info.GetReturnValue().Set(
+        Nan::NewBuffer(data, length, [](char *data, void *hint) {}, nullptr)
+            .ToLocalChecked());
   }
 }
 
