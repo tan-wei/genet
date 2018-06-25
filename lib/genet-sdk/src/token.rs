@@ -1,3 +1,14 @@
+use genet_abi::env;
+use genet_abi::token::Token;
+
+pub fn get(id: &str) -> Token {
+    env::token(id)
+}
+
+pub fn string(id: Token) -> String {
+    env::string(id)
+}
+
 #[macro_export]
 macro_rules! token {
     ($name:expr) => {{
