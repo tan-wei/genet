@@ -37,7 +37,7 @@ impl Attr {
         }
     }
 
-    pub fn with_value(class: Ptr<AttrClass>, range: Range<usize>, value: Variant) -> Attr {
+    pub fn with_value(class: &Ptr<AttrClass>, range: Range<usize>, value: Variant) -> Attr {
         Attr {
             class: class.clone(),
             abi_unsafe_data: AttrData {

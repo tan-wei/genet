@@ -7,20 +7,25 @@ extern crate serde_json;
 extern crate genet_sdk;
 
 #[macro_use]
+extern crate lazy_static;
+
+#[macro_use]
 extern crate serde_derive;
 
 use genet_sdk::{
+    attr::{Attr, AttrClass},
     context::Context,
+    decoder,
     io::{Reader, ReaderWorker},
     layer::{Layer, LayerClass, LayerClassBuilder},
     ptr::Ptr,
     result::Result,
     token,
+    variant::Variant,
 };
 use pcap::Header;
 
 use std::io::{BufRead, BufReader, Read};
-use std::iter;
 use std::mem;
 use std::process::{Child, ChildStdout, Command, Stdio};
 use std::slice;
@@ -36,7 +41,7 @@ struct Arg {
 struct PcapReader {}
 
 impl Reader for PcapReader {
-    fn new_worker(&self, ctx: &Context, arg: &str) -> Box<ReaderWorker> {
+    fn new_worker(&self, _ctx: &Context, arg: &str) -> Box<ReaderWorker> {
         let arg: Arg = serde_json::from_str(arg).unwrap();
         let mut child = Command::new(&arg.cmd)
             .args(&arg.args)
@@ -44,8 +49,13 @@ impl Reader for PcapReader {
             .spawn()
             .expect("failed to execute pcap_cli");
         let reader = BufReader::new(child.stdout.take().unwrap());
-        let link_class =
-            LayerClassBuilder::new(token::get(&format!("[link-{}]", arg.link))).build();
+        let link_class = LayerClassBuilder::new(token::get(&format!("[link-{}]", arg.link)))
+            .header(Attr::with_value(
+                &TYPE_CLASS,
+                0..0,
+                Variant::Int64(arg.link as i64),
+            ))
+            .build();
         Box::new(PcapReaderWorker {
             child,
             reader,
@@ -68,12 +78,27 @@ impl ReaderWorker for PcapReaderWorker {
     fn read(&mut self) -> Result<Vec<Layer>> {
         let mut header = String::new();
         let _ = self.reader.read_line(&mut header);
-        let header: Header = serde_json::from_str(&header).unwrap();
+        let header = header.trim();
+        if header.is_empty() {
+            return Ok(vec![]);
+        }
+        let header: Header = serde_json::from_str(header).unwrap();
         let mut data = vec![0u8; header.datalen as usize];
-        self.reader.read_exact(&mut data);
+        let _ = self.reader.read_exact(&mut data);
         let payload = unsafe { slice::from_raw_parts(data.as_ptr(), data.len()) };
         mem::forget(data);
-        Ok(vec![Layer::new(&self.link_class, payload)])
+        let mut layer = Layer::new(&self.link_class, payload);
+        layer.add_attr(Attr::with_value(
+            &LENGTH_CLASS,
+            0..0,
+            Variant::UInt64(header.actlen as u64),
+        ));
+        layer.add_attr(Attr::with_value(
+            &TIMESTAMP_CLASS,
+            0..0,
+            Variant::Float64(header.ts_sec as f64 + header.ts_usec as f64 / 1000_000f64),
+        ));
+        Ok(vec![layer])
     }
 }
 
@@ -81,6 +106,18 @@ impl Drop for PcapReaderWorker {
     fn drop(&mut self) {
         let _ = self.child.kill();
     }
+}
+
+lazy_static! {
+    static ref TYPE_CLASS: Ptr<AttrClass> =
+        AttrClass::new(token!("link.type"), token!(""), decoder::Nil());
+    static ref LENGTH_CLASS: Ptr<AttrClass> =
+        AttrClass::new(token!("link.length"), token!(""), decoder::Nil());
+    static ref TIMESTAMP_CLASS: Ptr<AttrClass> = AttrClass::new(
+        token!("link.timestamp"),
+        token!("@datetime:unix"),
+        decoder::Nil(),
+    );
 }
 
 genet_readers!(PcapReader {});
