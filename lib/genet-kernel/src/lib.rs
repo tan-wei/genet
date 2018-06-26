@@ -14,4 +14,5 @@ mod dissector;
 mod filter;
 mod frame;
 mod io;
+mod result;
 mod store;

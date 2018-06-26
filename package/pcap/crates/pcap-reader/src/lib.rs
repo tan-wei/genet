@@ -76,14 +76,14 @@ struct PcapReaderWorker {
 impl ReaderWorker for PcapReaderWorker {
     fn read(&mut self) -> Result<Vec<Layer>> {
         let mut header = String::new();
-        let _ = self.reader.read_line(&mut header);
+        self.reader.read_line(&mut header)?;
         let header = header.trim();
         if header.is_empty() {
             return Ok(vec![]);
         }
-        let header: Header = serde_json::from_str(header).unwrap();
+        let header: Header = serde_json::from_str(header)?;
         let mut data = vec![0u8; header.datalen as usize];
-        let _ = self.reader.read_exact(&mut data);
+        self.reader.read_exact(&mut data)?;
         let payload = unsafe { slice::from_raw_parts(data.as_ptr(), data.len()) };
         mem::forget(data);
         let mut layer = Layer::new(&self.link_class, payload);

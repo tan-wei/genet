@@ -1,13 +1,14 @@
 use filter::Filter;
 use frame::Frame;
+use genet_abi;
 use genet_abi::context;
 use genet_abi::dissector::Dissector;
 use genet_abi::io::{ReaderWorkerBox, WriterWorkerBox};
 use genet_abi::layer::Layer;
 use genet_abi::ptr::MutPtr;
-use genet_abi::result::Result;
 use io::{Input, Output};
 use profile::Profile;
+use result::Result;
 use serde::ser::{Serialize, SerializeMap, Serializer};
 use std::ops::Range;
 use std::thread::{self, JoinHandle};
@@ -191,7 +192,7 @@ impl WriterWorkerOutput {
 }
 
 impl Output for WriterWorkerOutput {
-    fn write(&mut self, frames: Option<&[&Frame]>) -> Result<()> {
+    fn write(&mut self, frames: Option<&[&Frame]>) -> genet_abi::result::Result<()> {
         Ok(())
     }
 }
@@ -208,7 +209,7 @@ impl ReaderWorkerInput {
 }
 
 impl Input for ReaderWorkerInput {
-    fn read(&mut self) -> Result<Vec<MutPtr<Layer>>> {
+    fn read(&mut self) -> genet_abi::result::Result<Vec<MutPtr<Layer>>> {
         self.worker.read()
     }
 }

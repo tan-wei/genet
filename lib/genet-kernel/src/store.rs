@@ -3,10 +3,10 @@ use chan;
 use dissector::{parallel, serial};
 use filter::{self, Filter};
 use frame::Frame;
-use genet_abi::result::Result;
 use genet_abi::{context::Context, layer::Layer, ptr::MutPtr, token::Token};
 use io::{Input, Output};
 use profile::Profile;
+use result::Result;
 use std::{
     cmp,
     collections::HashMap,
@@ -32,6 +32,21 @@ enum Command {
     SetFilter(u32, Option<Box<Filter>>),
     PushOutput(u32, Box<Output>),
     Close,
+}
+
+#[derive(Debug)]
+struct Error(String);
+
+impl ::std::error::Error for Error {
+    fn description(&self) -> &str {
+        &self.0
+    }
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
 }
 
 type FrameStore = Arc<Mutex<ArrayVec<Frame>>>;
@@ -299,13 +314,15 @@ impl EventLoop {
             let len = cmp::min(frames.len() - offset, Self::OUTPUT_BLOCK_SIZE);
             let frames = frames.iter().skip(offset).take(len).collect::<Vec<_>>();
             if let Err(err) = output.write(Some(frames.as_slice())) {
-                callback.on_output_done(id, Some(err));
+                let err = Error(err.description().to_string());
+                callback.on_output_done(id, Some(Box::new(err)));
                 return;
             }
             offset += len;
         }
         if let Err(err) = output.write(None) {
-            callback.on_output_done(id, Some(err));
+            let err = Error(err.description().to_string());
+            callback.on_output_done(id, Some(Box::new(err)));
             return;
         }
         callback.on_output_done(id, None);
