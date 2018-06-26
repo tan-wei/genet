@@ -51,9 +51,9 @@ lazy_static! {
         .header(Attr::new(&DST_CLASS, 6..12))
         .build();
     static ref SRC_CLASS: Ptr<AttrClass> =
-        AttrClass::new(token!("eth.src"), token!("eth:mac"), decoder::Slice());
+        AttrClass::with_decoder(token!("eth.src"), token!("eth:mac"), decoder::Slice());
     static ref DST_CLASS: Ptr<AttrClass> =
-        AttrClass::new(token!("eth.dst"), token!("eth:mac"), decoder::Slice());
+        AttrClass::with_decoder(token!("eth.dst"), token!("eth:mac"), decoder::Slice());
 }
 
 genet_dissectors!(EthDissector {});

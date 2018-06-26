@@ -15,7 +15,6 @@ extern crate serde_derive;
 use genet_sdk::{
     attr::{Attr, AttrClass},
     context::Context,
-    decoder,
     io::{Reader, ReaderWorker},
     layer::{Layer, LayerClass, LayerClassBuilder},
     ptr::Ptr,
@@ -110,13 +109,12 @@ impl Drop for PcapReaderWorker {
 
 lazy_static! {
     static ref TYPE_CLASS: Ptr<AttrClass> =
-        AttrClass::new(token!("link.type"), token!(), decoder::Nil());
+        AttrClass::new(token!("link.type"), token!());
     static ref LENGTH_CLASS: Ptr<AttrClass> =
-        AttrClass::new(token!("link.length"), token!(), decoder::Nil());
+        AttrClass::new(token!("link.length"), token!());
     static ref TIMESTAMP_CLASS: Ptr<AttrClass> = AttrClass::new(
         token!("link.timestamp"),
-        token!("@datetime:unix"),
-        decoder::Nil(),
+        token!("@datetime:unix")
     );
 }
 

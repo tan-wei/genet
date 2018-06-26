@@ -339,7 +339,7 @@ mod tests {
                 Ok(Variant::Nil)
             }
         }
-        let class = AttrClass::new(env::token("nil"), env::token("@nil"), TestDecoder {});
+        let class = AttrClass::with_decoder(env::token("nil"), env::token("@nil"), TestDecoder {});
 
         let count = 100;
         for i in 0..count {

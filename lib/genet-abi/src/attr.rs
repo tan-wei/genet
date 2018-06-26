@@ -1,4 +1,5 @@
 use decoder::Decoder;
+use decoder::Nil;
 use env;
 use error::Error;
 use layer::Layer;
@@ -103,7 +104,11 @@ struct AttrClassData {
 }
 
 impl AttrClass {
-    pub fn new<T: Decoder>(id: Token, typ: Token, decoder: T) -> Ptr<AttrClass> {
+    pub fn new(id: Token, typ: Token) -> Ptr<AttrClass> {
+        Self::with_decoder(id, typ, Nil())
+    }
+
+    pub fn with_decoder<T: Decoder>(id: Token, typ: Token, decoder: T) -> Ptr<AttrClass> {
         Ptr::new(AttrClass {
             rev: Revision::Range,
             abi_unsafe_data: Ptr::new(AttrClassData {
@@ -282,7 +287,7 @@ mod tests {
                 Ok(Variant::Nil)
             }
         }
-        let class = AttrClass::new(env::token("nil"), env::token("@nil"), TestDecoder {});
+        let class = AttrClass::with_decoder(env::token("nil"), env::token("@nil"), TestDecoder {});
         let attr = Attr::new(&class, 0..0);
         assert_eq!(attr.id(), env::token("nil"));
         assert_eq!(attr.typ(), env::token("@nil"));
@@ -306,7 +311,8 @@ mod tests {
                 Ok(Variant::Bool(data[0] == 1))
             }
         }
-        let class = AttrClass::new(env::token("bool"), env::token("@bool"), TestDecoder {});
+        let class =
+            AttrClass::with_decoder(env::token("bool"), env::token("@bool"), TestDecoder {});
         let attr = Attr::new(&class, 0..1);
         assert_eq!(attr.id(), env::token("bool"));
         assert_eq!(attr.typ(), env::token("@bool"));
@@ -330,7 +336,7 @@ mod tests {
                 Ok(Variant::UInt64(from_utf8(data).unwrap().parse().unwrap()))
             }
         }
-        let class = AttrClass::new(env::token("u64"), env::token("@u64"), TestDecoder {});
+        let class = AttrClass::with_decoder(env::token("u64"), env::token("@u64"), TestDecoder {});
         let attr = Attr::new(&class, 0..6);
         assert_eq!(attr.id(), env::token("u64"));
         assert_eq!(attr.typ(), env::token("@u64"));
@@ -354,7 +360,7 @@ mod tests {
                 Ok(Variant::Int64(from_utf8(data).unwrap().parse().unwrap()))
             }
         }
-        let class = AttrClass::new(env::token("i64"), env::token("@i64"), TestDecoder {});
+        let class = AttrClass::with_decoder(env::token("i64"), env::token("@i64"), TestDecoder {});
         let attr = Attr::new(&class, 0..6);
         assert_eq!(attr.id(), env::token("i64"));
         assert_eq!(attr.typ(), env::token("@i64"));
@@ -378,7 +384,8 @@ mod tests {
                 Ok(Variant::Buffer(data.to_vec().into_boxed_slice()))
             }
         }
-        let class = AttrClass::new(env::token("buffer"), env::token("@buffer"), TestDecoder {});
+        let class =
+            AttrClass::with_decoder(env::token("buffer"), env::token("@buffer"), TestDecoder {});
         let attr = Attr::new(&class, 0..6);
         assert_eq!(attr.id(), env::token("buffer"));
         assert_eq!(attr.typ(), env::token("@buffer"));
@@ -404,7 +411,8 @@ mod tests {
                 ))
             }
         }
-        let class = AttrClass::new(env::token("string"), env::token("@string"), TestDecoder {});
+        let class =
+            AttrClass::with_decoder(env::token("string"), env::token("@string"), TestDecoder {});
         let attr = Attr::new(&class, 0..6);
         assert_eq!(attr.id(), env::token("string"));
         assert_eq!(attr.typ(), env::token("@string"));
@@ -428,7 +436,8 @@ mod tests {
                 Ok(Variant::Slice(&data[0..3]))
             }
         }
-        let class = AttrClass::new(env::token("slice"), env::token("@slice"), TestDecoder {});
+        let class =
+            AttrClass::with_decoder(env::token("slice"), env::token("@slice"), TestDecoder {});
         let attr = Attr::new(&class, 0..6);
         assert_eq!(attr.id(), env::token("slice"));
         assert_eq!(attr.typ(), env::token("@slice"));
@@ -452,7 +461,8 @@ mod tests {
                 Err(From::from(Error::new(ErrorKind::Other, "oh no!")))
             }
         }
-        let class = AttrClass::new(env::token("slice"), env::token("@slice"), TestDecoder {});
+        let class =
+            AttrClass::with_decoder(env::token("slice"), env::token("@slice"), TestDecoder {});
         let attr = Attr::new(&class, 0..6);
         assert_eq!(attr.id(), env::token("slice"));
         assert_eq!(attr.typ(), env::token("@slice"));

@@ -87,3 +87,12 @@ where
         T::decode(self, data).map(|r| r.into())
     }
 }
+
+#[derive(Clone)]
+pub struct Nil();
+
+impl Decoder for Nil {
+    fn decode(&self, _data: &slice::Slice) -> Result<Variant> {
+        Ok(Variant::Nil)
+    }
+}
