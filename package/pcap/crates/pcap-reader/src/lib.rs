@@ -110,9 +110,9 @@ impl Drop for PcapReaderWorker {
 
 lazy_static! {
     static ref TYPE_CLASS: Ptr<AttrClass> =
-        AttrClass::new(token!("link.type"), token!(""), decoder::Nil());
+        AttrClass::new(token!("link.type"), token!(), decoder::Nil());
     static ref LENGTH_CLASS: Ptr<AttrClass> =
-        AttrClass::new(token!("link.length"), token!(""), decoder::Nil());
+        AttrClass::new(token!("link.length"), token!(), decoder::Nil());
     static ref TIMESTAMP_CLASS: Ptr<AttrClass> = AttrClass::new(
         token!("link.timestamp"),
         token!("@datetime:unix"),

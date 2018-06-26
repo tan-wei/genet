@@ -11,6 +11,9 @@ pub fn string(id: Token) -> String {
 
 #[macro_export]
 macro_rules! token {
+    () => {{
+        0
+    }};
     ($name:expr) => {{
         pub use genet_abi::env;
         pub use genet_abi::token::Token;
@@ -24,14 +27,14 @@ mod tests {
     #[test]
     fn token() {
         pub use genet_abi::env;
-        assert_eq!(token!(""), 0);
+        assert_eq!(token!(), 0);
         let token = token!("eth");
         assert_eq!(env::string(token), "eth");
         let token = token!("[eth]");
         assert_eq!(env::string(token), "[eth]");
         let token = token!("eth");
         assert_eq!(env::string(token), "eth");
-        let token = token!("");
+        let token = token!();
         assert_eq!(env::string(token), "");
         let token = token!("dd31817d-1501-4b2b-bcf6-d02e148d3ab9");
         assert_eq!(env::string(token), "dd31817d-1501-4b2b-bcf6-d02e148d3ab9");
