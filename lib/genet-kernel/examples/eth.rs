@@ -6,11 +6,11 @@ extern crate genet_abi;
 extern crate lazy_static;
 
 use genet_sdk::{
-    attr::{Attr, AttrClass},
+    attr::{Attr, AttrBuilder, AttrClass},
     context::Context,
     decoder,
     dissector::{Dissector, Status, Worker},
-    layer::{Layer, LayerClass, LayerClassBuilder},
+    layer::{Layer, LayerBuilder, LayerClass},
     ptr::Ptr,
     result::Result,
 };
@@ -21,8 +21,15 @@ impl Worker for EthWorker {
     fn analyze(&mut self, parent: &mut Layer) -> Result<Status> {
         if parent.id() == token!("[link-1]") {
             let mut layer = Layer::new(&ETH_CLASS, parent.data());
-            let attr = Attr::new(&SRC_CLASS, 0..6);
-            layer.add_attr(attr);
+            let len_attr = Attr::new(&LEN_ATTR, 12..14);
+            let typ_attr = Attr::new(&TYPE_ATTR, 12..14);
+            let len = len_attr.get(&layer)?.get_u64()?;
+            if len <= 1500 {
+                layer.add_attr(len_attr);
+            } else {
+                layer.add_attr(typ_attr);
+            }
+            layer.add_payload(&parent.data()[14..], token!());
             Ok(Status::Done(vec![layer]))
         } else {
             Ok(Status::Skip)
@@ -44,16 +51,26 @@ impl Dissector for EthDissector {
 }
 
 lazy_static! {
-    static ref ETH_CLASS: Ptr<LayerClass> = LayerClassBuilder::new(token!("eth"))
+    static ref ETH_CLASS: Ptr<LayerClass> = LayerBuilder::new(token!("eth"))
         .alias(token!("_.src"), token!("eth.src"))
         .alias(token!("_.dst"), token!("eth.dst"))
-        .header(Attr::new(&SRC_CLASS, 0..6))
-        .header(Attr::new(&DST_CLASS, 6..12))
+        .header(Attr::new(&SRC_ATTR, 0..6))
+        .header(Attr::new(&DST_ATTR, 6..12))
         .build();
-    static ref SRC_CLASS: Ptr<AttrClass> =
-        AttrClass::with_decoder(token!("eth.src"), token!("eth:mac"), decoder::Slice());
-    static ref DST_CLASS: Ptr<AttrClass> =
-        AttrClass::with_decoder(token!("eth.dst"), token!("eth:mac"), decoder::Slice());
+    static ref SRC_ATTR: Ptr<AttrClass> = AttrBuilder::new(token!("eth.src"))
+        .typ(token!("eth:mac"))
+        .decoder(decoder::Slice())
+        .build();
+    static ref DST_ATTR: Ptr<AttrClass> = AttrBuilder::new(token!("eth.dst"))
+        .typ(token!("eth:mac"))
+        .decoder(decoder::Slice())
+        .build();
+    static ref LEN_ATTR: Ptr<AttrClass> = AttrBuilder::new(token!("eth.len"))
+        .decoder(decoder::UInt16BE())
+        .build();
+    static ref TYPE_ATTR: Ptr<AttrClass> = AttrBuilder::new(token!("eth.type"))
+        .decoder(decoder::UInt16BE())
+        .build();
 }
 
 genet_dissectors!(EthDissector {});

@@ -98,14 +98,14 @@ impl Payload {
     }
 }
 
-pub struct LayerClassBuilder {
+pub struct LayerBuilder {
     id: Token,
     aliases: Vec<Alias>,
     headers: Vec<Ptr<Attr>>,
 }
 
-impl LayerClassBuilder {
-    pub fn new(id: Token) -> LayerClassBuilder {
+impl LayerBuilder {
+    pub fn new(id: Token) -> LayerBuilder {
         Self {
             id,
             aliases: Vec::new(),
@@ -113,12 +113,12 @@ impl LayerClassBuilder {
         }
     }
 
-    pub fn alias(mut self, id: Token, target: Token) -> LayerClassBuilder {
+    pub fn alias(mut self, id: Token, target: Token) -> LayerBuilder {
         self.aliases.push(Alias { id, target });
         self
     }
 
-    pub fn header(mut self, attr: Attr) -> LayerClassBuilder {
+    pub fn header(mut self, attr: Attr) -> LayerBuilder {
         self.headers.push(Ptr::new(attr));
         self
     }
@@ -278,11 +278,11 @@ extern "C" fn abi_add_payload(layer: *mut Layer, data: *const u8, len: u64, typ:
 
 #[cfg(test)]
 mod tests {
-    use attr::{Attr, AttrClass};
+    use attr::{Attr, AttrBuilder, AttrClass};
     use decoder::Decoder;
     use env;
     use layer::*;
-    use layer::{Layer, LayerClass, LayerClassBuilder};
+    use layer::{Layer, LayerBuilder, LayerClass};
     use slice::Slice;
     use std::io::Result;
     use variant::Variant;
@@ -290,7 +290,7 @@ mod tests {
     #[test]
     fn id() {
         let id = 123;
-        let class = LayerClassBuilder::new(id).build();
+        let class = LayerBuilder::new(id).build();
         let layer = Layer::new(&class, &[]);
         assert_eq!(layer.id(), id);
     }
@@ -298,14 +298,14 @@ mod tests {
     #[test]
     fn data() {
         let data = b"hello";
-        let class = LayerClassBuilder::new(0).build();
+        let class = LayerBuilder::new(0).build();
         let layer = Layer::new(&class, &data[..]);
         assert_eq!(layer.data(), &data[..]);
     }
 
     #[test]
     fn payloads() {
-        let class = LayerClassBuilder::new(0).build();
+        let class = LayerBuilder::new(0).build();
         let mut layer = Layer::new(&class, &[]);
         assert!(layer.payloads().next().is_none());
 
@@ -327,7 +327,7 @@ mod tests {
 
     #[test]
     fn attrs() {
-        let class = LayerClassBuilder::new(0).build();
+        let class = LayerBuilder::new(0).build();
         let mut layer = Layer::new(&class, &[]);
         assert!(layer.attrs().is_empty());
 
@@ -339,7 +339,10 @@ mod tests {
                 Ok(Variant::Nil)
             }
         }
-        let class = AttrClass::with_decoder(env::token("nil"), env::token("@nil"), TestDecoder {});
+        let class = AttrBuilder::new(env::token("nil"))
+            .typ(env::token("@nil"))
+            .decoder(TestDecoder {})
+            .build();
 
         let count = 100;
         for i in 0..count {

@@ -1,1 +1,1 @@
-pub use genet_abi::attr::{Attr, AttrClass};
+pub use genet_abi::attr::{Attr, AttrBuilder, AttrClass};

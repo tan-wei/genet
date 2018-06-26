@@ -87,6 +87,47 @@ enum Revision {
     Range = 2,
 }
 
+pub struct AttrBuilder {
+    id: Token,
+    typ: Token,
+    decoder: Box<Decoder>,
+}
+
+impl AttrBuilder {
+    pub fn new(id: Token) -> AttrBuilder {
+        Self {
+            id,
+            typ: 0,
+            decoder: Box::new(Nil()),
+        }
+    }
+
+    pub fn typ(mut self, typ: Token) -> AttrBuilder {
+        self.typ = typ;
+        self
+    }
+
+    pub fn decoder<T: Decoder>(mut self, decoder: T) -> AttrBuilder {
+        self.decoder = decoder.clone_box();
+        self
+    }
+
+    pub fn build(self) -> Ptr<AttrClass> {
+        Ptr::new(AttrClass {
+            rev: Revision::Range,
+            abi_unsafe_data: Ptr::new(AttrClassData {
+                id: self.id,
+                typ: self.typ,
+                decoder: self.decoder,
+            }),
+            id: abi_id,
+            typ: abi_typ,
+            range: abi_range,
+            get: abi_get,
+        })
+    }
+}
+
 #[repr(C)]
 pub struct AttrClass {
     rev: Revision,
@@ -104,25 +145,6 @@ struct AttrClassData {
 }
 
 impl AttrClass {
-    pub fn new(id: Token, typ: Token) -> Ptr<AttrClass> {
-        Self::with_decoder(id, typ, Nil())
-    }
-
-    pub fn with_decoder<T: Decoder>(id: Token, typ: Token, decoder: T) -> Ptr<AttrClass> {
-        Ptr::new(AttrClass {
-            rev: Revision::Range,
-            abi_unsafe_data: Ptr::new(AttrClassData {
-                id,
-                typ,
-                decoder: decoder.clone_box(),
-            }),
-            id: abi_id,
-            typ: abi_typ,
-            range: abi_range,
-            get: abi_get,
-        })
-    }
-
     fn id(&self) -> Token {
         (self.id)(self)
     }
@@ -267,10 +289,10 @@ extern "C" fn abi_get(
 
 #[cfg(test)]
 mod tests {
-    use attr::{Attr, AttrClass};
+    use attr::{Attr, AttrBuilder, AttrClass};
     use decoder::Decoder;
     use env;
-    use layer::{Layer, LayerClass, LayerClassBuilder};
+    use layer::{Layer, LayerBuilder, LayerClass};
     use slice::Slice;
     use std::error;
     use std::io::{Error, ErrorKind, Result};
@@ -287,13 +309,16 @@ mod tests {
                 Ok(Variant::Nil)
             }
         }
-        let class = AttrClass::with_decoder(env::token("nil"), env::token("@nil"), TestDecoder {});
+        let class = AttrBuilder::new(env::token("nil"))
+            .typ(env::token("@nil"))
+            .decoder(TestDecoder {})
+            .build();
         let attr = Attr::new(&class, 0..0);
         assert_eq!(attr.id(), env::token("nil"));
         assert_eq!(attr.typ(), env::token("@nil"));
         assert_eq!(attr.range(), 0..0);
 
-        let class = LayerClassBuilder::new(0).build();
+        let class = LayerBuilder::new(0).build();
         let layer = Layer::new(&class, &[]);
         match attr.get(&layer).unwrap() {
             Variant::Nil => (),
@@ -311,14 +336,16 @@ mod tests {
                 Ok(Variant::Bool(data[0] == 1))
             }
         }
-        let class =
-            AttrClass::with_decoder(env::token("bool"), env::token("@bool"), TestDecoder {});
+        let class = AttrBuilder::new(env::token("bool"))
+            .typ(env::token("@bool"))
+            .decoder(TestDecoder {})
+            .build();
         let attr = Attr::new(&class, 0..1);
         assert_eq!(attr.id(), env::token("bool"));
         assert_eq!(attr.typ(), env::token("@bool"));
         assert_eq!(attr.range(), 0..1);
 
-        let class = LayerClassBuilder::new(0).build();
+        let class = LayerBuilder::new(0).build();
         let layer = Layer::new(&class, &[1]);
         match attr.get(&layer).unwrap() {
             Variant::Bool(val) => assert!(val),
@@ -336,13 +363,16 @@ mod tests {
                 Ok(Variant::UInt64(from_utf8(data).unwrap().parse().unwrap()))
             }
         }
-        let class = AttrClass::with_decoder(env::token("u64"), env::token("@u64"), TestDecoder {});
+        let class = AttrBuilder::new(env::token("u64"))
+            .typ(env::token("@u64"))
+            .decoder(TestDecoder {})
+            .build();
         let attr = Attr::new(&class, 0..6);
         assert_eq!(attr.id(), env::token("u64"));
         assert_eq!(attr.typ(), env::token("@u64"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = LayerClassBuilder::new(0).build();
+        let class = LayerBuilder::new(0).build();
         let layer = Layer::new(&class, b"123456789");
         match attr.get(&layer).unwrap() {
             Variant::UInt64(val) => assert_eq!(val, 123456),
@@ -360,13 +390,16 @@ mod tests {
                 Ok(Variant::Int64(from_utf8(data).unwrap().parse().unwrap()))
             }
         }
-        let class = AttrClass::with_decoder(env::token("i64"), env::token("@i64"), TestDecoder {});
+        let class = AttrBuilder::new(env::token("i64"))
+            .typ(env::token("@i64"))
+            .decoder(TestDecoder {})
+            .build();
         let attr = Attr::new(&class, 0..6);
         assert_eq!(attr.id(), env::token("i64"));
         assert_eq!(attr.typ(), env::token("@i64"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = LayerClassBuilder::new(0).build();
+        let class = LayerBuilder::new(0).build();
         let layer = Layer::new(&class, b"-123456789");
         match attr.get(&layer).unwrap() {
             Variant::Int64(val) => assert_eq!(val, -12345),
@@ -384,14 +417,16 @@ mod tests {
                 Ok(Variant::Buffer(data.to_vec().into_boxed_slice()))
             }
         }
-        let class =
-            AttrClass::with_decoder(env::token("buffer"), env::token("@buffer"), TestDecoder {});
+        let class = AttrBuilder::new(env::token("buffer"))
+            .typ(env::token("@buffer"))
+            .decoder(TestDecoder {})
+            .build();
         let attr = Attr::new(&class, 0..6);
         assert_eq!(attr.id(), env::token("buffer"));
         assert_eq!(attr.typ(), env::token("@buffer"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = LayerClassBuilder::new(0).build();
+        let class = LayerBuilder::new(0).build();
         let layer = Layer::new(&class, b"123456789");
         match attr.get(&layer).unwrap() {
             Variant::Buffer(val) => assert_eq!(&*val, b"123456"),
@@ -411,14 +446,16 @@ mod tests {
                 ))
             }
         }
-        let class =
-            AttrClass::with_decoder(env::token("string"), env::token("@string"), TestDecoder {});
+        let class = AttrBuilder::new(env::token("string"))
+            .typ(env::token("@string"))
+            .decoder(TestDecoder {})
+            .build();
         let attr = Attr::new(&class, 0..6);
         assert_eq!(attr.id(), env::token("string"));
         assert_eq!(attr.typ(), env::token("@string"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = LayerClassBuilder::new(0).build();
+        let class = LayerBuilder::new(0).build();
         let layer = Layer::new(&class, b"123456789");
         match attr.get(&layer).unwrap() {
             Variant::String(val) => assert_eq!(&*val, "123456"),
@@ -436,14 +473,16 @@ mod tests {
                 Ok(Variant::Slice(&data[0..3]))
             }
         }
-        let class =
-            AttrClass::with_decoder(env::token("slice"), env::token("@slice"), TestDecoder {});
+        let class = AttrBuilder::new(env::token("slice"))
+            .typ(env::token("@slice"))
+            .decoder(TestDecoder {})
+            .build();
         let attr = Attr::new(&class, 0..6);
         assert_eq!(attr.id(), env::token("slice"));
         assert_eq!(attr.typ(), env::token("@slice"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = LayerClassBuilder::new(0).build();
+        let class = LayerBuilder::new(0).build();
         let layer = Layer::new(&class, b"123456789");
         match attr.get(&layer).unwrap() {
             Variant::Slice(val) => assert_eq!(val, b"123"),
@@ -461,14 +500,16 @@ mod tests {
                 Err(From::from(Error::new(ErrorKind::Other, "oh no!")))
             }
         }
-        let class =
-            AttrClass::with_decoder(env::token("slice"), env::token("@slice"), TestDecoder {});
+        let class = AttrBuilder::new(env::token("slice"))
+            .typ(env::token("@slice"))
+            .decoder(TestDecoder {})
+            .build();
         let attr = Attr::new(&class, 0..6);
         assert_eq!(attr.id(), env::token("slice"));
         assert_eq!(attr.typ(), env::token("@slice"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = LayerClassBuilder::new(0).build();
+        let class = LayerBuilder::new(0).build();
         let layer = Layer::new(&class, b"123456789");
         match attr.get(&layer) {
             Err(err) => assert_eq!(err.description(), "oh no!"),

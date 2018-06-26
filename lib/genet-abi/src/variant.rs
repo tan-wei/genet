@@ -1,5 +1,6 @@
 use slice::Slice;
 use std::convert::Into;
+use std::io::{Error, ErrorKind, Result};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Variant {
@@ -11,6 +12,15 @@ pub enum Variant {
     String(Box<str>),
     Buffer(Box<[u8]>),
     Slice(Slice),
+}
+
+impl Variant {
+    pub fn get_u64(&self) -> Result<u64> {
+        match self {
+            Variant::UInt64(v) => Ok(*v),
+            _ => Err(Error::new(ErrorKind::InvalidData, "Wrong type")),
+        }
+    }
 }
 
 impl Into<Variant> for bool {
