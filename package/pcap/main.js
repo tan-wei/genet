@@ -1,7 +1,7 @@
 const m = require('mithril')
 const path = require('path')
 const { execFile } = require('child_process')
-const PermissionMassage = require(`${__dirname}/permission-message`)
+const PermissionMassage = require('./permission-message')
 class PcapView {
   constructor () {
     this.devices = []
