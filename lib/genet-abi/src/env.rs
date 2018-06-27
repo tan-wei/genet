@@ -60,7 +60,7 @@ pub extern "C" fn abi_genet_get_token(data: *const u8, len: u64) -> Token {
     if let Entry::Vacant(_) = entry {
         strings.push(String::from(id));
     }
-    *entry.or_insert(Token::new(next as u64))
+    *entry.or_insert(Token::from(next as u64))
 }
 
 pub extern "C" fn abi_genet_get_string(token: Token, len: *mut u64) -> *const u8 {
@@ -91,11 +91,11 @@ pub struct Allocator {
     dealloc: extern "C" fn(*mut u8),
 }
 
-pub fn token(id: &str) -> Token {
+pub(crate) fn token(id: &str) -> Token {
     unsafe { GENET_GET_TOKEN(id.as_ptr(), id.len() as u64) }
 }
 
-pub fn string(id: Token) -> String {
+pub(crate) fn string(id: Token) -> String {
     let mut len: u64 = 0;
     let s = unsafe { GENET_GET_STRING(id, &mut len) };
     unsafe { str::from_utf8_unchecked(slice::from_raw_parts(s, len as usize)).to_string() }
@@ -115,22 +115,21 @@ pub fn dealloc(ptr: *mut u8) {
 
 #[cfg(test)]
 mod tests {
-    use env;
     use token::Token;
 
     #[test]
     fn token() {
-        assert_eq!(env::token(""), Token::null());
-        let token = env::token("eth");
-        assert_eq!(env::string(token), "eth");
-        let token = env::token("[eth]");
-        assert_eq!(env::string(token), "[eth]");
-        let token = env::token("eth");
-        assert_eq!(env::string(token), "eth");
-        let token = env::token("");
-        assert_eq!(env::string(token), "");
-        let token = env::token("dd31817d-1501-4b2b-bcf6-d02e148d3ab9");
-        assert_eq!(env::string(token), "dd31817d-1501-4b2b-bcf6-d02e148d3ab9");
-        assert_eq!(env::string(Token::new(1000)), "");
+        assert_eq!(Token::from(""), Token::null());
+        let token = Token::from("eth");
+        assert_eq!(token.to_string(), "eth");
+        let token = Token::from("[eth]");
+        assert_eq!(token.to_string(), "[eth]");
+        let token = Token::from("eth");
+        assert_eq!(token.to_string(), "eth");
+        let token = Token::from("");
+        assert_eq!(token.to_string(), "");
+        let token = Token::from("dd31817d-1501-4b2b-bcf6-d02e148d3ab9");
+        assert_eq!(token.to_string(), "dd31817d-1501-4b2b-bcf6-d02e148d3ab9");
+        assert_eq!(Token::from(1000).to_string(), "");
     }
 }

@@ -1,13 +1,4 @@
-use genet_abi::env;
 use genet_abi::token::Token;
-
-pub fn get(id: &str) -> Token {
-    env::token(id)
-}
-
-pub fn string(id: Token) -> String {
-    env::string(id)
-}
 
 #[macro_export]
 macro_rules! token {
@@ -16,9 +7,8 @@ macro_rules! token {
         Token::null()
     }};
     ($name:expr) => {{
-        use genet_abi::env;
         use genet_abi::token::Token;
-        thread_local!(static TOKEN: Token = { env::token($name as &'static str) };);
+        thread_local!(static TOKEN: Token = { Token::from($name) };);
         TOKEN.with(|&t| t)
     }};
 }
@@ -32,15 +22,15 @@ mod tests {
         pub use genet_abi::env;
         assert_eq!(token!(), Token::null());
         let token = token!("eth");
-        assert_eq!(env::string(token), "eth");
+        assert_eq!(token.to_string(), "eth");
         let token = token!("[eth]");
-        assert_eq!(env::string(token), "[eth]");
+        assert_eq!(token.to_string(), "[eth]");
         let token = token!("eth");
-        assert_eq!(env::string(token), "eth");
+        assert_eq!(token.to_string(), "eth");
         let token = token!();
-        assert_eq!(env::string(token), "");
+        assert_eq!(token.to_string(), "");
         let token = token!("dd31817d-1501-4b2b-bcf6-d02e148d3ab9");
-        assert_eq!(env::string(token), "dd31817d-1501-4b2b-bcf6-d02e148d3ab9");
-        assert_eq!(env::string(Token::new(1000)), "");
+        assert_eq!(token.to_string(), "dd31817d-1501-4b2b-bcf6-d02e148d3ab9");
+        assert_eq!(Token::from(1000).to_string(), "");
     }
 }

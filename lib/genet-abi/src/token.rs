@@ -1,18 +1,21 @@
+use env;
+use std::fmt;
+
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Token(u64);
 
 impl Token {
-    pub fn new(id: u64) -> Token {
-        Token(id)
-    }
-
     pub fn null() -> Token {
-        Self::new(0)
+        Token(0)
     }
 
     pub fn as_u64(self) -> u64 {
         self.0
+    }
+
+    pub fn to_string(&self) -> String {
+        env::string(*self)
     }
 }
 
@@ -24,6 +27,18 @@ impl Into<u64> for Token {
 
 impl From<u64> for Token {
     fn from(id: u64) -> Token {
-        Self::new(id)
+        Token(id)
+    }
+}
+
+impl<'a> From<&'a str> for Token {
+    fn from(id: &'a str) -> Token {
+        env::token(id)
+    }
+}
+
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.pad(&self.to_string())
     }
 }

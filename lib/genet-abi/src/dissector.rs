@@ -171,7 +171,7 @@ mod tests {
 
         impl Worker for TestWorker {
             fn analyze(&mut self, _: &mut Layer) -> Result<Status> {
-                let class = LayerBuilder::new(Token::new(1234)).build();
+                let class = LayerBuilder::new(Token::from(1234)).build();
                 let layer = Layer::new(&class, &[]);
                 Ok(Status::Done(vec![layer]))
             }
@@ -198,6 +198,6 @@ mod tests {
         assert_eq!(worker.analyze(&mut layer, &mut results).unwrap(), true);
         assert_eq!(results.len(), 1);
         let child = &results[0];
-        assert_eq!(child.id(), Token::new(1234));
+        assert_eq!(child.id(), Token::from(1234));
     }
 }

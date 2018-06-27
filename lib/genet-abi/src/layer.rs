@@ -290,7 +290,7 @@ mod tests {
 
     #[test]
     fn id() {
-        let id = Token::new(123);
+        let id = Token::from(123);
         let class = LayerBuilder::new(id).build();
         let layer = Layer::new(&class, &[]);
         assert_eq!(layer.id(), id);
@@ -314,14 +314,14 @@ mod tests {
         let data = b"hello";
 
         for i in 0..count {
-            layer.add_payload(data, Token::new(i));
+            layer.add_payload(data, Token::from(i));
         }
 
         let mut iter = layer.payloads();
         for i in 0..count {
             let payload = iter.next().unwrap();
             assert_eq!(payload.data(), data);
-            assert_eq!(payload.typ(), Token::new(i));
+            assert_eq!(payload.typ(), Token::from(i));
         }
         assert!(iter.next().is_none());
     }
