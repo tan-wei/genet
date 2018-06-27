@@ -1,1 +1,1 @@
-pub use genet_abi::slice::Slice;
+pub use genet_abi::slice::{Slice, SliceIndex};

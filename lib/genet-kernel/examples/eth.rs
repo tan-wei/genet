@@ -16,6 +16,7 @@ use genet_sdk::{
     layer::{Layer, LayerBuilder, LayerClass},
     ptr::Ptr,
     result::Result,
+    slice::SliceIndex,
 };
 use std::collections::HashMap;
 use std::io::{Error, ErrorKind};
@@ -37,10 +38,7 @@ impl Worker for EthWorker {
             if let Some(attr) = TYPE_MAP.get(&len) {
                 layer.add_attr(Attr::new(attr, 12..14));
             }
-            let payload = &parent
-                .data()
-                .get(14..)
-                .ok_or_else(|| Error::new(ErrorKind::Other, "out of bounds"))?;
+            let payload = parent.data().get(14..)?;
             layer.add_payload(payload, token!());
             Ok(Status::Done(vec![layer]))
         } else {

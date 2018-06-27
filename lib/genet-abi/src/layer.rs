@@ -94,7 +94,7 @@ impl Payload {
     }
 
     pub fn data(&self) -> Slice {
-        unsafe { slice::from_raw_parts(self.data, self.len as usize) }
+        unsafe { Slice::from_raw_parts(self.data, self.len as usize) }
     }
 }
 
@@ -208,7 +208,7 @@ impl LayerClass {
     fn data(&self, layer: &Layer) -> Slice {
         let mut len = 0;
         let data = (self.data)(layer, &mut len);
-        unsafe { slice::from_raw_parts(data, len as usize) }
+        unsafe { Slice::from_raw_parts(data, len as usize) }
     }
 
     fn attrs(&self, layer: &Layer) -> &[Ptr<Attr>] {
@@ -247,7 +247,7 @@ extern "C" fn abi_headers_data(class: *const LayerClass) -> *const Ptr<Attr> {
 
 extern "C" fn abi_data(layer: *const Layer, len: *mut u64) -> *const u8 {
     unsafe {
-        let data = (*layer).abi_unsafe_data.data;
+        let data = &(*layer).abi_unsafe_data.data;
         *len = data.len() as u64;
         data.as_ptr()
     }
@@ -295,7 +295,7 @@ mod tests {
     fn id() {
         let id = Token::from(123);
         let class = LayerBuilder::new(id).build();
-        let layer = Layer::new(&class, &[]);
+        let layer = Layer::new(&class, Slice::new());
         assert_eq!(layer.id(), id);
     }
 
@@ -303,27 +303,27 @@ mod tests {
     fn data() {
         let data = b"hello";
         let class = LayerBuilder::new(Token::null()).build();
-        let layer = Layer::new(&class, &data[..]);
-        assert_eq!(layer.data(), &data[..]);
+        let layer = Layer::new(&class, Slice::from(&data[..]));
+        assert_eq!(layer.data(), Slice::from(&data[..]));
     }
 
     #[test]
     fn payloads() {
         let class = LayerBuilder::new(Token::null()).build();
-        let mut layer = Layer::new(&class, &[]);
+        let mut layer = Layer::new(&class, Slice::new());
         assert!(layer.payloads().next().is_none());
 
         let count = 100;
         let data = b"hello";
 
         for i in 0..count {
-            layer.add_payload(data, Token::from(i));
+            layer.add_payload(Slice::from(&data[..]), Token::from(i));
         }
 
         let mut iter = layer.payloads();
         for i in 0..count {
             let payload = iter.next().unwrap();
-            assert_eq!(payload.data(), data);
+            assert_eq!(payload.data(), Slice::from(&data[..]));
             assert_eq!(payload.typ(), Token::from(i));
         }
         assert!(iter.next().is_none());
@@ -332,7 +332,7 @@ mod tests {
     #[test]
     fn attrs() {
         let class = LayerBuilder::new(Token::null()).build();
-        let mut layer = Layer::new(&class, &[]);
+        let mut layer = Layer::new(&class, Slice::new());
         assert!(layer.attrs().is_empty());
 
         #[derive(Clone)]

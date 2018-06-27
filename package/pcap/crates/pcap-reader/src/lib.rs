@@ -17,6 +17,7 @@ use genet_sdk::{
     context::Context,
     io::{Reader, ReaderWorker},
     layer::{Layer, LayerBuilder, LayerClass},
+    slice::Slice,
     ptr::Ptr,
     result::Result,
     token,
@@ -84,8 +85,7 @@ impl ReaderWorker for PcapReaderWorker {
         let header: Header = serde_json::from_str(header)?;
         let mut data = vec![0u8; header.datalen as usize];
         self.reader.read_exact(&mut data)?;
-        let payload = unsafe { slice::from_raw_parts(data.as_ptr(), data.len()) };
-        mem::forget(data);
+        let payload = Slice::from(data);
         let mut layer = Layer::new(&self.link_class, payload);
         layer.add_attr(Attr::with_value(
             &LENGTH_CLASS,

@@ -1,20 +1,19 @@
 use std::io::{Error, ErrorKind, Result};
+use std::mem;
 use std::ops::{Deref, Range, RangeFrom, RangeFull, RangeInclusive, RangeTo, RangeToInclusive};
 use std::slice;
 
-pub type Slice = &'static [u8];
-
 pub trait SliceIndex<T> {
-    fn get(&self, index: T) -> Result<SliceX>;
+    fn get(&self, index: T) -> Result<Slice>;
 }
 
 macro_rules! impl_slice_index {
     ( $( $x:ty ), * ) => {
         $(
-            impl SliceIndex<$x> for SliceX {
-                fn get(&self, index: $x) -> Result<SliceX> {
+            impl SliceIndex<$x> for Slice {
+                fn get(&self, index: $x) -> Result<Slice> {
                     <[u8]>::get(self, index)
-                        .map(|s| unsafe { SliceX::from_raw_parts(s.as_ptr(), s.len()) })
+                        .map(|s| unsafe { Slice::from_raw_parts(s.as_ptr(), s.len()) })
                         .ok_or_else(|| Error::new(ErrorKind::Other, "out of bounds"))
                 }
             }
@@ -31,39 +30,56 @@ impl_slice_index!(
     RangeToInclusive<usize>
 );
 
-pub struct SliceX(&'static [u8]);
+#[derive(Debug, Clone, PartialEq)]
+pub struct Slice(&'static [u8]);
 
-impl SliceX {
-    fn new(data: &'static [u8]) -> SliceX {
-        SliceX(data)
+impl Slice {
+    pub fn new() -> Slice {
+        Slice(&[])
     }
 
-    unsafe fn from_raw_parts(data: *const u8, len: usize) -> SliceX {
-        SliceX(unsafe { slice::from_raw_parts(data, len) })
+    pub unsafe fn from_raw_parts(data: *const u8, len: usize) -> Slice {
+        Slice(unsafe { slice::from_raw_parts(data, len) })
     }
 
-    fn len(self) -> usize {
+    pub fn len(&self) -> usize {
         self.0.len()
     }
 
-    fn as_ptr(self) -> *const u8 {
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    pub fn as_ptr(&self) -> *const u8 {
         self.0.as_ptr()
     }
+
+    pub fn as_slice(&self) -> &[u8] {
+        &self.0
+    }
 }
 
-impl From<Box<[u8]>> for SliceX {
+impl From<&'static [u8]> for Slice {
+    fn from(data: &'static [u8]) -> Self {
+        Slice(data)
+    }
+}
+
+impl From<Box<[u8]>> for Slice {
     fn from(data: Box<[u8]>) -> Self {
-        SliceX(&[])
+        let s = unsafe { Slice::from_raw_parts(data.as_ptr(), data.len()) };
+        mem::drop(data);
+        s
     }
 }
 
-impl From<Vec<u8>> for SliceX {
+impl From<Vec<u8>> for Slice {
     fn from(data: Vec<u8>) -> Self {
-        SliceX::from(data.into_boxed_slice())
+        Slice::from(data.into_boxed_slice())
     }
 }
 
-impl Deref for SliceX {
+impl Deref for Slice {
     type Target = [u8];
 
     fn deref(&self) -> &'static [u8] {

@@ -162,6 +162,7 @@ mod tests {
     use dissector::{Dissector, DissectorBox, Status, Worker, WorkerBox};
     use layer::{Layer, LayerBuilder, LayerClass};
     use result::Result;
+    use slice::Slice;
     use std::io;
     use token::Token;
 
@@ -172,7 +173,7 @@ mod tests {
         impl Worker for TestWorker {
             fn analyze(&mut self, _: &mut Layer) -> Result<Status> {
                 let class = LayerBuilder::new(Token::from(1234)).build();
-                let layer = Layer::new(&class, &[]);
+                let layer = Layer::new(&class, Slice::new());
                 Ok(Status::Done(vec![layer]))
             }
         }
@@ -192,7 +193,7 @@ mod tests {
         let mut worker = diss.new_worker("serial", &ctx).unwrap();
 
         let class = LayerBuilder::new(Token::null()).build();
-        let mut layer = Layer::new(&class, &[]);
+        let mut layer = Layer::new(&class, Slice::new());
         let mut results = Vec::new();
 
         assert_eq!(worker.analyze(&mut layer, &mut results).unwrap(), true);

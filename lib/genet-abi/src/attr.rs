@@ -5,6 +5,7 @@ use error::Error;
 use layer::Layer;
 use ptr::Ptr;
 use result::Result;
+use slice::Slice;
 use std::fmt;
 use std::mem;
 use std::ops::Range;
@@ -165,7 +166,8 @@ impl AttrClass {
     }
 
     fn get(&self, attr: &Attr, layer: &Layer) -> Result<Variant> {
-        let data = if let Some(data) = layer.data().get(self.range(attr)) {
+        let data = layer.data();
+        let data = if let Some(data) = data.get(self.range(attr)) {
             data
         } else {
             return Err(Box::new(Error::new("out of bounds")));
@@ -196,7 +198,7 @@ impl AttrClass {
             ValueType::Slice => {
                 let len: u64 = unsafe { mem::transmute_copy(&num) };
                 Ok(Variant::Slice(unsafe {
-                    slice::from_raw_parts(buf, len as usize)
+                    Slice::from_raw_parts(buf, len as usize)
                 }))
             }
             _ => Ok(Variant::Nil),
@@ -229,7 +231,7 @@ extern "C" fn abi_get(
 ) -> ValueType {
     let value = unsafe { &(*attr).abi_unsafe_data.value };
     let decoder = unsafe { &(*attr).class.abi_unsafe_data.decoder };
-    let slice = unsafe { slice::from_raw_parts(*data, len as usize) };
+    let slice = unsafe { Slice::from_raw_parts(*data, len as usize) };
     let mut res = Ok(Variant::Nil);
     let result = if let Some(val) = value {
         Ok(val.as_ref())
@@ -293,7 +295,7 @@ mod tests {
     use decoder::Decoder;
     use env;
     use layer::{Layer, LayerBuilder, LayerClass};
-    use slice::Slice;
+    use slice::{Slice, SliceIndex};
     use std::error;
     use std::io::{Error, ErrorKind, Result};
     use std::str::from_utf8;
@@ -320,7 +322,7 @@ mod tests {
         assert_eq!(attr.range(), 0..0);
 
         let class = LayerBuilder::new(Token::null()).build();
-        let layer = Layer::new(&class, &[]);
+        let layer = Layer::new(&class, Slice::new());
         match attr.get(&layer).unwrap() {
             Variant::Nil => (),
             _ => panic!(),
@@ -347,7 +349,7 @@ mod tests {
         assert_eq!(attr.range(), 0..1);
 
         let class = LayerBuilder::new(Token::null()).build();
-        let layer = Layer::new(&class, &[1]);
+        let layer = Layer::new(&class, Slice::from(&[1][..]));
         match attr.get(&layer).unwrap() {
             Variant::Bool(val) => assert!(val),
             _ => panic!(),
@@ -374,7 +376,7 @@ mod tests {
         assert_eq!(attr.range(), 0..6);
 
         let class = LayerBuilder::new(Token::null()).build();
-        let layer = Layer::new(&class, b"123456789");
+        let layer = Layer::new(&class, Slice::from(&b"123456789"[..]));
         match attr.get(&layer).unwrap() {
             Variant::UInt64(val) => assert_eq!(val, 123456),
             _ => panic!(),
@@ -401,7 +403,7 @@ mod tests {
         assert_eq!(attr.range(), 0..6);
 
         let class = LayerBuilder::new(Token::null()).build();
-        let layer = Layer::new(&class, b"-123456789");
+        let layer = Layer::new(&class, Slice::from(&b"-123456789"[..]));
         match attr.get(&layer).unwrap() {
             Variant::Int64(val) => assert_eq!(val, -12345),
             _ => panic!(),
@@ -428,7 +430,7 @@ mod tests {
         assert_eq!(attr.range(), 0..6);
 
         let class = LayerBuilder::new(Token::null()).build();
-        let layer = Layer::new(&class, b"123456789");
+        let layer = Layer::new(&class, Slice::from(&b"123456789"[..]));
         match attr.get(&layer).unwrap() {
             Variant::Buffer(val) => assert_eq!(&*val, b"123456"),
             _ => panic!(),
@@ -457,7 +459,7 @@ mod tests {
         assert_eq!(attr.range(), 0..6);
 
         let class = LayerBuilder::new(Token::null()).build();
-        let layer = Layer::new(&class, b"123456789");
+        let layer = Layer::new(&class, Slice::from(&b"123456789"[..]));
         match attr.get(&layer).unwrap() {
             Variant::String(val) => assert_eq!(&*val, "123456"),
             _ => panic!(),
@@ -471,7 +473,7 @@ mod tests {
 
         impl Decoder for TestDecoder {
             fn decode(&self, data: &Slice) -> Result<Variant> {
-                Ok(Variant::Slice(&data[0..3]))
+                data.get(0..3).map(|v| Variant::Slice(v))
             }
         }
         let class = AttrBuilder::new("slice")
@@ -484,9 +486,9 @@ mod tests {
         assert_eq!(attr.range(), 0..6);
 
         let class = LayerBuilder::new(Token::null()).build();
-        let layer = Layer::new(&class, b"123456789");
+        let layer = Layer::new(&class, Slice::from(&b"123456789"[..]));
         match attr.get(&layer).unwrap() {
-            Variant::Slice(val) => assert_eq!(val, b"123"),
+            Variant::Slice(val) => assert_eq!(val, Slice::from(&b"123"[..])),
             _ => panic!(),
         };
     }
@@ -511,7 +513,7 @@ mod tests {
         assert_eq!(attr.range(), 0..6);
 
         let class = LayerBuilder::new(Token::null()).build();
-        let layer = Layer::new(&class, b"123456789");
+        let layer = Layer::new(&class, Slice::from(&b"123456789"[..]));
         match attr.get(&layer) {
             Err(err) => assert_eq!(err.description(), "oh no!"),
             _ => panic!(),
