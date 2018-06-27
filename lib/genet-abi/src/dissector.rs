@@ -163,6 +163,7 @@ mod tests {
     use layer::{Layer, LayerBuilder, LayerClass};
     use result::Result;
     use std::io;
+    use token::Token;
 
     #[test]
     fn analyze() {
@@ -170,7 +171,7 @@ mod tests {
 
         impl Worker for TestWorker {
             fn analyze(&mut self, _: &mut Layer) -> Result<Status> {
-                let class = LayerBuilder::new(1234).build();
+                let class = LayerBuilder::new(Token::new(1234)).build();
                 let layer = Layer::new(&class, &[]);
                 Ok(Status::Done(vec![layer]))
             }
@@ -190,13 +191,13 @@ mod tests {
         let mut diss = DissectorBox::new(TestDissector {});
         let mut worker = diss.new_worker("serial", &ctx).unwrap();
 
-        let class = LayerBuilder::new(0).build();
+        let class = LayerBuilder::new(Token::null()).build();
         let mut layer = Layer::new(&class, &[]);
         let mut results = Vec::new();
 
         assert_eq!(worker.analyze(&mut layer, &mut results).unwrap(), true);
         assert_eq!(results.len(), 1);
         let child = &results[0];
-        assert_eq!(child.id(), 1234);
+        assert_eq!(child.id(), Token::new(1234));
     }
 }

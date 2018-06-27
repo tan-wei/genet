@@ -285,11 +285,12 @@ mod tests {
     use layer::{Layer, LayerBuilder, LayerClass};
     use slice::Slice;
     use std::io::Result;
+    use token::Token;
     use variant::Variant;
 
     #[test]
     fn id() {
-        let id = 123;
+        let id = Token::new(123);
         let class = LayerBuilder::new(id).build();
         let layer = Layer::new(&class, &[]);
         assert_eq!(layer.id(), id);
@@ -298,14 +299,14 @@ mod tests {
     #[test]
     fn data() {
         let data = b"hello";
-        let class = LayerBuilder::new(0).build();
+        let class = LayerBuilder::new(Token::null()).build();
         let layer = Layer::new(&class, &data[..]);
         assert_eq!(layer.data(), &data[..]);
     }
 
     #[test]
     fn payloads() {
-        let class = LayerBuilder::new(0).build();
+        let class = LayerBuilder::new(Token::null()).build();
         let mut layer = Layer::new(&class, &[]);
         assert!(layer.payloads().next().is_none());
 
@@ -313,21 +314,21 @@ mod tests {
         let data = b"hello";
 
         for i in 0..count {
-            layer.add_payload(data, i);
+            layer.add_payload(data, Token::new(i));
         }
 
         let mut iter = layer.payloads();
         for i in 0..count {
             let payload = iter.next().unwrap();
             assert_eq!(payload.data(), data);
-            assert_eq!(payload.typ(), i);
+            assert_eq!(payload.typ(), Token::new(i));
         }
         assert!(iter.next().is_none());
     }
 
     #[test]
     fn attrs() {
-        let class = LayerBuilder::new(0).build();
+        let class = LayerBuilder::new(Token::null()).build();
         let mut layer = Layer::new(&class, &[]);
         assert!(layer.attrs().is_empty());
 

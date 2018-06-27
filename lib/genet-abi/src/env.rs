@@ -53,20 +53,20 @@ pub extern "C" fn abi_genet_get_token(data: *const u8, len: u64) -> Token {
     let mut strings = strings.borrow_mut();
     let id = unsafe { str::from_utf8_unchecked(slice::from_raw_parts(data, len as usize)) };
     if id.is_empty() {
-        return 0;
+        return Token::null();
     }
     let next = tokens.len() + 1;
     let entry = tokens.entry(String::from(id));
     if let Entry::Vacant(_) = entry {
         strings.push(String::from(id));
     }
-    *entry.or_insert(next as u64)
+    *entry.or_insert(Token::new(next as u64))
 }
 
 pub extern "C" fn abi_genet_get_string(token: Token, len: *mut u64) -> *const u8 {
     let strings = GLOBAL_STRINGS.lock().unwrap();
     let strings = strings.borrow();
-    let index = token as usize;
+    let index = token.as_u64() as usize;
     let s = if index < strings.len() {
         strings[index].as_str()
     } else {
@@ -116,10 +116,11 @@ pub fn dealloc(ptr: *mut u8) {
 #[cfg(test)]
 mod tests {
     use env;
+    use token::Token;
 
     #[test]
     fn token() {
-        assert_eq!(env::token(""), 0);
+        assert_eq!(env::token(""), Token::null());
         let token = env::token("eth");
         assert_eq!(env::string(token), "eth");
         let token = env::token("[eth]");
@@ -130,6 +131,6 @@ mod tests {
         assert_eq!(env::string(token), "");
         let token = env::token("dd31817d-1501-4b2b-bcf6-d02e148d3ab9");
         assert_eq!(env::string(token), "dd31817d-1501-4b2b-bcf6-d02e148d3ab9");
-        assert_eq!(env::string(1000), "");
+        assert_eq!(env::string(Token::new(1000)), "");
     }
 }

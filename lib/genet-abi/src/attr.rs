@@ -97,7 +97,7 @@ impl AttrBuilder {
     pub fn new(id: Token) -> AttrBuilder {
         Self {
             id,
-            typ: 0,
+            typ: Token::null(),
             decoder: Box::new(Nil()),
         }
     }
@@ -297,6 +297,7 @@ mod tests {
     use std::error;
     use std::io::{Error, ErrorKind, Result};
     use std::str::from_utf8;
+    use token::Token;
     use variant::Variant;
 
     #[test]
@@ -318,7 +319,7 @@ mod tests {
         assert_eq!(attr.typ(), env::token("@nil"));
         assert_eq!(attr.range(), 0..0);
 
-        let class = LayerBuilder::new(0).build();
+        let class = LayerBuilder::new(Token::null()).build();
         let layer = Layer::new(&class, &[]);
         match attr.get(&layer).unwrap() {
             Variant::Nil => (),
@@ -345,7 +346,7 @@ mod tests {
         assert_eq!(attr.typ(), env::token("@bool"));
         assert_eq!(attr.range(), 0..1);
 
-        let class = LayerBuilder::new(0).build();
+        let class = LayerBuilder::new(Token::null()).build();
         let layer = Layer::new(&class, &[1]);
         match attr.get(&layer).unwrap() {
             Variant::Bool(val) => assert!(val),
@@ -372,7 +373,7 @@ mod tests {
         assert_eq!(attr.typ(), env::token("@u64"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = LayerBuilder::new(0).build();
+        let class = LayerBuilder::new(Token::null()).build();
         let layer = Layer::new(&class, b"123456789");
         match attr.get(&layer).unwrap() {
             Variant::UInt64(val) => assert_eq!(val, 123456),
@@ -399,7 +400,7 @@ mod tests {
         assert_eq!(attr.typ(), env::token("@i64"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = LayerBuilder::new(0).build();
+        let class = LayerBuilder::new(Token::null()).build();
         let layer = Layer::new(&class, b"-123456789");
         match attr.get(&layer).unwrap() {
             Variant::Int64(val) => assert_eq!(val, -12345),
@@ -426,7 +427,7 @@ mod tests {
         assert_eq!(attr.typ(), env::token("@buffer"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = LayerBuilder::new(0).build();
+        let class = LayerBuilder::new(Token::null()).build();
         let layer = Layer::new(&class, b"123456789");
         match attr.get(&layer).unwrap() {
             Variant::Buffer(val) => assert_eq!(&*val, b"123456"),
@@ -455,7 +456,7 @@ mod tests {
         assert_eq!(attr.typ(), env::token("@string"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = LayerBuilder::new(0).build();
+        let class = LayerBuilder::new(Token::null()).build();
         let layer = Layer::new(&class, b"123456789");
         match attr.get(&layer).unwrap() {
             Variant::String(val) => assert_eq!(&*val, "123456"),
@@ -482,7 +483,7 @@ mod tests {
         assert_eq!(attr.typ(), env::token("@slice"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = LayerBuilder::new(0).build();
+        let class = LayerBuilder::new(Token::null()).build();
         let layer = Layer::new(&class, b"123456789");
         match attr.get(&layer).unwrap() {
             Variant::Slice(val) => assert_eq!(val, b"123"),
@@ -509,7 +510,7 @@ mod tests {
         assert_eq!(attr.typ(), env::token("@slice"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = LayerBuilder::new(0).build();
+        let class = LayerBuilder::new(Token::null()).build();
         let layer = Layer::new(&class, b"123456789");
         match attr.get(&layer) {
             Err(err) => assert_eq!(err.description(), "oh no!"),
