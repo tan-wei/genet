@@ -75,9 +75,9 @@ impl Layer {
         self.class.payloads(self)
     }
 
-    pub fn add_payload(&mut self, data: Slice, typ: Token) {
+    pub fn add_payload<T: Into<Token>>(&mut self, data: Slice, typ: T) {
         let func = self.class.add_payload;
-        (func)(self, data.as_ptr(), data.len() as u64, typ);
+        (func)(self, data.as_ptr(), data.len() as u64, typ.into());
     }
 }
 
@@ -105,16 +105,19 @@ pub struct LayerBuilder {
 }
 
 impl LayerBuilder {
-    pub fn new(id: Token) -> LayerBuilder {
+    pub fn new<T: Into<Token>>(id: T) -> LayerBuilder {
         Self {
-            id,
+            id: id.into(),
             aliases: Vec::new(),
             headers: Vec::new(),
         }
     }
 
-    pub fn alias(mut self, id: Token, target: Token) -> LayerBuilder {
-        self.aliases.push(Alias { id, target });
+    pub fn alias<T: Into<Token>, U: Into<Token>>(mut self, id: T, target: U) -> LayerBuilder {
+        self.aliases.push(Alias {
+            id: id.into(),
+            target: target.into(),
+        });
         self
     }
 
@@ -340,8 +343,8 @@ mod tests {
                 Ok(Variant::Nil)
             }
         }
-        let class = AttrBuilder::new(env::token("nil"))
-            .typ(env::token("@nil"))
+        let class = AttrBuilder::new("nil")
+            .typ("@nil")
             .decoder(TestDecoder {})
             .build();
 
@@ -353,8 +356,8 @@ mod tests {
         let mut iter = layer.attrs().iter();
         for i in 0..count {
             let attr = iter.next().unwrap();
-            assert_eq!(attr.id(), env::token("nil"));
-            assert_eq!(attr.typ(), env::token("@nil"));
+            assert_eq!(attr.id(), Token::from("nil"));
+            assert_eq!(attr.typ(), Token::from("@nil"));
             assert_eq!(attr.range(), 0..i);
         }
         assert!(iter.next().is_none());

@@ -94,16 +94,16 @@ pub struct AttrBuilder {
 }
 
 impl AttrBuilder {
-    pub fn new(id: Token) -> AttrBuilder {
+    pub fn new<T: Into<Token>>(id: T) -> AttrBuilder {
         Self {
-            id,
+            id: id.into(),
             typ: Token::null(),
             decoder: Box::new(Nil()),
         }
     }
 
-    pub fn typ(mut self, typ: Token) -> AttrBuilder {
-        self.typ = typ;
+    pub fn typ<T: Into<Token>>(mut self, typ: T) -> AttrBuilder {
+        self.typ = typ.into();
         self
     }
 
@@ -310,13 +310,13 @@ mod tests {
                 Ok(Variant::Nil)
             }
         }
-        let class = AttrBuilder::new(env::token("nil"))
-            .typ(env::token("@nil"))
+        let class = AttrBuilder::new("nil")
+            .typ("@nil")
             .decoder(TestDecoder {})
             .build();
         let attr = Attr::new(&class, 0..0);
-        assert_eq!(attr.id(), env::token("nil"));
-        assert_eq!(attr.typ(), env::token("@nil"));
+        assert_eq!(attr.id(), Token::from("nil"));
+        assert_eq!(attr.typ(), Token::from("@nil"));
         assert_eq!(attr.range(), 0..0);
 
         let class = LayerBuilder::new(Token::null()).build();
@@ -337,13 +337,13 @@ mod tests {
                 Ok(Variant::Bool(data[0] == 1))
             }
         }
-        let class = AttrBuilder::new(env::token("bool"))
-            .typ(env::token("@bool"))
+        let class = AttrBuilder::new("bool")
+            .typ("@bool")
             .decoder(TestDecoder {})
             .build();
         let attr = Attr::new(&class, 0..1);
-        assert_eq!(attr.id(), env::token("bool"));
-        assert_eq!(attr.typ(), env::token("@bool"));
+        assert_eq!(attr.id(), Token::from("bool"));
+        assert_eq!(attr.typ(), Token::from("@bool"));
         assert_eq!(attr.range(), 0..1);
 
         let class = LayerBuilder::new(Token::null()).build();
@@ -364,13 +364,13 @@ mod tests {
                 Ok(Variant::UInt64(from_utf8(data).unwrap().parse().unwrap()))
             }
         }
-        let class = AttrBuilder::new(env::token("u64"))
-            .typ(env::token("@u64"))
+        let class = AttrBuilder::new("u64")
+            .typ("@u64")
             .decoder(TestDecoder {})
             .build();
         let attr = Attr::new(&class, 0..6);
-        assert_eq!(attr.id(), env::token("u64"));
-        assert_eq!(attr.typ(), env::token("@u64"));
+        assert_eq!(attr.id(), Token::from("u64"));
+        assert_eq!(attr.typ(), Token::from("@u64"));
         assert_eq!(attr.range(), 0..6);
 
         let class = LayerBuilder::new(Token::null()).build();
@@ -391,13 +391,13 @@ mod tests {
                 Ok(Variant::Int64(from_utf8(data).unwrap().parse().unwrap()))
             }
         }
-        let class = AttrBuilder::new(env::token("i64"))
-            .typ(env::token("@i64"))
+        let class = AttrBuilder::new("i64")
+            .typ("@i64")
             .decoder(TestDecoder {})
             .build();
         let attr = Attr::new(&class, 0..6);
-        assert_eq!(attr.id(), env::token("i64"));
-        assert_eq!(attr.typ(), env::token("@i64"));
+        assert_eq!(attr.id(), Token::from("i64"));
+        assert_eq!(attr.typ(), Token::from("@i64"));
         assert_eq!(attr.range(), 0..6);
 
         let class = LayerBuilder::new(Token::null()).build();
@@ -418,13 +418,13 @@ mod tests {
                 Ok(Variant::Buffer(data.to_vec().into_boxed_slice()))
             }
         }
-        let class = AttrBuilder::new(env::token("buffer"))
-            .typ(env::token("@buffer"))
+        let class = AttrBuilder::new("buffer")
+            .typ("@buffer")
             .decoder(TestDecoder {})
             .build();
         let attr = Attr::new(&class, 0..6);
-        assert_eq!(attr.id(), env::token("buffer"));
-        assert_eq!(attr.typ(), env::token("@buffer"));
+        assert_eq!(attr.id(), Token::from("buffer"));
+        assert_eq!(attr.typ(), Token::from("@buffer"));
         assert_eq!(attr.range(), 0..6);
 
         let class = LayerBuilder::new(Token::null()).build();
@@ -447,13 +447,13 @@ mod tests {
                 ))
             }
         }
-        let class = AttrBuilder::new(env::token("string"))
-            .typ(env::token("@string"))
+        let class = AttrBuilder::new("string")
+            .typ("@string")
             .decoder(TestDecoder {})
             .build();
         let attr = Attr::new(&class, 0..6);
-        assert_eq!(attr.id(), env::token("string"));
-        assert_eq!(attr.typ(), env::token("@string"));
+        assert_eq!(attr.id(), Token::from("string"));
+        assert_eq!(attr.typ(), Token::from("@string"));
         assert_eq!(attr.range(), 0..6);
 
         let class = LayerBuilder::new(Token::null()).build();
@@ -474,13 +474,13 @@ mod tests {
                 Ok(Variant::Slice(&data[0..3]))
             }
         }
-        let class = AttrBuilder::new(env::token("slice"))
-            .typ(env::token("@slice"))
+        let class = AttrBuilder::new("slice")
+            .typ("@slice")
             .decoder(TestDecoder {})
             .build();
         let attr = Attr::new(&class, 0..6);
-        assert_eq!(attr.id(), env::token("slice"));
-        assert_eq!(attr.typ(), env::token("@slice"));
+        assert_eq!(attr.id(), Token::from("slice"));
+        assert_eq!(attr.typ(), Token::from("@slice"));
         assert_eq!(attr.range(), 0..6);
 
         let class = LayerBuilder::new(Token::null()).build();
@@ -501,13 +501,13 @@ mod tests {
                 Err(From::from(Error::new(ErrorKind::Other, "oh no!")))
             }
         }
-        let class = AttrBuilder::new(env::token("slice"))
-            .typ(env::token("@slice"))
+        let class = AttrBuilder::new("slice")
+            .typ("@slice")
             .decoder(TestDecoder {})
             .build();
         let attr = Attr::new(&class, 0..6);
-        assert_eq!(attr.id(), env::token("slice"));
-        assert_eq!(attr.typ(), env::token("@slice"));
+        assert_eq!(attr.id(), Token::from("slice"));
+        assert_eq!(attr.typ(), Token::from("@slice"));
         assert_eq!(attr.range(), 0..6);
 
         let class = LayerBuilder::new(Token::null()).build();

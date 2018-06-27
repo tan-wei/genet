@@ -63,33 +63,33 @@ impl Dissector for EthDissector {
 }
 
 lazy_static! {
-    static ref ETH_CLASS: Ptr<LayerClass> = LayerBuilder::new(token!("eth"))
-        .alias(token!("_.src"), token!("eth.src"))
-        .alias(token!("_.dst"), token!("eth.dst"))
+    static ref ETH_CLASS: Ptr<LayerClass> = LayerBuilder::new("eth")
+        .alias("_.src", "eth.src")
+        .alias("_.dst", "eth.dst")
         .header(Attr::new(&SRC_ATTR, 0..6))
         .header(Attr::new(&DST_ATTR, 6..12))
         .build();
-    static ref SRC_ATTR: Ptr<AttrClass> = AttrBuilder::new(token!("eth.src"))
-        .typ(token!("@eth:mac"))
+    static ref SRC_ATTR: Ptr<AttrClass> = AttrBuilder::new("eth.src")
+        .typ("@eth:mac")
         .decoder(decoder::Slice())
         .build();
-    static ref DST_ATTR: Ptr<AttrClass> = AttrBuilder::new(token!("eth.dst"))
-        .typ(token!("@eth:mac"))
+    static ref DST_ATTR: Ptr<AttrClass> = AttrBuilder::new("eth.dst")
+        .typ("@eth:mac")
         .decoder(decoder::Slice())
         .build();
-    static ref LEN_ATTR: Ptr<AttrClass> = AttrBuilder::new(token!("eth.len"))
+    static ref LEN_ATTR: Ptr<AttrClass> = AttrBuilder::new("eth.len")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref TYPE_ATTR: Ptr<AttrClass> = AttrBuilder::new(token!("eth.type"))
-        .typ(token!("@enum"))
+    static ref TYPE_ATTR: Ptr<AttrClass> = AttrBuilder::new("eth.type")
+        .typ("@enum")
         .decoder(decoder::UInt16BE())
         .build();
     static ref TYPE_MAP: HashMap<u64, Ptr<AttrClass>> = hashmap!{
-        0x0800 => AttrBuilder::new(token!("eth.type.ipv4")).build(),
-        0x0806 => AttrBuilder::new(token!("eth.type.arp")).build(),
-        0x0842 => AttrBuilder::new(token!("eth.type.wol")).build(),
-        0x86DD => AttrBuilder::new(token!("eth.type.ipv6")).build(),
-        0x888E => AttrBuilder::new(token!("eth.type.eap")).build(),
+        0x0800 => AttrBuilder::new("eth.type.ipv4").build(),
+        0x0806 => AttrBuilder::new("eth.type.arp").build(),
+        0x0842 => AttrBuilder::new("eth.type.wol").build(),
+        0x86DD => AttrBuilder::new("eth.type.ipv6").build(),
+        0x888E => AttrBuilder::new("eth.type.eap").build(),
     };
 }
 

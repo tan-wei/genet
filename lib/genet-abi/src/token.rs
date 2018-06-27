@@ -31,6 +31,12 @@ impl From<u64> for Token {
     }
 }
 
+impl From<String> for Token {
+    fn from(id: String) -> Token {
+        env::token(&id)
+    }
+}
+
 impl<'a> From<&'a str> for Token {
     fn from(id: &'a str) -> Token {
         env::token(id)

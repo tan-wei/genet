@@ -48,7 +48,7 @@ impl Reader for PcapReader {
             .spawn()
             .expect("failed to execute pcap_cli");
         let reader = BufReader::new(child.stdout.take().unwrap());
-        let link_class = LayerBuilder::new(token::get(&format!("[link-{}]", arg.link)))
+        let link_class = LayerBuilder::new(format!("[link-{}]", arg.link))
             .header(Attr::with_value(
                 &TYPE_CLASS,
                 0..0,
@@ -108,10 +108,10 @@ impl Drop for PcapReaderWorker {
 }
 
 lazy_static! {
-    static ref TYPE_CLASS: Ptr<AttrClass> = AttrBuilder::new(token!("link.type")).build();
-    static ref LENGTH_CLASS: Ptr<AttrClass> = AttrBuilder::new(token!("link.length")).build();
-    static ref TIMESTAMP_CLASS: Ptr<AttrClass> = AttrBuilder::new(token!("link.timestamp"))
-        .typ(token!("@datetime:unix"))
+    static ref TYPE_CLASS: Ptr<AttrClass> = AttrBuilder::new("link.type").build();
+    static ref LENGTH_CLASS: Ptr<AttrClass> = AttrBuilder::new("link.length").build();
+    static ref TIMESTAMP_CLASS: Ptr<AttrClass> = AttrBuilder::new("link.timestamp")
+        .typ("@datetime:unix")
         .build();
 }
 
