@@ -53,10 +53,6 @@ impl Slice {
     pub fn as_ptr(&self) -> *const u8 {
         self.0.as_ptr()
     }
-
-    pub fn as_slice(&self) -> &[u8] {
-        &self.0
-    }
 }
 
 impl From<&'static [u8]> for Slice {
@@ -84,5 +80,12 @@ impl Deref for Slice {
 
     fn deref(&self) -> &'static [u8] {
         self.0
+    }
+}
+
+impl AsRef<[u8]> for Slice {
+    #[inline]
+    fn as_ref(&self) -> &[u8] {
+        &self.0
     }
 }

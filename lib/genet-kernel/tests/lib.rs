@@ -18,7 +18,7 @@ impl Callback for SessionCallback {
     fn on_event(&self, event: Event) {
         if let Event::Frames(len) = event {
             println!("{:?}", len);
-            if len == 400000 {
+            if len == 40000 {
                 ::std::process::exit(0);
             }
         }

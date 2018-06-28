@@ -46,7 +46,7 @@ struct TestReaderWorker {}
 impl ReaderWorker for TestReaderWorker {
     fn read(&mut self) -> Result<Vec<Layer>> {
         let layers = iter::repeat(())
-            .take(100)
+            .take(1000)
             .map(|_| Layer::new(&ETH_CLASS, Slice::from(tcp_ipv4_pcap())))
             .collect();
         Ok(layers)
