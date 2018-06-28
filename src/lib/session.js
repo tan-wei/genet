@@ -29,7 +29,7 @@ export default class Session {
       prof.loadLibrary('./lib/genet-kernel/target/debug/examples/libreader.dylib')
       prof.loadLibrary('./package/pcap/crates/pcap-reader/target/release/libpcap_reader.dylib')
       const sess = new SESS(prof)
-      sess.setFilter('main', 'true')
+      sess.setFilter('main', '_.src')
       const input = sess.createReader('pcap', JSON.stringify({
         cmd: './package/pcap/crates/pcap-cli/target/release/pcap_cli',
         args: ['capture', 'en0'],

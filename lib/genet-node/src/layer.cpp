@@ -49,9 +49,7 @@ NAN_METHOD(LayerWrapper::New) {
 NAN_GETTER(LayerWrapper::id) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer.getConst()) {
-    auto id =
-        Nan::New(genet_token_string(genet_layer_id(layer))).ToLocalChecked();
-    info.GetReturnValue().Set(id);
+    info.GetReturnValue().Set(genet_layer_id(layer));
   }
 }
 

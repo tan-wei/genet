@@ -40,9 +40,7 @@ AttrWrapper::~AttrWrapper() {}
 NAN_GETTER(AttrWrapper::id) {
   AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
   if (auto attr = wrapper->attr) {
-    auto id =
-        Nan::New(genet_token_string(genet_attr_id(attr))).ToLocalChecked();
-    info.GetReturnValue().Set(id);
+    info.GetReturnValue().Set(genet_attr_id(attr));
   }
 }
 
@@ -75,6 +73,7 @@ NAN_METHOD(AttrWrapper::get) {
     return;
   }
   AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
   if (auto attr = wrapper->attr) {
     const Variant &var = genet_attr_get(attr, layer);
     v8::Local<v8::Value> val = Nan::Null();
@@ -103,11 +102,14 @@ NAN_METHOD(AttrWrapper::get) {
       val = Nan::CopyBuffer(var.data, var.value.u64).ToLocalChecked();
       genet_str_free(var.data);
       break;
-    case Slice:
-      val = Nan::NewBuffer(var.data, var.value.u64,
-                           [](char *data, void *hint) {}, nullptr)
-                .ToLocalChecked();
-      break;
+    case Slice: {
+      size_t len = var.value.u64;
+      char *data = const_cast<char *>(var.data);
+      val =
+          v8::Uint8Array::New(v8::ArrayBuffer::New(isolate, data, len), 0, len);
+    }
+
+    break;
     }
     info.GetReturnValue().Set(val);
   }
