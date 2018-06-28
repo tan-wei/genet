@@ -49,7 +49,9 @@ NAN_METHOD(LayerWrapper::New) {
 NAN_GETTER(LayerWrapper::id) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer.getConst()) {
-    info.GetReturnValue().Set(genet_layer_id(layer));
+    auto id =
+        Nan::New(genet_token_string(genet_layer_id(layer))).ToLocalChecked();
+    info.GetReturnValue().Set(id);
   }
 }
 
@@ -67,7 +69,7 @@ NAN_METHOD(LayerWrapper::attr) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer.getConst()) {
     if (const Attr *attr = genet_layer_attr(layer, id)) {
-      info.GetReturnValue().Set(AttrWrapper::wrap(attr));
+      info.GetReturnValue().Set(AttrWrapper::wrap(attr, layer));
     } else {
       info.GetReturnValue().Set(Nan::Null());
     }
@@ -87,10 +89,10 @@ NAN_GETTER(LayerWrapper::attrs) {
     auto array = Nan::New<v8::Array>(length);
 
     for (uint32_t index = 0; index < headerLength; ++index) {
-      array->Set(index, AttrWrapper::wrap(headers[index]));
+      array->Set(index, AttrWrapper::wrap(headers[index], layer));
     }
     for (uint32_t index = 0; index < attrLength; ++index) {
-      array->Set(index + headerLength, AttrWrapper::wrap(attrs[index]));
+      array->Set(index + headerLength, AttrWrapper::wrap(attrs[index], layer));
     }
     info.GetReturnValue().Set(array);
   }

@@ -16,7 +16,7 @@ public:
   static NAN_GETTER(index);
   static NAN_GETTER(layers);
   static NAN_GETTER(treeIndices);
-  static NAN_METHOD(attr);
+  static NAN_METHOD(query);
 
 public:
   ~FrameWrapper();

@@ -10,7 +10,7 @@ void FrameWrapper::init(v8::Local<v8::Object> exports) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Frame").ToLocalChecked());
-  Nan::SetPrototypeMethod(tpl, "attr", attr);
+  Nan::SetPrototypeMethod(tpl, "query", query);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("index").ToLocalChecked(), index);
@@ -67,7 +67,7 @@ NAN_GETTER(FrameWrapper::treeIndices) {
   }
 }
 
-NAN_METHOD(FrameWrapper::attr) {
+NAN_METHOD(FrameWrapper::query) {
   Token id = 0;
   if (info[0]->IsUint32()) {
     id = info[0]->Uint32Value();
@@ -80,11 +80,21 @@ NAN_METHOD(FrameWrapper::attr) {
   }
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
   if (auto frame = wrapper->frame) {
-    if (const Attr *attr = genet_frame_attr(frame, id)) {
-      info.GetReturnValue().Set(AttrWrapper::wrap(attr));
-    } else {
-      info.GetReturnValue().Set(Nan::Null());
+    uint32_t length = 0;
+    auto layers = genet_frame_layers(frame, &length);
+    for (uint32_t i = 0; i < length; ++i) {
+      const Layer *layer = layers[length - i - 1];
+      if (genet_layer_id(layer) == id) {
+        info.GetReturnValue().Set(
+            LayerWrapper::wrap(Pointer<Layer>::ref(layer)));
+        return;
+      }
+      if (const Attr *attr = genet_layer_attr(layer, id)) {
+        info.GetReturnValue().Set(AttrWrapper::wrap(attr, layer));
+        return;
+      }
     }
+    info.GetReturnValue().Set(Nan::Null());
   }
 }
 
