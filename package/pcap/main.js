@@ -72,7 +72,7 @@ class PcapView {
               const { value, dataset: { link } } =
                 ifsElem.options[ifsElem.selectedIndex]
               this.create(value, Number.parseInt(link, 10))
-              // Vnode.attrs.callback()
+              vnode.attrs.callback()
             },
           })
         ])

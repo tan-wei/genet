@@ -7,7 +7,7 @@ export default class TabView {
   }
 
   view (vnode) {
-    const { tabs } = vnode.attrs
+    const { tabs, attrs } = vnode.attrs
 
     const tabOrders = genet.workspace.get('_.pcap.tabOrders', [])
     tabs.sort((lhs, rhs) => {
@@ -53,7 +53,10 @@ export default class TabView {
           active: panel.id === this.activeTab,
         }, [
           m(PanelView, Object.assign(panel,
-            { active: panel.id === this.activeTab }))
+            {
+              active: panel.id === this.activeTab,
+              attrs,
+            }))
         ])))
     ])
   }

@@ -6,10 +6,11 @@ export default class PanelView {
     return m('div')
   }
   oncreate (vnode) {
+    const { attrs } = vnode.attrs
     this.container = document.createElement('div')
     this.container.classList.add('panel')
     const node = this.container.attachShadow({ mode: 'open' })
-    m.mount(node, vnode.attrs.component)
+    m.mount(node, { view: () => m(vnode.attrs.component, attrs) })
     const themeStyleTag = document.createElement('style')
     themeStyleTag.id = 'theme-style'
     node.appendChild(themeStyleTag)
