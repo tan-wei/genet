@@ -1,6 +1,7 @@
 import { Disposable } from 'disposables'
-import jsonfile from 'jsonfile'
+import native from '@genet/load-module'
 import objpath from 'object-path'
+import path from 'path'
 import titleCase from 'title-case'
 
 const fields = Symbol('fields')
@@ -9,17 +10,12 @@ export default class Session {
     this[fields] = {
       config,
       tokens: new Map(),
-      linkLayers: new Set(),
-      dissectors: new Set(),
+      libs: new Set(),
       layerRenderers: new Map(),
       attrRenderers: new Map(),
       attrMacros: new Map(),
       filterMacros: new Set(),
       samples: new Set(),
-      importers: new Set(),
-      exporters: new Set(),
-      fileImporterExtensions: new Set(),
-      fileExporterExtensions: new Set(),
     }
     setTimeout(() => {
       const { Session: SESS } = require('@genet/load-module')
@@ -59,20 +55,6 @@ export default class Session {
     })
   }
 
-  registerDissector (diss) {
-    this[fields].dissectors.add(diss)
-    return new Disposable(() => {
-      this[fields].dissectors.delete(diss)
-    })
-  }
-
-  registerLinkLayer (link) {
-    this[fields].linkLayers.add(link)
-    return new Disposable(() => {
-      this[fields].linkLayers.delete(link)
-    })
-  }
-
   registerLayerRenderer (id, renderer) {
     this[fields].layerRenderers.set(id, renderer)
     return new Disposable(() => {
@@ -101,40 +83,18 @@ export default class Session {
     })
   }
 
-  registerImporter (importer) {
-    const wrapper = { importer }
-    this[fields].importers.add(wrapper)
-    return new Disposable(() => {
-      this[fields].importers.delete(wrapper)
-    })
-  }
-
-  registerExporter (exporter) {
-    const wrapper = { exporter }
-    this[fields].exporters.add(wrapper)
-    return new Disposable(() => {
-      this[fields].exporters.delete(wrapper)
-    })
-  }
-
-  registerFileImporterExtensions (extensions) {
-    this[fields].fileImporterExtensions.add(extensions)
-    return new Disposable(() => {
-      this[fields].fileImporterExtensions.delete(extensions)
-    })
-  }
-
-  registerFileExporterExtensions (extensions) {
-    this[fields].fileExporterExtensions.add(extensions)
-    return new Disposable(() => {
-      this[fields].fileExporterExtensions.delete(extensions)
-    })
-  }
-
   registerSample (sample) {
     this[fields].samples.add(sample)
     return new Disposable(() => {
       this[fields].samples.delete(sample)
+    })
+  }
+
+  registerLibrary (file) {
+    const filePath = path.normalize(file)
+    this[fields].libs.add(filePath)
+    return new Disposable(() => {
+      this[fields].libs.delete(filePath)
     })
   }
 
@@ -167,95 +127,22 @@ export default class Session {
     return null
   }
 
-  get fileExtensions () {
-    function merge (fileExtensions) {
-      const map = new Map()
-      for (const obj of fileExtensions) {
-        for (const [ext, name] of Object.entries(obj)) {
-          map.set(name, map.get(name) || new Set())
-          map.get(name).add(ext)
-        }
-      }
-      return Array.from(map.entries()).map(([name, exts]) => ({
-        name,
-        extensions: Array.from(exts),
-      }))
-    }
-    return {
-      importer: merge(this[fields].fileImporterExtensions),
-      exporter: merge(this[fields].fileExporterExtensions),
-    }
-  }
-
   async create () {
-    const {
-      config, linkLayers, dissectors,
-      importers, exporters,
-    } = this[fields]
-    const factory = new SessionFactory()
-    const map = {}
+    const { config, libs } = this[fields]
+    const profile = new native.Session.Profile()
     for (const [key, value] of Object.entries(config.toJSON())) {
-      map[key] = JSON.stringify(value)
+      profile.setConfig(key, JSON.stringify(value))
     }
-    factory.setConfig(map)
-    for (const layer of linkLayers) {
-      factory.registerLinkLayer(layer)
+    for (const file of libs) {
+      profile.loadLibrary(file)
     }
-    for (const diss of dissectors) {
-      factory.registerDissector(diss)
-    }
-    for (const imp of importers) {
-      factory.registerImporter(imp.importer)
-    }
-    for (const exp of exporters) {
-      factory.registerExporter(exp.exporter)
-    }
-    factory.filterCompiler = this.createFilterCompiler()
-    return factory.create()
+    return new native.Session(profile)
   }
 
   createFilterCompiler () {
     const { filterMacros } = this[fields]
-    const filterCompiler = new FilterCompiler()
-    filterCompiler.macros = Array.from(filterMacros)
-    return filterCompiler
-  }
-
-  async runSampleTesting (sample) {
-    const asserts = jsonfile.readFileSync(sample.assert)
-    const sess = await this.create()
-    const prom = (new Promise((res) => {
-      sess.on('frame', (stat) => {
-        if (stat.frames >= asserts.length) {
-          const results = []
-          const frames = sess.getFrames(0, asserts.length)
-          const filterCompiler = this.createFilterCompiler()
-          for (let index = 0; index < frames.length; index += 1) {
-            const assertionResults = asserts[index].map((assert) => ({
-              filter: assert,
-              match: Boolean(filterCompiler
-                .compile(assert).built(frames[index])),
-            }))
-            results.push({
-              frame: frames[index],
-              assert: assertionResults,
-            })
-          }
-          res({
-            sample,
-            results,
-          })
-        }
-      })
-    }))
-    sess.importFile(sample.pcap)
-    return prom
-  }
-
-  async runSampleTestingAll () {
-    const { samples } = this[fields]
-    return Promise.all(Array.from(samples).map((sample) =>
-      this.runSampleTesting(sample)
-    ))
+    const filter = new native.FilterCompiler()
+    filter.macros = Array.from(filterMacros)
+    return filter
   }
 }

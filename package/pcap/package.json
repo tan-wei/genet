@@ -15,6 +15,10 @@
         "id": "core:panel:live-capture",
         "slot": "dialog:input",
         "style": "style.css"
+      },
+      {
+        "type": "core:library",
+        "main": "pcap-reader"
       }
     ]
   }
