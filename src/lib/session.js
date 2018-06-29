@@ -17,27 +17,6 @@ export default class Session {
       filterMacros: new Set(),
       samples: new Set(),
     }
-    setTimeout(() => {
-      const { Session: SESS } = require('@genet/load-module')
-      const { Profile } = SESS
-      const prof = new Profile()
-      prof.loadLibrary('./lib/genet-kernel/target/debug/examples/libeth.dylib')
-      prof.loadLibrary('./lib/genet-kernel/target/debug/examples/libreader.dylib')
-      prof.loadLibrary('./package/pcap/crates/pcap-reader/target/release/libpcap_reader.dylib')
-      const sess = new SESS(prof)
-      sess.setFilter('main', '_.src')
-      const input = sess.createReader('pcap', JSON.stringify({
-        cmd: './package/pcap/crates/pcap-cli/target/release/pcap_cli',
-        args: ['capture', 'en0'],
-        link: 1,
-      }))
-      sess.on('event', (e) => {
-        console.log(e)
-        input.dispose()
-        console.log(sess.frames(0, 10).map((f) => f.root))
-      })
-      console.log(sess)
-    }, 0)
   }
 
   get tokens () {

@@ -21,6 +21,21 @@ class PcapView {
     })
   }
 
+  async create (ifs, link) {
+    const sess = await genet.session.create()
+    sess.regiterStreamReader('pcap', JSON.stringify({
+      cmd: './package/pcap/crates/pcap-cli/target/release/pcap_cli',
+      args: ['capture', ifs],
+      link,
+    }))
+    sess.startStream()
+    sess.on('event', (e) => {
+      console.log(e)
+    })
+    genet.workspace.set('_.pcap.interface', ifs)
+    genet.action.emit('core:session:created', sess)
+  }
+
   view (vnode) {
     const ifs = genet.workspace.get('_.pcap.interface')
     this.checkDevices()
@@ -43,6 +58,7 @@ class PcapView {
             return m('option', {
               value: dev.id,
               'data-name': name,
+              'data-link': dev.link,
               selected: ifs === dev.id,
             }, [name])
           }))
@@ -53,9 +69,10 @@ class PcapView {
             value: 'Start Live Capture',
             onclick: () => {
               const ifsElem = vnode.dom.querySelector('[name=ifs]')
-              const opt = ifsElem.options[ifsElem.selectedIndex]
-              genet.workspace.set('_.pcap.interface', opt.value)
-              vnode.attrs.callback(opt.value)
+              const { value, dataset: { link } } =
+                ifsElem.options[ifsElem.selectedIndex]
+              this.create(value, Number.parseInt(link, 10))
+              // Vnode.attrs.callback()
             },
           })
         ])
