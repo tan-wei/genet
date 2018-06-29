@@ -1,4 +1,5 @@
 const nodeExternals = require('webpack-node-externals')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 module.exports = {
   target: 'node',
   externals: [nodeExternals(), (context, request, callback) => {
@@ -15,5 +16,15 @@ module.exports = {
     process: false,
     Buffer: false,
   },
+  plugins: [
+    new UglifyJsPlugin({
+      cache: true,
+      uglifyOptions: {
+        ecma: 8,
+        compress: false,
+        mangle: true,
+      },
+    })
+  ],
   devtool: 'source-map',
 }
