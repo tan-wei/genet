@@ -203,10 +203,6 @@ NAN_METHOD(SessionWrapper::frames) {
     Nan::ThrowTypeError("Second argument must be an integer");
     return;
   }
-  if (start > end) {
-    Nan::ThrowTypeError("start must be less or equal than end");
-    return;
-  }
 
   if (auto wrapper = Nan::ObjectWrap::Unwrap<SessionWrapper>(info.Holder())) {
     if (!wrapper->event) {
@@ -214,7 +210,7 @@ NAN_METHOD(SessionWrapper::frames) {
       return;
     }
     Session *session = wrapper->event->session;
-    uint32_t length = end - start;
+    uint32_t length = end - std::min(start, end);
     std::vector<const Frame *> dst;
     dst.resize(length);
     genet_session_frames(session, start, end, &length, dst.data());
@@ -249,10 +245,6 @@ NAN_METHOD(SessionWrapper::filteredFrames) {
     Nan::ThrowTypeError("Third argument must be an integer");
     return;
   }
-  if (start > end) {
-    Nan::ThrowTypeError("start must be less or equal than end");
-    return;
-  }
 
   if (auto wrapper = Nan::ObjectWrap::Unwrap<SessionWrapper>(info.Holder())) {
     if (!wrapper->event) {
@@ -261,7 +253,7 @@ NAN_METHOD(SessionWrapper::filteredFrames) {
     }
     Session *session = wrapper->event->session;
 
-    uint32_t length = end - start;
+    uint32_t length = end - std::min(start, end);
     std::vector<const Frame *> dst;
     dst.resize(length);
     genet_session_filtered_frames(session, id, start, end, &length, dst.data());
