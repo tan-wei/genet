@@ -197,7 +197,7 @@ export default class FrameListView {
       { func: (frame) => m('span', [frame.index]) },
       {
         func: (frame) => {
-          const { id } = frame.root
+          const { id } = frame.primary
           return m('span', {
             class: 'protocol',
             'data-layer': id,
@@ -225,9 +225,9 @@ export default class FrameListView {
 
     this.columns.push({
       func: (frame) => {
-        const { id } = frame.root
+        const { id } = frame.primary
         const renderer = genet.session.layerRenderer(id) || DefaultSummary
-        return m(renderer, { layer: frame.root })
+        return m(renderer, { layer: frame.primary })
       },
     })
   }

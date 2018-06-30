@@ -89,7 +89,7 @@ class BinaryView {
       return m('div', { class: 'binary-view' }, ['No frame selected'])
     }
     const frame = this.selectedFrame
-    return m(BinaryItem, { payload: frame.rootLayer.payloads[0].slices[0] })
+    return m(BinaryItem, { payload: frame.root.payloads[0].slices[0] })
   }
 }
 

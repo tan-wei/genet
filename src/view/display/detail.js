@@ -235,10 +235,10 @@ export default class PcapDetailView {
       length += ` (actual: ${actual})`
     }
 
-    let children = frame.rootLayer.layers
-    const rootId = frame.rootLayer.id
+    let children = frame.root.layers
+    const rootId = frame.root.id
     if (rootId.startsWith('[')) {
-      children = frame.rootLayer.layers
+      children = frame.root.layers
     }
 
     let filterValue = '(null)'
