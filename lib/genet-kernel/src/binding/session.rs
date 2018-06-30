@@ -4,6 +4,7 @@ use libc;
 use profile::Profile;
 use serde_json;
 use session::{Callback, Event, Session};
+use std::cmp;
 use std::error::Error;
 use std::ffi::{CStr, CString};
 use std::ptr;
@@ -98,10 +99,11 @@ pub extern "C" fn genet_session_frames(
 ) {
     let frames = unsafe { (*session).frames(start as usize..end as usize) };
     unsafe {
-        if !frames.is_empty() {
-            ptr::copy_nonoverlapping(frames.as_ptr(), dst, *len as usize);
+        let size = cmp::min(*len as usize, frames.len());
+        if size > 0 {
+            ptr::copy_nonoverlapping(frames.as_ptr(), dst, size);
         }
-        *len = frames.len() as u32;
+        *len = size as u32;
     }
 }
 
@@ -116,8 +118,11 @@ pub extern "C" fn genet_session_filtered_frames(
 ) {
     let frames = unsafe { (*session).filtered_frames(id, start as usize..end as usize) };
     unsafe {
-        ptr::copy_nonoverlapping(frames.as_ptr(), dst, *len as usize);
-        *len = frames.len() as u32;
+        let size = cmp::min(*len as usize, frames.len());
+        if size > 0 {
+            ptr::copy_nonoverlapping(frames.as_ptr(), dst, size);
+        }
+        *len = size as u32;
     }
 }
 
