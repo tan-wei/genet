@@ -200,6 +200,8 @@ struct EventLoop {
 }
 
 impl EventLoop {
+    const OUTPUT_BLOCK_SIZE: usize = 1024;
+
     pub fn new<C: 'static + Callback>(
         profile: Profile,
         callback: C,
@@ -270,8 +272,6 @@ impl EventLoop {
         };
         (ev, send)
     }
-
-    const OUTPUT_BLOCK_SIZE: usize = 1024;
 
     fn process_input(
         id: Option<u32>,

@@ -53,6 +53,7 @@ impl PartialEq for SafeString {
     fn eq(&self, other: &SafeString) -> bool {
         PartialEq::eq(&self[..], &other[..])
     }
+
     #[inline]
     fn ne(&self, other: &SafeString) -> bool {
         PartialEq::ne(&self[..], &other[..])

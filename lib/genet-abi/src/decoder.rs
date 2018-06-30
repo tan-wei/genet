@@ -72,6 +72,7 @@ where
     R: Into<Variant>,
 {
     type Output = R;
+
     fn decode(&self, data: &slice::Slice) -> Result<Self::Output> {
         self.decoder.decode(data).map(self.func)
     }

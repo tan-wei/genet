@@ -123,12 +123,15 @@ impl store::Callback for StoreCallback {
     fn on_frames_updated(&self, frames: u32) {
         self.callback.on_event(Event::Frames(frames));
     }
+
     fn on_filtered_frames_updated(&self, id: u32, frames: u32) {
         self.callback.on_event(Event::FilteredFrames(id, frames));
     }
+
     fn on_output_done(&self, id: u32, error: Option<Box<::std::error::Error + Send>>) {
         self.callback.on_event(Event::Input(id, error));
     }
+
     fn on_input_done(&self, id: u32, error: Option<Box<::std::error::Error + Send>>) {
         self.callback.on_event(Event::Output(id, error));
     }

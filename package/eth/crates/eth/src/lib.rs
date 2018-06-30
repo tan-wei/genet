@@ -1,6 +1,5 @@
 #[macro_use]
 extern crate genet_sdk;
-extern crate genet_abi;
 
 #[macro_use]
 extern crate lazy_static;

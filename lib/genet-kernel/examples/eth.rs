@@ -1,6 +1,5 @@
 #[macro_use]
 extern crate genet_sdk;
-extern crate genet_abi;
 
 #[macro_use]
 extern crate lazy_static;
@@ -18,9 +17,7 @@ use genet_sdk::{
     result::Result,
     slice::SliceIndex,
 };
-use std::{
-    collections::HashMap,
-};
+use std::collections::HashMap;
 
 struct EthWorker {}
 

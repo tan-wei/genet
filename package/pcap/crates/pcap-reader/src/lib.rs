@@ -1,4 +1,3 @@
-extern crate genet_abi;
 extern crate pcap;
 extern crate serde;
 extern crate serde_json;

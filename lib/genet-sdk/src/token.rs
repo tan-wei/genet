@@ -1,23 +1,24 @@
 #[macro_export]
 macro_rules! token {
     () => {{
-        use genet_abi::token::Token;
+        use $crate::token::Token;
         Token::null()
     }};
     ($name:expr) => {{
-        use genet_abi::token::Token;
+        use $crate::token::Token;
         thread_local!(static TOKEN: Token = { Token::from($name) };);
         TOKEN.with(|&t| t)
     }};
 }
 
+pub use genet_abi::token::Token;
+
 #[cfg(test)]
 mod tests {
-    use genet_abi::token::Token;
+    use token::Token;
 
     #[test]
     fn token() {
-        pub use genet_abi::env;
         assert_eq!(token!(), Token::null());
         let token = token!("eth");
         assert_eq!(token.to_string(), "eth");

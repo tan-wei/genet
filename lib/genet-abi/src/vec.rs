@@ -19,6 +19,7 @@ where
 
 impl<T> Iterator for IntoIter<T> {
     type Item = T;
+
     fn next(&mut self) -> Option<Self::Item> {
         if self.len > 0 {
             unsafe {
