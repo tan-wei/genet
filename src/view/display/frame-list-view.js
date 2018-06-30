@@ -44,7 +44,6 @@ class FrameView {
     return m('div', {
       class: 'frame',
       style: vnode.attrs.style,
-      'data-layer': this.frame.primaryLayer.tags.join(' '),
       active: viewState.selectedFrame === key,
       onmousedown: () => {
         viewState.selectedFrame = key
@@ -96,8 +95,6 @@ export default class FrameListView {
             index = sess.filteredFrames('main', index, 1)[0] - 1
           }
           const [frame] = sess.frames(index, 1)
-          this.dummyItem.setAttribute('data-layer',
-            frame.primaryLayer.tags.join(' '))
           const [red, green, blue] =
             parseColor(getComputedStyle(this.dummyItem, null)
               .getPropertyValue('background-color')).rgb
@@ -200,7 +197,7 @@ export default class FrameListView {
       { func: (frame) => m('span', [frame.index]) },
       {
         func: (frame) => {
-          const { id, tags } = frame.primaryLayer
+          const { id, tags } = frame.root
           return m('span', {
             class: 'protocol',
             'data-layer': tags.join(' '),
@@ -227,9 +224,9 @@ export default class FrameListView {
 
     this.columns.push({
       func: (frame) => {
-        const { id } = frame.primaryLayer
+        const { id } = frame.root
         const renderer = genet.session.layerRenderer(id) || DefaultSummary
-        return m(renderer, { layer: frame.primaryLayer })
+        return m(renderer, { layer: frame.root })
       },
     })
   }

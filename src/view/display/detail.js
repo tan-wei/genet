@@ -208,7 +208,7 @@ export default class PcapDetailView {
     genet.action.on('core:frame:selected', (frame) => {
       this.selectedFrame = frame
       selectedLayer = frame
-        ? frame.primaryLayer
+        ? frame.root
         : null
       genet.action.emit('core:frame:layer:selected', selectedLayer)
       m.redraw()

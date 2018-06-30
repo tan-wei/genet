@@ -203,6 +203,10 @@ NAN_METHOD(SessionWrapper::frames) {
     Nan::ThrowTypeError("Second argument must be an integer");
     return;
   }
+  if (start > end) {
+    Nan::ThrowTypeError("start must be less or equal than end");
+    return;
+  }
 
   if (auto wrapper = Nan::ObjectWrap::Unwrap<SessionWrapper>(info.Holder())) {
     if (!wrapper->event) {
@@ -215,6 +219,54 @@ NAN_METHOD(SessionWrapper::frames) {
     dst.resize(length);
     genet_session_frames(session, start, end, &length, dst.data());
     dst.resize(length);
+    auto array = Nan::New<v8::Array>(length);
+    for (uint32_t index = 0; index < length; ++index) {
+      array->Set(index, FrameWrapper::wrap(dst[index]));
+    }
+    info.GetReturnValue().Set(array);
+  }
+}
+
+NAN_METHOD(SessionWrapper::filteredFrames) {
+  uint32_t id = 0;
+  uint32_t start = 0;
+  uint32_t end = 0;
+  if (info[0]->IsUint32()) {
+    id = info[0]->Uint32Value();
+  } else {
+    Nan::ThrowTypeError("First argument must be an integer");
+    return;
+  }
+  if (info[1]->IsUint32()) {
+    start = info[1]->Uint32Value();
+  } else {
+    Nan::ThrowTypeError("Second argument must be an integer");
+    return;
+  }
+  if (info[2]->IsUint32()) {
+    end = info[2]->Uint32Value();
+  } else {
+    Nan::ThrowTypeError("Third argument must be an integer");
+    return;
+  }
+  if (start > end) {
+    Nan::ThrowTypeError("start must be less or equal than end");
+    return;
+  }
+
+  if (auto wrapper = Nan::ObjectWrap::Unwrap<SessionWrapper>(info.Holder())) {
+    if (!wrapper->event) {
+      Nan::ThrowReferenceError("Session has been closed");
+      return;
+    }
+    Session *session = wrapper->event->session;
+
+    uint32_t length = end - start;
+    std::vector<const Frame *> dst;
+    dst.resize(length);
+    genet_session_filtered_frames(session, id, start, end, &length, dst.data());
+    dst.resize(length);
+
     auto array = Nan::New<v8::Array>(length);
     for (uint32_t index = 0; index < length; ++index) {
       array->Set(index, FrameWrapper::wrap(dst[index]));
@@ -309,50 +361,6 @@ NAN_METHOD(SessionWrapper::setFilter) {
     }
     Session *session = wrapper->event->session;
     genet_session_set_filter(session, id, filter);
-  }
-}
-
-NAN_METHOD(SessionWrapper::filteredFrames) {
-  uint32_t id = 0;
-  uint32_t start = 0;
-  uint32_t end = 0;
-  if (info[0]->IsUint32()) {
-    id = info[0]->Uint32Value();
-  } else {
-    Nan::ThrowTypeError("First argument must be an integer");
-    return;
-  }
-  if (info[1]->IsUint32()) {
-    start = info[1]->Uint32Value();
-  } else {
-    Nan::ThrowTypeError("Second argument must be an integer");
-    return;
-  }
-  if (info[2]->IsUint32()) {
-    end = info[2]->Uint32Value();
-  } else {
-    Nan::ThrowTypeError("Third argument must be an integer");
-    return;
-  }
-
-  if (auto wrapper = Nan::ObjectWrap::Unwrap<SessionWrapper>(info.Holder())) {
-    if (!wrapper->event) {
-      Nan::ThrowReferenceError("Session has been closed");
-      return;
-    }
-    Session *session = wrapper->event->session;
-
-    uint32_t length = end - start;
-    std::vector<const Frame *> dst;
-    dst.resize(length);
-    genet_session_filtered_frames(session, id, start, end, &length, dst.data());
-    dst.resize(length);
-
-    auto array = Nan::New<v8::Array>(length);
-    for (uint32_t index = 0; index < length; ++index) {
-      array->Set(index, FrameWrapper::wrap(dst[index]));
-    }
-    info.GetReturnValue().Set(array);
   }
 }
 
