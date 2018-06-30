@@ -91,7 +91,6 @@ class LayerItem {
           m('summary', {
             class: 'layer children',
             'data-layer': layer.id,
-            'data-tags': layer.tags.join(' '),
             active: selectedLayer.id === layer.id,
             onclick: () => {
               if (selectedLayer.id !== layer.id) {
@@ -124,7 +123,7 @@ class LayerItem {
             m('i', { class: 'fa fa-arrow-circle-down' }, [' ']),
             m('span', {
               class: 'protocol',
-              'data-layer': layer.tags.join(' '),
+              'data-layer': layer.id,
             }, [
               name
             ]),

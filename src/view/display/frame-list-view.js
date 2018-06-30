@@ -197,10 +197,10 @@ export default class FrameListView {
       { func: (frame) => m('span', [frame.index]) },
       {
         func: (frame) => {
-          const { id, tags } = frame.root
+          const { id } = frame.root
           return m('span', {
             class: 'protocol',
-            'data-layer': tags.join(' '),
+            'data-layer': id,
           }, [genet.session.tokenName(id)])
         },
       }
@@ -213,7 +213,8 @@ export default class FrameListView {
         func: (frame) => {
           const result = frame.query(col.value)
           let renderer = AttributeValueItem
-          if (typeof result === 'object' &&
+          if (result !== null &&
+              typeof result === 'object' &&
               result.constructor.name === 'Attr') {
             renderer = genet.session.attrRenderer(result.type) || renderer
             return m(renderer, { attr: result })
