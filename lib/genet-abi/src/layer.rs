@@ -284,8 +284,7 @@ mod tests {
     use attr::{Attr, AttrBuilder, AttrClass};
     use decoder::Decoder;
     use env;
-    use layer::*;
-    use layer::{Layer, LayerBuilder, LayerClass};
+    use layer::{Layer, LayerBuilder, LayerClass, *};
     use slice::Slice;
     use std::io::Result;
     use token::Token;

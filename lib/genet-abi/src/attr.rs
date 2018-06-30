@@ -1,15 +1,11 @@
-use decoder::Decoder;
-use decoder::Nil;
+use decoder::{Decoder, Nil};
 use env;
 use error::Error;
 use layer::Layer;
 use ptr::Ptr;
 use result::Result;
 use slice::Slice;
-use std::fmt;
-use std::mem;
-use std::ops::Range;
-use std::slice;
+use std::{fmt, mem, ops::Range, slice};
 use token::Token;
 use variant::Variant;
 use vec::SafeVec;
@@ -296,9 +292,11 @@ mod tests {
     use env;
     use layer::{Layer, LayerBuilder, LayerClass};
     use slice::{Slice, SliceIndex};
-    use std::error;
-    use std::io::{Error, ErrorKind, Result};
-    use std::str::from_utf8;
+    use std::{
+        error,
+        io::{Error, ErrorKind, Result},
+        str::from_utf8,
+    };
     use token::Token;
     use variant::Variant;
 

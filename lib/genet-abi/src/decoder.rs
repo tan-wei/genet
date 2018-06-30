@@ -1,6 +1,5 @@
 use slice;
-use std::convert::Into;
-use std::io::Result;
+use std::{convert::Into, io::Result};
 use variant::Variant;
 
 pub trait Decoder: Send + Sync + DecoderClone {

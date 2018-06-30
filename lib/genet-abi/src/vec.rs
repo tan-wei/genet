@@ -1,9 +1,10 @@
 use env;
-use std::iter::{FromIterator, IntoIterator};
-use std::mem;
-use std::ops::{Deref, DerefMut};
-use std::ptr;
-use std::slice;
+use std::{
+    iter::{FromIterator, IntoIterator},
+    mem,
+    ops::{Deref, DerefMut},
+    ptr, slice,
+};
 
 #[repr(C)]
 #[derive(Debug)]

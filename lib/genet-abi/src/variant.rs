@@ -1,6 +1,8 @@
 use slice::Slice;
-use std::convert::Into;
-use std::io::{Error, ErrorKind, Result};
+use std::{
+    convert::Into,
+    io::{Error, ErrorKind, Result},
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Variant {

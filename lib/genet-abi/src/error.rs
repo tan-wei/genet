@@ -1,6 +1,4 @@
-use std::error;
-use std::fmt;
-use std::str;
+use std::{error, fmt, str};
 use string::SafeString;
 
 #[repr(C)]

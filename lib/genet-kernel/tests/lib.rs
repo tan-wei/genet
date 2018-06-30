@@ -6,10 +6,14 @@ mod data;
 #[macro_use]
 extern crate genet_sdk;
 
-use genet_kernel::profile::Profile;
-use genet_kernel::session::{Callback, Event, Session};
-use genet_sdk::layer::{Layer, LayerClass};
-use genet_sdk::ptr::MutPtr;
+use genet_kernel::{
+    profile::Profile,
+    session::{Callback, Event, Session},
+};
+use genet_sdk::{
+    layer::{Layer, LayerClass},
+    ptr::MutPtr,
+};
 use std::iter;
 
 struct SessionCallback {}

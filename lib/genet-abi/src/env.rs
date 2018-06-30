@@ -1,11 +1,11 @@
 use libc;
 use ptr::{MutPtr, Ptr};
-use std::cell::RefCell;
-use std::collections::hash_map::Entry;
-use std::collections::HashMap;
-use std::slice;
-use std::str;
-use std::sync::Mutex;
+use std::{
+    cell::RefCell,
+    collections::{hash_map::Entry, HashMap},
+    slice, str,
+    sync::Mutex,
+};
 use token::Token;
 
 #[no_mangle]

@@ -17,18 +17,20 @@ use genet_sdk::{
     context::Context,
     io::{Reader, ReaderWorker},
     layer::{Layer, LayerBuilder, LayerClass},
-    slice::Slice,
     ptr::Ptr,
     result::Result,
+    slice::Slice,
     token,
     variant::Variant,
 };
 use pcap::Header;
 
-use std::io::{BufRead, BufReader, Read};
-use std::mem;
-use std::process::{Child, ChildStdout, Command, Stdio};
-use std::slice;
+use std::{
+    io::{BufRead, BufReader, Read},
+    mem,
+    process::{Child, ChildStdout, Command, Stdio},
+    slice,
+};
 
 #[derive(Deserialize)]
 struct Arg {

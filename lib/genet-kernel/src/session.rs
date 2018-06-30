@@ -1,17 +1,20 @@
 use filter::Filter;
 use frame::Frame;
-use genet_abi;
-use genet_abi::context;
-use genet_abi::dissector::Dissector;
-use genet_abi::io::{ReaderWorkerBox, WriterWorkerBox};
-use genet_abi::layer::Layer;
-use genet_abi::ptr::MutPtr;
+use genet_abi::{
+    self, context,
+    dissector::Dissector,
+    io::{ReaderWorkerBox, WriterWorkerBox},
+    layer::Layer,
+    ptr::MutPtr,
+};
 use io::{Input, Output};
 use profile::Profile;
 use result::Result;
 use serde::ser::{Serialize, SerializeMap, Serializer};
-use std::ops::Range;
-use std::thread::{self, JoinHandle};
+use std::{
+    ops::Range,
+    thread::{self, JoinHandle},
+};
 use store::{self, Store};
 
 #[derive(Debug)]

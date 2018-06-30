@@ -1,6 +1,5 @@
 use frame::Frame;
-use genet_abi::result::Result;
-use genet_abi::{layer::Layer, ptr::MutPtr};
+use genet_abi::{layer::Layer, ptr::MutPtr, result::Result};
 use std::fmt::Debug;
 
 pub trait Output: Send + Debug {

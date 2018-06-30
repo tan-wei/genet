@@ -1,7 +1,6 @@
 use frame::Frame;
 use genet_abi::{attr::Attr, layer::Layer, token::Token};
-use std::mem;
-use std::ptr;
+use std::{mem, ptr};
 
 #[no_mangle]
 pub extern "C" fn genet_frame_index(frame: *const Frame) -> u32 {

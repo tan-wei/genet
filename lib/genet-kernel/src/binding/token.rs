@@ -1,7 +1,9 @@
 use genet_abi::token::Token;
 use libc;
-use std::ffi::{CStr, CString};
-use std::str;
+use std::{
+    ffi::{CStr, CString},
+    str,
+};
 
 #[no_mangle]
 pub extern "C" fn genet_token_get(id: *const libc::c_char) -> Token {

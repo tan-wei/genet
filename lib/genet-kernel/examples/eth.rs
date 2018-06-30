@@ -18,8 +18,10 @@ use genet_sdk::{
     result::Result,
     slice::SliceIndex,
 };
-use std::collections::HashMap;
-use std::io::{Error, ErrorKind};
+use std::{
+    collections::HashMap,
+    io::{Error, ErrorKind},
+};
 
 struct EthWorker {}
 

@@ -1,14 +1,12 @@
-use genet_abi::dissector::DissectorBox;
-use genet_abi::env::{self, Allocator};
-use genet_abi::io::{ReaderBox, WriterBox};
-use genet_abi::ptr::{MutPtr, Ptr};
-use genet_abi::token::Token;
+use genet_abi::{
+    dissector::DissectorBox,
+    env::{self, Allocator},
+    io::{ReaderBox, WriterBox},
+    ptr::{MutPtr, Ptr},
+    token::Token,
+};
 use libloading::Library;
-use std::collections::HashMap;
-use std::fmt;
-use std::io;
-use std::mem;
-use std::ops::Deref;
+use std::{collections::HashMap, fmt, io, mem, ops::Deref};
 
 #[derive(Clone)]
 pub struct Profile {

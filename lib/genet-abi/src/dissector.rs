@@ -3,10 +3,7 @@ use error::Error;
 use layer::Layer;
 use ptr::MutPtr;
 use result::Result;
-use std::io;
-use std::mem;
-use std::ptr;
-use std::str;
+use std::{io, mem, ptr, str};
 use string::SafeString;
 
 pub enum Status {

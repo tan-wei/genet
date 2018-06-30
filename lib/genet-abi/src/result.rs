@@ -1,4 +1,3 @@
-use std::error::Error;
-use std::result;
+use std::{error::Error, result};
 
 pub type Result<T> = result::Result<T, Box<Error>>;

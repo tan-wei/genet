@@ -1,6 +1,8 @@
 use super::vec::SafeVec;
-use std::ops::{Deref, DerefMut};
-use std::str;
+use std::{
+    ops::{Deref, DerefMut},
+    str,
+};
 
 #[repr(C)]
 #[derive(Debug, Clone)]

@@ -1,7 +1,4 @@
-use std::iter::Skip;
-use std::mem;
-use std::ops::Range;
-use std::ptr;
+use std::{iter::Skip, mem, ops::Range, ptr};
 
 const BLOCK_SIZE: usize = 1024;
 

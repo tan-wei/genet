@@ -1,5 +1,7 @@
-use std::fmt;
-use std::ops::{Deref, DerefMut};
+use std::{
+    fmt,
+    ops::{Deref, DerefMut},
+};
 
 #[repr(C)]
 pub struct Ptr<T> {

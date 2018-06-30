@@ -1,7 +1,9 @@
-use std::io::{Error, ErrorKind, Result};
-use std::mem;
-use std::ops::{Deref, Range, RangeFrom, RangeFull, RangeInclusive, RangeTo, RangeToInclusive};
-use std::slice;
+use std::{
+    io::{Error, ErrorKind, Result},
+    mem,
+    ops::{Deref, Range, RangeFrom, RangeFull, RangeInclusive, RangeTo, RangeToInclusive},
+    slice,
+};
 
 pub trait SliceIndex<T> {
     fn get(&self, index: T) -> Result<Slice>;

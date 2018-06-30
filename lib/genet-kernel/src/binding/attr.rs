@@ -1,7 +1,5 @@
 use genet_abi::{attr::Attr, layer::Layer, token::Token, variant::Variant};
-use std::ffi::CString;
-use std::mem;
-use std::ptr;
+use std::{ffi::CString, mem, ptr};
 
 #[repr(i8)]
 pub enum ValueType {

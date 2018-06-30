@@ -3,8 +3,10 @@ use dissector::dispatcher::Dispatcher;
 use frame::Frame;
 use genet_abi::layer::Layer;
 use profile::Profile;
-use std::collections::BTreeMap;
-use std::thread::{self, JoinHandle};
+use std::{
+    collections::BTreeMap,
+    thread::{self, JoinHandle},
+};
 
 pub trait Callback: Sync + Send {
     fn done(&self, result: Vec<Frame>);

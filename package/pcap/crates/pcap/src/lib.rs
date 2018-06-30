@@ -9,8 +9,10 @@ extern crate serde;
 #[cfg(target_os = "linux")]
 extern crate capabilities;
 
-use std::sync::mpsc::{channel, Receiver, Sender};
-use std::thread;
+use std::{
+    sync::mpsc::{channel, Receiver, Sender},
+    thread,
+};
 
 const PCAP_IF_LOOPBACK: u32 = 0x0000_0001;
 const PCAP_ERRBUF_SIZE: usize = 256;
@@ -66,8 +68,7 @@ impl Pcap {
     }
 
     pub fn start(&mut self, ifs: &str) -> Result<Receiver<(Header, Box<[u8]>)>, Error> {
-        use std::ffi::CString;
-        use std::slice;
+        use std::{ffi::CString, slice};
         let (send, recv) = channel();
         let ifs = CString::new(ifs).unwrap();
 
@@ -110,11 +111,11 @@ impl Pcap {
                     let holder = &*(user as *const PcapHolder);
                     let h = &*h;
                     let data = slice::from_raw_parts(data, h.caplen as usize);
-                    let header = Header{
-                        datalen: data.len() as u32, 
-                        actlen: h.len, 
-                        ts_sec: h.ts.tv_sec as u32, 
-                        ts_usec: h.ts.tv_usec as u32
+                    let header = Header {
+                        datalen: data.len() as u32,
+                        actlen: h.len,
+                        ts_sec: h.ts.tv_sec as u32,
+                        ts_usec: h.ts.tv_usec as u32,
                     };
                     if holder.sender.send((header, data.into())).is_err() {
                         (holder.syms.pcap_breakloop)(holder.pcap);
@@ -326,8 +327,7 @@ mod platform {
     pub(crate) fn device_descriptions(devices: Vec<Device>) -> Vec<Device> {
         use super::platform::windows::*;
 
-        use std::mem;
-        use std::ptr;
+        use std::{mem, ptr};
         const NO_ERROR: u32 = 0;
         const ERROR_INSUFFICIENT_BUFFER: u32 = 122;
         const GUID_LEN: usize = 38;
@@ -426,9 +426,11 @@ mod platform {
 
     #[cfg(target_os = "macos")]
     pub(crate) fn check_permission() -> bool {
-        use std::fs;
-        use std::io::{Error, ErrorKind};
-        use std::os::unix::fs::MetadataExt;
+        use std::{
+            fs,
+            io::{Error, ErrorKind},
+            os::unix::fs::MetadataExt,
+        };
 
         fn check_dev() -> Result<(), Error> {
             for entry in fs::read_dir("/dev")? {
@@ -567,19 +569,26 @@ mod ffi {
                 >;
 
                 unsafe {
-                    pcap_findalldevs_ = lib.get(b"pcap_findalldevs")
+                    pcap_findalldevs_ = lib
+                        .get(b"pcap_findalldevs")
                         .map_err(|_| super::Error::DLLFuncNotFound)?;
-                    pcap_freealldevs_ = lib.get(b"pcap_freealldevs")
+                    pcap_freealldevs_ = lib
+                        .get(b"pcap_freealldevs")
                         .map_err(|_| super::Error::DLLFuncNotFound)?;
-                    pcap_open_live_ = lib.get(b"pcap_open_live")
+                    pcap_open_live_ = lib
+                        .get(b"pcap_open_live")
                         .map_err(|_| super::Error::DLLFuncNotFound)?;
-                    pcap_datalink_ = lib.get(b"pcap_datalink")
+                    pcap_datalink_ = lib
+                        .get(b"pcap_datalink")
                         .map_err(|_| super::Error::DLLFuncNotFound)?;
-                    pcap_loop_ = lib.get(b"pcap_loop")
+                    pcap_loop_ = lib
+                        .get(b"pcap_loop")
                         .map_err(|_| super::Error::DLLFuncNotFound)?;
-                    pcap_close_ = lib.get(b"pcap_close")
+                    pcap_close_ = lib
+                        .get(b"pcap_close")
                         .map_err(|_| super::Error::DLLFuncNotFound)?;
-                    pcap_breakloop_ = lib.get(b"pcap_breakloop")
+                    pcap_breakloop_ = lib
+                        .get(b"pcap_breakloop")
                         .map_err(|_| super::Error::DLLFuncNotFound)?;
                 }
 

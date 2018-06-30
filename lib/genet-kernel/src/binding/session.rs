@@ -4,11 +4,12 @@ use libc;
 use profile::Profile;
 use serde_json;
 use session::{Callback, Event, Session};
-use std::cmp;
-use std::error::Error;
-use std::ffi::{CStr, CString};
-use std::ptr;
-use std::str;
+use std::{
+    cmp,
+    error::Error,
+    ffi::{CStr, CString},
+    ptr, str,
+};
 
 #[no_mangle]
 pub extern "C" fn genet_session_profile_new() -> *mut Profile {

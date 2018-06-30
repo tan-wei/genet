@@ -4,10 +4,11 @@ extern crate serde_json;
 
 use clap::{App, Arg, SubCommand};
 use pcap::Pcap;
-use std::io::stdout;
-use std::io::Write;
-use std::sync::mpsc::RecvTimeoutError;
-use std::time::Duration;
+use std::{
+    io::{stdout, Write},
+    sync::mpsc::RecvTimeoutError,
+    time::Duration,
+};
 
 fn main() {
     let capture = SubCommand::with_name("capture").arg(
