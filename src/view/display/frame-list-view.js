@@ -45,6 +45,7 @@ class FrameView {
       class: 'frame',
       style: vnode.attrs.style,
       active: viewState.selectedFrame === key,
+      'data-layer': this.frame.primary.id,
       onmousedown: () => {
         viewState.selectedFrame = key
         genet.action.emit('core:frame:selected', this.frame)
@@ -92,9 +93,10 @@ export default class FrameListView {
         for (let line = 0; line < this.mapHeight; line += 1) {
           let index = Math.floor(frames / this.mapHeight * (line + 0.5))
           if (status.filters.main) {
-            index = sess.filteredFrames('main', index, 1)[0] - 1
+            index = sess.filteredFrames('main', index, index + 1)[0] - 1
           }
-          const [frame] = sess.frames(index, 1)
+          const [frame] = sess.frames(index, index + 1)
+          this.dummyItem.setAttribute('data-layer', frame.primary.id)
           const [red, green, blue] =
             parseColor(getComputedStyle(this.dummyItem, null)
               .getPropertyValue('background-color')).rgb
@@ -124,7 +126,7 @@ export default class FrameListView {
     const listStyle = { height: `${frames * this.itemHeight}px` }
 
     const filteredFrames =
-      vnode.attrs.sess.filteredFrames('main', startIndex, visibleItems)
+      vnode.attrs.sess.filteredFrames('main', startIndex, startIndex + visibleItems)
     const items = []
     for (let index = 0; index < visibleItems; index += 1) {
       const seq = (status.filters.main)
