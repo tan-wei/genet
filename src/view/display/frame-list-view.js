@@ -9,7 +9,7 @@ class FrameView {
     const { viewState, key } = vnode.attrs
     if (!this.frame) {
       const { sess } = vnode.attrs;
-      [this.frame] = sess.frames(key - 1, 1)
+      [this.frame] = sess.frames(key - 1, key)
     }
     if (!this.frame) {
       return m('div')
@@ -125,7 +125,6 @@ export default class FrameListView {
 
     const filteredFrames =
       vnode.attrs.sess.filteredFrames('main', startIndex, visibleItems)
-
     const items = []
     for (let index = 0; index < visibleItems; index += 1) {
       const seq = (status.filters.main)

@@ -112,38 +112,38 @@ class LayerValueItem {
 }
 export class AttributeValueItem {
   view (vnode) {
-    const { attr } = vnode.attrs
-    if (attr.value === null) {
+    const value = vnode.attrs.attr.getValue()
+    if (value === null) {
       return m('span')
-    } else if (typeof attr.value === 'undefined') {
+    } else if (typeof value === 'undefined') {
       return m('span', ['undefined'])
-    } else if (typeof attr.value === 'boolean') {
-      return m(BooleanValueItem, { value: attr.value })
-    } else if (attr.value instanceof Date) {
-      return m(DateValueItem, { value: attr.value })
-    } else if (attr.value instanceof Uint8Array) {
-      return m(BufferValueItem, { value: attr.value })
-    } else if (Array.isArray(attr.value)) {
-      return m(ArrayValueItem, { value: attr.value })
-    } else if (typeof attr.value === 'object' &&
-      attr.value.constructor.name === 'Layer') {
-      return m(LayerValueItem, { value: attr.value })
-    } else if (typeof attr.value === 'object' &&
-      attr.value !== null &&
-      Reflect.getPrototypeOf(attr.value) === Object.prototype) {
-      return m(ObjectValueItem, { value: attr.value })
+    } else if (typeof value === 'boolean') {
+      return m(BooleanValueItem, { value })
+    } else if (value instanceof Date) {
+      return m(DateValueItem, { value })
+    } else if (value instanceof Uint8Array) {
+      return m(BufferValueItem, { value })
+    } else if (Array.isArray(value)) {
+      return m(ArrayValueItem, { value })
+    } else if (typeof value === 'object' &&
+      value.constructor.name === 'Layer') {
+      return m(LayerValueItem, { value })
+    } else if (typeof value === 'object' &&
+      value !== null &&
+      Reflect.getPrototypeOf(value) === Object.prototype) {
+      return m(ObjectValueItem, { value })
     }
-    const value = (attr.value === null
+    const result = (value === null
       ? ''
-      : attr.value.toString())
-    if (value.length > 1024) {
+      : value.toString())
+    if (result.length > 1024) {
       return m('span', [
         m('details', [
-          m('summary', [value.substr(0, 64), '... (', value.length, ')']),
-          value
+          m('summary', [result.substr(0, 64), '... (', result.length, ')']),
+          result
         ])
       ])
     }
-    return m('span', [' ', value, ' '])
+    return m('span', [' ', result, ' '])
   }
 }

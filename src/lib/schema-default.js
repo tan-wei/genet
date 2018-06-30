@@ -21,7 +21,7 @@ export default {
         },
         {
           name: 'Length',
-          value: '$.actualLength',
+          value: 'link.length',
         }
       ],
     },
