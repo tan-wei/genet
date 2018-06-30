@@ -196,7 +196,7 @@ extern "C" fn abi_reader_worker_read(
     out: *mut SafeVec<MutPtr<Layer>>,
     err: *mut Error,
 ) -> u8 {
-    let mut worker = unsafe { &mut *worker };
+    let worker = unsafe { &mut *worker };
     match worker.read() {
         Ok(layers) => {
             let mut safe = SafeVec::with_capacity(layers.len() as u32);

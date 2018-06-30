@@ -1,5 +1,3 @@
-use genet_abi::token::Token;
-
 #[macro_export]
 macro_rules! token {
     () => {{

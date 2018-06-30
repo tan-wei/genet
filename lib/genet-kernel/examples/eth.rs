@@ -20,7 +20,6 @@ use genet_sdk::{
 };
 use std::{
     collections::HashMap,
-    io::{Error, ErrorKind},
 };
 
 struct EthWorker {}

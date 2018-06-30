@@ -1,5 +1,5 @@
 use libc;
-use ptr::{MutPtr, Ptr};
+use ptr::Ptr;
 use std::{
     cell::RefCell,
     collections::{hash_map::Entry, HashMap},

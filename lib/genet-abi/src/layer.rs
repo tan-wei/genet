@@ -281,10 +281,9 @@ extern "C" fn abi_add_payload(layer: *mut Layer, data: *const u8, len: u64, typ:
 
 #[cfg(test)]
 mod tests {
-    use attr::{Attr, AttrBuilder, AttrClass};
+    use attr::{Attr, AttrBuilder};
     use decoder::Decoder;
-    use env;
-    use layer::{Layer, LayerBuilder, LayerClass, *};
+    use layer::{Layer, LayerBuilder, *};
     use slice::Slice;
     use std::io::Result;
     use token::Token;

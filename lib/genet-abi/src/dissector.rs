@@ -3,7 +3,7 @@ use error::Error;
 use layer::Layer;
 use ptr::MutPtr;
 use result::Result;
-use std::{io, mem, ptr, str};
+use std::{mem, ptr, str};
 use string::SafeString;
 
 pub enum Status {
@@ -156,11 +156,10 @@ extern "C" fn abi_new_worker(
 #[cfg(test)]
 mod tests {
     use context::Context;
-    use dissector::{Dissector, DissectorBox, Status, Worker, WorkerBox};
-    use layer::{Layer, LayerBuilder, LayerClass};
+    use dissector::{Dissector, DissectorBox, Status, Worker};
+    use layer::{Layer, LayerBuilder};
     use result::Result;
     use slice::Slice;
-    use std::io;
     use token::Token;
 
     #[test]

@@ -1,8 +1,7 @@
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 pub use genet_abi::decoder::{Decoder, Typed};
 use slice;
-use std::io::{Cursor, Error, ErrorKind, Read, Result};
-use variant::Variant;
+use std::io::{Cursor, Error, ErrorKind, Result};
 
 #[derive(Clone)]
 pub struct UInt8();

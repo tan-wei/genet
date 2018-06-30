@@ -287,10 +287,9 @@ extern "C" fn abi_get(
 
 #[cfg(test)]
 mod tests {
-    use attr::{Attr, AttrBuilder, AttrClass};
+    use attr::{Attr, AttrBuilder};
     use decoder::Decoder;
-    use env;
-    use layer::{Layer, LayerBuilder, LayerClass};
+    use layer::{Layer, LayerBuilder};
     use slice::{Slice, SliceIndex};
     use std::{
         error,

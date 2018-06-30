@@ -41,7 +41,7 @@ impl Slice {
     }
 
     pub unsafe fn from_raw_parts(data: *const u8, len: usize) -> Slice {
-        Slice(unsafe { slice::from_raw_parts(data, len) })
+        Slice(slice::from_raw_parts(data, len))
     }
 
     pub fn len(&self) -> usize {

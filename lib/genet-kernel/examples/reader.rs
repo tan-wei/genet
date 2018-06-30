@@ -32,7 +32,7 @@ pub fn tcp_ipv4_pcap() -> &'static [u8] {
 struct TestReader {}
 
 impl Reader for TestReader {
-    fn new_worker(&self, ctx: &Context, arg: &str) -> Box<ReaderWorker> {
+    fn new_worker(&self, _ctx: &Context, _arg: &str) -> Box<ReaderWorker> {
         Box::new(TestReaderWorker {})
     }
 
