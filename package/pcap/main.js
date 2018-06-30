@@ -29,9 +29,6 @@ class PcapView {
       link,
     }))
     sess.startStream()
-    sess.on('event', (e) => {
-      console.log(e)
-    })
     genet.workspace.set('_.pcap.interface', ifs)
     genet.action.emit('core:session:created', sess)
   }

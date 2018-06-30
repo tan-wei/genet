@@ -59,9 +59,10 @@ export default class TopView {
   view () {
     this.viewState.counter = '0'
     if (this.sess) {
-      this.viewState.counter = this.sess.filter.main
-        ? `${this.sess.filter.main.frames} / ${this.sess.frame.frames}`
-        : `${this.sess.frame.frames}`
+      const { status } = this.sess
+      this.viewState.counter = status.filters.main
+        ? `${status.filters.main.frames} / ${status.frames}`
+        : `${status.frames}`
     }
     return [
       m('header', [
@@ -131,58 +132,13 @@ export default class TopView {
       }
     })
     genet.packages.once('updated', () => {
-      if (genet.argv.import) {
-        const file = path.resolve(genet.argv.import)
-        genet.session.create().then((sess) => {
-          genet.action.emit('core:session:created', sess)
-          this.sess = sess
-          sess.on('frame', () => {
-            m.redraw()
-          })
-          sess.on('filter', () => {
-            m.redraw()
-          })
-          if (genet.resumer.has('core:filter')) {
-            genet.action.emit('core:filter:set',
-              genet.resumer.get('core:filter'))
-          }
-          sess.importFile(file)
-        })
-      } else {
-        let getIfs = null
-        if (genet.resumer.has('core:session:ifs')) {
-          getIfs = Promise.resolve(genet.resumer.get('core:session:ifs'))
-        } else {
-          const inputDialog = new Dialog(InputDialog)
-          inputDialog.show({ cancelable: false })
-          m.redraw()
-          return
-        }
-        getIfs.then(async (ifs) => {
-          const sess = await genet.session.create(ifs)
-          genet.action.emit('core:session:created', sess)
-          this.sess = sess
-          if (genet.resumer.has('core:filter')) {
-            genet.action.emit('core:filter:set',
-              genet.resumer.get('core:filter'))
-          }
-          if (genet.resumer.has('core:session:dump')) {
-            sess.importFile(genet.resumer.get('core:session:dump'))
-          }
-          sess.startPcap()
-          genet.resumer.set('core:session:ifs', ifs)
-          sess.on('frame', () => {
-            m.redraw()
-          })
-          sess.on('status', (stat) => {
-            this.viewState.capture = stat.capture
-            m.redraw()
-          })
-          sess.on('filter', () => {
-            m.redraw()
-          })
-        })
-      }
+      genet.action.on('core:session:created', (sess) => {
+        this.sess = sess
+        m.redraw()
+      })
+      const inputDialog = new Dialog(InputDialog)
+      inputDialog.show({ cancelable: false })
+      m.redraw()
     })
     const filterInput = document.querySelector('input[name=display-filter]')
     genet.action.on('core:filter:suggest:hint-selected', (hint, enter) => {

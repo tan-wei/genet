@@ -12,9 +12,9 @@ export default class ToolBar {
         'data-balloon-pos': 'right',
         onclick: () => {
           if (viewState.capture) {
-            sess.stopPcap()
+            sess.stopStream()
           } else {
-            sess.startPcap()
+            sess.startStream()
           }
           viewState.capture = !viewState.capture
         },

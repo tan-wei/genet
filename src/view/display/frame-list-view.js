@@ -84,14 +84,15 @@ export default class FrameListView {
 
   updateMap (vnode) {
     const { sess } = vnode.attrs
-    if (sess && sess.frame.frames > 0 && this.dummyItem) {
-      const frames = (sess.filter.main
-        ? sess.filter.main.frames
-        : sess.frame.frames)
+    const { status } = sess
+    if (sess && status.frames > 0 && this.dummyItem) {
+      const frames = (status.filters.main
+        ? status.filters.main.frames
+        : status.frames)
       if (frames > 0) {
         for (let line = 0; line < this.mapHeight; line += 1) {
           let index = Math.floor(frames / this.mapHeight * (line + 0.5))
-          if (sess.filter.main) {
+          if (status.filters.main) {
             index = sess.getFilteredFrames('main', index, 1)[0] - 1
           }
           const [frame] = sess.getFrames(index, 1)
@@ -116,21 +117,21 @@ export default class FrameListView {
   }
 
   view (vnode) {
-    const { frame, filter } = vnode.attrs.sess
-    const frames = filter.main
-      ? filter.main.frames
-      : frame.frames
+    const { status } = vnode.attrs.sess
+    const frames = status.filters.main
+      ? status.filters.main.frames
+      : status.frames
     const visibleItems = Math.min(
       Math.floor(this.height / this.itemHeight) + 2, frames)
     const startIndex = Math.floor(this.scrollTop / this.itemHeight)
     const listStyle = { height: `${frames * this.itemHeight}px` }
 
     const filteredFrames =
-      vnode.attrs.sess.getFilteredFrames('main', startIndex, visibleItems)
+      vnode.attrs.sess.filteredFrames('main', startIndex, visibleItems)
 
     const items = []
     for (let index = 0; index < visibleItems; index += 1) {
-      const seq = (filter.main)
+      const seq = (status.filters.main)
         ? filteredFrames[index]
         : index + startIndex + 1
       const itemStyle = {
@@ -164,10 +165,10 @@ export default class FrameListView {
 
   onupdate (vnode) {
     const { sess, viewState } = vnode.attrs
-    const { frame, filter } = sess
-    const frames = filter.main
-      ? filter.main.frames
-      : frame.frames
+    const { status } = sess
+    const frames = status.filters.main
+      ? status.filters.main.frames
+      : status.frames
     if (this.prevFrames !== frames) {
       this.updateMapThrottle(vnode)
       this.prevFrames = frames
