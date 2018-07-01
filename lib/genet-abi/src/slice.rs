@@ -66,7 +66,7 @@ impl From<&'static [u8]> for Slice {
 impl From<Box<[u8]>> for Slice {
     fn from(data: Box<[u8]>) -> Self {
         let s = unsafe { Slice::from_raw_parts(data.as_ptr(), data.len()) };
-        mem::drop(data);
+        mem::forget(data);
         s
     }
 }
