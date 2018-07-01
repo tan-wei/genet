@@ -48,7 +48,7 @@ impl Reader for PcapReader {
             .args(&arg.args)
             .stdout(Stdio::piped())
             .spawn()
-            .expect("failed to execute pcap_cli");
+            .expect("failed to execute pcap-cli");
         let reader = BufReader::new(child.stdout.take().unwrap());
         let link_class = LayerBuilder::new(format!("[link-{}]", arg.link))
             .header(Attr::with_value(
