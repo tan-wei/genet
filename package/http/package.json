@@ -1,0 +1,30 @@
+{
+  "name": "@genet/http",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "HTTP dissector",
+  "engines": {
+    "genet": "*"
+  },
+  "genet": {
+    "components": [
+      {
+        "type": "core:style",
+        "files": [
+          "http.css"
+        ]
+      },
+      {
+        "type": "core:renderer:layer",
+        "id": "http",
+        "main": "summary.js"
+      },
+      {
+        "type": "core:token",
+        "files": [
+          "tokens.json"
+        ]
+      }
+    ]
+  }
+}

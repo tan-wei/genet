@@ -1,0 +1,38 @@
+{
+  "name": "@genet/ipv4",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "IPv4 dissector",
+  "engines": {
+    "genet": "*"
+  },
+  "genet": {
+    "components": [
+      {
+        "type": "core:filter:macro",
+        "id": "ipv4-literal",
+        "name": "IPv4 Address",
+        "description": "{{prefix}}127.0.0.1",
+        "main": "macro.js"
+      },
+      {
+        "type": "core:renderer:attr",
+        "id": "@ipv4:addr",
+        "main": "ipv4-addr.js",
+        "macro": "macro-rev.js"
+      },
+      {
+        "type": "core:style",
+        "files": [
+          "ipv4.css"
+        ]
+      },
+      {
+        "type": "core:token",
+        "files": [
+          "tokens.json"
+        ]
+      }
+    ]
+  }
+}
