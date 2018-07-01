@@ -204,7 +204,9 @@ export default class PcapDetailView {
   }
 
   oncreate () {
-    genet.action.on('core:frame:selected', (frame) => {
+
+    /*
+    Genet.action.on('core:frame:selected', (frame) => {
       this.selectedFrame = frame
       selectedLayer = frame
         ? frame.root
@@ -216,6 +218,7 @@ export default class PcapDetailView {
       this.displayFilter = filter
       m.redraw()
     })
+    */
   }
 
   view () {
@@ -235,14 +238,11 @@ export default class PcapDetailView {
       length += ` (actual: ${actual})`
     }
 
-    const { children } = frame.root
-
-    /*
-    Const rootId = frame.root.id
-    If (rootId.startsWith('[')) {
+    let { children } = frame.root
+    const rootId = frame.root.id
+    if (rootId.startsWith('[')) {
       children = frame.root.layers
     }
-    */
 
     let filterValue = '(null)'
     if (this.displayFilter) {
