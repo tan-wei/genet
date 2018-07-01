@@ -44,7 +44,7 @@ class LayerItem {
       children: [],
     }]
     let prevDepth = 0
-    for (const attr of layer.attrs()) {
+    for (const attr of layer.attrs) {
       let { id } = attr
       if (id.startsWith('.')) {
         id = layer.id + id
@@ -156,8 +156,10 @@ class LayerItem {
                 item,
                 layer,
                 dataOffset,
-              })),
-          m('ul', { class: 'metadata' }, [
+              }))
+
+          /*
+          M('ul', { class: 'metadata' }, [
             layer.payloads.map(
               (payload) => payload.slices.map(
                 (slice) => m('li', {
@@ -186,11 +188,12 @@ class LayerItem {
                 ])
               ])
             ])))
+          */
         ])
       ]),
       m('li', [
         m('ul', [
-          layer.layers.map((child) => m(LayerItem, { layer: child }))
+          layer.children.map((child) => m(LayerItem, { layer: child }))
         ])
       ])
     ])
@@ -204,9 +207,7 @@ export default class PcapDetailView {
   }
 
   oncreate () {
-
-    /*
-    Genet.action.on('core:frame:selected', (frame) => {
+    genet.action.on('core:frame:selected', (frame) => {
       this.selectedFrame = frame
       selectedLayer = frame
         ? frame.root
@@ -218,7 +219,6 @@ export default class PcapDetailView {
       this.displayFilter = filter
       m.redraw()
     })
-    */
   }
 
   view () {
@@ -238,11 +238,9 @@ export default class PcapDetailView {
       length += ` (actual: ${actual})`
     }
 
-    let { children } = frame.root
-    const rootId = frame.root.id
-    if (rootId.startsWith('[')) {
-      children = frame.root.layers
-    }
+    const children = frame.root.id.startsWith('[')
+      ? frame.root.children
+      : [frame.root]
 
     let filterValue = '(null)'
     if (this.displayFilter) {
@@ -274,7 +272,13 @@ export default class PcapDetailView {
               ? `${this.displayFilter.filter} =>`
               : '',
             ' ']),
-          m('span', [m(AttributeValueItem, { attr: { value: filterValue } })])
+          m('span', [m(AttributeValueItem, {
+            attr: {
+              getValue () {
+                return filterValue
+              },
+            },
+          })])
         ])
       ]),
       children.map((layer) => m(LayerItem, { layer }))

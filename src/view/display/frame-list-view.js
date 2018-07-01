@@ -120,30 +120,29 @@ export default class FrameListView {
     const frames = status.filters.main
       ? status.filters.main.frames
       : status.frames
-    const visibleItems = Math.min(
-      Math.floor(this.height / this.itemHeight) + 2, frames)
     const startIndex = Math.floor(this.scrollTop / this.itemHeight)
+    const visibleItems = Math.min(
+      Math.floor(this.height / this.itemHeight) + 2, frames - startIndex)
     const listStyle = { height: `${frames * this.itemHeight}px` }
-
     const filteredFrames =
       vnode.attrs.sess.filteredFrames('main', startIndex, startIndex + visibleItems)
-    const items = []
-    for (let index = 0; index < visibleItems; index += 1) {
-      const seq = (status.filters.main)
-        ? filteredFrames[index]
-        : index + startIndex
+    const indices = status.filters.main
+      ? filteredFrames
+      : new Array(visibleItems).fill(0)
+        .map((_val, index) => startIndex + index)
+    const items = indices.map((seq, index) => {
       const itemStyle = {
         height: `${this.itemHeight}px`,
         top: `${(index + startIndex) * this.itemHeight}px`,
       }
-      items.push(m(FrameView, {
+      return m(FrameView, {
         style: itemStyle,
         key: seq,
         sess: vnode.attrs.sess,
         columns: this.columns,
         viewState: vnode.attrs.viewState,
-      }))
-    }
+      })
+    })
     return m('nav', { class: 'frame-list' }, [
       m('style', { class: 'scrollbar-style' }),
       m('div', {

@@ -97,7 +97,6 @@ impl Store {
 
     pub fn filtered_frames(&self, id: u32, range: Range<usize>) -> Vec<u32> {
         let filtered = self.filtered.lock().unwrap();
-        let frames = self.frames.lock().unwrap();
         if let Some(vec) = filtered.get(&id) {
             vec.iter()
                 .skip(range.start)
@@ -346,8 +345,8 @@ impl EventLoop {
             callback.on_filtered_frames_updated(id, 0);
         } else {
             filter_map.remove(&id);
-            filtered.lock().unwrap().remove(&id);
         }
+        filtered.lock().unwrap().remove(&id);
     }
 
     fn process_filters(
@@ -373,11 +372,16 @@ impl EventLoop {
                 filter.offset = frames.len();
                 indeces
             };
-            if !indices.is_empty() {
+            let len = if !indices.is_empty() {
                 let mut filtered = filtered.lock().unwrap();
                 let mut frames = filtered.entry(*id).or_insert_with(|| Vec::new());
                 frames.append(&mut indices);
-                callback.on_filtered_frames_updated(*id, frames.len() as u32);
+                frames.len()
+            } else {
+                0
+            };
+            if len > 0 {
+                callback.on_filtered_frames_updated(*id, len as u32);
             }
         }
     }

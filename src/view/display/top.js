@@ -6,7 +6,6 @@ import FrameListView from './frame-list-view'
 import InputDialog from './input-dialog'
 import ToolBar from './toolbar'
 import m from 'mithril'
-import path from 'path'
 import { remote } from 'electron'
 import tempy from 'tempy'
 const { dialog } = remote
