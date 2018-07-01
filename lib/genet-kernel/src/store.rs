@@ -59,6 +59,7 @@ pub struct Store {
     frames: FrameStore,
     filtered: FilteredFrameStore,
     inputs: HashMap<u32, InputContext>,
+    inputs_trash: Vec<InputContext>
 }
 
 impl Store {
@@ -72,6 +73,7 @@ impl Store {
             frames,
             filtered,
             inputs: HashMap::new(),
+            inputs_trash: Vec::new()
         }
     }
 
@@ -149,7 +151,10 @@ impl Store {
     }
 
     pub fn unset_input(&mut self, id: u32) {
-        self.inputs.remove(&id);
+        if let Some(mut input) = self.inputs.remove(&id) {
+            input.holder = None;
+            self.inputs_trash.push(input);
+        }
     }
 }
 

@@ -201,14 +201,11 @@ export default class TopView {
           }
           genet.workspace.set('_.filter.history', history)
         }
-
-        /*
-        Const filter = value.length > 0
+        const filter = value.length > 0
           ? genet.session.createFilterCompiler()
             .compile(value)
           : null
         genet.action.emit('core:filter:updated', filter)
-        */
       } catch (err) {
         genet.notify.show(
           err.message, {

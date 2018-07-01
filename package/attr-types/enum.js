@@ -1,7 +1,7 @@
 const m = require('mithril')
 class Enum {
   view (vnode) {
-    const { value } = vnode.attrs.attr
+    const value = vnode.attrs.attr.getValue()
     const flags = vnode.attrs.layer.attrs
       .filter((attr) => attr.id.startsWith(`${vnode.attrs.attr.id}.`))
       .map((attr) => {
