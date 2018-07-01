@@ -133,6 +133,7 @@ export default class TopView {
     genet.packages.once('updated', () => {
       genet.action.on('core:session:created', (sess) => {
         sess.on('update', () => m.redraw())
+        this.viewState.capture = sess.status.stream
         this.sess = sess
         m.redraw()
       })
