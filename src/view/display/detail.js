@@ -225,21 +225,24 @@ export default class PcapDetailView {
     const frame = this.selectedFrame
 
     const tsString =
-      moment(frame.query('$.timestamp').value)
+      moment(frame.query('link.timestamp').value)
         .format('YYYY-MM-DDTHH:mm:ss.SSSZ')
 
-    const payload = frame.query('$.payload').value
-    const actual = frame.query('$.actualLength').value
+    const payload = frame.root.data
+    const actual = frame.query('link.length').value
     let length = `${payload.length}`
     if (actual > payload.length) {
       length += ` (actual: ${actual})`
     }
 
-    let children = frame.root.layers
-    const rootId = frame.root.id
-    if (rootId.startsWith('[')) {
+    const { children } = frame.root
+
+    /*
+    Const rootId = frame.root.id
+    If (rootId.startsWith('[')) {
       children = frame.root.layers
     }
+    */
 
     let filterValue = '(null)'
     if (this.displayFilter) {
