@@ -103,7 +103,7 @@ void genet_session_filtered_frames(const Session *session,
                                    uint32_t start,
                                    uint32_t end,
                                    uint32_t *len,
-                                   Frame const **dst);
+                                   uint32_t *dst);
 void genet_session_set_filter(Session *session, uint32_t id, Filter *filter);
 uint32_t
 genet_session_create_reader(Session *session, const char *id, const char *arg);

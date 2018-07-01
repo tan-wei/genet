@@ -95,14 +95,14 @@ impl Store {
         frames
     }
 
-    pub fn filtered_frames(&self, id: u32, range: Range<usize>) -> Vec<*const Frame> {
+    pub fn filtered_frames(&self, id: u32, range: Range<usize>) -> Vec<u32> {
         let filtered = self.filtered.lock().unwrap();
         let frames = self.frames.lock().unwrap();
         if let Some(vec) = filtered.get(&id) {
             vec.iter()
                 .skip(range.start)
                 .take(range.end - range.start)
-                .map(|i| frames.get(*i as usize).unwrap() as *const Frame)
+                .map(|i| *i)
                 .collect::<Vec<_>>()
         } else {
             Vec::new()

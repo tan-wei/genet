@@ -70,7 +70,7 @@ impl Session {
         self.store.frames(range)
     }
 
-    pub fn filtered_frames(&self, id: u32, range: Range<usize>) -> Vec<*const Frame> {
+    pub fn filtered_frames(&self, id: u32, range: Range<usize>) -> Vec<u32> {
         self.store.filtered_frames(id, range)
     }
 

@@ -115,7 +115,7 @@ pub extern "C" fn genet_session_filtered_frames(
     start: u32,
     end: u32,
     len: *mut u32,
-    dst: *mut *const Frame,
+    dst: *mut u32,
 ) {
     let frames = unsafe { (*session).filtered_frames(id, start as usize..end as usize) };
     unsafe {

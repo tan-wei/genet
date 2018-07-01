@@ -254,14 +254,14 @@ NAN_METHOD(SessionWrapper::filteredFrames) {
     Session *session = wrapper->event->session;
 
     uint32_t length = end - std::min(start, end);
-    std::vector<const Frame *> dst;
+    std::vector<uint32_t> dst;
     dst.resize(length);
     genet_session_filtered_frames(session, id, start, end, &length, dst.data());
     dst.resize(length);
 
     auto array = Nan::New<v8::Array>(length);
     for (uint32_t index = 0; index < length; ++index) {
-      array->Set(index, FrameWrapper::wrap(dst[index]));
+      array->Set(index, Nan::New(dst[index]));
     }
     info.GetReturnValue().Set(array);
   }

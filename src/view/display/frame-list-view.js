@@ -9,7 +9,7 @@ class FrameView {
     const { viewState, key } = vnode.attrs
     if (!this.frame) {
       const { sess } = vnode.attrs;
-      [this.frame] = sess.frames(key - 1, key)
+      [this.frame] = sess.frames(key, key + 1)
     }
     if (!this.frame) {
       return m('div')
@@ -93,7 +93,7 @@ export default class FrameListView {
         for (let line = 0; line < this.mapHeight; line += 1) {
           let index = Math.floor(frames / this.mapHeight * (line + 0.5))
           if (status.filters.main) {
-            index = sess.filteredFrames('main', index, index + 1)[0] - 1
+            [index] = sess.filteredFrames('main', index, index + 1)
           }
           const [frame] = sess.frames(index, index + 1)
           this.dummyItem.setAttribute('data-layer', frame.primary.id)
@@ -131,7 +131,7 @@ export default class FrameListView {
     for (let index = 0; index < visibleItems; index += 1) {
       const seq = (status.filters.main)
         ? filteredFrames[index]
-        : index + startIndex + 1
+        : index + startIndex
       const itemStyle = {
         height: `${this.itemHeight}px`,
         top: `${(index + startIndex) * this.itemHeight}px`,

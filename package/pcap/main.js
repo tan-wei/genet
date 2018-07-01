@@ -6,6 +6,7 @@ class PcapView {
   constructor () {
     this.devices = []
     this.permission = true
+    this.checkDevices()
   }
 
   checkDevices () {
@@ -35,7 +36,6 @@ class PcapView {
 
   view (vnode) {
     const ifs = genet.workspace.get('_.pcap.interface')
-    this.checkDevices()
     if (!this.permission) {
       return m('div', [
         m(PermissionMassage, {})
