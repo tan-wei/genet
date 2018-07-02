@@ -1,0 +1,17 @@
+{
+  "name": "@genet/pcap-file",
+  "version": "0.0.1",
+  "license": "MIT",
+  "description": "Pcap File Format",
+  "engines": {
+    "genet": "*"
+  },
+  "genet": {
+    "components": [
+      {
+        "type": "core:library",
+        "main": "reader"
+      }
+    ]
+  }
+}
