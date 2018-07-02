@@ -3,7 +3,7 @@ use error::Error;
 use layer::Layer;
 use ptr::MutPtr;
 use result::Result;
-use std::fmt;
+use std::{fmt, mem, ptr};
 use string::SafeString;
 use vec::SafeVec;
 
@@ -36,8 +36,8 @@ impl WriterBox {
         (self.id)(self.writer)
     }
 
-    pub fn new_worker(&self, ctx: &Context, args: &str) -> WriterWorkerBox {
-        (self.new_worker)(self.writer, ctx, SafeString::from(args))
+    pub fn new_worker(&self, ctx: &Context, args: &str) -> Result<WriterWorkerBox> {
+        Ok((self.new_worker)(self.writer, ctx, SafeString::from(args)))
     }
 }
 
@@ -56,7 +56,7 @@ extern "C" fn abi_writer_new_worker(
 }
 
 pub trait Reader: Send {
-    fn new_worker(&self, ctx: &Context, arg: &str) -> Box<ReaderWorker>;
+    fn new_worker(&self, ctx: &Context, arg: &str) -> Result<Box<ReaderWorker>>;
     fn id(&self) -> &str;
 }
 
@@ -65,7 +65,13 @@ pub trait Reader: Send {
 pub struct ReaderBox {
     reader: *mut Box<Reader>,
     id: extern "C" fn(*mut Box<Reader>) -> SafeString,
-    new_worker: extern "C" fn(*mut Box<Reader>, *const Context, SafeString) -> ReaderWorkerBox,
+    new_worker: extern "C" fn(
+        *mut Box<Reader>,
+        *const Context,
+        SafeString,
+        *mut ReaderWorkerBox,
+        *mut Error,
+    ) -> u8,
 }
 
 unsafe impl Send for ReaderBox {}
@@ -84,8 +90,15 @@ impl ReaderBox {
         (self.id)(self.reader)
     }
 
-    pub fn new_worker(&self, ctx: &Context, args: &str) -> ReaderWorkerBox {
-        (self.new_worker)(self.reader, ctx, SafeString::from(args))
+    pub fn new_worker(&self, ctx: &Context, args: &str) -> Result<ReaderWorkerBox> {
+        let mut out: ReaderWorkerBox = unsafe { mem::uninitialized() };
+        let mut err = Error::new("");
+        if (self.new_worker)(self.reader, ctx, SafeString::from(args), &mut out, &mut err) == 1 {
+            Ok(out)
+        } else {
+            mem::forget(out);
+            Err(Box::new(err))
+        }
     }
 }
 
@@ -97,10 +110,21 @@ extern "C" fn abi_reader_new_worker(
     reader: *mut Box<Reader>,
     ctx: *const Context,
     arg: SafeString,
-) -> ReaderWorkerBox {
+    out: *mut ReaderWorkerBox,
+    err: *mut Error,
+) -> u8 {
     let reader = unsafe { &*reader };
     let ctx = unsafe { &*ctx };
-    ReaderWorkerBox::new(reader.new_worker(ctx, arg.as_str()))
+    match reader.new_worker(ctx, arg.as_str()) {
+        Ok(worker) => {
+            unsafe { ptr::write(out, ReaderWorkerBox::new(worker)) };
+            1
+        }
+        Err(e) => {
+            unsafe { *err = Error::new(e.description()) };
+            0
+        }
+    }
 }
 
 pub trait WriterWorker: Send {

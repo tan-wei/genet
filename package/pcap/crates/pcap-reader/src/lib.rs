@@ -25,7 +25,7 @@ use genet_sdk::{
 use pcap::Header;
 
 use std::{
-    io::{BufRead, BufReader, Read},
+    io::{BufRead, BufReader, Error, ErrorKind, Read},
     mem,
     process::{Child, ChildStdout, Command, Stdio},
     slice,
@@ -42,14 +42,18 @@ struct Arg {
 struct PcapReader {}
 
 impl Reader for PcapReader {
-    fn new_worker(&self, _ctx: &Context, arg: &str) -> Box<ReaderWorker> {
-        let arg: Arg = serde_json::from_str(arg).unwrap();
+    fn new_worker(&self, _ctx: &Context, arg: &str) -> Result<Box<ReaderWorker>> {
+        let arg: Arg = serde_json::from_str(arg)?;
         let mut child = Command::new(&arg.cmd)
             .args(&arg.args)
             .stdout(Stdio::piped())
-            .spawn()
-            .expect("failed to execute pcap-cli");
-        let reader = BufReader::new(child.stdout.take().unwrap());
+            .spawn()?;
+        let reader = BufReader::new(
+            child
+                .stdout
+                .take()
+                .ok_or_else(|| Error::new(ErrorKind::Other, "no stdout"))?,
+        );
         let link_class = LayerBuilder::new(format!("[link-{}]", arg.link))
             .header(Attr::with_value(
                 &TYPE_CLASS,
@@ -57,11 +61,11 @@ impl Reader for PcapReader {
                 Variant::Int64(arg.link as i64),
             ))
             .build();
-        Box::new(PcapReaderWorker {
+        Ok(Box::new(PcapReaderWorker {
             child,
             reader,
             link_class,
-        })
+        }))
     }
 
     fn id(&self) -> &str {
