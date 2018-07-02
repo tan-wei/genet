@@ -12,14 +12,15 @@ function filterExpression (attr) {
     const prefix = '@'
     return `${attr.id} == ${prefix}${exp}`
   }
-  if (attr.value === true) {
+  const value = attr.getValue()
+  if (value === true) {
     return attr.id
-  } else if (attr.value === false) {
+  } else if (value === false) {
     return `!${attr.id}`
-  } else if (attr.value instanceof Uint8Array) {
-    return `${attr.id} == ${JSON.stringify(Array.from(attr.value))}`
+  } else if (value instanceof Uint8Array) {
+    return `${attr.id} == ${JSON.stringify(Array.from(value))}`
   }
-  return `${attr.id} == ${JSON.stringify(attr.value)}`
+  return `${attr.id} == ${JSON.stringify(value)}`
 }
 
 export default class AttributeItem {

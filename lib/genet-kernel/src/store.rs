@@ -59,7 +59,7 @@ pub struct Store {
     frames: FrameStore,
     filtered: FilteredFrameStore,
     inputs: HashMap<u32, InputContext>,
-    inputs_trash: Vec<InputContext>
+    inputs_trash: Vec<InputContext>,
 }
 
 impl Store {
@@ -73,7 +73,7 @@ impl Store {
             frames,
             filtered,
             inputs: HashMap::new(),
-            inputs_trash: Vec::new()
+            inputs_trash: Vec::new(),
         }
     }
 

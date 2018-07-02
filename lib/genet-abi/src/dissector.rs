@@ -38,7 +38,7 @@ impl WorkerBox {
         }
         let mut error = Error::new("");
         let result = (self.analyze)(self, layer, children.as_mut_ptr(), &mut error);
-        if result >= 1 {
+        if result > 1 {
             let len = result as usize - 2;
             unsafe {
                 let grow = len.saturating_sub(results.capacity());
@@ -46,7 +46,9 @@ impl WorkerBox {
                 results.set_len(len);
                 ptr::copy(children.as_ptr(), results.as_mut_ptr(), len);
             }
-            Ok(result >= 2)
+            Ok(true)
+        } else if result > 0 {
+            Ok(false)
         } else {
             Err(Box::new(error))
         }

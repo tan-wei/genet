@@ -1,9 +1,9 @@
 const m = require('mithril')
 class Flags {
   view (vnode) {
-    const { value } = vnode.attrs.attr
+    const value = vnode.attrs.attr.getValue()
     const flags = vnode.attrs.layer.attrs
-      .filter((attr) => attr.value && attr.id
+      .filter((attr) => value && attr.id
         .startsWith(`${vnode.attrs.attr.id}.`))
       .map((attr) => {
         const { id } = attr
