@@ -9,6 +9,10 @@
   "genet": {
     "components": [
       {
+        "type": "core:library",
+        "main": "ipv6"
+      },
+      {
         "type": "core:filter:macro",
         "id": "ipv6-literal",
         "name": "IPv6 Address",

@@ -1,5 +1,5 @@
 module.exports = function ipv6 (attr) {
-  const { value } = attr
+  const value = attr.getValue()
   const array = [
     (value[0] << 8) | value[1],
     (value[2] << 8) | value[3],
