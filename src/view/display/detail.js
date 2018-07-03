@@ -26,8 +26,10 @@ function mergeOrphanedItems (item) {
 class LayerItem {
   view (vnode) {
     const { layer } = vnode.attrs
-    let dataOffset = 0
-    if (layer.parent) {
+    const dataOffset = 0
+
+    /*
+    If (layer.parent) {
       const [parentPayload] = layer.parent.payloads
       const parentAddr = parentPayload.slices[0].addr
       let rootPayload = parentPayload
@@ -37,6 +39,7 @@ class LayerItem {
       const rootAddr = rootPayload.slices[0].addr
       dataOffset = parentAddr[1] - rootAddr[1]
     }
+    */
     const name = genet.session.tokenName(layer.id)
 
     const attrArray = [{

@@ -9,6 +9,10 @@
   "genet": {
     "components": [
       {
+        "type": "core:library",
+        "main": "udp"
+      },
+      {
         "type": "core:style",
         "files": [
           "udp.css"

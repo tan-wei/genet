@@ -23,7 +23,9 @@ struct UdpWorker {}
 
 impl Worker for UdpWorker {
     fn analyze(&mut self, parent: &mut Layer) -> Result<Status> {
-        if parent.id() == token!("[link-1]") {
+        if parent.attr(token!("ipv4.protocol.udp")).is_some()
+            || parent.attr(token!("ipv6.protocol.udp")).is_some()
+        {
             let mut layer = Layer::new(&UDP_CLASS, parent.data());
             Ok(Status::Done(vec![layer]))
         } else {
@@ -49,22 +51,24 @@ lazy_static! {
     static ref UDP_CLASS: Ptr<LayerClass> = LayerBuilder::new("udp")
         .alias("_.src", "udp.src")
         .alias("_.dst", "udp.dst")
-        .header(Attr::new(&SRC_ATTR, 0..6))
-        .header(Attr::new(&DST_ATTR, 6..12))
+        .header(Attr::new(&SRC_ATTR, 0..2))
+        .header(Attr::new(&DST_ATTR, 2..4))
+        .header(Attr::new(&LEN_ATTR, 4..6))
+        .header(Attr::new(&CHECKSUM_ATTR, 6..8))
         .build();
     static ref SRC_ATTR: Ptr<AttrClass> = AttrBuilder::new("udp.src")
-        .typ("@udp:mac")
-        .decoder(decoder::Slice())
+        .typ("@udp:port")
+        .decoder(decoder::UInt16BE())
         .build();
     static ref DST_ATTR: Ptr<AttrClass> = AttrBuilder::new("udp.dst")
-        .typ("@udp:mac")
-        .decoder(decoder::Slice())
+        .typ("@udp:port")
+        .decoder(decoder::UInt16BE())
         .build();
     static ref LEN_ATTR: Ptr<AttrClass> = AttrBuilder::new("udp.length")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt16BE())
         .build();
     static ref CHECKSUM_ATTR: Ptr<AttrClass> = AttrBuilder::new("udp.checksum")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt16BE())
         .build();
 }
 
