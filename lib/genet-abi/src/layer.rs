@@ -71,7 +71,7 @@ impl Layer {
         (func)(self, Ptr::new(attr));
     }
 
-    pub fn payloads(&self) -> impl Iterator<Item = &Payload> {
+    pub fn payloads(&self) -> &[Payload] {
         self.class.payloads(self)
     }
 
@@ -217,11 +217,10 @@ impl LayerClass {
         unsafe { slice::from_raw_parts(data, len) }
     }
 
-    fn payloads(&self, layer: &Layer) -> impl Iterator<Item = &Payload> {
+    fn payloads(&self, layer: &Layer) -> &[Payload] {
         let data = (self.payloads_data)(layer);
         let len = (self.payloads_len)(layer) as usize;
-        let iter = unsafe { slice::from_raw_parts(data, len).iter() };
-        iter.map(|v| &*v)
+        unsafe { slice::from_raw_parts(data, len) }
     }
 }
 

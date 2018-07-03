@@ -23,9 +23,8 @@ struct IPv4Worker {}
 
 impl Worker for IPv4Worker {
     fn analyze(&mut self, parent: &mut Layer) -> Result<Status> {
-        if parent.attr(token!("eth.type.ipv4")).is_some() {
-            let mut layer = Layer::new(&IPV4_CLASS, parent.data().get(14..)?);
-
+        if let Some(payload) = parent.payloads().iter().find(|p| p.typ() == token!("ipv4")) {
+            let mut layer = Layer::new(&IPV4_CLASS, payload.data());
             let proto_attr = Attr::new(&PROTO_ATTR, 9..10);
             let proto = proto_attr.get(&layer)?.get_u64()?;
             if let Some(attr) = PROTO_MAP.get(&proto) {

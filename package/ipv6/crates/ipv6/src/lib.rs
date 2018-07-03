@@ -23,8 +23,8 @@ struct IPv6Worker {}
 
 impl Worker for IPv6Worker {
     fn analyze(&mut self, parent: &mut Layer) -> Result<Status> {
-        if parent.id() == token!("eth") && parent.attr(token!("eth.type.ipv6")).is_some() {
-            let mut layer = Layer::new(&IPV6_CLASS, parent.data().get(14..)?);
+        if let Some(payload) = parent.payloads().iter().find(|p| p.typ() == token!("ipv6")) {
+            let mut layer = Layer::new(&IPV6_CLASS, payload.data());
             Ok(Status::Done(vec![layer]))
         } else {
             Ok(Status::Skip)

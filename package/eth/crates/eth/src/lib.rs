@@ -16,6 +16,7 @@ use genet_sdk::{
     ptr::Ptr,
     result::Result,
     slice::SliceIndex,
+    token::Token,
 };
 use std::collections::HashMap;
 
@@ -33,11 +34,11 @@ impl Worker for EthWorker {
             } else {
                 layer.add_attr(typ_attr);
             }
-            if let Some(attr) = TYPE_MAP.get(&len) {
+            if let Some((typ, attr)) = TYPE_MAP.get(&len) {
                 layer.add_attr(Attr::new(attr, 12..14));
+                let payload = parent.data().get(14..)?;
+                layer.add_payload(payload, *typ);
             }
-            let payload = parent.data().get(15..)?;
-            layer.add_payload(payload, token!());
             Ok(Status::Done(vec![layer]))
         } else {
             Ok(Status::Skip)
@@ -80,12 +81,12 @@ lazy_static! {
         .typ("@enum")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref TYPE_MAP: HashMap<u64, Ptr<AttrClass>> = hashmap!{
-        0x0800 => AttrBuilder::new("eth.type.ipv4").build(),
-        0x0806 => AttrBuilder::new("eth.type.arp").build(),
-        0x0842 => AttrBuilder::new("eth.type.wol").build(),
-        0x86DD => AttrBuilder::new("eth.type.ipv6").build(),
-        0x888E => AttrBuilder::new("eth.type.eap").build(),
+    static ref TYPE_MAP: HashMap<u64, (Token, Ptr<AttrClass>)> = hashmap!{
+        0x0800 => (token!("ipv4"), AttrBuilder::new("eth.type.ipv4").build()),
+        0x0806 => (token!("arp"), AttrBuilder::new("eth.type.arp").build()),
+        0x0842 => (token!("wol"), AttrBuilder::new("eth.type.wol").build()),
+        0x86DD => (token!("ipv6"), AttrBuilder::new("eth.type.ipv6").build()),
+        0x888E => (token!("eap"), AttrBuilder::new("eth.type.eap").build()),
     };
 }
 
