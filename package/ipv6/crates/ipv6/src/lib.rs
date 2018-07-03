@@ -54,6 +54,24 @@ lazy_static! {
     static ref VERSION_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.version")
         .decoder(decoder::UInt8().map(|v| v >> 4))
         .build();
+    static ref TRAFFIC_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.trafficClass")
+        .decoder(decoder::UInt8())
+        .build();
+    static ref FLOW_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.flowLevel")
+        .decoder(decoder::UInt8())
+        .build();
+    static ref LENGTH_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.payloadLength")
+        .decoder(decoder::UInt8())
+        .build();
+    static ref NHEADER_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.nextHeader")
+        .decoder(decoder::UInt8())
+        .build();
+    static ref HLIMIT_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.hopLimit")
+        .decoder(decoder::UInt8())
+        .build();
+    static ref PROTOCOL_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.protocol")
+        .decoder(decoder::UInt8())
+        .build();
     static ref SRC_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.src")
         .typ("@ipv6:addr")
         .decoder(decoder::Slice())
