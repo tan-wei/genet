@@ -6,10 +6,10 @@ class Summary {
     for (const attr of layer.attrs()) {
       switch (attr.id) {
         case 'http.version':
-          value.push(`HTTP/${attr.getValue().toPrecision(2)}`)
+          value.push(`HTTP/${attr.value.toPrecision(2)}`)
           break
         case 'http.path':
-          value.push(` ${attr.getValue()}`)
+          value.push(` ${attr.value}`)
           break
         default:
           if (attr.id.startsWith('http.method.')) {

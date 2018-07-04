@@ -27,7 +27,7 @@ use genet_sdk::{
 
 use std::{
     fs::File,
-    io::{BufRead, BufReader, Error, ErrorKind, Read},
+    io::{self, BufRead, BufReader, Error, ErrorKind, Read},
     mem,
     process::{Child, ChildStdout, Command, Stdio},
     slice,
@@ -105,8 +105,8 @@ struct PcapFileReaderWorker {
     link_class: Ptr<LayerClass>,
 }
 
-impl ReaderWorker for PcapFileReaderWorker {
-    fn read(&mut self) -> Result<Vec<Layer>> {
+impl PcapFileReaderWorker {
+    fn read_one(&mut self) -> io::Result<Layer> {
         let (ts_sec, mut ts_usec, inc_len, orig_len) = if self.le {
             (
                 self.reader.read_u32::<LittleEndian>()?,
@@ -147,7 +147,26 @@ impl ReaderWorker for PcapFileReaderWorker {
             Variant::Float64(ts_sec as f64 + ts_usec as f64 / 1000_000f64),
         ));
 
-        Ok(vec![layer])
+        Ok(layer)
+    }
+}
+
+const BLOCK_SIZE: usize = 1024;
+
+impl ReaderWorker for PcapFileReaderWorker {
+    fn read(&mut self) -> Result<Vec<Layer>> {
+        let mut layers = Vec::with_capacity(BLOCK_SIZE);
+        for _ in 0..BLOCK_SIZE {
+            match self.read_one() {
+                Ok(layer) => layers.push(layer),
+                Err(err) => {
+                    if layers.is_empty() {
+                        return Err(err.into());
+                    }
+                }
+            }
+        }
+        Ok(layers)
     }
 }
 

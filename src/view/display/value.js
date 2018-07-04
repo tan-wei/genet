@@ -112,7 +112,7 @@ class LayerValueItem {
 }
 export class AttributeValueItem {
   view (vnode) {
-    const value = vnode.attrs.attr.getValue()
+    const { value } = vnode.attrs.attr
     if (value === null) {
       return m('span')
     } else if (typeof value === 'undefined') {

@@ -308,7 +308,7 @@ mod tests {
     fn payloads() {
         let class = LayerBuilder::new(Token::null()).build();
         let mut layer = Layer::new(&class, Slice::new());
-        assert!(layer.payloads().next().is_none());
+        assert!(layer.payloads().iter().next().is_none());
 
         let count = 100;
         let data = b"hello";
@@ -317,7 +317,7 @@ mod tests {
             layer.add_payload(Slice::from(&data[..]), Token::from(i));
         }
 
-        let mut iter = layer.payloads();
+        let mut iter = layer.payloads().iter();
         for i in 0..count {
             let payload = iter.next().unwrap();
             assert_eq!(payload.data(), Slice::from(&data[..]));

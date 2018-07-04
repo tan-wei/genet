@@ -13,7 +13,7 @@ use std::{
     fmt,
     ops::Range,
     panic::{self, AssertUnwindSafe},
-    sync::{Arc, Mutex},
+    sync::{Arc, RwLock},
     thread::{self, JoinHandle},
 };
 
@@ -49,8 +49,8 @@ impl fmt::Display for Error {
     }
 }
 
-type FrameStore = Arc<Mutex<ArrayVec<Frame>>>;
-type FilteredFrameStore = Arc<Mutex<HashMap<u32, Vec<u32>>>>;
+type FrameStore = Arc<RwLock<ArrayVec<Frame>>>;
+type FilteredFrameStore = Arc<RwLock<HashMap<u32, Vec<u32>>>>;
 
 #[derive(Debug)]
 pub struct Store {
@@ -64,8 +64,8 @@ pub struct Store {
 
 impl Store {
     pub fn new<C: 'static + Callback>(profile: Profile, callback: C) -> Store {
-        let frames = Arc::new(Mutex::new(ArrayVec::new()));
-        let filtered = Arc::new(Mutex::new(HashMap::new()));
+        let frames = Arc::new(RwLock::new(ArrayVec::new()));
+        let filtered = Arc::new(RwLock::new(HashMap::new()));
         let (ev, send) = EventLoop::new(profile, callback, frames.clone(), filtered.clone());
         Store {
             sender: send,
@@ -86,7 +86,7 @@ impl Store {
     pub fn frames(&self, range: Range<usize>) -> Vec<*const Frame> {
         let frames = {
             self.frames
-                .lock()
+                .read()
                 .unwrap()
                 .iter()
                 .skip(range.start)
@@ -98,7 +98,7 @@ impl Store {
     }
 
     pub fn filtered_frames(&self, id: u32, range: Range<usize>) -> Vec<u32> {
-        let filtered = self.filtered.lock().unwrap();
+        let filtered = self.filtered.read().unwrap();
         if let Some(vec) = filtered.get(&id) {
             vec.iter()
                 .skip(range.start)
@@ -111,7 +111,7 @@ impl Store {
     }
 
     pub fn len(&self) -> usize {
-        let frames = self.frames.lock().unwrap();
+        let frames = self.frames.read().unwrap();
         frames.len()
     }
 
@@ -242,7 +242,7 @@ impl EventLoop {
                             }
                             Command::StoreFrames(mut vec) => {
                                 let len = {
-                                    let mut frames = frames.lock().unwrap();
+                                    let mut frames = frames.write().unwrap();
                                     for f in vec.into_iter() {
                                         frames.push(f);
                                     }
@@ -312,7 +312,7 @@ impl EventLoop {
     }
 
     fn process_output(id: u32, mut output: Box<Output>, frames: &FrameStore, callback: &Callback) {
-        let frames = frames.lock().unwrap();
+        let frames = frames.read().unwrap();
         let mut offset = 0;
         while offset < frames.len() {
             let len = cmp::min(frames.len() - offset, Self::OUTPUT_BLOCK_SIZE);
@@ -351,7 +351,7 @@ impl EventLoop {
         } else {
             filter_map.remove(&id);
         }
-        filtered.lock().unwrap().remove(&id);
+        filtered.write().unwrap().remove(&id);
     }
 
     fn process_filters(
@@ -362,7 +362,7 @@ impl EventLoop {
     ) {
         for (id, filter) in filter_map.iter_mut() {
             let mut indices: Vec<u32> = {
-                let frames = frames.lock().unwrap();
+                let frames = frames.read().unwrap();
                 let mut indeces = frames
                     .iter()
                     .skip(filter.offset)
@@ -378,7 +378,7 @@ impl EventLoop {
                 indeces
             };
             let len = if !indices.is_empty() {
-                let mut filtered = filtered.lock().unwrap();
+                let mut filtered = filtered.write().unwrap();
                 let mut frames = filtered.entry(*id).or_insert_with(|| Vec::new());
                 frames.append(&mut indices);
                 frames.len()

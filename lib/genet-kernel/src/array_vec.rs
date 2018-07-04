@@ -12,6 +12,7 @@ where
 }
 
 unsafe impl<T: Send> Send for ArrayVec<T> {}
+unsafe impl<T: Send> Sync for ArrayVec<T> {}
 
 impl<T> ArrayVec<T> {
     pub fn new() -> ArrayVec<T> {

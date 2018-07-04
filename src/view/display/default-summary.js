@@ -5,7 +5,7 @@ class AttrRenderer {
     if (!vnode.attrs.attr) {
       return m('span')
     }
-    return m('span', [vnode.attrs.attr.getValue().toString()])
+    return m('span', [vnode.attrs.attr.value.toString()])
   }
 }
 

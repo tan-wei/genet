@@ -12,7 +12,7 @@ function filterExpression (attr) {
     const prefix = '@'
     return `${attr.id} == ${prefix}${exp}`
   }
-  const value = attr.getValue()
+  const { value } = attr
   if (value === true) {
     return attr.id
   } else if (value === false) {

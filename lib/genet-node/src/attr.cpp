@@ -9,12 +9,12 @@ void AttrWrapper::init(v8::Local<v8::Object> exports) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(Nan::New("Attr").ToLocalChecked());
-  Nan::SetPrototypeMethod(tpl, "getValue", getValue);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
   Nan::SetAccessor(otl, Nan::New("type").ToLocalChecked(), type);
   Nan::SetAccessor(otl, Nan::New("range").ToLocalChecked(), range);
+  Nan::SetAccessor(otl, Nan::New("value").ToLocalChecked(), value);
 
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
@@ -69,14 +69,14 @@ NAN_GETTER(AttrWrapper::range) {
   }
 }
 
-NAN_METHOD(AttrWrapper::getValue) {
+NAN_GETTER(AttrWrapper::value) {
   AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   const Variant &var = genet_attr_get(wrapper->attr, wrapper->layer);
   v8::Local<v8::Value> val = Nan::Null();
   switch (var.type) {
   case Error:
-    Nan::ThrowError(Nan::New(var.data, var.value.u64).ToLocalChecked());
+    val = Nan::Error(Nan::New(var.data, var.value.u64).ToLocalChecked());
     genet_str_free(var.data);
     return;
   case Bool:
