@@ -50,15 +50,25 @@ lazy_static! {
         .alias("_.src", "ipv6.src")
         .alias("_.dst", "ipv6.dst")
         .header(Attr::new(&VERSION_ATTR, 0..1))
+        .header(Attr::new(&TRAFFIC_ATTR, 0..2))
+        .header(Attr::new(&FLOW_ATTR, 1..4))
+        .header(Attr::new(&LENGTH_ATTR, 4..6))
+        .header(Attr::new(&NHEADER_ATTR, 6..7))
+        .header(Attr::new(&HLIMIT_ATTR, 7..8))
+        .header(Attr::new(&SRC_ATTR, 8..24))
+        .header(Attr::new(&DST_ATTR, 24..40))
         .build();
     static ref VERSION_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.version")
         .decoder(decoder::UInt8().map(|v| v >> 4))
         .build();
     static ref TRAFFIC_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.trafficClass")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt16BE().map(|v| (v >> 4) & 0xff))
         .build();
-    static ref FLOW_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.flowLevel")
-        .decoder(decoder::UInt8())
+    static ref FLOW_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.flowLabel")
+        .decoder(
+            decoder::Slice()
+                .map(|v| (((v[2] as u32) & 0xf) << 16) | ((v[1] as u32) << 8) | v[2] as u32)
+        )
         .build();
     static ref LENGTH_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.payloadLength")
         .decoder(decoder::UInt8())
@@ -69,9 +79,6 @@ lazy_static! {
     static ref HLIMIT_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.hopLimit")
         .decoder(decoder::UInt8())
         .build();
-    static ref PROTOCOL_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.protocol")
-        .decoder(decoder::UInt8())
-        .build();
     static ref SRC_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.src")
         .typ("@ipv6:addr")
         .decoder(decoder::Slice())
@@ -79,6 +86,9 @@ lazy_static! {
     static ref DST_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.dst")
         .typ("@ipv6:addr")
         .decoder(decoder::Slice())
+        .build();
+    static ref PROTOCOL_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.protocol")
+        .decoder(decoder::UInt8())
         .build();
     static ref PROTO_MAP: HashMap<u64, Ptr<AttrClass>> = hashmap!{
         0x02 => AttrBuilder::new("ipv6.protocol.igmp").build(),
