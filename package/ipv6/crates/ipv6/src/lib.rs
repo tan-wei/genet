@@ -16,6 +16,7 @@ use genet_sdk::{
     ptr::Ptr,
     result::Result,
     slice::SliceIndex,
+    token::Token,
 };
 use std::collections::HashMap;
 
@@ -43,11 +44,14 @@ impl Worker for IPv6Worker {
                 }
             }
 
-            let proto_attr = Attr::new(&PROTOCOL_ATTR, nheader_attr.range());
+            let range = nheader_attr.range();
+            let proto_attr = Attr::new(&PROTOCOL_ATTR, range.clone());
             let proto = proto_attr.get(&layer)?.get_u64()?;
             layer.add_attr(proto_attr);
-            if let Some(attr) = PROTO_MAP.get(&proto) {
-                layer.add_attr(Attr::new(attr, nheader_attr.range()));
+            if let Some((typ, attr)) = PROTO_MAP.get(&proto) {
+                layer.add_attr(Attr::new(attr, range.clone()));
+                let payload = layer.data().get(40..)?;
+                layer.add_payload(payload, typ);
             }
             Ok(Status::Done(vec![layer]))
         } else {
@@ -115,11 +119,11 @@ lazy_static! {
         .typ("@enum")
         .decoder(decoder::UInt8())
         .build();
-    static ref PROTO_MAP: HashMap<u64, Ptr<AttrClass>> = hashmap!{
-        0x02 => AttrBuilder::new("ipv6.protocol.igmp").decoder(decoder::Const(true)).build(),
-        0x06 => AttrBuilder::new("ipv6.protocol.tcp").decoder(decoder::Const(true)).build(),
-        0x11 => AttrBuilder::new("ipv6.protocol.udp").decoder(decoder::Const(true)).build(),
-        0x3a => AttrBuilder::new("ipv6.protocol.icmp").decoder(decoder::Const(true)).build(),
+    static ref PROTO_MAP: HashMap<u64, (Token, Ptr<AttrClass>)> = hashmap!{
+        0x02 => (token!("igmp"), AttrBuilder::new("ipv6.protocol.igmp").decoder(decoder::Const(true)).build()),
+        0x06 => (token!("tcp"), AttrBuilder::new("ipv6.protocol.tcp").decoder(decoder::Const(true)).build()),
+        0x11 => (token!("udp"), AttrBuilder::new("ipv6.protocol.udp").decoder(decoder::Const(true)).build()),
+        0x3a => (token!("icmp"), AttrBuilder::new("ipv6.protocol.icmp").decoder(decoder::Const(true)).build()),
     };
 }
 genet_dissectors!(IPv6Dissector {});

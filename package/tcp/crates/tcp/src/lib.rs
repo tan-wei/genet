@@ -10,7 +10,7 @@ extern crate maplit;
 use genet_sdk::{
     attr::{Attr, AttrBuilder, AttrClass},
     context::Context,
-    decoder,
+    decoder::{self, Map},
     dissector::{Dissector, Status, Worker},
     layer::{Layer, LayerBuilder, LayerClass},
     ptr::Ptr,
@@ -23,8 +23,8 @@ struct TcpWorker {}
 
 impl Worker for TcpWorker {
     fn analyze(&mut self, parent: &mut Layer) -> Result<Status> {
-        if parent.id() == token!("[link-1]") {
-            let mut layer = Layer::new(&TCP_CLASS, parent.data());
+        if let Some(payload) = parent.payloads().iter().find(|p| p.typ() == token!("tcp")) {
+            let mut layer = Layer::new(&TCP_CLASS, payload.data());
             Ok(Status::Done(vec![layer]))
         } else {
             Ok(Status::Skip)
@@ -49,64 +49,81 @@ lazy_static! {
     static ref TCP_CLASS: Ptr<LayerClass> = LayerBuilder::new("tcp")
         .alias("_.src", "tcp.src")
         .alias("_.dst", "tcp.dst")
-        .header(Attr::new(&SRC_ATTR, 0..6))
-        .header(Attr::new(&DST_ATTR, 6..12))
+        .header(Attr::new(&SRC_ATTR, 0..2))
+        .header(Attr::new(&DST_ATTR, 2..4))
+        .header(Attr::new(&SEQ_ATTR, 4..8))
+        .header(Attr::new(&ACK_ATTR, 8..12))
+        .header(Attr::new(&OFFSET_ATTR, 12..13))
+        .header(Attr::new(&FLAGS_ATTR, 12..14))
+        .header(Attr::new(&FLAGS_NS_ATTR, 12..13))
+        .header(Attr::new(&FLAGS_CWR_ATTR, 13..14))
+        .header(Attr::new(&FLAGS_ECE_ATTR, 13..14))
+        .header(Attr::new(&FLAGS_URG_ATTR, 13..14))
+        .header(Attr::new(&FLAGS_ACK_ATTR, 13..14))
+        .header(Attr::new(&FLAGS_PSH_ATTR, 13..14))
+        .header(Attr::new(&FLAGS_RST_ATTR, 13..14))
+        .header(Attr::new(&FLAGS_SYN_ATTR, 13..14))
+        .header(Attr::new(&FLAGS_FIN_ATTR, 13..14))
+        .header(Attr::new(&WINDOW_ATTR, 14..16))
+        .header(Attr::new(&CHECKSUM_ATTR, 16..18))
+        .header(Attr::new(&URGENT_ATTR, 18..20))
         .build();
     static ref SRC_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.src")
-        .typ("@tcp:mac")
-        .decoder(decoder::Slice())
+        .typ("@tcp:port")
+        .decoder(decoder::UInt16BE())
         .build();
     static ref DST_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.dst")
-        .typ("@tcp:mac")
-        .decoder(decoder::Slice())
+        .typ("@tcp:port")
+        .decoder(decoder::UInt16BE())
         .build();
     static ref SEQ_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.seq")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt32BE())
         .build();
     static ref ACK_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.ack")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt32BE())
         .build();
     static ref OFFSET_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.dataOffset")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt8().map(|v| v >> 4))
         .build();
     static ref FLAGS_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.flags")
-        .decoder(decoder::UInt8())
+        .typ("@flags")
+        .decoder(decoder::UInt16BE().map(|v| v & 0xfff))
         .build();
     static ref FLAGS_NS_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.flags.ns")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt8().map(|v| (v & 0b0000_0001) != 0))
         .build();
     static ref FLAGS_CWR_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.flags.cwr")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt8().map(|v| (v & 0b1000_0000) != 0))
         .build();
     static ref FLAGS_ECE_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.flags.ece")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt8().map(|v| (v & 0b0100_0000) != 0))
         .build();
     static ref FLAGS_URG_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.flags.urg")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt8().map(|v| (v & 0b0010_0000) != 0))
         .build();
     static ref FLAGS_ACK_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.flags.ack")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt8().map(|v| (v & 0b0001_0000) != 0))
         .build();
     static ref FLAGS_PSH_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.flags.psh")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt8().map(|v| (v & 0b0000_1000) != 0))
         .build();
     static ref FLAGS_RST_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.flags.rst")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt8().map(|v| (v & 0b0000_0100) != 0))
         .build();
     static ref FLAGS_SYN_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.flags.syn")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt8().map(|v| (v & 0b0000_0010) != 0))
         .build();
     static ref FLAGS_FIN_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.flags.fin")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt8().map(|v| (v & 0b0000_0001) != 0))
         .build();
     static ref WINDOW_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.window")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt16BE())
         .build();
     static ref CHECKSUM_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.checksum")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt16BE())
         .build();
     static ref URGENT_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.urgent")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt16BE())
         .build();
     static ref OPTIONS_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options")
         .decoder(decoder::UInt8())

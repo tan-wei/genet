@@ -16,6 +16,7 @@ use genet_sdk::{
     ptr::Ptr,
     result::Result,
     slice::SliceIndex,
+    token::Token,
 };
 use std::collections::HashMap;
 
@@ -27,8 +28,10 @@ impl Worker for IPv4Worker {
             let mut layer = Layer::new(&IPV4_CLASS, payload.data());
             let proto_attr = Attr::new(&PROTO_ATTR, 9..10);
             let proto = proto_attr.get(&layer)?.get_u64()?;
-            if let Some(attr) = PROTO_MAP.get(&proto) {
+            if let Some((typ, attr)) = PROTO_MAP.get(&proto) {
                 layer.add_attr(Attr::new(attr, 9..10));
+                let payload = layer.data().get(20..)?;
+                layer.add_payload(payload, typ);
             }
             Ok(Status::Done(vec![layer]))
         } else {
@@ -119,11 +122,11 @@ lazy_static! {
         .typ("@ipv4:addr")
         .decoder(decoder::Slice())
         .build();
-    static ref PROTO_MAP: HashMap<u64, Ptr<AttrClass>> = hashmap!{
-        0x01 => AttrBuilder::new("ipv4.protocol.icmp").decoder(decoder::Const(true)).build(),
-        0x02 => AttrBuilder::new("ipv4.protocol.igmp").decoder(decoder::Const(true)).build(),
-        0x06 => AttrBuilder::new("ipv4.protocol.tcp").decoder(decoder::Const(true)).build(),
-        0x11 => AttrBuilder::new("ipv4.protocol.udp").decoder(decoder::Const(true)).build(),
+    static ref PROTO_MAP: HashMap<u64, (Token, Ptr<AttrClass>)> = hashmap!{
+        0x01 => (token!("icmp"), AttrBuilder::new("ipv4.protocol.icmp").decoder(decoder::Const(true)).build()),
+        0x02 => (token!("igmp"), AttrBuilder::new("ipv4.protocol.igmp").decoder(decoder::Const(true)).build()),
+        0x06 => (token!("tcp"), AttrBuilder::new("ipv4.protocol.tcp").decoder(decoder::Const(true)).build()),
+        0x11 => (token!("udp"), AttrBuilder::new("ipv4.protocol.udp").decoder(decoder::Const(true)).build()),
     };
 }
 genet_dissectors!(IPv4Dissector {});
