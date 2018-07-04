@@ -78,11 +78,7 @@ impl Reader for PcapFileReader {
         };
 
         let link_class = LayerBuilder::new(format!("[link-{}]", network))
-            .header(Attr::with_value(
-                &TYPE_CLASS,
-                0..0,
-                Variant::Int64(network as i64),
-            ))
+            .header(Attr::with_value(&TYPE_CLASS, 0..0, network as i64))
             .build();
 
         Ok(Box::new(PcapFileReaderWorker {
@@ -136,15 +132,11 @@ impl PcapFileReaderWorker {
         let payload = Slice::from(data);
         let mut layer = Layer::new(&self.link_class, payload);
 
-        layer.add_attr(Attr::with_value(
-            &LENGTH_CLASS,
-            0..0,
-            Variant::UInt64(orig_len as u64),
-        ));
+        layer.add_attr(Attr::with_value(&LENGTH_CLASS, 0..0, orig_len as u64));
         layer.add_attr(Attr::with_value(
             &TIMESTAMP_CLASS,
             0..0,
-            Variant::Float64(ts_sec as f64 + ts_usec as f64 / 1000_000f64),
+            ts_sec as f64 + ts_usec as f64 / 1000_000f64,
         ));
 
         Ok(layer)

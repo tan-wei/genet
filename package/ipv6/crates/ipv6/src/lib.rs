@@ -25,6 +25,30 @@ impl Worker for IPv6Worker {
     fn analyze(&mut self, parent: &mut Layer) -> Result<Status> {
         if let Some(payload) = parent.payloads().iter().find(|p| p.typ() == token!("ipv6")) {
             let mut layer = Layer::new(&IPV6_CLASS, payload.data());
+            let nheader_attr = Attr::new(&NHEADER_ATTR, 6..7);
+            let nheader = nheader_attr.get(&layer)?.get_u64()?;
+
+            loop {
+                match nheader {
+                    // TODO:
+                    // case 0 | 60 # Hop-by-Hop Options, Destination Options
+                    // case 43  # Routing
+                    // case 44  # Fragment
+                    // case 51  # Authentication Header
+                    // case 50  # Encapsulating Security Payload
+                    // case 135 # Mobility
+                    // No Next Header
+                    59 => break,
+                    _ => break,
+                }
+            }
+
+            let proto_attr = Attr::new(&PROTOCOL_ATTR, nheader_attr.range());
+            let proto = proto_attr.get(&layer)?.get_u64()?;
+            layer.add_attr(proto_attr);
+            if let Some(attr) = PROTO_MAP.get(&proto) {
+                layer.add_attr(Attr::new(attr, nheader_attr.range()));
+            }
             Ok(Status::Done(vec![layer]))
         } else {
             Ok(Status::Skip)
@@ -88,13 +112,14 @@ lazy_static! {
         .decoder(decoder::Slice())
         .build();
     static ref PROTOCOL_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.protocol")
+        .typ("@enum")
         .decoder(decoder::UInt8())
         .build();
     static ref PROTO_MAP: HashMap<u64, Ptr<AttrClass>> = hashmap!{
-        0x02 => AttrBuilder::new("ipv6.protocol.igmp").build(),
-        0x06 => AttrBuilder::new("ipv6.protocol.tcp").build(),
-        0x11 => AttrBuilder::new("ipv6.protocol.udp").build(),
-        0x3a => AttrBuilder::new("ipv6.protocol.icmp").build(),
+        0x02 => AttrBuilder::new("ipv6.protocol.igmp").decoder(decoder::Const(true)).build(),
+        0x06 => AttrBuilder::new("ipv6.protocol.tcp").decoder(decoder::Const(true)).build(),
+        0x11 => AttrBuilder::new("ipv6.protocol.udp").decoder(decoder::Const(true)).build(),
+        0x3a => AttrBuilder::new("ipv6.protocol.icmp").decoder(decoder::Const(true)).build(),
     };
 }
 genet_dissectors!(IPv6Dissector {});

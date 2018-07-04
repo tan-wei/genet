@@ -81,11 +81,11 @@ lazy_static! {
         .decoder(decoder::UInt16BE())
         .build();
     static ref TYPE_MAP: HashMap<u64, Ptr<AttrClass>> = hashmap!{
-        0x0800 => AttrBuilder::new("eth.type.ipv4").build(),
-        0x0806 => AttrBuilder::new("eth.type.arp").build(),
-        0x0842 => AttrBuilder::new("eth.type.wol").build(),
-        0x86DD => AttrBuilder::new("eth.type.ipv6").build(),
-        0x888E => AttrBuilder::new("eth.type.eap").build(),
+        0x0800 => AttrBuilder::new("eth.type.ipv4").decoder(decoder::Const(true)).build(),
+        0x0806 => AttrBuilder::new("eth.type.arp").decoder(decoder::Const(true)).build(),
+        0x0842 => AttrBuilder::new("eth.type.wol").decoder(decoder::Const(true)).build(),
+        0x86DD => AttrBuilder::new("eth.type.ipv6").decoder(decoder::Const(true)).build(),
+        0x888E => AttrBuilder::new("eth.type.eap").decoder(decoder::Const(true)).build(),
     };
 }
 

@@ -35,12 +35,16 @@ impl Attr {
         }
     }
 
-    pub fn with_value(class: &Ptr<AttrClass>, range: Range<usize>, value: Variant) -> Attr {
+    pub fn with_value<T: Into<Variant>>(
+        class: &Ptr<AttrClass>,
+        range: Range<usize>,
+        value: T,
+    ) -> Attr {
         Attr {
             class: class.clone(),
             abi_unsafe_data: AttrData {
                 range,
-                value: Some(Ptr::new(value)),
+                value: Some(Ptr::new(value.into())),
             },
         }
     }

@@ -96,3 +96,14 @@ impl Decoder for Nil {
         Ok(Variant::Nil)
     }
 }
+
+#[derive(Clone)]
+pub struct Const<T>(pub T);
+
+impl<T: Into<Variant> + Clone> Typed for Const<T> {
+    type Output = T;
+
+    fn decode(&self, _data: &slice::Slice) -> Result<T> {
+        Ok(self.0.clone())
+    }
+}

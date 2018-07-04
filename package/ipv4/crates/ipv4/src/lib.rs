@@ -120,10 +120,10 @@ lazy_static! {
         .decoder(decoder::Slice())
         .build();
     static ref PROTO_MAP: HashMap<u64, Ptr<AttrClass>> = hashmap!{
-        0x01 => AttrBuilder::new("ipv4.protocol.icmp").build(),
-        0x02 => AttrBuilder::new("ipv4.protocol.igmp").build(),
-        0x06 => AttrBuilder::new("ipv4.protocol.tcp").build(),
-        0x11 => AttrBuilder::new("ipv4.protocol.udp").build(),
+        0x01 => AttrBuilder::new("ipv4.protocol.icmp").decoder(decoder::Const(true)).build(),
+        0x02 => AttrBuilder::new("ipv4.protocol.igmp").decoder(decoder::Const(true)).build(),
+        0x06 => AttrBuilder::new("ipv4.protocol.tcp").decoder(decoder::Const(true)).build(),
+        0x11 => AttrBuilder::new("ipv4.protocol.udp").decoder(decoder::Const(true)).build(),
     };
 }
 genet_dissectors!(IPv4Dissector {});
