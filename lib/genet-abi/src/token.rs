@@ -25,6 +25,12 @@ impl Into<u64> for Token {
     }
 }
 
+impl<'a> From<&'a Token> for Token {
+    fn from(id: &'a Token) -> Token {
+        *id
+    }
+}
+
 impl From<u64> for Token {
     fn from(id: u64) -> Token {
         Token(id)
