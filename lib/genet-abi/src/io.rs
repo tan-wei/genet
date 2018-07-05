@@ -152,7 +152,7 @@ impl WriterWorkerBox {
         }
     }
 
-    fn write(&mut self, index: u32, parent: Option<&Layer>, layer: &Layer) -> Result<()> {
+    pub fn write(&mut self, index: u32, parent: Option<&Layer>, layer: &Layer) -> Result<()> {
         let mut e = Error::new("");
         let parent = if let Some(parent) = parent {
             parent as *const Layer

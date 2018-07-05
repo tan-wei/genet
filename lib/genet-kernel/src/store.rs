@@ -311,23 +311,21 @@ impl EventLoop {
         }
     }
 
-    fn process_output(id: u32, mut output: Box<Output>, frames: &FrameStore, callback: &Callback) {
+    fn process_output(id: u32, output: Box<Output>, frames: &FrameStore, callback: &Callback) {
         let frames = frames.read().unwrap();
         let mut offset = 0;
-        while offset < frames.len() {
-            let len = cmp::min(frames.len() - offset, Self::OUTPUT_BLOCK_SIZE);
-            let frames = frames.iter().skip(offset).take(len).collect::<Vec<_>>();
-            if let Err(err) = output.write(Some(frames.as_slice())) {
-                let err = Error(err.description().to_string());
-                callback.on_output_done(id, Some(Box::new(err)));
-                return;
+        {
+            let mut output = output;
+            while offset < frames.len() {
+                let len = cmp::min(frames.len() - offset, Self::OUTPUT_BLOCK_SIZE);
+                let frames = frames.iter().skip(offset).take(len).collect::<Vec<_>>();
+                if let Err(err) = output.write(frames.as_slice()) {
+                    let err = Error(err.description().to_string());
+                    callback.on_output_done(id, Some(Box::new(err)));
+                    return;
+                }
+                offset += len;
             }
-            offset += len;
-        }
-        if let Err(err) = output.write(None) {
-            let err = Error(err.description().to_string());
-            callback.on_output_done(id, Some(Box::new(err)));
-            return;
         }
         callback.on_output_done(id, None);
     }
