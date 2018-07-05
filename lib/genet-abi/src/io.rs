@@ -8,7 +8,7 @@ use string::SafeString;
 use vec::SafeVec;
 
 pub trait Writer: Send {
-    fn new_worker(&self, ctx: &Context, args: &str) -> Box<WriterWorker>;
+    fn new_worker(&self, ctx: &Context, args: &str) -> Result<Box<WriterWorker>>;
     fn id(&self) -> &str;
 }
 
@@ -17,7 +17,13 @@ pub trait Writer: Send {
 pub struct WriterBox {
     writer: *mut Box<Writer>,
     id: extern "C" fn(*mut Box<Writer>) -> SafeString,
-    new_worker: extern "C" fn(*mut Box<Writer>, *const Context, SafeString) -> WriterWorkerBox,
+    new_worker: extern "C" fn(
+        *mut Box<Writer>,
+        *const Context,
+        SafeString,
+        *mut WriterWorkerBox,
+        *mut Error,
+    ) -> u8,
 }
 
 unsafe impl Send for WriterBox {}
@@ -37,7 +43,14 @@ impl WriterBox {
     }
 
     pub fn new_worker(&self, ctx: &Context, args: &str) -> Result<WriterWorkerBox> {
-        Ok((self.new_worker)(self.writer, ctx, SafeString::from(args)))
+        let mut out: WriterWorkerBox = unsafe { mem::uninitialized() };
+        let mut err = Error::new("");
+        if (self.new_worker)(self.writer, ctx, SafeString::from(args), &mut out, &mut err) == 1 {
+            Ok(out)
+        } else {
+            mem::forget(out);
+            Err(Box::new(err))
+        }
     }
 }
 
@@ -49,10 +62,21 @@ extern "C" fn abi_writer_new_worker(
     writer: *mut Box<Writer>,
     ctx: *const Context,
     arg: SafeString,
-) -> WriterWorkerBox {
+    out: *mut WriterWorkerBox,
+    err: *mut Error,
+) -> u8 {
     let writer = unsafe { &*writer };
     let ctx = unsafe { &*ctx };
-    WriterWorkerBox::new(writer.new_worker(ctx, arg.as_str()))
+    match writer.new_worker(ctx, arg.as_str()) {
+        Ok(worker) => {
+            unsafe { ptr::write(out, WriterWorkerBox::new(worker)) };
+            1
+        }
+        Err(e) => {
+            unsafe { *err = Error::new(e.description()) };
+            0
+        }
+    }
 }
 
 pub trait Reader: Send {

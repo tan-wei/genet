@@ -11,6 +11,10 @@
       {
         "type": "core:library",
         "main": "reader"
+      },
+      {
+        "type": "core:library",
+        "main": "writer"
       }
     ]
   }
