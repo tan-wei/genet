@@ -25,6 +25,19 @@ impl Worker for TcpWorker {
     fn analyze(&mut self, parent: &mut Layer) -> Result<Status> {
         if let Some(payload) = parent.payloads().iter().find(|p| p.typ() == token!("tcp")) {
             let mut layer = Layer::new(&TCP_CLASS, payload.data());
+
+            let offset_attr = Attr::new(&OFFSET_ATTR, 12..13);
+            let data_offset = (offset_attr.get(&layer)?.get_u64()? * 4) as usize;
+            let mut offset = 20;
+
+            while offset < data_offset {
+                let option_type_attr = Attr::new(&OPTIONS_TYPE_ATTR, offset..(offset + 1));
+                let typ = option_type_attr.get(&layer)?.get_u64()?;
+                match typ {
+                    _ => break,
+                }
+            }
+
             Ok(Status::Done(vec![layer]))
         } else {
             Ok(Status::Skip)
@@ -126,6 +139,9 @@ lazy_static! {
         .decoder(decoder::UInt16BE())
         .build();
     static ref OPTIONS_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options")
+        .decoder(decoder::Nil())
+        .build();
+    static ref OPTIONS_TYPE_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options")
         .decoder(decoder::UInt8())
         .build();
     static ref OPTIONS_NOP_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.nop")
