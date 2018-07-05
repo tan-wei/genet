@@ -13,8 +13,8 @@ where
     T: Sized,
 {
     ptr: *mut T,
-    len: u32,
-    offset: u32,
+    len: u64,
+    offset: u64,
 }
 
 impl<T> Iterator for IntoIter<T> {
@@ -47,8 +47,8 @@ where
     T: Sized,
 {
     ptr: *mut T,
-    len: u32,
-    cap: u32,
+    len: u64,
+    cap: u64,
 }
 
 impl<T> SafeVec<T> {
@@ -60,7 +60,7 @@ impl<T> SafeVec<T> {
         }
     }
 
-    pub fn with_capacity(capacity: u32) -> Self {
+    pub fn with_capacity(capacity: u64) -> Self {
         let size = mem::size_of::<T>() * capacity as usize;
         let ptr: *mut T = unsafe { mem::transmute(env::alloc(size)) };
         if ptr.is_null() {
@@ -73,7 +73,7 @@ impl<T> SafeVec<T> {
         }
     }
 
-    pub fn into_raw(mut self) -> (*mut T, u32) {
+    pub fn into_raw(mut self) -> (*mut T, u64) {
         let ptr = self.ptr;
         self.ptr = ptr::null_mut();
         self.cap = 0;
@@ -106,8 +106,8 @@ impl<T> SafeVec<T> {
 }
 
 impl<T> IntoIterator for SafeVec<T> {
-    type Item = T;
     type IntoIter = self::IntoIter<T>;
+    type Item = T;
 
     fn into_iter(mut self) -> Self::IntoIter {
         let iter = IntoIter {
@@ -172,7 +172,7 @@ impl<T: Clone> Clone for SafeVec<T> {
 
 impl<'a, T: Clone> From<&'a [T]> for SafeVec<T> {
     fn from(s: &'a [T]) -> Self {
-        let mut v = SafeVec::with_capacity(s.len() as u32);
+        let mut v = SafeVec::with_capacity(s.len() as u64);
         for i in s {
             v.push(i.clone());
         }
@@ -188,7 +188,7 @@ impl<T: Clone> From<Box<[T]>> for SafeVec<T> {
 
 impl<'a, T: Clone> From<&'a Box<[T]>> for SafeVec<T> {
     fn from(s: &'a Box<[T]>) -> SafeVec<T> {
-        let mut v = SafeVec::with_capacity(s.len() as u32);
+        let mut v = SafeVec::with_capacity(s.len() as u64);
         for i in s.iter() {
             v.push(i.clone());
         }
@@ -202,7 +202,7 @@ mod tests {
 
     #[test]
     fn push() {
-        let mut v = SafeVec::<u32>::new();
+        let mut v = SafeVec::<u64>::new();
         assert_eq!(v.first(), None);
         v.push(5);
         assert_eq!(v.first(), Some(&5));
@@ -215,7 +215,7 @@ mod tests {
 
     #[test]
     fn clone() {
-        let mut v = SafeVec::<u32>::new();
+        let mut v = SafeVec::<u64>::new();
         for i in 0..5000 {
             v.push(i);
         }
@@ -230,7 +230,7 @@ mod tests {
 
     #[test]
     fn into_raw() {
-        let mut v = SafeVec::<u32>::new();
+        let mut v = SafeVec::<u64>::new();
         for i in 0..5000 {
             v.push(i);
         }
