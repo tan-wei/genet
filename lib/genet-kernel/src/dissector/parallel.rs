@@ -37,25 +37,7 @@ impl Pool {
                 if let Some(frames) = recv.recv() {
                     if let Some(mut frames) = frames {
                         for mut f in frames.iter_mut() {
-                            let mut sublayers = Vec::new();
-                            sublayers.append(f.layers_mut());
-                            let mut nextlayers = Vec::new();
-                            let mut runners = disp.runners();
-                            loop {
-                                let mut indices = Vec::new();
-                                for mut child in sublayers.iter_mut() {
-                                    let mut results = Dispatcher::execute(&mut runners, &mut child);
-                                    indices.push(results.len() as u8);
-                                    nextlayers.append(&mut results);
-                                }
-                                f.append_layers(&mut sublayers);
-                                f.append_tree_indices(&mut indices);
-                                if nextlayers.is_empty() {
-                                    break;
-                                } else {
-                                    sublayers.append(&mut nextlayers);
-                                }
-                            }
+                            Self::process_frame(&mut disp, f);
                         }
                         callback.done(frames);
                     } else {
@@ -66,6 +48,28 @@ impl Pool {
                 }
             }
         })
+    }
+
+    fn process_frame(disp: &mut Dispatcher, frame: &mut Frame) {
+        let mut sublayers = Vec::new();
+        sublayers.append(frame.layers_mut());
+        let mut nextlayers = Vec::new();
+        let mut runners = disp.runners();
+        loop {
+            let mut indices = Vec::new();
+            for mut child in sublayers.iter_mut() {
+                let mut results = Dispatcher::execute(&mut runners, &mut child);
+                indices.push(results.len() as u8);
+                nextlayers.append(&mut results);
+            }
+            frame.append_layers(&mut sublayers);
+            frame.append_tree_indices(&mut indices);
+            if nextlayers.is_empty() {
+                break;
+            } else {
+                sublayers.append(&mut nextlayers);
+            }
+        }
     }
 
     pub fn process(&mut self, frames: Vec<Frame>) {
