@@ -31,26 +31,27 @@ impl Worker for TcpWorker {
             let mut offset = 20;
 
             while offset < data_offset {
-                let typ = layer.data()[offset];
-                offset += 1;
+                let typ = layer.data().get(offset)?;
+                let len = layer.data().get(offset + 1)? as usize;
                 match typ {
                     0 => {
+                        offset += 1;
                         continue;
                     }
                     1 => {
                         layer.add_attr(Attr::new(&OPTIONS_NOP_ATTR, offset..offset + 1));
+                        offset += 1;
                         continue;
                     }
                     2 => {
-                        layer.add_attr(Attr::new(&OPTIONS_MSS_ATTR, offset + 1..offset + 3));
+                        layer.add_attr(Attr::new(&OPTIONS_MSS_ATTR, offset + 2..offset + 4));
                     }
                     3 => {
-                        layer.add_attr(Attr::new(&OPTIONS_SCALE_ATTR, offset + 1..offset + 2));
+                        layer.add_attr(Attr::new(&OPTIONS_SCALE_ATTR, offset + 2..offset + 3));
                     }
                     _ => {}
                 }
-                let len = layer.data()[offset] as usize;
-                offset += len - 1;
+                offset += len;
             }
 
             Ok(Status::Done(vec![layer]))
