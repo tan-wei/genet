@@ -40,7 +40,6 @@ public:
   static NAN_METHOD(New);
   static NAN_GETTER(context);
   static NAN_METHOD(close);
-  static NAN_METHOD(pushFrames);
   static NAN_METHOD(frames);
   static NAN_METHOD(filteredFrames);
   static NAN_METHOD(setFilter);

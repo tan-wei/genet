@@ -127,24 +127,6 @@ pub extern "C" fn genet_session_filtered_frames(
     }
 }
 
-/*
-#[no_mangle]
-pub extern "C" fn genet_session_push_frame(
-    session: *mut Session,
-    data: *const libc::c_char,
-    len: u32,
-    link: i32,
-) {
-    unsafe {
-        let data = slice::from_raw_parts(data as *const u8, len as usize);
-        let raw = Raw::new(data.into(), len, 0, 0);
-        let mut v = Vec::new();
-        v.push(raw);
-        (*session).push_frames(v, link);
-    }
-}
-*/
-
 #[no_mangle]
 pub extern "C" fn genet_session_create_reader(
     session: *mut Session,

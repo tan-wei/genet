@@ -6,7 +6,6 @@
       "src/frame.cpp",
       "src/filter.cpp",
       "src/script.cpp",
-      "src/context.cpp",
       "src/session.cpp",
       "src/attr.cpp",
       "src/token.cpp",

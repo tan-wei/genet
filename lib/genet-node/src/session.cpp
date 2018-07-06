@@ -97,7 +97,6 @@ void SessionWrapper::init(v8::Local<v8::Object> exports) {
   tpl->InstanceTemplate()->SetInternalFieldCount(2);
   tpl->SetClassName(Nan::New("Session").ToLocalChecked());
   Nan::SetPrototypeMethod(tpl, "close", close);
-  Nan::SetPrototypeMethod(tpl, "pushFrames", pushFrames);
   Nan::SetPrototypeMethod(tpl, "frames", frames);
   Nan::SetPrototypeMethod(tpl, "filteredFrames", filteredFrames);
   Nan::SetPrototypeMethod(tpl, "setFilter", setFilter);
@@ -138,52 +137,6 @@ NAN_METHOD(SessionWrapper::New) {
       info.GetReturnValue().Set(info.This());
     } else {
       Nan::ThrowTypeError("First argument must be a profile");
-    }
-  }
-}
-
-NAN_GETTER(SessionWrapper::context) {
-  SessionWrapper *wrapper = ObjectWrap::Unwrap<SessionWrapper>(info.Holder());
-  if (!wrapper->event) {
-    Nan::ThrowReferenceError("Session has been closed");
-    return;
-  }
-  Session *session = wrapper->event->session;
-  Context *ctx = genet_session_context(session);
-  info.GetReturnValue().Set(ContextWrapper::wrap(Pointer<Context>::owned(ctx)));
-}
-
-NAN_METHOD(SessionWrapper::pushFrames) {
-  if (!info[0]->IsArray()) {
-    Nan::ThrowTypeError("First argument must be an array");
-    return;
-  }
-  if (!info[1]->IsInt32()) {
-    Nan::ThrowTypeError("Second argument must be an integer");
-    return;
-  }
-  if (auto wrapper = Nan::ObjectWrap::Unwrap<SessionWrapper>(info.Holder())) {
-    if (!wrapper->event) {
-      Nan::ThrowReferenceError("Session has been closed");
-      return;
-    }
-    auto array = info[0].As<v8::Array>();
-    int32_t link = info[1]->Int32Value();
-    Session *session = wrapper->event->session;
-    for (uint32_t i = 0; i < array->Length(); ++i) {
-      auto value = array->Get(i);
-      if (value->IsObject()) {
-        auto obj = value.As<v8::Object>();
-        auto data = obj->Get(Nan::New("data").ToLocalChecked());
-        if (data->IsArrayBufferView()) {
-          auto view = data.As<v8::ArrayBufferView>();
-          size_t len = view->ByteLength();
-          char *buf =
-              static_cast<char *>(view->Buffer()->GetContents().Data()) +
-              view->ByteOffset();
-          genet_session_push_frame(session, buf, len, link);
-        }
-      }
     }
   }
 }

@@ -52,16 +52,11 @@ void genet_str_free(char *data);
 Token genet_token_get(const char *str);
 char *genet_token_string(Token id);
 
-void genet_context_close_stream(Context *context);
-char *genet_context_get_config(Context *context, const char *str);
-void genet_context_free(Context *context);
-
 Token genet_attr_id(const Attr *attr);
 Token genet_attr_type(const Attr *attr);
 void genet_attr_range(const Attr *attr, uint64_t *start, uint64_t *end);
 Variant genet_attr_get(const Attr *attr, const Layer *layer);
 
-Layer *genet_layer_new(Token id);
 Token genet_layer_id(const Layer *layer);
 const Attr *genet_layer_attr(const Layer *layer, Token id);
 char *genet_layer_data(const Layer *layer, uint64_t *len);
@@ -88,11 +83,6 @@ void genet_session_profile_free(SessionProfile *SessionProfile);
 Session *genet_session_new(const SessionProfile *SessionProfile,
                            void (*callback)(void *, char *),
                            void *data);
-Context *genet_session_context(Session *session);
-void genet_session_push_frame(Session *session,
-                              const char *data,
-                              uint32_t len,
-                              int32_t link);
 void genet_session_frames(const Session *session,
                           uint32_t start,
                           uint32_t end,

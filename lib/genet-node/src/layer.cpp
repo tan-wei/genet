@@ -30,11 +30,7 @@ void LayerWrapper::init(v8::Local<v8::Object> exports) {
 NAN_METHOD(LayerWrapper::New) {
   if (info.IsConstructCall()) {
     auto id = info[0];
-    if (id->IsUint32()) {
-      LayerWrapper *obj = new LayerWrapper(
-          Pointer<Layer>::owned(genet_layer_new(id->Uint32Value())));
-      obj->Wrap(info.This());
-    } else if (id->IsExternal()) {
+    if (id->IsExternal()) {
       auto obj = static_cast<LayerWrapper *>(id.As<v8::External>()->Value());
       obj->Wrap(info.This());
     } else {

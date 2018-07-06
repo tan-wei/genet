@@ -80,7 +80,7 @@ NAN_METHOD(ContextWrapper::getConfig) {
 
 ContextWrapper::ContextWrapper(const Pointer<Context> &ctx) : ctx(ctx) {}
 
-ContextWrapper::~ContextWrapper() { genet_context_free(ctx.getOwned()); }
+ContextWrapper::~ContextWrapper() {}
 
 v8::Local<v8::Object> ContextWrapper::wrap(const Pointer<Context> &ctx) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
