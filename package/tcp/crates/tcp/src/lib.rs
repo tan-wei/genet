@@ -31,11 +31,26 @@ impl Worker for TcpWorker {
             let mut offset = 20;
 
             while offset < data_offset {
-                let option_type_attr = Attr::new(&OPTIONS_TYPE_ATTR, offset..(offset + 1));
-                let typ = option_type_attr.get(&layer)?.get_u64()?;
+                let typ = layer.data()[offset];
+                offset += 1;
                 match typ {
-                    _ => break,
+                    0 => {
+                        continue;
+                    }
+                    1 => {
+                        layer.add_attr(Attr::new(&OPTIONS_NOP_ATTR, offset..offset + 1));
+                        continue;
+                    }
+                    2 => {
+                        layer.add_attr(Attr::new(&OPTIONS_MSS_ATTR, offset + 1..offset + 3));
+                    }
+                    3 => {
+                        layer.add_attr(Attr::new(&OPTIONS_SCALE_ATTR, offset + 1..offset + 2));
+                    }
+                    _ => {}
                 }
+                let len = layer.data()[offset] as usize;
+                offset += len - 1;
             }
 
             Ok(Status::Done(vec![layer]))
@@ -80,6 +95,7 @@ lazy_static! {
         .header(Attr::new(&WINDOW_ATTR, 14..16))
         .header(Attr::new(&CHECKSUM_ATTR, 16..18))
         .header(Attr::new(&URGENT_ATTR, 18..20))
+        .header(Attr::new(&OPTIONS_ATTR, 20..21))
         .build();
     static ref SRC_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.src")
         .typ("@tcp:port")
@@ -139,16 +155,14 @@ lazy_static! {
         .decoder(decoder::UInt16BE())
         .build();
     static ref OPTIONS_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options")
-        .decoder(decoder::Nil())
-        .build();
-    static ref OPTIONS_TYPE_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options")
-        .decoder(decoder::UInt8())
+        .typ("@nested")
+        .decoder(decoder::Const(true))
         .build();
     static ref OPTIONS_NOP_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.nop")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::Const(true))
         .build();
     static ref OPTIONS_MSS_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.mss")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt16BE())
         .build();
     static ref OPTIONS_SCALE_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.scale")
         .decoder(decoder::UInt8())

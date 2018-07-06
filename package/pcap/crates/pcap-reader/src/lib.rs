@@ -94,8 +94,12 @@ impl ReaderWorker for PcapReaderWorker {
             0..0,
             header.ts_sec as f64 + header.ts_usec as f64 / 1000_000f64,
         ));
-        layer.add_attr(Attr::with_value(&TS_SEC_CLASS, 0..0, ts_sec as u64));
-        layer.add_attr(Attr::with_value(&TS_USEC_CLASS, 0..0, ts_usec as u64));
+        layer.add_attr(Attr::with_value(&TS_SEC_CLASS, 0..0, header.ts_sec as u64));
+        layer.add_attr(Attr::with_value(
+            &TS_USEC_CLASS,
+            0..0,
+            header.ts_usec as u64,
+        ));
         Ok(vec![layer])
     }
 }
