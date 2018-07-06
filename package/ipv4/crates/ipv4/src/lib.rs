@@ -123,10 +123,10 @@ lazy_static! {
         .decoder(decoder::Slice())
         .build();
     static ref PROTO_MAP: HashMap<u64, (Token, Ptr<AttrClass>)> = hashmap!{
-        0x01 => (token!("icmp"), AttrBuilder::new("ipv4.protocol.icmp").decoder(decoder::Const(true)).build()),
-        0x02 => (token!("igmp"), AttrBuilder::new("ipv4.protocol.igmp").decoder(decoder::Const(true)).build()),
-        0x06 => (token!("tcp"), AttrBuilder::new("ipv4.protocol.tcp").decoder(decoder::Const(true)).build()),
-        0x11 => (token!("udp"), AttrBuilder::new("ipv4.protocol.udp").decoder(decoder::Const(true)).build()),
+        0x01 => (token!("icmp"), AttrBuilder::new("ipv4.protocol.icmp").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x02 => (token!("igmp"), AttrBuilder::new("ipv4.protocol.igmp").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x06 => (token!("tcp"), AttrBuilder::new("ipv4.protocol.tcp").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x11 => (token!("udp"), AttrBuilder::new("ipv4.protocol.udp").typ("@novalue").decoder(decoder::Const(true)).build()),
     };
 }
 genet_dissectors!(IPv4Dissector {});

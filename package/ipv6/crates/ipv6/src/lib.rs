@@ -120,10 +120,10 @@ lazy_static! {
         .decoder(decoder::UInt8())
         .build();
     static ref PROTO_MAP: HashMap<u64, (Token, Ptr<AttrClass>)> = hashmap!{
-        0x02 => (token!("igmp"), AttrBuilder::new("ipv6.protocol.igmp").decoder(decoder::Const(true)).build()),
-        0x06 => (token!("tcp"), AttrBuilder::new("ipv6.protocol.tcp").decoder(decoder::Const(true)).build()),
-        0x11 => (token!("udp"), AttrBuilder::new("ipv6.protocol.udp").decoder(decoder::Const(true)).build()),
-        0x3a => (token!("icmp"), AttrBuilder::new("ipv6.protocol.icmp").decoder(decoder::Const(true)).build()),
+        0x02 => (token!("igmp"), AttrBuilder::new("ipv6.protocol.igmp").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x06 => (token!("tcp"), AttrBuilder::new("ipv6.protocol.tcp").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x11 => (token!("udp"), AttrBuilder::new("ipv6.protocol.udp").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x3a => (token!("icmp"), AttrBuilder::new("ipv6.protocol.icmp").typ("@novalue").decoder(decoder::Const(true)).build()),
     };
 }
 genet_dissectors!(IPv6Dissector {});

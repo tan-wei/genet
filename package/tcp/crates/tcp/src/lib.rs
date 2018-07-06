@@ -160,6 +160,7 @@ lazy_static! {
         .decoder(decoder::Const(true))
         .build();
     static ref OPTIONS_NOP_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.nop")
+        .typ("@novalue")
         .decoder(decoder::Const(true))
         .build();
     static ref OPTIONS_MSS_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.mss")
