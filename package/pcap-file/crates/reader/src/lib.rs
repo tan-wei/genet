@@ -134,10 +134,12 @@ impl PcapFileReaderWorker {
 
         layer.add_attr(Attr::with_value(&LENGTH_CLASS, 0..0, orig_len as u64));
         layer.add_attr(Attr::with_value(
-            &TIMESTAMP_CLASS,
+            &TS_CLASS,
             0..0,
             ts_sec as f64 + ts_usec as f64 / 1000_000f64,
         ));
+        layer.add_attr(Attr::with_value(&TS_SEC_CLASS, 0..0, ts_sec as u64));
+        layer.add_attr(Attr::with_value(&TS_USEC_CLASS, 0..0, ts_usec as u64));
 
         Ok(layer)
     }
@@ -165,9 +167,11 @@ impl ReaderWorker for PcapFileReaderWorker {
 lazy_static! {
     static ref TYPE_CLASS: Ptr<AttrClass> = AttrBuilder::new("link.type").build();
     static ref LENGTH_CLASS: Ptr<AttrClass> = AttrBuilder::new("link.length").build();
-    static ref TIMESTAMP_CLASS: Ptr<AttrClass> = AttrBuilder::new("link.timestamp")
+    static ref TS_CLASS: Ptr<AttrClass> = AttrBuilder::new("link.timestamp")
         .typ("@datetime:unix")
         .build();
+    static ref TS_SEC_CLASS: Ptr<AttrClass> = AttrBuilder::new("link.timestamp.sec").build();
+    static ref TS_USEC_CLASS: Ptr<AttrClass> = AttrBuilder::new("link.timestamp.usec").build();
 }
 
 genet_readers!(PcapFileReader {});
