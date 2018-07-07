@@ -21,11 +21,16 @@ export default class LibraryComponent extends BaseComponent {
       }
     }
     if (!this.mainFile) {
-      const libs = glob.sync(
-        `crates/${file}/target/{release,debug}/*.{dll,so,dylib}`,
+      const releaseLibs = glob.sync(
+        `crates/${file}/target/release/*.{dll,so,dylib}`,
         { cwd: dir })
-      if (libs.length > 0) {
-        this.mainFile = path.join(dir, libs[0])
+      const debugLibs = glob.sync(
+        `crates/${file}/target/debug/*.{dll,so,dylib}`,
+        { cwd: dir })
+      if (releaseLibs.length > 0) {
+        this.mainFile = path.join(dir, releaseLibs[0])
+      } else if (debugLibs.length > 0) {
+        this.mainFile = path.join(dir, debugLibs[0])
       }
     }
     if (!this.mainFile) {
