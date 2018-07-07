@@ -13,6 +13,10 @@
         "main": "tcp"
       },
       {
+        "type": "core:library",
+        "main": "tcp-stream"
+      },
+      {
         "type": "core:style",
         "files": [
           "tcp.css"
