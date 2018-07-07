@@ -11,7 +11,7 @@
       {
         "type": "core:panel",
         "main": "main.js",
-        "name": "Live Capture",
+        "name": "📡 Live Capture",
         "id": "core:panel:live-capture",
         "slot": "dialog:input",
         "style": "style.css"
