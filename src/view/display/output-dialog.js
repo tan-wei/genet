@@ -177,7 +177,7 @@ export default class OutputDialog {
               : 'none',
           },
         }, [
-          m(PanelView, Object.assign(panel, { attrs: { callback } }))
+          m(PanelView, Object.assign(panel, { attrs: { } }))
         ]))
       )])
   }
