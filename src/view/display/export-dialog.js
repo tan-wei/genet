@@ -54,8 +54,7 @@ export default class ExportDialog {
   }
 
   oncreate (vnode) {
-    vnode.dom.querySelector(
-      `input[type=radio][value=${this.mode}]`).checked = true
+    vnode.dom.querySelector('select[name=filter-type]').value = this.mode
     vnode.dom.querySelector(
       'input[type=text][name=range]').value =
         genet.workspace.get('_.pcap.exporter.range', '')
@@ -65,8 +64,7 @@ export default class ExportDialog {
   }
 
   update (vnode) {
-    this.mode = vnode.dom.querySelector(
-      'input[type=radio]:checked').value
+    this.mode = vnode.dom.querySelector('select[name=filter-type]').value
 
     process.nextTick(() => {
       genet.workspace.set('_.pcap.exporter.mode', this.mode)
@@ -81,75 +79,44 @@ export default class ExportDialog {
     return m('div', [
       m('ul', [
         m('li', [
-          m('label', [
-            m('input', {
-              type: 'radio',
-              name: 'filter',
-              value: 'all',
-              onchange: () => this.update(vnode),
-            }),
-            ' All Frames'
+          m('select', {
+            name: 'filter-type',
+            onchange: () => this.update(vnode),
+          }, [
+            m('option', { value: 'all' }, ['All Frames']),
+            m('option', { value: 'visible' }, ['Visible Frames']),
+            m('option', { value: 'checked' }, [`Checked Frames (${vnode.attrs.checkedFrames.size})`]),
+            m('option', { value: 'range' }, ['Index Range']),
+            m('option', { value: 'filter' }, ['Custom Filter'])
           ])
         ]),
-        m('li', [
-          m('label', [
-            m('input', {
-              type: 'radio',
-              name: 'filter',
-              value: 'visible',
-              onchange: () => this.update(vnode),
-            }),
-            ' Visible Frames'
-          ])
-        ]),
-        m('li', [
-          m('label', [
-            m('input', {
-              type: 'radio',
-              name: 'filter',
-              value: 'checked',
-              onchange: () => this.update(vnode),
-            }),
-            ` Checked Frames (${vnode.attrs.checkedFrames.size})`
-          ])
-        ]),
-        m('li', [
-          m('label', [
-            m('input', {
-              type: 'radio',
-              name: 'filter',
-              value: 'range',
-              onchange: () => this.update(vnode),
-            }),
-            ' Index Range (starts from 1)'
-          ])
-        ]),
-        m('li', [
+        m('li', {
+          style: {
+            display:
+            this.mode === 'range'
+              ? 'block'
+              : 'none'
+          },
+        }, [
           m('input', {
             type: 'text',
             name: 'range',
             placeholder: 'e.g. 1-20, 51, 60-',
-            disabled: this.mode !== 'range',
             onchange: () => this.update(vnode),
           })
         ]),
-        m('li', [
-          m('label', [
-            m('input', {
-              type: 'radio',
-              name: 'filter',
-              value: 'filter',
-              onchange: () => this.update(vnode),
-            }),
-            ' Custom Filter'
-          ])
-        ]),
-        m('li', [
+        m('li', {
+          style: {
+            display:
+            this.mode === 'filter'
+              ? 'block'
+              : 'none'
+          }
+        }, [
           m('input', {
             type: 'text',
             name: 'filter',
             placeholder: 'e.g. tcp.flags.ack',
-            disabled: this.mode !== 'filter',
             onchange: () => this.update(vnode),
           })
         ]),
