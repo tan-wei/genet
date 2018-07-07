@@ -1,8 +1,8 @@
 const m = require('mithril')
 class OutputView {
-  view () {
+  view (vnode) {
     return m('div', [
-      'Pcap'
+      `${vnode.attrs.getFilter()}`
     ])
   }
 }

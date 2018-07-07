@@ -52,6 +52,7 @@ function parseRange (exp) {
 
 export default class OutputDialog {
   constructor () {
+    this.filter = ''
     this.output = ''
     this.mode = genet.workspace.get('_.pcap.exporter.mode', 'all')
   }
@@ -64,11 +65,37 @@ export default class OutputDialog {
     vnode.dom.querySelector(
       'input[type=text][name=filter]').value =
         genet.workspace.get('_.pcap.exporter.filter', '')
+    process.nextTick(() => {
+      this.update(vnode)
+    })
   }
 
   update (vnode) {
     this.output = vnode.dom.querySelector('select[name=output-id]').value
     this.mode = vnode.dom.querySelector('select[name=filter-type]').value
+
+    switch (this.mode) {
+      case 'visible':
+        this.filter = vnode.attrs.displayFilter
+        break
+      case 'range':
+        this.filter = parseRange(vnode.dom.querySelector(
+          'input[type=text][name=range]').value)
+        break
+      case 'checked':
+        {
+          const list = Array.from(
+            vnode.attrs.checkedFrames.values()).join(',')
+          this.filter = parseRange(list)
+        }
+        break
+      case 'filter':
+        this.filter = vnode.dom.querySelector(
+          'input[type=text][name=filter]').value
+        break
+      default:
+        this.filter = ''
+    }
 
     process.nextTick(() => {
       genet.workspace.set('_.pcap.exporter.mode', this.mode)
@@ -80,12 +107,14 @@ export default class OutputDialog {
   }
 
   view (vnode) {
+    const { callback } = vnode.attrs
     const panels = genet.workspace.panelLayout['dialog:output'] || []
     const layout = flatten(panels).map((tab) => genet.workspace.panel(tab))
       .filter((panel) => typeof panel !== 'undefined')
     if (this.output === '' && layout.length > 0) {
       this.output = layout[0].id
     }
+
     return m('div', [
       m('ul', [
         m('li', [
@@ -95,7 +124,8 @@ export default class OutputDialog {
           }, [
             m('option', { value: 'all' }, ['All Frames']),
             m('option', { value: 'visible' }, ['Visible Frames']),
-            m('option', { value: 'checked' }, [`Checked Frames (${vnode.attrs.checkedFrames.size})`]),
+            m('option', { value: 'checked' },
+              [`Checked Frames (${vnode.attrs.checkedFrames.size})`]),
             m('option', { value: 'range' }, ['Index Range']),
             m('option', { value: 'filter' }, ['Custom Filter'])
           ])
@@ -141,31 +171,6 @@ export default class OutputDialog {
           m('input', {
             type: 'button',
             value: 'Export',
-            onclick: () => {
-              let filter = ''
-              switch (this.mode) {
-                case 'visible':
-                  filter = vnode.attrs.displayFilter
-                  break
-                case 'range':
-                  filter = parseRange(vnode.dom.querySelector(
-                    'input[type=text][name=range]').value)
-                  break
-                case 'checked':
-                  {
-                    const list = Array.from(
-                      vnode.attrs.checkedFrames.values()).join(',')
-                    filter = parseRange(list)
-                  }
-                  break
-                case 'filter':
-                  filter = vnode.dom.querySelector(
-                    'input[type=text][name=filter]').value
-                  break
-                default:
-              }
-              vnode.attrs.callback(filter)
-            },
           })
         ])
       ]),
@@ -177,7 +182,12 @@ export default class OutputDialog {
               : 'none',
           },
         }, [
-          m(PanelView, Object.assign(panel, { attrs: { } }))
+          m(PanelView, Object.assign(panel, {
+            attrs: {
+              callback,
+              getFilter: () => this.filter,
+            },
+          }))
         ]))
       )])
   }
