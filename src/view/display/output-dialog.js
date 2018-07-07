@@ -166,12 +166,6 @@ export default class OutputDialog {
             onchange: () => this.update(vnode),
           }, layout.map((panel) =>
             m('option', { value: panel.id }, [panel.name])))
-        ]),
-        m('li', [
-          m('input', {
-            type: 'button',
-            value: 'Export',
-          })
         ])
       ]),
       m('div',
