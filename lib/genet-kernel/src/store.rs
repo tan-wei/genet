@@ -30,7 +30,7 @@ enum Command {
     PushSerialFrames(Vec<Frame>),
     StoreFrames(Vec<Frame>),
     SetFilter(u32, Option<Box<Filter>>),
-    PushOutput(u32, Box<Output>),
+    PushOutput(u32, Box<Output>, Option<Box<Filter>>),
     Close,
 }
 
@@ -119,8 +119,14 @@ impl Store {
         self.sender.send(Command::SetFilter(id, filter));
     }
 
-    pub fn push_output<O: 'static + Output>(&mut self, id: u32, output: O) {
-        self.sender.send(Command::PushOutput(id, Box::new(output)));
+    pub fn push_output<O: 'static + Output>(
+        &mut self,
+        id: u32,
+        output: O,
+        filter: Option<Box<Filter>>,
+    ) {
+        self.sender
+            .send(Command::PushOutput(id, Box::new(output), filter));
     }
 
     pub fn set_input<I: 'static + Input>(&mut self, id: u32, input: I) {
@@ -257,8 +263,8 @@ impl EventLoop {
                                 &mut filter_map,
                                 &callback,
                             ),
-                            Command::PushOutput(id, output) => {
-                                Self::process_output(id, output, &frames, &callback)
+                            Command::PushOutput(id, output, filter) => {
+                                Self::process_output(id, output, filter, &frames, &callback)
                             }
                             Command::Close => return,
                         }
@@ -311,14 +317,26 @@ impl EventLoop {
         }
     }
 
-    fn process_output(id: u32, output: Box<Output>, frames: &FrameStore, callback: &Callback) {
+    fn process_output(
+        id: u32,
+        output: Box<Output>,
+        filter: Option<Box<Filter>>,
+        frames: &FrameStore,
+        callback: &Callback,
+    ) {
         let frames = frames.read().unwrap();
         let mut offset = 0;
         {
+            let filter = filter.map(|f| f.new_worker());
             let mut output = output;
             while offset < frames.len() {
                 let len = cmp::min(frames.len() - offset, Self::OUTPUT_BLOCK_SIZE);
-                let frames = frames.iter().skip(offset).take(len).collect::<Vec<_>>();
+                let frames = frames
+                    .iter()
+                    .skip(offset)
+                    .take(len)
+                    .filter(|frame| filter.as_ref().map_or(true, |f| f.test(frame)))
+                    .collect::<Vec<_>>();
                 if let Err(err) = output.write(frames.as_slice()) {
                     let err = Error(err.description().to_string());
                     callback.on_output_done(id, Some(Box::new(err)));

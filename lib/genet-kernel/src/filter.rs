@@ -2,7 +2,7 @@ use frame::Frame;
 use std::fmt::Debug;
 
 pub trait Worker {
-    fn test(&mut self, &Frame) -> bool {
+    fn test(&self, &Frame) -> bool {
         true
     }
 }

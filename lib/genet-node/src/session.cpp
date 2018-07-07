@@ -249,8 +249,18 @@ NAN_METHOD(SessionWrapper::createWriter) {
     Nan::ThrowTypeError("Second argument must be a string");
     return;
   }
+  if (!info[2]->IsString()) {
+    Nan::ThrowTypeError("Third argument must be a string");
+    return;
+  }
   Nan::Utf8String id(info[0]);
   Nan::Utf8String arg(info[1]);
+  Nan::Utf8String script(info[2]);
+
+  Filter *filter = nullptr;
+  if (script.length() > 0) {
+    filter = FilterIsolate::createFilter(*script, script.length());
+  }
 
   if (auto wrapper = Nan::ObjectWrap::Unwrap<SessionWrapper>(info.Holder())) {
     if (!wrapper->event) {
@@ -258,7 +268,8 @@ NAN_METHOD(SessionWrapper::createWriter) {
       return;
     }
     Session *session = wrapper->event->session;
-    info.GetReturnValue().Set(genet_session_create_writer(session, *id, *arg));
+    info.GetReturnValue().Set(
+        genet_session_create_writer(session, *id, *arg, filter));
   }
 }
 

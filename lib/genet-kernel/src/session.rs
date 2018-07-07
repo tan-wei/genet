@@ -91,13 +91,13 @@ impl Session {
         0
     }
 
-    pub fn create_writer(&mut self, id: &str, arg: &str) -> u32 {
+    pub fn create_writer(&mut self, id: &str, arg: &str, filter: Option<Box<Filter>>) -> u32 {
         if let Some(writer) = self.profile.writers().find(|&&r| r.id().as_str() == id) {
             self.io_cnt += 1;
             let ctx = context::Context::new();
             if let Ok(output) = writer.new_worker(&ctx, arg) {
                 self.store
-                    .push_output(self.io_cnt, WriterWorkerOutput::new(output));
+                    .push_output(self.io_cnt, WriterWorkerOutput::new(output), filter);
                 return self.io_cnt;
             }
         }

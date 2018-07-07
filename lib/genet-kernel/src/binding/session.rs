@@ -145,11 +145,20 @@ pub extern "C" fn genet_session_create_writer(
     session: *mut Session,
     id: *const libc::c_char,
     arg: *const libc::c_char,
+    filter: *mut FilterBase,
 ) -> u32 {
     unsafe {
+        let filter = if filter.is_null() {
+            None
+        } else {
+            let b: Box<Filter> = Box::new(FFIFilter {
+                base: FilterBaseHolder(filter),
+            });
+            Some(b)
+        };
         let id = str::from_utf8_unchecked(CStr::from_ptr(id).to_bytes());
         let arg = str::from_utf8_unchecked(CStr::from_ptr(arg).to_bytes());
-        (*session).create_writer(id, arg)
+        (*session).create_writer(id, arg, filter)
     }
 }
 
@@ -246,7 +255,7 @@ pub struct FFIFilterWorker {
 }
 
 impl Worker for FFIFilterWorker {
-    fn test(&mut self, frame: &Frame) -> bool {
+    fn test(&self, frame: &Frame) -> bool {
         let worker: *mut FilterWorkerBase = self.base.0;
         unsafe { ((*worker).test)(worker, frame) != 0 }
     }
