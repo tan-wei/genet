@@ -1,3 +1,8 @@
-.livecap-view ul {
+ul {
   list-style: none;
+  padding: 0;
+}
+
+li {
+  padding: 6px 0;
 }
