@@ -1,4 +1,6 @@
+import PanelView from './panel-view'
 import m from 'mithril'
+import flatten from 'lodash.flatten'
 
 function parseRange (exp) {
   const ranges = exp
@@ -48,8 +50,9 @@ function parseRange (exp) {
   }).join(' || ')
 }
 
-export default class ExportDialog {
+export default class OutputDialog {
   constructor () {
+    this.output = ''
     this.mode = genet.workspace.get('_.pcap.exporter.mode', 'all')
   }
 
@@ -64,6 +67,7 @@ export default class ExportDialog {
   }
 
   update (vnode) {
+    this.output = vnode.dom.querySelector('select[name=output-id]').value
     this.mode = vnode.dom.querySelector('select[name=filter-type]').value
 
     process.nextTick(() => {
@@ -76,6 +80,12 @@ export default class ExportDialog {
   }
 
   view (vnode) {
+    const panels = genet.workspace.panelLayout['dialog:output'] || []
+    const layout = flatten(panels).map((tab) => genet.workspace.panel(tab))
+      .filter((panel) => typeof panel !== 'undefined')
+    if (this.output === '' && layout.length > 0) {
+      this.output = layout[0].id
+    }
     return m('div', [
       m('ul', [
         m('li', [
@@ -95,13 +105,13 @@ export default class ExportDialog {
             display:
             this.mode === 'range'
               ? 'block'
-              : 'none'
+              : 'none',
           },
         }, [
           m('input', {
             type: 'text',
             name: 'range',
-            placeholder: 'e.g. 1-20, 51, 60-',
+            placeholder: 'e.g. 0-20, 51, 60-',
             onchange: () => this.update(vnode),
           })
         ]),
@@ -110,8 +120,8 @@ export default class ExportDialog {
             display:
             this.mode === 'filter'
               ? 'block'
-              : 'none'
-          }
+              : 'none',
+          },
         }, [
           m('input', {
             type: 'text',
@@ -119,6 +129,13 @@ export default class ExportDialog {
             placeholder: 'e.g. tcp.flags.ack',
             onchange: () => this.update(vnode),
           })
+        ]),
+        m('li', [
+          m('select', {
+            name: 'output-id',
+            onchange: () => this.update(vnode),
+          }, layout.map((panel) =>
+            m('option', { value: panel.id }, [panel.name])))
         ]),
         m('li', [
           m('input', {
@@ -151,7 +168,17 @@ export default class ExportDialog {
             },
           })
         ])
-      ])
-    ])
+      ]),
+      m('div',
+        layout.map((panel) => m('div', {
+          style: {
+            display: panel.id === this.output
+              ? 'block'
+              : 'none',
+          },
+        }, [
+          m(PanelView, Object.assign(panel, { attrs: { callback } }))
+        ]))
+      )])
   }
 }

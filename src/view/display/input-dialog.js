@@ -1,4 +1,5 @@
 import PanelView from './panel-view'
+import flatten from 'lodash.flatten'
 import m from 'mithril'
 
 export default class InputDialog {
@@ -13,7 +14,7 @@ export default class InputDialog {
   view (vnode) {
     const { callback } = vnode.attrs
     const panels = genet.workspace.panelLayout['dialog:input'] || []
-    const layout = [].concat.apply([], panels).map((tab) => genet.workspace.panel(tab))
+    const layout = flatten(panels).map((tab) => genet.workspace.panel(tab))
       .filter((panel) => typeof panel !== 'undefined')
     if (this.input === '' && layout.length > 0) {
       this.input = layout[0].id

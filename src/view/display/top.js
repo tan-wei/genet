@@ -1,5 +1,5 @@
 import Dialog from '../../lib/dialog'
-import ExportDialog from './export-dialog'
+import OutputDialog from './output-dialog'
 import FilterSuggest from './filter-suggest'
 import FrameHeader from './frame-header'
 import FrameListView from './frame-list-view'
@@ -152,12 +152,12 @@ export default class TopView {
       }
     })
     genet.action.global.on('core:file:export', () => {
-      const exportDialog = new Dialog(ExportDialog,
+      const outputDialog = new Dialog(OutputDialog,
         {
           displayFilter: this.displayFilter,
           checkedFrames: this.viewState.checkedFrames,
         })
-      exportDialog.show({ cancelable: true }).then(async (filter) => {
+        outputDialog.show({ cancelable: true }).then(async (filter) => {
         const file = dialog.showSaveDialog(
           { filters: genet.session.fileExtensions.exporter })
         if (typeof file !== 'undefined') {
