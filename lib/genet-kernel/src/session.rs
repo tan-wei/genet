@@ -58,14 +58,6 @@ impl Session {
         }
     }
 
-    pub fn context(&self) -> Context {
-        Context::new(self.profile.clone())
-    }
-
-    pub fn push_frames(&mut self, layers: Vec<MutPtr<Layer>>) {
-        self.store.process(layers);
-    }
-
     pub fn frames(&self, range: Range<usize>) -> Vec<*const Frame> {
         self.store.frames(range)
     }
@@ -81,7 +73,7 @@ impl Session {
     pub fn create_reader(&mut self, id: &str, arg: &str) -> u32 {
         if let Some(reader) = self.profile.readers().find(|&&r| r.id().as_str() == id) {
             self.io_cnt += 1;
-            let ctx = context::Context::new();
+            let ctx = self.profile.context();
             if let Ok(input) = reader.new_worker(&ctx, arg) {
                 self.store
                     .set_input(self.io_cnt, ReaderWorkerInput::new(input));
@@ -94,7 +86,7 @@ impl Session {
     pub fn create_writer(&mut self, id: &str, arg: &str, filter: Option<Box<Filter>>) -> u32 {
         if let Some(writer) = self.profile.writers().find(|&&r| r.id().as_str() == id) {
             self.io_cnt += 1;
-            let ctx = context::Context::new();
+            let ctx = self.profile.context();
             if let Ok(output) = writer.new_worker(&ctx, arg) {
                 self.store
                     .push_output(self.io_cnt, WriterWorkerOutput::new(output), filter);

@@ -162,6 +162,7 @@ mod tests {
     use layer::{Layer, LayerBuilder};
     use result::Result;
     use slice::Slice;
+    use std::collections::HashMap;
     use token::Token;
 
     #[test]
@@ -186,7 +187,7 @@ mod tests {
             }
         }
 
-        let ctx = Context::new();
+        let ctx = Context::new(HashMap::new());
         let mut diss = DissectorBox::new(TestDissector {});
         let mut worker = diss.new_worker("serial", &ctx).unwrap();
 

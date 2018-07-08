@@ -42,7 +42,7 @@ struct Arg {
 struct PcapReader {}
 
 impl Reader for PcapReader {
-    fn new_worker(&self, _ctx: &Context, arg: &str) -> Result<Box<ReaderWorker>> {
+    fn new_worker(&self, ctx: &Context, arg: &str) -> Result<Box<ReaderWorker>> {
         let arg: Arg = serde_json::from_str(arg)?;
         let mut child = Command::new(&arg.cmd)
             .args(&arg.args)
