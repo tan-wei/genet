@@ -1,8 +1,8 @@
 #include "module.hpp"
 #include "attr.hpp"
+#include "buffer.hpp"
 #include "exports.hpp"
 #include "frame.hpp"
-#include "iterator.hpp"
 #include "layer.hpp"
 #include "session.hpp"
 #include "token.hpp"
@@ -20,7 +20,7 @@ void Module::init(v8::Local<v8::Object> exports) {
   assert(!globalInstance);
   globalInstance = new Module();
   Token::init(exports);
-  IteratorWrapper::init(exports);
+  Buffer::init(exports);
   SessionProfileWrapper::init(exports);
   SessionWrapper::init(exports);
   LayerWrapper::init(exports);

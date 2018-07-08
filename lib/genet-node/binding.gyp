@@ -9,7 +9,7 @@
       "src/session.cpp",
       "src/attr.cpp",
       "src/token.cpp",
-      "src/iterator.cpp",
+      "src/buffer.cpp",
       "src/layer.cpp",
     ]
   },
