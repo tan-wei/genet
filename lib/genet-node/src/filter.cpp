@@ -9,7 +9,7 @@ bool FilterIsolate::test(const Frame *frame) {
   auto func = v8::Local<v8::Function>::New(isolate, testFunc);
   v8::Local<v8::Value> args[] = {FrameWrapper::wrap(frame)};
   auto result = func->Call(func, 1, args);
-  return result->BooleanValue();
+  return !result.IsEmpty() && result->BooleanValue();
 }
 
 FilterIsolate::FilterIsolate(const std::string &data) {

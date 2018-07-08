@@ -3,7 +3,7 @@ import Script from '../script'
 import objpath from 'object-path'
 import path from 'path'
 
-export default class TransformComponent extends BaseComponent {
+export default class MacroComponent extends BaseComponent {
   constructor (comp, dir) {
     super()
     const file = objpath.get(comp, 'main', '')

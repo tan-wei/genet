@@ -115,7 +115,7 @@ export default class Session {
     for (const file of libs) {
       profile.loadLibrary(file)
     }
-    return new native.Session(profile)
+    return new native.Session(profile, this[fields])
   }
 
   createFilterCompiler () {
