@@ -232,7 +232,7 @@ extern "C" fn abi_get(
     let value = unsafe { &(*attr).abi_unsafe_data.value };
     let decoder = unsafe { &(*attr).class.abi_unsafe_data.decoder };
     let slice = unsafe { Slice::from_raw_parts(*data, len as usize) };
-    let mut res = Ok(Variant::Nil);
+    let res;
     let result = if let Some(val) = value {
         Ok(val.as_ref())
     } else {
