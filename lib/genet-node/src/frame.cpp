@@ -68,6 +68,8 @@ NAN_GETTER(FrameWrapper::treeIndices) {
 }
 
 NAN_METHOD(FrameWrapper::query) {
+  static Token token_frame_index = genet_token_get("$.index");
+
   Token id = 0;
   if (info[0]->IsUint32()) {
     id = info[0]->Uint32Value();
@@ -80,6 +82,11 @@ NAN_METHOD(FrameWrapper::query) {
   }
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
   if (auto frame = wrapper->frame) {
+    if (id == token_frame_index) {
+      info.GetReturnValue().Set(genet_frame_index(frame));
+      return;
+    }
+
     uint32_t length = 0;
     auto layers = genet_frame_layers(frame, &length);
     for (uint32_t i = 0; i < length; ++i) {
