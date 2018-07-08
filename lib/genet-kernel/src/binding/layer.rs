@@ -1,4 +1,8 @@
-use genet_abi::{attr::Attr, layer::Layer, token::Token};
+use genet_abi::{
+    attr::Attr,
+    layer::{Layer, Payload},
+    token::Token,
+};
 use std::{mem, ptr};
 
 #[repr(C)]
@@ -26,26 +30,35 @@ pub extern "C" fn genet_layer_attr(layer: *const Layer, id: Token) -> *const Att
 #[no_mangle]
 pub extern "C" fn genet_layer_data(layer: *const Layer, len: *mut u64) -> *const u8 {
     unsafe {
-        let layer = &*layer;
-        *len = layer.data().len() as u64;
-        mem::transmute(layer.data().as_ptr())
+        let data = (*layer).data();
+        *len = data.len() as u64;
+        mem::transmute(data.as_ptr())
     }
 }
 
 #[no_mangle]
 pub extern "C" fn genet_layer_attrs(layer: *const Layer, len: *mut u32) -> *const *const Attr {
     unsafe {
-        let layer = &*layer;
-        *len = layer.attrs().len() as u32;
-        mem::transmute(layer.attrs().as_ptr())
+        let attrs = (*layer).attrs();
+        *len = attrs.len() as u32;
+        mem::transmute(attrs.as_ptr())
     }
 }
 
 #[no_mangle]
 pub extern "C" fn genet_layer_headers(layer: *const Layer, len: *mut u32) -> *const *const Attr {
     unsafe {
-        let layer = &*layer;
-        *len = layer.headers().len() as u32;
-        mem::transmute(layer.headers().as_ptr())
+        let headers = (*layer).headers();
+        *len = headers.len() as u32;
+        mem::transmute(headers.as_ptr())
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn genet_layer_payloads(layer: *const Layer, len: *mut u32) -> *const Payload {
+    unsafe {
+        let payloads = (*layer).payloads();
+        *len = payloads.len() as u32;
+        payloads.as_ptr()
     }
 }

@@ -23,7 +23,11 @@ struct UdpWorker {}
 
 impl Worker for UdpWorker {
     fn analyze(&mut self, parent: &mut Layer) -> Result<Status> {
-        if let Some(payload) = parent.payloads().iter().find(|p| p.typ() == token!("udp")) {
+        if let Some(payload) = parent
+            .payloads()
+            .iter()
+            .find(|p| p.typ() == token!("@data:udp"))
+        {
             let mut layer = Layer::new(&UDP_CLASS, payload.data());
             Ok(Status::Done(vec![layer]))
         } else {

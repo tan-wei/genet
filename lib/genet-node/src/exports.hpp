@@ -45,6 +45,12 @@ struct Variant {
   char *data;
 };
 
+struct Payload {
+  char *data;
+  uint64_t len;
+  Token type;
+};
+
 const char *genet_embedded_js();
 
 void genet_str_free(char *data);
@@ -62,6 +68,7 @@ const Attr *genet_layer_attr(const Layer *layer, Token id);
 char *genet_layer_data(const Layer *layer, uint64_t *len);
 Attr const *const *genet_layer_attrs(const Layer *layer, uint32_t *len);
 Attr const *const *genet_layer_headers(const Layer *layer, uint32_t *len);
+const Payload *genet_layer_payloads(const Layer *layer, uint32_t *len);
 
 uint32_t genet_frame_index(const Frame *frame);
 Layer const *const *genet_frame_layers(const Frame *frame, uint32_t *len);

@@ -82,11 +82,11 @@ lazy_static! {
         .decoder(decoder::UInt16BE())
         .build();
     static ref TYPE_MAP: HashMap<u64, (Token, Ptr<AttrClass>)> = hashmap!{
-        0x0800 => (token!("ipv4"), AttrBuilder::new("eth.type.ipv4").typ("@novalue").decoder(decoder::Const(true)).build()),
-        0x0806 => (token!("arp"), AttrBuilder::new("eth.type.arp").typ("@novalue").decoder(decoder::Const(true)).build()),
-        0x0842 => (token!("wol"), AttrBuilder::new("eth.type.wol").typ("@novalue").decoder(decoder::Const(true)).build()),
-        0x86DD => (token!("ipv6"), AttrBuilder::new("eth.type.ipv6").typ("@novalue").decoder(decoder::Const(true)).build()),
-        0x888E => (token!("eap"), AttrBuilder::new("eth.type.eap").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x0800 => (token!("@data:ipv4"), AttrBuilder::new("eth.type.ipv4").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x0806 => (token!("@data:arp"), AttrBuilder::new("eth.type.arp").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x0842 => (token!("@data:wol"), AttrBuilder::new("eth.type.wol").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x86DD => (token!("@data:ipv6"), AttrBuilder::new("eth.type.ipv6").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x888E => (token!("@data:eap"), AttrBuilder::new("eth.type.eap").typ("@novalue").decoder(decoder::Const(true)).build()),
     };
 }
 

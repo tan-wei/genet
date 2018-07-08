@@ -24,7 +24,11 @@ struct IPv4Worker {}
 
 impl Worker for IPv4Worker {
     fn analyze(&mut self, parent: &mut Layer) -> Result<Status> {
-        if let Some(payload) = parent.payloads().iter().find(|p| p.typ() == token!("ipv4")) {
+        if let Some(payload) = parent
+            .payloads()
+            .iter()
+            .find(|p| p.typ() == token!("@data:ipv4"))
+        {
             let mut layer = Layer::new(&IPV4_CLASS, payload.data());
             let proto_attr = Attr::new(&PROTO_ATTR, 9..10);
             let proto = proto_attr.get(&layer)?.get_u64()?;
@@ -123,10 +127,10 @@ lazy_static! {
         .decoder(decoder::Slice())
         .build();
     static ref PROTO_MAP: HashMap<u64, (Token, Ptr<AttrClass>)> = hashmap!{
-        0x01 => (token!("icmp"), AttrBuilder::new("ipv4.protocol.icmp").typ("@novalue").decoder(decoder::Const(true)).build()),
-        0x02 => (token!("igmp"), AttrBuilder::new("ipv4.protocol.igmp").typ("@novalue").decoder(decoder::Const(true)).build()),
-        0x06 => (token!("tcp"), AttrBuilder::new("ipv4.protocol.tcp").typ("@novalue").decoder(decoder::Const(true)).build()),
-        0x11 => (token!("udp"), AttrBuilder::new("ipv4.protocol.udp").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x01 => (token!("@data:icmp"), AttrBuilder::new("ipv4.protocol.icmp").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x02 => (token!("@data:igmp"), AttrBuilder::new("ipv4.protocol.igmp").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x06 => (token!("@data:tcp"), AttrBuilder::new("ipv4.protocol.tcp").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x11 => (token!("@data:udp"), AttrBuilder::new("ipv4.protocol.udp").typ("@novalue").decoder(decoder::Const(true)).build()),
     };
 }
 genet_dissectors!(IPv4Dissector {});

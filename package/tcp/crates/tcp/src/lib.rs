@@ -23,7 +23,11 @@ struct TcpWorker {}
 
 impl Worker for TcpWorker {
     fn analyze(&mut self, parent: &mut Layer) -> Result<Status> {
-        if let Some(payload) = parent.payloads().iter().find(|p| p.typ() == token!("tcp")) {
+        if let Some(payload) = parent
+            .payloads()
+            .iter()
+            .find(|p| p.typ() == token!("@data:tcp"))
+        {
             let mut layer = Layer::new(&TCP_CLASS, payload.data());
 
             let offset_attr = Attr::new(&OFFSET_ATTR, 12..13);

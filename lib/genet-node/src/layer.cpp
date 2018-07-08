@@ -96,9 +96,23 @@ NAN_GETTER(LayerWrapper::attrs) {
 }
 
 NAN_GETTER(LayerWrapper::payloads) {
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->layer.getConst()) {
-    auto array = Nan::New<v8::Array>(0);
+    uint32_t length = 0;
+    auto payloads = genet_layer_payloads(layer, &length);
+    auto array = Nan::New<v8::Array>(length);
+    for (uint32_t index = 0; index < length; ++index) {
+      const Payload &paylaod = payloads[index];
+      auto obj = Nan::New<v8::Object>();
+      auto type = Nan::New(genet_token_string(paylaod.type)).ToLocalChecked();
+      auto data = v8::Uint8Array::New(
+          v8::ArrayBuffer::New(isolate, paylaod.data, paylaod.len), 0,
+          paylaod.len);
+      obj->Set(Nan::New("type").ToLocalChecked(), type);
+      obj->Set(Nan::New("data").ToLocalChecked(), data);
+      array->Set(index, obj);
+    }
     info.GetReturnValue().Set(array);
   }
 }
