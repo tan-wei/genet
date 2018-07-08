@@ -125,11 +125,11 @@ impl store::Callback for StoreCallback {
     }
 
     fn on_output_done(&self, id: u32, error: Option<Box<::std::error::Error + Send>>) {
-        self.callback.on_event(Event::Input(id, error));
+        self.callback.on_event(Event::Output(id, error));
     }
 
     fn on_input_done(&self, id: u32, error: Option<Box<::std::error::Error + Send>>) {
-        self.callback.on_event(Event::Output(id, error));
+        self.callback.on_event(Event::Input(id, error));
     }
 }
 
