@@ -74,11 +74,14 @@ impl Session {
         if let Some(reader) = self.profile.readers().find(|&&r| r.id().as_str() == id) {
             self.io_cnt += 1;
             let ctx = self.profile.context();
-            if let Ok(input) = reader.new_worker(&ctx, arg) {
-                self.store
-                    .set_input(self.io_cnt, ReaderWorkerInput::new(input));
+            match reader.new_worker(&ctx, arg) {
+                Ok(input) => {
+                    self.store
+                        .set_input(self.io_cnt, ReaderWorkerInput::new(input));
+                    return self.io_cnt;
+                }
+                Err(err) => eprintln!("{:?}", err),
             }
-            return self.io_cnt;
         }
         0
     }
@@ -87,10 +90,13 @@ impl Session {
         if let Some(writer) = self.profile.writers().find(|&&r| r.id().as_str() == id) {
             self.io_cnt += 1;
             let ctx = self.profile.context();
-            if let Ok(output) = writer.new_worker(&ctx, arg) {
-                self.store
-                    .push_output(self.io_cnt, WriterWorkerOutput::new(output), filter);
-                return self.io_cnt;
+            match writer.new_worker(&ctx, arg) {
+                Ok(output) => {
+                    self.store
+                        .push_output(self.io_cnt, WriterWorkerOutput::new(output), filter);
+                    return self.io_cnt;
+                }
+                Err(err) => eprintln!("{:?}", err),
             }
         }
         0

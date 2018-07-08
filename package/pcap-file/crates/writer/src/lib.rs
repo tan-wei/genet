@@ -41,7 +41,7 @@ struct PcapFileWriter {}
 
 impl Writer for PcapFileWriter {
     fn new_worker(&self, _ctx: &Context, arg: &str) -> Result<Box<WriterWorker>> {
-        let arg: Arg = serde_json::from_str(arg).unwrap();
+        let arg: Arg = serde_json::from_str(arg)?;
         let file = File::create(&arg.file)?;
         let mut writer = BufWriter::new(file);
         writer.write_all(&[0x4d, 0x3c, 0xb2, 0xa1])?;
@@ -82,22 +82,26 @@ impl PcapFileWriterWorker {
 
 impl WriterWorker for PcapFileWriterWorker {
     fn write(&mut self, index: u32, parent: Option<&Layer>, layer: &Layer) -> Result<()> {
-        let _ = self.write_header(0, 0)?;
         if parent.is_none() {
             let incl_len = layer.data().len();
             let mut orig_len = 0;
             let mut ts_sec = 0;
             let mut ts_usec = 0;
+            let mut link = 0;
 
-            for attr in layer.attrs().iter() {
+            for attr in layer.attrs().iter().chain(layer.headers().iter()) {
                 if (attr.id() == token!("link.length")) {
                     orig_len = attr.get(layer)?.get_u64()?;
+                } else if (attr.id() == token!("link.type")) {
+                    link = attr.get(layer)?.get_u64()?;
                 } else if (attr.id() == token!("link.timestamp.sec")) {
                     ts_sec = attr.get(layer)?.get_u64()?;
                 } else if (attr.id() == token!("link.timestamp.usec")) {
                     ts_usec = attr.get(layer)?.get_u64()?;
                 }
             }
+
+            let _ = self.write_header(0, link as u32)?;
 
             self.writer.write_u32::<LittleEndian>(ts_sec as u32)?;
             self.writer.write_u32::<LittleEndian>(ts_usec as u32)?;

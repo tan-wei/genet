@@ -55,7 +55,7 @@ impl Reader for PcapReader {
                 .ok_or_else(|| Error::new(ErrorKind::Other, "no stdout"))?,
         );
         let link_class = LayerBuilder::new(format!("[link-{}]", arg.link))
-            .header(Attr::with_value(&TYPE_CLASS, 0..0, arg.link as i64))
+            .header(Attr::with_value(&TYPE_CLASS, 0..0, arg.link as u64))
             .build();
         Ok(Box::new(PcapReaderWorker {
             child,

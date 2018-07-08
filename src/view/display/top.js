@@ -152,16 +152,17 @@ export default class TopView {
       }
     })
     genet.action.global.on('core:file:export', () => {
+      this.sess.createWriter('pcap-file', '{"file": "x.pcap"}', '$.index == 2')
       const outputDialog = new Dialog(OutputDialog,
         {
           displayFilter: this.displayFilter,
           checkedFrames: this.viewState.checkedFrames,
         })
-        outputDialog.show({ cancelable: true }).then(async (filter) => {
+      outputDialog.show({ cancelable: true }).then(async (filter) => {
         const file = dialog.showSaveDialog(
           { filters: genet.session.fileExtensions.exporter })
         if (typeof file !== 'undefined') {
-          this.sess.exportFile(file, filter).then(() => {
+          this.sess.createWriter(file, filter).then(() => {
             genet.notify.show(file, {
               type: 'sussess',
               title: 'Exported',

@@ -43,7 +43,7 @@ struct PcapFileReader {}
 
 impl Reader for PcapFileReader {
     fn new_worker(&self, _ctx: &Context, arg: &str) -> Result<Box<ReaderWorker>> {
-        let arg: Arg = serde_json::from_str(arg).unwrap();
+        let arg: Arg = serde_json::from_str(arg)?;
         let file = File::open(&arg.file)?;
         let mut reader = BufReader::new(file);
 
