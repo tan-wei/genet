@@ -4,7 +4,7 @@ use error::Error;
 use layer::Layer;
 use ptr::Ptr;
 use result::Result;
-use slice::Slice;
+use slice::{Slice, SliceIndex};
 use std::{fmt, mem, ops::Range, slice};
 use token::Token;
 use variant::Variant;
@@ -94,6 +94,18 @@ pub struct AttrBuilder {
     decoder: Box<Decoder>,
 }
 
+#[derive(Clone)]
+pub struct RangeDecoder {
+    decoder: Box<Decoder>,
+    range: Range<usize>,
+}
+
+impl Decoder for RangeDecoder {
+    fn decode(&self, data: &Slice) -> ::std::io::Result<Variant> {
+        self.decoder.decode(&data.get(self.range.clone())?)
+    }
+}
+
 impl AttrBuilder {
     pub fn new<T: Into<Token>>(id: T) -> AttrBuilder {
         Self {
@@ -110,6 +122,14 @@ impl AttrBuilder {
 
     pub fn decoder<T: Decoder>(mut self, decoder: T) -> AttrBuilder {
         self.decoder = decoder.clone_box();
+        self
+    }
+
+    pub fn decoder_range<T: Decoder>(mut self, decoder: T, range: Range<usize>) -> AttrBuilder {
+        self.decoder = Box::new(RangeDecoder {
+            decoder: decoder.clone_box(),
+            range,
+        });
         self
     }
 
@@ -167,7 +187,7 @@ impl AttrClass {
 
     fn get(&self, attr: &Attr, layer: &Layer) -> Result<Variant> {
         let data = layer.data();
-        let data = if let Some(data) = data.get(self.range(attr)) {
+        let data = if let Ok(data) = data.get(self.range(attr)) {
             data
         } else {
             return Err(Box::new(Error::new("out of bounds")));
