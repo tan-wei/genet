@@ -18,6 +18,7 @@ public:
   static NAN_GETTER(id);
   static NAN_METHOD(attr);
   static NAN_GETTER(attrs);
+  static NAN_GETTER(payloads);
   static NAN_GETTER(data);
 
 public:

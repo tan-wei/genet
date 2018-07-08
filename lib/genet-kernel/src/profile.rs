@@ -1,4 +1,5 @@
 use genet_abi::{
+    context::Context,
     dissector::DissectorBox,
     env::{self, Allocator},
     io::{ReaderBox, WriterBox},
@@ -64,6 +65,10 @@ impl Profile {
 
     pub fn writers(&self) -> impl Iterator<Item = &WriterBox> {
         self.writers.iter()
+    }
+
+    pub fn context(&self) -> Context {
+        Context::new()
     }
 
     pub fn load_library(&mut self, path: &str) -> Result<(), io::Error> {

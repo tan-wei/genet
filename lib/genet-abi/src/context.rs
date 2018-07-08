@@ -1,4 +1,5 @@
 use ptr::MutPtr;
+use std::collections::HashMap;
 
 #[repr(C)]
 pub struct Context {
@@ -6,13 +7,17 @@ pub struct Context {
     abi_unsafe_data: MutPtr<ContextData>,
 }
 
-struct ContextData {}
+struct ContextData {
+    config: HashMap<String, String>,
+}
 
 impl Context {
     pub fn new() -> Context {
         Self {
             class: &CONTEXT_CLASS,
-            abi_unsafe_data: MutPtr::new(ContextData {}),
+            abi_unsafe_data: MutPtr::new(ContextData {
+                config: HashMap::new(),
+            }),
         }
     }
 }

@@ -15,7 +15,7 @@ impl Dispatcher {
     pub fn new(typ: &str, profile: Profile) -> Dispatcher {
         let mut runners = profile
             .dissectors()
-            .map(|d| Runner::new(typ, d.clone()))
+            .map(|d| Runner::new(typ, profile.context(), d.clone()))
             .collect();
         Dispatcher { runners }
     }
@@ -54,9 +54,9 @@ struct Runner {
 }
 
 impl Runner {
-    fn new(typ: &str, dissector: DissectorBox) -> Runner {
+    fn new(typ: &str, ctx: Context, dissector: DissectorBox) -> Runner {
         let mut runner = Runner {
-            ctx: Context::new(),
+            ctx,
             typ: typ.to_string(),
             dissector,
             worker: None,

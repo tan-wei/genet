@@ -18,6 +18,7 @@ void LayerWrapper::init(v8::Local<v8::Object> exports) {
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("id").ToLocalChecked(), id);
   Nan::SetAccessor(otl, Nan::New("attrs").ToLocalChecked(), attrs);
+  Nan::SetAccessor(otl, Nan::New("payloads").ToLocalChecked(), payloads);
   Nan::SetAccessor(otl, Nan::New("data").ToLocalChecked(), data);
 
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
@@ -90,6 +91,14 @@ NAN_GETTER(LayerWrapper::attrs) {
     for (uint32_t index = 0; index < attrLength; ++index) {
       array->Set(index + headerLength, AttrWrapper::wrap(attrs[index], layer));
     }
+    info.GetReturnValue().Set(array);
+  }
+}
+
+NAN_GETTER(LayerWrapper::payloads) {
+  LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
+  if (auto layer = wrapper->layer.getConst()) {
+    auto array = Nan::New<v8::Array>(0);
     info.GetReturnValue().Set(array);
   }
 }
