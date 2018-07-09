@@ -39,16 +39,29 @@ impl Worker for TcpWorker {
                         continue;
                     }
                     2 => {
-                        layer.add_attr(Attr::new(&OPTIONS_MSS_ATTR, offset + 2..offset + 4));
+                        layer.add_attr(Attr::new(&OPTIONS_MSS_ATTR, offset..offset + len));
                     }
                     3 => {
-                        layer.add_attr(Attr::new(&OPTIONS_SCALE_ATTR, offset + 2..offset + 3));
+                        layer.add_attr(Attr::new(&OPTIONS_SCALE_ATTR, offset..offset + len));
+                    }
+                    4 => {
+                        layer.add_attr(Attr::new(&OPTIONS_SACKP_ATTR, offset..offset + len));
+                    }
+                    5 => {
+                        layer.add_attr(Attr::new(&OPTIONS_SACK_ATTR, offset..offset + len));
+                    }
+                    8 => {
+                        layer.add_attr(Attr::new(&OPTIONS_TS_ATTR, offset..offset + len));
+                        layer.add_attr(Attr::new(&OPTIONS_TS_MY_ATTR, offset + 2..offset + 6));
+                        layer.add_attr(Attr::new(&OPTIONS_TS_ECHO_ATTR, offset + 6..offset + 10));
                     }
                     _ => {}
                 }
                 offset += len;
             }
 
+            let payload = layer.data().get(data_offset..)?;
+            layer.add_payload(payload, token!("@data:tcp"));
             Ok(Status::Done(vec![layer]))
         } else {
             Ok(Status::Skip)
@@ -159,26 +172,28 @@ lazy_static! {
         .decoder(decoder::Const(true))
         .build();
     static ref OPTIONS_MSS_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.mss")
-        .decoder(decoder::UInt16BE())
+        .decoder(decoder::Ranged(decoder::UInt16BE(), 2..))
         .build();
     static ref OPTIONS_SCALE_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.scale")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::Ranged(decoder::UInt8(), 2..))
         .build();
     static ref OPTIONS_SACKP_ATTR: Ptr<AttrClass> = AttrBuilder::new(
         "tcp.options.selectiveAckPermitted"
-    ).decoder(decoder::UInt8())
+    ).typ("@novalue")
+        .decoder(decoder::Const(true))
         .build();
     static ref OPTIONS_SACK_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.selectiveAck")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::Ranged(decoder::Slice(), 2..))
         .build();
     static ref OPTIONS_TS_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.ts")
-        .decoder(decoder::UInt8())
+        .typ("@nested")
+        .decoder(decoder::Const(true))
         .build();
     static ref OPTIONS_TS_MY_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.ts.my")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt32BE())
         .build();
     static ref OPTIONS_TS_ECHO_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.ts.echo")
-        .decoder(decoder::UInt8())
+        .decoder(decoder::UInt32BE())
         .build();
 }
 

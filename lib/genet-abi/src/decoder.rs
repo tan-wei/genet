@@ -1,5 +1,9 @@
 use slice::{self, SliceIndex};
-use std::{convert::Into, io::Result, ops::Range};
+use std::{
+    convert::Into,
+    io::Result,
+    ops::{Range, RangeFrom, RangeFull, RangeInclusive, RangeTo, RangeToInclusive},
+};
 use variant::Variant;
 
 pub trait Decoder: Send + Sync + DecoderClone {
@@ -109,16 +113,31 @@ impl<T: Into<Variant> + Clone> Typed for Const<T> {
 }
 
 #[derive(Clone)]
-pub struct Ranged<T>(pub T, pub Range<usize>);
+pub struct Ranged<T, R>(pub T, pub R);
 
-impl<T, X> Typed for Ranged<T>
-where
-    T: 'static + Typed<Output = X> + Clone,
-    X: Into<Variant>,
-{
-    type Output = X;
+macro_rules! impl_ranged {
+    ( $( $x:ty ), * ) => {
+        $(
+            impl<T, X> Typed for Ranged<T, $x>
+            where
+                T: 'static + Typed<Output = X> + Clone,
+                X: Into<Variant>,
+            {
+                type Output = X;
 
-    fn decode(&self, data: &slice::Slice) -> Result<Self::Output> {
-        self.0.decode(&data.get(self.1.clone())?)
-    }
+                fn decode(&self, data: &slice::Slice) -> Result<Self::Output> {
+                    self.0.decode(&data.get(self.1.clone())?)
+                }
+            }
+        )*
+    };
 }
+
+impl_ranged!(
+    Range<usize>,
+    RangeFrom<usize>,
+    RangeFull,
+    RangeInclusive<usize>,
+    RangeTo<usize>,
+    RangeToInclusive<usize>
+);
