@@ -12,19 +12,10 @@ extern crate lazy_static;
 extern crate serde_derive;
 
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
-
 use genet_sdk::{
-    attr::{Attr, AttrBuilder, AttrClass},
-    context::Context,
     io::{Reader, ReaderWorker},
-    layer::{Layer, LayerBuilder, LayerClass},
-    ptr::Ptr,
-    result::Result,
-    slice::Slice,
-    token,
-    variant::Variant,
+    prelude::*,
 };
-
 use std::{
     fs::File,
     io::{self, BufRead, BufReader, Error, ErrorKind, Read},

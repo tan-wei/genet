@@ -12,17 +12,9 @@ extern crate lazy_static;
 extern crate serde_derive;
 
 use byteorder::{BigEndian, LittleEndian, WriteBytesExt};
-
 use genet_sdk::{
-    attr::{Attr, AttrBuilder, AttrClass},
-    context::Context,
     io::{Writer, WriterWorker},
-    layer::{Layer, LayerBuilder, LayerClass},
-    ptr::Ptr,
-    result::Result,
-    slice::Slice,
-    token,
-    variant::Variant,
+    prelude::*,
 };
 
 use std::{
@@ -90,13 +82,13 @@ impl WriterWorker for PcapFileWriterWorker {
             let mut link = 0;
 
             for attr in layer.attrs().iter().chain(layer.headers().iter()) {
-                if (attr.id() == token!("link.length")) {
+                if attr.id() == token!("link.length") {
                     orig_len = attr.get(layer)?.get_u64()?;
-                } else if (attr.id() == token!("link.type")) {
+                } else if attr.id() == token!("link.type") {
                     link = attr.get(layer)?.get_u64()?;
-                } else if (attr.id() == token!("link.timestamp.sec")) {
+                } else if attr.id() == token!("link.timestamp.sec") {
                     ts_sec = attr.get(layer)?.get_u64()?;
-                } else if (attr.id() == token!("link.timestamp.usec")) {
+                } else if attr.id() == token!("link.timestamp.usec") {
                     ts_usec = attr.get(layer)?.get_u64()?;
                 }
             }

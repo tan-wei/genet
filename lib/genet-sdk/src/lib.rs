@@ -10,6 +10,7 @@ pub mod context;
 pub mod decoder;
 pub mod error;
 pub mod layer;
+pub mod prelude;
 pub mod ptr;
 pub mod result;
 pub mod slice;
