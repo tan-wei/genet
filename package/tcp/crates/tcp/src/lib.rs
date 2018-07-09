@@ -4,11 +4,7 @@ extern crate genet_sdk;
 #[macro_use]
 extern crate lazy_static;
 
-#[macro_use]
-extern crate maplit;
-
 use genet_sdk::prelude::*;
-use std::collections::HashMap;
 
 struct TcpWorker {}
 
@@ -22,7 +18,8 @@ impl Worker for TcpWorker {
             let mut layer = Layer::new(&TCP_CLASS, payload.data());
 
             let offset_attr = Attr::new(&OFFSET_ATTR, 12..13);
-            let data_offset = (offset_attr.get(&layer)?.get_u64()? * 4) as usize;
+            let data_offset: usize = offset_attr.get(&layer)?.get()?;
+            let data_offset = data_offset * 4;
             let mut offset = 20;
 
             while offset < data_offset {

@@ -83,13 +83,13 @@ impl WriterWorker for PcapFileWriterWorker {
 
             for attr in layer.attrs().iter().chain(layer.headers().iter()) {
                 if attr.id() == token!("link.length") {
-                    orig_len = attr.get(layer)?.get_u64()?;
+                    orig_len = attr.get(layer)?.get()?;
                 } else if attr.id() == token!("link.type") {
-                    link = attr.get(layer)?.get_u64()?;
+                    link = attr.get(layer)?.get()?;
                 } else if attr.id() == token!("link.timestamp.sec") {
-                    ts_sec = attr.get(layer)?.get_u64()?;
+                    ts_sec = attr.get(layer)?.get()?;
                 } else if attr.id() == token!("link.timestamp.usec") {
-                    ts_usec = attr.get(layer)?.get_u64()?;
+                    ts_usec = attr.get(layer)?.get()?;
                 }
             }
 

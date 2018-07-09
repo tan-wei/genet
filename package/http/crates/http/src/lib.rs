@@ -18,7 +18,7 @@ impl Worker for EthWorker {
             let mut layer = Layer::new(&ETH_CLASS, parent.data());
             let len_attr = Attr::new(&LEN_ATTR, 12..14);
             let typ_attr = Attr::new(&TYPE_ATTR, 12..14);
-            let len = len_attr.get(&layer)?.get_u64()?;
+            let len = len_attr.get(&layer)?.get()?;
             if len <= 1500 {
                 layer.add_attr(len_attr);
             } else {

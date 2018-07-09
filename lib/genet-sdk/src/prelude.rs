@@ -7,3 +7,4 @@ pub use ptr::Ptr;
 pub use result::Result;
 pub use slice::{Slice, SliceIndex};
 pub use token::{self, Token};
+pub use variant::Value;
