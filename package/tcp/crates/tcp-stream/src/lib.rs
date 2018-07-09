@@ -48,7 +48,7 @@ impl Dissector for TcpDissector {
 lazy_static! {
     static ref STREAM_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.stream")
         .typ("@novalue")
-        .decoder(decoder::Const(true))
+        .decoder(decoder::Ranged(decoder::UInt8(), 0..0).map(|v| v))
         .build();
 }
 

@@ -1,5 +1,5 @@
-use slice;
-use std::{convert::Into, io::Result};
+use slice::{self, SliceIndex};
+use std::{convert::Into, io::Result, ops::Range};
 use variant::Variant;
 
 pub trait Decoder: Send + Sync + DecoderClone {
@@ -105,5 +105,20 @@ impl<T: Into<Variant> + Clone> Typed for Const<T> {
 
     fn decode(&self, _data: &slice::Slice) -> Result<T> {
         Ok(self.0.clone())
+    }
+}
+
+#[derive(Clone)]
+pub struct Ranged<T>(pub T, pub Range<usize>);
+
+impl<T, X> Typed for Ranged<T>
+where
+    T: 'static + Typed<Output = X> + Clone,
+    X: Into<Variant>,
+{
+    type Output = X;
+
+    fn decode(&self, data: &slice::Slice) -> Result<Self::Output> {
+        self.0.decode(&data.get(self.1.clone())?)
     }
 }
