@@ -109,12 +109,14 @@ export default class Session {
   async create () {
     const { config, libs } = this[fields]
     const profile = new native.Session.Profile()
+    profile.concurrency = genet.config.get('_.dissector.concurrency')
     for (const [key, value] of Object.entries(config.toJSON())) {
       profile.setConfig(key, JSON.stringify(value))
     }
     for (const file of libs) {
       profile.loadLibrary(file)
     }
+    console.log(profile)
     return new native.Session(profile, this[fields])
   }
 

@@ -7,6 +7,7 @@ use genet_abi::{
     token::Token,
 };
 use libloading::Library;
+use num_cpus;
 use std::{collections::HashMap, fmt, io, mem, ops::Deref};
 
 #[derive(Clone)]
@@ -36,9 +37,11 @@ impl Profile {
     }
 
     pub fn set_concurrency(&mut self, concurrency: u32) {
-        if concurrency > 0 {
-            self.concurrency = concurrency;
-        }
+        self.concurrency = if concurrency > 0 {
+            concurrency
+        } else {
+            num_cpus::get() as u32
+        };
     }
 
     pub fn concurrency(&self) -> u32 {

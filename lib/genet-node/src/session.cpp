@@ -20,6 +20,10 @@ void SessionProfileWrapper::init(v8::Local<v8::Object> exports) {
   Nan::SetPrototypeMethod(tpl, "setConfig", setConfig);
   Nan::SetPrototypeMethod(tpl, "loadLibrary", loadLibrary);
 
+  v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
+  Nan::SetAccessor(otl, Nan::New("concurrency").ToLocalChecked(), concurrency,
+                   setConcurrency);
+
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   auto ctor = Nan::GetFunction(tpl).ToLocalChecked();
   auto &cls = Module::current().get(Module::CLASS_SESSION_PROFILE);
@@ -67,6 +71,26 @@ NAN_METHOD(SessionProfileWrapper::loadLibrary) {
       Nan::ThrowError(Nan::New(error).ToLocalChecked());
       genet_str_free(error);
     }
+  }
+}
+
+NAN_GETTER(SessionProfileWrapper::concurrency) {
+  if (auto wrapper =
+          Nan::ObjectWrap::Unwrap<SessionProfileWrapper>(info.Holder())) {
+    info.GetReturnValue().Set(
+        genet_session_profile_concurrency(wrapper->profile.getConst()));
+  }
+}
+
+NAN_SETTER(SessionProfileWrapper::setConcurrency) {
+  if (!value->IsUint32()) {
+    Nan::ThrowTypeError("Value must be an integer");
+    return;
+  }
+  if (auto wrapper =
+          Nan::ObjectWrap::Unwrap<SessionProfileWrapper>(info.Holder())) {
+    genet_session_profile_set_concurrency(wrapper->profile.get(),
+                                          value->Uint32Value());
   }
 }
 

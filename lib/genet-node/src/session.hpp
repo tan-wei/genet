@@ -21,6 +21,8 @@ public:
   static NAN_METHOD(New);
   static NAN_METHOD(setConfig);
   static NAN_METHOD(loadLibrary);
+  static NAN_GETTER(concurrency);
+  static NAN_SETTER(setConcurrency);
 
 public:
   ~SessionProfileWrapper();
