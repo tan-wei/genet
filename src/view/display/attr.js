@@ -1,7 +1,8 @@
 import { AttributeValueItem } from './value'
+import { Slice } from '@genet/load-module'
 import m from 'mithril'
 
-function selectRange (range = []) {
+function selectRange (range = null) {
   genet.action.emit('core:frame:range-selected', range)
 }
 
@@ -27,6 +28,7 @@ export default class AttributeItem {
   view (vnode) {
     const { item, layer } = vnode.attrs
     const { attr, children } = item
+    const addr = Number.parseInt(Slice.address(layer.data), 10)
     let faClass = 'attribute'
     if (children.length) {
       faClass = 'attribute children'
@@ -38,10 +40,10 @@ export default class AttributeItem {
       m('details', [
         m('summary', {
           class: faClass,
-          onmouseover: () => selectRange([
-            layer.range[0] + attr.range[0],
-            layer.range[0] + attr.range[1]
-          ]),
+          onmouseover: () => selectRange({
+            base: addr + attr.range[0],
+            length: attr.range[1] - attr.range[0],
+          }),
           onmouseout: () => selectRange(),
           oncontextmenu: (event) => {
             const filter = filterExpression(attr)

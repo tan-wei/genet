@@ -1,11 +1,12 @@
 import { BufferValueItem, AttributeValueItem } from './value'
 import AttributeItem from './attr'
 import DefaultSummary from './default-summary'
+import { Slice } from '@genet/load-module'
 import m from 'mithril'
 import moment from '@deplug/moment.min'
 
 let selectedLayer = null
-function selectRange (range = []) {
+function selectRange (range = null) {
   genet.action.emit('core:frame:range-selected', range)
 }
 
@@ -26,20 +27,7 @@ function mergeOrphanedItems (item) {
 class LayerItem {
   view (vnode) {
     const { layer } = vnode.attrs
-    const dataOffset = 0
-
-    /*
-    If (layer.parent) {
-      const [parentPayload] = layer.parent.payloads
-      const parentAddr = parentPayload.slices[0].addr
-      let rootPayload = parentPayload
-      for (let { parent } = layer.parent; parent; { parent } = parent) {
-        [rootPayload] = parent.payloads
-      }
-      const rootAddr = rootPayload.slices[0].addr
-      dataOffset = parentAddr[1] - rootAddr[1]
-    }
-    */
+    const addr = Number.parseInt(Slice.address(layer.data), 10)
     const name = genet.session.tokenName(layer.id)
 
     const attrArray = [{
@@ -102,7 +90,10 @@ class LayerItem {
                 return false
               }
             },
-            onmouseover: () => selectRange(layer.range),
+            onmouseover: () => selectRange({
+              base: addr,
+              length: layer.data.length,
+            }),
             onmouseout: () => selectRange(),
             oncontextmenu: (event) => {
               genet.menu.showContextMenu(event, [
@@ -158,12 +149,14 @@ class LayerItem {
               m(AttributeItem, {
                 item,
                 layer,
-                dataOffset,
               })),
           m('ul', { class: 'metadata' }, [
             layer.payloads.map(
               (payload) => m('li', {
-                onmouseover: () => selectRange(payload.range),
+                onmouseover: () => selectRange({
+                  base: Number.parseInt(Slice.address(payload.data), 10),
+                  length: payload.data.length,
+                }),
                 onmouseout: () => selectRange(),
               }, [
                 m('detail', [

@@ -1,13 +1,14 @@
 const m = require('mithril')
+const { Slice } = require('@genet/load-module')
 class BinaryItem {
   constructor () {
     this.range = [-1, -1]
   }
   oncreate () {
     genet.action.on('core:frame:range-selected', (range) => {
-      this.range = range.length === 2
-        ? range
-        : [-1, -1]
+      this.range = range === null
+        ? [-1, -1]
+        : [range.base, range.base + range.length]
       m.redraw()
     })
   }
@@ -16,6 +17,8 @@ class BinaryItem {
     const showHex = true
     const showAscii = true
     const { payload } = vnode.attrs
+    const base = Number.parseInt(Slice.address(payload), 10)
+    const range = [this.range[0] - base, this.range[1] - base]
     return m('div', { class: 'binary-view' }, [
       m('ul', {
         class: 'hex-list',
@@ -35,7 +38,7 @@ class BinaryItem {
                   return m('span',
                     {
                       'data-selected':
-                  this.range[0] <= index && index < this.range[1],
+                  range[0] <= index && index < range[1],
                     },
                     [(`0${payload[index].toString(16)}`).slice(-2)])
                 })
@@ -64,7 +67,7 @@ class BinaryItem {
                   return m('span',
                     {
                       'data-selected':
-                      this.range[0] <= index && index < this.range[1],
+                      range[0] <= index && index < range[1],
                     },
                     [ascii])
                 })
