@@ -21,7 +21,7 @@ impl Worker for IPv6Worker {
         {
             let mut layer = Layer::new(&IPV6_CLASS, payload.data());
             let nheader_attr = Attr::new(&NHEADER_ATTR, 6..7);
-            let nheader = nheader_attr.get(&layer)?.get()?;
+            let nheader = nheader_attr.get(&layer)?.try_into()?;
 
             loop {
                 match nheader {
@@ -40,7 +40,7 @@ impl Worker for IPv6Worker {
 
             let range = nheader_attr.range();
             let proto_attr = Attr::new(&PROTOCOL_ATTR, range.clone());
-            let proto = proto_attr.get(&layer)?.get()?;
+            let proto = proto_attr.get(&layer)?.try_into()?;
             layer.add_attr(proto_attr);
             if let Some((typ, attr)) = PROTO_MAP.get(&proto) {
                 layer.add_attr(Attr::new(attr, range.clone()));

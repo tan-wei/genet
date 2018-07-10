@@ -18,7 +18,7 @@ impl Worker for TcpWorker {
             let mut layer = Layer::new(&TCP_CLASS, payload.data());
 
             let offset_attr = Attr::new(&OFFSET_ATTR, 12..13);
-            let data_offset: usize = offset_attr.get(&layer)?.get()?;
+            let data_offset: usize = offset_attr.get(&layer)?.try_into()?;
             let data_offset = data_offset * 4;
             let mut offset = 20;
 

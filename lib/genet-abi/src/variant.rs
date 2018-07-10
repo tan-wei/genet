@@ -17,11 +17,11 @@ pub enum Variant {
 }
 
 pub trait Value<T> {
-    fn get(self) -> Result<T>;
+    fn try_into(self) -> Result<T>;
 }
 
 impl Value<String> for Variant {
-    fn get(self) -> Result<String> {
+    fn try_into(self) -> Result<String> {
         match self {
             Variant::String(val) => Ok(val.to_string()),
             _ => Err(Error::new(ErrorKind::InvalidData, "wrong type")),
@@ -30,7 +30,7 @@ impl Value<String> for Variant {
 }
 
 impl Value<Vec<u8>> for Variant {
-    fn get(self) -> Result<Vec<u8>> {
+    fn try_into(self) -> Result<Vec<u8>> {
         match self {
             Variant::String(val) => Ok(val.to_string().into_bytes()),
             Variant::Buffer(val) => Ok(val.into_vec()),
@@ -41,7 +41,7 @@ impl Value<Vec<u8>> for Variant {
 }
 
 impl Value<Slice> for Variant {
-    fn get(self) -> Result<Slice> {
+    fn try_into(self) -> Result<Slice> {
         match self {
             Variant::Slice(val) => Ok(val),
             _ => Err(Error::new(ErrorKind::InvalidData, "wrong type")),
@@ -50,7 +50,7 @@ impl Value<Slice> for Variant {
 }
 
 impl Value<u64> for Variant {
-    fn get(self) -> Result<u64> {
+    fn try_into(self) -> Result<u64> {
         match self {
             Variant::Nil => Ok(0),
             Variant::Bool(val) => Ok(if val { 1 } else { 0 }),
@@ -63,31 +63,31 @@ impl Value<u64> for Variant {
 }
 
 impl Value<usize> for Variant {
-    fn get(self) -> Result<usize> {
-        Value::<u64>::get(self).map(|v| v as usize)
+    fn try_into(self) -> Result<usize> {
+        Value::<u64>::try_into(self).map(|v| v as usize)
     }
 }
 
 impl Value<u32> for Variant {
-    fn get(self) -> Result<u32> {
-        Value::<u64>::get(self).map(|v| v as u32)
+    fn try_into(self) -> Result<u32> {
+        Value::<u64>::try_into(self).map(|v| v as u32)
     }
 }
 
 impl Value<u16> for Variant {
-    fn get(self) -> Result<u16> {
-        Value::<u64>::get(self).map(|v| v as u16)
+    fn try_into(self) -> Result<u16> {
+        Value::<u64>::try_into(self).map(|v| v as u16)
     }
 }
 
 impl Value<u8> for Variant {
-    fn get(self) -> Result<u8> {
-        Value::<u64>::get(self).map(|v| v as u8)
+    fn try_into(self) -> Result<u8> {
+        Value::<u64>::try_into(self).map(|v| v as u8)
     }
 }
 
 impl Value<i64> for Variant {
-    fn get(self) -> Result<i64> {
+    fn try_into(self) -> Result<i64> {
         match self {
             Variant::Nil => Ok(0),
             Variant::Bool(val) => Ok(if val { 1 } else { 0 }),
@@ -100,31 +100,31 @@ impl Value<i64> for Variant {
 }
 
 impl Value<isize> for Variant {
-    fn get(self) -> Result<isize> {
-        Value::<i64>::get(self).map(|v| v as isize)
+    fn try_into(self) -> Result<isize> {
+        Value::<i64>::try_into(self).map(|v| v as isize)
     }
 }
 
 impl Value<i32> for Variant {
-    fn get(self) -> Result<i32> {
-        Value::<i64>::get(self).map(|v| v as i32)
+    fn try_into(self) -> Result<i32> {
+        Value::<i64>::try_into(self).map(|v| v as i32)
     }
 }
 
 impl Value<i16> for Variant {
-    fn get(self) -> Result<i16> {
-        Value::<i64>::get(self).map(|v| v as i16)
+    fn try_into(self) -> Result<i16> {
+        Value::<i64>::try_into(self).map(|v| v as i16)
     }
 }
 
 impl Value<i8> for Variant {
-    fn get(self) -> Result<i8> {
-        Value::<i64>::get(self).map(|v| v as i8)
+    fn try_into(self) -> Result<i8> {
+        Value::<i64>::try_into(self).map(|v| v as i8)
     }
 }
 
 impl Value<f64> for Variant {
-    fn get(self) -> Result<f64> {
+    fn try_into(self) -> Result<f64> {
         match self {
             Variant::Nil => Ok(0f64),
             Variant::Bool(val) => Ok(if val { 1f64 } else { 0f64 }),
@@ -137,8 +137,8 @@ impl Value<f64> for Variant {
 }
 
 impl Value<f32> for Variant {
-    fn get(self) -> Result<f32> {
-        Value::<f64>::get(self).map(|v| v as f32)
+    fn try_into(self) -> Result<f32> {
+        Value::<f64>::try_into(self).map(|v| v as f32)
     }
 }
 
