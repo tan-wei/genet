@@ -1,11 +1,12 @@
 import Dialog from '../../lib/dialog'
 import OutputDialog from './output-dialog'
-import FilterSuggest from './filter-suggest'
 import FrameHeader from './frame-header'
 import FrameListView from './frame-list-view'
+import FilterSuggest from './filter-suggest'
 import InputDialog from './input-dialog'
 import ToolBar from './toolbar'
 import m from 'mithril'
+import path from 'path'
 import { remote } from 'electron'
 import tempy from 'tempy'
 const { dialog } = remote
@@ -137,8 +138,18 @@ export default class TopView {
         this.sess = sess
         m.redraw()
       })
-      const inputDialog = new Dialog(InputDialog)
-      inputDialog.show({ cancelable: false })
+      if (genet.argv.import) {
+        const file = path.resolve(genet.argv.import)
+        genet.session.create().then((sess) => {
+          sess.createReader('pcap-file', JSON.stringify({
+            file
+          }))
+          genet.action.emit('core:session:created', sess)
+        })
+      } else {
+        const inputDialog = new Dialog(InputDialog)
+        inputDialog.show({ cancelable: false })
+      }
       m.redraw()
     })
     const filterInput = document.querySelector('input[name=display-filter]')

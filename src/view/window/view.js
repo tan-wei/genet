@@ -124,7 +124,6 @@ export default class WindowView {
     genet.action.global.on('core:file:import', () => {
       const files = dialog.showOpenDialog({
         properties: ['openFile'],
-        filters: genet.session.fileExtensions.importer,
       })
       if (typeof files !== 'undefined' && files.length > 0) {
         const [file] = files
