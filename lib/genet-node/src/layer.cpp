@@ -105,10 +105,12 @@ NAN_GETTER(LayerWrapper::payloads) {
     for (uint32_t index = 0; index < length; ++index) {
       const Payload &paylaod = payloads[index];
       auto obj = Nan::New<v8::Object>();
+      auto id = Nan::New(genet_token_string(paylaod.id)).ToLocalChecked();
       auto type = Nan::New(genet_token_string(paylaod.type)).ToLocalChecked();
       auto data = v8::Uint8Array::New(
           v8::ArrayBuffer::New(isolate, paylaod.data, paylaod.len), 0,
           paylaod.len);
+      obj->Set(Nan::New("id").ToLocalChecked(), id);
       obj->Set(Nan::New("type").ToLocalChecked(), type);
       obj->Set(Nan::New("data").ToLocalChecked(), data);
       array->Set(index, obj);

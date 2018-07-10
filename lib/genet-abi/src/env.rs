@@ -92,13 +92,21 @@ pub struct Allocator {
 }
 
 pub(crate) fn token(id: &str) -> Token {
-    unsafe { GENET_GET_TOKEN(id.as_ptr(), id.len() as u64) }
+    if id.is_empty() {
+        Token::null()
+    } else {
+        unsafe { GENET_GET_TOKEN(id.as_ptr(), id.len() as u64) }
+    }
 }
 
 pub(crate) fn string(id: Token) -> String {
-    let mut len: u64 = 0;
-    let s = unsafe { GENET_GET_STRING(id, &mut len) };
-    unsafe { str::from_utf8_unchecked(slice::from_raw_parts(s, len as usize)).to_string() }
+    if id == Token::null() {
+        String::new()
+    } else {
+        let mut len: u64 = 0;
+        let s = unsafe { GENET_GET_STRING(id, &mut len) };
+        unsafe { str::from_utf8_unchecked(slice::from_raw_parts(s, len as usize)).to_string() }
+    }
 }
 
 pub fn alloc(len: usize) -> *mut u8 {

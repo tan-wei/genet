@@ -162,21 +162,20 @@ class LayerItem {
               })),
           m('ul', { class: 'metadata' }, [
             layer.payloads.map(
-              (payload) => [payload.data].map(
-                (slice) => m('li', {
-                  onmouseover: () => selectRange(payload.range),
-                  onmouseout: () => selectRange(),
-                }, [
-                  m('detail', [
-                    m('summary', [
-                      m('span', [
-                        ' ',
-                        m(BufferValueItem, { value: Buffer.from(slice) }),
-                        ' : ', payload.type, ' '
-                      ])
+              (payload) => m('li', {
+                onmouseover: () => selectRange(payload.range),
+                onmouseout: () => selectRange(),
+              }, [
+                m('detail', [
+                  m('summary', [
+                    m('span', [
+                      ' ',
+                      m(BufferValueItem, { value: Buffer.from(payload.data) }),
+                      ' : ', payload.id, ' ', payload.type, ' '
                     ])
                   ])
-                ])))
+                ])
+              ]))
           ])
         ])
       ]),

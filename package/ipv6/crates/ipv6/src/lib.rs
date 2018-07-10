@@ -17,7 +17,7 @@ impl Worker for IPv6Worker {
         if let Some(payload) = parent
             .payloads()
             .iter()
-            .find(|p| p.typ() == token!("@data:ipv6"))
+            .find(|p| p.id() == token!("@data:ipv6"))
         {
             let mut layer = Layer::new(&IPV6_CLASS, payload.data());
             let nheader_attr = Attr::new(&NHEADER_ATTR, 6..7);
@@ -45,7 +45,7 @@ impl Worker for IPv6Worker {
             if let Some((typ, attr)) = PROTO_MAP.get(&proto) {
                 layer.add_attr(Attr::new(attr, range.clone()));
                 let payload = layer.data().get(40..)?;
-                layer.add_payload(payload, typ);
+                layer.add_payload(payload, typ, "");
             }
             Ok(Status::Done(vec![layer]))
         } else {

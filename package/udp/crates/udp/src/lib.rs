@@ -17,7 +17,7 @@ impl Worker for UdpWorker {
         if let Some(payload) = parent
             .payloads()
             .iter()
-            .find(|p| p.typ() == token!("@data:udp"))
+            .find(|p| p.id() == token!("@data:udp"))
         {
             let mut layer = Layer::new(&UDP_CLASS, payload.data());
             Ok(Status::Done(vec![layer]))

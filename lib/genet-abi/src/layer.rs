@@ -75,9 +75,15 @@ impl Layer {
         self.class.payloads(self)
     }
 
-    pub fn add_payload<T: Into<Token>>(&mut self, data: Slice, typ: T) {
+    pub fn add_payload<T: Into<Token>, U: Into<Token>>(&mut self, data: Slice, id: T, typ: U) {
         let func = self.class.add_payload;
-        (func)(self, data.as_ptr(), data.len() as u64, typ.into());
+        (func)(
+            self,
+            data.as_ptr(),
+            data.len() as u64,
+            id.into(),
+            typ.into(),
+        );
     }
 }
 
@@ -85,10 +91,15 @@ impl Layer {
 pub struct Payload {
     data: *const u8,
     len: u64,
+    id: Token,
     typ: Token,
 }
 
 impl Payload {
+    pub fn id(&self) -> Token {
+        self.id
+    }
+
     pub fn typ(&self) -> Token {
         self.typ
     }
@@ -184,7 +195,7 @@ pub struct LayerClass {
     add_attr: extern "C" fn(*mut Layer, Ptr<Attr>),
     payloads_len: extern "C" fn(*const Layer) -> u64,
     payloads_data: extern "C" fn(*const Layer) -> *const Payload,
-    add_payload: extern "C" fn(*mut Layer, *const u8, u64, Token),
+    add_payload: extern "C" fn(*mut Layer, *const u8, u64, Token, Token),
 }
 
 impl LayerClass {
@@ -273,9 +284,9 @@ extern "C" fn abi_payloads_data(layer: *const Layer) -> *const Payload {
     unsafe { (*layer).abi_unsafe_data.payloads.as_ptr() }
 }
 
-extern "C" fn abi_add_payload(layer: *mut Layer, data: *const u8, len: u64, typ: Token) {
+extern "C" fn abi_add_payload(layer: *mut Layer, data: *const u8, len: u64, id: Token, typ: Token) {
     let payloads = unsafe { &mut (*layer).abi_unsafe_data.payloads };
-    payloads.push(Payload { data, len, typ });
+    payloads.push(Payload { data, len, id, typ });
 }
 
 #[cfg(test)]
@@ -321,7 +332,7 @@ mod tests {
         for i in 0..count {
             let payload = iter.next().unwrap();
             assert_eq!(payload.data(), Slice::from(&data[..]));
-            assert_eq!(payload.typ(), Token::from(i));
+            assert_eq!(payload.id(), Token::from(i));
         }
         assert!(iter.next().is_none());
     }

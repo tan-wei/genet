@@ -48,6 +48,7 @@ struct Variant {
 struct Payload {
   char *data;
   uint64_t len;
+  Token id;
   Token type;
 };
 

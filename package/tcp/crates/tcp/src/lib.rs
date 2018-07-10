@@ -13,7 +13,7 @@ impl Worker for TcpWorker {
         if let Some(payload) = parent
             .payloads()
             .iter()
-            .find(|p| p.typ() == token!("@data:tcp"))
+            .find(|p| p.id() == token!("@data:tcp"))
         {
             let mut layer = Layer::new(&TCP_CLASS, payload.data());
 
@@ -58,7 +58,7 @@ impl Worker for TcpWorker {
             }
 
             let payload = layer.data().get(data_offset..)?;
-            layer.add_payload(payload, token!("@data:tcp"));
+            layer.add_payload(payload, token!("@data:tcp"), "");
             Ok(Status::Done(vec![layer]))
         } else {
             Ok(Status::Skip)

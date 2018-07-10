@@ -17,7 +17,7 @@ impl Worker for IPv4Worker {
         if let Some(payload) = parent
             .payloads()
             .iter()
-            .find(|p| p.typ() == token!("@data:ipv4"))
+            .find(|p| p.id() == token!("@data:ipv4"))
         {
             let mut layer = Layer::new(&IPV4_CLASS, payload.data());
             let proto_attr = Attr::new(&PROTO_ATTR, 9..10);
@@ -25,7 +25,7 @@ impl Worker for IPv4Worker {
             if let Some((typ, attr)) = PROTO_MAP.get(&proto) {
                 layer.add_attr(Attr::new(attr, 9..10));
                 let payload = layer.data().get(20..)?;
-                layer.add_payload(payload, typ);
+                layer.add_payload(payload, typ, "");
             }
             Ok(Status::Done(vec![layer]))
         } else {
