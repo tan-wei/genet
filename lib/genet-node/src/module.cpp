@@ -1,10 +1,10 @@
 #include "module.hpp"
 #include "attr.hpp"
-#include "buffer.hpp"
 #include "exports.hpp"
 #include "frame.hpp"
 #include "layer.hpp"
 #include "session.hpp"
+#include "slice.hpp"
 #include "token.hpp"
 #include <cassert>
 
@@ -20,7 +20,7 @@ void Module::init(v8::Local<v8::Object> exports) {
   assert(!globalInstance);
   globalInstance = new Module();
   Token::init(exports);
-  Buffer::init(exports);
+  Slice::init(exports);
   SessionProfileWrapper::init(exports);
   SessionWrapper::init(exports);
   LayerWrapper::init(exports);

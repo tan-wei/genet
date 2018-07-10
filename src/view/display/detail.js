@@ -159,12 +159,10 @@ class LayerItem {
                 item,
                 layer,
                 dataOffset,
-              }))
-
-          /*
-          M('ul', { class: 'metadata' }, [
+              })),
+          m('ul', { class: 'metadata' }, [
             layer.payloads.map(
-              (payload) => payload.slices.map(
+              (payload) => [payload.data].map(
                 (slice) => m('li', {
                   onmouseover: () => selectRange(payload.range),
                   onmouseout: () => selectRange(),
@@ -173,25 +171,13 @@ class LayerItem {
                     m('summary', [
                       m('span', [
                         ' ',
-                        m(BufferValueItem, { value: slice }),
+                        m(BufferValueItem, { value: Buffer.from(slice) }),
                         ' : ', payload.type, ' '
                       ])
                     ])
                   ])
                 ])))
-          ]),
-          m('ul', { class: 'metadata error' }, [...layer.errors()].map((err) =>
-            m('li', [
-              m('detail', [
-                m('summary', [
-                  m('span', [
-                    m('i', { class: 'fa fa-exclamation-triangle' }), ' ',
-                    genet.session.tokenName(err.id), ' : ', err.value
-                  ])
-                ])
-              ])
-            ])))
-          */
+          ])
         ])
       ]),
       m('li', [
