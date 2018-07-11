@@ -24,11 +24,11 @@ class PcapView {
 
   async create (ifs, link) {
     const sess = await genet.session.create()
-    sess.regiterStreamReader('pcap', JSON.stringify({
+    sess.regiterStreamReader('pcap', {
       cmd: './package/pcap/crates/pcap-cli/target/release/pcap-cli',
       args: ['capture', ifs],
       link,
-    }))
+    })
     sess.startStream()
     genet.workspace.set('_.pcap.interface', ifs)
     genet.action.emit('core:session:created', sess)

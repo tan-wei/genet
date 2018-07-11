@@ -141,9 +141,7 @@ export default class TopView {
       if (genet.argv.import) {
         const file = path.resolve(genet.argv.import)
         genet.session.create().then((sess) => {
-          sess.createReader('pcap-file', JSON.stringify({
-            file
-          }))
+          sess.createReader('pcap-file', { file })
           genet.action.emit('core:session:created', sess)
         })
       } else {
@@ -163,7 +161,7 @@ export default class TopView {
       }
     })
     genet.action.global.on('core:file:export', () => {
-      this.sess.createWriter('pcap-file', '{"file": "x.pcap"}', '$.index == 2')
+      this.sess.createWriter('pcap-file', { file: 'x.pcap' }, '$.index == 2')
       const outputDialog = new Dialog(OutputDialog,
         {
           displayFilter: this.displayFilter,
