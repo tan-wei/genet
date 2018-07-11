@@ -255,9 +255,7 @@ export default class PcapDetailView {
             ' ']),
           m('span', [m(AttributeValueItem, {
             attr: {
-              getValue () {
-                return filterValue
-              },
+              value: filterValue
             },
           })])
         ])
