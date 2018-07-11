@@ -13,7 +13,7 @@ use std::collections::HashMap;
 struct TcpWorker {}
 
 impl Worker for TcpWorker {
-    fn analyze(&mut self, parent: &mut Layer) -> Result<Status> {
+    fn analyze(&mut self, _ctx: &mut Context, parent: &mut Layer) -> Result<Status> {
         if parent.id() == token!("tcp") {
             parent.add_attr(Attr::new(&STREAM_ATTR, 0..0));
             Ok(Status::Done(vec![]))

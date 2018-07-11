@@ -68,7 +68,7 @@ impl Runner {
     fn execute(&mut self, layer: &mut Layer) -> (bool, Vec<MutPtr<Layer>>) {
         let result = if let Some(worker) = &mut self.worker {
             let mut children = Vec::new();
-            match worker.analyze(layer, &mut children) {
+            match worker.analyze(&mut self.ctx, layer, &mut children) {
                 Ok(done) => (done, children),
                 Err(_) => (true, vec![]),
             }

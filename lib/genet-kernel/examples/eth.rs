@@ -22,7 +22,7 @@ use std::collections::HashMap;
 struct EthWorker {}
 
 impl Worker for EthWorker {
-    fn analyze(&mut self, parent: &mut Layer) -> Result<Status> {
+    fn analyze(&mut self, _ctx: &mut Context, parent: &mut Layer) -> Result<Status> {
         if parent.id() == token!("[link-1]") {
             let mut layer = Layer::new(&ETH_CLASS, parent.data());
             let len_attr = Attr::new(&LEN_ATTR, 12..14);

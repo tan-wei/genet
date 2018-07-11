@@ -12,12 +12,14 @@ pub enum Status {
 }
 
 pub trait Worker {
-    fn analyze(&mut self, &mut Layer) -> Result<Status>;
+    fn analyze(&mut self, &mut Context, &mut Layer) -> Result<Status>;
 }
 
 #[repr(C)]
 pub struct WorkerBox {
-    analyze: extern "C" fn(*mut WorkerBox, *mut Layer, *mut MutPtr<Layer>, *mut Error) -> u8,
+    analyze:
+        extern "C" fn(*mut WorkerBox, *mut Context, *mut Layer, *mut MutPtr<Layer>, *mut Error)
+            -> u8,
     worker: *mut Box<Worker>,
 }
 
@@ -31,13 +33,18 @@ impl WorkerBox {
         }
     }
 
-    pub fn analyze(&mut self, layer: &mut Layer, results: &mut Vec<MutPtr<Layer>>) -> Result<bool> {
+    pub fn analyze(
+        &mut self,
+        ctx: &mut Context,
+        layer: &mut Layer,
+        results: &mut Vec<MutPtr<Layer>>,
+    ) -> Result<bool> {
         let mut children: [MutPtr<Layer>; MAX_CHILDREN];
         unsafe {
             children = mem::uninitialized();
         }
         let mut error = Error::new("");
-        let result = (self.analyze)(self, layer, children.as_mut_ptr(), &mut error);
+        let result = (self.analyze)(self, ctx, layer, children.as_mut_ptr(), &mut error);
         if result > 1 {
             let len = result as usize - 2;
             unsafe {
@@ -57,13 +64,15 @@ impl WorkerBox {
 
 extern "C" fn abi_analyze(
     worker: *mut WorkerBox,
+    ctx: *mut Context,
     layer: *mut Layer,
     children: *mut MutPtr<Layer>,
     error: *mut Error,
 ) -> u8 {
     let worker = unsafe { &mut *((*worker).worker) };
+    let ctx = unsafe { &mut (*ctx) };
     let layer = unsafe { &mut (*layer) };
-    match worker.analyze(layer) {
+    match worker.analyze(ctx, layer) {
         Ok(stat) => match stat {
             Status::Done(layers) => {
                 let len = 2u8.saturating_add(layers.len() as u8);
@@ -170,7 +179,7 @@ mod tests {
         struct TestWorker {}
 
         impl Worker for TestWorker {
-            fn analyze(&mut self, _: &mut Layer) -> Result<Status> {
+            fn analyze(&mut self, _ctx: &mut Context, _layer: &mut Layer) -> Result<Status> {
                 let class = LayerBuilder::new(Token::from(1234)).build();
                 let layer = Layer::new(&class, Slice::new());
                 Ok(Status::Done(vec![layer]))
@@ -195,7 +204,10 @@ mod tests {
         let mut layer = Layer::new(&class, Slice::new());
         let mut results = Vec::new();
 
-        assert_eq!(worker.analyze(&mut layer, &mut results).unwrap(), true);
+        assert_eq!(
+            worker.analyze(&mut ctx, &mut layer, &mut results).unwrap(),
+            true
+        );
         assert_eq!(results.len(), 1);
         let child = &results[0];
         assert_eq!(child.id(), Token::from(1234));
