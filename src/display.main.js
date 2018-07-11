@@ -6,6 +6,7 @@ const components = [
   'core:token',
   'core:panel',
   'core:library',
+  'core:file:reader',
   'core:renderer:attr',
   'core:renderer:layer',
   'core:filter:macro',

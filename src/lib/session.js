@@ -11,6 +11,7 @@ export default class Session {
       config,
       tokens: new Map(),
       libs: new Set(),
+      fileReaders: new Set(),
       layerRenderers: new Map(),
       attrRenderers: new Map(),
       attrMacros: new Map(),
@@ -23,6 +24,10 @@ export default class Session {
     return this[fields].tokens
   }
 
+  get fileReaders () {
+    return this[fields].fileReaders
+  }
+
   registerTokens (tokens) {
     for (const [id, data] of Object.entries(tokens)) {
       this[fields].tokens.set(id, data)
@@ -31,6 +36,13 @@ export default class Session {
       for (const id of Object.keys(tokens)) {
         this[fields].tokens.delete(id)
       }
+    })
+  }
+
+  registerFileReader (handler) {
+    this[fields].fileReaders.add(handler)
+    return new Disposable(() => {
+      this[fields].fileReaders.delete(handler)
     })
   }
 
@@ -116,7 +128,6 @@ export default class Session {
     for (const file of libs) {
       profile.loadLibrary(file)
     }
-    console.log(profile)
     return new native.Session(profile, this[fields])
   }
 

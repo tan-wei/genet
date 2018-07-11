@@ -141,7 +141,11 @@ export default class TopView {
       if (genet.argv.import) {
         const file = path.resolve(genet.argv.import)
         genet.session.create().then((sess) => {
-          sess.createReader('pcap-file', { file })
+          for (const handler of genet.session.fileReaders) {
+            if (handler(sess, { file }) === true) {
+              break
+            }
+          }
           genet.action.emit('core:session:created', sess)
         })
       } else {

@@ -1,3 +1,4 @@
+import FileComponent from './component/file'
 import LibraryComponent from './component/library'
 import MacroComponent from './component/macro'
 import PanelComponent from './component/panel'
@@ -11,6 +12,8 @@ export default class ComponentFactory {
         return new TokenComponent(comp, dir)
       case 'core:library':
         return new LibraryComponent(comp, dir)
+      case 'core:file:reader':
+        return new FileComponent(comp, dir)
       case 'core:renderer:attr':
       case 'core:renderer:layer':
         return new RendererComponent(comp, dir)

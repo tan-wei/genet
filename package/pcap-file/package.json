@@ -13,6 +13,10 @@
         "main": "reader"
       },
       {
+        "type": "core:file:reader",
+        "main": "reader.js"
+      },
+      {
         "type": "core:library",
         "main": "writer"
       },
