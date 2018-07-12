@@ -56,14 +56,9 @@ impl Layer {
         self.class
             .headers()
             .iter()
+            .chain(self.attrs().iter())
             .find(|attr| attr.id() == id)
             .map(|attr| attr.as_ref())
-            .or_else(|| {
-                self.attrs()
-                    .iter()
-                    .find(|attr| attr.id() == id)
-                    .map(|attr| attr.as_ref())
-            })
     }
 
     pub fn add_attr(&mut self, attr: Attr) {
