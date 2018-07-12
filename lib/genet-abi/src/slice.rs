@@ -45,7 +45,7 @@ impl SliceIndex<usize> for Slice {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Slice(&'static [u8]);
 
 impl Slice {

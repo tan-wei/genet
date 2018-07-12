@@ -53,10 +53,9 @@ impl Layer {
             .find(|alias| alias.id == id)
             .map(|alias| alias.target)
             .unwrap_or(id);
-        self.class
-            .headers()
+        self.attrs()
             .iter()
-            .chain(self.attrs().iter())
+            .chain(self.class.headers().iter())
             .find(|attr| attr.id() == id)
             .map(|attr| attr.as_ref())
     }
