@@ -9,6 +9,10 @@
   "genet": {
     "components": [
       {
+        "type": "core:library",
+        "main": "http"
+      },
+      {
         "type": "core:style",
         "files": [
           "http.css"

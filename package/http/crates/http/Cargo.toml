@@ -10,5 +10,7 @@ crate-type = ["cdylib"]
 [dependencies]
 lazy_static = "1"
 maplit = "1"
+Inflector = "0.11"
+http-muncher = {git = "https://github.com/deplug/rust-streaming-http-parser"}
 genet-abi = { path = "../../../../lib/genet-abi" }
 genet-sdk = { path = "../../../../lib/genet-sdk" }

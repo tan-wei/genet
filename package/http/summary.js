@@ -3,7 +3,7 @@ class Summary {
   view (vnode) {
     const { layer } = vnode.attrs
     const value = ['']
-    for (const attr of layer.attrs()) {
+    for (const attr of layer.attrs) {
       switch (attr.id) {
         case 'http.version':
           value.push(`HTTP/${attr.value.toPrecision(2)}`)
@@ -13,10 +13,10 @@ class Summary {
           break
         default:
           if (attr.id.startsWith('http.method.')) {
-            value.push(` ${deplug.session.tokenName(attr.id)}`)
+            value.push(` ${genet.session.tokenName(attr.id)}`)
           } else if (attr.id.startsWith('http.status.')) {
             const code = layer.attr('http.status').value
-            value.push(` ${code} ${deplug.session.tokenName(attr.id)}`)
+            value.push(` ${code} ${genet.session.tokenName(attr.id)}`)
           }
       }
     }
