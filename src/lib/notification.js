@@ -17,14 +17,20 @@ class Container {
   view (vnode) {
     const { opt, content, handler } = vnode.attrs
     return [
-      m('h4', [
+      m('h4', {
+        style: {
+          display: opt.closeButton || opt.title
+            ? 'block'
+            : 'none',
+        },
+      }, [
         opt.title,
         m('button', {
           style: { visible: opt.closeButton },
           onclick: () => {
             handler.dispose()
           },
-        }, [m('i', { class: 'fa fa-close' })])
+        }, ['Close'])
       ]),
       m(Markdown, { content })
     ]

@@ -33,26 +33,27 @@
   justify-content: flex-start;
 
   > div {
-    color: var(--theme-default-bg);
-    background-color: var(--theme-dark-fg);
-    border: 1px solid var(--theme-default-fg);
-    padding: 10px;
+    color: var(--theme-default-fg);
+    background-color: var(--theme-default-bg);
+    border: 1px solid var(--theme-selection-bg);
+    border-left-width: 10px;
+    padding: 5px 20px;
     margin-top: 10px;
     min-height: 40px;
-    border-radius: 5px;
+    border-radius: 2px;
     box-shadow: 0 0 35px 15px rgba(0,0,0,0.1);
     animation: fadein 0.2s linear;
 
     &.success {
-      background-color: var(--theme-info);
+      border-color: var(--theme-strings);
     }
 
     &.error {
-      background-color: var(--theme-error);
+      border-color: var(--theme-error);
     }
 
     button {
-      color: var(--theme-default-bg);
+      color: var(--theme-default-fg);
       border: none;
       background: none;
       float: right;
@@ -60,8 +61,8 @@
     }
 
     h4 {
-      margin: 0;
-      color: var(--theme-default-bg);
+      margin: 10px 0;
+      color: var(--theme-default-fg);
       font-size: 1.2em;
     }
 
