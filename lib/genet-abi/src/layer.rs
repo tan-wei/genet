@@ -1,8 +1,52 @@
 use attr::Attr;
 use ptr::Ptr;
 use slice::Slice;
-use std::slice;
+use std::{ops::Deref, slice};
 use token::Token;
+
+pub struct LayerRef<'a> {
+    layer: &'a Layer,
+}
+
+impl<'a> Deref for LayerRef<'a> {
+    type Target = Layer;
+
+    fn deref(&self) -> &Layer {
+        self.layer
+    }
+}
+
+pub struct Stack<'a> {
+    layers: &'a [Layer],
+}
+
+impl<'a> Stack<'a> {
+    pub fn top(&self) -> Option<LayerRef> {
+        if self.layers.is_empty() {
+            None
+        } else {
+            Some(LayerRef {
+                layer: &self.layers[self.layers.len() - 1],
+            })
+        }
+    }
+
+    pub fn attr(&self, id: Token) -> Option<&Attr> {
+        for layer in self.layers.iter().rev() {
+            if let Some(attr) = layer.attr(id) {
+                return Some(attr);
+            }
+        }
+        None
+    }
+
+    pub fn layer(&self, id: Token) -> Option<LayerRef> {
+        self.layers
+            .iter()
+            .find(|layer| layer.id() == id)
+            .map(|layer| LayerRef { layer })
+    }
+}
 
 #[repr(C)]
 pub struct Layer {
