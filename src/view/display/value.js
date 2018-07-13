@@ -28,7 +28,7 @@ class DateValueItem {
 export class BufferValueItem {
   view (vnode) {
     const maxLen = 6
-    const buffer = vnode.attrs.value
+    const buffer = Buffer.from(vnode.attrs.value)
     const hex = (
       buffer.length > 0
         ? '0x'
