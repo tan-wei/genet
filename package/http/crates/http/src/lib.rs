@@ -13,7 +13,12 @@ use std::collections::HashMap;
 struct HttpWorker {}
 
 impl Worker for HttpWorker {
-    fn analyze(&mut self, _ctx: &mut Context, parent: &mut Layer) -> Result<Status> {
+    fn analyze(
+        &mut self,
+        _ctx: &mut Context,
+        _stack: &LayerStack,
+        parent: &mut Layer,
+    ) -> Result<Status> {
         if parent.id() == token!("tcp") {
             let mut layer = Layer::new(&HTTP_CLASS, parent.data());
             Ok(Status::Done(vec![layer]))

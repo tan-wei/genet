@@ -1,6 +1,6 @@
 use context::Context;
 use error::Error;
-use layer::Layer;
+use layer::{Layer, LayerStack};
 use ptr::MutPtr;
 use result::Result;
 use std::{mem, ptr, str};
@@ -12,14 +12,20 @@ pub enum Status {
 }
 
 pub trait Worker {
-    fn analyze(&mut self, &mut Context, &mut Layer) -> Result<Status>;
+    fn analyze(&mut self, &mut Context, &LayerStack, &mut Layer) -> Result<Status>;
 }
 
 #[repr(C)]
 pub struct WorkerBox {
-    analyze:
-        extern "C" fn(*mut WorkerBox, *mut Context, *mut Layer, *mut MutPtr<Layer>, *mut Error)
-            -> u8,
+    analyze: extern "C" fn(
+        *mut WorkerBox,
+        *mut Context,
+        *const *const Layer,
+        u64,
+        *mut Layer,
+        *mut MutPtr<Layer>,
+        *mut Error,
+    ) -> u8,
     worker: *mut Box<Worker>,
 }
 
@@ -36,6 +42,7 @@ impl WorkerBox {
     pub fn analyze(
         &mut self,
         ctx: &mut Context,
+        layers: &[MutPtr<Layer>],
         layer: &mut Layer,
         results: &mut Vec<MutPtr<Layer>>,
     ) -> Result<bool> {
@@ -43,8 +50,17 @@ impl WorkerBox {
         unsafe {
             children = mem::uninitialized();
         }
+        let stack = unsafe { mem::transmute(layers.as_ptr()) };
         let mut error = Error::new("");
-        let result = (self.analyze)(self, ctx, layer, children.as_mut_ptr(), &mut error);
+        let result = (self.analyze)(
+            self,
+            ctx,
+            stack,
+            layers.len() as u64,
+            layer,
+            children.as_mut_ptr(),
+            &mut error,
+        );
         if result > 1 {
             let len = result as usize - 2;
             unsafe {
@@ -65,6 +81,8 @@ impl WorkerBox {
 extern "C" fn abi_analyze(
     worker: *mut WorkerBox,
     ctx: *mut Context,
+    layers: *const *const Layer,
+    len: u64,
     layer: *mut Layer,
     children: *mut MutPtr<Layer>,
     error: *mut Error,
@@ -72,7 +90,8 @@ extern "C" fn abi_analyze(
     let worker = unsafe { &mut *((*worker).worker) };
     let ctx = unsafe { &mut (*ctx) };
     let layer = unsafe { &mut (*layer) };
-    match worker.analyze(ctx, layer) {
+    let stack = unsafe { LayerStack::new(layers, len as usize) };
+    match worker.analyze(ctx, &stack, layer) {
         Ok(stat) => match stat {
             Status::Done(layers) => {
                 let len = 2u8.saturating_add(layers.len() as u8);

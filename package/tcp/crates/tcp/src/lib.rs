@@ -9,7 +9,12 @@ use genet_sdk::prelude::*;
 struct TcpWorker {}
 
 impl Worker for TcpWorker {
-    fn analyze(&mut self, _ctx: &mut Context, parent: &mut Layer) -> Result<Status> {
+    fn analyze(
+        &mut self,
+        _ctx: &mut Context,
+        _stack: &LayerStack,
+        parent: &mut Layer,
+    ) -> Result<Status> {
         if let Some(payload) = parent
             .payloads()
             .iter()

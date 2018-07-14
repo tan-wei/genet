@@ -1,3 +1,4 @@
+use frame::Frame;
 use genet_abi::{
     context::Context,
     dissector::{DissectorBox, WorkerBox},
@@ -27,12 +28,16 @@ impl Dispatcher {
             .collect()
     }
 
-    pub fn execute(runners: &mut Vec<OnceRunner>, layer: &mut Layer) -> Vec<MutPtr<Layer>> {
+    pub fn execute(
+        runners: &mut Vec<OnceRunner>,
+        frame: &Frame,
+        layer: &mut Layer,
+    ) -> Vec<MutPtr<Layer>> {
         let mut children = Vec::new();
         loop {
             let mut executed = 0;
             for mut r in &mut runners.iter_mut() {
-                let (done, mut layers) = r.execute(layer);
+                let (done, mut layers) = r.execute(frame, layer);
                 if done {
                     executed += 1;
                 }
@@ -65,10 +70,10 @@ impl Runner {
         runner
     }
 
-    fn execute(&mut self, layer: &mut Layer) -> (bool, Vec<MutPtr<Layer>>) {
+    fn execute(&mut self, frame: &Frame, layer: &mut Layer) -> (bool, Vec<MutPtr<Layer>>) {
         let result = if let Some(worker) = &mut self.worker {
             let mut children = Vec::new();
-            match worker.analyze(&mut self.ctx, layer, &mut children) {
+            match worker.analyze(&mut self.ctx, frame.layers(), layer, &mut children) {
                 Ok(done) => (done, children),
                 Err(_) => (true, vec![]),
             }
@@ -96,9 +101,9 @@ impl<'a> OnceRunner<'a> {
         }
     }
 
-    fn execute(&mut self, layer: &mut Layer) -> (bool, Vec<MutPtr<Layer>>) {
+    fn execute(&mut self, frame: &Frame, layer: &mut Layer) -> (bool, Vec<MutPtr<Layer>>) {
         if !self.used {
-            let (done, children) = self.runner.execute(layer);
+            let (done, children) = self.runner.execute(frame, layer);
             if done {
                 self.used = true;
             }

@@ -72,7 +72,12 @@ impl TcpStreamWorker {
 }
 
 impl Worker for TcpStreamWorker {
-    fn analyze(&mut self, _ctx: &mut Context, parent: &mut Layer) -> Result<Status> {
+    fn analyze(
+        &mut self,
+        _ctx: &mut Context,
+        stack: &LayerStack,
+        parent: &mut Layer,
+    ) -> Result<Status> {
         if parent.id() == token!("tcp") {
             let slice: Slice = parent
                 .payloads()

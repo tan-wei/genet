@@ -58,7 +58,7 @@ impl Pool {
         loop {
             let mut indices = Vec::new();
             for mut child in sublayers.iter_mut() {
-                let mut results = Dispatcher::execute(&mut runners, &mut child);
+                let mut results = Dispatcher::execute(&mut runners, frame, &mut child);
                 indices.push(results.len() as u8);
                 nextlayers.append(&mut results);
             }
