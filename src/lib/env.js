@@ -22,15 +22,16 @@ function getRootPath () {
   return root
 }
 
-const root = getRootPath()
-const genet = jsonfile.readFileSync(path.join(root, 'package.json'))
+const rootPath = getRootPath()
+const genet = jsonfile.readFileSync(path.join(rootPath, 'package.json'))
 const userPath = path.join(os.homedir(), '.genet')
 const userPackagePath = path.join(userPath, 'package')
 const userProfilePath = path.join(userPath, 'profile')
-const builtinPackagePath = path.join(root, 'package')
+const builtinPackagePath = path.join(rootPath, 'package')
 const cachePath = path.join(os.homedir(), '.genet-cache')
 export default {
   genet,
+  rootPath,
   userPath,
   userPackagePath,
   userProfilePath,

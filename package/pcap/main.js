@@ -23,9 +23,12 @@ class PcapView {
   }
 
   async create (ifs, link) {
+    const cmd = path.join(genet.env.rootPath,
+      './package/pcap/crates/pcap-cli/target/release/pcap-cli')
+      .replace(/\bapp\.asar\b/, 'app.asar.unpacked')
     const sess = await genet.session.create()
     sess.regiterStreamReader('pcap', {
-      cmd: './package/pcap/crates/pcap-cli/target/release/pcap-cli',
+      cmd,
       args: ['capture', ifs],
       link,
     })

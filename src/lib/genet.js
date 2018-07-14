@@ -10,6 +10,7 @@ import PackageRegistry from './package-registry'
 import Resumer from './resumer'
 import Session from './session'
 import Workspace from './workspace'
+import env from './env'
 import minimist from 'minimist'
 
 export default class Genet {
@@ -35,6 +36,7 @@ export default class Genet {
     this.notify = new Notification()
     this.logger = logger
     this.cache = cache
+    this.env = env
     this.action = new Action()
     this.argv = Object.assign(argv, options)
     if (options.resume) {
