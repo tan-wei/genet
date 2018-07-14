@@ -14,7 +14,7 @@ Genet is a graphical network analyzer powered by web technologies.
 
 ## Download
 
-https://deplug.net/#/inst?id=download
+https://genet.app/#/inst?id=download
 
 ## Why Genet?
 

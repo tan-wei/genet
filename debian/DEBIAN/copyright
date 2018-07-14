@@ -1,5 +1,5 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Source: https://github.com/deplug/deplug
+Source: https://github.com/genetapp/genet
 
 Files: *
 Copyright: 2018 Ron Hashimoto

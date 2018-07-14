@@ -16,7 +16,7 @@ class MacHelper {
         value: 'Install',
       }),
       m('p', [
-        m('a', { href: 'https://deplug.net/#/inst?id=helper-tool-on-macos' },
+        m('a', { href: 'https://genet.app/#/inst?id=helper-tool-on-macos' },
           ['Learn more...'])
       ])
     ])

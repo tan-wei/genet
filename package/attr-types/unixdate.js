@@ -1,5 +1,5 @@
 const m = require('mithril')
-const moment = require('@deplug/moment.min')
+const moment = require('moment')
 class UNIXDate {
   view (vnode) {
     const { value } = vnode.attrs.attr

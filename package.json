@@ -5,7 +5,7 @@
   "description": "General-purpose Network Analyzer",
   "repository": {
     "type": "git",
-    "url": "https://github.com/deplug/deplug.git"
+    "url": "https://github.com/genetapp/genet.git"
   },
   "scripts": {
     "build": "node scripts/build.js",
@@ -17,7 +17,7 @@
   "author": "h2so5",
   "license": "MIT",
   "dependencies": {
-    "@deplug/moment.min": "^2.20.0",
+    "moment": "^2.20.0",
     "@genet/load-module": "0.0.2",
     "acorn": "^5.5.3",
     "axios": "^0.17.1",

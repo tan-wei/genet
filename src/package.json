@@ -4,7 +4,7 @@
   "description": "Genet core modules",
   "repository": {
     "type": "git",
-    "url": "https://github.com/deplug/deplug.git"
+    "url": "https://github.com/genetapp/genet.git"
   },
   "files": [],
   "author": "h2so5",

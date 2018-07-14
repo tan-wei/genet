@@ -3,7 +3,7 @@ import AttributeItem from './attr'
 import DefaultSummary from './default-summary'
 import { Slice } from '@genet/load-module'
 import m from 'mithril'
-import moment from '@deplug/moment.min'
+import moment from 'moment'
 
 let selectedLayer = null
 function selectRange (range = null) {
@@ -254,9 +254,7 @@ export default class PcapDetailView {
               : '',
             ' ']),
           m('span', [m(AttributeValueItem, {
-            attr: {
-              value: filterValue
-            },
+            attr: {value: filterValue,},
           })])
         ])
       ]),

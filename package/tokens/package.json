@@ -6,7 +6,7 @@
   "engines": {
     "genet": "*"
   },
-  "homepage": "https://deplug.net/",
+  "homepage": "https://genet.app/",
   "genet": {
     "components": [
       {

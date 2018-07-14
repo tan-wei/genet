@@ -1,7 +1,7 @@
 import { clipboard, remote } from 'electron'
 import fs from 'fs'
 import m from 'mithril'
-import moment from '@deplug/moment.min'
+import moment from 'moment'
 
 const { dialog } = remote
 class BooleanValueItem {
