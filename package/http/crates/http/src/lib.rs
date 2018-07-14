@@ -10,6 +10,25 @@ use genet_sdk::prelude::*;
 use http_muncher::{Method, Parser, ParserHandler, ParserType};
 use std::collections::HashMap;
 
+#[derive(PartialEq)]
+enum SessionStatus {
+    None,
+    Active,
+    Error,
+}
+
+enum Entry {
+    Url(Slice),
+}
+
+struct HTTPSession {
+    status: SessionStatus,
+    parser: Parser,
+    header_field: Slice,
+    headers: Vec<(String, Slice)>,
+    entries: Vec<Entry>,
+}
+
 struct HttpWorker {}
 
 impl Worker for HttpWorker {

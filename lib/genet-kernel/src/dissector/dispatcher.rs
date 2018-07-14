@@ -70,7 +70,11 @@ impl Runner {
         runner
     }
 
-    fn execute(&mut self, layers: &[MutPtr<Layer>], layer: &mut Layer) -> (bool, Vec<MutPtr<Layer>>) {
+    fn execute(
+        &mut self,
+        layers: &[MutPtr<Layer>],
+        layer: &mut Layer,
+    ) -> (bool, Vec<MutPtr<Layer>>) {
         let result = if let Some(worker) = &mut self.worker {
             let mut children = Vec::new();
             match worker.analyze(&mut self.ctx, layers, layer, &mut children) {
@@ -101,7 +105,11 @@ impl<'a> OnceRunner<'a> {
         }
     }
 
-    fn execute(&mut self, layers: &[MutPtr<Layer>], layer: &mut Layer) -> (bool, Vec<MutPtr<Layer>>) {
+    fn execute(
+        &mut self,
+        layers: &[MutPtr<Layer>],
+        layer: &mut Layer,
+    ) -> (bool, Vec<MutPtr<Layer>>) {
         if !self.used {
             let (done, children) = self.runner.execute(layers, layer);
             if done {
