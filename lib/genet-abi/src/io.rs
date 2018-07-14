@@ -1,6 +1,6 @@
 use context::Context;
 use error::Error;
-use layer::Layer;
+use layer::{Layer, LayerStack};
 use ptr::MutPtr;
 use result::Result;
 use std::{fmt, mem, ptr};
@@ -152,7 +152,7 @@ extern "C" fn abi_reader_new_worker(
 }
 
 pub trait WriterWorker: Send {
-    fn write(&mut self, index: u32, parent: Option<&Layer>, layer: &Layer) -> Result<()>;
+    fn write(&mut self, index: u32, stack: &LayerStack) -> Result<()>;
 }
 
 pub trait ReaderWorker: Send {
@@ -161,7 +161,7 @@ pub trait ReaderWorker: Send {
 
 pub struct WriterWorkerBox {
     worker: *mut Box<WriterWorker>,
-    write: extern "C" fn(*mut Box<WriterWorker>, u32, *const Layer, *const Layer, *mut Error) -> u8,
+    write: extern "C" fn(*mut Box<WriterWorker>, u32, *const *const Layer, u64, *mut Error) -> u8,
     drop: extern "C" fn(*mut Box<WriterWorker>),
 }
 
@@ -176,14 +176,10 @@ impl WriterWorkerBox {
         }
     }
 
-    pub fn write(&mut self, index: u32, parent: Option<&Layer>, layer: &Layer) -> Result<()> {
+    pub fn write(&mut self, index: u32, layers: &[MutPtr<Layer>]) -> Result<()> {
         let mut e = Error::new("");
-        let parent = if let Some(parent) = parent {
-            parent as *const Layer
-        } else {
-            ptr::null()
-        };
-        if (self.write)(self.worker, index, parent, layer, &mut e) == 0 {
+        let stack = unsafe { mem::transmute(layers.as_ptr()) };
+        if (self.write)(self.worker, index, stack, layers.len() as u64, &mut e) == 0 {
             Err(Box::new(e))
         } else {
             Ok(())
@@ -254,18 +250,13 @@ extern "C" fn abi_reader_worker_drop(worker: *mut Box<ReaderWorker>) {
 extern "C" fn abi_writer_worker_write(
     worker: *mut Box<WriterWorker>,
     index: u32,
-    parent: *const Layer,
-    layer: *const Layer,
+    layers: *const *const Layer,
+    len: u64,
     err: *mut Error,
 ) -> u8 {
     let worker = unsafe { &mut *worker };
-    let parent = if parent.is_null() {
-        None
-    } else {
-        Some(unsafe { &*parent })
-    };
-    let layer = unsafe { &*layer };
-    match worker.write(index, parent, layer) {
+    let stack = unsafe { LayerStack::new(layers, len as usize) };
+    match worker.write(index, &stack) {
         Ok(()) => 1,
         Err(e) => {
             unsafe { *err = Error::new(e.description()) };

@@ -197,7 +197,7 @@ impl Output for WriterWorkerOutput {
     fn write(&mut self, frames: &[&Frame]) -> genet_abi::result::Result<()> {
         for frame in frames.iter() {
             if let Some(layer) = frame.layers().iter().next() {
-                let _ = self.worker.write(frame.index(), None, layer)?;
+                let _ = self.worker.write(frame.index(), frame.layers())?;
             }
         }
         Ok(())

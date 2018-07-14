@@ -73,24 +73,25 @@ impl PcapFileWriterWorker {
 }
 
 impl WriterWorker for PcapFileWriterWorker {
-    fn write(&mut self, index: u32, parent: Option<&Layer>, layer: &Layer) -> Result<()> {
-        if parent.is_none() {
+    fn write(&mut self, index: u32, stack: &LayerStack) -> Result<()> {
+        if let Some(layer) = stack.bottom() {
             let incl_len = layer.data().len();
             let mut orig_len = 0;
             let mut ts_sec = 0;
             let mut ts_usec = 0;
             let mut link = 0;
 
-            for attr in layer.attrs().iter().chain(layer.headers().iter()) {
-                if attr.id() == token!("link.length") {
-                    orig_len = attr.get(layer)?.try_into()?;
-                } else if attr.id() == token!("link.type") {
-                    link = attr.get(layer)?.try_into()?;
-                } else if attr.id() == token!("link.timestamp.sec") {
-                    ts_sec = attr.get(layer)?.try_into()?;
-                } else if attr.id() == token!("link.timestamp.usec") {
-                    ts_usec = attr.get(layer)?.try_into()?;
-                }
+            if let Some(attr) = layer.attr(token!("link.length")) {
+                orig_len = attr.get(layer)?.try_into()?;
+            }
+            if let Some(attr) = layer.attr(token!("link.type")) {
+                link = attr.get(layer)?.try_into()?;
+            }
+            if let Some(attr) = layer.attr(token!("link.timestamp.sec")) {
+                ts_sec = attr.get(layer)?.try_into()?;
+            }
+            if let Some(attr) = layer.attr(token!("link.timestamp.usec")) {
+                ts_usec = attr.get(layer)?.try_into()?;
             }
 
             let _ = self.write_header(0, link as u32)?;

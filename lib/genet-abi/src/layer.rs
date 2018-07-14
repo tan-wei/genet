@@ -1,38 +1,34 @@
 use attr::Attr;
-use ptr::Ptr;
+use ptr::{MutPtr, Ptr};
 use slice::Slice;
 use std::{ops::Deref, slice};
 use token::Token;
 
-pub struct LayerRef<'a> {
-    layer: &'a Layer,
+pub struct LayerStack<'a> {
+    buffer: &'a [*const Layer],
 }
 
-impl<'a> Deref for LayerRef<'a> {
-    type Target = Layer;
-
-    fn deref(&self) -> &Layer {
-        self.layer
-    }
-}
-
-pub struct Stack<'a> {
-    layers: &'a [Layer],
-}
-
-impl<'a> Stack<'a> {
-    pub fn top(&self) -> Option<LayerRef> {
-        if self.layers.is_empty() {
-            None
-        } else {
-            Some(LayerRef {
-                layer: &self.layers[self.layers.len() - 1],
-            })
+impl<'a> LayerStack<'a> {
+    pub unsafe fn new(ptr: *const *const Layer, len: usize) -> LayerStack<'a> {
+        Self {
+            buffer: unsafe { slice::from_raw_parts(ptr, len) },
         }
     }
 
+    fn layers(&self) -> impl DoubleEndedIterator<Item = &'a Layer> {
+        self.buffer.iter().map(|layer| unsafe { &**layer })
+    }
+
+    pub fn top(&self) -> Option<&Layer> {
+        self.layers().last()
+    }
+
+    pub fn bottom(&self) -> Option<&Layer> {
+        self.layers().next()
+    }
+
     pub fn attr(&self, id: Token) -> Option<&Attr> {
-        for layer in self.layers.iter().rev() {
+        for layer in self.layers().rev() {
             if let Some(attr) = layer.attr(id) {
                 return Some(attr);
             }
@@ -40,11 +36,8 @@ impl<'a> Stack<'a> {
         None
     }
 
-    pub fn layer(&self, id: Token) -> Option<LayerRef> {
-        self.layers
-            .iter()
-            .find(|layer| layer.id() == id)
-            .map(|layer| LayerRef { layer })
+    pub fn layer(&self, id: Token) -> Option<&Layer> {
+        self.layers().find(|layer| layer.id() == id)
     }
 }
 
