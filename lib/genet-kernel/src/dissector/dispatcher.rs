@@ -28,26 +28,39 @@ impl Dispatcher {
             .collect()
     }
 
-    pub fn execute(
-        runners: &mut Vec<OnceRunner>,
-        frame: &mut Frame,
-        layer: &mut Layer,
-    ) -> Vec<MutPtr<Layer>> {
-        let mut children = Vec::new();
+    pub fn process_frame(&mut self, frame: &mut Frame) {
+        let mut sublayers = Vec::new();
+        sublayers.append(frame.layers_mut());
+        let mut nextlayers = Vec::new();
+        let mut runners = self.runners();
         loop {
-            let mut executed = 0;
-            for mut r in &mut runners.iter_mut() {
-                let (done, mut layers) = r.execute(&children, layer);
-                if done {
-                    executed += 1;
+            let mut indices = Vec::new();
+            for mut child in sublayers.iter_mut() {
+                let mut children = Vec::new();
+                loop {
+                    let mut executed = 0;
+                    for mut r in &mut runners.iter_mut() {
+                        let (done, mut layers) = r.execute(&children, child);
+                        if done {
+                            executed += 1;
+                        }
+                        children.append(&mut layers);
+                    }
+                    if executed == 0 {
+                        break;
+                    }
                 }
-                children.append(&mut layers);
+                indices.push(children.len() as u8);
+                nextlayers.append(&mut children);
             }
-            if executed == 0 {
+            frame.append_layers(&mut sublayers);
+            frame.append_tree_indices(&mut indices);
+            if nextlayers.is_empty() {
                 break;
+            } else {
+                sublayers.append(&mut nextlayers);
             }
         }
-        children
     }
 }
 
