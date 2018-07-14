@@ -81,6 +81,7 @@ export default class WindowFactory {
       }
     })
 
+    reloadMenu()
     return mainWindow
   }
 }
