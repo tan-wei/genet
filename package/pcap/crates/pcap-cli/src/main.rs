@@ -1,3 +1,5 @@
+#![windows_subsystem = "windows"]
+
 extern crate clap;
 extern crate pcap;
 extern crate serde_json;
