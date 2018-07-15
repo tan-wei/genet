@@ -1,5 +1,5 @@
+const cli = require('./cli')
 const m = require('mithril')
-const path = require('path')
 class MacHelper {
   view () {
     return m('section', [
@@ -25,7 +25,6 @@ class MacHelper {
 
 class LinuxHelper {
   view () {
-    const cli = path.join(__dirname, 'crates/pcap-cli/target/release/pcap-cli')
     return m('section', [
       m('h1', ['Not enough capabilities']),
       m('p', [

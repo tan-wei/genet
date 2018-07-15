@@ -1,5 +1,5 @@
+const cli = require('./cli')
 const m = require('mithril')
-const path = require('path')
 const { execFile } = require('child_process')
 const PermissionMassage = require('./permission-message')
 class PcapView {
@@ -10,7 +10,6 @@ class PcapView {
   }
 
   checkDevices () {
-    const cli = path.join(__dirname, 'crates/pcap-cli/target/release/pcap-cli')
     execFile(cli, ['devices'], (error, stdout) => {
       if (error) {
         this.permission = false
@@ -23,12 +22,9 @@ class PcapView {
   }
 
   async create (ifs, link) {
-    const cmd = path.join(genet.env.rootPath,
-      './package/pcap/crates/pcap-cli/target/release/pcap-cli')
-      .replace(/\bapp\.asar\b/, 'app.asar.unpacked')
     const sess = await genet.session.create()
     sess.regiterStreamReader('pcap', {
-      cmd,
+      cmd: cli,
       args: ['capture', ifs],
       link,
     })
