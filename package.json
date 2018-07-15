@@ -2,7 +2,7 @@
   "name": "genet",
   "productName": "Genet",
   "version": "0.0.68",
-  "description": "General-purpose Network Analyzer",
+  "description": "General Purpose Network Analyzer",
   "repository": {
     "type": "git",
     "url": "https://github.com/genet-app/genet.git"

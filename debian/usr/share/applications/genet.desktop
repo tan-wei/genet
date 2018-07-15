@@ -1,9 +1,10 @@
 [Desktop Entry]
 Name=Genet
-Comment=General-purpose Network Analyzer
+Comment=General Purpose Network Analyzer
 Exec=/usr/share/genet/genet
 Terminal=false
 Type=Application
 Icon=genet
 Categories=Network;Monitor
 StartupNotify=true
+MimeType=application/vnd.tcpdump.pcap;

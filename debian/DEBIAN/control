@@ -9,5 +9,5 @@ Depends: libcap2-bin, gconf-service
 Vcs-Git: git://github.com/genet-app/genet.git
 Vcs-browser: http://github.com/genet-app/genet
 Homepage: https://genet.app
-Description: General-purpose Network Analyzer
+Description: General Purpose Network Analyzer
  Genet is a modern packet analyzer based on Electron.

@@ -2,7 +2,7 @@
 %define          debug_package %{nil}
 %define        __os_install_post %{_dbpath}/brp-compress
 
-Summary: General-purpose Network Analyzer
+Summary: General Purpose Network Analyzer
 Name: genet
 Version: {{GENET_VERSION}}
 Release: 1

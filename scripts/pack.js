@@ -13,7 +13,7 @@ const options = {
   electronVersion: negatronVersion,
   win32metadata: {
     CompanyName: 'Genet',
-    FileDescription: 'General-purpose Network Analyzer',
+    FileDescription: 'General Purpose Network Analyzer',
     OriginalFilename: 'Genet.exe',
     ProductName: 'Genet',
     InternalName: 'Genet',
