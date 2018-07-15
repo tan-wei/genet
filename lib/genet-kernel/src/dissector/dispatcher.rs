@@ -31,36 +31,40 @@ impl Dispatcher {
     pub fn process_frame(&mut self, frame: &mut Frame) {
         let mut sublayers = Vec::new();
         sublayers.append(frame.layers_mut());
-        let mut nextlayers = Vec::new();
+        let mut indices = Vec::new();
+        let mut offset = 0;
         let mut runners = self.runners();
         loop {
-            let mut indices = Vec::new();
-            for mut child in sublayers.iter_mut() {
-                let mut children = Vec::new();
+            let len = sublayers.len() - offset;
+            for index in offset..sublayers.len() {
+                let mut layer = unsafe { &mut *sublayers[index].as_mut_ptr() };
+
+                let mut children = 0;
                 loop {
                     let mut executed = 0;
                     for mut r in &mut runners.iter_mut() {
-                        let (done, mut layers) = r.execute(&children, child);
+                        let (done, mut layers) = r.execute(&sublayers, &mut layer);
                         if done {
                             executed += 1;
                         }
-                        children.append(&mut layers);
+                        children += layers.len();
+                        sublayers.append(&mut layers);
                     }
                     if executed == 0 {
                         break;
                     }
                 }
-                indices.push(children.len() as u8);
-                nextlayers.append(&mut children);
+                indices.push(children as u8);
             }
-            frame.append_layers(&mut sublayers);
-            frame.append_tree_indices(&mut indices);
-            if nextlayers.is_empty() {
+
+            offset += len;
+            if offset >= sublayers.len() {
                 break;
-            } else {
-                sublayers.append(&mut nextlayers);
             }
         }
+
+        frame.append_layers(&mut sublayers);
+        frame.append_tree_indices(&mut indices);
     }
 }
 

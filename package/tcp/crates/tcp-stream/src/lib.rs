@@ -86,15 +86,14 @@ impl Worker for TcpStreamWorker {
                 .unwrap()
                 .data();
 
-            println!("{:?}", stack.attr(token!("_.src")));
             let stream_id = {
-                let parent_src: Slice = parent
-                    .attr(token!("tcp.src"))
+                let parent_src: Slice = stack
+                    .attr(token!("_.src"))
                     .unwrap()
                     .get(parent)?
                     .try_into()?;
-                let parent_dst: Slice = parent
-                    .attr(token!("tcp.dst"))
+                let parent_dst: Slice = stack
+                    .attr(token!("_.dst"))
                     .unwrap()
                     .get(parent)?
                     .try_into()?;
