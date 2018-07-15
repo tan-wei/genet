@@ -13,7 +13,7 @@ const genet = jsonfile.readFileSync(
 
 fs.writeFileSync(versionFile, JSON.stringify({
   genet: genet.version,
-  negatron: genet.devDependencies.negatron,
+  negatron: genet.devDependencies['@genet/negatron'],
   abi: process.versions.modules,
   resourcePath: path.resolve(__dirname, '..'),
 }))
