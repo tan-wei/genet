@@ -8,7 +8,7 @@ const options = {
   dir: process.cwd(),
   download: { mirror: 'https://cdn.deplug.net/electron/v' },
   asar: { unpackDir: '{node_modules/@deplug/osx-helper,node_modules/nan,package,genet-modules/bin}' },
-  icon: 'images/deplug',
+  icon: 'images/genet',
   ignore: /^(src|lib|scripts|debian|images)/,
   electronVersion: negatronVersion,
   win32metadata: {

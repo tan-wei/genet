@@ -37,5 +37,5 @@ export default {
   userProfilePath,
   builtinPackagePath,
   cachePath,
-  linuxIconPath: '/usr/share/icons/hicolor/256x256/apps/deplug.png',
+  linuxIconPath: '/usr/share/icons/hicolor/256x256/apps/genet.png',
 }

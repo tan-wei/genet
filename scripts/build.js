@@ -31,7 +31,7 @@ function build() {
     notifier.notify({
       title: 'Genet Build Service',
       message: 'Build Finished!\nReloading Window...',
-      icon: path.join(__dirname, '..', 'images', 'deplug.png')
+      icon: path.join(__dirname, '..', 'images', 'genet.png')
     })
   }
   setTimeout(() => {
