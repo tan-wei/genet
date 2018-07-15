@@ -1,7 +1,7 @@
 {
   "name": "@genet/core",
   "version": "0.0.1",
-  "description": "Genet core modules",
+  "description": "genet core modules",
   "repository": {
     "type": "git",
     "url": "https://github.com/genet-app/genet.git"

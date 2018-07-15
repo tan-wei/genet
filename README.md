@@ -1,6 +1,6 @@
-# Genet
+# genet
 
-Genet is a graphical network analyzer powered by web technologies.
+genet is a graphical network analyzer powered by web technologies.
 
 ## Features
 
@@ -16,12 +16,12 @@ Genet is a graphical network analyzer powered by web technologies.
 
 https://genet.app/#/inst?id=download
 
-## Why Genet?
+## Why genet?
 
 ### Package Management
 __Everything up-to-date.__
 
-Decoding latest protocol specs without updating Genet itself.
+Decoding latest protocol specs without updating genet itself.
 
 __Custom protocols.__
 
@@ -30,7 +30,7 @@ You can easily publish & install extensions for custom protocols.
 ### Extensible
 __No protocol-dependent features.__
 
-Genet core provides only fundamental functionality and 
+genet core provides only fundamental functionality and 
 every protocol is implemented as an independent package.
 
 For example, display filter does not have a syntax for IPv4 address like `ipv4.src === 127.0.0.1`.
@@ -39,7 +39,7 @@ Instead, there is an extensible macro expression: `ipv4.src === @127.0.0.1` (Def
 ### Security
 __Writing a secure dissector in C/C++ is hard.__ 
 
-Genet provides a safer & modern SDK for JavaScript and Rust.
+genet provides a safer & modern SDK for JavaScript and Rust.
 
 __Enabling packages only what you need.__
 
@@ -61,7 +61,7 @@ Dissectors can run under seccomp. (Linux only)
 
 ## Import / Export
 
-Genet supports following formats by default.
+genet supports following formats by default.
 
 - Pcap File (*.pcap)
 
@@ -79,7 +79,7 @@ Installed packages are located in `$HOME/.genet/package`.
 
 ## Display Filter
 
-Genet has a simple DSL(Domain Specific Language) to filter packets. 
+genet has a simple DSL(Domain Specific Language) to filter packets. 
 
 It is very similar to JavaScript.
 (And actually, it will be transpiled into JavaScript and executed on V8 JIT!)
@@ -133,7 +133,7 @@ http.path slice:0:6 == '/login'
 ```
 
 <p class="warning">
-Note that you can not write a method call like `http.path.toLowerCase()` because Genet resolves `http.path.toLowerCase` as a layer attribute named `http.path.toLowerCase`.
+Note that you can not write a method call like `http.path.toLowerCase()` because genet resolves `http.path.toLowerCase` as a layer attribute named `http.path.toLowerCase`.
 </p>
 
 #### Builtin Manipulators

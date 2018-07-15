@@ -29,7 +29,7 @@ function build() {
   touch.sync(reloadFile)
   if (watchMode) {
     notifier.notify({
-      title: 'Genet Build Service',
+      title: 'genet Build Service',
       message: 'Build Finished!\nReloading Window...',
       icon: path.join(__dirname, '..', 'images', 'genet.png')
     })

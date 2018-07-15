@@ -1,5 +1,5 @@
 {
-  "title": "Genet",
+  "title": "genet",
   "icon": "../images/genet-drive.icns",
   "background": "../images/dmg-background.png",
   "icon-size": 128,
@@ -12,6 +12,6 @@
     "x": 180,
     "y": 185,
     "type": "file",
-    "path": "../out/Genet-darwin-x64/Genet.app"
+    "path": "../out/genet-darwin-x64/genet.app"
   }]
 }

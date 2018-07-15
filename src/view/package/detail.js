@@ -60,9 +60,9 @@ export default class DetailView {
             : 'none',
         },
       }, [
-        'This package is incompatible with the running Genet version.',
+        'This package is incompatible with the running genet version.',
         m('br'),
-        `Required Genet Version: ${pkg.data.engines.genet}`
+        `Required genet Version: ${pkg.data.engines.genet}`
       ]),
       m(ButtonBoxView, {
         pkg,

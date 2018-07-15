@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=Genet
+Name=genet
 Comment=General Purpose Network Analyzer
 Exec=/usr/share/genet/genet
 Terminal=false

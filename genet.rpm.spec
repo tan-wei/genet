@@ -12,7 +12,7 @@ Requires(post): libcap-progs
 AutoReqProv: no
 
 %description
-Genet is a modern packet analyzer based on Electron.
+genet is a modern packet analyzer based on Electron.
 
 %prep
 
