@@ -118,13 +118,8 @@ export default class WindowView {
     genet.action.global.on('core:file:browse-user-dir', () => {
       shell.showItemInFolder(env.userProfilePath)
     })
-    genet.action.global.on('core:pcap:uninstall-helper', () => {
-      require('@deplug/osx-helper').uninstall()
-    })
     genet.action.global.on('core:file:import', () => {
-      const files = dialog.showOpenDialog({
-        properties: ['openFile'],
-      })
+      const files = dialog.showOpenDialog({properties: ['openFile'],})
       if (typeof files !== 'undefined' && files.length > 0) {
         const [file] = files
         const id = `import-${Date.now()}`

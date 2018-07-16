@@ -2,6 +2,8 @@ const cli = require('./cli')
 const m = require('mithril')
 class MacHelper {
   view () {
+    const url = 'https://github.com/genet-app/genet-helper/releases/' +
+      'download/v0.1.0/GenetHelperInstaller.zip'
     return m('section', [
       m('h1', ['Install Helper Tool']),
       m('p', [
@@ -10,11 +12,8 @@ class MacHelper {
         'this problem. Once it has been installed, we can start a ' +
         'live capture without running genet as root.'
       ]),
-      m('p', ['Press the following button to install the helper tool.']),
-      m('input', {
-        type: 'button',
-        value: 'Install',
-      }),
+      m('p', ['Download from here:']),
+      m('p', [m('a', { href: url }, [url])]),
       m('p', [
         m('a', { href: 'https://genet.app/#/inst?id=helper-tool-on-macos' },
           ['Learn more...'])

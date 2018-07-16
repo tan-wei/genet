@@ -7,7 +7,7 @@ const packager = require('electron-packager')
 const options = {
   dir: process.cwd(),
   download: { mirror: 'https://storage.googleapis.com/cdn-genet-app/electron/v' },
-  asar: { unpackDir: '{node_modules/@deplug/osx-helper,node_modules/nan,package,genet-modules/bin}' },
+  asar: { unpackDir: '{node_modules/nan,package,genet-modules/bin}' },
   icon: 'images/genet',
   ignore: /^(src|lib|scripts|debian|images)/,
   electronVersion: negatronVersion,
