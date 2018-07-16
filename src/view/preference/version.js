@@ -48,7 +48,7 @@ export default class Plugin {
   constructor () {
     this.version = objpath.get(env.genet, 'version', 'n/a')
     this.electronVersion =
-      objpath.get(env.genet, 'devDependencies['@genet/negatron']', 'n/a')
+      objpath.get(env.genet, 'devDependencies.@genet/negatron', 'n/a')
   }
   view (vnode) {
     const nodes = [
