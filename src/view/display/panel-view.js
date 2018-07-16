@@ -1,5 +1,6 @@
 import Style from '../../lib/style'
 import m from 'mithril'
+import { shell } from 'electron'
 
 export default class PanelView {
   view () {
@@ -10,7 +11,34 @@ export default class PanelView {
     this.container = document.createElement('div')
     this.container.classList.add('panel')
     const node = this.container.attachShadow({ mode: 'open' })
-    m.mount(node, { view: () => m(vnode.attrs.component, attrs) })
+    const container = document.createElement('div')
+    node.appendChild(container)
+
+    container.addEventListener('dragover', (event) => {
+      event.preventDefault()
+      return false
+    }, false)
+
+    container.addEventListener('drop', (event) => {
+      event.preventDefault()
+      return false
+    }, false)
+
+    container.addEventListener('click', (event) => {
+      const isUrl = (/^https?:\/\//).test(event.target.href)
+      if (event.target.tagName === 'A' && isUrl) {
+        event.preventDefault()
+        shell.openExternal(event.target.href)
+        event.preventDefault()
+      }
+    })
+
+    m.mount(container, {
+      view () {
+        return m(vnode.attrs.component, attrs)
+      },
+    })
+
     const themeStyleTag = document.createElement('style')
     themeStyleTag.id = 'theme-style'
     node.appendChild(themeStyleTag)
