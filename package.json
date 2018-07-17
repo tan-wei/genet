@@ -60,13 +60,14 @@
     "ws": "^4.0.0"
   },
   "devDependencies": {
+    "@genet/negatron": "1.8.2",
     "benchmark": "^2.1.4",
     "chokidar": "^1.7.0",
     "electron-packager": "^10.1.0",
     "electron-winstaller": "^2.6.3",
     "less": "^3.0.1",
     "mocha": "^5.2.0",
-    "@genet/negatron": "1.8.2",
+    "modclean": "^3.0.0-beta.1",
     "node-gyp": "^3.6.2",
     "node-notifier": "^5.1.2",
     "pretty-bytes": "^4.0.2",
