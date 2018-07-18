@@ -4,7 +4,6 @@ const { negatronVersion } = require('./negatron')
 const path = require('path')
 const { ensureDir, copy, remove } = require('fs-extra')
 const execa = require('execa')
-const modclean = require('modclean')
 const glob = require('glob')
 const packager = require('electron-packager')
 
@@ -45,16 +44,16 @@ async function run() {
 	})
 	await Promise.all(waste.map(file => remove(file)))
 
-    await execa.shell('npm i', {
-      cwd: outSrcDir,
-      stdio: 'inherit',
-      env: { NODE_ENV: 'production' }
-    })
+  await execa('npm', ['install'], {
+    cwd: outSrcDir,
+    stdio: 'inherit',
+    env: { NODE_ENV: 'production' }
+  })
 
-	const mc = modclean({
-	  cwd: outSrcDir
+	await execa('npx', ['modclean', '-r'], {
+    cwd: outSrcDir,
+    stdio: 'inherit',
 	})
-	await mc.clean()
 
 	try {
 		await packager(options)
