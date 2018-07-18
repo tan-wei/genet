@@ -14,9 +14,8 @@ const outDistDir = path.join(outDir, 'dist')
 const options = {
   dir: outSrcDir,
   download: { mirror: 'https://storage.googleapis.com/cdn-genet-app/electron/v' },
-  asar: { unpackDir: '{node_modules/nan,package,genet_modules/bin}' },
+  asar: { unpackDir: '{package,genet_modules/bin}' },
   icon: 'images/genet',
-  ignore: /^(src|lib|scripts|debian|images)/,
   electronVersion: negatronVersion,
   win32metadata: {
     CompanyName: 'genet',
