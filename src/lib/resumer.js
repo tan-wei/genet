@@ -1,4 +1,4 @@
-import jsonfile from 'jsonfile'
+import { readJsonSync, writeJsonSync } from 'fs-extra'
 import { remote } from 'electron'
 import tempy from 'tempy'
 
@@ -10,7 +10,7 @@ export default class Resumer {
       data: {},
     }
     try {
-      this[fields].data = jsonfile.readFileSync(file)
+      this[fields].data = readJsonSync(file)
     } catch (err) {
       logger.debug(err.message)
     }
@@ -30,7 +30,7 @@ export default class Resumer {
 
   reload () {
     const { data, file } = this[fields]
-    jsonfile.writeFileSync(file, data)
+    writeJsonSync(file, data)
     remote.getCurrentWebContents().reload()
   }
 

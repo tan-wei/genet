@@ -1,11 +1,9 @@
 import BaseComponent from './base'
 import { CompositeDisposable } from 'disposables'
-import jsonfile from 'jsonfile'
 import objpath from 'object-path'
 import path from 'path'
-import { promisify } from 'util'
+import { readJson } from 'fs-extra'
 
-const promiseReadFile = promisify(jsonfile.readFile)
 export default class TokenComponent extends BaseComponent {
   constructor (comp, dir) {
     super()
@@ -14,7 +12,7 @@ export default class TokenComponent extends BaseComponent {
   }
   async load () {
     const tokenList =
-      await Promise.all(this.tokenFiles.map((file) => promiseReadFile(file)))
+      await Promise.all(this.tokenFiles.map((file) => readJson(file)))
     this.disposable = new CompositeDisposable(
       tokenList.map((tokens) => genet.session.registerTokens(tokens)))
     return true

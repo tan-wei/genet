@@ -1,5 +1,5 @@
 import BaseComponent from './base'
-import exists from 'file-exists'
+import fs from 'fs'
 import glob from 'glob'
 import objpath from 'object-path'
 import path from 'path'
@@ -15,7 +15,7 @@ export default class LibraryComponent extends BaseComponent {
     const searchPaths = ['.']
     for (const spath of searchPaths) {
       const absolute = path.join(dir, spath, file)
-      if (exists.sync(absolute)) {
+      if (fs.existsSync(absolute)) {
         this.mainFile = absolute
         break
       }

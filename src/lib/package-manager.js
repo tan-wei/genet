@@ -2,17 +2,16 @@ import ComponentFactory from './component-factory'
 import { EventEmitter } from 'events'
 import env from './env'
 import glob from 'glob'
-import jsonfile from 'jsonfile'
 import mkpath from 'mkpath'
 import objpath from 'object-path'
 import path from 'path'
 import { promisify } from 'util'
+import { readJson } from 'fs-extra'
 import rimraf from 'rimraf'
 import semver from 'semver'
 import writeFileAtomic from 'write-file-atomic'
 
 const promiseGlob = promisify(glob)
-const promiseReadFile = promisify(jsonfile.readFile)
 const promiseWriteFile = promisify(writeFileAtomic)
 const promiseRmdir = promisify(rimraf)
 const promiseMkpath = promisify(mkpath)
@@ -20,7 +19,7 @@ const fields = Symbol('fields')
 async function readFile (filePath) {
   try {
     const normPath = path.normalize(filePath)
-    const data = await promiseReadFile(normPath)
+    const data = await readJson(normPath)
     const dir = path.dirname(normPath)
     const builtin = !normPath.startsWith(env.userPackagePath)
     const id = builtin

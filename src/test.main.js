@@ -5,8 +5,8 @@ import Config from './lib/config'
 import Session from './lib/session'
 import env from './lib/env'
 import glob from 'glob'
-import jsonfile from 'jsonfile'
 import path from 'path'
+import { readJsonSync } from 'fs-extra'
 
 console.log('')
 console.log('Running built-in dissector tests...')
@@ -20,7 +20,7 @@ const builtinPluginPattern =
   path.join(env.builtinPackagePath, '/**/package.json')
 const packages = glob.sync(builtinPluginPattern)
   .map((file) => ({
-    list: jsonfile.readFileSync(file).genet.components,
+    list: readJsonSync(file).genet.components,
     dir: path.dirname(file),
   }))
 

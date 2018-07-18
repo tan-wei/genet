@@ -1,10 +1,10 @@
-import jsonfile from 'jsonfile'
 import os from 'os'
 import path from 'path'
+import { readJsonSync } from 'fs-extra'
 
 function readFile (filePath) {
   try {
-    return jsonfile.readFileSync(filePath)
+    return readJsonSync(filePath)
   } catch (err) {
     return {}
   }
@@ -23,7 +23,7 @@ function getRootPath () {
 }
 
 const rootPath = getRootPath()
-const genet = jsonfile.readFileSync(path.join(rootPath, 'package.json'))
+const genet = readJsonSync(path.join(rootPath, 'package.json'))
 const userPath = path.join(os.homedir(), '.genet')
 const userPackagePath = path.join(userPath, 'package')
 const userProfilePath = path.join(userPath, 'profile')

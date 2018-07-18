@@ -1,9 +1,8 @@
 import { EventEmitter } from 'events'
 import axios from 'axios'
 import execa from 'execa'
-import fs from 'fs'
+import fs from 'fs-extra'
 import glob from 'glob'
-import jsonfile from 'jsonfile'
 import mkpath from 'mkpath'
 import objpath from 'object-path'
 import os from 'os'
@@ -14,7 +13,6 @@ import tar from 'tar'
 import tmp from 'tmp-promise'
 import zlib from 'zlib'
 
-const promiseReadJsonFile = promisify(jsonfile.readFile)
 const promiseGlob = promisify(glob)
 const promiseMkpath = promisify(mkpath)
 const promiseRmdir = promisify(rimraf)
@@ -117,7 +115,7 @@ Visit https://www.rustup.rs/ for installation details.
 
   async npm (dir) {
     this.emit('output', 'Reading package.json ...\n')
-    const pkg = promiseReadJsonFile(path.join(dir, 'package.json'))
+    const pkg = fs.readJson(path.join(dir, 'package.json'))
     if (!objpath.has(pkg, 'dependencies') && !objpath.has(pkg, 'scripts')) {
       return
     }
