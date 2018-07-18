@@ -10,8 +10,8 @@ const src = path.resolve(__dirname, '../lib')
 const rustSrc = path.resolve(src, 'genet-kernel')
 const nodeSrc = path.resolve(src, 'genet-node')
 const scriptFiles = glob.sync(path.resolve(nodeSrc, '*.{js,json}'))
-const dst = path.resolve(__dirname, '../genet-modules/genet-node')
-const dstBin = path.resolve(__dirname, '../genet-modules/bin/genet-node')
+const dst = path.resolve(__dirname, '../genet_modules/genet-node')
+const dstBin = path.resolve(__dirname, '../genet_modules/bin/genet-node')
 
 const env = require('./npm-env')
 

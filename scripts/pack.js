@@ -14,7 +14,7 @@ const outDistDir = path.join(outDir, 'dist')
 const options = {
   dir: outSrcDir,
   download: { mirror: 'https://storage.googleapis.com/cdn-genet-app/electron/v' },
-  asar: { unpackDir: '{node_modules/nan,package,genet-modules/bin}' },
+  asar: { unpackDir: '{node_modules/nan,package,genet_modules/bin}' },
   icon: 'images/genet',
   ignore: /^(src|lib|scripts|debian|images)/,
   electronVersion: negatronVersion,
@@ -33,7 +33,7 @@ async function run() {
 	await ensureDir(outSrcDir)
 	await copy(path.join(__dirname, '../package.json'), path.join(outSrcDir, 'package.json'))
 	await copy(path.join(__dirname, '../package-lock.json'), path.join(outSrcDir, 'package-lock.json'))
-	await copy(path.join(__dirname, '../genet-modules'), path.join(outSrcDir, 'genet-modules'))
+	await copy(path.join(__dirname, '../genet_modules'), path.join(outSrcDir, 'genet_modules'))
 	await copy(path.join(__dirname, '../package'), path.join(outSrcDir, 'package'))
 
 	const waste = await glob.sync('package/*/crates/**/*', {

@@ -7,7 +7,7 @@ const execa = require('execa')
 const fs = require('fs')
 
 const src = path.resolve(__dirname, '../src')
-const dst = path.resolve(__dirname, '../genet-modules/src')
+const dst = path.resolve(__dirname, '../genet_modules/src')
 const webpack = path.resolve(__dirname, '../node_modules/.bin/webpack')
 const lessc = path.resolve(__dirname, '../node_modules/.bin/lessc')
 mkpath.sync(dst)

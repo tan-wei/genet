@@ -13,12 +13,11 @@
     "test": "node scripts/test.js",
     "bench": "node scripts/bench.js plugkit/bench/*.js"
   },
-  "main": "genet-modules/src/app.main.js",
+  "main": "genet_modules/src/app.main.js",
   "author": "h2so5",
   "license": "MIT",
   "dependencies": {
-    "moment": "^2.20.0",
-    "@genet/load-module": "0.0.2",
+    "@genet/load-module": "0.0.3",
     "acorn": "^5.5.3",
     "axios": "^0.17.1",
     "balloon-css": "^0.5.0",
@@ -45,6 +44,7 @@
     "minimist": "^1.2.0",
     "mithril": "^1.1.1",
     "mkpath": "^1.0.0",
+    "moment": "^2.20.0",
     "mousetrap": "^1.6.1",
     "normalize-url": "^2.0.1",
     "object-path": "^0.11.4",

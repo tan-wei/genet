@@ -30,7 +30,7 @@ class LicenseInfo {
   loadLicenseFile () {
     const licenseFile =
       path.resolve(__dirname, '../../..',
-        'genet-modules/src/asset/license.json.gz')
+        'genet_modules/src/asset/license.json.gz')
     fs.readFile(licenseFile, (err, data) => {
       if (!err) {
         zlib.gunzip(data, (gerr, json) => {
