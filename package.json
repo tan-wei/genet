@@ -61,7 +61,7 @@
   "devDependencies": {
     "@genet/negatron": "1.8.2",
     "benchmark": "^2.1.4",
-    "chokidar": "^1.7.0",
+    "chokidar": "^2.0.4",
     "electron-packager": "^10.1.0",
     "electron-winstaller": "^2.6.3",
     "less": "^3.7.1",
