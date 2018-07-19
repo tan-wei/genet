@@ -6,6 +6,7 @@ const { ensureDir, copy, remove } = require('fs-extra')
 const execa = require('execa')
 const glob = require('glob')
 const packager = require('electron-packager')
+const modclean = require('modclean')({})
 
 const outDir = path.join(__dirname, '../out')
 const outSrcDir = path.join(outDir, 'src')
@@ -49,16 +50,13 @@ async function run() {
     env: { NODE_ENV: 'production' }
   })
 
-	await execa('npx', ['modclean', '-r'], {
-    cwd: outSrcDir,
-    stdio: 'inherit',
-	})
+  await modclean.clean();
 
 	try {
 		await packager(options)
 	} catch (err) {
 		console.warn(err)
-		process.exit(1)		
+		process.exit(1)
 	}
 }
 
