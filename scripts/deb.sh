@@ -7,4 +7,4 @@ cp images/genet.png out/src/.debian/usr/share/icons/hicolor/256x256/apps
 cp -r out/dist/genet-linux-x64/. out/src/.debian/usr/share/genet
 mv out/src/.debian/usr/share/genet/genet out/src/.debian/usr/share/genet/genet
 chrpath -r /usr/share/genet out/src/.debian/usr/share/genet/genet
-(cd out/src/.debian && fakeroot dpkg-deb --build . ../../genet-linux-amd64.deb)
+(cd out/src/.debian && fakeroot dpkg-deb --build . ../../genet-linux-x64-v${GENET_VER}.deb)

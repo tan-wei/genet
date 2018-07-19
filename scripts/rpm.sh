@@ -11,4 +11,4 @@ cp -r out/dist/genet-linux-x64/. out/src/.rpm/BUILD/usr/share/genet
 mv out/src/.rpm/BUILD/usr/share/genet/genet out/src/.rpm/BUILD/usr/share/genet/genet
 chrpath -r /usr/share/genet out/src/.rpm/BUILD/usr/share/genet/genet
 rpmbuild --define "_topdir $PWD/out/src/.rpm" -bb out/src/.rpm/genet.rpm.spec
-mv out/src/.rpm/RPMS/*/*.rpm out/genet-linux-amd64.rpm
+mv out/src/.rpm/RPMS/*/*.rpm out/genet-linux-x64-v${GENET_VER}.rpm
