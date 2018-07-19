@@ -3,8 +3,7 @@
 const path = require('path')
 const execa = require('execa')
 const glob = require('glob')
-const mkpath = require('mkpath')
-const fs = require('fs')
+const fs = require('fs-extra')
 
 const src = path.resolve(__dirname, '../lib')
 const rustSrc = path.resolve(src, 'genet-kernel')
@@ -15,8 +14,8 @@ const dstBin = path.resolve(__dirname, '../genet_modules/bin/genet-node')
 
 const env = require('./npm-env')
 
-mkpath.sync(dst)
-mkpath.sync(dstBin)
+fs.ensureDirSync(dst)
+fs.ensureDirSync(dstBin)
 
 async function exec() {
   await execa.shell('cargo build --release', {

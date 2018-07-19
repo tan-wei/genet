@@ -1,12 +1,10 @@
 import { Disposable } from 'disposables'
 import deepEqual from 'deep-equal'
 import env from './env'
-import fs from 'fs'
-import mkpath from 'mkpath'
+import fs from 'fs-extra'
 import objpath from 'object-path'
 import path from 'path'
 import schemaDefault from './schema-default'
-import touch from 'touch'
 import { validate } from 'jsonschema'
 import yaml from 'js-yaml'
 
@@ -15,8 +13,7 @@ export default class Config {
   constructor (profile, name) {
     const filePath =
       path.join(env.userProfilePath, profile, `${name}.yml`)
-    mkpath.sync(path.dirname(filePath))
-    touch.sync(filePath)
+    fs.ensureFileSync(filePath)
 
     const schema = schemaDefault[name] || {}
     this[fields] = {

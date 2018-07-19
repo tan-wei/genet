@@ -3,10 +3,8 @@ import { EventEmitter } from 'events'
 import Mousetrap from 'mousetrap'
 import deepEqual from 'deep-equal'
 import env from './env'
-import fs from 'fs'
-import mkpath from 'mkpath'
+import fs from 'fs-extra'
 import path from 'path'
-import touch from 'touch'
 import yaml from 'js-yaml'
 
 const fields = Symbol('fields')
@@ -27,8 +25,7 @@ export default class KeyBind extends EventEmitter {
     super()
     const filePath =
       path.join(env.userProfilePath, profile, 'keybind.yml')
-    mkpath.sync(path.dirname(filePath))
-    touch.sync(filePath)
+    fs.ensureFileSync(filePath)
 
     this[fields] = {
       filePath,

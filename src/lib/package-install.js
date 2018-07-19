@@ -3,19 +3,15 @@ import axios from 'axios'
 import execa from 'execa'
 import fs from 'fs-extra'
 import glob from 'glob'
-import mkpath from 'mkpath'
 import objpath from 'object-path'
 import os from 'os'
 import path from 'path'
 import { promisify } from 'util'
-import rimraf from 'rimraf'
 import tar from 'tar'
 import tmp from 'tmp-promise'
 import zlib from 'zlib'
 
 const promiseGlob = promisify(glob)
-const promiseMkpath = promisify(mkpath)
-const promiseRmdir = promisify(rimraf)
 const promiseRename = promisify(fs.rename)
 const fields = Symbol('fields')
 export default class PackageInstaller extends EventEmitter {
@@ -38,12 +34,12 @@ export default class PackageInstaller extends EventEmitter {
       await this.download(tmpdir.path, url)
       await this.build(tmpdir.path)
       await this.npm(tmpdir.path)
-      await promiseRmdir(dir).catch((err) => this.emit('output', `${err}\n`))
+      await fs.remove(dir).catch((err) => this.emit('output', `${err}\n`))
       await promiseRename(tmpdir.path, dir)
       this.emit('output', 'Done\n')
     } catch (err) {
       this.emit('output', 'Failed\n')
-      await promiseRmdir(dir)
+      await fs.remove(dir)
       throw err
     }
   }
@@ -60,7 +56,7 @@ export default class PackageInstaller extends EventEmitter {
       cwd: dir,
       strip: 1,
     })
-    await promiseMkpath(dir)
+    await fs.ensureDir(dir)
     return new Promise((res, rej) => {
       response.data.pipe(gunzip)
         .pipe(extractor)

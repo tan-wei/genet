@@ -4,10 +4,9 @@ import Menu from './menu'
 import Resumer from '../../lib/resumer'
 import Stack from './stack'
 import env from '../../lib/env'
-import fs from 'fs'
+import fs from 'fs-extra'
 import m from 'mithril'
 import path from 'path'
-import touch from 'touch'
 
 const { dialog } = remote
 const windowId = remote.getCurrentWindow().id
@@ -83,7 +82,7 @@ export default class WindowView {
   oncreate () {
     const watcherFile = genet.argv['genet-dev-watch-file']
     if (watcherFile) {
-      touch.sync(watcherFile)
+      fs.ensureFileSync(watcherFile)
       fs.watchFile(watcherFile, remote.getCurrentWindow().reload)
     }
     ipcRenderer.on('core:menu:action', (event, channel) => {

@@ -2,19 +2,15 @@ import ComponentFactory from './component-factory'
 import { EventEmitter } from 'events'
 import env from './env'
 import glob from 'glob'
-import mkpath from 'mkpath'
 import objpath from 'object-path'
 import path from 'path'
 import { promisify } from 'util'
-import { readJson } from 'fs-extra'
-import rimraf from 'rimraf'
+import { readJson, remove, ensureDir } from 'fs-extra'
 import semver from 'semver'
 import writeFileAtomic from 'write-file-atomic'
 
 const promiseGlob = promisify(glob)
 const promiseWriteFile = promisify(writeFileAtomic)
-const promiseRmdir = promisify(rimraf)
-const promiseMkpath = promisify(mkpath)
 const fields = Symbol('fields')
 async function readFile (filePath) {
   try {
@@ -235,14 +231,14 @@ export default class PackageManager extends EventEmitter {
   async uninstall (id) {
     const pkg = this.get(id)
     if (typeof pkg !== 'undefined') {
-      await promiseRmdir(pkg.dir)
+      await remove(pkg.dir)
       this.triggerUpdate()
     }
   }
 
   static async init () {
-    await promiseMkpath(env.userPackagePath)
-    await promiseMkpath(env.cachePath)
+    await ensureDir(env.userPackagePath)
+    await ensureDir(env.cachePath)
 
     const versionFile = path.join(env.userPath, '.version')
     await promiseWriteFile(versionFile, JSON.stringify({
@@ -267,6 +263,6 @@ export default class PackageManager extends EventEmitter {
       }
       return null
     }).filter((dir) => dir !== null)
-    return Promise.all(dirs.map((dir) => promiseRmdir(dir)))
+    return Promise.all(dirs.map((dir) => remove(dir)))
   }
 }

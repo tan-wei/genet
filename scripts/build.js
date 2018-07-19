@@ -2,7 +2,7 @@
 
 const { spawnSync, spawn } = require('child_process')
 const chokidar = require('chokidar')
-const touch = require('touch')
+const { ensureFileSync } = require('fs-extra')
 const debounce = require('lodash.debounce')
 const path = require('path')
 const notifier = require('node-notifier')
@@ -26,7 +26,7 @@ function build() {
   run('node', 'scripts/build-src.js')
   run('node', 'scripts/build-lib.js')
   run('node', 'scripts/build-rust-packages.js')
-  touch.sync(reloadFile)
+  ensureFileSync(reloadFile)
   if (watchMode) {
     notifier.notify({
       title: 'genet Build Service',
