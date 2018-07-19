@@ -141,7 +141,11 @@ impl Store {
                             sender.send(Command::PushFrames(Some(id), Ok(layers)));
                         }
                     }
-                    _ => break,
+                    Err(err) => {
+                        let err = Error(err.description().to_string());
+                        sender.send(Command::PushFrames(Some(id), Err(Box::new(err))));
+                        break;
+                    }
                 }
             } else {
                 break;
