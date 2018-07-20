@@ -62,7 +62,7 @@ impl<T> SafeVec<T> {
 
     pub fn with_capacity(capacity: u64) -> Self {
         let size = mem::size_of::<T>() * capacity as usize;
-        let ptr: *mut T = unsafe { mem::transmute(env::alloc(size)) };
+        let ptr: *mut T = env::alloc(size) as *mut T;
         if ptr.is_null() {
             panic!("alloc() returns NULL");
         }
@@ -85,7 +85,7 @@ impl<T> SafeVec<T> {
             if self.cap <= self.len {
                 self.cap += 4;
                 let size = mem::size_of::<T>() * self.cap as usize;
-                self.ptr = mem::transmute(env::realloc(self.ptr as *mut u8, size));
+                self.ptr = env::realloc(self.ptr as *mut u8, size) as *mut T;
                 if self.ptr.is_null() {
                     panic!("realloc() returns NULL");
                 }
@@ -106,8 +106,8 @@ impl<T> SafeVec<T> {
 }
 
 impl<T> IntoIterator for SafeVec<T> {
-    type IntoIter = self::IntoIter<T>;
     type Item = T;
+    type IntoIter = self::IntoIter<T>;
 
     fn into_iter(mut self) -> Self::IntoIter {
         let iter = IntoIter {
@@ -125,8 +125,8 @@ impl<T> IntoIterator for SafeVec<T> {
 impl<T> FromIterator<T> for SafeVec<T> {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> SafeVec<T> {
         let mut v = SafeVec::new();
-        let mut iter = iter.into_iter();
-        while let Some(val) = iter.next() {
+        let iter = iter.into_iter();
+        for val in iter {
             v.push(val);
         }
         v

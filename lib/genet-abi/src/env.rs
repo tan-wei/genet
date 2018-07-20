@@ -25,8 +25,9 @@ pub extern "C" fn genet_abi_v1_register_get_allocator(ptr: extern "C" fn() -> Pt
     unsafe { GENET_GET_ALLOCATOR = ptr };
 }
 
-static mut GENET_GET_TOKEN: extern "C" fn(*const u8, u64) -> Token = abi_genet_get_token;
-static mut GENET_GET_STRING: extern "C" fn(Token, *mut u64) -> *const u8 = abi_genet_get_string;
+static mut GENET_GET_TOKEN: unsafe extern "C" fn(*const u8, u64) -> Token = abi_genet_get_token;
+static mut GENET_GET_STRING: unsafe extern "C" fn(Token, *mut u64) -> *const u8 =
+    abi_genet_get_string;
 static mut GENET_GET_ALLOCATOR: extern "C" fn() -> Ptr<Allocator> = abi_genet_get_allocator;
 
 pub extern "C" fn abi_genet_get_allocator() -> Ptr<Allocator> {
@@ -46,12 +47,12 @@ pub extern "C" fn abi_genet_get_allocator() -> Ptr<Allocator> {
     })
 }
 
-pub extern "C" fn abi_genet_get_token(data: *const u8, len: u64) -> Token {
+pub unsafe extern "C" fn abi_genet_get_token(data: *const u8, len: u64) -> Token {
     let tokens = GLOBAL_TOKENS.lock().unwrap();
     let mut tokens = tokens.borrow_mut();
     let strings = GLOBAL_STRINGS.lock().unwrap();
     let mut strings = strings.borrow_mut();
-    let id = unsafe { str::from_utf8_unchecked(slice::from_raw_parts(data, len as usize)) };
+    let id = str::from_utf8_unchecked(slice::from_raw_parts(data, len as usize));
     if id.is_empty() {
         return Token::null();
     }
@@ -60,10 +61,10 @@ pub extern "C" fn abi_genet_get_token(data: *const u8, len: u64) -> Token {
     if let Entry::Vacant(_) = entry {
         strings.push(String::from(id));
     }
-    *entry.or_insert(Token::from(next as u64))
+    *entry.or_insert_with(|| Token::from(next as u64))
 }
 
-pub extern "C" fn abi_genet_get_string(token: Token, len: *mut u64) -> *const u8 {
+pub unsafe extern "C" fn abi_genet_get_string(token: Token, len: *mut u64) -> *const u8 {
     let strings = GLOBAL_STRINGS.lock().unwrap();
     let strings = strings.borrow();
     let index = token.as_u64() as usize;
@@ -72,7 +73,7 @@ pub extern "C" fn abi_genet_get_string(token: Token, len: *mut u64) -> *const u8
     } else {
         ""
     };
-    unsafe { *len = s.len() as u64 }
+    *len = s.len() as u64;
     s.as_ptr()
 }
 

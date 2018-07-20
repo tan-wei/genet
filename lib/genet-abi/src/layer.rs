@@ -11,7 +11,7 @@ pub struct LayerStack<'a> {
 impl<'a> LayerStack<'a> {
     pub unsafe fn new(ptr: *const *const Layer, len: usize) -> LayerStack<'a> {
         Self {
-            buffer: unsafe { slice::from_raw_parts(ptr, len) },
+            buffer: slice::from_raw_parts(ptr, len),
         }
     }
 

@@ -77,8 +77,8 @@ impl Profile {
     pub fn load_library(&mut self, path: &str) -> Result<(), io::Error> {
         let lib = Library::new(path)?;
 
-        type FnRegisterGetToken = extern "C" fn(extern "C" fn(*const u8, u64) -> Token);
-        type FnRegisterGetString = extern "C" fn(extern "C" fn(Token, *mut u64) -> *const u8);
+        type FnRegisterGetToken = extern "C" fn(unsafe extern "C" fn(*const u8, u64) -> Token);
+        type FnRegisterGetString = extern "C" fn(unsafe extern "C" fn(Token, *mut u64) -> *const u8);
         type FnRegisterGetAllocator = extern "C" fn(extern "C" fn() -> Ptr<Allocator>);
         type FnGetDissectors = extern "C" fn(*mut u64) -> *const DissectorBox;
         type FnGetReaders = extern "C" fn(*mut u64) -> *const ReaderBox;

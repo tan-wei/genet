@@ -150,19 +150,19 @@ impl Into<Variant> for bool {
 
 impl Into<Variant> for i8 {
     fn into(self) -> Variant {
-        Variant::Int64(self as i64)
+        Variant::Int64(i64::from(self))
     }
 }
 
 impl Into<Variant> for i16 {
     fn into(self) -> Variant {
-        Variant::Int64(self as i64)
+        Variant::Int64(i64::from(self))
     }
 }
 
 impl Into<Variant> for i32 {
     fn into(self) -> Variant {
-        Variant::Int64(self as i64)
+        Variant::Int64(i64::from(self))
     }
 }
 
@@ -174,19 +174,19 @@ impl Into<Variant> for i64 {
 
 impl Into<Variant> for u8 {
     fn into(self) -> Variant {
-        Variant::UInt64(self as u64)
+        Variant::UInt64(u64::from(self))
     }
 }
 
 impl Into<Variant> for u16 {
     fn into(self) -> Variant {
-        Variant::UInt64(self as u64)
+        Variant::UInt64(u64::from(self))
     }
 }
 
 impl Into<Variant> for u32 {
     fn into(self) -> Variant {
-        Variant::UInt64(self as u64)
+        Variant::UInt64(u64::from(self))
     }
 }
 
@@ -198,7 +198,7 @@ impl Into<Variant> for u64 {
 
 impl Into<Variant> for f32 {
     fn into(self) -> Variant {
-        Variant::Float64(self as f64)
+        Variant::Float64(f64::from(self))
     }
 }
 

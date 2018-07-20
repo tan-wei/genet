@@ -47,7 +47,7 @@ impl TryGet<usize> for ByteSlice {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ByteSlice(&'static [u8]);
 
 impl ByteSlice {

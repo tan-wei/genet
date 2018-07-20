@@ -39,8 +39,10 @@ impl<T> Ptr<T> {
     pub fn as_ptr(&self) -> *const T {
         self.ptr
     }
+}
 
-    pub fn as_ref(&self) -> &T {
+impl<T> AsRef<T> for Ptr<T> {
+    fn as_ref(&self) -> &T {
         unsafe { &*self.ptr }
     }
 }

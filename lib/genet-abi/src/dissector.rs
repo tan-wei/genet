@@ -50,7 +50,7 @@ impl WorkerBox {
         unsafe {
             children = mem::uninitialized();
         }
-        let stack = unsafe { mem::transmute(layers.as_ptr()) };
+        let stack = layers.as_ptr() as *const *const Layer;
         let mut error = Error::new("");
         let result = (self.analyze)(
             self,

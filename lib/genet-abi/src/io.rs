@@ -178,7 +178,7 @@ impl WriterWorkerBox {
 
     pub fn write(&mut self, index: u32, layers: &[MutPtr<Layer>]) -> Result<()> {
         let mut e = Error::new("");
-        let stack = unsafe { mem::transmute(layers.as_ptr()) };
+        let stack = layers.as_ptr() as *const *const Layer;
         if (self.write)(self.worker, index, stack, layers.len() as u64, &mut e) == 0 {
             Err(Box::new(e))
         } else {
@@ -274,8 +274,8 @@ extern "C" fn abi_reader_worker_read(
     match worker.read() {
         Ok(layers) => {
             let mut safe = SafeVec::with_capacity(layers.len() as u64);
-            for l in layers.into_iter() {
-                safe.push(MutPtr::new(l));
+            for layer in layers {
+                safe.push(MutPtr::new(layer));
             }
             unsafe { *out = safe };
             1
