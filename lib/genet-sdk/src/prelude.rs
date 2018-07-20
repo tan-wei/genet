@@ -1,5 +1,4 @@
 pub use attr::{Attr, AttrBuilder, AttrClass};
-pub use bytes::{Bytes, TryGet};
 pub use context::Context;
 pub use decoder::{self, Map};
 pub use dissector::{Dissector, Status, Worker};

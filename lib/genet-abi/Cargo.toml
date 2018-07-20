@@ -6,4 +6,3 @@ authors = ["Ron Hashimoto <mail@h2so5.net>"]
 [dependencies]
 libc = "0.2"
 lazy_static = "1"
-bytes = "0.4"
