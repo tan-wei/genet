@@ -6,6 +6,7 @@ pub mod io;
 pub mod token;
 
 pub mod attr;
+pub mod bytes;
 pub mod context;
 pub mod decoder;
 pub mod error;

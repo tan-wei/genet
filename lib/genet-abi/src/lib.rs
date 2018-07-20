@@ -1,3 +1,4 @@
+extern crate bytes;
 extern crate libc;
 
 #[macro_use]
