@@ -44,7 +44,7 @@ fn main() {
         }
     };
 
-    if let Some(_) = matches.subcommand_matches("devices") {
+    if matches.subcommand_matches("devices").is_some() {
         let devices = pcap.devices().unwrap_or_else(|| vec![]);
         let _ = serde_json::to_writer(stdout(), &devices);
         println!();

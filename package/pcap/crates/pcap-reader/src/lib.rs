@@ -19,9 +19,7 @@ use pcap::Header;
 
 use std::{
     io::{BufRead, BufReader, Error, ErrorKind, Read},
-    mem,
     process::{Child, ChildStdout, Command, Stdio},
-    slice,
 };
 
 #[derive(Deserialize)]
@@ -48,7 +46,7 @@ impl Reader for PcapReader {
                 .ok_or_else(|| Error::new(ErrorKind::Other, "no stdout"))?,
         );
         let link_class = LayerBuilder::new(format!("[link-{}]", arg.link))
-            .header(Attr::with_value(&TYPE_CLASS, 0..0, arg.link as u64))
+            .header(Attr::with_value(&TYPE_CLASS, 0..0, u64::from(arg.link)))
             .build();
         Ok(Box::new(PcapReaderWorker {
             child,
@@ -81,17 +79,25 @@ impl ReaderWorker for PcapReaderWorker {
         self.reader.read_exact(&mut data)?;
         let payload = ByteSlice::from(data);
         let mut layer = Layer::new(&self.link_class, payload);
-        layer.add_attr(Attr::with_value(&LENGTH_CLASS, 0..0, header.actlen as u64));
+        layer.add_attr(Attr::with_value(
+            &LENGTH_CLASS,
+            0..0,
+            u64::from(header.actlen),
+        ));
         layer.add_attr(Attr::with_value(
             &TS_CLASS,
             0..0,
-            header.ts_sec as f64 + header.ts_usec as f64 / 1000_000f64,
+            f64::from(header.ts_sec) + f64::from(header.ts_usec) / 1_000_000f64,
         ));
-        layer.add_attr(Attr::with_value(&TS_SEC_CLASS, 0..0, header.ts_sec as u64));
+        layer.add_attr(Attr::with_value(
+            &TS_SEC_CLASS,
+            0..0,
+            u64::from(header.ts_sec),
+        ));
         layer.add_attr(Attr::with_value(
             &TS_USEC_CLASS,
             0..0,
-            header.ts_usec as u64,
+            u64::from(header.ts_usec),
         ));
         Ok(vec![layer])
     }

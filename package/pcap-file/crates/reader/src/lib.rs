@@ -38,10 +38,10 @@ impl Reader for PcapFileReader {
         let magic_number = reader.read_u32::<BigEndian>()?;
 
         let (le, nsec) = match magic_number {
-            0xd4c3b2a1 => Ok((true, false)),
-            0xa1b2c3d4 => Ok((false, false)),
-            0x4d3cb2a1 => Ok((true, true)),
-            0xa1b23c4d => Ok((false, true)),
+            0xd4c3_b2a1 => Ok((true, false)),
+            0xa1b2_c3d4 => Ok((false, false)),
+            0x4d3c_b2a1 => Ok((true, true)),
+            0xa1b2_3c4d => Ok((false, true)),
             _ => Err(Error::new(ErrorKind::InvalidData, "wrong magic number")),
         }?;
 
@@ -66,7 +66,7 @@ impl Reader for PcapFileReader {
         };
 
         let link_class = LayerBuilder::new(format!("[link-{}]", network))
-            .header(Attr::with_value(&TYPE_CLASS, 0..0, network as i64))
+            .header(Attr::with_value(&TYPE_CLASS, 0..0, i64::from(network)))
             .build();
 
         Ok(Box::new(PcapFileReaderWorker {
@@ -120,14 +120,14 @@ impl PcapFileReaderWorker {
         let payload = ByteSlice::from(data);
         let mut layer = Layer::new(&self.link_class, payload);
 
-        layer.add_attr(Attr::with_value(&LENGTH_CLASS, 0..0, orig_len as u64));
+        layer.add_attr(Attr::with_value(&LENGTH_CLASS, 0..0, u64::from(orig_len)));
         layer.add_attr(Attr::with_value(
             &TS_CLASS,
             0..0,
-            ts_sec as f64 + ts_usec as f64 / 1000_000f64,
+            f64::from(ts_sec) + f64::from(ts_usec) / 1_000_000f64,
         ));
-        layer.add_attr(Attr::with_value(&TS_SEC_CLASS, 0..0, ts_sec as u64));
-        layer.add_attr(Attr::with_value(&TS_USEC_CLASS, 0..0, ts_usec as u64));
+        layer.add_attr(Attr::with_value(&TS_SEC_CLASS, 0..0, u64::from(ts_sec)));
+        layer.add_attr(Attr::with_value(&TS_USEC_CLASS, 0..0, u64::from(ts_usec)));
 
         Ok(layer)
     }

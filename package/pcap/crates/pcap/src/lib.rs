@@ -33,6 +33,8 @@ pub enum Error {
     OpenFailed(String),
 }
 
+pub type FrameReceiver = Receiver<(Header, Box<[u8]>)>;
+
 #[derive(Debug)]
 pub struct Pcap {
     syms: ffi::Symbols,
@@ -67,7 +69,7 @@ impl Pcap {
         true
     }
 
-    pub fn start(&mut self, ifs: &str) -> Result<Receiver<(Header, Box<[u8]>)>, Error> {
+    pub fn start(&mut self, ifs: &str) -> Result<FrameReceiver, Error> {
         use std::{ffi::CString, slice};
         let (send, recv) = channel();
         let ifs = CString::new(ifs).unwrap();
