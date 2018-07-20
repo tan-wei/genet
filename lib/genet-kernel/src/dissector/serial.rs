@@ -1,7 +1,6 @@
 use chan;
 use dissector::dispatcher::Dispatcher;
 use frame::Frame;
-use genet_abi::layer::Layer;
 use profile::Profile;
 use std::{
     collections::BTreeMap,
@@ -35,7 +34,7 @@ impl Pool {
                         }
                         while let Some(mut frames) = map.remove(&next) {
                             next = frames.last().unwrap().index() as usize + 1;
-                            for frame in frames.iter_mut() {
+                            for frame in &mut frames {
                                 disp.process_frame(frame);
                             }
                             callback.done(frames);

@@ -1,5 +1,5 @@
 use genet_abi::{attr::Attr, layer::Layer, token::Token, variant::Variant};
-use std::{ffi::CString, mem, ptr};
+use std::{ffi::CString, ptr};
 
 #[repr(i8)]
 pub enum ValueType {
@@ -61,7 +61,7 @@ pub extern "C" fn genet_attr_get(attr: *const Attr, layer: *const Layer) -> Var 
             value = VarValue {
                 uint64: s.len() as u64,
             };
-            data = unsafe { mem::transmute(CString::new(s).unwrap().into_raw()) };
+            data = CString::new(s).unwrap().into_raw() as *const u8;
         }
         Ok(Variant::Bool(b)) => {
             typ = ValueType::Bool;
@@ -87,7 +87,7 @@ pub extern "C" fn genet_attr_get(attr: *const Attr, layer: *const Layer) -> Var 
                 uint64: s.len() as u64,
             };
             data = unsafe {
-                mem::transmute(CString::from_vec_unchecked(s.as_bytes().to_vec()).into_raw())
+                CString::from_vec_unchecked(s.as_bytes().to_vec()).into_raw() as *const u8
             };
         }
         Ok(Variant::Buffer(s)) => {
@@ -95,7 +95,7 @@ pub extern "C" fn genet_attr_get(attr: *const Attr, layer: *const Layer) -> Var 
             value = VarValue {
                 uint64: s.len() as u64,
             };
-            data = unsafe { mem::transmute(CString::from_vec_unchecked(s.to_vec()).into_raw()) };
+            data = unsafe { CString::from_vec_unchecked(s.to_vec()).into_raw() as *const u8 };
         }
         Ok(Variant::ByteSlice(s)) => {
             typ = ValueType::ByteSlice;

@@ -47,7 +47,7 @@ impl TryGet<usize> for ByteSlice {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct ByteSlice(&'static [u8]);
 
 impl ByteSlice {
@@ -115,14 +115,6 @@ struct SafeByteSlice<'a, T: 'a> {
 }
 
 impl<'a, T: 'a> SafeByteSlice<'a, T> {
-    pub fn new(data: &'a [T]) -> SafeByteSlice<'a, T> {
-        Self {
-            ptr: data.as_ptr(),
-            len: data.len() as u64,
-            phantom: PhantomData,
-        }
-    }
-
     pub fn as_slice(&self) -> &[T] {
         unsafe { slice::from_raw_parts(&*self.ptr, self.len as usize) }
     }

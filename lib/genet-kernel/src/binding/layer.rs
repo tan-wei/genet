@@ -3,7 +3,7 @@ use genet_abi::{
     layer::{Layer, Payload},
     token::Token,
 };
-use std::{mem, ptr};
+use std::ptr;
 
 #[repr(C)]
 pub struct Range {
@@ -32,7 +32,7 @@ pub extern "C" fn genet_layer_data(layer: *const Layer, len: *mut u64) -> *const
     unsafe {
         let data = (*layer).data();
         *len = data.len() as u64;
-        mem::transmute(data.as_ptr())
+        data.as_ptr()
     }
 }
 
@@ -41,7 +41,7 @@ pub extern "C" fn genet_layer_attrs(layer: *const Layer, len: *mut u32) -> *cons
     unsafe {
         let attrs = (*layer).attrs();
         *len = attrs.len() as u32;
-        mem::transmute(attrs.as_ptr())
+        attrs.as_ptr() as *const *const Attr
     }
 }
 
@@ -50,7 +50,7 @@ pub extern "C" fn genet_layer_headers(layer: *const Layer, len: *mut u32) -> *co
     unsafe {
         let headers = (*layer).headers();
         *len = headers.len() as u32;
-        mem::transmute(headers.as_ptr())
+        headers.as_ptr() as *const *const Attr
     }
 }
 

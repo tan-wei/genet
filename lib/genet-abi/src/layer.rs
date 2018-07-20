@@ -1,7 +1,7 @@
 use attr::Attr;
-use ptr::{MutPtr, Ptr};
+use ptr::Ptr;
 use slice::ByteSlice;
-use std::{ops::Deref, slice};
+use std::slice;
 use token::Token;
 
 pub struct LayerStack<'a> {

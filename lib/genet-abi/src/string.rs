@@ -10,6 +10,12 @@ pub struct SafeString {
     data: SafeVec<u8>,
 }
 
+impl Default for SafeString {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SafeString {
     pub fn new() -> SafeString {
         SafeString {

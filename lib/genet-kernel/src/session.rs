@@ -1,20 +1,15 @@
 use filter::Filter;
 use frame::Frame;
 use genet_abi::{
-    self, context,
-    dissector::Dissector,
+    self,
     io::{ReaderWorkerBox, WriterWorkerBox},
     layer::Layer,
     ptr::MutPtr,
 };
 use io::{Input, Output};
 use profile::Profile;
-use result::Result;
 use serde::ser::{Serialize, SerializeMap, Serializer};
-use std::{
-    ops::Range,
-    thread::{self, JoinHandle},
-};
+use std::ops::Range;
 use store::{self, Store};
 
 #[derive(Debug)]
@@ -109,6 +104,10 @@ impl Session {
     pub fn len(&self) -> usize {
         self.store.len()
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
 }
 
 struct StoreCallback {
@@ -150,28 +149,28 @@ impl Serialize for Event {
     where
         S: Serializer,
     {
-        match self {
-            &Event::Frames(len) => {
+        match *self {
+            Event::Frames(len) => {
                 let mut s = serializer.serialize_map(Some(2))?;
                 s.serialize_entry("type", "frames")?;
                 s.serialize_entry("length", &len)?;
                 s.end()
             }
-            &Event::FilteredFrames(id, len) => {
+            Event::FilteredFrames(id, len) => {
                 let mut s = serializer.serialize_map(Some(3))?;
                 s.serialize_entry("type", "filtered_frames")?;
                 s.serialize_entry("id", &id)?;
                 s.serialize_entry("length", &len)?;
                 s.end()
             }
-            &Event::Input(ref id, ref err) => {
+            Event::Input(ref id, ref err) => {
                 let mut s = serializer.serialize_map(Some(3))?;
                 s.serialize_entry("type", "input")?;
                 s.serialize_entry("id", &id)?;
                 s.serialize_entry("error", &err.as_ref().map(|e| format!("{}", e)))?;
                 s.end()
             }
-            &Event::Output(ref id, ref err) => {
+            Event::Output(ref id, ref err) => {
                 let mut s = serializer.serialize_map(Some(3))?;
                 s.serialize_entry("type", "output")?;
                 s.serialize_entry("id", &id)?;
@@ -196,9 +195,7 @@ impl WriterWorkerOutput {
 impl Output for WriterWorkerOutput {
     fn write(&mut self, frames: &[&Frame]) -> genet_abi::result::Result<()> {
         for frame in frames.iter() {
-            if let Some(layer) = frame.layers().iter().next() {
-                let _ = self.worker.write(frame.index(), frame.layers())?;
-            }
+            self.worker.write(frame.index(), frame.layers())?;
         }
         Ok(())
     }

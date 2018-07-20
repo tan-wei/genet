@@ -15,5 +15,5 @@ pub extern "C" fn genet_token_get(id: *const libc::c_char) -> Token {
 
 #[no_mangle]
 pub extern "C" fn genet_token_string(id: Token) -> *mut libc::c_char {
-    unsafe { CString::new(id.to_string()).unwrap().into_raw() }
+    CString::new(id.to_string()).unwrap().into_raw()
 }

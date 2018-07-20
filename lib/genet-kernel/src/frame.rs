@@ -1,4 +1,4 @@
-use genet_abi::{attr::Attr, layer::Layer, ptr::MutPtr, slice::ByteSlice, token::Token};
+use genet_abi::{attr::Attr, layer::Layer, ptr::MutPtr, token::Token};
 use std::fmt;
 
 pub struct Frame {
@@ -53,7 +53,7 @@ impl Frame {
         &self.tree_indices
     }
 
-    pub fn append_tree_indices(&mut self, mut tree_indices: &mut Vec<u8>) {
+    pub fn append_tree_indices(&mut self, tree_indices: &mut Vec<u8>) {
         self.tree_indices.append(tree_indices);
     }
 }

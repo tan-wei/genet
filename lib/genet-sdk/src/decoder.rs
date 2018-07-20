@@ -223,6 +223,6 @@ impl Typed for ByteSlice {
     type Output = slice::ByteSlice;
 
     fn decode(&self, data: &slice::ByteSlice) -> Result<slice::ByteSlice> {
-        Ok(data.clone())
+        Ok(*data)
     }
 }

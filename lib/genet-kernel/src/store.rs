@@ -3,7 +3,7 @@ use chan;
 use dissector::{parallel, serial};
 use filter::{self, Filter};
 use frame::Frame;
-use genet_abi::{layer::Layer, ptr::MutPtr, token::Token};
+use genet_abi::{layer::Layer, ptr::MutPtr};
 use io::{Input, Output};
 use profile::Profile;
 use result::Result;
@@ -77,24 +77,15 @@ impl Store {
         }
     }
 
-    pub fn process(&self, layers: Vec<MutPtr<Layer>>) {
-        if !layers.is_empty() {
-            self.sender.send(Command::PushFrames(None, Ok(layers)));
-        }
-    }
-
     pub fn frames(&self, range: Range<usize>) -> Vec<*const Frame> {
-        let frames = {
-            self.frames
-                .read()
-                .unwrap()
-                .iter()
-                .skip(range.start)
-                .take(range.end - range.start)
-                .map(|f| f as *const Frame)
-                .collect::<Vec<_>>()
-        };
-        frames
+        self.frames
+            .read()
+            .unwrap()
+            .iter()
+            .skip(range.start)
+            .take(range.end - range.start)
+            .map(|f| f as *const Frame)
+            .collect::<Vec<_>>()
     }
 
     pub fn filtered_frames(&self, id: u32, range: Range<usize>) -> Vec<u32> {
@@ -103,7 +94,7 @@ impl Store {
             vec.iter()
                 .skip(range.start)
                 .take(range.end - range.start)
-                .map(|i| *i)
+                .cloned()
                 .collect::<Vec<_>>()
         } else {
             Vec::new()
@@ -133,8 +124,8 @@ impl Store {
         let holder = Arc::new(self.sender.clone());
         let sender = Arc::downgrade(&holder);
         let mut input = input;
-        let handle = thread::spawn(move || loop {
-            if let Some(sender) = sender.upgrade() {
+        let handle = thread::spawn(move || {
+            while let Some(sender) = sender.upgrade() {
                 match input.read() {
                     Ok(layers) => {
                         if !layers.is_empty() {
@@ -147,8 +138,6 @@ impl Store {
                         break;
                     }
                 }
-            } else {
-                break;
             }
         });
         self.inputs.insert(
@@ -253,7 +242,7 @@ impl EventLoop {
                             Command::StoreFrames(mut vec) => {
                                 let len = {
                                     let mut frames = frames.write().unwrap();
-                                    for f in vec.into_iter() {
+                                    for f in vec {
                                         frames.push(f);
                                     }
                                     frames.len()
@@ -399,7 +388,7 @@ impl EventLoop {
             };
             let len = if !indices.is_empty() {
                 let mut filtered = filtered.write().unwrap();
-                let mut frames = filtered.entry(*id).or_insert_with(|| Vec::new());
+                let mut frames = filtered.entry(*id).or_insert_with(Vec::new);
                 frames.append(&mut indices);
                 frames.len()
             } else {
@@ -428,7 +417,6 @@ impl fmt::Debug for EventLoop {
 #[cfg(test)]
 mod tests {
     use profile::Profile;
-    use session::Context;
     use store::{Callback, Store};
 
     struct TestCallback {}

@@ -1,6 +1,6 @@
 use frame::Frame;
 use genet_abi::{attr::Attr, layer::Layer, token::Token};
-use std::{mem, ptr};
+use std::ptr;
 
 #[no_mangle]
 pub extern "C" fn genet_frame_index(frame: *const Frame) -> u32 {
@@ -12,7 +12,7 @@ pub extern "C" fn genet_frame_layers(frame: *const Frame, len: *mut u32) -> *con
     unsafe {
         let layers = (*frame).layers();
         *len = layers.len() as u32;
-        mem::transmute(layers.as_ptr())
+        layers.as_ptr() as *const *const Layer
     }
 }
 

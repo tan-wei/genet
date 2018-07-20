@@ -3,14 +3,14 @@ use genet_abi::{
     dissector::DissectorBox,
     env::{self, Allocator},
     io::{ReaderBox, WriterBox},
-    ptr::{MutPtr, Ptr},
+    ptr::Ptr,
     token::Token,
 };
 use libloading::Library;
 use num_cpus;
-use std::{collections::HashMap, fmt, io, mem, ops::Deref};
+use std::{collections::HashMap, fmt, io, mem};
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Profile {
     concurrency: u32,
     dissectors: Vec<DissectorBox>,
@@ -55,7 +55,7 @@ impl Profile {
     pub fn set_config(&mut self, key: &str, value: &str) {
         self.config
             .entry(String::from(key))
-            .or_insert(String::from(value));
+            .or_insert_with(|| String::from(value));
     }
 
     pub fn dissectors(&self) -> impl Iterator<Item = &DissectorBox> {
@@ -78,7 +78,8 @@ impl Profile {
         let lib = Library::new(path)?;
 
         type FnRegisterGetToken = extern "C" fn(unsafe extern "C" fn(*const u8, u64) -> Token);
-        type FnRegisterGetString = extern "C" fn(unsafe extern "C" fn(Token, *mut u64) -> *const u8);
+        type FnRegisterGetString =
+            extern "C" fn(unsafe extern "C" fn(Token, *mut u64) -> *const u8);
         type FnRegisterGetAllocator = extern "C" fn(extern "C" fn() -> Ptr<Allocator>);
         type FnGetDissectors = extern "C" fn(*mut u64) -> *const DissectorBox;
         type FnGetReaders = extern "C" fn(*mut u64) -> *const ReaderBox;
@@ -103,8 +104,7 @@ impl Profile {
             let mut len = 0;
             let ptr = func(&mut len);
             for i in 0..len {
-                self.dissectors
-                    .push(unsafe { (*ptr.offset(i as isize)).clone() });
+                self.dissectors.push(unsafe { (*ptr.offset(i as isize)) });
             }
         }
 
@@ -112,8 +112,7 @@ impl Profile {
             let mut len = 0;
             let ptr = func(&mut len);
             for i in 0..len {
-                self.readers
-                    .push(unsafe { (*ptr.offset(i as isize)).clone() });
+                self.readers.push(unsafe { (*ptr.offset(i as isize)) });
             }
         }
 
@@ -121,8 +120,7 @@ impl Profile {
             let mut len = 0;
             let ptr = func(&mut len);
             for i in 0..len {
-                self.writers
-                    .push(unsafe { (*ptr.offset(i as isize)).clone() });
+                self.writers.push(unsafe { (*ptr.offset(i as isize)) });
             }
         }
 

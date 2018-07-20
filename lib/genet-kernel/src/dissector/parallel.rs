@@ -17,7 +17,7 @@ impl Pool {
     pub fn new<C: 'static + Callback>(profile: Profile, callback: C) -> Pool {
         let (send, recv) = chan::async::<Option<Vec<Frame>>>();
         let mut handles = Vec::new();
-        for i in 0..profile.concurrency() {
+        for _ in 0..profile.concurrency() {
             handles.push(Self::spawn(profile.clone(), callback.clone(), recv.clone()));
         }
         Pool {
@@ -36,7 +36,7 @@ impl Pool {
             loop {
                 if let Some(frames) = recv.recv() {
                     if let Some(mut frames) = frames {
-                        for mut f in frames.iter_mut() {
+                        for mut f in &mut frames {
                             disp.process_frame(f);
                         }
                         callback.done(frames);

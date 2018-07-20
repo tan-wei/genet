@@ -379,7 +379,7 @@ mod tests {
         let class = LayerBuilder::new(Token::null()).build();
         let layer = Layer::new(&class, ByteSlice::from(&b"123456789"[..]));
         match attr.try_get(&layer).unwrap() {
-            Variant::UInt64(val) => assert_eq!(val, 123456),
+            Variant::UInt64(val) => assert_eq!(val, 123_456),
             _ => panic!(),
         };
     }

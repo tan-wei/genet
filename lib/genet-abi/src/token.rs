@@ -14,8 +14,8 @@ impl Token {
         self.0
     }
 
-    pub fn to_string(&self) -> String {
-        env::string(*self)
+    pub fn to_string(self) -> String {
+        env::string(self)
     }
 }
 

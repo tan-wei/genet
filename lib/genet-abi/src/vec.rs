@@ -106,8 +106,8 @@ impl<T> SafeVec<T> {
 }
 
 impl<T> IntoIterator for SafeVec<T> {
-    type Item = T;
     type IntoIter = self::IntoIter<T>;
+    type Item = T;
 
     fn into_iter(mut self) -> Self::IntoIter {
         let iter = IntoIter {
@@ -177,12 +177,6 @@ impl<'a, T: Clone> From<&'a [T]> for SafeVec<T> {
             v.push(i.clone());
         }
         v
-    }
-}
-
-impl<T: Clone> From<Box<[T]>> for SafeVec<T> {
-    fn from(s: Box<[T]>) -> SafeVec<T> {
-        SafeVec::<T>::from(&*s)
     }
 }
 

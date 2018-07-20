@@ -1,4 +1,4 @@
-use std::{iter::Skip, mem, ops::Range, ptr};
+use std::{mem, ptr};
 
 const BLOCK_SIZE: usize = 1024;
 
@@ -40,7 +40,7 @@ impl<T> ArrayVec<T> {
         let bucket = self.len / BLOCK_SIZE;
         let offset = self.len % BLOCK_SIZE;
         if self.buckets.len() <= bucket {
-            let mut data: [T; BLOCK_SIZE] = unsafe { mem::uninitialized() };
+            let data: [T; BLOCK_SIZE] = unsafe { mem::uninitialized() };
             self.buckets.push(Box::into_raw(Box::new(data)));
         }
         unsafe {
@@ -49,50 +49,8 @@ impl<T> ArrayVec<T> {
         self.len += 1;
     }
 
-    pub fn append(&mut self, vec: Vec<T>) {
-        for val in vec.into_iter() {
-            self.push(val);
-        }
-    }
-
     pub fn iter(&self) -> Iter<T> {
         Iter { v: self, offset: 0 }
-    }
-
-    pub fn slice(&self, range: Range<usize>) -> ::std::vec::IntoIter<&[T]> {
-        let mut v = Vec::new();
-        if self.buckets.is_empty() {
-            return v.into_iter();
-        }
-        let start = if range.start < self.len {
-            range.start
-        } else {
-            self.len
-        };
-        let end = if range.end < self.len {
-            range.end
-        } else {
-            self.len
-        };
-        let start_bucket = start / BLOCK_SIZE;
-        let start_offset = start % BLOCK_SIZE;
-        let end_bucket = end / BLOCK_SIZE;
-        let end_offset = end % BLOCK_SIZE;
-
-        if start_bucket == end_bucket {
-            unsafe { v.push(&(*self.buckets[start_bucket])[start_offset..end_bucket]) };
-        } else {
-            for i in (start_bucket..end_bucket) {
-                if i == start_bucket {
-                    unsafe { v.push(&(*self.buckets[i])[start_offset..]) };
-                } else if i == end_bucket - 1 {
-                    unsafe { v.push(&(*self.buckets[i])[..end_offset]) };
-                } else {
-                    unsafe { v.push(&(*self.buckets[i])[..]) };
-                }
-            }
-        }
-        v.into_iter()
     }
 }
 

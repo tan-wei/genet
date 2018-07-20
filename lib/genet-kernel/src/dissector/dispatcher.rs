@@ -4,7 +4,6 @@ use genet_abi::{
     dissector::{DissectorBox, WorkerBox},
     layer::Layer,
     ptr::MutPtr,
-    token::Token,
 };
 use profile::Profile;
 
@@ -14,9 +13,9 @@ pub struct Dispatcher {
 
 impl Dispatcher {
     pub fn new(typ: &str, profile: Profile) -> Dispatcher {
-        let mut runners = profile
+        let runners = profile
             .dissectors()
-            .map(|d| Runner::new(typ, profile.context(), d.clone()))
+            .map(|d| Runner::new(typ, profile.context(), *d))
             .collect();
         Dispatcher { runners }
     }
@@ -92,7 +91,7 @@ impl Runner {
         layers: &[MutPtr<Layer>],
         layer: &mut Layer,
     ) -> (bool, Vec<MutPtr<Layer>>) {
-        let result = if let Some(worker) = &mut self.worker {
+        if let Some(worker) = &mut self.worker {
             let mut children = Vec::new();
             match worker.analyze(&mut self.ctx, layers, layer, &mut children) {
                 Ok(done) => (done, children),
@@ -100,8 +99,7 @@ impl Runner {
             }
         } else {
             (true, vec![])
-        };
-        result
+        }
     }
 
     fn reset(&mut self) {
