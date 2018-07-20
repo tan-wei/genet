@@ -1,7 +1,8 @@
 use attr::Attr;
+use bytes::Bytes;
 use ptr::{MutPtr, Ptr};
 use slice::Slice;
-use std::{ops::Deref, slice};
+use std::{mem, ops::Deref, slice};
 use token::Token;
 
 pub struct LayerStack<'a> {
@@ -50,13 +51,14 @@ pub struct Layer {
 unsafe impl Send for Layer {}
 
 struct LayerData {
-    data: Slice,
+    data: Bytes,
     attrs: Vec<Ptr<Attr>>,
     payloads: Vec<Payload>,
 }
 
 impl Layer {
-    pub fn new(class: &Ptr<LayerClass>, data: Slice) -> Layer {
+    pub fn new(class: &Ptr<LayerClass>, data: Bytes) -> Layer {
+        mem::forget(data.clone());
         Layer {
             class: class.clone(),
             abi_unsafe_data: LayerData {
@@ -71,7 +73,7 @@ impl Layer {
         self.class.id()
     }
 
-    pub fn data(&self) -> Slice {
+    pub fn data(&self) -> Bytes {
         self.class.data(self)
     }
 
@@ -106,7 +108,8 @@ impl Layer {
         self.class.payloads(self)
     }
 
-    pub fn add_payload<T: Into<Token>, U: Into<Token>>(&mut self, data: Slice, id: T, typ: U) {
+    pub fn add_payload<T: Into<Token>, U: Into<Token>>(&mut self, data: Bytes, id: T, typ: U) {
+        mem::forget(data.clone());
         let func = self.class.add_payload;
         (func)(
             self,
@@ -135,8 +138,8 @@ impl Payload {
         self.typ
     }
 
-    pub fn data(&self) -> Slice {
-        unsafe { Slice::from_raw_parts(self.data, self.len as usize) }
+    pub fn data(&self) -> Bytes {
+        Bytes::from_static(unsafe { slice::from_raw_parts(self.data, self.len as usize) })
     }
 }
 
@@ -247,10 +250,10 @@ impl LayerClass {
         unsafe { slice::from_raw_parts(data, len) }
     }
 
-    fn data(&self, layer: &Layer) -> Slice {
+    fn data(&self, layer: &Layer) -> Bytes {
         let mut len = 0;
         let data = (self.data)(layer, &mut len);
-        unsafe { Slice::from_raw_parts(data, len as usize) }
+        Bytes::from_static(unsafe { slice::from_raw_parts(data, len as usize) })
     }
 
     fn attrs(&self, layer: &Layer) -> &[Ptr<Attr>] {
@@ -323,9 +326,9 @@ extern "C" fn abi_add_payload(layer: *mut Layer, data: *const u8, len: u64, id: 
 #[cfg(test)]
 mod tests {
     use attr::{Attr, AttrBuilder};
+    use bytes::Bytes;
     use decoder::Decoder;
     use layer::{Layer, LayerBuilder};
-    use slice::Slice;
     use std::io::Result;
     use token::Token;
     use variant::Variant;
@@ -334,7 +337,7 @@ mod tests {
     fn id() {
         let id = Token::from(123);
         let class = LayerBuilder::new(id).build();
-        let layer = Layer::new(&class, Slice::new());
+        let layer = Layer::new(&class, Bytes::new());
         assert_eq!(layer.id(), id);
     }
 
@@ -342,27 +345,27 @@ mod tests {
     fn data() {
         let data = b"hello";
         let class = LayerBuilder::new(Token::null()).build();
-        let layer = Layer::new(&class, Slice::from(&data[..]));
-        assert_eq!(layer.data(), Slice::from(&data[..]));
+        let layer = Layer::new(&class, Bytes::from(&data[..]));
+        assert_eq!(layer.data(), Bytes::from(&data[..]));
     }
 
     #[test]
     fn payloads() {
         let class = LayerBuilder::new(Token::null()).build();
-        let mut layer = Layer::new(&class, Slice::new());
+        let mut layer = Layer::new(&class, Bytes::new());
         assert!(layer.payloads().iter().next().is_none());
 
         let count = 100;
         let data = b"hello";
 
         for i in 0..count {
-            layer.add_payload(Slice::from(&data[..]), Token::from(i), Token::null());
+            layer.add_payload(Bytes::from(&data[..]), Token::from(i), Token::null());
         }
 
         let mut iter = layer.payloads().iter();
         for i in 0..count {
             let payload = iter.next().unwrap();
-            assert_eq!(payload.data(), Slice::from(&data[..]));
+            assert_eq!(payload.data(), Bytes::from(&data[..]));
             assert_eq!(payload.id(), Token::from(i));
         }
         assert!(iter.next().is_none());
@@ -371,14 +374,14 @@ mod tests {
     #[test]
     fn attrs() {
         let class = LayerBuilder::new(Token::null()).build();
-        let mut layer = Layer::new(&class, Slice::new());
+        let mut layer = Layer::new(&class, Bytes::new());
         assert!(layer.attrs().is_empty());
 
         #[derive(Clone)]
         struct TestDecoder {}
 
         impl Decoder for TestDecoder {
-            fn decode(&self, _: &Slice) -> Result<Variant> {
+            fn decode(&self, _: &Bytes) -> Result<Variant> {
                 Ok(Variant::Nil)
             }
         }
