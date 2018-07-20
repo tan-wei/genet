@@ -26,10 +26,10 @@ impl Worker for IPv4Worker {
         {
             let mut layer = Layer::new(&IPV4_CLASS, payload.data());
             let proto_attr = Attr::new(&PROTO_ATTR, 9..10);
-            let proto = proto_attr.get(&layer)?.try_into()?;
+            let proto = proto_attr.try_get(&layer)?.try_into()?;
             if let Some((typ, attr)) = PROTO_MAP.get(&proto) {
                 layer.add_attr(Attr::new(attr, 9..10));
-                let payload = layer.data().get(20..)?;
+                let payload = layer.data().try_get(20..)?;
                 layer.add_payload(payload, typ, "");
             }
             Ok(Status::Done(vec![layer]))

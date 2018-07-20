@@ -23,7 +23,7 @@ impl Worker for EthWorker {
             let mut layer = Layer::new(&ETH_CLASS, parent.data());
             let len_attr = Attr::new(&LEN_ATTR, 12..14);
             let typ_attr = Attr::new(&TYPE_ATTR, 12..14);
-            let len = len_attr.get(&layer)?.try_into()?;
+            let len = len_attr.try_get(&layer)?.try_into()?;
             if len <= 1500 {
                 layer.add_attr(len_attr);
             } else {
@@ -32,7 +32,7 @@ impl Worker for EthWorker {
             if let Some(attr) = TYPE_MAP.get(&len) {
                 layer.add_attr(Attr::new(attr, 12..14));
             }
-            let payload = parent.data().get(14..)?;
+            let payload = parent.data().try_get(14..)?;
             layer.add_payload(payload, "", "");
             Ok(Status::Done(vec![layer]))
         } else {

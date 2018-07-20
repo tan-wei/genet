@@ -49,7 +49,7 @@ pub extern "C" fn genet_attr_range(attr: *const Attr, start: *mut u64, end: *mut
 
 #[no_mangle]
 pub extern "C" fn genet_attr_get(attr: *const Attr, layer: *const Layer) -> Var {
-    let var = unsafe { (*attr).get(&*layer) };
+    let var = unsafe { (*attr).try_get(&*layer) };
     let mut typ = ValueType::Nil;
     let mut data: *const u8 = ptr::null();
     let mut value = VarValue { uint64: 0 };

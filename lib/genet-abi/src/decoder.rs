@@ -1,4 +1,4 @@
-use slice::{self, SliceIndex};
+use slice::{self, TryGet};
 use std::{
     convert::Into,
     io::Result,
@@ -126,7 +126,7 @@ macro_rules! impl_ranged {
                 type Output = X;
 
                 fn decode(&self, data: &slice::Slice) -> Result<Self::Output> {
-                    self.0.decode(&data.get(self.1.clone())?)
+                    self.0.decode(&data.try_get(self.1.clone())?)
                 }
             }
         )*

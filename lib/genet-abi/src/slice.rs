@@ -6,17 +6,19 @@ use std::{
     slice,
 };
 
-pub trait SliceIndex<T> {
+pub trait TryGet<T> {
     type Output;
-    fn get(&self, index: T) -> Result<Self::Output>;
+
+    fn try_get(&self, index: T) -> Result<Self::Output>;
 }
 
 macro_rules! impl_slice_index {
     ( $( $x:ty ), * ) => {
         $(
-            impl SliceIndex<$x> for Slice {
+            impl TryGet<$x> for Slice {
                 type Output = Slice;
-                fn get(&self, index: $x) -> Result<Slice> {
+
+                fn try_get(&self, index: $x) -> Result<Slice> {
                     <[u8]>::get(self, index)
                         .map(|s| unsafe { Slice::from_raw_parts(s.as_ptr(), s.len()) })
                         .ok_or_else(|| Error::new(ErrorKind::Other, "out of bounds"))
@@ -35,12 +37,12 @@ impl_slice_index!(
     RangeToInclusive<usize>
 );
 
-impl SliceIndex<usize> for Slice {
+impl TryGet<usize> for Slice {
     type Output = u8;
 
-    fn get(&self, index: usize) -> Result<u8> {
+    fn try_get(&self, index: usize) -> Result<u8> {
         <[u8]>::get(self, index)
-            .map(|v| *v)
+            .cloned()
             .ok_or_else(|| Error::new(ErrorKind::Other, "out of bounds"))
     }
 }

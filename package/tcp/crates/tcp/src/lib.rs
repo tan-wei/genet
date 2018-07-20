@@ -23,13 +23,13 @@ impl Worker for TcpWorker {
             let mut layer = Layer::new(&TCP_CLASS, payload.data());
 
             let offset_attr = Attr::new(&OFFSET_ATTR, 12..13);
-            let data_offset: usize = offset_attr.get(&layer)?.try_into()?;
+            let data_offset: usize = offset_attr.try_get(&layer)?.try_into()?;
             let data_offset = data_offset * 4;
             let mut offset = 20;
 
             while offset < data_offset {
-                let typ = layer.data().get(offset)?;
-                let len = layer.data().get(offset + 1)? as usize;
+                let typ = layer.data().try_get(offset)?;
+                let len = layer.data().try_get(offset + 1)? as usize;
                 match typ {
                     0 => {
                         offset += 1;
@@ -62,7 +62,7 @@ impl Worker for TcpWorker {
                 offset += len;
             }
 
-            let payload = layer.data().get(data_offset..)?;
+            let payload = layer.data().try_get(data_offset..)?;
             layer.add_payload(payload, token!("@data:tcp"), "");
             Ok(Status::Done(vec![layer]))
         } else {
