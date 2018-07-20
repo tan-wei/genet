@@ -5,6 +5,6 @@ pub use dissector::{Dissector, Status, Worker};
 pub use layer::{Layer, LayerBuilder, LayerClass, LayerStack};
 pub use ptr::Ptr;
 pub use result::Result;
-pub use slice::{Slice, TryGet};
+pub use slice::{ByteSlice, TryGet};
 pub use token::{self, Token};
 pub use variant::Value;

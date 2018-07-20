@@ -1,7 +1,7 @@
 import { BufferValueItem, AttributeValueItem } from './value'
 import AttributeItem from './attr'
 import DefaultSummary from './default-summary'
-import { Slice } from '@genet/load-module'
+import { ByteSlice } from '@genet/load-module'
 import m from 'mithril'
 import moment from 'moment'
 
@@ -27,7 +27,7 @@ function mergeOrphanedItems (item) {
 class LayerItem {
   view (vnode) {
     const { layer } = vnode.attrs
-    const addr = Number.parseInt(Slice.address(layer.data), 10)
+    const addr = Number.parseInt(ByteSlice.address(layer.data), 10)
     const name = genet.session.tokenName(layer.id)
 
     const attrArray = [{
@@ -154,7 +154,7 @@ class LayerItem {
             layer.payloads.map(
               (payload) => m('li', {
                 onmouseover: () => selectRange({
-                  base: Number.parseInt(Slice.address(payload.data), 10),
+                  base: Number.parseInt(ByteSlice.address(payload.data), 10),
                   length: payload.data.length,
                 }),
                 onmouseout: () => selectRange(),

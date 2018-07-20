@@ -79,7 +79,7 @@ impl ReaderWorker for PcapReaderWorker {
         let header: Header = serde_json::from_str(header)?;
         let mut data = vec![0u8; header.datalen as usize];
         self.reader.read_exact(&mut data)?;
-        let payload = Slice::from(data);
+        let payload = ByteSlice::from(data);
         let mut layer = Layer::new(&self.link_class, payload);
         layer.add_attr(Attr::with_value(&LENGTH_CLASS, 0..0, header.actlen as u64));
         layer.add_attr(Attr::with_value(

@@ -1,5 +1,5 @@
 const m = require('mithril')
-const { Slice } = require('@genet/load-module')
+const { ByteSlice } = require('@genet/load-module')
 class BinaryItem {
   constructor () {
     this.range = [-1, -1]
@@ -17,7 +17,7 @@ class BinaryItem {
     const showHex = true
     const showAscii = true
     const { payload } = vnode.attrs
-    const base = Number.parseInt(Slice.address(payload), 10)
+    const base = Number.parseInt(ByteSlice.address(payload), 10)
     const range = [this.range[0] - base, this.range[1] - base]
     return m('div', { class: 'binary-view' }, [
       m('ul', {

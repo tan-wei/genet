@@ -11,7 +11,7 @@ pub enum ValueType {
     Float64 = 4,
     String = 5,
     Buffer = 6,
-    Slice = 7,
+    ByteSlice = 7,
 }
 
 #[repr(C)]
@@ -97,8 +97,8 @@ pub extern "C" fn genet_attr_get(attr: *const Attr, layer: *const Layer) -> Var 
             };
             data = unsafe { mem::transmute(CString::from_vec_unchecked(s.to_vec()).into_raw()) };
         }
-        Ok(Variant::Slice(s)) => {
-            typ = ValueType::Slice;
+        Ok(Variant::ByteSlice(s)) => {
+            typ = ValueType::ByteSlice;
             value = VarValue {
                 uint64: s.len() as u64,
             };

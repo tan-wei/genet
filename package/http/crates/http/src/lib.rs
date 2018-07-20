@@ -18,14 +18,14 @@ enum SessionStatus {
 }
 
 enum Entry {
-    Url(Slice),
+    Url(ByteSlice),
 }
 
 struct HTTPSession {
     status: SessionStatus,
     parser: Parser,
-    header_field: Slice,
-    headers: Vec<(String, Slice)>,
+    header_field: ByteSlice,
+    headers: Vec<(String, ByteSlice)>,
     entries: Vec<Entry>,
 }
 

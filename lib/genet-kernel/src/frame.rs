@@ -1,4 +1,4 @@
-use genet_abi::{attr::Attr, layer::Layer, ptr::MutPtr, slice::Slice, token::Token};
+use genet_abi::{attr::Attr, layer::Layer, ptr::MutPtr, slice::ByteSlice, token::Token};
 use std::fmt;
 
 pub struct Frame {

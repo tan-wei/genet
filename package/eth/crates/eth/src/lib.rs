@@ -63,11 +63,11 @@ lazy_static! {
         .build();
     static ref SRC_ATTR: Ptr<AttrClass> = AttrBuilder::new("eth.src")
         .typ("@eth:mac")
-        .decoder(decoder::Slice())
+        .decoder(decoder::ByteSlice())
         .build();
     static ref DST_ATTR: Ptr<AttrClass> = AttrBuilder::new("eth.dst")
         .typ("@eth:mac")
-        .decoder(decoder::Slice())
+        .decoder(decoder::ByteSlice())
         .build();
     static ref LEN_ATTR: Ptr<AttrClass> = AttrBuilder::new("eth.len")
         .decoder(decoder::UInt16BE())

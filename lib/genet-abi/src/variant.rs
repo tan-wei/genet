@@ -1,4 +1,4 @@
-use slice::Slice;
+use slice::ByteSlice;
 use std::{
     convert::Into,
     io::{Error, ErrorKind, Result},
@@ -13,7 +13,7 @@ pub enum Variant {
     Float64(f64),
     String(Box<str>),
     Buffer(Box<[u8]>),
-    Slice(Slice),
+    ByteSlice(ByteSlice),
 }
 
 pub trait Value<T> {
@@ -34,16 +34,16 @@ impl Value<Vec<u8>> for Variant {
         match self {
             Variant::String(val) => Ok(val.to_string().into_bytes()),
             Variant::Buffer(val) => Ok(val.into_vec()),
-            Variant::Slice(val) => Ok(val.as_ref().to_vec()),
+            Variant::ByteSlice(val) => Ok(val.as_ref().to_vec()),
             _ => Err(Error::new(ErrorKind::InvalidData, "wrong type")),
         }
     }
 }
 
-impl Value<Slice> for Variant {
-    fn try_into(self) -> Result<Slice> {
+impl Value<ByteSlice> for Variant {
+    fn try_into(self) -> Result<ByteSlice> {
         match self {
-            Variant::Slice(val) => Ok(val),
+            Variant::ByteSlice(val) => Ok(val),
             _ => Err(Error::new(ErrorKind::InvalidData, "wrong type")),
         }
     }
@@ -220,8 +220,8 @@ impl Into<Variant> for Box<[u8]> {
     }
 }
 
-impl Into<Variant> for Slice {
+impl Into<Variant> for ByteSlice {
     fn into(self) -> Variant {
-        Variant::Slice(self)
+        Variant::ByteSlice(self)
     }
 }

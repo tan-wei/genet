@@ -1,5 +1,5 @@
 import { AttributeValueItem } from './value'
-import { Slice } from '@genet/load-module'
+import { ByteSlice } from '@genet/load-module'
 import m from 'mithril'
 
 function selectRange (range = null) {
@@ -28,7 +28,7 @@ export default class AttributeItem {
   view (vnode) {
     const { item, layer } = vnode.attrs
     const { attr, children } = item
-    const addr = Number.parseInt(Slice.address(layer.data), 10)
+    const addr = Number.parseInt(ByteSlice.address(layer.data), 10)
     let faClass = 'attribute'
     if (children.length) {
       faClass = 'attribute children'

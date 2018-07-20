@@ -120,7 +120,7 @@ impl PcapFileReaderWorker {
         }
         self.reader.read_exact(&mut data)?;
 
-        let payload = Slice::from(data);
+        let payload = ByteSlice::from(data);
         let mut layer = Layer::new(&self.link_class, payload);
 
         layer.add_attr(Attr::with_value(&LENGTH_CLASS, 0..0, orig_len as u64));

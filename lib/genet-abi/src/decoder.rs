@@ -7,7 +7,7 @@ use std::{
 use variant::Variant;
 
 pub trait Decoder: Send + Sync + DecoderClone {
-    fn decode(&self, &slice::Slice) -> Result<Variant>;
+    fn decode(&self, &slice::ByteSlice) -> Result<Variant>;
 }
 
 pub trait DecoderClone {
@@ -31,7 +31,7 @@ impl Clone for Box<Decoder> {
 
 pub trait Typed {
     type Output: Into<Variant>;
-    fn decode(&self, data: &slice::Slice) -> Result<Self::Output>;
+    fn decode(&self, data: &slice::ByteSlice) -> Result<Self::Output>;
 }
 
 pub trait Map
@@ -77,7 +77,7 @@ where
 {
     type Output = R;
 
-    fn decode(&self, data: &slice::Slice) -> Result<Self::Output> {
+    fn decode(&self, data: &slice::ByteSlice) -> Result<Self::Output> {
         self.decoder.decode(data).map(self.func)
     }
 }
@@ -87,7 +87,7 @@ where
     T: 'static + Typed<Output = X> + Send + Sync + Clone,
     X: Into<Variant>,
 {
-    fn decode(&self, data: &slice::Slice) -> Result<Variant> {
+    fn decode(&self, data: &slice::ByteSlice) -> Result<Variant> {
         T::decode(self, data).map(|r| r.into())
     }
 }
@@ -96,7 +96,7 @@ where
 pub struct Nil();
 
 impl Decoder for Nil {
-    fn decode(&self, _data: &slice::Slice) -> Result<Variant> {
+    fn decode(&self, _data: &slice::ByteSlice) -> Result<Variant> {
         Ok(Variant::Nil)
     }
 }
@@ -107,7 +107,7 @@ pub struct Const<T>(pub T);
 impl<T: Into<Variant> + Clone> Typed for Const<T> {
     type Output = T;
 
-    fn decode(&self, _data: &slice::Slice) -> Result<T> {
+    fn decode(&self, _data: &slice::ByteSlice) -> Result<T> {
         Ok(self.0.clone())
     }
 }
@@ -125,7 +125,7 @@ macro_rules! impl_ranged {
             {
                 type Output = X;
 
-                fn decode(&self, data: &slice::Slice) -> Result<Self::Output> {
+                fn decode(&self, data: &slice::ByteSlice) -> Result<Self::Output> {
                     self.0.decode(&data.try_get(self.1.clone())?)
                 }
             }

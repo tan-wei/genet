@@ -30,7 +30,7 @@ enum VariantType {
   Float64 = 4,
   String = 5,
   Buffer = 6,
-  Slice = 7,
+  ByteSlice = 7,
 };
 
 union VariantValue {

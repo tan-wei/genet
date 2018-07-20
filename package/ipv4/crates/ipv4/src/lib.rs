@@ -115,11 +115,11 @@ lazy_static! {
         .build();
     static ref SRC_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv4.src")
         .typ("@ipv4:addr")
-        .decoder(decoder::Slice())
+        .decoder(decoder::ByteSlice())
         .build();
     static ref DST_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv4.dst")
         .typ("@ipv4:addr")
-        .decoder(decoder::Slice())
+        .decoder(decoder::ByteSlice())
         .build();
     static ref PROTO_MAP: HashMap<u64, (Token, Ptr<AttrClass>)> = hashmap!{
         0x01 => (token!("@data:icmp"), AttrBuilder::new("ipv4.protocol.icmp").typ("@novalue").decoder(decoder::Const(true)).build()),

@@ -13,7 +13,7 @@ struct Stream {
     pub seq: i64,
     pub len: usize,
     offset: usize,
-    slices: BTreeMap<usize, Slice>,
+    slices: BTreeMap<usize, ByteSlice>,
 }
 
 impl Stream {
@@ -27,7 +27,7 @@ impl Stream {
         };
     }
 
-    fn put(&mut self, start: usize, data: Slice) {
+    fn put(&mut self, start: usize, data: ByteSlice) {
         if data.len() > 0 {
             self.slices.insert(start, data);
             let mut end = self.offset;
@@ -38,7 +38,7 @@ impl Stream {
         }
     }
 
-    fn fetch(&mut self) -> impl Iterator<Item = Slice> {
+    fn fetch(&mut self) -> impl Iterator<Item = ByteSlice> {
         let mut slices = Vec::new();
         loop {
             let pos;
@@ -60,7 +60,7 @@ impl Stream {
 }
 
 struct TcpStreamWorker {
-    map: HashMap<(Slice, Slice, u32, u32), Stream>,
+    map: HashMap<(ByteSlice, ByteSlice, u32, u32), Stream>,
 }
 
 impl TcpStreamWorker {
@@ -79,7 +79,7 @@ impl Worker for TcpStreamWorker {
         parent: &mut Layer,
     ) -> Result<Status> {
         if parent.id() == token!("tcp") {
-            let slice: Slice = parent
+            let slice: ByteSlice = parent
                 .payloads()
                 .iter()
                 .find(|p| p.id() == token!("@data:tcp"))
@@ -87,12 +87,12 @@ impl Worker for TcpStreamWorker {
                 .data();
 
             let stream_id = {
-                let parent_src: Slice = stack
+                let parent_src: ByteSlice = stack
                     .attr(token!("_.src"))
                     .unwrap()
                     .try_get(parent)?
                     .try_into()?;
-                let parent_dst: Slice = stack
+                let parent_dst: ByteSlice = stack
                     .attr(token!("_.dst"))
                     .unwrap()
                     .try_get(parent)?

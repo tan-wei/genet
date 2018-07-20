@@ -4,7 +4,7 @@ use error::Error;
 use layer::Layer;
 use ptr::Ptr;
 use result::Result;
-use slice::Slice;
+use slice::ByteSlice;
 use std::{fmt, mem, ops::Range, slice};
 use token::Token;
 use variant::Variant;
@@ -76,7 +76,7 @@ enum ValueType {
     Float64 = 4,
     String = 5,
     Buffer = 6,
-    Slice = 7,
+    ByteSlice = 7,
 }
 
 #[repr(u64)]
@@ -195,10 +195,10 @@ impl AttrClass {
                 env::dealloc(buf as *mut u8);
                 Ok(Variant::String(s.into_boxed_str()))
             },
-            ValueType::Slice => {
+            ValueType::ByteSlice => {
                 let len: u64 = unsafe { mem::transmute_copy(&num) };
-                Ok(Variant::Slice(unsafe {
-                    Slice::from_raw_parts(buf, len as usize)
+                Ok(Variant::ByteSlice(unsafe {
+                    ByteSlice::from_raw_parts(buf, len as usize)
                 }))
             }
             _ => Ok(Variant::Nil),
@@ -231,7 +231,7 @@ extern "C" fn abi_get(
 ) -> ValueType {
     let value = unsafe { &(*attr).abi_unsafe_data.value };
     let decoder = unsafe { &(*attr).class.abi_unsafe_data.decoder };
-    let slice = unsafe { Slice::from_raw_parts(*data, len as usize) };
+    let slice = unsafe { ByteSlice::from_raw_parts(*data, len as usize) };
     let res;
     let result = if let Some(val) = value {
         Ok(val.as_ref())
@@ -273,12 +273,12 @@ extern "C" fn abi_get(
                 };
                 ValueType::String
             }
-            Variant::Slice(val) => {
+            Variant::ByteSlice(val) => {
                 unsafe {
                     *data = val.as_ptr();
                     *(num as *mut u64) = val.len() as u64;
                 };
-                ValueType::Slice
+                ValueType::ByteSlice
             }
             _ => ValueType::Nil,
         },
@@ -294,7 +294,7 @@ mod tests {
     use attr::{Attr, AttrBuilder};
     use decoder::Decoder;
     use layer::{Layer, LayerBuilder};
-    use slice::{Slice, TryGet};
+    use slice::{ByteSlice, TryGet};
     use std::{
         error,
         io::{Error, ErrorKind, Result},
@@ -309,7 +309,7 @@ mod tests {
         struct TestDecoder {}
 
         impl Decoder for TestDecoder {
-            fn decode(&self, _: &Slice) -> Result<Variant> {
+            fn decode(&self, _: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::Nil)
             }
         }
@@ -323,7 +323,7 @@ mod tests {
         assert_eq!(attr.range(), 0..0);
 
         let class = LayerBuilder::new(Token::null()).build();
-        let layer = Layer::new(&class, Slice::new());
+        let layer = Layer::new(&class, ByteSlice::new());
         match attr.try_get(&layer).unwrap() {
             Variant::Nil => (),
             _ => panic!(),
@@ -336,7 +336,7 @@ mod tests {
         struct TestDecoder {}
 
         impl Decoder for TestDecoder {
-            fn decode(&self, data: &Slice) -> Result<Variant> {
+            fn decode(&self, data: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::Bool(data[0] == 1))
             }
         }
@@ -350,7 +350,7 @@ mod tests {
         assert_eq!(attr.range(), 0..1);
 
         let class = LayerBuilder::new(Token::null()).build();
-        let layer = Layer::new(&class, Slice::from(&[1][..]));
+        let layer = Layer::new(&class, ByteSlice::from(&[1][..]));
         match attr.try_get(&layer).unwrap() {
             Variant::Bool(val) => assert!(val),
             _ => panic!(),
@@ -363,7 +363,7 @@ mod tests {
         struct TestDecoder {}
 
         impl Decoder for TestDecoder {
-            fn decode(&self, data: &Slice) -> Result<Variant> {
+            fn decode(&self, data: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::UInt64(from_utf8(data).unwrap().parse().unwrap()))
             }
         }
@@ -377,7 +377,7 @@ mod tests {
         assert_eq!(attr.range(), 0..6);
 
         let class = LayerBuilder::new(Token::null()).build();
-        let layer = Layer::new(&class, Slice::from(&b"123456789"[..]));
+        let layer = Layer::new(&class, ByteSlice::from(&b"123456789"[..]));
         match attr.try_get(&layer).unwrap() {
             Variant::UInt64(val) => assert_eq!(val, 123456),
             _ => panic!(),
@@ -390,7 +390,7 @@ mod tests {
         struct TestDecoder {}
 
         impl Decoder for TestDecoder {
-            fn decode(&self, data: &Slice) -> Result<Variant> {
+            fn decode(&self, data: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::Int64(from_utf8(data).unwrap().parse().unwrap()))
             }
         }
@@ -404,7 +404,7 @@ mod tests {
         assert_eq!(attr.range(), 0..6);
 
         let class = LayerBuilder::new(Token::null()).build();
-        let layer = Layer::new(&class, Slice::from(&b"-123456789"[..]));
+        let layer = Layer::new(&class, ByteSlice::from(&b"-123456789"[..]));
         match attr.try_get(&layer).unwrap() {
             Variant::Int64(val) => assert_eq!(val, -12345),
             _ => panic!(),
@@ -417,7 +417,7 @@ mod tests {
         struct TestDecoder {}
 
         impl Decoder for TestDecoder {
-            fn decode(&self, data: &Slice) -> Result<Variant> {
+            fn decode(&self, data: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::Buffer(data.to_vec().into_boxed_slice()))
             }
         }
@@ -431,7 +431,7 @@ mod tests {
         assert_eq!(attr.range(), 0..6);
 
         let class = LayerBuilder::new(Token::null()).build();
-        let layer = Layer::new(&class, Slice::from(&b"123456789"[..]));
+        let layer = Layer::new(&class, ByteSlice::from(&b"123456789"[..]));
         match attr.try_get(&layer).unwrap() {
             Variant::Buffer(val) => assert_eq!(&*val, b"123456"),
             _ => panic!(),
@@ -444,7 +444,7 @@ mod tests {
         struct TestDecoder {}
 
         impl Decoder for TestDecoder {
-            fn decode(&self, data: &Slice) -> Result<Variant> {
+            fn decode(&self, data: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::String(
                     from_utf8(data).unwrap().to_string().into_boxed_str(),
                 ))
@@ -460,7 +460,7 @@ mod tests {
         assert_eq!(attr.range(), 0..6);
 
         let class = LayerBuilder::new(Token::null()).build();
-        let layer = Layer::new(&class, Slice::from(&b"123456789"[..]));
+        let layer = Layer::new(&class, ByteSlice::from(&b"123456789"[..]));
         match attr.try_get(&layer).unwrap() {
             Variant::String(val) => assert_eq!(&*val, "123456"),
             _ => panic!(),
@@ -473,8 +473,8 @@ mod tests {
         struct TestDecoder {}
 
         impl Decoder for TestDecoder {
-            fn decode(&self, data: &Slice) -> Result<Variant> {
-                data.try_get(0..3).map(|v| Variant::Slice(v))
+            fn decode(&self, data: &ByteSlice) -> Result<Variant> {
+                data.try_get(0..3).map(|v| Variant::ByteSlice(v))
             }
         }
         let class = AttrBuilder::new("slice")
@@ -487,9 +487,9 @@ mod tests {
         assert_eq!(attr.range(), 0..6);
 
         let class = LayerBuilder::new(Token::null()).build();
-        let layer = Layer::new(&class, Slice::from(&b"123456789"[..]));
+        let layer = Layer::new(&class, ByteSlice::from(&b"123456789"[..]));
         match attr.try_get(&layer).unwrap() {
-            Variant::Slice(val) => assert_eq!(val, Slice::from(&b"123"[..])),
+            Variant::ByteSlice(val) => assert_eq!(val, ByteSlice::from(&b"123"[..])),
             _ => panic!(),
         };
     }
@@ -500,7 +500,7 @@ mod tests {
         struct TestDecoder {}
 
         impl Decoder for TestDecoder {
-            fn decode(&self, _: &Slice) -> Result<Variant> {
+            fn decode(&self, _: &ByteSlice) -> Result<Variant> {
                 Err(From::from(Error::new(ErrorKind::Other, "oh no!")))
             }
         }
@@ -514,7 +514,7 @@ mod tests {
         assert_eq!(attr.range(), 0..6);
 
         let class = LayerBuilder::new(Token::null()).build();
-        let layer = Layer::new(&class, Slice::from(&b"123456789"[..]));
+        let layer = Layer::new(&class, ByteSlice::from(&b"123456789"[..]));
         match attr.try_get(&layer) {
             Err(err) => assert_eq!(err.description(), "oh no!"),
             _ => panic!(),

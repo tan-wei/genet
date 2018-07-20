@@ -93,7 +93,7 @@ lazy_static! {
         .build();
     static ref FLOW_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.flowLabel")
         .decoder(
-            decoder::Slice()
+            decoder::ByteSlice()
                 .map(|v| (((v[2] as u32) & 0xf) << 16) | ((v[1] as u32) << 8) | v[2] as u32)
         )
         .build();
@@ -108,11 +108,11 @@ lazy_static! {
         .build();
     static ref SRC_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.src")
         .typ("@ipv6:addr")
-        .decoder(decoder::Slice())
+        .decoder(decoder::ByteSlice())
         .build();
     static ref DST_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.dst")
         .typ("@ipv6:addr")
-        .decoder(decoder::Slice())
+        .decoder(decoder::ByteSlice())
         .build();
     static ref PROTOCOL_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv6.protocol")
         .typ("@enum")

@@ -183,7 +183,7 @@ lazy_static! {
         .decoder(decoder::Const(true))
         .build();
     static ref OPTIONS_SACK_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.selectiveAck")
-        .decoder(decoder::Ranged(decoder::Slice(), 2..))
+        .decoder(decoder::Ranged(decoder::ByteSlice(), 2..))
         .build();
     static ref OPTIONS_TS_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.ts")
         .typ("@nested")

@@ -99,7 +99,7 @@ NAN_GETTER(AttrWrapper::value) {
     val = Nan::CopyBuffer(var.data, var.value.u64).ToLocalChecked();
     genet_str_free(var.data);
     break;
-  case Slice: {
+  case ByteSlice: {
     size_t len = var.value.u64;
     char *data = const_cast<char *>(var.data);
     val = v8::Uint8Array::New(v8::ArrayBuffer::New(isolate, data, len), 0, len);

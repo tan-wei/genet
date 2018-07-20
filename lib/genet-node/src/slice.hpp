@@ -4,7 +4,7 @@
 #include <nan.h>
 
 namespace genet_node {
-namespace Slice {
+namespace ByteSlice {
 void init(v8::Local<v8::Object> exports);
 }
 } // namespace genet_node

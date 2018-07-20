@@ -10,7 +10,7 @@ use genet_sdk::{
     layer::{Layer, LayerBuilder, LayerClass},
     ptr::Ptr,
     result::Result,
-    slice::Slice,
+    slice::ByteSlice,
 };
 use std::iter;
 
@@ -46,7 +46,7 @@ impl ReaderWorker for TestReaderWorker {
     fn read(&mut self) -> Result<Vec<Layer>> {
         let layers = iter::repeat(())
             .take(1000)
-            .map(|_| Layer::new(&ETH_CLASS, Slice::from(tcp_ipv4_pcap())))
+            .map(|_| Layer::new(&ETH_CLASS, ByteSlice::from(tcp_ipv4_pcap())))
             .collect();
         Ok(layers)
     }

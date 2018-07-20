@@ -15,12 +15,12 @@ pub trait TryGet<T> {
 macro_rules! impl_slice_index {
     ( $( $x:ty ), * ) => {
         $(
-            impl TryGet<$x> for Slice {
-                type Output = Slice;
+            impl TryGet<$x> for ByteSlice {
+                type Output = ByteSlice;
 
-                fn try_get(&self, index: $x) -> Result<Slice> {
+                fn try_get(&self, index: $x) -> Result<ByteSlice> {
                     <[u8]>::get(self, index)
-                        .map(|s| unsafe { Slice::from_raw_parts(s.as_ptr(), s.len()) })
+                        .map(|s| unsafe { ByteSlice::from_raw_parts(s.as_ptr(), s.len()) })
                         .ok_or_else(|| Error::new(ErrorKind::Other, "out of bounds"))
                 }
             }
@@ -37,7 +37,7 @@ impl_slice_index!(
     RangeToInclusive<usize>
 );
 
-impl TryGet<usize> for Slice {
+impl TryGet<usize> for ByteSlice {
     type Output = u8;
 
     fn try_get(&self, index: usize) -> Result<u8> {
@@ -48,15 +48,15 @@ impl TryGet<usize> for Slice {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Slice(&'static [u8]);
+pub struct ByteSlice(&'static [u8]);
 
-impl Slice {
-    pub fn new() -> Slice {
-        Slice(&[])
+impl ByteSlice {
+    pub fn new() -> ByteSlice {
+        ByteSlice(&[])
     }
 
-    pub unsafe fn from_raw_parts(data: *const u8, len: usize) -> Slice {
-        Slice(slice::from_raw_parts(data, len))
+    pub unsafe fn from_raw_parts(data: *const u8, len: usize) -> ByteSlice {
+        ByteSlice(slice::from_raw_parts(data, len))
     }
 
     pub fn len(&self) -> usize {
@@ -72,27 +72,27 @@ impl Slice {
     }
 }
 
-impl From<&'static [u8]> for Slice {
+impl From<&'static [u8]> for ByteSlice {
     fn from(data: &'static [u8]) -> Self {
-        Slice(data)
+        ByteSlice(data)
     }
 }
 
-impl From<Box<[u8]>> for Slice {
+impl From<Box<[u8]>> for ByteSlice {
     fn from(data: Box<[u8]>) -> Self {
-        let s = unsafe { Slice::from_raw_parts(data.as_ptr(), data.len()) };
+        let s = unsafe { ByteSlice::from_raw_parts(data.as_ptr(), data.len()) };
         mem::forget(data);
         s
     }
 }
 
-impl From<Vec<u8>> for Slice {
+impl From<Vec<u8>> for ByteSlice {
     fn from(data: Vec<u8>) -> Self {
-        Slice::from(data.into_boxed_slice())
+        ByteSlice::from(data.into_boxed_slice())
     }
 }
 
-impl Deref for Slice {
+impl Deref for ByteSlice {
     type Target = [u8];
 
     fn deref(&self) -> &'static [u8] {
@@ -100,7 +100,7 @@ impl Deref for Slice {
     }
 }
 
-impl AsRef<[u8]> for Slice {
+impl AsRef<[u8]> for ByteSlice {
     #[inline]
     fn as_ref(&self) -> &[u8] {
         &self.0
@@ -108,14 +108,14 @@ impl AsRef<[u8]> for Slice {
 }
 
 #[repr(C)]
-struct SafeSlice<'a, T: 'a> {
+struct SafeByteSlice<'a, T: 'a> {
     ptr: *const T,
     len: u64,
     phantom: PhantomData<&'a T>,
 }
 
-impl<'a, T: 'a> SafeSlice<'a, T> {
-    pub fn new(data: &'a [T]) -> SafeSlice<'a, T> {
+impl<'a, T: 'a> SafeByteSlice<'a, T> {
+    pub fn new(data: &'a [T]) -> SafeByteSlice<'a, T> {
         Self {
             ptr: data.as_ptr(),
             len: data.len() as u64,
@@ -128,7 +128,7 @@ impl<'a, T: 'a> SafeSlice<'a, T> {
     }
 }
 
-impl<'a, T: 'a> Deref for SafeSlice<'a, T> {
+impl<'a, T: 'a> Deref for SafeByteSlice<'a, T> {
     type Target = [T];
 
     fn deref(&self) -> &[T] {

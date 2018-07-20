@@ -189,7 +189,7 @@ mod tests {
     use dissector::{Dissector, DissectorBox, Status, Worker};
     use layer::{Layer, LayerBuilder, LayerStack};
     use result::Result;
-    use slice::Slice;
+    use slice::ByteSlice;
     use std::{collections::HashMap, ptr};
     use token::Token;
 
@@ -205,7 +205,7 @@ mod tests {
                 _layer: &mut Layer,
             ) -> Result<Status> {
                 let class = LayerBuilder::new(Token::from(1234)).build();
-                let layer = Layer::new(&class, Slice::new());
+                let layer = Layer::new(&class, ByteSlice::new());
                 Ok(Status::Done(vec![layer]))
             }
         }
@@ -225,7 +225,7 @@ mod tests {
         let mut worker = diss.new_worker("serial", &ctx).unwrap();
 
         let class = LayerBuilder::new(Token::null()).build();
-        let mut layer = Layer::new(&class, Slice::new());
+        let mut layer = Layer::new(&class, ByteSlice::new());
         let mut results = Vec::new();
 
         assert_eq!(

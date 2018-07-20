@@ -1,1 +1,1 @@
-pub use genet_abi::slice::{Slice, TryGet};
+pub use genet_abi::slice::{ByteSlice, TryGet};

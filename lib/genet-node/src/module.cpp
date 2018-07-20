@@ -20,7 +20,7 @@ void Module::init(v8::Local<v8::Object> exports) {
   assert(!globalInstance);
   globalInstance = new Module();
   Token::init(exports);
-  Slice::init(exports);
+  ByteSlice::init(exports);
   SessionProfileWrapper::init(exports);
   SessionWrapper::init(exports);
   LayerWrapper::init(exports);
