@@ -8,7 +8,6 @@ extern crate http_muncher;
 
 use genet_sdk::prelude::*;
 use http_muncher::{Method, Parser, ParserHandler, ParserType};
-use std::collections::HashMap;
 
 #[derive(PartialEq)]
 enum SessionStatus {

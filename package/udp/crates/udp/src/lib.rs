@@ -4,11 +4,7 @@ extern crate genet_sdk;
 #[macro_use]
 extern crate lazy_static;
 
-#[macro_use]
-extern crate maplit;
-
 use genet_sdk::prelude::*;
-use std::collections::HashMap;
 
 struct UdpWorker {}
 

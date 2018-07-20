@@ -6,12 +6,9 @@ extern crate serde_json;
 extern crate genet_sdk;
 
 #[macro_use]
-extern crate lazy_static;
-
-#[macro_use]
 extern crate serde_derive;
 
-use byteorder::{BigEndian, LittleEndian, WriteBytesExt};
+use byteorder::{LittleEndian, WriteBytesExt};
 use genet_sdk::{
     io::{Writer, WriterWorker},
     prelude::*,
@@ -19,8 +16,7 @@ use genet_sdk::{
 
 use std::{
     fs::File,
-    io::{self, BufWriter, Error, ErrorKind, Write},
-    mem, slice,
+    io::{BufWriter, Write},
 };
 
 #[derive(Deserialize)]
@@ -73,7 +69,7 @@ impl PcapFileWriterWorker {
 }
 
 impl WriterWorker for PcapFileWriterWorker {
-    fn write(&mut self, index: u32, stack: &LayerStack) -> Result<()> {
+    fn write(&mut self, _index: u32, stack: &LayerStack) -> Result<()> {
         if let Some(layer) = stack.bottom() {
             let incl_len = layer.data().len();
             let mut orig_len = 0;
@@ -94,7 +90,7 @@ impl WriterWorker for PcapFileWriterWorker {
                 ts_usec = attr.try_get(layer)?.try_into()?;
             }
 
-            let _ = self.write_header(0, link as u32)?;
+            self.write_header(0, link as u32)?;
 
             self.writer.write_u32::<LittleEndian>(ts_sec as u32)?;
             self.writer.write_u32::<LittleEndian>(ts_usec as u32)?;
