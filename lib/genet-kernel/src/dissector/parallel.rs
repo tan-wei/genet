@@ -14,7 +14,7 @@ pub struct Pool {
 }
 
 impl Pool {
-    pub fn new<C: 'static + Callback>(profile: Profile, callback: C) -> Pool {
+    pub fn new<C: 'static + Callback>(profile: &Profile, callback: &C) -> Pool {
         let (send, recv) = chan::async::<Option<Vec<Frame>>>();
         let mut handles = Vec::new();
         for _ in 0..profile.concurrency() {
@@ -32,7 +32,7 @@ impl Pool {
         recv: chan::Receiver<Option<Vec<Frame>>>,
     ) -> JoinHandle<()> {
         thread::spawn(move || {
-            let mut disp = Dispatcher::new("parallel", profile);
+            let mut disp = Dispatcher::new("parallel", &profile);
             loop {
                 if let Some(frames) = recv.recv() {
                     if let Some(mut frames) = frames {

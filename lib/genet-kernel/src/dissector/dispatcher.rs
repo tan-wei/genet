@@ -12,7 +12,7 @@ pub struct Dispatcher {
 }
 
 impl Dispatcher {
-    pub fn new(typ: &str, profile: Profile) -> Dispatcher {
+    pub fn new(typ: &str, profile: &Profile) -> Dispatcher {
         let runners = profile
             .dissectors()
             .map(|d| Runner::new(typ, profile.context(), *d))

@@ -23,7 +23,7 @@ impl Pool {
         let mut handles = Vec::new();
 
         let handle = thread::spawn(move || {
-            let mut disp = Dispatcher::new("serial", profile);
+            let mut disp = Dispatcher::new("serial", &profile);
             let mut map = BTreeMap::new();
             let mut next = 0;
             loop {

@@ -29,27 +29,25 @@ pub struct Var {
 }
 
 #[no_mangle]
-pub extern "C" fn genet_attr_id(attr: *const Attr) -> Token {
-    unsafe { (*attr).id() }
+pub unsafe extern "C" fn genet_attr_id(attr: *const Attr) -> Token {
+    (*attr).id()
 }
 
 #[no_mangle]
-pub extern "C" fn genet_attr_type(attr: *const Attr) -> Token {
-    unsafe { (*attr).typ() }
+pub unsafe extern "C" fn genet_attr_type(attr: *const Attr) -> Token {
+    (*attr).typ()
 }
 
 #[no_mangle]
-pub extern "C" fn genet_attr_range(attr: *const Attr, start: *mut u64, end: *mut u64) {
-    unsafe {
-        let range = (*attr).range();
-        *start = range.start as u64;
-        *end = range.end as u64;
-    }
+pub unsafe extern "C" fn genet_attr_range(attr: *const Attr, start: *mut u64, end: *mut u64) {
+    let range = (*attr).range();
+    *start = range.start as u64;
+    *end = range.end as u64;
 }
 
 #[no_mangle]
-pub extern "C" fn genet_attr_get(attr: *const Attr, layer: *const Layer) -> Var {
-    let var = unsafe { (*attr).try_get(&*layer) };
+pub unsafe extern "C" fn genet_attr_get(attr: *const Attr, layer: *const Layer) -> Var {
+    let var = (*attr).try_get(&*layer);
     let mut typ = ValueType::Nil;
     let mut data: *const u8 = ptr::null();
     let mut value = VarValue { uint64: 0 };
@@ -86,16 +84,14 @@ pub extern "C" fn genet_attr_get(attr: *const Attr, layer: *const Layer) -> Var 
             value = VarValue {
                 uint64: s.len() as u64,
             };
-            data = unsafe {
-                CString::from_vec_unchecked(s.as_bytes().to_vec()).into_raw() as *const u8
-            };
+            data = CString::from_vec_unchecked(s.as_bytes().to_vec()).into_raw() as *const u8;
         }
         Ok(Variant::Buffer(s)) => {
             typ = ValueType::Buffer;
             value = VarValue {
                 uint64: s.len() as u64,
             };
-            data = unsafe { CString::from_vec_unchecked(s.to_vec()).into_raw() as *const u8 };
+            data = CString::from_vec_unchecked(s.to_vec()).into_raw() as *const u8;
         }
         Ok(Variant::ByteSlice(s)) => {
             typ = ValueType::ByteSlice;

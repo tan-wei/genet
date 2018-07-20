@@ -217,8 +217,8 @@ impl EventLoop {
             let result = panic::catch_unwind(AssertUnwindSafe(move || {
                 let mut filter_map = HashMap::new();
                 let mut ppool = parallel::Pool::new(
-                    profile.clone(),
-                    ParallelCallback {
+                    &profile,
+                    &ParallelCallback {
                         sender: sender.clone(),
                     },
                 );
