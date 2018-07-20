@@ -187,10 +187,10 @@ extern "C" fn abi_new_worker(
 mod tests {
     use context::Context;
     use dissector::{Dissector, DissectorBox, Status, Worker};
-    use layer::{Layer, LayerBuilder};
+    use layer::{Layer, LayerBuilder, LayerStack};
     use result::Result;
     use slice::Slice;
-    use std::collections::HashMap;
+    use std::{collections::HashMap, ptr};
     use token::Token;
 
     #[test]
@@ -198,7 +198,12 @@ mod tests {
         struct TestWorker {}
 
         impl Worker for TestWorker {
-            fn analyze(&mut self, _ctx: &mut Context, _layer: &mut Layer) -> Result<Status> {
+            fn analyze(
+                &mut self,
+                _ctx: &mut Context,
+                _stack: &LayerStack,
+                _layer: &mut Layer,
+            ) -> Result<Status> {
                 let class = LayerBuilder::new(Token::from(1234)).build();
                 let layer = Layer::new(&class, Slice::new());
                 Ok(Status::Done(vec![layer]))
@@ -215,7 +220,7 @@ mod tests {
             }
         }
 
-        let ctx = Context::new(HashMap::new());
+        let mut ctx = Context::new(HashMap::new());
         let mut diss = DissectorBox::new(TestDissector {});
         let mut worker = diss.new_worker("serial", &ctx).unwrap();
 
@@ -224,7 +229,9 @@ mod tests {
         let mut results = Vec::new();
 
         assert_eq!(
-            worker.analyze(&mut ctx, &mut layer, &mut results).unwrap(),
+            worker
+                .analyze(&mut ctx, &[], &mut layer, &mut results)
+                .unwrap(),
             true
         );
         assert_eq!(results.len(), 1);

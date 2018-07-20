@@ -7,16 +7,7 @@ extern crate lazy_static;
 #[macro_use]
 extern crate maplit;
 
-use genet_sdk::{
-    attr::{Attr, AttrBuilder, AttrClass},
-    context::Context,
-    decoder,
-    dissector::{Dissector, Status, Worker},
-    layer::{Layer, LayerBuilder, LayerClass},
-    ptr::Ptr,
-    result::Result,
-    slice::SliceIndex,
-};
+use genet_sdk::prelude::*;
 use std::collections::HashMap;
 
 struct EthWorker {}

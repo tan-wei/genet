@@ -356,7 +356,7 @@ mod tests {
         let data = b"hello";
 
         for i in 0..count {
-            layer.add_payload(Slice::from(&data[..]), Token::from(i));
+            layer.add_payload(Slice::from(&data[..]), Token::from(i), Token::null());
         }
 
         let mut iter = layer.payloads().iter();
