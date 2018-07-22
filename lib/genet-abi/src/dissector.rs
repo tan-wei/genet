@@ -190,7 +190,7 @@ mod tests {
     use layer::{Layer, LayerBuilder, LayerStack};
     use result::Result;
     use slice::ByteSlice;
-    use std::{collections::HashMap, ptr};
+    use std::collections::HashMap;
     use token::Token;
 
     #[test]

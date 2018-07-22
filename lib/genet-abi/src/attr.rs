@@ -501,7 +501,7 @@ mod tests {
 
         impl Decoder for TestDecoder {
             fn decode(&self, _: &ByteSlice) -> Result<Variant> {
-                Err(From::from(Error::new(ErrorKind::Other, "oh no!")))
+                Err(Error::new(ErrorKind::Other, "oh no!"))
             }
         }
         let class = AttrBuilder::new("slice")
