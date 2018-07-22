@@ -8,7 +8,7 @@ import os from 'os'
 import path from 'path'
 import { promisify } from 'util'
 import tar from 'tar'
-import tmp from 'tmp-promise'
+import tempy from 'tempy'
 import zlib from 'zlib'
 
 const promiseGlob = promisify(glob)
@@ -30,12 +30,12 @@ export default class PackageInstaller extends EventEmitter {
 
   async install (dir, url) {
     try {
-      const tmpdir = await tmp.dir()
-      await this.download(tmpdir.path, url)
-      await this.build(tmpdir.path)
-      await this.npm(tmpdir.path)
+      const tmpdir = tempy.directory()
+      await this.download(tmpdir, url)
+      await this.build(tmpdir)
+      await this.npm(tmpdir)
       await fs.remove(dir).catch((err) => this.emit('output', `${err}\n`))
-      await promiseRename(tmpdir.path, dir)
+      await promiseRename(tmpdir, dir)
       this.emit('output', 'Done\n')
     } catch (err) {
       this.emit('output', 'Failed\n')
