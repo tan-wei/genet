@@ -9,5 +9,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 lazy_static = "1"
-genet-abi = { path = "../../../../lib/genet-abi" }
 genet-sdk = { path = "../../../../lib/genet-sdk" }
