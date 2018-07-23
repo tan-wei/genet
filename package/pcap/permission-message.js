@@ -31,26 +31,11 @@ class LinuxHelper {
         'This executable does not have enough capabilities to ' +
         'start a live capture.',
         m('br'),
-        'Please apply setcap to the executable.',
+        'Please run the following command to add capabilities.',
         m('p', [
           m('code', ['$ sudo setcap cap_net_raw,cap_net_admin=ep ', cli])
-        ]),
-        m('button', {
-          onclick: () => {
-            this.sudo()
-          },
-        }, [
-          'Set Capabilities'
         ])
       ])
-    ])
-  }
-
-  sudo () {
-    execa.sync('gksudo', [
-      '-u', 'root', '-P', '--', 'setcap',
-      'cap_net_raw,cap_net_admin=ep',
-      cli
     ])
   }
 }
