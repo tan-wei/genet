@@ -106,8 +106,8 @@ impl<T> SafeVec<T> {
 }
 
 impl<T> IntoIterator for SafeVec<T> {
-    type Item = T;
     type IntoIter = self::IntoIter<T>;
+    type Item = T;
 
     fn into_iter(mut self) -> Self::IntoIter {
         let iter = IntoIter {

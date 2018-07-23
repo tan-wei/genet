@@ -1,4 +1,5 @@
 const cli = require('./cli')
+const execa = require('execa')
 const m = require('mithril')
 class MacHelper {
   view () {
@@ -33,8 +34,23 @@ class LinuxHelper {
         'Please apply setcap to the executable.',
         m('p', [
           m('code', ['$ sudo setcap cap_net_raw,cap_net_admin=ep ', cli])
+        ]),
+        m('button', {
+          onclick: () => {
+            this.sudo()
+          },
+        }, [
+          'Set Capabilities'
         ])
       ])
+    ])
+  }
+
+  sudo () {
+    execa.sync('gksudo', [
+      '-u', 'root', '-P', '--', 'setcap',
+      'cap_net_raw,cap_net_admin=ep',
+      cli
     ])
   }
 }

@@ -83,7 +83,8 @@ impl Layer {
         self.class.attrs(self)
     }
 
-    pub fn attr(&self, id: Token) -> Option<&Attr> {
+    pub fn attr<T: Into<Token>>(&self, id: T) -> Option<&Attr> {
+        let id = id.into();
         let id = self
             .class
             .aliases()
@@ -97,9 +98,9 @@ impl Layer {
             .map(|attr| attr.as_ref())
     }
 
-    pub fn add_attr(&mut self, attr: Attr) {
+    pub fn add_attr<T: Into<Ptr<Attr>>>(&mut self, attr: T) {
         let func = self.class.add_attr;
-        (func)(self, Ptr::new(attr));
+        (func)(self, attr.into());
     }
 
     pub fn payloads(&self) -> &[Payload] {
@@ -163,8 +164,8 @@ impl LayerBuilder {
         self
     }
 
-    pub fn header(mut self, attr: Attr) -> LayerBuilder {
-        self.headers.push(Ptr::new(attr));
+    pub fn header<T: Into<Ptr<Attr>>>(mut self, attr: T) -> LayerBuilder {
+        self.headers.push(attr.into());
         self
     }
 
