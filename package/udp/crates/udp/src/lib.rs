@@ -21,6 +21,8 @@ impl Worker for UdpWorker {
             .find(|p| p.id() == token!("@data:udp"))
         {
             let mut layer = Layer::new(&UDP_CLASS, payload.data());
+            let payload = payload.data().try_get(8..)?;
+            layer.add_payload(payload, "", "");
             Ok(Status::Done(vec![layer]))
         } else {
             Ok(Status::Skip)

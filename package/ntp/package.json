@@ -1,0 +1,29 @@
+{
+  "name": "@genet/ntp",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "NTP dissector",
+  "engines": {
+    "genet": "*"
+  },
+  "genet": {
+    "components": [
+      {
+        "type": "core:library",
+        "main": "ntp"
+      },
+      {
+        "type": "core:token",
+        "files": [
+          "tokens.json"
+        ]
+      },
+      {
+        "type": "core:style",
+        "files": [
+          "ntp.css"
+        ]
+      }
+    ]
+  }
+}

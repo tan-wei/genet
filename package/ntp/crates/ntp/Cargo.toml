@@ -1,0 +1,13 @@
+[package]
+name = "ntp"
+version = "0.1.0"
+authors = ["Ron Hashimoto <mail@h2so5.net>"]
+
+[lib]
+name = "main"
+crate-type = ["cdylib"]
+
+[dependencies]
+lazy_static = "1"
+maplit = "1"
+genet-sdk = { path = "../../../../lib/genet-sdk" }
