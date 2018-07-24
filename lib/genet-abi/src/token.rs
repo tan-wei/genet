@@ -51,6 +51,6 @@ impl<'a> From<&'a str> for Token {
 
 impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.pad(&self.to_string())
+        f.pad(&Token::to_string(*self))
     }
 }
