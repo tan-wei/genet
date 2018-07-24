@@ -4,6 +4,7 @@ use std::{
 };
 
 #[repr(C)]
+#[derive(Copy)]
 pub struct Ptr<T> {
     ptr: *const T,
 }
@@ -38,6 +39,18 @@ impl<T> Ptr<T> {
 
     pub fn as_ptr(&self) -> *const T {
         self.ptr
+    }
+}
+
+impl<T> From<T> for Ptr<T> {
+    fn from(data: T) -> Ptr<T> {
+        Ptr::new(data)
+    }
+}
+
+impl<T> From<&'static T> for Ptr<T> {
+    fn from(data: &'static T) -> Ptr<T> {
+        Ptr { ptr: data }
     }
 }
 
