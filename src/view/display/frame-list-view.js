@@ -125,7 +125,8 @@ export default class FrameListView {
       Math.floor(this.height / this.itemHeight) + 2, frames - startIndex)
     const listStyle = { height: `${frames * this.itemHeight}px` }
     const filteredFrames =
-      vnode.attrs.sess.filteredFrames('main', startIndex, startIndex + visibleItems)
+      vnode.attrs.sess.filteredFrames(
+        'main', startIndex, startIndex + visibleItems)
     const indices = status.filters.main
       ? filteredFrames
       : new Array(visibleItems).fill(0)

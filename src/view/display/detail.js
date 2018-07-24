@@ -1,7 +1,7 @@
 import { BufferValueItem, AttributeValueItem } from './value'
 import AttributeItem from './attr'
-import DefaultSummary from './default-summary'
 import { ByteSlice } from '@genet/load-module'
+import DefaultSummary from './default-summary'
 import m from 'mithril'
 import moment from 'moment'
 
@@ -35,7 +35,22 @@ class LayerItem {
       children: [],
     }]
     let prevDepth = 0
-    for (const attr of layer.attrs) {
+    const attrs = layer.attrs.map((attr, index) => ({
+      attr,
+      index,
+    }))
+    attrs.sort((lhs, rhs) => {
+      if (lhs.attr.range[0] !== rhs.attr.range[0]) {
+        return lhs.attr.range[0] - rhs.attr.range[0]
+      }
+      const llen = lhs.attr.range[1] - lhs.attr.range[0]
+      const rlen = rhs.attr.range[1] - rhs.attr.range[0]
+      if (llen !== rlen) {
+        return rlen - llen
+      }
+      return lhs.index - rhs.index
+    })
+    for (const attr of attrs.map((item) => item.attr)) {
       let { id } = attr
       if (id.startsWith('.')) {
         id = layer.id + id
@@ -63,19 +78,6 @@ class LayerItem {
       prevDepth = attrPath.length
     }
     const renderer = genet.session.layerRenderer(layer.id) || DefaultSummary
-    let confidence = ''
-    switch (layer.confidence) {
-      case 0:
-        confidence = 'Error'
-        break
-      case 1:
-        confidence = 'Possible'
-        break
-      case 2:
-        confidence = 'Probable'
-        break
-      default:
-    }
     return m('ul', [
       m('li', [
         m('details', { open: true }, [
@@ -131,17 +133,7 @@ class LayerItem {
             },
             [
               m('i', { class: 'fa fa-exchange' }),
-              ' Stream #', layer.streamId]),
-            m('span', {
-              style: {
-                display: confidence
-                  ? 'inline'
-                  : 'none',
-              },
-            }, [
-              m('i', { class: 'fa fa-question-circle' }),
-              ' ', confidence
-            ])
+              ' Stream #', layer.streamId])
           ]),
           mergeOrphanedItems(attrArray[0]).children
             .filter((item) => item.attr)
@@ -253,9 +245,7 @@ export default class PcapDetailView {
               ? `${this.displayFilter.filter} =>`
               : '',
             ' ']),
-          m('span', [m(AttributeValueItem, {
-            attr: {value: filterValue,},
-          })])
+          m('span', [m(AttributeValueItem, { attr: { value: filterValue } })])
         ])
       ]),
       children.map((layer) => m(LayerItem, { layer }))
