@@ -57,6 +57,15 @@ impl Worker for NtpWorker {
                 layer.add_attr(Attr::new(attr, 0..1));
             }
 
+            let stratum_attr = Attr::new(&STRATUM_ATTR, 1..2);
+            let stratum: u8 = stratum_attr.try_get(&layer)?.try_into()?;
+
+            layer.add_attr(if stratum >= 2 {
+                Attr::new(&ID_IP_ATTR, 12..16)
+            } else {
+                Attr::new(&ID_ATTR, 12..16)
+            });
+
             Ok(Status::Done(vec![layer]))
         } else {
             Ok(Status::Skip)
@@ -91,7 +100,6 @@ lazy_static! {
         .header(Attr::new(&RDISP_ATTR, 8..12))
         .header(Attr::new(&RDISP_SEC_ATTR, 8..10))
         .header(Attr::new(&RDISP_FRA_ATTR, 10..12))
-        .header(Attr::new(&ID_ATTR, 12..16))
         .header(Attr::new(&REFTS_ATTR, 16..24))
         .header(Attr::new(&REFTS_SEC_ATTR, 16..20))
         .header(Attr::new(&REFTS_FRA_ATTR, 20..24))
@@ -146,7 +154,12 @@ lazy_static! {
     static ref ID_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.identifier")
         .decoder(decoder::ByteSlice())
         .build();
+    static ref ID_IP_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.identifier")
+        .typ("@ipv4:addr")
+        .decoder(decoder::ByteSlice())
+        .build();
     static ref REFTS_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.referenceTs")
+        .typ("@ntp:time")
         .decoder(
             decoder::UInt64BE()
                 .map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
@@ -159,6 +172,7 @@ lazy_static! {
         .decoder(decoder::UInt32BE())
         .build();
     static ref ORITS_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.originateTs")
+        .typ("@ntp:time")
         .decoder(
             decoder::UInt64BE()
                 .map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
@@ -171,6 +185,7 @@ lazy_static! {
         .decoder(decoder::UInt32BE())
         .build();
     static ref RECTS_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.receiveTs")
+        .typ("@ntp:time")
         .decoder(
             decoder::UInt64BE()
                 .map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
@@ -183,6 +198,7 @@ lazy_static! {
         .decoder(decoder::UInt32BE())
         .build();
     static ref TRATS_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.transmitTs")
+        .typ("@ntp:time")
         .decoder(
             decoder::UInt64BE()
                 .map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
