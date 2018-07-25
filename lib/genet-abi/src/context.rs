@@ -26,23 +26,14 @@ impl Context {
     }
 }
 
-#[repr(u64)]
-#[derive(PartialEq, PartialOrd)]
-#[allow(dead_code)]
-enum Revision {
-    Id = 0,
-}
-
 #[repr(C)]
 pub struct ContextClass {
-    rev: Revision,
     get_config: extern "C" fn(*const Context, *const u8, *mut u64) -> *const u8,
 }
 
 impl ContextClass {
     fn new() -> ContextClass {
         Self {
-            rev: Revision::Id,
             get_config: abi_get_config,
         }
     }

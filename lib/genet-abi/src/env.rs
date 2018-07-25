@@ -9,6 +9,13 @@ use std::{
 use token::Token;
 
 #[no_mangle]
+pub extern "C" fn genet_abi_version(len: *mut u64) -> *const u8 {
+    let version = env!("CARGO_PKG_VERSION");
+    unsafe { *len = version.len() as u64 };
+    version.as_ptr()
+}
+
+#[no_mangle]
 pub extern "C" fn genet_abi_v1_register_get_token(ptr: extern "C" fn(*const u8, u64) -> Token) {
     unsafe { GENET_GET_TOKEN = ptr };
 }

@@ -79,15 +79,6 @@ enum ValueType {
     ByteSlice = 7,
 }
 
-#[repr(u64)]
-#[derive(PartialEq, PartialOrd)]
-#[allow(dead_code)]
-enum Revision {
-    Id = 0,
-    Typ = 1,
-    Range = 2,
-}
-
 pub struct AttrBuilder {
     id: Token,
     typ: Token,
@@ -115,7 +106,6 @@ impl AttrBuilder {
 
     pub fn build(self) -> Ptr<AttrClass> {
         Ptr::new(AttrClass {
-            rev: Revision::Range,
             abi_unsafe_data: Ptr::new(AttrClassData {
                 id: self.id,
                 typ: self.typ,
@@ -131,7 +121,6 @@ impl AttrBuilder {
 
 #[repr(C)]
 pub struct AttrClass {
-    rev: Revision,
     abi_unsafe_data: Ptr<AttrClassData>,
     id: extern "C" fn(class: *const AttrClass) -> Token,
     typ: extern "C" fn(class: *const AttrClass) -> Token,

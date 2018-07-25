@@ -171,7 +171,6 @@ impl LayerBuilder {
 
     pub fn build(self) -> Ptr<LayerClass> {
         Ptr::new(LayerClass {
-            rev: Revision::AddPayload,
             abi_unsafe_data: Ptr::from_box(Box::new(LayerClassData {
                 id: self.id,
                 aliases: self.aliases,
@@ -193,13 +192,6 @@ impl LayerBuilder {
     }
 }
 
-#[repr(u64)]
-#[derive(PartialEq, PartialOrd)]
-#[allow(dead_code)]
-enum Revision {
-    AddPayload = 9,
-}
-
 #[repr(C)]
 struct Alias {
     id: Token,
@@ -214,7 +206,6 @@ struct LayerClassData {
 
 #[repr(C)]
 pub struct LayerClass {
-    rev: Revision,
     abi_unsafe_data: Ptr<LayerClassData>,
     id: extern "C" fn(*const LayerClass) -> Token,
     aliases_len: extern "C" fn(*const LayerClass) -> u64,
