@@ -77,6 +77,7 @@ impl Profile {
     pub fn load_library(&mut self, path: &str) -> Result<(), io::Error> {
         let lib = Library::new(path)?;
 
+        type FnVersion = extern "C" fn() -> u32;
         type FnRegisterGetToken = extern "C" fn(unsafe extern "C" fn(*const u8, u64) -> Token);
         type FnRegisterGetString =
             extern "C" fn(unsafe extern "C" fn(Token, *mut u64) -> *const u8);
@@ -86,6 +87,12 @@ impl Profile {
         type FnGetWriters = extern "C" fn(*mut u64) -> *const WriterBox;
 
         {
+            let func = unsafe { lib.get::<FnVersion>(b"genet_abi_version_major")? };
+
+            if env::genet_abi_version_major() != func() {
+                return Err(io::Error::new(io::ErrorKind::Other, "abi version mismatch"));
+            }
+
             let func =
                 unsafe { lib.get::<FnRegisterGetToken>(b"genet_abi_v1_register_get_token")? };
             func(env::abi_genet_get_token);
