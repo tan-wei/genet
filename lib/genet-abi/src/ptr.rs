@@ -37,6 +37,10 @@ impl<T> Ptr<T> {
         }
     }
 
+    pub fn from_static(data: &'static T) -> Ptr<T> {
+        Self { ptr: data }
+    }
+
     pub fn as_ptr(&self) -> *const T {
         self.ptr
     }

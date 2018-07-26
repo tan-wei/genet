@@ -72,56 +72,56 @@ lazy_static! {
         .header(Attr::new(&SRC_ATTR, 12..16))
         .header(Attr::new(&DST_ATTR, 16..20))
         .build();
-    static ref VERSION_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv4.version")
+    static ref VERSION_ATTR: AttrClass = AttrBuilder::new("ipv4.version")
         .decoder(decoder::UInt8().map(|v| v >> 4))
         .build();
-    static ref HLEN_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv4.headerLength")
+    static ref HLEN_ATTR: AttrClass = AttrBuilder::new("ipv4.headerLength")
         .decoder(decoder::UInt8().map(|v| v & 0b00001111))
         .build();
-    static ref TOS_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv4.tos")
+    static ref TOS_ATTR: AttrClass = AttrBuilder::new("ipv4.tos")
         .decoder(decoder::UInt8())
         .build();
-    static ref LENGTH_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv4.totalLength")
+    static ref LENGTH_ATTR: AttrClass = AttrBuilder::new("ipv4.totalLength")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref ID_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv4.id")
+    static ref ID_ATTR: AttrClass = AttrBuilder::new("ipv4.id")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref FLAGS_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv4.flags")
+    static ref FLAGS_ATTR: AttrClass = AttrBuilder::new("ipv4.flags")
         .decoder(decoder::UInt8().map(|v| (v >> 5) & 0b00000111))
         .typ("@flags")
         .build();
-    static ref FLAGS_RV_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv4.flags.reserved")
+    static ref FLAGS_RV_ATTR: AttrClass = AttrBuilder::new("ipv4.flags.reserved")
         .decoder(decoder::UInt8().map(|v| v & 0b10000000 != 0))
         .build();
-    static ref FLAGS_DF_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv4.flags.dontFragment")
+    static ref FLAGS_DF_ATTR: AttrClass = AttrBuilder::new("ipv4.flags.dontFragment")
         .decoder(decoder::UInt8().map(|v| v & 0b01000000 != 0))
         .build();
-    static ref FLAGS_MF_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv4.flags.moreFragments")
+    static ref FLAGS_MF_ATTR: AttrClass = AttrBuilder::new("ipv4.flags.moreFragments")
         .decoder(decoder::UInt8().map(|v| v & 0b00100000 != 0))
         .build();
-    static ref OFFSET_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv4.fragmentOffset")
+    static ref OFFSET_ATTR: AttrClass = AttrBuilder::new("ipv4.fragmentOffset")
         .decoder(decoder::UInt16BE().map(|v| v & 0x1fff))
         .build();
-    static ref TTL_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv4.ttl")
+    static ref TTL_ATTR: AttrClass = AttrBuilder::new("ipv4.ttl")
         .decoder(decoder::UInt8())
         .build();
-    static ref PROTO_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv4.protocol")
+    static ref PROTO_ATTR: AttrClass = AttrBuilder::new("ipv4.protocol")
         .decoder(decoder::UInt8())
         .typ("@enum")
         .build();
-    static ref CHECKSUM_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv4.checksum")
+    static ref CHECKSUM_ATTR: AttrClass = AttrBuilder::new("ipv4.checksum")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref SRC_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv4.src")
+    static ref SRC_ATTR: AttrClass = AttrBuilder::new("ipv4.src")
         .typ("@ipv4:addr")
         .decoder(decoder::ByteSlice())
         .build();
-    static ref DST_ATTR: Ptr<AttrClass> = AttrBuilder::new("ipv4.dst")
+    static ref DST_ATTR: AttrClass = AttrBuilder::new("ipv4.dst")
         .typ("@ipv4:addr")
         .decoder(decoder::ByteSlice())
         .build();
-    static ref PROTO_MAP: HashMap<u64, (Token, Ptr<AttrClass>)> = hashmap!{
+    static ref PROTO_MAP: HashMap<u64, (Token, AttrClass)> = hashmap!{
         0x01 => (token!("@data:icmp"), AttrBuilder::new("ipv4.protocol.icmp").typ("@novalue").decoder(decoder::Const(true)).build()),
         0x02 => (token!("@data:igmp"), AttrBuilder::new("ipv4.protocol.igmp").typ("@novalue").decoder(decoder::Const(true)).build()),
         0x06 => (token!("@data:tcp"), AttrBuilder::new("ipv4.protocol.tcp").typ("@novalue").decoder(decoder::Const(true)).build()),

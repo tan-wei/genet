@@ -106,93 +106,93 @@ lazy_static! {
         .header(Attr::new(&URGENT_ATTR, 18..20))
         .header(Attr::new(&OPTIONS_ATTR, 20..21))
         .build();
-    static ref SRC_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.src")
+    static ref SRC_ATTR: AttrClass = AttrBuilder::new("tcp.src")
         .typ("@tcp:port")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref DST_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.dst")
+    static ref DST_ATTR: AttrClass = AttrBuilder::new("tcp.dst")
         .typ("@tcp:port")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref SEQ_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.seq")
+    static ref SEQ_ATTR: AttrClass = AttrBuilder::new("tcp.seq")
         .decoder(decoder::UInt32BE())
         .build();
-    static ref ACK_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.ack")
+    static ref ACK_ATTR: AttrClass = AttrBuilder::new("tcp.ack")
         .decoder(decoder::UInt32BE())
         .build();
-    static ref OFFSET_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.dataOffset")
+    static ref OFFSET_ATTR: AttrClass = AttrBuilder::new("tcp.dataOffset")
         .decoder(decoder::UInt8().map(|v| v >> 4))
         .build();
-    static ref FLAGS_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.flags")
+    static ref FLAGS_ATTR: AttrClass = AttrBuilder::new("tcp.flags")
         .typ("@flags")
         .decoder(decoder::UInt16BE().map(|v| v & 0xfff))
         .build();
-    static ref FLAGS_NS_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.flags.ns")
+    static ref FLAGS_NS_ATTR: AttrClass = AttrBuilder::new("tcp.flags.ns")
         .decoder(decoder::UInt8().map(|v| (v & 0b0000_0001) != 0))
         .build();
-    static ref FLAGS_CWR_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.flags.cwr")
+    static ref FLAGS_CWR_ATTR: AttrClass = AttrBuilder::new("tcp.flags.cwr")
         .decoder(decoder::UInt8().map(|v| (v & 0b1000_0000) != 0))
         .build();
-    static ref FLAGS_ECE_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.flags.ece")
+    static ref FLAGS_ECE_ATTR: AttrClass = AttrBuilder::new("tcp.flags.ece")
         .decoder(decoder::UInt8().map(|v| (v & 0b0100_0000) != 0))
         .build();
-    static ref FLAGS_URG_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.flags.urg")
+    static ref FLAGS_URG_ATTR: AttrClass = AttrBuilder::new("tcp.flags.urg")
         .decoder(decoder::UInt8().map(|v| (v & 0b0010_0000) != 0))
         .build();
-    static ref FLAGS_ACK_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.flags.ack")
+    static ref FLAGS_ACK_ATTR: AttrClass = AttrBuilder::new("tcp.flags.ack")
         .decoder(decoder::UInt8().map(|v| (v & 0b0001_0000) != 0))
         .build();
-    static ref FLAGS_PSH_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.flags.psh")
+    static ref FLAGS_PSH_ATTR: AttrClass = AttrBuilder::new("tcp.flags.psh")
         .decoder(decoder::UInt8().map(|v| (v & 0b0000_1000) != 0))
         .build();
-    static ref FLAGS_RST_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.flags.rst")
+    static ref FLAGS_RST_ATTR: AttrClass = AttrBuilder::new("tcp.flags.rst")
         .decoder(decoder::UInt8().map(|v| (v & 0b0000_0100) != 0))
         .build();
-    static ref FLAGS_SYN_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.flags.syn")
+    static ref FLAGS_SYN_ATTR: AttrClass = AttrBuilder::new("tcp.flags.syn")
         .decoder(decoder::UInt8().map(|v| (v & 0b0000_0010) != 0))
         .build();
-    static ref FLAGS_FIN_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.flags.fin")
+    static ref FLAGS_FIN_ATTR: AttrClass = AttrBuilder::new("tcp.flags.fin")
         .decoder(decoder::UInt8().map(|v| (v & 0b0000_0001) != 0))
         .build();
-    static ref WINDOW_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.window")
+    static ref WINDOW_ATTR: AttrClass = AttrBuilder::new("tcp.window")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref CHECKSUM_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.checksum")
+    static ref CHECKSUM_ATTR: AttrClass = AttrBuilder::new("tcp.checksum")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref URGENT_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.urgent")
+    static ref URGENT_ATTR: AttrClass = AttrBuilder::new("tcp.urgent")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref OPTIONS_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options")
+    static ref OPTIONS_ATTR: AttrClass = AttrBuilder::new("tcp.options")
         .typ("@nested")
         .decoder(decoder::Const(true))
         .build();
-    static ref OPTIONS_NOP_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.nop")
+    static ref OPTIONS_NOP_ATTR: AttrClass = AttrBuilder::new("tcp.options.nop")
         .typ("@novalue")
         .decoder(decoder::Const(true))
         .build();
-    static ref OPTIONS_MSS_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.mss")
+    static ref OPTIONS_MSS_ATTR: AttrClass = AttrBuilder::new("tcp.options.mss")
         .decoder(decoder::Ranged(decoder::UInt16BE(), 2..))
         .build();
-    static ref OPTIONS_SCALE_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.scale")
+    static ref OPTIONS_SCALE_ATTR: AttrClass = AttrBuilder::new("tcp.options.scale")
         .decoder(decoder::Ranged(decoder::UInt8(), 2..))
         .build();
-    static ref OPTIONS_SACKP_ATTR: Ptr<AttrClass> = AttrBuilder::new(
+    static ref OPTIONS_SACKP_ATTR: AttrClass = AttrBuilder::new(
         "tcp.options.selectiveAckPermitted"
     ).typ("@novalue")
         .decoder(decoder::Const(true))
         .build();
-    static ref OPTIONS_SACK_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.selectiveAck")
+    static ref OPTIONS_SACK_ATTR: AttrClass = AttrBuilder::new("tcp.options.selectiveAck")
         .decoder(decoder::Ranged(decoder::ByteSlice(), 2..))
         .build();
-    static ref OPTIONS_TS_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.ts")
+    static ref OPTIONS_TS_ATTR: AttrClass = AttrBuilder::new("tcp.options.ts")
         .typ("@nested")
         .decoder(decoder::Const(true))
         .build();
-    static ref OPTIONS_TS_MY_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.ts.my")
+    static ref OPTIONS_TS_MY_ATTR: AttrClass = AttrBuilder::new("tcp.options.ts.my")
         .decoder(decoder::UInt32BE())
         .build();
-    static ref OPTIONS_TS_ECHO_ATTR: Ptr<AttrClass> = AttrBuilder::new("tcp.options.ts.echo")
+    static ref OPTIONS_TS_ECHO_ATTR: AttrClass = AttrBuilder::new("tcp.options.ts.echo")
         .decoder(decoder::UInt32BE())
         .build();
 }

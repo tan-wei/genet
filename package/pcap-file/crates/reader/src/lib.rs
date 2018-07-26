@@ -153,13 +153,13 @@ impl ReaderWorker for PcapFileReaderWorker {
 }
 
 lazy_static! {
-    static ref TYPE_CLASS: Ptr<AttrClass> = AttrBuilder::new("link.type").build();
-    static ref LENGTH_CLASS: Ptr<AttrClass> = AttrBuilder::new("link.length").build();
-    static ref TS_CLASS: Ptr<AttrClass> = AttrBuilder::new("link.timestamp")
+    static ref TYPE_CLASS: AttrClass = AttrBuilder::new("link.type").build();
+    static ref LENGTH_CLASS: AttrClass = AttrBuilder::new("link.length").build();
+    static ref TS_CLASS: AttrClass = AttrBuilder::new("link.timestamp")
         .typ("@datetime:unix")
         .build();
-    static ref TS_SEC_CLASS: Ptr<AttrClass> = AttrBuilder::new("link.timestamp.sec").build();
-    static ref TS_USEC_CLASS: Ptr<AttrClass> = AttrBuilder::new("link.timestamp.usec").build();
+    static ref TS_SEC_CLASS: AttrClass = AttrBuilder::new("link.timestamp.sec").build();
+    static ref TS_USEC_CLASS: AttrClass = AttrBuilder::new("link.timestamp.usec").build();
 }
 
 genet_readers!(PcapFileReader {});

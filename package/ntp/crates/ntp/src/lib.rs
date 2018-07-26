@@ -113,110 +113,110 @@ lazy_static! {
         .header(Attr::new(&TRATS_SEC_ATTR, 40..44))
         .header(Attr::new(&TRATS_FRA_ATTR, 44..48))
         .build();
-    static ref LEAP_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.leapIndicator")
+    static ref LEAP_ATTR: AttrClass = AttrBuilder::new("ntp.leapIndicator")
         .typ("@enum")
         .decoder(decoder::UInt8().map(|v| v >> 6))
         .build();
-    static ref VERSION_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.version")
+    static ref VERSION_ATTR: AttrClass = AttrBuilder::new("ntp.version")
         .decoder(decoder::UInt8().map(|v| (v >> 3) & 0b111))
         .build();
-    static ref MODE_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.mode")
+    static ref MODE_ATTR: AttrClass = AttrBuilder::new("ntp.mode")
         .typ("@enum")
         .decoder(decoder::UInt8().map(|v| v & 0b111))
         .build();
-    static ref STRATUM_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.stratum")
+    static ref STRATUM_ATTR: AttrClass = AttrBuilder::new("ntp.stratum")
         .decoder(decoder::UInt8())
         .build();
-    static ref POLL_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.pollInterval")
+    static ref POLL_ATTR: AttrClass = AttrBuilder::new("ntp.pollInterval")
         .decoder(decoder::UInt8())
         .build();
-    static ref PRECISION_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.precision")
+    static ref PRECISION_ATTR: AttrClass = AttrBuilder::new("ntp.precision")
         .decoder(decoder::UInt8())
         .build();
-    static ref RDELAY_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.rootDelay")
+    static ref RDELAY_ATTR: AttrClass = AttrBuilder::new("ntp.rootDelay")
         .decoder(decoder::UInt32BE().map(|v| (v >> 16) as f64 + ((v & 0xffff) as f64 / 65536f64)))
         .build();
-    static ref RDELAY_SEC_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.rootDelay.seconds")
+    static ref RDELAY_SEC_ATTR: AttrClass = AttrBuilder::new("ntp.rootDelay.seconds")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref RDELAY_FRA_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.rootDelay.fraction")
+    static ref RDELAY_FRA_ATTR: AttrClass = AttrBuilder::new("ntp.rootDelay.fraction")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref RDISP_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.rootDispersion")
+    static ref RDISP_ATTR: AttrClass = AttrBuilder::new("ntp.rootDispersion")
         .decoder(decoder::UInt32BE().map(|v| (v >> 16) as f64 + ((v & 0xffff) as f64 / 65536f64)))
         .build();
-    static ref RDISP_SEC_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.rootDispersion.seconds")
+    static ref RDISP_SEC_ATTR: AttrClass = AttrBuilder::new("ntp.rootDispersion.seconds")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref RDISP_FRA_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.rootDispersion.fraction")
+    static ref RDISP_FRA_ATTR: AttrClass = AttrBuilder::new("ntp.rootDispersion.fraction")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref ID_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.identifier")
+    static ref ID_ATTR: AttrClass = AttrBuilder::new("ntp.identifier")
         .decoder(decoder::ByteSlice())
         .build();
-    static ref ID_IP_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.identifier")
+    static ref ID_IP_ATTR: AttrClass = AttrBuilder::new("ntp.identifier")
         .typ("@ipv4:addr")
         .decoder(decoder::ByteSlice())
         .build();
-    static ref REFTS_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.referenceTs")
+    static ref REFTS_ATTR: AttrClass = AttrBuilder::new("ntp.referenceTs")
         .typ("@ntp:time")
         .decoder(
             decoder::UInt64BE()
                 .map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
         )
         .build();
-    static ref REFTS_SEC_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.referenceTs.seconds")
+    static ref REFTS_SEC_ATTR: AttrClass = AttrBuilder::new("ntp.referenceTs.seconds")
         .decoder(decoder::UInt32BE())
         .build();
-    static ref REFTS_FRA_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.referenceTs.fraction")
+    static ref REFTS_FRA_ATTR: AttrClass = AttrBuilder::new("ntp.referenceTs.fraction")
         .decoder(decoder::UInt32BE())
         .build();
-    static ref ORITS_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.originateTs")
+    static ref ORITS_ATTR: AttrClass = AttrBuilder::new("ntp.originateTs")
         .typ("@ntp:time")
         .decoder(
             decoder::UInt64BE()
                 .map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
         )
         .build();
-    static ref ORITS_SEC_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.originateTs.seconds")
+    static ref ORITS_SEC_ATTR: AttrClass = AttrBuilder::new("ntp.originateTs.seconds")
         .decoder(decoder::UInt32BE())
         .build();
-    static ref ORITS_FRA_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.originateTs.fraction")
+    static ref ORITS_FRA_ATTR: AttrClass = AttrBuilder::new("ntp.originateTs.fraction")
         .decoder(decoder::UInt32BE())
         .build();
-    static ref RECTS_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.receiveTs")
+    static ref RECTS_ATTR: AttrClass = AttrBuilder::new("ntp.receiveTs")
         .typ("@ntp:time")
         .decoder(
             decoder::UInt64BE()
                 .map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
         )
         .build();
-    static ref RECTS_SEC_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.receiveTs.seconds")
+    static ref RECTS_SEC_ATTR: AttrClass = AttrBuilder::new("ntp.receiveTs.seconds")
         .decoder(decoder::UInt32BE())
         .build();
-    static ref RECTS_FRA_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.receiveTs.fraction")
+    static ref RECTS_FRA_ATTR: AttrClass = AttrBuilder::new("ntp.receiveTs.fraction")
         .decoder(decoder::UInt32BE())
         .build();
-    static ref TRATS_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.transmitTs")
+    static ref TRATS_ATTR: AttrClass = AttrBuilder::new("ntp.transmitTs")
         .typ("@ntp:time")
         .decoder(
             decoder::UInt64BE()
                 .map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
         )
         .build();
-    static ref TRATS_SEC_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.transmitTs.seconds")
+    static ref TRATS_SEC_ATTR: AttrClass = AttrBuilder::new("ntp.transmitTs.seconds")
         .decoder(decoder::UInt32BE())
         .build();
-    static ref TRATS_FRA_ATTR: Ptr<AttrClass> = AttrBuilder::new("ntp.transmitTs.fraction")
+    static ref TRATS_FRA_ATTR: AttrClass = AttrBuilder::new("ntp.transmitTs.fraction")
         .decoder(decoder::UInt32BE())
         .build();
-    static ref LEAP_MAP: HashMap<u64, Ptr<AttrClass>> = hashmap!{
+    static ref LEAP_MAP: HashMap<u64, AttrClass> = hashmap!{
         0 => AttrBuilder::new("ntp.leapIndicator.noWarning").typ("@novalue").decoder(decoder::Const(true)).build(),
         1 => AttrBuilder::new("ntp.leapIndicator.sec61").typ("@novalue").decoder(decoder::Const(true)).build(),
         2 => AttrBuilder::new("ntp.leapIndicator.sec59").typ("@novalue").decoder(decoder::Const(true)).build(),
         3 => AttrBuilder::new("ntp.leapIndicator.unknown").typ("@novalue").decoder(decoder::Const(true)).build(),
     };
-    static ref MODE_MAP: HashMap<u64, Ptr<AttrClass>> = hashmap!{
+    static ref MODE_MAP: HashMap<u64, AttrClass> = hashmap!{
         0 => AttrBuilder::new("ntp.mode.reserved").typ("@novalue").decoder(decoder::Const(true)).build(),
         1 => AttrBuilder::new("ntp.mode.symmetricActive").typ("@novalue").decoder(decoder::Const(true)).build(),
         2 => AttrBuilder::new("ntp.mode.symmetricPassive").typ("@novalue").decoder(decoder::Const(true)).build(),

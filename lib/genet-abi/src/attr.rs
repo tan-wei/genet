@@ -28,20 +28,20 @@ struct AttrData {
 }
 
 impl Attr {
-    pub fn new(class: &Ptr<AttrClass>, range: Range<usize>) -> Attr {
+    pub fn new<C: Into<Ptr<AttrClass>>>(class: C, range: Range<usize>) -> Attr {
         Attr {
-            class: class.clone(),
+            class: class.into(),
             abi_unsafe_data: AttrData { range, value: None },
         }
     }
 
-    pub fn with_value<T: Into<Variant>>(
-        class: &Ptr<AttrClass>,
+    pub fn with_value<C: Into<Ptr<AttrClass>>, T: Into<Variant>>(
+        class: C,
         range: Range<usize>,
         value: T,
     ) -> Attr {
         Attr {
-            class: class.clone(),
+            class: class.into(),
             abi_unsafe_data: AttrData {
                 range,
                 value: Some(Ptr::new(value.into())),
@@ -110,8 +110,8 @@ impl AttrBuilder {
         self
     }
 
-    pub fn build(self) -> Ptr<AttrClass> {
-        Ptr::new(AttrClass {
+    pub fn build(self) -> AttrClass {
+        AttrClass {
             abi_unsafe_data: Ptr::new(AttrClassData {
                 id: self.id,
                 typ: self.typ,
@@ -121,7 +121,7 @@ impl AttrBuilder {
             typ: abi_typ,
             range: abi_range,
             get: abi_get,
-        })
+        }
     }
 }
 
@@ -198,6 +198,12 @@ impl AttrClass {
             }
             _ => Ok(Variant::Nil),
         }
+    }
+}
+
+impl Into<Ptr<AttrClass>> for &'static AttrClass {
+    fn into(self) -> Ptr<AttrClass> {
+        Ptr::from_static(self)
     }
 }
 

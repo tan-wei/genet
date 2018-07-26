@@ -52,18 +52,18 @@ lazy_static! {
         .header(Attr::new(&LEN_ATTR, 4..6))
         .header(Attr::new(&CHECKSUM_ATTR, 6..8))
         .build();
-    static ref SRC_ATTR: Ptr<AttrClass> = AttrBuilder::new("udp.src")
+    static ref SRC_ATTR: AttrClass = AttrBuilder::new("udp.src")
         .typ("@udp:port")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref DST_ATTR: Ptr<AttrClass> = AttrBuilder::new("udp.dst")
+    static ref DST_ATTR: AttrClass = AttrBuilder::new("udp.dst")
         .typ("@udp:port")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref LEN_ATTR: Ptr<AttrClass> = AttrBuilder::new("udp.length")
+    static ref LEN_ATTR: AttrClass = AttrBuilder::new("udp.length")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref CHECKSUM_ATTR: Ptr<AttrClass> = AttrBuilder::new("udp.checksum")
+    static ref CHECKSUM_ATTR: AttrClass = AttrBuilder::new("udp.checksum")
         .decoder(decoder::UInt16BE())
         .build();
 }
