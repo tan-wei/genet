@@ -66,6 +66,12 @@ impl Attr {
     }
 }
 
+impl Into<Ptr<Attr>> for Attr {
+    fn into(self) -> Ptr<Attr> {
+        Ptr::new(self)
+    }
+}
+
 #[repr(i8)]
 enum ValueType {
     Error = -1,

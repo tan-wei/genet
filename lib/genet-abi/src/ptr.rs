@@ -42,15 +42,9 @@ impl<T> Ptr<T> {
     }
 }
 
-impl<T> From<T> for Ptr<T> {
-    fn from(data: T) -> Ptr<T> {
-        Ptr::new(data)
-    }
-}
-
-impl<T> From<&'static T> for Ptr<T> {
-    fn from(data: &'static T) -> Ptr<T> {
-        Ptr { ptr: data }
+impl<T, D: Deref<Target = T>> From<&'static D> for Ptr<T> {
+    fn from(data: &'static D) -> Ptr<T> {
+        Ptr { ptr: data.deref() }
     }
 }
 
