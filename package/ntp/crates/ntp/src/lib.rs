@@ -87,7 +87,7 @@ impl Dissector for NtpDissector {
 }
 
 lazy_static! {
-    static ref NTP_CLASS: Ptr<LayerClass> = LayerBuilder::new("ntp")
+    static ref NTP_CLASS: LayerClass = LayerBuilder::new("ntp")
         .header(Attr::new(&LEAP_ATTR, 0..1))
         .header(Attr::new(&VERSION_ATTR, 0..1))
         .header(Attr::new(&MODE_ATTR, 0..1))

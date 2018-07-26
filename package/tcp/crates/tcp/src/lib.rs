@@ -85,7 +85,7 @@ impl Dissector for TcpDissector {
 }
 
 lazy_static! {
-    static ref TCP_CLASS: Ptr<LayerClass> = LayerBuilder::new("tcp")
+    static ref TCP_CLASS: LayerClass = LayerBuilder::new("tcp")
         .header(Attr::new(&SRC_ATTR, 0..2))
         .header(Attr::new(&DST_ATTR, 2..4))
         .header(Attr::new(&SEQ_ATTR, 4..8))

@@ -65,9 +65,11 @@ impl Reader for PcapFileReader {
             )
         };
 
-        let link_class = LayerBuilder::new(format!("[link-{}]", network))
-            .header(Attr::with_value(&TYPE_CLASS, 0..0, i64::from(network)))
-            .build();
+        let link_class = Ptr::new(
+            LayerBuilder::new(format!("[link-{}]", network))
+                .header(Attr::with_value(&TYPE_CLASS, 0..0, i64::from(network)))
+                .build(),
+        );
 
         Ok(Box::new(PcapFileReaderWorker {
             le,
@@ -118,7 +120,7 @@ impl PcapFileReaderWorker {
         self.reader.read_exact(&mut data)?;
 
         let payload = ByteSlice::from(data);
-        let mut layer = Layer::new(&self.link_class, payload);
+        let mut layer = Layer::new(self.link_class.clone(), payload);
 
         layer.add_attr(Attr::with_value(&LENGTH_CLASS, 0..0, u64::from(orig_len)));
         layer.add_attr(Attr::with_value(

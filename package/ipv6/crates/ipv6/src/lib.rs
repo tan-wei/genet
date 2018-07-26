@@ -73,7 +73,7 @@ impl Dissector for IPv6Dissector {
 }
 
 lazy_static! {
-    static ref IPV6_CLASS: Ptr<LayerClass> = LayerBuilder::new("ipv6")
+    static ref IPV6_CLASS: LayerClass = LayerBuilder::new("ipv6")
         .alias("_.src", "ipv6.src")
         .alias("_.dst", "ipv6.dst")
         .header(Attr::new(&VERSION_ATTR, 0..1))

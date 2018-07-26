@@ -56,9 +56,9 @@ struct LayerData {
 }
 
 impl Layer {
-    pub fn new(class: &Ptr<LayerClass>, data: ByteSlice) -> Layer {
+    pub fn new<C: Into<Ptr<LayerClass>>>(class: C, data: ByteSlice) -> Layer {
         Layer {
-            class: class.clone(),
+            class: class.into(),
             abi_unsafe_data: LayerData {
                 data,
                 attrs: Vec::new(),
@@ -169,8 +169,8 @@ impl LayerBuilder {
         self
     }
 
-    pub fn build(self) -> Ptr<LayerClass> {
-        Ptr::new(LayerClass {
+    pub fn build(self) -> LayerClass {
+        LayerClass {
             abi_unsafe_data: Ptr::from_box(Box::new(LayerClassData {
                 id: self.id,
                 aliases: self.aliases,
@@ -188,7 +188,7 @@ impl LayerBuilder {
             payloads_len: abi_payloads_len,
             payloads_data: abi_payloads_data,
             add_payload: abi_add_payload,
-        })
+        }
     }
 }
 
@@ -255,6 +255,12 @@ impl LayerClass {
         let data = (self.payloads_data)(layer);
         let len = (self.payloads_len)(layer) as usize;
         unsafe { slice::from_raw_parts(data, len) }
+    }
+}
+
+impl Into<Ptr<LayerClass>> for &'static LayerClass {
+    fn into(self) -> Ptr<LayerClass> {
+        Ptr::from_static(self)
     }
 }
 

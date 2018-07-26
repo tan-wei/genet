@@ -45,9 +45,11 @@ impl Reader for PcapReader {
                 .take()
                 .ok_or_else(|| Error::new(ErrorKind::Other, "no stdout"))?,
         );
-        let link_class = LayerBuilder::new(format!("[link-{}]", arg.link))
-            .header(Attr::with_value(&TYPE_CLASS, 0..0, u64::from(arg.link)))
-            .build();
+        let link_class = Ptr::new(
+            LayerBuilder::new(format!("[link-{}]", arg.link))
+                .header(Attr::with_value(&TYPE_CLASS, 0..0, u64::from(arg.link)))
+                .build(),
+        );
         Ok(Box::new(PcapReaderWorker {
             child,
             reader,
@@ -78,7 +80,7 @@ impl ReaderWorker for PcapReaderWorker {
         let mut data = vec![0u8; header.datalen as usize];
         self.reader.read_exact(&mut data)?;
         let payload = ByteSlice::from(data);
-        let mut layer = Layer::new(&self.link_class, payload);
+        let mut layer = Layer::new(self.link_class.clone(), payload);
         layer.add_attr(Attr::with_value(
             &LENGTH_CLASS,
             0..0,

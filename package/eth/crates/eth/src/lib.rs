@@ -55,7 +55,7 @@ impl Dissector for EthDissector {
 }
 
 lazy_static! {
-    static ref ETH_CLASS: Ptr<LayerClass> = LayerBuilder::new("eth")
+    static ref ETH_CLASS: LayerClass = LayerBuilder::new("eth")
         .alias("_.src", "eth.src")
         .alias("_.dst", "eth.dst")
         .header(Attr::new(&SRC_ATTR, 0..6))

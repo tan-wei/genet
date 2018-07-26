@@ -53,7 +53,7 @@ impl Dissector for IPv4Dissector {
 }
 
 lazy_static! {
-    static ref IPV4_CLASS: Ptr<LayerClass> = LayerBuilder::new("ipv4")
+    static ref IPV4_CLASS: LayerClass = LayerBuilder::new("ipv4")
         .alias("_.src", "ipv4.src")
         .alias("_.dst", "ipv4.dst")
         .header(Attr::new(&VERSION_ATTR, 0..1))

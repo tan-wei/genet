@@ -44,7 +44,7 @@ impl Dissector for UdpDissector {
 }
 
 lazy_static! {
-    static ref UDP_CLASS: Ptr<LayerClass> = LayerBuilder::new("udp")
+    static ref UDP_CLASS: LayerClass = LayerBuilder::new("udp")
         .alias("_.src", "udp.src")
         .alias("_.dst", "udp.dst")
         .header(Attr::new(&SRC_ATTR, 0..2))
