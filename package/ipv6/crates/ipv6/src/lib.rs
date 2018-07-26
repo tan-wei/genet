@@ -25,8 +25,7 @@ impl Worker for IPv6Worker {
             .find(|p| p.id() == token!("@data:ipv6"))
         {
             let mut layer = Layer::new(&IPV6_CLASS, payload.data());
-            let nheader_attr = Attr::new(&NHEADER_ATTR, 6..7);
-            let nheader = nheader_attr.try_get(&layer)?.try_into()?;
+            let nheader = NHEADER_ATTR_HEADER.try_get(&layer)?.try_into()?;
 
             loop {
                 match nheader {
@@ -43,7 +42,7 @@ impl Worker for IPv6Worker {
                 }
             }
 
-            let range = nheader_attr.range();
+            let range = NHEADER_ATTR_HEADER.range();
             let proto_attr = Attr::new(&PROTOCOL_ATTR, range.clone());
             let proto = proto_attr.try_get(&layer)?.try_into()?;
             layer.add_attr(proto_attr);
@@ -73,6 +72,7 @@ impl Dissector for IPv6Dissector {
 }
 
 lazy_static! {
+    static ref NHEADER_ATTR_HEADER: Attr = Attr::new(&NHEADER_ATTR, 6..7);
     static ref IPV6_CLASS: LayerClass = LayerBuilder::new("ipv6")
         .alias("_.src", "ipv6.src")
         .alias("_.dst", "ipv6.dst")
@@ -80,7 +80,7 @@ lazy_static! {
         .header(Attr::new(&TRAFFIC_ATTR, 0..2))
         .header(Attr::new(&FLOW_ATTR, 1..4))
         .header(Attr::new(&LENGTH_ATTR, 4..6))
-        .header(Attr::new(&NHEADER_ATTR, 6..7))
+        .header(&NHEADER_ATTR_HEADER)
         .header(Attr::new(&HLIMIT_ATTR, 7..8))
         .header(Attr::new(&SRC_ATTR, 8..24))
         .header(Attr::new(&DST_ATTR, 24..40))

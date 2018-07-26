@@ -21,13 +21,11 @@ impl Worker for EthWorker {
     ) -> Result<Status> {
         if parent.id() == token!("[link-1]") {
             let mut layer = Layer::new(&ETH_CLASS, parent.data());
-            let len_attr = Attr::new(&LEN_ATTR, 12..14);
-            let typ_attr = Attr::new(&TYPE_ATTR, 12..14);
-            let len = len_attr.try_get(&layer)?.try_into()?;
+            let len = LEN_ATTR_HEADER.try_get(&layer)?.try_into()?;
             if len <= 1500 {
-                layer.add_attr(len_attr);
+                layer.add_attr(&LEN_ATTR_HEADER);
             } else {
-                layer.add_attr(typ_attr);
+                layer.add_attr(&TYPE_ATTR_HEADER);
             }
             if let Some((typ, attr)) = TYPE_MAP.get(&len) {
                 layer.add_attr(Attr::new(attr, 12..14));
@@ -76,6 +74,8 @@ lazy_static! {
         .typ("@enum")
         .decoder(decoder::UInt16BE())
         .build();
+    static ref LEN_ATTR_HEADER: Attr = Attr::new(&LEN_ATTR, 12..14);
+    static ref TYPE_ATTR_HEADER: Attr = Attr::new(&TYPE_ATTR, 12..14);
     static ref TYPE_MAP: HashMap<u64, (Token, AttrClass)> = hashmap!{
         0x0800 => (token!("@data:ipv4"), AttrBuilder::new("eth.type.ipv4").typ("@novalue").decoder(decoder::Const(true)).build()),
         0x0806 => (token!("@data:arp"), AttrBuilder::new("eth.type.arp").typ("@novalue").decoder(decoder::Const(true)).build()),

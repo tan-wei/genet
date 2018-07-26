@@ -22,8 +22,7 @@ impl Worker for TcpWorker {
         {
             let mut layer = Layer::new(&TCP_CLASS, payload.data());
 
-            let offset_attr = Attr::new(&OFFSET_ATTR, 12..13);
-            let data_offset: usize = offset_attr.try_get(&layer)?.try_into()?;
+            let data_offset: usize = OFFSET_ATTR_HEADER.try_get(&layer)?.try_into()?;
             let data_offset = data_offset * 4;
             let mut offset = 20;
 
@@ -85,12 +84,13 @@ impl Dissector for TcpDissector {
 }
 
 lazy_static! {
+    static ref OFFSET_ATTR_HEADER: Attr = Attr::new(&OFFSET_ATTR, 12..13);
     static ref TCP_CLASS: LayerClass = LayerBuilder::new("tcp")
         .header(Attr::new(&SRC_ATTR, 0..2))
         .header(Attr::new(&DST_ATTR, 2..4))
         .header(Attr::new(&SEQ_ATTR, 4..8))
         .header(Attr::new(&ACK_ATTR, 8..12))
-        .header(Attr::new(&OFFSET_ATTR, 12..13))
+        .header(&OFFSET_ATTR_HEADER)
         .header(Attr::new(&FLAGS_ATTR, 12..14))
         .header(Attr::new(&FLAGS_NS_ATTR, 12..13))
         .header(Attr::new(&FLAGS_CWR_ATTR, 13..14))

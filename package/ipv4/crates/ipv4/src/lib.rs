@@ -25,8 +25,7 @@ impl Worker for IPv4Worker {
             .find(|p| p.id() == token!("@data:ipv4"))
         {
             let mut layer = Layer::new(&IPV4_CLASS, payload.data());
-            let proto_attr = Attr::new(&PROTO_ATTR, 9..10);
-            let proto = proto_attr.try_get(&layer)?.try_into()?;
+            let proto = PROTO_ATTR_HEADER.try_get(&layer)?.try_into()?;
             if let Some((typ, attr)) = PROTO_MAP.get(&proto) {
                 layer.add_attr(Attr::new(attr, 9..10));
                 let payload = layer.data().try_get(20..)?;
@@ -53,6 +52,7 @@ impl Dissector for IPv4Dissector {
 }
 
 lazy_static! {
+    static ref PROTO_ATTR_HEADER: Attr = Attr::new(&PROTO_ATTR, 9..10);
     static ref IPV4_CLASS: LayerClass = LayerBuilder::new("ipv4")
         .alias("_.src", "ipv4.src")
         .alias("_.dst", "ipv4.dst")
@@ -67,7 +67,7 @@ lazy_static! {
         .header(Attr::new(&FLAGS_MF_ATTR, 6..7))
         .header(Attr::new(&OFFSET_ATTR, 6..8))
         .header(Attr::new(&TTL_ATTR, 8..9))
-        .header(Attr::new(&PROTO_ATTR, 9..10))
+        .header(&PROTO_ATTR_HEADER)
         .header(Attr::new(&CHECKSUM_ATTR, 10..12))
         .header(Attr::new(&SRC_ATTR, 12..16))
         .header(Attr::new(&DST_ATTR, 16..20))
