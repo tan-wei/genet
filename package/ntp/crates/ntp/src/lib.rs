@@ -40,26 +40,21 @@ impl Worker for NtpWorker {
             }
 
             let mut layer = Layer::new(&NTP_CLASS, payload.data());
-
-            let leap_attr = Attr::new(&LEAP_ATTR, 0..1);
-            let leap_type = leap_attr.try_get(&layer)?.try_into()?;
+            let leap_type = LEAP_ATTR_HEADER.try_get(&layer)?.try_into()?;
 
             let leap = LEAP_MAP.get(&leap_type);
             if let Some(attr) = leap {
                 layer.add_attr(Attr::new(attr, 0..1));
             }
 
-            let mode_attr = Attr::new(&MODE_ATTR, 0..1);
-            let mode_type = mode_attr.try_get(&layer)?.try_into()?;
+            let mode_type = MODE_ATTR_HEADER.try_get(&layer)?.try_into()?;
 
             let mode = MODE_MAP.get(&mode_type);
             if let Some(attr) = mode {
                 layer.add_attr(Attr::new(attr, 0..1));
             }
 
-            let stratum_attr = Attr::new(&STRATUM_ATTR, 1..2);
-            let stratum: u8 = stratum_attr.try_get(&layer)?.try_into()?;
-
+            let stratum: u8 = STRATUM_ATTR_HEADER.try_get(&layer)?.try_into()?;
             layer.add_attr(if stratum >= 2 {
                 Attr::new(&ID_IP_ATTR, 12..16)
             } else {
@@ -87,11 +82,14 @@ impl Dissector for NtpDissector {
 }
 
 lazy_static! {
+    static ref LEAP_ATTR_HEADER: Attr = Attr::new(&LEAP_ATTR, 0..1);
+    static ref MODE_ATTR_HEADER: Attr = Attr::new(&MODE_ATTR, 0..1);
+    static ref STRATUM_ATTR_HEADER: Attr = Attr::new(&STRATUM_ATTR, 1..2);
     static ref NTP_CLASS: LayerClass = LayerBuilder::new("ntp")
-        .header(Attr::new(&LEAP_ATTR, 0..1))
+        .header(&LEAP_ATTR_HEADER)
         .header(Attr::new(&VERSION_ATTR, 0..1))
-        .header(Attr::new(&MODE_ATTR, 0..1))
-        .header(Attr::new(&STRATUM_ATTR, 1..2))
+        .header(&MODE_ATTR_HEADER)
+        .header(&STRATUM_ATTR_HEADER)
         .header(Attr::new(&POLL_ATTR, 2..3))
         .header(Attr::new(&PRECISION_ATTR, 3..4))
         .header(Attr::new(&RDELAY_ATTR, 4..8))
@@ -113,6 +111,9 @@ lazy_static! {
         .header(Attr::new(&TRATS_SEC_ATTR, 40..44))
         .header(Attr::new(&TRATS_FRA_ATTR, 44..48))
         .build();
+}
+
+lazy_static! {
     static ref LEAP_ATTR: AttrClass = AttrBuilder::new("ntp.leapIndicator")
         .typ("@enum")
         .decoder(decoder::UInt8().map(|v| v >> 6))
@@ -210,6 +211,9 @@ lazy_static! {
     static ref TRATS_FRA_ATTR: AttrClass = AttrBuilder::new("ntp.transmitTs.fraction")
         .decoder(decoder::UInt32BE())
         .build();
+}
+
+lazy_static! {
     static ref LEAP_MAP: HashMap<u64, AttrClass> = hashmap!{
         0 => AttrBuilder::new("ntp.leapIndicator.noWarning").typ("@novalue").decoder(decoder::Const(true)).build(),
         1 => AttrBuilder::new("ntp.leapIndicator.sec61").typ("@novalue").decoder(decoder::Const(true)).build(),

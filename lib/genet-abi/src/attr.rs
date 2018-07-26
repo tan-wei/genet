@@ -72,6 +72,12 @@ impl Into<Ptr<Attr>> for Attr {
     }
 }
 
+impl Into<Ptr<Attr>> for &'static Attr {
+    fn into(self) -> Ptr<Attr> {
+        Ptr::from_static(self)
+    }
+}
+
 #[repr(i8)]
 enum ValueType {
     Error = -1,
