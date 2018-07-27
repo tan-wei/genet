@@ -59,7 +59,11 @@
       ]
     },
     "linux": {
-      "target": ["AppImage", "deb", "rpm"],
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm"
+      ],
       "category": "Network"
     },
     "deb": {
@@ -119,11 +123,8 @@
     "benchmark": "^2.1.4",
     "chokidar": "^2.0.4",
     "electron-builder": "^20.26.0",
-    "electron-packager": "^10.1.0",
-    "electron-winstaller": "^2.6.3",
     "less": "^3.7.1",
     "mocha": "^5.2.0",
-    "modclean": "^3.0.0-beta.1",
     "node-gyp": "^3.6.2",
     "node-notifier": "^5.1.2",
     "pretty-bytes": "^4.0.2",
