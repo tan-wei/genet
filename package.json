@@ -14,7 +14,7 @@
     "bench": "node scripts/bench.js plugkit/bench/*.js"
   },
   "main": "genet_modules/src/app.main.js",
-  "author": "h2so5",
+  "author": "h2so5 <mail@h2so5.net>",
   "license": "MIT",
   "build": {
     "appId": "app.genet",
@@ -59,6 +59,7 @@
       ]
     },
     "linux": {
+      "target": ["AppImage", "deb", "rpm"],
       "category": "Network"
     },
     "deb": {
