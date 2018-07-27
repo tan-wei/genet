@@ -16,6 +16,65 @@
   "main": "genet_modules/src/app.main.js",
   "author": "h2so5",
   "license": "MIT",
+  "build": {
+    "appId": "app.genet",
+    "files": [
+      "genet_modules",
+      "package",
+      "!package/*/crates/**/*",
+      "package/*/crates/*/target/release/*.{dylib,dll,so}",
+      "package/*/crates/*/target/release/*{-cli,-cli.exe}"
+    ],
+    "asarUnpack": [
+      "package",
+      "genet_modules/bin"
+    ],
+    "electronDownload": {
+      "mirror": "https://storage.googleapis.com/cdn-genet-app/electron/v",
+      "cache": "./.cache"
+    },
+    "electronVersion": "1.8.2",
+    "mac": {
+      "icon": "images/genet.icns",
+      "category": "public.app-category.developer-tools"
+    },
+    "nsis": {
+      "createDesktopShortcut": "always"
+    },
+    "dmg": {
+      "background": "images/dmg-background.png",
+      "icon": "images/genet-drive.icns",
+      "iconSize": 128,
+      "contents": [
+        {
+          "x": 450,
+          "y": 180,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 180,
+          "y": 185
+        }
+      ]
+    },
+    "linux": {
+      "category": "Network"
+    },
+    "deb": {
+      "depends": [
+        "libcap2-bin",
+        "gconf-service"
+      ]
+    },
+    "win": {
+      "icon": "images/genet.ico"
+    },
+    "squirrelWindows": {
+      "iconUrl": "https://raw.githubusercontent.com/genet-app/images/master/genet.ico",
+      "loadingGif": "images/genet-install.gif"
+    }
+  },
   "dependencies": {
     "@genet/load-module": "0.0.3",
     "acorn": "^5.5.3",
@@ -58,6 +117,7 @@
     "@genet/negatron": "1.8.2",
     "benchmark": "^2.1.4",
     "chokidar": "^2.0.4",
+    "electron-builder": "^20.26.0",
     "electron-packager": "^10.1.0",
     "electron-winstaller": "^2.6.3",
     "less": "^3.7.1",
