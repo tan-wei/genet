@@ -19,26 +19,6 @@ pub struct Session {
     io_cnt: u32,
 }
 
-pub struct Context {
-    profile: Profile,
-    close_stream: bool,
-}
-
-impl Context {
-    pub fn new(profile: Profile) -> Context {
-        Context {
-            profile,
-            close_stream: false,
-        }
-    }
-
-    pub fn check_close_stream(&mut self) -> bool {
-        let close = self.close_stream;
-        self.close_stream = false;
-        close
-    }
-}
-
 impl Session {
     pub fn new<C: 'static + Callback>(profile: Profile, callback: C) -> Session {
         Session {
