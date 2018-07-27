@@ -93,7 +93,7 @@ pub unsafe extern "C" fn genet_attr_get(attr: *const Attr, layer: *const Layer) 
             };
             data = CString::from_vec_unchecked(s.to_vec()).into_raw() as *const u8;
         }
-        Ok(Variant::ByteSlice(s)) => {
+        Ok(Variant::Slice(s)) => {
             typ = ValueType::ByteSlice;
             value = VarValue {
                 uint64: s.len() as u64,

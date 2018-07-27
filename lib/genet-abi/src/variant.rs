@@ -13,7 +13,7 @@ pub enum Variant {
     Float64(f64),
     String(Box<str>),
     Buffer(Box<[u8]>),
-    ByteSlice(ByteSlice),
+    Slice(ByteSlice),
 }
 
 pub trait Value<T> {
@@ -34,7 +34,7 @@ impl Value<Vec<u8>> for Variant {
         match self {
             Variant::String(val) => Ok(val.to_string().into_bytes()),
             Variant::Buffer(val) => Ok(val.into_vec()),
-            Variant::ByteSlice(val) => Ok(val.as_ref().to_vec()),
+            Variant::Slice(val) => Ok(val.as_ref().to_vec()),
             _ => Err(Error::new(ErrorKind::InvalidData, "wrong type")),
         }
     }
@@ -43,7 +43,7 @@ impl Value<Vec<u8>> for Variant {
 impl Value<ByteSlice> for Variant {
     fn try_into(self) -> Result<ByteSlice> {
         match self {
-            Variant::ByteSlice(val) => Ok(val),
+            Variant::Slice(val) => Ok(val),
             _ => Err(Error::new(ErrorKind::InvalidData, "wrong type")),
         }
     }
@@ -222,6 +222,6 @@ impl Into<Variant> for Box<[u8]> {
 
 impl Into<Variant> for ByteSlice {
     fn into(self) -> Variant {
-        Variant::ByteSlice(self)
+        Variant::Slice(self)
     }
 }

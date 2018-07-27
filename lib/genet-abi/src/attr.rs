@@ -198,7 +198,7 @@ impl AttrClass {
             },
             ValueType::ByteSlice => {
                 let len: u64 = unsafe { mem::transmute_copy(&num) };
-                Ok(Variant::ByteSlice(unsafe {
+                Ok(Variant::Slice(unsafe {
                     ByteSlice::from_raw_parts(buf, len as usize)
                 }))
             }
@@ -280,7 +280,7 @@ extern "C" fn abi_get(
                 };
                 ValueType::String
             }
-            Variant::ByteSlice(val) => {
+            Variant::Slice(val) => {
                 unsafe {
                     *data = val.as_ptr();
                     *(num as *mut u64) = val.len() as u64;
@@ -481,7 +481,7 @@ mod tests {
 
         impl Decoder for TestDecoder {
             fn decode(&self, data: &ByteSlice) -> Result<Variant> {
-                data.try_get(0..3).map(|v| Variant::ByteSlice(v))
+                data.try_get(0..3).map(|v| Variant::Slice(v))
             }
         }
         let class = AttrBuilder::new("slice")
@@ -496,7 +496,7 @@ mod tests {
         let class = LayerBuilder::new(Token::null()).build();
         let layer = Layer::new(&class, ByteSlice::from(&b"123456789"[..]));
         match attr.try_get(&layer).unwrap() {
-            Variant::ByteSlice(val) => assert_eq!(val, ByteSlice::from(&b"123"[..])),
+            Variant::Slice(val) => assert_eq!(val, ByteSlice::from(&b"123"[..])),
             _ => panic!(),
         };
     }
