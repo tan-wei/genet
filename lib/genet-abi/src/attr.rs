@@ -1,8 +1,8 @@
 use decoder::{Decoder, Nil};
 use env;
 use error::Error;
-use layer::Layer;
 use fixed::Fixed;
+use layer::Layer;
 use result::Result;
 use slice::ByteSlice;
 use std::{fmt, mem, ops::Range, slice};

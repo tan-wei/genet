@@ -11,8 +11,8 @@ use genet_kernel::{
     session::{Callback, Event, Session},
 };
 use genet_sdk::{
-    layer::{Layer, LayerClass},
     fixed::MutFixed,
+    layer::{Layer, LayerClass},
 };
 use std::iter;
 

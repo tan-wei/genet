@@ -2,8 +2,8 @@ use genet_abi::{
     context::Context,
     dissector::DissectorBox,
     env::{self, Allocator},
-    io::{ReaderBox, WriterBox},
     fixed::Fixed,
+    io::{ReaderBox, WriterBox},
     token::Token,
 };
 use libloading::Library;

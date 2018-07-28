@@ -2,8 +2,8 @@ use frame::{Frame, WorkerMode};
 use genet_abi::{
     context::Context,
     dissector::{DissectorBox, WorkerBox},
-    layer::Layer,
     fixed::MutFixed,
+    layer::Layer,
 };
 use profile::Profile;
 

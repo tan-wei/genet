@@ -6,9 +6,9 @@ extern crate lazy_static;
 
 use genet_sdk::{
     context::Context,
+    fixed::Fixed,
     io::{Reader, ReaderWorker},
     layer::{Layer, LayerBuilder, LayerClass},
-    fixed::Fixed,
     result::Result,
     slice::ByteSlice,
 };

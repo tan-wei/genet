@@ -1,5 +1,5 @@
-use libc;
 use fixed::Fixed;
+use libc;
 use std::{
     cell::RefCell,
     collections::{hash_map::Entry, HashMap},

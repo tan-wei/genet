@@ -171,11 +171,11 @@ impl LayerBuilder {
 
     pub fn build(self) -> LayerClass {
         LayerClass {
-            abi_unsafe_data: Fixed::from_box(Box::new(LayerClassData {
+            abi_unsafe_data: Fixed::new(LayerClassData {
                 id: self.id,
                 aliases: self.aliases,
                 headers: self.headers,
-            })),
+            }),
             id: abi_id,
             data: abi_data,
             attrs_len: abi_attrs_len,

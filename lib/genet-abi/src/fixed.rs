@@ -1,8 +1,11 @@
+//! Fixed-lifetime shareable containers.
+
 use std::{
     fmt,
     ops::{Deref, DerefMut},
 };
 
+/// A fixed memory location.
 #[repr(C)]
 #[derive(Copy)]
 pub struct Fixed<T> {
@@ -66,6 +69,7 @@ impl<T> Deref for Fixed<T> {
     }
 }
 
+/// A mutable fixed memory location.
 #[repr(C)]
 pub struct MutFixed<T> {
     ptr: *mut T,
@@ -83,12 +87,6 @@ impl<T> MutFixed<T> {
     pub fn new(data: T) -> MutFixed<T> {
         Self {
             ptr: Box::into_raw(Box::new(data)),
-        }
-    }
-
-    pub fn from_box(data: Box<T>) -> MutFixed<T> {
-        Self {
-            ptr: Box::into_raw(data),
         }
     }
 
@@ -123,13 +121,6 @@ mod tests {
     fn new() {
         let data = 123u32;
         let ptr = Fixed::new(data);
-        assert_eq!(*ptr, data);
-    }
-
-    #[test]
-    fn from_box() {
-        let data = 123u32;
-        let ptr = Fixed::from_box(Box::new(data));
         assert_eq!(*ptr, data);
     }
 }

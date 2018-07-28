@@ -3,7 +3,7 @@ use chan;
 use dissector::{parallel, serial};
 use filter::{self, Filter};
 use frame::Frame;
-use genet_abi::{layer::Layer, fixed::MutFixed};
+use genet_abi::{fixed::MutFixed, layer::Layer};
 use io::{Input, Output};
 use profile::Profile;
 use result::Result;

@@ -1,4 +1,4 @@
-use genet_abi::{attr::Attr, layer::Layer, fixed::MutFixed, token::Token};
+use genet_abi::{attr::Attr, fixed::MutFixed, layer::Layer, token::Token};
 use std::fmt;
 
 #[derive(Debug, Clone, PartialEq)]

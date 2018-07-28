@@ -2,9 +2,9 @@ use filter::Filter;
 use frame::Frame;
 use genet_abi::{
     self,
+    fixed::MutFixed,
     io::{ReaderWorkerBox, WriterWorkerBox},
     layer::Layer,
-    fixed::MutFixed,
 };
 use io::{Input, Output};
 use profile::Profile;
