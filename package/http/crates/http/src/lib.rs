@@ -60,7 +60,7 @@ impl Dissector for HttpDissector {
 }
 
 lazy_static! {
-    static ref HTTP_CLASS: LayerClass = LayerBuilder::new("http").build();
+    static ref HTTP_CLASS: LayerClass = LayerClass::builder("http").build();
 }
 
 genet_dissectors!(HttpDissector {});

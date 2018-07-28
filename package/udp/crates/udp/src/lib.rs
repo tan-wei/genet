@@ -44,7 +44,7 @@ impl Dissector for UdpDissector {
 }
 
 lazy_static! {
-    static ref UDP_CLASS: LayerClass = LayerBuilder::new("udp")
+    static ref UDP_CLASS: LayerClass = LayerClass::builder("udp")
         .alias("_.src", "udp.src")
         .alias("_.dst", "udp.dst")
         .header(Attr::new(&SRC_ATTR, 0..2))
@@ -52,18 +52,18 @@ lazy_static! {
         .header(Attr::new(&LEN_ATTR, 4..6))
         .header(Attr::new(&CHECKSUM_ATTR, 6..8))
         .build();
-    static ref SRC_ATTR: AttrClass = AttrBuilder::new("udp.src")
+    static ref SRC_ATTR: AttrClass = AttrClass::builder("udp.src")
         .typ("@udp:port")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref DST_ATTR: AttrClass = AttrBuilder::new("udp.dst")
+    static ref DST_ATTR: AttrClass = AttrClass::builder("udp.dst")
         .typ("@udp:port")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref LEN_ATTR: AttrClass = AttrBuilder::new("udp.length")
+    static ref LEN_ATTR: AttrClass = AttrClass::builder("udp.length")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref CHECKSUM_ATTR: AttrClass = AttrBuilder::new("udp.checksum")
+    static ref CHECKSUM_ATTR: AttrClass = AttrClass::builder("udp.checksum")
         .decoder(decoder::UInt16BE())
         .build();
 }

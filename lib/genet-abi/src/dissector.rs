@@ -187,7 +187,7 @@ extern "C" fn abi_new_worker(
 mod tests {
     use context::Context;
     use dissector::{Dissector, DissectorBox, Status, Worker};
-    use layer::{Layer, LayerBuilder, LayerStack};
+    use layer::{Layer, LayerStack};
     use result::Result;
     use slice::ByteSlice;
     use std::collections::HashMap;
@@ -204,7 +204,7 @@ mod tests {
                 _stack: &LayerStack,
                 _layer: &mut Layer,
             ) -> Result<Status> {
-                let class = LayerBuilder::new(Token::from(1234)).build();
+                let class = LayerClass::builder(Token::from(1234)).build();
                 let layer = Layer::new(&class, ByteSlice::new());
                 Ok(Status::Done(vec![layer]))
             }
@@ -224,7 +224,7 @@ mod tests {
         let mut diss = DissectorBox::new(TestDissector {});
         let mut worker = diss.new_worker("serial", &ctx).unwrap();
 
-        let class = LayerBuilder::new(Token::null()).build();
+        let class = LayerClass::builder(Token::null()).build();
         let mut layer = Layer::new(&class, ByteSlice::new());
         let mut results = Vec::new();
 

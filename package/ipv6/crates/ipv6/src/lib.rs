@@ -73,7 +73,7 @@ impl Dissector for IPv6Dissector {
 
 lazy_static! {
     static ref NHEADER_ATTR_HEADER: Attr = Attr::new(&NHEADER_ATTR, 6..7);
-    static ref IPV6_CLASS: LayerClass = LayerBuilder::new("ipv6")
+    static ref IPV6_CLASS: LayerClass = LayerClass::builder("ipv6")
         .alias("_.src", "ipv6.src")
         .alias("_.dst", "ipv6.dst")
         .header(Attr::new(&VERSION_ATTR, 0..1))
@@ -85,44 +85,44 @@ lazy_static! {
         .header(Attr::new(&SRC_ATTR, 8..24))
         .header(Attr::new(&DST_ATTR, 24..40))
         .build();
-    static ref VERSION_ATTR: AttrClass = AttrBuilder::new("ipv6.version")
+    static ref VERSION_ATTR: AttrClass = AttrClass::builder("ipv6.version")
         .decoder(decoder::UInt8().map(|v| v >> 4))
         .build();
-    static ref TRAFFIC_ATTR: AttrClass = AttrBuilder::new("ipv6.trafficClass")
+    static ref TRAFFIC_ATTR: AttrClass = AttrClass::builder("ipv6.trafficClass")
         .decoder(decoder::UInt16BE().map(|v| (v >> 4) & 0xff))
         .build();
-    static ref FLOW_ATTR: AttrClass = AttrBuilder::new("ipv6.flowLabel")
+    static ref FLOW_ATTR: AttrClass = AttrClass::builder("ipv6.flowLabel")
         .decoder(
             decoder::ByteSlice()
                 .map(|v| (((v[2] as u32) & 0xf) << 16) | ((v[1] as u32) << 8) | v[2] as u32)
         )
         .build();
-    static ref LENGTH_ATTR: AttrClass = AttrBuilder::new("ipv6.payloadLength")
+    static ref LENGTH_ATTR: AttrClass = AttrClass::builder("ipv6.payloadLength")
         .decoder(decoder::UInt8())
         .build();
-    static ref NHEADER_ATTR: AttrClass = AttrBuilder::new("ipv6.nextHeader")
+    static ref NHEADER_ATTR: AttrClass = AttrClass::builder("ipv6.nextHeader")
         .decoder(decoder::UInt8())
         .build();
-    static ref HLIMIT_ATTR: AttrClass = AttrBuilder::new("ipv6.hopLimit")
+    static ref HLIMIT_ATTR: AttrClass = AttrClass::builder("ipv6.hopLimit")
         .decoder(decoder::UInt8())
         .build();
-    static ref SRC_ATTR: AttrClass = AttrBuilder::new("ipv6.src")
+    static ref SRC_ATTR: AttrClass = AttrClass::builder("ipv6.src")
         .typ("@ipv6:addr")
         .decoder(decoder::ByteSlice())
         .build();
-    static ref DST_ATTR: AttrClass = AttrBuilder::new("ipv6.dst")
+    static ref DST_ATTR: AttrClass = AttrClass::builder("ipv6.dst")
         .typ("@ipv6:addr")
         .decoder(decoder::ByteSlice())
         .build();
-    static ref PROTOCOL_ATTR: AttrClass = AttrBuilder::new("ipv6.protocol")
+    static ref PROTOCOL_ATTR: AttrClass = AttrClass::builder("ipv6.protocol")
         .typ("@enum")
         .decoder(decoder::UInt8())
         .build();
     static ref PROTO_MAP: HashMap<u64, (Token, AttrClass)> = hashmap!{
-        0x02 => (token!("@data:igmp"), AttrBuilder::new("ipv6.protocol.igmp").typ("@novalue").decoder(decoder::Const(true)).build()),
-        0x06 => (token!("@data:tcp"), AttrBuilder::new("ipv6.protocol.tcp").typ("@novalue").decoder(decoder::Const(true)).build()),
-        0x11 => (token!("@data:udp"), AttrBuilder::new("ipv6.protocol.udp").typ("@novalue").decoder(decoder::Const(true)).build()),
-        0x3a => (token!("@data:icmp"), AttrBuilder::new("ipv6.protocol.icmp").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x02 => (token!("@data:igmp"), AttrClass::builder("ipv6.protocol.igmp").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x06 => (token!("@data:tcp"), AttrClass::builder("ipv6.protocol.tcp").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x11 => (token!("@data:udp"), AttrClass::builder("ipv6.protocol.udp").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x3a => (token!("@data:icmp"), AttrClass::builder("ipv6.protocol.icmp").typ("@novalue").decoder(decoder::Const(true)).build()),
     };
 }
 genet_dissectors!(IPv6Dissector {});

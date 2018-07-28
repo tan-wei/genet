@@ -91,27 +91,19 @@ enum ValueType {
     ByteSlice = 7,
 }
 
-pub struct AttrBuilder {
+pub struct AttrClassBuilder {
     id: Token,
     typ: Token,
     decoder: Box<Decoder>,
 }
 
-impl AttrBuilder {
-    pub fn new<T: Into<Token>>(id: T) -> AttrBuilder {
-        Self {
-            id: id.into(),
-            typ: Token::null(),
-            decoder: Box::new(Nil()),
-        }
-    }
-
-    pub fn typ<T: Into<Token>>(mut self, typ: T) -> AttrBuilder {
+impl AttrClassBuilder {
+    pub fn typ<T: Into<Token>>(mut self, typ: T) -> AttrClassBuilder {
         self.typ = typ.into();
         self
     }
 
-    pub fn decoder<T: Decoder>(mut self, decoder: T) -> AttrBuilder {
+    pub fn decoder<T: Decoder>(mut self, decoder: T) -> AttrClassBuilder {
         self.decoder = decoder.clone_box();
         self
     }
@@ -147,6 +139,14 @@ struct AttrClassData {
 }
 
 impl AttrClass {
+    pub fn builder<T: Into<Token>>(id: T) -> AttrClassBuilder {
+        AttrClassBuilder {
+            id: id.into(),
+            typ: Token::null(),
+            decoder: Box::new(Nil()),
+        }
+    }
+
     fn id(&self) -> Token {
         (self.id)(self)
     }
@@ -298,9 +298,9 @@ extern "C" fn abi_get(
 
 #[cfg(test)]
 mod tests {
-    use attr::{Attr, AttrBuilder};
+    use attr::Attr;
     use decoder::Decoder;
-    use layer::{Layer, LayerBuilder};
+    use layer::Layer;
     use slice::{ByteSlice, TryGet};
     use std::{
         error,
@@ -320,7 +320,7 @@ mod tests {
                 Ok(Variant::Nil)
             }
         }
-        let class = AttrBuilder::new("nil")
+        let class = AttrClass::builder("nil")
             .typ("@nil")
             .decoder(TestDecoder {})
             .build();
@@ -329,7 +329,7 @@ mod tests {
         assert_eq!(attr.typ(), Token::from("@nil"));
         assert_eq!(attr.range(), 0..0);
 
-        let class = LayerBuilder::new(Token::null()).build();
+        let class = LayerClass::builder(Token::null()).build();
         let layer = Layer::new(&class, ByteSlice::new());
         match attr.try_get(&layer).unwrap() {
             Variant::Nil => (),
@@ -347,7 +347,7 @@ mod tests {
                 Ok(Variant::Bool(data[0] == 1))
             }
         }
-        let class = AttrBuilder::new("bool")
+        let class = AttrClass::builder("bool")
             .typ("@bool")
             .decoder(TestDecoder {})
             .build();
@@ -356,7 +356,7 @@ mod tests {
         assert_eq!(attr.typ(), Token::from("@bool"));
         assert_eq!(attr.range(), 0..1);
 
-        let class = LayerBuilder::new(Token::null()).build();
+        let class = LayerClass::builder(Token::null()).build();
         let layer = Layer::new(&class, ByteSlice::from(&[1][..]));
         match attr.try_get(&layer).unwrap() {
             Variant::Bool(val) => assert!(val),
@@ -374,7 +374,7 @@ mod tests {
                 Ok(Variant::UInt64(from_utf8(data).unwrap().parse().unwrap()))
             }
         }
-        let class = AttrBuilder::new("u64")
+        let class = AttrClass::builder("u64")
             .typ("@u64")
             .decoder(TestDecoder {})
             .build();
@@ -383,7 +383,7 @@ mod tests {
         assert_eq!(attr.typ(), Token::from("@u64"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = LayerBuilder::new(Token::null()).build();
+        let class = LayerClass::builder(Token::null()).build();
         let layer = Layer::new(&class, ByteSlice::from(&b"123456789"[..]));
         match attr.try_get(&layer).unwrap() {
             Variant::UInt64(val) => assert_eq!(val, 123_456),
@@ -401,7 +401,7 @@ mod tests {
                 Ok(Variant::Int64(from_utf8(data).unwrap().parse().unwrap()))
             }
         }
-        let class = AttrBuilder::new("i64")
+        let class = AttrClass::builder("i64")
             .typ("@i64")
             .decoder(TestDecoder {})
             .build();
@@ -410,7 +410,7 @@ mod tests {
         assert_eq!(attr.typ(), Token::from("@i64"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = LayerBuilder::new(Token::null()).build();
+        let class = LayerClass::builder(Token::null()).build();
         let layer = Layer::new(&class, ByteSlice::from(&b"-123456789"[..]));
         match attr.try_get(&layer).unwrap() {
             Variant::Int64(val) => assert_eq!(val, -12345),
@@ -428,7 +428,7 @@ mod tests {
                 Ok(Variant::Buffer(data.to_vec().into_boxed_slice()))
             }
         }
-        let class = AttrBuilder::new("buffer")
+        let class = AttrClass::builder("buffer")
             .typ("@buffer")
             .decoder(TestDecoder {})
             .build();
@@ -437,7 +437,7 @@ mod tests {
         assert_eq!(attr.typ(), Token::from("@buffer"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = LayerBuilder::new(Token::null()).build();
+        let class = LayerClass::builder(Token::null()).build();
         let layer = Layer::new(&class, ByteSlice::from(&b"123456789"[..]));
         match attr.try_get(&layer).unwrap() {
             Variant::Buffer(val) => assert_eq!(&*val, b"123456"),
@@ -457,7 +457,7 @@ mod tests {
                 ))
             }
         }
-        let class = AttrBuilder::new("string")
+        let class = AttrClass::builder("string")
             .typ("@string")
             .decoder(TestDecoder {})
             .build();
@@ -466,7 +466,7 @@ mod tests {
         assert_eq!(attr.typ(), Token::from("@string"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = LayerBuilder::new(Token::null()).build();
+        let class = LayerClass::builder(Token::null()).build();
         let layer = Layer::new(&class, ByteSlice::from(&b"123456789"[..]));
         match attr.try_get(&layer).unwrap() {
             Variant::String(val) => assert_eq!(&*val, "123456"),
@@ -484,7 +484,7 @@ mod tests {
                 data.try_get(0..3).map(|v| Variant::Slice(v))
             }
         }
-        let class = AttrBuilder::new("slice")
+        let class = AttrClass::builder("slice")
             .typ("@slice")
             .decoder(TestDecoder {})
             .build();
@@ -493,7 +493,7 @@ mod tests {
         assert_eq!(attr.typ(), Token::from("@slice"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = LayerBuilder::new(Token::null()).build();
+        let class = LayerClass::builder(Token::null()).build();
         let layer = Layer::new(&class, ByteSlice::from(&b"123456789"[..]));
         match attr.try_get(&layer).unwrap() {
             Variant::Slice(val) => assert_eq!(val, ByteSlice::from(&b"123"[..])),
@@ -511,7 +511,7 @@ mod tests {
                 Err(Error::new(ErrorKind::Other, "oh no!"))
             }
         }
-        let class = AttrBuilder::new("slice")
+        let class = AttrClass::builder("slice")
             .typ("@slice")
             .decoder(TestDecoder {})
             .build();
@@ -520,7 +520,7 @@ mod tests {
         assert_eq!(attr.typ(), Token::from("@slice"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = LayerBuilder::new(Token::null()).build();
+        let class = LayerClass::builder(Token::null()).build();
         let layer = Layer::new(&class, ByteSlice::from(&b"123456789"[..]));
         match attr.try_get(&layer) {
             Err(err) => assert_eq!(err.description(), "oh no!"),

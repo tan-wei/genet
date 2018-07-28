@@ -141,22 +141,14 @@ impl Payload {
     }
 }
 
-pub struct LayerBuilder {
+pub struct LayerClassBuilder {
     id: Token,
     aliases: Vec<Alias>,
     headers: Vec<Fixed<Attr>>,
 }
 
-impl LayerBuilder {
-    pub fn new<T: Into<Token>>(id: T) -> LayerBuilder {
-        Self {
-            id: id.into(),
-            aliases: Vec::new(),
-            headers: Vec::new(),
-        }
-    }
-
-    pub fn alias<T: Into<Token>, U: Into<Token>>(mut self, id: T, target: U) -> LayerBuilder {
+impl LayerClassBuilder {
+    pub fn alias<T: Into<Token>, U: Into<Token>>(mut self, id: T, target: U) -> LayerClassBuilder {
         self.aliases.push(Alias {
             id: id.into(),
             target: target.into(),
@@ -164,7 +156,7 @@ impl LayerBuilder {
         self
     }
 
-    pub fn header<T: Into<Fixed<Attr>>>(mut self, attr: T) -> LayerBuilder {
+    pub fn header<T: Into<Fixed<Attr>>>(mut self, attr: T) -> LayerClassBuilder {
         self.headers.push(attr.into());
         self
     }
@@ -222,6 +214,14 @@ pub struct LayerClass {
 }
 
 impl LayerClass {
+    pub fn builder<T: Into<Token>>(id: T) -> LayerClassBuilder {
+        LayerClassBuilder {
+            id: id.into(),
+            aliases: Vec::new(),
+            headers: Vec::new(),
+        }
+    }
+
     fn id(&self) -> Token {
         (self.id)(self)
     }
@@ -320,9 +320,9 @@ extern "C" fn abi_add_payload(layer: *mut Layer, data: *const u8, len: u64, id: 
 
 #[cfg(test)]
 mod tests {
-    use attr::{Attr, AttrBuilder};
+    use attr::Attr;
     use decoder::Decoder;
-    use layer::{Layer, LayerBuilder};
+    use layer::Layer;
     use slice::ByteSlice;
     use std::io::Result;
     use token::Token;
@@ -331,7 +331,7 @@ mod tests {
     #[test]
     fn id() {
         let id = Token::from(123);
-        let class = LayerBuilder::new(id).build();
+        let class = LayerClass::builder(id).build();
         let layer = Layer::new(&class, ByteSlice::new());
         assert_eq!(layer.id(), id);
     }
@@ -339,14 +339,14 @@ mod tests {
     #[test]
     fn data() {
         let data = b"hello";
-        let class = LayerBuilder::new(Token::null()).build();
+        let class = LayerClass::builder(Token::null()).build();
         let layer = Layer::new(&class, ByteSlice::from(&data[..]));
         assert_eq!(layer.data(), ByteSlice::from(&data[..]));
     }
 
     #[test]
     fn payloads() {
-        let class = LayerBuilder::new(Token::null()).build();
+        let class = LayerClass::builder(Token::null()).build();
         let mut layer = Layer::new(&class, ByteSlice::new());
         assert!(layer.payloads().iter().next().is_none());
 
@@ -368,7 +368,7 @@ mod tests {
 
     #[test]
     fn attrs() {
-        let class = LayerBuilder::new(Token::null()).build();
+        let class = LayerClass::builder(Token::null()).build();
         let mut layer = Layer::new(&class, ByteSlice::new());
         assert!(layer.attrs().is_empty());
 
@@ -380,7 +380,7 @@ mod tests {
                 Ok(Variant::Nil)
             }
         }
-        let class = AttrBuilder::new("nil")
+        let class = AttrClass::builder("nil")
             .typ("@nil")
             .decoder(TestDecoder {})
             .build();

@@ -2,4 +2,4 @@
 //!
 //! Type Attr represents an attribute of a Layer.
 
-pub use genet_abi::attr::{Attr, AttrBuilder, AttrClass};
+pub use genet_abi::attr::{Attr, AttrClass};

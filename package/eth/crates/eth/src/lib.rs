@@ -53,35 +53,35 @@ impl Dissector for EthDissector {
 }
 
 lazy_static! {
-    static ref ETH_CLASS: LayerClass = LayerBuilder::new("eth")
+    static ref ETH_CLASS: LayerClass = LayerClass::builder("eth")
         .alias("_.src", "eth.src")
         .alias("_.dst", "eth.dst")
         .header(Attr::new(&SRC_ATTR, 0..6))
         .header(Attr::new(&DST_ATTR, 6..12))
         .build();
-    static ref SRC_ATTR: AttrClass = AttrBuilder::new("eth.src")
+    static ref SRC_ATTR: AttrClass = AttrClass::builder("eth.src")
         .typ("@eth:mac")
         .decoder(decoder::ByteSlice())
         .build();
-    static ref DST_ATTR: AttrClass = AttrBuilder::new("eth.dst")
+    static ref DST_ATTR: AttrClass = AttrClass::builder("eth.dst")
         .typ("@eth:mac")
         .decoder(decoder::ByteSlice())
         .build();
-    static ref LEN_ATTR: AttrClass = AttrBuilder::new("eth.len")
+    static ref LEN_ATTR: AttrClass = AttrClass::builder("eth.len")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref TYPE_ATTR: AttrClass = AttrBuilder::new("eth.type")
+    static ref TYPE_ATTR: AttrClass = AttrClass::builder("eth.type")
         .typ("@enum")
         .decoder(decoder::UInt16BE())
         .build();
     static ref LEN_ATTR_HEADER: Attr = Attr::new(&LEN_ATTR, 12..14);
     static ref TYPE_ATTR_HEADER: Attr = Attr::new(&TYPE_ATTR, 12..14);
     static ref TYPE_MAP: HashMap<u64, (Token, AttrClass)> = hashmap!{
-        0x0800 => (token!("@data:ipv4"), AttrBuilder::new("eth.type.ipv4").typ("@novalue").decoder(decoder::Const(true)).build()),
-        0x0806 => (token!("@data:arp"), AttrBuilder::new("eth.type.arp").typ("@novalue").decoder(decoder::Const(true)).build()),
-        0x0842 => (token!("@data:wol"), AttrBuilder::new("eth.type.wol").typ("@novalue").decoder(decoder::Const(true)).build()),
-        0x86DD => (token!("@data:ipv6"), AttrBuilder::new("eth.type.ipv6").typ("@novalue").decoder(decoder::Const(true)).build()),
-        0x888E => (token!("@data:eap"), AttrBuilder::new("eth.type.eap").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x0800 => (token!("@data:ipv4"), AttrClass::builder("eth.type.ipv4").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x0806 => (token!("@data:arp"), AttrClass::builder("eth.type.arp").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x0842 => (token!("@data:wol"), AttrClass::builder("eth.type.wol").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x86DD => (token!("@data:ipv6"), AttrClass::builder("eth.type.ipv6").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x888E => (token!("@data:eap"), AttrClass::builder("eth.type.eap").typ("@novalue").decoder(decoder::Const(true)).build()),
     };
 }
 
