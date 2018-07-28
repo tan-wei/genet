@@ -9,6 +9,7 @@
         "name": "genet",
         "out": "doc",
         "excludeExternals": true,
-        "mode": "file"
+        "mode": "file",
+        "readme": "none"
     }
 }
