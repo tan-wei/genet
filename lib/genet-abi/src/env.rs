@@ -9,9 +9,16 @@ use std::{
 use token::Token;
 
 #[no_mangle]
-pub extern "C" fn genet_abi_version_major() -> u32 {
-    let version = env!("CARGO_PKG_VERSION_MAJOR");
-    version.parse().unwrap_or(0)
+pub extern "C" fn genet_abi_version() -> u64 {
+    let major: u64 = env!("CARGO_PKG_VERSION_MAJOR").parse().unwrap_or(0);
+    let minor: u64 = env!("CARGO_PKG_VERSION_MINOR").parse().unwrap_or(0);
+
+    // In initial development, minor version changes may break ABI.
+    if major == 0u64 {
+        major << 32 | minor
+    } else {
+        major << 32
+    }
 }
 
 #[no_mangle]
