@@ -7,7 +7,7 @@ const fs = require('fs-extra')
 
 const src = path.resolve(__dirname, '../src')
 const dst = path.resolve(__dirname, '../genet_modules/src')
-const webpack = path.resolve(__dirname, '../node_modules/.bin/webpack')
+const webpack = path.resolve(__dirname, '../node_modules/.bin/webpack-cli')
 const lessc = path.resolve(__dirname, '../node_modules/.bin/lessc')
 fs.ensureDirSync(dst)
 fs.ensureDirSync(path.resolve(dst, 'asset'))
@@ -17,8 +17,9 @@ const lessFiles = glob.sync(path.resolve(src, 'asset/*.main.less'))
 const assets = glob.sync(path.resolve(src, 'asset/*.htm'))
 
 for (const file of jsFiles) {
-  execa(webpack, [file, path.resolve(dst, path.basename(file))])
-    .stdout.pipe(process.stdout)
+  execa(webpack, ['--entry', file, '--output', path.resolve(dst, path.basename(file))], {
+    stdio: 'inherit'
+  })
 }
 for (const file of lessFiles) {
   const css = 
