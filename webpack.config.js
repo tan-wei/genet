@@ -1,8 +1,7 @@
 const nodeExternals = require('webpack-node-externals')
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 module.exports = {
   target: 'node',
-  mode: 'production',
+  mode: 'development',
   externals: [nodeExternals(), (context, request, callback) => {
     if (request === 'electron') {
       return callback(null, 'commonjs electron')
@@ -17,15 +16,6 @@ module.exports = {
     process: false,
     Buffer: false,
   },
-  plugins: [
-    new UglifyJsPlugin({
-      cache: true,
-      uglifyOptions: {
-        ecma: 8,
-        compress: false,
-        mangle: true,
-      },
-    })
-  ],
+  resolve: { extensions: ['.ts', '.js'] },
   devtool: 'source-map',
 }

@@ -17,7 +17,7 @@ const lessFiles = glob.sync(path.resolve(src, 'asset/*.main.less'))
 const assets = glob.sync(path.resolve(src, 'asset/*.htm'))
 
 for (const file of jsFiles) {
-  execa(webpack, ['--entry', file, '--output', path.resolve(dst, path.basename(file))], {
+  execa.sync(webpack, ['--entry', file, '--output', path.resolve(dst, path.basename(file))], {
     stdio: 'inherit'
   })
 }
