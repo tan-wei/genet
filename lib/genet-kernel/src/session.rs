@@ -4,7 +4,7 @@ use genet_abi::{
     self,
     io::{ReaderWorkerBox, WriterWorkerBox},
     layer::Layer,
-    ptr::MutPtr,
+    fixed::MutFixed,
 };
 use io::{Input, Output};
 use profile::Profile;
@@ -193,7 +193,7 @@ impl ReaderWorkerInput {
 }
 
 impl Input for ReaderWorkerInput {
-    fn read(&mut self) -> genet_abi::result::Result<Vec<MutPtr<Layer>>> {
+    fn read(&mut self) -> genet_abi::result::Result<Vec<MutFixed<Layer>>> {
         self.worker.read()
     }
 }

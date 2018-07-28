@@ -3,7 +3,7 @@ use genet_abi::{
     context::Context,
     dissector::{DissectorBox, WorkerBox},
     layer::Layer,
-    ptr::MutPtr,
+    fixed::MutFixed,
 };
 use profile::Profile;
 
@@ -90,10 +90,10 @@ impl Runner {
 
     fn execute(
         &mut self,
-        layers: &[MutPtr<Layer>],
+        layers: &[MutFixed<Layer>],
         layer: &mut Layer,
         mode: &mut WorkerMode,
-    ) -> (bool, Vec<MutPtr<Layer>>) {
+    ) -> (bool, Vec<MutFixed<Layer>>) {
         if let Some(worker) = &mut self.worker {
             *mode = mode.add(WorkerMode::None);
             let mut children = Vec::new();
@@ -126,10 +126,10 @@ impl<'a> OnceRunner<'a> {
 
     fn execute(
         &mut self,
-        layers: &[MutPtr<Layer>],
+        layers: &[MutFixed<Layer>],
         layer: &mut Layer,
         mode: &mut WorkerMode,
-    ) -> (bool, Vec<MutPtr<Layer>>) {
+    ) -> (bool, Vec<MutFixed<Layer>>) {
         if !self.used {
             let (done, children) = self.runner.execute(layers, layer, mode);
             if done {

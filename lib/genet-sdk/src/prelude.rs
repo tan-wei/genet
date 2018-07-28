@@ -3,7 +3,7 @@ pub use context::Context;
 pub use decoder::{self, Map};
 pub use dissector::{Dissector, Status, Worker};
 pub use layer::{Layer, LayerBuilder, LayerClass, LayerStack};
-pub use ptr::Ptr;
+pub use fixed::Fixed;
 pub use result::Result;
 pub use slice::{ByteSlice, TryGet};
 pub use token::{self, Token};

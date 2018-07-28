@@ -1,10 +1,10 @@
-use ptr::MutPtr;
+use fixed::MutFixed;
 use std::{collections::HashMap, slice, str};
 
 #[repr(C)]
 pub struct Context {
     class: &'static ContextClass,
-    abi_unsafe_data: MutPtr<ContextData>,
+    abi_unsafe_data: MutFixed<ContextData>,
 }
 
 struct ContextData {
@@ -15,7 +15,7 @@ impl Context {
     pub fn new(config: HashMap<String, String>) -> Context {
         Self {
             class: &CONTEXT_CLASS,
-            abi_unsafe_data: MutPtr::new(ContextData { config }),
+            abi_unsafe_data: MutFixed::new(ContextData { config }),
         }
     }
 

@@ -1,7 +1,7 @@
 use context::Context;
 use error::Error;
 use layer::{Layer, LayerStack};
-use ptr::MutPtr;
+use fixed::MutFixed;
 use result::Result;
 use std::{fmt, mem, ptr};
 use string::SafeString;
@@ -176,7 +176,7 @@ impl WriterWorkerBox {
         }
     }
 
-    pub fn write(&mut self, index: u32, layers: &[MutPtr<Layer>]) -> Result<()> {
+    pub fn write(&mut self, index: u32, layers: &[MutFixed<Layer>]) -> Result<()> {
         let mut e = Error::new("");
         let stack = layers.as_ptr() as *const *const Layer;
         if (self.write)(self.worker, index, stack, layers.len() as u64, &mut e) == 0 {
@@ -201,7 +201,7 @@ impl Drop for WriterWorkerBox {
 
 pub struct ReaderWorkerBox {
     worker: *mut Box<ReaderWorker>,
-    read: extern "C" fn(*mut Box<ReaderWorker>, *mut SafeVec<MutPtr<Layer>>, *mut Error) -> u8,
+    read: extern "C" fn(*mut Box<ReaderWorker>, *mut SafeVec<MutFixed<Layer>>, *mut Error) -> u8,
     drop: extern "C" fn(*mut Box<ReaderWorker>),
 }
 
@@ -216,7 +216,7 @@ impl ReaderWorkerBox {
         }
     }
 
-    pub fn read(&mut self) -> Result<Vec<MutPtr<Layer>>> {
+    pub fn read(&mut self) -> Result<Vec<MutFixed<Layer>>> {
         let mut v = SafeVec::new();
         let mut e = Error::new("");
         if (self.read)(self.worker, &mut v, &mut e) == 0 {
@@ -267,7 +267,7 @@ extern "C" fn abi_writer_worker_write(
 
 extern "C" fn abi_reader_worker_read(
     worker: *mut Box<ReaderWorker>,
-    out: *mut SafeVec<MutPtr<Layer>>,
+    out: *mut SafeVec<MutFixed<Layer>>,
     err: *mut Error,
 ) -> u8 {
     let worker = unsafe { &mut *worker };
@@ -275,7 +275,7 @@ extern "C" fn abi_reader_worker_read(
         Ok(layers) => {
             let mut safe = SafeVec::with_capacity(layers.len() as u64);
             for layer in layers {
-                safe.push(MutPtr::new(layer));
+                safe.push(MutFixed::new(layer));
             }
             unsafe { *out = safe };
             1

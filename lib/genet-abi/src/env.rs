@@ -1,5 +1,5 @@
 use libc;
-use ptr::Ptr;
+use fixed::Fixed;
 use std::{
     cell::RefCell,
     collections::{hash_map::Entry, HashMap},
@@ -27,16 +27,16 @@ pub extern "C" fn genet_abi_v1_register_get_string(
 }
 
 #[no_mangle]
-pub extern "C" fn genet_abi_v1_register_get_allocator(ptr: extern "C" fn() -> Ptr<Allocator>) {
+pub extern "C" fn genet_abi_v1_register_get_allocator(ptr: extern "C" fn() -> Fixed<Allocator>) {
     unsafe { GENET_GET_ALLOCATOR = ptr };
 }
 
 static mut GENET_GET_TOKEN: unsafe extern "C" fn(*const u8, u64) -> Token = abi_genet_get_token;
 static mut GENET_GET_STRING: unsafe extern "C" fn(Token, *mut u64) -> *const u8 =
     abi_genet_get_string;
-static mut GENET_GET_ALLOCATOR: extern "C" fn() -> Ptr<Allocator> = abi_genet_get_allocator;
+static mut GENET_GET_ALLOCATOR: extern "C" fn() -> Fixed<Allocator> = abi_genet_get_allocator;
 
-pub extern "C" fn abi_genet_get_allocator() -> Ptr<Allocator> {
+pub extern "C" fn abi_genet_get_allocator() -> Fixed<Allocator> {
     extern "C" fn alloc(size: u64) -> *mut u8 {
         unsafe { libc::malloc(size as usize) as *mut u8 }
     }
@@ -46,7 +46,7 @@ pub extern "C" fn abi_genet_get_allocator() -> Ptr<Allocator> {
     extern "C" fn dealloc(ptr: *mut u8) {
         unsafe { libc::free(ptr as *mut libc::c_void) };
     }
-    Ptr::new(Allocator {
+    Fixed::new(Allocator {
         alloc,
         realloc,
         dealloc,
@@ -85,7 +85,7 @@ pub unsafe extern "C" fn abi_genet_get_string(token: Token, len: *mut u64) -> *c
 }
 
 lazy_static! {
-    static ref GLOBAL_ALLOCATOR: Ptr<Allocator> = unsafe { GENET_GET_ALLOCATOR() };
+    static ref GLOBAL_ALLOCATOR: Fixed<Allocator> = unsafe { GENET_GET_ALLOCATOR() };
     static ref GLOBAL_TOKENS: Mutex<RefCell<HashMap<String, Token>>> =
         Mutex::new(RefCell::new(HashMap::new()));
     static ref GLOBAL_STRINGS: Mutex<RefCell<Vec<String>>> =

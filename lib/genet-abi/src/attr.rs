@@ -2,7 +2,7 @@ use decoder::{Decoder, Nil};
 use env;
 use error::Error;
 use layer::Layer;
-use ptr::Ptr;
+use fixed::Fixed;
 use result::Result;
 use slice::ByteSlice;
 use std::{fmt, mem, ops::Range, slice};
@@ -12,7 +12,7 @@ use vec::SafeVec;
 
 #[repr(C)]
 pub struct Attr {
-    class: Ptr<AttrClass>,
+    class: Fixed<AttrClass>,
     abi_unsafe_data: AttrData,
 }
 
@@ -24,18 +24,18 @@ impl fmt::Debug for Attr {
 
 struct AttrData {
     range: Range<usize>,
-    value: Option<Ptr<Variant>>,
+    value: Option<Fixed<Variant>>,
 }
 
 impl Attr {
-    pub fn new<C: Into<Ptr<AttrClass>>>(class: C, range: Range<usize>) -> Attr {
+    pub fn new<C: Into<Fixed<AttrClass>>>(class: C, range: Range<usize>) -> Attr {
         Attr {
             class: class.into(),
             abi_unsafe_data: AttrData { range, value: None },
         }
     }
 
-    pub fn with_value<C: Into<Ptr<AttrClass>>, T: Into<Variant>>(
+    pub fn with_value<C: Into<Fixed<AttrClass>>, T: Into<Variant>>(
         class: C,
         range: Range<usize>,
         value: T,
@@ -44,7 +44,7 @@ impl Attr {
             class: class.into(),
             abi_unsafe_data: AttrData {
                 range,
-                value: Some(Ptr::new(value.into())),
+                value: Some(Fixed::new(value.into())),
             },
         }
     }
@@ -66,15 +66,15 @@ impl Attr {
     }
 }
 
-impl Into<Ptr<Attr>> for Attr {
-    fn into(self) -> Ptr<Attr> {
-        Ptr::new(self)
+impl Into<Fixed<Attr>> for Attr {
+    fn into(self) -> Fixed<Attr> {
+        Fixed::new(self)
     }
 }
 
-impl Into<Ptr<Attr>> for &'static Attr {
-    fn into(self) -> Ptr<Attr> {
-        Ptr::from_static(self)
+impl Into<Fixed<Attr>> for &'static Attr {
+    fn into(self) -> Fixed<Attr> {
+        Fixed::from_static(self)
     }
 }
 
@@ -118,7 +118,7 @@ impl AttrBuilder {
 
     pub fn build(self) -> AttrClass {
         AttrClass {
-            abi_unsafe_data: Ptr::new(AttrClassData {
+            abi_unsafe_data: Fixed::new(AttrClassData {
                 id: self.id,
                 typ: self.typ,
                 decoder: self.decoder,
@@ -133,7 +133,7 @@ impl AttrBuilder {
 
 #[repr(C)]
 pub struct AttrClass {
-    abi_unsafe_data: Ptr<AttrClassData>,
+    abi_unsafe_data: Fixed<AttrClassData>,
     id: extern "C" fn(class: *const AttrClass) -> Token,
     typ: extern "C" fn(class: *const AttrClass) -> Token,
     range: extern "C" fn(*const Attr, *mut u64, *mut u64),
@@ -207,9 +207,9 @@ impl AttrClass {
     }
 }
 
-impl Into<Ptr<AttrClass>> for &'static AttrClass {
-    fn into(self) -> Ptr<AttrClass> {
-        Ptr::from_static(self)
+impl Into<Fixed<AttrClass>> for &'static AttrClass {
+    fn into(self) -> Fixed<AttrClass> {
+        Fixed::from_static(self)
     }
 }
 

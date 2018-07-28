@@ -55,28 +55,28 @@ impl Dissector for EthDissector {
 }
 
 lazy_static! {
-    static ref ETH_CLASS: Ptr<LayerClass> = LayerBuilder::new("eth")
+    static ref ETH_CLASS: Fixed<LayerClass> = LayerBuilder::new("eth")
         .alias("_.src", "eth.src")
         .alias("_.dst", "eth.dst")
         .header(Attr::new(&SRC_ATTR, 0..6))
         .header(Attr::new(&DST_ATTR, 6..12))
         .build();
-    static ref SRC_ATTR: Ptr<AttrClass> = AttrBuilder::new("eth.src")
+    static ref SRC_ATTR: Fixed<AttrClass> = AttrBuilder::new("eth.src")
         .typ("@eth:mac")
         .decoder(decoder::ByteSlice())
         .build();
-    static ref DST_ATTR: Ptr<AttrClass> = AttrBuilder::new("eth.dst")
+    static ref DST_ATTR: Fixed<AttrClass> = AttrBuilder::new("eth.dst")
         .typ("@eth:mac")
         .decoder(decoder::ByteSlice())
         .build();
-    static ref LEN_ATTR: Ptr<AttrClass> = AttrBuilder::new("eth.len")
+    static ref LEN_ATTR: Fixed<AttrClass> = AttrBuilder::new("eth.len")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref TYPE_ATTR: Ptr<AttrClass> = AttrBuilder::new("eth.type")
+    static ref TYPE_ATTR: Fixed<AttrClass> = AttrBuilder::new("eth.type")
         .typ("@enum")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref TYPE_MAP: HashMap<u64, Ptr<AttrClass>> = hashmap!{
+    static ref TYPE_MAP: HashMap<u64, Fixed<AttrClass>> = hashmap!{
         0x0800 => AttrBuilder::new("eth.type.ipv4").decoder(decoder::Const(true)).build(),
         0x0806 => AttrBuilder::new("eth.type.arp").decoder(decoder::Const(true)).build(),
         0x0842 => AttrBuilder::new("eth.type.wol").decoder(decoder::Const(true)).build(),

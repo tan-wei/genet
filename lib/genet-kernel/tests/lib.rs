@@ -12,7 +12,7 @@ use genet_kernel::{
 };
 use genet_sdk::{
     layer::{Layer, LayerClass},
-    ptr::MutPtr,
+    fixed::MutFixed,
 };
 use std::iter;
 

@@ -1,7 +1,7 @@
 use context::Context;
 use error::Error;
 use layer::{Layer, LayerStack};
-use ptr::MutPtr;
+use fixed::MutFixed;
 use result::Result;
 use std::{mem, ptr, str};
 use string::SafeString;
@@ -23,7 +23,7 @@ pub struct WorkerBox {
         *const *const Layer,
         u64,
         *mut Layer,
-        *mut MutPtr<Layer>,
+        *mut MutFixed<Layer>,
         *mut Error,
     ) -> u8,
     worker: *mut Box<Worker>,
@@ -42,11 +42,11 @@ impl WorkerBox {
     pub fn analyze(
         &mut self,
         ctx: &mut Context,
-        layers: &[MutPtr<Layer>],
+        layers: &[MutFixed<Layer>],
         layer: &mut Layer,
-        results: &mut Vec<MutPtr<Layer>>,
+        results: &mut Vec<MutFixed<Layer>>,
     ) -> Result<bool> {
-        let mut children: [MutPtr<Layer>; MAX_CHILDREN];
+        let mut children: [MutFixed<Layer>; MAX_CHILDREN];
         unsafe {
             children = mem::uninitialized();
         }
@@ -84,7 +84,7 @@ extern "C" fn abi_analyze(
     layers: *const *const Layer,
     len: u64,
     layer: *mut Layer,
-    children: *mut MutPtr<Layer>,
+    children: *mut MutFixed<Layer>,
     error: *mut Error,
 ) -> u8 {
     let worker = unsafe { &mut *((*worker).worker) };
@@ -96,7 +96,7 @@ extern "C" fn abi_analyze(
             Status::Done(layers) => {
                 let len = 2u8.saturating_add(layers.len() as u8);
                 for (i, layer) in layers.into_iter().take(MAX_CHILDREN).enumerate() {
-                    unsafe { ptr::write(children.offset(i as isize), MutPtr::new(layer)) };
+                    unsafe { ptr::write(children.offset(i as isize), MutFixed::new(layer)) };
                 }
                 len
             }

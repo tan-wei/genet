@@ -8,7 +8,7 @@ use genet_sdk::{
     context::Context,
     io::{Reader, ReaderWorker},
     layer::{Layer, LayerBuilder, LayerClass},
-    ptr::Ptr,
+    fixed::Fixed,
     result::Result,
     slice::ByteSlice,
 };
@@ -53,7 +53,7 @@ impl ReaderWorker for TestReaderWorker {
 }
 
 lazy_static! {
-    static ref ETH_CLASS: Ptr<LayerClass> = LayerBuilder::new("[link-1]").build();
+    static ref ETH_CLASS: Fixed<LayerClass> = LayerBuilder::new("[link-1]").build();
 }
 
 genet_readers!(TestReader {});

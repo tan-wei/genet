@@ -11,7 +11,7 @@ pub mod env;
 pub mod error;
 pub mod io;
 pub mod layer;
-pub mod ptr;
+pub mod fixed;
 pub mod result;
 pub mod slice;
 pub mod token;

@@ -5,39 +5,39 @@ use std::{
 
 #[repr(C)]
 #[derive(Copy)]
-pub struct Ptr<T> {
+pub struct Fixed<T> {
     ptr: *const T,
 }
 
-unsafe impl<T: Send> Send for Ptr<T> {}
-unsafe impl<T: Sync> Sync for Ptr<T> {}
+unsafe impl<T: Send> Send for Fixed<T> {}
+unsafe impl<T: Sync> Sync for Fixed<T> {}
 
-impl<T> fmt::Debug for Ptr<T> {
+impl<T> fmt::Debug for Fixed<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Ptr {:?}", self.ptr)
+        write!(f, "Fixed {:?}", self.ptr)
     }
 }
 
-impl<T> Clone for Ptr<T> {
-    fn clone(&self) -> Ptr<T> {
+impl<T> Clone for Fixed<T> {
+    fn clone(&self) -> Fixed<T> {
         Self { ptr: self.ptr }
     }
 }
 
-impl<T> Ptr<T> {
-    pub fn new(data: T) -> Ptr<T> {
+impl<T> Fixed<T> {
+    pub fn new(data: T) -> Fixed<T> {
         Self {
             ptr: Box::into_raw(Box::new(data)),
         }
     }
 
-    pub fn from_box(data: Box<T>) -> Ptr<T> {
+    pub fn from_box(data: Box<T>) -> Fixed<T> {
         Self {
             ptr: Box::into_raw(data),
         }
     }
 
-    pub fn from_static(data: &'static T) -> Ptr<T> {
+    pub fn from_static(data: &'static T) -> Fixed<T> {
         Self { ptr: data }
     }
 
@@ -46,19 +46,19 @@ impl<T> Ptr<T> {
     }
 }
 
-impl<T, D: Deref<Target = T>> From<&'static D> for Ptr<T> {
-    fn from(data: &'static D) -> Ptr<T> {
-        Ptr { ptr: data.deref() }
+impl<T, D: Deref<Target = T>> From<&'static D> for Fixed<T> {
+    fn from(data: &'static D) -> Fixed<T> {
+        Fixed { ptr: data.deref() }
     }
 }
 
-impl<T> AsRef<T> for Ptr<T> {
+impl<T> AsRef<T> for Fixed<T> {
     fn as_ref(&self) -> &T {
         unsafe { &*self.ptr }
     }
 }
 
-impl<T> Deref for Ptr<T> {
+impl<T> Deref for Fixed<T> {
     type Target = T;
 
     fn deref(&self) -> &T {
@@ -67,26 +67,26 @@ impl<T> Deref for Ptr<T> {
 }
 
 #[repr(C)]
-pub struct MutPtr<T> {
+pub struct MutFixed<T> {
     ptr: *mut T,
 }
 
-unsafe impl<T: Send> Send for MutPtr<T> {}
+unsafe impl<T: Send> Send for MutFixed<T> {}
 
-impl<T> fmt::Debug for MutPtr<T> {
+impl<T> fmt::Debug for MutFixed<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "MutPtr {:?}", self.ptr)
+        write!(f, "MutFixed {:?}", self.ptr)
     }
 }
 
-impl<T> MutPtr<T> {
-    pub fn new(data: T) -> MutPtr<T> {
+impl<T> MutFixed<T> {
+    pub fn new(data: T) -> MutFixed<T> {
         Self {
             ptr: Box::into_raw(Box::new(data)),
         }
     }
 
-    pub fn from_box(data: Box<T>) -> MutPtr<T> {
+    pub fn from_box(data: Box<T>) -> MutFixed<T> {
         Self {
             ptr: Box::into_raw(data),
         }
@@ -101,7 +101,7 @@ impl<T> MutPtr<T> {
     }
 }
 
-impl<T> Deref for MutPtr<T> {
+impl<T> Deref for MutFixed<T> {
     type Target = T;
 
     fn deref(&self) -> &T {
@@ -109,7 +109,7 @@ impl<T> Deref for MutPtr<T> {
     }
 }
 
-impl<T> DerefMut for MutPtr<T> {
+impl<T> DerefMut for MutFixed<T> {
     fn deref_mut(&mut self) -> &mut T {
         unsafe { &mut *self.ptr }
     }
@@ -122,14 +122,14 @@ mod tests {
     #[test]
     fn new() {
         let data = 123u32;
-        let ptr = Ptr::new(data);
+        let ptr = Fixed::new(data);
         assert_eq!(*ptr, data);
     }
 
     #[test]
     fn from_box() {
         let data = 123u32;
-        let ptr = Ptr::from_box(Box::new(data));
+        let ptr = Fixed::from_box(Box::new(data));
         assert_eq!(*ptr, data);
     }
 }

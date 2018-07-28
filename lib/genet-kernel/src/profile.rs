@@ -3,7 +3,7 @@ use genet_abi::{
     dissector::DissectorBox,
     env::{self, Allocator},
     io::{ReaderBox, WriterBox},
-    ptr::Ptr,
+    fixed::Fixed,
     token::Token,
 };
 use libloading::Library;
@@ -81,7 +81,7 @@ impl Profile {
         type FnRegisterGetToken = extern "C" fn(unsafe extern "C" fn(*const u8, u64) -> Token);
         type FnRegisterGetString =
             extern "C" fn(unsafe extern "C" fn(Token, *mut u64) -> *const u8);
-        type FnRegisterGetAllocator = extern "C" fn(extern "C" fn() -> Ptr<Allocator>);
+        type FnRegisterGetAllocator = extern "C" fn(extern "C" fn() -> Fixed<Allocator>);
         type FnGetDissectors = extern "C" fn(*mut u64) -> *const DissectorBox;
         type FnGetReaders = extern "C" fn(*mut u64) -> *const ReaderBox;
         type FnGetWriters = extern "C" fn(*mut u64) -> *const WriterBox;

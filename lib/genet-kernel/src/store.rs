@@ -3,7 +3,7 @@ use chan;
 use dissector::{parallel, serial};
 use filter::{self, Filter};
 use frame::Frame;
-use genet_abi::{layer::Layer, ptr::MutPtr};
+use genet_abi::{layer::Layer, fixed::MutFixed};
 use io::{Input, Output};
 use profile::Profile;
 use result::Result;
@@ -26,7 +26,7 @@ pub trait Callback: Send {
 
 #[derive(Debug)]
 enum Command {
-    PushFrames(Option<u32>, Result<Vec<MutPtr<Layer>>>),
+    PushFrames(Option<u32>, Result<Vec<MutFixed<Layer>>>),
     PushSerialFrames(Vec<Frame>),
     StoreFrames(Vec<Frame>),
     SetFilter(u32, Option<Box<Filter>>),
@@ -278,7 +278,7 @@ impl EventLoop {
 
     fn process_input(
         id: Option<u32>,
-        result: Result<Vec<MutPtr<Layer>>>,
+        result: Result<Vec<MutFixed<Layer>>>,
         cnt: &mut u32,
         pool: &mut parallel::Pool,
         callback: &Callback,

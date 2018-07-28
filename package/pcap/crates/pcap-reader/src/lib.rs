@@ -45,7 +45,7 @@ impl Reader for PcapReader {
                 .take()
                 .ok_or_else(|| Error::new(ErrorKind::Other, "no stdout"))?,
         );
-        let link_class = Ptr::new(
+        let link_class = Fixed::new(
             LayerBuilder::new(format!("[link-{}]", arg.link))
                 .header(Attr::with_value(&TYPE_CLASS, 0..0, u64::from(arg.link)))
                 .build(),
@@ -65,7 +65,7 @@ impl Reader for PcapReader {
 struct PcapReaderWorker {
     child: Child,
     reader: BufReader<ChildStdout>,
-    link_class: Ptr<LayerClass>,
+    link_class: Fixed<LayerClass>,
 }
 
 impl ReaderWorker for PcapReaderWorker {

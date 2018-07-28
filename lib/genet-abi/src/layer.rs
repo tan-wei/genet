@@ -1,5 +1,5 @@
 use attr::Attr;
-use ptr::Ptr;
+use fixed::Fixed;
 use slice::ByteSlice;
 use std::slice;
 use token::Token;
@@ -43,7 +43,7 @@ impl<'a> LayerStack<'a> {
 
 #[repr(C)]
 pub struct Layer {
-    class: Ptr<LayerClass>,
+    class: Fixed<LayerClass>,
     abi_unsafe_data: LayerData,
 }
 
@@ -51,12 +51,12 @@ unsafe impl Send for Layer {}
 
 struct LayerData {
     data: ByteSlice,
-    attrs: Vec<Ptr<Attr>>,
+    attrs: Vec<Fixed<Attr>>,
     payloads: Vec<Payload>,
 }
 
 impl Layer {
-    pub fn new<C: Into<Ptr<LayerClass>>>(class: C, data: ByteSlice) -> Layer {
+    pub fn new<C: Into<Fixed<LayerClass>>>(class: C, data: ByteSlice) -> Layer {
         Layer {
             class: class.into(),
             abi_unsafe_data: LayerData {
@@ -75,11 +75,11 @@ impl Layer {
         self.class.data(self)
     }
 
-    pub fn headers(&self) -> &[Ptr<Attr>] {
+    pub fn headers(&self) -> &[Fixed<Attr>] {
         self.class.headers()
     }
 
-    pub fn attrs(&self) -> &[Ptr<Attr>] {
+    pub fn attrs(&self) -> &[Fixed<Attr>] {
         self.class.attrs(self)
     }
 
@@ -98,7 +98,7 @@ impl Layer {
             .map(|attr| attr.as_ref())
     }
 
-    pub fn add_attr<T: Into<Ptr<Attr>>>(&mut self, attr: T) {
+    pub fn add_attr<T: Into<Fixed<Attr>>>(&mut self, attr: T) {
         let func = self.class.add_attr;
         (func)(self, attr.into());
     }
@@ -144,7 +144,7 @@ impl Payload {
 pub struct LayerBuilder {
     id: Token,
     aliases: Vec<Alias>,
-    headers: Vec<Ptr<Attr>>,
+    headers: Vec<Fixed<Attr>>,
 }
 
 impl LayerBuilder {
@@ -164,14 +164,14 @@ impl LayerBuilder {
         self
     }
 
-    pub fn header<T: Into<Ptr<Attr>>>(mut self, attr: T) -> LayerBuilder {
+    pub fn header<T: Into<Fixed<Attr>>>(mut self, attr: T) -> LayerBuilder {
         self.headers.push(attr.into());
         self
     }
 
     pub fn build(self) -> LayerClass {
         LayerClass {
-            abi_unsafe_data: Ptr::from_box(Box::new(LayerClassData {
+            abi_unsafe_data: Fixed::from_box(Box::new(LayerClassData {
                 id: self.id,
                 aliases: self.aliases,
                 headers: self.headers,
@@ -201,21 +201,21 @@ struct Alias {
 struct LayerClassData {
     id: Token,
     aliases: Vec<Alias>,
-    headers: Vec<Ptr<Attr>>,
+    headers: Vec<Fixed<Attr>>,
 }
 
 #[repr(C)]
 pub struct LayerClass {
-    abi_unsafe_data: Ptr<LayerClassData>,
+    abi_unsafe_data: Fixed<LayerClassData>,
     id: extern "C" fn(*const LayerClass) -> Token,
     aliases_len: extern "C" fn(*const LayerClass) -> u64,
     aliases_data: extern "C" fn(*const LayerClass) -> *const Alias,
     headers_len: extern "C" fn(*const LayerClass) -> u64,
-    headers_data: extern "C" fn(*const LayerClass) -> *const Ptr<Attr>,
+    headers_data: extern "C" fn(*const LayerClass) -> *const Fixed<Attr>,
     data: extern "C" fn(*const Layer, *mut u64) -> *const u8,
     attrs_len: extern "C" fn(*const Layer) -> u64,
-    attrs_data: extern "C" fn(*const Layer) -> *const Ptr<Attr>,
-    add_attr: extern "C" fn(*mut Layer, Ptr<Attr>),
+    attrs_data: extern "C" fn(*const Layer) -> *const Fixed<Attr>,
+    add_attr: extern "C" fn(*mut Layer, Fixed<Attr>),
     payloads_len: extern "C" fn(*const Layer) -> u64,
     payloads_data: extern "C" fn(*const Layer) -> *const Payload,
     add_payload: extern "C" fn(*mut Layer, *const u8, u64, Token, Token),
@@ -233,7 +233,7 @@ impl LayerClass {
         iter.map(|v| &*v)
     }
 
-    fn headers(&self) -> &[Ptr<Attr>] {
+    fn headers(&self) -> &[Fixed<Attr>] {
         let data = (self.headers_data)(self);
         let len = (self.headers_len)(self) as usize;
         unsafe { slice::from_raw_parts(data, len) }
@@ -245,7 +245,7 @@ impl LayerClass {
         unsafe { ByteSlice::from_raw_parts(data, len as usize) }
     }
 
-    fn attrs(&self, layer: &Layer) -> &[Ptr<Attr>] {
+    fn attrs(&self, layer: &Layer) -> &[Fixed<Attr>] {
         let data = (self.attrs_data)(layer);
         let len = (self.attrs_len)(layer) as usize;
         unsafe { slice::from_raw_parts(data, len) }
@@ -258,9 +258,9 @@ impl LayerClass {
     }
 }
 
-impl Into<Ptr<LayerClass>> for &'static LayerClass {
-    fn into(self) -> Ptr<LayerClass> {
-        Ptr::from_static(self)
+impl Into<Fixed<LayerClass>> for &'static LayerClass {
+    fn into(self) -> Fixed<LayerClass> {
+        Fixed::from_static(self)
     }
 }
 
@@ -280,7 +280,7 @@ extern "C" fn abi_headers_len(class: *const LayerClass) -> u64 {
     unsafe { (*class).abi_unsafe_data.headers.len() as u64 }
 }
 
-extern "C" fn abi_headers_data(class: *const LayerClass) -> *const Ptr<Attr> {
+extern "C" fn abi_headers_data(class: *const LayerClass) -> *const Fixed<Attr> {
     unsafe { (*class).abi_unsafe_data.headers.as_ptr() }
 }
 
@@ -296,11 +296,11 @@ extern "C" fn abi_attrs_len(layer: *const Layer) -> u64 {
     unsafe { (*layer).abi_unsafe_data.attrs.len() as u64 }
 }
 
-extern "C" fn abi_attrs_data(layer: *const Layer) -> *const Ptr<Attr> {
+extern "C" fn abi_attrs_data(layer: *const Layer) -> *const Fixed<Attr> {
     unsafe { (*layer).abi_unsafe_data.attrs.as_ptr() }
 }
 
-extern "C" fn abi_add_attr(layer: *mut Layer, attr: Ptr<Attr>) {
+extern "C" fn abi_add_attr(layer: *mut Layer, attr: Fixed<Attr>) {
     let attrs = unsafe { &mut (*layer).abi_unsafe_data.attrs };
     attrs.push(attr);
 }

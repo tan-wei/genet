@@ -65,7 +65,7 @@ impl Reader for PcapFileReader {
             )
         };
 
-        let link_class = Ptr::new(
+        let link_class = Fixed::new(
             LayerBuilder::new(format!("[link-{}]", network))
                 .header(Attr::with_value(&TYPE_CLASS, 0..0, i64::from(network)))
                 .build(),
@@ -88,7 +88,7 @@ struct PcapFileReaderWorker {
     le: bool,
     nsec: bool,
     reader: BufReader<File>,
-    link_class: Ptr<LayerClass>,
+    link_class: Fixed<LayerClass>,
 }
 
 impl PcapFileReaderWorker {

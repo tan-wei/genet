@@ -1,4 +1,4 @@
-use genet_abi::{attr::Attr, layer::Layer, ptr::MutPtr, token::Token};
+use genet_abi::{attr::Attr, layer::Layer, fixed::MutFixed, token::Token};
 use std::fmt;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -21,7 +21,7 @@ impl WorkerMode {
 
 pub struct Frame {
     index: u32,
-    layers: Vec<MutPtr<Layer>>,
+    layers: Vec<MutFixed<Layer>>,
     tree_indices: Vec<u8>,
     worker: WorkerMode,
 }
@@ -35,7 +35,7 @@ impl fmt::Debug for Frame {
 unsafe impl Send for Frame {}
 
 impl Frame {
-    pub fn new(index: u32, root: MutPtr<Layer>) -> Frame {
+    pub fn new(index: u32, root: MutFixed<Layer>) -> Frame {
         Frame {
             index,
             layers: vec![root],
@@ -48,7 +48,7 @@ impl Frame {
         self.index
     }
 
-    pub fn layers(&self) -> &[MutPtr<Layer>] {
+    pub fn layers(&self) -> &[MutFixed<Layer>] {
         &self.layers
     }
 
@@ -61,11 +61,11 @@ impl Frame {
         None
     }
 
-    pub fn layers_mut(&mut self) -> &mut Vec<MutPtr<Layer>> {
+    pub fn layers_mut(&mut self) -> &mut Vec<MutFixed<Layer>> {
         &mut self.layers
     }
 
-    pub fn append_layers(&mut self, mut layers: &mut Vec<MutPtr<Layer>>) {
+    pub fn append_layers(&mut self, mut layers: &mut Vec<MutFixed<Layer>>) {
         self.layers.append(&mut layers);
     }
 
