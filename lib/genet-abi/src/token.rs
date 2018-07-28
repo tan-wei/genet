@@ -1,6 +1,7 @@
 use env;
 use std::fmt;
 
+/// A token value.
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Token(u64);

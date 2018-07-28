@@ -6,6 +6,7 @@ use std::{
     slice,
 };
 
+/// TryGet trait.
 pub trait TryGet<T> {
     type Output;
 
@@ -47,6 +48,7 @@ impl TryGet<usize> for ByteSlice {
     }
 }
 
+/// A fixed-lifetime slice object.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct ByteSlice(&'static [u8]);
 

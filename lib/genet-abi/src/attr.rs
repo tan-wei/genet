@@ -10,6 +10,7 @@ use token::Token;
 use variant::Variant;
 use vec::SafeVec;
 
+/// An attribute object.
 #[repr(C)]
 pub struct Attr {
     class: Fixed<AttrClass>,
@@ -123,6 +124,7 @@ impl AttrClassBuilder {
     }
 }
 
+/// An attribute class.
 #[repr(C)]
 pub struct AttrClass {
     abi_unsafe_data: Fixed<AttrClassData>,

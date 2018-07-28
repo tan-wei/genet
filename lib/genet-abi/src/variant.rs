@@ -16,6 +16,7 @@ pub enum Variant {
     Slice(ByteSlice),
 }
 
+/// Variant value trait.
 pub trait Value<T> {
     fn try_into(self) -> Result<T>;
 }

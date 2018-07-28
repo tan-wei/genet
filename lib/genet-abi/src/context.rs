@@ -1,6 +1,7 @@
 use fixed::MutFixed;
 use std::{collections::HashMap, slice, str};
 
+/// A context object.
 #[repr(C)]
 pub struct Context {
     class: &'static ContextClass,

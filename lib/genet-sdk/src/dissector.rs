@@ -1,6 +1,9 @@
 //! Dissector traits.
 
-pub use genet_abi::dissector::{Dissector, DissectorBox, Status, Worker};
+pub use genet_abi::dissector::{Dissector, Status, Worker};
+
+#[doc(hidden)]
+pub use genet_abi::dissector::DissectorBox;
 
 /// Registers dissector entries.
 #[macro_export]

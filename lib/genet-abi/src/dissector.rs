@@ -6,11 +6,14 @@ use result::Result;
 use std::{mem, ptr, str};
 use string::SafeString;
 
+/// Dissection status.
+#[derive(Debug)]
 pub enum Status {
     Done(Vec<Layer>),
     Skip,
 }
 
+/// Dissector worker trait.
 pub trait Worker {
     fn analyze(&mut self, &mut Context, &LayerStack, &mut Layer) -> Result<Status>;
 }
@@ -111,6 +114,7 @@ extern "C" fn abi_analyze(
     }
 }
 
+/// Dissector trait.
 pub trait Dissector: DissectorClone + Send {
     fn new_worker(&self, &str, &Context) -> Option<Box<Worker>>;
 }

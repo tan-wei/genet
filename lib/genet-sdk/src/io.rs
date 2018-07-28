@@ -1,6 +1,9 @@
 //! I/O traits.
 
-pub use genet_abi::io::{Reader, ReaderBox, ReaderWorker, Writer, WriterBox, WriterWorker};
+pub use genet_abi::io::{Reader, ReaderWorker, Writer, WriterWorker};
+
+#[doc(hidden)]
+pub use genet_abi::io::{ReaderBox, WriterBox};
 
 /// Registers reader entries.
 #[macro_export]

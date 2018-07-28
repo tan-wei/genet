@@ -7,6 +7,7 @@ use std::{fmt, mem, ptr};
 use string::SafeString;
 use vec::SafeVec;
 
+/// Writer trait.
 pub trait Writer: Send {
     fn new_worker(&self, ctx: &Context, args: &str) -> Result<Box<WriterWorker>>;
     fn id(&self) -> &str;
@@ -79,6 +80,7 @@ extern "C" fn abi_writer_new_worker(
     }
 }
 
+/// Reader trait.
 pub trait Reader: Send {
     fn new_worker(&self, ctx: &Context, arg: &str) -> Result<Box<ReaderWorker>>;
     fn id(&self) -> &str;
@@ -151,10 +153,12 @@ extern "C" fn abi_reader_new_worker(
     }
 }
 
+/// Writer worker trait.
 pub trait WriterWorker: Send {
     fn write(&mut self, index: u32, stack: &LayerStack) -> Result<()>;
 }
 
+/// Reader worker trait.
 pub trait ReaderWorker: Send {
     fn read(&mut self) -> Result<Vec<Layer>>;
 }

@@ -1,9 +1,10 @@
 use attr::Attr;
 use fixed::Fixed;
 use slice::ByteSlice;
-use std::slice;
+use std::{fmt, slice};
 use token::Token;
 
+/// A layer stack object.
 pub struct LayerStack<'a> {
     buffer: &'a [*const Layer],
 }
@@ -41,6 +42,7 @@ impl<'a> LayerStack<'a> {
     }
 }
 
+/// A layer object.
 #[repr(C)]
 pub struct Layer {
     class: Fixed<LayerClass>,
@@ -119,6 +121,13 @@ impl Layer {
     }
 }
 
+impl fmt::Debug for Layer {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Layer {:?}", self.id())
+    }
+}
+
+/// A payload object.
 #[repr(C)]
 pub struct Payload {
     data: *const u8,
@@ -196,6 +205,7 @@ struct LayerClassData {
     headers: Vec<Fixed<Attr>>,
 }
 
+/// A layer class object.
 #[repr(C)]
 pub struct LayerClass {
     abi_unsafe_data: Fixed<LayerClassData>,

@@ -1,6 +1,7 @@
 use std::{error, fmt, str};
 use string::SafeString;
 
+/// An error object.
 #[repr(C)]
 #[derive(Clone, PartialEq)]
 pub struct Error {

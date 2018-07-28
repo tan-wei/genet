@@ -6,6 +6,7 @@ use std::{
 };
 use variant::Variant;
 
+/// Decoder trait.
 pub trait Decoder: Send + Sync + DecoderClone {
     fn decode(&self, &slice::ByteSlice) -> Result<Variant>;
 }
@@ -29,11 +30,13 @@ impl Clone for Box<Decoder> {
     }
 }
 
+/// Typed decoder trait.
 pub trait Typed {
     type Output: Into<Variant>;
     fn decode(&self, data: &slice::ByteSlice) -> Result<Self::Output>;
 }
 
+/// Mappable decoder trait.
 pub trait Map
 where
     Self: Sized,
@@ -92,6 +95,7 @@ where
     }
 }
 
+/// Nil decoder.
 #[derive(Clone)]
 pub struct Nil();
 
@@ -101,6 +105,7 @@ impl Decoder for Nil {
     }
 }
 
+/// Constant value decoder.
 #[derive(Clone)]
 pub struct Const<T>(pub T);
 
@@ -112,6 +117,7 @@ impl<T: Into<Variant> + Clone> Typed for Const<T> {
     }
 }
 
+/// Ranged combinator.
 #[derive(Clone)]
 pub struct Ranged<T, R>(pub T, pub R);
 
