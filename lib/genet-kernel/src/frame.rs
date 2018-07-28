@@ -8,6 +8,17 @@ pub enum WorkerMode {
     Serial,
 }
 
+impl WorkerMode {
+    pub fn add(&self, rhs: WorkerMode) -> WorkerMode {
+        match (self, &rhs) {
+            (WorkerMode::None, rhs) => rhs.clone(),
+            (lhs, WorkerMode::None) => lhs.clone(),
+            (lhs, rhs) if lhs == rhs => rhs.clone(),
+            _ => WorkerMode::Serial,
+        }
+    }
+}
+
 pub struct Frame {
     index: u32,
     layers: Vec<MutPtr<Layer>>,
@@ -70,11 +81,7 @@ impl Frame {
         &self.worker
     }
 
-    pub fn set_worker(&mut self, id: u8) {
-        self.worker = match self.worker {
-            WorkerMode::None => WorkerMode::Parallel(id),
-            WorkerMode::Parallel(w) if w == id => WorkerMode::Parallel(id),
-            _ => WorkerMode::Serial,
-        };
+    pub fn set_worker(&mut self, mode: WorkerMode) {
+        self.worker = mode;
     }
 }

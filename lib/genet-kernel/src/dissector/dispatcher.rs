@@ -1,4 +1,4 @@
-use frame::Frame;
+use frame::{Frame, WorkerMode};
 use genet_abi::{
     context::Context,
     dissector::{DissectorBox, WorkerBox},
@@ -33,6 +33,7 @@ impl Dispatcher {
         let mut indices = Vec::new();
         let mut offset = 0;
         let mut runners = self.runners();
+        let mut mode = WorkerMode::None;
         loop {
             let len = sublayers.len() - offset;
             for index in offset..sublayers.len() {
@@ -42,7 +43,7 @@ impl Dispatcher {
                 loop {
                     let mut executed = 0;
                     for mut r in &mut runners.iter_mut() {
-                        let (done, mut layers) = r.execute(&sublayers, &mut layer);
+                        let (done, mut layers) = r.execute(&sublayers, &mut layer, &mut mode);
                         if done {
                             executed += 1;
                         }
@@ -64,6 +65,7 @@ impl Dispatcher {
 
         frame.append_layers(&mut sublayers);
         frame.append_tree_indices(&mut indices);
+        frame.set_worker(mode);
     }
 }
 
@@ -90,8 +92,10 @@ impl Runner {
         &mut self,
         layers: &[MutPtr<Layer>],
         layer: &mut Layer,
+        mode: &mut WorkerMode,
     ) -> (bool, Vec<MutPtr<Layer>>) {
         if let Some(worker) = &mut self.worker {
+            *mode = mode.add(WorkerMode::None);
             let mut children = Vec::new();
             match worker.analyze(&mut self.ctx, layers, layer, &mut children) {
                 Ok(done) => (done, children),
@@ -124,9 +128,10 @@ impl<'a> OnceRunner<'a> {
         &mut self,
         layers: &[MutPtr<Layer>],
         layer: &mut Layer,
+        mode: &mut WorkerMode,
     ) -> (bool, Vec<MutPtr<Layer>>) {
         if !self.used {
-            let (done, children) = self.runner.execute(layers, layer);
+            let (done, children) = self.runner.execute(layers, layer, mode);
             if done {
                 self.used = true;
             }
