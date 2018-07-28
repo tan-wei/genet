@@ -1,5 +1,8 @@
+//! I/O traits.
+
 pub use genet_abi::io::{Reader, ReaderBox, ReaderWorker, Writer, WriterBox, WriterWorker};
 
+/// Registers reader entries.
 #[macro_export]
 macro_rules! genet_readers {
     ( $( $x:expr ), * ) => {
@@ -25,6 +28,7 @@ macro_rules! genet_readers {
     };
 }
 
+/// Registers writer entries.
 #[macro_export]
 macro_rules! genet_writers {
     ( $( $x:expr ), * ) => {

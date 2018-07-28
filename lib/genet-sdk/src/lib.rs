@@ -1,4 +1,5 @@
-//! This crate provides APIs for creating a plugin pacakge for genet.
+//! This crate provides APIs for creating plugin pacakges for
+//! [genet](https://genet.app/).
 
 extern crate byteorder;
 extern crate genet_abi;

@@ -1,5 +1,8 @@
+//! Dissector traits.
+
 pub use genet_abi::dissector::{Dissector, DissectorBox, Status, Worker};
 
+/// Registers dissector entries.
 #[macro_export]
 macro_rules! genet_dissectors {
     ( $( $x:expr ), * ) => {

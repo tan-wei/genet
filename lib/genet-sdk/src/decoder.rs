@@ -1,3 +1,5 @@
+//! Decoder objects for the usual data structures.
+
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 pub use genet_abi::decoder::{Const, Decoder, Map, Nil, Ranged, Typed};
 use slice;
