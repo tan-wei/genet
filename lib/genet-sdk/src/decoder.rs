@@ -5,6 +5,7 @@ pub use genet_abi::decoder::{Const, Decoder, Map, Nil, Ranged, Typed};
 use slice;
 use std::io::{Cursor, Error, ErrorKind, Result};
 
+/// Decoder for 8bit unsigned integer.
 #[derive(Clone)]
 pub struct UInt8();
 
@@ -16,6 +17,7 @@ impl Typed for UInt8 {
     }
 }
 
+/// Decoder for 8bit signed integer.
 #[derive(Clone)]
 pub struct Int8();
 
@@ -27,6 +29,7 @@ impl Typed for Int8 {
     }
 }
 
+/// Decoder for big-endian 16bit unsigned integer.
 #[derive(Clone)]
 pub struct UInt16BE();
 
@@ -38,6 +41,7 @@ impl Typed for UInt16BE {
     }
 }
 
+/// Decoder for big-endian 32bit unsigned integer.
 #[derive(Clone)]
 pub struct UInt32BE();
 
@@ -49,6 +53,7 @@ impl Typed for UInt32BE {
     }
 }
 
+/// Decoder for big-endian 64bit unsigned integer.
 #[derive(Clone)]
 pub struct UInt64BE();
 
@@ -60,6 +65,7 @@ impl Typed for UInt64BE {
     }
 }
 
+/// Decoder for big-endian 16bit signed integer.
 #[derive(Clone)]
 pub struct Int16BE();
 
@@ -71,6 +77,7 @@ impl Typed for Int16BE {
     }
 }
 
+/// Decoder for big-endian 32bit signed integer.
 #[derive(Clone)]
 pub struct Int32BE();
 
@@ -82,6 +89,7 @@ impl Typed for Int32BE {
     }
 }
 
+/// Decoder for big-endian 64bit signed integer.
 #[derive(Clone)]
 pub struct Int64BE();
 
@@ -93,6 +101,7 @@ impl Typed for Int64BE {
     }
 }
 
+/// Decoder for big-endian 32bit floating point number.
 #[derive(Clone)]
 pub struct Float32BE();
 
@@ -104,6 +113,7 @@ impl Typed for Float32BE {
     }
 }
 
+/// Decoder for big-endian 64bit floating point number.
 #[derive(Clone)]
 pub struct Float64BE();
 
@@ -115,6 +125,7 @@ impl Typed for Float64BE {
     }
 }
 
+/// Decoder for little-endian 16bit unsigned integer.
 #[derive(Clone)]
 pub struct UInt16LE();
 
@@ -126,6 +137,7 @@ impl Typed for UInt16LE {
     }
 }
 
+/// Decoder for little-endian 32bit unsigned integer.
 #[derive(Clone)]
 pub struct UInt32LE();
 
@@ -137,6 +149,7 @@ impl Typed for UInt32LE {
     }
 }
 
+/// Decoder for little-endian 64bit unsigned integer.
 #[derive(Clone)]
 pub struct UInt64LE();
 
@@ -148,6 +161,7 @@ impl Typed for UInt64LE {
     }
 }
 
+/// Decoder for little-endian 16bit signed integer.
 #[derive(Clone)]
 pub struct Int16LE();
 
@@ -159,6 +173,7 @@ impl Typed for Int16LE {
     }
 }
 
+/// Decoder for little-endian 32bit signed integer.
 #[derive(Clone)]
 pub struct Int32LE();
 
@@ -170,6 +185,7 @@ impl Typed for Int32LE {
     }
 }
 
+/// Decoder for little-endian 64bit signed integer.
 #[derive(Clone)]
 pub struct Int64LE();
 
@@ -181,6 +197,7 @@ impl Typed for Int64LE {
     }
 }
 
+/// Decoder for little-endian 32bit floating point number.
 #[derive(Clone)]
 pub struct Float32LE();
 
@@ -192,6 +209,7 @@ impl Typed for Float32LE {
     }
 }
 
+/// Decoder for little-endian 64bit floating point number.
 #[derive(Clone)]
 pub struct Float64LE();
 
@@ -203,6 +221,7 @@ impl Typed for Float64LE {
     }
 }
 
+/// Decoder for UTF-8 string.
 #[derive(Clone)]
 pub struct Utf8();
 
@@ -218,6 +237,7 @@ impl Typed for Utf8 {
     }
 }
 
+/// Decoder for ByteSlice.
 #[derive(Clone)]
 pub struct ByteSlice();
 
