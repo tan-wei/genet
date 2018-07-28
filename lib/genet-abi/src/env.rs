@@ -73,7 +73,8 @@ pub unsafe extern "C" fn abi_genet_get_token(data: *const u8, len: u64) -> Token
 pub unsafe extern "C" fn abi_genet_get_string(token: Token, len: *mut u64) -> *const u8 {
     let strings = GLOBAL_STRINGS.lock().unwrap();
     let strings = strings.borrow();
-    let index = token.as_u64() as usize;
+    let index: u64 = token.into();
+    let index = index as usize;
     let s = if index < strings.len() {
         strings[index].as_str()
     } else {

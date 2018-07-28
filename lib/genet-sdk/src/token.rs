@@ -1,3 +1,18 @@
+//! Token values.
+//!
+//! Token is a process-wide constant integer value associated with a string,
+//! similar to Symbol in Ruby or Atom in Erlang.
+
+/// Returns a token corresponded with the given string.
+///
+/// # Examples
+///
+/// ```
+/// #[macro_use]
+/// use genet_sdk::token;
+///
+/// let tk = token!("tcp");
+/// ```
 #[macro_export]
 macro_rules! token {
     () => {{

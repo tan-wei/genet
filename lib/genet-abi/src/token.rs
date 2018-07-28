@@ -6,14 +6,12 @@ use std::fmt;
 pub struct Token(u64);
 
 impl Token {
+    /// Returns a null token.
     pub fn null() -> Token {
         Token(0)
     }
 
-    pub fn as_u64(self) -> u64 {
-        self.0
-    }
-
+    /// Returns the corresponded string.
     pub fn to_string(self) -> String {
         env::string(self)
     }
