@@ -33,7 +33,7 @@ impl Worker for EthWorker {
                 layer.add_attr(Attr::new(attr, 12..14));
             }
             let payload = parent.data().try_get(14..)?;
-            layer.add_payload(payload, "", "");
+            layer.add_payload(Payload::new(payload, ""));
             Ok(Status::Done(vec![layer]))
         } else {
             Ok(Status::Skip)

@@ -22,7 +22,7 @@ impl Worker for UdpWorker {
         {
             let mut layer = Layer::new(&UDP_CLASS, payload.data());
             let payload = payload.data().try_get(8..)?;
-            layer.add_payload(payload, "", "");
+            layer.add_payload(Payload::new(payload, ""));
             Ok(Status::Done(vec![layer]))
         } else {
             Ok(Status::Skip)

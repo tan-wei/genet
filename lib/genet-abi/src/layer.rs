@@ -122,21 +122,9 @@ impl Layer {
     }
 
     /// Adds a payload to the Layer.
-    pub fn add_payload<B: Into<ByteSlice>, T: Into<Token>, U: Into<Token>>(
-        &mut self,
-        data: B,
-        id: T,
-        typ: U,
-    ) {
+    pub fn add_payload(&mut self, payload: Payload) {
         let func = self.class.add_payload;
-        let data: ByteSlice = data.into();
-        (func)(
-            self,
-            data.as_ptr(),
-            data.len() as u64,
-            id.into(),
-            typ.into(),
-        );
+        (func)(self, payload);
     }
 }
 
@@ -156,6 +144,26 @@ pub struct Payload {
 }
 
 impl Payload {
+    /// Creates a new payload.
+    pub fn new<B: Into<ByteSlice>, T: Into<Token>>(data: B, id: T) -> Payload {
+        Self::with_typ(data, id, "")
+    }
+
+    /// Creates a new payload with the given type.
+    pub fn with_typ<B: Into<ByteSlice>, T: Into<Token>, U: Into<Token>>(
+        data: B,
+        id: T,
+        typ: U,
+    ) -> Payload {
+        let data: ByteSlice = data.into();
+        Self {
+            data: data.as_ptr(),
+            len: data.len() as u64,
+            id: id.into(),
+            typ: typ.into(),
+        }
+    }
+
     /// Returns the ID of self.
     pub fn id(&self) -> Token {
         self.id
@@ -246,7 +254,7 @@ pub struct LayerClass {
     add_attr: extern "C" fn(*mut Layer, Fixed<Attr>),
     payloads_len: extern "C" fn(*const Layer) -> u64,
     payloads_data: extern "C" fn(*const Layer) -> *const Payload,
-    add_payload: extern "C" fn(*mut Layer, *const u8, u64, Token, Token),
+    add_payload: extern "C" fn(*mut Layer, Payload),
 }
 
 impl LayerClass {
@@ -350,9 +358,9 @@ extern "C" fn abi_payloads_data(layer: *const Layer) -> *const Payload {
     unsafe { (*layer).abi_unsafe_data.payloads.as_ptr() }
 }
 
-extern "C" fn abi_add_payload(layer: *mut Layer, data: *const u8, len: u64, id: Token, typ: Token) {
+extern "C" fn abi_add_payload(layer: *mut Layer, payload: Payload) {
     let payloads = unsafe { &mut (*layer).abi_unsafe_data.payloads };
-    payloads.push(Payload { data, len, id, typ });
+    payloads.push(payload);
 }
 
 #[cfg(test)]
@@ -391,7 +399,7 @@ mod tests {
         let data = b"hello";
 
         for i in 0..count {
-            layer.add_payload(ByteSlice::from(&data[..]), Token::from(i), Token::null());
+            layer.add_payload(Payload::new(ByteSlice::from(&data[..]), Token::from(i)));
         }
 
         let mut iter = layer.payloads().iter();

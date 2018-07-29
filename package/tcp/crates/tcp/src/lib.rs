@@ -62,7 +62,7 @@ impl Worker for TcpWorker {
             }
 
             let payload = layer.data().try_get(data_offset..)?;
-            layer.add_payload(payload, token!("@data:tcp"), "");
+            layer.add_payload(Payload::new(payload, "@data:tcp"));
             Ok(Status::Done(vec![layer]))
         } else {
             Ok(Status::Skip)

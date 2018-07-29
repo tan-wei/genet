@@ -29,7 +29,7 @@ impl Worker for IPv4Worker {
             if let Some((typ, attr)) = PROTO_MAP.get(&proto) {
                 layer.add_attr(Attr::new(attr, 9..10));
                 let payload = layer.data().try_get(20..)?;
-                layer.add_payload(payload, typ, "");
+                layer.add_payload(Payload::new(payload, typ));
             }
             Ok(Status::Done(vec![layer]))
         } else {

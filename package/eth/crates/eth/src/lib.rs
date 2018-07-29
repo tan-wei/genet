@@ -30,7 +30,7 @@ impl Worker for EthWorker {
             if let Some((typ, attr)) = TYPE_MAP.get(&len) {
                 layer.add_attr(Attr::new(attr, 12..14));
                 let payload = parent.data().try_get(14..)?;
-                layer.add_payload(payload, typ, "");
+                layer.add_payload(Payload::new(payload, typ));
             }
             Ok(Status::Done(vec![layer]))
         } else {

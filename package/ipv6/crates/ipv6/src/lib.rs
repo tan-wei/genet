@@ -49,7 +49,7 @@ impl Worker for IPv6Worker {
             if let Some((typ, attr)) = PROTO_MAP.get(&proto) {
                 layer.add_attr(Attr::new(attr, range.clone()));
                 let payload = layer.data().try_get(40..)?;
-                layer.add_payload(payload, typ, "");
+                layer.add_payload(Payload::new(payload, typ));
             }
             Ok(Status::Done(vec![layer]))
         } else {

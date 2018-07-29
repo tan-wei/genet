@@ -161,7 +161,7 @@ impl Worker for TcpStreamWorker {
 
             let payloads = stream.fetch();
             for payload in payloads {
-                parent.add_payload(payload, token!("@stream:tcp"), "");
+                parent.add_payload(Payload::new(payload, "@stream:tcp"));
             }
 
             parent.add_attr(Attr::new(&STREAM_ATTR, 0..0));
