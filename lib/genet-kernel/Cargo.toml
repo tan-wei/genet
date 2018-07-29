@@ -12,6 +12,10 @@ libloading = "0.5"
 lazy_static = "1"
 maplit = "1"
 num_cpus = "1"
+genet-abi = "0"
+genet-sdk = "0"
+
+[patch.crates-io]
 genet-abi = { path = "../genet-abi" }
 genet-sdk = { path = "../genet-sdk" }
 

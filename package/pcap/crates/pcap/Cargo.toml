@@ -8,4 +8,6 @@ libc = "0.2"
 libloading = "0.5"
 serde = "1"
 serde_derive = "1"
-capabilities = { git = 'https://github.com/h2so5/rust-capabilities', branch = 'fix-cfg-scope' }
+
+[target.'cfg(linux)'.dependencies]
+capabilities = "0.3"
