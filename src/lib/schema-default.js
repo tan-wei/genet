@@ -25,20 +25,6 @@ export default {
         }
       ],
     },
-    '_.dissector.confidenceThreshold': {
-      title: 'Confidence Threshold',
-      type: 'integer',
-      enum: [0, 1, 2, 3],
-      enumTitles: [
-        '0 - Error',
-        '1 - Possible',
-        '2 - Probable',
-        '3 - Exact'
-      ],
-      minimum: 0,
-      maximum: 3,
-      default: 2,
-    },
     '_.dissector.concurrency': {
       title: 'Concurrency',
       type: 'integer',
