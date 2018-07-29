@@ -6,6 +6,3 @@ authors = ["Ron Hashimoto <mail@h2so5.net>"]
 [dependencies]
 byteorder = "1"
 genet-abi = "0"
-
-[patch.crates-io]
-genet-abi = { path = "../genet-abi" }
