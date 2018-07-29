@@ -10,11 +10,6 @@ use genet_kernel::{
     profile::Profile,
     session::{Callback, Event, Session},
 };
-use genet_sdk::{
-    fixed::MutFixed,
-    layer::{Layer, LayerClass},
-};
-use std::iter;
 
 struct SessionCallback {}
 

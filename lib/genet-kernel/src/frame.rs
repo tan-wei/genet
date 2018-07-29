@@ -9,8 +9,8 @@ pub enum WorkerMode {
 }
 
 impl WorkerMode {
-    pub fn add(&self, rhs: WorkerMode) -> WorkerMode {
-        match (self, &rhs) {
+    pub fn add(&self, rhs: &WorkerMode) -> WorkerMode {
+        match (self, rhs) {
             (WorkerMode::None, rhs) => rhs.clone(),
             (lhs, WorkerMode::None) => lhs.clone(),
             (lhs, rhs) if lhs == rhs => rhs.clone(),

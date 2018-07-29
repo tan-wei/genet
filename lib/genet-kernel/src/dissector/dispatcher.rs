@@ -95,7 +95,7 @@ impl Runner {
         mode: &mut WorkerMode,
     ) -> (bool, Vec<MutFixed<Layer>>) {
         if let Some(worker) = &mut self.worker {
-            *mode = mode.add(WorkerMode::None);
+            *mode = mode.add(&WorkerMode::None);
             let mut children = Vec::new();
             match worker.analyze(&mut self.ctx, layers, layer, &mut children) {
                 Ok(done) => (done, children),
