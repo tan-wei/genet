@@ -9,6 +9,7 @@ pub struct Error {
 }
 
 impl Error {
+    /// Creates a new Error.
     pub fn new(desc: &str) -> Error {
         Self {
             desc: SafeString::from(desc),

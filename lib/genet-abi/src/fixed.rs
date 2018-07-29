@@ -28,22 +28,19 @@ impl<T> Clone for Fixed<T> {
 }
 
 impl<T> Fixed<T> {
+    /// Creates a new Fixed containing the given value.
     pub fn new(data: T) -> Fixed<T> {
         Self {
             ptr: Box::into_raw(Box::new(data)),
         }
     }
 
-    pub fn from_box(data: Box<T>) -> Fixed<T> {
-        Self {
-            ptr: Box::into_raw(data),
-        }
-    }
-
+    /// Creates a new Fixed from the given static value.
     pub fn from_static(data: &'static T) -> Fixed<T> {
         Self { ptr: data }
     }
 
+    /// Returns a raw pointer to the underlying data in this container.
     pub fn as_ptr(&self) -> *const T {
         self.ptr
     }
@@ -84,16 +81,19 @@ impl<T> fmt::Debug for MutFixed<T> {
 }
 
 impl<T> MutFixed<T> {
+    /// Creates a new MutFixed containing the given value.
     pub fn new(data: T) -> MutFixed<T> {
         Self {
             ptr: Box::into_raw(Box::new(data)),
         }
     }
 
+    /// Returns a raw pointer to the underlying data in this container.
     pub fn as_ptr(&self) -> *const T {
         self.ptr
     }
 
+    /// Returns a mutable raw pointer to the underlying data in this container.
     pub fn as_mut_ptr(&self) -> *mut T {
         self.ptr
     }

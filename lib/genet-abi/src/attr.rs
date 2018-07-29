@@ -98,6 +98,7 @@ enum ValueType {
     ByteSlice = 7,
 }
 
+/// A builder object for AttrClass.
 pub struct AttrClassBuilder {
     id: Token,
     typ: Token,
@@ -105,16 +106,19 @@ pub struct AttrClassBuilder {
 }
 
 impl AttrClassBuilder {
+    /// Sets a type of AttrClass.
     pub fn typ<T: Into<Token>>(mut self, typ: T) -> AttrClassBuilder {
         self.typ = typ.into();
         self
     }
 
+    /// Sets a decoder of AttrClass.
     pub fn decoder<T: Decoder>(mut self, decoder: T) -> AttrClassBuilder {
         self.decoder = decoder.into_box();
         self
     }
 
+    /// Builds a new AttrClass.
     pub fn build(self) -> AttrClass {
         AttrClass {
             abi_unsafe_data: Fixed::new(AttrClassData {
@@ -147,6 +151,7 @@ struct AttrClassData {
 }
 
 impl AttrClass {
+    /// Creates a new builder object for AttrClass.
     pub fn builder<T: Into<Token>>(id: T) -> AttrClassBuilder {
         AttrClassBuilder {
             id: id.into(),

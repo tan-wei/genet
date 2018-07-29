@@ -10,24 +10,24 @@ pub struct LayerStack<'a> {
 }
 
 impl<'a> LayerStack<'a> {
+    /// Creates a new LayerStack.
     pub unsafe fn new(ptr: *const *const Layer, len: usize) -> LayerStack<'a> {
         Self {
             buffer: slice::from_raw_parts(ptr, len),
         }
     }
 
-    fn layers(&self) -> impl DoubleEndedIterator<Item = &'a Layer> {
-        self.buffer.iter().map(|layer| unsafe { &**layer })
-    }
-
+    /// Returns the top of the LayerStack.
     pub fn top(&self) -> Option<&Layer> {
         self.layers().last()
     }
 
+    /// Returns the bottom of the LayerStack.
     pub fn bottom(&self) -> Option<&Layer> {
         self.layers().next()
     }
 
+    /// Find the attribute in the LayerStack.
     pub fn attr(&self, id: Token) -> Option<&Attr> {
         for layer in self.layers().rev() {
             if let Some(attr) = layer.attr(id) {
@@ -37,8 +37,13 @@ impl<'a> LayerStack<'a> {
         None
     }
 
+    /// Find the layer in the LayerStack.
     pub fn layer(&self, id: Token) -> Option<&Layer> {
         self.layers().find(|layer| layer.id() == id)
+    }
+
+    fn layers(&self) -> impl DoubleEndedIterator<Item = &'a Layer> {
+        self.buffer.iter().map(|layer| unsafe { &**layer })
     }
 }
 
@@ -58,6 +63,7 @@ struct LayerData {
 }
 
 impl Layer {
+    /// Creates a new Layer.
     pub fn new<C: Into<Fixed<LayerClass>>>(class: C, data: ByteSlice) -> Layer {
         Layer {
             class: class.into(),
@@ -69,22 +75,27 @@ impl Layer {
         }
     }
 
+    /// Returns the ID of self.
     pub fn id(&self) -> Token {
         self.class.id()
     }
 
+    /// Returns the type of self.
     pub fn data(&self) -> ByteSlice {
         self.class.data(self)
     }
 
+    /// Returns the slice of headers.
     pub fn headers(&self) -> &[Fixed<Attr>] {
         self.class.headers()
     }
 
+    /// Returns the slice of attributes.
     pub fn attrs(&self) -> &[Fixed<Attr>] {
         self.class.attrs(self)
     }
 
+    /// Find the attribute in the Layer.
     pub fn attr<T: Into<Token>>(&self, id: T) -> Option<&Attr> {
         let id = id.into();
         let id = self
@@ -100,15 +111,18 @@ impl Layer {
             .map(|attr| attr.as_ref())
     }
 
+    /// Adds an attribute to the Layer.
     pub fn add_attr<T: Into<Fixed<Attr>>>(&mut self, attr: T) {
         let func = self.class.add_attr;
         (func)(self, attr.into());
     }
 
+    /// Returns the slice of payloads.
     pub fn payloads(&self) -> &[Payload] {
         self.class.payloads(self)
     }
 
+    /// Adds a payload to the Layer.
     pub fn add_payload<T: Into<Token>, U: Into<Token>>(&mut self, data: ByteSlice, id: T, typ: U) {
         let func = self.class.add_payload;
         (func)(
@@ -137,19 +151,23 @@ pub struct Payload {
 }
 
 impl Payload {
+    /// Returns the ID of self.
     pub fn id(&self) -> Token {
         self.id
     }
 
+    /// Returns the type of self.
     pub fn typ(&self) -> Token {
         self.typ
     }
 
+    /// Returns the data of self.
     pub fn data(&self) -> ByteSlice {
         unsafe { ByteSlice::from_raw_parts(self.data, self.len as usize) }
     }
 }
 
+/// A builder object for LayerClass.
 pub struct LayerClassBuilder {
     id: Token,
     aliases: Vec<Alias>,
@@ -157,6 +175,7 @@ pub struct LayerClassBuilder {
 }
 
 impl LayerClassBuilder {
+    /// Adds an attribute alias for LayerClass.
     pub fn alias<T: Into<Token>, U: Into<Token>>(mut self, id: T, target: U) -> LayerClassBuilder {
         self.aliases.push(Alias {
             id: id.into(),
@@ -165,11 +184,13 @@ impl LayerClassBuilder {
         self
     }
 
+    /// Adds a header attribute for LayerClass.
     pub fn header<T: Into<Fixed<Attr>>>(mut self, attr: T) -> LayerClassBuilder {
         self.headers.push(attr.into());
         self
     }
 
+    /// Builds a new LayerClass.
     pub fn build(self) -> LayerClass {
         LayerClass {
             abi_unsafe_data: Fixed::new(LayerClassData {
@@ -224,6 +245,7 @@ pub struct LayerClass {
 }
 
 impl LayerClass {
+    /// Creates a new builder object for LayerClass.
     pub fn builder<T: Into<Token>>(id: T) -> LayerClassBuilder {
         LayerClassBuilder {
             id: id.into(),

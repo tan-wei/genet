@@ -13,6 +13,7 @@ struct ContextData {
 }
 
 impl Context {
+    /// Creates a new Context.
     pub fn new(config: HashMap<String, String>) -> Context {
         Self {
             class: &CONTEXT_CLASS,
@@ -20,6 +21,7 @@ impl Context {
         }
     }
 
+    /// Returns a config value in the current profile.
     pub fn get_config(&self, key: &str) -> &str {
         let mut len = key.len() as u64;
         let data = (self.class.get_config)(self, key.as_ptr(), &mut len);
