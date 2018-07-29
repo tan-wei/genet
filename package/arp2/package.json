@@ -1,0 +1,29 @@
+{
+  "name": "@genet/arp",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "ARP dissector",
+  "engines": {
+    "genet": "*"
+  },
+  "genet": {
+    "components": [
+      {
+        "type": "core:library",
+        "main": "arp"
+      },
+      {
+        "type": "core:style",
+        "files": [
+          "style.css"
+        ]
+      },
+      {
+        "type": "core:token",
+        "files": [
+          "tokens.json"
+        ]
+      }
+    ]
+  }
+}

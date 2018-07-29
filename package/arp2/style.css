@@ -1,0 +1,4 @@
+[data-layer~="arp"] {
+  background-color: #780065;
+  color: var(--theme-default-fg);
+}
