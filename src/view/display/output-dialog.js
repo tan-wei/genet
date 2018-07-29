@@ -1,6 +1,6 @@
 import PanelView from './panel-view'
-import m from 'mithril'
 import flatten from 'lodash.flatten'
+import m from 'mithril'
 
 function parseRange (exp) {
   const ranges = exp
@@ -178,8 +178,22 @@ export default class OutputDialog {
         }, [
           m(PanelView, Object.assign(panel, {
             attrs: {
-              callback,
-              getFilter: () => this.filter,
+              callback: (id, options) => {
+                vnode.attrs.sess.createWriter(id, options, this.filter)
+                  .then(() => {
+                    genet.notify.show(options.file || '', {
+                      type: 'sussess',
+                      title: 'Exported',
+                    })
+                  })
+                  .catch((err) => {
+                    genet.notify.show(`${options.file || ''}\n${err.message}`, {
+                      type: 'error',
+                      title: 'Error',
+                    })
+                  })
+                callback()
+              },
             },
           }))
         ]))

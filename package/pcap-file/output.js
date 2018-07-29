@@ -1,14 +1,14 @@
 const m = require('mithril')
 const { remote: { dialog } } = require('electron')
 class OutputView {
-  view () {
+  view (vnode) {
     return m('ul', [
       m('li', [
         m('input', {
           type: 'button',
           value: 'Export',
           onclick: () => {
-            const files = dialog.showSaveDialog({
+            const file = dialog.showSaveDialog({
               properties: ['openFile'],
               filters: [{
                 name: 'Pcap File',
@@ -16,7 +16,7 @@ class OutputView {
               }],
             })
             if (typeof file !== 'undefined') {
-
+              vnode.attrs.callback('pcap-file', { file })
             }
           },
         })

@@ -7,9 +7,7 @@ import OutputDialog from './output-dialog'
 import ToolBar from './toolbar'
 import m from 'mithril'
 import path from 'path'
-import { remote } from 'electron'
 import tempy from 'tempy'
-const { dialog } = remote
 export default class TopView {
   constructor () {
     this.sess = null
@@ -165,24 +163,13 @@ export default class TopView {
       }
     })
     genet.action.global.on('core:file:export', () => {
-      this.sess.createWriter('pcap-file', { file: 'x.pcap' }, '$.index == 2')
       const outputDialog = new Dialog(OutputDialog,
         {
+          sess: this.sess,
           displayFilter: this.displayFilter,
           checkedFrames: this.viewState.checkedFrames,
         })
-      outputDialog.show({ cancelable: true }).then(async (filter) => {
-        const file = dialog.showSaveDialog(
-          { filters: genet.session.fileExtensions.exporter })
-        if (typeof file !== 'undefined') {
-          this.sess.createWriter(file, filter).then(() => {
-            genet.notify.show(file, {
-              type: 'sussess',
-              title: 'Exported',
-            })
-          })
-        }
-      })
+      outputDialog.show({ cancelable: true })
     })
     genet.action.global.on('core:pcap:focus-display-filter', () => {
       document.querySelector('input[name=display-filter]').focus()
