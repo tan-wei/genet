@@ -29,6 +29,7 @@ struct AttrData {
 }
 
 impl Attr {
+    /// Creates a new Attr.
     pub fn new<C: Into<Fixed<AttrClass>>>(class: C, range: Range<usize>) -> Attr {
         Attr {
             class: class.into(),
@@ -36,6 +37,7 @@ impl Attr {
         }
     }
 
+    /// Creates a new Attr with a constant value.
     pub fn with_value<C: Into<Fixed<AttrClass>>, T: Into<Variant>>(
         class: C,
         range: Range<usize>,
@@ -50,18 +52,22 @@ impl Attr {
         }
     }
 
+    /// Returns the ID of self.
     pub fn id(&self) -> Token {
         self.class.id()
     }
 
+    /// Returns the type of self.
     pub fn typ(&self) -> Token {
         self.class.typ()
     }
 
+    /// Returns the range of self.
     pub fn range(&self) -> Range<usize> {
         self.class.range(self)
     }
 
+    /// Returns the attribute value.
     pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
         self.class.try_get(self, layer)
     }
