@@ -5,7 +5,7 @@ use fixed::Fixed;
 use layer::Layer;
 use result::Result;
 use slice::ByteSlice;
-use std::{fmt, mem, ops::Range, ptr, slice};
+use std::{fmt, mem, ops::Range, slice};
 use token::Token;
 use variant::Variant;
 use vec::SafeVec;
@@ -14,28 +14,26 @@ use vec::SafeVec;
 #[repr(C)]
 pub struct Attr {
     class: Fixed<AttrClass>,
-    range_start: u64,
-    range_end: u64,
-    value: *const Variant,
+    abi_unsafe_data: AttrData,
 }
 
 impl fmt::Debug for Attr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Attr {:?}", self.id())
+        write!(f, "Attr")
     }
 }
 
-unsafe impl Send for Attr {}
-unsafe impl Sync for Attr {}
+struct AttrData {
+    range: Range<usize>,
+    value: Option<Fixed<Variant>>,
+}
 
 impl Attr {
     /// Creates a new Attr.
     pub fn new<C: Into<Fixed<AttrClass>>>(class: C, range: Range<usize>) -> Attr {
         Attr {
             class: class.into(),
-            range_start: range.start as u64,
-            range_end: range.end as u64,
-            value: ptr::null(),
+            abi_unsafe_data: AttrData { range, value: None },
         }
     }
 
@@ -45,12 +43,12 @@ impl Attr {
         range: Range<usize>,
         value: T,
     ) -> Attr {
-        let value = Fixed::new(value.into());
         Attr {
             class: class.into(),
-            range_start: range.start as u64,
-            range_end: range.end as u64,
-            value: value.as_ptr(),
+            abi_unsafe_data: AttrData {
+                range,
+                value: Some(Fixed::new(value.into())),
+            },
         }
     }
 
@@ -230,8 +228,9 @@ impl Into<Fixed<AttrClass>> for &'static AttrClass {
 
 extern "C" fn abi_range(attr: *const Attr, start: *mut u64, end: *mut u64) {
     unsafe {
-        *start = (*attr).range_start as u64;
-        *end = (*attr).range_end as u64;
+        let range = &(*attr).abi_unsafe_data.range;
+        *start = range.start as u64;
+        *end = range.end as u64;
     }
 }
 
@@ -250,17 +249,12 @@ extern "C" fn abi_get(
     num: *mut i64,
     err: *mut Error,
 ) -> ValueType {
-    let value = unsafe { (*attr).value };
-    let value = if value.is_null() {
-        None
-    } else {
-        Some(unsafe { &(*value) })
-    };
+    let value = unsafe { &(*attr).abi_unsafe_data.value };
     let decoder = unsafe { &(*attr).class.abi_unsafe_data.decoder };
     let slice = unsafe { ByteSlice::from_raw_parts(*data, len as usize) };
     let res;
     let result = if let Some(val) = value {
-        Ok(val)
+        Ok(val.as_ref())
     } else {
         res = decoder.decode(&slice);
         res.as_ref()
