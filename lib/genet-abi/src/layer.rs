@@ -63,11 +63,11 @@ struct LayerData {
 
 impl Layer {
     /// Creates a new Layer.
-    pub fn new<C: Into<Fixed<LayerClass>>>(class: C, data: ByteSlice) -> Layer {
+    pub fn new<C: Into<Fixed<LayerClass>>, B: Into<ByteSlice>>(class: C, data: B) -> Layer {
         Layer {
             class: class.into(),
             abi_unsafe_data: LayerData {
-                data,
+                data: data.into(),
                 attrs: Vec::new(),
                 payloads: Vec::new(),
             },
@@ -122,8 +122,14 @@ impl Layer {
     }
 
     /// Adds a payload to the Layer.
-    pub fn add_payload<T: Into<Token>, U: Into<Token>>(&mut self, data: ByteSlice, id: T, typ: U) {
+    pub fn add_payload<B: Into<ByteSlice>, T: Into<Token>, U: Into<Token>>(
+        &mut self,
+        data: B,
+        id: T,
+        typ: U,
+    ) {
         let func = self.class.add_payload;
+        let data: ByteSlice = data.into();
         (func)(
             self,
             data.as_ptr(),
