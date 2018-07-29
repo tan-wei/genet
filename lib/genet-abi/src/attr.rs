@@ -105,7 +105,7 @@ impl AttrClassBuilder {
     }
 
     pub fn decoder<T: Decoder>(mut self, decoder: T) -> AttrClassBuilder {
-        self.decoder = decoder.clone_box();
+        self.decoder = decoder.into_box();
         self
     }
 

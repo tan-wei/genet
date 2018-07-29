@@ -121,6 +121,7 @@ pub trait Dissector: DissectorClone + Send {
 
 pub trait DissectorClone {
     fn clone_box(&self) -> Box<Dissector>;
+    fn into_box(self) -> Box<Dissector>;
 }
 
 impl<T> DissectorClone for T
@@ -129,6 +130,10 @@ where
 {
     fn clone_box(&self) -> Box<Dissector> {
         Box::new(self.clone())
+    }
+
+    fn into_box(self) -> Box<Dissector> {
+        Box::new(self)
     }
 }
 

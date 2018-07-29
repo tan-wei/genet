@@ -163,9 +163,12 @@ pub trait ReaderWorker: Send {
     fn read(&mut self) -> Result<Vec<Layer>>;
 }
 
+type WriterFunc =
+    extern "C" fn(*mut Box<WriterWorker>, u32, *const *const Layer, u64, *mut Error) -> u8;
+
 pub struct WriterWorkerBox {
     worker: *mut Box<WriterWorker>,
-    write: extern "C" fn(*mut Box<WriterWorker>, u32, *const *const Layer, u64, *mut Error) -> u8,
+    write: WriterFunc,
     drop: extern "C" fn(*mut Box<WriterWorker>),
 }
 
@@ -203,9 +206,12 @@ impl Drop for WriterWorkerBox {
     }
 }
 
+type ReaderFunc =
+    extern "C" fn(*mut Box<ReaderWorker>, *mut SafeVec<MutFixed<Layer>>, *mut Error) -> u8;
+
 pub struct ReaderWorkerBox {
     worker: *mut Box<ReaderWorker>,
-    read: extern "C" fn(*mut Box<ReaderWorker>, *mut SafeVec<MutFixed<Layer>>, *mut Error) -> u8,
+    read: ReaderFunc,
     drop: extern "C" fn(*mut Box<ReaderWorker>),
 }
 

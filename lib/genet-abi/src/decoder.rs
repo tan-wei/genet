@@ -13,6 +13,7 @@ pub trait Decoder: Send + Sync + DecoderClone {
 
 pub trait DecoderClone {
     fn clone_box(&self) -> Box<Decoder>;
+    fn into_box(self) -> Box<Decoder>;
 }
 
 impl<T> DecoderClone for T
@@ -21,6 +22,10 @@ where
 {
     fn clone_box(&self) -> Box<Decoder> {
         Box::new(self.clone())
+    }
+
+    fn into_box(self) -> Box<Decoder> {
+        Box::new(self)
     }
 }
 
