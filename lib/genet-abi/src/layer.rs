@@ -10,8 +10,7 @@ pub struct LayerStack<'a> {
 }
 
 impl<'a> LayerStack<'a> {
-    /// Creates a new LayerStack.
-    pub unsafe fn new(ptr: *const *const Layer, len: usize) -> LayerStack<'a> {
+    pub(crate) unsafe fn new(ptr: *const *const Layer, len: usize) -> LayerStack<'a> {
         Self {
             buffer: slice::from_raw_parts(ptr, len),
         }
