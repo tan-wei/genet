@@ -19,7 +19,7 @@ pub struct Attr {
 
 impl fmt::Debug for Attr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Attr")
+        write!(f, "Attr {:?}", self.id())
     }
 }
 
