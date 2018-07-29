@@ -1,4 +1,4 @@
-ssss#[macro_use]
+#[macro_use]
 extern crate genet_sdk;
 
 #[macro_use]
@@ -29,33 +29,33 @@ impl Worker for ArpWorker {
             let hw_type = HWTYPE_ATTR_HEADER.try_get(&layer)?.try_into()?;
             let hw = HW_MAP.get(&hw_type);
             if let Some((attr, _, _)) = hw {
-                layer.add_attr(&Attr::new(attr, 0..2));
+                layer.add_attr(Attr::new(attr, 0..2));
             }
 
             let proto_type = PROTO_ATTR_HEADER.try_get(&layer)?.try_into()?;
             let proto = PROTO_MAP.get(&proto_type);
             if let Some((attr, _, _)) = proto {
-                layer.add_attr(&Attr::new(attr, 2..4));
-            };;;
+                layer.add_attr(Attr::new(attr, 2..4));
+            }
 
             let hlen: usize = HLEN_ATTR_HEADER.try_get(&layer)?.try_into()?;
             let plen: usize = PLEN_ATTR_HEADER.try_get(&layer)?.try_into()?;
 
-            lrereret op_type = OP_ATTR_HEADER.try_get(&layer)?.try_into()?;
+            let op_type = OP_ATTR_HEADER.try_get(&layer)?.try_into()?;
             if let Some(attr) = OP_MAP.get(&op_type) {
-                layer.add_attr(&Attr::new(attr, 6..8));
-            }ds
+                layer.add_attr(Attr::new(attr, 6..8));
+            }
 
             if let Some((_, sha, tha)) = hw {
                 if let Some((_, spa, tpa)) = proto {
                     let mut offset = 8;
-                    layer.add_attr(&Attr::new(sha, offset..offset + hlen));
+                    layer.add_attr(Attr::new(sha, offset..offset + hlen));
                     offset += hlen;
-                    layer.add_attr(&Attr::new(spa, offset..offset + plen));
+                    layer.add_attr(Attr::new(spa, offset..offset + plen));
                     offset += plen;
-                    layer.add_attr(&Attr::new(tha, offset..offset + hlen));
+                    layer.add_attr(Attr::new(tha, offset..offset + hlen));
                     offset += hlen;
-                    layer.add_attr(&Attr::new(tpa, offset..offset + plen));
+                    layer.add_attr(Attr::new(tpa, offset..offset + plen));
                 }
             }
 
