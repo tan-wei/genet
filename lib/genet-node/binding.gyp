@@ -15,7 +15,7 @@
   },
   "target_defaults":{
     "include_dirs":[
-      "vendor/nan",
+      "<!(node -e \"require('nan')\")",
       "src"
     ],
     "conditions":[
