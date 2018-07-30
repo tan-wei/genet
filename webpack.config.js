@@ -8,6 +8,27 @@ module.exports = {
     }
     callback()
   }],
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        use: [
+          {
+            loader: 'ts-loader',
+            options: { transpileOnly: true },
+          }
+        ],
+      }
+    ],
+  },
+  entry: {
+    app: './src/app.main.js',
+    render: './src/render.main.js',
+  },
+  output: {
+    filename: '[name].main.js',
+    path: `${__dirname}/genet_modules/src`,
+  },
   cache: true,
   node: {
     __dirname: false,

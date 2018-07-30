@@ -130,6 +130,7 @@
     "node-gyp": "^3.6.2",
     "node-notifier": "^5.1.2",
     "pretty-bytes": "^4.0.2",
+    "ts-loader": "^4.4.2",
     "typedoc": "^0.11.1",
     "typedoc-plugin-ensure-internal": "git+https://github.com/deap82/typedoc-plugin-ensure-internal.git",
     "typescript": "^3.1.0-dev.20180728",
