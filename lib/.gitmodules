@@ -1,6 +1,0 @@
-[submodule "genet-node/vendor/Catch2"]
-	path = genet-node/vendor/Catch2
-	url = https://github.com/catchorg/Catch2.git
-[submodule "genet-node/vendor/nan"]
-	path = genet-node/vendor/nan
-	url = https://github.com/nodejs/nan.git

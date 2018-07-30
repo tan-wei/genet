@@ -1,9 +1,6 @@
 [submodule "lib/genet-node/vendor/nan"]
 	path = lib/genet-node/vendor/nan
 	url = https://github.com/nodejs/nan.git
-[submodule "lib/genet-node/vendor/Catch2"]
-	path = lib/genet-node/vendor/Catch2
-	url = https://github.com/catchorg/Catch2.git
 [submodule "images"]
 	path = images
 	url = https://github.com/genet-app/images.git

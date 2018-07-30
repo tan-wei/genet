@@ -1,6 +1,6 @@
 {
   "variables":{
-    "genet-node_sources":[
+    "genet_node_sources":[
       "src/main.cpp",
       "src/module.cpp",
       "src/frame.cpp",
@@ -16,7 +16,6 @@
   "target_defaults":{
     "include_dirs":[
       "vendor/nan",
-      "vendor/Catch2/single_include",
       "src"
     ],
     "conditions":[
@@ -93,20 +92,7 @@
     {
       "target_name":"genet-node",
       "sources":[
-        "<@(genet-node_sources)"
-      ],
-      "xcode_settings":{
-        "GCC_ENABLE_CPP_EXCEPTIONS":"YES"
-      },
-      "cflags_cc!":[
-        "-fno-exceptions"
-      ]
-    },
-    {
-      "target_name":"genet-node-test",
-      "sources":[
-        "<@(genet-node_sources)",
-        "src/test.cpp"
+        "<@(genet_node_sources)"
       ],
       "xcode_settings":{
         "GCC_ENABLE_CPP_EXCEPTIONS":"YES"
