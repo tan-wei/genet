@@ -125,7 +125,6 @@
     "chokidar": "^2.0.4",
     "electron-builder": "^20.26.0",
     "less": "^3.7.1",
-    "mocha": "^5.2.0",
     "nan": "^2.10.0",
     "node-gyp": "^3.6.2",
     "node-notifier": "^5.1.2",
