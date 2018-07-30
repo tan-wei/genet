@@ -1,3 +1,3 @@
 module.exports = {
-  'globals': {genet: true, ResizeObserver: true}
+  'globals': {ResizeObserver: true}
 }

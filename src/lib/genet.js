@@ -11,6 +11,7 @@ import Session from './session'
 import Workspace from './workspace'
 import env from './env'
 import minimist from 'minimist'
+import gener from '@genet/api'
 
 export default class Genet {
   constructor (argv) {

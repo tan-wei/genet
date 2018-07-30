@@ -1,5 +1,6 @@
 import BaseComponent from './base'
 import fs from 'fs'
+import genet from '@genet/api'
 import glob from 'glob'
 import objpath from 'object-path'
 import path from 'path'

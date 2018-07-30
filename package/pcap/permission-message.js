@@ -1,5 +1,4 @@
 const cli = require('./cli')
-const execa = require('execa')
 const m = require('mithril')
 class MacHelper {
   view () {

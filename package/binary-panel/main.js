@@ -1,4 +1,5 @@
 const m = require('mithril')
+const genet = require('@genet/api')
 const { ByteSlice } = require('@genet/load-module')
 class BinaryItem {
   constructor () {

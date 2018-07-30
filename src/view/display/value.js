@@ -1,5 +1,6 @@
 import { clipboard, remote } from 'electron'
 import fs from 'fs'
+import genet from '@genet/api'
 import m from 'mithril'
 import moment from 'moment'
 

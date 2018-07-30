@@ -48,7 +48,15 @@ export default class WindowFactory {
     contents.on('unresponsive', () => mainWindow.reload())
 
     function reloadMenu () {
-      const script = 'global.genet ? genet.menu.template : null'
+      const script = `
+      (() => {
+        try {
+          return require('@genet/api').menu.template
+        } catch(err) {
+          return null
+        }
+      })()
+      `
       contents.executeJavaScript(script).then((template) => {
         if (!template) {
           setTimeout(() => reloadMenu(), 100)

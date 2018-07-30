@@ -1,5 +1,6 @@
 import { AttributeValueItem } from './value'
 import DefaultSummary from './default-summary'
+import genet from '@genet/api'
 import m from 'mithril'
 import parseColor from 'parse-color'
 import throttle from 'lodash.throttle'

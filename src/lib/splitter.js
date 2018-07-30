@@ -1,3 +1,4 @@
+import genet from '@genet/api'
 import m from 'mithril'
 
 const fields = Symbol('fields')

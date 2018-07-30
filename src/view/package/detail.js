@@ -2,6 +2,7 @@ import ButtonBoxView from './button'
 import Installer from '../../lib/package-install'
 import SchemaInput from '../../lib/schema-input'
 import env from '../../lib/env'
+import genet from '@genet/api'
 import m from 'mithril'
 import path from 'path'
 

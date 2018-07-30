@@ -1,4 +1,5 @@
 import SchemaInput from '../../lib/schema-input'
+import genet from '@genet/api'
 import m from 'mithril'
 import marked from 'marked'
 

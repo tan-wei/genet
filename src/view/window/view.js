@@ -5,6 +5,7 @@ import Resumer from '../../lib/resumer'
 import Stack from './stack'
 import env from '../../lib/env'
 import fs from 'fs-extra'
+import genet from '@genet/api'
 import m from 'mithril'
 import path from 'path'
 
@@ -118,7 +119,7 @@ export default class WindowView {
       shell.showItemInFolder(env.userProfilePath)
     })
     genet.action.global.on('core:file:import', () => {
-      const files = dialog.showOpenDialog({properties: ['openFile'],})
+      const files = dialog.showOpenDialog({ properties: ['openFile'] })
       if (typeof files !== 'undefined' && files.length > 0) {
         const [file] = files
         const id = `import-${Date.now()}`

@@ -2,6 +2,7 @@ import { BufferValueItem, AttributeValueItem } from './value'
 import AttributeItem from './attr'
 import { ByteSlice } from '@genet/load-module'
 import DefaultSummary from './default-summary'
+import genet from '@genet/api'
 import m from 'mithril'
 import moment from 'moment'
 

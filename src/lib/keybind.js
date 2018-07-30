@@ -4,6 +4,7 @@ import Mousetrap from 'mousetrap'
 import deepEqual from 'deep-equal'
 import env from './env'
 import fs from 'fs-extra'
+import genet from '@genet/api'
 import path from 'path'
 import yaml from 'js-yaml'
 

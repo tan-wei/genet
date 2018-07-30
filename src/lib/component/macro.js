@@ -1,5 +1,6 @@
 import BaseComponent from './base'
 import Script from '../script'
+import genet from '@genet/api'
 import objpath from 'object-path'
 import path from 'path'
 

@@ -1,11 +1,12 @@
+import { readJson, remove, ensureDir } from 'fs-extra'
 import ComponentFactory from './component-factory'
 import { EventEmitter } from 'events'
 import env from './env'
+import genet from '@genet/api'
 import glob from 'glob'
 import objpath from 'object-path'
 import path from 'path'
 import { promisify } from 'util'
-import { readJson, remove, ensureDir } from 'fs-extra'
 import semver from 'semver'
 import writeFileAtomic from 'write-file-atomic'
 

@@ -1,3 +1,4 @@
+import genet from '@genet/api'
 import m from 'mithril'
 import { validate } from 'jsonschema'
 

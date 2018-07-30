@@ -1,5 +1,6 @@
 const cli = require('./cli')
 const m = require('mithril')
+const genet = require('@genet/api')
 const { execFile } = require('child_process')
 const PermissionMassage = require('./permission-message')
 class PcapView {

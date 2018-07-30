@@ -1,6 +1,7 @@
 import { shell, webFrame } from 'electron'
 import Genet from './genet'
 import Style from './style'
+import api from '@genet/api'
 import m from 'mithril'
 import path from 'path'
 
@@ -44,7 +45,7 @@ export default class Content {
 
     const argv = JSON.parse(decodeURIComponent(location.search.substr(1)))
       .concat(this.argv)
-    Reflect.defineProperty(window, 'genet', { value: new Genet(argv) })
+    api.init(new Genet(argv))
 
     m.mount(document.body, this.view)
     await document.fonts.ready

@@ -1,6 +1,7 @@
 import BaseComponent from './base'
 import Script from '../script'
 import fs from 'fs'
+import genet from '@genet/api'
 import objpath from 'object-path'
 import path from 'path'
 import { promisify } from 'util'

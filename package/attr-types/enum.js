@@ -1,4 +1,5 @@
 const m = require('mithril')
+const genet = require('@genet/api')
 class Enum {
   view (vnode) {
     const { value } = vnode.attrs.attr

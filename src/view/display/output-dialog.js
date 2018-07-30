@@ -1,5 +1,6 @@
 import PanelView from './panel-view'
 import flatten from 'lodash.flatten'
+import genet from '@genet/api'
 import m from 'mithril'
 
 function parseRange (exp) {

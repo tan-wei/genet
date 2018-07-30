@@ -1,4 +1,5 @@
 import DetailView from './detail'
+import genet from '@genet/api'
 import m from 'mithril'
 
 export default class PackageView {

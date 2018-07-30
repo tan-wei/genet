@@ -1,5 +1,6 @@
 import Fuse from 'fuse.js'
 import debounce from 'lodash.debounce'
+import genet from '@genet/api'
 import m from 'mithril'
 
 export default class FilterSuggest {

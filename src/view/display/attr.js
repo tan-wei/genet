@@ -1,5 +1,6 @@
 import { AttributeValueItem } from './value'
 import { ByteSlice } from '@genet/load-module'
+import genet from '@genet/api'
 import m from 'mithril'
 
 function selectRange (range = null) {

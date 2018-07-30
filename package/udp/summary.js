@@ -1,4 +1,5 @@
 const m = require('mithril')
+const genet = require('@genet/api')
 class Summary {
   view (vnode) {
     const { layer } = vnode.attrs

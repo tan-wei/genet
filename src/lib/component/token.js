@@ -1,5 +1,6 @@
 import BaseComponent from './base'
 import { CompositeDisposable } from 'disposables'
+import genet from '@genet/api'
 import objpath from 'object-path'
 import path from 'path'
 import { readJson } from 'fs-extra'

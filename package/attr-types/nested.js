@@ -1,4 +1,5 @@
 const m = require('mithril')
+const genet = require('@genet/api')
 class Nested {
   view (vnode) {
     const keys = vnode.attrs.layer.attrs
