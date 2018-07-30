@@ -44,16 +44,6 @@ export default {
       maximum: 8,
       default: 0,
     },
-    '_.package.registries': {
-      title: 'Package Registries',
-      type: 'array',
-      items: {
-        type: 'string',
-        format: 'uri',
-      },
-      uniqueItems: true,
-      default: ['https://deplug.net/registry/cache.txt'],
-    },
     '_.package.rustpath': {
       title: 'Rust Path',
       type: 'string',

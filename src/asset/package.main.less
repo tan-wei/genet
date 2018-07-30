@@ -15,35 +15,9 @@ nav {
   overflow-y: hidden;
   border-right: 1px solid var(--theme-lighter-bg);
 
-  .mode-selector {
+  .local-packages {
     position: absolute;
     top: 0;
-    right: 0;
-    left: 0;
-    height: 40px;
-    display: flex;
-    border-bottom: 1px solid var(--theme-lighter-bg);
-
-    button {
-      flex-grow: 1;
-      border: none;
-      color: var(--theme-default-fg);
-      background-color: var(--theme-default-bg);
-
-      &:hover {
-        background: var(--theme-lighter-bg);
-      }
-
-      &[active] {
-        color: var(--theme-default-bg);
-        background-color: var(--theme-default-fg);
-      }
-    }
-  }
-
-  .registry-packages, .local-packages {
-    position: absolute;
-    top: 40px;
     right: 0;
     left: 0;
     bottom: 0;

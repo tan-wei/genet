@@ -6,7 +6,6 @@ import Logger from './logger'
 import Menu from './menu'
 import Notification from './notification'
 import PackageManager from './package-manager'
-import PackageRegistry from './package-registry'
 import Resumer from './resumer'
 import Session from './session'
 import Workspace from './workspace'
@@ -30,7 +29,6 @@ export default class Genet {
     this.workspace = new Workspace(options.profile)
     this.keybind = new KeyBind(options.profile, logger)
     this.packages = new PackageManager(config, components.split(','), logger)
-    this.registry = new PackageRegistry(options.profile, config, cache)
     this.session = new Session(config)
     this.menu = new Menu()
     this.notify = new Notification()
@@ -42,10 +40,6 @@ export default class Genet {
     if (options.resume) {
       this.resumer = new Resumer(options.resume, logger)
     }
-
-    this.registry.on('error', (err) => {
-      logger.warn(err)
-    })
 
     if (options.contextMenu) {
       this.menu.enableContextMenu()
