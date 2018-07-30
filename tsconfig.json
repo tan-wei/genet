@@ -9,6 +9,7 @@
         "name": "genet",
         "out": "doc",
         "excludeExternals": true,
+        "ignoreCompilerErrors": true,
         "mode": "file",
         "readme": "none"
     }
