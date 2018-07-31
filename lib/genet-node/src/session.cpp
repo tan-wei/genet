@@ -46,15 +46,15 @@ NAN_METHOD(SessionProfileWrapper::setConfig) {
     Nan::ThrowTypeError("First argument must be a string");
     return;
   }
-  Nan::JSON NanJSON;
-  auto result = NanJSON.Stringify(info[1].As<v8::Object>());
-  if (!result.IsEmpty()) {
-    Nan::Utf8String key(info[0]);
-    Nan::Utf8String value(result.ToLocalChecked());
-    if (auto wrapper =
-            Nan::ObjectWrap::Unwrap<SessionProfileWrapper>(info.Holder())) {
-      genet_session_profile_set_config(wrapper->profile.get(), *key, *value);
-    }
+  if (!info[1]->IsString()) {
+    Nan::ThrowTypeError("Second argument must be a string");
+    return;
+  }
+  Nan::Utf8String key(info[0]);
+  Nan::Utf8String value(info[1]);
+  if (auto wrapper =
+          Nan::ObjectWrap::Unwrap<SessionProfileWrapper>(info.Holder())) {
+    genet_session_profile_set_config(wrapper->profile.get(), *key, *value);
   }
 }
 
