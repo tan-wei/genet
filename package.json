@@ -35,15 +35,15 @@
     },
     "electronVersion": "1.8.2",
     "mac": {
-      "icon": "images/genet.icns",
+      "icon": "node_modules/@genet/image-assets/genet.icns",
       "category": "public.app-category.developer-tools"
     },
     "nsis": {
       "createDesktopShortcut": "always"
     },
     "dmg": {
-      "background": "images/dmg-background.png",
-      "icon": "images/genet-drive.icns",
+      "background": "node_modules/@genet/image-assets/dmg-background.png",
+      "icon": "node_modules/@genet/image-assets/genet-drive.icns",
       "iconSize": 128,
       "contents": [
         {
@@ -73,15 +73,16 @@
       ]
     },
     "win": {
-      "icon": "images/genet.ico"
+      "icon": "node_modules/@genet/image-assets/genet.ico"
     },
     "squirrelWindows": {
-      "iconUrl": "https://raw.githubusercontent.com/genet-app/images/master/genet.ico",
-      "loadingGif": "images/genet-install.gif"
+      "iconUrl": "https://raw.githubusercontent.com/genet-app/node_modules/@genet/image-assets/master/genet.ico",
+      "loadingGif": "node_modules/@genet/image-assets/genet-install.gif"
     }
   },
   "dependencies": {
     "@genet/api": "^0.1.0",
+    "@genet/image-assets": "^0.1.0",
     "@genet/load-module": "0.0.3",
     "acorn": "^5.5.3",
     "axios": "^0.17.1",
