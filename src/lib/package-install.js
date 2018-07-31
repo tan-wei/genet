@@ -88,16 +88,18 @@ Visit https://www.rustup.rs/ for installation details.
     const cargoFiles =
       await promiseGlob(path.join(dir, 'crates/*/Cargo.toml'))
     const cargoDirs = cargoFiles.map((toml) => path.dirname(toml))
+    const target = process.env.GENET_TARGET === 'release'
+      ? ['--release']
+      : []
     for (const cdir of cargoDirs) {
       const flags = process.env.RUSTFLAGS || '-C target-cpu=native'
-      const proc = execa.shell(
-        'cargo build -v --release', {
-          cwd: cdir,
-          env: Object.assign(process.env, {
-            RUSTFLAGS: flags,
-            PATH: envpath,
-          }),
-        })
+      const proc = execa('cargo', ['build', '-v'].concat(target), {
+        cwd: cdir,
+        env: Object.assign(process.env, {
+          RUSTFLAGS: flags,
+          PATH: envpath,
+        }),
+      })
       proc.stdout.on('data', (chunk) => {
         this.emit('output', chunk.toString('utf8'))
       })

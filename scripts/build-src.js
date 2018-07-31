@@ -15,9 +15,7 @@ fs.ensureDirSync(path.resolve(dst, 'asset'))
 const lessFiles = glob.sync(path.resolve(src, 'asset/*.main.less'))
 const assets = glob.sync(path.resolve(src, 'asset/*.htm'))
 
-execa(webpack, [], {
-  stdio: 'inherit'
-})
+execa(webpack, { stdio: 'inherit' })
 for (const file of lessFiles) {
   const css = 
     path.resolve(path.resolve(dst, 'asset'), path.basename(file, '.less')) + '.css'

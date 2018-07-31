@@ -1,7 +1,10 @@
 const nodeExternals = require('webpack-node-externals')
+const mode = process.env.NODE_ENV === 'production'
+  ? 'production'
+  : 'development'
 module.exports = {
   target: 'node',
-  mode: 'development',
+  mode,
   externals: [nodeExternals(), (context, request, callback) => {
     if (request === 'electron') {
       return callback(null, 'commonjs electron')

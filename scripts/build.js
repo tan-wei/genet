@@ -31,7 +31,7 @@ function build() {
     notifier.notify({
       title: 'genet Build Service',
       message: 'Build Finished!\nReloading Window...',
-      icon: path.join(__dirname, '..', 'images', 'genet.png')
+      icon: path.join(__dirname, '../node_modules/@genet/image-assets/genet.png')
     })
   }
   setTimeout(() => {

@@ -5,6 +5,18 @@ const execa = require('execa')
 const glob = require('glob')
 const fs = require('fs-extra')
 
+const target = process.env.NODE_ENV === 'production'
+  ? 'release'
+  : 'debug'
+
+const gypTarget = process.env.NODE_ENV === 'production'
+  ? 'Release'
+  : 'Debug'
+
+const mode = process.env.NODE_ENV === 'production'
+  ? ['--release']
+  : []
+
 const src = path.resolve(__dirname, '../lib')
 const rustSrc = path.resolve(src, 'genet-kernel')
 const nodeSrc = path.resolve(src, 'genet-node')
@@ -18,15 +30,11 @@ fs.ensureDirSync(dst)
 fs.ensureDirSync(dstBin)
 
 async function exec() {
-  await execa.shell('cargo build --release', {
-    cwd: rustSrc,
-    stdio: 'inherit'
-  })
-  
-  await execa('node-gyp', ['configure'], { env, cwd: nodeSrc, stdio: 'inherit' })
+  await execa('cargo', ['build'].concat(mode), { env, cwd: rustSrc, stdio: 'inherit' })
+  await execa('node-gyp', ['configure', `--${target}`], { env, cwd: nodeSrc, stdio: 'inherit' })
   await execa('node-gyp', ['build'], { env, cwd: nodeSrc, stdio: 'inherit' })
 
-  const binaryFiles = glob.sync(path.resolve(nodeSrc, 'build/Release/*.{node,lib}'))
+  const binaryFiles = glob.sync(path.resolve(nodeSrc, `build/${gypTarget}/*.{node,lib}`))
   for (const file of binaryFiles) {
     fs.createReadStream(file)
       .pipe(fs.createWriteStream(

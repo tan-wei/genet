@@ -3,6 +3,10 @@ import packageMain from './package.main'
 import preferenceMain from './preference.main'
 import windowMain from './window.main'
 
+process.env.GENET_TARGET = process.env.NODE_ENV === 'production'
+  ? 'release'
+  : 'debug'
+
 const view = document.currentScript.getAttribute('data-view')
 switch (view) {
   case 'display':

@@ -11,7 +11,8 @@
       "src/token.cpp",
       "src/slice.cpp",
       "src/layer.cpp",
-    ]
+    ],
+    "genet_target": "<!(node -p \"(process.env.NODE_ENV === 'production') ? 'release' : 'debug'\")"
   },
   "target_defaults":{
     "include_dirs":[
@@ -23,7 +24,7 @@
         "OS=='linux'",
         {
           "libraries":[
-            "../../genet-kernel/target/release/libgenet_kernel.a",
+            "../../genet-kernel/target/<(genet_target)/libgenet_kernel.a",
             "-Wl,-dn,-lpcap,-lcap,-lrt,-dy,-lpthread,-ldl",
           ],
           "cflags_cc":[
@@ -40,7 +41,7 @@
           "libraries":[
             "-L/usr/local/lib",
             "-lpcap",
-            "../../genet-kernel/target/release/libgenet_kernel.a"
+            "../../genet-kernel/target/<(genet_target)/libgenet_kernel.a"
           ],
           "link_settings":{
             "libraries":[
@@ -67,7 +68,7 @@
         "OS=='win'",
         {
           "libraries": [
-            '../../genet-kernel/target/release/genet_kernel.lib',
+            '../../genet-kernel/target/<(genet_target)/genet_kernel.lib',
             'Ws2_32.lib',
             'Userenv.lib',
             'Iphlpapi.lib'
