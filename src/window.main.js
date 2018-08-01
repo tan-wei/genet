@@ -4,8 +4,7 @@ import WindowView from './view/window/view'
 
 export default function main () {
   const components = [
-    'core:file:importer',
-    'core:file:exporter'
+    'core:file:reader'
   ]
 
   const content = new Content(

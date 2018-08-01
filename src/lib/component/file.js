@@ -12,10 +12,14 @@ export default class FileComponent extends BaseComponent {
       throw new Error('main field required')
     }
     this.mainFile = path.resolve(dir, file)
+    this.filters = objpath.get(comp, 'filters', [])
   }
   async load () {
-    const module = await Script.execute(this.mainFile)
-    this.disposable = genet.session.registerFileReader(module)
+    const handler = await Script.execute(this.mainFile)
+    this.disposable = genet.session.registerFileReader({
+      handler,
+      filters: this.filters,
+    })
     return true
   }
   async unload () {

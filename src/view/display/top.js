@@ -140,7 +140,7 @@ export default class TopView {
       if (genet.argv.import) {
         const file = path.resolve(genet.argv.import)
         genet.session.create().then((sess) => {
-          for (const handler of genet.session.fileReaders) {
+          for (const { handler } of genet.session.fileReaders) {
             if (handler(sess, { file }) === true) {
               break
             }

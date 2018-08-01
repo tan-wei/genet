@@ -14,7 +14,13 @@
       },
       {
         "type": "core:file:reader",
-        "main": "reader.js"
+        "main": "reader.js",
+        "filters": [
+          {
+            "name": "Pcap Files",
+            "extensions": ["pcap"]
+          }
+        ]
       },
       {
         "type": "core:library",

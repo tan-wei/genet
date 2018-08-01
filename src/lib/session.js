@@ -40,10 +40,10 @@ export default class Session {
     })
   }
 
-  registerFileReader (handler) {
-    this[fields].fileReaders.add(handler)
+  registerFileReader (reader) {
+    this[fields].fileReaders.add(reader)
     return new Disposable(() => {
-      this[fields].fileReaders.delete(handler)
+      this[fields].fileReaders.delete(reader)
     })
   }
 
