@@ -1,5 +1,4 @@
 import { app, BrowserWindow, ipcMain, webContents } from 'electron'
-import Cache from './lib/cache'
 import PackageManager from './lib/package-manager'
 import WindowFactory from './lib/window-factory'
 
@@ -13,7 +12,6 @@ app.commandLine.appendSwitch('--ignore-gpu-blacklist')
 async function init () {
   await PackageManager.init()
   await PackageManager.cleanup()
-  await Cache.cleanup()
   WindowFactory.create(process.argv.slice(2))
 }
 

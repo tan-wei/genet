@@ -1,5 +1,4 @@
 import Action from './action'
-import Cache from './cache'
 import Config from './config'
 import KeyBind from './keybind'
 import Logger from './logger'
@@ -11,7 +10,6 @@ import Session from './session'
 import Workspace from './workspace'
 import env from './env'
 import minimist from 'minimist'
-import gener from '@genet/api'
 
 export default class Genet {
   constructor (argv) {
@@ -25,7 +23,6 @@ export default class Genet {
     if (options.loggerDomain) {
       logger.domain = options.loggerDomain
     }
-    const cache = new Cache(options.profile, logger)
     this.config = config
     this.workspace = new Workspace(options.profile)
     this.keybind = new KeyBind(options.profile, logger)
@@ -34,7 +31,6 @@ export default class Genet {
     this.menu = new Menu()
     this.notify = new Notification()
     this.logger = logger
-    this.cache = cache
     this.env = env
     this.action = new Action()
     this.argv = Object.assign(argv, options)
