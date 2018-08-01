@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 
-const { spawnSync, spawn } = require('child_process')
-const { ensureFileSync } = require('fs-extra')
+const { spawnSync } = require('child_process')
 const runAsNode = require('./run-as-node')
 
-const reloadFile = '.reload'
 let building = false
 
 function run(cmd, ...args) {
@@ -20,10 +18,6 @@ function build() {
   run('node', 'scripts/build-src.js')
   run('node', 'scripts/build-lib.js')
   run('node', 'scripts/build-rust-packages.js')
-  ensureFileSync(reloadFile)
-  setTimeout(() => {
-    building = false
-  }, 1000)
 }
 
 build()
