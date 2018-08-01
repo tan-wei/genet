@@ -1,5 +1,8 @@
 {
     "compilerOptions": {
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true,
+        "noImplicitAny": false,
         "outDir": "./dist/",
         "module": "es6",
         "target": "es6",
