@@ -1,9 +1,8 @@
 import m from 'mithril'
 
 export default class Dialog {
-  constructor (view, attrs = {}) {
-    this.view = view
-    this.attrs = attrs
+  constructor (private view, private attrs = {}) {
+
   }
   async show (options = {}) {
     const opt = Object.assign({

@@ -6,10 +6,8 @@ import m from 'mithril'
 import path from 'path'
 
 export default class Content {
-  constructor (view, css, argv = []) {
-    this.view = view
-    this.css = css
-    this.argv = argv
+  constructor (private view, private css, private argv = []) {
+
   }
 
   async load () {

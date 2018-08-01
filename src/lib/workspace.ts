@@ -3,11 +3,11 @@ import { Disposable } from './disposable'
 import objpath from 'object-path'
 
 const fields = Symbol('fields')
-function flatten (object) {
+function flatten (object: object): any[] {
   if (typeof object !== 'object') {
     return object
   }
-  let values = []
+  let values: any[] = []
   for (const value of Object.values(object)) {
     values = values.concat(flatten(value))
   }

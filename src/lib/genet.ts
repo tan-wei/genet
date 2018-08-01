@@ -5,7 +5,6 @@ import Logger from './logger'
 import Menu from './menu'
 import Notification from './notification'
 import PackageManager from './package-manager'
-import Resumer from './resumer'
 import Session from './session'
 import Workspace from './workspace'
 import env from './env'
@@ -34,9 +33,6 @@ export default class Genet {
     this.env = env
     this.action = new Action()
     this.argv = Object.assign(argv, options)
-    if (options.resume) {
-      this.resumer = new Resumer(options.resume, logger)
-    }
 
     if (options.contextMenu) {
       this.menu.enableContextMenu()

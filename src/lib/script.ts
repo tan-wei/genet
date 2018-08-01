@@ -40,7 +40,7 @@ export default class Script {
       }
       return global.require(name)
     }
-    const module = {}
+    const module: any = {}
     func(module, req, file, dir)
     if (typeof module.exports !== 'function') {
       throw new TypeError('module.exports must be a function')

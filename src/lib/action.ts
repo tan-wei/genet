@@ -16,12 +16,8 @@ class GlobalAction {
     ipcRenderer.removeListener(`${channel} #${windowId}`, listener)
   }
 
-  removeAllListeners (channel) {
-    if (typeof channel === 'string') {
-      ipcRenderer.removeAllListeners(`${channel} #${windowId}`)
-    } else {
-      ipcRenderer.removeAllListeners()
-    }
+  removeAllListeners (channel: string) {
+    ipcRenderer.removeAllListeners(`${channel} #${windowId}`)
   }
 
   emit (channel, ...args) {
@@ -32,6 +28,8 @@ class GlobalAction {
 }
 
 export default class Action extends EventEmitter {
+  public global: GlobalAction
+
   constructor () {
     super()
     this.global = new GlobalAction()

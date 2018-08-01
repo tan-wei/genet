@@ -1,11 +1,9 @@
 import { remote, ipcRenderer, shell } from 'electron'
 import { HSplitter } from '../../lib/splitter'
 import Menu from './menu'
-import Resumer from '../../lib/resumer'
 import Stack from './stack'
 import env from '../../lib/env'
 import flatten from 'lodash.flatten'
-import fs from 'fs-extra'
 import genet from '@genet/api'
 import m from 'mithril'
 import path from 'path'
@@ -64,9 +62,7 @@ export default class WindowView {
       id,
       name: `Session ${number}`,
       src: 'display.htm',
-      argv: genet.argv.concat([
-        `--resume=${Resumer.generateFileName()}`
-      ]),
+      argv: genet.argv,
       loading: true,
     })
   }
@@ -129,8 +125,7 @@ export default class WindowView {
           name: path.basename(file),
           src: 'display.htm',
           argv: genet.argv.concat([
-            `--import=${file}`,
-            `--resume=${Resumer.generateFileName()}`
+            `--import=${file}`
           ]),
           loading: true,
         })

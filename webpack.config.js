@@ -3,7 +3,7 @@ const mode = process.env.NODE_ENV === 'production'
   ? 'production'
   : 'development'
 module.exports = {
-  target: 'electron-renderer',
+  target: 'node',
   mode,
   externals: [nodeExternals(), (context, request, callback) => {
     if (request === 'electron') {

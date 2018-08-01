@@ -13,7 +13,7 @@ export default class MainMenu {
       submenuTemplates: new Map(),
     }
   }
-
+s
   get template () {
     const { submenuTemplates } = this[fields]
     const tmp = JSON.parse(JSON.stringify(template))
@@ -68,7 +68,7 @@ export default class MainMenu {
 
   showContextMenu (event, menu = []) {
     const { contextMenuTemplates } = this[fields]
-    let contextMenu = []
+    let contextMenu: any[] = []
     if (menu.length > 0) {
       contextMenu = contextMenu.concat(menu, { type: 'separator' })
     }

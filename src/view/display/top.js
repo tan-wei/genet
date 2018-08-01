@@ -36,7 +36,6 @@ export default class TopView {
           this.suggestEnabled = false
           const filter = event.target.value.trim()
           genet.action.emit('core:filter:set', filter)
-          genet.resumer.set('core:filter', filter)
         }
         break
       case 'ArrowDown':
@@ -179,11 +178,9 @@ export default class TopView {
       let dump = Promise.resolve()
       if (this.sess) {
         const file = tempy.file({ extension: 'pcap' })
-        genet.resumer.set('core:session:dump', file)
         dump = this.sess.exportFile(file, '')
       }
       dump.then(() => {
-        genet.resumer.reload()
         genet.notify.show('Reloading...')
       })
     })

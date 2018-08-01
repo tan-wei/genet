@@ -3,9 +3,7 @@ import path from 'path'
 import url from 'url'
 
 export default class WebView {
-  constructor () {
-    this.loading = true
-  }
+  private loading: boolean = true
 
   view (vnode) {
     const { tab } = vnode.attrs
