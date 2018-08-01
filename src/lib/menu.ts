@@ -1,8 +1,8 @@
 import { Disposable } from './disposable'
 import flatten from 'flat'
 import objpath from 'object-path'
-import { remote } from 'electron'
 import template from './menu-template'
+const { remote } = require('electron')
 const { Menu } = remote
 
 const fields = Symbol('fields')

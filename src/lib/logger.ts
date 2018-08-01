@@ -1,6 +1,6 @@
 /* eslint no-console: "off" */
 
-import { remote } from 'electron'
+const { remote } = require('electron')
 import throttle from 'lodash.throttle'
 
 enum Level {

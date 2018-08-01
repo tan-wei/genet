@@ -1,9 +1,9 @@
-import { shell, webFrame } from 'electron'
 import Genet from './genet'
 import Style from './style'
 import api from '@genet/api'
 import m from 'mithril'
 import path from 'path'
+const { shell, webFrame } = require('electron')
 
 export default class Content {
   constructor (private view, private css, private argv = []) {

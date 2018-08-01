@@ -16,9 +16,10 @@ export default class Script {
     }
     const dir = path.dirname(file)
     const func = vm.runInThisContext(wrapper, options)
+    const root = global as any
     function isAvailable (name) {
       try {
-        global.require.resolve(name)
+        root.require.resolve(name)
         return true
       } catch (err) {
         return false
@@ -30,15 +31,15 @@ export default class Script {
       } else if (name.startsWith('./')) {
         const resolved = path.resolve(dir, name)
         if (isAvailable(resolved)) {
-          return global.require(resolved)
+          return root.require(resolved)
         }
       } else {
         const resolved = path.resolve(dir, 'node_modules', name)
         if (isAvailable(resolved)) {
-          return global.require(resolved)
+          return root.require(resolved)
         }
       }
-      return global.require(name)
+      return root.require(name)
     }
     const module: any = {}
     func(module, req, file, dir)

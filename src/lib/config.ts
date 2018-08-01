@@ -62,12 +62,12 @@ export default class Config {
     })
   }
 
-  get schema () {
+  get schema (): object {
     const { schema, schemaSet } = this[fields]
     return Object.assign({}, schema, ...schemaSet)
   }
 
-  get (id, defaultValue) {
+  get (id: string, defaultValue?: any) {
     const { tree } = this[fields]
     let value = objpath.get(tree, id)
     if (typeof value !== 'undefined') {
@@ -85,7 +85,7 @@ export default class Config {
     return defaultValue
   }
 
-  set (id, value) {
+  set (id: string, value: any) {
     const { tree, update, write } = this[fields]
     let defaultValue = null
     if (id in this.schema) {
@@ -107,12 +107,12 @@ export default class Config {
     }
   }
 
-  del (id) {
+  del (id: string) {
     const { tree } = this[fields]
     objpath.del(tree, id)
   }
 
-  watch (id, callback, defaultValue) {
+  watch (id: string, callback: (value: any, defaultValue: any) => void, defaultValue?: any) {
     const { listeners, filePath } = this[fields]
     if (listeners.length === 0) {
       fs.watchFile(filePath, () => this[fields].load(true))

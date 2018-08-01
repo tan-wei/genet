@@ -1,5 +1,5 @@
-import { ipcRenderer, remote } from 'electron'
 import { EventEmitter } from 'events'
+const { ipcRenderer, remote } = require('electron')
 
 const windowId = remote.getCurrentWindow().id
 const { webContents } = remote
