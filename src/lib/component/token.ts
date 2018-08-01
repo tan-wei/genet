@@ -5,12 +5,11 @@ import objpath from 'object-path'
 import path from 'path'
 import { readJson } from 'fs-extra'
 
-export default class TokenComponent extends BaseComponent {
+export default class TokenComponent implements BaseComponent {
   private disposable: CompositeDisposable
   private tokenFiles: string[]
 
-  constructor (comp: object, dir: string) {
-    super()
+  constructor (comp: any, dir: string) {
     this.tokenFiles =
       objpath.get(comp, 'files', []).map((file) => path.resolve(dir, file))
   }

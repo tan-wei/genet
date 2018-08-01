@@ -5,14 +5,13 @@ import genet from '@genet/api'
 import objpath from 'object-path'
 import path from 'path'
 
-export default class MacroComponent extends BaseComponent {
+export default class MacroComponent implements BaseComponent {
   private name: string
   private description: string
   private mainFile: string
   private disposable: Disposable
 
-  constructor (comp, dir) {
-    super()
+  constructor (comp: any, dir: string) {
     const file = objpath.get(comp, 'main', '')
     if (!file) {
       throw new Error('main field required')

@@ -5,15 +5,14 @@ import genet from '@genet/api'
 import objpath from 'object-path'
 import path from 'path'
 
-export default class RendererComponent extends BaseComponent {
+export default class RendererComponent implements BaseComponent {
   private id: string
   private mainFile: string
   private macroFile: string
   private type: string
   private disposable: CompositeDisposable
 
-  constructor (comp, dir) {
-    super()
+  constructor (comp: any, dir: string) {
     const file = objpath.get(comp, 'main', '')
     if (!file) {
       throw new Error('main field required')

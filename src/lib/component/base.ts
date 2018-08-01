@@ -1,8 +1,4 @@
-export default class BaseComponent {
-  async load () {
-    return true
-  }
-  async unload () {
-    return true
-  }
+export default interface BaseComponent {
+  load() : Promise<boolean>
+  unload() : Promise<boolean>
 }

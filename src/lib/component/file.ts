@@ -10,13 +10,12 @@ interface Filter {
   extensions: string[]
 }
 
-export default class FileComponent extends BaseComponent {
+export default class FileComponent implements BaseComponent {
   private mainFile: string
   private filters: Filter[]
   private disposable: Disposable
 
-  constructor (comp: object, dir: string) {
-    super()
+  constructor (comp: any, dir: string) {
     const file = objpath.get(comp, 'main', '')
     if (!file) {
       throw new Error('main field required')

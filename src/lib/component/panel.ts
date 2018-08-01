@@ -8,7 +8,7 @@ import path from 'path'
 import { promisify } from 'util'
 
 const promiseReadFile = promisify(fs.readFile)
-export default class PanelComponent extends BaseComponent {
+export default class PanelComponent implements BaseComponent {
   private id: string
   private name: string
   private slot: string
@@ -16,8 +16,7 @@ export default class PanelComponent extends BaseComponent {
   private styleFile: string
   private disposable: Disposable
 
-  constructor (comp, dir) {
-    super()
+  constructor (comp: any, dir: string) {
     const file = objpath.get(comp, 'main', '')
     if (!file) {
       throw new Error('main field required')

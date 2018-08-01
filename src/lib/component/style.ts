@@ -4,12 +4,11 @@ import Style from '../style'
 import objpath from 'object-path'
 import path from 'path'
 
-export default class StyleComponent extends BaseComponent {
+export default class StyleComponent implements BaseComponent {
   private styleFiles: string[]
   private disposable: CompositeDisposable
 
-  constructor (comp, dir) {
-    super()
+  constructor (comp: any, dir: string) {
     this.styleFiles =
       objpath.get(comp, 'files', []).map((file) => path.resolve(dir, file))
   }

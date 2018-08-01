@@ -6,12 +6,11 @@ import glob from 'glob'
 import objpath from 'object-path'
 import path from 'path'
 
-export default class LibraryComponent extends BaseComponent {
+export default class LibraryComponent implements BaseComponent {
   private mainFile: string
   private disposable: Disposable
 
-  constructor (comp, dir) {
-    super()
+  constructor (comp: any, dir: string) {
     const file = objpath.get(comp, 'main', '')
     if (!file) {
       throw new Error('main field required')
