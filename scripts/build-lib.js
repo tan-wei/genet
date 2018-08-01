@@ -31,6 +31,10 @@ fs.ensureDirSync(dstBin)
 
 async function exec() {
   await execa('cargo', ['build'].concat(mode), { env, cwd: rustSrc, stdio: 'inherit' })
+  const [slib] = glob.sync(`lib/genet-kernel/target/${target}/*genet_kernel.{a,lib}`)
+  const { atime, mtime } = fs.statSync(slib)
+  fs.utimesSync('lib/genet-node/src/main.cpp', atime, mtime)
+
   await execa('node-gyp', ['configure', `--${target}`], { env, cwd: nodeSrc, stdio: 'inherit' })
   await execa('node-gyp', ['build'], { env, cwd: nodeSrc, stdio: 'inherit' })
 
