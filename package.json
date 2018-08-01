@@ -8,10 +8,9 @@
     "url": "https://github.com/genet-app/genet.git"
   },
   "scripts": {
+    "start": "node_modules/.bin/negatron .",
     "build": "node scripts/build.js",
-    "watch": "node scripts/build.js --watch",
-    "test": "node scripts/test.js",
-    "bench": "node scripts/bench.js plugkit/bench/*.js"
+    "test": "node scripts/test.js"
   },
   "main": "genet_modules/src/app.main.js",
   "author": "h2so5 <mail@h2so5.net>",
@@ -123,12 +122,10 @@
     "@genet/image-assets": "^0.1.0",
     "@genet/negatron": "1.8.2",
     "benchmark": "^2.1.4",
-    "chokidar": "^2.0.4",
     "electron-builder": "^20.26.0",
     "less": "^3.7.1",
     "nan": "^2.10.0",
     "node-gyp": "^3.6.2",
-    "node-notifier": "^5.1.2",
     "pretty-bytes": "^4.0.2",
     "ts-loader": "^4.4.2",
     "typedoc": "^0.11.1",

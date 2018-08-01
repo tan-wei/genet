@@ -82,11 +82,6 @@ export default class WindowView {
   }
 
   oncreate () {
-    const watcherFile = genet.argv['genet-dev-watch-file']
-    if (watcherFile) {
-      fs.ensureFileSync(watcherFile)
-      fs.watchFile(watcherFile, remote.getCurrentWindow().reload)
-    }
     ipcRenderer.on('core:menu:action', (event, channel) => {
       document
         .querySelector('webview[active]')

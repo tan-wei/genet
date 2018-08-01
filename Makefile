@@ -1,5 +1,5 @@
-all:
-	npm run watch
+all: build
+	npm run start
 
 build:
 	npm run build

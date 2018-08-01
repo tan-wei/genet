@@ -29,8 +29,7 @@ ipcMain.on('core:window:loaded', (event, id) => {
 })
 
 ipcMain.on('core:window:create', () => {
-  WindowFactory.create(process.argv.slice(2).filter((argv) =>
-    !argv.startsWith('--genet-dev-watch-file=')))
+  WindowFactory.create(process.argv.slice(2))
 })
 
 const logContents = new Map()
