@@ -1,10 +1,16 @@
 import BaseComponent from './base'
+import { Disposable } from '../disposable'
 import Script from '../script'
 import genet from '@genet/api'
 import objpath from 'object-path'
 import path from 'path'
 
 export default class MacroComponent extends BaseComponent {
+  private name: string
+  private description: string
+  private mainFile: string
+  private disposable: Disposable
+
   constructor (comp, dir) {
     super()
     const file = objpath.get(comp, 'main', '')
@@ -27,7 +33,6 @@ export default class MacroComponent extends BaseComponent {
   async unload () {
     if (this.disposable) {
       this.disposable.dispose()
-      this.disposable = null
     }
     return true
   }

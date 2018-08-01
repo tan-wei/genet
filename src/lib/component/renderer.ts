@@ -1,11 +1,17 @@
 import BaseComponent from './base'
-import { CompositeDisposable } from 'disposables'
+import { CompositeDisposable } from '../disposable'
 import Script from '../script'
 import genet from '@genet/api'
 import objpath from 'object-path'
 import path from 'path'
 
 export default class RendererComponent extends BaseComponent {
+  private id: string
+  private mainFile: string
+  private macroFile: string
+  private type: string
+  private disposable: CompositeDisposable
+
   constructor (comp, dir) {
     super()
     const file = objpath.get(comp, 'main', '')
@@ -53,7 +59,6 @@ export default class RendererComponent extends BaseComponent {
   async unload () {
     if (this.disposable) {
       this.disposable.dispose()
-      this.disposable = null
     }
     return true
   }

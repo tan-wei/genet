@@ -1,11 +1,21 @@
 import BaseComponent from './base'
+import { Disposable } from '../disposable'
 import Script from '../script'
 import genet from '@genet/api'
 import objpath from 'object-path'
 import path from 'path'
 
+interface Filter {
+  name: string
+  extensions: string[]
+}
+
 export default class FileComponent extends BaseComponent {
-  constructor (comp, dir) {
+  private mainFile: string
+  private filters: Filter[]
+  private disposable: Disposable
+
+  constructor (comp: object, dir: string) {
     super()
     const file = objpath.get(comp, 'main', '')
     if (!file) {
@@ -25,7 +35,6 @@ export default class FileComponent extends BaseComponent {
   async unload () {
     if (this.disposable) {
       this.disposable.dispose()
-      this.disposable = null
     }
     return true
   }

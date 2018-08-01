@@ -1,4 +1,5 @@
 import BaseComponent from './base'
+import { Disposable } from '../disposable'
 import fs from 'fs'
 import genet from '@genet/api'
 import glob from 'glob'
@@ -6,6 +7,9 @@ import objpath from 'object-path'
 import path from 'path'
 
 export default class LibraryComponent extends BaseComponent {
+  private mainFile: string
+  private disposable: Disposable
+
   constructor (comp, dir) {
     super()
     const file = objpath.get(comp, 'main', '')
@@ -41,8 +45,6 @@ export default class LibraryComponent extends BaseComponent {
   async unload () {
     if (this.disposable) {
       this.disposable.dispose()
-      this.disposable = null
-      return false
     }
     return true
   }

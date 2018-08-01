@@ -1,12 +1,15 @@
 import BaseComponent from './base'
-import { CompositeDisposable } from 'disposables'
+import { CompositeDisposable } from '../disposable'
 import genet from '@genet/api'
 import objpath from 'object-path'
 import path from 'path'
 import { readJson } from 'fs-extra'
 
 export default class TokenComponent extends BaseComponent {
-  constructor (comp, dir) {
+  private disposable: CompositeDisposable
+  private tokenFiles: string[]
+
+  constructor (comp: object, dir: string) {
     super()
     this.tokenFiles =
       objpath.get(comp, 'files', []).map((file) => path.resolve(dir, file))
@@ -21,7 +24,6 @@ export default class TokenComponent extends BaseComponent {
   async unload () {
     if (this.disposable) {
       this.disposable.dispose()
-      this.disposable = null
     }
     return true
   }

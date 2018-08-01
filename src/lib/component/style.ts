@@ -1,10 +1,13 @@
 import BaseComponent from './base'
-import { CompositeDisposable } from 'disposables'
+import { CompositeDisposable } from '../disposable'
 import Style from '../style'
 import objpath from 'object-path'
 import path from 'path'
 
 export default class StyleComponent extends BaseComponent {
+  private styleFiles: string[]
+  private disposable: CompositeDisposable
+
   constructor (comp, dir) {
     super()
     this.styleFiles =
@@ -20,7 +23,6 @@ export default class StyleComponent extends BaseComponent {
   async unload () {
     if (this.disposable) {
       this.disposable.dispose()
-      this.disposable = null
     }
     return true
   }

@@ -1,4 +1,5 @@
 import BaseComponent from './base'
+import { Disposable } from '../disposable'
 import Script from '../script'
 import fs from 'fs'
 import genet from '@genet/api'
@@ -8,6 +9,13 @@ import { promisify } from 'util'
 
 const promiseReadFile = promisify(fs.readFile)
 export default class PanelComponent extends BaseComponent {
+  private id: string
+  private name: string
+  private slot: string
+  private mainFile: string
+  private styleFile: string
+  private disposable: Disposable
+
   constructor (comp, dir) {
     super()
     const file = objpath.get(comp, 'main', '')
@@ -50,7 +58,6 @@ export default class PanelComponent extends BaseComponent {
   async unload () {
     if (this.disposable) {
       this.disposable.dispose()
-      this.disposable = null
     }
     return true
   }
