@@ -1,4 +1,4 @@
-import { Disposable } from 'disposables'
+import { Disposable } from './disposable'
 import fs from 'fs'
 import path from 'path'
 import { promisify } from 'util'

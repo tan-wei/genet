@@ -1,4 +1,4 @@
-import { Disposable } from 'disposables'
+import { Disposable } from './disposable'
 import deepEqual from 'deep-equal'
 import env from './env'
 import fs from 'fs-extra'

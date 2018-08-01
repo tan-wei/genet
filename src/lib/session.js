@@ -1,4 +1,4 @@
-import { Disposable } from 'disposables'
+import { Disposable } from './disposable'
 import genet from '@genet/api'
 import native from '@genet/load-module'
 import objpath from 'object-path'

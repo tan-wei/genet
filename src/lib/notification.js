@@ -1,4 +1,4 @@
-import { Disposable } from 'disposables'
+import { Disposable } from './disposable'
 import m from 'mithril'
 import marked from 'marked'
 

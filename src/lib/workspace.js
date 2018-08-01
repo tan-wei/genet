@@ -1,5 +1,5 @@
 import Config from './config'
-import { Disposable } from 'disposables'
+import { Disposable } from './disposable'
 import objpath from 'object-path'
 
 const fields = Symbol('fields')

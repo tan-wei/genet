@@ -1,4 +1,4 @@
-import { Disposable } from 'disposables'
+import { Disposable } from './disposable'
 import flatten from 'flat'
 import objpath from 'object-path'
 import { remote } from 'electron'

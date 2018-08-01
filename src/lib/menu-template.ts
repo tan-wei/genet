@@ -1,6 +1,6 @@
 import { remote } from 'electron'
 
-const template = [
+const template: any[] = [
   {
     label: 'Edit',
     submenu: [

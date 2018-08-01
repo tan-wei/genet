@@ -3,6 +3,17 @@
 import { remote } from 'electron'
 import throttle from 'lodash.throttle'
 
+enum Level {
+  Debug = "debug",
+  Info = "info",
+  Warn = "warn",
+  Error = "error",
+}
+
+interface Options {
+  level?: Level;
+}
+
 const dumpLogs = throttle((data) => {
   if (data.logs.length > 0) {
     for (const log of data.logs) {
@@ -49,7 +60,7 @@ export default class Logger {
     this[fields].domain = domain
   }
 
-  log (message, options = {}) {
+  log (message, options: Options = {}) {
     this[fields].logs.push({
       message,
       level: options.level,
@@ -57,19 +68,19 @@ export default class Logger {
     dumpLogs(this[fields])
   }
 
-  debug (message, options = {}) {
-    this.log(message, Object.assign(options, { level: 'debug' }))
+  debug (message, options: Options = {}) {
+    this.log(message, Object.assign(options, { level: Level.Debug }))
   }
 
-  info (message, options = {}) {
-    this.log(message, Object.assign(options, { level: 'info' }))
+  info (message, options: Options = {}) {
+    this.log(message, Object.assign(options, { level: Level.Info }))
   }
 
-  warn (message, options = {}) {
-    this.log(message, Object.assign(options, { level: 'warn' }))
+  warn (message, options: Options = {}) {
+    this.log(message, Object.assign(options, { level: Level.Warn }))
   }
 
-  error (message, options = {}) {
-    this.log(message, Object.assign(options, { level: 'error' }))
+  error (message, options: Options = {}) {
+    this.log(message, Object.assign(options, { level: Level.Error }))
   }
 }

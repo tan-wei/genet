@@ -1,4 +1,4 @@
-import { Disposable } from 'disposables'
+import { Disposable } from './disposable'
 import { EventEmitter } from 'events'
 import Mousetrap from 'mousetrap'
 import deepEqual from 'deep-equal'
