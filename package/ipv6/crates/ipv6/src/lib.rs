@@ -95,8 +95,7 @@ lazy_static! {
         .decoder(
             decoder::ByteSlice()
                 .map(|v| (((v[2] as u32) & 0xf) << 16) | ((v[1] as u32) << 8) | v[2] as u32)
-        )
-        .build();
+        ).build();
     static ref LENGTH_ATTR: AttrClass = AttrClass::builder("ipv6.payloadLength")
         .decoder(decoder::UInt8())
         .build();

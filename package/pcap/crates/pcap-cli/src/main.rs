@@ -28,8 +28,7 @@ fn main() {
                 .takes_value(true)
                 .default_value("1000")
                 .short("t"),
-        )
-        .subcommand(capture)
+        ).subcommand(capture)
         .subcommand(status)
         .get_matches();
 

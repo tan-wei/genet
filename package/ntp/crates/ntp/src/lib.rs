@@ -164,8 +164,7 @@ lazy_static! {
         .decoder(
             decoder::UInt64BE()
                 .map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
-        )
-        .build();
+        ).build();
     static ref REFTS_SEC_ATTR: AttrClass = AttrClass::builder("ntp.referenceTs.seconds")
         .decoder(decoder::UInt32BE())
         .build();
@@ -177,8 +176,7 @@ lazy_static! {
         .decoder(
             decoder::UInt64BE()
                 .map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
-        )
-        .build();
+        ).build();
     static ref ORITS_SEC_ATTR: AttrClass = AttrClass::builder("ntp.originateTs.seconds")
         .decoder(decoder::UInt32BE())
         .build();
@@ -190,8 +188,7 @@ lazy_static! {
         .decoder(
             decoder::UInt64BE()
                 .map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
-        )
-        .build();
+        ).build();
     static ref RECTS_SEC_ATTR: AttrClass = AttrClass::builder("ntp.receiveTs.seconds")
         .decoder(decoder::UInt32BE())
         .build();
@@ -203,8 +200,7 @@ lazy_static! {
         .decoder(
             decoder::UInt64BE()
                 .map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
-        )
-        .build();
+        ).build();
     static ref TRATS_SEC_ATTR: AttrClass = AttrClass::builder("ntp.transmitTs.seconds")
         .decoder(decoder::UInt32BE())
         .build();

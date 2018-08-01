@@ -177,11 +177,11 @@ lazy_static! {
     static ref OPTIONS_SCALE_ATTR: AttrClass = AttrClass::builder("tcp.options.scale")
         .decoder(decoder::Ranged(decoder::UInt8(), 2..))
         .build();
-    static ref OPTIONS_SACKP_ATTR: AttrClass = AttrClass::builder(
-        "tcp.options.selectiveAckPermitted"
-    ).typ("@novalue")
-        .decoder(decoder::Const(true))
-        .build();
+    static ref OPTIONS_SACKP_ATTR: AttrClass =
+        AttrClass::builder("tcp.options.selectiveAckPermitted")
+            .typ("@novalue")
+            .decoder(decoder::Const(true))
+            .build();
     static ref OPTIONS_SACK_ATTR: AttrClass = AttrClass::builder("tcp.options.selectiveAck")
         .decoder(decoder::Ranged(decoder::ByteSlice(), 2..))
         .build();

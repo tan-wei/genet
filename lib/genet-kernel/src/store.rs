@@ -296,8 +296,7 @@ impl EventLoop {
                         .map(|(i, root)| {
                             let index = *cnt + i as u32;
                             Frame::new(index, root)
-                        })
-                        .collect::<Vec<_>>();
+                        }).collect::<Vec<_>>();
                     *cnt += frames.len() as u32;
                     pool.process(frames);
                 }
@@ -381,8 +380,7 @@ impl EventLoop {
                         } else {
                             None
                         }
-                    })
-                    .collect::<Vec<_>>();
+                    }).collect::<Vec<_>>();
                 filter.offset = frames.len();
                 indeces
             };

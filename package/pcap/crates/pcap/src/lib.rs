@@ -285,8 +285,7 @@ mod platform {
             .map(|dev| {
                 let name = map.get(&dev.id).unwrap_or(&dev.id).to_string();
                 Device::new(dev.id, name, dev.description, dev.link, dev.loopback)
-            })
-            .collect()
+            }).collect()
     }
 
     #[cfg(target_os = "macos")]
@@ -384,8 +383,7 @@ mod platform {
                 let guid = dev.id.chars().skip(prefix).collect();
                 let name = map.get(&guid).unwrap_or(&guid).to_string();
                 Device::new(dev.id, name, dev.description, dev.link, dev.loopback)
-            })
-            .collect()
+            }).collect()
     }
 
     #[cfg(target_os = "windows")]
@@ -526,7 +524,8 @@ mod ffi {
         pub(crate) fn new() -> Result<Symbols, super::Error> {
             use super::libloading;
             use std::ops::Deref;
-            let lib = libloading::Library::new("Wpcap.dll").map_err(|_| super::Error::DLLNotFound)?;
+            let lib =
+                libloading::Library::new("Wpcap.dll").map_err(|_| super::Error::DLLNotFound)?;
 
             let pcap_findalldevs;
             let pcap_freealldevs;
