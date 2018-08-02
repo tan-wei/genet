@@ -98,17 +98,18 @@ export default class PackageManager extends EventEmitter {
     }
     const pkgs = metaDataList.filter((pkg) => pkg.data)
     for (const pkg of pkgs) {
+      const id = pkg.id || ''
       const incompatible = !semver.satisfies(
         semver.coerce(env.genet.version),
         objpath.get(pkg.data, 'engines.genet', '*'))
-      const disabled = disabledPackages.has(pkg.id)
-      const cache = packages.get(pkg.id) || { components: [] }
+      const disabled = disabledPackages.has(id)
+      const cache = packages.get(id) || { components: [] }
       if (!incompatible) {
         if (!packages.has(pkg.id) && !disabled) {
           addedPackages.add(pkg.id)
         } else if (disabled) {
           if (cache.disabled === true) {
-            disabledPackages.delete(pkg.id)
+            disabledPackages.delete(id)
           } else {
             cache.disabled = true
           }
@@ -121,10 +122,10 @@ export default class PackageManager extends EventEmitter {
       }
 
       packages.set(pkg.id, Object.assign(cache, pkg, { incompatible }))
-      removedPackages.delete(pkg.id)
+      removedPackages.delete(id)
     }
 
-    const task = []
+    const task : object[] = []
     Array.from(disabledPackages)
       .concat(Array.from(removedPackages))
       .concat(Array.from(updatedPackages))
@@ -258,11 +259,11 @@ export default class PackageManager extends EventEmitter {
       return readFile(removeme)
     }))
     const dirs = files.map((data) => {
-      if (data.data) {
+      if (data.data && data.filePath) {
         return path.dirname(data.filePath)
       }
-      return null
-    }).filter((dir) => dir !== null)
+      return ''
+    }).filter((dir) => dir !== '')
     return Promise.all(dirs.map((dir) => remove(dir)))
   }
 }

@@ -1,10 +1,10 @@
-import { app, BrowserWindow, ipcMain, Menu, webContents } from 'electron'
 import Config from './config'
 import debounce from 'lodash.debounce'
 import env from './env'
 import flatten from 'flat'
 import path from 'path'
 import url from 'url'
+const { app, BrowserWindow, ipcMain, Menu, webContents } = require('electron')
 
 app.on('window-all-closed', () => {
   for (const wc of webContents.getAllWebContents()) {
@@ -22,6 +22,7 @@ export default class WindowFactory {
       height: size[1],
       titleBarStyle: conf.get('_.window.titleBarStyle'),
       show: true,
+      icon: '',
     }
     if (process.platform === 'linux') {
       options.icon = env.linuxIconPath

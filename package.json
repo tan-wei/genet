@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node_modules/.bin/negatron .",
     "build": "node scripts/build.js",
-    "test": "node scripts/test.js"
+    "dist": "node_modules/.bin/electron-builder"
   },
   "main": "genet_modules/src/app.main.js",
   "author": "h2so5 <mail@h2so5.net>",

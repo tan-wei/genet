@@ -11,6 +11,17 @@ import env from './env'
 import minimist from 'minimist'
 
 export default class Genet {
+  config : any
+  workspace : Workspace
+  keybind : KeyBind
+  packages : PackageManager
+  session : Session
+  menu : Menu
+  notify : Notification
+  logger : Logger
+  env : any
+  action : Action
+  argv : any[]
   constructor (argv) {
     const options = minimist(argv, { boolean: true })
     let components = options.components || ''

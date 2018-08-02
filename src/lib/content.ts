@@ -23,7 +23,7 @@ export default class Content {
       return false
     }, false)
 
-    document.addEventListener('click', (event) => {
+    document.addEventListener('click', (event: any) => {
       const isUrl = (/^https?:\/\//).test(event.currentTarget.href)
       if (event.target.tagName === 'A' && isUrl) {
         event.preventDefault()
@@ -46,6 +46,6 @@ export default class Content {
     api.init(new Genet(argv))
 
     m.mount(document.body, this.view)
-    await document.fonts.ready
+    await (document as any).fonts.ready
   }
 }
