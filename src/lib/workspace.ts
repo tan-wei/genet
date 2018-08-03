@@ -15,12 +15,12 @@ function flatten (object: object): any[] {
 }
 
 export default class Workspace extends Config {
-  constructor (profile) {
+  constructor (profile: string) {
     super(profile, 'workspace')
     this[fields] = { panels: new Map() }
   }
 
-  registerPanel (id, panel) {
+  registerPanel (id: string, panel) {
     const { panels } = this[fields]
     panels.set(id, panel)
     this.update()
@@ -29,7 +29,7 @@ export default class Workspace extends Config {
     })
   }
 
-  panel (id) {
+  panel (id: string) {
     return this[fields].panels.get(id)
   }
 

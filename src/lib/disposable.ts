@@ -1,7 +1,6 @@
 export class Disposable {
     private done: boolean = false
     constructor(private readonly disposer: () => void) {
-
     }
 
     dispose() {

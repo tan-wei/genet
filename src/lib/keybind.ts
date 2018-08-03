@@ -1,5 +1,6 @@
 import { Disposable } from './disposable'
 import { EventEmitter } from 'events'
+import Logger from './logger'
 import Mousetrap from 'mousetrap'
 import deepEqual from 'deep-equal'
 import env from './env'
@@ -22,7 +23,7 @@ function transformBindSet (map, binds) {
 }
 
 export default class KeyBind extends EventEmitter {
-  constructor (profile, logger) {
+  constructor (profile: string, logger: Logger) {
     super()
     const filePath =
       path.join(env.userProfilePath, profile, 'keybind.yml')

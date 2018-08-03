@@ -4,15 +4,15 @@ const { ipcRenderer, remote } = require('electron')
 const windowId = remote.getCurrentWindow().id
 const { webContents } = remote
 class GlobalAction {
-  on (channel, listener) {
+  on (channel: string, listener: (...args) => void) {
     ipcRenderer.on(`${channel} #${windowId}`, listener)
   }
 
-  once (channel, listener) {
+  once (channel: string, listener: (...args) => void) {
     ipcRenderer.once(`${channel} #${windowId}`, listener)
   }
 
-  removeListener (channel, listener) {
+  removeListener (channel: string, listener: (...args) => void) {
     ipcRenderer.removeListener(`${channel} #${windowId}`, listener)
   }
 
@@ -20,7 +20,7 @@ class GlobalAction {
     ipcRenderer.removeAllListeners(`${channel} #${windowId}`)
   }
 
-  emit (channel, ...args) {
+  emit (channel: string, ...args) {
     for (const wc of webContents.getAllWebContents()) {
       wc.send(`${channel} #${windowId}`, ...args)
     }

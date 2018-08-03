@@ -11,17 +11,18 @@ import env from './env'
 import minimist from 'minimist'
 
 export default class Genet {
-  config : any
-  workspace : Workspace
-  keybind : KeyBind
-  packages : PackageManager
-  session : Session
-  menu : Menu
-  notify : Notification
-  logger : Logger
-  env : any
-  action : Action
-  argv : any[]
+  readonly config: any
+  readonly workspace: Workspace
+  readonly keybind: KeyBind
+  readonly packages: PackageManager
+  readonly session: Session
+  readonly menu: Menu
+  readonly notify: Notification
+  readonly logger: Logger
+  readonly env: any
+  readonly action: Action
+  readonly argv: object
+  
   constructor (argv) {
     const options = minimist(argv, { boolean: true })
     let components = options.components || ''
@@ -48,7 +49,5 @@ export default class Genet {
     if (options.contextMenu) {
       this.menu.enableContextMenu()
     }
-
-    Object.freeze(this)
   }
 }

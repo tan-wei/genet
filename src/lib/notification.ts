@@ -42,7 +42,7 @@ export default class Notification {
     this[fields] = { container: null }
   }
 
-  show (content, options = {}) {
+  show (content: string, options = {}) {
     const opt = Object.assign({
       type: '',
       title: '',

@@ -6,7 +6,7 @@ import vm from 'vm'
 
 const promiseReadFile = promisify(fs.readFile)
 export default class Script {
-  static async execute (file) {
+  static async execute (file: string) {
     const code = await promiseReadFile(file, 'utf8')
     const wrapper =
       `(function(module, require, __filename, __dirname){ ${code} })`

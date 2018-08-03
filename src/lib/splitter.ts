@@ -70,12 +70,10 @@ export class HSplitter {
     ])
   }
 
-  applyWidth (workspace) {
+  applyWidth (workspace: string) {
     this[fields].width = this[fields].handle
     this[fields].active = false
-    if (typeof workspace === 'string') {
-      genet.workspace.set(workspace, this[fields].width)
-    }
+    genet.workspace.set(workspace, this[fields].width)
   }
 }
 
@@ -146,11 +144,9 @@ export class VSplitter {
     ])
   }
 
-  applyHeight (workspace) {
+  applyHeight (workspace: string) {
     this[fields].height = this[fields].handle
     this[fields].active = false
-    if (typeof workspace === 'string') {
-      genet.workspace.set(workspace, this[fields].height)
-    }
+    genet.workspace.set(workspace, this[fields].height)
   }
 }

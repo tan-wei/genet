@@ -2,6 +2,7 @@
 
 const { remote } = require('electron')
 import throttle from 'lodash.throttle'
+import Config from './config'
 
 enum Level {
   Debug = "debug",
@@ -41,7 +42,7 @@ const dumpLogs = throttle((data) => {
 
 const fields = Symbol('fields')
 export default class Logger {
-  constructor (config) {
+  constructor (config: Config) {
     this[fields] = {
       windowId: remote.getCurrentWindow().id,
       domain: 'core',
@@ -56,11 +57,11 @@ export default class Logger {
     return this[fields].domain
   }
 
-  set domain (domain) {
+  set domain (domain: string) {
     this[fields].domain = domain
   }
 
-  log (message, options: Options = {}) {
+  log (message: string, options: Options = {}) {
     this[fields].logs.push({
       message,
       level: options.level,
@@ -68,19 +69,19 @@ export default class Logger {
     dumpLogs(this[fields])
   }
 
-  debug (message, options: Options = {}) {
+  debug (message: string, options: Options = {}) {
     this.log(message, Object.assign(options, { level: Level.Debug }))
   }
 
-  info (message, options: Options = {}) {
+  info (message: string, options: Options = {}) {
     this.log(message, Object.assign(options, { level: Level.Info }))
   }
 
-  warn (message, options: Options = {}) {
+  warn (message: string, options: Options = {}) {
     this.log(message, Object.assign(options, { level: Level.Warn }))
   }
 
-  error (message, options: Options = {}) {
+  error (message: string, options: Options = {}) {
     this.log(message, Object.assign(options, { level: Level.Error }))
   }
 }

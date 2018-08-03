@@ -2,7 +2,7 @@ import os from 'os'
 import path from 'path'
 import { readJsonSync } from 'fs-extra'
 
-function readFile (filePath) {
+function readFile (filePath: string) {
   try {
     return readJsonSync(filePath)
   } catch (err) {

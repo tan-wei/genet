@@ -13,7 +13,7 @@ export default class MainMenu {
       submenuTemplates: new Map(),
     }
   }
-s
+
   get template () {
     const { submenuTemplates } = this[fields]
     const tmp = JSON.parse(JSON.stringify(template))
@@ -50,7 +50,7 @@ s
     return map
   }
 
-  registerSubMenu (name, menu) {
+  registerSubMenu (name: string, menu) {
     const { submenuTemplates } = this[fields]
     submenuTemplates.set(name, menu)
     return new Disposable(() => {
@@ -66,14 +66,15 @@ s
     })
   }
 
-  showContextMenu (event, menu = []) {
+  showContextMenu (event: Event, menu = []) {
     const { contextMenuTemplates } = this[fields]
     let contextMenu: any[] = []
     if (menu.length > 0) {
       contextMenu = contextMenu.concat(menu, { type: 'separator' })
     }
     for (const tmpl of contextMenuTemplates) {
-      if (event.target.matches(tmpl.selector)) {
+      if (event.target instanceof HTMLElement && 
+        event.target.matches(tmpl.selector)) {
         contextMenu = contextMenu.concat(tmpl.menu, { type: 'separator' })
       }
     }

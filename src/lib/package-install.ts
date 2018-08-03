@@ -24,11 +24,11 @@ export default class PackageInstaller extends EventEmitter {
     return this[fields].rustpath
   }
 
-  set rustpath (rpath) {
+  set rustpath (rpath: string) {
     this[fields].rustpath = rpath
   }
 
-  async install (dir, url) {
+  async install (dir: string, url: string) {
     try {
       const tmpdir = tempy.directory()
       await this.download(tmpdir, url)
@@ -44,7 +44,7 @@ export default class PackageInstaller extends EventEmitter {
     }
   }
 
-  async download (dir, url) {
+  async download (dir: string, url: string) {
     this.emit('output', `Downloading ${url} ...\n`)
     const response = await axios({
       method: 'get',
@@ -65,7 +65,7 @@ export default class PackageInstaller extends EventEmitter {
     })
   }
 
-  async build (dir) {
+  async build (dir: string) {
     this.emit('output', 'Building package ...\n')
     const sep = (process.platform === 'win32')
       ? ';'
@@ -111,7 +111,7 @@ Visit https://www.rustup.rs/ for installation details.
     }
   }
 
-  async npm (dir) {
+  async npm (dir: string) {
     this.emit('output', 'Reading package.json ...\n')
     const pkg = fs.readJson(path.join(dir, 'package.json'))
     if (!objpath.has(pkg, 'dependencies') && !objpath.has(pkg, 'scripts')) {

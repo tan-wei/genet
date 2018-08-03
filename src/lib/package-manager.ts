@@ -1,6 +1,7 @@
 import { readJson, remove, ensureDir } from 'fs-extra'
 import ComponentFactory from './component-factory'
 import { EventEmitter } from 'events'
+import Logger from './logger'
 import env from './env'
 import genet from '@genet/api'
 import glob from 'glob'
@@ -36,7 +37,7 @@ async function readFile (filePath) {
 
 
 export default class PackageManager extends EventEmitter {
-  constructor (config, components, logger) {
+  constructor (config, components: string[], logger: Logger) {
     super()
     this[fields] = {
       config,
@@ -207,11 +208,11 @@ export default class PackageManager extends EventEmitter {
     return Array.from(this[fields].packages.values())
   }
 
-  get (id) {
+  get (id: string) {
     return this[fields].packages.get(id)
   }
 
-  enable (id) {
+  enable (id: string) {
     const { config } = this[fields]
     const disabledPackages = new Set(config.get('_.disabledPackages', []))
     if (disabledPackages.delete(id)) {
@@ -220,7 +221,7 @@ export default class PackageManager extends EventEmitter {
     }
   }
 
-  disable (id) {
+  disable (id: string) {
     const { config } = this[fields]
     const disabledPackages = new Set(config.get('_.disabledPackages', []))
     if (!disabledPackages.has(id)) {
@@ -230,7 +231,7 @@ export default class PackageManager extends EventEmitter {
     }
   }
 
-  async uninstall (id) {
+  async uninstall (id: string) {
     const pkg = this.get(id)
     if (typeof pkg !== 'undefined') {
       await remove(pkg.dir)

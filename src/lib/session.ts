@@ -47,21 +47,21 @@ export default class Session {
     })
   }
 
-  registerLayerRenderer (id, renderer) {
+  registerLayerRenderer (id: string, renderer) {
     this[fields].layerRenderers.set(id, renderer)
     return new Disposable(() => {
       this[fields].layerRenderers.delete(id)
     })
   }
 
-  registerAttrRenderer (id, renderer) {
+  registerAttrRenderer (id: string, renderer) {
     this[fields].attrRenderers.set(id, renderer)
     return new Disposable(() => {
       this[fields].attrRenderers.delete(id)
     })
   }
 
-  registerAttrMacro (id, macro) {
+  registerAttrMacro (id: string, macro) {
     this[fields].attrMacros.set(id, macro)
     return new Disposable(() => {
       this[fields].attrMacros.delete(id)
@@ -82,7 +82,7 @@ export default class Session {
     })
   }
 
-  registerLibrary (file) {
+  registerLibrary (file: string) {
     const filePath = path.normalize(file)
     this[fields].libs.add(filePath)
     return new Disposable(() => {
@@ -90,12 +90,12 @@ export default class Session {
     })
   }
 
-  tokenName (id) {
+  tokenName (id: string) {
     const data = this[fields].tokens.get(id)
     return objpath.get(data, 'name', titleCase(id.split('.').slice(-1)[0]))
   }
 
-  layerRenderer (id) {
+  layerRenderer (id: string) {
     const data = this[fields].layerRenderers.get(id)
     if (typeof data !== 'undefined') {
       return data
@@ -103,7 +103,7 @@ export default class Session {
     return null
   }
 
-  attrRenderer (id) {
+  attrRenderer (id: string) {
     const data = this[fields].attrRenderers.get(id)
     if (typeof data !== 'undefined') {
       return data
@@ -111,7 +111,7 @@ export default class Session {
     return null
   }
 
-  attrMacro (id) {
+  attrMacro (id: string) {
     const data = this[fields].attrMacros.get(id)
     if (typeof data !== 'undefined') {
       return data

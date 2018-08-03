@@ -10,7 +10,7 @@ import yaml from 'js-yaml'
 
 const fields = Symbol('fields')
 export default class Config {
-  constructor (profile, name) {
+  constructor (profile: string, name: string) {
     const filePath =
       path.join(env.userProfilePath, profile, `${name}.yml`)
     fs.ensureFileSync(filePath)

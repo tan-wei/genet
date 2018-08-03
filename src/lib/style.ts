@@ -6,7 +6,7 @@ import { promisify } from 'util'
 const fields = Symbol('fields')
 const readFile = promisify(fs.readFile)
 export default class Style {
-  constructor (scope = 'global') {
+  constructor (scope: string = 'global') {
     this[fields] = {
       themeStyle:
         fs.readFileSync(path.join(__dirname, 'theme.main.css'), 'utf8'),
@@ -16,28 +16,37 @@ export default class Style {
     }
   }
 
-  applyTheme (root) {
+  applyTheme (root: HTMLDocument) {
     const styleTag = document.createElement('style')
     styleTag.textContent = this[fields].themeStyle
-    root.querySelector('#theme-style').appendChild(styleTag)
+    const element = root.querySelector('#theme-style')
+    if (element) {
+      element.appendChild(styleTag)
+    }
     return new Disposable(() => {
       styleTag.remove()
     })
   }
 
-  applyCommon (root) {
+  applyCommon (root: HTMLDocument) {
     const styleTag = document.createElement('style')
     styleTag.textContent = this[fields].commonStyle
-    root.querySelector('#global-style').appendChild(styleTag)
+    const element = root.querySelector('#global-style')
+    if (element) {
+      element.appendChild(styleTag)
+    }
     return new Disposable(() => {
       styleTag.remove()
     })
   }
 
-  async applyCss (root, file) {
+  async applyCss (root: HTMLDocument, file: string) {
     const styleTag = document.createElement('style')
     styleTag.textContent = await readFile(file, 'utf8')
-    root.querySelector(`#${this[fields].scope}-style`).appendChild(styleTag)
+    const element = root.querySelector(`#${this[fields].scope}-style`)
+    if (element) {
+      element.appendChild(styleTag)
+    }
     return new Disposable(() => {
       styleTag.remove()
     })
