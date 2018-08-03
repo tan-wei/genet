@@ -4,15 +4,16 @@ import genet from '@genet/api'
 import m from 'mithril'
 
 export default class InputDialog {
-  constructor () {
+  private input: string
+  constructor() {
     this.input = ''
   }
 
-  update (vnode) {
+  update(vnode) {
     this.input = vnode.dom.querySelector('[name=input-id]').value
   }
 
-  view (vnode) {
+  view(vnode) {
     const { callback } = vnode.attrs
     const panels = genet.workspace.panelLayout['dialog:input'] || []
     const layout = flatten(panels).map((tab) => genet.workspace.panel(tab))
@@ -38,8 +39,8 @@ export default class InputDialog {
               : 'none',
           },
         }, [
-          m(PanelView, Object.assign(panel, { attrs: { callback } }))
-        ]))
+            m(PanelView, Object.assign(panel, { attrs: { callback } }))
+          ]))
       )])
   }
 }

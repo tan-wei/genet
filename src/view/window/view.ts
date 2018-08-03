@@ -1,4 +1,3 @@
-import { remote, ipcRenderer, shell } from 'electron'
 import Env from '../../lib/env'
 import { HSplitter } from '../../lib/splitter'
 import Menu from './menu'
@@ -7,12 +6,13 @@ import flatten from 'lodash.flatten'
 import genet from '@genet/api'
 import m from 'mithril'
 import path from 'path'
-
+const { remote, ipcRenderer, shell } = require('electron')
 const { dialog } = remote
+
 const windowId = remote.getCurrentWindow().id
 const fields = Symbol('fields')
 export default class WindowView {
-  constructor () {
+  constructor() {
     this[fields] = {
       tabs: [],
       systemTabs: [
@@ -40,20 +40,20 @@ export default class WindowView {
     }
   }
 
-  get tabs () {
+  get tabs() {
     const { tabs, systemTabs } = this[fields]
     return tabs.concat(systemTabs)
   }
 
-  get activeTab () {
+  get activeTab() {
     return this[fields].activeTab
   }
 
-  set activeTab (id) {
+  set activeTab(id) {
     this[fields].activeTab = id
   }
 
-  createPcapTab () {
+  createPcapTab() {
     const { counter } = this[fields]
     const number = counter
     this[fields].counter += 1
@@ -67,28 +67,32 @@ export default class WindowView {
     })
   }
 
-  addTab (tab) {
+  addTab(tab) {
     this[fields].tabs.push(tab)
     this[fields].activeTab = tab.id
     m.redraw()
   }
 
-  removeTab (id) {
+  removeTab(id) {
     this[fields].tabs = this[fields].tabs.filter((tab) => tab.id !== id)
   }
 
-  oncreate () {
+  oncreate() {
     ipcRenderer.on('core:menu:action', (event, channel) => {
-      document
-        .querySelector('webview[active]')
-        .getWebContents()
-        .send(`${channel} #${windowId}`)
+      const webview = document.querySelector('webview[active]') as any
+      if (webview !== null) {
+        webview.getWebContents()
+          .send(`${channel} #${windowId}`)
+      }
       remote
         .getCurrentWebContents()
         .send(`${channel} #${windowId}`)
     })
     genet.action.global.on('core:tab:open-devtool', () => {
-      document.querySelector('webview[active]').openDevTools()
+      const webview = document.querySelector('webview[active]') as any
+      if (webview !== null) {
+        webview.openDevTools()
+      }
     })
     genet.action.global.on('core:tab:new-pcap', () => {
       this.createPcapTab()
@@ -134,7 +138,7 @@ export default class WindowView {
     this.createPcapTab()
   }
 
-  view () {
+  view() {
     return [
       m(HSplitter, {
         left: Menu,

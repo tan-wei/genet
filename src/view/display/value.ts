@@ -1,12 +1,11 @@
-import { clipboard, remote } from 'electron'
 import fs from 'fs'
 import genet from '@genet/api'
 import m from 'mithril'
 import moment from 'moment'
-
+const { clipboard, remote } = require('electron')
 const { dialog } = remote
 class BooleanValueItem {
-  view (vnode) {
+  view(vnode) {
     const faClass = vnode.attrs.value
       ? 'fa-check-square-o'
       : 'fa-square-o'
@@ -20,14 +19,14 @@ class BooleanValueItem {
   }
 }
 class DateValueItem {
-  view (vnode) {
+  view(vnode) {
     const ts = moment(vnode.attrs.value)
     const tsString = ts.format('YYYY-MM-DDTHH:mm:ss.SSSZ')
     return m('span', [tsString])
   }
 }
 export class BufferValueItem {
-  view (vnode) {
+  view(vnode) {
     const maxLen = 6
     const buffer = Buffer.from(vnode.attrs.value)
     const hex = (
@@ -89,21 +88,21 @@ export class BufferValueItem {
   }
 }
 class ArrayValueItem {
-  view (vnode) {
+  view(vnode) {
     return m('ul', [vnode.attrs.value.map(
       (value) => m('li', [m(AttributeValueItem, { attr: { value } })]))])
   }
 }
 class ObjectValueItem {
-  view (vnode) {
+  view(vnode) {
     const obj = vnode.attrs.value
     return m('ul', [Object.keys(obj).map(
       (key) => m('li', [m('span', { class: 'label' }, [key]),
-        m(AttributeValueItem, { attr: { value: obj[key] } })]))])
+      m(AttributeValueItem, { attr: { value: obj[key] } })]))])
   }
 }
 class LayerValueItem {
-  view (vnode) {
+  view(vnode) {
     const layer = vnode.attrs.value
     if (layer.payloads.length) {
       return m('span', [' [', layer.id, '] Payloads '])
@@ -112,7 +111,7 @@ class LayerValueItem {
   }
 }
 export class AttributeValueItem {
-  view (vnode) {
+  view(vnode) {
     const { value } = vnode.attrs.attr
     if (value === null) {
       return m('span')

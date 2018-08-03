@@ -6,15 +6,16 @@ import path from 'path'
 import zlib from 'zlib'
 
 class LicenseInfo {
-  constructor () {
+  private license: any[] | null
+  constructor() {
     this.license = null
   }
 
-  oncreate () {
+  oncreate() {
     this.loadLicenseFile()
   }
 
-  view () {
+  view() {
     if (this.license === null) {
       return []
     }
@@ -27,7 +28,7 @@ class LicenseInfo {
     ]
   }
 
-  loadLicenseFile () {
+  loadLicenseFile() {
     const licenseFile =
       path.resolve(__dirname, '../../..',
         'genet_modules/src/asset/license.json.gz')
@@ -35,7 +36,7 @@ class LicenseInfo {
       if (!err) {
         zlib.gunzip(data, (gerr, json) => {
           if (!gerr) {
-            this.license = JSON.parse(json)
+            this.license = JSON.parse(json.toString("utf8"))
             m.redraw()
           }
         })
@@ -45,10 +46,12 @@ class LicenseInfo {
 }
 
 export default class Plugin {
-  constructor () {
+  private readonly version: string
+
+  constructor() {
     this.version = objpath.get(Env.genet, 'version', 'n/a')
   }
-  view (vnode) {
+  view(vnode) {
     const nodes = [
       m('h4', ['genet version']),
       m('span', [this.version])

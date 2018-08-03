@@ -2,7 +2,12 @@ import genet from '@genet/api'
 import m from 'mithril'
 
 export default class FrameHeader {
-  constructor () {
+  private index: number
+  private offset: number
+  private active: boolean
+  private labels: any[]
+  private viewState: any
+  constructor() {
     this.offset = 0
     this.active = false
     this.labels = [
@@ -17,15 +22,15 @@ export default class FrameHeader {
     this.labels.push({ name: 'Summary' })
   }
 
-  applyWidth () {
+  applyWidth() {
     this.active = false
   }
 
-  oninit (vnode) {
+  oninit(vnode) {
     this.viewState = vnode.attrs.viewState
   }
 
-  view () {
+  view() {
     const views = [m('div', {
       class: 'base',
       style: {

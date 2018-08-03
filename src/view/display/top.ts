@@ -10,11 +10,17 @@ import m from 'mithril'
 import path from 'path'
 import tempy from 'tempy'
 export default class TopView {
-  constructor () {
+  private sess: any
+  private displayFilter: string
+  private suggestMaxCount: number
+  private suggestEnabled: boolean
+  private suggestHint: string
+  private suggestIndex: number
+  private showReloadBalloon: boolean
+  private viewState: any
+  constructor() {
     this.sess = null
-    this.filtered = null
     this.displayFilter = ''
-    this.suggestMaxCount = 6
     this.suggestEnabled = false
     this.suggestHint = ''
     this.suggestIndex = -1
@@ -28,7 +34,7 @@ export default class TopView {
     }
   }
 
-  searchKeyPress (event) {
+  searchKeyPress(event) {
     switch (event.code) {
       case 'Enter':
         {
@@ -54,7 +60,7 @@ export default class TopView {
     }
   }
 
-  view () {
+  view() {
     this.viewState.counter = '0'
     if (this.sess) {
       const { status } = this.sess
@@ -72,20 +78,20 @@ export default class TopView {
               : 'none',
           },
         }, [
-          m('a', {
-            onclick: () => {
-              genet.action.global.emit('core:tab:reload')
-            },
-          }, [
-            'Reload to apply changed configurations'
+            m('a', {
+              onclick: () => {
+                genet.action.global.emit('core:tab:reload')
+              },
+            }, [
+                'Reload to apply changed configurations'
+              ]),
+            m('i', {
+              class: 'fa fa-close',
+              onclick: () => {
+                this.showReloadBalloon = false
+              },
+            })
           ]),
-          m('i', {
-            class: 'fa fa-close',
-            onclick: () => {
-              this.showReloadBalloon = false
-            },
-          })
-        ]),
         m('input', {
           type: 'text',
           placeholder: 'Display Filter',
@@ -122,7 +128,7 @@ export default class TopView {
     ]
   }
 
-  oncreate () {
+  oncreate() {
     genet.config.watch('', () => {
       if (!genet.config.get('_.package.noConfUpdated', false)) {
         this.showReloadBalloon = true
@@ -152,7 +158,7 @@ export default class TopView {
       }
       m.redraw()
     })
-    const filterInput = document.querySelector('input[name=display-filter]')
+    const filterInput = document.querySelector('input[name=display-filter]') as HTMLInputElement
     genet.action.on('core:filter:suggest:hint-selected', (hint, enter) => {
       filterInput.value = hint
       filterInput.selectionStart = filterInput.value.length
@@ -172,7 +178,10 @@ export default class TopView {
       outputDialog.show({ cancelable: true })
     })
     genet.action.global.on('core:pcap:focus-display-filter', () => {
-      document.querySelector('input[name=display-filter]').focus()
+      const input = document.querySelector('input[name=display-filter]')
+      if (input instanceof HTMLInputElement) {
+        input.focus()
+      }
     })
     genet.action.global.on('core:tab:reload', () => {
       let dump = Promise.resolve()
@@ -192,7 +201,7 @@ export default class TopView {
         if (value.length > 0) {
           const maxLength = 10
           const history =
-            [].concat(genet.workspace.get('_.filter.history', []))
+            [].concat(genet.workspace.get('_.filter.history', [])) as string[]
           history.push(value)
           const overflow = history.length - maxLength
           if (overflow > 0) {

@@ -66,7 +66,7 @@ export default class MainMenu {
     })
   }
 
-  showContextMenu(event: Event, menu = []) {
+  showContextMenu(event: Event, menu: any[] = []) {
     const { contextMenuTemplates } = this[fields]
     let contextMenu: any[] = []
     if (menu.length > 0) {

@@ -1,7 +1,7 @@
 import genet from '@genet/api'
 import m from 'mithril'
 export default class ButtonBoxView {
-  view (vnode) {
+  view(vnode) {
     const { pkg, install } = vnode.attrs
     if (pkg.archive) {
       return m('span', { class: 'button-box' }, [

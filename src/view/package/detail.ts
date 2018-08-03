@@ -6,15 +6,13 @@ import genet from '@genet/api'
 import m from 'mithril'
 import path from 'path'
 
-let installerCallback = null
-async function install (pkg) {
+let installerCallback: (any) => void = () => { }
+async function install(pkg) {
   const shortName = pkg.id
   const installer = new Installer()
   installer.rustpath = genet.config.get('_.package.rustpath', '')
   installer.on('output', (chunk) => {
-    if (installerCallback !== null) {
-      installerCallback(chunk)
-    }
+    installerCallback(chunk)
   })
   try {
     await installer.install(
@@ -36,22 +34,23 @@ async function install (pkg) {
 }
 
 export default class DetailView {
-  constructor () {
+  private output: any
+  constructor() {
     this.output = {}
   }
 
-  view (vnode) {
+  view(vnode) {
     const { pkg } = vnode.attrs
     if (pkg === null) {
       return m('p', ['No package selected'])
     }
 
     const config = Object.entries(genet.config.schema)
-      .filter(([id]) => id.startsWith(`${pkg.id}.`))
+      .filter(([id]) => id.startsWith(`${pkg.id}.`)) as [string, any][]
     return m('article', [
       m('h1', { disabled: pkg.disabled || pkg.incompatible }, [pkg.data.name,
-        m('span', { class: 'version' },
-          [pkg.data.version])]),
+      m('span', { class: 'version' },
+        [pkg.data.version])]),
       m('p', [pkg.data.description]),
       m('p', {
         style: {
@@ -61,10 +60,10 @@ export default class DetailView {
             : 'none',
         },
       }, [
-        'This package is incompatible with the running genet version.',
-        m('br'),
-        `Required genet Version: ${pkg.data.engines.genet}`
-      ]),
+          'This package is incompatible with the running genet version.',
+          m('br'),
+          `Required genet Version: ${pkg.data.engines.genet}`
+        ]),
       m(ButtonBoxView, {
         pkg,
         install,
@@ -84,7 +83,7 @@ export default class DetailView {
     ])
   }
 
-  onupdate (vnode) {
+  onupdate(vnode) {
     const { pkg } = vnode.attrs
     if (pkg !== null) {
       installerCallback = (chunk) => {

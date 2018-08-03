@@ -5,7 +5,7 @@ import TopView from './top'
 import m from 'mithril'
 
 class MainView {
-  view () {
+  view() {
     return m('main', [
       m(HSplitter, {
         right: PcapDetailView,
@@ -19,7 +19,7 @@ class MainView {
 }
 
 export default class PcapView {
-  view () {
+  view() {
     return [
       m(VSplitter, {
         top: TopView,

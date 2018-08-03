@@ -3,11 +3,12 @@ import genet from '@genet/api'
 import m from 'mithril'
 
 export default class TabView {
-  oncreate () {
+  private activeTab: string
+  oncreate() {
     this.activeTab = genet.workspace.get('_.pcap.activeTab', '')
   }
 
-  view (vnode) {
+  view(vnode) {
     const { tabs, attrs } = vnode.attrs
 
     const tabOrders = genet.workspace.get('_.pcap.tabOrders', [])
@@ -39,7 +40,7 @@ export default class TabView {
 
     const panels = tabs.map((tab) => genet.workspace.panel(tab))
       .filter((panel) => typeof panel !== 'undefined')
-    return ('div', [
+    return m('div', [
       m('div', { class: 'tab-container' }, panels.map((panel) =>
         m('span', {
           active: panel.id === this.activeTab,
@@ -53,12 +54,12 @@ export default class TabView {
           class: 'panel-wrapper',
           active: panel.id === this.activeTab,
         }, [
-          m(PanelView, Object.assign(panel,
-            {
-              active: panel.id === this.activeTab,
-              attrs,
-            }))
-        ])))
+            m(PanelView, Object.assign(panel,
+              {
+                active: panel.id === this.activeTab,
+                attrs,
+              }))
+          ])))
     ])
   }
 }

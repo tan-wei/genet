@@ -4,19 +4,19 @@ import m from 'mithril'
 import marked from 'marked'
 
 class Markdown {
-  view () {
+  view() {
     return m('p', { class: 'description' })
   }
 
-  oncreate (vnode) {
+  oncreate(vnode) {
     vnode.dom.innerHTML = marked(vnode.attrs.content)
   }
 }
 
 export default class ConfigList {
-  view (vnode) {
+  view(vnode) {
     const config = Object.entries(genet.config.schema)
-      .filter(([id]) => id.startsWith(vnode.attrs.prefix))
+      .filter(([id]) => id.startsWith(vnode.attrs.prefix)) as [string, any][]
     return [
       m('div',
         config.map(([id, schema]) => m('section', [
@@ -30,7 +30,7 @@ export default class ConfigList {
     ]
   }
 
-  oncreate () {
+  oncreate() {
     genet.config.watch('_', () => {
       m.redraw()
     })

@@ -6,7 +6,8 @@ import parseColor from 'parse-color'
 import throttle from 'lodash.throttle'
 
 class FrameView {
-  view (vnode) {
+  private frame: any
+  view(vnode) {
     const { viewState, key } = vnode.attrs
     if (!this.frame) {
       const { sess } = vnode.attrs;
@@ -52,13 +53,24 @@ class FrameView {
         genet.action.emit('core:frame:selected', this.frame)
       },
     }, [
-      m('div', { class: 'header' }, columns)
-    ])
+        m('div', { class: 'header' }, columns)
+      ])
   }
 }
 
 export default class FrameListView {
-  constructor () {
+  private itemHeight: number
+  private height: number
+  private scrollTop: number
+  private prevFrames: number
+  private mapHeight: number
+  private columns: any[]
+  private dummyItem: HTMLElement
+  private barStyle: HTMLElement
+  private readonly mapHeader: number[]
+  private readonly mapBuffer: Buffer
+  private readonly updateMapThrottle: (any) => void
+  constructor() {
     this.itemHeight = 30
     this.height = 0
     this.scrollTop = 0
@@ -83,7 +95,7 @@ export default class FrameListView {
     }
   }
 
-  updateMap (vnode) {
+  updateMap(vnode) {
     const { sess } = vnode.attrs
     const { status } = sess
     if (sess && status.frames > 0 && this.dummyItem) {
@@ -116,7 +128,7 @@ export default class FrameListView {
     }
   }
 
-  view (vnode) {
+  view(vnode) {
     const { status } = vnode.attrs.sess
     const frames = status.filters.main
       ? status.filters.main.frames
@@ -162,7 +174,7 @@ export default class FrameListView {
     ])
   }
 
-  onupdate (vnode) {
+  onupdate(vnode) {
     const { sess, viewState } = vnode.attrs
     const { status } = sess
     const frames = status.filters.main
@@ -177,11 +189,11 @@ export default class FrameListView {
     }
   }
 
-  oncreate (vnode) {
+  oncreate(vnode) {
     this.dummyItem = vnode.dom.parentNode.querySelector('.dummy-item')
     this.barStyle = vnode.dom.parentNode.querySelector('.scrollbar-style')
 
-    const resizeObserver = new ResizeObserver((entries) => {
+    const resizeObserver = new (window as any).ResizeObserver((entries) => {
       for (const entry of entries) {
         if (entry.target === vnode.dom) {
           this.height = entry.contentRect.height
@@ -216,8 +228,8 @@ export default class FrameListView {
           const result = frame.query(col.value)
           let renderer = AttributeValueItem
           if (result !== null &&
-              typeof result === 'object' &&
-              result.constructor.name === 'Attr') {
+            typeof result === 'object' &&
+            result.constructor.name === 'Attr') {
             renderer = genet.session.attrRenderer(result.type) || renderer
             return m(renderer, { attr: result })
           }

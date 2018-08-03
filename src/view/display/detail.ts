@@ -6,13 +6,13 @@ import genet from '@genet/api'
 import m from 'mithril'
 import moment from 'moment'
 
-let selectedLayer = null
-function selectRange (range = null) {
+let selectedLayer: any = null
+function selectRange(range: any = null) {
   genet.action.emit('core:frame:range-selected', range)
 }
 
-function mergeOrphanedItems (item) {
-  const newChildren = []
+function mergeOrphanedItems(item) {
+  const newChildren: any[] = []
   for (const child of item.children) {
     if (child.attr) {
       newChildren.push(child)
@@ -26,7 +26,7 @@ function mergeOrphanedItems (item) {
 }
 
 class LayerItem {
-  view (vnode) {
+  view(vnode) {
     const { layer } = vnode.attrs
     const addr = Number.parseInt(ByteSlice.address(layer.data), 10)
     const name = genet.session.tokenName(layer.id)
@@ -58,7 +58,7 @@ class LayerItem {
       }
       const attrPath = id.split('.')
       let items = attrArray
-      let child = null
+      let child: any = null
       for (let index = 0; index < attrPath.length; index += 1) {
         const key = attrPath[index]
         if (index < attrPath.length - 1 || prevDepth < attrPath.length) {
@@ -116,26 +116,26 @@ class LayerItem {
               ])
             },
           }, [
-            m('i', { class: 'fa fa-arrow-circle-right' }, [' ']),
-            m('i', { class: 'fa fa-arrow-circle-down' }, [' ']),
-            m('span', {
-              class: 'protocol',
-              'data-layer': layer.id,
-            }, [
-              name
-            ]),
-            m(renderer, { layer }),
-            m('span', {
-              style: {
-                display: layer.streamId > 0
-                  ? 'inline'
-                  : 'none',
+              m('i', { class: 'fa fa-arrow-circle-right' }, [' ']),
+              m('i', { class: 'fa fa-arrow-circle-down' }, [' ']),
+              m('span', {
+                class: 'protocol',
+                'data-layer': layer.id,
+              }, [
+                  name
+                ]),
+              m(renderer, { layer }),
+              m('span', {
+                style: {
+                  display: layer.streamId > 0
+                    ? 'inline'
+                    : 'none',
+                },
               },
-            },
-            [
-              m('i', { class: 'fa fa-exchange' }),
-              ' Stream #', layer.streamId])
-          ]),
+                [
+                  m('i', { class: 'fa fa-exchange' }),
+                  ' Stream #', layer.streamId])
+            ]),
           mergeOrphanedItems(attrArray[0]).children
             .filter((item) => item.attr)
             .map((item) =>
@@ -152,16 +152,16 @@ class LayerItem {
                 }),
                 onmouseout: () => selectRange(),
               }, [
-                m('detail', [
-                  m('summary', [
-                    m('span', [
-                      ' ',
-                      m(BufferValueItem, { value: Buffer.from(payload.data) }),
-                      ' : ', payload.id, ' ', payload.type, ' '
+                  m('detail', [
+                    m('summary', [
+                      m('span', [
+                        ' ',
+                        m(BufferValueItem, { value: Buffer.from(payload.data) }),
+                        ' : ', payload.id, ' ', payload.type, ' '
+                      ])
                     ])
                   ])
-                ])
-              ]))
+                ]))
           ])
         ])
       ]),
@@ -175,12 +175,14 @@ class LayerItem {
 }
 
 export default class PcapDetailView {
-  constructor () {
+  private selectedFrame: any
+  private displayFilter: any
+  constructor() {
     this.selectedFrame = null
     this.displayFilter = null
   }
 
-  oncreate () {
+  oncreate() {
     genet.action.on('core:frame:selected', (frame) => {
       this.selectedFrame = frame
       selectedLayer = frame
@@ -195,7 +197,7 @@ export default class PcapDetailView {
     })
   }
 
-  view () {
+  view() {
     if (this.selectedFrame === null) {
       return m('div', { class: 'detail-view' }, ['No frame selected'])
     }

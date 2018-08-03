@@ -1,7 +1,7 @@
 import m from 'mithril'
 
 export default class ToolBar {
-  view (vnode) {
+  view(vnode) {
     const { viewState, sess } = vnode.attrs
     return m('div', { class: 'toolbar' }, [
       m('span', {
@@ -19,12 +19,12 @@ export default class ToolBar {
           viewState.capture = !viewState.capture
         },
       }, [
-        m('i', {
-          class: viewState.capture
-            ? 'fa fa-play-circle'
-            : 'fa fa-pause-circle',
-        })
-      ]),
+          m('i', {
+            class: viewState.capture
+              ? 'fa fa-play-circle'
+              : 'fa fa-pause-circle',
+          })
+        ]),
       m('span', {
         class: 'button',
         'data-balloon': `Scroll ${viewState.scrollLock
@@ -35,12 +35,12 @@ export default class ToolBar {
           viewState.scrollLock = !viewState.scrollLock
         },
       }, [
-        m('i', {
-          class: viewState.scrollLock
-            ? 'fa fa-lock'
-            : 'fa fa-unlock-alt',
-        })
-      ]),
+          m('i', {
+            class: viewState.scrollLock
+              ? 'fa fa-lock'
+              : 'fa fa-unlock-alt',
+          })
+        ]),
       m('span', {
         'data-balloon': 'Frame Counter',
         'data-balloon-pos': 'right',

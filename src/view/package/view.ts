@@ -3,17 +3,18 @@ import genet from '@genet/api'
 import m from 'mithril'
 
 export default class PackageView {
-  constructor () {
+  private selectedLocalPackage: string
+  constructor() {
     this.selectedLocalPackage = ''
   }
 
-  oncreate () {
+  oncreate() {
     genet.packages.on('updated', () => {
       m.redraw()
     })
   }
 
-  view () {
+  view() {
     if (genet.packages.list.map((pkg) => pkg.id)
       .indexOf(this.selectedLocalPackage) < 0) {
       if (genet.packages.list.length > 0) {
@@ -39,11 +40,11 @@ export default class PackageView {
                   this.selectedLocalPackage = pkg.id
                 },
               }, [
-                m('h4', { disabled: pkg.disabled || pkg.incompatible }, [
-                  pkg.data.name
-                ]),
-                m('span', [pkg.data.description])
-              ])])))
+                  m('h4', { disabled: pkg.disabled || pkg.incompatible }, [
+                    pkg.data.name
+                  ]),
+                  m('span', [pkg.data.description])
+                ])])))
         ])
       ]),
       m('main', [m(DetailView, { pkg: selectedPackage })]),

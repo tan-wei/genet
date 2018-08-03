@@ -3,7 +3,7 @@ import flatten from 'lodash.flatten'
 import genet from '@genet/api'
 import m from 'mithril'
 
-function parseRange (exp) {
+function parseRange(exp) {
   const ranges = exp
     .trim()
     .split(',')
@@ -28,7 +28,7 @@ function parseRange (exp) {
     })
     .filter((range) => range !== null)
   ranges.sort((lhs, rhs) => lhs[0] - rhs[0])
-  const merged = []
+  const merged: [number, number][] = []
   for (const range of ranges) {
     const last = merged[merged.length - 1]
     if (last && last[1] >= range[0]) {
@@ -52,26 +52,29 @@ function parseRange (exp) {
 }
 
 export default class OutputDialog {
-  constructor () {
+  private filter: string
+  private output: string
+  private mode: string
+  constructor() {
     this.filter = ''
     this.output = ''
     this.mode = genet.workspace.get('_.pcap.exporter.mode', 'all')
   }
 
-  oncreate (vnode) {
+  oncreate(vnode) {
     vnode.dom.querySelector('select[name=filter-type]').value = this.mode
     vnode.dom.querySelector(
       'input[type=text][name=range]').value =
-        genet.workspace.get('_.pcap.exporter.range', '')
+      genet.workspace.get('_.pcap.exporter.range', '')
     vnode.dom.querySelector(
       'input[type=text][name=filter]').value =
-        genet.workspace.get('_.pcap.exporter.filter', '')
+      genet.workspace.get('_.pcap.exporter.filter', '')
     process.nextTick(() => {
       this.update(vnode)
     })
   }
 
-  update (vnode) {
+  update(vnode) {
     this.output = vnode.dom.querySelector('select[name=output-id]').value
     this.mode = vnode.dom.querySelector('select[name=filter-type]').value
 
@@ -107,7 +110,7 @@ export default class OutputDialog {
     })
   }
 
-  view (vnode) {
+  view(vnode) {
     const { callback } = vnode.attrs
     const panels = genet.workspace.panelLayout['dialog:output'] || []
     const layout = flatten(panels).map((tab) => genet.workspace.panel(tab))
@@ -123,44 +126,44 @@ export default class OutputDialog {
             name: 'filter-type',
             onchange: () => this.update(vnode),
           }, [
-            m('option', { value: 'all' }, ['All Frames']),
-            m('option', { value: 'visible' }, ['Visible Frames']),
-            m('option', { value: 'checked' },
-              [`Checked Frames (${vnode.attrs.checkedFrames.size})`]),
-            m('option', { value: 'range' }, ['Index Range']),
-            m('option', { value: 'filter' }, ['Custom Filter'])
-          ])
+              m('option', { value: 'all' }, ['All Frames']),
+              m('option', { value: 'visible' }, ['Visible Frames']),
+              m('option', { value: 'checked' },
+                [`Checked Frames (${vnode.attrs.checkedFrames.size})`]),
+              m('option', { value: 'range' }, ['Index Range']),
+              m('option', { value: 'filter' }, ['Custom Filter'])
+            ])
         ]),
         m('li', {
           style: {
             display:
-            this.mode === 'range'
-              ? 'block'
-              : 'none',
+              this.mode === 'range'
+                ? 'block'
+                : 'none',
           },
         }, [
-          m('input', {
-            type: 'text',
-            name: 'range',
-            placeholder: 'e.g. 0-20, 51, 60-',
-            onchange: () => this.update(vnode),
-          })
-        ]),
+            m('input', {
+              type: 'text',
+              name: 'range',
+              placeholder: 'e.g. 0-20, 51, 60-',
+              onchange: () => this.update(vnode),
+            })
+          ]),
         m('li', {
           style: {
             display:
-            this.mode === 'filter'
-              ? 'block'
-              : 'none',
+              this.mode === 'filter'
+                ? 'block'
+                : 'none',
           },
         }, [
-          m('input', {
-            type: 'text',
-            name: 'filter',
-            placeholder: 'e.g. tcp.flags.ack',
-            onchange: () => this.update(vnode),
-          })
-        ]),
+            m('input', {
+              type: 'text',
+              name: 'filter',
+              placeholder: 'e.g. tcp.flags.ack',
+              onchange: () => this.update(vnode),
+            })
+          ]),
         m('li', [
           m('select', {
             name: 'output-id',
@@ -177,27 +180,27 @@ export default class OutputDialog {
               : 'none',
           },
         }, [
-          m(PanelView, Object.assign(panel, {
-            attrs: {
-              callback: (id, options) => {
-                vnode.attrs.sess.createWriter(id, options, this.filter)
-                  .then(() => {
-                    genet.notify.show(options.file || '', {
-                      type: 'sussess',
-                      title: 'Exported',
+            m(PanelView, Object.assign(panel, {
+              attrs: {
+                callback: (id, options) => {
+                  vnode.attrs.sess.createWriter(id, options, this.filter)
+                    .then(() => {
+                      genet.notify.show(options.file || '', {
+                        type: 'sussess',
+                        title: 'Exported',
+                      })
                     })
-                  })
-                  .catch((err) => {
-                    genet.notify.show(`${options.file || ''}\n${err.message}`, {
-                      type: 'error',
-                      title: 'Error',
+                    .catch((err) => {
+                      genet.notify.show(`${options.file || ''}\n${err.message}`, {
+                        type: 'error',
+                        title: 'Error',
+                      })
                     })
-                  })
-                callback()
+                  callback()
+                },
               },
-            },
-          }))
-        ]))
+            }))
+          ]))
       )])
   }
 }

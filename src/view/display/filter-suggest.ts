@@ -4,7 +4,12 @@ import genet from '@genet/api'
 import m from 'mithril'
 
 export default class FilterSuggest {
-  constructor () {
+  private items: any[]
+  private hint: string
+  private index: number
+  private locked: number
+  private update: () => void
+  constructor() {
     this.items = []
     this.hint = ''
     this.index = -1
@@ -26,7 +31,7 @@ export default class FilterSuggest {
     }, 200)
   }
 
-  oncreate () {
+  oncreate() {
     genet.action.on('core:filter:suggest:next', () => {
       this.locked = 1
       if (this.index < 0) {
@@ -50,16 +55,16 @@ export default class FilterSuggest {
     })
   }
 
-  updateCursor (enter = false) {
+  updateCursor(enter = false) {
     this.locked = 2
     this.hint = this.items[this.index].id
     genet.action.emit('core:filter:suggest:hint-selected', this.hint, enter)
   }
 
-  view (vnode) {
+  view(vnode) {
     const { enabled, hint } = vnode.attrs
     if (this.items.length === 0 ||
-        !this.items.some((item) => item.id === hint)) {
+      !this.items.some((item) => item.id === hint)) {
       if (this.locked > 0) {
         this.locked -= 1
       }
@@ -80,18 +85,18 @@ export default class FilterSuggest {
           : 'none',
       },
     }, [
-      m('ul', this.items.map(({ id, item }, index) => m('li',
-        {
-          active: index === this.index,
-          onmousedown: (event) => {
-            this.index = index
-            this.updateCursor(true)
-            event.preventDefault()
-          },
-        }, [
-          id,
-          m('span', { class: 'description' }, [item.name])
-        ])))
-    ])
+        m('ul', this.items.map(({ id, item }, index) => m('li',
+          {
+            active: index === this.index,
+            onmousedown: (event) => {
+              this.index = index
+              this.updateCursor(true)
+              event.preventDefault()
+            },
+          }, [
+            id,
+            m('span', { class: 'description' }, [item.name])
+          ])))
+      ])
   }
 }

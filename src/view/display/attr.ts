@@ -3,11 +3,11 @@ import { ByteSlice } from '@genet/load-module'
 import genet from '@genet/api'
 import m from 'mithril'
 
-function selectRange (range = null) {
+function selectRange(range: any = null) {
   genet.action.emit('core:frame:range-selected', range)
 }
 
-function filterExpression (attr) {
+function filterExpression(attr) {
   const macro = genet.session.attrMacro(attr.type)
   if (macro !== null) {
     const exp = macro(attr)
@@ -26,7 +26,7 @@ function filterExpression (attr) {
 }
 
 export default class AttributeItem {
-  view (vnode) {
+  view(vnode) {
     const { item, layer } = vnode.attrs
     const { attr, children } = item
     const addr = Number.parseInt(ByteSlice.address(layer.data), 10)
@@ -65,17 +65,17 @@ export default class AttributeItem {
             ])
           },
         }, [
-          m('span', { class: 'label' }, [
-            m('i', { class: 'fa fa-circle-o' }, [' ']),
-            m('i', { class: 'fa fa-arrow-circle-right' }, [' ']),
-            m('i', { class: 'fa fa-arrow-circle-down' }, [' ']),
-            name
+            m('span', { class: 'label' }, [
+              m('i', { class: 'fa fa-circle-o' }, [' ']),
+              m('i', { class: 'fa fa-arrow-circle-right' }, [' ']),
+              m('i', { class: 'fa fa-arrow-circle-down' }, [' ']),
+              name
+            ]),
+            m(attrRenderer, {
+              attr,
+              layer: vnode.attrs.layer,
+            })
           ]),
-          m(attrRenderer, {
-            attr,
-            layer: vnode.attrs.layer,
-          })
-        ]),
         m('ul', [
           children.map((child) => m(AttributeItem, {
             item: child,

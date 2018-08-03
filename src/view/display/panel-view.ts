@@ -1,12 +1,13 @@
 import Style from '../../lib/style'
 import m from 'mithril'
-import { shell } from 'electron'
+const { shell } = require('electron')
 
 export default class PanelView {
-  view () {
+  private container: HTMLElement
+  view() {
     return m('div')
   }
-  oncreate (vnode) {
+  oncreate(vnode) {
     const { attrs } = vnode.attrs
     this.container = document.createElement('div')
     this.container.classList.add('panel')
@@ -24,7 +25,7 @@ export default class PanelView {
       return false
     }, false)
 
-    container.addEventListener('click', (event) => {
+    container.addEventListener('click', (event: any) => {
       const isUrl = (/^https?:\/\//).test(event.target.href)
       if (event.target.tagName === 'A' && isUrl) {
         event.preventDefault()
@@ -34,7 +35,7 @@ export default class PanelView {
     })
 
     m.mount(container, {
-      view () {
+      view() {
         return m(vnode.attrs.component, attrs)
       },
     })
@@ -53,7 +54,7 @@ export default class PanelView {
     loader.applyCommon(node)
     vnode.dom.appendChild(this.container)
   }
-  onbeforeremove () {
+  onbeforeremove() {
     this.container.remove()
   }
 }

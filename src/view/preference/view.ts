@@ -4,7 +4,10 @@ import Version from './version'
 import m from 'mithril'
 
 export default class PrefernceView {
-  constructor () {
+  private activeTab: string
+  private tabs: any[]
+
+  constructor() {
     this.tabs = [{
       name: 'Pcap',
       component: General,
@@ -27,7 +30,7 @@ export default class PrefernceView {
     this.activeTab = 'Pcap'
   }
 
-  view () {
+  view() {
     return [
       m('nav', [
         m('ul', this.tabs.map((item) => m('li', [
