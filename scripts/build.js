@@ -1,9 +1,6 @@
 #!/usr/bin/env node
 
 const { spawnSync } = require('child_process')
-const runAsNode = require('./run-as-node')
-
-let building = false
 
 function run(cmd, ...args) {
   return spawnSync(cmd, args, {
@@ -11,13 +8,10 @@ function run(cmd, ...args) {
   })
 }
 
-function build() {
-  if (building) return
-  building = true
-  runAsNode('scripts/generate-version-file.js')
-  run('node', 'scripts/build-src.js')
-  run('node', 'scripts/build-lib.js')
-  run('node', 'scripts/build-rust-packages.js')
-}
+run('node', 'scripts/build-src.js')
+run('node', 'scripts/build-lib.js')
+run('node', 'scripts/build-rust-packages.js')
 
-build()
+if (process.env.NODE_ENV === 'production') {
+  run('node', 'scripts/generate-license-json.js')
+}

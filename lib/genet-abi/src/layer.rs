@@ -365,9 +365,10 @@ extern "C" fn abi_add_payload(layer: *mut Layer, payload: Payload) {
 
 #[cfg(test)]
 mod tests {
-    use attr::Attr;
+    use attr::{Attr, AttrClass};
     use decoder::Decoder;
-    use layer::Layer;
+    use fixed::Fixed;
+    use layer::{Layer, LayerClass, Payload};
     use slice::ByteSlice;
     use std::io::Result;
     use token::Token;
@@ -376,23 +377,23 @@ mod tests {
     #[test]
     fn id() {
         let id = Token::from(123);
-        let class = LayerClass::builder(id).build();
-        let layer = Layer::new(&class, ByteSlice::new());
+        let class = Fixed::new(LayerClass::builder(id).build());
+        let layer = Layer::new(class, ByteSlice::new());
         assert_eq!(layer.id(), id);
     }
 
     #[test]
     fn data() {
         let data = b"hello";
-        let class = LayerClass::builder(Token::null()).build();
-        let layer = Layer::new(&class, ByteSlice::from(&data[..]));
+        let class = Fixed::new(LayerClass::builder(Token::null()).build());
+        let layer = Layer::new(class, ByteSlice::from(&data[..]));
         assert_eq!(layer.data(), ByteSlice::from(&data[..]));
     }
 
     #[test]
     fn payloads() {
-        let class = LayerClass::builder(Token::null()).build();
-        let mut layer = Layer::new(&class, ByteSlice::new());
+        let class = Fixed::new(LayerClass::builder(Token::null()).build());
+        let mut layer = Layer::new(class, ByteSlice::new());
         assert!(layer.payloads().iter().next().is_none());
 
         let count = 100;
@@ -413,8 +414,8 @@ mod tests {
 
     #[test]
     fn attrs() {
-        let class = LayerClass::builder(Token::null()).build();
-        let mut layer = Layer::new(&class, ByteSlice::new());
+        let class = Fixed::new(LayerClass::builder(Token::null()).build());
+        let mut layer = Layer::new(class, ByteSlice::new());
         assert!(layer.attrs().is_empty());
 
         #[derive(Clone)]
@@ -425,14 +426,16 @@ mod tests {
                 Ok(Variant::Nil)
             }
         }
-        let class = AttrClass::builder("nil")
-            .typ("@nil")
-            .decoder(TestDecoder {})
-            .build();
+        let class = Fixed::new(
+            AttrClass::builder("nil")
+                .typ("@nil")
+                .decoder(TestDecoder {})
+                .build(),
+        );
 
         let count = 100;
         for i in 0..count {
-            let attr = Attr::new(&class, 0..i);
+            let attr = Attr::new(class.clone(), 0..i);
             layer.add_attr(attr);
         }
         let mut iter = layer.attrs().iter();

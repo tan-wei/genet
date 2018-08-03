@@ -6,12 +6,11 @@
 /// Returns a token corresponded with the given string.
 ///
 /// # Examples
-///
 /// ```
-/// #[macro_use]
-/// use genet_sdk::token;
-///
+/// # #[macro_use] extern crate genet_sdk;
+/// # fn main() {
 /// let tk = token!("tcp");
+/// # }
 /// ```
 #[macro_export]
 macro_rules! token {

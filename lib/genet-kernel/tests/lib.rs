@@ -1,9 +1,7 @@
 extern crate genet_abi;
 extern crate genet_kernel;
 extern crate libloading;
-mod data;
 
-#[macro_use]
 extern crate genet_sdk;
 
 use genet_kernel::{
@@ -35,13 +33,28 @@ fn session() {
         .to_path_buf()
         .join("../examples");
 
-    profile
-        .load_library(libdir.join("libeth.dylib").to_str().unwrap())
-        .expect("failed to load dylib");
-
-    profile
-        .load_library(libdir.join("libreader.dylib").to_str().unwrap())
-        .expect("failed to load dylib");
+    if cfg!(target_os = "macos") {
+        profile
+            .load_library(libdir.join("libeth.dylib").to_str().unwrap())
+            .expect("failed to load dylib");
+        profile
+            .load_library(libdir.join("libreader.dylib").to_str().unwrap())
+            .expect("failed to load dylib");
+    } else if cfg!(target_os = "linux") {
+        profile
+            .load_library(libdir.join("libeth.so").to_str().unwrap())
+            .expect("failed to load dylib");
+        profile
+            .load_library(libdir.join("libreader.so").to_str().unwrap())
+            .expect("failed to load dylib");
+    } else if cfg!(target_os = "windows") {
+        profile
+            .load_library(libdir.join("eth.dll").to_str().unwrap())
+            .expect("failed to load dylib");
+        profile
+            .load_library(libdir.join("reader.dll").to_str().unwrap())
+            .expect("failed to load dylib");
+    }
 
     let mut session = Session::new(profile, SessionCallback {});
 

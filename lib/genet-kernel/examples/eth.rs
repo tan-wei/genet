@@ -21,19 +21,17 @@ impl Worker for EthWorker {
     ) -> Result<Status> {
         if parent.id() == token!("[link-1]") {
             let mut layer = Layer::new(&ETH_CLASS, parent.data());
-            let len_attr = Attr::new(&LEN_ATTR, 12..14);
-            let typ_attr = Attr::new(&TYPE_ATTR, 12..14);
-            let len = len_attr.try_get(&layer)?.try_into()?;
+            let len = LEN_ATTR_HEADER.try_get(&layer)?.try_into()?;
             if len <= 1500 {
-                layer.add_attr(len_attr);
+                layer.add_attr(&LEN_ATTR_HEADER);
             } else {
-                layer.add_attr(typ_attr);
+                layer.add_attr(&TYPE_ATTR_HEADER);
             }
-            if let Some(attr) = TYPE_MAP.get(&len) {
+            if let Some((typ, attr)) = TYPE_MAP.get(&len) {
                 layer.add_attr(Attr::new(attr, 12..14));
+                let payload = parent.data().try_get(14..)?;
+                layer.add_payload(Payload::new(payload, typ));
             }
-            let payload = parent.data().try_get(14..)?;
-            layer.add_payload(Payload::new(payload, ""));
             Ok(Status::Done(vec![layer]))
         } else {
             Ok(Status::Skip)
@@ -55,33 +53,35 @@ impl Dissector for EthDissector {
 }
 
 lazy_static! {
-    static ref ETH_CLASS: Fixed<LayerClass> = LayerClass::builder("eth")
+    static ref ETH_CLASS: LayerClass = LayerClass::builder("eth")
         .alias("_.src", "eth.src")
         .alias("_.dst", "eth.dst")
         .header(Attr::new(&SRC_ATTR, 0..6))
         .header(Attr::new(&DST_ATTR, 6..12))
         .build();
-    static ref SRC_ATTR: Fixed<AttrClass> = AttrClass::builder("eth.src")
+    static ref SRC_ATTR: AttrClass = AttrClass::builder("eth.src")
         .typ("@eth:mac")
         .decoder(decoder::ByteSlice())
         .build();
-    static ref DST_ATTR: Fixed<AttrClass> = AttrClass::builder("eth.dst")
+    static ref DST_ATTR: AttrClass = AttrClass::builder("eth.dst")
         .typ("@eth:mac")
         .decoder(decoder::ByteSlice())
         .build();
-    static ref LEN_ATTR: Fixed<AttrClass> = AttrClass::builder("eth.len")
+    static ref LEN_ATTR: AttrClass = AttrClass::builder("eth.len")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref TYPE_ATTR: Fixed<AttrClass> = AttrClass::builder("eth.type")
+    static ref TYPE_ATTR: AttrClass = AttrClass::builder("eth.type")
         .typ("@enum")
         .decoder(decoder::UInt16BE())
         .build();
-    static ref TYPE_MAP: HashMap<u64, Fixed<AttrClass>> = hashmap!{
-        0x0800 => AttrClass::builder("eth.type.ipv4").decoder(decoder::Const(true)).build(),
-        0x0806 => AttrClass::builder("eth.type.arp").decoder(decoder::Const(true)).build(),
-        0x0842 => AttrClass::builder("eth.type.wol").decoder(decoder::Const(true)).build(),
-        0x86DD => AttrClass::builder("eth.type.ipv6").decoder(decoder::Const(true)).build(),
-        0x888E => AttrClass::builder("eth.type.eap").decoder(decoder::Const(true)).build(),
+    static ref LEN_ATTR_HEADER: Attr = Attr::new(&LEN_ATTR, 12..14);
+    static ref TYPE_ATTR_HEADER: Attr = Attr::new(&TYPE_ATTR, 12..14);
+    static ref TYPE_MAP: HashMap<u64, (Token, AttrClass)> = hashmap!{
+        0x0800 => (token!("@data:ipv4"), AttrClass::builder("eth.type.ipv4").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x0806 => (token!("@data:arp"), AttrClass::builder("eth.type.arp").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x0842 => (token!("@data:wol"), AttrClass::builder("eth.type.wol").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x86DD => (token!("@data:ipv6"), AttrClass::builder("eth.type.ipv6").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x888E => (token!("@data:eap"), AttrClass::builder("eth.type.eap").typ("@novalue").decoder(decoder::Const(true)).build()),
     };
 }
 
