@@ -7,7 +7,7 @@ export default class Stack {
     return [
       m('main', { class: 'loading' }, [
         m('i', { class: 'fa fa-cog fa-spin fa-3x fa-fw' }),
-        m('h2', ['Now Loading...'])
+        m('h2', ['Loading...'])
       ])
     ].concat(
       m('main', parent.tabs.map((tab) => m(WebView, {
