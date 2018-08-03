@@ -10,7 +10,7 @@ export default class LibraryComponent implements BaseComponent {
   private mainFile: string
   private disposable: Disposable
 
-  constructor (comp: any, dir: string) {
+  constructor(comp: any, dir: string) {
     const file = objpath.get(comp, 'main', '')
     if (!file) {
       throw new Error('main field required')
@@ -36,12 +36,12 @@ export default class LibraryComponent implements BaseComponent {
       throw new Error(`could not resolve ${file} in ${dir}`)
     }
   }
-  async load () {
+  async load() {
     this.disposable = genet.session.registerLibrary(
       this.mainFile.replace(/\bapp\.asar\b/, 'app.asar.unpacked'))
     return false
   }
-  async unload () {
+  async unload() {
     if (this.disposable) {
       this.disposable.dispose()
     }

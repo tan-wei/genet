@@ -9,18 +9,18 @@ export default class TokenComponent implements BaseComponent {
   private disposable: CompositeDisposable
   private tokenFiles: string[]
 
-  constructor (comp: any, dir: string) {
+  constructor(comp: any, dir: string) {
     this.tokenFiles =
       objpath.get(comp, 'files', []).map((file) => path.resolve(dir, file))
   }
-  async load () {
+  async load() {
     const tokenList =
       await Promise.all(this.tokenFiles.map((file) => readJson(file)))
     this.disposable = new CompositeDisposable(
       tokenList.map((tokens) => genet.session.registerTokens(tokens)))
     return true
   }
-  async unload () {
+  async unload() {
     if (this.disposable) {
       this.disposable.dispose()
     }

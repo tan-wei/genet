@@ -12,7 +12,7 @@ export default class RendererComponent implements BaseComponent {
   private type: string
   private disposable: CompositeDisposable
 
-  constructor (comp: any, dir: string) {
+  constructor(comp: any, dir: string) {
     const file = objpath.get(comp, 'main', '')
     if (!file) {
       throw new Error('main field required')
@@ -37,7 +37,7 @@ export default class RendererComponent implements BaseComponent {
       this.macroFile = path.resolve(dir, macro)
     }
   }
-  async load () {
+  async load() {
     const component = await Script.execute(this.mainFile)
     if (this.type === 'attr') {
       this.disposable =
@@ -55,7 +55,7 @@ export default class RendererComponent implements BaseComponent {
     }
     return true
   }
-  async unload () {
+  async unload() {
     if (this.disposable) {
       this.disposable.dispose()
     }

@@ -22,8 +22,8 @@ export default class Genet {
   readonly env: any
   readonly action: Action
   readonly argv: object
-  
-  constructor (argv) {
+
+  constructor(argv) {
     const options = minimist(argv, { boolean: true })
     let components = options.components || ''
     if (Array.isArray(components)) {

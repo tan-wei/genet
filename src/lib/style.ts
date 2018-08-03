@@ -6,7 +6,7 @@ import { promisify } from 'util'
 const fields = Symbol('fields')
 const readFile = promisify(fs.readFile)
 export default class Style {
-  constructor (scope: string = 'global') {
+  constructor(scope: string = 'global') {
     this[fields] = {
       themeStyle:
         fs.readFileSync(path.join(__dirname, 'theme.main.css'), 'utf8'),
@@ -16,7 +16,7 @@ export default class Style {
     }
   }
 
-  applyTheme (root: HTMLDocument) {
+  applyTheme(root: HTMLDocument) {
     const styleTag = document.createElement('style')
     styleTag.textContent = this[fields].themeStyle
     const element = root.querySelector('#theme-style')
@@ -28,7 +28,7 @@ export default class Style {
     })
   }
 
-  applyCommon (root: HTMLDocument) {
+  applyCommon(root: HTMLDocument) {
     const styleTag = document.createElement('style')
     styleTag.textContent = this[fields].commonStyle
     const element = root.querySelector('#global-style')
@@ -40,7 +40,7 @@ export default class Style {
     })
   }
 
-  async applyCss (root: HTMLDocument, file: string) {
+  async applyCss(root: HTMLDocument, file: string) {
     const styleTag = document.createElement('style')
     styleTag.textContent = await readFile(file, 'utf8')
     const element = root.querySelector(`#${this[fields].scope}-style`)

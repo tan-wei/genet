@@ -5,7 +5,7 @@ import url from 'url'
 export default class WebView {
   private loading: boolean = true
 
-  view (vnode) {
+  view(vnode) {
     const { tab } = vnode.attrs
     const localUrl = url.format({
       protocol: 'file',
@@ -22,7 +22,7 @@ export default class WebView {
     })
   }
 
-  oncreate (vnode) {
+  oncreate(vnode) {
     vnode.dom.addEventListener('crashed', () => {
       const localUrl = url.format({
         protocol: 'file',

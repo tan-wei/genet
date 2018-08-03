@@ -10,7 +10,7 @@ import yaml from 'js-yaml'
 
 const fields = Symbol('fields')
 export default class Config {
-  constructor (profile: string, name: string) {
+  constructor(profile: string, name: string) {
     const filePath =
       path.join(env.userProfilePath, profile, `${name}.yml`)
     fs.ensureFileSync(filePath)
@@ -54,7 +54,7 @@ export default class Config {
     this[fields].load(false)
   }
 
-  registerSchema (schema) {
+  registerSchema(schema) {
     const { schemaSet } = this[fields]
     schemaSet.add(schema)
     return new Disposable(() => {
@@ -62,12 +62,12 @@ export default class Config {
     })
   }
 
-  get schema (): object {
+  get schema(): object {
     const { schema, schemaSet } = this[fields]
     return Object.assign({}, schema, ...schemaSet)
   }
 
-  get (id: string, defaultValue?: any) {
+  get(id: string, defaultValue?: any) {
     const { tree } = this[fields]
     let value = objpath.get(tree, id)
     if (typeof value !== 'undefined') {
@@ -85,7 +85,7 @@ export default class Config {
     return defaultValue
   }
 
-  set (id: string, value: any) {
+  set(id: string, value: any) {
     const { tree, update, write } = this[fields]
     let defaultValue = null
     if (id in this.schema) {
@@ -107,12 +107,12 @@ export default class Config {
     }
   }
 
-  del (id: string) {
+  del(id: string) {
     const { tree } = this[fields]
     objpath.del(tree, id)
   }
 
-  watch (id: string, callback: (value: any, defaultValue: any) => void, defaultValue?: any) {
+  watch(id: string, callback: (value: any, defaultValue: any) => void, defaultValue?: any) {
     const { listeners, filePath } = this[fields]
     if (listeners.length === 0) {
       fs.watchFile(filePath, () => this[fields].load(true))
@@ -135,7 +135,7 @@ export default class Config {
     })
   }
 
-  toJSON () {
+  toJSON() {
     const obj = {}
     for (const [key, value] of Object.entries(this.schema)) {
       if ('default' in value) {

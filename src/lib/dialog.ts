@@ -1,10 +1,10 @@
 import m from 'mithril'
 
 export default class Dialog {
-  constructor (private view, private attrs: object = {}) {
+  constructor(private view, private attrs: object = {}) {
   }
 
-  async show (options = {}) {
+  async show(options = {}) {
     const opt = Object.assign({
       width: 500,
       height: 320,
@@ -19,12 +19,12 @@ export default class Dialog {
     document.body.appendChild(base)
 
     return new Promise((res) => {
-      function close () {
+      function close() {
         m.mount(base, null)
         base.remove()
       }
 
-      function callback (data) {
+      function callback(data) {
         close()
         res(data)
       }

@@ -4,17 +4,17 @@ import marked from 'marked'
 
 const fields = Symbol('fields')
 class Markdown {
-  view () {
+  view() {
     return m('p')
   }
 
-  oncreate (vnode) {
+  oncreate(vnode) {
     vnode.dom.innerHTML = marked(vnode.attrs.content)
   }
 }
 
 class Container {
-  view (vnode) {
+  view(vnode) {
     const { opt, content, handler } = vnode.attrs
     return [
       m('h4', {
@@ -24,25 +24,25 @@ class Container {
             : 'none',
         },
       }, [
-        opt.title,
-        m('button', {
-          style: { visible: opt.closeButton },
-          onclick: () => {
-            handler.dispose()
-          },
-        }, ['Close'])
-      ]),
+          opt.title,
+          m('button', {
+            style: { visible: opt.closeButton },
+            onclick: () => {
+              handler.dispose()
+            },
+          }, ['Close'])
+        ]),
       m(Markdown, { content })
     ]
   }
 }
 
 export default class Notification {
-  constructor () {
+  constructor() {
     this[fields] = { container: null }
   }
 
-  show (content: string, options = {}) {
+  show(content: string, options = {}) {
     const opt = Object.assign({
       type: '',
       title: '',

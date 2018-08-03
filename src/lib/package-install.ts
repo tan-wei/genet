@@ -15,20 +15,20 @@ const promiseGlob = promisify(glob)
 const promiseRename = promisify(fs.rename)
 const fields = Symbol('fields')
 export default class PackageInstaller extends EventEmitter {
-  constructor () {
+  constructor() {
     super()
     this[fields] = { rustpath: '' }
   }
 
-  get rustpath () {
+  get rustpath() {
     return this[fields].rustpath
   }
 
-  set rustpath (rpath: string) {
+  set rustpath(rpath: string) {
     this[fields].rustpath = rpath
   }
 
-  async install (dir: string, url: string) {
+  async install(dir: string, url: string) {
     try {
       const tmpdir = tempy.directory()
       await this.download(tmpdir, url)
@@ -44,7 +44,7 @@ export default class PackageInstaller extends EventEmitter {
     }
   }
 
-  async download (dir: string, url: string) {
+  async download(dir: string, url: string) {
     this.emit('output', `Downloading ${url} ...\n`)
     const response = await axios({
       method: 'get',
@@ -65,7 +65,7 @@ export default class PackageInstaller extends EventEmitter {
     })
   }
 
-  async build (dir: string) {
+  async build(dir: string) {
     this.emit('output', 'Building package ...\n')
     const sep = (process.platform === 'win32')
       ? ';'
@@ -111,7 +111,7 @@ Visit https://www.rustup.rs/ for installation details.
     }
   }
 
-  async npm (dir: string) {
+  async npm(dir: string) {
     this.emit('output', 'Reading package.json ...\n')
     const pkg = fs.readJson(path.join(dir, 'package.json'))
     if (!objpath.has(pkg, 'dependencies') && !objpath.has(pkg, 'scripts')) {

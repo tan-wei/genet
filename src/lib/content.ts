@@ -6,10 +6,10 @@ import path from 'path'
 const { shell, webFrame } = require('electron')
 
 export default class Content {
-  constructor (private view: object, private css: string, private argv: string[] = []) {
+  constructor(private view: object, private css: string, private argv: string[] = []) {
   }
 
-  async load () {
+  async load() {
     webFrame.setZoomLevelLimits(1, 1)
 
     document.addEventListener('dragover', (event) => {

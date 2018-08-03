@@ -11,7 +11,7 @@ export default class MacroComponent implements BaseComponent {
   private mainFile: string
   private disposable: Disposable
 
-  constructor (comp: any, dir: string) {
+  constructor(comp: any, dir: string) {
     const file = objpath.get(comp, 'main', '')
     if (!file) {
       throw new Error('main field required')
@@ -20,7 +20,7 @@ export default class MacroComponent implements BaseComponent {
     this.name = objpath.get(comp, 'name', '')
     this.description = objpath.get(comp, 'description', '')
   }
-  async load () {
+  async load() {
     const module = await Script.execute(this.mainFile)
     this.disposable = genet.session.registerFilterMacro({
       name: this.name,
@@ -29,7 +29,7 @@ export default class MacroComponent implements BaseComponent {
     })
     return true
   }
-  async unload () {
+  async unload() {
     if (this.disposable) {
       this.disposable.dispose()
     }

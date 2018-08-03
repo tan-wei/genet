@@ -3,7 +3,7 @@ import { Disposable } from './disposable'
 import objpath from 'object-path'
 
 const fields = Symbol('fields')
-function flatten (object: object): any[] {
+function flatten(object: object): any[] {
   if (typeof object !== 'object') {
     return object
   }
@@ -15,12 +15,12 @@ function flatten (object: object): any[] {
 }
 
 export default class Workspace extends Config {
-  constructor (profile: string) {
+  constructor(profile: string) {
     super(profile, 'workspace')
     this[fields] = { panels: new Map() }
   }
 
-  registerPanel (id: string, panel) {
+  registerPanel(id: string, panel) {
     const { panels } = this[fields]
     panels.set(id, panel)
     this.update()
@@ -29,15 +29,15 @@ export default class Workspace extends Config {
     })
   }
 
-  panel (id: string) {
+  panel(id: string) {
     return this[fields].panels.get(id)
   }
 
-  get panelLayout () {
+  get panelLayout() {
     return this.get('_.panelLayout', {})
   }
 
-  update () {
+  update() {
     const { panels } = this[fields]
     const layout = JSON.parse(JSON.stringify(this.get('_.panelLayout', {})))
     const activePanels = new Set(flatten(layout))

@@ -3,7 +3,7 @@ import m from 'mithril'
 import { validate } from 'jsonschema'
 
 class InputBase {
-  writeValue (vnode, value) {
+  writeValue(vnode, value) {
     const { id, schema } = vnode.attrs
     const result = validate(value, schema)
     if (result.errors.length === 0) {
@@ -22,7 +22,7 @@ class InputBase {
 }
 
 class StringArrayInput extends InputBase {
-  view (vnode) {
+  view(vnode) {
     const { schema } = vnode.attrs
     const placeholder = ('default' in schema)
       ? `Default: ${schema.default.join(', ')}`
@@ -34,7 +34,7 @@ class StringArrayInput extends InputBase {
     })
   }
 
-  oncreate (vnode) {
+  oncreate(vnode) {
     vnode.dom.addEventListener('change', (event) => {
       const value = event.target.value.split(',').map((item) => item.trim())
       this.writeValue(vnode, value)
@@ -43,7 +43,7 @@ class StringArrayInput extends InputBase {
 }
 
 class IntegerArrayInput extends InputBase {
-  view (vnode) {
+  view(vnode) {
     const { schema } = vnode.attrs
     const placeholder = ('default' in schema)
       ? `Default: ${schema.default.join(', ')}`
@@ -55,7 +55,7 @@ class IntegerArrayInput extends InputBase {
     })
   }
 
-  oncreate (vnode) {
+  oncreate(vnode) {
     vnode.dom.addEventListener('change', (event) => {
       const value = event.target.value.split(',')
         .map((item) => Number.parseInt(item.trim(), 10))
@@ -65,14 +65,14 @@ class IntegerArrayInput extends InputBase {
 }
 
 class BooleanInput extends InputBase {
-  view (vnode) {
+  view(vnode) {
     return m('input', {
       type: 'checkbox',
       checked: genet.config.get(vnode.attrs.id),
     })
   }
 
-  oncreate (vnode) {
+  oncreate(vnode) {
     vnode.dom.addEventListener('change', (event) => {
       this.writeValue(vnode, event.target.checked)
     })
@@ -80,7 +80,7 @@ class BooleanInput extends InputBase {
 }
 
 class StringInput extends InputBase {
-  view (vnode) {
+  view(vnode) {
     const { schema } = vnode.attrs
     const placeholder = ('default' in schema)
       ? `Default: ${schema.default}`
@@ -92,7 +92,7 @@ class StringInput extends InputBase {
     })
   }
 
-  oncreate (vnode) {
+  oncreate(vnode) {
     vnode.dom.addEventListener('change', (event) => {
       const { value } = event.target
       this.writeValue(vnode, value)
@@ -101,7 +101,7 @@ class StringInput extends InputBase {
 }
 
 class IntegerInput extends InputBase {
-  view (vnode) {
+  view(vnode) {
     const { id, schema } = vnode.attrs
     const placeholder = ('default' in schema)
       ? `Default: ${schema.default}`
@@ -113,7 +113,7 @@ class IntegerInput extends InputBase {
     })
   }
 
-  oncreate (vnode) {
+  oncreate(vnode) {
     vnode.dom.addEventListener('change', (event) => {
       const value = Number.parseInt(event.target.value, 10)
       this.writeValue(vnode, value)
@@ -122,7 +122,7 @@ class IntegerInput extends InputBase {
 }
 
 class IntegerEnumInput extends InputBase {
-  view (vnode) {
+  view(vnode) {
     const { schema } = vnode.attrs
     const value = genet.config.get(vnode.attrs.id)
     const titles = schema.enumTitles || schema.enum
@@ -131,12 +131,12 @@ class IntegerEnumInput extends InputBase {
         selected: item === value,
         value: item,
       }, [
-        titles[index]
-      ]))
+          titles[index]
+        ]))
     ])
   }
 
-  oncreate (vnode) {
+  oncreate(vnode) {
     vnode.dom.addEventListener('change', (event) => {
       const value = Number.parseInt(
         event.target.options[event.target.selectedIndex].value, 10)
@@ -146,7 +146,7 @@ class IntegerEnumInput extends InputBase {
 }
 
 class StringEnumInput extends InputBase {
-  view (vnode) {
+  view(vnode) {
     const { schema } = vnode.attrs
     const value = genet.config.get(vnode.attrs.id)
     const titles = schema.enumTitles || schema.enum
@@ -155,12 +155,12 @@ class StringEnumInput extends InputBase {
         selected: item === value,
         value: item,
       }, [
-        titles[index]
-      ]))
+          titles[index]
+        ]))
     ])
   }
 
-  oncreate (vnode) {
+  oncreate(vnode) {
     vnode.dom.addEventListener('change', (event) => {
       const { value } = event.target.options[event.target.selectedIndex]
       this.writeValue(vnode, value)
@@ -169,7 +169,7 @@ class StringEnumInput extends InputBase {
 }
 
 export default class SchemaInput {
-  view (vnode) {
+  view(vnode) {
     const { schema } = vnode.attrs
     if ('enum' in schema) {
       switch (schema.type) {

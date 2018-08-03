@@ -16,7 +16,7 @@ export default class PanelComponent implements BaseComponent {
   private styleFile: string
   private disposable: Disposable
 
-  constructor (comp: any, dir: string) {
+  constructor(comp: any, dir: string) {
     const file = objpath.get(comp, 'main', '')
     if (!file) {
       throw new Error('main field required')
@@ -37,7 +37,7 @@ export default class PanelComponent implements BaseComponent {
     }
   }
 
-  async load () {
+  async load() {
     let style = ''
     if (this.styleFile) {
       style = await promiseReadFile(this.styleFile, 'utf8')
@@ -54,7 +54,7 @@ export default class PanelComponent implements BaseComponent {
     return true
   }
 
-  async unload () {
+  async unload() {
     if (this.disposable) {
       this.disposable.dispose()
     }

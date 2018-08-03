@@ -2,7 +2,7 @@ import os from 'os'
 import path from 'path'
 import { readJsonSync } from 'fs-extra'
 
-function readFile (filePath: string) {
+function readFile(filePath: string) {
   try {
     return readJsonSync(filePath)
   } catch (err) {
@@ -10,7 +10,7 @@ function readFile (filePath: string) {
   }
 }
 
-function getRootPath () {
+function getRootPath() {
   let root = __dirname
   while (root !== '/') {
     const pkg = path.join(root, 'package.json')

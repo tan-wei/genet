@@ -42,7 +42,7 @@ const dumpLogs = throttle((data) => {
 
 const fields = Symbol('fields')
 export default class Logger {
-  constructor (config: Config) {
+  constructor(config: Config) {
     this[fields] = {
       windowId: remote.getCurrentWindow().id,
       domain: 'core',
@@ -53,15 +53,15 @@ export default class Logger {
     }, 'debug')
   }
 
-  get domain () {
+  get domain() {
     return this[fields].domain
   }
 
-  set domain (domain: string) {
+  set domain(domain: string) {
     this[fields].domain = domain
   }
 
-  log (message: string, options: Options = {}) {
+  log(message: string, options: Options = {}) {
     this[fields].logs.push({
       message,
       level: options.level,
@@ -69,19 +69,19 @@ export default class Logger {
     dumpLogs(this[fields])
   }
 
-  debug (message: string, options: Options = {}) {
+  debug(message: string, options: Options = {}) {
     this.log(message, Object.assign(options, { level: Level.Debug }))
   }
 
-  info (message: string, options: Options = {}) {
+  info(message: string, options: Options = {}) {
     this.log(message, Object.assign(options, { level: Level.Info }))
   }
 
-  warn (message: string, options: Options = {}) {
+  warn(message: string, options: Options = {}) {
     this.log(message, Object.assign(options, { level: Level.Warn }))
   }
 
-  error (message: string, options: Options = {}) {
+  error(message: string, options: Options = {}) {
     this.log(message, Object.assign(options, { level: Level.Error }))
   }
 }

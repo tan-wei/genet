@@ -14,7 +14,7 @@ app.on('window-all-closed', () => {
 })
 
 export default class WindowFactory {
-  static create (argv: string[], profile = 'default') {
+  static create(argv: string[], profile = 'default') {
     const conf = new Config(profile, 'workspace')
     const size = conf.get('_.window.size')
     const options = {
@@ -48,7 +48,7 @@ export default class WindowFactory {
     contents.on('crashed', () => mainWindow.reload())
     contents.on('unresponsive', () => mainWindow.reload())
 
-    function reloadMenu () {
+    function reloadMenu() {
       const script = `
       (() => {
         try {

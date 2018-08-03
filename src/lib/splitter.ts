@@ -3,7 +3,7 @@ import m from 'mithril'
 
 const fields = Symbol('fields')
 export class HSplitter {
-  constructor () {
+  constructor() {
     this[fields] = {
       width: 320,
       handle: 0,
@@ -11,7 +11,7 @@ export class HSplitter {
     }
   }
 
-  oninit (vnode) {
+  oninit(vnode) {
     const { width, workspace } = vnode.attrs
     if (Number.isInteger(width)) {
       this[fields].width = width
@@ -22,7 +22,7 @@ export class HSplitter {
     this[fields].handle = this[fields].width
   }
 
-  view (vnode) {
+  view(vnode) {
     const { width, handle, active } = this[fields]
     const { left, right, workspace } = vnode.attrs
     return m('div', { class: 'splitter' }, [
@@ -30,14 +30,14 @@ export class HSplitter {
         class: 'left',
         style: { width: `${width}px` },
       }, [
-        m(left, vnode.attrs)
-      ]),
+          m(left, vnode.attrs)
+        ]),
       m('div', {
         class: 'right',
         style: { left: `${width}px` },
       }, [
-        m(right, vnode.attrs)
-      ]),
+          m(right, vnode.attrs)
+        ]),
       m('div', {
         class: 'handle vertical',
         style: { left: `${handle}px` },
@@ -70,7 +70,7 @@ export class HSplitter {
     ])
   }
 
-  applyWidth (workspace: string) {
+  applyWidth(workspace: string) {
     this[fields].width = this[fields].handle
     this[fields].active = false
     genet.workspace.set(workspace, this[fields].width)
@@ -78,7 +78,7 @@ export class HSplitter {
 }
 
 export class VSplitter {
-  constructor () {
+  constructor() {
     this[fields] = {
       height: 320,
       handle: 0,
@@ -86,7 +86,7 @@ export class VSplitter {
     }
   }
 
-  oninit (vnode) {
+  oninit(vnode) {
     const { height, workspace } = vnode.attrs
     if (Number.isInteger(height)) {
       this[fields].height = height
@@ -97,7 +97,7 @@ export class VSplitter {
     this[fields].handle = this[fields].height
   }
 
-  view (vnode) {
+  view(vnode) {
     const { height, handle, active } = this[fields]
     const { bottom, top, workspace } = vnode.attrs
     return m('div', { class: 'splitter vertical' }, [
@@ -105,14 +105,14 @@ export class VSplitter {
         class: 'bottom',
         style: { height: `${height}px` },
       }, [
-        m(bottom, vnode.attrs)
-      ]),
+          m(bottom, vnode.attrs)
+        ]),
       m('div', {
         class: 'top',
         style: { bottom: `${height}px` },
       }, [
-        m(top, vnode.attrs)
-      ]),
+          m(top, vnode.attrs)
+        ]),
       m('div', {
         class: 'handle horizontal',
         style: { bottom: `${handle}px` },
@@ -144,7 +144,7 @@ export class VSplitter {
     ])
   }
 
-  applyHeight (workspace: string) {
+  applyHeight(workspace: string) {
     this[fields].height = this[fields].handle
     this[fields].active = false
     genet.workspace.set(workspace, this[fields].height)

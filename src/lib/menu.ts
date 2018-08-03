@@ -7,14 +7,14 @@ const { Menu } = remote
 
 const fields = Symbol('fields')
 export default class MainMenu {
-  constructor () {
+  constructor() {
     this[fields] = {
       contextMenuTemplates: new Set(),
       submenuTemplates: new Map(),
     }
   }
 
-  get template () {
+  get template() {
     const { submenuTemplates } = this[fields]
     const tmp = JSON.parse(JSON.stringify(template))
     const keys = Object.keys(flatten(template))
@@ -29,7 +29,7 @@ export default class MainMenu {
     return tmp
   }
 
-  get keymap () {
+  get keymap() {
     const map = {}
     const keys = Object.keys(flatten(template))
       .filter((key) => key.endsWith('.accelerator'))
@@ -50,7 +50,7 @@ export default class MainMenu {
     return map
   }
 
-  registerSubMenu (name: string, menu) {
+  registerSubMenu(name: string, menu) {
     const { submenuTemplates } = this[fields]
     submenuTemplates.set(name, menu)
     return new Disposable(() => {
@@ -58,7 +58,7 @@ export default class MainMenu {
     })
   }
 
-  registerContextMenu (menu) {
+  registerContextMenu(menu) {
     const { contextMenuTemplates } = this[fields]
     contextMenuTemplates.add(menu)
     return new Disposable(() => {
@@ -66,14 +66,14 @@ export default class MainMenu {
     })
   }
 
-  showContextMenu (event: Event, menu = []) {
+  showContextMenu(event: Event, menu = []) {
     const { contextMenuTemplates } = this[fields]
     let contextMenu: any[] = []
     if (menu.length > 0) {
       contextMenu = contextMenu.concat(menu, { type: 'separator' })
     }
     for (const tmpl of contextMenuTemplates) {
-      if (event.target instanceof HTMLElement && 
+      if (event.target instanceof HTMLElement &&
         event.target.matches(tmpl.selector)) {
         contextMenu = contextMenu.concat(tmpl.menu, { type: 'separator' })
       }
@@ -97,7 +97,7 @@ export default class MainMenu {
     Menu.buildFromTemplate(contextMenu).popup(remote.getCurrentWindow())
   }
 
-  enableContextMenu () {
+  enableContextMenu() {
     document.addEventListener('contextmenu', (event) => {
       this.showContextMenu(event)
     }, false)

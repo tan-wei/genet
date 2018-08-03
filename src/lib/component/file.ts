@@ -15,7 +15,7 @@ export default class FileComponent implements BaseComponent {
   private filters: Filter[]
   private disposable: Disposable
 
-  constructor (comp: any, dir: string) {
+  constructor(comp: any, dir: string) {
     const file = objpath.get(comp, 'main', '')
     if (!file) {
       throw new Error('main field required')
@@ -23,7 +23,7 @@ export default class FileComponent implements BaseComponent {
     this.mainFile = path.resolve(dir, file)
     this.filters = objpath.get(comp, 'filters', [])
   }
-  async load () {
+  async load() {
     const handler = await Script.execute(this.mainFile)
     this.disposable = genet.session.registerFileReader({
       handler,
@@ -31,7 +31,7 @@ export default class FileComponent implements BaseComponent {
     })
     return true
   }
-  async unload () {
+  async unload() {
     if (this.disposable) {
       this.disposable.dispose()
     }

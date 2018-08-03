@@ -14,7 +14,7 @@ import writeFileAtomic from 'write-file-atomic'
 const promiseGlob = promisify(glob)
 const promiseWriteFile = promisify(writeFileAtomic)
 const fields = Symbol('fields')
-async function readFile (filePath) {
+async function readFile(filePath) {
   try {
     const normPath = path.normalize(filePath)
     const data = await readJson(normPath)
@@ -37,7 +37,7 @@ async function readFile (filePath) {
 
 
 export default class PackageManager extends EventEmitter {
-  constructor (config, components: string[], logger: Logger) {
+  constructor(config, components: string[], logger: Logger) {
     super()
     this[fields] = {
       config,
@@ -53,13 +53,13 @@ export default class PackageManager extends EventEmitter {
     }, [])
   }
 
-  triggerUpdate () {
+  triggerUpdate() {
     this.update().catch((err) => {
       this[fields].logger.error(err)
     })
   }
 
-  async update () {
+  async update() {
     const {
       config, updating, packages,
       activatedComponents, initialLoad, queued, logger,
@@ -126,7 +126,7 @@ export default class PackageManager extends EventEmitter {
       removedPackages.delete(id)
     }
 
-    const task : object[] = []
+    const task: object[] = []
     Array.from(disabledPackages)
       .concat(Array.from(removedPackages))
       .concat(Array.from(updatedPackages))
@@ -204,15 +204,15 @@ export default class PackageManager extends EventEmitter {
     this[fields].initialLoad = false
   }
 
-  get list () {
+  get list() {
     return Array.from(this[fields].packages.values())
   }
 
-  get (id: string) {
+  get(id: string) {
     return this[fields].packages.get(id)
   }
 
-  enable (id: string) {
+  enable(id: string) {
     const { config } = this[fields]
     const disabledPackages = new Set(config.get('_.disabledPackages', []))
     if (disabledPackages.delete(id)) {
@@ -221,7 +221,7 @@ export default class PackageManager extends EventEmitter {
     }
   }
 
-  disable (id: string) {
+  disable(id: string) {
     const { config } = this[fields]
     const disabledPackages = new Set(config.get('_.disabledPackages', []))
     if (!disabledPackages.has(id)) {
@@ -231,7 +231,7 @@ export default class PackageManager extends EventEmitter {
     }
   }
 
-  async uninstall (id: string) {
+  async uninstall(id: string) {
     const pkg = this.get(id)
     if (typeof pkg !== 'undefined') {
       await remove(pkg.dir)
@@ -239,7 +239,7 @@ export default class PackageManager extends EventEmitter {
     }
   }
 
-  static async init () {
+  static async init() {
     await ensureDir(env.userPackagePath)
     await ensureDir(env.cachePath)
 
@@ -251,7 +251,7 @@ export default class PackageManager extends EventEmitter {
     }))
   }
 
-  static async cleanup () {
+  static async cleanup() {
     const userPluginPattern =
       path.join(env.userPackagePath, '/**/package.json')
     const userPaths = await promiseGlob(userPluginPattern)

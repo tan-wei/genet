@@ -6,7 +6,7 @@ import vm from 'vm'
 
 const promiseReadFile = promisify(fs.readFile)
 export default class Script {
-  static async execute (file: string) {
+  static async execute(file: string) {
     const code = await promiseReadFile(file, 'utf8')
     const wrapper =
       `(function(module, require, __filename, __dirname){ ${code} })`
@@ -17,7 +17,7 @@ export default class Script {
     const dir = path.dirname(file)
     const func = vm.runInThisContext(wrapper, options)
     const root = global as any
-    function isAvailable (name) {
+    function isAvailable(name) {
       try {
         root.require.resolve(name)
         return true
@@ -25,7 +25,7 @@ export default class Script {
         return false
       }
     }
-    function req (name) {
+    function req(name) {
       if (name === 'genet') {
         return genet
       } else if (name.startsWith('./')) {

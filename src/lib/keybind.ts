@@ -10,7 +10,7 @@ import path from 'path'
 import yaml from 'js-yaml'
 
 const fields = Symbol('fields')
-function transformBindSet (map, binds) {
+function transformBindSet(map, binds) {
   for (const [selector, bind] of Object.entries(binds)) {
     for (const [key, action] of Object.entries(bind)) {
       map[key] = map[key] || []
@@ -23,7 +23,7 @@ function transformBindSet (map, binds) {
 }
 
 export default class KeyBind extends EventEmitter {
-  constructor (profile: string, logger: Logger) {
+  constructor(profile: string, logger: Logger) {
     super()
     const filePath =
       path.join(env.userProfilePath, profile, 'keybind.yml')
@@ -49,7 +49,7 @@ export default class KeyBind extends EventEmitter {
     fs.watchFile(filePath, () => this[fields].load())
   }
 
-  register (binds) {
+  register(binds) {
     const { bindSets } = this[fields]
     bindSets.add(binds)
     this.update()
@@ -59,7 +59,7 @@ export default class KeyBind extends EventEmitter {
     })
   }
 
-  update () {
+  update() {
     const map = {}
     for (const binds of this[fields].bindSets) {
       transformBindSet(map, binds)
@@ -93,7 +93,7 @@ export default class KeyBind extends EventEmitter {
     this.emit('update')
   }
 
-  get keymap () {
+  get keymap() {
     return this[fields].map
   }
 }
