@@ -1,8 +1,8 @@
-import { ipcRenderer, remote } from 'electron'
 import Content from './lib/content'
 import WindowView from './view/window/view'
+const { ipcRenderer, remote } = require('electron')
 
-export default function main () {
+export default function main() {
   const components = [
     'core:file:reader'
   ]

@@ -1,7 +1,7 @@
 import Content from './lib/content'
 import PackageView from './view/package/view'
 
-export default function main () {
+export default function main() {
   const components = [
     'core:style'
   ]

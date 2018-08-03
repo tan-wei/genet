@@ -25,8 +25,8 @@ module.exports = {
     ],
   },
   entry: {
-    app: './src/app.main.js',
-    render: './src/render.main.js',
+    app: './src/app.main.ts',
+    render: './src/render.main.ts',
   },
   output: {
     filename: '[name].main.js',

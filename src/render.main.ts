@@ -7,7 +7,8 @@ process.env.GENET_TARGET = process.env.NODE_ENV === 'production'
   ? 'release'
   : 'debug'
 
-const view = document.currentScript.getAttribute('data-view')
+const { currentScript } = document
+const view = currentScript ? currentScript.getAttribute('data-view') : ''
 switch (view) {
   case 'display':
     displayMain()

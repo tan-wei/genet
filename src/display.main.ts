@@ -1,7 +1,7 @@
 import Content from './lib/content'
 import PcapView from './view/display/view'
 
-export default function main () {
+export default function main() {
   const components = [
     'core:style',
     'core:token',

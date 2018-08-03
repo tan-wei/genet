@@ -1,6 +1,6 @@
-import { app, BrowserWindow, ipcMain, webContents } from 'electron'
 import PackageManager from './lib/package-manager'
 import WindowFactory from './lib/window-factory'
+const { app, BrowserWindow, ipcMain, webContents } = require('electron')
 
 if (require('electron-squirrel-startup')) {
   app.quit()
@@ -9,7 +9,7 @@ if (require('electron-squirrel-startup')) {
 app.commandLine.appendSwitch('--enable-experimental-web-platform-features')
 app.commandLine.appendSwitch('--ignore-gpu-blacklist')
 
-async function init () {
+async function init() {
   await PackageManager.init()
   await PackageManager.cleanup()
   WindowFactory.create(process.argv.slice(2))
