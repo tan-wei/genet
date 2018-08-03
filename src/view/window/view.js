@@ -1,8 +1,8 @@
 import { remote, ipcRenderer, shell } from 'electron'
+import Env from '../../lib/env'
 import { HSplitter } from '../../lib/splitter'
 import Menu from './menu'
 import Stack from './stack'
-import env from '../../lib/env'
 import flatten from 'lodash.flatten'
 import genet from '@genet/api'
 import m from 'mithril'
@@ -108,7 +108,7 @@ export default class WindowView {
       ipcRenderer.send('core:menu:reload', windowId)
     })
     genet.action.global.on('core:file:browse-user-dir', () => {
-      shell.showItemInFolder(env.userProfilePath)
+      shell.showItemInFolder(Env.userProfilePath)
     })
     genet.action.global.on('core:file:import', () => {
       const filters = flatten([...genet.session.fileReaders]

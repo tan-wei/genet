@@ -1,6 +1,6 @@
 import Config from './config'
 import debounce from 'lodash.debounce'
-import env from './env'
+import Env from './env'
 import flatten from 'flat'
 import path from 'path'
 import url from 'url'
@@ -25,7 +25,7 @@ export default class WindowFactory {
       icon: '',
     }
     if (process.platform === 'linux') {
-      options.icon = env.linuxIconPath
+      options.icon = Env.linuxIconPath
     }
     const mainWindow = new BrowserWindow(options)
 

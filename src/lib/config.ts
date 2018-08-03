@@ -1,6 +1,6 @@
 import { Disposable } from './disposable'
 import deepEqual from 'deep-equal'
-import env from './env'
+import Env from './env'
 import fs from 'fs-extra'
 import objpath from 'object-path'
 import path from 'path'
@@ -12,7 +12,7 @@ const fields = Symbol('fields')
 export default class Config {
   constructor(profile: string, name: string) {
     const filePath =
-      path.join(env.userProfilePath, profile, `${name}.yml`)
+      path.join(Env.userProfilePath, profile, `${name}.yml`)
     fs.ensureFileSync(filePath)
 
     const schema = schemaDefault[name] || {}

@@ -1,4 +1,4 @@
-import env from '../../lib/env'
+import Env from '../../lib/env'
 import fs from 'fs'
 import m from 'mithril'
 import objpath from 'object-path'
@@ -46,7 +46,7 @@ class LicenseInfo {
 
 export default class Plugin {
   constructor () {
-    this.version = objpath.get(env.genet, 'version', 'n/a')
+    this.version = objpath.get(Env.genet, 'version', 'n/a')
   }
   view (vnode) {
     const nodes = [

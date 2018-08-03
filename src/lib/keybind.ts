@@ -3,7 +3,7 @@ import { EventEmitter } from 'events'
 import Logger from './logger'
 import Mousetrap from 'mousetrap'
 import deepEqual from 'deep-equal'
-import env from './env'
+import Env from './env'
 import fs from 'fs-extra'
 import genet from '@genet/api'
 import path from 'path'
@@ -26,7 +26,7 @@ export default class KeyBind extends EventEmitter {
   constructor(profile: string, logger: Logger) {
     super()
     const filePath =
-      path.join(env.userProfilePath, profile, 'keybind.yml')
+      path.join(Env.userProfilePath, profile, 'keybind.yml')
     fs.ensureFileSync(filePath)
 
     this[fields] = {

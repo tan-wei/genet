@@ -1,7 +1,7 @@
 import ButtonBoxView from './button'
+import Env from '../../lib/env'
 import Installer from '../../lib/package-install'
 import SchemaInput from '../../lib/schema-input'
-import env from '../../lib/env'
 import genet from '@genet/api'
 import m from 'mithril'
 import path from 'path'
@@ -18,7 +18,7 @@ async function install (pkg) {
   })
   try {
     await installer.install(
-      path.join(env.userPackagePath, shortName), pkg.archive)
+      path.join(Env.userPackagePath, shortName), pkg.archive)
     genet.notify.show(
       `package: ${shortName}`, {
         type: 'success',

@@ -2,7 +2,7 @@ import { readJson, remove, ensureDir } from 'fs-extra'
 import ComponentFactory from './component-factory'
 import { EventEmitter } from 'events'
 import Logger from './logger'
-import env from './env'
+import Env from './env'
 import genet from '@genet/api'
 import glob from 'glob'
 import objpath from 'object-path'
@@ -19,10 +19,10 @@ async function readFile(filePath) {
     const normPath = path.normalize(filePath)
     const data = await readJson(normPath)
     const dir = path.dirname(normPath)
-    const builtin = !normPath.startsWith(env.userPackagePath)
+    const builtin = !normPath.startsWith(Env.userPackagePath)
     const id = builtin
       ? `builtin/${path.basename(dir)}`
-      : path.relative(env.userPackagePath, dir)
+      : path.relative(Env.userPackagePath, dir)
     return {
       data,
       filePath: normPath,
@@ -75,9 +75,9 @@ export default class PackageManager extends EventEmitter {
     this[fields].updating = true
 
     const builtinPluginPattern =
-      path.join(env.builtinPackagePath, '/**/package.json')
+      path.join(Env.builtinPackagePath, '/**/package.json')
     const userPluginPattern =
-      path.join(env.userPackagePath, '/**/package.json')
+      path.join(Env.userPackagePath, '/**/package.json')
 
     const globOptions = { ignore: '**/node_modules/*/package.json' }
     const builtinPaths = await promiseGlob(builtinPluginPattern, globOptions)
@@ -101,7 +101,7 @@ export default class PackageManager extends EventEmitter {
     for (const pkg of pkgs) {
       const id = pkg.id || ''
       const incompatible = !semver.satisfies(
-        semver.coerce(env.genet.version),
+        semver.coerce(Env.genet.version),
         objpath.get(pkg.data, 'engines.genet', '*'))
       const disabled = disabledPackages.has(id)
       const cache = packages.get(id) || { components: [] }
@@ -240,12 +240,12 @@ export default class PackageManager extends EventEmitter {
   }
 
   static async init() {
-    await ensureDir(env.userPackagePath)
-    await ensureDir(env.cachePath)
+    await ensureDir(Env.userPackagePath)
+    await ensureDir(Env.cachePath)
 
-    const versionFile = path.join(env.userPath, '.version')
+    const versionFile = path.join(Env.userPath, '.version')
     await promiseWriteFile(versionFile, JSON.stringify({
-      genet: env.genet.version,
+      genet: Env.genet.version,
       abi: process.versions.modules,
       resourcePath: path.resolve(__dirname, '../..'),
     }))
@@ -253,7 +253,7 @@ export default class PackageManager extends EventEmitter {
 
   static async cleanup() {
     const userPluginPattern =
-      path.join(env.userPackagePath, '/**/package.json')
+      path.join(Env.userPackagePath, '/**/package.json')
     const userPaths = await promiseGlob(userPluginPattern)
     const files = await Promise.all(userPaths.map((file) => {
       const removeme = path.join(path.dirname(file), '.removeme')

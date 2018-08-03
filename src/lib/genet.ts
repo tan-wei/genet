@@ -7,7 +7,7 @@ import Notification from './notification'
 import PackageManager from './package-manager'
 import Session from './session'
 import Workspace from './workspace'
-import env from './env'
+import Env from './env'
 import minimist from 'minimist'
 
 export default class Genet {
@@ -19,7 +19,7 @@ export default class Genet {
   readonly menu: Menu
   readonly notify: Notification
   readonly logger: Logger
-  readonly env: any
+  readonly env: Env
   readonly action: Action
   readonly argv: object
 
@@ -42,7 +42,7 @@ export default class Genet {
     this.menu = new Menu()
     this.notify = new Notification()
     this.logger = logger
-    this.env = env
+    this.env = Env
     this.action = new Action()
     this.argv = Object.assign(argv, options)
 

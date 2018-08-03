@@ -29,13 +29,13 @@ const userPackagePath = path.join(userPath, 'package')
 const userProfilePath = path.join(userPath, 'profile')
 const builtinPackagePath = path.join(rootPath, 'package')
 const cachePath = path.join(os.homedir(), '.genet-cache')
-export default {
-  genet,
-  rootPath,
-  userPath,
-  userPackagePath,
-  userProfilePath,
-  builtinPackagePath,
-  cachePath,
-  linuxIconPath: '/usr/share/icons/hicolor/256x256/apps/genet.png',
+export default class Env {
+  static readonly genet = genet
+  static readonly rootPath = rootPath
+  static readonly userPath = userPath
+  static readonly userPackagePath = userPackagePath
+  static readonly userProfilePath = userProfilePath
+  static readonly builtinPackagePath = builtinPackagePath
+  static readonly cachePath = cachePath
+  static readonly linuxIconPath = '/usr/share/icons/hicolor/256x256/apps/genet.png'
 }
