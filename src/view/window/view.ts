@@ -1,6 +1,7 @@
 import Env from '../../lib/env'
 import { HSplitter } from '../../lib/splitter'
 import Menu from './menu'
+import Resumer from '../../lib/resumer'
 import Stack from './stack'
 import flatten from 'lodash.flatten'
 import genet from '@genet/api'
@@ -53,7 +54,7 @@ export default class WindowView {
     this[fields].activeTab = id
   }
 
-  createPcapTab() {
+  createDisplayTab() {
     const { counter } = this[fields]
     const number = counter
     this[fields].counter += 1
@@ -62,7 +63,9 @@ export default class WindowView {
       id,
       name: `Session ${number}`,
       src: 'display.htm',
-      argv: genet.argv,
+      argv: genet.argv.concat([
+        `--resume=${Resumer.generateFileName()}`
+      ]),
       loading: true,
     })
   }
@@ -95,7 +98,7 @@ export default class WindowView {
       }
     })
     genet.action.global.on('core:tab:new-pcap', () => {
-      this.createPcapTab()
+      this.createDisplayTab()
     })
     genet.action.global.on('core:tab:show-preferences', () => {
       this.activeTab = 'preferences'
@@ -129,13 +132,14 @@ export default class WindowView {
           name: path.basename(file),
           src: 'display.htm',
           argv: genet.argv.concat([
-            `--import=${file}`
+            `--import=${file}`,
+            `--resume=${Resumer.generateFileName()}`
           ]),
           loading: true,
         })
       }
     })
-    this.createPcapTab()
+    this.createDisplayTab()
   }
 
   view() {

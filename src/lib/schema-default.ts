@@ -48,11 +48,6 @@ export default {
       title: 'Rust Path',
       type: 'string',
     },
-    '_.package.noConfUpdated': {
-      title: 'Don\'t Show "Reload to apply" Message',
-      type: 'boolean',
-      default: false,
-    },
   },
   workspace: {
     '_.window.size': {
