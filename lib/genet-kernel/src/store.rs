@@ -83,7 +83,7 @@ impl Store {
             .unwrap()
             .iter()
             .skip(range.start)
-            .take(range.end - range.start)
+            .take(range.end.saturating_sub(range.start))
             .map(|f| f as *const Frame)
             .collect::<Vec<_>>()
     }
@@ -93,7 +93,7 @@ impl Store {
         if let Some(vec) = filtered.get(&id) {
             vec.iter()
                 .skip(range.start)
-                .take(range.end - range.start)
+                .take(range.end.saturating_sub(range.start))
                 .cloned()
                 .collect::<Vec<_>>()
         } else {
@@ -414,15 +414,36 @@ impl fmt::Debug for EventLoop {
 
 #[cfg(test)]
 mod tests {
+    use filter;
     use profile::Profile;
     use store::{Callback, Store};
 
     struct TestCallback {}
     impl Callback for TestCallback {}
 
+    struct TestFilterWorker {}
+    impl filter::Worker for TestFilterWorker {}
+
+    #[derive(Debug)]
+    struct TestFilter {}
+    impl filter::Filter for TestFilter {
+        fn new_worker(&self) -> Box<filter::Worker> {
+            Box::new(TestFilterWorker {})
+        }
+    }
+
     #[test]
     fn drop() {
         let profile = Profile::new();
         let _store = Store::new(profile, TestCallback {});
+    }
+
+    #[test]
+    fn invalid_range() {
+        let profile = Profile::new();
+        let mut store = Store::new(profile, TestCallback {});
+        store.set_filter(0, Some(Box::new(TestFilter {})));
+        assert_eq!(store.frames(100..0).len(), 0);
+        assert_eq!(store.filtered_frames(0, 100..0).len(), 0);
     }
 }
