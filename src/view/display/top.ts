@@ -42,6 +42,7 @@ export default class TopView {
           this.suggestEnabled = false
           const filter = event.target.value.trim()
           genet.action.emit('core:filter:set', filter)
+          genet.resumer.set('core:filter', filter)
         }
         break
       case 'ArrowDown':
@@ -78,19 +79,19 @@ export default class TopView {
               : 'none',
           },
         }, [
+            m('span', ['Configuration has been changed']),
             m('a', {
               onclick: () => {
                 genet.action.global.emit('core:tab:reload')
               },
             }, [
-                'Reload to apply changed configurations'
+                'Reload'
               ]),
-            m('i', {
-              class: 'fa fa-close',
+            m('a', {
               onclick: () => {
                 this.showReloadBalloon = false
               },
-            })
+            }, ['Dismiss'])
           ]),
         m('input', {
           type: 'text',
@@ -130,16 +131,30 @@ export default class TopView {
 
   oncreate() {
     genet.config.watch('', () => {
-      if (!genet.config.get('_.package.noConfUpdated', false)) {
-        this.showReloadBalloon = true
-        m.redraw()
-      }
+      this.showReloadBalloon = true
+      m.redraw()
     })
     genet.packages.once('updated', () => {
       genet.action.on('core:session:created', (sess) => {
         sess.on('update', () => m.redraw())
         this.viewState.capture = sess.status.stream
         this.sess = sess
+        if (genet.resumer.has('core:filter')) {
+          genet.action.emit('core:filter:set', genet.resumer.get('core:filter'))
+        }
+        if (genet.resumer.has('core:session:dump')) {
+          const file = genet.resumer.get('core:session:dump')
+          for (const { handler } of genet.session.fileReaders) {
+            if (handler(sess, { file }) === true) {
+              break
+            }
+          }
+        }
+        if (genet.resumer.has('core:session:stream-reader')) {
+          const { name, stream } = genet.resumer.get('core:session:stream-reader')
+          sess.regiterStreamReader(name, stream)
+          sess.startStream()
+        }
         m.redraw()
       })
       if (genet.argv.import) {
@@ -150,6 +165,10 @@ export default class TopView {
               break
             }
           }
+          genet.action.emit('core:session:created', sess)
+        })
+      } else if (genet.resumer.has('core:session:stream-reader')) {
+        genet.session.create().then((sess) => {
           genet.action.emit('core:session:created', sess)
         })
       } else {
@@ -187,10 +206,18 @@ export default class TopView {
       let dump = Promise.resolve()
       if (this.sess) {
         const file = tempy.file({ extension: 'pcap' })
-        dump = this.sess.exportFile(file, '')
+        genet.resumer.set('core:session:dump', file)
+        dump = this.sess.createWriter('pcap-file', { file })
       }
       dump.then(() => {
+        genet.resumer.reload()
         genet.notify.show('Reloading...')
+      }).catch((err) => {
+        genet.notify.show(
+          err.message, {
+            type: 'error',
+            title: 'Dump Error',
+          })
       })
     })
     genet.action.on('core:filter:set', (value) => {

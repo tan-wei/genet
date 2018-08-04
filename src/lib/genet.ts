@@ -5,6 +5,7 @@ import Logger from './logger'
 import Menu from './menu'
 import Notification from './notification'
 import PackageManager from './package-manager'
+import Resumer from './resumer'
 import Session from './session'
 import Workspace from './workspace'
 import Env from './env'
@@ -15,6 +16,7 @@ export default class Genet {
   readonly workspace: Workspace
   readonly keybind: KeyBind
   readonly packages: PackageManager
+  readonly resumer?: Resumer
   readonly session: Session
   readonly menu: Menu
   readonly notify: Notification
@@ -45,6 +47,10 @@ export default class Genet {
     this.env = Env
     this.action = new Action()
     this.argv = Object.assign(argv, options)
+
+    if (options.resume) {
+      this.resumer = new Resumer(options.resume, logger)
+    }
 
     if (options.contextMenu) {
       this.menu.enableContextMenu()
