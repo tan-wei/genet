@@ -1,4 +1,4 @@
 #!/bin/sh
-(cd lib/genet-abi && cargo test)
-(cd lib/genet-kernel && cargo test)
-(cd lib/genet-sdk && cargo test)
+(cd genet-abi && cargo test)
+(cd genet-kernel && cargo test)
+(cd genet-sdk && cargo test)
