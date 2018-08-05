@@ -22,6 +22,7 @@ pub trait Callback: Send {
     fn on_filtered_frames_updated(&self, _id: u32, _frames: u32) {}
     fn on_output_done(&self, _id: u32, _error: Option<Box<::std::error::Error + Send>>) {}
     fn on_input_done(&self, _id: u32, _error: Option<Box<::std::error::Error + Send>>) {}
+    fn on_error(&self, _error: Box<::std::error::Error + Send>) {}
 }
 
 #[derive(Debug)]
@@ -63,7 +64,7 @@ pub struct Store {
 }
 
 impl Store {
-    pub fn new<C: 'static + Callback>(profile: Profile, callback: C) -> Store {
+    pub fn new<C: 'static + Callback + Clone>(profile: Profile, callback: C) -> Store {
         let frames = Arc::new(RwLock::new(ArrayVec::new()));
         let filtered = Arc::new(RwLock::new(HashMap::new()));
         let (ev, send) = EventLoop::new(profile, callback, frames.clone(), filtered.clone());
@@ -205,7 +206,7 @@ struct EventLoop {
 impl EventLoop {
     const OUTPUT_BLOCK_SIZE: usize = 1024;
 
-    pub fn new<C: 'static + Callback>(
+    pub fn new<C: 'static + Callback + Clone>(
         profile: Profile,
         callback: C,
         frames: FrameStore,
@@ -214,6 +215,7 @@ impl EventLoop {
         let (send, recv) = chan::async();
         let sender = send.clone();
         let handle = thread::spawn(move || {
+            let err_callback = callback.clone();
             let result = panic::catch_unwind(AssertUnwindSafe(move || {
                 let mut filter_map = HashMap::new();
                 let mut ppool = parallel::Pool::new(
@@ -266,7 +268,17 @@ impl EventLoop {
                 }
             }));
             if let Err(err) = result {
-                println!("{:?}", err);
+                let message = if let Some(string) = err.downcast_ref::<String>() {
+                    string
+                } else if let Some(string) = err.downcast_ref::<&str>() {
+                    string
+                } else if let Some(err) = err.downcast_ref::<Error>() {
+                    ::std::error::Error::description(err)
+                } else {
+                    "Thread Panicked"
+                };
+                let err = Error(message.to_string());
+                err_callback.on_error(Box::new(err));
             }
         });
         let ev = EventLoop {
@@ -418,6 +430,7 @@ mod tests {
     use profile::Profile;
     use store::{Callback, Store};
 
+    #[derive(Clone)]
     struct TestCallback {}
     impl Callback for TestCallback {}
 

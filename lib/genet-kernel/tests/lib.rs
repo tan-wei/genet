@@ -9,6 +9,7 @@ use genet_kernel::{
     session::{Callback, Event, Session},
 };
 
+#[derive(Clone)]
 struct SessionCallback {}
 
 impl Callback for SessionCallback {

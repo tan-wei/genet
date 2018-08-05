@@ -90,6 +90,7 @@ impl Session {
     }
 }
 
+#[derive(Clone)]
 struct StoreCallback {
     callback: Box<Callback>,
 }
@@ -110,6 +111,10 @@ impl store::Callback for StoreCallback {
     fn on_input_done(&self, id: u32, error: Option<Box<::std::error::Error + Send>>) {
         self.callback.on_event(Event::Input(id, error));
     }
+
+    fn on_error(&self, error: Box<::std::error::Error + Send>) {
+        self.callback.on_event(Event::Error(error));
+    }
 }
 
 #[derive(Debug)]
@@ -118,10 +123,30 @@ pub enum Event {
     FilteredFrames(u32, u32),
     Input(u32, Option<Box<::std::error::Error + Send>>),
     Output(u32, Option<Box<::std::error::Error + Send>>),
+    Error(Box<::std::error::Error + Send>),
 }
 
-pub trait Callback: Send {
+pub trait Callback: CallbackClone + Send {
     fn on_event(&self, event: Event);
+}
+
+pub trait CallbackClone {
+    fn clone_box(&self) -> Box<Callback>;
+}
+
+impl<T> CallbackClone for T
+where
+    T: 'static + Callback + Clone,
+{
+    fn clone_box(&self) -> Box<Callback> {
+        Box::new(self.clone())
+    }
+}
+
+impl Clone for Box<Callback> {
+    fn clone(&self) -> Box<Callback> {
+        self.clone_box()
+    }
 }
 
 impl Serialize for Event {
@@ -155,6 +180,12 @@ impl Serialize for Event {
                 s.serialize_entry("type", "output")?;
                 s.serialize_entry("id", &id)?;
                 s.serialize_entry("error", &err.as_ref().map(|e| format!("{}", e)))?;
+                s.end()
+            }
+            Event::Error(ref err) => {
+                let mut s = serializer.serialize_map(Some(2))?;
+                s.serialize_entry("type", "error")?;
+                s.serialize_entry("error", &format!("{}", err))?;
                 s.end()
             }
         }

@@ -137,6 +137,12 @@ export default class TopView {
     genet.packages.once('updated', () => {
       genet.action.on('core:session:created', (sess) => {
         sess.on('update', () => m.redraw())
+        sess.on('error', (err) => {
+          genet.notify.show(err, {
+            type: 'error',
+            title: 'Session Error',
+          })
+        })
         this.viewState.capture = sess.status.stream
         this.sess = sess
         if (genet.resumer.has('core:filter')) {

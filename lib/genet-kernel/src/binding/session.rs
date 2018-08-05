@@ -60,6 +60,7 @@ pub unsafe extern "C" fn genet_session_profile_free(profile: *mut Profile) {
     }
 }
 
+#[derive(Clone, Copy)]
 struct DataHolder {
     callback: extern "C" fn(*mut libc::c_void, *mut libc::c_char),
     data: *mut libc::c_void,
