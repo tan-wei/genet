@@ -27,7 +27,7 @@ function mergeOrphanedItems(item) {
 
 class LayerItem {
   view(vnode) {
-    const { layer } = vnode.attrs
+    const { layer, frame } = vnode.attrs
     const addr = Number.parseInt(ByteSlice.address(layer.data), 10)
     const name = genet.session.tokenName(layer.id)
 
@@ -124,7 +124,7 @@ class LayerItem {
               }, [
                   name
                 ]),
-              m(renderer, { layer }),
+              m(renderer, { layer, frame }),
               m('span', {
                 style: {
                   display: layer.streamId > 0
@@ -167,7 +167,7 @@ class LayerItem {
       ]),
       m('li', [
         m('ul', [
-          layer.children.map((child) => m(LayerItem, { layer: child }))
+          layer.children.map((child) => m(LayerItem, { layer: child, frame }))
         ])
       ])
     ])
@@ -251,7 +251,7 @@ export default class PcapDetailView {
           m('span', [m(AttributeValueItem, { attr: { value: filterValue } })])
         ])
       ]),
-      children.map((layer) => m(LayerItem, { layer }))
+      children.map((layer) => m(LayerItem, { layer, frame }))
     ])
   }
 }

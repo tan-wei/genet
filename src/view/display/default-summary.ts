@@ -2,7 +2,7 @@ import genet from '@genet/api'
 import m from 'mithril'
 
 class AttrRenderer {
-  view (vnode) {
+  view(vnode) {
     if (!vnode.attrs.attr) {
       return m('span')
     }
@@ -11,10 +11,10 @@ class AttrRenderer {
 }
 
 export default class Summary {
-  view (vnode) {
-    const { layer } = vnode.attrs
-    const src = layer.attr(`${layer.id}.src`)
-    const dst = layer.attr(`${layer.id}.dst`)
+  view(vnode) {
+    const { frame } = vnode.attrs
+    const src = frame.query(`_.src`)
+    const dst = frame.query(`_.dst`)
     if (!src || !dst) {
       return m('span', [])
     }

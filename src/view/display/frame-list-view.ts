@@ -241,7 +241,7 @@ export default class FrameListView {
       func: (frame) => {
         const { id } = frame.primary
         const renderer = genet.session.layerRenderer(id) || DefaultSummary
-        return m(renderer, { layer: frame.primary })
+        return m(renderer, { layer: frame.primary, frame })
       },
     })
   }
