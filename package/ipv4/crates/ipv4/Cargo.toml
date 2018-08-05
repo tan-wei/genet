@@ -11,7 +11,3 @@ crate-type = ["cdylib"]
 lazy_static = "1"
 maplit = "1"
 genet-sdk = "0"
-
-[patch.crates-io]
-genet-sdk = { path = "../../../../lib/genet-sdk" }
-genet-abi = { path = "../../../../lib/genet-abi" }

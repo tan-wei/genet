@@ -10,9 +10,5 @@ lazy_static = "1"
 pcap = { path = "../pcap" }
 genet-sdk = "0"
 
-[patch.crates-io]
-genet-sdk = { path = "../../../../lib/genet-sdk" }
-genet-abi = { path = "../../../../lib/genet-abi" }
-
 [lib]
 crate-type = ["cdylib"]
