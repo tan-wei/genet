@@ -22,15 +22,31 @@ export default class InputDialog {
       this.input = layout[0].id
     }
     return m('div', { class: 'tool-view' }, [
-      m('ul', [
-        m('li', [
-          m('select', {
-            name: 'input-id',
-            onchange: () => this.update(vnode),
-          }, layout.map((panel) =>
-            m('option', { value: panel.id }, [panel.name])))
-        ])
-      ]),
+      m('div', {
+        style: {
+          display: layout.length === 0
+            ? 'block'
+            : 'none',
+        },
+      }, [
+          m('h1', ['No input source']),
+          m('p', ['There is no available input source. Please install related package.'])
+        ]),
+      m('ul', {
+        style: {
+          display: layout.length > 0
+            ? 'block'
+            : 'none',
+        },
+      }, [
+          m('li', [
+            m('select', {
+              name: 'input-id',
+              onchange: () => this.update(vnode),
+            }, layout.map((panel) =>
+              m('option', { value: panel.id }, [panel.name])))
+          ])
+        ]),
       m('div',
         layout.map((panel) => m('div', {
           style: {
