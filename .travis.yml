@@ -22,9 +22,9 @@ install:
 - npm install
 script:
 - node_modules/.bin/webpack
-- (cd lib/genet-abi && cargo test)
-- (cd lib/genet-sdk && cargo test)
-- (cd lib/genet-kernel && cargo test && cargo build)
-- (cd lib/genet-node && node-gyp rebuild --debug)
+- (cd genet-abi && cargo test)
+- (cd genet-sdk && cargo test)
+- (cd genet-kernel && cargo test && cargo build)
+- (cd genet-node && node-gyp rebuild --debug)
 notifications:
   email: false

@@ -5,4 +5,4 @@ find . -name Cargo.toml|while read fname; do
   (cd $DIR; cargo +nightly fmt)
 done
 
-(cd lib/genet-node && clang-format -i src/*.*)
+(cd genet-node && clang-format -i src/*.*)
