@@ -245,8 +245,8 @@ export default class PackageManager extends EventEmitter {
 
     const versionFile = path.join(Env.userPath, '.version')
     await promiseWriteFile(versionFile, JSON.stringify({
-      genet: Env.genet.version,
-      abi: process.versions.modules,
+      genet: semver.coerce(Env.genet.version),
+      target: process.env.GENET_TARGET,
       resourcePath: path.resolve(__dirname, '../..'),
     }))
   }
