@@ -1,4 +1,4 @@
-import jsonfile from 'jsonfile'
+import fs from 'fs-extra'
 import tempy from 'tempy'
 import Logger from './logger'
 const { remote } = require('electron')
@@ -11,7 +11,7 @@ export default class Resumer {
       data: {},
     }
     try {
-      this[fields].data = jsonfile.readFileSync(file)
+      this[fields].data = fs.readJsonSync(file)
     } catch (err) {
       logger.debug(err.message)
     }
@@ -31,7 +31,7 @@ export default class Resumer {
 
   reload() {
     const { data, file } = this[fields]
-    jsonfile.writeFileSync(file, data)
+    fs.writeJsonSync(file, data)
     remote.getCurrentWebContents().reload()
   }
 
