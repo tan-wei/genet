@@ -1,4 +1,4 @@
-use chan;
+use crossbeam_channel;
 use dissector::dispatcher::Dispatcher;
 use frame::Frame;
 use profile::Profile;
@@ -12,14 +12,14 @@ pub trait Callback: Sync + Send {
 }
 
 pub struct Pool {
-    sender: chan::Sender<Option<Vec<Frame>>>,
+    sender: crossbeam_channel::Sender<Option<Vec<Frame>>>,
     handles: Vec<JoinHandle<()>>,
 }
 
 impl Pool {
     pub fn new<C: 'static + Callback>(profile: Profile, callback: C) -> Pool {
         let callback = Box::new(callback);
-        let (send, recv) = chan::async::<Option<Vec<Frame>>>();
+        let (send, recv) = crossbeam_channel::unbounded::<Option<Vec<Frame>>>();
         let mut handles = Vec::new();
 
         let handle = thread::spawn(move || {

@@ -1,5 +1,5 @@
 use array_vec::ArrayVec;
-use chan;
+use crossbeam_channel;
 use dissector::{parallel, serial};
 use filter::{self, Filter};
 use frame::Frame;
@@ -55,7 +55,7 @@ type FilteredFrameStore = Arc<RwLock<HashMap<u32, Vec<u32>>>>;
 
 #[derive(Debug)]
 pub struct Store {
-    sender: chan::Sender<Command>,
+    sender: crossbeam_channel::Sender<Command>,
     ev: EventLoop,
     frames: FrameStore,
     filtered: FilteredFrameStore,
@@ -161,7 +161,7 @@ impl Store {
 #[derive(Debug)]
 struct InputContext {
     handle: Option<JoinHandle<()>>,
-    holder: Option<Arc<chan::Sender<Command>>>,
+    holder: Option<Arc<crossbeam_channel::Sender<Command>>>,
 }
 
 impl Drop for InputContext {
@@ -173,7 +173,7 @@ impl Drop for InputContext {
 
 #[derive(Clone)]
 struct ParallelCallback {
-    sender: chan::Sender<Command>,
+    sender: crossbeam_channel::Sender<Command>,
 }
 
 impl parallel::Callback for ParallelCallback {
@@ -184,7 +184,7 @@ impl parallel::Callback for ParallelCallback {
 
 #[derive(Clone)]
 struct SerialCallback {
-    sender: chan::Sender<Command>,
+    sender: crossbeam_channel::Sender<Command>,
 }
 
 impl serial::Callback for SerialCallback {
@@ -200,7 +200,7 @@ struct FilterContext {
 
 struct EventLoop {
     handle: Option<JoinHandle<()>>,
-    sender: chan::Sender<Command>,
+    sender: crossbeam_channel::Sender<Command>,
 }
 
 impl EventLoop {
@@ -211,8 +211,8 @@ impl EventLoop {
         callback: C,
         frames: FrameStore,
         filtered: FilteredFrameStore,
-    ) -> (EventLoop, chan::Sender<Command>) {
-        let (send, recv) = chan::async();
+    ) -> (EventLoop, crossbeam_channel::Sender<Command>) {
+        let (send, recv) = crossbeam_channel::unbounded();
         let sender = send.clone();
         let handle = thread::spawn(move || {
             let err_callback = callback.clone();
