@@ -91,6 +91,9 @@ export default class WindowView {
         .getCurrentWebContents()
         .send(`${channel} #${windowId}`)
     })
+    genet.action.global.on('core:help:documentation', () => {
+      shell.openExternal('https://docs.genet.app/')
+    })
     genet.action.global.on('core:tab:open-devtool', () => {
       const webview = document.querySelector('webview[active]') as any
       if (webview !== null) {

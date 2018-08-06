@@ -84,7 +84,10 @@ const template: any[] = [
   {
     role: 'help',
     submenu: [
-      { label: 'Learn More' }
+      {
+        label: 'Documentation',
+        action: 'core:help:documentation',
+      }
     ],
   }
 ]
