@@ -14,7 +14,7 @@ addons:
     - g++-5
     - libcap-dev
 cache:
-  cache: cargo
+  cargo: true
   directories:
     - /home/travis/.rustup/
     - node_modules
