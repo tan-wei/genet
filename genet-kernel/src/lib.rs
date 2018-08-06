@@ -1,4 +1,4 @@
-extern crate chan;
+extern crate crossbeam_channel;
 extern crate genet_abi;
 extern crate libc;
 extern crate libloading;
