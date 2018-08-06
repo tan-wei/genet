@@ -13,6 +13,11 @@ addons:
     packages:
     - g++-5
     - libcap-dev
+cache:
+  directories:
+    - /home/travis/.cargo/
+    - /home/travis/.rustup/
+    - node_modules
 install:
 - curl https://sh.rustup.rs -sSf | sh -s -- -y
 - export PATH=$PATH:$HOME/.cargo/bin
