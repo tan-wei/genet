@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
   <title>genet</title>
@@ -13,11 +14,13 @@
       justify-content: center;
       align-items: center;
     }
+
     div {
       max-width: 400px;
     }
   </style>
 </head>
+
 <body>
   <div>
     <h1>Whoops! Tab crashed.</h1>
@@ -28,8 +31,8 @@
       <li>Bugs in 3rd-party packages.</li>
       <li>Bugs in genet.</li>
     </ul>
-    <input type="button" value="Reload" 
-      onclick="javascript: location.href = Buffer.from(location.search.substr(1), 'base64').toString('utf8')"></input>
+    <input type="button" value="Reload" onclick="javascript: location.href = Buffer.from(location.search.substr(1), 'base64').toString('utf8')"></input>
   </div>
 </body>
+
 </html>
