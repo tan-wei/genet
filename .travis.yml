@@ -16,7 +16,6 @@ addons:
 cache:
   cargo: true
   directories:
-    - /home/travis/.rustup/
     - node_modules
 install:
 - curl https://sh.rustup.rs -sSf | sh -s -- -y
