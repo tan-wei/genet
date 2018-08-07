@@ -24,6 +24,10 @@ export default class PrefernceView {
       name: 'KeyBind',
       component: KeyBind,
     }, {
+      name: 'Development',
+      component: General,
+      attrs: { prefix: '_.dev.' },
+    }, {
       name: 'Version',
       component: Version,
     }]

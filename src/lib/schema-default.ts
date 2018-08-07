@@ -48,6 +48,12 @@ export default {
       title: 'Rust Path',
       type: 'string',
     },
+    '_.dev.tabReloading': {
+      title: 'Tab Reloading',
+      description: 'Touch $HOME/.genet/.reload to reload current tab',
+      type: 'boolean',
+      default: false,
+    },
   },
   workspace: {
     '_.window.size': {
