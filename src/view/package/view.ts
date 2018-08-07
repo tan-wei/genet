@@ -9,6 +9,9 @@ export default class PackageView {
   }
 
   oncreate() {
+    genet.action.global.on('core:tab:reload', () => {
+      window.location.reload()
+    })
     genet.packages.on('updated', () => {
       m.redraw()
     })

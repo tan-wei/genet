@@ -148,12 +148,16 @@ export default class WindowView {
     fs.ensureFile(tabRealodingFile, () => {
       chokidar.watch(tabRealodingFile).on('all', () => {
         if (genet.config.get('_.dev.tabReloading', false)) {
-          const webview = document.querySelector('webview[active]') as any
-          if (webview !== null) {
-            webview.executeJavaScript(`
+          const webview = document.querySelectorAll('webview')
+          webview.forEach((view: any) => {
+            view.setAttribute('loading', '')
+            view.executeJavaScript(`
               require('@genet/api').action.global.emit('core:tab:reload')
             `)
-          }
+            view.addEventListener('did-finish-load', () => {
+              view.removeAttribute('loading')
+            }, { once: true })
+          })
         }
       })
     })

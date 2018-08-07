@@ -1,6 +1,7 @@
 import General from './general'
 import KeyBind from './keybind'
 import Version from './version'
+import genet from '@genet/api'
 import m from 'mithril'
 
 export default class PrefernceView {
@@ -28,6 +29,12 @@ export default class PrefernceView {
       component: Version,
     }]
     this.activeTab = 'Package'
+  }
+
+  oncreate() {
+    genet.action.global.on('core:tab:reload', () => {
+      window.location.reload()
+    })
   }
 
   view() {
