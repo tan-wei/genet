@@ -24,9 +24,14 @@ class PcapView {
 
   async create (ifs, link) {
     const sess = await genet.session.create()
+    const args = ['capture', ifs]
+    const snaplen = genet.config.get('@genet/pcap.snapshotLength')
+    if (Number.isInteger(snaplen)) {
+      args.push('-l', `${snaplen}`)
+    }
     const stream = {
       cmd: cli,
-      args: ['capture', ifs],
+      args,
       link,
     }
     const name = 'pcap'

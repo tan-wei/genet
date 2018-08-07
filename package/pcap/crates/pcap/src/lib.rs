@@ -69,7 +69,7 @@ impl Pcap {
         true
     }
 
-    pub fn start(&mut self, ifs: &str) -> Result<FrameReceiver, Error> {
+    pub fn start(&mut self, ifs: &str, snaplen: u32) -> Result<FrameReceiver, Error> {
         use std::{ffi::CString, slice};
         let (send, recv) = channel();
         let ifs = CString::new(ifs).unwrap();
@@ -87,7 +87,7 @@ impl Pcap {
         unsafe {
             let pcap = (self.syms.pcap_open_live)(
                 ifs.as_ptr(),
-                1600,
+                snaplen as i32,
                 0,
                 1,
                 errbuf.as_ptr() as *mut libc::c_char,
@@ -165,7 +165,7 @@ impl Pcap {
                 let link = {
                     let pcap = (self.syms.pcap_open_live)(
                         (*cur).name,
-                        1600,
+                        2048,
                         0,
                         0,
                         errbuf.as_ptr() as *mut libc::c_char,

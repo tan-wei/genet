@@ -13,12 +13,18 @@ use std::{
 };
 
 fn main() {
-    let capture = SubCommand::with_name("capture").arg(
-        Arg::with_name("DEVICE")
-            .help("Sets the input file to use")
-            .required(true)
-            .index(1),
-    );
+    let capture = SubCommand::with_name("capture")
+        .arg(
+            Arg::with_name("DEVICE")
+                .help("Sets the input file to use")
+                .required(true)
+                .index(1),
+        ).arg(
+            Arg::with_name("snaplen")
+                .short("l")
+                .help("Sets the snapshot length")
+                .takes_value(true),
+        );
 
     let status = SubCommand::with_name("devices");
 
@@ -50,7 +56,11 @@ fn main() {
     }
 
     if let Some(matches) = matches.subcommand_matches("capture") {
-        let recv = match pcap.start(&matches.value_of("DEVICE").unwrap()) {
+        let snaplen: u32 = matches
+            .value_of("snaplen")
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(2048);
+        let recv = match pcap.start(&matches.value_of("DEVICE").unwrap(), snaplen) {
             Ok(r) => r,
             Err(e) => {
                 eprintln!("error: {:?}", e);
