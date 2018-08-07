@@ -27,7 +27,7 @@ class LinuxHelper {
     return m('section', [
       m('h1', ['Not enough capabilities']),
       m('p', [
-        'This executable does not have enough capabilities to ' +
+        'pcap-cli does not have enough capabilities to ' +
         'start a live capture.',
         m('br'),
         'Please run the following command to add capabilities.',
