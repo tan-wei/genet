@@ -24,7 +24,7 @@ script:
 - node_modules/.bin/webpack
 - (cd genet-abi && cargo test)
 - (cd genet-sdk && cargo test)
-- (cd genet-kernel && cargo build && cargo test)
+- (cd genet-kernel && cargo test)
 - (cd genet-node && node-gyp rebuild --debug)
 notifications:
   email: false
