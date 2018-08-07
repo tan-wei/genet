@@ -2,6 +2,7 @@ import ButtonBoxView from './button'
 import Env from '../../lib/env'
 import Installer from '../../lib/package-install'
 import SchemaInput from '../../lib/schema-input'
+import titleCase from 'title-case'
 import genet from '@genet/api'
 import m from 'mithril'
 import path from 'path'
@@ -46,7 +47,7 @@ export default class DetailView {
     }
 
     const config = Object.entries(genet.config.schema)
-      .filter(([id]) => id.startsWith(`${pkg.id}.`)) as [string, any][]
+      .filter(([id]) => id.startsWith(`${pkg.data.name}.`)) as [string, any][]
     return m('article', [
       m('h1', { disabled: pkg.disabled || pkg.incompatible }, [pkg.data.name,
       m('span', { class: 'version' },
@@ -70,7 +71,8 @@ export default class DetailView {
       }),
       m('p', config.map(([id, schema]) => m('section', [
         m('h4', [
-          schema.title, m('span', { class: 'schema-path' }, [id])]),
+          schema.title || titleCase(id.split('.').slice(-1)[0]),
+          m('span', { class: 'schema-path' }, [id])]),
         m(SchemaInput, {
           id,
           schema,

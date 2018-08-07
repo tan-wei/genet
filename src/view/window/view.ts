@@ -3,6 +3,8 @@ import { HSplitter } from '../../lib/splitter'
 import Menu from './menu'
 import Resumer from '../../lib/resumer'
 import Stack from './stack'
+import chokidar from 'chokidar'
+import fs from 'fs-extra'
 import flatten from 'lodash.flatten'
 import genet from '@genet/api'
 import m from 'mithril'
@@ -142,6 +144,20 @@ export default class WindowView {
         })
       }
     })
+    const tabRealodingFile = path.join(Env.userPath, '.reload')
+    fs.ensureFile(tabRealodingFile, () => {
+      chokidar.watch(tabRealodingFile).on('all', () => {
+        if (genet.config.get('_.dev.tabReloading', false)) {
+          const webview = document.querySelector('webview[active]') as any
+          if (webview !== null) {
+            webview.executeJavaScript(`
+              require('@genet/api').action.global.emit('core:tab:reload')
+            `)
+          }
+        }
+      })
+    })
+
     this.createDisplayTab()
   }
 

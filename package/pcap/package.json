@@ -20,6 +20,13 @@
         "type": "core:library",
         "main": "pcap-reader"
       }
-    ]
+    ],
+    "configSchema": {
+      "@genet/pcap.snapshotLength": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 2048
+      }
+    }
   }
 }

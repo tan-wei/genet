@@ -9,25 +9,25 @@ export default class PrefernceView {
 
   constructor() {
     this.tabs = [{
-      name: 'Pcap',
+      name: 'Package',
       component: General,
-      attrs: { prefix: '_.pcap.' },
+      attrs: { prefix: '_.package.' },
     }, {
       name: 'Dissector',
       component: General,
       attrs: { prefix: '_.dissector.' },
     }, {
-      name: 'Package',
-      component: General,
-      attrs: { prefix: '_.package.' },
-    }, {
       name: 'KeyBind',
       component: KeyBind,
+    }, {
+      name: 'Development',
+      component: General,
+      attrs: { prefix: '_.dev.' },
     }, {
       name: 'Version',
       component: Version,
     }]
-    this.activeTab = 'Pcap'
+    this.activeTab = 'Package'
   }
 
   view() {

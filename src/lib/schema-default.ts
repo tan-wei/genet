@@ -1,14 +1,6 @@
 export default {
   config: {
-    '_.pcap.snaplen': {
-      title: 'Snapshot Length',
-      description: 'Snapshot Length',
-      type: 'integer',
-      minimum: 0,
-      default: 2048,
-    },
     '_.framelist.columns': {
-      title: 'FrameList Columns',
       type: 'array',
       default: [
         {
@@ -26,7 +18,6 @@ export default {
       ],
     },
     '_.dissector.concurrency': {
-      title: 'Concurrency',
       type: 'integer',
       enum: [0, 1, 2, 3, 4, 5, 6, 7, 8],
       enumTitles: [
@@ -44,9 +35,13 @@ export default {
       maximum: 8,
       default: 0,
     },
-    '_.package.rustpath': {
-      title: 'Rust Path',
+    '_.package.rustPath': {
       type: 'string',
+    },
+    '_.dev.tabReloading': {
+      description: 'Touch $HOME/.genet/.reload to reload current tab',
+      type: 'boolean',
+      default: false,
     },
   },
   workspace: {
