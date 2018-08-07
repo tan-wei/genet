@@ -1,10 +1,5 @@
 export default {
   config: {
-    '_.pcap.snapshotLength': {
-      type: 'integer',
-      minimum: 0,
-      default: 2048,
-    },
     '_.framelist.columns': {
       type: 'array',
       default: [

@@ -15,15 +15,6 @@
           "tokens.json"
         ]
       }
-    ],
-    "configSchema": {
-      "@genet/tokens.snaplen": {
-        "title": "Snapshot Length",
-        "description": "Snapshot Length",
-        "type": "integer",
-        "minimum": 0,
-        "default": 2048
-      }
-    }
+    ]
   }
 }

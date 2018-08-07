@@ -47,7 +47,7 @@ export default class DetailView {
     }
 
     const config = Object.entries(genet.config.schema)
-      .filter(([id]) => id.startsWith(`${pkg.id}.`)) as [string, any][]
+      .filter(([id]) => id.startsWith(`${pkg.data.name}.`)) as [string, any][]
     return m('article', [
       m('h1', { disabled: pkg.disabled || pkg.incompatible }, [pkg.data.name,
       m('span', { class: 'version' },
