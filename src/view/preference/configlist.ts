@@ -1,5 +1,6 @@
 import SchemaInput from '../../lib/schema-input'
 import genet from '@genet/api'
+import titleCase from 'title-case'
 import m from 'mithril'
 import marked from 'marked'
 
@@ -20,7 +21,10 @@ export default class ConfigList {
     return [
       m('div',
         config.map(([id, schema]) => m('section', [
-          m('h4', [schema.title, m('span', { class: 'schema-path' }, [id])]),
+          m('h4', [
+            schema.title || titleCase(id.split('.').slice(-1)[0]),
+            m('span', { class: 'schema-path' }, [id])
+          ]),
           m(SchemaInput, {
             id,
             schema,
