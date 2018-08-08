@@ -10,10 +10,6 @@ export default class PrefernceView {
 
   constructor() {
     this.tabs = [{
-      name: 'Package',
-      component: General,
-      attrs: { prefix: '_.package.' },
-    }, {
       name: 'Dissector',
       component: General,
       attrs: { prefix: '_.dissector.' },
@@ -28,7 +24,7 @@ export default class PrefernceView {
       name: 'Version',
       component: Version,
     }]
-    this.activeTab = 'Package'
+    this.activeTab = 'Dissector'
   }
 
   oncreate() {

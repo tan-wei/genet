@@ -35,9 +35,6 @@ export default {
       maximum: 8,
       default: 0,
     },
-    '_.package.rustPath': {
-      type: 'string',
-    },
     '_.dev.tabReloading': {
       description: 'Touch $HOME/.genet/.reload to reload current tab',
       type: 'boolean',
