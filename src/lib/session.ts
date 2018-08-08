@@ -11,6 +11,7 @@ export default class Session {
     this[fields] = {
       config,
       tokens: new Map(),
+      actions: new Map(),
       libs: new Set(),
       fileReaders: new Set(),
       layerRenderers: new Map(),
@@ -25,6 +26,10 @@ export default class Session {
     return this[fields].tokens
   }
 
+  get actions() {
+    return this[fields].actions
+  }
+
   get fileReaders() {
     return this[fields].fileReaders
   }
@@ -36,6 +41,17 @@ export default class Session {
     return new Disposable(() => {
       for (const id of Object.keys(tokens)) {
         this[fields].tokens.delete(id)
+      }
+    })
+  }
+
+  registerActions(actions) {
+    for (const [id, data] of Object.entries(actions)) {
+      this[fields].actions.set(id, Object.assign({}, data))
+    }
+    return new Disposable(() => {
+      for (const id of Object.keys(actions)) {
+        this[fields].actions.delete(id)
       }
     })
   }

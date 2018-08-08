@@ -1,3 +1,4 @@
+import { ActionComponent } from './component/action'
 import { FileComponent } from './component/file'
 import { LibraryComponent } from './component/library'
 import { MacroComponent } from './component/macro'
@@ -10,6 +11,8 @@ export default class ComponentFactory {
     switch (comp.type) {
       case 'core:token':
         return new TokenComponent.Loader(comp, dir)
+      case 'core:action':
+        return new ActionComponent.Loader(comp, dir)
       case 'core:library':
         return new LibraryComponent.Loader(comp, dir)
       case 'core:file:reader':
