@@ -85,30 +85,24 @@ You need a rust toolchain to install native packages.
 Visit https://www.rustup.rs/ for installation details.
       `)
     }
-    const cargoFiles =
-      await promiseGlob(path.join(dir, 'crates/*/Cargo.toml'))
-    const cargoDirs = cargoFiles.map((toml) => path.dirname(toml))
     const target = process.env.GENET_TARGET === 'release'
       ? ['--release']
       : []
-    for (const cdir of cargoDirs) {
-      const flags = process.env.RUSTFLAGS || '-C target-cpu=native'
-      const proc = execa('cargo', ['build', '-v'].concat(target), {
-        cwd: cdir,
-        env: Object.assign(process.env, {
-          RUSTFLAGS: flags,
-          PATH: envpath,
-        }),
-      })
-      proc.stdout.on('data', (chunk) => {
-        this.emit('output', chunk.toString('utf8'))
-      })
-      proc.stderr.on('data', (chunk) => {
-        this.emit('output', chunk.toString('utf8'))
-      })
-      // eslint-disable-next-line no-await-in-loop
-      await proc
-    }
+    const flags = process.env.RUSTFLAGS || '-C target-cpu=native'
+    const proc = execa('cargo', ['build', '-v'].concat(target), {
+      cwd: dir,
+      env: Object.assign(process.env, {
+        RUSTFLAGS: flags,
+        PATH: envpath,
+      }),
+    })
+    proc.stdout.on('data', (chunk) => {
+      this.emit('output', chunk.toString('utf8'))
+    })
+    proc.stderr.on('data', (chunk) => {
+      this.emit('output', chunk.toString('utf8'))
+    })
+    await proc
   }
 
   async npm(dir: string) {

@@ -18,7 +18,7 @@
       },
       {
         "type": "core:library",
-        "main": "pcap-reader"
+        "main": "pcap_reader"
       }
     ],
     "configSchema": {

@@ -1,10 +1,10 @@
 [package]
-name = "ipv4"
+name = "ipv6"
 version = "0.1.0"
 authors = ["Ron Hashimoto <mail@h2so5.net>"]
 
 [lib]
-name = "main"
+name = "ipv6"
 crate-type = ["cdylib"]
 
 [dependencies]

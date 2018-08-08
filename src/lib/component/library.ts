@@ -16,21 +16,12 @@ export default class LibraryComponent implements BaseComponent {
       throw new Error('main field required')
     }
 
-    const searchPaths = ['.']
-    for (const spath of searchPaths) {
-      const absolute = path.join(dir, spath, file)
-      if (fs.existsSync(absolute)) {
-        this.mainFile = absolute
-        break
-      }
-    }
-    if (!this.mainFile) {
-      const libs = glob.sync(
-        `crates/${file}/target/${process.env.GENET_TARGET}/*.{dll,so,dylib}`,
-        { cwd: dir })
-      if (libs.length > 0) {
-        this.mainFile = path.join(dir, libs[0])
-      }
+    const libs = glob.sync(
+      `target/${process.env.GENET_TARGET}/?(lib)${file}.{dll,so,dylib}`,
+      { cwd: dir })
+    console.log(`target/${process.env.GENET_TARGET}/?(lib)${file}.{dll,so,dylib}`, libs, dir)
+    if (libs.length > 0) {
+      this.mainFile = path.join(dir, libs[0])
     }
     if (!this.mainFile) {
       throw new Error(`could not resolve ${file} in ${dir}`)

@@ -1,5 +1,5 @@
 [package]
-name = "pcap-reader"
+name = "pcap-writer"
 version = "0.1.0"
 
 [dependencies]
@@ -7,8 +7,9 @@ serde = "1"
 serde_json = "1"
 serde_derive = "1"
 lazy_static = "1"
-pcap = { path = "../pcap" }
+byteorder = "1"
 genet-sdk = "0"
 
 [lib]
+name = "writer"
 crate-type = ["cdylib"]

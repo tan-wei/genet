@@ -11,4 +11,5 @@ byteorder = "1"
 genet-sdk = "0"
 
 [lib]
+name = "reader"
 crate-type = ["cdylib"]

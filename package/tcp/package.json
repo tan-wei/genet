@@ -14,7 +14,7 @@
       },
       {
         "type": "core:library",
-        "main": "tcp-stream"
+        "main": "tcp_stream"
       },
       {
         "type": "core:style",

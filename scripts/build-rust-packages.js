@@ -8,7 +8,7 @@ const mode = process.env.NODE_ENV === 'production'
   ? ['--release']
   : []
 
-const dirs = glob.sync(path.join(__dirname, '../package/*/crates/*/Cargo.toml'))
+const dirs = glob.sync(path.join(__dirname, '../package/*/Cargo.toml'))
   .map((toml) => path.dirname(toml))
 
 async function exec() {

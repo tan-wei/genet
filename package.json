@@ -20,9 +20,9 @@
     "files": [
       "genet_modules",
       "package",
-      "!package/*/crates/**/*",
-      "package/*/crates/*/target/release/*.{dylib,dll,so}",
-      "package/*/crates/*/target/release/*{-cli,-cli.exe}"
+      "!package/**/target/**/*",
+      "package/*/target/release/*.{dylib,dll,so}",
+      "package/*/target/release/*{-cli,-cli.exe}"
     ],
     "asarUnpack": [
       "package",
