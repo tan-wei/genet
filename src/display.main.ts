@@ -5,6 +5,7 @@ export default function main() {
   const components = [
     'core:style',
     'core:token',
+    'core:action',
     'core:panel',
     'core:library',
     'core:file:reader',

@@ -16,6 +16,12 @@
         ]
       },
       {
+        "type": "core:action",
+        "files": [
+          "actions.json"
+        ]
+      },
+      {
         "type": "core:renderer:attr",
         "id": "@flags",
         "main": "flags.js"

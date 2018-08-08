@@ -1,0 +1,12 @@
+{
+  "core:window-new": true,
+  "core:file:import": true,
+  "core:file:export": true,
+  "core:file:browse-user-dir": true,
+  "core:tab:new-pcap": true,
+  "core:tab:open-devtool": true,
+  "core:tab:reload": true,
+  "core:tab:show-preferences": true,
+  "core:tab:show-packages": true,
+  "core:help:documentation": true
+}
