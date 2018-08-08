@@ -31,7 +31,7 @@ const template: any[] = [
       { type: 'separator' },
       {
         label: 'Display Filter',
-        action: 'core:pcap:focus-display-filter',
+        action: 'core:display:focus-filter',
         accelerator: 'CommandOrControl+F',
       },
       { type: 'separator' },

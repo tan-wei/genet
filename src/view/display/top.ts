@@ -202,7 +202,7 @@ export default class TopView {
         })
       outputDialog.show({ cancelable: true })
     })
-    genet.action.global.on('core:pcap:focus-display-filter', () => {
+    genet.action.global.on('core:display:focus-filter', () => {
       const input = document.querySelector('input[name=display-filter]')
       if (input instanceof HTMLInputElement) {
         input.focus()
