@@ -20,12 +20,13 @@ export default class FilterSuggest {
         .map(([id, item]) => ({
           id,
           item,
+          name: genet.session.tokenName(id)
         }))
         .concat(genet.workspace.get('_.filter.history', []).map((history) => ({
           id: history,
           item: { name: '(history)' },
         })))
-      const fuse = new Fuse(source, { keys: ['id', 'item.name'] })
+      const fuse = new Fuse(source, { keys: ['id', 'name'] })
       this.items = fuse.search(this.hint).slice(0, 6)
       m.redraw()
     }, 200)
@@ -85,7 +86,7 @@ export default class FilterSuggest {
           : 'none',
       },
     }, [
-        m('ul', this.items.map(({ id, item }, index) => m('li',
+        m('ul', this.items.map(({ id, name }, index) => m('li',
           {
             active: index === this.index,
             onmousedown: (event) => {
@@ -95,7 +96,7 @@ export default class FilterSuggest {
             },
           }, [
             id,
-            m('span', { class: 'description' }, [item.name])
+            m('span', { class: 'description' }, [name])
           ])))
       ])
   }

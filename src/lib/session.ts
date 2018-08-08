@@ -31,7 +31,7 @@ export default class Session {
 
   registerTokens(tokens) {
     for (const [id, data] of Object.entries(tokens)) {
-      this[fields].tokens.set(id, data)
+      this[fields].tokens.set(id, Object.assign({}, data))
     }
     return new Disposable(() => {
       for (const id of Object.keys(tokens)) {
