@@ -1,4 +1,4 @@
-export default interface BaseComponent {
+export default interface BaseLoader {
   load(): Promise<boolean>
   unload(): Promise<boolean>
 }
