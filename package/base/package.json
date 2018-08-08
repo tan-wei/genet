@@ -1,13 +1,20 @@
 {
-  "name": "@genet/attr-types",
+  "name": "@genet/base",
   "version": "0.1.0",
   "license": "MIT",
-  "description": "Generic attribute types",
+  "description": "Basic definitions",
   "engines": {
     "genet": "*"
   },
+  "homepage": "https://genet.app/",
   "genet": {
     "components": [
+      {
+        "type": "core:token",
+        "files": [
+          "tokens.json"
+        ]
+      },
       {
         "type": "core:renderer:attr",
         "id": "@flags",
