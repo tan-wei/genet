@@ -1,0 +1,15 @@
+[package]
+name = "pcap-reader"
+version = "0.1.0"
+
+[dependencies]
+serde = "1"
+serde_json = "1"
+serde_derive = "1"
+lazy_static = "1"
+byteorder = "1"
+genet-sdk = "0"
+
+[lib]
+name = "reader"
+crate-type = ["cdylib"]

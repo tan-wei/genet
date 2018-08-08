@@ -1,0 +1,12 @@
+[package]
+name = "tcp-stream"
+version = "0.1.0"
+authors = ["Ron Hashimoto <mail@h2so5.net>"]
+
+[lib]
+name = "tcp_stream"
+crate-type = ["cdylib"]
+
+[dependencies]
+lazy_static = "1"
+genet-sdk = "0"

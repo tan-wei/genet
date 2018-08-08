@@ -18,7 +18,6 @@ const mode = process.env.NODE_ENV === 'production'
   : []
 
 const src = path.resolve(__dirname, '..')
-const rustSrc = path.resolve(src, 'genet-kernel')
 const nodeSrc = path.resolve(src, 'genet-node')
 const scriptFiles = glob.sync(path.resolve(nodeSrc, '*.{js,json}'))
 const dst = path.resolve(__dirname, '../genet_modules/genet-node')
@@ -30,8 +29,8 @@ fs.ensureDirSync(dst)
 fs.ensureDirSync(dstBin)
 
 async function exec() {
-  await execa('cargo', ['build'].concat(mode), { env, cwd: rustSrc, stdio: 'inherit' })
-  const [slib] = glob.sync(`genet-kernel/target/${target}/*genet_kernel.{a,lib}`)
+  await execa('cargo', ['build'].concat(mode), { env, cwd: src, stdio: 'inherit' })
+  const [slib] = glob.sync(`target/${target}/*genet_kernel.{a,lib}`)
   const { atime, mtime } = fs.statSync(slib)
   fs.utimesSync('genet-node/src/main.cpp', atime, mtime)
 

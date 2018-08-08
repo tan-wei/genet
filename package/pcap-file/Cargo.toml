@@ -1,0 +1,5 @@
+[workspace]
+members = ["reader", "writer"]
+
+[replace]
+"genet-abi:0.1.0" = { path = "../../genet-abi" }
