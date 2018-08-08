@@ -146,7 +146,7 @@ export default class WindowView {
     })
     const tabRealodingFile = path.join(Env.userPath, '.reload')
     fs.ensureFile(tabRealodingFile, () => {
-      chokidar.watch(tabRealodingFile).on('all', () => {
+      chokidar.watch(tabRealodingFile, { ignoreInitial: true }).on('all', () => {
         if (genet.config.get('_.dev.tabReloading', false)) {
           const webview = document.querySelectorAll('webview')
           webview.forEach((view: any) => {
