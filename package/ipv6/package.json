@@ -27,9 +27,7 @@
       },
       {
         "type": "core:style",
-        "files": [
-          "ipv6.css"
-        ]
+        "main": "ipv6.css"
       },
       {
         "type": "core:token",

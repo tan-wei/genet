@@ -18,9 +18,7 @@
       },
       {
         "type": "core:style",
-        "files": [
-          "tcp.css"
-        ]
+        "main": "tcp.css"
       },
       {
         "type": "core:token",

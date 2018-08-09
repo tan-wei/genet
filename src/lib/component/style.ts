@@ -1,25 +1,23 @@
 import BaseLoader from './base'
-import { CompositeDisposable } from '../disposable'
+import { Disposable } from '../disposable'
 import Style from '../style'
 import path from 'path'
 
 export namespace StyleComponent {
   export interface Config {
-    files: string[]
+    main: string
   }
 
   export class Loader implements BaseLoader {
-    private styleFiles: string[]
-    private disposable: CompositeDisposable
+    private styleFile: string
+    private disposable: Disposable
 
     constructor(comp: Config, dir: string) {
-      this.styleFiles = comp.files.map((file) => path.resolve(dir, file))
+      this.styleFile = path.resolve(dir, comp.main)
     }
     async load() {
       const loader = new Style('custom')
-      const files = await Promise.all(
-        this.styleFiles.map((file) => loader.applyCss(document, file)))
-      this.disposable = new CompositeDisposable(files)
+      this.disposable = await loader.applyCss(document, this.styleFile)
       return true
     }
     async unload() {

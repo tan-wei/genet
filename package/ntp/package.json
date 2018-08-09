@@ -20,9 +20,7 @@
       },
       {
         "type": "core:style",
-        "files": [
-          "ntp.css"
-        ]
+        "main": "ntp.css"
       }
     ]
   }

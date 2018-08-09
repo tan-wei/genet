@@ -14,9 +14,7 @@
       },
       {
         "type": "core:style",
-        "files": [
-          "udp.css"
-        ]
+        "main": "udp.css"
       },
       {
         "type": "core:renderer:layer",

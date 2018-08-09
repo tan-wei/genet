@@ -27,9 +27,7 @@
       },
       {
         "type": "core:style",
-        "files": [
-          "ipv4.css"
-        ]
+        "main": "ipv4.css"
       },
       {
         "type": "core:token",

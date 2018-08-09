@@ -14,9 +14,7 @@
       },
       {
         "type": "core:style",
-        "files": [
-          "style.css"
-        ]
+        "main": "style.css"
       },
       {
         "type": "core:token",
