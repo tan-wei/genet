@@ -16,7 +16,6 @@ addons:
 cache:
   cargo: true
   directories:
-    - $HOME/.rustup/
     - node_modules
 install:
 - curl https://sh.rustup.rs -sSf | sh -s -- -y
