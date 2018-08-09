@@ -154,7 +154,15 @@ export default class PackageManager extends EventEmitter {
         const components = objpath.get(pkg.data, 'genet.components', [])
         pkg.components = components
           .filter((comp) => activatedComponents.has(comp.type))
-          .map((comp) => ComponentFactory.create(comp, pkg.dir))
+          .map((comp) => {
+            try {
+              return ComponentFactory.create(comp, pkg.dir)
+            } catch (err) {
+              logger.error(err)
+              return null
+            }
+          })
+          .filter((comp) => comp)
       })
 
     Array.from(enabledPackages)
