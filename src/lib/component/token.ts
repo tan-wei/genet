@@ -2,7 +2,7 @@ import BaseLoader from './base'
 import { Disposable } from '../disposable'
 import genet from '@genet/api'
 import path from 'path'
-import { readJson } from 'fs-extra'
+import fs from 'fs-extra'
 
 export namespace TokenComponent {
   export interface Config {
@@ -17,7 +17,7 @@ export namespace TokenComponent {
       this.tokenFile = path.resolve(dir, comp.main)
     }
     async load() {
-      this.disposable = genet.session.registerTokens(readJson(this.tokenFile))
+      this.disposable = genet.session.registerTokens(await fs.readJson(this.tokenFile))
       return true
     }
     async unload() {
