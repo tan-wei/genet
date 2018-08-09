@@ -111,7 +111,7 @@ export default class FrameListView {
           const [frame] = sess.frames(index, index + 1)
           this.dummyItem.setAttribute('data-layer', frame.primary.id)
           const [red, green, blue] =
-            parseColor(getComputedStyle(this.dummyItem, null)
+            parseColor(getComputedStyle(this.dummyItem)
               .getPropertyValue('background-color')).rgb
           const offset = this.mapHeader.length
           this.mapBuffer[offset + (line * 4) + 0] = blue
