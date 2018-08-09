@@ -12,10 +12,8 @@ import tempy from 'tempy'
 export default class TopView {
   private sess: any
   private displayFilter: string
-  private suggestMaxCount: number
   private suggestEnabled: boolean
   private suggestHint: string
-  private suggestIndex: number
   private showReloadBalloon: boolean
   private viewState: any
   constructor() {
@@ -23,7 +21,6 @@ export default class TopView {
     this.displayFilter = ''
     this.suggestEnabled = false
     this.suggestHint = ''
-    this.suggestIndex = -1
     this.showReloadBalloon = false
     this.viewState = {
       capture: false,
@@ -38,7 +35,6 @@ export default class TopView {
     switch (event.code) {
       case 'Enter':
         {
-          this.suggestIndex = -1
           this.suggestEnabled = false
           const filter = event.target.value.trim()
           genet.action.emit('core:filter:set', filter)
@@ -188,7 +184,6 @@ export default class TopView {
       filterInput.value = hint
       filterInput.selectionStart = filterInput.value.length
       if (enter) {
-        this.suggestIndex = -1
         this.suggestEnabled = false
         genet.action.emit('core:filter:set', hint.trim())
       }
