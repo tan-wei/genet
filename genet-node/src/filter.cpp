@@ -6,6 +6,9 @@ namespace genet_node {
 
 bool FilterIsolate::test(const Frame *frame) {
   v8::HandleScope handle_scope(isolate);
+  if (testFunc.IsEmpty()) {
+    return false;
+  }
   auto func = v8::Local<v8::Function>::New(isolate, testFunc);
   v8::Local<v8::Value> args[] = {FrameWrapper::wrap(frame)};
   auto result = func->Call(func, 1, args);
@@ -15,9 +18,15 @@ bool FilterIsolate::test(const Frame *frame) {
 FilterIsolate::FilterIsolate(const std::string &data) {
   v8::HandleScope handle_scope(isolate);
   auto script = Nan::CompileScript(Nan::New(data.c_str()).ToLocalChecked());
-  testFunc.Reset(isolate, Nan::RunScript(script.ToLocalChecked())
-                              .ToLocalChecked()
-                              .As<v8::Function>());
+  if (!script.IsEmpty()) {
+    auto result = Nan::RunScript(script.ToLocalChecked());
+    if (!result.IsEmpty()) {
+      auto func = result.ToLocalChecked();
+      if (func->IsFunction()) {
+        testFunc.Reset(isolate, func.As<v8::Function>());
+      }
+    }
+  }
 }
 
 FilterIsolate::~FilterIsolate() { testFunc.Reset(); }
