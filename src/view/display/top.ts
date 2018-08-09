@@ -1,4 +1,5 @@
 import Dialog from '../../lib/dialog'
+import FilterError from './filter-error'
 import FilterSuggest from './filter-suggest'
 import FrameHeader from './frame-header'
 import FrameListView from './frame-list-view'
@@ -13,6 +14,7 @@ export default class TopView {
   private sess: any
   private displayFilter: string
   private suggestEnabled: boolean
+  private filterError: string
   private suggestHint: string
   private showReloadBalloon: boolean
   private viewState: any
@@ -20,6 +22,7 @@ export default class TopView {
     this.sess = null
     this.displayFilter = ''
     this.suggestEnabled = false
+    this.filterError = ''
     this.suggestHint = ''
     this.showReloadBalloon = false
     this.viewState = {
@@ -53,6 +56,7 @@ export default class TopView {
         }
         break
       default:
+        this.filterError = ''
         this.suggestEnabled = true
     }
   }
@@ -105,6 +109,9 @@ export default class TopView {
             this.suggestEnabled = false
           },
           name: 'display-filter',
+        }),
+        m(FilterError, {
+          error: this.filterError
         }),
         m(FilterSuggest, {
           enabled: this.suggestEnabled,
@@ -188,6 +195,10 @@ export default class TopView {
         genet.action.emit('core:filter:set', hint.trim())
       }
     })
+    genet.action.on('core:filter:error', (err: Error) => {
+      this.suggestEnabled = false
+      this.filterError = err.message
+    })
     genet.action.global.on('core:file:export', () => {
       const outputDialog = new Dialog(OutputDialog,
         {
@@ -243,11 +254,7 @@ export default class TopView {
           : null
         genet.action.emit('core:filter:updated', filter)
       } catch (err) {
-        genet.notify.show(
-          err.message, {
-            type: 'error',
-            title: 'Filter Error',
-          })
+        genet.action.emit('core:filter:error', err)
       }
     })
   }
