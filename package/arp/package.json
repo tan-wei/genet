@@ -18,9 +18,7 @@
       },
       {
         "type": "core:token",
-        "files": [
-          "tokens.json"
-        ]
+        "main": "tokens.json"
       }
     ]
   }

@@ -11,9 +11,7 @@
     "components": [
       {
         "type": "core:token",
-        "files": [
-          "tokens.json"
-        ]
+        "main": "tokens.json"
       },
       {
         "type": "core:renderer:attr",

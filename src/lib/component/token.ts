@@ -1,26 +1,23 @@
 import BaseLoader from './base'
-import { CompositeDisposable } from '../disposable'
+import { Disposable } from '../disposable'
 import genet from '@genet/api'
 import path from 'path'
 import { readJson } from 'fs-extra'
 
 export namespace TokenComponent {
   export interface Config {
-    files: string[]
+    main: string
   }
 
   export class Loader implements BaseLoader {
-    private disposable: CompositeDisposable
-    private tokenFiles: string[]
+    private disposable: Disposable
+    private tokenFile: string
 
     constructor(comp: Config, dir: string) {
-      this.tokenFiles = comp.files.map((file) => path.resolve(dir, file))
+      this.tokenFile = path.resolve(dir, comp.main)
     }
     async load() {
-      const tokenList =
-        await Promise.all(this.tokenFiles.map((file) => readJson(file)))
-      this.disposable = new CompositeDisposable(
-        tokenList.map((tokens) => genet.session.registerTokens(tokens)))
+      this.disposable = genet.session.registerTokens(readJson(this.tokenFile))
       return true
     }
     async unload() {
