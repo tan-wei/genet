@@ -10,9 +10,11 @@ import Session from './session'
 import Workspace from './workspace'
 import Env from './env'
 import minimist from 'minimist'
+import Gpm from './gpm'
 
 export default class Genet {
   readonly config: any
+  readonly gpm: Gpm
   readonly workspace: Workspace
   readonly keybind: KeyBind
   readonly packages: PackageManager
@@ -37,6 +39,7 @@ export default class Genet {
       logger.domain = options.loggerDomain
     }
     this.config = config
+    this.gpm = new Gpm()
     this.workspace = new Workspace(options.profile)
     this.keybind = new KeyBind(options.profile, logger)
     this.packages = new PackageManager(config, components.split(','), logger)
