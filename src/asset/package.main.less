@@ -32,6 +32,7 @@ nav {
     li {
       padding: 0;
       user-select: none;
+      border-bottom: 1px solid var(--theme-lighter-bg);
 
       h4 {
         font-size: 1.0em;
@@ -50,18 +51,15 @@ nav {
         display: block;
         cursor: pointer;
         text-decoration: none;
+        border-left: 5px solid transparent;
 
         &:hover {
           background: var(--theme-lighter-bg);
         }
 
         &[active] {
-          color: var(--theme-default-bg);
-          background-color: var(--theme-default-fg);
-
-          h4 {
-            color: var(--theme-default-bg);
-          }
+          background: var(--theme-lighter-bg);
+          border-left-color: var(--theme-accent);
         }
       }
     }
@@ -76,6 +74,10 @@ main {
   right: 0;
   padding: 0 20px;
   overflow-y: scroll;
+
+  pre {
+    white-space: pre-wrap;
+  }
 
   span.version, span.schema-path {
     margin: 10px 25px;

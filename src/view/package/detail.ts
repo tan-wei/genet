@@ -1,4 +1,5 @@
 import ButtonBoxView from './button'
+import ReadmeView from './readme'
 import Env from '../../lib/env'
 import Installer from '../../lib/package-install'
 import SchemaInput from '../../lib/schema-input'
@@ -42,17 +43,17 @@ export default class DetailView {
 
   view(vnode) {
     const { pkg } = vnode.attrs
-    if (pkg === null) {
+    if (pkg === undefined) {
       return m('p', ['No package selected'])
     }
 
     const config = Object.entries(genet.config.schema)
-      .filter(([id]) => id.startsWith(`${pkg.data.name}.`)) as [string, any][]
+      .filter(([id]) => id.startsWith(`${pkg.metadata.name}.`)) as [string, any][]
     return m('article', [
-      m('h1', { disabled: pkg.disabled || pkg.incompatible }, [pkg.data.name,
+      m('h1', { disabled: pkg.disabled }, [pkg.metadata.name,
       m('span', { class: 'version' },
-        [pkg.data.version])]),
-      m('p', [pkg.data.description]),
+        [pkg.metadata.version])]),
+      m('p', [pkg.metadata.description]),
       m('p', {
         style: {
           color: 'var(--theme-error)',
@@ -63,12 +64,13 @@ export default class DetailView {
       }, [
           'This package is incompatible with the running genet version.',
           m('br'),
-          `Required genet Version: ${pkg.data.engines.genet}`
+          `Required genet Version: ${pkg.metadata.engines.genet}`
         ]),
       m(ButtonBoxView, {
         pkg,
         install,
       }),
+      m(ReadmeView, { dir: pkg.dir }),
       m('p', config.map(([id, schema]) => m('section', [
         m('h4', [
           schema.title || titleCase(id.split('.').slice(-1)[0]),

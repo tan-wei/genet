@@ -2,18 +2,7 @@ import genet from '@genet/api'
 import m from 'mithril'
 export default class ButtonBoxView {
   view(vnode) {
-    const { pkg, install } = vnode.attrs
-    if (pkg.archive) {
-      return m('span', { class: 'button-box' }, [
-        m('input', {
-          type: 'button',
-          value: 'Install',
-          onclick: () => {
-            install(pkg)
-          },
-        })
-      ])
-    }
+    const { pkg } = vnode.attrs
     return m('span', { class: 'button-box' }, [
       m('input', {
         type: 'button',
@@ -32,12 +21,13 @@ export default class ButtonBoxView {
         type: 'button',
         value: 'Uninstall',
         style: {
-          display: pkg.builtin
+          display: pkg.source === ':builtin:'
             ? 'none'
             : 'block',
         },
+        disabled: genet.gpm.tasks > 0,
         onclick: () => {
-          genet.packages.uninstall(pkg.id)
+          genet.gpm.uninstall(pkg.id)
         },
       })
     ])
