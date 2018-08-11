@@ -80,7 +80,7 @@
     }
   },
   "dependencies": {
-    "@genet/api": "^0.1.0",
+    "@genet/api": "0.2.0",
     "@genet/load-module": "0.0.3",
     "acorn": "^5.5.3",
     "axios": "^0.17.1",

@@ -1,0 +1,12 @@
+{
+  "name": "@genet/api",
+  "version": "0.2.0",
+  "main": "dist/index.js",
+  "files": [
+    "**/*.d.ts"
+  ],
+  "license": "MIT",
+  "description": "Proxy module for genet public api",
+  "repository": "https://github.com/genet-app/genet",
+  "author": "h2so5"
+}
