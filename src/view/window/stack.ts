@@ -6,8 +6,13 @@ export default class Stack {
     const { parent } = vnode.attrs
     return [
       m('main', { class: 'loading' }, [
-        m('i', { class: 'fa fa-cog fa-spin fa-3x fa-fw' }),
-        m('h2', ['Loading...'])
+        m('div', { class: 'spinner' }, [
+          m('div', { class: 'rect1' }),
+          m('div', { class: 'rect2' }),
+          m('div', { class: 'rect3' }),
+          m('div', { class: 'rect4' }),
+          m('div', { class: 'rect5' })
+        ]),
       ])
     ].concat(
       m('main', parent.tabs.map((tab) => m(WebView, {
