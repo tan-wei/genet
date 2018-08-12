@@ -42,4 +42,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Initial Release
 
 [Unreleased]: https://github.com/genet-app/genet/compare/v0.2.0...HEAD
-[0.2.0]: https://github.com/genet-app/genet/v0.1.0...v0.2.0
+[0.2.0]: https://github.com/genet-app/genet/compare/v0.1.0...v0.2.0
