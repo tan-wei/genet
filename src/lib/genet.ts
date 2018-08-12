@@ -59,4 +59,6 @@ export default class Genet {
       this.menu.enableContextMenu()
     }
   }
+
+  init() {}
 }
