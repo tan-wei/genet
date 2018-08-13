@@ -1,5 +1,7 @@
 import gpm from '@genet/gpm'
+import listPackages from '@genet/gpm/lib/list'
 import execa from 'execa'
+import Env from './env'
 const { EventEmitter } = require('events')
 
 export default class Gpm extends EventEmitter {
@@ -25,13 +27,10 @@ export default class Gpm extends EventEmitter {
     }
 
     async list() {
-        const { stdout } = await execa(process.execPath, [gpm, 'list', '--json'], {
-            env: {
-                ELECTRON_RUN_AS_NODE: '1'
-            },
-            stdio: 'pipe'
+        return listPackages({
+            builtinDirs: [Env.builtinPackagePath],
+            userDirs: [Env.userPackagePath],
         })
-        return JSON.parse(stdout)
     }
 
     async install(id) {
