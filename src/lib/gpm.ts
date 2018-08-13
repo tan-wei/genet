@@ -36,7 +36,8 @@ export default class Gpm extends EventEmitter {
     async install(id) {
         const promise = execa(process.execPath, [gpm, 'install', id], {
             env: {
-                ELECTRON_RUN_AS_NODE: '1'
+                ELECTRON_RUN_AS_NODE: '1',
+                RUSTFLAGS: process.env.RUSTFLAGS || '-C target-cpu=native'
             },
             stdio: 'pipe'
         })
