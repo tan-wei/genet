@@ -94,44 +94,44 @@ lazy_static! {
         .build();
     static ref HWTYPE_ATTR: AttrClass = AttrClass::builder("arp.hwtype")
         .typ("@enum")
-        .decoder(decoder::UInt16BE())
+        .cast(cast::UInt16BE())
         .build();
     static ref PROTO_ATTR: AttrClass = AttrClass::builder("arp.protocol")
         .typ("@enum")
-        .decoder(decoder::UInt16BE())
+        .cast(cast::UInt16BE())
         .build();
     static ref HLEN_ATTR: AttrClass = AttrClass::builder("arp.hlen")
-        .decoder(decoder::UInt8())
+        .cast(cast::UInt8())
         .build();
     static ref PLEN_ATTR: AttrClass = AttrClass::builder("arp.plen")
-        .decoder(decoder::UInt8())
+        .cast(cast::UInt8())
         .build();
     static ref OP_ATTR: AttrClass = AttrClass::builder("arp.op")
-        .decoder(decoder::UInt16BE())
+        .cast(cast::UInt16BE())
         .typ("@enum")
         .build();
     static ref HW_MAP: HashMap<u64, (AttrClass, AttrClass, AttrClass)> = hashmap!{
         0x0001 => (
-            AttrClass::builder("arp.hwtype.eth").typ("@novalue").decoder(decoder::Const(true)).build(),
-            AttrClass::builder("arp.sha").typ("@eth:mac").decoder(decoder::ByteSlice()).build(),
-            AttrClass::builder("arp.tha").typ("@eth:mac").decoder(decoder::ByteSlice()).build(),
+            AttrClass::builder("arp.hwtype.eth").typ("@novalue").cast(cast::Const(true)).build(),
+            AttrClass::builder("arp.sha").typ("@eth:mac").cast(cast::ByteSlice()).build(),
+            AttrClass::builder("arp.tha").typ("@eth:mac").cast(cast::ByteSlice()).build(),
         ),
     };
     static ref PROTO_MAP: HashMap<u64, (AttrClass, AttrClass, AttrClass)> = hashmap!{
         0x0800 => (
-            AttrClass::builder("arp.protocol.ipv4").typ("@novalue").decoder(decoder::Const(true)).build(),
-            AttrClass::builder("arp.spa").typ("@ipv4:addr").decoder(decoder::ByteSlice()).build(),
-            AttrClass::builder("arp.tpa").typ("@ipv4:addr").decoder(decoder::ByteSlice()).build(),
+            AttrClass::builder("arp.protocol.ipv4").typ("@novalue").cast(cast::Const(true)).build(),
+            AttrClass::builder("arp.spa").typ("@ipv4:addr").cast(cast::ByteSlice()).build(),
+            AttrClass::builder("arp.tpa").typ("@ipv4:addr").cast(cast::ByteSlice()).build(),
         ),
         0x86DD => (
-            AttrClass::builder("arp.protocol.ipv6").typ("@novalue").decoder(decoder::Const(true)).build(),
-            AttrClass::builder("arp.spa").typ("@ipv6:addr").decoder(decoder::ByteSlice()).build(),
-            AttrClass::builder("arp.tpa").typ("@ipv6:addr").decoder(decoder::ByteSlice()).build(),
+            AttrClass::builder("arp.protocol.ipv6").typ("@novalue").cast(cast::Const(true)).build(),
+            AttrClass::builder("arp.spa").typ("@ipv6:addr").cast(cast::ByteSlice()).build(),
+            AttrClass::builder("arp.tpa").typ("@ipv6:addr").cast(cast::ByteSlice()).build(),
         )
     };
     static ref OP_MAP: HashMap<u64, AttrClass> = hashmap!{
-        0x0001 => AttrClass::builder("arp.op.request").typ("@novalue").decoder(decoder::Const(true)).build(),
-        0x0002 => AttrClass::builder("arp.op.reply").typ("@novalue").decoder(decoder::Const(true)).build()
+        0x0001 => AttrClass::builder("arp.op.request").typ("@novalue").cast(cast::Const(true)).build(),
+        0x0002 => AttrClass::builder("arp.op.reply").typ("@novalue").cast(cast::Const(true)).build()
     };
 }
 

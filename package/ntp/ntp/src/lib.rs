@@ -116,115 +116,115 @@ lazy_static! {
 lazy_static! {
     static ref LEAP_ATTR: AttrClass = AttrClass::builder("ntp.leapIndicator")
         .typ("@enum")
-        .decoder(decoder::UInt8().map(|v| v >> 6))
+        .cast(cast::UInt8().map(|v| v >> 6))
         .build();
     static ref VERSION_ATTR: AttrClass = AttrClass::builder("ntp.version")
-        .decoder(decoder::UInt8().map(|v| (v >> 3) & 0b111))
+        .cast(cast::UInt8().map(|v| (v >> 3) & 0b111))
         .build();
     static ref MODE_ATTR: AttrClass = AttrClass::builder("ntp.mode")
         .typ("@enum")
-        .decoder(decoder::UInt8().map(|v| v & 0b111))
+        .cast(cast::UInt8().map(|v| v & 0b111))
         .build();
     static ref STRATUM_ATTR: AttrClass = AttrClass::builder("ntp.stratum")
-        .decoder(decoder::UInt8())
+        .cast(cast::UInt8())
         .build();
     static ref POLL_ATTR: AttrClass = AttrClass::builder("ntp.pollInterval")
-        .decoder(decoder::UInt8())
+        .cast(cast::UInt8())
         .build();
     static ref PRECISION_ATTR: AttrClass = AttrClass::builder("ntp.precision")
-        .decoder(decoder::UInt8())
+        .cast(cast::UInt8())
         .build();
     static ref RDELAY_ATTR: AttrClass = AttrClass::builder("ntp.rootDelay")
-        .decoder(decoder::UInt32BE().map(|v| (v >> 16) as f64 + ((v & 0xffff) as f64 / 65536f64)))
+        .cast(cast::UInt32BE().map(|v| (v >> 16) as f64 + ((v & 0xffff) as f64 / 65536f64)))
         .build();
     static ref RDELAY_SEC_ATTR: AttrClass = AttrClass::builder("ntp.rootDelay.seconds")
-        .decoder(decoder::UInt16BE())
+        .cast(cast::UInt16BE())
         .build();
     static ref RDELAY_FRA_ATTR: AttrClass = AttrClass::builder("ntp.rootDelay.fraction")
-        .decoder(decoder::UInt16BE())
+        .cast(cast::UInt16BE())
         .build();
     static ref RDISP_ATTR: AttrClass = AttrClass::builder("ntp.rootDispersion")
-        .decoder(decoder::UInt32BE().map(|v| (v >> 16) as f64 + ((v & 0xffff) as f64 / 65536f64)))
+        .cast(cast::UInt32BE().map(|v| (v >> 16) as f64 + ((v & 0xffff) as f64 / 65536f64)))
         .build();
     static ref RDISP_SEC_ATTR: AttrClass = AttrClass::builder("ntp.rootDispersion.seconds")
-        .decoder(decoder::UInt16BE())
+        .cast(cast::UInt16BE())
         .build();
     static ref RDISP_FRA_ATTR: AttrClass = AttrClass::builder("ntp.rootDispersion.fraction")
-        .decoder(decoder::UInt16BE())
+        .cast(cast::UInt16BE())
         .build();
     static ref ID_ATTR: AttrClass = AttrClass::builder("ntp.identifier")
-        .decoder(decoder::ByteSlice())
+        .cast(cast::ByteSlice())
         .build();
     static ref ID_IP_ATTR: AttrClass = AttrClass::builder("ntp.identifier")
         .typ("@ipv4:addr")
-        .decoder(decoder::ByteSlice())
+        .cast(cast::ByteSlice())
         .build();
     static ref REFTS_ATTR: AttrClass = AttrClass::builder("ntp.referenceTs")
         .typ("@ntp:time")
-        .decoder(
-            decoder::UInt64BE()
+        .cast(
+            cast::UInt64BE()
                 .map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
         ).build();
     static ref REFTS_SEC_ATTR: AttrClass = AttrClass::builder("ntp.referenceTs.seconds")
-        .decoder(decoder::UInt32BE())
+        .cast(cast::UInt32BE())
         .build();
     static ref REFTS_FRA_ATTR: AttrClass = AttrClass::builder("ntp.referenceTs.fraction")
-        .decoder(decoder::UInt32BE())
+        .cast(cast::UInt32BE())
         .build();
     static ref ORITS_ATTR: AttrClass = AttrClass::builder("ntp.originateTs")
         .typ("@ntp:time")
-        .decoder(
-            decoder::UInt64BE()
+        .cast(
+            cast::UInt64BE()
                 .map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
         ).build();
     static ref ORITS_SEC_ATTR: AttrClass = AttrClass::builder("ntp.originateTs.seconds")
-        .decoder(decoder::UInt32BE())
+        .cast(cast::UInt32BE())
         .build();
     static ref ORITS_FRA_ATTR: AttrClass = AttrClass::builder("ntp.originateTs.fraction")
-        .decoder(decoder::UInt32BE())
+        .cast(cast::UInt32BE())
         .build();
     static ref RECTS_ATTR: AttrClass = AttrClass::builder("ntp.receiveTs")
         .typ("@ntp:time")
-        .decoder(
-            decoder::UInt64BE()
+        .cast(
+            cast::UInt64BE()
                 .map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
         ).build();
     static ref RECTS_SEC_ATTR: AttrClass = AttrClass::builder("ntp.receiveTs.seconds")
-        .decoder(decoder::UInt32BE())
+        .cast(cast::UInt32BE())
         .build();
     static ref RECTS_FRA_ATTR: AttrClass = AttrClass::builder("ntp.receiveTs.fraction")
-        .decoder(decoder::UInt32BE())
+        .cast(cast::UInt32BE())
         .build();
     static ref TRATS_ATTR: AttrClass = AttrClass::builder("ntp.transmitTs")
         .typ("@ntp:time")
-        .decoder(
-            decoder::UInt64BE()
+        .cast(
+            cast::UInt64BE()
                 .map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
         ).build();
     static ref TRATS_SEC_ATTR: AttrClass = AttrClass::builder("ntp.transmitTs.seconds")
-        .decoder(decoder::UInt32BE())
+        .cast(cast::UInt32BE())
         .build();
     static ref TRATS_FRA_ATTR: AttrClass = AttrClass::builder("ntp.transmitTs.fraction")
-        .decoder(decoder::UInt32BE())
+        .cast(cast::UInt32BE())
         .build();
 }
 
 lazy_static! {
     static ref LEAP_MAP: HashMap<u64, AttrClass> = hashmap!{
-        0 => AttrClass::builder("ntp.leapIndicator.noWarning").typ("@novalue").decoder(decoder::Const(true)).build(),
-        1 => AttrClass::builder("ntp.leapIndicator.sec61").typ("@novalue").decoder(decoder::Const(true)).build(),
-        2 => AttrClass::builder("ntp.leapIndicator.sec59").typ("@novalue").decoder(decoder::Const(true)).build(),
-        3 => AttrClass::builder("ntp.leapIndicator.unknown").typ("@novalue").decoder(decoder::Const(true)).build(),
+        0 => AttrClass::builder("ntp.leapIndicator.noWarning").typ("@novalue").cast(cast::Const(true)).build(),
+        1 => AttrClass::builder("ntp.leapIndicator.sec61").typ("@novalue").cast(cast::Const(true)).build(),
+        2 => AttrClass::builder("ntp.leapIndicator.sec59").typ("@novalue").cast(cast::Const(true)).build(),
+        3 => AttrClass::builder("ntp.leapIndicator.unknown").typ("@novalue").cast(cast::Const(true)).build(),
     };
     static ref MODE_MAP: HashMap<u64, AttrClass> = hashmap!{
-        0 => AttrClass::builder("ntp.mode.reserved").typ("@novalue").decoder(decoder::Const(true)).build(),
-        1 => AttrClass::builder("ntp.mode.symmetricActive").typ("@novalue").decoder(decoder::Const(true)).build(),
-        2 => AttrClass::builder("ntp.mode.symmetricPassive").typ("@novalue").decoder(decoder::Const(true)).build(),
-        3 => AttrClass::builder("ntp.mode.client").typ("@novalue").decoder(decoder::Const(true)).build(),
-        4 => AttrClass::builder("ntp.mode.server").typ("@novalue").decoder(decoder::Const(true)).build(),
-        5 => AttrClass::builder("ntp.mode.broadcast").typ("@novalue").decoder(decoder::Const(true)).build(),
-        6 => AttrClass::builder("ntp.mode.controlMessage").typ("@novalue").decoder(decoder::Const(true)).build(),
-        7 => AttrClass::builder("ntp.mode.reservedForPrivate").typ("@novalue").decoder(decoder::Const(true)).build(),
+        0 => AttrClass::builder("ntp.mode.reserved").typ("@novalue").cast(cast::Const(true)).build(),
+        1 => AttrClass::builder("ntp.mode.symmetricActive").typ("@novalue").cast(cast::Const(true)).build(),
+        2 => AttrClass::builder("ntp.mode.symmetricPassive").typ("@novalue").cast(cast::Const(true)).build(),
+        3 => AttrClass::builder("ntp.mode.client").typ("@novalue").cast(cast::Const(true)).build(),
+        4 => AttrClass::builder("ntp.mode.server").typ("@novalue").cast(cast::Const(true)).build(),
+        5 => AttrClass::builder("ntp.mode.broadcast").typ("@novalue").cast(cast::Const(true)).build(),
+        6 => AttrClass::builder("ntp.mode.controlMessage").typ("@novalue").cast(cast::Const(true)).build(),
+        7 => AttrClass::builder("ntp.mode.reservedForPrivate").typ("@novalue").cast(cast::Const(true)).build(),
     };
 }
 

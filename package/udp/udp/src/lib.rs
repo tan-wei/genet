@@ -54,17 +54,17 @@ lazy_static! {
         .build();
     static ref SRC_ATTR: AttrClass = AttrClass::builder("udp.src")
         .typ("@udp:port")
-        .decoder(decoder::UInt16BE())
+        .cast(cast::UInt16BE())
         .build();
     static ref DST_ATTR: AttrClass = AttrClass::builder("udp.dst")
         .typ("@udp:port")
-        .decoder(decoder::UInt16BE())
+        .cast(cast::UInt16BE())
         .build();
     static ref LEN_ATTR: AttrClass = AttrClass::builder("udp.length")
-        .decoder(decoder::UInt16BE())
+        .cast(cast::UInt16BE())
         .build();
     static ref CHECKSUM_ATTR: AttrClass = AttrClass::builder("udp.checksum")
-        .decoder(decoder::UInt16BE())
+        .cast(cast::UInt16BE())
         .build();
 }
 

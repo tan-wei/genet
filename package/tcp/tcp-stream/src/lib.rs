@@ -188,7 +188,7 @@ impl Dissector for TcpStreamDissector {
 lazy_static! {
     static ref STREAM_ATTR: AttrClass = AttrClass::builder("tcp.stream")
         .typ("@novalue")
-        .decoder(decoder::Ranged(decoder::UInt8(), 0..0).map(|v| v))
+        .cast(cast::Ranged(cast::UInt8(), 0..0).map(|v| v))
         .build();
 }
 

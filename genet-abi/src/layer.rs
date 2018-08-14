@@ -366,7 +366,7 @@ extern "C" fn abi_add_payload(layer: *mut Layer, payload: Payload) {
 #[cfg(test)]
 mod tests {
     use attr::{Attr, AttrClass};
-    use decoder::Decoder;
+    use cast::Cast;
     use fixed::Fixed;
     use layer::{Layer, LayerClass, Payload};
     use slice::ByteSlice;
@@ -419,17 +419,17 @@ mod tests {
         assert!(layer.attrs().is_empty());
 
         #[derive(Clone)]
-        struct TestDecoder {}
+        struct TestCast {}
 
-        impl Decoder for TestDecoder {
-            fn decode(&self, _: &ByteSlice) -> Result<Variant> {
+        impl Cast for TestCast {
+            fn cast(&self, _: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::Nil)
             }
         }
         let class = Fixed::new(
             AttrClass::builder("nil")
                 .typ("@nil")
-                .decoder(TestDecoder {})
+                .cast(TestCast {})
                 .build(),
         );
 

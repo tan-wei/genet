@@ -61,27 +61,27 @@ lazy_static! {
         .build();
     static ref SRC_ATTR: AttrClass = AttrClass::builder("eth.src")
         .typ("@eth:mac")
-        .decoder(decoder::ByteSlice())
+        .cast(cast::ByteSlice())
         .build();
     static ref DST_ATTR: AttrClass = AttrClass::builder("eth.dst")
         .typ("@eth:mac")
-        .decoder(decoder::ByteSlice())
+        .cast(cast::ByteSlice())
         .build();
     static ref LEN_ATTR: AttrClass = AttrClass::builder("eth.len")
-        .decoder(decoder::UInt16BE())
+        .cast(cast::UInt16BE())
         .build();
     static ref TYPE_ATTR: AttrClass = AttrClass::builder("eth.type")
         .typ("@enum")
-        .decoder(decoder::UInt16BE())
+        .cast(cast::UInt16BE())
         .build();
     static ref LEN_ATTR_HEADER: Attr = Attr::new(&LEN_ATTR, 12..14);
     static ref TYPE_ATTR_HEADER: Attr = Attr::new(&TYPE_ATTR, 12..14);
     static ref TYPE_MAP: HashMap<u64, (Token, AttrClass)> = hashmap!{
-        0x0800 => (token!("@data:ipv4"), AttrClass::builder("eth.type.ipv4").typ("@novalue").decoder(decoder::Const(true)).build()),
-        0x0806 => (token!("@data:arp"), AttrClass::builder("eth.type.arp").typ("@novalue").decoder(decoder::Const(true)).build()),
-        0x0842 => (token!("@data:wol"), AttrClass::builder("eth.type.wol").typ("@novalue").decoder(decoder::Const(true)).build()),
-        0x86DD => (token!("@data:ipv6"), AttrClass::builder("eth.type.ipv6").typ("@novalue").decoder(decoder::Const(true)).build()),
-        0x888E => (token!("@data:eap"), AttrClass::builder("eth.type.eap").typ("@novalue").decoder(decoder::Const(true)).build()),
+        0x0800 => (token!("@data:ipv4"), AttrClass::builder("eth.type.ipv4").typ("@novalue").cast(cast::Const(true)).build()),
+        0x0806 => (token!("@data:arp"), AttrClass::builder("eth.type.arp").typ("@novalue").cast(cast::Const(true)).build()),
+        0x0842 => (token!("@data:wol"), AttrClass::builder("eth.type.wol").typ("@novalue").cast(cast::Const(true)).build()),
+        0x86DD => (token!("@data:ipv6"), AttrClass::builder("eth.type.ipv6").typ("@novalue").cast(cast::Const(true)).build()),
+        0x888E => (token!("@data:eap"), AttrClass::builder("eth.type.eap").typ("@novalue").cast(cast::Const(true)).build()),
     };
 }
 

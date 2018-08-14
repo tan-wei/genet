@@ -5,7 +5,7 @@ extern crate lazy_static;
 
 pub mod attr;
 pub mod context;
-pub mod decoder;
+pub mod cast;
 pub mod dissector;
 pub mod env;
 pub mod error;

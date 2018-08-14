@@ -6,42 +6,42 @@ use std::{
 };
 use variant::Variant;
 
-/// Decoder trait.
-pub trait Decoder: Send + Sync + DecoderClone {
-    fn decode(&self, &slice::ByteSlice) -> Result<Variant>;
+/// Cast trait.
+pub trait Cast: Send + Sync + CastClone {
+    fn cast(&self, &slice::ByteSlice) -> Result<Variant>;
 }
 
-pub trait DecoderClone {
-    fn clone_box(&self) -> Box<Decoder>;
-    fn into_box(self) -> Box<Decoder>;
+pub trait CastClone {
+    fn clone_box(&self) -> Box<Cast>;
+    fn into_box(self) -> Box<Cast>;
 }
 
-impl<T> DecoderClone for T
+impl<T> CastClone for T
 where
-    T: 'static + Decoder + Clone,
+    T: 'static + Cast + Clone,
 {
-    fn clone_box(&self) -> Box<Decoder> {
+    fn clone_box(&self) -> Box<Cast> {
         Box::new(self.clone())
     }
 
-    fn into_box(self) -> Box<Decoder> {
+    fn into_box(self) -> Box<Cast> {
         Box::new(self)
     }
 }
 
-impl Clone for Box<Decoder> {
-    fn clone(&self) -> Box<Decoder> {
+impl Clone for Box<Cast> {
+    fn clone(&self) -> Box<Cast> {
         self.clone_box()
     }
 }
 
-/// Typed decoder trait.
+/// Typed cast trait.
 pub trait Typed {
     type Output: Into<Variant>;
-    fn decode(&self, data: &slice::ByteSlice) -> Result<Self::Output>;
+    fn cast(&self, data: &slice::ByteSlice) -> Result<Self::Output>;
 }
 
-/// Mappable decoder trait.
+/// Mappable cast trait.
 pub trait Map
 where
     Self: Sized,
@@ -53,7 +53,7 @@ where
         R: Into<Variant>,
     {
         Mapped {
-            decoder: self,
+            cast: self,
             func,
         }
     }
@@ -73,7 +73,7 @@ where
     I: Into<Variant>,
     R: Into<Variant>,
 {
-    decoder: T,
+    cast: T,
     func: fn(data: I) -> R,
 }
 
@@ -85,39 +85,39 @@ where
 {
     type Output = R;
 
-    fn decode(&self, data: &slice::ByteSlice) -> Result<Self::Output> {
-        self.decoder.decode(data).map(self.func)
+    fn cast(&self, data: &slice::ByteSlice) -> Result<Self::Output> {
+        self.cast.cast(data).map(self.func)
     }
 }
 
-impl<T, X> Decoder for T
+impl<T, X> Cast for T
 where
     T: 'static + Typed<Output = X> + Send + Sync + Clone,
     X: Into<Variant>,
 {
-    fn decode(&self, data: &slice::ByteSlice) -> Result<Variant> {
-        T::decode(self, data).map(|r| r.into())
+    fn cast(&self, data: &slice::ByteSlice) -> Result<Variant> {
+        T::cast(self, data).map(|r| r.into())
     }
 }
 
-/// Nil decoder.
+/// Nil cast.
 #[derive(Clone)]
 pub struct Nil();
 
-impl Decoder for Nil {
-    fn decode(&self, _data: &slice::ByteSlice) -> Result<Variant> {
+impl Cast for Nil {
+    fn cast(&self, _data: &slice::ByteSlice) -> Result<Variant> {
         Ok(Variant::Nil)
     }
 }
 
-/// Constant value decoder.
+/// Constant value cast.
 #[derive(Clone)]
 pub struct Const<T>(pub T);
 
 impl<T: Into<Variant> + Clone> Typed for Const<T> {
     type Output = T;
 
-    fn decode(&self, _data: &slice::ByteSlice) -> Result<T> {
+    fn cast(&self, _data: &slice::ByteSlice) -> Result<T> {
         Ok(self.0.clone())
     }
 }
@@ -136,8 +136,8 @@ macro_rules! impl_ranged {
             {
                 type Output = X;
 
-                fn decode(&self, data: &slice::ByteSlice) -> Result<Self::Output> {
-                    self.0.decode(&data.try_get(self.1.clone())?)
+                fn cast(&self, data: &slice::ByteSlice) -> Result<Self::Output> {
+                    self.0.cast(&data.try_get(self.1.clone())?)
                 }
             }
         )*

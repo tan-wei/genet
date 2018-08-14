@@ -1,4 +1,4 @@
-use decoder::{Decoder, Nil};
+use cast::{Cast, Nil};
 use env;
 use error::Error;
 use fixed::Fixed;
@@ -102,7 +102,7 @@ enum ValueType {
 pub struct AttrClassBuilder {
     id: Token,
     typ: Token,
-    decoder: Box<Decoder>,
+    cast: Box<Cast>,
 }
 
 impl AttrClassBuilder {
@@ -112,9 +112,9 @@ impl AttrClassBuilder {
         self
     }
 
-    /// Sets a decoder of AttrClass.
-    pub fn decoder<T: Decoder>(mut self, decoder: T) -> AttrClassBuilder {
-        self.decoder = decoder.into_box();
+    /// Sets a cast of AttrClass.
+    pub fn cast<T: Cast>(mut self, cast: T) -> AttrClassBuilder {
+        self.cast = cast.into_box();
         self
     }
 
@@ -124,7 +124,7 @@ impl AttrClassBuilder {
             abi_unsafe_data: Fixed::new(AttrClassData {
                 id: self.id,
                 typ: self.typ,
-                decoder: self.decoder,
+                cast: self.cast,
             }),
             id: abi_id,
             typ: abi_typ,
@@ -147,7 +147,7 @@ pub struct AttrClass {
 struct AttrClassData {
     id: Token,
     typ: Token,
-    decoder: Box<Decoder>,
+    cast: Box<Cast>,
 }
 
 impl AttrClass {
@@ -156,7 +156,7 @@ impl AttrClass {
         AttrClassBuilder {
             id: id.into(),
             typ: Token::null(),
-            decoder: Box::new(Nil()),
+            cast: Box::new(Nil()),
         }
     }
 
@@ -250,13 +250,13 @@ extern "C" fn abi_get(
     err: *mut Error,
 ) -> ValueType {
     let value = unsafe { &(*attr).abi_unsafe_data.value };
-    let decoder = unsafe { &(*attr).class.abi_unsafe_data.decoder };
+    let cast = unsafe { &(*attr).class.abi_unsafe_data.cast };
     let slice = unsafe { ByteSlice::from_raw_parts(*data, len as usize) };
     let res;
     let result = if let Some(val) = value {
         Ok(val.as_ref())
     } else {
-        res = decoder.decode(&slice);
+        res = cast.cast(&slice);
         res.as_ref()
     };
     match result {
@@ -312,7 +312,7 @@ extern "C" fn abi_get(
 #[cfg(test)]
 mod tests {
     use attr::{Attr, AttrClass};
-    use decoder::Decoder;
+    use cast::Cast;
     use fixed::Fixed;
     use layer::{Layer, LayerClass};
     use slice::{ByteSlice, TryGet};
@@ -327,17 +327,17 @@ mod tests {
     #[test]
     fn nil() {
         #[derive(Clone)]
-        struct TestDecoder {}
+        struct TestCast {}
 
-        impl Decoder for TestDecoder {
-            fn decode(&self, _: &ByteSlice) -> Result<Variant> {
+        impl Cast for TestCast {
+            fn cast(&self, _: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::Nil)
             }
         }
         let class = Fixed::new(
             AttrClass::builder("nil")
                 .typ("@nil")
-                .decoder(TestDecoder {})
+                .cast(TestCast {})
                 .build(),
         );
         let attr = Fixed::new(Attr::new(class, 0..0));
@@ -356,17 +356,17 @@ mod tests {
     #[test]
     fn bool() {
         #[derive(Clone)]
-        struct TestDecoder {}
+        struct TestCast {}
 
-        impl Decoder for TestDecoder {
-            fn decode(&self, data: &ByteSlice) -> Result<Variant> {
+        impl Cast for TestCast {
+            fn cast(&self, data: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::Bool(data[0] == 1))
             }
         }
         let class = Fixed::new(
             AttrClass::builder("bool")
                 .typ("@bool")
-                .decoder(TestDecoder {})
+                .cast(TestCast {})
                 .build(),
         );
         let attr = Attr::new(class, 0..1);
@@ -385,17 +385,17 @@ mod tests {
     #[test]
     fn u64() {
         #[derive(Clone)]
-        struct TestDecoder {}
+        struct TestCast {}
 
-        impl Decoder for TestDecoder {
-            fn decode(&self, data: &ByteSlice) -> Result<Variant> {
+        impl Cast for TestCast {
+            fn cast(&self, data: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::UInt64(from_utf8(data).unwrap().parse().unwrap()))
             }
         }
         let class = Fixed::new(
             AttrClass::builder("u64")
                 .typ("@u64")
-                .decoder(TestDecoder {})
+                .cast(TestCast {})
                 .build(),
         );
         let attr = Attr::new(class, 0..6);
@@ -414,17 +414,17 @@ mod tests {
     #[test]
     fn i64() {
         #[derive(Clone)]
-        struct TestDecoder {}
+        struct TestCast {}
 
-        impl Decoder for TestDecoder {
-            fn decode(&self, data: &ByteSlice) -> Result<Variant> {
+        impl Cast for TestCast {
+            fn cast(&self, data: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::Int64(from_utf8(data).unwrap().parse().unwrap()))
             }
         }
         let class = Fixed::new(
             AttrClass::builder("i64")
                 .typ("@i64")
-                .decoder(TestDecoder {})
+                .cast(TestCast {})
                 .build(),
         );
         let attr = Attr::new(class, 0..6);
@@ -443,17 +443,17 @@ mod tests {
     #[test]
     fn buffer() {
         #[derive(Clone)]
-        struct TestDecoder {}
+        struct TestCast {}
 
-        impl Decoder for TestDecoder {
-            fn decode(&self, data: &ByteSlice) -> Result<Variant> {
+        impl Cast for TestCast {
+            fn cast(&self, data: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::Buffer(data.to_vec().into_boxed_slice()))
             }
         }
         let class = Fixed::new(
             AttrClass::builder("buffer")
                 .typ("@buffer")
-                .decoder(TestDecoder {})
+                .cast(TestCast {})
                 .build(),
         );
         let attr = Attr::new(class, 0..6);
@@ -472,10 +472,10 @@ mod tests {
     #[test]
     fn string() {
         #[derive(Clone)]
-        struct TestDecoder {}
+        struct TestCast {}
 
-        impl Decoder for TestDecoder {
-            fn decode(&self, data: &ByteSlice) -> Result<Variant> {
+        impl Cast for TestCast {
+            fn cast(&self, data: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::String(
                     from_utf8(data).unwrap().to_string().into_boxed_str(),
                 ))
@@ -484,7 +484,7 @@ mod tests {
         let class = Fixed::new(
             AttrClass::builder("string")
                 .typ("@string")
-                .decoder(TestDecoder {})
+                .cast(TestCast {})
                 .build(),
         );
         let attr = Attr::new(class, 0..6);
@@ -503,17 +503,17 @@ mod tests {
     #[test]
     fn slice() {
         #[derive(Clone)]
-        struct TestDecoder {}
+        struct TestCast {}
 
-        impl Decoder for TestDecoder {
-            fn decode(&self, data: &ByteSlice) -> Result<Variant> {
+        impl Cast for TestCast {
+            fn cast(&self, data: &ByteSlice) -> Result<Variant> {
                 data.try_get(0..3).map(|v| Variant::Slice(v))
             }
         }
         let class = Fixed::new(
             AttrClass::builder("slice")
                 .typ("@slice")
-                .decoder(TestDecoder {})
+                .cast(TestCast {})
                 .build(),
         );
         let attr = Attr::new(class, 0..6);
@@ -532,17 +532,17 @@ mod tests {
     #[test]
     fn error() {
         #[derive(Clone)]
-        struct TestDecoder {}
+        struct TestCast {}
 
-        impl Decoder for TestDecoder {
-            fn decode(&self, _: &ByteSlice) -> Result<Variant> {
+        impl Cast for TestCast {
+            fn cast(&self, _: &ByteSlice) -> Result<Variant> {
                 Err(Error::new(ErrorKind::Other, "oh no!"))
             }
         }
         let class = Fixed::new(
             AttrClass::builder("slice")
                 .typ("@slice")
-                .decoder(TestDecoder {})
+                .cast(TestCast {})
                 .build(),
         );
         let attr = Attr::new(class, 0..6);
