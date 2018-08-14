@@ -2,7 +2,7 @@
   "name": "@genet/tcp",
   "version": "0.1.0",
   "license": "MIT",
-  "description": "TCP dissector",
+  "description": "TCP decoder",
   "engines": {
     "genet": "*"
   },

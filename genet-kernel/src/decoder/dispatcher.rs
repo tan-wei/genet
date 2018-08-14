@@ -1,7 +1,7 @@
 use frame::Frame;
 use genet_abi::{
     context::Context,
-    dissector::{DissectorBox, WorkerBox},
+    decoder::{DecoderBox, WorkerBox},
     fixed::MutFixed,
     layer::Layer,
 };
@@ -14,7 +14,7 @@ pub struct Dispatcher {
 impl Dispatcher {
     pub fn new(typ: &str, profile: &Profile) -> Dispatcher {
         let runners = profile
-            .dissectors()
+            .decoders()
             .map(|d| Runner::new(typ, profile.context(), *d))
             .collect();
         Dispatcher { runners }
@@ -70,16 +70,16 @@ impl Dispatcher {
 struct Runner {
     ctx: Context,
     typ: String,
-    dissector: DissectorBox,
+    decoder: DecoderBox,
     worker: Option<WorkerBox>,
 }
 
 impl Runner {
-    fn new(typ: &str, ctx: Context, dissector: DissectorBox) -> Runner {
+    fn new(typ: &str, ctx: Context, decoder: DecoderBox) -> Runner {
         let mut runner = Runner {
             ctx,
             typ: typ.to_string(),
-            dissector,
+            decoder,
             worker: None,
         };
         runner.reset();
@@ -93,7 +93,7 @@ impl Runner {
     ) -> (bool, Vec<MutFixed<Layer>>) {
         if let Some(worker) = &mut self.worker {
             let mut children = Vec::new();
-            match worker.analyze(&mut self.ctx, layers, layer, &mut children) {
+            match worker.decode(&mut self.ctx, layers, layer, &mut children) {
                 Ok(done) => (done, children),
                 Err(_) => (true, vec![]),
             }
@@ -103,7 +103,7 @@ impl Runner {
     }
 
     fn reset(&mut self) {
-        self.worker = self.dissector.new_worker(&self.typ, &self.ctx);
+        self.worker = self.decoder.new_worker(&self.typ, &self.ctx);
     }
 }
 

@@ -11,7 +11,7 @@ pub mod profile;
 pub mod session;
 
 mod array_vec;
-mod dissector;
+mod decoder;
 mod filter;
 mod frame;
 mod io;

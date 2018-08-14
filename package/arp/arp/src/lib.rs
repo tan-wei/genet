@@ -13,7 +13,7 @@ use std::collections::HashMap;
 struct ArpWorker {}
 
 impl Worker for ArpWorker {
-    fn analyze(
+    fn decode(
         &mut self,
         _ctx: &mut Context,
         _stack: &LayerStack,
@@ -67,9 +67,9 @@ impl Worker for ArpWorker {
 }
 
 #[derive(Clone)]
-struct ArpDissector {}
+struct ArpDecoder {}
 
-impl Dissector for ArpDissector {
+impl Decoder for ArpDecoder {
     fn new_worker(&self, typ: &str, _ctx: &Context) -> Option<Box<Worker>> {
         if typ == "parallel" {
             Some(Box::new(ArpWorker {}))
@@ -135,4 +135,4 @@ lazy_static! {
     };
 }
 
-genet_dissectors!(ArpDissector {});
+genet_decoders!(ArpDecoder {});

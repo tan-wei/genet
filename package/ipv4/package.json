@@ -2,7 +2,7 @@
   "name": "@genet/ipv4",
   "version": "0.1.0",
   "license": "MIT",
-  "description": "IPv4 dissector",
+  "description": "IPv4 decoder",
   "engines": {
     "genet": "*"
   },

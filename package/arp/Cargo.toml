@@ -3,3 +3,4 @@ members = ["arp"]
 
 [replace]
 "genet-abi:0.1.0" = { path = "../../genet-abi" }
+"genet-sdk:0.1.0" = { path = "../../genet-sdk" }

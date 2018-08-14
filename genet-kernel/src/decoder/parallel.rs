@@ -1,5 +1,5 @@
 use crossbeam_channel;
-use dissector::dispatcher::Dispatcher;
+use decoder::dispatcher::Dispatcher;
 use frame::Frame;
 use profile::Profile;
 use std::thread::{self, JoinHandle};

@@ -13,14 +13,14 @@ pub enum Status {
     Skip,
 }
 
-/// Dissector worker trait.
+/// Decoder worker trait.
 pub trait Worker {
-    fn analyze(&mut self, &mut Context, &LayerStack, &mut Layer) -> Result<Status>;
+    fn decode(&mut self, &mut Context, &LayerStack, &mut Layer) -> Result<Status>;
 }
 
 #[repr(C)]
 pub struct WorkerBox {
-    analyze: extern "C" fn(
+    decode: extern "C" fn(
         *mut WorkerBox,
         *mut Context,
         *const *const Layer,
@@ -37,12 +37,12 @@ const MAX_CHILDREN: usize = <u8>::max_value() as usize - 2;
 impl WorkerBox {
     fn new(worker: Box<Worker>) -> WorkerBox {
         Self {
-            analyze: abi_analyze,
+            decode: abi_decode,
             worker: Box::into_raw(Box::new(worker)),
         }
     }
 
-    pub fn analyze(
+    pub fn decode(
         &mut self,
         ctx: &mut Context,
         layers: &[MutFixed<Layer>],
@@ -55,7 +55,7 @@ impl WorkerBox {
         }
         let stack = layers.as_ptr() as *const *const Layer;
         let mut error = Error::new("");
-        let result = (self.analyze)(
+        let result = (self.decode)(
             self,
             ctx,
             stack,
@@ -81,7 +81,7 @@ impl WorkerBox {
     }
 }
 
-extern "C" fn abi_analyze(
+extern "C" fn abi_decode(
     worker: *mut WorkerBox,
     ctx: *mut Context,
     layers: *const *const Layer,
@@ -94,7 +94,7 @@ extern "C" fn abi_analyze(
     let ctx = unsafe { &mut (*ctx) };
     let layer = unsafe { &mut (*layer) };
     let stack = unsafe { LayerStack::new(layers, len as usize) };
-    match worker.analyze(ctx, &stack, layer) {
+    match worker.decode(ctx, &stack, layer) {
         Ok(stat) => match stat {
             Status::Done(layers) => {
                 let len = 2u8.saturating_add(layers.len() as u8);
@@ -114,50 +114,50 @@ extern "C" fn abi_analyze(
     }
 }
 
-/// Dissector trait.
-pub trait Dissector: DissectorClone + Send {
+/// Decoder trait.
+pub trait Decoder: DecoderClone + Send {
     fn new_worker(&self, &str, &Context) -> Option<Box<Worker>>;
 }
 
-pub trait DissectorClone {
-    fn clone_box(&self) -> Box<Dissector>;
-    fn into_box(self) -> Box<Dissector>;
+pub trait DecoderClone {
+    fn clone_box(&self) -> Box<Decoder>;
+    fn into_box(self) -> Box<Decoder>;
 }
 
-impl<T> DissectorClone for T
+impl<T> DecoderClone for T
 where
-    T: 'static + Dissector + Clone,
+    T: 'static + Decoder + Clone,
 {
-    fn clone_box(&self) -> Box<Dissector> {
+    fn clone_box(&self) -> Box<Decoder> {
         Box::new(self.clone())
     }
 
-    fn into_box(self) -> Box<Dissector> {
+    fn into_box(self) -> Box<Decoder> {
         Box::new(self)
     }
 }
 
-impl Clone for Box<Dissector> {
-    fn clone(&self) -> Box<Dissector> {
+impl Clone for Box<Decoder> {
+    fn clone(&self) -> Box<Decoder> {
         self.clone_box()
     }
 }
 
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct DissectorBox {
-    new_worker: extern "C" fn(*mut DissectorBox, SafeString, *const Context, *mut WorkerBox) -> u8,
-    dissector: *mut Box<Dissector>,
+pub struct DecoderBox {
+    new_worker: extern "C" fn(*mut DecoderBox, SafeString, *const Context, *mut WorkerBox) -> u8,
+    decoder: *mut Box<Decoder>,
 }
 
-unsafe impl Send for DissectorBox {}
+unsafe impl Send for DecoderBox {}
 
-impl DissectorBox {
-    pub fn new<T: 'static + Dissector>(diss: T) -> DissectorBox {
-        let diss: Box<Dissector> = Box::new(diss);
+impl DecoderBox {
+    pub fn new<T: 'static + Decoder>(diss: T) -> DecoderBox {
+        let diss: Box<Decoder> = Box::new(diss);
         Self {
             new_worker: abi_new_worker,
-            dissector: Box::into_raw(Box::new(diss)),
+            decoder: Box::into_raw(Box::new(diss)),
         }
     }
 
@@ -177,12 +177,12 @@ impl DissectorBox {
 }
 
 extern "C" fn abi_new_worker(
-    diss: *mut DissectorBox,
+    diss: *mut DecoderBox,
     typ: SafeString,
     ctx: *const Context,
     dst: *mut WorkerBox,
 ) -> u8 {
-    let diss = unsafe { &mut *((*diss).dissector) };
+    let diss = unsafe { &mut *((*diss).decoder) };
     let ctx = unsafe { &(*ctx) };
     if let Some(worker) = diss.new_worker(typ.as_str(), ctx) {
         unsafe { ptr::write(dst, WorkerBox::new(worker)) };
@@ -195,7 +195,7 @@ extern "C" fn abi_new_worker(
 #[cfg(test)]
 mod tests {
     use context::Context;
-    use dissector::{Dissector, DissectorBox, Status, Worker};
+    use decoder::{Decoder, DecoderBox, Status, Worker};
     use fixed::Fixed;
     use layer::{Layer, LayerClass, LayerStack};
     use result::Result;
@@ -204,11 +204,11 @@ mod tests {
     use token::Token;
 
     #[test]
-    fn analyze() {
+    fn decode() {
         struct TestWorker {}
 
         impl Worker for TestWorker {
-            fn analyze(
+            fn decode(
                 &mut self,
                 _ctx: &mut Context,
                 _stack: &LayerStack,
@@ -221,9 +221,9 @@ mod tests {
         }
 
         #[derive(Clone)]
-        struct TestDissector {}
+        struct TestDecoder {}
 
-        impl Dissector for TestDissector {
+        impl Decoder for TestDecoder {
             fn new_worker(&self, typ: &str, _ctx: &Context) -> Option<Box<Worker>> {
                 assert_eq!(typ, "serial");
                 Some(Box::new(TestWorker {}))
@@ -231,7 +231,7 @@ mod tests {
         }
 
         let mut ctx = Context::new(HashMap::new());
-        let mut diss = DissectorBox::new(TestDissector {});
+        let mut diss = DecoderBox::new(TestDecoder {});
         let mut worker = diss.new_worker("serial", &ctx).unwrap();
 
         let class = Fixed::new(LayerClass::builder(Token::null()).build());
@@ -240,7 +240,7 @@ mod tests {
 
         assert_eq!(
             worker
-                .analyze(&mut ctx, &[], &mut layer, &mut results)
+                .decode(&mut ctx, &[], &mut layer, &mut results)
                 .unwrap(),
             true
         );

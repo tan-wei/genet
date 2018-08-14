@@ -122,7 +122,7 @@ export default class Session {
   async create() {
     const { config, libs } = this[fields]
     const profile = new native.Session.Profile()
-    profile.concurrency = genet.config.get('_.dissector.concurrency')
+    profile.concurrency = genet.config.get('_.decoder.concurrency')
     for (const [key, value] of Object.entries(config.toJSON())) {
       profile.setConfig(key, JSON.stringify(value))
     }

@@ -13,7 +13,7 @@ use std::collections::HashMap;
 struct NtpWorker {}
 
 impl Worker for NtpWorker {
-    fn analyze(
+    fn decode(
         &mut self,
         _ctx: &mut Context,
         stack: &LayerStack,
@@ -69,9 +69,9 @@ impl Worker for NtpWorker {
 }
 
 #[derive(Clone)]
-struct NtpDissector {}
+struct NtpDecoder {}
 
-impl Dissector for NtpDissector {
+impl Decoder for NtpDecoder {
     fn new_worker(&self, typ: &str, _ctx: &Context) -> Option<Box<Worker>> {
         if typ == "parallel" {
             Some(Box::new(NtpWorker {}))
@@ -228,4 +228,4 @@ lazy_static! {
     };
 }
 
-genet_dissectors!(NtpDissector {});
+genet_decoders!(NtpDecoder {});

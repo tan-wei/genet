@@ -9,7 +9,7 @@ use genet_sdk::prelude::*;
 struct UdpWorker {}
 
 impl Worker for UdpWorker {
-    fn analyze(
+    fn decode(
         &mut self,
         _ctx: &mut Context,
         _stack: &LayerStack,
@@ -31,9 +31,9 @@ impl Worker for UdpWorker {
 }
 
 #[derive(Clone)]
-struct UdpDissector {}
+struct UdpDecoder {}
 
-impl Dissector for UdpDissector {
+impl Decoder for UdpDecoder {
     fn new_worker(&self, typ: &str, _ctx: &Context) -> Option<Box<Worker>> {
         if typ == "parallel" {
             Some(Box::new(UdpWorker {}))
@@ -68,4 +68,4 @@ lazy_static! {
         .build();
 }
 
-genet_dissectors!(UdpDissector {});
+genet_decoders!(UdpDecoder {});

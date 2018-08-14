@@ -2,7 +2,7 @@
   "name": "@genet/eth",
   "version": "0.1.0",
   "license": "MIT",
-  "description": "Ethernet dissector",
+  "description": "Ethernet decoder",
   "engines": {
     "genet": "*"
   },

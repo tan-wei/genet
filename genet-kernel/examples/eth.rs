@@ -13,7 +13,7 @@ use std::collections::HashMap;
 struct EthWorker {}
 
 impl Worker for EthWorker {
-    fn analyze(
+    fn decode(
         &mut self,
         _ctx: &mut Context,
         _stack: &LayerStack,
@@ -40,9 +40,9 @@ impl Worker for EthWorker {
 }
 
 #[derive(Clone)]
-struct EthDissector {}
+struct EthDecoder {}
 
-impl Dissector for EthDissector {
+impl Decoder for EthDecoder {
     fn new_worker(&self, typ: &str, _ctx: &Context) -> Option<Box<Worker>> {
         if typ == "parallel" {
             Some(Box::new(EthWorker {}))
@@ -85,4 +85,4 @@ lazy_static! {
     };
 }
 
-genet_dissectors!(EthDissector {});
+genet_decoders!(EthDecoder {});

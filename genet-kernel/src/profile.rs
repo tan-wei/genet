@@ -1,6 +1,6 @@
 use genet_abi::{
     context::Context,
-    dissector::DissectorBox,
+    decoder::DecoderBox,
     env::{self, Allocator},
     fixed::Fixed,
     io::{ReaderBox, WriterBox},
@@ -13,7 +13,7 @@ use std::{collections::HashMap, fmt, io, mem};
 #[derive(Clone, Default)]
 pub struct Profile {
     concurrency: u32,
-    dissectors: Vec<DissectorBox>,
+    decoders: Vec<DecoderBox>,
     readers: Vec<ReaderBox>,
     writers: Vec<WriterBox>,
     config: HashMap<String, String>,
@@ -29,7 +29,7 @@ impl Profile {
     pub fn new() -> Profile {
         Profile {
             concurrency: 4,
-            dissectors: Vec::new(),
+            decoders: Vec::new(),
             readers: Vec::new(),
             writers: Vec::new(),
             config: HashMap::new(),
@@ -58,8 +58,8 @@ impl Profile {
             .or_insert_with(|| String::from(value));
     }
 
-    pub fn dissectors(&self) -> impl Iterator<Item = &DissectorBox> {
-        self.dissectors.iter()
+    pub fn decoders(&self) -> impl Iterator<Item = &DecoderBox> {
+        self.decoders.iter()
     }
 
     pub fn readers(&self) -> impl Iterator<Item = &ReaderBox> {
@@ -82,7 +82,7 @@ impl Profile {
         type FnRegisterGetString =
             extern "C" fn(unsafe extern "C" fn(Token, *mut u64) -> *const u8);
         type FnRegisterGetAllocator = extern "C" fn(extern "C" fn() -> Fixed<Allocator>);
-        type FnGetDissectors = extern "C" fn(*mut u64) -> *const DissectorBox;
+        type FnGetDecoders = extern "C" fn(*mut u64) -> *const DecoderBox;
         type FnGetReaders = extern "C" fn(*mut u64) -> *const ReaderBox;
         type FnGetWriters = extern "C" fn(*mut u64) -> *const WriterBox;
 
@@ -107,11 +107,11 @@ impl Profile {
             func(env::abi_genet_get_allocator);
         }
 
-        if let Ok(func) = unsafe { lib.get::<FnGetDissectors>(b"genet_abi_v1_get_dissectors") } {
+        if let Ok(func) = unsafe { lib.get::<FnGetDecoders>(b"genet_abi_v1_get_decoders") } {
             let mut len = 0;
             let ptr = func(&mut len);
             for i in 0..len {
-                self.dissectors.push(unsafe { (*ptr.offset(i as isize)) });
+                self.decoders.push(unsafe { (*ptr.offset(i as isize)) });
             }
         }
 

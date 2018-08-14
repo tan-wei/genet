@@ -13,7 +13,7 @@ use std::collections::HashMap;
 struct IPv4Worker {}
 
 impl Worker for IPv4Worker {
-    fn analyze(
+    fn decode(
         &mut self,
         _ctx: &mut Context,
         _stack: &LayerStack,
@@ -39,9 +39,9 @@ impl Worker for IPv4Worker {
 }
 
 #[derive(Clone)]
-struct IPv4Dissector {}
+struct IPv4Decoder {}
 
-impl Dissector for IPv4Dissector {
+impl Decoder for IPv4Decoder {
     fn new_worker(&self, typ: &str, _ctx: &Context) -> Option<Box<Worker>> {
         if typ == "parallel" {
             Some(Box::new(IPv4Worker {}))
@@ -128,4 +128,4 @@ lazy_static! {
         0x11 => (token!("@data:udp"), AttrClass::builder("ipv4.protocol.udp").typ("@novalue").cast(cast::Const(true)).build()),
     };
 }
-genet_dissectors!(IPv4Dissector {});
+genet_decoders!(IPv4Decoder {});

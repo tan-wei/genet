@@ -13,7 +13,7 @@ use std::collections::HashMap;
 struct IPv6Worker {}
 
 impl Worker for IPv6Worker {
-    fn analyze(
+    fn decode(
         &mut self,
         _ctx: &mut Context,
         _stack: &LayerStack,
@@ -59,9 +59,9 @@ impl Worker for IPv6Worker {
 }
 
 #[derive(Clone)]
-struct IPv6Dissector {}
+struct IPv6Decoder {}
 
-impl Dissector for IPv6Dissector {
+impl Decoder for IPv6Decoder {
     fn new_worker(&self, typ: &str, _ctx: &Context) -> Option<Box<Worker>> {
         if typ == "parallel" {
             Some(Box::new(IPv6Worker {}))
@@ -124,4 +124,4 @@ lazy_static! {
         0x3a => (token!("@data:icmp"), AttrClass::builder("ipv6.protocol.icmp").typ("@novalue").cast(cast::Const(true)).build()),
     };
 }
-genet_dissectors!(IPv6Dissector {});
+genet_decoders!(IPv6Decoder {});

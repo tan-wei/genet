@@ -4,7 +4,7 @@
 extern crate byteorder;
 extern crate genet_abi;
 
-pub mod dissector;
+pub mod decoder;
 pub mod io;
 pub mod token;
 

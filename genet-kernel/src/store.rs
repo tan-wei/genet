@@ -1,6 +1,6 @@
 use array_vec::ArrayVec;
 use crossbeam_channel;
-use dissector::{parallel, serial};
+use decoder::{parallel, serial};
 use filter::{self, Filter};
 use frame::Frame;
 use genet_abi::{fixed::MutFixed, layer::Layer};

@@ -8,11 +8,11 @@ describe('Session.Profile', () => {
             assert((new Profile()) instanceof Profile)
         })
     })
-  describe('#addDissector', () => {
-        it('should add a dissector', function(done) {
+  describe('#addDecoder', () => {
+        it('should add a decoder', function(done) {
             const profile = new Profile()
             profile.addLinkLayer(1, '[eth]')
-            profile.addDissector(`
+            profile.addDecoder(`
         class Diss {
           analyze(ctx, layer) {
             return true
@@ -31,9 +31,9 @@ describe('Session.Profile', () => {
         })
         it('should throw for wrong arguments', () => {
             const profile = new Profile()
-            assert.throws(() => profile.addDissector(), TypeError)
-            assert.throws(() => profile.addDissector(''), TypeError)
-            assert.throws(() => profile.addDissector('', 0), TypeError)
+            assert.throws(() => profile.addDecoder(), TypeError)
+            assert.throws(() => profile.addDecoder(''), TypeError)
+            assert.throws(() => profile.addDecoder('', 0), TypeError)
         })
     })
 })

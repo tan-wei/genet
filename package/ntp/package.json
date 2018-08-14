@@ -2,7 +2,7 @@
   "name": "@genet/ntp",
   "version": "0.1.0",
   "license": "MIT",
-  "description": "NTP dissector",
+  "description": "NTP decoder",
   "engines": {
     "genet": "*"
   },

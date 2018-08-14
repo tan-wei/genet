@@ -72,7 +72,7 @@ impl TcpStreamWorker {
 }
 
 impl Worker for TcpStreamWorker {
-    fn analyze(
+    fn decode(
         &mut self,
         _ctx: &mut Context,
         stack: &LayerStack,
@@ -173,9 +173,9 @@ impl Worker for TcpStreamWorker {
 }
 
 #[derive(Clone)]
-struct TcpStreamDissector {}
+struct TcpStreamDecoder {}
 
-impl Dissector for TcpStreamDissector {
+impl Decoder for TcpStreamDecoder {
     fn new_worker(&self, typ: &str, _ctx: &Context) -> Option<Box<Worker>> {
         if typ == "serial" {
             Some(Box::new(TcpStreamWorker::new()))
@@ -192,4 +192,4 @@ lazy_static! {
         .build();
 }
 
-genet_dissectors!(TcpStreamDissector {});
+genet_decoders!(TcpStreamDecoder {});

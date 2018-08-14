@@ -2,7 +2,7 @@
   "name": "@genet/udp",
   "version": "0.1.0",
   "license": "MIT",
-  "description": "UDP dissector",
+  "description": "UDP decoder",
   "engines": {
     "genet": "*"
   },

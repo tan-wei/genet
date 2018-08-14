@@ -9,7 +9,7 @@ use genet_sdk::prelude::*;
 struct TcpWorker {}
 
 impl Worker for TcpWorker {
-    fn analyze(
+    fn decode(
         &mut self,
         _ctx: &mut Context,
         _stack: &LayerStack,
@@ -71,9 +71,9 @@ impl Worker for TcpWorker {
 }
 
 #[derive(Clone)]
-struct TcpDissector {}
+struct TcpDecoder {}
 
-impl Dissector for TcpDissector {
+impl Decoder for TcpDecoder {
     fn new_worker(&self, typ: &str, _ctx: &Context) -> Option<Box<Worker>> {
         if typ == "parallel" {
             Some(Box::new(TcpWorker {}))
@@ -197,4 +197,4 @@ lazy_static! {
         .build();
 }
 
-genet_dissectors!(TcpDissector {});
+genet_decoders!(TcpDecoder {});
