@@ -9,7 +9,6 @@ import Resumer from './resumer'
 import Session from './session'
 import Workspace from './workspace'
 import Env from './env'
-import minimist from 'minimist'
 import Gpm from './gpm'
 
 export default class Genet {
@@ -28,37 +27,33 @@ export default class Genet {
   readonly argv: object
 
   constructor(argv) {
-    const options = minimist(argv, { boolean: true })
-    let components = options.components || ''
-    if (Array.isArray(components)) {
-      components = components.join(',')
-    }
-    const config = new Config(options.profile, 'config')
+    let components = argv.components || []
+    const config = new Config(argv.profile, 'config')
     const logger = new Logger(config)
-    if (options.loggerDomain) {
-      logger.domain = options.loggerDomain
+    if (argv.loggerDomain) {
+      logger.domain = argv.loggerDomain
     }
     this.config = config
     this.gpm = new Gpm()
-    this.workspace = new Workspace(options.profile)
-    this.keybind = new KeyBind(options.profile, logger)
-    this.packages = new PackageManager(config, components.split(','), logger)
+    this.workspace = new Workspace(argv.profile)
+    this.keybind = new KeyBind(argv.profile, logger)
+    this.packages = new PackageManager(config, components, logger)
     this.session = new Session(config)
     this.menu = new Menu()
     this.notify = new Notification()
     this.logger = logger
     this.env = Env
     this.action = new Action()
-    this.argv = Object.assign(argv, options)
+    this.argv = argv
 
-    if (options.resume) {
-      this.resumer = new Resumer(options.resume, logger)
+    if (argv.resume) {
+      this.resumer = new Resumer(argv.resume, logger)
     }
 
-    if (options.contextMenu) {
+    if (argv.contextMenu) {
       this.menu.enableContextMenu()
     }
   }
 
-  init() {}
+  init() { }
 }

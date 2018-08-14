@@ -6,7 +6,7 @@ import path from 'path'
 const { shell, webFrame } = require('electron')
 
 export default class Content {
-  constructor(private view: object, private css: string, private argv: string[] = []) {
+  constructor(private view: object, private css: string, private argv: object = {}) {
   }
 
   async load() {
@@ -40,8 +40,8 @@ export default class Content {
     loader.applyCommon(document)
     await loader.applyCss(document, path.join(__dirname, this.css))
 
-    const argv = JSON.parse(decodeURIComponent(location.search.substr(1)))
-      .concat(this.argv)
+    const argv = Object.assign(
+      JSON.parse(decodeURIComponent(location.search.substr(1))), this.argv)
     api.init(new Genet(argv))
 
     m.mount(document.body, this.view)

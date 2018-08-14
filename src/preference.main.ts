@@ -7,11 +7,10 @@ export default function main() {
   ]
 
   const content = new Content(PreferenceView,
-    'preference.main.css',
-    [
-      `--components=${components.join(',')}`,
-      '--loggerDomain=preference',
-      '--contextMenu'
-    ])
+    'preference.main.css', {
+      components,
+      loggerDomain: 'preference',
+      contextMenu: true
+    })
   content.load()
 }

@@ -7,11 +7,10 @@ export default function main() {
   ]
 
   const content = new Content(PackageView,
-    'package.main.css',
-    [
-      `--components=${components.join(',')}`,
-      '--loggerDomain=package',
-      '--contextMenu'
-    ])
+    'package.main.css', {
+      components,
+      loggerDomain: 'package',
+      contextMenu: true
+    })
   content.load()
 }

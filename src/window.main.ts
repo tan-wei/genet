@@ -9,11 +9,9 @@ export default function main() {
 
   const content = new Content(
     WindowView,
-    'window.main.css',
-    [
-      `--components=${components.join(',')}`
-    ]
-  )
+    'window.main.css', {
+      components
+    })
   content.load().then(() => {
     ipcRenderer.send('core:window:loaded', remote.getCurrentWindow().id)
   })

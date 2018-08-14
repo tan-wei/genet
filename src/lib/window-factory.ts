@@ -1,5 +1,6 @@
 import Config from './config'
 import debounce from 'lodash.debounce'
+import minimist from 'minimist'
 import Env from './env'
 import flatten from 'flat'
 import path from 'path'
@@ -30,7 +31,9 @@ export default class WindowFactory {
     const mainWindow = new BrowserWindow(options)
 
     const jsonArgv =
-      JSON.stringify(argv.concat([`--profile=${profile}`]))
+      JSON.stringify(Object.assign(minimist(argv, { boolean: true }), {
+        profile
+      }))
 
     const localUrl = url.format({
       protocol: 'file',

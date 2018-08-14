@@ -65,9 +65,9 @@ export default class WindowView {
       id,
       name: `Session ${number}`,
       src: 'display.htm',
-      argv: genet.argv.concat([
-        `--resume=${Resumer.generateFileName()}`
-      ]),
+      argv: Object.assign(genet.argv, {
+        resume: Resumer.generateFileName()
+      }),
       loading: true,
     })
   }
@@ -136,10 +136,10 @@ export default class WindowView {
           id,
           name: path.basename(file),
           src: 'display.htm',
-          argv: genet.argv.concat([
-            `--import=${file}`,
-            `--resume=${Resumer.generateFileName()}`
-          ]),
+          argv: Object.assign(genet.argv, {
+            import: file,
+            resume: Resumer.generateFileName()
+          }),
           loading: true,
         })
       }

@@ -16,10 +16,10 @@ export default function main() {
   const content = new Content(
     PcapView,
     'display.main.css',
-    [
-      `--components=${components.join(',')}`,
-      '--loggerDomain=display',
-      '--contextMenu'
-    ])
+    {
+      components,
+      loggerDomain: 'display',
+      contextMenu: true
+    })
   content.load()
 }
