@@ -8,7 +8,7 @@ serde_json = "1"
 serde_derive = "1"
 lazy_static = "1"
 pcap = { path = "../pcap" }
-genet-sdk = "0"
+genet-sdk = "0.2.0"
 
 [lib]
 name = "pcap_reader"
