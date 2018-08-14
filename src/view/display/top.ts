@@ -137,6 +137,12 @@ export default class TopView {
       this.showReloadBalloon = true
       m.redraw()
     })
+    genet.session.on('error', (err) => {
+      genet.notify.show(err.message, {
+        type: 'error',
+        title: 'Session Error',
+      })
+    })
     genet.packages.once('updated', () => {
       genet.action.on('core:session:created', (sess) => {
         sess.on('update', () => m.redraw())

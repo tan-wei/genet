@@ -1,4 +1,5 @@
 import { Disposable } from './disposable'
+import { EventEmitter } from 'events'
 import genet from '@genet/api'
 import native from '@genet/load-module'
 import objpath from 'object-path'
@@ -6,8 +7,9 @@ import path from 'path'
 import titleCase from 'title-case'
 
 const fields = Symbol('fields')
-export default class Session {
+export default class Session extends EventEmitter {
   constructor(config) {
+    super()
     this[fields] = {
       config,
       tokens: new Map(),
@@ -127,7 +129,11 @@ export default class Session {
       profile.setConfig(key, JSON.stringify(value))
     }
     for (const file of libs) {
-      profile.loadLibrary(file)
+      try {
+        profile.loadLibrary(file)
+      } catch (err) {
+        this.emit('error', err)
+      }
     }
     return new native.Session(profile, this[fields])
   }
