@@ -132,7 +132,7 @@ export default class Session extends EventEmitter {
       try {
         profile.loadLibrary(file)
       } catch (err) {
-        this.emit('error', err)
+        this.emit('error', new Error(`Filed to load ${file}: ${err.messane}`))
       }
     }
     return new native.Session(profile, this[fields])
