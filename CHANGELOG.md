@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Integrate gpm (genet package manager).
 
+### Changed
+- Rename Decoder to Cast
+- Rename Dissector to Decoder
+
 ## [0.2.0] - 2018-08-10
 ### Added
 - Add resumable reloading.
