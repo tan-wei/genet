@@ -12,7 +12,6 @@ let installerCallback: (any) => void = () => { }
 async function install(pkg) {
   const shortName = pkg.id
   const installer = new Installer()
-  installer.rustpath = genet.config.get('_.package.rustpath', '')
   installer.on('output', (chunk) => {
     installerCallback(chunk)
   })

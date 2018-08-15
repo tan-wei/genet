@@ -1,59 +1,58 @@
 import genet from '@genet/api'
 import m from 'mithril'
 
-const fields = Symbol('fields')
 export class HSplitter {
+  private _width: number
+  private _handle: number
+  private _active: boolean
   constructor() {
-    this[fields] = {
-      width: 320,
-      handle: 0,
-      active: false,
-    }
+    this._width = 320
+    this._handle = 0
+    this._active = false
   }
 
   oninit(vnode) {
     const { width, workspace } = vnode.attrs
     if (Number.isInteger(width)) {
-      this[fields].width = width
+      this._width = width
     }
     if (typeof workspace === 'string') {
-      this[fields].width = genet.workspace.get(workspace, this[fields].width)
+      this._width = genet.workspace.get(workspace, this._width)
     }
-    this[fields].handle = this[fields].width
+    this._handle = this._width
   }
 
   view(vnode) {
-    const { width, handle, active } = this[fields]
     const { left, right, workspace } = vnode.attrs
     return m('div', { class: 'splitter' }, [
       m('div', {
         class: 'left',
-        style: { width: `${width}px` },
+        style: { width: `${this._width}px` },
       }, [
           m(left, vnode.attrs)
         ]),
       m('div', {
         class: 'right',
-        style: { left: `${width}px` },
+        style: { left: `${this._width}px` },
       }, [
           m(right, vnode.attrs)
         ]),
       m('div', {
         class: 'handle vertical',
-        style: { left: `${handle}px` },
-        active,
+        style: { left: `${this._handle}px` },
+        active: this._active,
         onmousedown: () => {
-          this[fields].handle = this[fields].width
-          this[fields].active = true
+          this._handle = this._width
+          this._active = true
         },
         onmouseup: () => {
-          this[fields].active = false
+          this._active = false
         },
       }),
       m('div', {
         class: 'base vertical',
         style: {
-          display: active
+          display: this._active
             ? 'block'
             : 'none',
         },
@@ -64,70 +63,70 @@ export class HSplitter {
           this.applyWidth(workspace)
         },
         onmousemove: (event) => {
-          this[fields].handle = event.offsetX
+          this._handle = event.offsetX
         },
       })
     ])
   }
 
   applyWidth(workspace: string) {
-    this[fields].width = this[fields].handle
-    this[fields].active = false
-    genet.workspace.set(workspace, this[fields].width)
+    this._width = this._handle
+    this._active = false
+    genet.workspace.set(workspace, this._width)
   }
 }
 
 export class VSplitter {
+  private _height: number
+  private _handle: number
+  private _active: boolean
   constructor() {
-    this[fields] = {
-      height: 320,
-      handle: 0,
-      active: false,
-    }
+    this._height = 320
+    this._handle = 0
+    this._active = false
   }
 
   oninit(vnode) {
     const { height, workspace } = vnode.attrs
     if (Number.isInteger(height)) {
-      this[fields].height = height
+      this._height = height
     }
     if (typeof workspace === 'string') {
-      this[fields].height = genet.workspace.get(workspace, this[fields].height)
+      this._height = genet.workspace.get(workspace, this._height)
     }
-    this[fields].handle = this[fields].height
+    this._handle = this._height
   }
 
   view(vnode) {
-    const { height, handle, active } = this[fields]
     const { bottom, top, workspace } = vnode.attrs
     return m('div', { class: 'splitter vertical' }, [
       m('div', {
         class: 'bottom',
-        style: { height: `${height}px` },
+        style: { height: `${this._height}px` },
       }, [
           m(bottom, vnode.attrs)
         ]),
       m('div', {
         class: 'top',
-        style: { bottom: `${height}px` },
+        style: { bottom: `${this._height}px` },
       }, [
           m(top, vnode.attrs)
         ]),
       m('div', {
         class: 'handle horizontal',
-        style: { bottom: `${handle}px` },
-        active,
+        style: { bottom: `${this._handle}px` },
+        active: this._active,
         onmousedown: () => {
-          this[fields].active = true
+          this._active = true
         },
         onmouseup: () => {
-          this[fields].active = false
+          this._active = false
         },
       }),
       m('div', {
         class: 'base horizontal',
         style: {
-          display: active
+          display: this._active
             ? 'block'
             : 'none',
         },
@@ -138,15 +137,15 @@ export class VSplitter {
           this.applyHeight(workspace)
         },
         onmousemove: (event) => {
-          this[fields].handle = event.target.clientHeight - event.offsetY
+          this._handle = event.target.clientHeight - event.offsetY
         },
       })
     ])
   }
 
   applyHeight(workspace: string) {
-    this[fields].height = this[fields].handle
-    this[fields].active = false
-    genet.workspace.set(workspace, this[fields].height)
+    this._height = this._handle
+    this._active = false
+    genet.workspace.set(workspace, this._height)
   }
 }

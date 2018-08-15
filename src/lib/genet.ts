@@ -29,7 +29,7 @@ export default class Genet {
   constructor(argv) {
     let components = argv.components || []
     const config = new Config(argv.profile, 'config')
-    const logger = new Logger(config)
+    const logger = new Logger()
     if (argv.loggerDomain) {
       logger.domain = argv.loggerDomain
     }

@@ -1,5 +1,6 @@
 import { readJson, remove, ensureDir } from 'fs-extra'
 import ComponentFactory from './component-factory'
+import Config from './config'
 import { EventEmitter } from 'events'
 import Logger from './logger'
 import Env from './env'
@@ -13,7 +14,6 @@ import writeFileAtomic from 'write-file-atomic'
 
 const promiseGlob = promisify(glob)
 const promiseWriteFile = promisify(writeFileAtomic)
-const fields = Symbol('fields')
 async function readFile(filePath) {
   try {
     const normPath = path.normalize(filePath)
@@ -37,17 +37,23 @@ async function readFile(filePath) {
 
 
 export default class PackageManager extends EventEmitter {
-  constructor(config, components: string[], logger: Logger) {
+  private _config: Config
+  private _logger: Logger
+  private _packages: Map<string, any>
+  private _activatedComponents: Set<any>
+  private _updating: boolean
+  private _queued: boolean
+  private _initialLoad: boolean
+
+  constructor(config: Config, components: string[], logger: Logger) {
     super()
-    this[fields] = {
-      config,
-      logger,
-      packages: new Map(),
-      activatedComponents: new Set(components),
-      updating: false,
-      queued: false,
-      initialLoad: true,
-    }
+    this._config = config
+    this._logger = logger
+    this._packages = new Map()
+    this._activatedComponents = new Set(components)
+    this._updating = false
+    this._queued = false
+    this._initialLoad = true
     config.watch('_.disabledPackages', () => {
       this.triggerUpdate()
     }, [])
@@ -55,24 +61,20 @@ export default class PackageManager extends EventEmitter {
 
   triggerUpdate() {
     this.update().catch((err) => {
-      this[fields].logger.error(err)
+      this._logger.error(err)
     })
   }
 
   async update() {
-    const {
-      config, updating, packages,
-      activatedComponents, initialLoad, queued, logger,
-    } = this[fields]
-    if (updating && !queued) {
+    if (this._updating && !this._queued) {
       this.once('updated', () => {
-        this[fields].queued = false
+        this._queued = false
         this.triggerUpdate()
       })
-      this[fields].queued = true
+      this._queued = true
       return
     }
-    this[fields].updating = true
+    this._updating = true
 
     const builtinPluginPattern =
       path.join(Env.builtinPackagePath, '/**/package.json')
@@ -83,11 +85,11 @@ export default class PackageManager extends EventEmitter {
     const builtinPaths = await promiseGlob(builtinPluginPattern, globOptions)
     const userPaths = await promiseGlob(userPluginPattern, globOptions)
 
-    const disabledPackages = new Set(config.get('_.disabledPackages', []))
+    const disabledPackages = new Set(this._config.get('_.disabledPackages', []))
     const updatedPackages = new Set()
     const enabledPackages = new Set()
     const addedPackages = new Set()
-    const removedPackages = new Set(packages.keys())
+    const removedPackages = new Set(this._packages.keys())
     const dirtyPackages = new Set()
 
     const metaDataList = await Promise.all(
@@ -104,10 +106,10 @@ export default class PackageManager extends EventEmitter {
         semver.coerce(Env.genet.version),
         objpath.get(pkg.data, 'engines.genet', '*'))
       const disabled = disabledPackages.has(id)
-      const cache = packages.get(id) || { components: [] }
+      const cache = this._packages.get(id) || { components: [] }
       if (!incompatible) {
-        if (!packages.has(pkg.id) && !disabled) {
-          addedPackages.add(pkg.id)
+        if (!this._packages.has(id) && !disabled) {
+          addedPackages.add(id)
         } else if (disabled) {
           if (cache.disabled === true) {
             disabledPackages.delete(id)
@@ -122,7 +124,7 @@ export default class PackageManager extends EventEmitter {
         }
       }
 
-      packages.set(pkg.id, Object.assign(cache, pkg, { incompatible }))
+      this._packages.set(id, Object.assign(cache, pkg, { incompatible }))
       removedPackages.delete(id)
     }
 
@@ -130,11 +132,11 @@ export default class PackageManager extends EventEmitter {
     Array.from(disabledPackages)
       .concat(Array.from(removedPackages))
       .concat(Array.from(updatedPackages))
-      .map((id) => packages.get(id))
+      .map((id: string) => this._packages.get(id))
       .filter((pkg) => typeof pkg !== 'undefined')
       .forEach((pkg) => {
         for (const comp of pkg.components) {
-          logger.debug(`unloading package: ${pkg.id}`)
+          this._logger.debug(`unloading package: ${pkg.id}`)
           task.push(comp.unload().then((result) => {
             if (!result) {
               dirtyPackages.add(pkg.id)
@@ -142,23 +144,23 @@ export default class PackageManager extends EventEmitter {
             return result
           })
             .catch((err) => {
-              logger.error(err)
+              this._logger.error(err)
             }))
         }
       })
 
     Array.from(addedPackages)
       .concat(Array.from(updatedPackages))
-      .map((id) => packages.get(id))
+      .map((id) => this._packages.get(id))
       .forEach((pkg) => {
         const components = objpath.get(pkg.data, 'genet.components', [])
         pkg.components = components
-          .filter((comp) => activatedComponents.has(comp.type))
+          .filter((comp) => this._activatedComponents.has(comp.type))
           .map((comp) => {
             try {
               return ComponentFactory.create(comp, pkg.dir)
             } catch (err) {
-              logger.error(err)
+              this._logger.error(err)
               return null
             }
           })
@@ -168,34 +170,34 @@ export default class PackageManager extends EventEmitter {
     Array.from(enabledPackages)
       .concat(Array.from(addedPackages))
       .concat(Array.from(updatedPackages))
-      .map((id) => packages.get(id))
+      .map((id) => this._packages.get(id))
       .forEach((pkg) => {
         for (const comp of pkg.components) {
-          logger.debug(`loading package: ${pkg.id}`)
+          this._logger.debug(`loading package: ${pkg.id}`)
           task.push(comp.load().then((result) => {
-            if (!result && !initialLoad) {
+            if (!result && !this._initialLoad) {
               dirtyPackages.add(pkg.id)
             }
             return result
           })
             .catch((err) => {
-              logger.error(err)
+              this._logger.error(err)
             }))
         }
       })
 
     for (const id of dirtyPackages) {
-      const pkg = packages.get(id)
+      const pkg = this._packages.get(id)
       if (typeof pkg !== 'undefined') {
         pkg.dirty = true
       }
     }
 
     for (const id of removedPackages) {
-      packages.delete(id)
+      this._packages.delete(id)
     }
 
-    for (const [, pkg] of packages) {
+    for (const [, pkg] of this._packages) {
       if (pkg.configSchemaDisposer) {
         pkg.configSchemaDisposer.dispose()
       }
@@ -208,33 +210,31 @@ export default class PackageManager extends EventEmitter {
 
     await Promise.all(task)
     this.emit('updated')
-    this[fields].updating = false
-    this[fields].initialLoad = false
+    this._updating = false
+    this._initialLoad = false
   }
 
   get list() {
-    return Array.from(this[fields].packages.values())
+    return Array.from(this._packages.values())
   }
 
   get(id: string) {
-    return this[fields].packages.get(id)
+    return this._packages.get(id)
   }
 
   enable(id: string) {
-    const { config } = this[fields]
-    const disabledPackages = new Set(config.get('_.disabledPackages', []))
+    const disabledPackages = new Set(this._config.get('_.disabledPackages', []))
     if (disabledPackages.delete(id)) {
-      config.set('_.disabledPackages', Array.from(disabledPackages))
+      this._config.set('_.disabledPackages', Array.from(disabledPackages))
       this.triggerUpdate()
     }
   }
 
   disable(id: string) {
-    const { config } = this[fields]
-    const disabledPackages = new Set(config.get('_.disabledPackages', []))
+    const disabledPackages = new Set(this._config.get('_.disabledPackages', []))
     if (!disabledPackages.has(id)) {
       disabledPackages.add(id)
-      config.set('_.disabledPackages', Array.from(disabledPackages))
+      this._config.set('_.disabledPackages', Array.from(disabledPackages))
       this.triggerUpdate()
     }
   }

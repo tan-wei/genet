@@ -6,99 +6,97 @@ import objpath from 'object-path'
 import path from 'path'
 import titleCase from 'title-case'
 
-const fields = Symbol('fields')
 export default class Session extends EventEmitter {
+  private _config: any
+  private _tokens: Map<string, any>
+  private _libs: Set<string>
+  private _fileReaders: Set<any>
+  private _layerRenderers: Map<string, any>
+  private _attrRenderers: Map<string, any>
+  private _attrMacros: Map<string, any>
+  private _filterMacros: Set<any>
+
   constructor(config) {
     super()
-    this[fields] = {
-      config,
-      tokens: new Map(),
-      libs: new Set(),
-      fileReaders: new Set(),
-      layerRenderers: new Map(),
-      attrRenderers: new Map(),
-      attrMacros: new Map(),
-      filterMacros: new Set(),
-      samples: new Set(),
-    }
+    this._config = config
+    this._tokens = new Map()
+    this._libs = new Set()
+    this._fileReaders = new Set()
+    this._layerRenderers = new Map()
+    this._attrRenderers = new Map()
+    this._attrMacros = new Map()
+    this._filterMacros = new Set()
   }
 
   get tokens() {
-    return this[fields].tokens
+    return this._tokens
   }
 
   get fileReaders() {
-    return this[fields].fileReaders
+    return this._fileReaders
   }
 
   registerTokens(tokens) {
     for (const [id, data] of Object.entries(tokens)) {
-      this[fields].tokens.set(id, Object.assign({}, data))
+      this._tokens.set(id, Object.assign({}, data))
     }
     return new Disposable(() => {
       for (const id of Object.keys(tokens)) {
-        this[fields].tokens.delete(id)
+        this._tokens.delete(id)
       }
     })
   }
 
   registerFileReader(reader) {
-    this[fields].fileReaders.add(reader)
+    this._fileReaders.add(reader)
     return new Disposable(() => {
-      this[fields].fileReaders.delete(reader)
+      this._fileReaders.delete(reader)
     })
   }
 
   registerLayerRenderer(id: string, renderer) {
-    this[fields].layerRenderers.set(id, renderer)
+    this._layerRenderers.set(id, renderer)
     return new Disposable(() => {
-      this[fields].layerRenderers.delete(id)
+      this._layerRenderers.delete(id)
     })
   }
 
   registerAttrRenderer(id: string, renderer) {
-    this[fields].attrRenderers.set(id, renderer)
+    this._attrRenderers.set(id, renderer)
     return new Disposable(() => {
-      this[fields].attrRenderers.delete(id)
+      this._attrRenderers.delete(id)
     })
   }
 
   registerAttrMacro(id: string, macro) {
-    this[fields].attrMacros.set(id, macro)
+    this._attrMacros.set(id, macro)
     return new Disposable(() => {
-      this[fields].attrMacros.delete(id)
+      this._attrMacros.delete(id)
     })
   }
 
   registerFilterMacro(macro) {
-    this[fields].filterMacros.add(macro)
+    this._filterMacros.add(macro)
     return new Disposable(() => {
-      this[fields].filterMacros.delete(macro)
-    })
-  }
-
-  registerSample(sample) {
-    this[fields].samples.add(sample)
-    return new Disposable(() => {
-      this[fields].samples.delete(sample)
+      this._filterMacros.delete(macro)
     })
   }
 
   registerLibrary(file: string) {
     const filePath = path.normalize(file)
-    this[fields].libs.add(filePath)
+    this._libs.add(filePath)
     return new Disposable(() => {
-      this[fields].libs.delete(filePath)
+      this._libs.delete(filePath)
     })
   }
 
   tokenName(id: string) {
-    const data = this[fields].tokens.get(id)
+    const data = this._tokens.get(id)
     return objpath.get(data, 'name', titleCase(id.split('.').slice(-1)[0]))
   }
 
   layerRenderer(id: string) {
-    const data = this[fields].layerRenderers.get(id)
+    const data = this._layerRenderers.get(id)
     if (typeof data !== 'undefined') {
       return data
     }
@@ -106,7 +104,7 @@ export default class Session extends EventEmitter {
   }
 
   attrRenderer(id: string) {
-    const data = this[fields].attrRenderers.get(id)
+    const data = this._attrRenderers.get(id)
     if (typeof data !== 'undefined') {
       return data
     }
@@ -114,7 +112,7 @@ export default class Session extends EventEmitter {
   }
 
   attrMacro(id: string) {
-    const data = this[fields].attrMacros.get(id)
+    const data = this._attrMacros.get(id)
     if (typeof data !== 'undefined') {
       return data
     }
@@ -122,26 +120,26 @@ export default class Session extends EventEmitter {
   }
 
   async create() {
-    const { config, libs } = this[fields]
     const profile = new native.Session.Profile()
     profile.concurrency = genet.config.get('_.decoder.concurrency')
-    for (const [key, value] of Object.entries(config.toJSON())) {
+    for (const [key, value] of Object.entries(this._config.toJSON())) {
       profile.setConfig(key, JSON.stringify(value))
     }
-    for (const file of libs) {
+    for (const file of this._libs) {
       try {
         profile.loadLibrary(file)
       } catch (err) {
         this.emit('error', new Error(`Filed to load ${file}: ${err.messane}`))
       }
     }
-    return new native.Session(profile, this[fields])
+    return new native.Session(profile, {
+      filterMacros: this._filterMacros
+    })
   }
 
   createFilterCompiler() {
-    const { filterMacros } = this[fields]
     const filter = new native.FilterCompiler()
-    filter.macros = Array.from(filterMacros)
+    filter.macros = Array.from(this._filterMacros)
     return filter
   }
 }

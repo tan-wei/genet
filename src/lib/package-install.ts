@@ -11,21 +11,10 @@ import tar from 'tar'
 import tempy from 'tempy'
 import zlib from 'zlib'
 
-const promiseGlob = promisify(glob)
 const promiseRename = promisify(fs.rename)
-const fields = Symbol('fields')
 export default class PackageInstaller extends EventEmitter {
   constructor() {
     super()
-    this[fields] = { rustpath: '' }
-  }
-
-  get rustpath() {
-    return this[fields].rustpath
-  }
-
-  set rustpath(rpath: string) {
-    this[fields].rustpath = rpath
   }
 
   async install(dir: string, url: string) {
@@ -72,7 +61,7 @@ export default class PackageInstaller extends EventEmitter {
       : ':'
     const rustdir = path.join(os.homedir(), '.cargo', 'bin')
     const envpath =
-      `${process.env.PATH || ''}${sep}${this.rustpath || rustdir}`
+      `${process.env.PATH || ''}${sep}${rustdir}`
     try {
       await execa.shell('cargo -V',
         { env: Object.assign(process.env, { PATH: envpath }) })

@@ -5,24 +5,22 @@ import template from './menu-template'
 const { remote } = require('electron')
 const { Menu } = remote
 
-const fields = Symbol('fields')
 export default class MainMenu {
+  private _contextMenuTemplates: Set<any>
+  private _submenuTemplates: Map<string, any>
   constructor() {
-    this[fields] = {
-      contextMenuTemplates: new Set(),
-      submenuTemplates: new Map(),
-    }
+    this._contextMenuTemplates = new Set()
+    this._submenuTemplates = new Map()
   }
 
   get template() {
-    const { submenuTemplates } = this[fields]
     const tmp = JSON.parse(JSON.stringify(template))
     const keys = Object.keys(flatten(template))
       .filter((key) => key.endsWith('.submenu'))
     for (const key of keys) {
       const val = objpath.get(tmp, key)
       if (typeof val === 'string') {
-        const menu = submenuTemplates.get(val) || []
+        const menu = this._submenuTemplates.get(val) || []
         objpath.set(tmp, key, menu)
       }
     }
@@ -51,28 +49,25 @@ export default class MainMenu {
   }
 
   registerSubMenu(name: string, menu) {
-    const { submenuTemplates } = this[fields]
-    submenuTemplates.set(name, menu)
+    this._submenuTemplates.set(name, menu)
     return new Disposable(() => {
-      submenuTemplates.delete(name)
+      this._submenuTemplates.delete(name)
     })
   }
 
   registerContextMenu(menu) {
-    const { contextMenuTemplates } = this[fields]
-    contextMenuTemplates.add(menu)
+    this._contextMenuTemplates.add(menu)
     return new Disposable(() => {
-      contextMenuTemplates.delete(menu)
+      this._contextMenuTemplates.delete(menu)
     })
   }
 
   showContextMenu(event: Event, menu: any[] = []) {
-    const { contextMenuTemplates } = this[fields]
     let contextMenu: any[] = []
     if (menu.length > 0) {
       contextMenu = contextMenu.concat(menu, { type: 'separator' })
     }
-    for (const tmpl of contextMenuTemplates) {
+    for (const tmpl of this._contextMenuTemplates) {
       if (event.target instanceof HTMLElement &&
         event.target.matches(tmpl.selector)) {
         contextMenu = contextMenu.concat(tmpl.menu, { type: 'separator' })

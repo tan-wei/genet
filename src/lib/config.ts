@@ -8,68 +8,75 @@ import schemaDefault from './schema-default'
 import { validate } from 'jsonschema'
 import yaml from 'js-yaml'
 
-const fields = Symbol('fields')
+interface Listener {
+  id: string
+  callback: (value: any, defaultValue: any) => void
+}
+
 export default class Config {
+  private _tree: object
+  private _schema: object
+  private _schemaSet: Set<any>
+  private _listeners: Listener[]
+  private _filePath: string
+
+  private _write: () => void
+  private _update: (object) => void
+  private _load: (boolean) => void
+
   constructor(profile: string, name: string) {
     const filePath =
       path.join(Env.userProfilePath, profile, `${name}.yml`)
     fs.ensureFileSync(filePath)
 
-    const schema = schemaDefault[name] || {}
-    this[fields] = {
-      tree: {},
-      schema,
-      schemaSet: new Set(),
-      listeners: [],
-      filePath,
-      write: () =>
-        fs.writeFileSync(
-          this[fields].filePath, yaml.safeDump(this[fields].tree)),
-      update: (oldTree) => {
-        const { listeners } = this[fields]
-        for (const listener of listeners) {
-          const value = objpath.get(this[fields].tree, listener.id)
-          const oldValue = objpath.get(oldTree, listener.id)
-          if (!deepEqual(value, oldValue)) {
-            listener.callback(value, oldValue)
-          }
+    this._tree = {}
+    this._schema = schemaDefault[name] || {}
+    this._schemaSet = new Set()
+    this._listeners = []
+    this._filePath = filePath
+    this._write = () =>
+      fs.writeFileSync(
+        this._filePath, yaml.safeDump(this._tree))
+    this._update = (oldTree) => {
+      for (const listener of this._listeners) {
+        const value = objpath.get(this._tree, listener.id)
+        const oldValue = objpath.get(oldTree, listener.id)
+        if (!deepEqual(value, oldValue)) {
+          listener.callback(value, oldValue)
         }
-      },
-      load: (update = false) => {
-        let tree = null
-        try {
-          tree = yaml.safeLoad(fs.readFileSync(filePath, 'utf8'))
-        } catch (err) {
-          // eslint-disable-next-line no-console
-          console.warn(err)
-        }
-        const oldTree = this[fields].tree || {}
-        this[fields].tree = tree || {}
-        if (update) {
-          this[fields].update(oldTree)
-        }
-      },
+      }
+    }
+    this._load = (update = false) => {
+      let tree = null
+      try {
+        tree = yaml.safeLoad(fs.readFileSync(filePath, 'utf8'))
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.warn(err)
+      }
+      const oldTree = this._tree || {}
+      this._tree = tree || {}
+      if (update) {
+        this._update(oldTree)
+      }
     }
 
-    this[fields].load(false)
+    this._load(false)
   }
 
   registerSchema(schema) {
-    const { schemaSet } = this[fields]
-    schemaSet.add(schema)
+    this._schemaSet.add(schema)
     return new Disposable(() => {
-      schemaSet.delete(schema)
+      this._schemaSet.delete(schema)
     })
   }
 
   get schema(): object {
-    const { schema, schemaSet } = this[fields]
-    return Object.assign({}, schema, ...schemaSet)
+    return Object.assign({}, this._schema, ...this._schemaSet)
   }
 
   get(id: string, defaultValue?: any) {
-    const { tree } = this[fields]
-    let value = objpath.get(tree, id)
+    let value = objpath.get(this._tree, id)
     if (typeof value !== 'undefined') {
       if (!(id in this.schema) ||
         validate(value, this.schema[id]).errors.length === 0) {
@@ -86,7 +93,6 @@ export default class Config {
   }
 
   set(id: string, value: any) {
-    const { tree, update, write } = this[fields]
     let defaultValue = null
     if (id in this.schema) {
       const result = validate(value, this.schema[id])
@@ -95,29 +101,27 @@ export default class Config {
       }
       defaultValue = this.schema[id].default
     }
-    if (!deepEqual(value, objpath.get(tree, id))) {
-      const oldTree = Object.assign({}, tree)
+    if (!deepEqual(value, objpath.get(this._tree, id))) {
+      const oldTree = Object.assign({}, this._tree)
       if (deepEqual(value, objpath.get(defaultValue, id))) {
-        objpath.del(tree, id)
+        objpath.del(this._tree, id)
       } else {
-        objpath.set(tree, id, value)
+        objpath.set(this._tree, id, value)
       }
-      update(oldTree)
-      write()
+      this._update(oldTree)
+      this._write()
     }
   }
 
   del(id: string) {
-    const { tree } = this[fields]
-    objpath.del(tree, id)
+    objpath.del(this._tree, id)
   }
 
   watch(id: string, callback: (value: any, defaultValue: any) => void, defaultValue?: any) {
-    const { listeners, filePath } = this[fields]
-    if (listeners.length === 0) {
-      fs.watchFile(filePath, () => this[fields].load(true))
+    if (this._listeners.length === 0) {
+      fs.watchFile(this._filePath, () => this._load(true))
     }
-    listeners.push({
+    this._listeners.push({
       id,
       callback,
     })
@@ -127,10 +131,10 @@ export default class Config {
       callback(value, defaultValue)
     }
     return new Disposable(() => {
-      this[fields].listeners =
-        listeners.filter((handler) => handler.callback !== callback)
-      if (listeners.length === 0) {
-        fs.unwatchFile(filePath, () => this[fields].load(true))
+      this._listeners =
+        this._listeners.filter((handler) => handler.callback !== callback)
+      if (this._listeners.length === 0) {
+        fs.unwatchFile(this._filePath, () => this._load(true))
       }
     })
   }
@@ -141,7 +145,7 @@ export default class Config {
       if ('default' in value) {
         obj[key] = value.default
       }
-      const val = objpath.get(this[fields].tree, key)
+      const val = objpath.get(this._tree, key)
       if (typeof val !== 'undefined') {
         obj[key] = val
       }

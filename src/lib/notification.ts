@@ -2,7 +2,6 @@ import { Disposable } from './disposable'
 import m from 'mithril'
 import marked from 'marked'
 
-const fields = Symbol('fields')
 class Markdown {
   view() {
     return m('p')
@@ -38,8 +37,9 @@ class Container {
 }
 
 export default class Notification {
+  private _container: HTMLElement | null
   constructor() {
-    this[fields] = { container: null }
+    this._container = null
   }
 
   show(content: string, options = {}) {
@@ -49,8 +49,8 @@ export default class Notification {
       ttl: 5000,
       closeButton: true,
     }, options)
-    if (this[fields].container === null) {
-      this[fields].container = document.querySelector('div.notification')
+    if (this._container === null) {
+      this._container = document.querySelector('div.notification')
     }
     const base = document.createElement('div')
     base.className = opt.type
@@ -65,7 +65,9 @@ export default class Notification {
         handler,
       }),
     })
-    this[fields].container.appendChild(base)
+    if (this._container !== null) {
+      this._container.appendChild(base)
+    }
 
     if (opt.ttl > 0) {
       setTimeout(() => {

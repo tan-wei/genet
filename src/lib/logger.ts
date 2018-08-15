@@ -15,9 +15,14 @@ interface Options {
   level?: Level;
 }
 
-const dumpLogs = throttle((data) => {
-  if (data.logs.length > 0) {
-    for (const log of data.logs) {
+interface Log {
+  message: string
+  level?: Level;
+}
+
+const dumpLogs = throttle((logs: Log[]) => {
+  if (logs.length > 0) {
+    for (const log of logs) {
       switch (log.level) {
         case 'info':
           console.info(log.message)
@@ -36,37 +41,32 @@ const dumpLogs = throttle((data) => {
           break
       }
     }
-    data.logs = []
+    logs.splice(0)
   }
 }, 100)
 
-const fields = Symbol('fields')
 export default class Logger {
-  constructor(config: Config) {
-    this[fields] = {
-      windowId: remote.getCurrentWindow().id,
-      domain: 'core',
-      logs: [],
-    }
-    config.watch('_.logger.level', (value) => {
-      this[fields].logLevel = value
-    }, 'debug')
+  private _domain: string
+  private _logs: Log[]
+  constructor() {
+    this._domain = 'core'
+    this._logs = []
   }
 
   get domain() {
-    return this[fields].domain
+    return this._domain
   }
 
   set domain(domain: string) {
-    this[fields].domain = domain
+    this._domain = domain
   }
 
   log(message: string, options: Options = {}) {
-    this[fields].logs.push({
+    this._logs.push({
       message,
       level: options.level,
     })
-    dumpLogs(this[fields])
+    dumpLogs(this._logs)
   }
 
   debug(message: string, options: Options = {}) {

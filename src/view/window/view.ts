@@ -12,54 +12,63 @@ import path from 'path'
 const { remote, ipcRenderer, shell } = require('electron')
 const { dialog } = remote
 
+interface Tab {
+  id: string
+  name: string
+  src: string
+  argv: object
+  loading: boolean
+  system: boolean
+  icon: string
+}
+
 const windowId = remote.getCurrentWindow().id
-const fields = Symbol('fields')
 export default class WindowView {
+  private _tabs: Tab[]
+  private _systemTabs: Tab[]
+  private _activeTab: string
+  private _counter: number
   constructor() {
-    this[fields] = {
-      tabs: [],
-      systemTabs: [
-        {
-          id: 'preferences',
-          name: 'Preferences',
-          src: 'preference.htm',
-          argv: genet.argv,
-          loading: true,
-          system: true,
-          icon: 'fa-cog',
-        },
-        {
-          id: 'packages',
-          name: 'Packages',
-          src: 'package.htm',
-          argv: genet.argv,
-          loading: true,
-          system: true,
-          icon: 'fa-gift',
-        }
-      ],
-      activeTab: 'preference',
-      counter: 1,
-    }
+    this._tabs = []
+    this._systemTabs = [
+      {
+        id: 'preferences',
+        name: 'Preferences',
+        src: 'preference.htm',
+        argv: genet.argv,
+        loading: true,
+        system: true,
+        icon: 'fa-cog',
+      },
+      {
+        id: 'packages',
+        name: 'Packages',
+        src: 'package.htm',
+        argv: genet.argv,
+        loading: true,
+        system: true,
+        icon: 'fa-gift',
+      }
+    ]
+    this._activeTab = 'preference'
+    this._counter = 1
   }
 
   get tabs() {
-    const { tabs, systemTabs } = this[fields]
-    return tabs.concat(systemTabs)
+    return this._tabs.concat(this._systemTabs)
   }
 
   get activeTab() {
-    return this[fields].activeTab
+    return this._activeTab
   }
 
   set activeTab(id) {
-    this[fields].activeTab = id
+    this._activeTab = id
   }
 
   createDisplayTab() {
-    const { counter } = this[fields]
-    const number = counter
-    this[fields].counter += 1
+    const number = this._counter
+    this._counter += 1
     const id = `display-${number}`
     this.addTab({
       id,
@@ -73,13 +82,13 @@ export default class WindowView {
   }
 
   addTab(tab) {
-    this[fields].tabs.push(tab)
-    this[fields].activeTab = tab.id
+    this._tabs.push(tab)
+    this._activeTab = tab.id
     m.redraw()
   }
 
   removeTab(id) {
-    this[fields].tabs = this[fields].tabs.filter((tab) => tab.id !== id)
+    this._tabs = this._tabs.filter((tab) => tab.id !== id)
   }
 
   oncreate() {
