@@ -17,7 +17,7 @@ export default class Genet {
   readonly workspace: Workspace
   readonly keybind: KeyBind
   readonly packages: PackageManager
-  readonly resumer?: Resumer
+  readonly resumer: Resumer
   readonly session: Session
   readonly menu: Menu
   readonly notify: Notification
@@ -39,16 +39,13 @@ export default class Genet {
     this.keybind = new KeyBind(argv.profile, logger)
     this.packages = new PackageManager(config, components, logger)
     this.session = new Session(config)
+    this.resumer = new Resumer(argv.resume || Resumer.generateFileName(), logger)
     this.menu = new Menu()
     this.notify = new Notification()
     this.logger = logger
     this.env = Env
     this.action = new Action()
     this.argv = argv
-
-    if (argv.resume) {
-      this.resumer = new Resumer(argv.resume, logger)
-    }
 
     if (argv.contextMenu) {
       this.menu.enableContextMenu()
