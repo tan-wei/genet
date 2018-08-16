@@ -47,6 +47,20 @@ export default class Genet {
     this.action = new Action()
     this.argv = argv
 
+    this.keybind.register({
+      '*': {
+        'command+1': 'core:tab:active:1',
+        'command+2': 'core:tab:active:2',
+        'command+3': 'core:tab:active:3',
+        'command+4': 'core:tab:active:4',
+        'command+5': 'core:tab:active:5',
+        'command+6': 'core:tab:active:6',
+        'command+7': 'core:tab:active:7',
+        'command+8': 'core:tab:active:8',
+        'command+9': 'core:tab:active:9',
+      }
+    })
+
     if (argv.contextMenu) {
       this.menu.enableContextMenu()
     }

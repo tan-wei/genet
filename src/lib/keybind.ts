@@ -22,7 +22,6 @@ function transformBindSet(map, binds) {
 }
 
 export default class KeyBind extends EventEmitter {
-  private _filePath: string
   private _map: object
   private _bindSets: Set<any>
   private _userBindSet: any
@@ -33,7 +32,6 @@ export default class KeyBind extends EventEmitter {
       path.join(Env.userProfilePath, profile, 'keybind.yml')
     fs.ensureFileSync(filePath)
 
-    this._filePath = filePath
     this._map = {}
     this._bindSets = new Set()
     this._load = () => {

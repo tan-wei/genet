@@ -99,12 +99,12 @@ if (process.platform === 'darwin') {
       { type: 'separator' },
       {
         label: 'Preferences...',
-        action: 'core:tab:show-preferences',
+        action: 'core:tab:active:preferences',
         accelerator: 'CommandOrControl+,',
       },
       {
         label: 'Packages...',
-        action: 'core:tab:show-packages',
+        action: 'core:tab:active:packages',
         accelerator: 'CommandOrControl+Shift+,',
       },
       { type: 'separator' },
@@ -145,12 +145,12 @@ if (process.platform === 'darwin') {
   template[0].submenu.unshift(
     {
       label: 'Preferences...',
-      action: 'core:tab:show-preferences',
+      action: 'core:tab:active:preferences',
       accelerator: 'CommandOrControl+,',
     },
     {
       label: 'Packages...',
-      action: 'core:tab:show-packages',
+      action: 'core:tab:active:packages',
       accelerator: 'CommandOrControl+Shift+,',
     },
     { type: 'separator' }

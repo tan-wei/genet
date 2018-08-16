@@ -91,6 +91,15 @@ export default class WindowView {
     this._tabs = this._tabs.filter((tab) => tab.id !== id)
   }
 
+  private registerTabKeybinds(index: number) {
+    genet.action.global.on(`core:tab:active:${index}`, () => {
+      if (this._tabs.length >= index) {
+        this._activeTab = this._tabs[index - 1].id
+        m.redraw()
+      }
+    })
+  }
+
   oncreate() {
     ipcRenderer.on('core:menu:action', (event, channel) => {
       const webview = document.querySelector('webview[active]') as any
@@ -114,14 +123,17 @@ export default class WindowView {
     genet.action.global.on('core:tab:new-pcap', () => {
       this.createDisplayTab()
     })
-    genet.action.global.on('core:tab:show-preferences', () => {
+    genet.action.global.on('core:tab:active:preferences', () => {
       this.activeTab = 'preferences'
       m.redraw()
     })
-    genet.action.global.on('core:tab:show-packages', () => {
+    genet.action.global.on('core:tab:active:packages', () => {
       this.activeTab = 'packages'
       m.redraw()
     })
+    for (let i = 1; i <= 9; ++i) {
+      this.registerTabKeybinds(i)
+    }
     genet.action.global.on('core:window:new', () => {
       ipcRenderer.send('core:window:create')
     })
