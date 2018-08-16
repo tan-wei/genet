@@ -52,5 +52,5 @@ export default class Genet {
     }
   }
 
-  init() { }
+  init(genet: Genet) { }
 }
