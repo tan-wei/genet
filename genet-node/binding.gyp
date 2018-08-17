@@ -11,6 +11,7 @@
       "src/token.cpp",
       "src/slice.cpp",
       "src/layer.cpp",
+      "src/version.cpp",
     ],
     "genet_target": "<!(node -p \"(process.env.NODE_ENV === 'production') ? 'release' : 'debug'\")"
   },

@@ -1,4 +1,4 @@
-const { Token, ByteSlice } = require('./binding')
+const { Token, ByteSlice, version } = require('./binding')
 const Session = require('./session')
 const FilterCompiler = require('./filter')
 module.exports = {
@@ -6,4 +6,5 @@ module.exports = {
   Token,
   ByteSlice,
   FilterCompiler,
+  version,
 }

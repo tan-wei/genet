@@ -6,6 +6,7 @@
 #include "session.hpp"
 #include "slice.hpp"
 #include "token.hpp"
+#include "version.hpp"
 #include <cassert>
 
 namespace genet_node {
@@ -19,6 +20,7 @@ Module::Module() {}
 void Module::init(v8::Local<v8::Object> exports) {
   assert(!globalInstance);
   globalInstance = new Module();
+  Version::init(exports);
   Token::init(exports);
   ByteSlice::init(exports);
   SessionProfileWrapper::init(exports);

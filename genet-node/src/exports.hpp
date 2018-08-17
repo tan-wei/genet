@@ -53,6 +53,7 @@ struct Payload {
 };
 
 const char *genet_embedded_js();
+uint64_t genet_abi_version();
 
 void genet_str_free(char *data);
 

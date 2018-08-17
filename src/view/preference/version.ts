@@ -1,4 +1,5 @@
 import Env from '../../lib/env'
+import native from '@genet/load-module'
 import fs from 'fs'
 import m from 'mithril'
 import objpath from 'object-path'
@@ -54,7 +55,9 @@ export default class Plugin {
   view(vnode) {
     const nodes = [
       m('h4', ['genet version']),
-      m('span', [this.version])
+      m('span', [this.version]),
+      m('h4', ['ABI version']),
+      m('span', [native.version.abi])
     ]
     const { active } = vnode.attrs
     if (active) {
