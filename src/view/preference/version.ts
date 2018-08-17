@@ -3,8 +3,7 @@ import native from '@genet/load-module'
 import m from 'mithril'
 import objpath from 'object-path'
 
-
-export default class Plugin {
+export default class Version {
   private readonly version: string
 
   constructor() {
