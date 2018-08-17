@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 - Integrate gpm (genet package manager).
+- Add tab keybinds.
+- Preference: Show ABI version.
+- Preference: Add License tab.
 
 ### Changed
 - Rename Decoder to Cast
