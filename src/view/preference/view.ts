@@ -1,6 +1,7 @@
 import General from './general'
 import KeyBind from './keybind'
 import Version from './version'
+import License from './license'
 import genet from '@genet/api'
 import m from 'mithril'
 
@@ -23,6 +24,9 @@ export default class PrefernceView {
     }, {
       name: 'Version',
       component: Version,
+    }, {
+      name: 'License',
+      component: License,
     }]
     this.activeTab = 'Decoder'
   }
