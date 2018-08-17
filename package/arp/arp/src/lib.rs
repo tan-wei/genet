@@ -100,12 +100,8 @@ lazy_static! {
         .typ("@enum")
         .cast(cast::UInt16BE())
         .build();
-    static ref HLEN_ATTR: AttrClass = AttrClass::builder("arp.hlen")
-        .cast(cast::UInt8())
-        .build();
-    static ref PLEN_ATTR: AttrClass = AttrClass::builder("arp.plen")
-        .cast(cast::UInt8())
-        .build();
+    static ref HLEN_ATTR: AttrClass = AttrClass::builder("arp.hlen").cast(cast::UInt8()).build();
+    static ref PLEN_ATTR: AttrClass = AttrClass::builder("arp.plen").cast(cast::UInt8()).build();
     static ref OP_ATTR: AttrClass = AttrClass::builder("arp.op")
         .cast(cast::UInt16BE())
         .typ("@enum")

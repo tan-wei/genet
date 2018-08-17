@@ -78,15 +78,11 @@ lazy_static! {
     static ref HLEN_ATTR: AttrClass = AttrClass::builder("ipv4.headerLength")
         .cast(cast::UInt8().map(|v| v & 0b00001111))
         .build();
-    static ref TOS_ATTR: AttrClass = AttrClass::builder("ipv4.tos")
-        .cast(cast::UInt8())
-        .build();
+    static ref TOS_ATTR: AttrClass = AttrClass::builder("ipv4.tos").cast(cast::UInt8()).build();
     static ref LENGTH_ATTR: AttrClass = AttrClass::builder("ipv4.totalLength")
         .cast(cast::UInt16BE())
         .build();
-    static ref ID_ATTR: AttrClass = AttrClass::builder("ipv4.id")
-        .cast(cast::UInt16BE())
-        .build();
+    static ref ID_ATTR: AttrClass = AttrClass::builder("ipv4.id").cast(cast::UInt16BE()).build();
     static ref FLAGS_ATTR: AttrClass = AttrClass::builder("ipv4.flags")
         .cast(cast::UInt8().map(|v| (v >> 5) & 0b00000111))
         .typ("@flags")
@@ -103,9 +99,7 @@ lazy_static! {
     static ref OFFSET_ATTR: AttrClass = AttrClass::builder("ipv4.fragmentOffset")
         .cast(cast::UInt16BE().map(|v| v & 0x1fff))
         .build();
-    static ref TTL_ATTR: AttrClass = AttrClass::builder("ipv4.ttl")
-        .cast(cast::UInt8())
-        .build();
+    static ref TTL_ATTR: AttrClass = AttrClass::builder("ipv4.ttl").cast(cast::UInt8()).build();
     static ref PROTO_ATTR: AttrClass = AttrClass::builder("ipv4.protocol")
         .cast(cast::UInt8())
         .typ("@enum")

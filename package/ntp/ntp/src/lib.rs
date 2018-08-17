@@ -162,8 +162,7 @@ lazy_static! {
     static ref REFTS_ATTR: AttrClass = AttrClass::builder("ntp.referenceTs")
         .typ("@ntp:time")
         .cast(
-            cast::UInt64BE()
-                .map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
+            cast::UInt64BE().map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
         ).build();
     static ref REFTS_SEC_ATTR: AttrClass = AttrClass::builder("ntp.referenceTs.seconds")
         .cast(cast::UInt32BE())
@@ -174,8 +173,7 @@ lazy_static! {
     static ref ORITS_ATTR: AttrClass = AttrClass::builder("ntp.originateTs")
         .typ("@ntp:time")
         .cast(
-            cast::UInt64BE()
-                .map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
+            cast::UInt64BE().map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
         ).build();
     static ref ORITS_SEC_ATTR: AttrClass = AttrClass::builder("ntp.originateTs.seconds")
         .cast(cast::UInt32BE())
@@ -186,8 +184,7 @@ lazy_static! {
     static ref RECTS_ATTR: AttrClass = AttrClass::builder("ntp.receiveTs")
         .typ("@ntp:time")
         .cast(
-            cast::UInt64BE()
-                .map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
+            cast::UInt64BE().map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
         ).build();
     static ref RECTS_SEC_ATTR: AttrClass = AttrClass::builder("ntp.receiveTs.seconds")
         .cast(cast::UInt32BE())
@@ -198,8 +195,7 @@ lazy_static! {
     static ref TRATS_ATTR: AttrClass = AttrClass::builder("ntp.transmitTs")
         .typ("@ntp:time")
         .cast(
-            cast::UInt64BE()
-                .map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
+            cast::UInt64BE().map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64))
         ).build();
     static ref TRATS_SEC_ATTR: AttrClass = AttrClass::builder("ntp.transmitTs.seconds")
         .cast(cast::UInt32BE())

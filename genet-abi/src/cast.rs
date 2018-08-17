@@ -52,10 +52,7 @@ where
         I: Into<Variant>,
         R: Into<Variant>,
     {
-        Mapped {
-            cast: self,
-            func,
-        }
+        Mapped { cast: self, func }
     }
 }
 

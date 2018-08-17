@@ -67,9 +67,7 @@ lazy_static! {
         .typ("@eth:mac")
         .cast(cast::ByteSlice())
         .build();
-    static ref LEN_ATTR: AttrClass = AttrClass::builder("eth.len")
-        .cast(cast::UInt16BE())
-        .build();
+    static ref LEN_ATTR: AttrClass = AttrClass::builder("eth.len").cast(cast::UInt16BE()).build();
     static ref TYPE_ATTR: AttrClass = AttrClass::builder("eth.type")
         .typ("@enum")
         .cast(cast::UInt16BE())

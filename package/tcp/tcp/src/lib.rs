@@ -114,12 +114,8 @@ lazy_static! {
         .typ("@tcp:port")
         .cast(cast::UInt16BE())
         .build();
-    static ref SEQ_ATTR: AttrClass = AttrClass::builder("tcp.seq")
-        .cast(cast::UInt32BE())
-        .build();
-    static ref ACK_ATTR: AttrClass = AttrClass::builder("tcp.ack")
-        .cast(cast::UInt32BE())
-        .build();
+    static ref SEQ_ATTR: AttrClass = AttrClass::builder("tcp.seq").cast(cast::UInt32BE()).build();
+    static ref ACK_ATTR: AttrClass = AttrClass::builder("tcp.ack").cast(cast::UInt32BE()).build();
     static ref OFFSET_ATTR: AttrClass = AttrClass::builder("tcp.dataOffset")
         .cast(cast::UInt8().map(|v| v >> 4))
         .build();
