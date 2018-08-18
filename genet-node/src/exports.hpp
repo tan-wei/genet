@@ -110,6 +110,7 @@ uint32_t genet_session_create_writer(Session *session,
                                      const char *arg,
                                      Filter *filter);
 void genet_session_close_reader(Session *session, uint32_t handle);
+char *genet_session_get_metadata(const Session *session, void *ptr);
 uint32_t genet_session_len(const Session *session);
 void genet_session_free(Session *session);
 }

@@ -185,6 +185,17 @@ pub unsafe extern "C" fn genet_session_free(session: *mut Session) {
     }
 }
 
+#[no_mangle]
+pub unsafe extern "C" fn genet_session_get_metadata(
+    session: *const Session,
+    ptr: *const libc::c_void,
+) -> *mut libc::c_char {
+    let meta = (*session).get_metadata(ptr);
+    CString::new(serde_json::to_string(&meta).unwrap())
+        .unwrap()
+        .into_raw()
+}
+
 #[repr(C)]
 pub struct FilterBase {
     new_worker: extern "C" fn(*mut FilterBase) -> *mut FilterWorkerBase,

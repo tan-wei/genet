@@ -49,6 +49,7 @@ public:
   static NAN_METHOD(createWriter);
   static NAN_METHOD(closeReader);
   static NAN_METHOD(closeWriter);
+  static NAN_METHOD(getMetadata);
   static NAN_GETTER(callback);
   static NAN_SETTER(setCallback);
   static NAN_GETTER(length);

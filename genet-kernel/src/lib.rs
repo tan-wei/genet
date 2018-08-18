@@ -1,4 +1,5 @@
 extern crate crossbeam_channel;
+extern crate evmap;
 extern crate fnv;
 extern crate genet_abi;
 extern crate libc;
@@ -16,5 +17,6 @@ mod decoder;
 mod filter;
 mod frame;
 mod io;
+mod metadata;
 mod result;
 mod store;

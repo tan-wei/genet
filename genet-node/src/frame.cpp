@@ -117,5 +117,4 @@ v8::Local<v8::Object> FrameWrapper::wrap(const Frame *frame) {
   v8::Local<v8::Value> args[] = {Nan::New<v8::External>(ptr)};
   return Nan::NewInstance(cons, 1, args).ToLocalChecked();
 }
-
 } // namespace genet_node

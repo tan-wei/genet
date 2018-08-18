@@ -12,6 +12,7 @@ serde_json = "1"
 libloading = "0.5"
 num_cpus = "1"
 fnv = "1"
+evmap = "4"
 genet-abi = "0.3.0"
 genet-sdk = "0.3.0"
 

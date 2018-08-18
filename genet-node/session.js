@@ -107,6 +107,11 @@ class Session extends EventEmitter {
     return this._sess.filteredFrames(Token.get(id), start, end)
   }
 
+  getMetadata (obj) {
+    return this._sess.getMetadata(obj)
+  }
+
+
   get status () {
     return this._status
   }

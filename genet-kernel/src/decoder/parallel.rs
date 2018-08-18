@@ -1,12 +1,8 @@
 use crossbeam_channel;
-use decoder::dispatcher::Dispatcher;
+use decoder::{dispatcher::Dispatcher, Callback};
 use frame::Frame;
 use profile::Profile;
 use std::thread::{self, JoinHandle};
-
-pub trait Callback: Sync + Send + Clone {
-    fn done(&self, result: Vec<Frame>);
-}
 
 pub struct Pool {
     sender: crossbeam_channel::Sender<Option<Vec<Frame>>>,
@@ -32,14 +28,11 @@ impl Pool {
         recv: crossbeam_channel::Receiver<Option<Vec<Frame>>>,
     ) -> JoinHandle<()> {
         thread::spawn(move || {
-            let mut disp = Dispatcher::new("parallel", &profile);
+            let mut disp = Dispatcher::new("parallel", &profile, &callback);
             loop {
                 if let Some(frames) = recv.recv() {
-                    if let Some(mut frames) = frames {
-                        for mut f in &mut frames {
-                            disp.process_frame(f);
-                        }
-                        callback.done(frames);
+                    if let Some(frames) = frames {
+                        disp.process_frames(frames);
                     } else {
                         return;
                     }

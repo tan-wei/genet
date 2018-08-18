@@ -7,9 +7,11 @@ use genet_abi::{
     layer::Layer,
 };
 use io::{Input, Output};
+use libc;
+use metadata::Metadata;
 use profile::Profile;
 use serde::ser::{Serialize, SerializeMap, Serializer};
-use std::{fmt, ops::Range};
+use std::{fmt, mem, ops::Range};
 use store::{self, Store};
 
 pub struct Session {
@@ -44,6 +46,10 @@ impl Session {
 
     pub fn set_filter(&mut self, id: u32, filter: Option<Box<Filter>>) {
         self.store.set_filter(id, filter);
+    }
+
+    pub fn get_metadata(&self, ptr: *const libc::c_void) -> Vec<Metadata> {
+        self.store.get_metadata(unsafe { mem::transmute(ptr) })
     }
 
     pub fn create_reader(&mut self, id: &str, arg: &str) -> u32 {

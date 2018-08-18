@@ -127,6 +127,7 @@ void SessionWrapper::init(v8::Local<v8::Object> exports) {
   Nan::SetPrototypeMethod(tpl, "createWriter", createWriter);
   Nan::SetPrototypeMethod(tpl, "closeReader", closeReader);
   Nan::SetPrototypeMethod(tpl, "closeWriter", closeWriter);
+  Nan::SetPrototypeMethod(tpl, "getMetadata", getMetadata);
 
   v8::Local<v8::ObjectTemplate> otl = tpl->InstanceTemplate();
   Nan::SetAccessor(otl, Nan::New("callback").ToLocalChecked(), callback,
@@ -338,6 +339,27 @@ NAN_METHOD(SessionWrapper::setFilter) {
     }
     Session *session = wrapper->event->session;
     genet_session_set_filter(session, id, filter);
+  }
+}
+
+NAN_METHOD(SessionWrapper::getMetadata) {
+  void *ptr = nullptr;
+  if (info[0]->IsObject()) {
+    auto obj = info[0].As<v8::Object>();
+    if (obj->InternalFieldCount() >= 1) {
+      ptr = Nan::GetInternalFieldPointer(obj, 0);
+    }
+  }
+  if (auto wrapper = Nan::ObjectWrap::Unwrap<SessionWrapper>(info.Holder())) {
+    Session *session = wrapper->event->session;
+    char *json = genet_session_get_metadata(session, ptr);
+    v8::Local<v8::String> json_string = Nan::New(json).ToLocalChecked();
+    genet_str_free(json);
+    Nan::JSON NanJSON;
+    Nan::MaybeLocal<v8::Value> result = NanJSON.Parse(json_string);
+    if (!result.IsEmpty()) {
+      info.GetReturnValue().Set(result.ToLocalChecked());
+    }
   }
 }
 

@@ -1,11 +1,13 @@
 use array_vec::ArrayVec;
 use crossbeam_channel;
-use decoder::{parallel, serial};
+use decoder::{self, parallel, serial};
+use evmap;
 use filter::{self, Filter};
 use fnv::FnvHashMap;
 use frame::Frame;
 use genet_abi::{fixed::MutFixed, layer::Layer};
 use io::{Input, Output};
+use metadata::Metadata;
 use profile::Profile;
 use result::Result;
 use std::{
@@ -28,6 +30,7 @@ pub trait Callback: Send {
 enum Command {
     PushFrames(Option<u32>, Result<Vec<MutFixed<Layer>>>),
     PushSerialFrames(Vec<Frame>),
+    PushMetadata(Vec<(usize, Metadata)>),
     StoreFrames(Vec<Frame>),
     SetFilter(u32, Option<Box<Filter>>),
     PushOutput(u32, Box<Output>, Option<Box<Filter>>),
@@ -54,7 +57,6 @@ type FilteredFrameStore = Arc<RwLock<FnvHashMap<u32, Vec<u32>>>>;
 
 #[derive(Debug)]
 pub struct Store {
-    sender: crossbeam_channel::Sender<Command>,
     ev: EventLoop,
     frames: FrameStore,
     filtered: FilteredFrameStore,
@@ -66,9 +68,8 @@ impl Store {
     pub fn new<C: 'static + Callback + Clone>(profile: Profile, callback: C) -> Store {
         let frames = Arc::new(RwLock::new(ArrayVec::new()));
         let filtered = Arc::new(RwLock::new(FnvHashMap::default()));
-        let (ev, send) = EventLoop::new(profile, callback, frames.clone(), filtered.clone());
+        let ev = EventLoop::new(profile, callback, frames.clone(), filtered.clone());
         Store {
-            sender: send,
             ev,
             frames,
             filtered,
@@ -106,8 +107,15 @@ impl Store {
         frames.len()
     }
 
+    pub fn get_metadata(&self, id: usize) -> Vec<Metadata> {
+        self.ev
+            .metamap()
+            .get_and(&id, |rs| rs.to_vec())
+            .unwrap_or_else(|| Vec::new())
+    }
+
     pub fn set_filter(&mut self, id: u32, filter: Option<Box<Filter>>) {
-        self.sender.send(Command::SetFilter(id, filter));
+        self.ev.sender().send(Command::SetFilter(id, filter));
     }
 
     pub fn push_output<O: 'static + Output>(
@@ -116,12 +124,13 @@ impl Store {
         output: O,
         filter: Option<Box<Filter>>,
     ) {
-        self.sender
+        self.ev
+            .sender()
             .send(Command::PushOutput(id, Box::new(output), filter));
     }
 
     pub fn set_input<I: 'static + Input>(&mut self, id: u32, input: I) {
-        let holder = Arc::new(self.sender.clone());
+        let holder = Arc::new(self.ev.sender().clone());
         let sender = Arc::downgrade(&holder);
         let mut input = input;
         let handle = thread::spawn(move || {
@@ -175,9 +184,13 @@ struct ParallelCallback {
     sender: crossbeam_channel::Sender<Command>,
 }
 
-impl parallel::Callback for ParallelCallback {
-    fn done(&self, result: Vec<Frame>) {
+impl decoder::Callback for ParallelCallback {
+    fn on_frame_decoded(&self, result: Vec<Frame>) {
         self.sender.send(Command::PushSerialFrames(result));
+    }
+
+    fn on_metadata_added(&self, result: Vec<(usize, Metadata)>) {
+        self.sender.send(Command::PushMetadata(result))
     }
 }
 
@@ -186,9 +199,13 @@ struct SerialCallback {
     sender: crossbeam_channel::Sender<Command>,
 }
 
-impl serial::Callback for SerialCallback {
-    fn done(&self, result: Vec<Frame>) {
+impl decoder::Callback for SerialCallback {
+    fn on_frame_decoded(&self, result: Vec<Frame>) {
         self.sender.send(Command::StoreFrames(result));
+    }
+
+    fn on_metadata_added(&self, result: Vec<(usize, Metadata)>) {
+        self.sender.send(Command::PushMetadata(result))
     }
 }
 
@@ -200,6 +217,7 @@ struct FilterContext {
 struct EventLoop {
     handle: Option<JoinHandle<()>>,
     sender: crossbeam_channel::Sender<Command>,
+    metamap: evmap::ReadHandle<usize, Metadata>,
 }
 
 impl EventLoop {
@@ -210,7 +228,8 @@ impl EventLoop {
         callback: C,
         frames: FrameStore,
         filtered: FilteredFrameStore,
-    ) -> (EventLoop, crossbeam_channel::Sender<Command>) {
+    ) -> EventLoop {
+        let (metar, mut metaw) = evmap::new();
         let (send, recv) = crossbeam_channel::unbounded();
         let sender = send.clone();
         let handle = thread::spawn(move || {
@@ -239,6 +258,12 @@ impl EventLoop {
                             }
                             Command::PushSerialFrames(vec) => {
                                 spool.process(vec);
+                            }
+                            Command::PushMetadata(vec) => {
+                                for (key, value) in vec {
+                                    metaw.insert(key, value);
+                                }
+                                metaw.refresh();
                             }
                             Command::StoreFrames(mut vec) => {
                                 let len = {
@@ -282,9 +307,18 @@ impl EventLoop {
         });
         let ev = EventLoop {
             handle: Some(handle),
-            sender: send.clone(),
+            sender: send,
+            metamap: metar,
         };
-        (ev, send)
+        ev
+    }
+
+    fn sender(&self) -> &crossbeam_channel::Sender<Command> {
+        &self.sender
+    }
+
+    fn metamap(&self) -> &evmap::ReadHandle<usize, Metadata> {
+        &self.metamap
     }
 
     fn process_input(
