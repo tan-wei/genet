@@ -25,40 +25,35 @@ export default class KeyBind extends EventEmitter {
   private _map: object
   private _bindSets: Set<any>
   private _userBindSet: any
-  private _load: () => void
+  private _filePath: string
+  private _logger: Logger
   constructor(profile: string, logger: Logger) {
     super()
     const filePath =
       path.join(Env.userProfilePath, profile, 'keybind.yml')
     fs.ensureFileSync(filePath)
 
+    this._logger = logger
+    this._filePath = filePath
     this._map = {}
     this._bindSets = new Set()
-    this._load = () => {
-      let bind = null
-      try {
-        bind = yaml.safeLoad(fs.readFileSync(filePath, 'utf8'))
-      } catch (err) {
-        logger.warn(err)
-      }
-      this._userBindSet = bind || {}
-      this.update()
+
+    this.load()
+    fs.watchFile(filePath, () => this.load())
+  }
+
+  private load() {
+    let bind = null
+    try {
+      bind = yaml.safeLoad(fs.readFileSync(this._filePath, 'utf8'))
+    } catch (err) {
+      this._logger.warn(err)
     }
-
-    this._load()
-    fs.watchFile(filePath, () => this._load())
-  }
-
-  register(binds) {
-    this._bindSets.add(binds)
+    this._userBindSet = bind || {}
     this.update()
-    return new Disposable(() => {
-      this._bindSets.delete(binds)
-      this.update()
-    })
   }
 
-  update() {
+  private update() {
     const map = {}
     for (const binds of this._bindSets) {
       transformBindSet(map, binds)
@@ -90,6 +85,15 @@ export default class KeyBind extends EventEmitter {
     }
     this._map = map
     this.emit('update')
+  }
+
+  register(binds) {
+    this._bindSets.add(binds)
+    this.update()
+    return new Disposable(() => {
+      this._bindSets.delete(binds)
+      this.update()
+    })
   }
 
   get keymap() {

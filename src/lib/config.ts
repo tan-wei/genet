@@ -20,10 +20,6 @@ export default class Config {
   private _listeners: Listener[]
   private _filePath: string
 
-  private _write: () => void
-  private _update: (object) => void
-  private _load: (boolean) => void
-
   constructor(profile: string, name: string) {
     const filePath =
       path.join(Env.userProfilePath, profile, `${name}.yml`)
@@ -34,34 +30,38 @@ export default class Config {
     this._schemaSet = new Set()
     this._listeners = []
     this._filePath = filePath
-    this._write = () =>
-      fs.writeFileSync(
-        this._filePath, yaml.safeDump(this._tree))
-    this._update = (oldTree) => {
-      for (const listener of this._listeners) {
-        const value = objpath.get(this._tree, listener.id)
-        const oldValue = objpath.get(oldTree, listener.id)
-        if (!deepEqual(value, oldValue)) {
-          listener.callback(value, oldValue)
-        }
-      }
-    }
-    this._load = (update = false) => {
-      let tree = null
-      try {
-        tree = yaml.safeLoad(fs.readFileSync(filePath, 'utf8'))
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.warn(err)
-      }
-      const oldTree = this._tree || {}
-      this._tree = tree || {}
-      if (update) {
-        this._update(oldTree)
-      }
-    }
 
-    this._load(false)
+    this.load(false)
+  }
+
+  private write() {
+    fs.writeFileSync(
+      this._filePath, yaml.safeDump(this._tree))
+  }
+
+  private update(oldTree) {
+    for (const listener of this._listeners) {
+      const value = objpath.get(this._tree, listener.id)
+      const oldValue = objpath.get(oldTree, listener.id)
+      if (!deepEqual(value, oldValue)) {
+        listener.callback(value, oldValue)
+      }
+    }
+  }
+
+  private load(update = false) {
+    let tree = null
+    try {
+      tree = yaml.safeLoad(fs.readFileSync(this._filePath, 'utf8'))
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.warn(err)
+    }
+    const oldTree = this._tree || {}
+    this._tree = tree || {}
+    if (update) {
+      this.update(oldTree)
+    }
   }
 
   registerSchema(schema) {
@@ -108,8 +108,8 @@ export default class Config {
       } else {
         objpath.set(this._tree, id, value)
       }
-      this._update(oldTree)
-      this._write()
+      this.update(oldTree)
+      this.write()
     }
   }
 
@@ -119,7 +119,7 @@ export default class Config {
 
   watch(id: string, callback: (value: any, defaultValue: any) => void, defaultValue?: any) {
     if (this._listeners.length === 0) {
-      fs.watchFile(this._filePath, () => this._load(true))
+      fs.watchFile(this._filePath, () => this.load(true))
     }
     this._listeners.push({
       id,
@@ -134,7 +134,7 @@ export default class Config {
       this._listeners =
         this._listeners.filter((handler) => handler.callback !== callback)
       if (this._listeners.length === 0) {
-        fs.unwatchFile(this._filePath, () => this._load(true))
+        fs.unwatchFile(this._filePath, () => this.load(true))
       }
     })
   }

@@ -17,10 +17,11 @@ function flatten(object: object): any[] {
   return values
 }
 
-export default class Workspace extends Config {
+export default class Workspace {
+  private _config: Config
   private _panels: Map<string, Panel>
   constructor(profile: string) {
-    super(profile, 'workspace')
+    this._config = new Config(profile, 'workspace')
     this._panels = new Map()
   }
 
@@ -37,17 +38,29 @@ export default class Workspace extends Config {
   }
 
   get panelLayout() {
-    return this.get('_.panelLayout', {})
+    return this._config.get('_.panelLayout', {})
   }
 
-  update() {
-    const layout = JSON.parse(JSON.stringify(this.get('_.panelLayout', {})))
+  get(id: string, defaultValue?: any) {
+    return this._config.get(id, defaultValue)
+  }
+
+  set(id: string, value: any) {
+    this._config.set(id, value)
+  }
+
+  del(id: string) {
+    this._config.del(id)
+  }
+
+  private update() {
+    const layout = JSON.parse(JSON.stringify(this._config.get('_.panelLayout', {})))
     const activePanels = new Set(flatten(layout))
     for (const [id, panel] of this._panels) {
       if (!activePanels.has(id)) {
         objpath.insert(layout, `${panel.slot}.0`, id)
       }
     }
-    this.set('_.panelLayout', layout)
+    this._config.set('_.panelLayout', layout)
   }
 }

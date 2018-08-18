@@ -61,7 +61,7 @@ export default class Logger {
     this._domain = domain
   }
 
-  log(message: string, options: Options = {}) {
+  private log(message: string, options: Options = {}) {
     this._logs.push({
       message,
       level: options.level,
