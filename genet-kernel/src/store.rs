@@ -9,13 +9,13 @@ use profile::Profile;
 use result::Result;
 use std::{
     cmp,
-    collections::HashMap,
     fmt,
     ops::Range,
     panic::{self, AssertUnwindSafe},
     sync::{Arc, RwLock},
     thread::{self, JoinHandle},
 };
+use fnv::FnvHashMap;
 
 pub trait Callback: Send {
     fn on_frames_updated(&self, _frames: u32) {}
@@ -51,7 +51,7 @@ impl fmt::Display for Error {
 }
 
 type FrameStore = Arc<RwLock<ArrayVec<Frame>>>;
-type FilteredFrameStore = Arc<RwLock<HashMap<u32, Vec<u32>>>>;
+type FilteredFrameStore = Arc<RwLock<FnvHashMap<u32, Vec<u32>>>>;
 
 #[derive(Debug)]
 pub struct Store {
@@ -59,21 +59,21 @@ pub struct Store {
     ev: EventLoop,
     frames: FrameStore,
     filtered: FilteredFrameStore,
-    inputs: HashMap<u32, InputContext>,
+    inputs: FnvHashMap<u32, InputContext>,
     inputs_trash: Vec<InputContext>,
 }
 
 impl Store {
     pub fn new<C: 'static + Callback + Clone>(profile: Profile, callback: C) -> Store {
         let frames = Arc::new(RwLock::new(ArrayVec::new()));
-        let filtered = Arc::new(RwLock::new(HashMap::new()));
+        let filtered = Arc::new(RwLock::new(FnvHashMap::default()));
         let (ev, send) = EventLoop::new(profile, callback, frames.clone(), filtered.clone());
         Store {
             sender: send,
             ev,
             frames,
             filtered,
-            inputs: HashMap::new(),
+            inputs: FnvHashMap::default(),
             inputs_trash: Vec::new(),
         }
     }
@@ -217,7 +217,7 @@ impl EventLoop {
         let handle = thread::spawn(move || {
             let err_callback = callback.clone();
             let result = panic::catch_unwind(AssertUnwindSafe(move || {
-                let mut filter_map = HashMap::new();
+                let mut filter_map = FnvHashMap::default();
                 let mut ppool = parallel::Pool::new(
                     &profile,
                     &ParallelCallback {
@@ -356,7 +356,7 @@ impl EventLoop {
         id: u32,
         filter: Option<Box<Filter>>,
         filtered: &FilteredFrameStore,
-        filter_map: &mut HashMap<u32, FilterContext>,
+        filter_map: &mut FnvHashMap<u32, FilterContext>,
         callback: &Callback,
     ) {
         if let Some(filter) = filter {
@@ -377,7 +377,7 @@ impl EventLoop {
     fn process_filters(
         frames: &FrameStore,
         filtered: &FilteredFrameStore,
-        filter_map: &mut HashMap<u32, FilterContext>,
+        filter_map: &mut FnvHashMap<u32, FilterContext>,
         callback: &Callback,
     ) {
         for (id, filter) in filter_map.iter_mut() {

@@ -2,10 +2,11 @@ use fixed::Fixed;
 use libc;
 use std::{
     cell::RefCell,
-    collections::{hash_map::Entry, HashMap},
+    collections::{hash_map::Entry},
     slice, str,
     sync::Mutex,
 };
+use fnv::FnvHashMap;
 use token::Token;
 
 #[no_mangle]
@@ -93,8 +94,8 @@ pub unsafe extern "C" fn abi_genet_get_string(token: Token, len: *mut u64) -> *c
 
 lazy_static! {
     static ref GLOBAL_ALLOCATOR: Fixed<Allocator> = unsafe { GENET_GET_ALLOCATOR() };
-    static ref GLOBAL_TOKENS: Mutex<RefCell<HashMap<String, Token>>> =
-        Mutex::new(RefCell::new(HashMap::new()));
+    static ref GLOBAL_TOKENS: Mutex<RefCell<FnvHashMap<String, Token>>> =
+        Mutex::new(RefCell::new(FnvHashMap::default()));
     static ref GLOBAL_STRINGS: Mutex<RefCell<Vec<String>>> =
         Mutex::new(RefCell::new(vec![String::new()]));
 }

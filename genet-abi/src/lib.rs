@@ -1,4 +1,5 @@
 extern crate libc;
+extern crate fnv;
 
 #[macro_use]
 extern crate lazy_static;

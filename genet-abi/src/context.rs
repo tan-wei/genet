@@ -1,5 +1,6 @@
 use fixed::MutFixed;
-use std::{collections::HashMap, slice, str};
+use std::{slice, str};
+use fnv::FnvHashMap;
 
 /// A context object.
 #[repr(C)]
@@ -9,12 +10,12 @@ pub struct Context {
 }
 
 struct ContextData {
-    config: HashMap<String, String>,
+    config: FnvHashMap<String, String>,
 }
 
 impl Context {
     /// Creates a new Context.
-    pub fn new(config: HashMap<String, String>) -> Context {
+    pub fn new(config: FnvHashMap<String, String>) -> Context {
         Self {
             class: &CONTEXT_CLASS,
             abi_unsafe_data: MutFixed::new(ContextData { config }),

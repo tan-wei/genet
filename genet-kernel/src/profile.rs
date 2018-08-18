@@ -8,7 +8,8 @@ use genet_abi::{
 };
 use libloading::Library;
 use num_cpus;
-use std::{collections::HashMap, fmt, io, mem};
+use std::{fmt, io, mem};
+use fnv::FnvHashMap;
 
 #[derive(Clone, Default)]
 pub struct Profile {
@@ -16,7 +17,7 @@ pub struct Profile {
     decoders: Vec<DecoderBox>,
     readers: Vec<ReaderBox>,
     writers: Vec<WriterBox>,
-    config: HashMap<String, String>,
+    config: FnvHashMap<String, String>,
 }
 
 impl fmt::Debug for Profile {
@@ -32,7 +33,7 @@ impl Profile {
             decoders: Vec::new(),
             readers: Vec::new(),
             writers: Vec::new(),
-            config: HashMap::new(),
+            config: FnvHashMap::default(),
         }
     }
 

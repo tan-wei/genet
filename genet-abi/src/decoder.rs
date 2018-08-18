@@ -200,7 +200,7 @@ mod tests {
     use layer::{Layer, LayerClass, LayerStack};
     use result::Result;
     use slice::ByteSlice;
-    use std::collections::HashMap;
+    use fnv::FnvHashMap;
     use token::Token;
 
     #[test]
@@ -230,7 +230,7 @@ mod tests {
             }
         }
 
-        let mut ctx = Context::new(HashMap::new());
+        let mut ctx = Context::new(FnvHashMap::default());
         let mut diss = DecoderBox::new(TestDecoder {});
         let mut worker = diss.new_worker("serial", &ctx).unwrap();
 
