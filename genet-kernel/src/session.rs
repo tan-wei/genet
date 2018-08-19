@@ -154,7 +154,7 @@ impl Serialize for Event {
     where
         S: Serializer,
     {
-        match *self {
+        match self {
             Event::Frames(len) => {
                 let mut s = serializer.serialize_map(Some(2))?;
                 s.serialize_entry("type", "frames")?;
@@ -168,21 +168,21 @@ impl Serialize for Event {
                 s.serialize_entry("length", &len)?;
                 s.end()
             }
-            Event::Input(ref id, ref err) => {
+            Event::Input(id, err) => {
                 let mut s = serializer.serialize_map(Some(3))?;
                 s.serialize_entry("type", "input")?;
                 s.serialize_entry("id", &id)?;
                 s.serialize_entry("error", &err.as_ref().map(|e| format!("{}", e)))?;
                 s.end()
             }
-            Event::Output(ref id, ref err) => {
+            Event::Output(id, err) => {
                 let mut s = serializer.serialize_map(Some(3))?;
                 s.serialize_entry("type", "output")?;
                 s.serialize_entry("id", &id)?;
                 s.serialize_entry("error", &err.as_ref().map(|e| format!("{}", e)))?;
                 s.end()
             }
-            Event::Error(ref err) => {
+            Event::Error(err) => {
                 let mut s = serializer.serialize_map(Some(2))?;
                 s.serialize_entry("type", "error")?;
                 s.serialize_entry("error", &format!("{}", err))?;
