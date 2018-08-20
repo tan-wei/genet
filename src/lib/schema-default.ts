@@ -36,7 +36,7 @@ export default {
       default: 0,
     },
     '_.dev.tabReloading': {
-      description: 'Touch $HOME/.genet/.reload to reload current tab',
+      description: 'Touch $HOME/.genet/.reload to reload all tabs',
       type: 'boolean',
       default: false,
     },
