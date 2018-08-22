@@ -1,19 +1,18 @@
-import { readJson, remove, ensureDir } from 'fs-extra'
+import { readJson, remove, ensureDir, outputJson } from 'fs-extra'
 import ComponentFactory from './component-factory'
 import Config from './config'
 import { EventEmitter } from 'events'
 import Logger from './logger'
 import Env from './env'
 import genet from '@genet/api'
+import native from '@genet/load-module'
 import glob from 'glob'
 import objpath from 'object-path'
 import path from 'path'
 import { promisify } from 'util'
 import semver from 'semver'
-import writeFileAtomic from 'write-file-atomic'
 
 const promiseGlob = promisify(glob)
-const promiseWriteFile = promisify(writeFileAtomic)
 async function readFile(filePath) {
   try {
     const normPath = path.normalize(filePath)
@@ -252,11 +251,12 @@ export default class PackageManager extends EventEmitter {
     await ensureDir(Env.cachePath)
 
     const versionFile = path.join(Env.userPath, '.version')
-    await promiseWriteFile(versionFile, JSON.stringify({
+    await outputJson(versionFile, {
       genet: semver.valid(semver.coerce(Env.genet.version)),
+      abi: native.version.abi,
       target: process.env.GENET_TARGET,
       resourcePath: path.resolve(__dirname, '../..'),
-    }))
+    })
   }
 
   static async cleanup() {
