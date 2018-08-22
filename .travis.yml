@@ -15,15 +15,13 @@ addons:
     - libcap-dev
 cache:
   cargo: true
-  directories:
-    - node_modules
 install:
 - curl https://sh.rustup.rs -sSf | sh -s -- -y
 - export PATH=$PATH:$HOME/.cargo/bin
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source scripts/linux-before-install.sh;
   fi
 - npm install -g node-gyp
-- npm install
+- npm ci
 script:
 - node_modules/.bin/webpack
 - cargo build
