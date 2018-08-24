@@ -14,7 +14,6 @@ struct Frame;
 struct Session;
 struct SessionProfile;
 struct Filter;
-struct Iter;
 
 struct Range {
   uint32_t start;
