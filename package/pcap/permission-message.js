@@ -24,6 +24,16 @@ class MacHelper {
 
 class LinuxHelper {
   view () {
+    if (process.env.APPIMAGE) {
+      return m('section', [
+        m('h1', ['AppImage detected']),
+        m('p', [
+          'Unforunately, live capture is not available in the AppImage distribution.',
+          m('br'),
+          'You are still able to import captured packets from a file.'
+        ])
+      ])
+    }
     return m('section', [
       m('h1', ['Not enough capabilities']),
       m('p', [
