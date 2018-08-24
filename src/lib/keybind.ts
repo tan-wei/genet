@@ -70,8 +70,11 @@ export default class KeyBind extends EventEmitter {
       if (!deepEqual(map[key], this._map[key])) {
         Mousetrap.unbind(key)
         if (key in map) {
-          Mousetrap.bind(key, (event, combo) => {
-            for (const binds of this._map[combo]) {
+          const combo = process.platform === 'darwin'
+            ? key
+            : key.replace(/\bcommand\b/, 'ctrl')
+          Mousetrap.bind(combo, (event) => {
+            for (const binds of this._map[key]) {
               if (event.target.matches(binds.selector)) {
                 genet.action.global.emit(binds.action)
                 event.preventDefault()
