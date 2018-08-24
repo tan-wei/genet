@@ -34,10 +34,15 @@ void Module::init(v8::Local<v8::Object> exports) {
   v8::Local<v8::Value> args[1] = {exports};
   auto script =
       Nan::CompileScript(Nan::New(genet_embedded_js()).ToLocalChecked());
-  auto func = Nan::RunScript(script.ToLocalChecked())
-                  .ToLocalChecked()
-                  .As<v8::Function>();
-  func->Call(global, 1, args);
+  if (!script.IsEmpty()) {
+    auto result = Nan::RunScript(script.ToLocalChecked());
+    if (!result.IsEmpty()) {
+      auto func = result.ToLocalChecked();
+      if (func->IsFunction()) {
+        func.As<v8::Function>()->Call(global, 1, args);
+      }
+    }
+  }
 }
 
 void Module::destroy() {
