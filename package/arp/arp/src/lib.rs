@@ -86,6 +86,8 @@ lazy_static! {
     static ref PLEN_ATTR_HEADER: Attr = Attr::new(&PLEN_ATTR, 5..6);
     static ref OP_ATTR_HEADER: Attr = Attr::new(&OP_ATTR, 6..8);
     static ref ARP_CLASS: LayerClass = LayerClass::builder("arp")
+        .alias("_.src", "arp.sha")
+        .alias("_.dst", "arp.tha")
         .header(&HWTYPE_ATTR_HEADER)
         .header(&PROTO_ATTR_HEADER)
         .header(&HLEN_ATTR_HEADER)
