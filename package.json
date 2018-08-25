@@ -110,13 +110,11 @@
     "mithril": "^1.1.1",
     "moment": "^2.20.0",
     "mousetrap": "^1.6.1",
-    "normalize-url": "^2.0.1",
     "object-path": "^0.11.4",
     "parse-color": "^1.0.0",
     "semver": "^5.5.0",
     "tempy": "^0.2.1",
     "title-case": "^2.1.1",
-    "ws": "^4.0.0",
     "zlib": "^1.0.5"
   },
   "devDependencies": {
