@@ -1,11 +1,11 @@
 extern crate crossbeam_channel;
+extern crate fnv;
 extern crate genet_abi;
 extern crate libc;
 extern crate libloading;
 extern crate num_cpus;
 extern crate serde;
 extern crate serde_json;
-extern crate fnv;
 
 pub mod binding;
 pub mod profile;

@@ -1,3 +1,4 @@
+use fnv::FnvHashMap;
 use genet_abi::{
     context::Context,
     decoder::DecoderBox,
@@ -9,7 +10,6 @@ use genet_abi::{
 use libloading::Library;
 use num_cpus;
 use std::{fmt, io, mem};
-use fnv::FnvHashMap;
 
 #[derive(Clone, Default)]
 pub struct Profile {

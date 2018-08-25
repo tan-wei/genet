@@ -2,20 +2,19 @@ use array_vec::ArrayVec;
 use crossbeam_channel;
 use decoder::{parallel, serial};
 use filter::{self, Filter};
+use fnv::FnvHashMap;
 use frame::Frame;
 use genet_abi::{fixed::MutFixed, layer::Layer};
 use io::{Input, Output};
 use profile::Profile;
 use result::Result;
 use std::{
-    cmp,
-    fmt,
+    cmp, fmt,
     ops::Range,
     panic::{self, AssertUnwindSafe},
     sync::{Arc, RwLock},
     thread::{self, JoinHandle},
 };
-use fnv::FnvHashMap;
 
 pub trait Callback: Send {
     fn on_frames_updated(&self, _frames: u32) {}

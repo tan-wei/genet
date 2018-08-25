@@ -1,12 +1,7 @@
 use fixed::Fixed;
-use libc;
-use std::{
-    cell::RefCell,
-    collections::{hash_map::Entry},
-    slice, str,
-    sync::Mutex,
-};
 use fnv::FnvHashMap;
+use libc;
+use std::{cell::RefCell, collections::hash_map::Entry, slice, str, sync::Mutex};
 use token::Token;
 
 #[no_mangle]

@@ -1,6 +1,6 @@
 use fixed::MutFixed;
-use std::{slice, str};
 use fnv::FnvHashMap;
+use std::{slice, str};
 
 /// A context object.
 #[repr(C)]

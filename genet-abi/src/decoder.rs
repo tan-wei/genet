@@ -197,10 +197,10 @@ mod tests {
     use context::Context;
     use decoder::{Decoder, DecoderBox, Status, Worker};
     use fixed::Fixed;
+    use fnv::FnvHashMap;
     use layer::{Layer, LayerClass, LayerStack};
     use result::Result;
     use slice::ByteSlice;
-    use fnv::FnvHashMap;
     use token::Token;
 
     #[test]
