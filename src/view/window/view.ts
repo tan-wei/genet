@@ -35,7 +35,7 @@ export default class WindowView {
         id: 'preferences',
         name: 'Preferences',
         src: 'preference.htm',
-        argv: genet.argv,
+        argv: Object.assign({}, genet.argv),
         loading: true,
         system: true,
         icon: 'fa-cog',
@@ -44,7 +44,7 @@ export default class WindowView {
         id: 'packages',
         name: 'Packages',
         src: 'package.htm',
-        argv: genet.argv,
+        argv: Object.assign({}, genet.argv),
         loading: true,
         system: true,
         icon: 'fa-gift',
@@ -74,7 +74,7 @@ export default class WindowView {
       id,
       name: `Session ${number}`,
       src: 'display.htm',
-      argv: Object.assign(genet.argv, {
+      argv: Object.assign({}, genet.argv, {
         resume: Resumer.generateFileName()
       }),
       loading: true,
@@ -157,7 +157,7 @@ export default class WindowView {
           id,
           name: path.basename(file),
           src: 'display.htm',
-          argv: Object.assign(genet.argv, {
+          argv: Object.assign({}, genet.argv, {
             import: file,
             resume: Resumer.generateFileName()
           }),
