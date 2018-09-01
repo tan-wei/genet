@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Add pacman distribution.
+
+### Changed
+- KeyBind: Treat a command-key as a ctrl-key on Linux/Windows.
+- Add the genet-abi verison in .version file.
+- ARP: add _.src and _.dst attribute.
 
 ## [0.3.0] - 2018-08-19
 ### Added
@@ -14,8 +21,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Preference: Add License tab.
 
 ### Changed
-- Rename Decoder to Cast
-- Rename Dissector to Decoder
+- Rename Decoder to Cast.
+- Rename Dissector to Decoder.
 
 ## [0.2.0] - 2018-08-10
 ### Added
