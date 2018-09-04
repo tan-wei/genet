@@ -156,6 +156,9 @@ extern "C" fn abi_reader_new_worker(
 /// Writer worker trait.
 pub trait WriterWorker: Send {
     fn write(&mut self, index: u32, stack: &LayerStack) -> Result<()>;
+    fn end(&mut self) -> Result<()> {
+        Ok(())
+    }
 }
 
 /// Reader worker trait.
@@ -166,9 +169,12 @@ pub trait ReaderWorker: Send {
 type WriterFunc =
     extern "C" fn(*mut Box<WriterWorker>, u32, *const *const Layer, u64, *mut Error) -> u8;
 
+type WriterEndFunc = extern "C" fn(*mut Box<WriterWorker>, *mut Error) -> u8;
+
 pub struct WriterWorkerBox {
     worker: *mut Box<WriterWorker>,
     write: WriterFunc,
+    end: WriterEndFunc,
     drop: extern "C" fn(*mut Box<WriterWorker>),
 }
 
@@ -179,6 +185,7 @@ impl WriterWorkerBox {
         Self {
             worker: Box::into_raw(Box::new(worker)),
             write: abi_writer_worker_write,
+            end: abi_writer_worker_end,
             drop: abi_writer_worker_drop,
         }
     }
@@ -187,6 +194,15 @@ impl WriterWorkerBox {
         let mut e = Error::new("");
         let stack = layers.as_ptr() as *const *const Layer;
         if (self.write)(self.worker, index, stack, layers.len() as u64, &mut e) == 0 {
+            Err(Box::new(e))
+        } else {
+            Ok(())
+        }
+    }
+
+    pub fn end(&mut self) -> Result<()> {
+        let mut e = Error::new("");
+        if (self.end)(self.worker, &mut e) == 0 {
             Err(Box::new(e))
         } else {
             Ok(())
@@ -267,6 +283,17 @@ extern "C" fn abi_writer_worker_write(
     let worker = unsafe { &mut *worker };
     let stack = unsafe { LayerStack::new(layers, len as usize) };
     match worker.write(index, &stack) {
+        Ok(()) => 1,
+        Err(e) => {
+            unsafe { *err = Error::new(e.description()) };
+            0
+        }
+    }
+}
+
+extern "C" fn abi_writer_worker_end(worker: *mut Box<WriterWorker>, err: *mut Error) -> u8 {
+    let worker = unsafe { &mut *worker };
+    match worker.end() {
         Ok(()) => 1,
         Err(e) => {
             unsafe { *err = Error::new(e.description()) };

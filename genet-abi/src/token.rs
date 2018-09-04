@@ -3,7 +3,7 @@ use std::fmt;
 
 /// A token value.
 #[repr(C)]
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Token(u64);
 
 impl Token {

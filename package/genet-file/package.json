@@ -1,0 +1,25 @@
+{
+  "name": "@genet/genet-file",
+  "version": "0.0.1",
+  "license": "MIT",
+  "description": "Genet File Format",
+  "engines": {
+    "genet": "*"
+  },
+  "genet": {
+    "components": [
+      {
+        "type": "core:library",
+        "main": "reader"
+      },
+      {
+        "type": "core:file:reader",
+        "main": "reader.js"
+      },
+      {
+        "type": "core:library",
+        "main": "writer"
+      }
+    ]
+  }
+}

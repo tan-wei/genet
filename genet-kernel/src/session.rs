@@ -210,6 +210,10 @@ impl Output for WriterWorkerOutput {
         }
         Ok(())
     }
+
+    fn end(&mut self) -> genet_abi::result::Result<()> {
+        self.worker.end()
+    }
 }
 
 #[derive(Debug)]

@@ -4,6 +4,7 @@ use std::fmt::Debug;
 
 pub trait Output: Send + Debug {
     fn write(&mut self, frames: &[&Frame]) -> Result<()>;
+    fn end(&mut self) -> Result<()>;
 }
 
 pub trait Input: Send + Debug {

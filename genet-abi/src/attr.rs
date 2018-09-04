@@ -1,11 +1,11 @@
-use cast::{Cast, Nil};
+use cast::Cast;
 use env;
 use error::Error;
 use fixed::Fixed;
 use layer::Layer;
 use result::Result;
 use slice::ByteSlice;
-use std::{fmt, mem, ops::Range, slice};
+use std::{fmt, io, mem, ops::Range, slice};
 use token::Token;
 use variant::Variant;
 use vec::SafeVec;
@@ -62,6 +62,12 @@ impl Attr {
         self.class.typ()
     }
 
+    /// Returns true if the self has no cast function.
+    /// Otherwise, returns false.
+    pub fn is_value(&self) -> bool {
+        self.class.is_value()
+    }
+
     /// Returns the range of self.
     pub fn range(&self) -> Range<usize> {
         self.class.range(self)
@@ -102,7 +108,7 @@ enum ValueType {
 pub struct AttrClassBuilder {
     id: Token,
     typ: Token,
-    cast: Box<Cast>,
+    cast: Option<Box<Cast>>,
 }
 
 impl AttrClassBuilder {
@@ -114,7 +120,7 @@ impl AttrClassBuilder {
 
     /// Sets a cast of AttrClass.
     pub fn cast<T: Cast>(mut self, cast: T) -> AttrClassBuilder {
-        self.cast = cast.into_box();
+        self.cast = Some(cast.into_box());
         self
     }
 
@@ -128,6 +134,7 @@ impl AttrClassBuilder {
             }),
             id: abi_id,
             typ: abi_typ,
+            is_value: abi_is_value,
             range: abi_range,
             get: abi_get,
         }
@@ -140,6 +147,7 @@ pub struct AttrClass {
     abi_unsafe_data: Fixed<AttrClassData>,
     id: extern "C" fn(class: *const AttrClass) -> Token,
     typ: extern "C" fn(class: *const AttrClass) -> Token,
+    is_value: extern "C" fn(class: *const AttrClass) -> u8,
     range: extern "C" fn(*const Attr, *mut u64, *mut u64),
     get: extern "C" fn(*const Attr, *mut *const u8, u64, *mut i64, *mut Error) -> ValueType,
 }
@@ -147,7 +155,7 @@ pub struct AttrClass {
 struct AttrClassData {
     id: Token,
     typ: Token,
-    cast: Box<Cast>,
+    cast: Option<Box<Cast>>,
 }
 
 impl AttrClass {
@@ -156,7 +164,7 @@ impl AttrClass {
         AttrClassBuilder {
             id: id.into(),
             typ: Token::null(),
-            cast: Box::new(Nil()),
+            cast: None,
         }
     }
 
@@ -166,6 +174,10 @@ impl AttrClass {
 
     fn typ(&self) -> Token {
         (self.typ)(self)
+    }
+
+    fn is_value(&self) -> bool {
+        (self.is_value)(self) != 0
     }
 
     fn range(&self, attr: &Attr) -> Range<usize> {
@@ -242,6 +254,16 @@ extern "C" fn abi_typ(class: *const AttrClass) -> Token {
     unsafe { (*class).abi_unsafe_data.typ }
 }
 
+extern "C" fn abi_is_value(class: *const AttrClass) -> u8 {
+    unsafe {
+        if (*class).abi_unsafe_data.cast.is_none() {
+            1
+        } else {
+            0
+        }
+    }
+}
+
 extern "C" fn abi_get(
     attr: *const Attr,
     data: *mut *const u8,
@@ -253,12 +275,20 @@ extern "C" fn abi_get(
     let cast = unsafe { &(*attr).class.abi_unsafe_data.cast };
     let slice = unsafe { ByteSlice::from_raw_parts(*data, len as usize) };
     let res;
-    let result = if let Some(val) = value {
-        Ok(val.as_ref())
-    } else {
+    let verr;
+
+    let result = if let Some(cast) = cast.as_ref() {
         res = cast.cast(&slice);
         res.as_ref()
+    } else {
+        if let Some(val) = value {
+            Ok(val.as_ref())
+        } else {
+            verr = io::Error::new(io::ErrorKind::Other, "no value");
+            Err(&verr)
+        }
     };
+
     match result {
         Ok(v) => match v {
             Variant::Bool(val) => {

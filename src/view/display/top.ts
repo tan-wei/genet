@@ -223,9 +223,9 @@ export default class TopView {
     genet.action.global.on('core:tab:reload', () => {
       let dump = Promise.resolve()
       if (this.sess) {
-        const file = tempy.file({ extension: 'pcap' })
+        const file = tempy.file({ extension: 'genet' })
         genet.resumer.set('core:session:dump', file)
-        dump = this.sess.createWriter('pcap-file', { file })
+        dump = this.sess.createWriter('genet-file', { file })
       }
       dump.then(() => {
         genet.resumer.reload()

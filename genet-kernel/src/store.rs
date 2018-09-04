@@ -347,6 +347,11 @@ impl EventLoop {
                 }
                 offset += len;
             }
+            if let Err(err) = output.end() {
+                let err = Error(err.description().to_string());
+                callback.on_output_done(id, Some(Box::new(err)));
+                return;
+            }
         }
         callback.on_output_done(id, None);
     }
