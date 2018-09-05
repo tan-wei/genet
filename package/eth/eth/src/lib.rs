@@ -12,6 +12,59 @@ use std::collections::HashMap;
 
 struct EthWorker {}
 
+macro_rules! def_layer_class {
+    ($name:ident, $id:expr) => (
+        lazy_static! {
+            static ref $name : ::genet_sdk::layer::LayerClass = ::genet_sdk::layer::LayerClass::builder($id)
+                .build();
+        }
+    );
+    ($name:ident, $id:expr, $($key:ident : $($arg:expr)*),*) => (
+        lazy_static! {
+            static ref $name : ::genet_sdk::layer::LayerClass = ::genet_sdk::layer::LayerClass::builder($id)
+                $( . $key ( $($arg),* ) )*
+                .build();
+        }
+    );
+}
+
+macro_rules! attr_class {
+    ($id:expr) => (::genet_sdk::attr::AttrClass::builder($id).build());
+    ($id:expr, $($key:ident : $($arg:expr)*),*) => (::genet_sdk::attr::AttrClass::builder($id)
+                $( . $key ( $($arg),* ) )*
+                .build());
+}
+
+macro_rules! def_attr_class {
+    ($name:ident, $id:expr) => (
+        lazy_static! {
+            static ref $name : ::genet_sdk::attr::AttrClass = ::genet_sdk::attr::AttrClass::builder($id)
+                .build();
+        }
+    );
+    ($name:ident, $id:expr, $($key:ident : $($arg:expr)*),*) => (
+        lazy_static! {
+            static ref $name : ::genet_sdk::attr::AttrClass = ::genet_sdk::attr::AttrClass::builder($id)
+                $( . $key ( $($arg),* ) )*
+                .build();
+        }
+    );
+}
+
+macro_rules! def_attr {
+    ($name:ident, $class:expr, $range:expr) => {
+        lazy_static! {
+            static ref $name: ::genet_sdk::attr::Attr = attr!($class, $range);
+        }
+    };
+}
+
+macro_rules! attr {
+    ($class:expr, $range:expr) => {
+        ::genet_sdk::attr::Attr::new($class, $range)
+    };
+}
+
 impl Worker for EthWorker {
     fn decode(
         &mut self,
@@ -52,34 +105,41 @@ impl Decoder for EthDecoder {
     }
 }
 
+def_layer_class!(ETH_CLASS, "eth",
+            alias: "_.src" "eth.src",
+            alias: "_.dst" "eth.dst",
+            header: attr!(&SRC_ATTR, 0..6),
+            header: attr!(&DST_ATTR, 6..12)
+        );
+
+def_attr_class!(SRC_ATTR, "eth.src",
+            typ: "@eth:mac",
+            cast: cast::ByteSlice()
+        );
+
+def_attr_class!(DST_ATTR, "eth.dst",
+            typ: "@eth:mac",
+            cast: cast::ByteSlice()
+        );
+
+def_attr_class!(LEN_ATTR, "eth.len", cast: cast::UInt16BE());
+
+def_attr_class!(TYPE_ATTR, "eth.type",
+            typ: "@enum",
+            cast: cast::UInt16BE()
+        );
+
+def_attr!(LEN_ATTR_HEADER, &LEN_ATTR, 12..14);
+
+def_attr!(TYPE_ATTR_HEADER, &TYPE_ATTR, 12..14);
+
 lazy_static! {
-    static ref ETH_CLASS: LayerClass = LayerClass::builder("eth")
-        .alias("_.src", "eth.src")
-        .alias("_.dst", "eth.dst")
-        .header(Attr::new(&SRC_ATTR, 0..6))
-        .header(Attr::new(&DST_ATTR, 6..12))
-        .build();
-    static ref SRC_ATTR: AttrClass = AttrClass::builder("eth.src")
-        .typ("@eth:mac")
-        .cast(cast::ByteSlice())
-        .build();
-    static ref DST_ATTR: AttrClass = AttrClass::builder("eth.dst")
-        .typ("@eth:mac")
-        .cast(cast::ByteSlice())
-        .build();
-    static ref LEN_ATTR: AttrClass = AttrClass::builder("eth.len").cast(cast::UInt16BE()).build();
-    static ref TYPE_ATTR: AttrClass = AttrClass::builder("eth.type")
-        .typ("@enum")
-        .cast(cast::UInt16BE())
-        .build();
-    static ref LEN_ATTR_HEADER: Attr = Attr::new(&LEN_ATTR, 12..14);
-    static ref TYPE_ATTR_HEADER: Attr = Attr::new(&TYPE_ATTR, 12..14);
     static ref TYPE_MAP: HashMap<u64, (Token, AttrClass)> = hashmap!{
-        0x0800 => (token!("@data:ipv4"), AttrClass::builder("eth.type.ipv4").typ("@novalue").cast(cast::Const(true)).build()),
-        0x0806 => (token!("@data:arp"), AttrClass::builder("eth.type.arp").typ("@novalue").cast(cast::Const(true)).build()),
-        0x0842 => (token!("@data:wol"), AttrClass::builder("eth.type.wol").typ("@novalue").cast(cast::Const(true)).build()),
-        0x86DD => (token!("@data:ipv6"), AttrClass::builder("eth.type.ipv6").typ("@novalue").cast(cast::Const(true)).build()),
-        0x888E => (token!("@data:eap"), AttrClass::builder("eth.type.eap").typ("@novalue").cast(cast::Const(true)).build()),
+        0x0800 => (token!("@data:ipv4"), attr_class!("eth.type.ipv4", typ: "@novalue", cast: cast::Const(true))),
+        0x0806 => (token!("@data:arp"), attr_class!("eth.type.arp", typ: "@novalue", cast: cast::Const(true))),
+        0x0842 => (token!("@data:wol"), attr_class!("eth.type.wol", typ: "@novalue", cast: cast::Const(true))),
+        0x86DD => (token!("@data:ipv6"), attr_class!("eth.type.ipv6", typ: "@novalue", cast: cast::Const(true))),
+        0x888E => (token!("@data:eap"), attr_class!("eth.type.eap", typ: "@novalue", cast: cast::Const(true))),
     };
 }
 
