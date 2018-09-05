@@ -46,11 +46,12 @@ pub trait Map
 where
     Self: Sized,
 {
-    fn map<I, R>(self, func: fn(I) -> R) -> Mapped<Self, I, R>
+    fn map<I, R, F>(self, func: F) -> Mapped<Self, I, R, F>
     where
         Self: Typed<Output = I>,
         I: Into<Variant>,
         R: Into<Variant>,
+        F: Fn(I) -> R + Clone,
     {
         Mapped { cast: self, func }
     }
@@ -64,26 +65,28 @@ where
 }
 
 #[derive(Clone)]
-pub struct Mapped<T, I, R>
+pub struct Mapped<T, I, R, F>
 where
     T: Typed<Output = I>,
     I: Into<Variant>,
     R: Into<Variant>,
+    F: Fn(I) -> R + Clone,
 {
     cast: T,
-    func: fn(data: I) -> R,
+    func: F,
 }
 
-impl<T, I, R> Typed for Mapped<T, I, R>
+impl<T, I, R, F> Typed for Mapped<T, I, R, F>
 where
     T: Typed<Output = I>,
     I: Into<Variant>,
     R: Into<Variant>,
+    F: Fn(I) -> R + Clone,
 {
     type Output = R;
 
     fn cast(&self, data: &slice::ByteSlice) -> Result<Self::Output> {
-        self.cast.cast(data).map(self.func)
+        self.cast.cast(data).map(self.func.clone())
     }
 }
 
