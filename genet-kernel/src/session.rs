@@ -9,25 +9,26 @@ use genet_abi::{
 use io::{Input, Output};
 use profile::Profile;
 use serde::ser::{Serialize, SerializeMap, Serializer};
-use std::ops::Range;
+use std::{fmt, ops::Range};
 use store::{self, Store};
 
-#[derive(Debug)]
 pub struct Session {
     store: Store,
+    callback: Box<Callback>,
     profile: Profile,
     io_cnt: u32,
 }
 
 impl Session {
-    pub fn new<C: 'static + Callback>(profile: Profile, callback: C) -> Session {
+    pub fn new<C: 'static + Callback + Clone>(profile: Profile, callback: C) -> Session {
         Session {
             store: Store::new(
                 profile.clone(),
                 StoreCallback {
-                    callback: Box::new(callback),
+                    callback: Box::new(callback.clone()),
                 },
             ),
+            callback: Box::new(callback),
             profile,
             io_cnt: 0,
         }
@@ -55,7 +56,10 @@ impl Session {
                         .set_input(self.io_cnt, ReaderWorkerInput::new(input));
                     return self.io_cnt;
                 }
-                Err(err) => eprintln!("{:?}", err),
+                Err(err) => {
+                    let err = Error(err.description().to_string());
+                    self.callback.on_event(Event::Error(Box::new(err)));
+                }
             }
         }
         0
@@ -71,7 +75,10 @@ impl Session {
                         .push_output(self.io_cnt, WriterWorkerOutput::new(output), filter);
                     return self.io_cnt;
                 }
-                Err(err) => eprintln!("{:?}", err),
+                Err(err) => {
+                    let err = Error(err.description().to_string());
+                    self.callback.on_event(Event::Error(Box::new(err)));
+                }
             }
         }
         0
@@ -87,6 +94,21 @@ impl Session {
 
     pub fn is_empty(&self) -> bool {
         self.len() == 0
+    }
+}
+
+#[derive(Debug)]
+struct Error(String);
+
+impl ::std::error::Error for Error {
+    fn description(&self) -> &str {
+        &self.0
+    }
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 
