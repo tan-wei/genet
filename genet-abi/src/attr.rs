@@ -1,4 +1,4 @@
-use cast::Cast;
+use cast::{Cast, Typed};
 use env;
 use error::Error;
 use fixed::Fixed;
@@ -9,6 +9,38 @@ use std::{fmt, io, mem, ops::Range, slice};
 use token::Token;
 use variant::Variant;
 use vec::SafeVec;
+
+/// A builder object for Attr.
+pub struct AttrBuilder {
+    class: Fixed<AttrClass>,
+    range: Range<usize>,
+    value: Option<Fixed<Variant>>,
+}
+
+impl AttrBuilder {
+    /// Builds a new Attr.
+    pub fn build(self) -> Attr {
+        Attr {
+            class: self.class,
+            abi_unsafe_data: AttrData {
+                range: self.range,
+                value: self.value,
+            },
+        }
+    }
+
+    /// Sets a range of Attr.
+    pub fn range(mut self, range: Range<usize>) -> AttrBuilder {
+        self.range = range;
+        self
+    }
+
+    /// Sets a value of Attr.
+    pub fn value<T: Into<Variant>>(mut self, value: T) -> AttrBuilder {
+        self.value = Some(Fixed::new(value.into()));
+        self
+    }
+}
 
 /// An attribute object.
 #[repr(C)]
@@ -29,26 +61,12 @@ struct AttrData {
 }
 
 impl Attr {
-    /// Creates a new Attr.
-    pub fn new<C: Into<Fixed<AttrClass>>>(class: C, range: Range<usize>) -> Attr {
-        Attr {
+    /// Creates a new builder object for Attr.
+    pub fn builder<C: Into<Fixed<AttrClass>>>(class: C) -> AttrBuilder {
+        AttrBuilder {
             class: class.into(),
-            abi_unsafe_data: AttrData { range, value: None },
-        }
-    }
-
-    /// Creates a new Attr with a constant value.
-    pub fn with_value<C: Into<Fixed<AttrClass>>, T: Into<Variant>>(
-        class: C,
-        range: Range<usize>,
-        value: T,
-    ) -> Attr {
-        Attr {
-            class: class.into(),
-            abi_unsafe_data: AttrData {
-                range,
-                value: Some(Fixed::new(value.into())),
-            },
+            range: 0..0,
+            value: None,
         }
     }
 
@@ -104,6 +122,17 @@ enum ValueType {
     ByteSlice = 7,
 }
 
+#[derive(Clone)]
+struct Const<T>(pub T);
+
+impl<T: Into<Variant> + Clone> Typed for Const<T> {
+    type Output = T;
+
+    fn cast(&self, _data: &ByteSlice) -> io::Result<T> {
+        Ok(self.0.clone())
+    }
+}
+
 /// A builder object for AttrClass.
 pub struct AttrClassBuilder {
     id: Token,
@@ -121,6 +150,15 @@ impl AttrClassBuilder {
     /// Sets a cast of AttrClass.
     pub fn cast<T: Cast>(mut self, cast: T) -> AttrClassBuilder {
         self.cast = Some(cast.into_box());
+        self
+    }
+
+    /// Sets a constant value of AttrClass.
+    pub fn value<T: 'static + Into<Variant> + Send + Sync + Clone>(
+        mut self,
+        value: T,
+    ) -> AttrClassBuilder {
+        self.cast = Some(Box::new(Const(value)));
         self
     }
 
@@ -355,35 +393,6 @@ mod tests {
     use variant::Variant;
 
     #[test]
-    fn nil() {
-        #[derive(Clone)]
-        struct TestCast {}
-
-        impl Cast for TestCast {
-            fn cast(&self, _: &ByteSlice) -> Result<Variant> {
-                Ok(Variant::Nil)
-            }
-        }
-        let class = Fixed::new(
-            AttrClass::builder("nil")
-                .typ("@nil")
-                .cast(TestCast {})
-                .build(),
-        );
-        let attr = Fixed::new(Attr::new(class, 0..0));
-        assert_eq!(attr.id(), Token::from("nil"));
-        assert_eq!(attr.typ(), Token::from("@nil"));
-        assert_eq!(attr.range(), 0..0);
-
-        let class = Fixed::new(LayerClass::builder(Token::null()).build());
-        let layer = Layer::new(class, ByteSlice::new());
-        match attr.try_get(&layer).unwrap() {
-            Variant::Nil => (),
-            _ => panic!(),
-        };
-    }
-
-    #[test]
     fn bool() {
         #[derive(Clone)]
         struct TestCast {}
@@ -399,7 +408,7 @@ mod tests {
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = Attr::new(class, 0..1);
+        let attr = Attr::builder(class).range(0..1).build();
         assert_eq!(attr.id(), Token::from("bool"));
         assert_eq!(attr.typ(), Token::from("@bool"));
         assert_eq!(attr.range(), 0..1);
@@ -428,7 +437,7 @@ mod tests {
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = Attr::new(class, 0..6);
+        let attr = Attr::builder(class).range(0..6).build();
         assert_eq!(attr.id(), Token::from("u64"));
         assert_eq!(attr.typ(), Token::from("@u64"));
         assert_eq!(attr.range(), 0..6);
@@ -457,7 +466,7 @@ mod tests {
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = Attr::new(class, 0..6);
+        let attr = Attr::builder(class).range(0..6).build();
         assert_eq!(attr.id(), Token::from("i64"));
         assert_eq!(attr.typ(), Token::from("@i64"));
         assert_eq!(attr.range(), 0..6);
@@ -486,7 +495,7 @@ mod tests {
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = Attr::new(class, 0..6);
+        let attr = Attr::builder(class).range(0..6).build();
         assert_eq!(attr.id(), Token::from("buffer"));
         assert_eq!(attr.typ(), Token::from("@buffer"));
         assert_eq!(attr.range(), 0..6);
@@ -517,7 +526,7 @@ mod tests {
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = Attr::new(class, 0..6);
+        let attr = Attr::builder(class).range(0..6).build();
         assert_eq!(attr.id(), Token::from("string"));
         assert_eq!(attr.typ(), Token::from("@string"));
         assert_eq!(attr.range(), 0..6);
@@ -546,7 +555,7 @@ mod tests {
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = Attr::new(class, 0..6);
+        let attr = Attr::builder(class).range(0..6).build();
         assert_eq!(attr.id(), Token::from("slice"));
         assert_eq!(attr.typ(), Token::from("@slice"));
         assert_eq!(attr.range(), 0..6);
@@ -575,7 +584,7 @@ mod tests {
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = Attr::new(class, 0..6);
+        let attr = Attr::builder(class).range(0..6).build();
         assert_eq!(attr.id(), Token::from("slice"));
         assert_eq!(attr.typ(), Token::from("@slice"));
         assert_eq!(attr.range(), 0..6);

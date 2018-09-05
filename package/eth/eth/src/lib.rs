@@ -1,14 +1,7 @@
 #[macro_use]
 extern crate genet_sdk;
 
-#[macro_use]
-extern crate lazy_static;
-
-#[macro_use]
-extern crate maplit;
-
 use genet_sdk::prelude::*;
-use std::collections::HashMap;
 
 struct EthWorker {}
 
@@ -27,8 +20,8 @@ impl Worker for EthWorker {
             } else {
                 layer.add_attr(&TYPE_ATTR_HEADER);
             }
-            if let Some((typ, attr)) = TYPE_MAP.get(&len) {
-                layer.add_attr(Attr::new(attr, 12..14));
+            if let Some((typ, attr)) = get_type(len) {
+                layer.add_attr(attr!(attr, range: 12..14));
                 let payload = parent.data().try_get(14..)?;
                 layer.add_payload(Payload::new(payload, typ));
             }
@@ -52,35 +45,58 @@ impl Decoder for EthDecoder {
     }
 }
 
-lazy_static! {
-    static ref ETH_CLASS: LayerClass = LayerClass::builder("eth")
-        .alias("_.src", "eth.src")
-        .alias("_.dst", "eth.dst")
-        .header(Attr::new(&SRC_ATTR, 0..6))
-        .header(Attr::new(&DST_ATTR, 6..12))
-        .build();
-    static ref SRC_ATTR: AttrClass = AttrClass::builder("eth.src")
-        .typ("@eth:mac")
-        .cast(cast::ByteSlice())
-        .build();
-    static ref DST_ATTR: AttrClass = AttrClass::builder("eth.dst")
-        .typ("@eth:mac")
-        .cast(cast::ByteSlice())
-        .build();
-    static ref LEN_ATTR: AttrClass = AttrClass::builder("eth.len").cast(cast::UInt16BE()).build();
-    static ref TYPE_ATTR: AttrClass = AttrClass::builder("eth.type")
-        .typ("@enum")
-        .cast(cast::UInt16BE())
-        .build();
-    static ref LEN_ATTR_HEADER: Attr = Attr::new(&LEN_ATTR, 12..14);
-    static ref TYPE_ATTR_HEADER: Attr = Attr::new(&TYPE_ATTR, 12..14);
-    static ref TYPE_MAP: HashMap<u64, (Token, AttrClass)> = hashmap!{
-        0x0800 => (token!("@data:ipv4"), AttrClass::builder("eth.type.ipv4").typ("@novalue").cast(cast::Const(true)).build()),
-        0x0806 => (token!("@data:arp"), AttrClass::builder("eth.type.arp").typ("@novalue").cast(cast::Const(true)).build()),
-        0x0842 => (token!("@data:wol"), AttrClass::builder("eth.type.wol").typ("@novalue").cast(cast::Const(true)).build()),
-        0x86DD => (token!("@data:ipv6"), AttrClass::builder("eth.type.ipv6").typ("@novalue").cast(cast::Const(true)).build()),
-        0x888E => (token!("@data:eap"), AttrClass::builder("eth.type.eap").typ("@novalue").cast(cast::Const(true)).build()),
-    };
+def_layer_class!(ETH_CLASS, "eth",
+            alias: "_.src" "eth.src",
+            alias: "_.dst" "eth.dst",
+            header: attr!(&SRC_ATTR, range: 0..6),
+            header: attr!(&DST_ATTR, range: 6..12)
+        );
+
+def_attr_class!(SRC_ATTR, "eth.src",
+            typ: "@eth:mac",
+            cast: cast::ByteSlice()
+        );
+
+def_attr_class!(DST_ATTR, "eth.dst",
+            typ: "@eth:mac",
+            cast: cast::ByteSlice()
+        );
+
+def_attr_class!(LEN_ATTR, "eth.len", cast: cast::UInt16BE());
+
+def_attr_class!(TYPE_ATTR, "eth.type",
+            typ: "@enum",
+            cast: cast::UInt16BE()
+        );
+
+def_attr!(LEN_ATTR_HEADER,  &LEN_ATTR, range: 12..14);
+
+def_attr!(TYPE_ATTR_HEADER,  &TYPE_ATTR, range: 12..14);
+
+fn get_type(val: u64) -> Option<(Token, &'static AttrClass)> {
+    match val {
+        0x0800 => Some((
+            token!("@data:ipv4"),
+            attr_class_lazy!("eth.type.ipv4", typ: "@novalue", value: true),
+        )),
+        0x0806 => Some((
+            token!("@data:arp"),
+            attr_class_lazy!("eth.type.arp", typ: "@novalue", value: true),
+        )),
+        0x0842 => Some((
+            token!("@data:wol"),
+            attr_class_lazy!("eth.type.wol", typ: "@novalue", value: true),
+        )),
+        0x86DD => Some((
+            token!("@data:ipv6"),
+            attr_class_lazy!("eth.type.ipv6", typ: "@novalue", value: true),
+        )),
+        0x888E => Some((
+            token!("@data:eap"),
+            attr_class_lazy!("eth.type.eap", typ: "@novalue", value: true),
+        )),
+        _ => None,
+    }
 }
 
 genet_decoders!(EthDecoder {});

@@ -6,9 +6,6 @@ extern crate serde_json;
 extern crate genet_sdk;
 
 #[macro_use]
-extern crate lazy_static;
-
-#[macro_use]
 extern crate serde_derive;
 
 use genet_sdk::{
@@ -45,11 +42,10 @@ impl Reader for PcapReader {
                 .take()
                 .ok_or_else(|| Error::new(ErrorKind::Other, "no stdout"))?,
         );
-        let link_class = Fixed::new(
-            LayerClass::builder(format!("[link-{}]", arg.link))
-                .header(Attr::with_value(&TYPE_CLASS, 0..0, u64::from(arg.link)))
-                .build(),
-        );
+        let link_class = Fixed::new(layer_class!(
+            format!("[link-{}]", arg.link),
+            header: attr!(&TYPE_CLASS, value: u64::from(arg.link))
+        ));
         Ok(Box::new(PcapReaderWorker {
             child,
             reader,
@@ -81,25 +77,21 @@ impl ReaderWorker for PcapReaderWorker {
         self.reader.read_exact(&mut data)?;
         let payload = ByteSlice::from(data);
         let mut layer = Layer::new(self.link_class.clone(), payload);
-        layer.add_attr(Attr::with_value(
+        layer.add_attr(attr!(
             &LENGTH_CLASS,
-            0..0,
-            u64::from(header.actlen),
+            value: u64::from(header.actlen)
         ));
-        layer.add_attr(Attr::with_value(
+        layer.add_attr(attr!(
             &TS_CLASS,
-            0..0,
-            f64::from(header.ts_sec) + f64::from(header.ts_usec) / 1_000_000f64,
+            value: f64::from(header.ts_sec) + f64::from(header.ts_usec) / 1_000_000f64
         ));
-        layer.add_attr(Attr::with_value(
+        layer.add_attr(attr!(
             &TS_SEC_CLASS,
-            0..0,
-            u64::from(header.ts_sec),
+            value: u64::from(header.ts_sec)
         ));
-        layer.add_attr(Attr::with_value(
+        layer.add_attr(attr!(
             &TS_USEC_CLASS,
-            0..0,
-            u64::from(header.ts_usec),
+            value: u64::from(header.ts_usec)
         ));
         Ok(vec![layer])
     }
@@ -111,14 +103,12 @@ impl Drop for PcapReaderWorker {
     }
 }
 
-lazy_static! {
-    static ref TYPE_CLASS: AttrClass = AttrClass::builder("link.type").build();
-    static ref LENGTH_CLASS: AttrClass = AttrClass::builder("link.length").build();
-    static ref TS_CLASS: AttrClass = AttrClass::builder("link.timestamp")
-        .typ("@datetime:unix")
-        .build();
-    static ref TS_SEC_CLASS: AttrClass = AttrClass::builder("link.timestamp.sec").build();
-    static ref TS_USEC_CLASS: AttrClass = AttrClass::builder("link.timestamp.usec").build();
-}
+def_attr_class!(TYPE_CLASS, "link.type");
+def_attr_class!(LENGTH_CLASS, "link.length");
+def_attr_class!(TS_CLASS, "link.timestamp",
+    typ: "@datetime:unix"
+);
+def_attr_class!(TS_SEC_CLASS, "link.timestamp.sec");
+def_attr_class!(TS_USEC_CLASS, "link.timestamp.usec");
 
 genet_readers!(PcapReader {});

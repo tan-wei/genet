@@ -7,4 +7,5 @@ authors = ["Ron Hashimoto <mail@h2so5.net>"]
 
 [dependencies]
 byteorder = "1"
+lazy_static = "1"
 genet-abi = "0.2.0"

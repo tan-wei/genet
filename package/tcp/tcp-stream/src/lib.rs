@@ -1,9 +1,6 @@
 #[macro_use]
 extern crate genet_sdk;
 
-#[macro_use]
-extern crate lazy_static;
-
 use genet_sdk::prelude::*;
 use std::collections::{BTreeMap, HashMap};
 
@@ -164,7 +161,7 @@ impl Worker for TcpStreamWorker {
                 parent.add_payload(Payload::new(payload, "@stream:tcp"));
             }
 
-            parent.add_attr(Attr::new(&STREAM_ATTR, 0..0));
+            parent.add_attr(attr!(&STREAM_ATTR));
             Ok(Status::Done(vec![]))
         } else {
             Ok(Status::Skip)
@@ -185,11 +182,9 @@ impl Decoder for TcpStreamDecoder {
     }
 }
 
-lazy_static! {
-    static ref STREAM_ATTR: AttrClass = AttrClass::builder("tcp.stream")
-        .typ("@novalue")
-        .cast(cast::Ranged(cast::UInt8(), 0..0).map(|v| v))
-        .build();
-}
+def_attr_class!(STREAM_ATTR, "tcp.stream",
+    typ: "@novalue",
+    cast: cast::Ranged(cast::UInt8(), 0..0).map(|v| v)
+);
 
 genet_decoders!(TcpStreamDecoder {});

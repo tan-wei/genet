@@ -8,5 +8,4 @@ name = "udp"
 crate-type = ["cdylib"]
 
 [dependencies]
-lazy_static = "1"
 genet-sdk = "0.2.0"
