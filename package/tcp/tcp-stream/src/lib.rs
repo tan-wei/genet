@@ -185,11 +185,9 @@ impl Decoder for TcpStreamDecoder {
     }
 }
 
-lazy_static! {
-    static ref STREAM_ATTR: AttrClass = AttrClass::builder("tcp.stream")
-        .typ("@novalue")
-        .cast(cast::Ranged(cast::UInt8(), 0..0).map(|v| v))
-        .build();
-}
+def_attr_class!(STREAM_ATTR, "tcp.stream",
+    typ: "@novalue",
+    cast: cast::Ranged(cast::UInt8(), 0..0).map(|v| v)
+);
 
 genet_decoders!(TcpStreamDecoder {});
