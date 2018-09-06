@@ -111,14 +111,12 @@ impl Drop for PcapReaderWorker {
     }
 }
 
-lazy_static! {
-    static ref TYPE_CLASS: AttrClass = AttrClass::builder("link.type").build();
-    static ref LENGTH_CLASS: AttrClass = AttrClass::builder("link.length").build();
-    static ref TS_CLASS: AttrClass = AttrClass::builder("link.timestamp")
-        .typ("@datetime:unix")
-        .build();
-    static ref TS_SEC_CLASS: AttrClass = AttrClass::builder("link.timestamp.sec").build();
-    static ref TS_USEC_CLASS: AttrClass = AttrClass::builder("link.timestamp.usec").build();
-}
+def_attr_class!(TYPE_CLASS, "link.type");
+def_attr_class!(LENGTH_CLASS, "link.length");
+def_attr_class!(TS_CLASS, "link.timestamp",
+    typ: "@datetime:unix"
+);
+def_attr_class!(TS_SEC_CLASS, "link.timestamp.sec");
+def_attr_class!(TS_USEC_CLASS, "link.timestamp.usec");
 
 genet_readers!(PcapReader {});
