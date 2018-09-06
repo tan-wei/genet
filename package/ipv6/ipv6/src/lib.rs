@@ -43,11 +43,11 @@ impl Worker for IPv6Worker {
             }
 
             let range = NHEADER_ATTR_HEADER.range();
-            let proto_attr = Attr::new(&PROTOCOL_ATTR, range.clone());
+            let proto_attr = attr!(&PROTOCOL_ATTR, range.clone());
             let proto = proto_attr.try_get(&layer)?.try_into()?;
             layer.add_attr(proto_attr);
             if let Some((typ, attr)) = PROTO_MAP.get(&proto) {
-                layer.add_attr(Attr::new(attr, range.clone()));
+                layer.add_attr(attr!(attr, range.clone()));
                 let payload = layer.data().try_get(40..)?;
                 layer.add_payload(Payload::new(payload, typ));
             }
@@ -71,57 +71,63 @@ impl Decoder for IPv6Decoder {
     }
 }
 
+def_layer_class!(IPV6_CLASS, "ipv6",
+    alias: "_.src" "ipv6.src",
+    alias: "_.dst" "ipv6.dst",
+    header: attr!(&VERSION_ATTR, 0..1),
+    header: attr!(&TRAFFIC_ATTR, 0..2),
+    header: attr!(&FLOW_ATTR, 1..4),
+    header: attr!(&LENGTH_ATTR, 4..6),
+    header: &NHEADER_ATTR_HEADER,
+    header: attr!(&HLIMIT_ATTR, 7..8),
+    header: attr!(&SRC_ATTR, 8..24),
+    header: attr!(&DST_ATTR, 24..40)
+);
+
+def_attr!(NHEADER_ATTR_HEADER, &NHEADER_ATTR, 6..7);
+
+def_attr_class!(VERSION_ATTR, "ipv6.version",
+    cast: cast::UInt8().map(|v| v >> 4)
+);
+
+def_attr_class!(TRAFFIC_ATTR, "ipv6.trafficClass",
+    cast: cast::UInt16BE().map(|v| (v >> 4) & 0xff)
+);
+
+def_attr_class!(FLOW_ATTR, "ipv6.flowLabel", 
+    cast:
+        cast::ByteSlice()
+            .map(|v| (((v[2] as u32) & 0xf) << 16) | ((v[1] as u32) << 8) | v[2] as u32)
+);
+
+def_attr_class!(LENGTH_ATTR, "ipv6.payloadLength", cast: cast::UInt8());
+
+def_attr_class!(NHEADER_ATTR, "ipv6.nextHeader", cast: cast::UInt8());
+
+def_attr_class!(HLIMIT_ATTR, "ipv6.hopLimit", cast: cast::UInt8());
+
+def_attr_class!(SRC_ATTR, "ipv6.src",
+    typ: "@ipv6:addr",
+    cast: cast::ByteSlice()
+);
+
+def_attr_class!(DST_ATTR, "ipv6.dst",
+    typ: "@ipv6:addr",
+    cast: cast::ByteSlice()
+);
+
+def_attr_class!(PROTOCOL_ATTR, "ipv6.protocol",
+    typ: "@enum",
+    cast: cast::UInt8()
+);
+
 lazy_static! {
-    static ref NHEADER_ATTR_HEADER: Attr = Attr::new(&NHEADER_ATTR, 6..7);
-    static ref IPV6_CLASS: LayerClass = LayerClass::builder("ipv6")
-        .alias("_.src", "ipv6.src")
-        .alias("_.dst", "ipv6.dst")
-        .header(Attr::new(&VERSION_ATTR, 0..1))
-        .header(Attr::new(&TRAFFIC_ATTR, 0..2))
-        .header(Attr::new(&FLOW_ATTR, 1..4))
-        .header(Attr::new(&LENGTH_ATTR, 4..6))
-        .header(&NHEADER_ATTR_HEADER)
-        .header(Attr::new(&HLIMIT_ATTR, 7..8))
-        .header(Attr::new(&SRC_ATTR, 8..24))
-        .header(Attr::new(&DST_ATTR, 24..40))
-        .build();
-    static ref VERSION_ATTR: AttrClass = AttrClass::builder("ipv6.version")
-        .cast(cast::UInt8().map(|v| v >> 4))
-        .build();
-    static ref TRAFFIC_ATTR: AttrClass = AttrClass::builder("ipv6.trafficClass")
-        .cast(cast::UInt16BE().map(|v| (v >> 4) & 0xff))
-        .build();
-    static ref FLOW_ATTR: AttrClass = AttrClass::builder("ipv6.flowLabel")
-        .cast(
-            cast::ByteSlice()
-                .map(|v| (((v[2] as u32) & 0xf) << 16) | ((v[1] as u32) << 8) | v[2] as u32)
-        ).build();
-    static ref LENGTH_ATTR: AttrClass = AttrClass::builder("ipv6.payloadLength")
-        .cast(cast::UInt8())
-        .build();
-    static ref NHEADER_ATTR: AttrClass = AttrClass::builder("ipv6.nextHeader")
-        .cast(cast::UInt8())
-        .build();
-    static ref HLIMIT_ATTR: AttrClass = AttrClass::builder("ipv6.hopLimit")
-        .cast(cast::UInt8())
-        .build();
-    static ref SRC_ATTR: AttrClass = AttrClass::builder("ipv6.src")
-        .typ("@ipv6:addr")
-        .cast(cast::ByteSlice())
-        .build();
-    static ref DST_ATTR: AttrClass = AttrClass::builder("ipv6.dst")
-        .typ("@ipv6:addr")
-        .cast(cast::ByteSlice())
-        .build();
-    static ref PROTOCOL_ATTR: AttrClass = AttrClass::builder("ipv6.protocol")
-        .typ("@enum")
-        .cast(cast::UInt8())
-        .build();
     static ref PROTO_MAP: HashMap<u64, (Token, AttrClass)> = hashmap!{
-        0x02 => (token!("@data:igmp"), AttrClass::builder("ipv6.protocol.igmp").typ("@novalue").cast(cast::Const(true)).build()),
-        0x06 => (token!("@data:tcp"), AttrClass::builder("ipv6.protocol.tcp").typ("@novalue").cast(cast::Const(true)).build()),
-        0x11 => (token!("@data:udp"), AttrClass::builder("ipv6.protocol.udp").typ("@novalue").cast(cast::Const(true)).build()),
-        0x3a => (token!("@data:icmp"), AttrClass::builder("ipv6.protocol.icmp").typ("@novalue").cast(cast::Const(true)).build()),
+        0x02 => (token!("@data:igmp"), attr_class!("ipv6.protocol.igmp", typ: "@novalue", cast: cast::Const(true))),
+        0x06 => (token!("@data:tcp"), attr_class!("ipv6.protocol.tcp", typ: "@novalue", cast: cast::Const(true))),
+        0x11 => (token!("@data:udp"), attr_class!("ipv6.protocol.udp", typ: "@novalue", cast: cast::Const(true))),
+        0x3a => (token!("@data:icmp"), attr_class!("ipv6.protocol.icmp", typ: "@novalue", cast: cast::Const(true))),
     };
 }
+
 genet_decoders!(IPv6Decoder {});
