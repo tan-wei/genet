@@ -35,26 +35,26 @@ impl Worker for TcpWorker {
                         continue;
                     }
                     1 => {
-                        layer.add_attr(Attr::new(&OPTIONS_NOP_ATTR, offset..offset + 1));
+                        layer.add_attr(attr!(&OPTIONS_NOP_ATTR, offset..offset + 1));
                         offset += 1;
                         continue;
                     }
                     2 => {
-                        layer.add_attr(Attr::new(&OPTIONS_MSS_ATTR, offset..offset + len));
+                        layer.add_attr(attr!(&OPTIONS_MSS_ATTR, offset..offset + len));
                     }
                     3 => {
-                        layer.add_attr(Attr::new(&OPTIONS_SCALE_ATTR, offset..offset + len));
+                        layer.add_attr(attr!(&OPTIONS_SCALE_ATTR, offset..offset + len));
                     }
                     4 => {
-                        layer.add_attr(Attr::new(&OPTIONS_SACKP_ATTR, offset..offset + len));
+                        layer.add_attr(attr!(&OPTIONS_SACKP_ATTR, offset..offset + len));
                     }
                     5 => {
-                        layer.add_attr(Attr::new(&OPTIONS_SACK_ATTR, offset..offset + len));
+                        layer.add_attr(attr!(&OPTIONS_SACK_ATTR, offset..offset + len));
                     }
                     8 => {
-                        layer.add_attr(Attr::new(&OPTIONS_TS_ATTR, offset..offset + len));
-                        layer.add_attr(Attr::new(&OPTIONS_TS_MY_ATTR, offset + 2..offset + 6));
-                        layer.add_attr(Attr::new(&OPTIONS_TS_ECHO_ATTR, offset + 6..offset + 10));
+                        layer.add_attr(attr!(&OPTIONS_TS_ATTR, offset..offset + len));
+                        layer.add_attr(attr!(&OPTIONS_TS_MY_ATTR, offset + 2..offset + 6));
+                        layer.add_attr(attr!(&OPTIONS_TS_ECHO_ATTR, offset + 6..offset + 10));
                     }
                     _ => {}
                 }

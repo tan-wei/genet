@@ -28,7 +28,7 @@ impl Worker for EthWorker {
                 layer.add_attr(&TYPE_ATTR_HEADER);
             }
             if let Some((typ, attr)) = TYPE_MAP.get(&len) {
-                layer.add_attr(Attr::new(attr, 12..14));
+                layer.add_attr(attr!(attr, 12..14));
                 let payload = parent.data().try_get(14..)?;
                 layer.add_payload(Payload::new(payload, typ));
             }

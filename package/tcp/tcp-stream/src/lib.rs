@@ -164,7 +164,7 @@ impl Worker for TcpStreamWorker {
                 parent.add_payload(Payload::new(payload, "@stream:tcp"));
             }
 
-            parent.add_attr(Attr::new(&STREAM_ATTR, 0..0));
+            parent.add_attr(attr!(&STREAM_ATTR, 0..0));
             Ok(Status::Done(vec![]))
         } else {
             Ok(Status::Skip)

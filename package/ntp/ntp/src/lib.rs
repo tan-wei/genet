@@ -44,21 +44,21 @@ impl Worker for NtpWorker {
 
             let leap = LEAP_MAP.get(&leap_type);
             if let Some(attr) = leap {
-                layer.add_attr(Attr::new(attr, 0..1));
+                layer.add_attr(attr!(attr, 0..1));
             }
 
             let mode_type = MODE_ATTR_HEADER.try_get(&layer)?.try_into()?;
 
             let mode = MODE_MAP.get(&mode_type);
             if let Some(attr) = mode {
-                layer.add_attr(Attr::new(attr, 0..1));
+                layer.add_attr(attr!(attr, 0..1));
             }
 
             let stratum: u8 = STRATUM_ATTR_HEADER.try_get(&layer)?.try_into()?;
             layer.add_attr(if stratum >= 2 {
-                Attr::new(&ID_IP_ATTR, 12..16)
+                attr!(&ID_IP_ATTR, 12..16)
             } else {
-                Attr::new(&ID_ATTR, 12..16)
+                attr!(&ID_ATTR, 12..16)
             });
 
             Ok(Status::Done(vec![layer]))
