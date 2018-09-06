@@ -51,75 +51,88 @@ impl Decoder for IPv4Decoder {
     }
 }
 
+def_layer_class!(IPV4_CLASS, "ipv4",
+    alias: "_.src" "ipv4.src",
+    alias: "_.dst" "ipv4.dst",
+    header: attr!(&VERSION_ATTR, 0..1),
+    header: attr!(&HLEN_ATTR, 0..1),
+    header: attr!(&TOS_ATTR, 1..2),
+    header: attr!(&LENGTH_ATTR, 2..4),
+    header: attr!(&ID_ATTR, 4..6),
+    header: attr!(&FLAGS_ATTR, 6..7),
+    header: attr!(&FLAGS_RV_ATTR, 6..7),
+    header: attr!(&FLAGS_DF_ATTR, 6..7),
+    header: attr!(&FLAGS_MF_ATTR, 6..7),
+    header: attr!(&OFFSET_ATTR, 6..8),
+    header: attr!(&TTL_ATTR, 8..9),
+    header: &PROTO_ATTR_HEADER,
+    header: attr!(&CHECKSUM_ATTR, 10..12),
+    header: attr!(&SRC_ATTR, 12..16),
+    header: attr!(&DST_ATTR, 16..20)
+);
+
+def_attr!(PROTO_ATTR_HEADER, &PROTO_ATTR, 9..10);
+
+def_attr_class!(VERSION_ATTR, "ipv4.version",
+    cast: cast::UInt8().map(|v| v >> 4)
+);
+
+def_attr_class!(HLEN_ATTR, "ipv4.headerLength",
+    cast: cast::UInt8().map(|v| v & 0b00001111)
+);
+
+def_attr_class!(TOS_ATTR, "ipv4.tos", cast: cast::UInt8());
+
+def_attr_class!(LENGTH_ATTR, "ipv4.totalLength", cast: cast::UInt16BE());
+
+def_attr_class!(ID_ATTR, "ipv4.id", cast: cast::UInt16BE());
+
+def_attr_class!(FLAGS_ATTR, "ipv4.flags",
+    cast: cast::UInt8().map(|v| (v >> 5) & 0b00000111),
+    typ: "@flags"
+);
+
+def_attr_class!(FLAGS_RV_ATTR, "ipv4.flags.reserved",
+    cast: cast::UInt8().map(|v| v & 0b10000000 != 0)
+);
+
+def_attr_class!(FLAGS_DF_ATTR, "ipv4.flags.dontFragment",
+    cast: cast::UInt8().map(|v| v & 0b01000000 != 0)
+);
+
+def_attr_class!(FLAGS_MF_ATTR, "ipv4.flags.moreFragments",
+    cast: cast::UInt8().map(|v| v & 0b00100000 != 0)
+);
+
+def_attr_class!(OFFSET_ATTR, "ipv4.fragmentOffset",
+    cast: cast::UInt16BE().map(|v| v & 0x1fff)
+);
+
+def_attr_class!(TTL_ATTR, "ipv4.ttl", cast: cast::UInt8());
+
+def_attr_class!(PROTO_ATTR, "ipv4.protocol",
+    cast: cast::UInt8(),
+    typ: "@enum"
+);
+
+def_attr_class!(CHECKSUM_ATTR, "ipv4.checksum", cast: cast::UInt16BE());
+
+def_attr_class!(SRC_ATTR, "ipv4.src",
+    typ: "@ipv4:addr",
+    cast: cast::ByteSlice()
+);
+
+def_attr_class!(DST_ATTR, "ipv4.dst",
+    typ: "@ipv4:addr",
+    cast: cast::ByteSlice()
+);
+
 lazy_static! {
-    static ref PROTO_ATTR_HEADER: Attr = Attr::new(&PROTO_ATTR, 9..10);
-    static ref IPV4_CLASS: LayerClass = LayerClass::builder("ipv4")
-        .alias("_.src", "ipv4.src")
-        .alias("_.dst", "ipv4.dst")
-        .header(Attr::new(&VERSION_ATTR, 0..1))
-        .header(Attr::new(&HLEN_ATTR, 0..1))
-        .header(Attr::new(&TOS_ATTR, 1..2))
-        .header(Attr::new(&LENGTH_ATTR, 2..4))
-        .header(Attr::new(&ID_ATTR, 4..6))
-        .header(Attr::new(&FLAGS_ATTR, 6..7))
-        .header(Attr::new(&FLAGS_RV_ATTR, 6..7))
-        .header(Attr::new(&FLAGS_DF_ATTR, 6..7))
-        .header(Attr::new(&FLAGS_MF_ATTR, 6..7))
-        .header(Attr::new(&OFFSET_ATTR, 6..8))
-        .header(Attr::new(&TTL_ATTR, 8..9))
-        .header(&PROTO_ATTR_HEADER)
-        .header(Attr::new(&CHECKSUM_ATTR, 10..12))
-        .header(Attr::new(&SRC_ATTR, 12..16))
-        .header(Attr::new(&DST_ATTR, 16..20))
-        .build();
-    static ref VERSION_ATTR: AttrClass = AttrClass::builder("ipv4.version")
-        .cast(cast::UInt8().map(|v| v >> 4))
-        .build();
-    static ref HLEN_ATTR: AttrClass = AttrClass::builder("ipv4.headerLength")
-        .cast(cast::UInt8().map(|v| v & 0b00001111))
-        .build();
-    static ref TOS_ATTR: AttrClass = AttrClass::builder("ipv4.tos").cast(cast::UInt8()).build();
-    static ref LENGTH_ATTR: AttrClass = AttrClass::builder("ipv4.totalLength")
-        .cast(cast::UInt16BE())
-        .build();
-    static ref ID_ATTR: AttrClass = AttrClass::builder("ipv4.id").cast(cast::UInt16BE()).build();
-    static ref FLAGS_ATTR: AttrClass = AttrClass::builder("ipv4.flags")
-        .cast(cast::UInt8().map(|v| (v >> 5) & 0b00000111))
-        .typ("@flags")
-        .build();
-    static ref FLAGS_RV_ATTR: AttrClass = AttrClass::builder("ipv4.flags.reserved")
-        .cast(cast::UInt8().map(|v| v & 0b10000000 != 0))
-        .build();
-    static ref FLAGS_DF_ATTR: AttrClass = AttrClass::builder("ipv4.flags.dontFragment")
-        .cast(cast::UInt8().map(|v| v & 0b01000000 != 0))
-        .build();
-    static ref FLAGS_MF_ATTR: AttrClass = AttrClass::builder("ipv4.flags.moreFragments")
-        .cast(cast::UInt8().map(|v| v & 0b00100000 != 0))
-        .build();
-    static ref OFFSET_ATTR: AttrClass = AttrClass::builder("ipv4.fragmentOffset")
-        .cast(cast::UInt16BE().map(|v| v & 0x1fff))
-        .build();
-    static ref TTL_ATTR: AttrClass = AttrClass::builder("ipv4.ttl").cast(cast::UInt8()).build();
-    static ref PROTO_ATTR: AttrClass = AttrClass::builder("ipv4.protocol")
-        .cast(cast::UInt8())
-        .typ("@enum")
-        .build();
-    static ref CHECKSUM_ATTR: AttrClass = AttrClass::builder("ipv4.checksum")
-        .cast(cast::UInt16BE())
-        .build();
-    static ref SRC_ATTR: AttrClass = AttrClass::builder("ipv4.src")
-        .typ("@ipv4:addr")
-        .cast(cast::ByteSlice())
-        .build();
-    static ref DST_ATTR: AttrClass = AttrClass::builder("ipv4.dst")
-        .typ("@ipv4:addr")
-        .cast(cast::ByteSlice())
-        .build();
     static ref PROTO_MAP: HashMap<u64, (Token, AttrClass)> = hashmap!{
-        0x01 => (token!("@data:icmp"), AttrClass::builder("ipv4.protocol.icmp").typ("@novalue").cast(cast::Const(true)).build()),
-        0x02 => (token!("@data:igmp"), AttrClass::builder("ipv4.protocol.igmp").typ("@novalue").cast(cast::Const(true)).build()),
-        0x06 => (token!("@data:tcp"), AttrClass::builder("ipv4.protocol.tcp").typ("@novalue").cast(cast::Const(true)).build()),
-        0x11 => (token!("@data:udp"), AttrClass::builder("ipv4.protocol.udp").typ("@novalue").cast(cast::Const(true)).build()),
+        0x01 => (token!("@data:icmp"), attr_class!("ipv4.protocol.icmp", typ: "@novalue", cast: cast::Const(true))),
+        0x02 => (token!("@data:igmp"), attr_class!("ipv4.protocol.igmp", typ: "@novalue", cast: cast::Const(true))),
+        0x06 => (token!("@data:tcp"), attr_class!("ipv4.protocol.tcp", typ: "@novalue", cast: cast::Const(true))),
+        0x11 => (token!("@data:udp"), attr_class!("ipv4.protocol.udp", typ: "@novalue", cast: cast::Const(true))),
     };
 }
 genet_decoders!(IPv4Decoder {});
