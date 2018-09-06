@@ -65,11 +65,9 @@ impl Reader for PcapFileReader {
             )
         };
 
-        let link_class = Fixed::new(
-            LayerClass::builder(format!("[link-{}]", network))
-                .header(Attr::with_value(&TYPE_CLASS, 0..0, i64::from(network)))
-                .build(),
-        );
+        let link_class = Fixed::new(layer_class!(format!("[link-{}]", network), 
+                header: Attr::with_value(&TYPE_CLASS, 0..0, i64::from(network))
+            ));
 
         Ok(Box::new(PcapFileReaderWorker {
             le,

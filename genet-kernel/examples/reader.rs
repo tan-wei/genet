@@ -7,7 +7,7 @@ extern crate lazy_static;
 use genet_sdk::{
     context::Context,
     io::{Reader, ReaderWorker},
-    layer::{Layer, LayerClass},
+    layer::Layer,
     result::Result,
     slice::ByteSlice,
 };
@@ -51,8 +51,6 @@ impl ReaderWorker for TestReaderWorker {
     }
 }
 
-lazy_static! {
-    static ref ETH_CLASS: LayerClass = LayerClass::builder("[link-1]").build();
-}
+def_layer_class!(ETH_CLASS, "[link-1]");
 
 genet_readers!(TestReader {});

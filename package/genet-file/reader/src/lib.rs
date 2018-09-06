@@ -56,9 +56,9 @@ impl Reader for GenetFileReader {
             .iter()
             .map(|attr| {
                 Fixed::new(
-                    AttrClass::builder(tokens[attr.id])
-                        .typ(tokens[attr.typ])
-                        .build(),
+                    attr_class!(tokens[attr.id],
+                        typ: tokens[attr.typ]
+                    ),
                 )
             }).collect();
 
@@ -98,7 +98,7 @@ impl ReaderWorker for GenetFileReaderWorker {
             let link_class = self
                 .link_layers
                 .entry(id)
-                .or_insert_with(|| Fixed::new(LayerClass::builder(id).build()));
+                .or_insert_with(|| Fixed::new(layer_class!(id)));
             let mut layer = Layer::new(link_class.clone(), ByteSlice::from(payload));
             for attr in frame.attrs {
                 let value: Variant = attr.value.into();
