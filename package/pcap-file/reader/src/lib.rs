@@ -6,9 +6,6 @@ extern crate serde_json;
 extern crate genet_sdk;
 
 #[macro_use]
-extern crate lazy_static;
-
-#[macro_use]
 extern crate serde_derive;
 
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};

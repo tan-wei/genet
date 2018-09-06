@@ -8,6 +8,5 @@ name = "tcp"
 crate-type = ["cdylib"]
 
 [dependencies]
-lazy_static = "1"
 maplit = "1"
 genet-sdk = "0.2.0"

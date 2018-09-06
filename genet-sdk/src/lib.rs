@@ -3,6 +3,7 @@
 
 extern crate byteorder;
 extern crate genet_abi;
+extern crate lazy_static;
 
 pub mod decoder;
 pub mod helper;
@@ -19,3 +20,6 @@ pub mod prelude;
 pub mod result;
 pub mod slice;
 pub mod variant;
+
+#[doc(hidden)]
+pub use lazy_static::*;

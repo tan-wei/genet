@@ -1,9 +1,6 @@
 #[macro_use]
 extern crate genet_sdk;
 
-#[macro_use]
-extern crate lazy_static;
-
 use genet_sdk::prelude::*;
 
 struct UdpWorker {}
