@@ -43,29 +43,27 @@ impl Decoder for UdpDecoder {
     }
 }
 
-lazy_static! {
-    static ref UDP_CLASS: LayerClass = LayerClass::builder("udp")
-        .alias("_.src", "udp.src")
-        .alias("_.dst", "udp.dst")
-        .header(Attr::new(&SRC_ATTR, 0..2))
-        .header(Attr::new(&DST_ATTR, 2..4))
-        .header(Attr::new(&LEN_ATTR, 4..6))
-        .header(Attr::new(&CHECKSUM_ATTR, 6..8))
-        .build();
-    static ref SRC_ATTR: AttrClass = AttrClass::builder("udp.src")
-        .typ("@udp:port")
-        .cast(cast::UInt16BE())
-        .build();
-    static ref DST_ATTR: AttrClass = AttrClass::builder("udp.dst")
-        .typ("@udp:port")
-        .cast(cast::UInt16BE())
-        .build();
-    static ref LEN_ATTR: AttrClass = AttrClass::builder("udp.length")
-        .cast(cast::UInt16BE())
-        .build();
-    static ref CHECKSUM_ATTR: AttrClass = AttrClass::builder("udp.checksum")
-        .cast(cast::UInt16BE())
-        .build();
-}
+def_layer_class!(UDP_CLASS, "udp",
+    alias: "_.src" "udp.src",
+    alias: "_.dst" "udp.dst",
+    header: attr!(&SRC_ATTR, 0..2),
+    header: attr!(&DST_ATTR, 2..4),
+    header: attr!(&LEN_ATTR, 4..6),
+    header: attr!(&CHECKSUM_ATTR, 6..8)
+);
+
+def_attr_class!(SRC_ATTR, "udp.src",
+    typ: "@udp:port",
+    cast: cast::UInt16BE()
+);
+
+def_attr_class!(DST_ATTR, "udp.dst",
+    typ: "@udp:port",
+    cast: cast::UInt16BE()
+);
+
+def_attr_class!(LEN_ATTR, "udp.length", cast: cast::UInt16BE());
+
+def_attr_class!(CHECKSUM_ATTR, "udp.checksum", cast: cast::UInt16BE());
 
 genet_decoders!(UdpDecoder {});
