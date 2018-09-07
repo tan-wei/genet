@@ -41,21 +41,21 @@ impl Worker for NtpWorker {
 
             let leap = LEAP_MAP.get(&leap_type);
             if let Some(attr) = leap {
-                layer.add_attr(attr!(attr, 0..1));
+                layer.add_attr(attr!(attr, range: 0..1));
             }
 
             let mode_type = MODE_ATTR_HEADER.try_get(&layer)?.try_into()?;
 
             let mode = MODE_MAP.get(&mode_type);
             if let Some(attr) = mode {
-                layer.add_attr(attr!(attr, 0..1));
+                layer.add_attr(attr!(attr, range: 0..1));
             }
 
             let stratum: u8 = STRATUM_ATTR_HEADER.try_get(&layer)?.try_into()?;
             layer.add_attr(if stratum >= 2 {
-                attr!(&ID_IP_ATTR, 12..16)
+                attr!(&ID_IP_ATTR, range: 12..16)
             } else {
-                attr!(&ID_ATTR, 12..16)
+                attr!(&ID_ATTR, range: 12..16)
             });
 
             Ok(Status::Done(vec![layer]))
@@ -82,34 +82,34 @@ def_layer_class!(
     NTP_CLASS,
     "ntp",
     header: &LEAP_ATTR_HEADER,
-    header: attr!(&VERSION_ATTR, 0..1),
+    header: attr!(&VERSION_ATTR, range: 0..1),
     header: &MODE_ATTR_HEADER,
     header: &STRATUM_ATTR_HEADER,
-    header: attr!(&POLL_ATTR, 2..3),
-    header: attr!(&PRECISION_ATTR, 3..4),
-    header: attr!(&RDELAY_ATTR, 4..8),
-    header: attr!(&RDELAY_SEC_ATTR, 4..6),
-    header: attr!(&RDELAY_FRA_ATTR, 6..8),
-    header: attr!(&RDISP_ATTR, 8..12),
-    header: attr!(&RDISP_SEC_ATTR, 8..10),
-    header: attr!(&RDISP_FRA_ATTR, 10..12),
-    header: attr!(&REFTS_ATTR, 16..24),
-    header: attr!(&REFTS_SEC_ATTR, 16..20),
-    header: attr!(&REFTS_FRA_ATTR, 20..24),
-    header: attr!(&ORITS_ATTR, 24..32),
-    header: attr!(&ORITS_SEC_ATTR, 24..28),
-    header: attr!(&ORITS_FRA_ATTR, 28..32),
-    header: attr!(&RECTS_ATTR, 32..40),
-    header: attr!(&RECTS_SEC_ATTR, 32..36),
-    header: attr!(&RECTS_FRA_ATTR, 36..40),
-    header: attr!(&TRATS_ATTR, 40..48),
-    header: attr!(&TRATS_SEC_ATTR, 40..44),
-    header: attr!(&TRATS_FRA_ATTR, 44..48)
+    header: attr!(&POLL_ATTR, range: 2..3),
+    header: attr!(&PRECISION_ATTR, range: 3..4),
+    header: attr!(&RDELAY_ATTR, range: 4..8),
+    header: attr!(&RDELAY_SEC_ATTR, range: 4..6),
+    header: attr!(&RDELAY_FRA_ATTR, range: 6..8),
+    header: attr!(&RDISP_ATTR, range: 8..12),
+    header: attr!(&RDISP_SEC_ATTR, range: 8..10),
+    header: attr!(&RDISP_FRA_ATTR, range: 10..12),
+    header: attr!(&REFTS_ATTR, range: 16..24),
+    header: attr!(&REFTS_SEC_ATTR, range: 16..20),
+    header: attr!(&REFTS_FRA_ATTR, range: 20..24),
+    header: attr!(&ORITS_ATTR, range: 24..32),
+    header: attr!(&ORITS_SEC_ATTR, range: 24..28),
+    header: attr!(&ORITS_FRA_ATTR, range: 28..32),
+    header: attr!(&RECTS_ATTR, range: 32..40),
+    header: attr!(&RECTS_SEC_ATTR, range: 32..36),
+    header: attr!(&RECTS_FRA_ATTR, range: 36..40),
+    header: attr!(&TRATS_ATTR, range: 40..48),
+    header: attr!(&TRATS_SEC_ATTR, range: 40..44),
+    header: attr!(&TRATS_FRA_ATTR, range: 44..48)
 );
 
-def_attr!(LEAP_ATTR_HEADER, &LEAP_ATTR, 0..1);
-def_attr!(MODE_ATTR_HEADER, &MODE_ATTR, 0..1);
-def_attr!(STRATUM_ATTR_HEADER, &STRATUM_ATTR, 1..2);
+def_attr!(LEAP_ATTR_HEADER,  &LEAP_ATTR, range: 0..1);
+def_attr!(MODE_ATTR_HEADER,  &MODE_ATTR, range: 0..1);
+def_attr!(STRATUM_ATTR_HEADER,  &STRATUM_ATTR, range: 1..2);
 
 def_attr_class!(LEAP_ATTR, "ntp.leapIndicator",
     typ: "@enum",

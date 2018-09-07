@@ -38,23 +38,29 @@ macro_rules! def_attr_class {
     );
     ($name:ident, $id:expr, $($key:ident : $($arg:expr)*),*) => (
         lazy_static! {
-            static ref $name : ::genet_sdk::attr::AttrClass = attr_class!($id,  $($key : $($arg)* ),* );
+            static ref $name : ::genet_sdk::attr::AttrClass = attr_class!($id, $($key : $($arg)* ),* );
         }
     );
 }
 
 #[macro_export]
 macro_rules! attr {
-    ($class:expr, $range:expr) => {
-        ::genet_sdk::attr::Attr::new($class, $range)
-    };
+    ($class:expr) => (::genet_sdk::attr::Attr::builder($class).build());
+    ($class:expr, $($key:ident : $($arg:expr)*),*) => (::genet_sdk::attr::Attr::builder($class)
+        $( . $key ( $($arg),* ) )*
+        .build());
 }
 
 #[macro_export]
 macro_rules! def_attr {
-    ($name:ident, $class:expr, $range:expr) => {
+    ($name:ident, $class:expr) => {
         lazy_static! {
-            static ref $name: ::genet_sdk::attr::Attr = attr!($class, $range);
+            static ref $name: ::genet_sdk::attr::Attr = attr!($class);
+        }
+    };
+    ($name:ident, $class:expr, $($key:ident : $($arg:expr)*),*) => {
+        lazy_static! {
+            static ref $name: ::genet_sdk::attr::Attr = attr!($class, $($key : $($arg)* ),* );
         }
     };
 }

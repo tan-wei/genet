@@ -25,7 +25,7 @@ impl Worker for EthWorker {
                 layer.add_attr(&TYPE_ATTR_HEADER);
             }
             if let Some((typ, attr)) = TYPE_MAP.get(&len) {
-                layer.add_attr(attr!(attr, 12..14));
+                layer.add_attr(attr!(attr, range: 12..14));
                 let payload = parent.data().try_get(14..)?;
                 layer.add_payload(Payload::new(payload, typ));
             }
@@ -52,8 +52,8 @@ impl Decoder for EthDecoder {
 def_layer_class!(ETH_CLASS, "eth",
             alias: "_.src" "eth.src",
             alias: "_.dst" "eth.dst",
-            header: attr!(&SRC_ATTR, 0..6),
-            header: attr!(&DST_ATTR, 6..12)
+            header: attr!(&SRC_ATTR, range: 0..6),
+            header: attr!(&DST_ATTR, range: 6..12)
         );
 
 def_attr_class!(SRC_ATTR, "eth.src",
@@ -73,9 +73,9 @@ def_attr_class!(TYPE_ATTR, "eth.type",
             cast: cast::UInt16BE()
         );
 
-def_attr!(LEN_ATTR_HEADER, &LEN_ATTR, 12..14);
+def_attr!(LEN_ATTR_HEADER,  &LEN_ATTR, range: 12..14);
 
-def_attr!(TYPE_ATTR_HEADER, &TYPE_ATTR, 12..14);
+def_attr!(TYPE_ATTR_HEADER,  &TYPE_ATTR, range: 12..14);
 
 lazy_static! {
     static ref TYPE_MAP: HashMap<u64, (Token, AttrClass)> = hashmap!{

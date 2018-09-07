@@ -24,7 +24,7 @@ impl Worker for IPv4Worker {
             let mut layer = Layer::new(&IPV4_CLASS, payload.data());
             let proto = PROTO_ATTR_HEADER.try_get(&layer)?.try_into()?;
             if let Some((typ, attr)) = PROTO_MAP.get(&proto) {
-                layer.add_attr(attr!(attr, 9..10));
+                layer.add_attr(attr!(attr, range: 9..10));
                 let payload = layer.data().try_get(20..)?;
                 layer.add_payload(Payload::new(payload, typ));
             }
@@ -51,24 +51,24 @@ impl Decoder for IPv4Decoder {
 def_layer_class!(IPV4_CLASS, "ipv4",
     alias: "_.src" "ipv4.src",
     alias: "_.dst" "ipv4.dst",
-    header: attr!(&VERSION_ATTR, 0..1),
-    header: attr!(&HLEN_ATTR, 0..1),
-    header: attr!(&TOS_ATTR, 1..2),
-    header: attr!(&LENGTH_ATTR, 2..4),
-    header: attr!(&ID_ATTR, 4..6),
-    header: attr!(&FLAGS_ATTR, 6..7),
-    header: attr!(&FLAGS_RV_ATTR, 6..7),
-    header: attr!(&FLAGS_DF_ATTR, 6..7),
-    header: attr!(&FLAGS_MF_ATTR, 6..7),
-    header: attr!(&OFFSET_ATTR, 6..8),
-    header: attr!(&TTL_ATTR, 8..9),
+    header: attr!(&VERSION_ATTR, range: 0..1),
+    header: attr!(&HLEN_ATTR, range: 0..1),
+    header: attr!(&TOS_ATTR, range: 1..2),
+    header: attr!(&LENGTH_ATTR, range: 2..4),
+    header: attr!(&ID_ATTR, range: 4..6),
+    header: attr!(&FLAGS_ATTR, range: 6..7),
+    header: attr!(&FLAGS_RV_ATTR, range: 6..7),
+    header: attr!(&FLAGS_DF_ATTR, range: 6..7),
+    header: attr!(&FLAGS_MF_ATTR, range: 6..7),
+    header: attr!(&OFFSET_ATTR, range: 6..8),
+    header: attr!(&TTL_ATTR, range: 8..9),
     header: &PROTO_ATTR_HEADER,
-    header: attr!(&CHECKSUM_ATTR, 10..12),
-    header: attr!(&SRC_ATTR, 12..16),
-    header: attr!(&DST_ATTR, 16..20)
+    header: attr!(&CHECKSUM_ATTR, range: 10..12),
+    header: attr!(&SRC_ATTR, range: 12..16),
+    header: attr!(&DST_ATTR, range: 16..20)
 );
 
-def_attr!(PROTO_ATTR_HEADER, &PROTO_ATTR, 9..10);
+def_attr!(PROTO_ATTR_HEADER,  &PROTO_ATTR, range: 9..10);
 
 def_attr_class!(VERSION_ATTR, "ipv4.version",
     cast: cast::UInt8().map(|v| v >> 4)

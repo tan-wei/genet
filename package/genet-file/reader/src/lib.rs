@@ -100,11 +100,7 @@ impl ReaderWorker for GenetFileReaderWorker {
             let mut layer = Layer::new(link_class.clone(), ByteSlice::from(payload));
             for attr in frame.attrs {
                 let value: Variant = attr.value.into();
-                layer.add_attr(Attr::with_value(
-                    self.attrs[attr.index].clone(),
-                    0..0,
-                    value,
-                ));
+                layer.add_attr(attr!(self.attrs[attr.index].clone(), value: value));
             }
             layers.push(layer);
         }

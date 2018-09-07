@@ -26,13 +26,13 @@ impl Worker for ArpWorker {
             let hw_type = HWTYPE_ATTR_HEADER.try_get(&layer)?.try_into()?;
             let hw = HW_MAP.get(&hw_type);
             if let Some((attr, _, _)) = hw {
-                layer.add_attr(attr!(attr, 0..2));
+                layer.add_attr(attr!(attr, range: 0..2));
             }
 
             let proto_type = PROTO_ATTR_HEADER.try_get(&layer)?.try_into()?;
             let proto = PROTO_MAP.get(&proto_type);
             if let Some((attr, _, _)) = proto {
-                layer.add_attr(attr!(attr, 2..4));
+                layer.add_attr(attr!(attr, range: 2..4));
             }
 
             let hlen: usize = HLEN_ATTR_HEADER.try_get(&layer)?.try_into()?;
@@ -40,19 +40,19 @@ impl Worker for ArpWorker {
 
             let op_type = OP_ATTR_HEADER.try_get(&layer)?.try_into()?;
             if let Some(attr) = OP_MAP.get(&op_type) {
-                layer.add_attr(attr!(attr, 6..8));
+                layer.add_attr(attr!(attr, range: 6..8));
             }
 
             if let Some((_, sha, tha)) = hw {
                 if let Some((_, spa, tpa)) = proto {
                     let mut offset = 8;
-                    layer.add_attr(attr!(sha, offset..offset + hlen));
+                    layer.add_attr(attr!(sha, range: offset..offset + hlen));
                     offset += hlen;
-                    layer.add_attr(attr!(spa, offset..offset + plen));
+                    layer.add_attr(attr!(spa, range: offset..offset + plen));
                     offset += plen;
-                    layer.add_attr(attr!(tha, offset..offset + hlen));
+                    layer.add_attr(attr!(tha, range: offset..offset + hlen));
                     offset += hlen;
-                    layer.add_attr(attr!(tpa, offset..offset + plen));
+                    layer.add_attr(attr!(tpa, range: offset..offset + plen));
                 }
             }
 
@@ -86,11 +86,11 @@ def_layer_class!(ARP_CLASS, "arp",
     header: &OP_ATTR_HEADER
 );
 
-def_attr!(HWTYPE_ATTR_HEADER, &HWTYPE_ATTR, 0..2);
-def_attr!(PROTO_ATTR_HEADER, &PROTO_ATTR, 2..4);
-def_attr!(HLEN_ATTR_HEADER, &HLEN_ATTR, 4..5);
-def_attr!(PLEN_ATTR_HEADER, &PLEN_ATTR, 5..6);
-def_attr!(OP_ATTR_HEADER, &OP_ATTR, 6..8);
+def_attr!(HWTYPE_ATTR_HEADER,  &HWTYPE_ATTR, range: 0..2);
+def_attr!(PROTO_ATTR_HEADER,  &PROTO_ATTR, range: 2..4);
+def_attr!(HLEN_ATTR_HEADER,  &HLEN_ATTR, range: 4..5);
+def_attr!(PLEN_ATTR_HEADER,  &PLEN_ATTR, range: 5..6);
+def_attr!(OP_ATTR_HEADER,  &OP_ATTR, range: 6..8);
 
 def_attr_class!(HWTYPE_ATTR, "arp.hwtype",
     typ: "@enum",

@@ -42,9 +42,10 @@ impl Reader for PcapReader {
                 .take()
                 .ok_or_else(|| Error::new(ErrorKind::Other, "no stdout"))?,
         );
-        let link_class = Fixed::new(layer_class!(format!("[link-{}]", arg.link),
-                header: Attr::with_value(&TYPE_CLASS, 0..0, u64::from(arg.link))
-            ));
+        let link_class = Fixed::new(layer_class!(
+            format!("[link-{}]", arg.link),
+            header: attr!(&TYPE_CLASS, value: u64::from(arg.link))
+        ));
         Ok(Box::new(PcapReaderWorker {
             child,
             reader,
@@ -76,25 +77,21 @@ impl ReaderWorker for PcapReaderWorker {
         self.reader.read_exact(&mut data)?;
         let payload = ByteSlice::from(data);
         let mut layer = Layer::new(self.link_class.clone(), payload);
-        layer.add_attr(Attr::with_value(
+        layer.add_attr(attr!(
             &LENGTH_CLASS,
-            0..0,
-            u64::from(header.actlen),
+            value: u64::from(header.actlen)
         ));
-        layer.add_attr(Attr::with_value(
+        layer.add_attr(attr!(
             &TS_CLASS,
-            0..0,
-            f64::from(header.ts_sec) + f64::from(header.ts_usec) / 1_000_000f64,
+            value: f64::from(header.ts_sec) + f64::from(header.ts_usec) / 1_000_000f64
         ));
-        layer.add_attr(Attr::with_value(
+        layer.add_attr(attr!(
             &TS_SEC_CLASS,
-            0..0,
-            u64::from(header.ts_sec),
+            value: u64::from(header.ts_sec)
         ));
-        layer.add_attr(Attr::with_value(
+        layer.add_attr(attr!(
             &TS_USEC_CLASS,
-            0..0,
-            u64::from(header.ts_usec),
+            value: u64::from(header.ts_usec)
         ));
         Ok(vec![layer])
     }

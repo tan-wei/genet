@@ -435,7 +435,7 @@ mod tests {
 
         let count = 100;
         for i in 0..count {
-            let attr = Attr::new(class.clone(), 0..i);
+            let attr = attr!(class.clone(), range: 0..i);
             layer.add_attr(attr);
         }
         let mut iter = layer.attrs().iter();

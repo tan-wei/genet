@@ -32,26 +32,27 @@ impl Worker for TcpWorker {
                         continue;
                     }
                     1 => {
-                        layer.add_attr(attr!(&OPTIONS_NOP_ATTR, offset..offset + 1));
+                        layer.add_attr(attr!(&OPTIONS_NOP_ATTR, range: offset..offset + 1));
                         offset += 1;
                         continue;
                     }
                     2 => {
-                        layer.add_attr(attr!(&OPTIONS_MSS_ATTR, offset..offset + len));
+                        layer.add_attr(attr!(&OPTIONS_MSS_ATTR, range: offset..offset + len));
                     }
                     3 => {
-                        layer.add_attr(attr!(&OPTIONS_SCALE_ATTR, offset..offset + len));
+                        layer.add_attr(attr!(&OPTIONS_SCALE_ATTR, range: offset..offset + len));
                     }
                     4 => {
-                        layer.add_attr(attr!(&OPTIONS_SACKP_ATTR, offset..offset + len));
+                        layer.add_attr(attr!(&OPTIONS_SACKP_ATTR, range: offset..offset + len));
                     }
                     5 => {
-                        layer.add_attr(attr!(&OPTIONS_SACK_ATTR, offset..offset + len));
+                        layer.add_attr(attr!(&OPTIONS_SACK_ATTR, range: offset..offset + len));
                     }
                     8 => {
-                        layer.add_attr(attr!(&OPTIONS_TS_ATTR, offset..offset + len));
-                        layer.add_attr(attr!(&OPTIONS_TS_MY_ATTR, offset + 2..offset + 6));
-                        layer.add_attr(attr!(&OPTIONS_TS_ECHO_ATTR, offset + 6..offset + 10));
+                        layer.add_attr(attr!(&OPTIONS_TS_ATTR, range: offset..offset + len));
+                        layer.add_attr(attr!(&OPTIONS_TS_MY_ATTR, range: offset + 2..offset + 6));
+                        layer
+                            .add_attr(attr!(&OPTIONS_TS_ECHO_ATTR, range: offset + 6..offset + 10));
                     }
                     _ => {}
                 }
@@ -83,28 +84,28 @@ impl Decoder for TcpDecoder {
 def_layer_class!(
     TCP_CLASS,
     "tcp",
-    header: attr!(&SRC_ATTR, 0..2),
-    header: attr!(&DST_ATTR, 2..4),
-    header: attr!(&SEQ_ATTR, 4..8),
-    header: attr!(&ACK_ATTR, 8..12),
+    header: attr!(&SRC_ATTR, range: 0..2),
+    header: attr!(&DST_ATTR, range: 2..4),
+    header: attr!(&SEQ_ATTR, range: 4..8),
+    header: attr!(&ACK_ATTR, range: 8..12),
     header: &OFFSET_ATTR_HEADER,
-    header: attr!(&FLAGS_ATTR, 12..14),
-    header: attr!(&FLAGS_NS_ATTR, 12..13),
-    header: attr!(&FLAGS_CWR_ATTR, 13..14),
-    header: attr!(&FLAGS_ECE_ATTR, 13..14),
-    header: attr!(&FLAGS_URG_ATTR, 13..14),
-    header: attr!(&FLAGS_ACK_ATTR, 13..14),
-    header: attr!(&FLAGS_PSH_ATTR, 13..14),
-    header: attr!(&FLAGS_RST_ATTR, 13..14),
-    header: attr!(&FLAGS_SYN_ATTR, 13..14),
-    header: attr!(&FLAGS_FIN_ATTR, 13..14),
-    header: attr!(&WINDOW_ATTR, 14..16),
-    header: attr!(&CHECKSUM_ATTR, 16..18),
-    header: attr!(&URGENT_ATTR, 18..20),
-    header: attr!(&OPTIONS_ATTR, 20..21)
+    header: attr!(&FLAGS_ATTR, range: 12..14),
+    header: attr!(&FLAGS_NS_ATTR, range: 12..13),
+    header: attr!(&FLAGS_CWR_ATTR, range: 13..14),
+    header: attr!(&FLAGS_ECE_ATTR, range: 13..14),
+    header: attr!(&FLAGS_URG_ATTR, range: 13..14),
+    header: attr!(&FLAGS_ACK_ATTR, range: 13..14),
+    header: attr!(&FLAGS_PSH_ATTR, range: 13..14),
+    header: attr!(&FLAGS_RST_ATTR, range: 13..14),
+    header: attr!(&FLAGS_SYN_ATTR, range: 13..14),
+    header: attr!(&FLAGS_FIN_ATTR, range: 13..14),
+    header: attr!(&WINDOW_ATTR, range: 14..16),
+    header: attr!(&CHECKSUM_ATTR, range: 16..18),
+    header: attr!(&URGENT_ATTR, range: 18..20),
+    header: attr!(&OPTIONS_ATTR, range: 20..21)
 );
 
-def_attr!(OFFSET_ATTR_HEADER, &OFFSET_ATTR, 12..13);
+def_attr!(OFFSET_ATTR_HEADER,  &OFFSET_ATTR, range: 12..13);
 
 def_attr_class!(SRC_ATTR, "tcp.src",
     typ: "@tcp:port",
