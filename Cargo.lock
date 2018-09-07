@@ -90,7 +90,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "genet-abi"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "fnv 1.0.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -99,9 +99,13 @@ dependencies = [
 
 [[package]]
 name = "genet-abi"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-replace = "genet-abi 0.2.0"
+dependencies = [
+ "fnv 1.0.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lazy_static 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libc 0.2.43 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "genet-kernel"
@@ -109,8 +113,8 @@ version = "0.1.0"
 dependencies = [
  "crossbeam-channel 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "fnv 1.0.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "genet-abi 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "genet-sdk 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "genet-abi 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "genet-sdk 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.43 (registry+https://github.com/rust-lang/crates.io-index)",
  "libloading 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "num_cpus 1.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -120,18 +124,22 @@ dependencies = [
 
 [[package]]
 name = "genet-sdk"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "byteorder 1.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "genet-abi 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "genet-abi 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "genet-sdk"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-replace = "genet-sdk 0.2.0"
+dependencies = [
+ "byteorder 1.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "genet-abi 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lazy_static 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "itoa"
@@ -326,8 +334,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum fnv 1.0.6 (registry+https://github.com/rust-lang/crates.io-index)" = "2fad85553e09a6f881f739c29f0b00b0f01357c743266d478b68951ce23285f3"
 "checksum fuchsia-zircon 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "2e9763c69ebaae630ba35f74888db465e49e259ba1bc0eda7d06f4a067615d82"
 "checksum fuchsia-zircon-sys 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "3dcaa9ae7725d12cdb85b3ad99a434db70b468c09ded17e012d86b5c1010f7a7"
-"checksum genet-abi 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "4cf0e8fa39aa5716d577041caf80e1ae822b1b628b170d49ec2f4232119920dd"
-"checksum genet-sdk 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "085c25faf0be22da4050c567b5893644f272d3aa575e7c3a9d39ae135aa73df6"
+"checksum genet-abi 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "98e0809a460c1775c4e1f145eb61e1e5bef2638ccba792db3588564b3b023855"
+"checksum genet-sdk 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c092e46cdbc7e80c7803df779ee50dc3131405e6195c583e4efb4d74a71b09cb"
 "checksum itoa 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "5adb58558dcd1d786b5f0bd15f3226ee23486e24b7b58304b60f64dc68e62606"
 "checksum lazy_static 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ca488b89a5657b0a2ecd45b95609b3e848cf1755da332a0da46e2b2b1cb371a7"
 "checksum libc 0.2.43 (registry+https://github.com/rust-lang/crates.io-index)" = "76e3a3ef172f1a0b9a9ff0dd1491ae5e6c948b94479a3021819ba7d860c8645d"

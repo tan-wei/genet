@@ -8,4 +8,4 @@ name = "eth"
 crate-type = ["cdylib"]
 
 [dependencies]
-genet-sdk = "0.2.0"
+genet-sdk = "0.3.0"

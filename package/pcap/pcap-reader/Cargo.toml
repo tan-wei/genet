@@ -7,7 +7,7 @@ serde = "1"
 serde_json = "1"
 serde_derive = "1"
 pcap = { path = "../pcap" }
-genet-sdk = "0.2.0"
+genet-sdk = "0.3.0"
 
 [lib]
 name = "pcap_reader"
