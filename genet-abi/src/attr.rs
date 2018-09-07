@@ -388,7 +388,7 @@ mod tests {
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = Fixed::new(attr!(class));
+        let attr = Fixed::new(Attr::builder(class).build());
         assert_eq!(attr.id(), Token::from("nil"));
         assert_eq!(attr.typ(), Token::from("@nil"));
         assert_eq!(attr.range(), 0..0);
@@ -417,7 +417,7 @@ mod tests {
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = attr!(class, range: 0..1);
+        let attr = Attr::builder(class).range(0..1).build();
         assert_eq!(attr.id(), Token::from("bool"));
         assert_eq!(attr.typ(), Token::from("@bool"));
         assert_eq!(attr.range(), 0..1);
@@ -446,7 +446,7 @@ mod tests {
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = attr!(class, range: 0..6);
+        let attr = Attr::builder(class).range(0..6).build();
         assert_eq!(attr.id(), Token::from("u64"));
         assert_eq!(attr.typ(), Token::from("@u64"));
         assert_eq!(attr.range(), 0..6);
@@ -475,7 +475,7 @@ mod tests {
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = attr!(class, range: 0..6);
+        let attr = Attr::builder(class).range(0..6).build();
         assert_eq!(attr.id(), Token::from("i64"));
         assert_eq!(attr.typ(), Token::from("@i64"));
         assert_eq!(attr.range(), 0..6);
@@ -504,7 +504,7 @@ mod tests {
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = attr!(class, range: 0..6);
+        let attr = Attr::builder(class).range(0..6).build();
         assert_eq!(attr.id(), Token::from("buffer"));
         assert_eq!(attr.typ(), Token::from("@buffer"));
         assert_eq!(attr.range(), 0..6);
@@ -535,7 +535,7 @@ mod tests {
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = attr!(class, range: 0..6);
+        let attr = Attr::builder(class).range(0..6).build();
         assert_eq!(attr.id(), Token::from("string"));
         assert_eq!(attr.typ(), Token::from("@string"));
         assert_eq!(attr.range(), 0..6);
@@ -564,7 +564,7 @@ mod tests {
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = attr!(class, range: 0..6);
+        let attr = Attr::builder(class).range(0..6).build();
         assert_eq!(attr.id(), Token::from("slice"));
         assert_eq!(attr.typ(), Token::from("@slice"));
         assert_eq!(attr.range(), 0..6);
@@ -593,7 +593,7 @@ mod tests {
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = attr!(class, range: 0..6);
+        let attr = Attr::builder(class).range(0..6).build();
         assert_eq!(attr.id(), Token::from("slice"));
         assert_eq!(attr.typ(), Token::from("@slice"));
         assert_eq!(attr.range(), 0..6);
