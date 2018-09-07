@@ -1,11 +1,7 @@
 #[macro_use]
 extern crate genet_sdk;
 
-#[macro_use]
-extern crate maplit;
-
 use genet_sdk::prelude::*;
-use std::collections::HashMap;
 
 struct IPv6Worker {}
 
@@ -43,7 +39,7 @@ impl Worker for IPv6Worker {
             let proto_attr = attr!(&PROTOCOL_ATTR, range: range.clone());
             let proto = proto_attr.try_get(&layer)?.try_into()?;
             layer.add_attr(proto_attr);
-            if let Some((typ, attr)) = PROTO_MAP.get(&proto) {
+            if let Some((typ, attr)) = get_proto(proto) {
                 layer.add_attr(attr!(attr, range: range.clone()));
                 let payload = layer.data().try_get(40..)?;
                 layer.add_payload(Payload::new(payload, typ));
@@ -118,13 +114,26 @@ def_attr_class!(PROTOCOL_ATTR, "ipv6.protocol",
     cast: cast::UInt8()
 );
 
-lazy_static! {
-    static ref PROTO_MAP: HashMap<u64, (Token, AttrClass)> = hashmap!{
-        0x02 => (token!("@data:igmp"), attr_class!("ipv6.protocol.igmp", typ: "@novalue", cast: cast::Const(true))),
-        0x06 => (token!("@data:tcp"), attr_class!("ipv6.protocol.tcp", typ: "@novalue", cast: cast::Const(true))),
-        0x11 => (token!("@data:udp"), attr_class!("ipv6.protocol.udp", typ: "@novalue", cast: cast::Const(true))),
-        0x3a => (token!("@data:icmp"), attr_class!("ipv6.protocol.icmp", typ: "@novalue", cast: cast::Const(true))),
-    };
+fn get_proto(val: u64) -> Option<(Token, &'static AttrClass)> {
+    match val {
+        0x02 => Some((
+            token!("@data:igmp"),
+            attr_class_lazy!("ipv6.protocol.igmp", typ: "@novalue", cast: cast::Const(true)),
+        )),
+        0x06 => Some((
+            token!("@data:tcp"),
+            attr_class_lazy!("ipv6.protocol.tcp", typ: "@novalue", cast: cast::Const(true)),
+        )),
+        0x11 => Some((
+            token!("@data:udp"),
+            attr_class_lazy!("ipv6.protocol.udp", typ: "@novalue", cast: cast::Const(true)),
+        )),
+        0x3a => Some((
+            token!("@data:icmp"),
+            attr_class_lazy!("ipv6.protocol.icmp", typ: "@novalue", cast: cast::Const(true)),
+        )),
+        _ => None,
+    }
 }
 
 genet_decoders!(IPv6Decoder {});

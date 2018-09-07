@@ -1,11 +1,7 @@
 #[macro_use]
 extern crate genet_sdk;
 
-#[macro_use]
-extern crate maplit;
-
 use genet_sdk::prelude::*;
-use std::collections::HashMap;
 
 struct ArpWorker {}
 
@@ -24,13 +20,13 @@ impl Worker for ArpWorker {
             let mut layer = Layer::new(&ARP_CLASS, payload.data());
 
             let hw_type = HWTYPE_ATTR_HEADER.try_get(&layer)?.try_into()?;
-            let hw = HW_MAP.get(&hw_type);
+            let hw = get_hw(hw_type);
             if let Some((attr, _, _)) = hw {
                 layer.add_attr(attr!(attr, range: 0..2));
             }
 
             let proto_type = PROTO_ATTR_HEADER.try_get(&layer)?.try_into()?;
-            let proto = PROTO_MAP.get(&proto_type);
+            let proto = get_proto(proto_type);
             if let Some((attr, _, _)) = proto {
                 layer.add_attr(attr!(attr, range: 2..4));
             }
@@ -39,7 +35,7 @@ impl Worker for ArpWorker {
             let plen: usize = PLEN_ATTR_HEADER.try_get(&layer)?.try_into()?;
 
             let op_type = OP_ATTR_HEADER.try_get(&layer)?.try_into()?;
-            if let Some(attr) = OP_MAP.get(&op_type) {
+            if let Some(attr) = get_op(op_type) {
                 layer.add_attr(attr!(attr, range: 6..8));
             }
 
@@ -111,30 +107,41 @@ def_attr_class!(OP_ATTR, "arp.op",
     typ: "@enum"
 );
 
-lazy_static! {
-    static ref HW_MAP: HashMap<u64, (AttrClass, AttrClass, AttrClass)> = hashmap!{
-        0x0001 => (
-            attr_class!("arp.hwtype.eth", typ: "@novalue", cast: cast::Const(true)),
-            attr_class!("arp.sha", typ: "@eth:mac", cast: cast::ByteSlice()),
-            attr_class!("arp.tha", typ: "@eth:mac", cast: cast::ByteSlice()),
-        ),
-    };
-    static ref PROTO_MAP: HashMap<u64, (AttrClass, AttrClass, AttrClass)> = hashmap!{
-        0x0800 => (
-            attr_class!("arp.protocol.ipv4", typ: "@novalue", cast: cast::Const(true)),
-            attr_class!("arp.spa", typ: "@ipv4:addr", cast: cast::ByteSlice()),
-            attr_class!("arp.tpa", typ: "@ipv4:addr", cast: cast::ByteSlice()),
-        ),
-        0x86DD => (
-            attr_class!("arp.protocol.ipv6", typ: "@novalue", cast: cast::Const(true)),
-            attr_class!("arp.spa", typ: "@ipv6:addr", cast: cast::ByteSlice()),
-            attr_class!("arp.tpa", typ: "@ipv6:addr", cast: cast::ByteSlice()),
-        )
-    };
-    static ref OP_MAP: HashMap<u64, AttrClass> = hashmap!{
-        0x0001 => attr_class!("arp.op.request", typ: "@novalue", cast: cast::Const(true)),
-        0x0002 => attr_class!("arp.op.reply", typ: "@novalue", cast: cast::Const(true))
-    };
+fn get_hw(val: u64) -> Option<(&'static AttrClass, &'static AttrClass, &'static AttrClass)> {
+    match val {
+        0x0001 => Some((
+            attr_class_lazy!("arp.hwtype.eth", typ: "@novalue", cast: cast::Const(true)),
+            attr_class_lazy!("arp.sha", typ: "@eth:mac", cast: cast::ByteSlice()),
+            attr_class_lazy!("arp.tha", typ: "@eth:mac", cast: cast::ByteSlice()),
+        )),
+        _ => None,
+    }
+}
+
+fn get_proto(val: u64) -> Option<(&'static AttrClass, &'static AttrClass, &'static AttrClass)> {
+    match val {
+        0x0800 => Some((
+            attr_class_lazy!("arp.protocol.ipv4", typ: "@novalue", cast: cast::Const(true)),
+            attr_class_lazy!("arp.spa", typ: "@ipv4:addr", cast: cast::ByteSlice()),
+            attr_class_lazy!("arp.tpa", typ: "@ipv4:addr", cast: cast::ByteSlice()),
+        )),
+        0x86DD => Some((
+            attr_class_lazy!("arp.protocol.ipv6", typ: "@novalue", cast: cast::Const(true)),
+            attr_class_lazy!("arp.spa", typ: "@ipv6:addr", cast: cast::ByteSlice()),
+            attr_class_lazy!("arp.tpa", typ: "@ipv6:addr", cast: cast::ByteSlice()),
+        )),
+        _ => None,
+    }
+}
+
+fn get_op(val: u64) -> Option<&'static AttrClass> {
+    match val {
+        0x0001 => {
+            Some(attr_class_lazy!("arp.op.request", typ: "@novalue", cast: cast::Const(true)))
+        }
+        0x0002 => Some(attr_class_lazy!("arp.op.reply", typ: "@novalue", cast: cast::Const(true))),
+        _ => None,
+    }
 }
 
 genet_decoders!(ArpDecoder {});

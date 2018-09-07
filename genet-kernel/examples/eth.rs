@@ -1,11 +1,7 @@
 #[macro_use]
 extern crate genet_sdk;
 
-#[macro_use]
-extern crate maplit;
-
 use genet_sdk::prelude::*;
-use std::collections::HashMap;
 
 struct EthWorker {}
 
@@ -24,7 +20,7 @@ impl Worker for EthWorker {
             } else {
                 layer.add_attr(&TYPE_ATTR_HEADER);
             }
-            if let Some((typ, attr)) = TYPE_MAP.get(&len) {
+            if let Some((typ, attr)) = get_type(len) {
                 layer.add_attr(attr!(attr, range: 12..14));
                 let payload = parent.data().try_get(14..)?;
                 layer.add_payload(Payload::new(payload, typ));
@@ -77,14 +73,30 @@ def_attr!(LEN_ATTR_HEADER,  &LEN_ATTR, range: 12..14);
 
 def_attr!(TYPE_ATTR_HEADER,  &TYPE_ATTR, range: 12..14);
 
-lazy_static! {
-    static ref TYPE_MAP: HashMap<u64, (Token, AttrClass)> = hashmap!{
-        0x0800 => (token!("@data:ipv4"), attr_class!("eth.type.ipv4", typ: "@novalue", cast: cast::Const(true))),
-        0x0806 => (token!("@data:arp"), attr_class!("eth.type.arp", typ: "@novalue", cast: cast::Const(true))),
-        0x0842 => (token!("@data:wol"), attr_class!("eth.type.wol", typ: "@novalue", cast: cast::Const(true))),
-        0x86DD => (token!("@data:ipv6"), attr_class!("eth.type.ipv6", typ: "@novalue", cast: cast::Const(true))),
-        0x888E => (token!("@data:eap"), attr_class!("eth.type.eap", typ: "@novalue", cast: cast::Const(true))),
-    };
+fn get_type(val: u64) -> Option<(Token, &'static AttrClass)> {
+    match val {
+        0x0800 => Some((
+            token!("@data:ipv4"),
+            attr_class_lazy!("eth.type.ipv4", typ: "@novalue", cast: cast::Const(true)),
+        )),
+        0x0806 => Some((
+            token!("@data:arp"),
+            attr_class_lazy!("eth.type.arp", typ: "@novalue", cast: cast::Const(true)),
+        )),
+        0x0842 => Some((
+            token!("@data:wol"),
+            attr_class_lazy!("eth.type.wol", typ: "@novalue", cast: cast::Const(true)),
+        )),
+        0x86DD => Some((
+            token!("@data:ipv6"),
+            attr_class_lazy!("eth.type.ipv6", typ: "@novalue", cast: cast::Const(true)),
+        )),
+        0x888E => Some((
+            token!("@data:eap"),
+            attr_class_lazy!("eth.type.eap", typ: "@novalue", cast: cast::Const(true)),
+        )),
+        _ => None,
+    }
 }
 
 genet_decoders!(EthDecoder {});

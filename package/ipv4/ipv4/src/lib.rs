@@ -1,11 +1,7 @@
 #[macro_use]
 extern crate genet_sdk;
 
-#[macro_use]
-extern crate maplit;
-
 use genet_sdk::prelude::*;
-use std::collections::HashMap;
 
 struct IPv4Worker {}
 
@@ -23,7 +19,7 @@ impl Worker for IPv4Worker {
         {
             let mut layer = Layer::new(&IPV4_CLASS, payload.data());
             let proto = PROTO_ATTR_HEADER.try_get(&layer)?.try_into()?;
-            if let Some((typ, attr)) = PROTO_MAP.get(&proto) {
+            if let Some((typ, attr)) = get_proto(proto) {
                 layer.add_attr(attr!(attr, range: 9..10));
                 let payload = layer.data().try_get(20..)?;
                 layer.add_payload(Payload::new(payload, typ));
@@ -124,12 +120,26 @@ def_attr_class!(DST_ATTR, "ipv4.dst",
     cast: cast::ByteSlice()
 );
 
-lazy_static! {
-    static ref PROTO_MAP: HashMap<u64, (Token, AttrClass)> = hashmap!{
-        0x01 => (token!("@data:icmp"), attr_class!("ipv4.protocol.icmp", typ: "@novalue", cast: cast::Const(true))),
-        0x02 => (token!("@data:igmp"), attr_class!("ipv4.protocol.igmp", typ: "@novalue", cast: cast::Const(true))),
-        0x06 => (token!("@data:tcp"), attr_class!("ipv4.protocol.tcp", typ: "@novalue", cast: cast::Const(true))),
-        0x11 => (token!("@data:udp"), attr_class!("ipv4.protocol.udp", typ: "@novalue", cast: cast::Const(true))),
-    };
+fn get_proto(val: u64) -> Option<(Token, &'static AttrClass)> {
+    match val {
+        0x01 => Some((
+            token!("@data:icmp"),
+            attr_class_lazy!("ipv4.protocol.icmp", typ: "@novalue", cast: cast::Const(true)),
+        )),
+        0x02 => Some((
+            token!("@data:igmp"),
+            attr_class_lazy!("ipv4.protocol.igmp", typ: "@novalue", cast: cast::Const(true)),
+        )),
+        0x06 => Some((
+            token!("@data:tcp"),
+            attr_class_lazy!("ipv4.protocol.tcp", typ: "@novalue", cast: cast::Const(true)),
+        )),
+        0x11 => Some((
+            token!("@data:udp"),
+            attr_class_lazy!("ipv4.protocol.udp", typ: "@novalue", cast: cast::Const(true)),
+        )),
+        _ => None,
+    }
 }
+
 genet_decoders!(IPv4Decoder {});

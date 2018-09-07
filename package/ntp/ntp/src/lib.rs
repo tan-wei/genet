@@ -1,11 +1,7 @@
 #[macro_use]
 extern crate genet_sdk;
 
-#[macro_use]
-extern crate maplit;
-
 use genet_sdk::prelude::*;
-use std::collections::HashMap;
 
 struct NtpWorker {}
 
@@ -39,14 +35,14 @@ impl Worker for NtpWorker {
             let mut layer = Layer::new(&NTP_CLASS, payload.data());
             let leap_type = LEAP_ATTR_HEADER.try_get(&layer)?.try_into()?;
 
-            let leap = LEAP_MAP.get(&leap_type);
+            let leap = get_leap(leap_type);
             if let Some(attr) = leap {
                 layer.add_attr(attr!(attr, range: 0..1));
             }
 
             let mode_type = MODE_ATTR_HEADER.try_get(&layer)?.try_into()?;
 
-            let mode = MODE_MAP.get(&mode_type);
+            let mode = get_mode(mode_type);
             if let Some(attr) = mode {
                 layer.add_attr(attr!(attr, range: 0..1));
             }
@@ -238,23 +234,44 @@ def_attr_class!(
     cast: cast::UInt32BE()
 );
 
-lazy_static! {
-    static ref LEAP_MAP: HashMap<u64, AttrClass> = hashmap!{
-        0 => attr_class!("ntp.leapIndicator.noWarning", typ: "@novalue", cast: cast::Const(true)),
-        1 => attr_class!("ntp.leapIndicator.sec61", typ: "@novalue", cast: cast::Const(true)),
-        2 => attr_class!("ntp.leapIndicator.sec59", typ: "@novalue", cast: cast::Const(true)),
-        3 => attr_class!("ntp.leapIndicator.unknown", typ: "@novalue", cast: cast::Const(true)),
-    };
-    static ref MODE_MAP: HashMap<u64, AttrClass> = hashmap!{
-        0 => attr_class!("ntp.mode.reserved", typ: "@novalue", cast: cast::Const(true)),
-        1 => attr_class!("ntp.mode.symmetricActive", typ: "@novalue", cast: cast::Const(true)),
-        2 => attr_class!("ntp.mode.symmetricPassive", typ: "@novalue", cast: cast::Const(true)),
-        3 => attr_class!("ntp.mode.client", typ: "@novalue", cast: cast::Const(true)),
-        4 => attr_class!("ntp.mode.server", typ: "@novalue", cast: cast::Const(true)),
-        5 => attr_class!("ntp.mode.broadcast", typ: "@novalue", cast: cast::Const(true)),
-        6 => attr_class!("ntp.mode.controlMessage", typ: "@novalue", cast: cast::Const(true)),
-        7 => attr_class!("ntp.mode.reservedForPrivate", typ: "@novalue", cast: cast::Const(true)),
-    };
+fn get_leap(val: u64) -> Option<&'static AttrClass> {
+    match val {
+        0 => Some(
+            attr_class_lazy!("ntp.leapIndicator.noWarning", typ: "@novalue", cast: cast::Const(true)),
+        ),
+        1 => Some(
+            attr_class_lazy!("ntp.leapIndicator.sec61", typ: "@novalue", cast: cast::Const(true)),
+        ),
+        2 => Some(
+            attr_class_lazy!("ntp.leapIndicator.sec59", typ: "@novalue", cast: cast::Const(true)),
+        ),
+        3 => Some(
+            attr_class_lazy!("ntp.leapIndicator.unknown", typ: "@novalue", cast: cast::Const(true)),
+        ),
+        _ => None,
+    }
+}
+
+fn get_mode(val: u64) -> Option<&'static AttrClass> {
+    match val {
+        0 => Some(attr_class_lazy!("ntp.mode.reserved", typ: "@novalue", cast: cast::Const(true))),
+        1 => Some(
+            attr_class_lazy!("ntp.mode.symmetricActive", typ: "@novalue", cast: cast::Const(true)),
+        ),
+        2 => Some(
+            attr_class_lazy!("ntp.mode.symmetricPassive", typ: "@novalue", cast: cast::Const(true)),
+        ),
+        3 => Some(attr_class_lazy!("ntp.mode.client", typ: "@novalue", cast: cast::Const(true))),
+        4 => Some(attr_class_lazy!("ntp.mode.server", typ: "@novalue", cast: cast::Const(true))),
+        5 => Some(attr_class_lazy!("ntp.mode.broadcast", typ: "@novalue", cast: cast::Const(true))),
+        6 => Some(
+            attr_class_lazy!("ntp.mode.controlMessage", typ: "@novalue", cast: cast::Const(true)),
+        ),
+        7 => Some(
+            attr_class_lazy!("ntp.mode.reservedForPrivate", typ: "@novalue", cast: cast::Const(true)),
+        ),
+        _ => None,
+    }
 }
 
 genet_decoders!(NtpDecoder {});

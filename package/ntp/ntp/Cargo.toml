@@ -8,5 +8,4 @@ name = "ntp"
 crate-type = ["cdylib"]
 
 [dependencies]
-maplit = "1"
 genet-sdk = "0.2.0"
