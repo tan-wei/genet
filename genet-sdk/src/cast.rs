@@ -1,7 +1,7 @@
 //! Cast objects for the usual data structures.
 
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
-pub use genet_abi::cast::{Cast, Const, Map, Nil, Ranged, Typed};
+pub use genet_abi::cast::{Cast, Map, Ranged, Typed};
 use slice;
 use std::io::{Cursor, Error, ErrorKind, Result};
 

@@ -77,23 +77,23 @@ fn get_type(val: u64) -> Option<(Token, &'static AttrClass)> {
     match val {
         0x0800 => Some((
             token!("@data:ipv4"),
-            attr_class_lazy!("eth.type.ipv4", typ: "@novalue", cast: cast::Const(true)),
+            attr_class_lazy!("eth.type.ipv4", typ: "@novalue", value: true),
         )),
         0x0806 => Some((
             token!("@data:arp"),
-            attr_class_lazy!("eth.type.arp", typ: "@novalue", cast: cast::Const(true)),
+            attr_class_lazy!("eth.type.arp", typ: "@novalue", value: true),
         )),
         0x0842 => Some((
             token!("@data:wol"),
-            attr_class_lazy!("eth.type.wol", typ: "@novalue", cast: cast::Const(true)),
+            attr_class_lazy!("eth.type.wol", typ: "@novalue", value: true),
         )),
         0x86DD => Some((
             token!("@data:ipv6"),
-            attr_class_lazy!("eth.type.ipv6", typ: "@novalue", cast: cast::Const(true)),
+            attr_class_lazy!("eth.type.ipv6", typ: "@novalue", value: true),
         )),
         0x888E => Some((
             token!("@data:eap"),
-            attr_class_lazy!("eth.type.eap", typ: "@novalue", cast: cast::Const(true)),
+            attr_class_lazy!("eth.type.eap", typ: "@novalue", value: true),
         )),
         _ => None,
     }

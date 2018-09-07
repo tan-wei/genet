@@ -236,40 +236,24 @@ def_attr_class!(
 
 fn get_leap(val: u64) -> Option<&'static AttrClass> {
     match val {
-        0 => Some(
-            attr_class_lazy!("ntp.leapIndicator.noWarning", typ: "@novalue", cast: cast::Const(true)),
-        ),
-        1 => Some(
-            attr_class_lazy!("ntp.leapIndicator.sec61", typ: "@novalue", cast: cast::Const(true)),
-        ),
-        2 => Some(
-            attr_class_lazy!("ntp.leapIndicator.sec59", typ: "@novalue", cast: cast::Const(true)),
-        ),
-        3 => Some(
-            attr_class_lazy!("ntp.leapIndicator.unknown", typ: "@novalue", cast: cast::Const(true)),
-        ),
+        0 => Some(attr_class_lazy!("ntp.leapIndicator.noWarning", typ: "@novalue", value: true)),
+        1 => Some(attr_class_lazy!("ntp.leapIndicator.sec61", typ: "@novalue", value: true)),
+        2 => Some(attr_class_lazy!("ntp.leapIndicator.sec59", typ: "@novalue", value: true)),
+        3 => Some(attr_class_lazy!("ntp.leapIndicator.unknown", typ: "@novalue", value: true)),
         _ => None,
     }
 }
 
 fn get_mode(val: u64) -> Option<&'static AttrClass> {
     match val {
-        0 => Some(attr_class_lazy!("ntp.mode.reserved", typ: "@novalue", cast: cast::Const(true))),
-        1 => Some(
-            attr_class_lazy!("ntp.mode.symmetricActive", typ: "@novalue", cast: cast::Const(true)),
-        ),
-        2 => Some(
-            attr_class_lazy!("ntp.mode.symmetricPassive", typ: "@novalue", cast: cast::Const(true)),
-        ),
-        3 => Some(attr_class_lazy!("ntp.mode.client", typ: "@novalue", cast: cast::Const(true))),
-        4 => Some(attr_class_lazy!("ntp.mode.server", typ: "@novalue", cast: cast::Const(true))),
-        5 => Some(attr_class_lazy!("ntp.mode.broadcast", typ: "@novalue", cast: cast::Const(true))),
-        6 => Some(
-            attr_class_lazy!("ntp.mode.controlMessage", typ: "@novalue", cast: cast::Const(true)),
-        ),
-        7 => Some(
-            attr_class_lazy!("ntp.mode.reservedForPrivate", typ: "@novalue", cast: cast::Const(true)),
-        ),
+        0 => Some(attr_class_lazy!("ntp.mode.reserved", typ: "@novalue", value: true)),
+        1 => Some(attr_class_lazy!("ntp.mode.symmetricActive", typ: "@novalue", value: true)),
+        2 => Some(attr_class_lazy!("ntp.mode.symmetricPassive", typ: "@novalue", value: true)),
+        3 => Some(attr_class_lazy!("ntp.mode.client", typ: "@novalue", value: true)),
+        4 => Some(attr_class_lazy!("ntp.mode.server", typ: "@novalue", value: true)),
+        5 => Some(attr_class_lazy!("ntp.mode.broadcast", typ: "@novalue", value: true)),
+        6 => Some(attr_class_lazy!("ntp.mode.controlMessage", typ: "@novalue", value: true)),
+        7 => Some(attr_class_lazy!("ntp.mode.reservedForPrivate", typ: "@novalue", value: true)),
         _ => None,
     }
 }

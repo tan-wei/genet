@@ -100,28 +100,6 @@ where
     }
 }
 
-/// Nil cast.
-#[derive(Clone)]
-pub struct Nil();
-
-impl Cast for Nil {
-    fn cast(&self, _data: &slice::ByteSlice) -> Result<Variant> {
-        Ok(Variant::Nil)
-    }
-}
-
-/// Constant value cast.
-#[derive(Clone)]
-pub struct Const<T>(pub T);
-
-impl<T: Into<Variant> + Clone> Typed for Const<T> {
-    type Output = T;
-
-    fn cast(&self, _data: &slice::ByteSlice) -> Result<T> {
-        Ok(self.0.clone())
-    }
-}
-
 /// Ranged combinator.
 #[derive(Clone)]
 pub struct Ranged<T, R>(pub T, pub R);

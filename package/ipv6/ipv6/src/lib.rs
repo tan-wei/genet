@@ -118,19 +118,19 @@ fn get_proto(val: u64) -> Option<(Token, &'static AttrClass)> {
     match val {
         0x02 => Some((
             token!("@data:igmp"),
-            attr_class_lazy!("ipv6.protocol.igmp", typ: "@novalue", cast: cast::Const(true)),
+            attr_class_lazy!("ipv6.protocol.igmp", typ: "@novalue", value: true),
         )),
         0x06 => Some((
             token!("@data:tcp"),
-            attr_class_lazy!("ipv6.protocol.tcp", typ: "@novalue", cast: cast::Const(true)),
+            attr_class_lazy!("ipv6.protocol.tcp", typ: "@novalue", value: true),
         )),
         0x11 => Some((
             token!("@data:udp"),
-            attr_class_lazy!("ipv6.protocol.udp", typ: "@novalue", cast: cast::Const(true)),
+            attr_class_lazy!("ipv6.protocol.udp", typ: "@novalue", value: true),
         )),
         0x3a => Some((
             token!("@data:icmp"),
-            attr_class_lazy!("ipv6.protocol.icmp", typ: "@novalue", cast: cast::Const(true)),
+            attr_class_lazy!("ipv6.protocol.icmp", typ: "@novalue", value: true),
         )),
         _ => None,
     }

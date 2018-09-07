@@ -172,12 +172,12 @@ def_attr_class!(URGENT_ATTR, "tcp.urgent", cast: cast::UInt16BE());
 
 def_attr_class!(OPTIONS_ATTR, "tcp.options",
     typ: "@nested",
-    cast: cast::Const(true)
+    value: true
 );
 
 def_attr_class!(OPTIONS_NOP_ATTR, "tcp.options.nop",
     typ: "@novalue",
-    cast: cast::Const(true)
+    value: true
 );
 
 def_attr_class!(OPTIONS_MSS_ATTR, "tcp.options.mss",
@@ -190,7 +190,7 @@ def_attr_class!(OPTIONS_SCALE_ATTR, "tcp.options.scale",
 
 def_attr_class!(OPTIONS_SACKP_ATTR, "tcp.options.selectiveAckPermitted",
     typ: "@novalue",
-    cast: cast::Const(true)
+    value: true
 );
 
 def_attr_class!(OPTIONS_SACK_ATTR, "tcp.options.selectiveAck",
@@ -199,7 +199,7 @@ def_attr_class!(OPTIONS_SACK_ATTR, "tcp.options.selectiveAck",
 
 def_attr_class!(OPTIONS_TS_ATTR, "tcp.options.ts",
     typ: "@nested",
-    cast: cast::Const(true)
+    value: true
 );
 
 def_attr_class!(

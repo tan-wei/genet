@@ -110,7 +110,7 @@ def_attr_class!(OP_ATTR, "arp.op",
 fn get_hw(val: u64) -> Option<(&'static AttrClass, &'static AttrClass, &'static AttrClass)> {
     match val {
         0x0001 => Some((
-            attr_class_lazy!("arp.hwtype.eth", typ: "@novalue", cast: cast::Const(true)),
+            attr_class_lazy!("arp.hwtype.eth", typ: "@novalue", value: true),
             attr_class_lazy!("arp.sha", typ: "@eth:mac", cast: cast::ByteSlice()),
             attr_class_lazy!("arp.tha", typ: "@eth:mac", cast: cast::ByteSlice()),
         )),
@@ -121,12 +121,12 @@ fn get_hw(val: u64) -> Option<(&'static AttrClass, &'static AttrClass, &'static 
 fn get_proto(val: u64) -> Option<(&'static AttrClass, &'static AttrClass, &'static AttrClass)> {
     match val {
         0x0800 => Some((
-            attr_class_lazy!("arp.protocol.ipv4", typ: "@novalue", cast: cast::Const(true)),
+            attr_class_lazy!("arp.protocol.ipv4", typ: "@novalue", value: true),
             attr_class_lazy!("arp.spa", typ: "@ipv4:addr", cast: cast::ByteSlice()),
             attr_class_lazy!("arp.tpa", typ: "@ipv4:addr", cast: cast::ByteSlice()),
         )),
         0x86DD => Some((
-            attr_class_lazy!("arp.protocol.ipv6", typ: "@novalue", cast: cast::Const(true)),
+            attr_class_lazy!("arp.protocol.ipv6", typ: "@novalue", value: true),
             attr_class_lazy!("arp.spa", typ: "@ipv6:addr", cast: cast::ByteSlice()),
             attr_class_lazy!("arp.tpa", typ: "@ipv6:addr", cast: cast::ByteSlice()),
         )),
@@ -136,10 +136,8 @@ fn get_proto(val: u64) -> Option<(&'static AttrClass, &'static AttrClass, &'stat
 
 fn get_op(val: u64) -> Option<&'static AttrClass> {
     match val {
-        0x0001 => {
-            Some(attr_class_lazy!("arp.op.request", typ: "@novalue", cast: cast::Const(true)))
-        }
-        0x0002 => Some(attr_class_lazy!("arp.op.reply", typ: "@novalue", cast: cast::Const(true))),
+        0x0001 => Some(attr_class_lazy!("arp.op.request", typ: "@novalue", value: true)),
+        0x0002 => Some(attr_class_lazy!("arp.op.reply", typ: "@novalue", value: true)),
         _ => None,
     }
 }

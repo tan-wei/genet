@@ -1,4 +1,4 @@
-use cast::Cast;
+use cast::{Cast, Typed};
 use env;
 use error::Error;
 use fixed::Fixed;
@@ -122,6 +122,17 @@ enum ValueType {
     ByteSlice = 7,
 }
 
+#[derive(Clone)]
+struct Const<T>(pub T);
+
+impl<T: Into<Variant> + Clone> Typed for Const<T> {
+    type Output = T;
+
+    fn cast(&self, _data: &ByteSlice) -> io::Result<T> {
+        Ok(self.0.clone())
+    }
+}
+
 /// A builder object for AttrClass.
 pub struct AttrClassBuilder {
     id: Token,
@@ -139,6 +150,15 @@ impl AttrClassBuilder {
     /// Sets a cast of AttrClass.
     pub fn cast<T: Cast>(mut self, cast: T) -> AttrClassBuilder {
         self.cast = Some(cast.into_box());
+        self
+    }
+
+    /// Sets a constant value of AttrClass.
+    pub fn value<T: 'static + Into<Variant> + Send + Sync + Clone>(
+        mut self,
+        value: T,
+    ) -> AttrClassBuilder {
+        self.cast = Some(Box::new(Const(value)));
         self
     }
 
@@ -371,35 +391,6 @@ mod tests {
     };
     use token::Token;
     use variant::Variant;
-
-    #[test]
-    fn nil() {
-        #[derive(Clone)]
-        struct TestCast {}
-
-        impl Cast for TestCast {
-            fn cast(&self, _: &ByteSlice) -> Result<Variant> {
-                Ok(Variant::Nil)
-            }
-        }
-        let class = Fixed::new(
-            AttrClass::builder("nil")
-                .typ("@nil")
-                .cast(TestCast {})
-                .build(),
-        );
-        let attr = Fixed::new(Attr::builder(class).build());
-        assert_eq!(attr.id(), Token::from("nil"));
-        assert_eq!(attr.typ(), Token::from("@nil"));
-        assert_eq!(attr.range(), 0..0);
-
-        let class = Fixed::new(LayerClass::builder(Token::null()).build());
-        let layer = Layer::new(class, ByteSlice::new());
-        match attr.try_get(&layer).unwrap() {
-            Variant::Nil => (),
-            _ => panic!(),
-        };
-    }
 
     #[test]
     fn bool() {
