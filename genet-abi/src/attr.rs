@@ -10,6 +10,38 @@ use token::Token;
 use variant::Variant;
 use vec::SafeVec;
 
+/// A builder object for Attr.
+pub struct AttrBuilder {
+    class: Fixed<AttrClass>,
+    range: Range<usize>,
+    value: Option<Fixed<Variant>>,
+}
+
+impl AttrBuilder {
+    /// Builds a new Attr.
+    pub fn build(self) -> Attr {
+        Attr {
+            class: self.class,
+            abi_unsafe_data: AttrData {
+                range: self.range,
+                value: self.value,
+            },
+        }
+    }
+
+    /// Sets a range of Attr.
+    pub fn range(mut self, range: Range<usize>) -> AttrBuilder {
+        self.range = range;
+        self
+    }
+
+    /// Sets a value of Attr.
+    pub fn value<T: Into<Variant>>(mut self, value: T) -> AttrBuilder {
+        self.value = Some(Fixed::new(value.into()));
+        self
+    }
+}
+
 /// An attribute object.
 #[repr(C)]
 pub struct Attr {
@@ -29,6 +61,15 @@ struct AttrData {
 }
 
 impl Attr {
+    /// Creates a new builder object for Attr.
+    pub fn builder<C: Into<Fixed<AttrClass>>>(class: C) -> AttrBuilder {
+        AttrBuilder {
+            class: class.into(),
+            range: 0..0,
+            value: None,
+        }
+    }
+
     /// Creates a new Attr.
     pub fn new<C: Into<Fixed<AttrClass>>>(class: C, range: Range<usize>) -> Attr {
         Attr {
