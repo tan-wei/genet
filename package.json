@@ -8,7 +8,7 @@
     "url": "https://github.com/genet-app/genet.git"
   },
   "scripts": {
-    "start": "node_modules/.bin/negatron .",
+    "start": "node_modules/.bin/electron .",
     "build": "node scripts/build.js",
     "dist": "node_modules/.bin/electron-builder"
   },
@@ -28,10 +28,6 @@
       "package",
       "genet_modules/bin"
     ],
-    "electronDownload": {
-      "mirror": "https://storage.googleapis.com/cdn-genet-app/electron/v",
-      "cache": "./.cache"
-    },
     "electronVersion": "1.8.2",
     "mac": {
       "icon": "node_modules/@genet/image-assets/genet.icns",
@@ -119,8 +115,8 @@
   },
   "devDependencies": {
     "@genet/image-assets": "^0.1.0",
-    "@genet/negatron": "1.8.2",
     "benchmark": "^2.1.4",
+    "electron": "^2.0.8",
     "electron-builder": "^20.26.0",
     "less": "^3.7.1",
     "nan": "^2.10.0",
