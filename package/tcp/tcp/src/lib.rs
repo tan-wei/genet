@@ -25,17 +25,15 @@ impl Worker for TcpWorker {
 
             while offset < data_offset {
                 let typ = layer.data().try_get(offset)?;
+                if typ <= 1 {
+                    if typ == 1 {
+                        layer.add_attr(attr!(&OPTIONS_NOP_ATTR, range: offset..offset + 1));
+                    }
+                    offset += 1;
+                    continue;
+                }
                 let len = layer.data().try_get(offset + 1)? as usize;
                 match typ {
-                    0 => {
-                        offset += 1;
-                        continue;
-                    }
-                    1 => {
-                        layer.add_attr(attr!(&OPTIONS_NOP_ATTR, range: offset..offset + 1));
-                        offset += 1;
-                        continue;
-                    }
                     2 => {
                         layer.add_attr(attr!(&OPTIONS_MSS_ATTR, range: offset..offset + len));
                     }
