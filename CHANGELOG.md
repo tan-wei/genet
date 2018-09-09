@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- genet-abi: Use helper macros to construct Attr, AttrClass and LayerClass.
+- genet-abi: Use AttrBuilder to construct Attr.
+- genet-abi: Make Mapped trait more generic.
+- genet-kernel: Show new_worker errors in gui instead of stderr.
 
 ## [0.4.0] - 2018-09-03
 ### Added
