@@ -52,7 +52,7 @@ export default {
     },
     '_.window.titleBarStyle': {
       type: 'string',
-      default: 'hidden-inset',
+      default: 'hiddenInset',
     },
   },
 }

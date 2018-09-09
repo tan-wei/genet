@@ -10,7 +10,7 @@ export default class Content {
   }
 
   async load() {
-    webFrame.setZoomLevelLimits(1, 1)
+    webFrame.setVisualZoomLevelLimits(1, 1)
 
     document.addEventListener('dragover', (event) => {
       event.preventDefault()
