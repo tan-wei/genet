@@ -76,7 +76,8 @@ NAN_GETTER(AttrWrapper::value) {
   v8::Local<v8::Value> val = Nan::Null();
   switch (var.type) {
   case Error:
-    val = Nan::Error(Nan::New(var.data, static_cast<int>(var.value.u64)).ToLocalChecked());
+    val = Nan::Error(
+        Nan::New(var.data, static_cast<int>(var.value.u64)).ToLocalChecked());
     genet_str_free(var.data);
     return;
   case Bool:
@@ -96,7 +97,8 @@ NAN_GETTER(AttrWrapper::value) {
     genet_str_free(var.data);
     break;
   case Buffer:
-    val = Nan::CopyBuffer(var.data, static_cast<uint32_t>(var.value.u64)).ToLocalChecked();
+    val = Nan::CopyBuffer(var.data, static_cast<uint32_t>(var.value.u64))
+              .ToLocalChecked();
     genet_str_free(var.data);
     break;
   case ByteSlice: {
