@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - genet-abi: Make Mapped trait more generic.
 - genet-kernel: Show new_worker errors in gui instead of stderr.
 
+### Removed
+- genet-abi: Rmove cast::Nil and cast::Const.
+
 ## [0.4.0] - 2018-09-03
 ### Added
 - Add pacman distribution.
