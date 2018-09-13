@@ -1,5 +1,5 @@
-use ops::*;
 use genet_abi::variant::Variant;
+use ops::*;
 
 pub struct Context {}
 

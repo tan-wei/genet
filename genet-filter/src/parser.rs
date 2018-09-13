@@ -1,12 +1,14 @@
 use combine::{
     choice, eof, many, many1, optional,
     parser::char::{alpha_num, digit, hex_digit, letter, oct_digit, spaces, string, string_cmp},
-    token, try, Parser,
+    token, try, Parser, between, parser,
+    ParseResult, Stream
 };
 use ast::Expression;
 use genet_abi::variant::Variant;
 use num_bigint::BigInt;
 use num_traits::{Num, ToPrimitive, Zero};
+use combine_language;
 
 fn unsigned_bin<'a>() -> impl Parser<Input = &'a str, Output = BigInt> {
     try(string_cmp("0b", |l, r| l.eq_ignore_ascii_case(&r)))
@@ -67,27 +69,39 @@ fn identifier<'a>() -> impl Parser<Input = &'a str, Output = String> {
 
 fn literal<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
     choice((
-        boolean().map(|v| Expression::Literal(Variant::Bool(v))),
+        boolean().map(|v| Variant::Bool(v)),
         signed_integer().map(|v| {
-            Expression::Literal(if let Some(i) = v.to_u64() {
+            if let Some(i) = v.to_u64() {
                 Variant::UInt64(i)
             } else if let Some(i) = v.to_i64() {
                 Variant::Int64(i)
             } else {
                 let (_, b) = v.to_bytes_be();
                 Variant::Buffer(b.into_boxed_slice())
-            })
+            }
         }),
-    ))
+    )).map(|v| Expression::Literal(v))
 }
 
-fn cmp_eq<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
-    literal()
-        .skip(spaces())
-        .skip(string("=="))
-        .skip(spaces())
-        .and(literal())
-        .map(|(l, r)| Expression::CmpEq(Box::new(l), Box::new(r)))
+fn expression<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
+    let term = spaces().with(
+        literal()
+    ).skip(spaces());
+
+    let op_parser = string("==")
+    .map(|op| {
+        let prec = match op {
+            "==" => 6,
+            _ => unreachable!()
+        };
+        (op, combine_language::Assoc { precedence: prec, fixity: combine_language::Fixity::Left })
+    })
+    .skip(spaces());
+    combine_language::expression_parser(term, op_parser, op)
+}
+
+fn op(l: Expression, o: &'static str, r: Expression) -> Expression {
+    Expression::CmpEq(Box::new(l), Box::new(r))
 }
 
 #[cfg(test)]
@@ -98,8 +112,6 @@ mod tests {
     #[test]
     fn decode() {
         let ctx = Context {};
-        println!("{:?}", cmp_eq().parse("0x99 == 99").unwrap().0.eval(&ctx));
-        println!("{:?}", literal().parse("-010115").unwrap().0);
-        println!("{:?}", identifier().parse("tcp.src"));
+        println!("{:?}", expression().parse("555==44"));
     }
 }
