@@ -1,14 +1,19 @@
-use combine::{
-    choice, eof, many, many1, optional,
-    parser::char::{alpha_num, digit, hex_digit, letter, oct_digit, spaces, string, string_cmp},
-    token, try, Parser, between, parser,
-    ParseResult, Stream
-};
 use ast::Expression;
+use combine::{
+    between, choice,
+    combinator::parser,
+    eof, many, many1, optional,
+    parser::{
+        self,
+        char::{alpha_num, digit, hex_digit, letter, oct_digit, spaces, string, string_cmp},
+        combinator::recognize,
+    },
+    token, try, ParseResult, Parser, Stream,
+};
+use combine_language;
 use genet_abi::variant::Variant;
 use num_bigint::BigInt;
 use num_traits::{Num, ToPrimitive, Zero};
-use combine_language;
 
 fn unsigned_bin<'a>() -> impl Parser<Input = &'a str, Output = BigInt> {
     try(string_cmp("0b", |l, r| l.eq_ignore_ascii_case(&r)))
@@ -84,19 +89,32 @@ fn literal<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
 }
 
 fn expression<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
-    let term = spaces().with(
-        literal()
-    ).skip(spaces());
+    let term = spaces()
+        .with(
+            between(
+                token('('),
+                token(')'),
+                parser(|input| {
+                    let mut ps = expression();
+                    ps.parse_stream(input)
+                }),
+            ).or(literal()),
+        ).skip(spaces());
 
-    let op_parser = string("==")
-    .map(|op| {
-        let prec = match op {
-            "==" => 6,
-            _ => unreachable!()
-        };
-        (op, combine_language::Assoc { precedence: prec, fixity: combine_language::Fixity::Left })
-    })
-    .skip(spaces());
+    let op_parser = try(string("=="))
+        .map(|op| {
+            let prec = match op {
+                "==" => 6,
+                _ => unreachable!(),
+            };
+            (
+                op,
+                combine_language::Assoc {
+                    precedence: prec,
+                    fixity: combine_language::Fixity::Left,
+                },
+            )
+        }).skip(spaces());
     combine_language::expression_parser(term, op_parser, op)
 }
 
@@ -112,6 +130,6 @@ mod tests {
     #[test]
     fn decode() {
         let ctx = Context {};
-        println!("{:?}", expression().parse("555==44"));
+        println!("{:?}", expression().parse("555==0x44"));
     }
 }
