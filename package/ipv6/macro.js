@@ -1,4 +1,4 @@
-module.exports = function ipv6 (str) {
+module.exports = function ipv6(str) {
   const sections = str.split(':')
   if (sections[sections.length - 1] === '') {
     sections.pop()
@@ -19,5 +19,5 @@ module.exports = function ipv6 (str) {
   }
   const array = addr.map((sec) => [Math.floor(sec / 256), sec % 256])
     .reduce((lhs, rhs) => lhs.concat(rhs))
-  return JSON.stringify(array)
+  return `0x${array.map((num) => (`0${num.toString(16)}`).slice(-2)).join('')}`
 }

@@ -10,5 +10,5 @@ module.exports = function ipv4 (str) {
   if (!addr.every((sec) => sec >= 0 && sec <= 0xff)) {
     return null
   }
-  return JSON.stringify(addr)
+  return `0x${addr.map((num) => (`0${num.toString(16)}`).slice(-2)).join('')}`
 }

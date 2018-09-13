@@ -1,9 +1,13 @@
+extern crate combine;
+extern crate combine_language;
 extern crate crossbeam_channel;
 extern crate fnv;
 extern crate genet_abi;
 extern crate libc;
 extern crate libloading;
+extern crate num_bigint;
 extern crate num_cpus;
+extern crate num_traits;
 extern crate serde;
 extern crate serde_json;
 

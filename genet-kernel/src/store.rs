@@ -29,8 +29,8 @@ enum Command {
     PushFrames(Option<u32>, Result<Vec<MutFixed<Layer>>>),
     PushSerialFrames(Vec<Frame>),
     StoreFrames(Vec<Frame>),
-    SetFilter(u32, Option<Box<Filter>>),
-    PushOutput(u32, Box<Output>, Option<Box<Filter>>),
+    SetFilter(u32, Option<Filter>),
+    PushOutput(u32, Box<Output>, Option<Filter>),
     Close,
 }
 
@@ -106,16 +106,11 @@ impl Store {
         frames.len()
     }
 
-    pub fn set_filter(&mut self, id: u32, filter: Option<Box<Filter>>) {
+    pub fn set_filter(&mut self, id: u32, filter: Option<Filter>) {
         self.sender.send(Command::SetFilter(id, filter));
     }
 
-    pub fn push_output<O: 'static + Output>(
-        &mut self,
-        id: u32,
-        output: O,
-        filter: Option<Box<Filter>>,
-    ) {
+    pub fn push_output<O: 'static + Output>(&mut self, id: u32, output: O, filter: Option<Filter>) {
         self.sender
             .send(Command::PushOutput(id, Box::new(output), filter));
     }
@@ -193,7 +188,7 @@ impl serial::Callback for SerialCallback {
 }
 
 struct FilterContext {
-    worker: Box<filter::Worker>,
+    filter: Filter,
     offset: usize,
 }
 
@@ -323,14 +318,13 @@ impl EventLoop {
     fn process_output(
         id: u32,
         output: Box<Output>,
-        filter: Option<Box<Filter>>,
+        filter: Option<Filter>,
         frames: &FrameStore,
         callback: &Callback,
     ) {
         let frames = frames.read().unwrap();
         let mut offset = 0;
         {
-            let filter = filter.map(|f| f.new_worker());
             let mut output = output;
             while offset < frames.len() {
                 let len = cmp::min(frames.len() - offset, Self::OUTPUT_BLOCK_SIZE);
@@ -338,8 +332,10 @@ impl EventLoop {
                     .iter()
                     .skip(offset)
                     .take(len)
-                    .filter(|frame| filter.as_ref().map_or(true, |f| f.test(frame)))
-                    .collect::<Vec<_>>();
+                    .filter(|frame| {
+                        let ctx = filter::context::Context::new(frame);
+                        filter.as_ref().map_or(true, |f| f.test(&ctx))
+                    }).collect::<Vec<_>>();
                 if let Err(err) = output.write(frames.as_slice()) {
                     let err = Error(err.description().to_string());
                     callback.on_output_done(id, Some(Box::new(err)));
@@ -358,7 +354,7 @@ impl EventLoop {
 
     fn process_push_filter(
         id: u32,
-        filter: Option<Box<Filter>>,
+        filter: Option<Filter>,
         filtered: &FilteredFrameStore,
         filter_map: &mut FnvHashMap<u32, FilterContext>,
         callback: &Callback,
@@ -367,8 +363,8 @@ impl EventLoop {
             filter_map.insert(
                 id,
                 FilterContext {
-                    worker: filter.new_worker(),
                     offset: 0,
+                    filter: filter.clone(),
                 },
             );
             callback.on_filtered_frames_updated(id, 0);
@@ -384,20 +380,21 @@ impl EventLoop {
         filter_map: &mut FnvHashMap<u32, FilterContext>,
         callback: &Callback,
     ) {
-        for (id, filter) in filter_map.iter_mut() {
+        for (id, fctx) in filter_map.iter_mut() {
             let mut indices: Vec<u32> = {
                 let frames = frames.read().unwrap();
                 let mut indeces = frames
                     .iter()
-                    .skip(filter.offset)
+                    .skip(fctx.offset)
                     .filter_map(|frame| {
-                        if filter.worker.test(frame) {
+                        let ctx = filter::context::Context::new(frame);
+                        if fctx.filter.test(&ctx) {
                             Some(frame.index())
                         } else {
                             None
                         }
                     }).collect::<Vec<_>>();
-                filter.offset = frames.len();
+                fctx.offset = frames.len();
                 indeces
             };
             let len = if !indices.is_empty() {
@@ -430,24 +427,13 @@ impl fmt::Debug for EventLoop {
 
 #[cfg(test)]
 mod tests {
-    use filter;
+    use filter::Filter;
     use profile::Profile;
     use store::{Callback, Store};
 
     #[derive(Clone)]
     struct TestCallback {}
     impl Callback for TestCallback {}
-
-    struct TestFilterWorker {}
-    impl filter::Worker for TestFilterWorker {}
-
-    #[derive(Debug)]
-    struct TestFilter {}
-    impl filter::Filter for TestFilter {
-        fn new_worker(&self) -> Box<filter::Worker> {
-            Box::new(TestFilterWorker {})
-        }
-    }
 
     #[test]
     fn drop() {
@@ -459,7 +445,7 @@ mod tests {
     fn invalid_range() {
         let profile = Profile::new();
         let mut store = Store::new(profile, TestCallback {});
-        store.set_filter(0, Some(Box::new(TestFilter {})));
+        store.set_filter(0, Filter::compile("false").ok());
         assert_eq!(store.frames(100..0).len(), 0);
         assert_eq!(store.filtered_frames(0, 100..0).len(), 0);
     }

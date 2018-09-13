@@ -42,7 +42,7 @@ impl Session {
         self.store.filtered_frames(id, range)
     }
 
-    pub fn set_filter(&mut self, id: u32, filter: Option<Box<Filter>>) {
+    pub fn set_filter(&mut self, id: u32, filter: Option<Filter>) {
         self.store.set_filter(id, filter);
     }
 
@@ -65,7 +65,7 @@ impl Session {
         0
     }
 
-    pub fn create_writer(&mut self, id: &str, arg: &str, filter: Option<Box<Filter>>) -> u32 {
+    pub fn create_writer(&mut self, id: &str, arg: &str, filter: Option<Filter>) -> u32 {
         if let Some(writer) = self.profile.writers().find(|&&r| r.id().as_str() == id) {
             self.io_cnt += 1;
             let ctx = self.profile.context();

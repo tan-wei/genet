@@ -1,4 +1,4 @@
-use filter::{Filter, Worker};
+use filter::Filter;
 use frame::Frame;
 use libc;
 use profile::Profile;
@@ -137,19 +137,20 @@ pub unsafe extern "C" fn genet_session_create_writer(
     session: *mut Session,
     id: *const libc::c_char,
     arg: *const libc::c_char,
-    filter: *mut FilterBase,
+    filter: *const libc::c_char,
 ) -> u32 {
-    let filter = if filter.is_null() {
-        None
-    } else {
-        let b: Box<Filter> = Box::new(FFIFilter {
-            base: FilterBaseHolder(filter),
-        });
-        Some(b)
-    };
     let id = str::from_utf8_unchecked(CStr::from_ptr(id).to_bytes());
     let arg = str::from_utf8_unchecked(CStr::from_ptr(arg).to_bytes());
-    (*session).create_writer(id, arg, filter)
+    let filter = str::from_utf8_unchecked(CStr::from_ptr(filter).to_bytes());
+    (*session).create_writer(
+        id,
+        arg,
+        if filter.is_empty() {
+            None
+        } else {
+            Filter::compile(filter).ok()
+        },
+    )
 }
 
 #[no_mangle]
@@ -160,17 +161,17 @@ pub unsafe extern "C" fn genet_session_close_reader(session: *mut Session, handl
 pub unsafe extern "C" fn genet_session_set_filter(
     session: *mut Session,
     id: u32,
-    filter: *mut FilterBase,
+    filter: *const libc::c_char,
 ) {
-    let filter = if filter.is_null() {
-        None
-    } else {
-        let b: Box<Filter> = Box::new(FFIFilter {
-            base: FilterBaseHolder(filter),
-        });
-        Some(b)
-    };
-    (*session).set_filter(id, filter);
+    let filter = str::from_utf8_unchecked(CStr::from_ptr(filter).to_bytes());
+    (*session).set_filter(
+        id,
+        if filter.is_empty() {
+            None
+        } else {
+            Filter::compile(filter).ok()
+        },
+    );
 }
 
 #[no_mangle]
@@ -182,65 +183,5 @@ pub unsafe extern "C" fn genet_session_len(session: *const Session) -> u32 {
 pub unsafe extern "C" fn genet_session_free(session: *mut Session) {
     if !session.is_null() {
         Box::from_raw(session);
-    }
-}
-
-#[repr(C)]
-pub struct FilterBase {
-    new_worker: extern "C" fn(*mut FilterBase) -> *mut FilterWorkerBase,
-    destroy: extern "C" fn(*mut FilterBase),
-}
-
-#[derive(Debug)]
-pub struct FilterBaseHolder(*mut FilterBase);
-
-unsafe impl Send for FilterBaseHolder {}
-
-impl Drop for FilterBaseHolder {
-    fn drop(&mut self) {
-        unsafe { ((*self.0).destroy)(self.0) };
-    }
-}
-
-#[repr(C)]
-pub struct FilterWorkerBase {
-    test: extern "C" fn(*mut FilterWorkerBase, *const Frame) -> u8,
-    destroy: extern "C" fn(*mut FilterWorkerBase),
-}
-
-pub struct FilterWorkerBaseHolder(*mut FilterWorkerBase);
-
-unsafe impl Send for FilterWorkerBaseHolder {}
-
-impl Drop for FilterWorkerBaseHolder {
-    fn drop(&mut self) {
-        unsafe { ((*self.0).destroy)(self.0) };
-    }
-}
-
-#[derive(Debug)]
-pub struct FFIFilter {
-    base: FilterBaseHolder,
-}
-
-impl Filter for FFIFilter {
-    fn new_worker(&self) -> Box<Worker> {
-        let filter: *mut FilterBase = self.base.0;
-        unsafe {
-            Box::new(FFIFilterWorker {
-                base: FilterWorkerBaseHolder(((*filter).new_worker)(filter)),
-            })
-        }
-    }
-}
-
-pub struct FFIFilterWorker {
-    base: FilterWorkerBaseHolder,
-}
-
-impl Worker for FFIFilterWorker {
-    fn test(&self, frame: &Frame) -> bool {
-        let worker: *mut FilterWorkerBase = self.base.0;
-        unsafe { ((*worker).test)(worker, frame) != 0 }
     }
 }
