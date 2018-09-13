@@ -1,0 +1,10 @@
+[package]
+name = "genet-filter"
+version = "0.1.0"
+authors = ["Ron Hashimoto <mail@h2so5.net>"]
+
+[dependencies]
+combine = "3"
+num-bigint = "0.2"
+num-traits = "0.2"
+genet-abi = "0.3.0"
