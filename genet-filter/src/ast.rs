@@ -1,5 +1,6 @@
-use genet_abi::variant::Variant;
+use genet_abi::token::Token;
 use ops::*;
+use variant::Variant;
 
 pub struct Context {}
 
@@ -7,14 +8,15 @@ pub struct Context {}
 pub enum Expression {
     Literal(Variant),
     Id(String, Vec<String>),
+    Token(Token),
     Multiplication(Box<Expression>, Box<Expression>),
     Division(Box<Expression>, Box<Expression>),
     Reminder(Box<Expression>, Box<Expression>),
     Addition(Box<Expression>, Box<Expression>),
     Subtraction(Box<Expression>, Box<Expression>),
     LeftShift(Box<Expression>, Box<Expression>),
-    RightShit(Box<Expression>, Box<Expression>),
-    UnsignedRightShit(Box<Expression>, Box<Expression>),
+    RightShift(Box<Expression>, Box<Expression>),
+    UnsignedRightShift(Box<Expression>, Box<Expression>),
     CmpEq(Box<Expression>, Box<Expression>),
     CmpNotEq(Box<Expression>, Box<Expression>),
     CmpLt(Box<Expression>, Box<Expression>),
@@ -36,49 +38,45 @@ impl Expression {
     pub fn eval(&self, ctx: &Context) -> Variant {
         match self {
             Expression::Literal(v) => v.clone(),
-            Expression::CmpEq(l, r) => Variant::Bool(variant_eq(&l.eval(ctx), &r.eval(ctx))),
+            Expression::CmpEq(l, r) => Variant::Bool(l.eval(ctx).op_eq(&r.eval(ctx))),
+            Expression::CmpNotEq(l, r) => Variant::Bool(!l.eval(ctx).op_eq(&r.eval(ctx))),
             Expression::CmpLt(l, r) => Variant::Bool(variant_lt(&l.eval(ctx), &r.eval(ctx))),
             Expression::CmpGt(l, r) => Variant::Bool(variant_gt(&l.eval(ctx), &r.eval(ctx))),
             Expression::CmpLte(l, r) => Variant::Bool(variant_lte(&l.eval(ctx), &r.eval(ctx))),
             Expression::CmpGte(l, r) => Variant::Bool(variant_gte(&l.eval(ctx), &r.eval(ctx))),
             Expression::LogicalAnd(l, r) => {
-                Variant::Bool(is_truthy(&l.eval(ctx)) && is_truthy(&r.eval(ctx)))
+                Variant::Bool(l.eval(ctx).is_truthy() && r.eval(ctx).is_truthy())
             }
             Expression::LogicalOr(l, r) => {
-                Variant::Bool(is_truthy(&l.eval(ctx)) || is_truthy(&r.eval(ctx)))
+                Variant::Bool(l.eval(ctx).is_truthy() || r.eval(ctx).is_truthy())
             }
-            Expression::LogicalNegation(v) => Variant::Bool(!is_truthy(&v.eval(ctx))),
+            Expression::LogicalNegation(v) => Variant::Bool(!v.eval(ctx).is_truthy()),
+            Expression::UnaryPlus(v) => v.eval(ctx).op_unary_plus(),
+            Expression::UnaryNegation(v) => v.eval(ctx).op_unary_negation(),
             _ => Variant::Nil,
         }
     }
 
     fn constant(self) -> Result<Variant, Expression> {
-        match self {
-            Expression::Literal(v) => Ok(v.clone()),
-            Expression::CmpEq(l, r) => {
-                Ok(Variant::Bool(variant_eq(&l.constant()?, &r.constant()?)))
+        Ok(match self {
+            Expression::Literal(v) => v.clone(),
+            Expression::CmpEq(l, r) => Variant::Bool(l.constant()?.op_eq(&r.constant()?)),
+            Expression::CmpNotEq(l, r) => Variant::Bool(!l.constant()?.op_eq(&r.constant()?)),
+            Expression::CmpLt(l, r) => Variant::Bool(variant_lt(&l.constant()?, &r.constant()?)),
+            Expression::CmpGt(l, r) => Variant::Bool(variant_gt(&l.constant()?, &r.constant()?)),
+            Expression::CmpLte(l, r) => Variant::Bool(variant_lte(&l.constant()?, &r.constant()?)),
+            Expression::CmpGte(l, r) => Variant::Bool(variant_gte(&l.constant()?, &r.constant()?)),
+            Expression::LogicalAnd(l, r) => {
+                Variant::Bool(l.constant()?.is_truthy() && r.constant()?.is_truthy())
             }
-            Expression::CmpLt(l, r) => {
-                Ok(Variant::Bool(variant_lt(&l.constant()?, &r.constant()?)))
+            Expression::LogicalOr(l, r) => {
+                Variant::Bool(l.constant()?.is_truthy() || r.constant()?.is_truthy())
             }
-            Expression::CmpGt(l, r) => {
-                Ok(Variant::Bool(variant_gt(&l.constant()?, &r.constant()?)))
-            }
-            Expression::CmpLte(l, r) => {
-                Ok(Variant::Bool(variant_lte(&l.constant()?, &r.constant()?)))
-            }
-            Expression::CmpGte(l, r) => {
-                Ok(Variant::Bool(variant_gte(&l.constant()?, &r.constant()?)))
-            }
-            Expression::LogicalAnd(l, r) => Ok(Variant::Bool(
-                is_truthy(&l.constant()?) && is_truthy(&r.constant()?),
-            )),
-            Expression::LogicalOr(l, r) => Ok(Variant::Bool(
-                is_truthy(&l.constant()?) || is_truthy(&r.constant()?),
-            )),
-            Expression::LogicalNegation(v) => Ok(Variant::Bool(!is_truthy(&v.constant()?))),
-            _ => Err(self),
-        }
+            Expression::LogicalNegation(v) => Variant::Bool(!v.constant()?.is_truthy()),
+            Expression::UnaryPlus(v) => v.constant()?.op_unary_plus(),
+            Expression::UnaryNegation(v) => v.constant()?.op_unary_negation(),
+            _ => return Err(self),
+        })
     }
 
     pub fn fold(self) -> Expression {

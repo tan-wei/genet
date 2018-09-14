@@ -1,6 +1,6 @@
-use genet_abi::variant::Variant;
 use num_bigint::{BigInt, Sign};
 use std::{io, result::Result};
+use variant::Variant;
 
 pub fn variant_eq(lhs: &Variant, rhs: &Variant) -> bool {
     match (lhs, rhs) {
@@ -320,12 +320,5 @@ pub fn variant_gte(lhs: &Variant, rhs: &Variant) -> bool {
         }
 
         _ => variant_eq(lhs, rhs) || variant_gt(lhs, rhs),
-    }
-}
-
-pub fn is_truthy(val: &Variant) -> bool {
-    match val {
-        Variant::Nil | Variant::Bool(false) => false,
-        _ => true,
     }
 }

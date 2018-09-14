@@ -11,9 +11,9 @@ use combine::{
     token, try, ParseResult, Parser, Stream,
 };
 use combine_language;
-use genet_abi::variant::Variant;
 use num_bigint::BigInt;
 use num_traits::{Num, ToPrimitive, Zero};
+use variant::Variant;
 
 fn unsigned_bin<'a>() -> impl Parser<Input = &'a str, Output = BigInt> {
     try(string_cmp("0b", |l, r| l.eq_ignore_ascii_case(&r)))
@@ -37,17 +37,13 @@ fn unsigned_dec<'a>() -> impl Parser<Input = &'a str, Output = BigInt> {
     many1(digit()).map(|s: String| BigInt::from_str_radix(&s, 10).unwrap())
 }
 
-fn signed_integer<'a>() -> impl Parser<Input = &'a str, Output = BigInt> {
-    (
-        optional(token('-')),
-        choice((
-            unsigned_hex(),
-            unsigned_oct(),
-            unsigned_bin(),
-            unsigned_dec(),
-        )),
-    )
-        .map(|(s, v)| if s.is_some() { BigInt::zero() - v } else { v })
+fn unsigned_integer<'a>() -> impl Parser<Input = &'a str, Output = BigInt> {
+    choice((
+        unsigned_hex(),
+        unsigned_oct(),
+        unsigned_bin(),
+        unsigned_dec(),
+    ))
 }
 
 fn boolean<'a>() -> impl Parser<Input = &'a str, Output = bool> {
@@ -75,16 +71,7 @@ fn identifier<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
 fn literal<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
     choice((
         boolean().map(|v| Variant::Bool(v)),
-        signed_integer().map(|v| {
-            if let Some(i) = v.to_u64() {
-                Variant::UInt64(i)
-            } else if let Some(i) = v.to_i64() {
-                Variant::Int64(i)
-            } else {
-                let (_, b) = v.to_bytes_be();
-                Variant::Buffer(b.into_boxed_slice())
-            }
-        }),
+        unsigned_integer().map(|v| Variant::BigInt(v).shrink()),
     )).map(|v| Expression::Literal(v))
 }
 
@@ -172,8 +159,8 @@ fn op(l: Expression, op: &'static str, r: Expression) -> Expression {
         "+" => Expression::Addition(Box::new(l), Box::new(r)),
         "-" => Expression::Subtraction(Box::new(l), Box::new(r)),
         "<<" => Expression::LeftShift(Box::new(l), Box::new(r)),
-        ">>" => Expression::RightShit(Box::new(l), Box::new(r)),
-        ">>>" => Expression::UnsignedRightShit(Box::new(l), Box::new(r)),
+        ">>" => Expression::RightShift(Box::new(l), Box::new(r)),
+        ">>>" => Expression::UnsignedRightShift(Box::new(l), Box::new(r)),
         "==" => Expression::CmpEq(Box::new(l), Box::new(r)),
         "!=" => Expression::CmpNotEq(Box::new(l), Box::new(r)),
         "<" => Expression::CmpLt(Box::new(l), Box::new(r)),
@@ -197,7 +184,7 @@ mod tests {
     #[test]
     fn decode() {
         let ctx = Context {};
-        let fi = "   !tcp.src == 55 << !(rt.dd.ss) + 0 ";
+        let fi = "   -5555";
         println!("{:?}", expression().parse(fi));
         println!("{:?}", expression().parse(fi).unwrap().0.fold());
     }
