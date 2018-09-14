@@ -6,14 +6,29 @@ pub struct Context {}
 #[derive(Clone, Debug)]
 pub enum Expression {
     Literal(Variant),
+    Multiplication(Box<Expression>, Box<Expression>),
+    Division(Box<Expression>, Box<Expression>),
+    Reminder(Box<Expression>, Box<Expression>),
+    Addition(Box<Expression>, Box<Expression>),
+    Subtraction(Box<Expression>, Box<Expression>),
+    LeftShift(Box<Expression>, Box<Expression>),
+    RightShit(Box<Expression>, Box<Expression>),
+    UnsignedRightShit(Box<Expression>, Box<Expression>),
     CmpEq(Box<Expression>, Box<Expression>),
+    CmpNotEq(Box<Expression>, Box<Expression>),
     CmpLt(Box<Expression>, Box<Expression>),
     CmpGt(Box<Expression>, Box<Expression>),
     CmpLte(Box<Expression>, Box<Expression>),
     CmpGte(Box<Expression>, Box<Expression>),
+    BitwiseAnd(Box<Expression>, Box<Expression>),
+    BitwiseOr(Box<Expression>, Box<Expression>),
+    BitwiseXor(Box<Expression>, Box<Expression>),
     LogicalAnd(Box<Expression>, Box<Expression>),
     LogicalOr(Box<Expression>, Box<Expression>),
     LogicalNegation(Box<Expression>),
+    BitwiseNot(Box<Expression>),
+    UnaryPlus(Box<Expression>),
+    UnaryNegation(Box<Expression>),
 }
 
 impl Expression {

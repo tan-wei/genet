@@ -94,42 +94,96 @@ fn term<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
             between(
                 token('('),
                 token(')'),
-                parser(|input| {
-                    let mut ps = expression();
-                    ps.parse_stream(input)
-                }),
+                parser(|input| expression().parse_stream(input)),
             ).or(literal()),
         ).skip(spaces())
 }
 
 fn unary<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
-    (many::<Vec<_>, _>(choice([string("!")])), term()).map(|(ops, exp)| {
-        ops.into_iter().rfold(exp, |acc, op| match op {
-            _ => Expression::LogicalNegation(Box::new(acc)),
+    (
+        many::<Vec<_>, _>(choice([string("!"), string("~"), string("+"), string("-")])),
+        term(),
+    )
+        .map(|(ops, exp)| {
+            ops.into_iter().rfold(exp, |acc, op| match op {
+                "!" => Expression::LogicalNegation(Box::new(acc)),
+                "~" => Expression::BitwiseNot(Box::new(acc)),
+                "+" => Expression::UnaryPlus(Box::new(acc)),
+                "-" => Expression::UnaryNegation(Box::new(acc)),
+                _ => unreachable!(),
+            })
         })
-    })
 }
 
 fn expression<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
-    let op_parser = try(string("=="))
-        .map(|op| {
-            let prec = match op {
-                "==" => 6,
-                _ => unreachable!(),
-            };
-            (
-                op,
-                combine_language::Assoc {
-                    precedence: prec,
-                    fixity: combine_language::Fixity::Left,
-                },
-            )
-        }).skip(spaces());
+    let op_parser = try(choice([
+        string("*"),
+        string("/"),
+        string("%"),
+        string("+"),
+        string("-"),
+        string("<<"),
+        string(">>"),
+        string(">>>"),
+        string("<"),
+        string("<="),
+        string(">"),
+        string(">="),
+        string("=="),
+        string("!="),
+        string("&"),
+        string("^"),
+        string("|"),
+        string("&&"),
+        string("||"),
+    ])).map(|op| {
+        let prec = match op {
+            "*" | "/" | "%" => 14,
+            "+" | "-" => 13,
+            "<<" | ">>" | ">>>" => 12,
+            "<" | "<=" | ">" | ">=" => 11,
+            "==" | "!=" => 10,
+            "&" => 9,
+            "^" => 8,
+            "|" => 7,
+            "&&" => 6,
+            "||" => 5,
+            _ => unreachable!(),
+        };
+        (
+            op,
+            combine_language::Assoc {
+                precedence: prec,
+                fixity: combine_language::Fixity::Left,
+            },
+        )
+    }).skip(spaces());
     combine_language::expression_parser(unary(), op_parser, op)
 }
 
-fn op(l: Expression, o: &'static str, r: Expression) -> Expression {
-    Expression::CmpEq(Box::new(l), Box::new(r))
+fn op(l: Expression, op: &'static str, r: Expression) -> Expression {
+    match op {
+        "*" => Expression::Multiplication(Box::new(l), Box::new(r)),
+        "/" => Expression::Division(Box::new(l), Box::new(r)),
+        "%" => Expression::Reminder(Box::new(l), Box::new(r)),
+        "+" => Expression::Addition(Box::new(l), Box::new(r)),
+        "-" => Expression::Subtraction(Box::new(l), Box::new(r)),
+        "<<" => Expression::LeftShift(Box::new(l), Box::new(r)),
+        ">>" => Expression::RightShit(Box::new(l), Box::new(r)),
+        ">>>" => Expression::UnsignedRightShit(Box::new(l), Box::new(r)),
+        "==" => Expression::CmpEq(Box::new(l), Box::new(r)),
+        "!=" => Expression::CmpNotEq(Box::new(l), Box::new(r)),
+        "<" => Expression::CmpLt(Box::new(l), Box::new(r)),
+        ">" => Expression::CmpGt(Box::new(l), Box::new(r)),
+        "<=" => Expression::CmpLte(Box::new(l), Box::new(r)),
+        ">=" => Expression::CmpGte(Box::new(l), Box::new(r)),
+        "&" => Expression::BitwiseAnd(Box::new(l), Box::new(r)),
+        "|" => Expression::BitwiseOr(Box::new(l), Box::new(r)),
+        "^" => Expression::BitwiseXor(Box::new(l), Box::new(r)),
+        "&&" => Expression::LogicalAnd(Box::new(l), Box::new(r)),
+        "||" => Expression::LogicalOr(Box::new(l), Box::new(r)),
+        _ => unreachable!(),
+    }
 }
 
 #[cfg(test)]
@@ -140,7 +194,7 @@ mod tests {
     #[test]
     fn decode() {
         let ctx = Context {};
-        let fi = "!!!(555==0x44)";
+        let fi = "5 - 8 * (4 + 4) * 2 + 1";
         println!("{:?}", expression().parse(fi));
         println!("{:?}", expression().parse(fi).unwrap().0.fold());
     }
