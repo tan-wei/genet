@@ -13,6 +13,7 @@ pub enum Expression {
     CmpGte(Box<Expression>, Box<Expression>),
     LogicalAnd(Box<Expression>, Box<Expression>),
     LogicalOr(Box<Expression>, Box<Expression>),
+    LogicalNegation(Box<Expression>),
 }
 
 impl Expression {
@@ -30,6 +31,7 @@ impl Expression {
             Expression::LogicalOr(l, r) => {
                 Variant::Bool(is_truthy(&l.eval(ctx)) || is_truthy(&r.eval(ctx)))
             }
+            Expression::LogicalNegation(v) => Variant::Bool(!is_truthy(&v.eval(ctx))),
             _ => Variant::Nil,
         }
     }
@@ -43,6 +45,7 @@ impl Expression {
             Expression::LogicalAnd(l, r) => Ok(Variant::Bool(
                 is_truthy(&l.constant()?) && is_truthy(&r.constant()?),
             )),
+            Expression::LogicalNegation(v) => Ok(Variant::Bool(!is_truthy(&v.constant()?))),
             _ => Err(self),
         }
     }

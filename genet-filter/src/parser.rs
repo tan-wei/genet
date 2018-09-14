@@ -88,8 +88,8 @@ fn literal<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
     )).map(|v| Expression::Literal(v))
 }
 
-fn expression<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
-    let term = spaces()
+fn term<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
+    spaces()
         .with(
             between(
                 token('('),
@@ -99,8 +99,18 @@ fn expression<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
                     ps.parse_stream(input)
                 }),
             ).or(literal()),
-        ).skip(spaces());
+        ).skip(spaces())
+}
 
+fn unary<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
+    (many::<Vec<_>, _>(choice([string("!")])), term()).map(|(ops, exp)| {
+        ops.into_iter().rfold(exp, |acc, op| match op {
+            _ => Expression::LogicalNegation(Box::new(acc)),
+        })
+    })
+}
+
+fn expression<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
     let op_parser = try(string("=="))
         .map(|op| {
             let prec = match op {
@@ -115,7 +125,7 @@ fn expression<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
                 },
             )
         }).skip(spaces());
-    combine_language::expression_parser(term, op_parser, op)
+    combine_language::expression_parser(unary(), op_parser, op)
 }
 
 fn op(l: Expression, o: &'static str, r: Expression) -> Expression {
@@ -130,6 +140,8 @@ mod tests {
     #[test]
     fn decode() {
         let ctx = Context {};
-        println!("{:?}", expression().parse("555==0x44"));
+        let fi = "!!!(555==0x44)";
+        println!("{:?}", expression().parse(fi));
+        println!("{:?}", expression().parse(fi).unwrap().0.fold());
     }
 }
