@@ -57,8 +57,23 @@ impl Expression {
             Expression::CmpEq(l, r) => {
                 Ok(Variant::Bool(variant_eq(&l.constant()?, &r.constant()?)))
             }
+            Expression::CmpLt(l, r) => {
+                Ok(Variant::Bool(variant_lt(&l.constant()?, &r.constant()?)))
+            }
+            Expression::CmpGt(l, r) => {
+                Ok(Variant::Bool(variant_gt(&l.constant()?, &r.constant()?)))
+            }
+            Expression::CmpLte(l, r) => {
+                Ok(Variant::Bool(variant_lte(&l.constant()?, &r.constant()?)))
+            }
+            Expression::CmpGte(l, r) => {
+                Ok(Variant::Bool(variant_gte(&l.constant()?, &r.constant()?)))
+            }
             Expression::LogicalAnd(l, r) => Ok(Variant::Bool(
                 is_truthy(&l.constant()?) && is_truthy(&r.constant()?),
+            )),
+            Expression::LogicalOr(l, r) => Ok(Variant::Bool(
+                is_truthy(&l.constant()?) || is_truthy(&r.constant()?),
             )),
             Expression::LogicalNegation(v) => Ok(Variant::Bool(!is_truthy(&v.constant()?))),
             _ => Err(self),

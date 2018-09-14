@@ -194,7 +194,7 @@ mod tests {
     #[test]
     fn decode() {
         let ctx = Context {};
-        let fi = "5 - 8 * (4 + 4) * 2 + 1";
+        let fi = "5 - -8 * (4 + 4) * 2 + 1";
         println!("{:?}", expression().parse(fi));
         println!("{:?}", expression().parse(fi).unwrap().0.fold());
     }
