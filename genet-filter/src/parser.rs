@@ -65,11 +65,11 @@ fn chunk<'a>() -> impl Parser<Input = &'a str, Output = String> {
 }
 
 fn member<'a>() -> impl Parser<Input = &'a str, Output = String> {
-    (token('.'), chunk()).map(|v: (char, String)| v.0.to_string() + &v.1)
+    token('.').with(chunk())
 }
 
-fn identifier<'a>() -> impl Parser<Input = &'a str, Output = String> {
-    (chunk(), many(member())).map(|v: (String, String)| v.0 + &v.1)
+fn identifier<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
+    (chunk(), many::<Vec<_>, _>(member())).map(|v| Expression::Id(v.0, v.1))
 }
 
 fn literal<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
@@ -95,24 +95,27 @@ fn term<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
                 token('('),
                 token(')'),
                 parser(|input| expression().parse_stream(input)),
-            ).or(literal()),
+            ).or(identifier())
+            .or(literal()),
         ).skip(spaces())
 }
 
 fn unary<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
-    (
-        many::<Vec<_>, _>(choice([string("!"), string("~"), string("+"), string("-")])),
-        term(),
+    spaces().with(
+        (
+            many::<Vec<_>, _>(choice([string("!"), string("~"), string("+"), string("-")])),
+            term(),
+        )
+            .map(|(ops, exp)| {
+                ops.into_iter().rfold(exp, |acc, op| match op {
+                    "!" => Expression::LogicalNegation(Box::new(acc)),
+                    "~" => Expression::BitwiseNot(Box::new(acc)),
+                    "+" => Expression::UnaryPlus(Box::new(acc)),
+                    "-" => Expression::UnaryNegation(Box::new(acc)),
+                    _ => unreachable!(),
+                })
+            }),
     )
-        .map(|(ops, exp)| {
-            ops.into_iter().rfold(exp, |acc, op| match op {
-                "!" => Expression::LogicalNegation(Box::new(acc)),
-                "~" => Expression::BitwiseNot(Box::new(acc)),
-                "+" => Expression::UnaryPlus(Box::new(acc)),
-                "-" => Expression::UnaryNegation(Box::new(acc)),
-                _ => unreachable!(),
-            })
-        })
 }
 
 fn expression<'a>() -> impl Parser<Input = &'a str, Output = Expression> {
@@ -194,7 +197,7 @@ mod tests {
     #[test]
     fn decode() {
         let ctx = Context {};
-        let fi = "5 - -8 * (4 + 4) * 2 + 1";
+        let fi = "   !tcp.src == 55 << !(rt.dd.ss) + 0 ";
         println!("{:?}", expression().parse(fi));
         println!("{:?}", expression().parse(fi).unwrap().0.fold());
     }

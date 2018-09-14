@@ -6,6 +6,7 @@ pub struct Context {}
 #[derive(Clone, Debug)]
 pub enum Expression {
     Literal(Variant),
+    Id(String, Vec<String>),
     Multiplication(Box<Expression>, Box<Expression>),
     Division(Box<Expression>, Box<Expression>),
     Reminder(Box<Expression>, Box<Expression>),
