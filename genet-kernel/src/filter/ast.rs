@@ -42,8 +42,14 @@ impl Expr {
                     if layer.id() == *t {
                         return Variant::Bool(true);
                     }
-                    if let Some(attr) = layer.attrs().iter().find(|a| a.id() == *t) {
+                    if let Some(attr) = layer
+                        .headers()
+                        .iter()
+                        .chain(layer.attrs().iter())
+                        .find(|a| a.id() == *t)
+                    {
                         if let Ok(val) = attr.try_get(layer) {
+                            println!("{:?}", val);
                             return val.into();
                         }
                     }

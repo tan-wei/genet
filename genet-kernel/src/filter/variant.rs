@@ -81,7 +81,7 @@ impl Variant {
         let rhs = match other {
             Variant::Buffer(v) => Variant::BigInt(BigInt::from_bytes_be(Sign::Plus, &v)),
             Variant::Slice(v) => Variant::BigInt(BigInt::from_bytes_be(Sign::Plus, &v)),
-            _ => self.clone(),
+            _ => other.clone(),
         };
 
         match (&lhs, &rhs) {

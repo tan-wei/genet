@@ -64,6 +64,7 @@ fn identifier<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
     (chunk(), many::<Vec<String>, _>(member())).map(|v| {
         let mut id = v.0;
         for m in v.1 {
+            id += ".";
             id += &m;
         }
         Expr::Token(Token::from(id))
