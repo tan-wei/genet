@@ -218,16 +218,6 @@ export default class PcapDetailView {
       ? frame.root.children
       : [frame.root]
 
-    let filterValue = '(null)'
-    if (this.displayFilter) {
-      const value = this.displayFilter.built(frame)
-      if (value !== null) {
-        filterValue = value
-      }
-    } else {
-      filterValue = 'No filter'
-    }
-
     return m('div', { class: 'detail-view' }, [
       m('ul', [
         m('li', [
@@ -240,16 +230,6 @@ export default class PcapDetailView {
           m('span', { class: 'label' }, [' Length: ']),
           m('span', [' ', length, ' '])
         ]),
-        m('li', [
-          m('i', { class: 'fa fa-circle-o' }),
-          m('span', { class: 'label' }, [' Filter Result: ']),
-          m('span', [
-            this.displayFilter
-              ? `${this.displayFilter.filter} =>`
-              : '',
-            ' ']),
-          m('span', [m(AttributeValueItem, { attr: { value: filterValue } })])
-        ])
       ]),
       children.map((layer) => m(LayerItem, { layer, frame }))
     ])

@@ -4,7 +4,6 @@
       "src/main.cpp",
       "src/module.cpp",
       "src/frame.cpp",
-      "src/filter.cpp",
       "src/script.cpp",
       "src/session.cpp",
       "src/attr.cpp",

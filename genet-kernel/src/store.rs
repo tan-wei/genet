@@ -1,7 +1,7 @@
 use array_vec::ArrayVec;
 use crossbeam_channel;
 use decoder::{parallel, serial};
-use filter::{self, Filter, XFilter};
+use filter::{self, Filter};
 use fnv::FnvHashMap;
 use frame::Frame;
 use genet_abi::{fixed::MutFixed, layer::Layer};
@@ -29,8 +29,8 @@ enum Command {
     PushFrames(Option<u32>, Result<Vec<MutFixed<Layer>>>),
     PushSerialFrames(Vec<Frame>),
     StoreFrames(Vec<Frame>),
-    SetFilter(u32, Option<XFilter>),
-    PushOutput(u32, Box<Output>, Option<XFilter>),
+    SetFilter(u32, Option<Filter>),
+    PushOutput(u32, Box<Output>, Option<Filter>),
     Close,
 }
 
@@ -106,16 +106,11 @@ impl Store {
         frames.len()
     }
 
-    pub fn set_filter(&mut self, id: u32, filter: Option<XFilter>) {
+    pub fn set_filter(&mut self, id: u32, filter: Option<Filter>) {
         self.sender.send(Command::SetFilter(id, filter));
     }
 
-    pub fn push_output<O: 'static + Output>(
-        &mut self,
-        id: u32,
-        output: O,
-        filter: Option<XFilter>,
-    ) {
+    pub fn push_output<O: 'static + Output>(&mut self, id: u32, output: O, filter: Option<Filter>) {
         self.sender
             .send(Command::PushOutput(id, Box::new(output), filter));
     }
@@ -193,7 +188,7 @@ impl serial::Callback for SerialCallback {
 }
 
 struct FilterContext {
-    filter: XFilter,
+    filter: Filter,
     offset: usize,
 }
 
@@ -323,7 +318,7 @@ impl EventLoop {
     fn process_output(
         id: u32,
         output: Box<Output>,
-        filter: Option<XFilter>,
+        filter: Option<Filter>,
         frames: &FrameStore,
         callback: &Callback,
     ) {
@@ -359,7 +354,7 @@ impl EventLoop {
 
     fn process_push_filter(
         id: u32,
-        filter: Option<XFilter>,
+        filter: Option<Filter>,
         filtered: &FilteredFrameStore,
         filter_map: &mut FnvHashMap<u32, FilterContext>,
         callback: &Callback,

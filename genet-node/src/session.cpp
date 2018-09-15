@@ -1,6 +1,5 @@
 #include "session.hpp"
 #include "exports.hpp"
-#include "filter.hpp"
 #include "frame.hpp"
 #include "module.hpp"
 #include "script.hpp"
@@ -280,11 +279,6 @@ NAN_METHOD(SessionWrapper::createWriter) {
   Nan::Utf8String arg(info[1]);
   Nan::Utf8String script(info[2]);
 
-  Filter *filter = nullptr;
-  if (script.length() > 0) {
-    filter = FilterIsolate::createFilter(*script, script.length());
-  }
-
   if (auto wrapper = Nan::ObjectWrap::Unwrap<SessionWrapper>(info.Holder())) {
     if (!wrapper->event) {
       Nan::ThrowReferenceError("Session has been closed");
@@ -292,7 +286,7 @@ NAN_METHOD(SessionWrapper::createWriter) {
     }
     Session *session = wrapper->event->session;
     info.GetReturnValue().Set(
-        genet_session_create_writer(session, *id, *arg, filter));
+        genet_session_create_writer(session, *id, *arg, *script));
   }
 }
 
@@ -327,17 +321,13 @@ NAN_METHOD(SessionWrapper::setFilter) {
   uint32_t id = info[0]->Uint32Value();
   Nan::Utf8String script(info[1]);
 
-  Filter *filter = nullptr;
-  if (script.length() > 0) {
-    filter = FilterIsolate::createFilter(*script, script.length());
-  }
   if (auto wrapper = Nan::ObjectWrap::Unwrap<SessionWrapper>(info.Holder())) {
     if (!wrapper->event) {
       Nan::ThrowReferenceError("Session has been closed");
       return;
     }
     Session *session = wrapper->event->session;
-    genet_session_set_filter(session, id, filter);
+    genet_session_set_filter(session, id, *script);
   }
 }
 

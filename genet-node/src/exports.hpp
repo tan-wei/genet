@@ -13,7 +13,6 @@ struct Attr;
 struct Frame;
 struct Session;
 struct SessionProfile;
-struct Filter;
 
 struct Range {
   uint32_t start;
@@ -102,33 +101,18 @@ void genet_session_filtered_frames(const Session *session,
                                    uint32_t end,
                                    uint32_t *len,
                                    uint32_t *dst);
-void genet_session_set_filter(Session *session, uint32_t id, Filter *filter);
+void genet_session_set_filter(Session *session,
+                              uint32_t id,
+                              const char *filter);
 uint32_t
 genet_session_create_reader(Session *session, const char *id, const char *arg);
 uint32_t genet_session_create_writer(Session *session,
                                      const char *id,
                                      const char *arg,
-                                     Filter *filter);
+                                     const char *filter);
 void genet_session_close_reader(Session *session, uint32_t handle);
 uint32_t genet_session_len(const Session *session);
 void genet_session_free(Session *session);
 }
-
-namespace genet_node {
-class FilterIsolate;
-}
-
-struct FilterWorker;
-struct Filter {
-  FilterWorker *(*new_worker)(Filter *);
-  void (*destroy)(Filter *);
-  std::string data;
-};
-
-struct FilterWorker {
-  uint8_t (*test)(FilterWorker *, const Frame *);
-  void (*destroy)(FilterWorker *);
-  genet_node::FilterIsolate *data;
-};
 
 #endif

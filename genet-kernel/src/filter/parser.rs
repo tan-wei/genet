@@ -1,15 +1,15 @@
 use combine::{
     between, choice,
     combinator::parser,
-    eof, many, many1,
+    many, many1,
     parser::char::{alpha_num, digit, hex_digit, letter, oct_digit, spaces, string},
-    token, try, ParseResult, Parser, Stream,
+    token, try, Parser,
 };
 use combine_language;
 use filter::{ast::Expr, variant::Variant};
 use genet_abi::token::Token;
 use num_bigint::BigInt;
-use num_traits::{Num, ToPrimitive, Zero};
+use num_traits::Num;
 
 fn unsigned_bin<'a>() -> impl Parser<Input = &'a str, Output = BigInt> {
     try(string("0b"))

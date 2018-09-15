@@ -2,8 +2,7 @@ const native = require('./binding')
 const { Token } = native
 const { Disposable } = require('disposables')
 const { EventEmitter } = require('events')
-const FilterCompiler = require('./filter')
-function consume (len, layerStack, indexStack) {
+function consume(len, layerStack, indexStack) {
   const indices = indexStack.splice(0, len)
   const layers = layerStack.splice(0, len)
   for (let index = 0; index < indices.length; index += 1) {
@@ -17,7 +16,7 @@ function consume (len, layerStack, indexStack) {
   return layers
 }
 
-function treefy (layerStack, indexStack) {
+function treefy(layerStack, indexStack) {
   const layers = [].concat(layerStack)
   const indices = [].concat(indexStack)
   const root = consume(1, layers, indices)
@@ -29,27 +28,27 @@ function treefy (layerStack, indexStack) {
 }
 
 class Frame {
-  constructor (frame) {
+  constructor(frame) {
     this._frame = frame
     this._root = null
   }
 
-  get index () {
+  get index() {
     return this._frame.index
   }
 
-  get root () {
+  get root() {
     if (!this._root) {
       [this._root] = treefy(this._frame.layers, this._frame.treeIndices)
     }
     return this._root
   }
 
-  get primary () {
+  get primary() {
     if (!this.root) {
       return null
     }
-    function fistChild (layer) {
+    function fistChild(layer) {
       if (layer.children.length === 0) {
         return layer
       }
@@ -58,13 +57,13 @@ class Frame {
     return fistChild(this.root)
   }
 
-  query (id) {
+  query(id) {
     return this._frame.query(id)
   }
 }
 
 class Session extends EventEmitter {
-  constructor (profile, options) {
+  constructor(profile, options) {
     super()
     this._options = options
     this._sess = new native.Session(profile)
@@ -93,35 +92,32 @@ class Session extends EventEmitter {
     }
   }
 
-  close () {
+  close() {
     this._sess.close()
   }
 
-  frames (start, end) {
+  frames(start, end) {
     return this._sess
       .frames(start, end)
       .map((frame) => new Frame(frame))
   }
 
-  filteredFrames (id, start, end) {
+  filteredFrames(id, start, end) {
     return this._sess.filteredFrames(Token.get(id), start, end)
   }
 
-  get status () {
+  get status() {
     return this._status
   }
 
-  setFilter (id, filter = '') {
-    const filterCompiler = new FilterCompiler()
-    filterCompiler.macros = Array.from(this._options.filterMacros)
-    const body = filterCompiler.compile(filter, { built: false }).linked
-    this._sess.setFilter(Token.get(id), body)
-    if (body === '') {
+  setFilter(id, filter = '') {
+    this._sess.setFilter(Token.get(id), filter)
+    if (filter === '') {
       Reflect.deleteProperty(this._status.filters, id)
     }
   }
 
-  createReader (id, arg = {}) {
+  createReader(id, arg = {}) {
     const handle = this._sess.createReader(id, JSON.stringify(arg))
     if (handle === 0) {
       throw new Error(`failed to invoke reader: ${id}`)
@@ -143,11 +139,8 @@ class Session extends EventEmitter {
     return disposable
   }
 
-  async createWriter (id, arg = {}, filter = '') {
-    const filterCompiler = new FilterCompiler()
-    filterCompiler.macros = Array.from(this._options.filterMacros)
-    const body = filterCompiler.compile(filter, { built: false }).linked
-    const handle = this._sess.createWriter(id, JSON.stringify(arg), body)
+  async createWriter(id, arg = {}, filter = '') {
+    const handle = this._sess.createWriter(id, JSON.stringify(arg), filter)
     if (handle === 0) {
       throw new Error(`failed to invoke writer: ${id}`)
     }
@@ -168,7 +161,7 @@ class Session extends EventEmitter {
     return disposable
   }
 
-  regiterStreamReader (id, arg = {}) {
+  regiterStreamReader(id, arg = {}) {
     const reader = {
       id,
       arg,
@@ -179,14 +172,14 @@ class Session extends EventEmitter {
     })
   }
 
-  startStream () {
+  startStream() {
     this.stopStream()
     this._streams = Array.from(this._streamReaders)
       .map(({ id, arg }) => this.createReader(id, arg))
     this._status.stream = true
   }
 
-  stopStream () {
+  stopStream() {
     for (const handle of this._streams) {
       handle.dispose()
     }
@@ -194,7 +187,7 @@ class Session extends EventEmitter {
     this._status.stream = false
   }
 
-  get length () {
+  get length() {
     return this._sess.length
   }
 }

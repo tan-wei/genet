@@ -1,5 +1,4 @@
 use filter::{context::Context, variant::Variant};
-use frame::Frame;
 use genet_abi::token::Token;
 
 #[derive(Clone, Debug)]
