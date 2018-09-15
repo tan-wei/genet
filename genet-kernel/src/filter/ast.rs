@@ -1,45 +1,56 @@
-use filter::variant::Variant;
+use filter::{context::Context, variant::Variant};
+use frame::Frame;
 use genet_abi::token::Token;
 
-pub struct Context {}
-
 #[derive(Clone, Debug)]
-pub enum Expression {
+pub enum Expr {
     Literal(Variant),
     Token(Token),
-    CmpEq(Box<Expression>, Box<Expression>),
-    CmpNotEq(Box<Expression>, Box<Expression>),
-    CmpLt(Box<Expression>, Box<Expression>),
-    CmpGt(Box<Expression>, Box<Expression>),
-    CmpLte(Box<Expression>, Box<Expression>),
-    CmpGte(Box<Expression>, Box<Expression>),
-    LogicalAnd(Box<Expression>, Box<Expression>),
-    LogicalOr(Box<Expression>, Box<Expression>),
-    LogicalNegation(Box<Expression>),
-    UnaryPlus(Box<Expression>),
-    UnaryNegation(Box<Expression>),
+    CmpEq(Box<Expr>, Box<Expr>),
+    CmpNotEq(Box<Expr>, Box<Expr>),
+    CmpLt(Box<Expr>, Box<Expr>),
+    CmpGt(Box<Expr>, Box<Expr>),
+    CmpLte(Box<Expr>, Box<Expr>),
+    CmpGte(Box<Expr>, Box<Expr>),
+    LogicalAnd(Box<Expr>, Box<Expr>),
+    LogicalOr(Box<Expr>, Box<Expr>),
+    LogicalNegation(Box<Expr>),
+    UnaryPlus(Box<Expr>),
+    UnaryNegation(Box<Expr>),
 }
 
-impl Expression {
+impl Expr {
     pub fn eval(&self, ctx: &Context) -> Variant {
         match self {
-            Expression::Literal(v) => v.clone(),
-            Expression::CmpEq(l, r) => Variant::Bool(l.eval(ctx).op_eq(&r.eval(ctx))),
-            Expression::CmpNotEq(l, r) => Variant::Bool(!l.eval(ctx).op_eq(&r.eval(ctx))),
-            Expression::CmpLt(l, r) => Variant::Bool(l.eval(ctx).op_lt(&r.eval(ctx))),
-            Expression::CmpGt(l, r) => Variant::Bool(l.eval(ctx).op_gt(&r.eval(ctx))),
-            Expression::CmpLte(l, r) => Variant::Bool(l.eval(ctx).op_lte(&r.eval(ctx))),
-            Expression::CmpGte(l, r) => Variant::Bool(l.eval(ctx).op_gte(&r.eval(ctx))),
-            Expression::LogicalAnd(l, r) => {
+            Expr::Literal(v) => v.clone(),
+            Expr::CmpEq(l, r) => Variant::Bool(l.eval(ctx).op_eq(&r.eval(ctx))),
+            Expr::CmpNotEq(l, r) => Variant::Bool(!l.eval(ctx).op_eq(&r.eval(ctx))),
+            Expr::CmpLt(l, r) => Variant::Bool(l.eval(ctx).op_lt(&r.eval(ctx))),
+            Expr::CmpGt(l, r) => Variant::Bool(l.eval(ctx).op_gt(&r.eval(ctx))),
+            Expr::CmpLte(l, r) => Variant::Bool(l.eval(ctx).op_lte(&r.eval(ctx))),
+            Expr::CmpGte(l, r) => Variant::Bool(l.eval(ctx).op_gte(&r.eval(ctx))),
+            Expr::LogicalAnd(l, r) => {
                 Variant::Bool(l.eval(ctx).is_truthy() && r.eval(ctx).is_truthy())
             }
-            Expression::LogicalOr(l, r) => {
+            Expr::LogicalOr(l, r) => {
                 Variant::Bool(l.eval(ctx).is_truthy() || r.eval(ctx).is_truthy())
             }
-            Expression::LogicalNegation(v) => Variant::Bool(!v.eval(ctx).is_truthy()),
-            Expression::UnaryPlus(v) => v.eval(ctx).op_unary_plus(),
-            Expression::UnaryNegation(v) => v.eval(ctx).op_unary_negation(),
-            _ => Variant::Nil,
+            Expr::LogicalNegation(v) => Variant::Bool(!v.eval(ctx).is_truthy()),
+            Expr::UnaryPlus(v) => v.eval(ctx).op_unary_plus(),
+            Expr::UnaryNegation(v) => v.eval(ctx).op_unary_negation(),
+            Expr::Token(t) => {
+                for layer in ctx.frame().layers().iter().rev() {
+                    if layer.id() == *t {
+                        return Variant::Bool(true);
+                    }
+                    if let Some(attr) = layer.attrs().iter().find(|a| a.id() == *t) {
+                        if let Ok(val) = attr.try_get(layer) {
+                            return val.into();
+                        }
+                    }
+                }
+                Variant::Nil
+            }
         }
     }
 }

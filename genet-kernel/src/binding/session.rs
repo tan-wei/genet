@@ -1,4 +1,4 @@
-use filter::{Filter, Worker};
+use filter::{Filter, Worker, XFilter};
 use frame::Frame;
 use libc;
 use profile::Profile;
@@ -149,7 +149,7 @@ pub unsafe extern "C" fn genet_session_create_writer(
     };
     let id = str::from_utf8_unchecked(CStr::from_ptr(id).to_bytes());
     let arg = str::from_utf8_unchecked(CStr::from_ptr(arg).to_bytes());
-    (*session).create_writer(id, arg, filter)
+    (*session).create_writer(id, arg, Some(XFilter::compile("1").unwrap()))
 }
 
 #[no_mangle]
@@ -170,7 +170,7 @@ pub unsafe extern "C" fn genet_session_set_filter(
         });
         Some(b)
     };
-    (*session).set_filter(id, filter);
+    (*session).set_filter(id, Some(XFilter::compile("1").unwrap()));
 }
 
 #[no_mangle]
