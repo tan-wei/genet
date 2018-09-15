@@ -1,4 +1,3 @@
-use ast::Expression;
 use combine::{
     between, choice,
     combinator::parser,
@@ -11,10 +10,10 @@ use combine::{
     token, try, ParseResult, Parser, Stream,
 };
 use combine_language;
+use filter::{ast::Expression, variant::Variant};
 use genet_abi::token::Token;
 use num_bigint::BigInt;
 use num_traits::{Num, ToPrimitive, Zero};
-use variant::Variant;
 
 fn unsigned_bin<'a>() -> impl Parser<Input = &'a str, Output = BigInt> {
     try(string("0b"))
@@ -155,7 +154,7 @@ fn op(l: Expression, op: &'static str, r: Expression) -> Expression {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ast::Context;
+    use filter::ast::Context;
 
     #[test]
     fn decode() {

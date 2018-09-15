@@ -1,6 +1,10 @@
 use frame::Frame;
 use std::fmt::Debug;
 
+pub mod ast;
+pub mod parser;
+pub mod variant;
+
 pub trait Worker {
     fn test(&self, &Frame) -> bool {
         true

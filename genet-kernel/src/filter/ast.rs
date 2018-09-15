@@ -1,5 +1,5 @@
+use filter::variant::Variant;
 use genet_abi::token::Token;
-use variant::Variant;
 
 pub struct Context {}
 
