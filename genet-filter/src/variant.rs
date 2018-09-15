@@ -63,13 +63,14 @@ impl Variant {
             Variant::Slice(v) => Variant::BigInt(BigInt::from_bytes_be(Sign::Plus, &v)),
             _ => self.clone(),
         };
-        let rhs = match self {
+        let rhs = match other {
             Variant::Buffer(v) => Variant::BigInt(BigInt::from_bytes_be(Sign::Plus, &v)),
             Variant::Slice(v) => Variant::BigInt(BigInt::from_bytes_be(Sign::Plus, &v)),
             _ => self.clone(),
         };
 
         match (&lhs, &rhs) {
+            (Variant::String(a), Variant::String(b)) => a.partial_cmp(b),
             (Variant::Int64(a), Variant::Int64(b)) => a.partial_cmp(b),
             (Variant::UInt64(a), Variant::UInt64(b)) => a.partial_cmp(b),
             (Variant::Float64(a), Variant::Float64(b)) => a.partial_cmp(b),
