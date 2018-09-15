@@ -1,5 +1,4 @@
 use genet_abi::token::Token;
-use ops::*;
 use variant::Variant;
 
 pub struct Context {}
@@ -27,10 +26,10 @@ impl Expression {
             Expression::Literal(v) => v.clone(),
             Expression::CmpEq(l, r) => Variant::Bool(l.eval(ctx).op_eq(&r.eval(ctx))),
             Expression::CmpNotEq(l, r) => Variant::Bool(!l.eval(ctx).op_eq(&r.eval(ctx))),
-            Expression::CmpLt(l, r) => Variant::Bool(variant_lt(&l.eval(ctx), &r.eval(ctx))),
-            Expression::CmpGt(l, r) => Variant::Bool(variant_gt(&l.eval(ctx), &r.eval(ctx))),
-            Expression::CmpLte(l, r) => Variant::Bool(variant_lte(&l.eval(ctx), &r.eval(ctx))),
-            Expression::CmpGte(l, r) => Variant::Bool(variant_gte(&l.eval(ctx), &r.eval(ctx))),
+            Expression::CmpLt(l, r) => Variant::Bool(l.eval(ctx).op_lt(&r.eval(ctx))),
+            Expression::CmpGt(l, r) => Variant::Bool(l.eval(ctx).op_gt(&r.eval(ctx))),
+            Expression::CmpLte(l, r) => Variant::Bool(l.eval(ctx).op_lte(&r.eval(ctx))),
+            Expression::CmpGte(l, r) => Variant::Bool(l.eval(ctx).op_gte(&r.eval(ctx))),
             Expression::LogicalAnd(l, r) => {
                 Variant::Bool(l.eval(ctx).is_truthy() && r.eval(ctx).is_truthy())
             }
