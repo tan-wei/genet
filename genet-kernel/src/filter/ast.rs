@@ -49,7 +49,6 @@ impl Expr {
                         .find(|a| a.id() == *t)
                     {
                         if let Ok(val) = attr.try_get(layer) {
-                            println!("{:?}", val);
                             return val.into();
                         }
                     }

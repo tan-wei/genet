@@ -122,16 +122,16 @@ fn op(l: Expr, op: &'static str, r: Expr) -> Expr {
 }
 
 pub fn expression<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
-    let op_parser = try(choice([
-        string("<"),
-        string("<="),
-        string(">"),
-        string(">="),
-        string("=="),
-        string("!="),
-        string("&&"),
-        string("||"),
-    ])).map(|op| {
+    let op_parser = choice([
+        try(string("<=")),
+        try(string("<")),
+        try(string(">=")),
+        try(string(">")),
+        try(string("==")),
+        try(string("!=")),
+        try(string("&&")),
+        try(string("||")),
+    ]).map(|op| {
         let prec = match op {
             "<" | "<=" | ">" | ">=" => 11,
             "==" | "!=" => 10,
