@@ -1,7 +1,7 @@
 use combine::{
     between, choice,
-    combinator::parser,
-    many, many1,
+    combinator::{parser, recognize},
+    from_str, many, many1,
     parser::char::{alpha_num, digit, hex_digit, letter, oct_digit, spaces, string},
     token, try, Parser,
 };
@@ -33,7 +33,15 @@ fn unsigned_dec<'a>() -> impl Parser<Input = &'a str, Output = BigInt> {
     many1(digit()).map(|s: String| BigInt::from_str_radix(&s, 10).unwrap())
 }
 
-fn unsigned_integer<'a>() -> impl Parser<Input = &'a str, Output = BigInt> {
+fn float<'a>() -> impl Parser<Input = &'a str, Output = f64> {
+    from_str(recognize::<String, _>((
+        many1::<String, _>(digit()),
+        token('.'),
+        many1::<String, _>(digit()),
+    )))
+}
+
+fn number<'a>() -> impl Parser<Input = &'a str, Output = BigInt> {
     choice((
         unsigned_hex(),
         unsigned_oct(),
@@ -73,8 +81,9 @@ fn identifier<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
 
 fn literal<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
     choice((
-        boolean().map(|v| Variant::Bool(v)),
-        unsigned_integer().map(|v| Variant::BigInt(v).shrink()),
+        try(boolean().map(|v| Variant::Bool(v))),
+        try(float().map(|v| Variant::Float64(v))),
+        try(number().map(|v| Variant::BigInt(v).shrink())),
     )).map(|v| Expr::Literal(v))
 }
 
