@@ -110,8 +110,20 @@ class Session extends EventEmitter {
     return this._status
   }
 
+  applyFilterMacros(filter) {
+    return filter.replace(/@(.+)(:?\s|$)/g, (_, body) => {
+      for (const macro of this._options.filterMacros) {
+        const result = macro.func(body)
+        if (typeof result === 'string') {
+          return result
+        }
+      }
+      throw new Error(`unrecognized macro: @${body}`)
+    })
+  }
+
   setFilter(id, filter = '') {
-    this._sess.setFilter(Token.get(id), filter)
+    this._sess.setFilter(Token.get(id), this.applyFilterMacros(filter))
     if (filter === '') {
       Reflect.deleteProperty(this._status.filters, id)
     }
@@ -140,7 +152,8 @@ class Session extends EventEmitter {
   }
 
   async createWriter(id, arg = {}, filter = '') {
-    const handle = this._sess.createWriter(id, JSON.stringify(arg), filter)
+    const handle = this._sess.createWriter(
+      id, JSON.stringify(arg), this.applyFilterMacros(filter))
     if (handle === 0) {
       throw new Error(`failed to invoke writer: ${id}`)
     }

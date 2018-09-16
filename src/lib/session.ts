@@ -136,10 +136,4 @@ export default class Session extends EventEmitter {
       filterMacros: this._filterMacros
     })
   }
-
-  createFilterCompiler() {
-    const filter = new native.FilterCompiler()
-    filter.macros = Array.from(this._filterMacros)
-    return filter
-  }
 }

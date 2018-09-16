@@ -183,7 +183,8 @@ export default class OutputDialog {
             m(PanelView, Object.assign(panel, {
               attrs: {
                 callback: (id, options) => {
-                  vnode.attrs.sess.createWriter(id, options, this.filter)
+                  const { sess } = vnode.attrs
+                  sess.createWriter(id, options, this.filter)
                     .then(() => {
                       genet.notify.show(options.file || '', {
                         type: 'sussess',
