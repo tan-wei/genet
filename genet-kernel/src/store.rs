@@ -427,24 +427,13 @@ impl fmt::Debug for EventLoop {
 
 #[cfg(test)]
 mod tests {
-    use filter;
+    use filter::Filter;
     use profile::Profile;
     use store::{Callback, Store};
 
     #[derive(Clone)]
     struct TestCallback {}
     impl Callback for TestCallback {}
-
-    struct TestFilterWorker {}
-    impl filter::Worker for TestFilterWorker {}
-
-    #[derive(Debug)]
-    struct TestFilter {}
-    impl filter::Filter for TestFilter {
-        fn new_worker(&self) -> Box<filter::Worker> {
-            Box::new(TestFilterWorker {})
-        }
-    }
 
     #[test]
     fn drop() {
@@ -456,7 +445,7 @@ mod tests {
     fn invalid_range() {
         let profile = Profile::new();
         let mut store = Store::new(profile, TestCallback {});
-        store.set_filter(0, Some(Box::new(TestFilter {})));
+        store.set_filter(0, Filter::compile("false").ok());
         assert_eq!(store.frames(100..0).len(), 0);
         assert_eq!(store.filtered_frames(0, 100..0).len(), 0);
     }

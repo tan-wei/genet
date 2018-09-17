@@ -1,7 +1,7 @@
 use filter::{context::Context, variant::Variant};
 use genet_abi::token::Token;
 
-#[derive(Clone, Debug)]
+#[derive(PartialEq, Clone, Debug)]
 pub enum Expr {
     Literal(Variant),
     Token(Token),

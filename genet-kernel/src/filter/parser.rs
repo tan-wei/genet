@@ -94,8 +94,8 @@ fn term<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
                 token('('),
                 token(')'),
                 parser(|input| expression().parse_stream(input)),
-            ).or(identifier())
-            .or(literal()),
+            ).or(literal())
+            .or(identifier()),
         ).skip(spaces())
 }
 
@@ -162,12 +162,47 @@ pub fn expression<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use filter::context::Context;
+    use filter::{ast::Expr, variant::Variant};
 
     #[test]
-    fn decode() {
-        let ctx = Context {};
-        let fi = "tcp && 100 == tcp";
-        println!("{:?}", expression().parse(fi));
+    fn literal() {
+        assert_eq!(
+            expression().parse("true"),
+            Ok((Expr::Literal(Variant::Bool(true)), ""))
+        );
+        assert_eq!(
+            expression().parse("false"),
+            Ok((Expr::Literal(Variant::Bool(false)), ""))
+        );
+        assert_eq!(
+            expression().parse("0"),
+            Ok((Expr::Literal(Variant::UInt64(0)), ""))
+        );
+        assert_eq!(
+            expression().parse("0.0"),
+            Ok((Expr::Literal(Variant::Float64(0.0)), ""))
+        );
+        assert_eq!(
+            expression().parse("1234"),
+            Ok((Expr::Literal(Variant::UInt64(1234)), ""))
+        );
+        assert_eq!(
+            expression().parse("0b110110"),
+            Ok((Expr::Literal(Variant::UInt64(54)), ""))
+        );
+        assert_eq!(
+            expression().parse("0o776503"),
+            Ok((Expr::Literal(Variant::UInt64(261443)), ""))
+        );
+        assert_eq!(
+            expression().parse("0xff5678"),
+            Ok((Expr::Literal(Variant::UInt64(16733816)), ""))
+        );
+        /*
+        assert_eq!(
+            expression().parse("truely"),
+            Ok((Expr::Literal(Variant::Bool(true)), ""))
+        );
+        */
     }
 }
