@@ -1,7 +1,7 @@
 use combine::{
     between, choice,
     combinator::{parser, recognize},
-    from_str, many, many1,
+    from_str, many, many1, not_followed_by,
     parser::char::{alpha_num, digit, hex_digit, letter, oct_digit, spaces, string},
     token, try, Parser,
 };
@@ -51,9 +51,9 @@ fn number<'a>() -> impl Parser<Input = &'a str, Output = BigInt> {
 }
 
 fn boolean<'a>() -> impl Parser<Input = &'a str, Output = bool> {
-    string("true")
+    (string("true")
         .map(|_| true)
-        .or(string("false").map(|_| false))
+        .or(string("false").map(|_| false))).skip(not_followed_by(alpha_num().or(token('.'))))
 }
 
 fn chunk<'a>() -> impl Parser<Input = &'a str, Output = String> {
@@ -163,6 +163,7 @@ pub fn expression<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
 mod tests {
     use super::*;
     use filter::{ast::Expr, variant::Variant};
+    use genet_abi::token::Token;
 
     #[test]
     fn literal() {
@@ -171,8 +172,20 @@ mod tests {
             Ok((Expr::Literal(Variant::Bool(true)), ""))
         );
         assert_eq!(
+            expression().parse("truely"),
+            Ok((Expr::Token(Token::from("truely")), ""))
+        );
+        assert_eq!(
             expression().parse("false"),
             Ok((Expr::Literal(Variant::Bool(false)), ""))
+        );
+        assert_eq!(
+            expression().parse("falsely"),
+            Ok((Expr::Token(Token::from("falsely")), ""))
+        );
+        assert_eq!(
+            expression().parse("false.false"),
+            Ok((Expr::Token(Token::from("false.false")), ""))
         );
         assert_eq!(
             expression().parse("0"),
@@ -198,11 +211,9 @@ mod tests {
             expression().parse("0xff5678"),
             Ok((Expr::Literal(Variant::UInt64(16733816)), ""))
         );
-        /*
         assert_eq!(
-            expression().parse("truely"),
-            Ok((Expr::Literal(Variant::Bool(true)), ""))
+            expression().parse("(((((0xff5678)))))"),
+            Ok((Expr::Literal(Variant::UInt64(16733816)), ""))
         );
-        */
     }
 }
