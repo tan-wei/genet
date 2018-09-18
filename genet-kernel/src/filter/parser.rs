@@ -3,7 +3,7 @@ use combine::{
     combinator::{parser, recognize},
     eof, from_str, many, many1, not_followed_by,
     parser::char::{alpha_num, digit, hex_digit, letter, oct_digit, spaces, string},
-    token, try, Parser,
+    skip_many, token, try, Parser,
 };
 use combine_language;
 use filter::{ast::Expr, variant::Variant};
@@ -13,24 +13,25 @@ use num_traits::Num;
 
 fn unsigned_bin<'a>() -> impl Parser<Input = &'a str, Output = BigInt> {
     try(string("0b"))
-        .with(many1(token('0').or(token('1'))))
+        .with(many1(token('0').or(token('1').skip(skip_many(token('_'))))))
         .map(|s: String| BigInt::from_str_radix(&s, 2).unwrap())
 }
 
 fn unsigned_oct<'a>() -> impl Parser<Input = &'a str, Output = BigInt> {
     try(string("0o"))
-        .with(many1(oct_digit()))
+        .with(many1(oct_digit().skip(skip_many(token('_')))))
         .map(|s: String| BigInt::from_str_radix(&s, 8).unwrap())
 }
 
 fn unsigned_hex<'a>() -> impl Parser<Input = &'a str, Output = BigInt> {
     try(string("0x"))
-        .with(many1(hex_digit()))
+        .with(many1(hex_digit().skip(skip_many(token('_')))))
         .map(|s: String| BigInt::from_str_radix(&s, 16).unwrap())
 }
 
 fn unsigned_dec<'a>() -> impl Parser<Input = &'a str, Output = BigInt> {
-    many1(digit()).map(|s: String| BigInt::from_str_radix(&s, 10).unwrap())
+    many1(digit().skip(skip_many(token('_'))))
+        .map(|s: String| BigInt::from_str_radix(&s, 10).unwrap())
 }
 
 fn float<'a>() -> impl Parser<Input = &'a str, Output = f64> {
@@ -202,15 +203,19 @@ mod tests {
             Ok((Literal(Variant::UInt64(1234)), ""))
         );
         assert_eq!(
-            expression().parse("0b110110"),
+            expression().parse("1_2__3___4"),
+            Ok((Literal(Variant::UInt64(1234)), ""))
+        );
+        assert_eq!(
+            expression().parse("0b11_0110"),
             Ok((Literal(Variant::UInt64(54)), ""))
         );
         assert_eq!(
-            expression().parse("0o776503"),
+            expression().parse("0o77_6503"),
             Ok((Literal(Variant::UInt64(261443)), ""))
         );
         assert_eq!(
-            expression().parse("0xff5678"),
+            expression().parse("0xff_56_78"),
             Ok((Literal(Variant::UInt64(16733816)), ""))
         );
         assert_eq!(
