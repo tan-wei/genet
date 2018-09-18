@@ -28,7 +28,6 @@
       "package",
       "genet_modules/bin"
     ],
-    "electronVersion": "1.8.2",
     "mac": {
       "icon": "node_modules/@genet/image-assets/genet.icns",
       "category": "public.app-category.developer-tools"
