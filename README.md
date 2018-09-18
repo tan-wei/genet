@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/genet-app/genet.svg?branch=master)](https://travis-ci.org/genet-app/genet)
 [![genet-abi Version](https://img.shields.io/crates/v/genet-abi.svg)](https://crates.io/crates/genet-abi)
 [![genet-sdk Version](https://img.shields.io/crates/v/genet-sdk.svg)](https://crates.io/crates/genet-sdk)
+[![dependencies](https://david-dm.org/genet-app/genet.svg)](https://david-dm.org/genet-app/genet)
 
 genet is a graphical network analyzer powered by web technologies.
 
