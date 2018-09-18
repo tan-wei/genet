@@ -56,6 +56,7 @@ impl Worker for TcpWorker {
                 }
                 offset += len;
             }
+            layer.add_attr(attr!(&OPTIONS_ATTR, range: 20..offset));
 
             let payload = layer.data().try_get(data_offset..)?;
             layer.add_payload(Payload::new(payload, "@data:tcp"));
@@ -99,8 +100,7 @@ def_layer_class!(
     header: attr!(&FLAGS_FIN_ATTR, range: 13..14),
     header: attr!(&WINDOW_ATTR, range: 14..16),
     header: attr!(&CHECKSUM_ATTR, range: 16..18),
-    header: attr!(&URGENT_ATTR, range: 18..20),
-    header: attr!(&OPTIONS_ATTR, range: 20..21)
+    header: attr!(&URGENT_ATTR, range: 18..20)
 );
 
 def_attr!(OFFSET_ATTR_HEADER,  &OFFSET_ATTR, range: 12..13);
