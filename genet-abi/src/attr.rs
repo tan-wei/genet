@@ -318,13 +318,11 @@ extern "C" fn abi_get(
     let result = if let Some(cast) = cast.as_ref() {
         res = cast.cast(&slice);
         res.as_ref()
+    } else if let Some(val) = value {
+        Ok(val.as_ref())
     } else {
-        if let Some(val) = value {
-            Ok(val.as_ref())
-        } else {
-            verr = io::Error::new(io::ErrorKind::Other, "no value");
-            Err(&verr)
-        }
+        verr = io::Error::new(io::ErrorKind::Other, "no value");
+        Err(&verr)
     };
 
     match result {

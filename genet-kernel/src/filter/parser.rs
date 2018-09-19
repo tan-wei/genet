@@ -82,10 +82,10 @@ fn identifier<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
 
 fn literal<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
     choice((
-        try(boolean().map(|v| Variant::Bool(v))),
-        try(float().map(|v| Variant::Float64(v))),
+        try(boolean().map(Variant::Bool)),
+        try(float().map(Variant::Float64)),
         try(number().map(|v| Variant::BigInt(v).shrink())),
-    )).map(|v| Expr::Literal(v))
+    )).map(Expr::Literal)
 }
 
 fn term<'a>() -> impl Parser<Input = &'a str, Output = Expr> {

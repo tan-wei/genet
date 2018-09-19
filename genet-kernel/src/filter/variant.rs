@@ -33,15 +33,12 @@ impl From<genet_abi::variant::Variant> for Variant {
 
 impl Variant {
     pub fn shrink(self) -> Variant {
-        match &self {
-            Variant::BigInt(v) => {
-                if let Some(i) = v.to_u64() {
-                    return Variant::UInt64(i);
-                } else if let Some(i) = v.to_i64() {
-                    return Variant::Int64(i);
-                }
+        if let Variant::BigInt(v) = &self {
+            if let Some(i) = v.to_u64() {
+                return Variant::UInt64(i);
+            } else if let Some(i) = v.to_i64() {
+                return Variant::Int64(i);
             }
-            _ => (),
         }
         self
     }
@@ -105,7 +102,7 @@ impl Variant {
             (Variant::BigInt(a), Variant::Int64(b)) => a.partial_cmp(&BigInt::from(*b)),
             (Variant::BigInt(a), Variant::UInt64(b)) => a.partial_cmp(&BigInt::from(*b)),
             (Variant::BigInt(a), Variant::Float64(b)) => a.partial_cmp(&BigInt::from(*b as i64)),
-            _ => return None,
+            _ => None,
         }
     }
 

@@ -253,7 +253,7 @@ impl EventLoop {
                                 &callback,
                             ),
                             Command::PushOutput(id, output, filter) => {
-                                Self::process_output(id, output, filter, &frames, &callback)
+                                Self::process_output(id, output, &filter, &frames, &callback)
                             }
                             Command::Close => return,
                         }
@@ -318,7 +318,7 @@ impl EventLoop {
     fn process_output(
         id: u32,
         output: Box<Output>,
-        filter: Option<Filter>,
+        filter: &Option<Filter>,
         frames: &FrameStore,
         callback: &Callback,
     ) {
