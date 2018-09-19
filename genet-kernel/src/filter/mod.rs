@@ -1,5 +1,5 @@
 use combine::Parser;
-use filter::{ast::Expr, context::Context, parser::expression};
+use filter::{ast::Expr, context::Context, parser::expression, variant::VariantExt};
 use result::Result;
 use std::fmt;
 

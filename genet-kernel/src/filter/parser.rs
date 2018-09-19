@@ -6,8 +6,8 @@ use combine::{
     skip_many, token, try, Parser,
 };
 use combine_language;
-use filter::{ast::Expr, variant::Variant};
-use genet_abi::token::Token;
+use filter::{ast::Expr, variant::VariantExt};
+use genet_abi::{token::Token, variant::Variant};
 use num_bigint::BigInt;
 use num_traits::Num;
 
@@ -84,7 +84,7 @@ fn literal<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
     choice((
         try(boolean().map(Variant::Bool)),
         try(float().map(Variant::Float64)),
-        try(number().map(|v| Variant::BigInt(v).shrink())),
+        try(number().map(|v| Variant::BigInt(v.to_signed_bytes_be().into_boxed_slice()).shrink())),
     )).map(Expr::Literal)
 }
 
@@ -164,8 +164,8 @@ pub fn expression<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use filter::{ast::Expr::*, variant::Variant};
-    use genet_abi::token::Token;
+    use filter::ast::Expr::*;
+    use genet_abi::{token::Token, variant::Variant};
     use num_bigint::BigInt;
 
     #[test]
@@ -222,7 +222,10 @@ mod tests {
             expression().parse("9999999999999999999999999"),
             Ok((
                 Literal(Variant::BigInt(
-                    BigInt::from_str_radix("9999999999999999999999999", 10).unwrap()
+                    BigInt::from_str_radix("9999999999999999999999999", 10)
+                        .unwrap()
+                        .to_signed_bytes_be()
+                        .into_boxed_slice()
                 )),
                 ""
             ))
@@ -234,7 +237,7 @@ mod tests {
                     BigInt::from_str_radix(
                         "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111",
                         2
-                    ).unwrap()
+                    ).unwrap().to_signed_bytes_be().into_boxed_slice()
                 )),
                 ""
             ))
@@ -243,7 +246,10 @@ mod tests {
             expression().parse("0o7777777777777777777777777777777777777"),
             Ok((
                 Literal(Variant::BigInt(
-                    BigInt::from_str_radix("7777777777777777777777777777777777777", 8).unwrap()
+                    BigInt::from_str_radix("7777777777777777777777777777777777777", 8)
+                        .unwrap()
+                        .to_signed_bytes_be()
+                        .into_boxed_slice()
                 )),
                 ""
             ))
@@ -252,7 +258,10 @@ mod tests {
             expression().parse("0xffffffffffffffffffffffffffff"),
             Ok((
                 Literal(Variant::BigInt(
-                    BigInt::from_str_radix("ffffffffffffffffffffffffffff", 16).unwrap()
+                    BigInt::from_str_radix("ffffffffffffffffffffffffffff", 16)
+                        .unwrap()
+                        .to_signed_bytes_be()
+                        .into_boxed_slice()
                 )),
                 ""
             ))

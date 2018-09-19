@@ -1,5 +1,5 @@
-use filter::{context::Context, variant::Variant};
-use genet_abi::token::Token;
+use filter::{context::Context, variant::VariantExt};
+use genet_abi::{token::Token, variant::Variant};
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum Expr {

@@ -1,3 +1,7 @@
 [workspace]
 members = ["genet-kernel", "genet-sdk", "genet-abi"]
 exclude = ["package"]
+
+[replace]
+"genet-abi:0.3.0" = { path = "./genet-abi" }
+"genet-sdk:0.3.0" = { path = "./genet-sdk" }

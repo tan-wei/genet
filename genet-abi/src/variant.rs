@@ -12,6 +12,7 @@ pub enum Variant {
     UInt64(u64),
     Float64(f64),
     String(Box<str>),
+    BigInt(Box<[u8]>),
     Buffer(Box<[u8]>),
     Slice(ByteSlice),
 }

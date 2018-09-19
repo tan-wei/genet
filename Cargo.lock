@@ -137,11 +137,7 @@ dependencies = [
 name = "genet-abi"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "fnv 1.0.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "lazy_static 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "libc 0.2.43 (registry+https://github.com/rust-lang/crates.io-index)",
-]
+replace = "genet-abi 0.3.0"
 
 [[package]]
 name = "genet-kernel"
@@ -175,11 +171,7 @@ dependencies = [
 name = "genet-sdk"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "byteorder 1.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "genet-abi 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "lazy_static 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
-]
+replace = "genet-sdk 0.3.0"
 
 [[package]]
 name = "getopts"
