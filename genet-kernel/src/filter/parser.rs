@@ -212,11 +212,11 @@ mod tests {
         );
         assert_eq!(
             expression().parse("0o77_6503"),
-            Ok((Literal(Variant::UInt64(261443)), ""))
+            Ok((Literal(Variant::UInt64(261_443)), ""))
         );
         assert_eq!(
             expression().parse("0xff_56_78"),
-            Ok((Literal(Variant::UInt64(16733816)), ""))
+            Ok((Literal(Variant::UInt64(16_733_816)), ""))
         );
         assert_eq!(
             expression().parse("9999999999999999999999999"),
@@ -272,7 +272,7 @@ mod tests {
     fn group() {
         assert_eq!(
             expression().parse("0xff5678"),
-            Ok((Literal(Variant::UInt64(16733816)), ""))
+            Ok((Literal(Variant::UInt64(16_733_816)), ""))
         );
     }
 

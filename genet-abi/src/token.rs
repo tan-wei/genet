@@ -4,7 +4,7 @@ use std::fmt;
 /// A token value.
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
-pub struct Token(u64);
+pub struct Token(u32);
 
 impl Token {
     /// Returns a null token.
@@ -18,8 +18,8 @@ impl Token {
     }
 }
 
-impl Into<u64> for Token {
-    fn into(self) -> u64 {
+impl Into<u32> for Token {
+    fn into(self) -> u32 {
         self.0
     }
 }
@@ -30,8 +30,8 @@ impl<'a> From<&'a Token> for Token {
     }
 }
 
-impl From<u64> for Token {
-    fn from(id: u64) -> Token {
+impl From<u32> for Token {
+    fn from(id: u32) -> Token {
         Token(id)
     }
 }

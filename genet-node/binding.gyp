@@ -1,22 +1,12 @@
 {
   "variables":{
     "genet_node_sources":[
-      "src/main.cpp",
-      "src/module.cpp",
-      "src/frame.cpp",
-      "src/script.cpp",
-      "src/session.cpp",
-      "src/attr.cpp",
-      "src/token.cpp",
-      "src/slice.cpp",
-      "src/layer.cpp",
-      "src/version.cpp",
+      "src/main.cpp"
     ],
     "genet_target": "<!(node -p \"(process.env.NODE_ENV === 'production') ? 'release' : 'debug'\")"
   },
   "target_defaults":{
     "include_dirs":[
-      "<!(node -e \"require('nan')\")",
       "src"
     ],
     "conditions":[
