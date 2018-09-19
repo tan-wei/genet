@@ -1,0 +1,7 @@
+[package]
+name = "genet-napi"
+version = "0.1.0"
+authors = ["Ron Hashimoto <mail@h2so5.net>"]
+
+[dependencies]
+libc = "0.2"

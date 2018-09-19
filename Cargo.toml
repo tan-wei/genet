@@ -1,5 +1,5 @@
 [workspace]
-members = ["genet-kernel", "genet-sdk", "genet-abi"]
+members = ["genet-kernel", "genet-sdk", "genet-abi", "genet-napi"]
 exclude = ["package"]
 
 [replace]
