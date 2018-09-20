@@ -3,6 +3,7 @@ extern crate combine_language;
 extern crate crossbeam_channel;
 extern crate fnv;
 extern crate genet_abi;
+extern crate genet_napi;
 extern crate libc;
 extern crate libloading;
 extern crate num_bigint;

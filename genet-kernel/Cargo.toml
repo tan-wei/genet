@@ -18,6 +18,7 @@ num_cpus = "1"
 fnv = "1"
 genet-abi = "0.3.0"
 genet-sdk = "0.3.0"
+genet-napi = { path = "../genet-napi" }
 
 [lib]
 crate-type = ["staticlib", "rlib"]

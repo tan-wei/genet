@@ -1,11 +1,11 @@
-#include "exports.hpp"
-#include "module.hpp"
-#include <nan.h>
+#include <node_api.h>
 
-using namespace genet_node;
+extern "C" {
+napi_value genet_napi_init(napi_env, napi_value);
+}
 
-namespace {
-void Init(v8::Local<v8::Object> exports) { Module::init(exports); }
-} // namespace
+napi_value Init(napi_env env, napi_value exports) {
+  return genet_napi_init(env, exports);
+}
 
-NODE_MODULE(genet_node, Init)
+NAPI_MODULE(genet, Init);
