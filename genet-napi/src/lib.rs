@@ -1,2 +1,2 @@
 extern crate libc;
-mod napi;
+pub mod napi;

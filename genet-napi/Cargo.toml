@@ -5,3 +5,7 @@ authors = ["Ron Hashimoto <mail@h2so5.net>"]
 
 [dependencies]
 libc = "0.2"
+
+[[example]]
+name = "nodemod"
+crate-type = ["staticlib"]
