@@ -18,5 +18,8 @@ pub unsafe extern "C" fn genet_str_free(ptr: *mut c_char) {
 
 #[no_mangle]
 pub unsafe extern "C" fn genet_napi_init(env: *mut Env, exports: *mut Value) -> *mut Value {
-    (*env).create_double(0.5).unwrap()
+    let env = &mut *env;
+    let exports = &mut *exports;
+    let _ = token::init(env, exports);
+    exports
 }

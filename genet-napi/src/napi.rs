@@ -1,7 +1,7 @@
 use libc;
 use std::{ffi::CString, mem, ptr};
 
-type Result<T> = ::std::result::Result<T, Status>;
+pub type Result<T> = ::std::result::Result<T, Status>;
 
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -29,7 +29,7 @@ pub enum Status {
 pub enum Env {}
 
 impl Env {
-    pub fn get_undefined<'env>(&'env mut self) -> Result<&'env mut Value> {
+    pub fn get_undefined<'env>(&'env self) -> Result<&'env mut Value> {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_get_undefined(self, &mut result) {
@@ -39,7 +39,7 @@ impl Env {
         }
     }
 
-    pub fn get_null<'env>(&'env mut self) -> Result<&'env mut Value> {
+    pub fn get_null<'env>(&'env self) -> Result<&'env mut Value> {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_get_null(self, &mut result) {
@@ -49,7 +49,7 @@ impl Env {
         }
     }
 
-    pub fn get_global<'env>(&'env mut self) -> Result<&'env mut Value> {
+    pub fn get_global<'env>(&'env self) -> Result<&'env mut Value> {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_get_global(self, &mut result) {
@@ -59,7 +59,7 @@ impl Env {
         }
     }
 
-    pub fn get_boolean<'env>(&'env mut self, value: bool) -> Result<&'env mut Value> {
+    pub fn get_boolean<'env>(&'env self, value: bool) -> Result<&'env mut Value> {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_get_boolean(self, if value { 1 } else { 0 }, &mut result) {
@@ -69,7 +69,32 @@ impl Env {
         }
     }
 
-    pub fn create_double<'env>(&'env mut self, value: f64) -> Result<&'env mut Value> {
+    pub fn create_object<'env>(&'env self) -> Result<&'env mut Value> {
+        unsafe {
+            let mut result: *mut Value = mem::uninitialized();
+            match napi_create_object(self, &mut result) {
+                Status::NapiOk => Ok(&mut *result),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn create_string<'env>(&'env self, s: &str) -> Result<&'env mut Value> {
+        unsafe {
+            let mut result: *mut Value = mem::uninitialized();
+            let status = if s.is_ascii() {
+                napi_create_string_latin1(self, mem::transmute(s.as_ptr()), s.len(), &mut result)
+            } else {
+                napi_create_string_utf8(self, mem::transmute(s.as_ptr()), s.len(), &mut result)
+            };
+            match status {
+                Status::NapiOk => Ok(&mut *result),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn create_double<'env>(&'env self, value: f64) -> Result<&'env mut Value> {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_create_double(self, value, &mut result) {
@@ -79,7 +104,7 @@ impl Env {
         }
     }
 
-    pub fn create_int32<'env>(&'env mut self, value: i32) -> Result<&'env mut Value> {
+    pub fn create_int32<'env>(&'env self, value: i32) -> Result<&'env mut Value> {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_create_int32(self, value, &mut result) {
@@ -89,7 +114,7 @@ impl Env {
         }
     }
 
-    pub fn create_uint32<'env>(&'env mut self, value: u32) -> Result<&'env mut Value> {
+    pub fn create_uint32<'env>(&'env self, value: u32) -> Result<&'env mut Value> {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_create_uint32(self, value, &mut result) {
@@ -99,7 +124,7 @@ impl Env {
         }
     }
 
-    pub fn create_int64<'env>(&'env mut self, value: i64) -> Result<&'env mut Value> {
+    pub fn create_int64<'env>(&'env self, value: i64) -> Result<&'env mut Value> {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_create_int64(self, value, &mut result) {
@@ -109,7 +134,7 @@ impl Env {
         }
     }
 
-    pub fn get_value_double<'env>(&'env mut self, value: &'env mut Value) -> Result<f64> {
+    pub fn get_value_double<'env>(&'env self, value: &'env mut Value) -> Result<f64> {
         unsafe {
             let mut result: f64 = mem::uninitialized();
             match napi_get_value_double(self, value, &mut result) {
@@ -119,7 +144,7 @@ impl Env {
         }
     }
 
-    pub fn get_value_int32<'env>(&'env mut self, value: &'env mut Value) -> Result<i32> {
+    pub fn get_value_int32<'env>(&'env self, value: &'env mut Value) -> Result<i32> {
         unsafe {
             let mut result: i32 = mem::uninitialized();
             match napi_get_value_int32(self, value, &mut result) {
@@ -129,7 +154,7 @@ impl Env {
         }
     }
 
-    pub fn get_value_uint32<'env>(&'env mut self, value: &'env mut Value) -> Result<u32> {
+    pub fn get_value_uint32<'env>(&'env self, value: &'env mut Value) -> Result<u32> {
         unsafe {
             let mut result: u32 = mem::uninitialized();
             match napi_get_value_uint32(self, value, &mut result) {
@@ -139,7 +164,7 @@ impl Env {
         }
     }
 
-    pub fn get_value_int64<'env>(&'env mut self, value: &'env mut Value) -> Result<i64> {
+    pub fn get_value_int64<'env>(&'env self, value: &'env mut Value) -> Result<i64> {
         unsafe {
             let mut result: i64 = mem::uninitialized();
             match napi_get_value_int64(self, value, &mut result) {
@@ -149,7 +174,7 @@ impl Env {
         }
     }
 
-    pub fn get_value_bool<'env>(&'env mut self, value: &'env mut Value) -> Result<bool> {
+    pub fn get_value_bool<'env>(&'env self, value: &'env mut Value) -> Result<bool> {
         unsafe {
             let mut result: u8 = mem::uninitialized();
             match napi_get_value_bool(self, value, &mut result) {
@@ -159,7 +184,7 @@ impl Env {
         }
     }
 
-    pub fn coerce_to_bool<'env>(&'env mut self, value: &'env mut Value) -> Result<&'env mut Value> {
+    pub fn coerce_to_bool<'env>(&'env self, value: &'env mut Value) -> Result<&'env mut Value> {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_coerce_to_bool(self, value, &mut result) {
@@ -169,7 +194,7 @@ impl Env {
         }
     }
 
-    pub fn coerce_to_number<'env>(&'env mut self, value: &'env mut Value) -> Result<&'env mut Value> {
+    pub fn coerce_to_number<'env>(&'env self, value: &'env mut Value) -> Result<&'env mut Value> {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_coerce_to_number(self, value, &mut result) {
@@ -179,7 +204,7 @@ impl Env {
         }
     }
 
-    pub fn coerce_to_object<'env>(&'env mut self, value: &'env mut Value) -> Result<&'env mut Value> {
+    pub fn coerce_to_object<'env>(&'env self, value: &'env mut Value) -> Result<&'env mut Value> {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_coerce_to_object(self, value, &mut result) {
@@ -189,11 +214,25 @@ impl Env {
         }
     }
 
-    pub fn coerce_to_string<'env>(&'env mut self, value: &'env mut Value) -> Result<&'env mut Value> {
+    pub fn coerce_to_string<'env>(&'env self, value: &'env mut Value) -> Result<&'env mut Value> {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_coerce_to_string(self, value, &mut result) {
                 Status::NapiOk => Ok(&mut *result),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn set_property<'env>(
+        &'env self,
+        object: &'env mut Value,
+        key: &'env mut Value,
+        value: &'env mut Value,
+    ) -> Result<()> {
+        unsafe {
+            match napi_set_property(self, object, key, value) {
+                Status::NapiOk => Ok(()),
                 s => Err(s),
             }
         }
@@ -203,26 +242,50 @@ impl Env {
 pub enum Value {}
 
 extern "C" {
-    fn napi_get_undefined(env: *mut Env, result: *mut *mut Value) -> Status;
-    fn napi_get_null(env: *mut Env, result: *mut *mut Value) -> Status;
-    fn napi_get_global(env: *mut Env, result: *mut *mut Value) -> Status;
-    fn napi_get_boolean(env: *mut Env, value: u8, result: *mut *mut Value) -> Status;
+    fn napi_get_undefined(env: *const Env, result: *mut *mut Value) -> Status;
+    fn napi_get_null(env: *const Env, result: *mut *mut Value) -> Status;
+    fn napi_get_global(env: *const Env, result: *mut *mut Value) -> Status;
+    fn napi_get_boolean(env: *const Env, value: u8, result: *mut *mut Value) -> Status;
 
-    fn napi_create_double(env: *mut Env, value: f64, result: *mut *mut Value) -> Status;
-    fn napi_create_int32(env: *mut Env, value: i32, result: *mut *mut Value) -> Status;
-    fn napi_create_uint32(env: *mut Env, value: u32, result: *mut *mut Value) -> Status;
-    fn napi_create_int64(env: *mut Env, value: i64, result: *mut *mut Value) -> Status;
+    fn napi_create_object(env: *const Env, result: *mut *mut Value) -> Status;
+    fn napi_create_string_latin1(
+        env: *const Env,
+        s: *const libc::c_char,
+        length: libc::size_t,
+        result: *mut *mut Value,
+    ) -> Status;
+    fn napi_create_string_utf8(
+        env: *const Env,
+        s: *const libc::c_char,
+        length: libc::size_t,
+        result: *mut *mut Value,
+    ) -> Status;
 
-    fn napi_get_value_double(env: *mut Env, value: *mut Value, result: *mut f64) -> Status;
-    fn napi_get_value_int32(env: *mut Env, value: *mut Value, result: *mut i32) -> Status;
-    fn napi_get_value_uint32(env: *mut Env, value: *mut Value, result: *mut u32) -> Status;
-    fn napi_get_value_int64(env: *mut Env, value: *mut Value, result: *mut i64) -> Status;
-    fn napi_get_value_bool(env: *mut Env, value: *mut Value, result: *mut u8) -> Status;
+    fn napi_create_double(env: *const Env, value: f64, result: *mut *mut Value) -> Status;
+    fn napi_create_int32(env: *const Env, value: i32, result: *mut *mut Value) -> Status;
+    fn napi_create_uint32(env: *const Env, value: u32, result: *mut *mut Value) -> Status;
+    fn napi_create_int64(env: *const Env, value: i64, result: *mut *mut Value) -> Status;
 
-    fn napi_coerce_to_bool(env: *mut Env, value: *mut Value, result: *mut *mut Value) -> Status;
-    fn napi_coerce_to_number(env: *mut Env, value: *mut Value, result: *mut *mut Value) -> Status;
-    fn napi_coerce_to_object(env: *mut Env, value: *mut Value, result: *mut *mut Value) -> Status;
-    fn napi_coerce_to_string(env: *mut Env, value: *mut Value, result: *mut *mut Value) -> Status;
+    fn napi_get_value_double(env: *const Env, value: *mut Value, result: *mut f64) -> Status;
+    fn napi_get_value_int32(env: *const Env, value: *mut Value, result: *mut i32) -> Status;
+    fn napi_get_value_uint32(env: *const Env, value: *mut Value, result: *mut u32) -> Status;
+    fn napi_get_value_int64(env: *const Env, value: *mut Value, result: *mut i64) -> Status;
+    fn napi_get_value_bool(env: *const Env, value: *mut Value, result: *mut u8) -> Status;
+
+    fn napi_coerce_to_bool(env: *const Env, value: *mut Value, result: *mut *mut Value) -> Status;
+    fn napi_coerce_to_number(env: *const Env, value: *mut Value, result: *mut *mut Value)
+        -> Status;
+    fn napi_coerce_to_object(env: *const Env, value: *mut Value, result: *mut *mut Value)
+        -> Status;
+    fn napi_coerce_to_string(env: *const Env, value: *mut Value, result: *mut *mut Value)
+        -> Status;
+
+    fn napi_set_property(
+        env: *const Env,
+        object: *mut Value,
+        key: *mut Value,
+        value: *mut Value,
+    ) -> Status;
 }
 
 /*
@@ -240,16 +303,12 @@ NAPI_EXTERN NAPI_NO_RETURN void napi_fatal_error(const char* location,
 // Getters for defined singletons
 
 // Methods to create Primitive types/Objects
-NAPI_EXTERN napi_status napi_create_object(napi_env env, napi_value* result);
 NAPI_EXTERN napi_status napi_create_array(napi_env env, napi_value* result);
 NAPI_EXTERN napi_status napi_create_array_with_length(napi_env env,
                                                       size_t length,
                                                       napi_value* result);
+
 NAPI_EXTERN napi_status napi_create_string_latin1(napi_env env,
-                                                  const char* str,
-                                                  size_t length,
-                                                  napi_value* result);
-NAPI_EXTERN napi_status napi_create_string_utf8(napi_env env,
                                                 const char* str,
                                                 size_t length,
                                                 napi_value* result);
@@ -315,10 +374,7 @@ NAPI_EXTERN napi_status napi_get_prototype(napi_env env,
 NAPI_EXTERN napi_status napi_get_property_names(napi_env env,
                                                 napi_value object,
                                                 napi_value* result);
-NAPI_EXTERN napi_status napi_set_property(napi_env env,
-                                          napi_value object,
-                                          napi_value key,
-                                          napi_value value);
+
 NAPI_EXTERN napi_status napi_has_property(napi_env env,
                                           napi_value object,
                                           napi_value key,
