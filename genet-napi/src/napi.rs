@@ -1,29 +1,29 @@
 use libc;
-use std::{ffi::CString, mem, ptr};
+use std::{ffi::CString, mem, ptr, slice};
 
 pub type Result<T> = ::std::result::Result<T, Status>;
 
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum Status {
-    NapiOk,
-    NapiInvalidArg,
-    NapiObjectExpected,
-    NapiStringExpected,
-    NapiNameExpected,
-    NapiFunctionExpected,
-    NapiNumberExpected,
-    NapiBooleanExpected,
-    NapiArrayExpected,
-    NapiGenericFailure,
-    NapiPendingException,
-    NapiCancelled,
-    NapiEscapeCalledTwice,
-    NapiHandleScopeMismatch,
-    NapiCallbackScopeMismatch,
-    NapiQueueFull,
-    NapiClosing,
-    NapiBigintExpected,
+    Ok,
+    InvalidArg,
+    ObjectExpected,
+    StringExpected,
+    NameExpected,
+    FunctionExpected,
+    NumberExpected,
+    BooleanExpected,
+    ArrayExpected,
+    GenericFailure,
+    PendingException,
+    Cancelled,
+    EscapeCalledTwice,
+    HandleScopeMismatch,
+    CallbackScopeMismatch,
+    QueueFull,
+    Closing,
+    BigintExpected,
 }
 
 pub enum Env {}
@@ -33,7 +33,7 @@ impl Env {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_get_undefined(self, &mut result) {
-                Status::NapiOk => Ok(&mut *result),
+                Status::Ok => Ok(&mut *result),
                 s => Err(s),
             }
         }
@@ -43,7 +43,7 @@ impl Env {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_get_null(self, &mut result) {
-                Status::NapiOk => Ok(&mut *result),
+                Status::Ok => Ok(&mut *result),
                 s => Err(s),
             }
         }
@@ -53,7 +53,7 @@ impl Env {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_get_global(self, &mut result) {
-                Status::NapiOk => Ok(&mut *result),
+                Status::Ok => Ok(&mut *result),
                 s => Err(s),
             }
         }
@@ -63,7 +63,7 @@ impl Env {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_get_boolean(self, if value { 1 } else { 0 }, &mut result) {
-                Status::NapiOk => Ok(&mut *result),
+                Status::Ok => Ok(&mut *result),
                 s => Err(s),
             }
         }
@@ -73,7 +73,7 @@ impl Env {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_create_object(self, &mut result) {
-                Status::NapiOk => Ok(&mut *result),
+                Status::Ok => Ok(&mut *result),
                 s => Err(s),
             }
         }
@@ -88,7 +88,43 @@ impl Env {
                 napi_create_string_utf8(self, mem::transmute(s.as_ptr()), s.len(), &mut result)
             };
             match status {
-                Status::NapiOk => Ok(&mut *result),
+                Status::Ok => Ok(&mut *result),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn create_function<'env>(
+        &'env self,
+        name: &str,
+        func: fn(&'env Env, &'env CallbackInfo) -> Result<&'env mut Value>,
+    ) -> Result<&'env mut Value> {
+        unsafe {
+            let mut result: *mut Value = mem::uninitialized();
+            extern "C" fn cb(env: *const Env, info: *const CbInfo) -> *mut Value {
+                unsafe {
+                    let env = &*env;
+                    let info = env.get_cb_info(&*info).unwrap();
+                    let func: fn(&Env, &CallbackInfo)
+                        -> Result<&'static mut Value> = mem::transmute(info.data);
+                    match func(env, &info) {
+                        Ok(v) => v,
+                        Err(s) => {
+                            let _ = env.throw_error("napi_status", &format!("{:?}", s));
+                            env.get_undefined().unwrap()
+                        }
+                    }
+                }
+            }
+            match napi_create_function(
+                self,
+                mem::transmute(name.as_ptr()),
+                name.len(),
+                cb,
+                mem::transmute(func),
+                &mut result,
+            ) {
+                Status::Ok => Ok(&mut *result),
                 s => Err(s),
             }
         }
@@ -98,7 +134,7 @@ impl Env {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_create_double(self, value, &mut result) {
-                Status::NapiOk => Ok(&mut *result),
+                Status::Ok => Ok(&mut *result),
                 s => Err(s),
             }
         }
@@ -108,7 +144,7 @@ impl Env {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_create_int32(self, value, &mut result) {
-                Status::NapiOk => Ok(&mut *result),
+                Status::Ok => Ok(&mut *result),
                 s => Err(s),
             }
         }
@@ -118,7 +154,7 @@ impl Env {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_create_uint32(self, value, &mut result) {
-                Status::NapiOk => Ok(&mut *result),
+                Status::Ok => Ok(&mut *result),
                 s => Err(s),
             }
         }
@@ -128,7 +164,7 @@ impl Env {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_create_int64(self, value, &mut result) {
-                Status::NapiOk => Ok(&mut *result),
+                Status::Ok => Ok(&mut *result),
                 s => Err(s),
             }
         }
@@ -138,7 +174,7 @@ impl Env {
         unsafe {
             let mut result: f64 = mem::uninitialized();
             match napi_get_value_double(self, value, &mut result) {
-                Status::NapiOk => Ok(result),
+                Status::Ok => Ok(result),
                 s => Err(s),
             }
         }
@@ -148,7 +184,7 @@ impl Env {
         unsafe {
             let mut result: i32 = mem::uninitialized();
             match napi_get_value_int32(self, value, &mut result) {
-                Status::NapiOk => Ok(result),
+                Status::Ok => Ok(result),
                 s => Err(s),
             }
         }
@@ -158,7 +194,7 @@ impl Env {
         unsafe {
             let mut result: u32 = mem::uninitialized();
             match napi_get_value_uint32(self, value, &mut result) {
-                Status::NapiOk => Ok(result),
+                Status::Ok => Ok(result),
                 s => Err(s),
             }
         }
@@ -168,7 +204,7 @@ impl Env {
         unsafe {
             let mut result: i64 = mem::uninitialized();
             match napi_get_value_int64(self, value, &mut result) {
-                Status::NapiOk => Ok(result),
+                Status::Ok => Ok(result),
                 s => Err(s),
             }
         }
@@ -178,7 +214,7 @@ impl Env {
         unsafe {
             let mut result: u8 = mem::uninitialized();
             match napi_get_value_bool(self, value, &mut result) {
-                Status::NapiOk => Ok(result != 0),
+                Status::Ok => Ok(result != 0),
                 s => Err(s),
             }
         }
@@ -188,7 +224,7 @@ impl Env {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_coerce_to_bool(self, value, &mut result) {
-                Status::NapiOk => Ok(&mut *result),
+                Status::Ok => Ok(&mut *result),
                 s => Err(s),
             }
         }
@@ -198,7 +234,7 @@ impl Env {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_coerce_to_number(self, value, &mut result) {
-                Status::NapiOk => Ok(&mut *result),
+                Status::Ok => Ok(&mut *result),
                 s => Err(s),
             }
         }
@@ -208,7 +244,7 @@ impl Env {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_coerce_to_object(self, value, &mut result) {
-                Status::NapiOk => Ok(&mut *result),
+                Status::Ok => Ok(&mut *result),
                 s => Err(s),
             }
         }
@@ -218,7 +254,7 @@ impl Env {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_coerce_to_string(self, value, &mut result) {
-                Status::NapiOk => Ok(&mut *result),
+                Status::Ok => Ok(&mut *result),
                 s => Err(s),
             }
         }
@@ -232,7 +268,45 @@ impl Env {
     ) -> Result<()> {
         unsafe {
             match napi_set_property(self, object, key, value) {
-                Status::NapiOk => Ok(()),
+                Status::Ok => Ok(()),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn throw_error<'env>(&'env self, code: &str, msg: &str) -> Result<()> {
+        unsafe {
+            match napi_throw_error(
+                self,
+                CString::new(code).unwrap().as_ptr(),
+                CString::new(msg).unwrap().as_ptr(),
+            ) {
+                Status::Ok => Ok(()),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn get_cb_info<'env>(&'env self, cbinfo: &'env CbInfo) -> Result<CallbackInfo<'env>> {
+        unsafe {
+            const MAX_ARGC: usize = 16;
+            let mut argv: [*mut Value; MAX_ARGC] = mem::uninitialized();
+            let mut argc: libc::size_t = MAX_ARGC;
+            let mut this: *mut Value = mem::uninitialized();
+            let mut data: *const libc::c_void = mem::uninitialized();
+            match napi_get_cb_info(
+                self,
+                cbinfo,
+                &mut argc,
+                argv.as_mut_ptr(),
+                &mut this,
+                &mut data,
+            ) {
+                Status::Ok => Ok(CallbackInfo {
+                    argv: argv.into_iter().take(argc).map(|v| &mut **v).collect(),
+                    this: &mut *this,
+                    data,
+                }),
                 s => Err(s),
             }
         }
@@ -240,6 +314,20 @@ impl Env {
 }
 
 pub enum Value {}
+pub enum CbInfo {}
+pub type Callback = extern "C" fn(env: *const Env, info: *const CbInfo) -> *mut Value;
+
+pub struct CallbackInfo<'env> {
+    argv: Vec<&'env mut Value>,
+    this: &'env mut Value,
+    data: *const libc::c_void,
+}
+
+impl<'env> CallbackInfo<'env> {
+    pub fn argv(&self) -> &[&'env mut Value] {
+        &self.argv
+    }
+}
 
 extern "C" {
     fn napi_get_undefined(env: *const Env, result: *mut *mut Value) -> Status;
@@ -258,6 +346,14 @@ extern "C" {
         env: *const Env,
         s: *const libc::c_char,
         length: libc::size_t,
+        result: *mut *mut Value,
+    ) -> Status;
+    fn napi_create_function(
+        env: *const Env,
+        utf8name: *const libc::c_char,
+        length: libc::size_t,
+        cb: Callback,
+        data: *mut libc::c_void,
         result: *mut *mut Value,
     ) -> Status;
 
@@ -285,6 +381,21 @@ extern "C" {
         object: *mut Value,
         key: *mut Value,
         value: *mut Value,
+    ) -> Status;
+
+    fn napi_throw_error(
+        env: *const Env,
+        code: *const libc::c_char,
+        msg: *const libc::c_char,
+    ) -> Status;
+
+    fn napi_get_cb_info(
+        env: *const Env,
+        cbinfo: *const CbInfo,
+        argc: *mut libc::size_t,
+        argv: *mut *mut Value,
+        this_arg: *mut *mut Value,
+        data: *mut *const libc::c_void,
     ) -> Status;
 }
 
@@ -319,12 +430,7 @@ NAPI_EXTERN napi_status napi_create_string_utf16(napi_env env,
 NAPI_EXTERN napi_status napi_create_symbol(napi_env env,
                                            napi_value description,
                                            napi_value* result);
-NAPI_EXTERN napi_status napi_create_function(napi_env env,
-                                             const char* utf8name,
-                                             size_t length,
-                                             napi_callback cb,
-                                             void* data,
-                                             napi_value* result);
+
 NAPI_EXTERN napi_status napi_create_error(napi_env env,
                                           napi_value code,
                                           napi_value msg,
@@ -459,14 +565,6 @@ NAPI_EXTERN napi_status napi_instanceof(napi_env env,
 // Methods to work with napi_callbacks
 
 // Gets all callback info in a single call. (Ugly, but faster.)
-NAPI_EXTERN napi_status napi_get_cb_info(
-    napi_env env,               // [in] NAPI environment handle
-    napi_callback_info cbinfo,  // [in] Opaque callback-info handle
-    size_t* argc,      // [in-out] Specifies the size of the provided argv array
-                       // and receives the actual count of args.
-    napi_value* argv,  // [out] Array of values
-    napi_value* this_arg,  // [out] Receives the JS 'this' arg for the call
-    void** data);          // [out] Receives the data pointer for the callback.
 
 NAPI_EXTERN napi_status napi_get_new_target(napi_env env,
                                             napi_callback_info cbinfo,
