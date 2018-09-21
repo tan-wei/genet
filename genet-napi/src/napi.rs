@@ -530,9 +530,20 @@ impl Env {
             }
         }
     }
+
+    pub fn unwrap<'env, T>(&'env self, js_object: &'env Value) -> Result<&'env mut T> {
+        unsafe {
+            let mut result: *mut libc::c_void = mem::uninitialized();
+            match napi_unwrap(self, js_object, &mut result) {
+                Status::Ok => Ok(&mut *(result as *mut T)),
+                s => Err(s),
+            }
+        }
+    }
 }
 
 pub enum Value {}
+pub enum Ref {}
 pub enum CbInfo {}
 pub type Callback = extern "C" fn(env: *const Env, info: *const CbInfo) -> *const Value;
 
@@ -709,6 +720,21 @@ extern "C" {
         argv: *mut *const Value,
         this_arg: *mut *const Value,
         data: *mut *const libc::c_void,
+    ) -> Status;
+
+    fn napi_wrap(
+        env: *const Env,
+        js_object: *const Value,
+        native_object: *mut libc::c_void,
+        finalize_cb: extern "C" fn(*const Env, *mut u8, *mut u8),
+        finalize_hint: *mut libc::c_void,
+        result: *mut *const Ref,
+    ) -> Status;
+
+    fn napi_unwrap(
+        env: *const Env,
+        js_object: *const Value,
+        result: *mut *mut libc::c_void,
     ) -> Status;
 }
 
