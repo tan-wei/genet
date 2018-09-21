@@ -3,6 +3,16 @@ use std::{ffi::CString, mem, ptr, slice};
 
 pub type Result<T> = ::std::result::Result<T, Status>;
 
+bitflags! {
+    pub struct PropertyAttributes: u32 {
+        const Default = 0;
+        const Writable = 1;
+        const Enumerable = 1 << 1;
+        const Configurable = 1 << 2;
+        const Static = 1 << 10;
+    }
+}
+
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum Status {
@@ -24,6 +34,21 @@ pub enum Status {
     QueueFull,
     Closing,
     BigintExpected,
+}
+
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum ValueType {
+    Undefined,
+    Null,
+    Boolean,
+    Number,
+    String,
+    Symbol,
+    Object,
+    Function,
+    External,
+    Bigint,
 }
 
 pub enum Env {}
@@ -83,9 +108,9 @@ impl Env {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             let status = if s.is_ascii() {
-                napi_create_string_latin1(self, mem::transmute(s.as_ptr()), s.len(), &mut result)
+                napi_create_string_latin1(self, s.as_ptr() as *const i8, s.len(), &mut result)
             } else {
-                napi_create_string_utf8(self, mem::transmute(s.as_ptr()), s.len(), &mut result)
+                napi_create_string_utf8(self, s.as_ptr() as *const i8, s.len(), &mut result)
             };
             match status {
                 Status::Ok => Ok(&mut *result),
@@ -99,15 +124,16 @@ impl Env {
         name: &str,
         func: fn(&'env Env, &'env CallbackInfo) -> Result<&'env mut Value>,
     ) -> Result<&'env mut Value> {
+        #[repr(transparent)]
+        struct FuncData<'env>(fn(&'env Env, &'env CallbackInfo) -> Result<&'env mut Value>);
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             extern "C" fn cb(env: *const Env, info: *const CbInfo) -> *mut Value {
                 unsafe {
                     let env = &*env;
                     let info = env.get_cb_info(&*info).unwrap();
-                    let func: fn(&Env, &CallbackInfo)
-                        -> Result<&'static mut Value> = mem::transmute(info.data);
-                    match func(env, &info) {
+                    let func: FuncData = mem::transmute(info.data);
+                    match func.0(env, &info) {
                         Ok(v) => v,
                         Err(s) => {
                             let _ = env.throw_error("napi_status", &format!("{:?}", s));
@@ -118,10 +144,10 @@ impl Env {
             }
             match napi_create_function(
                 self,
-                mem::transmute(name.as_ptr()),
+                name.as_ptr() as *const i8,
                 name.len(),
                 cb,
-                mem::transmute(func),
+                mem::transmute(FuncData(func)),
                 &mut result,
             ) {
                 Status::Ok => Ok(&mut *result),
@@ -164,6 +190,71 @@ impl Env {
         unsafe {
             let mut result: *mut Value = mem::uninitialized();
             match napi_create_int64(self, value, &mut result) {
+                Status::Ok => Ok(&mut *result),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn create_array<'env>(&'env self, len: usize) -> Result<&'env mut Value> {
+        unsafe {
+            let mut result: *mut Value = mem::uninitialized();
+            match napi_create_array_with_length(self, len, &mut result) {
+                Status::Ok => Ok(&mut *result),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn create_symbol<'env>(
+        &'env self,
+        description: &'env mut Value,
+    ) -> Result<&'env mut Value> {
+        unsafe {
+            let mut result: *mut Value = mem::uninitialized();
+            match napi_create_symbol(self, description, &mut result) {
+                Status::Ok => Ok(&mut *result),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn create_error<'env>(
+        &'env self,
+        code: &'env mut Value,
+        msg: &'env mut Value,
+    ) -> Result<&'env mut Value> {
+        unsafe {
+            let mut result: *mut Value = mem::uninitialized();
+            match napi_create_error(self, code, msg, &mut result) {
+                Status::Ok => Ok(&mut *result),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn create_type_error<'env>(
+        &'env self,
+        code: &'env mut Value,
+        msg: &'env mut Value,
+    ) -> Result<&'env mut Value> {
+        unsafe {
+            let mut result: *mut Value = mem::uninitialized();
+            match napi_create_type_error(self, code, msg, &mut result) {
+                Status::Ok => Ok(&mut *result),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn create_range_error<'env>(
+        &'env self,
+        code: &'env mut Value,
+        msg: &'env mut Value,
+    ) -> Result<&'env mut Value> {
+        unsafe {
+            let mut result: *mut Value = mem::uninitialized();
+            match napi_create_range_error(self, code, msg, &mut result) {
                 Status::Ok => Ok(&mut *result),
                 s => Err(s),
             }
@@ -274,14 +365,86 @@ impl Env {
         }
     }
 
+    pub fn throw<'env>(&'env self, error: &'env mut Value) -> Result<()> {
+        unsafe {
+            match napi_throw(self, error) {
+                Status::Ok => Ok(()),
+                s => Err(s),
+            }
+        }
+    }
+
     pub fn throw_error<'env>(&'env self, code: &str, msg: &str) -> Result<()> {
         unsafe {
-            match napi_throw_error(
-                self,
-                CString::new(code).unwrap().as_ptr(),
-                CString::new(msg).unwrap().as_ptr(),
-            ) {
+            let code = CString::new(code).unwrap();
+            let msg = CString::new(msg).unwrap();
+            match napi_throw_error(self, code.as_ptr(), msg.as_ptr()) {
                 Status::Ok => Ok(()),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn throw_range_error<'env>(&'env self, code: &str, msg: &str) -> Result<()> {
+        unsafe {
+            let code = CString::new(code).unwrap();
+            let msg = CString::new(msg).unwrap();
+            match napi_throw_range_error(self, code.as_ptr(), msg.as_ptr()) {
+                Status::Ok => Ok(()),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn is_error<'env>(&'env self, value: &'env mut Value) -> Result<bool> {
+        unsafe {
+            let mut result: u8 = mem::uninitialized();
+            match napi_is_error(self, value, &mut result) {
+                Status::Ok => Ok(result != 0),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn type_of<'env>(&'env self, value: &'env mut Value) -> Result<ValueType> {
+        unsafe {
+            let mut result: ValueType = mem::uninitialized();
+            match napi_typeof(self, value, &mut result) {
+                Status::Ok => Ok(result),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn is_array<'env>(&'env self, value: &'env mut Value) -> Result<bool> {
+        unsafe {
+            let mut result: u8 = mem::uninitialized();
+            match napi_is_array(self, value, &mut result) {
+                Status::Ok => Ok(result != 0),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn get_array_length<'env>(&'env self, value: &'env mut Value) -> Result<u32> {
+        unsafe {
+            let mut result: u32 = mem::uninitialized();
+            match napi_get_array_length(self, value, &mut result) {
+                Status::Ok => Ok(result),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn strict_equals<'env>(
+        &'env self,
+        lhs: &'env mut Value,
+        rhs: &'env mut Value,
+    ) -> Result<bool> {
+        unsafe {
+            let mut result: u8 = mem::uninitialized();
+            match napi_strict_equals(self, lhs, rhs, &mut result) {
+                Status::Ok => Ok(result != 0),
                 s => Err(s),
             }
         }
@@ -362,6 +525,37 @@ extern "C" {
     fn napi_create_uint32(env: *const Env, value: u32, result: *mut *mut Value) -> Status;
     fn napi_create_int64(env: *const Env, value: i64, result: *mut *mut Value) -> Status;
 
+    fn napi_create_array_with_length(
+        env: *const Env,
+        length: libc::size_t,
+        result: *mut *mut Value,
+    ) -> Status;
+
+    fn napi_create_symbol(
+        env: *const Env,
+        description: *mut Value,
+        result: *mut *mut Value,
+    ) -> Status;
+
+    fn napi_create_error(
+        env: *const Env,
+        code: *mut Value,
+        msg: *mut Value,
+        result: *mut *mut Value,
+    ) -> Status;
+    fn napi_create_type_error(
+        env: *const Env,
+        code: *mut Value,
+        msg: *mut Value,
+        result: *mut *mut Value,
+    ) -> Status;
+    fn napi_create_range_error(
+        env: *const Env,
+        code: *mut Value,
+        msg: *mut Value,
+        result: *mut *mut Value,
+    ) -> Status;
+
     fn napi_get_value_double(env: *const Env, value: *mut Value, result: *mut f64) -> Status;
     fn napi_get_value_int32(env: *const Env, value: *mut Value, result: *mut i32) -> Status;
     fn napi_get_value_uint32(env: *const Env, value: *mut Value, result: *mut u32) -> Status;
@@ -383,10 +577,32 @@ extern "C" {
         value: *mut Value,
     ) -> Status;
 
+    fn napi_throw(env: *const Env, error: *mut Value) -> Status;
+
     fn napi_throw_error(
         env: *const Env,
         code: *const libc::c_char,
         msg: *const libc::c_char,
+    ) -> Status;
+
+    fn napi_throw_range_error(
+        env: *const Env,
+        code: *const libc::c_char,
+        msg: *const libc::c_char,
+    ) -> Status;
+
+    fn napi_is_error(env: *const Env, value: *mut Value, result: *mut u8) -> Status;
+
+    fn napi_typeof(env: *const Env, value: *mut Value, result: *mut ValueType) -> Status;
+
+    fn napi_is_array(env: *const Env, value: *mut Value, result: *mut u8) -> Status;
+    fn napi_get_array_length(env: *const Env, value: *mut Value, result: *mut u32) -> Status;
+
+    fn napi_strict_equals(
+        env: *const Env,
+        lhs: *mut Value,
+        rhs: *mut Value,
+        result: *mut u8,
     ) -> Status;
 
     fn napi_get_cb_info(
@@ -415,9 +631,6 @@ NAPI_EXTERN NAPI_NO_RETURN void napi_fatal_error(const char* location,
 
 // Methods to create Primitive types/Objects
 NAPI_EXTERN napi_status napi_create_array(napi_env env, napi_value* result);
-NAPI_EXTERN napi_status napi_create_array_with_length(napi_env env,
-                                                      size_t length,
-                                                      napi_value* result);
 
 NAPI_EXTERN napi_status napi_create_string_latin1(napi_env env,
                                                 const char* str,
@@ -427,27 +640,9 @@ NAPI_EXTERN napi_status napi_create_string_utf16(napi_env env,
                                                  const char16_t* str,
                                                  size_t length,
                                                  napi_value* result);
-NAPI_EXTERN napi_status napi_create_symbol(napi_env env,
-                                           napi_value description,
-                                           napi_value* result);
 
-NAPI_EXTERN napi_status napi_create_error(napi_env env,
-                                          napi_value code,
-                                          napi_value msg,
-                                          napi_value* result);
-NAPI_EXTERN napi_status napi_create_type_error(napi_env env,
-                                               napi_value code,
-                                               napi_value msg,
-                                               napi_value* result);
-NAPI_EXTERN napi_status napi_create_range_error(napi_env env,
-                                                napi_value code,
-                                                napi_value msg,
-                                                napi_value* result);
 
 // Methods to get the the native napi_value from Primitive type
-NAPI_EXTERN napi_status napi_typeof(napi_env env,
-                                    napi_value value,
-                                    napi_valuetype* result);
 
 // Copies LATIN-1 encoded bytes from a string into a buffer.
 NAPI_EXTERN napi_status napi_get_value_string_latin1(napi_env env,
@@ -532,18 +727,8 @@ napi_define_properties(napi_env env,
                        const napi_property_descriptor* properties);
 
 // Methods to work with Arrays
-NAPI_EXTERN napi_status napi_is_array(napi_env env,
-                                      napi_value value,
-                                      bool* result);
-NAPI_EXTERN napi_status napi_get_array_length(napi_env env,
-                                              napi_value value,
-                                              uint32_t* result);
 
 // Methods to compare values
-NAPI_EXTERN napi_status napi_strict_equals(napi_env env,
-                                           napi_value lhs,
-                                           napi_value rhs,
-                                           bool* result);
 
 // Methods to work with Functions
 NAPI_EXTERN napi_status napi_call_function(napi_env env,
@@ -654,19 +839,6 @@ NAPI_EXTERN napi_status napi_escape_handle(napi_env env,
                                            napi_value* result);
 
 // Methods to support error handling
-NAPI_EXTERN napi_status napi_throw(napi_env env, napi_value error);
-NAPI_EXTERN napi_status napi_throw_error(napi_env env,
-                                         const char* code,
-                                         const char* msg);
-NAPI_EXTERN napi_status napi_throw_type_error(napi_env env,
-                                         const char* code,
-                                         const char* msg);
-NAPI_EXTERN napi_status napi_throw_range_error(napi_env env,
-                                         const char* code,
-                                         const char* msg);
-NAPI_EXTERN napi_status napi_is_error(napi_env env,
-                                      napi_value value,
-                                      bool* result);
 
 // Methods to support catching exceptions
 NAPI_EXTERN napi_status napi_is_exception_pending(napi_env env, bool* result);
