@@ -342,7 +342,7 @@ impl Env {
                 return Ok(String::new());
             }
             let mut v: Vec<u8> = Vec::with_capacity(result);
-            v.set_len(result);
+            v.set_len(result - 1);
             match napi_get_value_string_utf8(
                 self,
                 value,
@@ -404,6 +404,21 @@ impl Env {
     ) -> Result<()> {
         unsafe {
             match napi_set_property(self, object, key, value) {
+                Status::Ok => Ok(()),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn set_named_property<'env>(
+        &'env self,
+        object: &'env Value,
+        utf8name: &str,
+        value: &'env Value,
+    ) -> Result<()> {
+        unsafe {
+            let name = CString::new(utf8name).unwrap();
+            match napi_set_named_property(self, object, name.as_ptr(), value) {
                 Status::Ok => Ok(()),
                 s => Err(s),
             }
@@ -652,6 +667,13 @@ extern "C" {
         value: *const Value,
     ) -> Status;
 
+    fn napi_set_named_property(
+        env: *const Env,
+        object: *const Value,
+        utf8name: *const libc::c_char,
+        value: *const Value,
+    ) -> Status;
+
     fn napi_throw(env: *const Env, error: *const Value) -> Status;
 
     fn napi_throw_error(
@@ -668,7 +690,7 @@ extern "C" {
 
     fn napi_is_error(env: *const Env, value: *const Value, result: *mut u8) -> Status;
 
-    fn napi_typeof(env: *const Env, value: *const Value, result: *const ValueType) -> Status;
+    fn napi_typeof(env: *const Env, value: *const Value, result: *mut ValueType) -> Status;
 
     fn napi_is_array(env: *const Env, value: *const Value, result: *mut u8) -> Status;
     fn napi_get_array_length(env: *const Env, value: *const Value, result: *mut u32) -> Status;
@@ -762,10 +784,7 @@ NAPI_EXTERN napi_status napi_has_own_property(napi_env env,
                                               napi_value object,
                                               napi_value key,
                                               bool* result);
-NAPI_EXTERN napi_status napi_set_named_property(napi_env env,
-                                          napi_value object,
-                                          const char* utf8name,
-                                          napi_value value);
+
 NAPI_EXTERN napi_status napi_has_named_property(napi_env env,
                                           napi_value object,
                                           const char* utf8name,

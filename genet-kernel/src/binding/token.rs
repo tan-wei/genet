@@ -27,13 +27,20 @@ fn token_get<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Val
     }
 }
 
+fn token_string<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    if let Some(id) = info.argv().get(0) {
+        let id = env.get_value_uint32(id)?;
+        let token = Token::from(id as u64);
+        env.create_string(&token.to_string())
+    } else {
+        Err(Status::InvalidArg)
+    }
+}
+
 pub fn init(env: &mut Env, exports: &mut Value) -> Result<()> {
     let tk = env.create_object()?;
-    env.set_property(
-        tk,
-        env.create_string("get")?,
-        env.create_function("get", token_get)?,
-    )?;
+    env.set_named_property(tk, "get", env.create_function("get", token_get)?)?;
+    env.set_named_property(tk, "string", env.create_function("string", token_string)?)?;
     env.set_property(exports, env.create_string("Token")?, tk)?;
     Ok(())
 }
