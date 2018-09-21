@@ -6,3 +6,4 @@ authors = ["Ron Hashimoto <mail@h2so5.net>"]
 [dependencies]
 libc = "0.2"
 bitflags = "1"
+genet-abi = "0.3.0"

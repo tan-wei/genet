@@ -1,5 +1,6 @@
+use genet_abi::slice::ByteSlice;
 use libc;
-use std::{ffi::CString, mem, ptr, slice};
+use std::{ffi::CString, mem, ptr};
 
 pub type Result<T> = ::std::result::Result<T, Status>;
 
@@ -54,66 +55,66 @@ pub enum ValueType {
 pub enum Env {}
 
 impl Env {
-    pub fn get_undefined<'env>(&'env self) -> Result<&'env mut Value> {
+    pub fn get_undefined<'env>(&'env self) -> Result<&'env Value> {
         unsafe {
-            let mut result: *mut Value = mem::uninitialized();
+            let mut result: *const Value = mem::uninitialized();
             match napi_get_undefined(self, &mut result) {
-                Status::Ok => Ok(&mut *result),
+                Status::Ok => Ok(&*result),
                 s => Err(s),
             }
         }
     }
 
-    pub fn get_null<'env>(&'env self) -> Result<&'env mut Value> {
+    pub fn get_null<'env>(&'env self) -> Result<&'env Value> {
         unsafe {
-            let mut result: *mut Value = mem::uninitialized();
+            let mut result: *const Value = mem::uninitialized();
             match napi_get_null(self, &mut result) {
-                Status::Ok => Ok(&mut *result),
+                Status::Ok => Ok(&*result),
                 s => Err(s),
             }
         }
     }
 
-    pub fn get_global<'env>(&'env self) -> Result<&'env mut Value> {
+    pub fn get_global<'env>(&'env self) -> Result<&'env Value> {
         unsafe {
-            let mut result: *mut Value = mem::uninitialized();
+            let mut result: *const Value = mem::uninitialized();
             match napi_get_global(self, &mut result) {
-                Status::Ok => Ok(&mut *result),
+                Status::Ok => Ok(&*result),
                 s => Err(s),
             }
         }
     }
 
-    pub fn get_boolean<'env>(&'env self, value: bool) -> Result<&'env mut Value> {
+    pub fn get_boolean<'env>(&'env self, value: bool) -> Result<&'env Value> {
         unsafe {
-            let mut result: *mut Value = mem::uninitialized();
+            let mut result: *const Value = mem::uninitialized();
             match napi_get_boolean(self, if value { 1 } else { 0 }, &mut result) {
-                Status::Ok => Ok(&mut *result),
+                Status::Ok => Ok(&*result),
                 s => Err(s),
             }
         }
     }
 
-    pub fn create_object<'env>(&'env self) -> Result<&'env mut Value> {
+    pub fn create_object<'env>(&'env self) -> Result<&'env Value> {
         unsafe {
-            let mut result: *mut Value = mem::uninitialized();
+            let mut result: *const Value = mem::uninitialized();
             match napi_create_object(self, &mut result) {
-                Status::Ok => Ok(&mut *result),
+                Status::Ok => Ok(&*result),
                 s => Err(s),
             }
         }
     }
 
-    pub fn create_string<'env>(&'env self, s: &str) -> Result<&'env mut Value> {
+    pub fn create_string<'env>(&'env self, s: &str) -> Result<&'env Value> {
         unsafe {
-            let mut result: *mut Value = mem::uninitialized();
+            let mut result: *const Value = mem::uninitialized();
             let status = if s.is_ascii() {
                 napi_create_string_latin1(self, s.as_ptr() as *const i8, s.len(), &mut result)
             } else {
                 napi_create_string_utf8(self, s.as_ptr() as *const i8, s.len(), &mut result)
             };
             match status {
-                Status::Ok => Ok(&mut *result),
+                Status::Ok => Ok(&*result),
                 s => Err(s),
             }
         }
@@ -122,13 +123,13 @@ impl Env {
     pub fn create_function<'env>(
         &'env self,
         name: &str,
-        func: fn(&'env Env, &'env CallbackInfo) -> Result<&'env mut Value>,
-    ) -> Result<&'env mut Value> {
+        func: fn(&'env Env, &'env CallbackInfo) -> Result<&'env Value>,
+    ) -> Result<&'env Value> {
         #[repr(transparent)]
-        struct FuncData<'env>(fn(&'env Env, &'env CallbackInfo) -> Result<&'env mut Value>);
+        struct FuncData<'env>(fn(&'env Env, &'env CallbackInfo) -> Result<&'env Value>);
         unsafe {
-            let mut result: *mut Value = mem::uninitialized();
-            extern "C" fn cb(env: *const Env, info: *const CbInfo) -> *mut Value {
+            let mut result: *const Value = mem::uninitialized();
+            extern "C" fn cb(env: *const Env, info: *const CbInfo) -> *const Value {
                 unsafe {
                     let env = &*env;
                     let info = env.get_cb_info(&*info).unwrap();
@@ -150,70 +151,67 @@ impl Env {
                 mem::transmute(FuncData(func)),
                 &mut result,
             ) {
-                Status::Ok => Ok(&mut *result),
+                Status::Ok => Ok(&*result),
                 s => Err(s),
             }
         }
     }
 
-    pub fn create_double<'env>(&'env self, value: f64) -> Result<&'env mut Value> {
+    pub fn create_double<'env>(&'env self, value: f64) -> Result<&'env Value> {
         unsafe {
-            let mut result: *mut Value = mem::uninitialized();
+            let mut result: *const Value = mem::uninitialized();
             match napi_create_double(self, value, &mut result) {
-                Status::Ok => Ok(&mut *result),
+                Status::Ok => Ok(&*result),
                 s => Err(s),
             }
         }
     }
 
-    pub fn create_int32<'env>(&'env self, value: i32) -> Result<&'env mut Value> {
+    pub fn create_int32<'env>(&'env self, value: i32) -> Result<&'env Value> {
         unsafe {
-            let mut result: *mut Value = mem::uninitialized();
+            let mut result: *const Value = mem::uninitialized();
             match napi_create_int32(self, value, &mut result) {
-                Status::Ok => Ok(&mut *result),
+                Status::Ok => Ok(&*result),
                 s => Err(s),
             }
         }
     }
 
-    pub fn create_uint32<'env>(&'env self, value: u32) -> Result<&'env mut Value> {
+    pub fn create_uint32<'env>(&'env self, value: u32) -> Result<&'env Value> {
         unsafe {
-            let mut result: *mut Value = mem::uninitialized();
+            let mut result: *const Value = mem::uninitialized();
             match napi_create_uint32(self, value, &mut result) {
-                Status::Ok => Ok(&mut *result),
+                Status::Ok => Ok(&*result),
                 s => Err(s),
             }
         }
     }
 
-    pub fn create_int64<'env>(&'env self, value: i64) -> Result<&'env mut Value> {
+    pub fn create_int64<'env>(&'env self, value: i64) -> Result<&'env Value> {
         unsafe {
-            let mut result: *mut Value = mem::uninitialized();
+            let mut result: *const Value = mem::uninitialized();
             match napi_create_int64(self, value, &mut result) {
-                Status::Ok => Ok(&mut *result),
+                Status::Ok => Ok(&*result),
                 s => Err(s),
             }
         }
     }
 
-    pub fn create_array<'env>(&'env self, len: usize) -> Result<&'env mut Value> {
+    pub fn create_array<'env>(&'env self, len: usize) -> Result<&'env Value> {
         unsafe {
-            let mut result: *mut Value = mem::uninitialized();
+            let mut result: *const Value = mem::uninitialized();
             match napi_create_array_with_length(self, len, &mut result) {
-                Status::Ok => Ok(&mut *result),
+                Status::Ok => Ok(&*result),
                 s => Err(s),
             }
         }
     }
 
-    pub fn create_symbol<'env>(
-        &'env self,
-        description: &'env mut Value,
-    ) -> Result<&'env mut Value> {
+    pub fn create_symbol<'env>(&'env self, description: &'env Value) -> Result<&'env Value> {
         unsafe {
-            let mut result: *mut Value = mem::uninitialized();
+            let mut result: *const Value = mem::uninitialized();
             match napi_create_symbol(self, description, &mut result) {
-                Status::Ok => Ok(&mut *result),
+                Status::Ok => Ok(&*result),
                 s => Err(s),
             }
         }
@@ -221,13 +219,13 @@ impl Env {
 
     pub fn create_error<'env>(
         &'env self,
-        code: &'env mut Value,
-        msg: &'env mut Value,
-    ) -> Result<&'env mut Value> {
+        code: &'env Value,
+        msg: &'env Value,
+    ) -> Result<&'env Value> {
         unsafe {
-            let mut result: *mut Value = mem::uninitialized();
+            let mut result: *const Value = mem::uninitialized();
             match napi_create_error(self, code, msg, &mut result) {
-                Status::Ok => Ok(&mut *result),
+                Status::Ok => Ok(&*result),
                 s => Err(s),
             }
         }
@@ -235,13 +233,13 @@ impl Env {
 
     pub fn create_type_error<'env>(
         &'env self,
-        code: &'env mut Value,
-        msg: &'env mut Value,
-    ) -> Result<&'env mut Value> {
+        code: &'env Value,
+        msg: &'env Value,
+    ) -> Result<&'env Value> {
         unsafe {
-            let mut result: *mut Value = mem::uninitialized();
+            let mut result: *const Value = mem::uninitialized();
             match napi_create_type_error(self, code, msg, &mut result) {
-                Status::Ok => Ok(&mut *result),
+                Status::Ok => Ok(&*result),
                 s => Err(s),
             }
         }
@@ -249,19 +247,41 @@ impl Env {
 
     pub fn create_range_error<'env>(
         &'env self,
-        code: &'env mut Value,
-        msg: &'env mut Value,
-    ) -> Result<&'env mut Value> {
+        code: &'env Value,
+        msg: &'env Value,
+    ) -> Result<&'env Value> {
         unsafe {
-            let mut result: *mut Value = mem::uninitialized();
+            let mut result: *const Value = mem::uninitialized();
             match napi_create_range_error(self, code, msg, &mut result) {
-                Status::Ok => Ok(&mut *result),
+                Status::Ok => Ok(&*result),
                 s => Err(s),
             }
         }
     }
 
-    pub fn get_value_double<'env>(&'env self, value: &'env mut Value) -> Result<f64> {
+    pub fn create_arraybuffer_from_slice<'env>(
+        &'env self,
+        data: &ByteSlice,
+    ) -> Result<&'env Value> {
+        unsafe {
+            extern "C" fn finalize_cb(_env: *const Env, _data: *mut u8, _hint: *mut u8) {}
+
+            let mut result: *const Value = mem::uninitialized();
+            match napi_create_external_arraybuffer(
+                self,
+                data.as_ptr() as *mut libc::c_void,
+                data.len(),
+                finalize_cb,
+                ptr::null_mut(),
+                &mut result,
+            ) {
+                Status::Ok => Ok(&*result),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn get_value_double<'env>(&'env self, value: &'env Value) -> Result<f64> {
         unsafe {
             let mut result: f64 = mem::uninitialized();
             match napi_get_value_double(self, value, &mut result) {
@@ -271,7 +291,7 @@ impl Env {
         }
     }
 
-    pub fn get_value_int32<'env>(&'env self, value: &'env mut Value) -> Result<i32> {
+    pub fn get_value_int32<'env>(&'env self, value: &'env Value) -> Result<i32> {
         unsafe {
             let mut result: i32 = mem::uninitialized();
             match napi_get_value_int32(self, value, &mut result) {
@@ -281,7 +301,7 @@ impl Env {
         }
     }
 
-    pub fn get_value_uint32<'env>(&'env self, value: &'env mut Value) -> Result<u32> {
+    pub fn get_value_uint32<'env>(&'env self, value: &'env Value) -> Result<u32> {
         unsafe {
             let mut result: u32 = mem::uninitialized();
             match napi_get_value_uint32(self, value, &mut result) {
@@ -291,7 +311,7 @@ impl Env {
         }
     }
 
-    pub fn get_value_int64<'env>(&'env self, value: &'env mut Value) -> Result<i64> {
+    pub fn get_value_int64<'env>(&'env self, value: &'env Value) -> Result<i64> {
         unsafe {
             let mut result: i64 = mem::uninitialized();
             match napi_get_value_int64(self, value, &mut result) {
@@ -301,7 +321,7 @@ impl Env {
         }
     }
 
-    pub fn get_value_bool<'env>(&'env self, value: &'env mut Value) -> Result<bool> {
+    pub fn get_value_bool<'env>(&'env self, value: &'env Value) -> Result<bool> {
         unsafe {
             let mut result: u8 = mem::uninitialized();
             match napi_get_value_bool(self, value, &mut result) {
@@ -311,41 +331,66 @@ impl Env {
         }
     }
 
-    pub fn coerce_to_bool<'env>(&'env self, value: &'env mut Value) -> Result<&'env mut Value> {
+    pub fn get_value_string<'env>(&'env self, value: &'env Value) -> Result<String> {
         unsafe {
-            let mut result: *mut Value = mem::uninitialized();
+            let mut result: libc::size_t = mem::uninitialized();
+            match napi_get_value_string_utf8(self, value, ptr::null_mut(), 0, &mut result) {
+                Status::Ok => (),
+                s => return Err(s),
+            };
+            if result == 0 {
+                return Ok(String::new());
+            }
+            let mut v: Vec<u8> = Vec::with_capacity(result);
+            v.set_len(result);
+            match napi_get_value_string_utf8(
+                self,
+                value,
+                v.as_mut_slice().as_mut_ptr() as *mut i8,
+                result,
+                &mut result,
+            ) {
+                Status::Ok => Ok(String::from_utf8(v).unwrap()),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn coerce_to_bool<'env>(&'env self, value: &'env Value) -> Result<&'env Value> {
+        unsafe {
+            let mut result: *const Value = mem::uninitialized();
             match napi_coerce_to_bool(self, value, &mut result) {
-                Status::Ok => Ok(&mut *result),
+                Status::Ok => Ok(&*result),
                 s => Err(s),
             }
         }
     }
 
-    pub fn coerce_to_number<'env>(&'env self, value: &'env mut Value) -> Result<&'env mut Value> {
+    pub fn coerce_to_number<'env>(&'env self, value: &'env Value) -> Result<&'env Value> {
         unsafe {
-            let mut result: *mut Value = mem::uninitialized();
+            let mut result: *const Value = mem::uninitialized();
             match napi_coerce_to_number(self, value, &mut result) {
-                Status::Ok => Ok(&mut *result),
+                Status::Ok => Ok(&*result),
                 s => Err(s),
             }
         }
     }
 
-    pub fn coerce_to_object<'env>(&'env self, value: &'env mut Value) -> Result<&'env mut Value> {
+    pub fn coerce_to_object<'env>(&'env self, value: &'env Value) -> Result<&'env Value> {
         unsafe {
-            let mut result: *mut Value = mem::uninitialized();
+            let mut result: *const Value = mem::uninitialized();
             match napi_coerce_to_object(self, value, &mut result) {
-                Status::Ok => Ok(&mut *result),
+                Status::Ok => Ok(&*result),
                 s => Err(s),
             }
         }
     }
 
-    pub fn coerce_to_string<'env>(&'env self, value: &'env mut Value) -> Result<&'env mut Value> {
+    pub fn coerce_to_string<'env>(&'env self, value: &'env Value) -> Result<&'env Value> {
         unsafe {
-            let mut result: *mut Value = mem::uninitialized();
+            let mut result: *const Value = mem::uninitialized();
             match napi_coerce_to_string(self, value, &mut result) {
-                Status::Ok => Ok(&mut *result),
+                Status::Ok => Ok(&*result),
                 s => Err(s),
             }
         }
@@ -353,9 +398,9 @@ impl Env {
 
     pub fn set_property<'env>(
         &'env self,
-        object: &'env mut Value,
-        key: &'env mut Value,
-        value: &'env mut Value,
+        object: &'env Value,
+        key: &'env Value,
+        value: &'env Value,
     ) -> Result<()> {
         unsafe {
             match napi_set_property(self, object, key, value) {
@@ -365,7 +410,7 @@ impl Env {
         }
     }
 
-    pub fn throw<'env>(&'env self, error: &'env mut Value) -> Result<()> {
+    pub fn throw<'env>(&'env self, error: &'env Value) -> Result<()> {
         unsafe {
             match napi_throw(self, error) {
                 Status::Ok => Ok(()),
@@ -396,7 +441,7 @@ impl Env {
         }
     }
 
-    pub fn is_error<'env>(&'env self, value: &'env mut Value) -> Result<bool> {
+    pub fn is_error<'env>(&'env self, value: &'env Value) -> Result<bool> {
         unsafe {
             let mut result: u8 = mem::uninitialized();
             match napi_is_error(self, value, &mut result) {
@@ -406,7 +451,7 @@ impl Env {
         }
     }
 
-    pub fn type_of<'env>(&'env self, value: &'env mut Value) -> Result<ValueType> {
+    pub fn type_of<'env>(&'env self, value: &'env Value) -> Result<ValueType> {
         unsafe {
             let mut result: ValueType = mem::uninitialized();
             match napi_typeof(self, value, &mut result) {
@@ -416,7 +461,7 @@ impl Env {
         }
     }
 
-    pub fn is_array<'env>(&'env self, value: &'env mut Value) -> Result<bool> {
+    pub fn is_array<'env>(&'env self, value: &'env Value) -> Result<bool> {
         unsafe {
             let mut result: u8 = mem::uninitialized();
             match napi_is_array(self, value, &mut result) {
@@ -426,7 +471,7 @@ impl Env {
         }
     }
 
-    pub fn get_array_length<'env>(&'env self, value: &'env mut Value) -> Result<u32> {
+    pub fn get_array_length<'env>(&'env self, value: &'env Value) -> Result<u32> {
         unsafe {
             let mut result: u32 = mem::uninitialized();
             match napi_get_array_length(self, value, &mut result) {
@@ -436,11 +481,7 @@ impl Env {
         }
     }
 
-    pub fn strict_equals<'env>(
-        &'env self,
-        lhs: &'env mut Value,
-        rhs: &'env mut Value,
-    ) -> Result<bool> {
+    pub fn strict_equals<'env>(&'env self, lhs: &'env Value, rhs: &'env Value) -> Result<bool> {
         unsafe {
             let mut result: u8 = mem::uninitialized();
             match napi_strict_equals(self, lhs, rhs, &mut result) {
@@ -453,9 +494,9 @@ impl Env {
     pub fn get_cb_info<'env>(&'env self, cbinfo: &'env CbInfo) -> Result<CallbackInfo<'env>> {
         unsafe {
             const MAX_ARGC: usize = 16;
-            let mut argv: [*mut Value; MAX_ARGC] = mem::uninitialized();
+            let mut argv: [*const Value; MAX_ARGC] = mem::uninitialized();
             let mut argc: libc::size_t = MAX_ARGC;
-            let mut this: *mut Value = mem::uninitialized();
+            let mut this: *const Value = mem::uninitialized();
             let mut data: *const libc::c_void = mem::uninitialized();
             match napi_get_cb_info(
                 self,
@@ -466,8 +507,8 @@ impl Env {
                 &mut data,
             ) {
                 Status::Ok => Ok(CallbackInfo {
-                    argv: argv.into_iter().take(argc).map(|v| &mut **v).collect(),
-                    this: &mut *this,
+                    argv: argv.into_iter().take(argc).map(|v| &**v).collect(),
+                    this: &*this,
                     data,
                 }),
                 s => Err(s),
@@ -478,38 +519,42 @@ impl Env {
 
 pub enum Value {}
 pub enum CbInfo {}
-pub type Callback = extern "C" fn(env: *const Env, info: *const CbInfo) -> *mut Value;
+pub type Callback = extern "C" fn(env: *const Env, info: *const CbInfo) -> *const Value;
 
 pub struct CallbackInfo<'env> {
-    argv: Vec<&'env mut Value>,
-    this: &'env mut Value,
+    argv: Vec<&'env Value>,
+    this: &'env Value,
     data: *const libc::c_void,
 }
 
 impl<'env> CallbackInfo<'env> {
-    pub fn argv(&self) -> &[&'env mut Value] {
+    pub fn argv(&self) -> &[&'env Value] {
         &self.argv
+    }
+
+    pub fn this(&self) -> &'env Value {
+        &self.this
     }
 }
 
 extern "C" {
-    fn napi_get_undefined(env: *const Env, result: *mut *mut Value) -> Status;
-    fn napi_get_null(env: *const Env, result: *mut *mut Value) -> Status;
-    fn napi_get_global(env: *const Env, result: *mut *mut Value) -> Status;
-    fn napi_get_boolean(env: *const Env, value: u8, result: *mut *mut Value) -> Status;
+    fn napi_get_undefined(env: *const Env, result: *mut *const Value) -> Status;
+    fn napi_get_null(env: *const Env, result: *mut *const Value) -> Status;
+    fn napi_get_global(env: *const Env, result: *mut *const Value) -> Status;
+    fn napi_get_boolean(env: *const Env, value: u8, result: *mut *const Value) -> Status;
 
-    fn napi_create_object(env: *const Env, result: *mut *mut Value) -> Status;
+    fn napi_create_object(env: *const Env, result: *mut *const Value) -> Status;
     fn napi_create_string_latin1(
         env: *const Env,
         s: *const libc::c_char,
         length: libc::size_t,
-        result: *mut *mut Value,
+        result: *mut *const Value,
     ) -> Status;
     fn napi_create_string_utf8(
         env: *const Env,
         s: *const libc::c_char,
         length: libc::size_t,
-        result: *mut *mut Value,
+        result: *mut *const Value,
     ) -> Status;
     fn napi_create_function(
         env: *const Env,
@@ -517,67 +562,97 @@ extern "C" {
         length: libc::size_t,
         cb: Callback,
         data: *mut libc::c_void,
-        result: *mut *mut Value,
+        result: *mut *const Value,
     ) -> Status;
 
-    fn napi_create_double(env: *const Env, value: f64, result: *mut *mut Value) -> Status;
-    fn napi_create_int32(env: *const Env, value: i32, result: *mut *mut Value) -> Status;
-    fn napi_create_uint32(env: *const Env, value: u32, result: *mut *mut Value) -> Status;
-    fn napi_create_int64(env: *const Env, value: i64, result: *mut *mut Value) -> Status;
+    fn napi_create_double(env: *const Env, value: f64, result: *mut *const Value) -> Status;
+    fn napi_create_int32(env: *const Env, value: i32, result: *mut *const Value) -> Status;
+    fn napi_create_uint32(env: *const Env, value: u32, result: *mut *const Value) -> Status;
+    fn napi_create_int64(env: *const Env, value: i64, result: *mut *const Value) -> Status;
 
     fn napi_create_array_with_length(
         env: *const Env,
         length: libc::size_t,
-        result: *mut *mut Value,
+        result: *mut *const Value,
     ) -> Status;
 
     fn napi_create_symbol(
         env: *const Env,
-        description: *mut Value,
-        result: *mut *mut Value,
+        description: *const Value,
+        result: *mut *const Value,
     ) -> Status;
 
     fn napi_create_error(
         env: *const Env,
-        code: *mut Value,
-        msg: *mut Value,
-        result: *mut *mut Value,
+        code: *const Value,
+        msg: *const Value,
+        result: *mut *const Value,
     ) -> Status;
     fn napi_create_type_error(
         env: *const Env,
-        code: *mut Value,
-        msg: *mut Value,
-        result: *mut *mut Value,
+        code: *const Value,
+        msg: *const Value,
+        result: *mut *const Value,
     ) -> Status;
     fn napi_create_range_error(
         env: *const Env,
-        code: *mut Value,
-        msg: *mut Value,
-        result: *mut *mut Value,
+        code: *const Value,
+        msg: *const Value,
+        result: *mut *const Value,
     ) -> Status;
 
-    fn napi_get_value_double(env: *const Env, value: *mut Value, result: *mut f64) -> Status;
-    fn napi_get_value_int32(env: *const Env, value: *mut Value, result: *mut i32) -> Status;
-    fn napi_get_value_uint32(env: *const Env, value: *mut Value, result: *mut u32) -> Status;
-    fn napi_get_value_int64(env: *const Env, value: *mut Value, result: *mut i64) -> Status;
-    fn napi_get_value_bool(env: *const Env, value: *mut Value, result: *mut u8) -> Status;
+    fn napi_create_external_arraybuffer(
+        env: *const Env,
+        external_data: *mut libc::c_void,
+        byte_length: libc::size_t,
+        finalize_cb: extern "C" fn(*const Env, *mut u8, *mut u8),
+        finalize_hint: *mut libc::c_void,
+        result: *mut *const Value,
+    ) -> Status;
 
-    fn napi_coerce_to_bool(env: *const Env, value: *mut Value, result: *mut *mut Value) -> Status;
-    fn napi_coerce_to_number(env: *const Env, value: *mut Value, result: *mut *mut Value)
-        -> Status;
-    fn napi_coerce_to_object(env: *const Env, value: *mut Value, result: *mut *mut Value)
-        -> Status;
-    fn napi_coerce_to_string(env: *const Env, value: *mut Value, result: *mut *mut Value)
-        -> Status;
+    fn napi_get_value_double(env: *const Env, value: *const Value, result: *mut f64) -> Status;
+    fn napi_get_value_int32(env: *const Env, value: *const Value, result: *mut i32) -> Status;
+    fn napi_get_value_uint32(env: *const Env, value: *const Value, result: *mut u32) -> Status;
+    fn napi_get_value_int64(env: *const Env, value: *const Value, result: *mut i64) -> Status;
+    fn napi_get_value_bool(env: *const Env, value: *const Value, result: *mut u8) -> Status;
+
+    fn napi_get_value_string_utf8(
+        env: *const Env,
+        value: *const Value,
+        buf: *mut libc::c_char,
+        bufsize: libc::size_t,
+        result: *mut libc::size_t,
+    ) -> Status;
+
+    fn napi_coerce_to_bool(
+        env: *const Env,
+        value: *const Value,
+        result: *mut *const Value,
+    ) -> Status;
+    fn napi_coerce_to_number(
+        env: *const Env,
+        value: *const Value,
+        result: *mut *const Value,
+    ) -> Status;
+    fn napi_coerce_to_object(
+        env: *const Env,
+        value: *const Value,
+        result: *mut *const Value,
+    ) -> Status;
+    fn napi_coerce_to_string(
+        env: *const Env,
+        value: *const Value,
+        result: *mut *const Value,
+    ) -> Status;
 
     fn napi_set_property(
         env: *const Env,
-        object: *mut Value,
-        key: *mut Value,
-        value: *mut Value,
+        object: *const Value,
+        key: *const Value,
+        value: *const Value,
     ) -> Status;
 
-    fn napi_throw(env: *const Env, error: *mut Value) -> Status;
+    fn napi_throw(env: *const Env, error: *const Value) -> Status;
 
     fn napi_throw_error(
         env: *const Env,
@@ -591,17 +666,17 @@ extern "C" {
         msg: *const libc::c_char,
     ) -> Status;
 
-    fn napi_is_error(env: *const Env, value: *mut Value, result: *mut u8) -> Status;
+    fn napi_is_error(env: *const Env, value: *const Value, result: *mut u8) -> Status;
 
-    fn napi_typeof(env: *const Env, value: *mut Value, result: *mut ValueType) -> Status;
+    fn napi_typeof(env: *const Env, value: *const Value, result: *const ValueType) -> Status;
 
-    fn napi_is_array(env: *const Env, value: *mut Value, result: *mut u8) -> Status;
-    fn napi_get_array_length(env: *const Env, value: *mut Value, result: *mut u32) -> Status;
+    fn napi_is_array(env: *const Env, value: *const Value, result: *mut u8) -> Status;
+    fn napi_get_array_length(env: *const Env, value: *const Value, result: *mut u32) -> Status;
 
     fn napi_strict_equals(
         env: *const Env,
-        lhs: *mut Value,
-        rhs: *mut Value,
+        lhs: *const Value,
+        rhs: *const Value,
         result: *mut u8,
     ) -> Status;
 
@@ -609,8 +684,8 @@ extern "C" {
         env: *const Env,
         cbinfo: *const CbInfo,
         argc: *mut libc::size_t,
-        argv: *mut *mut Value,
-        this_arg: *mut *mut Value,
+        argv: *mut *const Value,
+        this_arg: *mut *const Value,
         data: *mut *const libc::c_void,
     ) -> Status;
 }
@@ -652,11 +727,6 @@ NAPI_EXTERN napi_status napi_get_value_string_latin1(napi_env env,
                                                      size_t* result);
 
 // Copies UTF-8 encoded bytes from a string into a buffer.
-NAPI_EXTERN napi_status napi_get_value_string_utf8(napi_env env,
-                                                   napi_value value,
-                                                   char* buf,
-                                                   size_t bufsize,
-                                                   size_t* result);
 
 // Copies UTF-16 encoded bytes from a string into a buffer.
 NAPI_EXTERN napi_status napi_get_value_string_utf16(napi_env env,
@@ -877,13 +947,7 @@ NAPI_EXTERN napi_status napi_create_arraybuffer(napi_env env,
                                                 size_t byte_length,
                                                 void** data,
                                                 napi_value* result);
-NAPI_EXTERN napi_status
-napi_create_external_arraybuffer(napi_env env,
-                                 void* external_data,
-                                 size_t byte_length,
-                                 napi_finalize finalize_cb,
-                                 void* finalize_hint,
-                                 napi_value* result);
+
 NAPI_EXTERN napi_status napi_get_arraybuffer_info(napi_env env,
                                                   napi_value arraybuffer,
                                                   void** data,
