@@ -23,5 +23,6 @@ pub unsafe extern "C" fn genet_napi_init(env: *mut Env, exports: *mut Value) -> 
     let exports = &mut *exports;
     let _ = version::init(env, exports);
     let _ = token::init(env, exports);
+    let _ = session::init(env, exports);
     exports
 }

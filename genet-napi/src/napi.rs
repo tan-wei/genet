@@ -583,6 +583,31 @@ impl Env {
         }
     }
 
+    pub fn define_class<'env>(
+        &'env self,
+        name: &str,
+        constructor: fn(&'env Env, &'env CallbackInfo) -> Result<&'env Value>,
+        properties: &[PropertyDescriptor],
+    ) -> Result<&'env Value> {
+        unsafe {
+            let mut result: *const Value = mem::uninitialized();
+            let (cb, data) = self.create_cb(constructor);
+            match napi_define_class(
+                self,
+                name.as_ptr() as *const i8,
+                name.len(),
+                cb,
+                data,
+                properties.len(),
+                properties.as_ptr(),
+                &mut result,
+            ) {
+                Status::Ok => Ok(&*result),
+                s => Err(s),
+            }
+        }
+    }
+
     pub fn unwrap<'env, T>(&'env self, js_object: &'env Value) -> Result<&'env mut T> {
         unsafe {
             let mut result: *mut libc::c_void = mem::uninitialized();
@@ -670,7 +695,7 @@ impl<'env> CallbackInfo<'env> {
 }
 
 #[repr(C)]
-struct PropertyDescriptor {
+pub struct PropertyDescriptor {
     utf8name: *const libc::c_char,
     name: *const Value,
     method: Option<Cb>,
@@ -873,7 +898,7 @@ extern "C" {
         property_count: libc::size_t,
         properties: *const PropertyDescriptor,
         result: *mut *const Value,
-    );
+    ) -> Status;
 
     fn napi_wrap(
         env: *const Env,
