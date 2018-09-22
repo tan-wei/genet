@@ -707,6 +707,26 @@ pub struct PropertyDescriptor {
 }
 
 impl PropertyDescriptor {
+    pub fn new_property<'env>(
+        env: &'env Env,
+        name: &str,
+        attrs: PropertyAttributes,
+        accessor: fn(&'env Env, &'env CallbackInfo) -> Result<&'env Value>,
+        setter: bool,
+    ) -> PropertyDescriptor {
+        let (cb, data) = env.create_cb(accessor);
+        PropertyDescriptor {
+            utf8name: ptr::null(),
+            name: env.create_string(name).unwrap(),
+            method: None,
+            getter: Some(cb),
+            setter: if setter { Some(cb) } else { None },
+            value: ptr::null(),
+            attributes: attrs.bits(),
+            data,
+        }
+    }
+
     pub fn new_method<'env>(
         env: &'env Env,
         name: &str,
@@ -723,6 +743,24 @@ impl PropertyDescriptor {
             value: ptr::null(),
             attributes: attrs.bits(),
             data,
+        }
+    }
+
+    pub fn new_value<'env>(
+        env: &'env Env,
+        name: &str,
+        attrs: PropertyAttributes,
+        value: *const Value,
+    ) -> PropertyDescriptor {
+        PropertyDescriptor {
+            utf8name: ptr::null(),
+            name: env.create_string(name).unwrap(),
+            method: None,
+            getter: None,
+            setter: None,
+            value,
+            attributes: attrs.bits(),
+            data: ptr::null(),
         }
     }
 }

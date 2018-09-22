@@ -194,12 +194,13 @@ pub fn init(env: &mut Env, exports: &mut Value) -> Result<()> {
     }
 
     fn test<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
-        println!("TEST");
+        println!("TEST {:?}", info.argv().len());
         env.get_null()
     }
 
     let props = vec![
-        PropertyDescriptor::new_method(env, "test", PropertyAttributes::Default, test)
+        PropertyDescriptor::new_method(env, "test", PropertyAttributes::Default, test),
+        PropertyDescriptor::new_property(env, "ooo", PropertyAttributes::Default, test, false)
     ];
 
     let class = env.define_class("Session", constructor, &props)?;
