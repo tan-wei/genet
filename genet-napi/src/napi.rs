@@ -608,6 +608,37 @@ impl Env {
         }
     }
 
+    pub fn wrap<'env, T>(&'env self, js_object: &'env Value, value: T) -> Result<()> {
+        extern "C" fn finalize_cb<T>(_env: *const Env, data: *mut u8, _hint: *mut u8) {
+            unsafe { Box::from_raw(data as *mut T) };
+        }
+        let value = Box::into_raw(Box::new(value));
+        unsafe {
+            match napi_wrap(
+                self,
+                js_object,
+                value as *mut libc::c_void,
+                finalize_cb::<T>,
+                ptr::null_mut(),
+                ptr::null_mut(),
+            ) {
+                Status::Ok => Ok(()),
+                s => Err(s),
+            }
+        }
+    }
+
+    /*
+    fn napi_wrap(
+        env: *const Env,
+        js_object: *const Value,
+        native_object: *mut libc::c_void,
+        finalize_cb: extern "C" fn(*const Env, *mut u8, *mut u8),
+        finalize_hint: *mut libc::c_void,
+        result: *mut *const Ref,
+    ) -> Status;
+    */
+
     pub fn unwrap<'env, T>(&'env self, js_object: &'env Value) -> Result<&'env mut T> {
         unsafe {
             let mut result: *mut libc::c_void = mem::uninitialized();
@@ -622,9 +653,6 @@ impl Env {
         ValueRef::new(self, value)
     }
 }
-
-#[repr(transparent)]
-struct FuncData<'env>(fn(&'env Env, &'env CallbackInfo) -> Result<&'env Value>);
 
 pub enum Value {}
 pub enum Ref {}
@@ -982,8 +1010,6 @@ extern "C" {
     );
 
     fn napi_delete_reference(env: *const Env, reference: *const Ref);
-
-    fn napi_reference_ref(env: *const Env, reference: *const Ref, result: *mut u32);
 
     fn napi_reference_unref(env: *const Env, reference: *const Ref, result: *mut u32);
 

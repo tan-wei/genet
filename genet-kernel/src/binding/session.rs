@@ -187,14 +187,28 @@ pub unsafe extern "C" fn genet_session_free(session: *mut Session) {
     }
 }
 
+#[derive(Clone)]
+struct SessionCallback {}
+
+impl Callback for SessionCallback {
+    fn on_event(&self, event: Event) {
+        
+    }
+}
+
+
 pub fn init(env: &mut Env, exports: &mut Value) -> Result<()> {
     fn constructor<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        let profile = Profile::new();
+        let session = Session::new(profile, SessionCallback {});
+        env.wrap(info.this(), session)?;
         println!("CONST");
         env.get_null()
     }
 
     fn test<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
-        println!("TEST {:?}", info.argv().len());
+        let session = env.unwrap::<Session>(info.this())?;
+        println!("TEST> {:?}", session.len());
         env.get_null()
     }
 
