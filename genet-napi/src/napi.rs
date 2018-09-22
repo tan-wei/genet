@@ -706,6 +706,27 @@ pub struct PropertyDescriptor {
     data: *const libc::c_void,
 }
 
+impl PropertyDescriptor {
+    pub fn new_method<'env>(
+        env: &'env Env,
+        name: &str,
+        attrs: PropertyAttributes,
+        method: fn(&'env Env, &'env CallbackInfo) -> Result<&'env Value>,
+    ) -> PropertyDescriptor {
+        let (cb, data) = env.create_cb(method);
+        PropertyDescriptor {
+            utf8name: ptr::null(),
+            name: env.create_string(name).unwrap(),
+            method: Some(cb),
+            getter: None,
+            setter: None,
+            value: ptr::null(),
+            attributes: attrs.bits(),
+            data,
+        }
+    }
+}
+
 extern "C" {
     fn napi_get_undefined(env: *const Env, result: *mut *const Value) -> Status;
     fn napi_get_null(env: *const Env, result: *mut *const Value) -> Status;

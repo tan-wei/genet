@@ -4,7 +4,7 @@ use libc;
 use profile::Profile;
 use serde_json;
 use session::{Callback, Event, Session};
-use genet_napi::napi::{CallbackInfo, Env, Result, Status, Value};
+use genet_napi::napi::{CallbackInfo, Env, Result, Status, Value, PropertyDescriptor, PropertyAttributes};
 use std::{
     cmp,
     error::Error,
@@ -189,10 +189,20 @@ pub unsafe extern "C" fn genet_session_free(session: *mut Session) {
 
 pub fn init(env: &mut Env, exports: &mut Value) -> Result<()> {
     fn constructor<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        println!("CONST");
         env.get_null()
     }
 
-    let class = env.define_class("Session", constructor, &[])?;
+    fn test<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        println!("TEST");
+        env.get_null()
+    }
+
+    let props = vec![
+        PropertyDescriptor::new_method(env, "test", PropertyAttributes::Default, test)
+    ];
+
+    let class = env.define_class("Session", constructor, &props)?;
     env.set_named_property(exports, "Session", class)?;
     Ok(())
 }
