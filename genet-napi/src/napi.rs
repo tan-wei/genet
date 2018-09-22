@@ -1,6 +1,6 @@
 use genet_abi::slice::ByteSlice;
 use libc;
-use std::{ffi::CString, mem, ptr};
+use std::{convert::AsRef, ffi::CString, mem, ops::Deref, ptr, rc::Rc};
 
 pub type Result<T> = ::std::result::Result<T, Status>;
 
@@ -506,6 +506,51 @@ impl Env {
         }
     }
 
+    pub fn call_function<'env>(
+        &'env self,
+        recv: &'env Value,
+        func: &'env Value,
+        argv: &[&'env Value],
+    ) -> Result<&'env Value> {
+        unsafe {
+            let mut result: *const Value = mem::uninitialized();
+            let argv: Vec<*const Value> = argv.iter().map(|v| *v as *const Value).collect();
+            match napi_call_function(self, recv, func, argv.len(), argv.as_ptr(), &mut result) {
+                Status::Ok => Ok(&*result),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn new_instance<'env>(
+        &'env self,
+        constructor: &'env Value,
+        argv: &[&'env Value],
+    ) -> Result<&'env Value> {
+        unsafe {
+            let mut result: *const Value = mem::uninitialized();
+            let argv: Vec<*const Value> = argv.iter().map(|v| *v as *const Value).collect();
+            match napi_new_instance(self, constructor, argv.len(), argv.as_ptr(), &mut result) {
+                Status::Ok => Ok(&*result),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn instanceof<'env>(
+        &'env self,
+        object: &'env Value,
+        constructor: &'env Value,
+    ) -> Result<bool> {
+        unsafe {
+            let mut result: u8 = mem::uninitialized();
+            match napi_instanceof(self, object, constructor, &mut result) {
+                Status::Ok => Ok(result != 0),
+                s => Err(s),
+            }
+        }
+    }
+
     pub fn get_cb_info<'env>(&'env self, cbinfo: &'env CbInfo) -> Result<CallbackInfo<'env>> {
         unsafe {
             const MAX_ARGC: usize = 16;
@@ -540,10 +585,61 @@ impl Env {
             }
         }
     }
+
+    pub fn create_ref<'env>(&'env self, value: &'env Value) -> Rc<ValueRef> {
+        ValueRef::new(self, value)
+    }
 }
 
 pub enum Value {}
 pub enum Ref {}
+
+pub struct ValueRef {
+    env: *const Env,
+    reference: *const Ref,
+}
+
+impl ValueRef {
+    fn new(env: *const Env, value: *const Value) -> Rc<ValueRef> {
+        unsafe {
+            let mut result: *const Ref = mem::uninitialized();
+            napi_create_reference(env, value, 1, &mut result);
+            Rc::new(ValueRef {
+                env,
+                reference: result,
+            })
+        }
+    }
+}
+
+impl Drop for ValueRef {
+    fn drop(&mut self) {
+        unsafe {
+            let mut result: u32 = mem::uninitialized();
+            napi_reference_unref(self.env, self.reference, &mut result);
+            napi_delete_reference(self.env, self.reference);
+        }
+    }
+}
+
+impl AsRef<Value> for ValueRef {
+    fn as_ref(&self) -> &Value {
+        self.deref()
+    }
+}
+
+impl Deref for ValueRef {
+    type Target = Value;
+
+    fn deref(&self) -> &Value {
+        unsafe {
+            let mut result: *const Value = mem::uninitialized();
+            napi_get_reference_value(self.env, self.reference, &mut result);
+            &*result
+        }
+    }
+}
+
 pub enum CbInfo {}
 pub type Callback = extern "C" fn(env: *const Env, info: *const CbInfo) -> *const Value;
 
@@ -713,6 +809,30 @@ extern "C" {
         result: *mut u8,
     ) -> Status;
 
+    fn napi_call_function(
+        env: *const Env,
+        recv: *const Value,
+        func: *const Value,
+        argc: libc::size_t,
+        argv: *const *const Value,
+        result: *mut *const Value,
+    ) -> Status;
+
+    fn napi_new_instance(
+        env: *const Env,
+        constructor: *const Value,
+        argc: libc::size_t,
+        argv: *const *const Value,
+        result: *mut *const Value,
+    ) -> Status;
+
+    fn napi_instanceof(
+        env: *const Env,
+        object: *const Value,
+        constructor: *const Value,
+        result: *mut u8,
+    ) -> Status;
+
     fn napi_get_cb_info(
         env: *const Env,
         cbinfo: *const CbInfo,
@@ -736,6 +856,21 @@ extern "C" {
         js_object: *const Value,
         result: *mut *mut libc::c_void,
     ) -> Status;
+
+    fn napi_create_reference(
+        env: *const Env,
+        value: *const Value,
+        initial_refcount: u32,
+        result: *mut *const Ref,
+    );
+
+    fn napi_delete_reference(env: *const Env, reference: *const Ref);
+
+    fn napi_reference_ref(env: *const Env, reference: *const Ref, result: *mut u32);
+
+    fn napi_reference_unref(env: *const Env, reference: *const Ref, result: *mut u32);
+
+    fn napi_get_reference_value(env: *const Env, reference: *const Ref, result: *mut *const Value);
 }
 
 /*
