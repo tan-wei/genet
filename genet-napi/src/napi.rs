@@ -1,4 +1,7 @@
-use genet_abi::slice::ByteSlice;
+use genet_abi::{
+    fixed::{Fixed, MutFixed},
+    slice::ByteSlice,
+};
 use libc;
 use std::{convert::AsRef, ffi::CString, mem, ops::Deref, ptr, rc::Rc};
 
@@ -628,16 +631,43 @@ impl Env {
         }
     }
 
-    /*
-    fn napi_wrap(
-        env: *const Env,
-        js_object: *const Value,
-        native_object: *mut libc::c_void,
-        finalize_cb: extern "C" fn(*const Env, *mut u8, *mut u8),
-        finalize_hint: *mut libc::c_void,
-        result: *mut *const Ref,
-    ) -> Status;
-    */
+    pub fn wrap_fixed<'env, T>(&'env self, js_object: &'env Value, value: &Fixed<T>) -> Result<()> {
+        extern "C" fn finalize_cb<T>(_env: *const Env, _data: *mut u8, _hint: *mut u8) {}
+        unsafe {
+            match napi_wrap(
+                self,
+                js_object,
+                value.as_ptr() as *mut libc::c_void,
+                finalize_cb::<T>,
+                ptr::null_mut(),
+                ptr::null_mut(),
+            ) {
+                Status::Ok => Ok(()),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn wrap_mut_fixed<'env, T>(
+        &'env self,
+        js_object: &'env Value,
+        value: &MutFixed<T>,
+    ) -> Result<()> {
+        extern "C" fn finalize_cb<T>(_env: *const Env, _data: *mut u8, _hint: *mut u8) {}
+        unsafe {
+            match napi_wrap(
+                self,
+                js_object,
+                value.as_ptr() as *mut libc::c_void,
+                finalize_cb::<T>,
+                ptr::null_mut(),
+                ptr::null_mut(),
+            ) {
+                Status::Ok => Ok(()),
+                s => Err(s),
+            }
+        }
+    }
 
     pub fn unwrap<'env, T>(&'env self, js_object: &'env Value) -> Result<&'env mut T> {
         unsafe {
