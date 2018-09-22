@@ -123,7 +123,7 @@ impl Env {
     fn create_cb<'env>(
         &'env self,
         func: fn(&'env Env, &'env CallbackInfo) -> Result<&'env Value>,
-    ) -> (Callback, *mut libc::c_void) {
+    ) -> (Cb, *mut libc::c_void) {
         struct FuncData<'env>(fn(&'env Env, &'env CallbackInfo) -> Result<&'env Value>);
         extern "C" fn cb(env: *const Env, info: *const CbInfo) -> *const Value {
             unsafe {
@@ -651,7 +651,7 @@ impl Deref for ValueRef {
 }
 
 pub enum CbInfo {}
-pub type Callback = extern "C" fn(env: *const Env, info: *const CbInfo) -> *const Value;
+type Cb = extern "C" fn(env: *const Env, info: *const CbInfo) -> *const Value;
 
 pub struct CallbackInfo<'env> {
     argv: Vec<&'env Value>,
@@ -673,9 +673,9 @@ impl<'env> CallbackInfo<'env> {
 struct PropertyDescriptor {
     utf8name: *const libc::c_char,
     name: *const Value,
-    method: Callback,
-    getter: Callback,
-    setter: Callback,
+    method: Option<Cb>,
+    getter: Option<Cb>,
+    setter: Option<Cb>,
     value: *const Value,
     attributes: u32,
     data: *const libc::c_void,
@@ -704,7 +704,7 @@ extern "C" {
         env: *const Env,
         utf8name: *const libc::c_char,
         length: libc::size_t,
-        cb: Callback,
+        cb: Cb,
         data: *mut libc::c_void,
         result: *mut *const Value,
     ) -> Status;
@@ -868,7 +868,7 @@ extern "C" {
         env: *const Env,
         utf8name: *const libc::c_char,
         length: libc::size_t,
-        constructor: Callback,
+        constructor: Cb,
         data: *const libc::c_void,
         property_count: libc::size_t,
         properties: *const PropertyDescriptor,
