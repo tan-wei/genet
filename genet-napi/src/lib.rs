@@ -5,3 +5,4 @@ extern crate libc;
 extern crate bitflags;
 
 pub mod napi;
+pub mod uv;
