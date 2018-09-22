@@ -120,35 +120,42 @@ impl Env {
         }
     }
 
+    fn create_cb<'env>(
+        &'env self,
+        func: fn(&'env Env, &'env CallbackInfo) -> Result<&'env Value>,
+    ) -> (Callback, *mut libc::c_void) {
+        struct FuncData<'env>(fn(&'env Env, &'env CallbackInfo) -> Result<&'env Value>);
+        extern "C" fn cb(env: *const Env, info: *const CbInfo) -> *const Value {
+            unsafe {
+                let env = &*env;
+                let info = env.get_cb_info(&*info).unwrap();
+                let func: FuncData = mem::transmute(info.data);
+                match func.0(env, &info) {
+                    Ok(v) => v,
+                    Err(s) => {
+                        let _ = env.throw_error("napi_status", &format!("{:?}", s));
+                        env.get_undefined().unwrap()
+                    }
+                }
+            }
+        }
+        (cb, unsafe { mem::transmute(FuncData(func)) })
+    }
+
     pub fn create_function<'env>(
         &'env self,
         name: &str,
         func: fn(&'env Env, &'env CallbackInfo) -> Result<&'env Value>,
     ) -> Result<&'env Value> {
-        #[repr(transparent)]
-        struct FuncData<'env>(fn(&'env Env, &'env CallbackInfo) -> Result<&'env Value>);
         unsafe {
             let mut result: *const Value = mem::uninitialized();
-            extern "C" fn cb(env: *const Env, info: *const CbInfo) -> *const Value {
-                unsafe {
-                    let env = &*env;
-                    let info = env.get_cb_info(&*info).unwrap();
-                    let func: FuncData = mem::transmute(info.data);
-                    match func.0(env, &info) {
-                        Ok(v) => v,
-                        Err(s) => {
-                            let _ = env.throw_error("napi_status", &format!("{:?}", s));
-                            env.get_undefined().unwrap()
-                        }
-                    }
-                }
-            }
+            let (cb, data) = self.create_cb(func);
             match napi_create_function(
                 self,
                 name.as_ptr() as *const i8,
                 name.len(),
                 cb,
-                mem::transmute(FuncData(func)),
+                data,
                 &mut result,
             ) {
                 Status::Ok => Ok(&*result),
@@ -341,13 +348,13 @@ impl Env {
             if result == 0 {
                 return Ok(String::new());
             }
-            let mut v: Vec<u8> = Vec::with_capacity(result);
-            v.set_len(result - 1);
+            let mut v: Vec<u8> = Vec::with_capacity(result + 1);
+            v.set_len(result);
             match napi_get_value_string_utf8(
                 self,
                 value,
                 v.as_mut_slice().as_mut_ptr() as *mut i8,
-                result,
+                v.capacity(),
                 &mut result,
             ) {
                 Status::Ok => Ok(String::from_utf8(v).unwrap()),
@@ -590,6 +597,9 @@ impl Env {
         ValueRef::new(self, value)
     }
 }
+
+#[repr(transparent)]
+struct FuncData<'env>(fn(&'env Env, &'env CallbackInfo) -> Result<&'env Value>);
 
 pub enum Value {}
 pub enum Ref {}
