@@ -659,6 +659,18 @@ impl<'env> CallbackInfo<'env> {
     }
 }
 
+#[repr(C)]
+struct PropertyDescriptor {
+    utf8name: *const libc::c_char,
+    name: *const Value,
+    method: Callback,
+    getter: Callback,
+    setter: Callback,
+    value: *const Value,
+    attributes: u32,
+    data: *const libc::c_void,
+}
+
 extern "C" {
     fn napi_get_undefined(env: *const Env, result: *mut *const Value) -> Status;
     fn napi_get_null(env: *const Env, result: *mut *const Value) -> Status;
@@ -841,6 +853,17 @@ extern "C" {
         this_arg: *mut *const Value,
         data: *mut *const libc::c_void,
     ) -> Status;
+
+    fn napi_define_class(
+        env: *const Env,
+        utf8name: *const libc::c_char,
+        length: libc::size_t,
+        constructor: Callback,
+        data: *const libc::c_void,
+        property_count: libc::size_t,
+        properties: *const PropertyDescriptor,
+        result: *mut *const Value,
+    );
 
     fn napi_wrap(
         env: *const Env,
