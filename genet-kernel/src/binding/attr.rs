@@ -116,12 +116,12 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
     fn attr_id<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
         let attr = env.unwrap::<Attr>(info.this())?;
-        env.create_uint32(attr.id().into())
+        env.create_string(&attr.id().to_string())
     }
 
     fn attr_type<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
         let attr = env.unwrap::<Attr>(info.this())?;
-        env.create_uint32(attr.typ().into())
+        env.create_string(&attr.typ().to_string())
     }
 
     fn attr_range<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
@@ -137,7 +137,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         .define_class(
             "Attr",
             ctor,
-            &vec![
+            &[
                 PropertyDescriptor::new_property(
                     env,
                     "id",

@@ -74,7 +74,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
     fn layer_id<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
-        env.create_uint32(layer.id().into())
+        env.create_string(&layer.id().to_string())
     }
 
     fn layer_attrs<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
@@ -96,11 +96,43 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         Ok(array)
     }
 
+    fn layer_payloads<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        let layer = env.unwrap::<Layer>(info.this())?;
+        let payloads = layer.payloads();
+        let array = env.create_array(payloads.len())?;
+        for i in 0..payloads.len() {
+            let paylaod = &payloads[i];
+            let object = env.create_object()?;
+            env.set_named_property(
+                object,
+                "id",
+                env.create_string(&paylaod.id().to_string())?,
+            )?;
+            env.set_named_property(
+                object,
+                "type",
+                env.create_string(&paylaod.typ().to_string())?,
+            )?;
+            env.set_named_property(
+                object,
+                "data",
+                env.create_arraybuffer_from_slice(&paylaod.data())?,
+            )?;
+            env.set_element(array, i as u32, object)?;
+        }
+        Ok(array)
+    }
+
+    fn layer_data<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        let layer = env.unwrap::<Layer>(info.this())?;
+        env.create_arraybuffer_from_slice(&layer.data())
+    }
+
     let class = env
         .define_class(
             "Layer",
             ctor,
-            &vec![
+            &[
                 PropertyDescriptor::new_property(
                     env,
                     "id",
@@ -113,6 +145,20 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
                     "attrs",
                     PropertyAttributes::Default,
                     layer_attrs,
+                    false,
+                ),
+                PropertyDescriptor::new_property(
+                    env,
+                    "payloads",
+                    PropertyAttributes::Default,
+                    layer_payloads,
+                    false,
+                ),
+                PropertyDescriptor::new_property(
+                    env,
+                    "data",
+                    PropertyAttributes::Default,
+                    layer_data,
                     false,
                 ),
             ],

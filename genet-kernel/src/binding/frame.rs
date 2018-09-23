@@ -76,7 +76,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         .define_class(
             "Frame",
             ctor,
-            &vec![
+            &[
                 PropertyDescriptor::new_property(
                     env,
                     "index",

@@ -29,8 +29,7 @@ fn token_get<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Val
 fn token_string<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
     if let Some(id) = info.argv().get(0) {
         let id = env.get_value_uint32(id)?;
-        let token = Token::from(id);
-        env.create_string(&token.to_string())
+        env.create_string(&Token::from(id).to_string())
     } else {
         Err(Status::InvalidArg)
     }

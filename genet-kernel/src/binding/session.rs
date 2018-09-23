@@ -218,7 +218,7 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
     let session_class = env.define_class(
         "Session",
         session_ctor,
-        &vec![
+        &[
             PropertyDescriptor::new_method(
                 env,
                 "frames",
@@ -268,7 +268,7 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
     let profile_class = env.define_class(
         "Profile",
         profile_ctor,
-        &vec![
+        &[
             PropertyDescriptor::new_method(
                 env,
                 "setConfig",
