@@ -1,6 +1,10 @@
 use frame::Frame;
 use genet_abi::{attr::Attr, layer::Layer, token::Token};
-use std::ptr;
+use genet_napi::napi::{
+    CallbackInfo, Env, HandleScope, PropertyAttributes, PropertyDescriptor, Result, Status, Value,
+    ValueRef,
+};
+use std::{ptr, rc::Rc};
 
 #[no_mangle]
 pub unsafe extern "C" fn genet_frame_index(frame: *const Frame) -> u32 {
@@ -32,4 +36,12 @@ pub unsafe extern "C" fn genet_frame_attr(frame: *const Frame, id: Token) -> *co
     } else {
         ptr::null()
     }
+}
+
+pub fn wrapper(env: &Env) -> Rc<ValueRef> {
+    fn ctor<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        env.get_null()
+    }
+    let class = env.define_class("Frame", ctor, &vec![]).unwrap();
+    env.create_ref(class)
 }

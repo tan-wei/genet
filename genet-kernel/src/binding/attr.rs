@@ -1,5 +1,9 @@
 use genet_abi::{attr::Attr, layer::Layer, token::Token, variant::Variant};
-use std::{ffi::CString, ptr};
+use genet_napi::napi::{
+    CallbackInfo, Env, HandleScope, PropertyAttributes, PropertyDescriptor, Result, Status, Value,
+    ValueRef,
+};
+use std::{ffi::CString, ptr, rc::Rc};
 
 #[repr(i8)]
 pub enum ValueType {
@@ -103,4 +107,12 @@ pub unsafe extern "C" fn genet_attr_get(attr: *const Attr, layer: *const Layer) 
         _ => (),
     }
     Var { typ, value, data }
+}
+
+pub fn wrapper(env: &Env) -> Rc<ValueRef> {
+    fn ctor<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        env.get_null()
+    }
+    let class = env.define_class("Attr", ctor, &vec![]).unwrap();
+    env.create_ref(class)
 }

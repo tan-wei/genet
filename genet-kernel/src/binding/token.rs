@@ -37,7 +37,7 @@ fn token_string<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env 
     }
 }
 
-pub fn init(env: &mut Env, exports: &mut Value) -> Result<()> {
+pub fn init(env: &Env, exports: &Value) -> Result<()> {
     let tk = env.create_object()?;
     env.set_named_property(tk, "get", env.create_function("get", token_get)?)?;
     env.set_named_property(tk, "string", env.create_function("string", token_string)?)?;

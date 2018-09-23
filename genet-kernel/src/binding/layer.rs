@@ -3,7 +3,11 @@ use genet_abi::{
     layer::{Layer, Payload},
     token::Token,
 };
-use std::ptr;
+use genet_napi::napi::{
+    CallbackInfo, Env, HandleScope, PropertyAttributes, PropertyDescriptor, Result, Status, Value,
+    ValueRef,
+};
+use std::{ptr, rc::Rc};
 
 #[repr(C)]
 pub struct Range {
@@ -60,4 +64,12 @@ pub unsafe extern "C" fn genet_layer_payloads(
     let payloads = (*layer).payloads();
     *len = payloads.len() as u32;
     payloads.as_ptr()
+}
+
+pub fn wrapper(env: &Env) -> Rc<ValueRef> {
+    fn ctor<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        env.get_null()
+    }
+    let class = env.define_class("Layer", ctor, &vec![]).unwrap();
+    env.create_ref(class)
 }

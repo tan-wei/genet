@@ -2,7 +2,7 @@ use genet_abi::env;
 use genet_napi::napi::{CallbackInfo, Env, Result, Status, Value};
 use libc;
 
-pub fn init(env: &mut Env, exports: &mut Value) -> Result<()> {
+pub fn init(env: &Env, exports: &Value) -> Result<()> {
     let tk = env.create_object()?;
     env.set_named_property(
         tk,
