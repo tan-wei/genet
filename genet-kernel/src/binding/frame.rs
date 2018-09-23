@@ -1,3 +1,4 @@
+use binding::JsClass;
 use frame::Frame;
 use genet_abi::{attr::Attr, layer::Layer, token::Token};
 use genet_napi::napi::{
@@ -58,6 +59,19 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         Ok(array)
     }
 
+    fn frame_layers<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        let frame = env.unwrap::<Frame>(info.this())?;
+        let layers = frame.layers();
+        let layer_class = env.get_constructor(JsClass::Layer as usize).unwrap();
+        let array = env.create_array(layers.len())?;
+        for i in 0..layers.len() {
+            let instance = env.new_instance(&layer_class, &[])?;
+            env.wrap_mut_fixed(instance, &layers[i])?;
+            env.set_element(array, i as u32, instance)?;
+        }
+        Ok(array)
+    }
+
     let class = env
         .define_class(
             "Frame",
@@ -68,6 +82,13 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
                     "index",
                     PropertyAttributes::Default,
                     frame_index,
+                    false,
+                ),
+                PropertyDescriptor::new_property(
+                    env,
+                    "layers",
+                    PropertyAttributes::Default,
+                    frame_layers,
                     false,
                 ),
                 PropertyDescriptor::new_property(

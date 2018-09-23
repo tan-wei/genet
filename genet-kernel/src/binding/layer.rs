@@ -1,3 +1,4 @@
+use binding::JsClass;
 use genet_abi::{
     attr::Attr,
     layer::{Layer, Payload},
@@ -76,17 +77,45 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         env.create_uint32(layer.id().into())
     }
 
+    fn layer_attrs<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        let layer = env.unwrap::<Layer>(info.this())?;
+        let headers = layer.headers();
+        let attrs = layer.attrs();
+        let attr_class = env.get_constructor(JsClass::Attr as usize).unwrap();
+        let array = env.create_array(headers.len() + attrs.len())?;
+        for i in 0..headers.len() {
+            let instance = env.new_instance(&attr_class, &[])?;
+            env.wrap_fixed(instance, &headers[i])?;
+            env.set_element(array, i as u32, instance)?;
+        }
+        for i in 0..attrs.len() {
+            let instance = env.new_instance(&attr_class, &[])?;
+            env.wrap_fixed(instance, &attrs[i])?;
+            env.set_element(array, (headers.len() + i) as u32, instance)?;
+        }
+        Ok(array)
+    }
+
     let class = env
         .define_class(
             "Layer",
             ctor,
-            &vec![PropertyDescriptor::new_property(
-                env,
-                "id",
-                PropertyAttributes::Default,
-                layer_id,
-                false,
-            )],
+            &vec![
+                PropertyDescriptor::new_property(
+                    env,
+                    "id",
+                    PropertyAttributes::Default,
+                    layer_id,
+                    false,
+                ),
+                PropertyDescriptor::new_property(
+                    env,
+                    "attrs",
+                    PropertyAttributes::Default,
+                    layer_attrs,
+                    false,
+                ),
+            ],
         ).unwrap();
     env.create_ref(class)
 }
