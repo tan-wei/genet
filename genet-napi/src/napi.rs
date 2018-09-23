@@ -3,7 +3,11 @@ use genet_abi::{
     slice::ByteSlice,
 };
 use libc;
-use std::{convert::AsRef, ffi::CString, mem, ops::Deref, ptr, rc::Rc};
+use std::{cell::RefCell, convert::AsRef, ffi::CString, mem, ops::Deref, ptr, rc::Rc};
+
+thread_local! {
+    pub static ENV_CONSTRUCTORS: RefCell<Vec<Option<Rc<ValueRef>>>> = RefCell::new(Vec::new());
+}
 
 pub type Result<T> = ::std::result::Result<T, Status>;
 
@@ -58,6 +62,20 @@ pub enum ValueType {
 pub enum Env {}
 
 impl Env {
+    pub fn get_constructor(&self, index: usize) -> Option<Rc<ValueRef>> {
+        ENV_CONSTRUCTORS.with(|v| v.borrow().get(index).cloned().unwrap_or(None))
+    }
+
+    pub fn set_constructor(&self, index: usize, value: &Rc<ValueRef>) {
+        ENV_CONSTRUCTORS.with(|v| {
+            let mut v = v.borrow_mut();
+            if v.len() <= index {
+                v.resize(index + 1, None)
+            }
+            v[index] = Some(value.clone());
+        })
+    }
+
     pub fn get_undefined<'env>(&'env self) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();

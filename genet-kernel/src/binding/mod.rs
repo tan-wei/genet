@@ -26,3 +26,7 @@ pub unsafe extern "C" fn genet_napi_init(env: *mut Env, exports: *mut Value) -> 
     let _ = session::init(env, exports);
     exports
 }
+
+pub enum JsClass {
+    SessionProfile = 0,
+}

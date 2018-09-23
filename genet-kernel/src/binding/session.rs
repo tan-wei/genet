@@ -1,3 +1,4 @@
+use binding::JsClass;
 use filter::Filter;
 use frame::Frame;
 use genet_napi::{
@@ -235,15 +236,19 @@ pub fn init(env: &mut Env, exports: &mut Value) -> Result<()> {
     }
 
     fn session_ctor<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        let profile_class = env
+            .get_constructor(JsClass::SessionProfile as usize)
+            .unwrap();
         if let Some([profile, callback]) = info.argv().get(0..2) {
-            let profile = env.unwrap::<Profile>(profile)?.clone();
-            let callback = env.create_ref(callback);
-            let session = Session::new(profile, SessionCallback::new(env, callback));
-            env.wrap(info.this(), session)?;
-            env.get_null()
-        } else {
-            Err(Status::InvalidArg)
+            if env.instanceof(profile, &profile_class)? {
+                let profile = env.unwrap::<Profile>(profile)?.clone();
+                let callback = env.create_ref(callback);
+                let session = Session::new(profile, SessionCallback::new(env, callback));
+                env.wrap(info.this(), session)?;
+                return env.get_null();
+            }
         }
+        Err(Status::InvalidArg)
     }
 
     fn profile_set_config<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
@@ -304,5 +309,9 @@ pub fn init(env: &mut Env, exports: &mut Value) -> Result<()> {
     )?;
     env.set_named_property(exports, "Session", session_class)?;
     env.set_named_property(session_class, "Profile", profile_class)?;
+    env.set_constructor(
+        JsClass::SessionProfile as usize,
+        &env.create_ref(profile_class),
+    );
     Ok(())
 }
