@@ -228,25 +228,81 @@ impl SessionCallback {
 }
 
 pub fn init(env: &mut Env, exports: &mut Value) -> Result<()> {
-    fn constructor<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn profile_ctor<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
         let profile = Profile::new();
-        let callback = env.create_ref(info.argv()[0]);
-        let session = Session::new(profile, SessionCallback::new(env, callback));
-        env.wrap(info.this(), session)?;
+        env.wrap(info.this(), profile)?;
         env.get_null()
     }
 
-    fn test<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
-        let session = env.unwrap::<Session>(info.this())?;
-        env.get_null()
+    fn session_ctor<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        if let Some([profile, callback]) = info.argv().get(0..2) {
+            let profile = env.unwrap::<Profile>(profile)?.clone();
+            let callback = env.create_ref(callback);
+            let session = Session::new(profile, SessionCallback::new(env, callback));
+            env.wrap(info.this(), session)?;
+            env.get_null()
+        } else {
+            Err(Status::InvalidArg)
+        }
     }
 
-    let props = vec![
-        PropertyDescriptor::new_method(env, "test", PropertyAttributes::Default, test),
-        PropertyDescriptor::new_property(env, "ooo", PropertyAttributes::Default, test, false),
-    ];
+    fn profile_set_config<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        let profile = env.unwrap::<Profile>(info.this())?;
+        if let Some([key, value]) = info.argv().get(0..2) {
+            profile.set_config(&env.get_value_string(key)?, &env.get_value_string(value)?);
+            env.get_null()
+        } else {
+            Err(Status::InvalidArg)
+        }
+    }
 
-    let class = env.define_class("Session", constructor, &props)?;
-    env.set_named_property(exports, "Session", class)?;
+    fn profile_load_library<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        let profile = env.unwrap::<Profile>(info.this())?;
+        if let Some(value) = info.argv().get(0) {
+            profile.load_library(&env.get_value_string(value)?);
+            env.get_null()
+        } else {
+            Err(Status::InvalidArg)
+        }
+    }
+
+    fn profile_concurrency<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        let profile = env.unwrap::<Profile>(info.this())?;
+        if let Some(value) = info.argv().get(0) {
+            profile.set_concurrency(env.get_value_uint32(value)?);
+            env.get_null()
+        } else {
+            env.create_uint32(profile.concurrency())
+        }
+    }
+
+    let session_class = env.define_class("Session", session_ctor, &vec![])?;
+    let profile_class = env.define_class(
+        "Profile",
+        profile_ctor,
+        &vec![
+            PropertyDescriptor::new_method(
+                env,
+                "setConfig",
+                PropertyAttributes::Default,
+                profile_set_config,
+            ),
+            PropertyDescriptor::new_method(
+                env,
+                "loadLibrary",
+                PropertyAttributes::Default,
+                profile_load_library,
+            ),
+            PropertyDescriptor::new_property(
+                env,
+                "concurrency",
+                PropertyAttributes::Default,
+                profile_concurrency,
+                true,
+            ),
+        ],
+    )?;
+    env.set_named_property(exports, "Session", session_class)?;
+    env.set_named_property(session_class, "Profile", profile_class)?;
     Ok(())
 }
