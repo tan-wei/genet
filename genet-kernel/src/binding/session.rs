@@ -1,20 +1,25 @@
 use filter::Filter;
 use frame::Frame;
+use genet_napi::{
+    napi::{
+        CallbackInfo, Env, HandleScope, PropertyAttributes, PropertyDescriptor, Result, Status,
+        Value, ValueRef,
+    },
+    uv,
+};
 use libc;
 use profile::Profile;
 use serde_json;
 use session::{Callback, Event, Session};
-use genet_napi::napi::{CallbackInfo, Env, Result, ValueRef, Status, Value, PropertyDescriptor, PropertyAttributes};
-use genet_napi::uv;
-use std::sync::Mutex;
-use std::sync::Arc;
 use std::{
     cmp,
     error::Error,
     ffi::{CStr, CString},
-    ptr, str,
+    ptr,
+    rc::Rc,
+    str,
+    sync::{Arc, Mutex},
 };
-use std::rc::Rc;
 
 #[no_mangle]
 pub unsafe extern "C" fn genet_session_profile_new() -> *mut Profile {
@@ -211,6 +216,7 @@ impl SessionCallback {
         let events = ev.clone();
         SessionCallback {
             asyn: Arc::new(uv::Async::new(move || {
+                let scope = HandleScope::new(env);
                 if let Some(json) = ev.lock().unwrap().pop() {
                     let argv = vec![env.create_string(&json).unwrap()];
                     let _ = env.call_function(&callback, &callback, &argv);
@@ -237,7 +243,7 @@ pub fn init(env: &mut Env, exports: &mut Value) -> Result<()> {
 
     let props = vec![
         PropertyDescriptor::new_method(env, "test", PropertyAttributes::Default, test),
-        PropertyDescriptor::new_property(env, "ooo", PropertyAttributes::Default, test, false)
+        PropertyDescriptor::new_property(env, "ooo", PropertyAttributes::Default, test, false),
     ];
 
     let class = env.define_class("Session", constructor, &props)?;

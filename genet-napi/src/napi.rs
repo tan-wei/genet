@@ -684,6 +684,31 @@ impl Env {
     }
 }
 
+enum Scope {}
+
+pub struct HandleScope {
+    env: *const Env,
+    scope: *const Scope,
+}
+
+impl HandleScope {
+    pub fn new(env: &Env) -> HandleScope {
+        unsafe {
+            let mut result: *const Scope = mem::uninitialized();
+            napi_open_handle_scope(env, &mut result);
+            HandleScope { env, scope: result }
+        }
+    }
+}
+
+impl Drop for HandleScope {
+    fn drop(&mut self) {
+        unsafe {
+            napi_close_handle_scope(self.env, self.scope);
+        }
+    }
+}
+
 pub enum Value {}
 pub enum Ref {}
 
@@ -1039,11 +1064,18 @@ extern "C" {
         result: *mut *const Ref,
     );
 
-    fn napi_delete_reference(env: *const Env, reference: *const Ref);
+    fn napi_delete_reference(env: *const Env, reference: *const Ref) -> Status;
 
-    fn napi_reference_unref(env: *const Env, reference: *const Ref, result: *mut u32);
+    fn napi_reference_unref(env: *const Env, reference: *const Ref, result: *mut u32) -> Status;
 
-    fn napi_get_reference_value(env: *const Env, reference: *const Ref, result: *mut *const Value);
+    fn napi_get_reference_value(
+        env: *const Env,
+        reference: *const Ref,
+        result: *mut *const Value,
+    ) -> Status;
+
+    fn napi_open_handle_scope(env: *const Env, result: *mut *const Scope) -> Status;
+    fn napi_close_handle_scope(env: *const Env, result: *const Scope) -> Status;
 }
 
 /*
