@@ -701,6 +701,23 @@ impl Env {
         }
     }
 
+    pub fn wrap_ptr<'env, T>(&'env self, js_object: &'env Value, value: *const T) -> Result<()> {
+        extern "C" fn finalize_cb<T>(_env: *const Env, _data: *mut u8, _hint: *mut u8) {}
+        unsafe {
+            match napi_wrap(
+                self,
+                js_object,
+                value as *mut libc::c_void,
+                finalize_cb::<T>,
+                ptr::null_mut(),
+                ptr::null_mut(),
+            ) {
+                Status::Ok => Ok(()),
+                s => Err(s),
+            }
+        }
+    }
+
     pub fn unwrap<'env, T>(&'env self, js_object: &'env Value) -> Result<&'env mut T> {
         unsafe {
             let mut result: *mut libc::c_void = mem::uninitialized();
