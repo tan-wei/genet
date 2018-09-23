@@ -70,13 +70,13 @@ pub unsafe extern "C" fn abi_genet_get_token(data: *const u8, len: u64) -> Token
     if let Entry::Vacant(_) = entry {
         strings.push(String::from(id));
     }
-    *entry.or_insert_with(|| Token::from(next as u64))
+    *entry.or_insert_with(|| Token::from(next as u32))
 }
 
 pub unsafe extern "C" fn abi_genet_get_string(token: Token, len: *mut u64) -> *const u8 {
     let strings = GLOBAL_STRINGS.lock().unwrap();
     let strings = strings.borrow();
-    let index: u64 = token.into();
+    let index: u32 = token.into();
     let index = index as usize;
     let s = if index < strings.len() {
         strings[index].as_str()

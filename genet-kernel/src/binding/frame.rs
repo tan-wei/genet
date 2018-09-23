@@ -42,6 +42,42 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
     fn ctor<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
         env.get_null()
     }
-    let class = env.define_class("Frame", ctor, &vec![]).unwrap();
+
+    fn frame_index<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        let frame = env.unwrap::<Frame>(info.this())?;
+        env.create_uint32(frame.index())
+    }
+
+    fn frame_tree_indices<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        let frame = env.unwrap::<Frame>(info.this())?;
+        let indices = frame.tree_indices();
+        let array = env.create_array(indices.len())?;
+        for i in 0..indices.len() {
+            env.set_element(array, i as u32, env.create_uint32(indices[i] as u32)?)?;
+        }
+        Ok(array)
+    }
+
+    let class = env
+        .define_class(
+            "Frame",
+            ctor,
+            &vec![
+                PropertyDescriptor::new_property(
+                    env,
+                    "index",
+                    PropertyAttributes::Default,
+                    frame_index,
+                    false,
+                ),
+                PropertyDescriptor::new_property(
+                    env,
+                    "treeIndices",
+                    PropertyAttributes::Default,
+                    frame_tree_indices,
+                    false,
+                ),
+            ],
+        ).unwrap();
     env.create_ref(class)
 }

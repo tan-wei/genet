@@ -20,8 +20,7 @@ pub unsafe extern "C" fn genet_token_string(id: Token) -> *mut libc::c_char {
 fn token_get<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
     if let Some(id) = info.argv().get(0) {
         let id = env.get_value_string(id)?;
-        let token: u64 = Token::from(id.as_str()).into();
-        env.create_uint32(token as u32)
+        env.create_uint32(Token::from(id.as_str()).into())
     } else {
         Err(Status::InvalidArg)
     }
@@ -30,7 +29,7 @@ fn token_get<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Val
 fn token_string<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
     if let Some(id) = info.argv().get(0) {
         let id = env.get_value_uint32(id)?;
-        let token = Token::from(id as u64);
+        let token = Token::from(id);
         env.create_string(&token.to_string())
     } else {
         Err(Status::InvalidArg)

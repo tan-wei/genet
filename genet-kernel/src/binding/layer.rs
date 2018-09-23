@@ -70,6 +70,23 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
     fn ctor<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
         env.get_null()
     }
-    let class = env.define_class("Layer", ctor, &vec![]).unwrap();
+
+    fn layer_id<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        let layer = env.unwrap::<Layer>(info.this())?;
+        env.create_uint32(layer.id().into())
+    }
+
+    let class = env
+        .define_class(
+            "Layer",
+            ctor,
+            &vec![PropertyDescriptor::new_property(
+                env,
+                "id",
+                PropertyAttributes::Default,
+                layer_id,
+                false,
+            )],
+        ).unwrap();
     env.create_ref(class)
 }

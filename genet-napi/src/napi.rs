@@ -438,6 +438,20 @@ impl Env {
         }
     }
 
+    pub fn set_element<'env>(
+        &'env self,
+        object: &'env Value,
+        index: u32,
+        value: &'env Value,
+    ) -> Result<()> {
+        unsafe {
+            match napi_set_element(self, object, index, value) {
+                Status::Ok => Ok(()),
+                s => Err(s),
+            }
+        }
+    }
+
     pub fn set_named_property<'env>(
         &'env self,
         object: &'env Value,
@@ -978,6 +992,13 @@ extern "C" {
         env: *const Env,
         object: *const Value,
         key: *const Value,
+        value: *const Value,
+    ) -> Status;
+
+    fn napi_set_element(
+        env: *const Env,
+        object: *const Value,
+        index: u32,
         value: *const Value,
     ) -> Status;
 

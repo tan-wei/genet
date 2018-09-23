@@ -113,6 +113,54 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
     fn ctor<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
         env.get_null()
     }
-    let class = env.define_class("Attr", ctor, &vec![]).unwrap();
+
+    fn attr_id<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        let attr = env.unwrap::<Attr>(info.this())?;
+        env.create_uint32(attr.id().into())
+    }
+
+    fn attr_type<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        let attr = env.unwrap::<Attr>(info.this())?;
+        env.create_uint32(attr.typ().into())
+    }
+
+    fn attr_range<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        let attr = env.unwrap::<Attr>(info.this())?;
+        let range = attr.range();
+        let array = env.create_array(2)?;
+        env.set_element(array, 0, env.create_uint32(range.start as u32)?)?;
+        env.set_element(array, 1, env.create_uint32(range.end as u32)?)?;
+        Ok(array)
+    }
+
+    let class = env
+        .define_class(
+            "Attr",
+            ctor,
+            &vec![
+                PropertyDescriptor::new_property(
+                    env,
+                    "id",
+                    PropertyAttributes::Default,
+                    attr_id,
+                    false,
+                ),
+                PropertyDescriptor::new_property(
+                    env,
+                    "type",
+                    PropertyAttributes::Default,
+                    attr_type,
+                    false,
+                ),
+                PropertyDescriptor::new_property(
+                    env,
+                    "range",
+                    PropertyAttributes::Default,
+                    attr_range,
+                    false,
+                ),
+            ],
+        ).unwrap();
+
     env.create_ref(class)
 }
