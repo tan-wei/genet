@@ -4,13 +4,17 @@ use libc;
 use profile::Profile;
 use serde_json;
 use session::{Callback, Event, Session};
-use genet_napi::napi::{CallbackInfo, Env, Result, Status, Value, PropertyDescriptor, PropertyAttributes};
+use genet_napi::napi::{CallbackInfo, Env, Result, ValueRef, Status, Value, PropertyDescriptor, PropertyAttributes};
+use genet_napi::uv;
+use std::sync::Mutex;
+use std::sync::Arc;
 use std::{
     cmp,
     error::Error,
     ffi::{CStr, CString},
     ptr, str,
 };
+use std::rc::Rc;
 
 #[no_mangle]
 pub unsafe extern "C" fn genet_session_profile_new() -> *mut Profile {
@@ -188,27 +192,46 @@ pub unsafe extern "C" fn genet_session_free(session: *mut Session) {
 }
 
 #[derive(Clone)]
-struct SessionCallback {}
+struct SessionCallback {
+    asyn: Arc<uv::Async>,
+    events: Arc<Mutex<Vec<String>>>,
+}
 
 impl Callback for SessionCallback {
     fn on_event(&self, event: Event) {
-        
+        let json = serde_json::to_string(&event).unwrap();
+        self.events.lock().unwrap().push(json);
+        self.asyn.send();
     }
 }
 
+impl SessionCallback {
+    fn new(env: &Env, callback: Rc<ValueRef>) -> SessionCallback {
+        let ev = Arc::new(Mutex::new(Vec::<String>::new()));
+        let events = ev.clone();
+        SessionCallback {
+            asyn: Arc::new(uv::Async::new(move || {
+                if let Some(json) = ev.lock().unwrap().pop() {
+                    let argv = vec![env.create_string(&json).unwrap()];
+                    let _ = env.call_function(&callback, &callback, &argv);
+                }
+            })),
+            events,
+        }
+    }
+}
 
 pub fn init(env: &mut Env, exports: &mut Value) -> Result<()> {
     fn constructor<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
         let profile = Profile::new();
-        let session = Session::new(profile, SessionCallback {});
+        let callback = env.create_ref(info.argv()[0]);
+        let session = Session::new(profile, SessionCallback::new(env, callback));
         env.wrap(info.this(), session)?;
-        println!("CONST");
         env.get_null()
     }
 
     fn test<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
         let session = env.unwrap::<Session>(info.this())?;
-        println!("TEST> {:?}", session.len());
         env.get_null()
     }
 
