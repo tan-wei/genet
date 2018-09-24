@@ -1,4 +1,4 @@
-use binding::JsClass;
+use binding::{attr::AttrWrapper, JsClass};
 use genet_abi::{
     attr::Attr,
     layer::{Layer, Payload},
@@ -87,7 +87,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
             if let Some(attr) = layer.attr(id) {
                 let attr_class = env.get_constructor(JsClass::Attr as usize).unwrap();
                 let instance = env.new_instance(&attr_class, &[])?;
-                env.wrap_ptr(instance, attr)?;
+                env.wrap(instance, AttrWrapper::new(attr, layer))?;
                 Ok(instance)
             } else {
                 env.get_null()
@@ -105,12 +105,12 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         let array = env.create_array(headers.len() + attrs.len())?;
         for i in 0..headers.len() {
             let instance = env.new_instance(&attr_class, &[])?;
-            env.wrap_fixed(instance, &headers[i])?;
+            env.wrap(instance, AttrWrapper::new(&headers[i], layer))?;
             env.set_element(array, i as u32, instance)?;
         }
         for i in 0..attrs.len() {
             let instance = env.new_instance(&attr_class, &[])?;
-            env.wrap_fixed(instance, &attrs[i])?;
+            env.wrap(instance, AttrWrapper::new(&attrs[i], layer))?;
             env.set_element(array, (headers.len() + i) as u32, instance)?;
         }
         Ok(array)
@@ -158,7 +158,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
                 ),
                 PropertyDescriptor::new_method(
                     env,
-                    "attrs",
+                    "attr",
                     PropertyAttributes::Default,
                     layer_attr,
                 ),

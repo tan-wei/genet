@@ -309,6 +309,30 @@ impl Env {
         }
     }
 
+    pub fn is_arraybuffer<'env>(&'env self, value: &'env Value) -> Result<bool> {
+        unsafe {
+            let mut result: u8 = mem::uninitialized();
+            match napi_is_arraybuffer(self, value, &mut result) {
+                Status::Ok => Ok(result != 0),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn get_arraybuffer_info<'env>(
+        &'env self,
+        value: &'env Value,
+    ) -> Result<(*const u8, usize)> {
+        unsafe {
+            let mut data: *const libc::c_void = mem::uninitialized();
+            let mut len: usize = mem::uninitialized();
+            match napi_get_arraybuffer_info(self, value, &mut data, &mut len) {
+                Status::Ok => Ok((data as *const u8, len)),
+                s => Err(s),
+            }
+        }
+    }
+
     pub fn get_value_double<'env>(&'env self, value: &'env Value) -> Result<f64> {
         unsafe {
             let mut result: f64 = mem::uninitialized();
@@ -959,6 +983,15 @@ extern "C" {
         code: *const Value,
         msg: *const Value,
         result: *mut *const Value,
+    ) -> Status;
+
+    fn napi_is_arraybuffer(env: *const Env, value: *const Value, result: *mut u8) -> Status;
+
+    fn napi_get_arraybuffer_info(
+        env: *const Env,
+        arraybuffer: *const Value,
+        data: *mut *const libc::c_void,
+        byte_length: *mut libc::size_t,
     ) -> Status;
 
     fn napi_create_external_arraybuffer(

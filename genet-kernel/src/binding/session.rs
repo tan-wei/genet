@@ -290,6 +290,25 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
             ),
         ],
     )?;
+
+    fn get_address<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        if let Some(id) = info.argv().get(0) {
+            if env.is_arraybuffer(id)? {
+                let (ptr, _) = env.get_arraybuffer_info(id)?;
+                return env.create_string(&format!("{}", ptr as usize));
+            }
+        }
+        Err(Status::InvalidArg)
+    }
+
+    let slice = env.create_object()?;
+    env.set_named_property(
+        slice,
+        "address",
+        env.create_function("address", get_address)?,
+    )?;
+    env.set_named_property(exports, "ByteSlice", slice)?;
+
     env.set_named_property(exports, "Session", session_class)?;
     env.set_named_property(session_class, "Profile", profile_class)?;
     env.set_constructor(

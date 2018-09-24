@@ -1,4 +1,4 @@
-use binding::JsClass;
+use binding::{attr::AttrWrapper, JsClass};
 use frame::Frame;
 use genet_abi::{attr::Attr, layer::Layer, token::Token};
 use genet_napi::napi::{
@@ -77,7 +77,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
                 if let Some(attr) = layer.attrs().iter().find(|attr| attr.id() == id) {
                     let attr_class = env.get_constructor(JsClass::Attr as usize).unwrap();
                     let instance = env.new_instance(&attr_class, &[])?;
-                    env.wrap_fixed(instance, attr)?;
+                    env.wrap(instance, AttrWrapper::new(attr, layer))?;
                     return Ok(instance);
                 }
             }
