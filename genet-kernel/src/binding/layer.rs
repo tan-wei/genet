@@ -79,13 +79,13 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
     fn layer_attr<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
-        let attr_class = env.get_constructor(JsClass::Attr as usize).unwrap();
         if let Some(id) = info.argv().get(0) {
             let id = match env.type_of(id)? {
-                ValueType::Number => env.get_value_uint32(id)?,
-                _ => Token::from(env.get_value_string(env.coerce_to_string(id)?)?.as_str()).into(),
+                ValueType::Number => Token::from(env.get_value_uint32(id)?),
+                _ => Token::from(env.get_value_string(env.coerce_to_string(id)?)?.as_str()),
             };
             if let Some(attr) = layer.attr(id) {
+                let attr_class = env.get_constructor(JsClass::Attr as usize).unwrap();
                 let instance = env.new_instance(&attr_class, &[])?;
                 env.wrap_ptr(instance, attr)?;
                 Ok(instance)
@@ -155,6 +155,12 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
                     PropertyAttributes::Default,
                     layer_id,
                     false,
+                ),
+                PropertyDescriptor::new_method(
+                    env,
+                    "attrs",
+                    PropertyAttributes::Default,
+                    layer_attr,
                 ),
                 PropertyDescriptor::new_property(
                     env,

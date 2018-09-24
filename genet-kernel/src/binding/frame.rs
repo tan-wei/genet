@@ -3,7 +3,7 @@ use frame::Frame;
 use genet_abi::{attr::Attr, layer::Layer, token::Token};
 use genet_napi::napi::{
     CallbackInfo, Env, HandleScope, PropertyAttributes, PropertyDescriptor, Result, Status, Value,
-    ValueRef,
+    ValueRef, ValueType,
 };
 use std::{ptr, rc::Rc};
 
@@ -59,6 +59,34 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         Ok(array)
     }
 
+    fn frame_query<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        let frame = env.unwrap::<Frame>(info.this())?;
+        if let Some(id) = info.argv().get(0) {
+            let id = match env.type_of(id)? {
+                ValueType::Number => Token::from(env.get_value_uint32(id)?),
+                _ => Token::from(env.get_value_string(env.coerce_to_string(id)?)?.as_str()),
+            };
+
+            for layer in frame.layers().iter().rev() {
+                if layer.id() == id {
+                    let layer_class = env.get_constructor(JsClass::Layer as usize).unwrap();
+                    let instance = env.new_instance(&layer_class, &[])?;
+                    env.wrap_mut_fixed(instance, layer)?;
+                    return Ok(instance);
+                }
+                if let Some(attr) = layer.attrs().iter().find(|attr| attr.id() == id) {
+                    let attr_class = env.get_constructor(JsClass::Attr as usize).unwrap();
+                    let instance = env.new_instance(&attr_class, &[])?;
+                    env.wrap_fixed(instance, attr)?;
+                    return Ok(instance);
+                }
+            }
+            env.get_null()
+        } else {
+            Err(Status::InvalidArg)
+        }
+    }
+
     fn frame_layers<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
         let frame = env.unwrap::<Frame>(info.this())?;
         let layers = frame.layers();
@@ -97,6 +125,12 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
                     PropertyAttributes::Default,
                     frame_tree_indices,
                     false,
+                ),
+                PropertyDescriptor::new_method(
+                    env,
+                    "query",
+                    PropertyAttributes::Default,
+                    frame_query,
                 ),
             ],
         ).unwrap();
