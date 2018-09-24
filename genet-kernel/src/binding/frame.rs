@@ -74,7 +74,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
                     env.wrap_mut_fixed(instance, layer)?;
                     return Ok(instance);
                 }
-                if let Some(attr) = layer.attrs().iter().find(|attr| attr.id() == id) {
+                if let Some(attr) = layer.attr(id) {
                     let attr_class = env.get_constructor(JsClass::Attr as usize).unwrap();
                     let instance = env.new_instance(&attr_class, &[])?;
                     env.wrap(instance, AttrWrapper::new(attr, layer))?;
