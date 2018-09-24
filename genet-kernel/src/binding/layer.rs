@@ -5,8 +5,8 @@ use genet_abi::{
     token::Token,
 };
 use genet_napi::napi::{
-    CallbackInfo, Env, HandleScope, PropertyAttributes, PropertyDescriptor, Result, Status, Value,
-    ValueRef, ValueType,
+    CallbackInfo, Env, HandleScope, PropertyAttributes, PropertyDescriptor, Result, Status,
+    TypedArrayType, Value, ValueRef, ValueType,
 };
 use std::{ptr, rc::Rc};
 
@@ -132,7 +132,12 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
             env.set_named_property(
                 object,
                 "data",
-                env.create_arraybuffer_from_slice(&paylaod.data())?,
+                env.create_typedarray(
+                    TypedArrayType::Uint8Array,
+                    paylaod.data().len(),
+                    env.create_arraybuffer_from_slice(&paylaod.data())?,
+                    0,
+                )?,
             )?;
             env.set_element(array, i as u32, object)?;
         }
@@ -141,7 +146,12 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
     fn layer_data<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
-        env.create_arraybuffer_from_slice(&layer.data())
+        env.create_typedarray(
+            TypedArrayType::Uint8Array,
+            layer.data().len(),
+            env.create_arraybuffer_from_slice(&layer.data())?,
+            0,
+        )
     }
 
     let class = env

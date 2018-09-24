@@ -293,9 +293,9 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
 
     fn get_address<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
         if let Some(id) = info.argv().get(0) {
-            if env.is_arraybuffer(id)? {
-                let (ptr, _) = env.get_arraybuffer_info(id)?;
-                return env.create_string(&format!("{}", ptr as usize));
+            if env.is_typedarray(id)? {
+                let (ptr, _, offset) = env.get_typedarray_info(id)?;
+                return env.create_string(&format!("{}", ptr as usize + offset));
             }
         }
         Err(Status::InvalidArg)

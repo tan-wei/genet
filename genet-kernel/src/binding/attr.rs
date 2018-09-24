@@ -1,7 +1,7 @@
 use genet_abi::{self, attr::Attr, layer::Layer, token::Token, variant::Variant};
 use genet_napi::napi::{
-    CallbackInfo, Env, HandleScope, PropertyAttributes, PropertyDescriptor, Result, Status, Value,
-    ValueRef,
+    CallbackInfo, Env, HandleScope, PropertyAttributes, PropertyDescriptor, Result, Status,
+    TypedArrayType, Value, ValueRef,
 };
 use std::{ffi::CString, ptr, rc::Rc};
 
@@ -123,7 +123,12 @@ fn variant_to_js<'env>(
         Ok(Variant::UInt64(v)) => env.create_double(*v as f64),
         Ok(Variant::Float64(v)) => env.create_double(*v),
         Ok(Variant::String(v)) => env.create_string(&v),
-        Ok(Variant::Slice(v)) => env.create_arraybuffer_from_slice(&v),
+        Ok(Variant::Slice(v)) => env.create_typedarray(
+            TypedArrayType::Uint8Array,
+            v.len(),
+            env.create_arraybuffer_from_slice(&v)?,
+            0,
+        ),
         _ => env.get_null(),
     }
 }

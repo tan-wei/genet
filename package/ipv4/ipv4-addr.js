@@ -1,6 +1,6 @@
 const m = require('mithril')
 class IPv4Addr {
-  view (vnode) {
+  view(vnode) {
     const { value } = vnode.attrs.attr
     return m('span', [value[0], '.', value[1], '.', value[2], '.', value[3]])
   }
