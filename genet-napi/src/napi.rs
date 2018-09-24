@@ -303,6 +303,20 @@ impl Env {
         }
     }
 
+    pub fn create_arraybuffer_copy<'env>(&'env self, data: &[u8]) -> Result<&'env Value> {
+        unsafe {
+            let mut result: *const Value = mem::uninitialized();
+            let mut buf: *mut libc::c_void = mem::uninitialized();
+            match napi_create_arraybuffer(self, data.len(), &mut buf, &mut result) {
+                Status::Ok => {
+                    buf.copy_from_nonoverlapping(data.as_ptr() as *const libc::c_void, data.len());
+                    Ok(&*result)
+                }
+                s => Err(s),
+            }
+        }
+    }
+
     pub fn create_arraybuffer_from_slice<'env>(
         &'env self,
         data: &ByteSlice,
@@ -1066,6 +1080,13 @@ extern "C" {
         arraybuffer: *const Value,
         data: *mut *const libc::c_void,
         byte_length: *mut libc::size_t,
+    ) -> Status;
+
+    fn napi_create_arraybuffer(
+        env: *const Env,
+        byte_length: libc::size_t,
+        data: *mut *mut libc::c_void,
+        result: *mut *const Value,
     ) -> Status;
 
     fn napi_create_external_arraybuffer(

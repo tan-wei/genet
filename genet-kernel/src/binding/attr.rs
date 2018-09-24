@@ -123,6 +123,12 @@ fn variant_to_js<'env>(
         Ok(Variant::UInt64(v)) => env.create_double(*v as f64),
         Ok(Variant::Float64(v)) => env.create_double(*v),
         Ok(Variant::String(v)) => env.create_string(&v),
+        Ok(Variant::Buffer(v)) => env.create_typedarray(
+            TypedArrayType::Uint8Array,
+            v.len(),
+            env.create_arraybuffer_copy(&v)?,
+            0,
+        ),
         Ok(Variant::Slice(v)) => env.create_typedarray(
             TypedArrayType::Uint8Array,
             v.len(),
