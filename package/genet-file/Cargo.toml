@@ -2,5 +2,5 @@
 members = ["reader", "writer", "format"]
 
 [replace]
-"genet-abi:0.3.0" = { path = "../../genet-abi" }
-"genet-sdk:0.3.0" = { path = "../../genet-sdk" }
+"genet-abi:0.4.0" = { path = "../../genet-abi" }
+"genet-sdk:0.4.0" = { path = "../../genet-sdk" }

@@ -7,7 +7,7 @@ serde = "1"
 serde_json = "1"
 serde_derive = "1"
 byteorder = "1"
-genet-sdk = "0.3.0"
+genet-sdk = "0.4.0"
 
 [lib]
 name = "reader"
