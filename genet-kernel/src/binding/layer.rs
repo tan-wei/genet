@@ -6,7 +6,7 @@ use genet_abi::{
 };
 use genet_napi::napi::{
     CallbackInfo, Env, HandleScope, PropertyAttributes, PropertyDescriptor, Result, Status, Value,
-    ValueRef,
+    ValueRef, ValueType,
 };
 use std::{ptr, rc::Rc};
 
@@ -77,6 +77,26 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         env.create_string(&layer.id().to_string())
     }
 
+    fn layer_attr<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+        let layer = env.unwrap::<Layer>(info.this())?;
+        let attr_class = env.get_constructor(JsClass::Attr as usize).unwrap();
+        if let Some(id) = info.argv().get(0) {
+            let id = match env.type_of(id)? {
+                ValueType::Number => env.get_value_uint32(id)?,
+                _ => Token::from(env.get_value_string(env.coerce_to_string(id)?)?.as_str()).into(),
+            };
+            if let Some(attr) = layer.attr(id) {
+                let instance = env.new_instance(&attr_class, &[])?;
+                env.wrap_ptr(instance, attr)?;
+                Ok(instance)
+            } else {
+                env.get_null()
+            }
+        } else {
+            Err(Status::InvalidArg)
+        }
+    }
+
     fn layer_attrs<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
         let headers = layer.headers();
@@ -103,11 +123,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         for i in 0..payloads.len() {
             let paylaod = &payloads[i];
             let object = env.create_object()?;
-            env.set_named_property(
-                object,
-                "id",
-                env.create_string(&paylaod.id().to_string())?,
-            )?;
+            env.set_named_property(object, "id", env.create_string(&paylaod.id().to_string())?)?;
             env.set_named_property(
                 object,
                 "type",

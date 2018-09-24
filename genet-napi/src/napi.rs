@@ -566,7 +566,7 @@ impl Env {
 
     pub fn new_instance<'env>(
         &'env self,
-        constructor: &'env Value,
+        constructor: &Value,
         argv: &[&'env Value],
     ) -> Result<&'env Value> {
         unsafe {
