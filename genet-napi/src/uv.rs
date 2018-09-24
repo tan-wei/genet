@@ -1,5 +1,4 @@
 use libc;
-use std::mem;
 
 pub enum Loop {}
 
@@ -19,7 +18,7 @@ impl Async {
         unsafe {
             extern "C" fn async_cb(asyn: *mut Inner) {
                 unsafe {
-                    let data: *mut Box<Fn()> = mem::transmute((*asyn).data);
+                    let data = (*asyn).data as *mut Box<Fn()>;
                     (*data)();
                 }
             }
