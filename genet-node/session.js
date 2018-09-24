@@ -66,8 +66,8 @@ class Session extends EventEmitter {
   constructor(profile, options) {
     super()
     this._options = options
-    this._sess = new native.Session(profile)
-    this._sess.callback = (event) => {
+    this._sess = new native.Session(profile, (json) => {
+      const event = JSON.parse(json)
       switch (event.type) {
         case 'frames':
           this._status.frames = event.length
@@ -82,7 +82,7 @@ class Session extends EventEmitter {
         default:
       }
       this.emit('update', event)
-    }
+    })
     this._streams = []
     this._streamReaders = new Set()
     this._status = {
@@ -205,7 +205,7 @@ class Session extends EventEmitter {
   }
 }
 
-class Profile extends native.SessionProfile { }
+class Profile extends native.Session.Profile { }
 
 Reflect.defineProperty(Session, 'Profile', { value: Profile })
 

@@ -1,4 +1,4 @@
-use genet_abi::{attr::Attr, layer::Layer, token::Token, variant::Variant};
+use genet_abi::{self, attr::Attr, layer::Layer, token::Token, variant::Variant};
 use genet_napi::napi::{
     CallbackInfo, Env, HandleScope, PropertyAttributes, PropertyDescriptor, Result, Status, Value,
     ValueRef,
@@ -107,6 +107,25 @@ pub unsafe extern "C" fn genet_attr_get(attr: *const Attr, layer: *const Layer) 
         _ => (),
     }
     Var { typ, value, data }
+}
+
+fn variant_to_js<'env>(
+    env: &'env Env,
+    value: &genet_abi::result::Result<Variant>,
+) -> Result<&'env Value> {
+    match value {
+        Err(err) => env.create_error(
+            env.create_string("")?,
+            env.create_string(err.description())?,
+        ),
+        Ok(Variant::Bool(b)) => env.get_boolean(*b),
+        Ok(Variant::Int64(v)) => env.create_int64(*v),
+        Ok(Variant::UInt64(v)) => env.create_double(*v as f64),
+        Ok(Variant::Float64(v)) => env.create_double(*v),
+        Ok(Variant::String(v)) => env.create_string(&v),
+        Ok(Variant::Slice(v)) => env.create_arraybuffer_from_slice(&v),
+        _ => env.get_null(),
+    }
 }
 
 pub fn wrapper(env: &Env) -> Rc<ValueRef> {
