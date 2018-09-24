@@ -1,10 +1,5 @@
 use genet_abi::token::Token;
 use genet_napi::napi::{CallbackInfo, Env, Result, Status, Value};
-use libc;
-use std::{
-    ffi::{CStr, CString},
-    str,
-};
 
 fn token_get<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
     if let Some(id) = info.argv().get(0) {

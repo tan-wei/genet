@@ -1,6 +1,5 @@
 use genet_abi::env;
-use genet_napi::napi::{CallbackInfo, Env, Result, Status, Value};
-use libc;
+use genet_napi::napi::{Env, Result, Value};
 
 pub fn init(env: &Env, exports: &Value) -> Result<()> {
     let tk = env.create_object()?;

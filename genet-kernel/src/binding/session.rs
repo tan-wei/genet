@@ -1,6 +1,5 @@
 use binding::JsClass;
 use filter::Filter;
-use frame::Frame;
 use genet_napi::{
     napi::{
         CallbackInfo, Env, HandleScope, PropertyAttributes, PropertyDescriptor, Result, Status,
@@ -8,17 +7,11 @@ use genet_napi::{
     },
     uv,
 };
-use libc;
 use profile::Profile;
 use serde_json;
 use session::{Callback, Event, Session};
 use std::{
-    cmp,
-    error::Error,
-    ffi::{CStr, CString},
-    ptr,
     rc::Rc,
-    str,
     sync::{Arc, Mutex},
 };
 

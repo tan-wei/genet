@@ -1,14 +1,14 @@
 use binding::{attr::AttrWrapper, JsClass};
 use frame::Frame;
-use genet_abi::{attr::Attr, layer::Layer, token::Token};
+use genet_abi::token::Token;
 use genet_napi::napi::{
-    CallbackInfo, Env, HandleScope, PropertyAttributes, PropertyDescriptor, Result, Status, Value,
-    ValueRef, ValueType,
+    CallbackInfo, Env, PropertyAttributes, PropertyDescriptor, Result, Status, Value, ValueRef,
+    ValueType,
 };
-use std::{ptr, rc::Rc};
+use std::rc::Rc;
 
 pub fn wrapper(env: &Env) -> Rc<ValueRef> {
-    fn ctor<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn ctor<'env>(env: &'env Env, _info: &'env CallbackInfo) -> Result<&'env Value> {
         env.get_null()
     }
 

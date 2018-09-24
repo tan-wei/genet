@@ -1,9 +1,9 @@
-use genet_abi::{self, attr::Attr, layer::Layer, token::Token, variant::Variant};
+use genet_abi::{self, attr::Attr, layer::Layer, variant::Variant};
 use genet_napi::napi::{
-    CallbackInfo, Env, HandleScope, PropertyAttributes, PropertyDescriptor, Result, Status,
-    TypedArrayType, Value, ValueRef,
+    CallbackInfo, Env, PropertyAttributes, PropertyDescriptor, Result, TypedArrayType, Value,
+    ValueRef,
 };
-use std::{ffi::CString, ptr, rc::Rc};
+use std::rc::Rc;
 
 fn variant_to_js<'env>(
     env: &'env Env,
@@ -55,7 +55,7 @@ impl AttrWrapper {
 }
 
 pub fn wrapper(env: &Env) -> Rc<ValueRef> {
-    fn ctor<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn ctor<'env>(env: &'env Env, _info: &'env CallbackInfo) -> Result<&'env Value> {
         env.get_null()
     }
 
