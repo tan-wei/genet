@@ -6,17 +6,6 @@ use std::{
     str,
 };
 
-#[no_mangle]
-pub unsafe extern "C" fn genet_token_get(id: *const libc::c_char) -> Token {
-    let id = str::from_utf8_unchecked(CStr::from_ptr(id).to_bytes());
-    Token::from(id)
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn genet_token_string(id: Token) -> *mut libc::c_char {
-    CString::new(id.to_string()).unwrap().into_raw()
-}
-
 fn token_get<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
     if let Some(id) = info.argv().get(0) {
         let id = env.get_value_string(id)?;
