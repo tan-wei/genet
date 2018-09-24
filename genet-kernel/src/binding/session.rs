@@ -164,8 +164,9 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
     ) -> Result<&'env Value> {
         let session = env.unwrap::<Session>(info.this())?;
         if let Some([id, arg]) = info.argv().get(0..2) {
-            session.create_reader(&env.get_value_string(id)?, &env.get_value_string(arg)?);
-            env.get_null()
+            let handle =
+                session.create_reader(&env.get_value_string(id)?, &env.get_value_string(arg)?);
+            env.create_uint32(handle)
         } else {
             Err(Status::InvalidArg)
         }
@@ -178,7 +179,7 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
         let session = env.unwrap::<Session>(info.this())?;
         if let Some([id, arg, filter]) = info.argv().get(0..3) {
             let filter = env.get_value_string(filter)?;
-            session.create_writer(
+            let handle = session.create_writer(
                 &env.get_value_string(id)?,
                 &env.get_value_string(arg)?,
                 if filter.is_empty() {
@@ -187,7 +188,7 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
                     Filter::compile(&filter).ok()
                 },
             );
-            env.get_null()
+            env.create_uint32(handle)
         } else {
             Err(Status::InvalidArg)
         }
