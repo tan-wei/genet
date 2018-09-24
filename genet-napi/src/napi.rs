@@ -59,6 +59,22 @@ pub enum ValueType {
     Bigint,
 }
 
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum TypedArrayType {
+    Int8Array,
+    Uint8Array,
+    Uint8ClampedArray,
+    Int16Array,
+    Uint16Array,
+    Int32Array,
+    Uint32Array,
+    Float32Array,
+    Float64Array,
+    Bigint64Array,
+    Biguint64Array,
+}
+
 pub enum Env {}
 
 impl Env {
@@ -328,6 +344,64 @@ impl Env {
             let mut len: usize = mem::uninitialized();
             match napi_get_arraybuffer_info(self, value, &mut data, &mut len) {
                 Status::Ok => Ok((data as *const u8, len)),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn is_typedarray<'env>(&'env self, value: &'env Value) -> Result<bool> {
+        unsafe {
+            let mut result: u8 = mem::uninitialized();
+            match napi_is_typedarray(self, value, &mut result) {
+                Status::Ok => Ok(result != 0),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn create_typedarray<'env>(
+        &'env self,
+        array_type: TypedArrayType,
+        length: usize,
+        arraybuffer: &'env Value,
+        offset: usize,
+    ) -> Result<&'env Value> {
+        unsafe {
+            let mut result: *const Value = mem::uninitialized();
+            match napi_create_typedarray(
+                self,
+                array_type as u32,
+                length,
+                arraybuffer,
+                offset,
+                &mut result,
+            ) {
+                Status::Ok => Ok(&*result),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn get_typedarray_info<'env>(
+        &'env self,
+        value: &'env Value,
+    ) -> Result<(*const u8, usize, usize)> {
+        unsafe {
+            let mut array_type: u32 = mem::uninitialized();
+            let mut data: *const libc::c_void = mem::uninitialized();
+            let mut buffer: *const Value = mem::uninitialized();
+            let mut len: usize = mem::uninitialized();
+            let mut offset: usize = mem::uninitialized();
+            match napi_get_typedarray_info(
+                self,
+                value,
+                &mut array_type,
+                &mut len,
+                &mut data,
+                &mut buffer,
+                &mut offset,
+            ) {
+                Status::Ok => Ok((data as *const u8, len, offset)),
                 s => Err(s),
             }
         }
@@ -1001,6 +1075,25 @@ extern "C" {
         finalize_cb: extern "C" fn(*const Env, *mut u8, *mut u8),
         finalize_hint: *mut libc::c_void,
         result: *mut *const Value,
+    ) -> Status;
+
+    fn napi_is_typedarray(env: *const Env, value: *const Value, result: *mut u8) -> Status;
+    fn napi_create_typedarray(
+        env: *const Env,
+        array_type: u32,
+        length: libc::size_t,
+        arraybuffer: *const Value,
+        byte_offset: libc::size_t,
+        result: *mut *const Value,
+    ) -> Status;
+    fn napi_get_typedarray_info(
+        env: *const Env,
+        typedarray: *const Value,
+        array_type: *mut u32,
+        length: *mut libc::size_t,
+        data: *mut *const libc::c_void,
+        arraybuffer: *mut *const Value,
+        byte_offset: *mut libc::size_t,
     ) -> Status;
 
     fn napi_get_value_double(env: *const Env, value: *const Value, result: *mut f64) -> Status;
