@@ -1,3 +1,6 @@
+//! Helper macros.
+
+/// Creates a LayerClass.
 #[macro_export]
 macro_rules! layer_class {
     ($id:expr) => (::genet_sdk::layer::LayerClass::builder($id).build());
@@ -7,6 +10,7 @@ macro_rules! layer_class {
     );
 }
 
+/// Creates a LayerClass lazily.
 #[macro_export]
 macro_rules! layer_class_lazy {
     ($id:expr) => (
@@ -27,6 +31,7 @@ macro_rules! layer_class_lazy {
     );
 }
 
+/// Defines a LayerClass.
 #[macro_export]
 macro_rules! def_layer_class {
     ($name:ident, $id:expr) => (
@@ -41,6 +46,7 @@ macro_rules! def_layer_class {
     );
 }
 
+/// Creates an AttrClass.
 #[macro_export]
 macro_rules! attr_class {
     ($id:expr) => (::genet_sdk::attr::AttrClass::builder($id).build());
@@ -49,6 +55,7 @@ macro_rules! attr_class {
                 .build());
 }
 
+/// Creates an AttrClass lazily.
 #[macro_export]
 macro_rules! attr_class_lazy {
     ($id:expr) => (
@@ -69,6 +76,7 @@ macro_rules! attr_class_lazy {
     );
 }
 
+/// Defines an AttrClass.
 #[macro_export]
 macro_rules! def_attr_class {
     ($name:ident, $id:expr) => (
@@ -83,6 +91,7 @@ macro_rules! def_attr_class {
     );
 }
 
+/// Creates an Attr.
 #[macro_export]
 macro_rules! attr {
     ($class:expr) => (::genet_sdk::attr::Attr::builder($class).build());
@@ -91,6 +100,7 @@ macro_rules! attr {
         .build());
 }
 
+/// Creates an Attr lazily.
 #[macro_export]
 macro_rules! attr_lazy {
     ($class:expr) => {
@@ -111,6 +121,7 @@ macro_rules! attr_lazy {
     };
 }
 
+/// Defines an Attr.
 #[macro_export]
 macro_rules! def_attr {
     ($name:ident, $class:expr) => {
