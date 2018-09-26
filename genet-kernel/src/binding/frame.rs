@@ -22,7 +22,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         let indices = frame.tree_indices();
         let array = env.create_array(indices.len())?;
         for i in 0..indices.len() {
-            env.set_element(array, i as u32, env.create_uint32(indices[i] as u32)?)?;
+            env.set_element(array, i as u32, env.create_uint32(u32::from(indices[i]))?)?;
         }
         Ok(array)
     }

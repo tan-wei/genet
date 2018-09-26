@@ -9,13 +9,14 @@ use io::{Input, Output};
 use profile::Profile;
 use result::Result;
 use std::{
-    cmp, fmt,
+    fmt,
     ops::Range,
     panic::{self, AssertUnwindSafe},
     sync::{Arc, RwLock},
     thread::{self, JoinHandle},
 };
 
+const OUTPUT_BLOCK_SIZE: usize = 1024;
 const MAX_FILTER_SIZE: usize = 10000;
 
 pub trait Callback: Send {
@@ -200,8 +201,6 @@ struct EventLoop {
 }
 
 impl EventLoop {
-    const OUTPUT_BLOCK_SIZE: usize = 1024;
-
     pub fn new<C: 'static + Callback + Clone>(
         profile: Profile,
         callback: C,
@@ -329,7 +328,7 @@ impl EventLoop {
         {
             let mut output = output;
             while offset < frames.len() {
-                let len = cmp::min(frames.len() - offset, Self::OUTPUT_BLOCK_SIZE);
+                let len = OUTPUT_BLOCK_SIZE.min(frames.len() - offset);
                 let frames = frames
                     .iter()
                     .skip(offset)
