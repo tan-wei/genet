@@ -16,6 +16,8 @@ use std::{
     thread::{self, JoinHandle},
 };
 
+const MAX_FILTER_SIZE: usize = 10000;
+
 pub trait Callback: Send {
     fn on_frames_updated(&self, _frames: u32) {}
     fn on_filtered_frames_updated(&self, _id: u32, _frames: u32) {}
@@ -381,32 +383,35 @@ impl EventLoop {
         callback: &Callback,
     ) {
         for (id, fctx) in filter_map.iter_mut() {
-            let mut indices: Vec<u32> = {
-                let frames = frames.read().unwrap();
-                let mut indeces = frames
-                    .iter()
-                    .skip(fctx.offset)
-                    .filter_map(|frame| {
-                        let ctx = filter::context::Context::new(frame);
-                        if fctx.filter.test(&ctx) {
-                            Some(frame.index())
-                        } else {
-                            None
-                        }
-                    }).collect::<Vec<_>>();
-                fctx.offset = frames.len();
-                indeces
-            };
-            let len = if !indices.is_empty() {
-                let mut filtered = filtered.write().unwrap();
-                let mut frames = filtered.entry(*id).or_insert_with(Vec::new);
-                frames.append(&mut indices);
-                frames.len()
-            } else {
-                0
-            };
-            if len > 0 {
-                callback.on_filtered_frames_updated(*id, len as u32);
+            loop {
+                let mut indices: Vec<u32> = {
+                    let frames = frames.read().unwrap();
+                    let mut indeces = frames
+                        .iter()
+                        .skip(fctx.offset)
+                        .take(MAX_FILTER_SIZE)
+                        .filter_map(|frame| {
+                            let ctx = filter::context::Context::new(frame);
+                            if fctx.filter.test(&ctx) {
+                                Some(frame.index())
+                            } else {
+                                None
+                            }
+                        }).collect::<Vec<_>>();
+                    fctx.offset = frames.len().min(fctx.offset + MAX_FILTER_SIZE);
+                    indeces
+                };
+                if indices.is_empty() {
+                    break;
+                } else {
+                    let len = {
+                        let mut filtered = filtered.write().unwrap();
+                        let mut frames = filtered.entry(*id).or_insert_with(Vec::new);
+                        frames.append(&mut indices);
+                        frames.len()
+                    };
+                    callback.on_filtered_frames_updated(*id, len as u32);
+                }
             }
         }
     }
