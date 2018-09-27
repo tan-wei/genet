@@ -7,16 +7,16 @@ use genet_napi::napi::{
 use std::rc::Rc;
 
 pub fn wrapper(env: &Env) -> Rc<ValueRef> {
-    fn ctor<'env>(env: &'env Env, _info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn ctor<'env>(env: &'env Env, _info: &CallbackInfo) -> Result<&'env Value> {
         env.get_null()
     }
 
-    fn layer_id<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn layer_id<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
         env.create_string(&layer.id().to_string())
     }
 
-    fn layer_attr<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn layer_attr<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
         if let Some(id) = info.argv().get(0) {
             let id = match env.type_of(id)? {
@@ -36,7 +36,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         }
     }
 
-    fn layer_attrs<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn layer_attrs<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
         let headers = layer.headers();
         let attrs = layer.attrs();
@@ -55,7 +55,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         Ok(array)
     }
 
-    fn layer_payloads<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn layer_payloads<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
         let payloads = layer.payloads();
         let array = env.create_array(payloads.len())?;
@@ -83,7 +83,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         Ok(array)
     }
 
-    fn layer_data<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn layer_data<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
         env.create_typedarray(
             TypedArrayType::Uint8Array,

@@ -47,13 +47,13 @@ impl SessionCallback {
 }
 
 pub fn init(env: &Env, exports: &Value) -> Result<()> {
-    fn profile_ctor<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn profile_ctor<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let profile = Profile::new();
         env.wrap(info.this(), profile)?;
         env.get_null()
     }
 
-    fn session_ctor<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn session_ctor<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let profile_class = env
             .get_constructor(JsClass::SessionProfile as usize)
             .unwrap();
@@ -69,7 +69,7 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
         Err(Status::InvalidArg)
     }
 
-    fn profile_set_config<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn profile_set_config<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let profile = env.unwrap::<Profile>(info.this())?;
         if let Some([key, value]) = info.argv().get(0..2) {
             profile.set_config(&env.get_value_string(key)?, &env.get_value_string(value)?);
@@ -79,7 +79,7 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
         }
     }
 
-    fn profile_load_library<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn profile_load_library<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let profile = env.unwrap::<Profile>(info.this())?;
         if let Some(value) = info.argv().get(0) {
             if let Err(err) = profile.load_library(&env.get_value_string(value)?) {
@@ -91,7 +91,7 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
         }
     }
 
-    fn profile_concurrency<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn profile_concurrency<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let profile = env.unwrap::<Profile>(info.this())?;
         if let Some(value) = info.argv().get(0) {
             profile.set_concurrency(env.get_value_uint32(value)?);
@@ -101,7 +101,7 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
         }
     }
 
-    fn session_frames<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn session_frames<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let session = env.unwrap::<Session>(info.this())?;
         if let Some([start, end]) = info.argv().get(0..2) {
             let start = env.get_value_uint32(start)?;
@@ -120,10 +120,7 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
         }
     }
 
-    fn session_filtered_frames<'env>(
-        env: &'env Env,
-        info: &'env CallbackInfo,
-    ) -> Result<&'env Value> {
+    fn session_filtered_frames<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let session = env.unwrap::<Session>(info.this())?;
         if let Some([id, start, end]) = info.argv().get(0..3) {
             let id = env.get_value_uint32(id)?;
@@ -140,7 +137,7 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
         }
     }
 
-    fn session_set_filter<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn session_set_filter<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let session = env.unwrap::<Session>(info.this())?;
         if let Some([id, filter]) = info.argv().get(0..2) {
             let filter = env.get_value_string(filter)?;
@@ -158,10 +155,7 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
         }
     }
 
-    fn session_create_reader<'env>(
-        env: &'env Env,
-        info: &'env CallbackInfo,
-    ) -> Result<&'env Value> {
+    fn session_create_reader<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let session = env.unwrap::<Session>(info.this())?;
         if let Some([id, arg]) = info.argv().get(0..2) {
             let handle =
@@ -172,10 +166,7 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
         }
     }
 
-    fn session_create_writer<'env>(
-        env: &'env Env,
-        info: &'env CallbackInfo,
-    ) -> Result<&'env Value> {
+    fn session_create_writer<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let session = env.unwrap::<Session>(info.this())?;
         if let Some([id, arg, filter]) = info.argv().get(0..3) {
             let filter = env.get_value_string(filter)?;
@@ -194,7 +185,7 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
         }
     }
 
-    fn session_close_reader<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn session_close_reader<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let session = env.unwrap::<Session>(info.this())?;
         if let Some(value) = info.argv().get(0) {
             session.close_reader(env.get_value_uint32(value)?);
@@ -204,7 +195,7 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
         }
     }
 
-    fn session_length<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn session_length<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let session = env.unwrap::<Session>(info.this())?;
         env.create_uint32(session.len() as u32)
     }
@@ -285,7 +276,7 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
         ],
     )?;
 
-    fn get_address<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn get_address<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         if let Some(id) = info.argv().get(0) {
             if env.is_typedarray(id)? {
                 let (ptr, _, offset) = env.get_typedarray_info(id)?;

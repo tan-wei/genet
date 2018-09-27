@@ -55,21 +55,21 @@ impl AttrWrapper {
 }
 
 pub fn wrapper(env: &Env) -> Rc<ValueRef> {
-    fn ctor<'env>(env: &'env Env, _info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn ctor<'env>(env: &'env Env, _info: &CallbackInfo) -> Result<&'env Value> {
         env.get_null()
     }
 
-    fn attr_id<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn attr_id<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let attr = env.unwrap::<AttrWrapper>(info.this())?.attr();
         env.create_string(&attr.id().to_string())
     }
 
-    fn attr_type<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn attr_type<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let attr = env.unwrap::<AttrWrapper>(info.this())?.attr();
         env.create_string(&attr.typ().to_string())
     }
 
-    fn attr_range<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn attr_range<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let attr = env.unwrap::<AttrWrapper>(info.this())?.attr();
         let range = attr.range();
         let array = env.create_array(2)?;
@@ -78,7 +78,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         Ok(array)
     }
 
-    fn attr_value<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn attr_value<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let wrapper = env.unwrap::<AttrWrapper>(info.this())?;
         variant_to_js(env, &wrapper.attr().try_get(wrapper.layer()))
     }

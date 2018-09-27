@@ -8,16 +8,16 @@ use genet_napi::napi::{
 use std::rc::Rc;
 
 pub fn wrapper(env: &Env) -> Rc<ValueRef> {
-    fn ctor<'env>(env: &'env Env, _info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn ctor<'env>(env: &'env Env, _info: &CallbackInfo) -> Result<&'env Value> {
         env.get_null()
     }
 
-    fn frame_index<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn frame_index<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let frame = env.unwrap::<Frame>(info.this())?;
         env.create_uint32(frame.index())
     }
 
-    fn frame_tree_indices<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn frame_tree_indices<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let frame = env.unwrap::<Frame>(info.this())?;
         let indices = frame.tree_indices();
         let array = env.create_array(indices.len())?;
@@ -27,7 +27,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         Ok(array)
     }
 
-    fn frame_query<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn frame_query<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let frame = env.unwrap::<Frame>(info.this())?;
         if let Some(id) = info.argv().get(0) {
             let id = match env.type_of(id)? {
@@ -55,7 +55,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         }
     }
 
-    fn frame_layers<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+    fn frame_layers<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let frame = env.unwrap::<Frame>(info.this())?;
         let layers = frame.layers();
         let layer_class = env.get_constructor(JsClass::Layer as usize).unwrap();

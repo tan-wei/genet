@@ -1,7 +1,7 @@
 use genet_abi::token::Token;
 use genet_napi::napi::{CallbackInfo, Env, Result, Status, Value};
 
-fn token_get<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+fn token_get<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
     if let Some(id) = info.argv().get(0) {
         let id = env.get_value_string(id)?;
         env.create_uint32(Token::from(id.as_str()).into())
@@ -10,7 +10,7 @@ fn token_get<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Val
     }
 }
 
-fn token_string<'env>(env: &'env Env, info: &'env CallbackInfo) -> Result<&'env Value> {
+fn token_string<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
     if let Some(id) = info.argv().get(0) {
         let id = env.get_value_uint32(id)?;
         env.create_string(&Token::from(id).to_string())

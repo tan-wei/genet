@@ -92,7 +92,7 @@ impl Env {
         })
     }
 
-    pub fn get_undefined<'env>(&'env self) -> Result<&'env Value> {
+    pub fn get_undefined<'env>(&self) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             match napi_get_undefined(self, &mut result) {
@@ -102,7 +102,7 @@ impl Env {
         }
     }
 
-    pub fn get_null<'env>(&'env self) -> Result<&'env Value> {
+    pub fn get_null<'env>(&self) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             match napi_get_null(self, &mut result) {
@@ -112,7 +112,7 @@ impl Env {
         }
     }
 
-    pub fn get_global<'env>(&'env self) -> Result<&'env Value> {
+    pub fn get_global<'env>(&self) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             match napi_get_global(self, &mut result) {
@@ -122,7 +122,7 @@ impl Env {
         }
     }
 
-    pub fn get_boolean<'env>(&'env self, value: bool) -> Result<&'env Value> {
+    pub fn get_boolean<'env>(&self, value: bool) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             match napi_get_boolean(self, if value { 1 } else { 0 }, &mut result) {
@@ -132,7 +132,7 @@ impl Env {
         }
     }
 
-    pub fn create_object<'env>(&'env self) -> Result<&'env Value> {
+    pub fn create_object<'env>(&self) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             match napi_create_object(self, &mut result) {
@@ -142,7 +142,7 @@ impl Env {
         }
     }
 
-    pub fn create_string<'env>(&'env self, s: &str) -> Result<&'env Value> {
+    pub fn create_string<'env>(&self, s: &str) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             let status = if s.is_ascii() {
@@ -158,10 +158,10 @@ impl Env {
     }
 
     fn create_cb<'env>(
-        &'env self,
-        func: fn(&'env Env, &'env CallbackInfo) -> Result<&'env Value>,
+        &self,
+        func: fn(&'env Env, &CallbackInfo) -> Result<&'env Value>,
     ) -> (Cb, *mut libc::c_void) {
-        struct FuncData<'env>(fn(&'env Env, &'env CallbackInfo) -> Result<&'env Value>);
+        struct FuncData<'env>(fn(&'env Env, &CallbackInfo) -> Result<&'env Value>);
         extern "C" fn cb(env: *const Env, info: *const CbInfo) -> *const Value {
             unsafe {
                 let env = &*env;
@@ -180,9 +180,9 @@ impl Env {
     }
 
     pub fn create_function<'env>(
-        &'env self,
+        &self,
         name: &str,
-        func: fn(&'env Env, &'env CallbackInfo) -> Result<&'env Value>,
+        func: fn(&'env Env, &CallbackInfo) -> Result<&'env Value>,
     ) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
@@ -201,7 +201,7 @@ impl Env {
         }
     }
 
-    pub fn create_double<'env>(&'env self, value: f64) -> Result<&'env Value> {
+    pub fn create_double<'env>(&self, value: f64) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             match napi_create_double(self, value, &mut result) {
@@ -211,7 +211,7 @@ impl Env {
         }
     }
 
-    pub fn create_int32<'env>(&'env self, value: i32) -> Result<&'env Value> {
+    pub fn create_int32<'env>(&self, value: i32) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             match napi_create_int32(self, value, &mut result) {
@@ -221,7 +221,7 @@ impl Env {
         }
     }
 
-    pub fn create_uint32<'env>(&'env self, value: u32) -> Result<&'env Value> {
+    pub fn create_uint32<'env>(&self, value: u32) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             match napi_create_uint32(self, value, &mut result) {
@@ -231,7 +231,7 @@ impl Env {
         }
     }
 
-    pub fn create_int64<'env>(&'env self, value: i64) -> Result<&'env Value> {
+    pub fn create_int64<'env>(&self, value: i64) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             match napi_create_int64(self, value, &mut result) {
@@ -241,7 +241,7 @@ impl Env {
         }
     }
 
-    pub fn create_array<'env>(&'env self, len: usize) -> Result<&'env Value> {
+    pub fn create_array<'env>(&self, len: usize) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             match napi_create_array_with_length(self, len, &mut result) {
@@ -251,7 +251,7 @@ impl Env {
         }
     }
 
-    pub fn create_symbol<'env>(&'env self, description: &'env Value) -> Result<&'env Value> {
+    pub fn create_symbol<'env>(&self, description: &Value) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             match napi_create_symbol(self, description, &mut result) {
@@ -261,11 +261,7 @@ impl Env {
         }
     }
 
-    pub fn create_error<'env>(
-        &'env self,
-        code: &'env Value,
-        msg: &'env Value,
-    ) -> Result<&'env Value> {
+    pub fn create_error<'env>(&self, code: &Value, msg: &Value) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             match napi_create_error(self, code, msg, &mut result) {
@@ -275,11 +271,7 @@ impl Env {
         }
     }
 
-    pub fn create_type_error<'env>(
-        &'env self,
-        code: &'env Value,
-        msg: &'env Value,
-    ) -> Result<&'env Value> {
+    pub fn create_type_error<'env>(&self, code: &Value, msg: &Value) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             match napi_create_type_error(self, code, msg, &mut result) {
@@ -289,11 +281,7 @@ impl Env {
         }
     }
 
-    pub fn create_range_error<'env>(
-        &'env self,
-        code: &'env Value,
-        msg: &'env Value,
-    ) -> Result<&'env Value> {
+    pub fn create_range_error<'env>(&self, code: &Value, msg: &Value) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             match napi_create_range_error(self, code, msg, &mut result) {
@@ -303,7 +291,7 @@ impl Env {
         }
     }
 
-    pub fn create_arraybuffer_copy<'env>(&'env self, data: &[u8]) -> Result<&'env Value> {
+    pub fn create_arraybuffer_copy<'env>(&self, data: &[u8]) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             let mut buf: *mut libc::c_void = mem::uninitialized();
@@ -317,10 +305,7 @@ impl Env {
         }
     }
 
-    pub fn create_arraybuffer_from_slice<'env>(
-        &'env self,
-        data: &ByteSlice,
-    ) -> Result<&'env Value> {
+    pub fn create_arraybuffer_from_slice<'env>(&self, data: &ByteSlice) -> Result<&'env Value> {
         unsafe {
             extern "C" fn finalize_cb(_env: *const Env, _data: *mut u8, _hint: *mut u8) {}
 
@@ -339,7 +324,7 @@ impl Env {
         }
     }
 
-    pub fn is_arraybuffer<'env>(&'env self, value: &'env Value) -> Result<bool> {
+    pub fn is_arraybuffer<'env>(&self, value: &Value) -> Result<bool> {
         unsafe {
             let mut result: u8 = mem::uninitialized();
             match napi_is_arraybuffer(self, value, &mut result) {
@@ -349,10 +334,7 @@ impl Env {
         }
     }
 
-    pub fn get_arraybuffer_info<'env>(
-        &'env self,
-        value: &'env Value,
-    ) -> Result<(*const u8, usize)> {
+    pub fn get_arraybuffer_info<'env>(&self, value: &Value) -> Result<(*const u8, usize)> {
         unsafe {
             let mut data: *const libc::c_void = mem::uninitialized();
             let mut len: usize = mem::uninitialized();
@@ -363,7 +345,7 @@ impl Env {
         }
     }
 
-    pub fn is_typedarray<'env>(&'env self, value: &'env Value) -> Result<bool> {
+    pub fn is_typedarray<'env>(&self, value: &Value) -> Result<bool> {
         unsafe {
             let mut result: u8 = mem::uninitialized();
             match napi_is_typedarray(self, value, &mut result) {
@@ -374,10 +356,10 @@ impl Env {
     }
 
     pub fn create_typedarray<'env>(
-        &'env self,
+        &self,
         array_type: TypedArrayType,
         length: usize,
-        arraybuffer: &'env Value,
+        arraybuffer: &Value,
         offset: usize,
     ) -> Result<&'env Value> {
         unsafe {
@@ -396,10 +378,7 @@ impl Env {
         }
     }
 
-    pub fn get_typedarray_info<'env>(
-        &'env self,
-        value: &'env Value,
-    ) -> Result<(*const u8, usize, usize)> {
+    pub fn get_typedarray_info<'env>(&self, value: &Value) -> Result<(*const u8, usize, usize)> {
         unsafe {
             let mut array_type: u32 = mem::uninitialized();
             let mut data: *const libc::c_void = mem::uninitialized();
@@ -421,7 +400,7 @@ impl Env {
         }
     }
 
-    pub fn get_value_double<'env>(&'env self, value: &'env Value) -> Result<f64> {
+    pub fn get_value_double<'env>(&self, value: &Value) -> Result<f64> {
         unsafe {
             let mut result: f64 = mem::uninitialized();
             match napi_get_value_double(self, value, &mut result) {
@@ -431,7 +410,7 @@ impl Env {
         }
     }
 
-    pub fn get_value_int32<'env>(&'env self, value: &'env Value) -> Result<i32> {
+    pub fn get_value_int32<'env>(&self, value: &Value) -> Result<i32> {
         unsafe {
             let mut result: i32 = mem::uninitialized();
             match napi_get_value_int32(self, value, &mut result) {
@@ -441,7 +420,7 @@ impl Env {
         }
     }
 
-    pub fn get_value_uint32<'env>(&'env self, value: &'env Value) -> Result<u32> {
+    pub fn get_value_uint32<'env>(&self, value: &Value) -> Result<u32> {
         unsafe {
             let mut result: u32 = mem::uninitialized();
             match napi_get_value_uint32(self, value, &mut result) {
@@ -451,7 +430,7 @@ impl Env {
         }
     }
 
-    pub fn get_value_int64<'env>(&'env self, value: &'env Value) -> Result<i64> {
+    pub fn get_value_int64<'env>(&self, value: &Value) -> Result<i64> {
         unsafe {
             let mut result: i64 = mem::uninitialized();
             match napi_get_value_int64(self, value, &mut result) {
@@ -461,7 +440,7 @@ impl Env {
         }
     }
 
-    pub fn get_value_bool<'env>(&'env self, value: &'env Value) -> Result<bool> {
+    pub fn get_value_bool<'env>(&self, value: &Value) -> Result<bool> {
         unsafe {
             let mut result: u8 = mem::uninitialized();
             match napi_get_value_bool(self, value, &mut result) {
@@ -471,7 +450,7 @@ impl Env {
         }
     }
 
-    pub fn get_value_string<'env>(&'env self, value: &'env Value) -> Result<String> {
+    pub fn get_value_string<'env>(&self, value: &Value) -> Result<String> {
         unsafe {
             let mut result: libc::size_t = mem::uninitialized();
             match napi_get_value_string_utf8(self, value, ptr::null_mut(), 0, &mut result) {
@@ -496,7 +475,7 @@ impl Env {
         }
     }
 
-    pub fn coerce_to_bool<'env>(&'env self, value: &'env Value) -> Result<&'env Value> {
+    pub fn coerce_to_bool<'env>(&self, value: &Value) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             match napi_coerce_to_bool(self, value, &mut result) {
@@ -506,7 +485,7 @@ impl Env {
         }
     }
 
-    pub fn coerce_to_number<'env>(&'env self, value: &'env Value) -> Result<&'env Value> {
+    pub fn coerce_to_number<'env>(&self, value: &Value) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             match napi_coerce_to_number(self, value, &mut result) {
@@ -516,7 +495,7 @@ impl Env {
         }
     }
 
-    pub fn coerce_to_object<'env>(&'env self, value: &'env Value) -> Result<&'env Value> {
+    pub fn coerce_to_object<'env>(&self, value: &Value) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             match napi_coerce_to_object(self, value, &mut result) {
@@ -526,7 +505,7 @@ impl Env {
         }
     }
 
-    pub fn coerce_to_string<'env>(&'env self, value: &'env Value) -> Result<&'env Value> {
+    pub fn coerce_to_string<'env>(&self, value: &Value) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             match napi_coerce_to_string(self, value, &mut result) {
@@ -536,12 +515,7 @@ impl Env {
         }
     }
 
-    pub fn set_property<'env>(
-        &'env self,
-        object: &'env Value,
-        key: &'env Value,
-        value: &'env Value,
-    ) -> Result<()> {
+    pub fn set_property<'env>(&self, object: &Value, key: &Value, value: &Value) -> Result<()> {
         unsafe {
             match napi_set_property(self, object, key, value) {
                 Status::Ok => Ok(()),
@@ -550,12 +524,7 @@ impl Env {
         }
     }
 
-    pub fn set_element<'env>(
-        &'env self,
-        object: &'env Value,
-        index: u32,
-        value: &'env Value,
-    ) -> Result<()> {
+    pub fn set_element<'env>(&self, object: &Value, index: u32, value: &Value) -> Result<()> {
         unsafe {
             match napi_set_element(self, object, index, value) {
                 Status::Ok => Ok(()),
@@ -565,10 +534,10 @@ impl Env {
     }
 
     pub fn set_named_property<'env>(
-        &'env self,
-        object: &'env Value,
+        &self,
+        object: &Value,
         utf8name: &str,
-        value: &'env Value,
+        value: &Value,
     ) -> Result<()> {
         unsafe {
             let name = CString::new(utf8name).unwrap();
@@ -579,7 +548,7 @@ impl Env {
         }
     }
 
-    pub fn throw<'env>(&'env self, error: &'env Value) -> Result<()> {
+    pub fn throw<'env>(&self, error: &Value) -> Result<()> {
         unsafe {
             match napi_throw(self, error) {
                 Status::Ok => Ok(()),
@@ -588,7 +557,7 @@ impl Env {
         }
     }
 
-    pub fn throw_error<'env>(&'env self, code: &str, msg: &str) -> Result<()> {
+    pub fn throw_error<'env>(&self, code: &str, msg: &str) -> Result<()> {
         unsafe {
             let code = CString::new(code).unwrap();
             let msg = CString::new(msg).unwrap();
@@ -599,7 +568,7 @@ impl Env {
         }
     }
 
-    pub fn throw_range_error<'env>(&'env self, code: &str, msg: &str) -> Result<()> {
+    pub fn throw_range_error<'env>(&self, code: &str, msg: &str) -> Result<()> {
         unsafe {
             let code = CString::new(code).unwrap();
             let msg = CString::new(msg).unwrap();
@@ -610,7 +579,7 @@ impl Env {
         }
     }
 
-    pub fn is_error<'env>(&'env self, value: &'env Value) -> Result<bool> {
+    pub fn is_error<'env>(&self, value: &Value) -> Result<bool> {
         unsafe {
             let mut result: u8 = mem::uninitialized();
             match napi_is_error(self, value, &mut result) {
@@ -620,7 +589,7 @@ impl Env {
         }
     }
 
-    pub fn type_of<'env>(&'env self, value: &'env Value) -> Result<ValueType> {
+    pub fn type_of<'env>(&self, value: &Value) -> Result<ValueType> {
         unsafe {
             let mut result: ValueType = mem::uninitialized();
             match napi_typeof(self, value, &mut result) {
@@ -630,7 +599,7 @@ impl Env {
         }
     }
 
-    pub fn is_array<'env>(&'env self, value: &'env Value) -> Result<bool> {
+    pub fn is_array<'env>(&self, value: &Value) -> Result<bool> {
         unsafe {
             let mut result: u8 = mem::uninitialized();
             match napi_is_array(self, value, &mut result) {
@@ -640,7 +609,7 @@ impl Env {
         }
     }
 
-    pub fn get_array_length<'env>(&'env self, value: &'env Value) -> Result<u32> {
+    pub fn get_array_length<'env>(&self, value: &Value) -> Result<u32> {
         unsafe {
             let mut result: u32 = mem::uninitialized();
             match napi_get_array_length(self, value, &mut result) {
@@ -650,7 +619,7 @@ impl Env {
         }
     }
 
-    pub fn strict_equals<'env>(&'env self, lhs: &'env Value, rhs: &'env Value) -> Result<bool> {
+    pub fn strict_equals<'env>(&self, lhs: &Value, rhs: &Value) -> Result<bool> {
         unsafe {
             let mut result: u8 = mem::uninitialized();
             match napi_strict_equals(self, lhs, rhs, &mut result) {
@@ -661,10 +630,10 @@ impl Env {
     }
 
     pub fn call_function<'env>(
-        &'env self,
-        recv: &'env Value,
-        func: &'env Value,
-        argv: &[&'env Value],
+        &self,
+        recv: &Value,
+        func: &Value,
+        argv: &[&Value],
     ) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
@@ -676,11 +645,7 @@ impl Env {
         }
     }
 
-    pub fn new_instance<'env>(
-        &'env self,
-        constructor: &Value,
-        argv: &[&'env Value],
-    ) -> Result<&'env Value> {
+    pub fn new_instance<'env>(&self, constructor: &Value, argv: &[&Value]) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             let argv: Vec<*const Value> = argv.iter().map(|v| *v as *const Value).collect();
@@ -691,11 +656,7 @@ impl Env {
         }
     }
 
-    pub fn instanceof<'env>(
-        &'env self,
-        object: &'env Value,
-        constructor: &'env Value,
-    ) -> Result<bool> {
+    pub fn instanceof<'env>(&self, object: &Value, constructor: &Value) -> Result<bool> {
         unsafe {
             let mut result: u8 = mem::uninitialized();
             match napi_instanceof(self, object, constructor, &mut result) {
@@ -705,7 +666,7 @@ impl Env {
         }
     }
 
-    pub fn get_cb_info<'env>(&'env self, cbinfo: &'env CbInfo) -> Result<CallbackInfo<'env>> {
+    pub fn get_cb_info<'env>(&self, cbinfo: &CbInfo) -> Result<CallbackInfo<'env>> {
         unsafe {
             const MAX_ARGC: usize = 16;
             let mut argv: [*const Value; MAX_ARGC] = mem::uninitialized();
@@ -731,9 +692,9 @@ impl Env {
     }
 
     pub fn define_class<'env>(
-        &'env self,
+        &self,
         name: &str,
-        constructor: fn(&'env Env, &'env CallbackInfo) -> Result<&'env Value>,
+        constructor: fn(&'env Env, &CallbackInfo) -> Result<&'env Value>,
         properties: &[PropertyDescriptor],
     ) -> Result<&'env Value> {
         unsafe {
@@ -755,7 +716,7 @@ impl Env {
         }
     }
 
-    pub fn wrap<'env, T>(&'env self, js_object: &'env Value, value: T) -> Result<()> {
+    pub fn wrap<'env, T>(&self, js_object: &Value, value: T) -> Result<()> {
         extern "C" fn finalize_cb<T>(_env: *const Env, data: *mut u8, _hint: *mut u8) {
             unsafe { Box::from_raw(data as *mut T) };
         }
@@ -775,7 +736,7 @@ impl Env {
         }
     }
 
-    pub fn wrap_fixed<'env, T>(&'env self, js_object: &'env Value, value: &Fixed<T>) -> Result<()> {
+    pub fn wrap_fixed<'env, T>(&self, js_object: &Value, value: &Fixed<T>) -> Result<()> {
         extern "C" fn finalize_cb<T>(_env: *const Env, _data: *mut u8, _hint: *mut u8) {}
         unsafe {
             match napi_wrap(
@@ -792,11 +753,7 @@ impl Env {
         }
     }
 
-    pub fn wrap_mut_fixed<'env, T>(
-        &'env self,
-        js_object: &'env Value,
-        value: &MutFixed<T>,
-    ) -> Result<()> {
+    pub fn wrap_mut_fixed<'env, T>(&self, js_object: &Value, value: &MutFixed<T>) -> Result<()> {
         extern "C" fn finalize_cb<T>(_env: *const Env, _data: *mut u8, _hint: *mut u8) {}
         unsafe {
             match napi_wrap(
@@ -813,7 +770,7 @@ impl Env {
         }
     }
 
-    pub fn wrap_ptr<'env, T>(&'env self, js_object: &'env Value, value: *const T) -> Result<()> {
+    pub fn wrap_ptr<'env, T>(&self, js_object: &Value, value: *const T) -> Result<()> {
         extern "C" fn finalize_cb<T>(_env: *const Env, _data: *mut u8, _hint: *mut u8) {}
         unsafe {
             match napi_wrap(
@@ -830,7 +787,7 @@ impl Env {
         }
     }
 
-    pub fn unwrap<'env, T>(&'env self, js_object: &'env Value) -> Result<&'env mut T> {
+    pub fn unwrap<'env, T>(&self, js_object: &Value) -> Result<&mut T> {
         unsafe {
             let mut result: *mut libc::c_void = mem::uninitialized();
             match napi_unwrap(self, js_object, &mut result) {
@@ -840,7 +797,7 @@ impl Env {
         }
     }
 
-    pub fn create_ref<'env>(&'env self, value: &'env Value) -> Rc<ValueRef> {
+    pub fn create_ref<'env>(&self, value: &Value) -> Rc<ValueRef> {
         ValueRef::new(self, value)
     }
 }
@@ -929,11 +886,11 @@ pub struct CallbackInfo<'env> {
 }
 
 impl<'env> CallbackInfo<'env> {
-    pub fn argv(&self) -> &[&'env Value] {
+    pub fn argv(&self) -> &[&Value] {
         &self.argv
     }
 
-    pub fn this(&self) -> &'env Value {
+    pub fn this(&self) -> &Value {
         &self.this
     }
 }
@@ -955,7 +912,7 @@ impl PropertyDescriptor {
         env: &'env Env,
         name: &str,
         attrs: PropertyAttributes,
-        accessor: fn(&'env Env, &'env CallbackInfo) -> Result<&'env Value>,
+        accessor: fn(&'env Env, &CallbackInfo) -> Result<&'env Value>,
         setter: bool,
     ) -> PropertyDescriptor {
         let (cb, data) = env.create_cb(accessor);
@@ -975,7 +932,7 @@ impl PropertyDescriptor {
         env: &'env Env,
         name: &str,
         attrs: PropertyAttributes,
-        method: fn(&'env Env, &'env CallbackInfo) -> Result<&'env Value>,
+        method: fn(&'env Env, &CallbackInfo) -> Result<&'env Value>,
     ) -> PropertyDescriptor {
         let (cb, data) = env.create_cb(method);
         PropertyDescriptor {
