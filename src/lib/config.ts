@@ -72,7 +72,7 @@ export default class Config {
   }
 
   get schema(): object {
-    return Object.assign({}, this._schema, ...this._schemaSet)
+    return { ...this._schema, ...this._schemaSet }
   }
 
   get(id: string, defaultValue?: any) {
@@ -102,7 +102,7 @@ export default class Config {
       defaultValue = this.schema[id].default
     }
     if (!deepEqual(value, objpath.get(this._tree, id))) {
-      const oldTree = Object.assign({}, this._tree)
+      const oldTree = { ...this._tree }
       if (deepEqual(value, objpath.get(defaultValue, id))) {
         objpath.del(this._tree, id)
       } else {

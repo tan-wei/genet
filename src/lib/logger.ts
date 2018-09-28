@@ -70,18 +70,18 @@ export default class Logger {
   }
 
   debug(message: string, options: Options = {}) {
-    this.log(message, Object.assign(options, { level: Level.Debug }))
+    this.log(message, { ...options, level: Level.Debug })
   }
 
   info(message: string, options: Options = {}) {
-    this.log(message, Object.assign(options, { level: Level.Info }))
+    this.log(message, { ...options, level: Level.Info })
   }
 
   warn(message: string, options: Options = {}) {
-    this.log(message, Object.assign(options, { level: Level.Warn }))
+    this.log(message, { ...options, level: Level.Warn })
   }
 
   error(message: string, options: Options = {}) {
-    this.log(message, Object.assign(options, { level: Level.Error }))
+    this.log(message, { ...options, level: Level.Error })
   }
 }

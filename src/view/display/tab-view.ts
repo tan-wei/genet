@@ -54,11 +54,11 @@ export default class TabView {
           class: 'panel-wrapper',
           active: panel.id === this.activeTab,
         }, [
-            m(PanelView, Object.assign(panel,
-              {
-                active: panel.id === this.activeTab,
-                attrs,
-              }))
+            m(PanelView, {
+              ...panel,
+              active: panel.id === this.activeTab,
+              attrs,
+            })
           ])))
     ])
   }

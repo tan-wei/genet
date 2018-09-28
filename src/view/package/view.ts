@@ -26,7 +26,8 @@ export default class PackageView {
   update() {
     genet.gpm.list().then((list) => {
       const diasbaledPackages = genet.config.get('_.disabledPackages', [])
-      this.packages = list.map((pkg) => Object.assign(pkg, {
+      this.packages = list.map((pkg) => ({
+        ...pkg,
         disabled: diasbaledPackages.includes(pkg.id)
       }))
       m.redraw()

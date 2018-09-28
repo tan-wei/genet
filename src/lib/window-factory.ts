@@ -31,9 +31,10 @@ export default class WindowFactory {
     const mainWindow = new BrowserWindow(options)
 
     const jsonArgv =
-      JSON.stringify(Object.assign(minimist(argv, { boolean: true }), {
+      JSON.stringify({
+        ...minimist(argv, { boolean: true }),
         profile
-      }))
+      })
 
     const localUrl = url.format({
       protocol: 'file',

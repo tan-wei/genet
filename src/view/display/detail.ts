@@ -22,7 +22,7 @@ function mergeOrphanedItems(item) {
       }
     }
   }
-  return Object.assign(item, { children: newChildren })
+  return { ...item, children: newChildren }
 }
 
 class LayerItem {

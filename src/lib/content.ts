@@ -40,8 +40,10 @@ export default class Content {
     loader.applyCommon(document)
     await loader.applyCss(document, path.join(__dirname, this.css))
 
-    const argv = Object.assign(
-      JSON.parse(decodeURIComponent(location.search.substr(1))), this.argv)
+    const argv = {
+      ...JSON.parse(decodeURIComponent(location.search.substr(1))),
+      ...this.argv,
+    }
     api.init(new Genet(argv))
 
     m.mount(document.body, this.view)

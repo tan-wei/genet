@@ -180,7 +180,8 @@ export default class OutputDialog {
               : 'none',
           },
         }, [
-            m(PanelView, Object.assign(panel, {
+            m(PanelView, {
+              ...panel,
               attrs: {
                 callback: (id, options) => {
                   const { sess } = vnode.attrs
@@ -200,7 +201,7 @@ export default class OutputDialog {
                   callback()
                 },
               },
-            }))
+            })
           ]))
       )])
   }

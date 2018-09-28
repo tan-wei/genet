@@ -55,7 +55,7 @@ export default class InputDialog {
               : 'none',
           },
         }, [
-            m(PanelView, Object.assign(panel, { attrs: { callback } }))
+            m(PanelView, { ...panel, attrs: { callback } })
           ]))
       )])
   }

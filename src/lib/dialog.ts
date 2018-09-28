@@ -5,11 +5,12 @@ export default class Dialog {
   }
 
   async show(options = {}) {
-    const opt = Object.assign({
+    const opt = {
       width: 500,
       height: 320,
       cancelable: true,
-    }, options)
+      ...options,
+    }
     if (document.querySelector('div.dialog-base') !== null) {
       throw new Error('another dialog is showing')
     }
@@ -41,7 +42,7 @@ export default class Dialog {
         view: () => m('div', {
           style: { width: `${opt.width}px` },
           class: 'dialog',
-        }, [m(this.view, Object.assign(this.attrs, { callback }))]),
+        }, [m(this.view, { ...this.attrs, callback })]),
       })
     })
   }

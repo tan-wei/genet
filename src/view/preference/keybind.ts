@@ -7,14 +7,14 @@ export default class KeyBind {
     })
   }
   view() {
-    const map = Object.assign({}, genet.keybind.keymap)
+    const map = { ...genet.keybind.keymap }
     for (const [combo, binds] of Object.entries(genet.menu.keymap)) {
       map[combo] = (map[combo] || []).concat(binds)
     }
     const combinations: any[] = []
     for (const [combo, binds] of Object.entries(map)) {
       for (const bind of binds as any[]) {
-        combinations.push(Object.assign({ combo }, bind))
+        combinations.push({ combo, ...bind })
       }
     }
     return m('table', [

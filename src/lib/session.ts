@@ -38,7 +38,7 @@ export default class Session extends EventEmitter {
 
   registerTokens(tokens) {
     for (const [id, data] of Object.entries(tokens)) {
-      this._tokens.set(id, Object.assign({}, data))
+      this._tokens.set(id, { ...data })
     }
     return new Disposable(() => {
       for (const id of Object.keys(tokens)) {

@@ -123,7 +123,7 @@ export default class PackageManager extends EventEmitter {
         }
       }
 
-      this._packages.set(id, Object.assign(cache, pkg, { incompatible }))
+      this._packages.set(id, { ...cache, ...pkg, incompatible })
       removedPackages.delete(id)
     }
 

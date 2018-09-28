@@ -43,12 +43,13 @@ export default class Notification {
   }
 
   show(content: string, options = {}) {
-    const opt = Object.assign({
+    const opt = {
       type: '',
       title: '',
       ttl: 5000,
       closeButton: true,
-    }, options)
+      ...options
+    }
     if (this._container === null) {
       this._container = document.querySelector('div.notification')
     }
