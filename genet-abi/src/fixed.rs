@@ -104,6 +104,12 @@ impl<T> MutFixed<T> {
     pub fn as_mut_ptr(&self) -> *mut T {
         self.ptr.as_ptr()
     }
+
+    pub unsafe fn from_ptr(ptr: *mut T) -> MutFixed<T> {
+        Self {
+            ptr: NonNull::new_unchecked(ptr),
+        }
+    }
 }
 
 impl<T> Deref for MutFixed<T> {

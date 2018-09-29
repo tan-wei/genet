@@ -73,7 +73,7 @@ impl Worker for TcpStreamWorker {
         &mut self,
         _ctx: &mut Context,
         stack: &LayerStack,
-        parent: &mut Layer,
+        parent: &mut Parent,
     ) -> Result<Status> {
         if parent.id() == token!("tcp") {
             let slice: ByteSlice = parent
@@ -162,7 +162,7 @@ impl Worker for TcpStreamWorker {
             }
 
             parent.add_attr(attr!(&STREAM_ATTR));
-            Ok(Status::Done(vec![]))
+            Ok(Status::Done)
         } else {
             Ok(Status::Skip)
         }

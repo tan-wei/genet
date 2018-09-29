@@ -10,20 +10,26 @@ impl Worker for UdpWorker {
         &mut self,
         _ctx: &mut Context,
         _stack: &LayerStack,
-        parent: &mut Layer,
+        parent: &mut Parent,
     ) -> Result<Status> {
+        let data;
+
         if let Some(payload) = parent
             .payloads()
             .iter()
             .find(|p| p.id() == token!("@data:udp"))
         {
-            let mut layer = Layer::new(&UDP_CLASS, payload.data());
-            let payload = payload.data().try_get(8..)?;
-            layer.add_payload(Payload::new(payload, ""));
-            Ok(Status::Done(vec![layer]))
+            data = payload.data();
         } else {
-            Ok(Status::Skip)
+            return Ok(Status::Skip);
         }
+
+        let mut layer = Layer::new(&UDP_CLASS, data);
+        let payload = data.try_get(8..)?;
+        layer.add_payload(Payload::new(payload, ""));
+
+        parent.add_child(layer);
+        Ok(Status::Done)
     }
 }
 

@@ -1,7 +1,12 @@
 use attr::Attr;
-use fixed::Fixed;
+use fixed::{Fixed, MutFixed};
 use slice::ByteSlice;
-use std::{fmt, slice};
+use std::{
+    fmt,
+    marker::PhantomData,
+    ops::{Deref, DerefMut},
+    slice,
+};
 use token::Token;
 
 /// A layer stack object.
@@ -44,6 +49,106 @@ impl<'a> LayerStack<'a> {
     fn layers(&self) -> impl DoubleEndedIterator<Item = &'a Layer> {
         self.buffer.iter().map(|layer| unsafe { &**layer })
     }
+}
+
+/// A mutable proxy for a layer object.
+#[repr(C)]
+pub struct Parent<'a> {
+    layer: *mut Layer,
+    add_child: extern "C" fn(*mut Parent, *mut Layer),
+    children_len: extern "C" fn(*const Parent) -> u64,
+    children_data: extern "C" fn(*const Parent) -> *const *mut Layer,
+    phantom: PhantomData<&'a ()>,
+    children: Vec<*mut Layer>,
+}
+
+impl<'a> Parent<'a> {
+    pub fn from_mut_ref(layer: &'a mut Layer) -> Parent {
+        Parent {
+            layer,
+            add_child: abi_add_child,
+            children_len: abi_children_len,
+            children_data: abi_children_data,
+            phantom: PhantomData,
+            children: Vec::new(),
+        }
+    }
+
+    /// Returns the ID of self.
+    pub fn id(&self) -> Token {
+        self.deref().id()
+    }
+
+    /// Returns the type of self.
+    pub fn data(&self) -> ByteSlice {
+        self.deref().data()
+    }
+
+    /// Returns the slice of headers.
+    pub fn headers(&self) -> &[Fixed<Attr>] {
+        self.deref().headers()
+    }
+
+    /// Returns the slice of attributes.
+    pub fn attrs(&self) -> &[Fixed<Attr>] {
+        self.deref().attrs()
+    }
+
+    /// Find the attribute in the Layer.
+    pub fn attr<T: Into<Token>>(&self, id: T) -> Option<&Attr> {
+        self.deref().attr(id)
+    }
+
+    /// Adds an attribute to the Layer.
+    pub fn add_attr<T: Into<Fixed<Attr>>>(&mut self, attr: T) {
+        self.deref_mut().add_attr(attr);
+    }
+
+    /// Returns the slice of payloads.
+    pub fn payloads(&self) -> &[Payload] {
+        self.deref().payloads()
+    }
+
+    /// Adds a payload to the Layer.
+    pub fn add_payload(&mut self, payload: Payload) {
+        self.deref_mut().add_payload(payload);
+    }
+
+    pub fn add_child<T: Into<MutFixed<Layer>>>(&mut self, layer: T) {
+        (self.add_child)(self, layer.into().as_mut_ptr());
+    }
+
+    pub fn children(&self) -> &[*mut Layer] {
+        let data = (self.children_data)(self);
+        let len = (self.children_len)(self) as usize;
+        unsafe { slice::from_raw_parts(data, len) }
+    }
+}
+
+impl<'a> Deref for Parent<'a> {
+    type Target = Layer;
+
+    fn deref(&self) -> &Layer {
+        unsafe { &*self.layer }
+    }
+}
+
+impl<'a> DerefMut for Parent<'a> {
+    fn deref_mut(&mut self) -> &mut Layer {
+        unsafe { &mut *self.layer }
+    }
+}
+
+extern "C" fn abi_add_child(layer: *mut Parent, child: *mut Layer) {
+    unsafe { (*layer).children.push(child) }
+}
+
+extern "C" fn abi_children_len(layer: *const Parent) -> u64 {
+    unsafe { (*layer).children.len() as u64 }
+}
+
+extern "C" fn abi_children_data(layer: *const Parent) -> *const *mut Layer {
+    unsafe { (*layer).children.as_ptr() }
 }
 
 /// A layer object.
@@ -125,6 +230,12 @@ impl Layer {
 impl fmt::Debug for Layer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Layer {:?}", self.id())
+    }
+}
+
+impl Into<MutFixed<Layer>> for Layer {
+    fn into(self) -> MutFixed<Layer> {
+        MutFixed::new(self)
     }
 }
 

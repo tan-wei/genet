@@ -10,54 +10,60 @@ impl Worker for NtpWorker {
         &mut self,
         _ctx: &mut Context,
         stack: &LayerStack,
-        parent: &mut Layer,
+        parent: &mut Parent,
     ) -> Result<Status> {
         if parent.id() != token!("udp") {
             return Ok(Status::Skip);
         }
+
+        let data;
+
         if let Some(payload) = parent.payloads().iter().next() {
-            let parent_src: u16 = stack
-                .attr(token!("udp.src"))
-                .unwrap()
-                .try_get(parent)?
-                .try_into()?;
-
-            let parent_dst: u16 = stack
-                .attr(token!("udp.dst"))
-                .unwrap()
-                .try_get(parent)?
-                .try_into()?;
-
-            if parent_src != 123 && parent_dst != 123 {
-                return Ok(Status::Skip);
-            }
-
-            let mut layer = Layer::new(&NTP_CLASS, payload.data());
-            let leap_type = LEAP_ATTR_HEADER.try_get(&layer)?.try_into()?;
-
-            let leap = get_leap(leap_type);
-            if let Some(attr) = leap {
-                layer.add_attr(attr!(attr, range: 0..1));
-            }
-
-            let mode_type = MODE_ATTR_HEADER.try_get(&layer)?.try_into()?;
-
-            let mode = get_mode(mode_type);
-            if let Some(attr) = mode {
-                layer.add_attr(attr!(attr, range: 0..1));
-            }
-
-            let stratum: u8 = STRATUM_ATTR_HEADER.try_get(&layer)?.try_into()?;
-            layer.add_attr(if stratum >= 2 {
-                attr!(&ID_IP_ATTR, range: 12..16)
-            } else {
-                attr!(&ID_ATTR, range: 12..16)
-            });
-
-            Ok(Status::Done(vec![layer]))
+            data = payload.data();
         } else {
-            Ok(Status::Skip)
+            return Ok(Status::Skip);
         }
+
+        let parent_src: u16 = stack
+            .attr(token!("udp.src"))
+            .unwrap()
+            .try_get(parent)?
+            .try_into()?;
+
+        let parent_dst: u16 = stack
+            .attr(token!("udp.dst"))
+            .unwrap()
+            .try_get(parent)?
+            .try_into()?;
+
+        if parent_src != 123 && parent_dst != 123 {
+            return Ok(Status::Skip);
+        }
+
+        let mut layer = Layer::new(&NTP_CLASS, data);
+        let leap_type = LEAP_ATTR_HEADER.try_get(&layer)?.try_into()?;
+
+        let leap = get_leap(leap_type);
+        if let Some(attr) = leap {
+            layer.add_attr(attr!(attr, range: 0..1));
+        }
+
+        let mode_type = MODE_ATTR_HEADER.try_get(&layer)?.try_into()?;
+
+        let mode = get_mode(mode_type);
+        if let Some(attr) = mode {
+            layer.add_attr(attr!(attr, range: 0..1));
+        }
+
+        let stratum: u8 = STRATUM_ATTR_HEADER.try_get(&layer)?.try_into()?;
+        layer.add_attr(if stratum >= 2 {
+            attr!(&ID_IP_ATTR, range: 12..16)
+        } else {
+            attr!(&ID_ATTR, range: 12..16)
+        });
+
+        parent.add_child(layer);
+        Ok(Status::Done)
     }
 }
 

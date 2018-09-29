@@ -3,7 +3,7 @@ use genet_abi::{
     context::Context,
     decoder::{DecoderBox, ExecType, WorkerBox},
     fixed::MutFixed,
-    layer::Layer,
+    layer::{Layer, Parent},
 };
 use profile::Profile;
 
@@ -36,16 +36,21 @@ impl Dispatcher {
         loop {
             let len = sublayers.len() - offset;
             for index in offset..sublayers.len() {
-                let mut layer = unsafe { &mut *sublayers[index].as_mut_ptr() };
-
                 let mut children = 0;
                 loop {
                     let mut executed = 0;
                     for mut r in &mut runners.iter_mut() {
-                        let (done, mut layers) = r.execute(&sublayers, &mut layer);
+                        let mut layer =
+                            Parent::from_mut_ref(unsafe { &mut *sublayers[index].as_mut_ptr() });
+                        let done = r.execute(&sublayers, &mut layer);
                         if done {
                             executed += 1;
                         }
+                        let mut layers: Vec<MutFixed<Layer>> = layer
+                            .children()
+                            .iter()
+                            .map(|v| unsafe { MutFixed::from_ptr(*v) })
+                            .collect();
                         children += layers.len();
                         sublayers.append(&mut layers);
                     }
@@ -86,19 +91,14 @@ impl Runner {
         runner
     }
 
-    fn execute(
-        &mut self,
-        layers: &[MutFixed<Layer>],
-        layer: &mut Layer,
-    ) -> (bool, Vec<MutFixed<Layer>>) {
+    fn execute(&mut self, layers: &[MutFixed<Layer>], layer: &mut Parent) -> bool {
         if let Some(worker) = &mut self.worker {
-            let mut children = Vec::new();
-            match worker.decode(&mut self.ctx, layers, layer, &mut children) {
-                Ok(done) => (done, children),
-                Err(_) => (true, vec![]),
+            match worker.decode(&mut self.ctx, layers, layer) {
+                Ok(done) => done,
+                Err(_) => true,
             }
         } else {
-            (true, vec![])
+            true
         }
     }
 
@@ -124,19 +124,15 @@ impl<'a> OnceRunner<'a> {
         }
     }
 
-    fn execute(
-        &mut self,
-        layers: &[MutFixed<Layer>],
-        layer: &mut Layer,
-    ) -> (bool, Vec<MutFixed<Layer>>) {
+    fn execute(&mut self, layers: &[MutFixed<Layer>], layer: &mut Parent) -> bool {
         if !self.used {
-            let (done, children) = self.runner.execute(layers, layer);
+            let done = self.runner.execute(layers, layer);
             if done {
                 self.used = true;
             }
-            (done, children)
+            done
         } else {
-            (false, vec![])
+            false
         }
     }
 }
