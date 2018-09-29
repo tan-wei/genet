@@ -59,7 +59,7 @@ pub struct MutLayer<'a> {
 }
 
 impl<'a> MutLayer<'a> {
-    pub(crate) fn new(layer: &'a mut Layer) -> MutLayer {
+    pub fn new(layer: &'a mut Layer) -> MutLayer {
         MutLayer {
             layer,
             phantom: PhantomData,
