@@ -50,27 +50,21 @@ impl<'a> LayerStack<'a> {
 #[repr(C)]
 pub struct Layer {
     class: Fixed<LayerClass>,
-    abi_unsafe_data: LayerData,
-}
-
-unsafe impl Send for Layer {}
-
-struct LayerData {
     data: ByteSlice,
     attrs: Vec<Fixed<Attr>>,
     payloads: Vec<Payload>,
 }
+
+unsafe impl Send for Layer {}
 
 impl Layer {
     /// Creates a new Layer.
     pub fn new<C: Into<Fixed<LayerClass>>, B: Into<ByteSlice>>(class: C, data: B) -> Layer {
         Layer {
             class: class.into(),
-            abi_unsafe_data: LayerData {
-                data: data.into(),
-                attrs: Vec::new(),
-                payloads: Vec::new(),
-            },
+            data: data.into(),
+            attrs: Vec::new(),
+            payloads: Vec::new(),
         }
     }
 
@@ -206,12 +200,7 @@ impl LayerClassBuilder {
     /// Builds a new LayerClass.
     pub fn build(self) -> LayerClass {
         LayerClass {
-            abi_unsafe_data: Fixed::new(LayerClassData {
-                id: self.id,
-                aliases: self.aliases,
-                headers: self.headers,
-            }),
-            id: abi_id,
+            get_id: abi_id,
             data: abi_data,
             attrs_len: abi_attrs_len,
             attrs_data: abi_attrs_data,
@@ -223,6 +212,9 @@ impl LayerClassBuilder {
             payloads_len: abi_payloads_len,
             payloads_data: abi_payloads_data,
             add_payload: abi_add_payload,
+            id: self.id,
+            aliases: self.aliases,
+            headers: self.headers,
         }
     }
 }
@@ -233,17 +225,10 @@ struct Alias {
     target: Token,
 }
 
-struct LayerClassData {
-    id: Token,
-    aliases: Vec<Alias>,
-    headers: Vec<Fixed<Attr>>,
-}
-
 /// A layer class object.
 #[repr(C)]
 pub struct LayerClass {
-    abi_unsafe_data: Fixed<LayerClassData>,
-    id: extern "C" fn(*const LayerClass) -> Token,
+    get_id: extern "C" fn(*const LayerClass) -> Token,
     aliases_len: extern "C" fn(*const LayerClass) -> u64,
     aliases_data: extern "C" fn(*const LayerClass) -> *const Alias,
     headers_len: extern "C" fn(*const LayerClass) -> u64,
@@ -255,6 +240,9 @@ pub struct LayerClass {
     payloads_len: extern "C" fn(*const Layer) -> u64,
     payloads_data: extern "C" fn(*const Layer) -> *const Payload,
     add_payload: extern "C" fn(*mut Layer, Payload),
+    id: Token,
+    aliases: Vec<Alias>,
+    headers: Vec<Fixed<Attr>>,
 }
 
 impl LayerClass {
@@ -268,7 +256,7 @@ impl LayerClass {
     }
 
     fn id(&self) -> Token {
-        (self.id)(self)
+        (self.get_id)(self)
     }
 
     fn aliases(&self) -> impl Iterator<Item = &Alias> {
@@ -310,56 +298,56 @@ impl Into<Fixed<LayerClass>> for &'static LayerClass {
 }
 
 extern "C" fn abi_id(class: *const LayerClass) -> Token {
-    unsafe { (*class).abi_unsafe_data.id }
+    unsafe { (*class).id }
 }
 
 extern "C" fn abi_aliases_len(class: *const LayerClass) -> u64 {
-    unsafe { (*class).abi_unsafe_data.aliases.len() as u64 }
+    unsafe { (*class).aliases.len() as u64 }
 }
 
 extern "C" fn abi_aliases_data(class: *const LayerClass) -> *const Alias {
-    unsafe { (*class).abi_unsafe_data.aliases.as_ptr() }
+    unsafe { (*class).aliases.as_ptr() }
 }
 
 extern "C" fn abi_headers_len(class: *const LayerClass) -> u64 {
-    unsafe { (*class).abi_unsafe_data.headers.len() as u64 }
+    unsafe { (*class).headers.len() as u64 }
 }
 
 extern "C" fn abi_headers_data(class: *const LayerClass) -> *const Fixed<Attr> {
-    unsafe { (*class).abi_unsafe_data.headers.as_ptr() }
+    unsafe { (*class).headers.as_ptr() }
 }
 
 extern "C" fn abi_data(layer: *const Layer, len: *mut u64) -> *const u8 {
     unsafe {
-        let data = &(*layer).abi_unsafe_data.data;
+        let data = &(*layer).data;
         *len = data.len() as u64;
         data.as_ptr()
     }
 }
 
 extern "C" fn abi_attrs_len(layer: *const Layer) -> u64 {
-    unsafe { (*layer).abi_unsafe_data.attrs.len() as u64 }
+    unsafe { (*layer).attrs.len() as u64 }
 }
 
 extern "C" fn abi_attrs_data(layer: *const Layer) -> *const Fixed<Attr> {
-    unsafe { (*layer).abi_unsafe_data.attrs.as_ptr() }
+    unsafe { (*layer).attrs.as_ptr() }
 }
 
 extern "C" fn abi_add_attr(layer: *mut Layer, attr: Fixed<Attr>) {
-    let attrs = unsafe { &mut (*layer).abi_unsafe_data.attrs };
+    let attrs = unsafe { &mut (*layer).attrs };
     attrs.push(attr);
 }
 
 extern "C" fn abi_payloads_len(layer: *const Layer) -> u64 {
-    unsafe { (*layer).abi_unsafe_data.payloads.len() as u64 }
+    unsafe { (*layer).payloads.len() as u64 }
 }
 
 extern "C" fn abi_payloads_data(layer: *const Layer) -> *const Payload {
-    unsafe { (*layer).abi_unsafe_data.payloads.as_ptr() }
+    unsafe { (*layer).payloads.as_ptr() }
 }
 
 extern "C" fn abi_add_payload(layer: *mut Layer, payload: Payload) {
-    let payloads = unsafe { &mut (*layer).abi_unsafe_data.payloads };
+    let payloads = unsafe { &mut (*layer).payloads };
     payloads.push(payload);
 }
 

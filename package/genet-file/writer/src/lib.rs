@@ -102,7 +102,8 @@ impl WriterWorker for GenetFileWriterWorker {
             .map(|(id, typ)| genet_format::AttrClass {
                 id: self.get_token_index(*id),
                 typ: self.get_token_index(*typ),
-            }).collect();
+            })
+            .collect();
         let header = genet_format::Header {
             tokens: self.tokens.iter().map(|x| x.to_string()).collect(),
             attrs,

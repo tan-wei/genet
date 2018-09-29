@@ -133,6 +133,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
                     false,
                 ),
             ],
-        ).unwrap();
+        )
+        .unwrap();
     env.create_ref(class)
 }

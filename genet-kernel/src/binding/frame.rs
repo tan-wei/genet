@@ -101,6 +101,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
                     frame_query,
                 ),
             ],
-        ).unwrap();
+        )
+        .unwrap();
     env.create_ref(class)
 }

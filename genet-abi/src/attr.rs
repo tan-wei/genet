@@ -22,10 +22,8 @@ impl AttrBuilder {
     pub fn build(self) -> Attr {
         Attr {
             class: self.class,
-            abi_unsafe_data: AttrData {
-                range: self.range,
-                value: self.value,
-            },
+            range: self.range,
+            value: self.value,
         }
     }
 
@@ -46,18 +44,14 @@ impl AttrBuilder {
 #[repr(C)]
 pub struct Attr {
     class: Fixed<AttrClass>,
-    abi_unsafe_data: AttrData,
+    range: Range<usize>,
+    value: Option<Fixed<Variant>>,
 }
 
 impl fmt::Debug for Attr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Attr {:?}", self.id())
     }
-}
-
-struct AttrData {
-    range: Range<usize>,
-    value: Option<Fixed<Variant>>,
 }
 
 impl Attr {
@@ -165,16 +159,14 @@ impl AttrClassBuilder {
     /// Builds a new AttrClass.
     pub fn build(self) -> AttrClass {
         AttrClass {
-            abi_unsafe_data: Fixed::new(AttrClassData {
-                id: self.id,
-                typ: self.typ,
-                cast: self.cast,
-            }),
-            id: abi_id,
-            typ: abi_typ,
+            get_id: abi_id,
+            get_typ: abi_typ,
             is_value: abi_is_value,
             range: abi_range,
             get: abi_get,
+            id: self.id,
+            typ: self.typ,
+            cast: self.cast,
         }
     }
 }
@@ -182,15 +174,11 @@ impl AttrClassBuilder {
 /// An attribute class.
 #[repr(C)]
 pub struct AttrClass {
-    abi_unsafe_data: Fixed<AttrClassData>,
-    id: extern "C" fn(class: *const AttrClass) -> Token,
-    typ: extern "C" fn(class: *const AttrClass) -> Token,
+    get_id: extern "C" fn(class: *const AttrClass) -> Token,
+    get_typ: extern "C" fn(class: *const AttrClass) -> Token,
     is_value: extern "C" fn(class: *const AttrClass) -> u8,
     range: extern "C" fn(*const Attr, *mut u64, *mut u64),
     get: extern "C" fn(*const Attr, *mut *const u8, u64, *mut i64, *mut Error) -> ValueType,
-}
-
-struct AttrClassData {
     id: Token,
     typ: Token,
     cast: Option<Box<Cast>>,
@@ -207,11 +195,11 @@ impl AttrClass {
     }
 
     fn id(&self) -> Token {
-        (self.id)(self)
+        (self.get_id)(self)
     }
 
     fn typ(&self) -> Token {
-        (self.typ)(self)
+        (self.get_typ)(self)
     }
 
     fn is_value(&self) -> bool {
@@ -278,23 +266,23 @@ impl Into<Fixed<AttrClass>> for &'static AttrClass {
 
 extern "C" fn abi_range(attr: *const Attr, start: *mut u64, end: *mut u64) {
     unsafe {
-        let range = &(*attr).abi_unsafe_data.range;
+        let range = &(*attr).range;
         *start = range.start as u64;
         *end = range.end as u64;
     }
 }
 
 extern "C" fn abi_id(class: *const AttrClass) -> Token {
-    unsafe { (*class).abi_unsafe_data.id }
+    unsafe { (*class).id }
 }
 
 extern "C" fn abi_typ(class: *const AttrClass) -> Token {
-    unsafe { (*class).abi_unsafe_data.typ }
+    unsafe { (*class).typ }
 }
 
 extern "C" fn abi_is_value(class: *const AttrClass) -> u8 {
     unsafe {
-        if (*class).abi_unsafe_data.cast.is_none() {
+        if (*class).cast.is_none() {
             1
         } else {
             0
@@ -309,8 +297,8 @@ extern "C" fn abi_get(
     num: *mut i64,
     err: *mut Error,
 ) -> ValueType {
-    let value = unsafe { &(*attr).abi_unsafe_data.value };
-    let cast = unsafe { &(*attr).class.abi_unsafe_data.cast };
+    let value = unsafe { &(*attr).value };
+    let cast = unsafe { &(*attr).class.cast };
     let slice = unsafe { ByteSlice::from_raw_parts(*data, len as usize) };
     let res;
     let verr;

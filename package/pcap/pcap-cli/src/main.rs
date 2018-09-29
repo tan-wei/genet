@@ -19,7 +19,8 @@ fn main() {
                 .help("Sets the input file to use")
                 .required(true)
                 .index(1),
-        ).arg(
+        )
+        .arg(
             Arg::with_name("snaplen")
                 .short("l")
                 .help("Sets the snapshot length")
@@ -34,7 +35,8 @@ fn main() {
                 .takes_value(true)
                 .default_value("1000")
                 .short("t"),
-        ).subcommand(capture)
+        )
+        .subcommand(capture)
         .subcommand(status)
         .get_matches();
 

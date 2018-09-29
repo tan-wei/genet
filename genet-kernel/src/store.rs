@@ -306,7 +306,8 @@ impl EventLoop {
                         .map(|(i, root)| {
                             let index = *cnt + i as u32;
                             Frame::new(index, root)
-                        }).collect::<Vec<_>>();
+                        })
+                        .collect::<Vec<_>>();
                     *cnt += frames.len() as u32;
                     pool.process(frames);
                 }
@@ -339,7 +340,8 @@ impl EventLoop {
                     .filter(|frame| {
                         let ctx = filter::context::Context::new(frame);
                         filter.as_ref().map_or(true, |f| f.test(&ctx))
-                    }).collect::<Vec<_>>();
+                    })
+                    .collect::<Vec<_>>();
                 if let Err(err) = output.write(frames.as_slice()) {
                     let err = Error(err.description().to_string());
                     callback.on_output_done(id, Some(Box::new(err)));
@@ -399,7 +401,8 @@ impl EventLoop {
                             } else {
                                 None
                             }
-                        }).collect::<Vec<_>>();
+                        })
+                        .collect::<Vec<_>>();
                     fctx.offset = frames.len().min(fctx.offset + MAX_FILTER_SIZE);
                     indeces
                 };

@@ -54,7 +54,8 @@ fn number<'a>() -> impl Parser<Input = &'a str, Output = BigInt> {
 fn boolean<'a>() -> impl Parser<Input = &'a str, Output = bool> {
     (string("true")
         .map(|_| true)
-        .or(string("false").map(|_| false))).skip(not_followed_by(alpha_num().or(token('.'))))
+        .or(string("false").map(|_| false)))
+    .skip(not_followed_by(alpha_num().or(token('.'))))
 }
 
 fn chunk<'a>() -> impl Parser<Input = &'a str, Output = String> {
@@ -85,7 +86,8 @@ fn literal<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
         try(boolean().map(Variant::Bool)),
         try(float().map(Variant::Float64)),
         try(number().map(|v| Variant::BigInt(v.to_signed_bytes_be().into_boxed_slice()).shrink())),
-    )).map(Expr::Literal)
+    ))
+    .map(Expr::Literal)
 }
 
 fn term<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
@@ -95,9 +97,11 @@ fn term<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
                 token('('),
                 token(')'),
                 parser(|input| expression().parse_stream(input)),
-            ).or(literal())
+            )
+            .or(literal())
             .or(identifier()),
-        ).skip(spaces())
+        )
+        .skip(spaces())
 }
 
 fn unary<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
@@ -115,7 +119,8 @@ fn unary<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
                         _ => unreachable!(),
                     })
                 }),
-        ).skip(spaces())
+        )
+        .skip(spaces())
 }
 
 fn op(l: Expr, op: &'static str, r: Expr) -> Expr {
@@ -142,7 +147,8 @@ pub fn expression<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
         try(string("!=")),
         try(string("&&")),
         try(string("||")),
-    ]).map(|op| {
+    ])
+    .map(|op| {
         let prec = match op {
             "<" | "<=" | ">" | ">=" => 11,
             "==" | "!=" => 10,
@@ -157,7 +163,8 @@ pub fn expression<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
                 fixity: combine_language::Fixity::Left,
             },
         )
-    }).skip(spaces());
+    })
+    .skip(spaces());
     combine_language::expression_parser(unary(), op_parser, op).skip((spaces(), eof()))
 }
 

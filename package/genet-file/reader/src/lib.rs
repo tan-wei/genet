@@ -58,7 +58,8 @@ impl Reader for GenetFileReader {
                 Fixed::new(attr_class!(tokens[attr.id],
                         typ: tokens[attr.typ]
                     ))
-            }).collect();
+            })
+            .collect();
 
         Ok(Box::new(GenetFileReaderWorker {
             reader,

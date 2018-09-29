@@ -1,15 +1,11 @@
-use fixed::MutFixed;
 use fnv::FnvHashMap;
+use fixed::Fixed;
 use std::{slice, str};
 
 /// A context object.
 #[repr(C)]
 pub struct Context {
-    class: &'static ContextClass,
-    abi_unsafe_data: MutFixed<ContextData>,
-}
-
-struct ContextData {
+    class: Fixed<ContextClass>,
     config: FnvHashMap<String, String>,
 }
 
@@ -17,8 +13,8 @@ impl Context {
     /// Creates a new Context.
     pub fn new(config: FnvHashMap<String, String>) -> Context {
         Self {
-            class: &CONTEXT_CLASS,
-            abi_unsafe_data: MutFixed::new(ContextData { config }),
+            class: CONTEXT_CLASS.clone(),
+            config,
         }
     }
 
@@ -46,17 +42,12 @@ impl ContextClass {
 extern "C" fn abi_get_config(ctx: *const Context, data: *const u8, len: *mut u64) -> *const u8 {
     unsafe {
         let key = str::from_utf8_unchecked(slice::from_raw_parts(data, *len as usize));
-        let val = (*ctx)
-            .abi_unsafe_data
-            .config
-            .get(key)
-            .map(|s| s.as_str())
-            .unwrap_or("");
+        let val = (*ctx).config.get(key).map(|s| s.as_str()).unwrap_or("");
         *len = val.len() as u64;
         val.as_ptr()
     }
 }
 
 lazy_static! {
-    static ref CONTEXT_CLASS: ContextClass = ContextClass::new();
+    static ref CONTEXT_CLASS: Fixed<ContextClass> = Fixed::new(ContextClass::new());
 }
