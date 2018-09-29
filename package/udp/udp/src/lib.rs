@@ -10,7 +10,7 @@ impl Worker for UdpWorker {
         &mut self,
         _ctx: &mut Context,
         _stack: &LayerStack,
-        parent: &mut Layer,
+        parent: &mut MutLayer,
     ) -> Result<Status> {
         if let Some(payload) = parent
             .payloads()

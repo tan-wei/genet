@@ -1,7 +1,11 @@
 use attr::Attr;
 use fixed::Fixed;
 use slice::ByteSlice;
-use std::{fmt, slice};
+use std::{
+    fmt,
+    ops::{Deref, DerefMut},
+    slice,
+};
 use token::Token;
 
 /// A layer stack object.
@@ -43,6 +47,71 @@ impl<'a> LayerStack<'a> {
 
     fn layers(&self) -> impl DoubleEndedIterator<Item = &'a Layer> {
         self.buffer.iter().map(|layer| unsafe { &**layer })
+    }
+}
+
+/// A mutable proxy for a layer object.
+pub struct MutLayer<'a> {
+    layer: &'a mut Layer,
+}
+
+impl<'a> MutLayer<'a> {
+    pub(crate) fn new(layer: &'a mut Layer) -> MutLayer {
+        MutLayer { layer }
+    }
+
+    /// Returns the ID of self.
+    pub fn id(&self) -> Token {
+        self.layer.id()
+    }
+
+    /// Returns the type of self.
+    pub fn data(&self) -> ByteSlice {
+        self.layer.data()
+    }
+
+    /// Returns the slice of headers.
+    pub fn headers(&self) -> &[Fixed<Attr>] {
+        self.layer.headers()
+    }
+
+    /// Returns the slice of attributes.
+    pub fn attrs(&self) -> &[Fixed<Attr>] {
+        self.layer.attrs()
+    }
+
+    /// Find the attribute in the Layer.
+    pub fn attr<T: Into<Token>>(&self, id: T) -> Option<&Attr> {
+        self.layer.attr(id)
+    }
+
+    /// Adds an attribute to the Layer.
+    pub fn add_attr<T: Into<Fixed<Attr>>>(&mut self, attr: T) {
+        self.layer.add_attr(attr);
+    }
+
+    /// Returns the slice of payloads.
+    pub fn payloads(&self) -> &[Payload] {
+        self.layer.payloads()
+    }
+
+    /// Adds a payload to the Layer.
+    pub fn add_payload(&mut self, payload: Payload) {
+        self.layer.add_payload(payload);
+    }
+}
+
+impl<'a> Deref for MutLayer<'a> {
+    type Target = Layer;
+
+    fn deref(&self) -> &Layer {
+        self.layer
+    }
+}
+
+impl<'a> DerefMut for MutLayer<'a> {
+    fn deref_mut(&mut self) -> &mut Layer {
+        self.layer
     }
 }
 

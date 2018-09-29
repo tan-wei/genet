@@ -10,7 +10,7 @@ impl Worker for EthWorker {
         &mut self,
         _ctx: &mut Context,
         _stack: &LayerStack,
-        parent: &mut Layer,
+        parent: &mut MutLayer,
     ) -> Result<Status> {
         if parent.id() == token!("[link-1]") {
             let mut layer = Layer::new(&ETH_CLASS, parent.data());
