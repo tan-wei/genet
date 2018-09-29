@@ -33,7 +33,7 @@ pub struct WorkerBox {
         *mut Context,
         *const *const Layer,
         u64,
-        *mut Layer,
+        *mut MutLayer,
         *mut MutFixed<Layer>,
         *mut Error,
     ) -> u8,
@@ -54,7 +54,7 @@ impl WorkerBox {
         &mut self,
         ctx: &mut Context,
         layers: &[MutFixed<Layer>],
-        layer: &mut Layer,
+        layer: &mut MutLayer,
         results: &mut Vec<MutFixed<Layer>>,
     ) -> Result<bool> {
         let mut children: [MutFixed<Layer>; MAX_CHILDREN];
@@ -94,7 +94,7 @@ extern "C" fn abi_decode(
     ctx: *mut Context,
     layers: *const *const Layer,
     len: u64,
-    layer: *mut Layer,
+    layer: *mut MutLayer,
     children: *mut MutFixed<Layer>,
     error: *mut Error,
 ) -> u8 {
@@ -243,6 +243,7 @@ mod tests {
 
         let class = Fixed::new(LayerClass::builder(Token::null()).build());
         let mut layer = Layer::new(class, ByteSlice::new());
+        let mut layer = MutLayer::new(&mut layer);
         let mut results = Vec::new();
 
         assert_eq!(
