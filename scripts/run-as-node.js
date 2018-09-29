@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 const { spawnSync } = require('child_process')
-const { negatronBin } = require('./negatron')
+const { electronBin } = require('./electron')
 
 module.exports = function (...args) {
-  return spawnSync(negatronBin, args, {
+  return spawnSync(electronBin, args, {
     stdio: 'inherit',
     env: {
       ...process.env,
