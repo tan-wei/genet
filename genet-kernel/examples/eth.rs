@@ -36,12 +36,12 @@ impl Worker for EthWorker {
 struct EthDecoder {}
 
 impl Decoder for EthDecoder {
-    fn new_worker(&self, typ: &str, _ctx: &Context) -> Option<Box<Worker>> {
-        if typ == "parallel" {
-            Some(Box::new(EthWorker {}))
-        } else {
-            None
-        }
+    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
+        Box::new(EthWorker {})
+    }
+
+    fn execution_type(&self) -> ExecType {
+        ExecType::ParallelSync
     }
 }
 

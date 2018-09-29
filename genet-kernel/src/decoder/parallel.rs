@@ -1,6 +1,7 @@
 use crossbeam_channel;
 use decoder::dispatcher::Dispatcher;
 use frame::Frame;
+use genet_abi::decoder::ExecType;
 use profile::Profile;
 use std::thread::{self, JoinHandle};
 
@@ -32,7 +33,7 @@ impl Pool {
         recv: crossbeam_channel::Receiver<Option<Vec<Frame>>>,
     ) -> JoinHandle<()> {
         thread::spawn(move || {
-            let mut disp = Dispatcher::new("parallel", &profile);
+            let mut disp = Dispatcher::new(&ExecType::ParallelSync, &profile);
             loop {
                 if let Some(frames) = recv.recv() {
                     if let Some(mut frames) = frames {

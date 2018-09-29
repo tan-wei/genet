@@ -3,8 +3,16 @@ use error::Error;
 use fixed::MutFixed;
 use layer::{Layer, LayerStack};
 use result::Result;
-use std::{mem, ptr, str};
-use string::SafeString;
+use std::{mem, ptr};
+
+/// Execution type.
+#[repr(u8)]
+#[derive(Clone, PartialEq, Debug)]
+pub enum ExecType {
+    ParallelSync = 0,
+    SerialSync = 1,
+    SerialAsync = 2,
+}
 
 /// Dissection status.
 #[derive(Debug)]
@@ -116,7 +124,8 @@ extern "C" fn abi_decode(
 
 /// Decoder trait.
 pub trait Decoder: DecoderClone + Send {
-    fn new_worker(&self, &str, &Context) -> Option<Box<Worker>>;
+    fn new_worker(&self, &Context) -> Box<Worker>;
+    fn execution_type(&self) -> ExecType;
 }
 
 pub trait DecoderClone {
@@ -146,7 +155,8 @@ impl Clone for Box<Decoder> {
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct DecoderBox {
-    new_worker: extern "C" fn(*mut DecoderBox, SafeString, *const Context, *mut WorkerBox) -> u8,
+    new_worker: extern "C" fn(*mut DecoderBox, *const Context) -> WorkerBox,
+    execution_type: extern "C" fn(*const DecoderBox) -> u8,
     decoder: *mut Box<Decoder>,
 }
 
@@ -157,45 +167,39 @@ impl DecoderBox {
         let diss: Box<Decoder> = Box::new(diss);
         Self {
             new_worker: abi_new_worker,
+            execution_type: abi_execution_type,
             decoder: Box::into_raw(Box::new(diss)),
         }
     }
 
-    pub fn new_worker(&mut self, typ: &str, ctx: &Context) -> Option<WorkerBox> {
-        let typ = SafeString::from(typ);
-        let mut worker;
-        unsafe {
-            worker = mem::uninitialized();
-        }
-        if (self.new_worker)(self, typ, ctx, &mut worker) == 1 {
-            Some(worker)
-        } else {
-            mem::forget(worker);
-            None
+    pub fn new_worker(&mut self, ctx: &Context) -> WorkerBox {
+        (self.new_worker)(self, ctx)
+    }
+
+    pub fn execution_type(&self) -> ExecType {
+        match (self.execution_type)(self) {
+            1 => ExecType::SerialSync,
+            2 => ExecType::SerialAsync,
+            _ => ExecType::ParallelSync,
         }
     }
 }
 
-extern "C" fn abi_new_worker(
-    diss: *mut DecoderBox,
-    typ: SafeString,
-    ctx: *const Context,
-    dst: *mut WorkerBox,
-) -> u8 {
+extern "C" fn abi_new_worker(diss: *mut DecoderBox, ctx: *const Context) -> WorkerBox {
     let diss = unsafe { &mut *((*diss).decoder) };
     let ctx = unsafe { &(*ctx) };
-    if let Some(worker) = diss.new_worker(typ.as_str(), ctx) {
-        unsafe { ptr::write(dst, WorkerBox::new(worker)) };
-        1
-    } else {
-        0
-    }
+    WorkerBox::new(diss.new_worker(ctx))
+}
+
+extern "C" fn abi_execution_type(diss: *const DecoderBox) -> u8 {
+    let diss = unsafe { &*((*diss).decoder) };
+    diss.execution_type() as u8
 }
 
 #[cfg(test)]
 mod tests {
     use context::Context;
-    use decoder::{Decoder, DecoderBox, Status, Worker};
+    use decoder::{Decoder, DecoderBox, ExecType, Status, Worker};
     use fixed::Fixed;
     use fnv::FnvHashMap;
     use layer::{Layer, LayerClass, LayerStack};
@@ -224,15 +228,18 @@ mod tests {
         struct TestDecoder {}
 
         impl Decoder for TestDecoder {
-            fn new_worker(&self, typ: &str, _ctx: &Context) -> Option<Box<Worker>> {
-                assert_eq!(typ, "serial");
-                Some(Box::new(TestWorker {}))
+            fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
+                Box::new(TestWorker {})
+            }
+
+            fn execution_type(&self) -> ExecType {
+                ExecType::ParallelSync
             }
         }
 
         let mut ctx = Context::new(FnvHashMap::default());
         let mut diss = DecoderBox::new(TestDecoder {});
-        let mut worker = diss.new_worker("serial", &ctx).unwrap();
+        let mut worker = diss.new_worker(&ctx);
 
         let class = Fixed::new(LayerClass::builder(Token::null()).build());
         let mut layer = Layer::new(class, ByteSlice::new());

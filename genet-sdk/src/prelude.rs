@@ -3,7 +3,7 @@
 pub use attr::{Attr, AttrClass};
 pub use cast::{self, Map};
 pub use context::Context;
-pub use decoder::{Decoder, Status, Worker};
+pub use decoder::{Decoder, ExecType, Status, Worker};
 pub use fixed::Fixed;
 pub use layer::{Layer, LayerClass, LayerStack, Payload};
 pub use result::Result;

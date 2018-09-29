@@ -1,7 +1,7 @@
 use frame::Frame;
 use genet_abi::{
     context::Context,
-    decoder::{DecoderBox, WorkerBox},
+    decoder::{DecoderBox, ExecType, WorkerBox},
     fixed::MutFixed,
     layer::Layer,
 };
@@ -12,7 +12,7 @@ pub struct Dispatcher {
 }
 
 impl Dispatcher {
-    pub fn new(typ: &str, profile: &Profile) -> Dispatcher {
+    pub fn new(typ: &ExecType, profile: &Profile) -> Dispatcher {
         let runners = profile
             .decoders()
             .map(|d| Runner::new(typ, profile.context(), *d))
@@ -69,16 +69,16 @@ impl Dispatcher {
 
 struct Runner {
     ctx: Context,
-    typ: String,
+    typ: ExecType,
     decoder: DecoderBox,
     worker: Option<WorkerBox>,
 }
 
 impl Runner {
-    fn new(typ: &str, ctx: Context, decoder: DecoderBox) -> Runner {
+    fn new(typ: &ExecType, ctx: Context, decoder: DecoderBox) -> Runner {
         let mut runner = Runner {
             ctx,
-            typ: typ.to_string(),
+            typ: typ.clone(),
             decoder,
             worker: None,
         };
@@ -103,7 +103,11 @@ impl Runner {
     }
 
     fn reset(&mut self) {
-        self.worker = self.decoder.new_worker(&self.typ, &self.ctx);
+        self.worker = if self.decoder.execution_type() == self.typ {
+            Some(self.decoder.new_worker(&self.ctx))
+        } else {
+            None
+        }
     }
 }
 

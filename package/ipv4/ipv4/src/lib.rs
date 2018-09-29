@@ -35,12 +35,12 @@ impl Worker for IPv4Worker {
 struct IPv4Decoder {}
 
 impl Decoder for IPv4Decoder {
-    fn new_worker(&self, typ: &str, _ctx: &Context) -> Option<Box<Worker>> {
-        if typ == "parallel" {
-            Some(Box::new(IPv4Worker {}))
-        } else {
-            None
-        }
+    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
+        Box::new(IPv4Worker {})
+    }
+
+    fn execution_type(&self) -> ExecType {
+        ExecType::ParallelSync
     }
 }
 

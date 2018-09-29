@@ -1,6 +1,7 @@
 use crossbeam_channel;
 use decoder::dispatcher::Dispatcher;
 use frame::Frame;
+use genet_abi::decoder::ExecType;
 use profile::Profile;
 use std::{
     collections::BTreeMap,
@@ -23,7 +24,7 @@ impl Pool {
         let mut handles = Vec::new();
 
         let handle = thread::spawn(move || {
-            let mut disp = Dispatcher::new("serial", &profile);
+            let mut disp = Dispatcher::new(&ExecType::SerialSync, &profile);
             let mut map = BTreeMap::new();
             let mut next = 0;
             loop {

@@ -55,12 +55,12 @@ impl Worker for IPv6Worker {
 struct IPv6Decoder {}
 
 impl Decoder for IPv6Decoder {
-    fn new_worker(&self, typ: &str, _ctx: &Context) -> Option<Box<Worker>> {
-        if typ == "parallel" {
-            Some(Box::new(IPv6Worker {}))
-        } else {
-            None
-        }
+    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
+        Box::new(IPv6Worker {})
+    }
+
+    fn execution_type(&self) -> ExecType {
+        ExecType::ParallelSync
     }
 }
 

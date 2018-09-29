@@ -71,12 +71,12 @@ impl Worker for TcpWorker {
 struct TcpDecoder {}
 
 impl Decoder for TcpDecoder {
-    fn new_worker(&self, typ: &str, _ctx: &Context) -> Option<Box<Worker>> {
-        if typ == "parallel" {
-            Some(Box::new(TcpWorker {}))
-        } else {
-            None
-        }
+    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
+        Box::new(TcpWorker {})
+    }
+
+    fn execution_type(&self) -> ExecType {
+        ExecType::ParallelSync
     }
 }
 

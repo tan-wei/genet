@@ -1,6 +1,6 @@
 //! Decoder traits.
 
-pub use genet_abi::decoder::{Decoder, Status, Worker};
+pub use genet_abi::decoder::{Decoder, ExecType, Status, Worker};
 
 #[doc(hidden)]
 pub use genet_abi::decoder::DecoderBox;

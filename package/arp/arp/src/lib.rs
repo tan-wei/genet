@@ -63,12 +63,12 @@ impl Worker for ArpWorker {
 struct ArpDecoder {}
 
 impl Decoder for ArpDecoder {
-    fn new_worker(&self, typ: &str, _ctx: &Context) -> Option<Box<Worker>> {
-        if typ == "parallel" {
-            Some(Box::new(ArpWorker {}))
-        } else {
-            None
-        }
+    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
+        Box::new(ArpWorker {})
+    }
+
+    fn execution_type(&self) -> ExecType {
+        ExecType::ParallelSync
     }
 }
 

@@ -173,12 +173,12 @@ impl Worker for TcpStreamWorker {
 struct TcpStreamDecoder {}
 
 impl Decoder for TcpStreamDecoder {
-    fn new_worker(&self, typ: &str, _ctx: &Context) -> Option<Box<Worker>> {
-        if typ == "serial" {
-            Some(Box::new(TcpStreamWorker::new()))
-        } else {
-            None
-        }
+    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
+        Box::new(TcpStreamWorker::new())
+    }
+
+    fn execution_type(&self) -> ExecType {
+        ExecType::SerialSync
     }
 }
 
