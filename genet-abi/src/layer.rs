@@ -3,6 +3,7 @@ use fixed::Fixed;
 use slice::ByteSlice;
 use std::{
     fmt,
+    marker::PhantomData,
     ops::{Deref, DerefMut},
     slice,
 };
@@ -51,53 +52,58 @@ impl<'a> LayerStack<'a> {
 }
 
 /// A mutable proxy for a layer object.
+#[repr(C)]
 pub struct MutLayer<'a> {
-    layer: &'a mut Layer,
+    layer: *mut Layer,
+    phantom: PhantomData<&'a ()>,
 }
 
 impl<'a> MutLayer<'a> {
     pub(crate) fn new(layer: &'a mut Layer) -> MutLayer {
-        MutLayer { layer }
+        MutLayer {
+            layer,
+            phantom: PhantomData,
+        }
     }
 
     /// Returns the ID of self.
     pub fn id(&self) -> Token {
-        self.layer.id()
+        self.deref().id()
     }
 
     /// Returns the type of self.
     pub fn data(&self) -> ByteSlice {
-        self.layer.data()
+        self.deref().data()
     }
 
     /// Returns the slice of headers.
     pub fn headers(&self) -> &[Fixed<Attr>] {
-        self.layer.headers()
+        self.deref().headers()
     }
 
     /// Returns the slice of attributes.
     pub fn attrs(&self) -> &[Fixed<Attr>] {
-        self.layer.attrs()
+        self.deref().attrs()
     }
 
     /// Find the attribute in the Layer.
     pub fn attr<T: Into<Token>>(&self, id: T) -> Option<&Attr> {
-        self.layer.attr(id)
+        self.deref().attr(id)
     }
 
     /// Adds an attribute to the Layer.
     pub fn add_attr<T: Into<Fixed<Attr>>>(&mut self, attr: T) {
-        self.layer.add_attr(attr);
+        self.deref_mut().add_attr(attr);
     }
 
     /// Returns the slice of payloads.
     pub fn payloads(&self) -> &[Payload] {
-        self.layer.payloads()
+        self.deref().payloads()
     }
 
     /// Adds a payload to the Layer.
     pub fn add_payload(&mut self, payload: Payload) {
-        self.layer.add_payload(payload);
+        self.deref_mut().add_payload(payload);
     }
 }
 
@@ -105,13 +111,13 @@ impl<'a> Deref for MutLayer<'a> {
     type Target = Layer;
 
     fn deref(&self) -> &Layer {
-        self.layer
+        unsafe { &*self.layer }
     }
 }
 
 impl<'a> DerefMut for MutLayer<'a> {
     fn deref_mut(&mut self) -> &mut Layer {
-        self.layer
+        unsafe { &mut *self.layer }
     }
 }
 
