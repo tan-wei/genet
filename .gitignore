@@ -38,5 +38,6 @@ jspm_packages
 
 target
 dist
+doc
 genet_modules
 .cache
