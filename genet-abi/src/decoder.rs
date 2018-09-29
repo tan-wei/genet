@@ -1,7 +1,7 @@
 use context::Context;
 use error::Error;
 use fixed::MutFixed;
-use layer::{Layer, LayerStack};
+use layer::{Layer, LayerStack, MutLayer};
 use result::Result;
 use std::{mem, ptr};
 
@@ -23,7 +23,7 @@ pub enum Status {
 
 /// Decoder worker trait.
 pub trait Worker {
-    fn decode(&mut self, &mut Context, &LayerStack, &mut Layer) -> Result<Status>;
+    fn decode(&mut self, &mut Context, &LayerStack, &mut MutLayer) -> Result<Status>;
 }
 
 #[repr(C)]
@@ -100,9 +100,9 @@ extern "C" fn abi_decode(
 ) -> u8 {
     let worker = unsafe { &mut *((*worker).worker) };
     let ctx = unsafe { &mut (*ctx) };
-    let layer = unsafe { &mut (*layer) };
+    let mut layer = MutLayer::new(unsafe { &mut (*layer) });
     let stack = unsafe { LayerStack::new(layers, len as usize) };
-    match worker.decode(ctx, &stack, layer) {
+    match worker.decode(ctx, &stack, &mut layer) {
         Ok(stat) => match stat {
             Status::Done(layers) => {
                 let len = 2u8.saturating_add(layers.len() as u8);
@@ -202,7 +202,7 @@ mod tests {
     use decoder::{Decoder, DecoderBox, ExecType, Status, Worker};
     use fixed::Fixed;
     use fnv::FnvHashMap;
-    use layer::{Layer, LayerClass, LayerStack};
+    use layer::{Layer, LayerClass, LayerStack, MutLayer};
     use result::Result;
     use slice::ByteSlice;
     use token::Token;
@@ -216,7 +216,7 @@ mod tests {
                 &mut self,
                 _ctx: &mut Context,
                 _stack: &LayerStack,
-                _layer: &mut Layer,
+                _layer: &mut MutLayer,
             ) -> Result<Status> {
                 let class = Fixed::new(LayerClass::builder(Token::from(1234)).build());
                 let layer = Layer::new(class, ByteSlice::new());

@@ -10,7 +10,7 @@ impl Worker for NtpWorker {
         &mut self,
         _ctx: &mut Context,
         stack: &LayerStack,
-        parent: &mut Layer,
+        parent: &mut MutLayer,
     ) -> Result<Status> {
         if parent.id() != token!("udp") {
             return Ok(Status::Skip);
