@@ -8,9 +8,9 @@ import throttle from 'lodash.throttle'
 class FrameView {
   private frame: any
   view(vnode) {
+    const { sess } = vnode.attrs;
     const { viewState, key } = vnode.attrs
     if (!this.frame) {
-      const { sess } = vnode.attrs;
       [this.frame] = sess.frames(key, key + 1)
     }
     if (!this.frame) {
@@ -21,18 +21,27 @@ class FrameView {
         column.func(this.frame)
       ]
       if (index === 0) {
-        content.unshift(m('input', {
-          type: 'checkbox',
-          checked: viewState.checkedFrames.has(key),
-          onchange: (event) => {
-            if (event.target.checked) {
-              viewState.checkedFrames.add(key)
-            } else {
-              viewState.checkedFrames.delete(key)
+        content.unshift(m('span', [
+          m('input', {
+            type: 'checkbox',
+            checked: viewState.checkedFrames.has(key),
+            onchange: (event) => {
+              if (event.target.checked) {
+                viewState.checkedFrames.add(key)
+              } else {
+                viewState.checkedFrames.delete(key)
+              }
+              return false
+            },
+          }),
+          m('span', {
+            style: {
+              visibility: sess.status.asyncFrames > this.frame.index
+                ? 'hidden'
+                : 'visible'
             }
-            return false
-          },
-        }))
+          }, ['●'])
+        ]))
       }
       return m('span', {
         class: 'column',

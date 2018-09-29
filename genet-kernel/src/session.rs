@@ -122,6 +122,10 @@ impl store::Callback for StoreCallback {
         self.callback.on_event(Event::Frames(frames));
     }
 
+    fn on_async_frames_updated(&self, frames: u32) {
+        self.callback.on_event(Event::AsyncFrames(frames));
+    }
+
     fn on_filtered_frames_updated(&self, id: u32, frames: u32) {
         self.callback.on_event(Event::FilteredFrames(id, frames));
     }
@@ -142,6 +146,7 @@ impl store::Callback for StoreCallback {
 #[derive(Debug)]
 pub enum Event {
     Frames(u32),
+    AsyncFrames(u32),
     FilteredFrames(u32, u32),
     Input(u32, Option<Box<::std::error::Error + Send>>),
     Output(u32, Option<Box<::std::error::Error + Send>>),
@@ -180,6 +185,12 @@ impl Serialize for Event {
             Event::Frames(len) => {
                 let mut s = serializer.serialize_map(Some(2))?;
                 s.serialize_entry("type", "frames")?;
+                s.serialize_entry("length", &len)?;
+                s.end()
+            }
+            Event::AsyncFrames(len) => {
+                let mut s = serializer.serialize_map(Some(2))?;
+                s.serialize_entry("type", "async_frames")?;
                 s.serialize_entry("length", &len)?;
                 s.end()
             }

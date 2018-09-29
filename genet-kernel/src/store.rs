@@ -21,6 +21,7 @@ const MAX_FILTER_SIZE: usize = 10000;
 
 pub trait Callback: Send {
     fn on_frames_updated(&self, _frames: u32) {}
+    fn on_async_frames_updated(&self, _frames: u32) {}
     fn on_filtered_frames_updated(&self, _id: u32, _frames: u32) {}
     fn on_output_done(&self, _id: u32, _error: Option<Box<::std::error::Error + Send>>) {}
     fn on_input_done(&self, _id: u32, _error: Option<Box<::std::error::Error + Send>>) {}
@@ -227,6 +228,7 @@ impl EventLoop {
                 );
                 let mut cnt = 0;
                 callback.on_frames_updated(0);
+                callback.on_async_frames_updated(0);
                 loop {
                     if let Some(cmd) = recv.recv() {
                         match cmd {
@@ -245,6 +247,7 @@ impl EventLoop {
                                     frames.len()
                                 };
                                 callback.on_frames_updated(len as u32);
+                                callback.on_async_frames_updated(len as u32);
                             }
                             Command::SetFilter(id, filter) => Self::process_push_filter(
                                 id,

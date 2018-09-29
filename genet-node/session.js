@@ -72,6 +72,9 @@ class Session extends EventEmitter {
         case 'frames':
           this._status.frames = event.length
           break
+        case 'async_frames':
+          this._status.asyncFrames = event.length
+          break
         case 'filtered_frames':
           this._status.filters[Token.string(event.id)] =
             { frames: event.length }
@@ -88,6 +91,7 @@ class Session extends EventEmitter {
     this._status = {
       filters: {},
       frames: 0,
+      asyncFrames: 0,
       stream: false,
     }
   }
