@@ -3,7 +3,7 @@ use error::Error;
 use fixed::MutFixed;
 use layer::{Layer, LayerStack, MutLayer};
 use result::Result;
-use std::{mem, ptr};
+use std::ptr;
 
 /// Execution type.
 #[repr(u8)]
@@ -17,7 +17,7 @@ pub enum ExecType {
 /// Dissection status.
 #[derive(Debug)]
 pub enum Status {
-    Done(Vec<Layer>),
+    Done,
     Skip,
 }
 
@@ -34,13 +34,10 @@ pub struct WorkerBox {
         *const *const Layer,
         u64,
         *mut MutLayer,
-        *mut MutFixed<Layer>,
         *mut Error,
     ) -> u8,
     worker: *mut Box<Worker>,
 }
-
-const MAX_CHILDREN: usize = <u8>::max_value() as usize - 2;
 
 impl WorkerBox {
     fn new(worker: Box<Worker>) -> WorkerBox {
@@ -55,36 +52,14 @@ impl WorkerBox {
         ctx: &mut Context,
         layers: &[MutFixed<Layer>],
         layer: &mut MutLayer,
-        results: &mut Vec<MutFixed<Layer>>,
     ) -> Result<bool> {
-        let mut children: [MutFixed<Layer>; MAX_CHILDREN];
-        unsafe {
-            children = mem::uninitialized();
-        }
         let stack = layers.as_ptr() as *const *const Layer;
         let mut error = Error::new("");
-        let result = (self.decode)(
-            self,
-            ctx,
-            stack,
-            layers.len() as u64,
-            layer,
-            children.as_mut_ptr(),
-            &mut error,
-        );
-        if result > 1 {
-            let len = result as usize - 2;
-            unsafe {
-                let grow = len.saturating_sub(results.capacity());
-                results.reserve(grow);
-                results.set_len(len);
-                ptr::copy(children.as_ptr(), results.as_mut_ptr(), len);
-            }
-            Ok(true)
-        } else if result > 0 {
-            Ok(false)
-        } else {
-            Err(Box::new(error))
+        let result = (self.decode)(self, ctx, stack, layers.len() as u64, layer, &mut error);
+        match result {
+            2 => Ok(true),
+            1 => Ok(false),
+            _ => Err(Box::new(error)),
         }
     }
 }
@@ -95,22 +70,15 @@ extern "C" fn abi_decode(
     layers: *const *const Layer,
     len: u64,
     layer: *mut MutLayer,
-    children: *mut MutFixed<Layer>,
     error: *mut Error,
 ) -> u8 {
     let worker = unsafe { &mut *((*worker).worker) };
     let ctx = unsafe { &mut (*ctx) };
-    let mut layer = MutLayer::new(unsafe { &mut (*layer) });
+    let mut layer = unsafe { &mut *layer };
     let stack = unsafe { LayerStack::new(layers, len as usize) };
     match worker.decode(ctx, &stack, &mut layer) {
         Ok(stat) => match stat {
-            Status::Done(layers) => {
-                let len = 2u8.saturating_add(layers.len() as u8);
-                for (i, layer) in layers.into_iter().take(MAX_CHILDREN).enumerate() {
-                    unsafe { ptr::write(children.offset(i as isize), MutFixed::new(layer)) };
-                }
-                len
-            }
+            Status::Done => 2,
             Status::Skip => 1,
         },
         Err(err) => {
@@ -216,11 +184,12 @@ mod tests {
                 &mut self,
                 _ctx: &mut Context,
                 _stack: &LayerStack,
-                _layer: &mut MutLayer,
+                parent: &mut MutLayer,
             ) -> Result<Status> {
                 let class = Fixed::new(LayerClass::builder(Token::from(1234)).build());
                 let layer = Layer::new(class, ByteSlice::new());
-                Ok(Status::Done(vec![layer]))
+                parent.add_child(layer);
+                Ok(Status::Done)
             }
         }
 
@@ -252,8 +221,5 @@ mod tests {
                 .unwrap(),
             true
         );
-        assert_eq!(results.len(), 1);
-        let child = &results[0];
-        assert_eq!(child.id(), Token::from(1234));
     }
 }

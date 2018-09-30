@@ -12,42 +12,48 @@ impl Worker for IPv6Worker {
         _stack: &LayerStack,
         parent: &mut MutLayer,
     ) -> Result<Status> {
+        let data;
+
         if let Some(payload) = parent
             .payloads()
             .iter()
             .find(|p| p.id() == token!("@data:ipv6"))
         {
-            let mut layer = Layer::new(&IPV6_CLASS, payload.data());
-            let nheader = NHEADER_ATTR_HEADER.try_get(&layer)?.try_into()?;
-
-            loop {
-                match nheader {
-                    // TODO:
-                    // case 0 | 60 # Hop-by-Hop Options, Destination Options
-                    // case 43  # Routing
-                    // case 44  # Fragment
-                    // case 51  # Authentication Header
-                    // case 50  # Encapsulating Security Payload
-                    // case 135 # Mobility
-                    // No Next Header
-                    59 => break,
-                    _ => break,
-                }
-            }
-
-            let range = NHEADER_ATTR_HEADER.range();
-            let proto_attr = attr!(&PROTOCOL_ATTR, range: range.clone());
-            let proto = proto_attr.try_get(&layer)?.try_into()?;
-            layer.add_attr(proto_attr);
-            if let Some((typ, attr)) = get_proto(proto) {
-                layer.add_attr(attr!(attr, range: range.clone()));
-                let payload = layer.data().try_get(40..)?;
-                layer.add_payload(Payload::new(payload, typ));
-            }
-            Ok(Status::Done(vec![layer]))
+            data = payload.data();
         } else {
-            Ok(Status::Skip)
+            return Ok(Status::Skip);
         }
+
+        let mut layer = Layer::new(&IPV6_CLASS, data);
+        let nheader = NHEADER_ATTR_HEADER.try_get(&layer)?.try_into()?;
+
+        loop {
+            match nheader {
+                // TODO:
+                // case 0 | 60 # Hop-by-Hop Options, Destination Options
+                // case 43  # Routing
+                // case 44  # Fragment
+                // case 51  # Authentication Header
+                // case 50  # Encapsulating Security Payload
+                // case 135 # Mobility
+                // No Next Header
+                59 => break,
+                _ => break,
+            }
+        }
+
+        let range = NHEADER_ATTR_HEADER.range();
+        let proto_attr = attr!(&PROTOCOL_ATTR, range: range.clone());
+        let proto = proto_attr.try_get(&layer)?.try_into()?;
+        layer.add_attr(proto_attr);
+        if let Some((typ, attr)) = get_proto(proto) {
+            layer.add_attr(attr!(attr, range: range.clone()));
+            let payload = layer.data().try_get(40..)?;
+            layer.add_payload(Payload::new(payload, typ));
+        }
+
+        parent.add_child(layer);
+        Ok(Status::Done)
     }
 }
 

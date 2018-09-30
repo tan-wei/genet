@@ -12,22 +12,28 @@ impl Worker for IPv4Worker {
         _stack: &LayerStack,
         parent: &mut MutLayer,
     ) -> Result<Status> {
+        let data;
+
         if let Some(payload) = parent
             .payloads()
             .iter()
             .find(|p| p.id() == token!("@data:ipv4"))
         {
-            let mut layer = Layer::new(&IPV4_CLASS, payload.data());
-            let proto = PROTO_ATTR_HEADER.try_get(&layer)?.try_into()?;
-            if let Some((typ, attr)) = get_proto(proto) {
-                layer.add_attr(attr!(attr, range: 9..10));
-                let payload = layer.data().try_get(20..)?;
-                layer.add_payload(Payload::new(payload, typ));
-            }
-            Ok(Status::Done(vec![layer]))
+            data = payload.data();
         } else {
-            Ok(Status::Skip)
+            return Ok(Status::Skip);
         }
+
+        let mut layer = Layer::new(&IPV4_CLASS, data);
+        let proto = PROTO_ATTR_HEADER.try_get(&layer)?.try_into()?;
+        if let Some((typ, attr)) = get_proto(proto) {
+            layer.add_attr(attr!(attr, range: 9..10));
+            let payload = layer.data().try_get(20..)?;
+            layer.add_payload(Payload::new(payload, typ));
+        }
+
+        parent.add_child(layer);
+        Ok(Status::Done)
     }
 }
 
