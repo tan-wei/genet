@@ -10,7 +10,7 @@ impl Worker for UdpWorker {
         &mut self,
         _ctx: &mut Context,
         _stack: &LayerStack,
-        parent: &mut MutLayer,
+        parent: &mut LayerProxy,
     ) -> Result<Status> {
         let data;
 
