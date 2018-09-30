@@ -1,5 +1,5 @@
 use attr::Attr;
-use fixed::Fixed;
+use fixed::{Fixed, MutFixed};
 use slice::ByteSlice;
 use std::{
     fmt,
@@ -55,14 +55,22 @@ impl<'a> LayerStack<'a> {
 #[repr(C)]
 pub struct MutLayer<'a> {
     layer: *mut Layer,
+    add_child: extern "C" fn(*mut MutLayer, *mut Layer),
+    children_len: extern "C" fn(*const MutLayer) -> u64,
+    children_data: extern "C" fn(*const MutLayer) -> *const *mut Layer,
     phantom: PhantomData<&'a ()>,
+    children: Vec<*mut Layer>,
 }
 
 impl<'a> MutLayer<'a> {
     pub fn new(layer: &'a mut Layer) -> MutLayer {
         MutLayer {
             layer,
+            add_child: abi_add_child,
+            children_len: abi_children_len,
+            children_data: abi_children_data,
             phantom: PhantomData,
+            children: Vec::new(),
         }
     }
 
@@ -105,6 +113,16 @@ impl<'a> MutLayer<'a> {
     pub fn add_payload(&mut self, payload: Payload) {
         self.deref_mut().add_payload(payload);
     }
+
+    pub fn add_child<T: Into<MutFixed<Layer>>>(&mut self, layer: T) {
+        (self.add_child)(self, layer.into().as_mut_ptr());
+    }
+
+    pub fn children(&self) -> &[*mut Layer] {
+        let data = (self.children_data)(self);
+        let len = (self.children_len)(self) as usize;
+        unsafe { slice::from_raw_parts(data, len) }
+    }
 }
 
 impl<'a> Deref for MutLayer<'a> {
@@ -119,6 +137,18 @@ impl<'a> DerefMut for MutLayer<'a> {
     fn deref_mut(&mut self) -> &mut Layer {
         unsafe { &mut *self.layer }
     }
+}
+
+extern "C" fn abi_add_child(layer: *mut MutLayer, child: *mut Layer) {
+    unsafe { (*layer).children.push(child) }
+}
+
+extern "C" fn abi_children_len(layer: *const MutLayer) -> u64 {
+    unsafe { (*layer).children.len() as u64 }
+}
+
+extern "C" fn abi_children_data(layer: *const MutLayer) -> *const *mut Layer {
+    unsafe { (*layer).children.as_ptr() }
 }
 
 /// A layer object.
@@ -200,6 +230,12 @@ impl Layer {
 impl fmt::Debug for Layer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Layer {:?}", self.id())
+    }
+}
+
+impl Into<MutFixed<Layer>> for Layer {
+    fn into(self) -> MutFixed<Layer> {
+        MutFixed::new(self)
     }
 }
 

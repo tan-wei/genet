@@ -25,7 +25,8 @@ impl Worker for EthWorker {
                 let payload = parent.data().try_get(14..)?;
                 layer.add_payload(Payload::new(payload, typ));
             }
-            Ok(Status::Done(vec![layer]))
+            parent.add_child(layer);
+            Ok(Status::Done)
         } else {
             Ok(Status::Skip)
         }

@@ -162,7 +162,7 @@ impl Worker for TcpStreamWorker {
             }
 
             parent.add_attr(attr!(&STREAM_ATTR));
-            Ok(Status::Done(vec![]))
+            Ok(Status::Done)
         } else {
             Ok(Status::Skip)
         }
