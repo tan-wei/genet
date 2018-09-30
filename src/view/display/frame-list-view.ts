@@ -206,6 +206,8 @@ export default class FrameListView {
       for (const entry of entries) {
         if (entry.target === vnode.dom) {
           this.height = entry.contentRect.height
+          resizeObserver.disconnect()
+          resizeObserver.observe(vnode.dom)
           m.redraw()
         }
       }
