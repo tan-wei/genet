@@ -55,6 +55,7 @@ impl<'a> LayerStack<'a> {
 #[repr(C)]
 pub struct LayerProxy<'a> {
     layer: *mut Layer,
+    mutable: u8,
     add_child: extern "C" fn(*mut LayerProxy, *mut Layer),
     children_len: extern "C" fn(*const LayerProxy) -> u64,
     children_data: extern "C" fn(*const LayerProxy) -> *const *mut Layer,
@@ -66,6 +67,19 @@ impl<'a> LayerProxy<'a> {
     pub fn from_mut_ref(layer: &'a mut Layer) -> LayerProxy {
         LayerProxy {
             layer,
+            mutable: 1,
+            add_child: abi_add_child,
+            children_len: abi_children_len,
+            children_data: abi_children_data,
+            phantom: PhantomData,
+            children: Vec::new(),
+        }
+    }
+
+    pub fn from_ref(layer: &'a Layer) -> LayerProxy {
+        LayerProxy {
+            layer: unsafe { &mut *((layer as *const Layer) as *mut Layer) },
+            mutable: 0,
             add_child: abi_add_child,
             children_len: abi_children_len,
             children_data: abi_children_data,
