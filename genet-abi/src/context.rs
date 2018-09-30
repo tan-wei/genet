@@ -1,5 +1,5 @@
-use fnv::FnvHashMap;
 use fixed::Fixed;
+use fnv::FnvHashMap;
 use std::{slice, str};
 
 /// A context object.

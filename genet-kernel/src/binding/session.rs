@@ -11,6 +11,7 @@ use profile::Profile;
 use serde_json;
 use session::{Callback, Event, Session};
 use std::{
+    collections::VecDeque,
     rc::Rc,
     sync::{Arc, Mutex},
 };
@@ -18,25 +19,25 @@ use std::{
 #[derive(Clone)]
 struct SessionCallback {
     asyn: Arc<uv::Async>,
-    events: Arc<Mutex<Vec<String>>>,
+    events: Arc<Mutex<VecDeque<String>>>,
 }
 
 impl Callback for SessionCallback {
     fn on_event(&self, event: Event) {
         let json = serde_json::to_string(&event).unwrap();
-        self.events.lock().unwrap().push(json);
+        self.events.lock().unwrap().push_back(json);
         self.asyn.send();
     }
 }
 
 impl SessionCallback {
     fn new(env: &Env, callback: Rc<ValueRef>) -> SessionCallback {
-        let ev = Arc::new(Mutex::new(Vec::<String>::new()));
+        let ev = Arc::new(Mutex::new(VecDeque::<String>::new()));
         let events = ev.clone();
         SessionCallback {
             asyn: Arc::new(uv::Async::new(move || {
                 let _scope = HandleScope::new(env);
-                if let Some(json) = ev.lock().unwrap().pop() {
+                while let Some(json) = ev.lock().unwrap().pop_front() {
                     let argv = vec![env.create_string(&json).unwrap()];
                     let _ = env.call_function(&callback, &callback, &argv);
                 }
