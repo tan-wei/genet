@@ -73,7 +73,7 @@ impl Worker for TcpStreamWorker {
         &mut self,
         _ctx: &mut Context,
         stack: &LayerStack,
-        parent: &mut MutLayer,
+        parent: &mut LayerProxy,
     ) -> Result<Status> {
         if parent.id() == token!("tcp") {
             let slice: ByteSlice = parent

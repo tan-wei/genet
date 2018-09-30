@@ -1,7 +1,7 @@
 use context::Context;
 use error::Error;
 use fixed::MutFixed;
-use layer::{Layer, LayerStack, MutLayer};
+use layer::{Layer, LayerProxy, LayerStack};
 use result::Result;
 use std::ptr;
 
@@ -23,7 +23,7 @@ pub enum Status {
 
 /// Decoder worker trait.
 pub trait Worker {
-    fn decode(&mut self, &mut Context, &LayerStack, &mut MutLayer) -> Result<Status>;
+    fn decode(&mut self, &mut Context, &LayerStack, &mut LayerProxy) -> Result<Status>;
 }
 
 #[repr(C)]
@@ -33,7 +33,7 @@ pub struct WorkerBox {
         *mut Context,
         *const *const Layer,
         u64,
-        *mut MutLayer,
+        *mut LayerProxy,
         *mut Error,
     ) -> u8,
     worker: *mut Box<Worker>,
@@ -51,7 +51,7 @@ impl WorkerBox {
         &mut self,
         ctx: &mut Context,
         layers: &[MutFixed<Layer>],
-        layer: &mut MutLayer,
+        layer: &mut LayerProxy,
     ) -> Result<bool> {
         let stack = layers.as_ptr() as *const *const Layer;
         let mut error = Error::new("");
@@ -69,7 +69,7 @@ extern "C" fn abi_decode(
     ctx: *mut Context,
     layers: *const *const Layer,
     len: u64,
-    layer: *mut MutLayer,
+    layer: *mut LayerProxy,
     error: *mut Error,
 ) -> u8 {
     let worker = unsafe { &mut *((*worker).worker) };
@@ -170,7 +170,7 @@ mod tests {
     use decoder::{Decoder, DecoderBox, ExecType, Status, Worker};
     use fixed::Fixed;
     use fnv::FnvHashMap;
-    use layer::{Layer, LayerClass, LayerStack, MutLayer};
+    use layer::{Layer, LayerClass, LayerProxy, LayerStack};
     use result::Result;
     use slice::ByteSlice;
     use token::Token;
@@ -184,7 +184,7 @@ mod tests {
                 &mut self,
                 _ctx: &mut Context,
                 _stack: &LayerStack,
-                parent: &mut MutLayer,
+                parent: &mut LayerProxy,
             ) -> Result<Status> {
                 let class = Fixed::new(LayerClass::builder(Token::from(1234)).build());
                 let layer = Layer::new(class, ByteSlice::new());
@@ -212,7 +212,7 @@ mod tests {
 
         let class = Fixed::new(LayerClass::builder(Token::null()).build());
         let mut layer = Layer::new(class, ByteSlice::new());
-        let mut layer = MutLayer::new(&mut layer);
+        let mut layer = LayerProxy::from_mut_ref(&mut layer);
         let mut results = Vec::new();
 
         assert_eq!(

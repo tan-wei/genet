@@ -3,7 +3,7 @@ use genet_abi::{
     context::Context,
     decoder::{DecoderBox, ExecType, WorkerBox},
     fixed::MutFixed,
-    layer::{Layer, MutLayer},
+    layer::{Layer, LayerProxy},
 };
 use profile::Profile;
 
@@ -40,8 +40,9 @@ impl Dispatcher {
                 loop {
                     let mut executed = 0;
                     for mut r in &mut runners.iter_mut() {
-                        let mut layer =
-                            MutLayer::new(unsafe { &mut *sublayers[index].as_mut_ptr() });
+                        let mut layer = LayerProxy::from_mut_ref(unsafe {
+                            &mut *sublayers[index].as_mut_ptr()
+                        });
                         let done = r.execute(&sublayers, &mut layer);
                         if done {
                             executed += 1;
@@ -91,7 +92,7 @@ impl Runner {
         runner
     }
 
-    fn execute(&mut self, layers: &[MutFixed<Layer>], layer: &mut MutLayer) -> bool {
+    fn execute(&mut self, layers: &[MutFixed<Layer>], layer: &mut LayerProxy) -> bool {
         if let Some(worker) = &mut self.worker {
             match worker.decode(&mut self.ctx, layers, layer) {
                 Ok(done) => done,
@@ -124,7 +125,7 @@ impl<'a> OnceRunner<'a> {
         }
     }
 
-    fn execute(&mut self, layers: &[MutFixed<Layer>], layer: &mut MutLayer) -> bool {
+    fn execute(&mut self, layers: &[MutFixed<Layer>], layer: &mut LayerProxy) -> bool {
         if !self.used {
             let done = self.runner.execute(layers, layer);
             if done {
