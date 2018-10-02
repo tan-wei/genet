@@ -7,6 +7,7 @@ use std::{
     ops::{Deref, DerefMut},
     slice,
 };
+use std::sync::atomic::AtomicPtr;
 use token::Token;
 
 /// A layer stack object.
@@ -165,13 +166,19 @@ extern "C" fn abi_children_data(layer: *const LayerProxy) -> *const *mut Layer {
     unsafe { (*layer).children.as_ptr() }
 }
 
+#[repr(C)]
+struct LayerData {
+    class: Fixed<LayerClass>,
+    next: AtomicPtr<*const LayerData>,
+    attrs: Vec<Fixed<Attr>>,
+    payloads: Vec<Payload>,
+}
+
 /// A layer object.
 #[repr(C)]
 pub struct Layer {
-    class: Fixed<LayerClass>,
+    root: LayerData,
     data: ByteSlice,
-    attrs: Vec<Fixed<Attr>>,
-    payloads: Vec<Payload>,
 }
 
 unsafe impl Send for Layer {}
@@ -180,37 +187,41 @@ impl Layer {
     /// Creates a new Layer.
     pub fn new<C: Into<Fixed<LayerClass>>, B: Into<ByteSlice>>(class: C, data: B) -> Layer {
         Layer {
-            class: class.into(),
+            root: LayerData {
+                class: class.into(),
+                next: AtomicPtr::default(),
+                attrs: Vec::new(),
+                payloads: Vec::new(),
+            },
             data: data.into(),
-            attrs: Vec::new(),
-            payloads: Vec::new(),
         }
     }
 
     /// Returns the ID of self.
     pub fn id(&self) -> Token {
-        self.class.id()
+        self.root.class.id()
     }
 
     /// Returns the type of self.
     pub fn data(&self) -> ByteSlice {
-        self.class.data(self)
+        self.root.class.data(&self)
     }
 
     /// Returns the slice of headers.
     pub fn headers(&self) -> &[Fixed<Attr>] {
-        self.class.headers()
+        self.root.class.headers()
     }
 
     /// Returns the slice of attributes.
     pub fn attrs(&self) -> &[Fixed<Attr>] {
-        self.class.attrs(self)
+        self.root.class.attrs(&self.root)
     }
 
     /// Find the attribute in the Layer.
     pub fn attr<T: Into<Token>>(&self, id: T) -> Option<&Attr> {
         let id = id.into();
         let id = self
+            .root
             .class
             .aliases()
             .find(|alias| alias.id == id)
@@ -218,26 +229,26 @@ impl Layer {
             .unwrap_or(id);
         self.attrs()
             .iter()
-            .chain(self.class.headers().iter())
+            .chain(self.root.class.headers().iter())
             .find(|attr| attr.id() == id)
             .map(|attr| attr.as_ref())
     }
 
     /// Adds an attribute to the Layer.
     pub fn add_attr<T: Into<Fixed<Attr>>>(&mut self, attr: T) {
-        let func = self.class.add_attr;
-        (func)(self, attr.into());
+        let func = self.root.class.add_attr;
+        (func)(&mut self.root, attr.into());
     }
 
     /// Returns the slice of payloads.
     pub fn payloads(&self) -> &[Payload] {
-        self.class.payloads(self)
+        self.root.class.payloads(&self.root)
     }
 
     /// Adds a payload to the Layer.
     pub fn add_payload(&mut self, payload: Payload) {
-        let func = self.class.add_payload;
-        (func)(self, payload);
+        let func = self.root.class.add_payload;
+        (func)(&mut self.root, payload);
     }
 }
 
@@ -359,12 +370,12 @@ pub struct LayerClass {
     headers_len: extern "C" fn(*const LayerClass) -> u64,
     headers_data: extern "C" fn(*const LayerClass) -> *const Fixed<Attr>,
     data: extern "C" fn(*const Layer, *mut u64) -> *const u8,
-    attrs_len: extern "C" fn(*const Layer) -> u64,
-    attrs_data: extern "C" fn(*const Layer) -> *const Fixed<Attr>,
-    add_attr: extern "C" fn(*mut Layer, Fixed<Attr>),
-    payloads_len: extern "C" fn(*const Layer) -> u64,
-    payloads_data: extern "C" fn(*const Layer) -> *const Payload,
-    add_payload: extern "C" fn(*mut Layer, Payload),
+    attrs_len: extern "C" fn(*const LayerData) -> u64,
+    attrs_data: extern "C" fn(*const LayerData) -> *const Fixed<Attr>,
+    add_attr: extern "C" fn(*mut LayerData, Fixed<Attr>),
+    payloads_len: extern "C" fn(*const LayerData) -> u64,
+    payloads_data: extern "C" fn(*const LayerData) -> *const Payload,
+    add_payload: extern "C" fn(*mut LayerData, Payload),
     id: Token,
     aliases: Vec<Alias>,
     headers: Vec<Fixed<Attr>>,
@@ -403,13 +414,13 @@ impl LayerClass {
         unsafe { ByteSlice::from_raw_parts(data, len as usize) }
     }
 
-    fn attrs(&self, layer: &Layer) -> &[Fixed<Attr>] {
+    fn attrs(&self, layer: &LayerData) -> &[Fixed<Attr>] {
         let data = (self.attrs_data)(layer);
         let len = (self.attrs_len)(layer) as usize;
         unsafe { slice::from_raw_parts(data, len) }
     }
 
-    fn payloads(&self, layer: &Layer) -> &[Payload] {
+    fn payloads(&self, layer: &LayerData) -> &[Payload] {
         let data = (self.payloads_data)(layer);
         let len = (self.payloads_len)(layer) as usize;
         unsafe { slice::from_raw_parts(data, len) }
@@ -450,28 +461,28 @@ extern "C" fn abi_data(layer: *const Layer, len: *mut u64) -> *const u8 {
     }
 }
 
-extern "C" fn abi_attrs_len(layer: *const Layer) -> u64 {
+extern "C" fn abi_attrs_len(layer: *const LayerData) -> u64 {
     unsafe { (*layer).attrs.len() as u64 }
 }
 
-extern "C" fn abi_attrs_data(layer: *const Layer) -> *const Fixed<Attr> {
+extern "C" fn abi_attrs_data(layer: *const LayerData) -> *const Fixed<Attr> {
     unsafe { (*layer).attrs.as_ptr() }
 }
 
-extern "C" fn abi_add_attr(layer: *mut Layer, attr: Fixed<Attr>) {
+extern "C" fn abi_add_attr(layer: *mut LayerData, attr: Fixed<Attr>) {
     let attrs = unsafe { &mut (*layer).attrs };
     attrs.push(attr);
 }
 
-extern "C" fn abi_payloads_len(layer: *const Layer) -> u64 {
+extern "C" fn abi_payloads_len(layer: *const LayerData) -> u64 {
     unsafe { (*layer).payloads.len() as u64 }
 }
 
-extern "C" fn abi_payloads_data(layer: *const Layer) -> *const Payload {
+extern "C" fn abi_payloads_data(layer: *const LayerData) -> *const Payload {
     unsafe { (*layer).payloads.as_ptr() }
 }
 
-extern "C" fn abi_add_payload(layer: *mut Layer, payload: Payload) {
+extern "C" fn abi_add_payload(layer: *mut LayerData, payload: Payload) {
     let payloads = unsafe { &mut (*layer).payloads };
     payloads.push(payload);
 }
