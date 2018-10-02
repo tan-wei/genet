@@ -5,9 +5,9 @@ use std::{
     fmt,
     marker::PhantomData,
     ops::{Deref, DerefMut},
-    slice,
+    ptr, slice,
+    sync::atomic::{AtomicPtr, Ordering},
 };
-use std::sync::atomic::AtomicPtr;
 use token::Token;
 
 /// A layer stack object.
@@ -61,6 +61,7 @@ pub struct LayerProxy<'a> {
     children_len: extern "C" fn(*const LayerProxy) -> u64,
     children_data: extern "C" fn(*const LayerProxy) -> *const *mut Layer,
     phantom: PhantomData<&'a ()>,
+    next: Option<MutFixed<LayerData>>,
     children: Vec<*mut Layer>,
 }
 
@@ -73,6 +74,7 @@ impl<'a> LayerProxy<'a> {
             children_len: abi_children_len,
             children_data: abi_children_data,
             phantom: PhantomData,
+            next: None,
             children: Vec::new(),
         }
     }
@@ -85,7 +87,21 @@ impl<'a> LayerProxy<'a> {
             children_len: abi_children_len,
             children_data: abi_children_data,
             phantom: PhantomData,
+            next: None,
             children: Vec::new(),
+        }
+    }
+
+    pub fn apply(&mut self) {
+        if let Some(next) = self.next.take() {
+            let mut data = &mut self.deref_mut().root as *mut LayerData;
+            while !data.is_null() {
+                data = unsafe { &(*data).next }.compare_and_swap(
+                    ptr::null_mut(),
+                    next.as_mut_ptr(),
+                    Ordering::Relaxed,
+                );
+            }
         }
     }
 
@@ -169,7 +185,7 @@ extern "C" fn abi_children_data(layer: *const LayerProxy) -> *const *mut Layer {
 #[repr(C)]
 struct LayerData {
     class: Fixed<LayerClass>,
-    next: AtomicPtr<*const LayerData>,
+    next: AtomicPtr<LayerData>,
     attrs: Vec<Fixed<Attr>>,
     payloads: Vec<Payload>,
 }
