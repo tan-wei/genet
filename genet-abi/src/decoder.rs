@@ -1,6 +1,5 @@
 use context::Context;
 use error::Error;
-use fixed::MutFixed;
 use layer::{Layer, LayerProxy, LayerStack};
 use result::Result;
 use std::ptr;
@@ -50,7 +49,7 @@ impl WorkerBox {
     pub fn decode(
         &mut self,
         ctx: &mut Context,
-        layers: &[MutFixed<Layer>],
+        layers: &[*mut Layer],
         layer: &mut LayerProxy,
     ) -> Result<bool> {
         let stack = layers.as_ptr() as *const *const Layer;
@@ -213,13 +212,7 @@ mod tests {
         let class = Fixed::new(LayerClass::builder(Token::null()).build());
         let mut layer = Layer::new(class, ByteSlice::new());
         let mut layer = LayerProxy::from_mut_ref(&mut layer);
-        let mut results = Vec::new();
 
-        assert_eq!(
-            worker
-                .decode(&mut ctx, &[], &mut layer, &mut results)
-                .unwrap(),
-            true
-        );
+        assert_eq!(worker.decode(&mut ctx, &[], &mut layer).unwrap(), true);
     }
 }

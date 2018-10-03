@@ -28,8 +28,11 @@ impl Dispatcher {
     }
 
     pub fn process_frame(&mut self, frame: &mut Frame) {
-        let mut sublayers = Vec::new();
-        sublayers.append(frame.layers_mut());
+        let mut sublayers: Vec<*mut Layer> = frame
+            .layers_mut()
+            .drain(..)
+            .map(|v| v.as_mut_ptr())
+            .collect();
         let mut indices = Vec::new();
         let mut offset = 0;
         let mut runners = self.runners();
@@ -40,18 +43,12 @@ impl Dispatcher {
                 loop {
                     let mut executed = 0;
                     for mut r in &mut runners.iter_mut() {
-                        let mut layer = LayerProxy::from_mut_ref(unsafe {
-                            &mut *sublayers[index].as_mut_ptr()
-                        });
+                        let mut layer = LayerProxy::from_mut_ref(unsafe { &mut *sublayers[index] });
                         let done = r.execute(&sublayers, &mut layer);
                         if done {
                             executed += 1;
                         }
-                        let mut layers: Vec<MutFixed<Layer>> = layer
-                            .children()
-                            .iter()
-                            .map(|v| unsafe { MutFixed::from_ptr(*v) })
-                            .collect();
+                        let mut layers = layer.children().to_vec();
                         children += layers.len();
                         sublayers.append(&mut layers);
                     }
@@ -68,6 +65,10 @@ impl Dispatcher {
             }
         }
 
+        let mut sublayers = sublayers
+            .into_iter()
+            .map(|v| unsafe { MutFixed::from_ptr(v) })
+            .collect();
         frame.append_layers(&mut sublayers);
         frame.append_tree_indices(&mut indices);
     }
@@ -92,7 +93,7 @@ impl Runner {
         runner
     }
 
-    fn execute(&mut self, layers: &[MutFixed<Layer>], layer: &mut LayerProxy) -> bool {
+    fn execute(&mut self, layers: &[*mut Layer], layer: &mut LayerProxy) -> bool {
         if let Some(worker) = &mut self.worker {
             match worker.decode(&mut self.ctx, layers, layer) {
                 Ok(done) => done,
@@ -125,7 +126,7 @@ impl<'a> OnceRunner<'a> {
         }
     }
 
-    fn execute(&mut self, layers: &[MutFixed<Layer>], layer: &mut LayerProxy) -> bool {
+    fn execute(&mut self, layers: &[*mut Layer], layer: &mut LayerProxy) -> bool {
         if !self.used {
             let done = self.runner.execute(layers, layer);
             if done {
