@@ -188,7 +188,7 @@ struct LayerData {
     next: AtomicPtr<LayerData>,
     attrs: Vec<Fixed<Attr>>,
     payloads: Vec<Payload>,
-    next_child: *mut Layer,
+    next_child: Option<MutFixed<Layer>>,
 }
 
 /// A layer object.
@@ -209,7 +209,7 @@ impl Layer {
                 next: AtomicPtr::default(),
                 attrs: Vec::new(),
                 payloads: Vec::new(),
-                next_child: ptr::null_mut(),
+                next_child: None,
             },
             data: data.into(),
         }
