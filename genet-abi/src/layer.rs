@@ -57,9 +57,6 @@ impl<'a> LayerStack<'a> {
 pub struct LayerProxy<'a> {
     layer: *mut Layer,
     mutable: u8,
-    add_child: extern "C" fn(*mut LayerProxy, *mut Layer),
-    children_len: extern "C" fn(*const LayerProxy) -> u64,
-    children_data: extern "C" fn(*const LayerProxy) -> *const *mut Layer,
     phantom: PhantomData<&'a ()>,
     next: *mut LayerData,
     children: Vec<*mut Layer>,
@@ -70,9 +67,6 @@ impl<'a> LayerProxy<'a> {
         LayerProxy {
             layer,
             mutable: 1,
-            add_child: abi_add_child,
-            children_len: abi_children_len,
-            children_data: abi_children_data,
             phantom: PhantomData,
             next: &mut layer.root as *mut LayerData,
             children: Vec::new(),
@@ -83,9 +77,6 @@ impl<'a> LayerProxy<'a> {
         LayerProxy {
             layer: unsafe { &mut *((layer as *const Layer) as *mut Layer) },
             mutable: 0,
-            add_child: abi_add_child,
-            children_len: abi_children_len,
-            children_data: abi_children_data,
             phantom: PhantomData,
             next: ptr::null_mut(),
             children: Vec::new(),
@@ -151,13 +142,11 @@ impl<'a> LayerProxy<'a> {
     }
 
     pub fn add_child<T: Into<MutFixed<Layer>>>(&mut self, layer: T) {
-        (self.add_child)(self, layer.into().as_mut_ptr());
+        self.children.push(layer.into().as_mut_ptr());
     }
 
     pub fn children(&self) -> &[*mut Layer] {
-        let data = (self.children_data)(self);
-        let len = (self.children_len)(self) as usize;
-        unsafe { slice::from_raw_parts(data, len) }
+        &self.children
     }
 }
 
@@ -173,18 +162,6 @@ impl<'a> DerefMut for LayerProxy<'a> {
     fn deref_mut(&mut self) -> &mut Layer {
         unsafe { &mut *self.layer }
     }
-}
-
-extern "C" fn abi_add_child(layer: *mut LayerProxy, child: *mut Layer) {
-    unsafe { (*layer).children.push(child) }
-}
-
-extern "C" fn abi_children_len(layer: *const LayerProxy) -> u64 {
-    unsafe { (*layer).children.len() as u64 }
-}
-
-extern "C" fn abi_children_data(layer: *const LayerProxy) -> *const *mut Layer {
-    unsafe { (*layer).children.as_ptr() }
 }
 
 #[repr(C)]
