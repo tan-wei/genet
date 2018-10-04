@@ -2,7 +2,7 @@ use std::{
     io::{Error, ErrorKind, Result},
     mem,
     ops::{Deref, Range, RangeFrom, RangeFull, RangeInclusive, RangeTo, RangeToInclusive},
-    slice,
+    ptr, slice,
 };
 
 /// TryGet trait.
@@ -49,25 +49,38 @@ impl TryGet<usize> for ByteSlice {
 }
 
 /// A fixed-lifetime slice object.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-pub struct ByteSlice(&'static [u8]);
+#[repr(C)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct ByteSlice {
+    data: *const u8,
+    len: u64,
+}
+
+unsafe impl Send for ByteSlice {}
+unsafe impl Sync for ByteSlice {}
 
 impl ByteSlice {
     /// Creates a new empty ByteSlice.
     pub fn new() -> ByteSlice {
-        ByteSlice(&[])
+        ByteSlice {
+            data: ptr::null(),
+            len: 0,
+        }
     }
 
     /// Creates a new ByteSlice from a length and pointer.
     ///
     /// The pointer must be valid during the program execution.
     pub unsafe fn from_raw_parts(data: *const u8, len: usize) -> ByteSlice {
-        ByteSlice(slice::from_raw_parts(data, len))
+        ByteSlice {
+            data,
+            len: len as u64,
+        }
     }
 
     /// Returns the length of this ByteSlice.
     pub fn len(&self) -> usize {
-        self.0.len()
+        self.len as usize
     }
 
     /// Returns true if this ByteSlice has a length of zero.
@@ -79,19 +92,25 @@ impl ByteSlice {
 
     /// Returns a raw pointer to the first byte in this ByteSlice.
     pub fn as_ptr(&self) -> *const u8 {
-        self.0.as_ptr()
+        self.data
     }
 }
 
 impl From<&'static [u8]> for ByteSlice {
     fn from(data: &'static [u8]) -> Self {
-        ByteSlice(data)
+        ByteSlice {
+            data: data.as_ptr(),
+            len: data.len() as u64,
+        }
     }
 }
 
 impl From<Box<[u8]>> for ByteSlice {
     fn from(data: Box<[u8]>) -> Self {
-        let s = unsafe { ByteSlice::from_raw_parts(data.as_ptr(), data.len()) };
+        let s = ByteSlice {
+            data: data.as_ptr(),
+            len: data.len() as u64,
+        };
         mem::forget(data);
         s
     }
@@ -107,13 +126,13 @@ impl Deref for ByteSlice {
     type Target = [u8];
 
     fn deref(&self) -> &'static [u8] {
-        self.0
+        unsafe { slice::from_raw_parts(self.data, self.len as usize) }
     }
 }
 
 impl AsRef<[u8]> for ByteSlice {
     #[inline]
     fn as_ref(&self) -> &[u8] {
-        &self.0
+        &self.deref()
     }
 }
