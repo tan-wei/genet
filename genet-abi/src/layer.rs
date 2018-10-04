@@ -56,30 +56,33 @@ impl<'a> LayerStack<'a> {
 #[repr(C)]
 pub struct LayerProxy<'a> {
     layer: *mut Layer,
-    mutable: u8,
-    phantom: PhantomData<&'a ()>,
     next: *mut LayerData,
+    attrs: Vec<Fixed<Attr>>,
+    payloads: Vec<Payload>,
     children: Vec<*mut Layer>,
+    phantom: PhantomData<&'a ()>,
 }
 
 impl<'a> LayerProxy<'a> {
     pub fn from_mut_ref(layer: &'a mut Layer) -> LayerProxy {
         LayerProxy {
             layer,
-            mutable: 1,
-            phantom: PhantomData,
             next: &mut layer.root as *mut LayerData,
+            attrs: Vec::new(),
+            payloads: Vec::new(),
             children: Vec::new(),
+            phantom: PhantomData,
         }
     }
 
     pub fn from_ref(layer: &'a Layer) -> LayerProxy {
         LayerProxy {
             layer: unsafe { &mut *((layer as *const Layer) as *mut Layer) },
-            mutable: 0,
-            phantom: PhantomData,
             next: ptr::null_mut(),
+            attrs: Vec::new(),
+            payloads: Vec::new(),
             children: Vec::new(),
+            phantom: PhantomData,
         }
     }
 
@@ -96,8 +99,8 @@ impl<'a> LayerProxy<'a> {
     }
 
     pub fn apply(&mut self) {
-        if !self.next.is_null() {
-            let mut data = &mut self.deref_mut().root as *mut LayerData;
+        let mut data = &mut self.deref_mut().root as *mut LayerData;
+        if !self.next.is_null() && self.next != data {
             while !data.is_null() {
                 data = unsafe { &(*data).next }.compare_and_swap(
                     ptr::null_mut(),
@@ -135,7 +138,7 @@ impl<'a> LayerProxy<'a> {
 
     /// Adds an attribute to the Layer.
     pub fn add_attr<T: Into<Fixed<Attr>>>(&mut self, attr: T) {
-        self.deref_mut().add_attr(attr);
+        self.attrs.push(attr.into());
     }
 
     /// Returns the slice of payloads.
@@ -145,7 +148,7 @@ impl<'a> LayerProxy<'a> {
 
     /// Adds a payload to the Layer.
     pub fn add_payload(&mut self, payload: Payload) {
-        self.deref_mut().add_payload(payload);
+        self.payloads.push(payload);
     }
 
     pub fn add_child<T: Into<MutFixed<Layer>>>(&mut self, layer: T) {
