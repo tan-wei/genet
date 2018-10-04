@@ -189,7 +189,6 @@ extern "C" fn abi_children_data(layer: *const LayerProxy) -> *const *mut Layer {
 
 #[repr(C)]
 struct LayerData {
-    class: Fixed<LayerClass>,
     next: AtomicPtr<LayerData>,
     attrs: Vec<Fixed<Attr>>,
     payloads: Vec<Payload>,
@@ -199,8 +198,9 @@ struct LayerData {
 /// A layer object.
 #[repr(C)]
 pub struct Layer {
-    root: LayerData,
+    class: Fixed<LayerClass>,
     data: ByteSlice,
+    root: LayerData,
 }
 
 unsafe impl Send for Layer {}
@@ -209,20 +209,20 @@ impl Layer {
     /// Creates a new Layer.
     pub fn new<C: Into<Fixed<LayerClass>>, B: Into<ByteSlice>>(class: C, data: B) -> Layer {
         Layer {
+            class: class.into(),
+            data: data.into(),
             root: LayerData {
-                class: class.into(),
                 next: AtomicPtr::default(),
                 attrs: Vec::new(),
                 payloads: Vec::new(),
                 next_child: None,
             },
-            data: data.into(),
         }
     }
 
     /// Returns the ID of self.
     pub fn id(&self) -> Token {
-        self.root.class.id()
+        self.class.id()
     }
 
     /// Returns the type of self.
@@ -232,19 +232,18 @@ impl Layer {
 
     /// Returns the slice of headers.
     pub fn headers(&self) -> &[Fixed<Attr>] {
-        self.root.class.headers()
+        self.class.headers()
     }
 
     /// Returns the slice of attributes.
     pub fn attrs(&self) -> &[Fixed<Attr>] {
-        self.root.class.attrs(&self.root)
+        self.class.attrs(&self.root)
     }
 
     /// Find the attribute in the Layer.
     pub fn attr<T: Into<Token>>(&self, id: T) -> Option<&Attr> {
         let id = id.into();
         let id = self
-            .root
             .class
             .aliases()
             .find(|alias| alias.id == id)
@@ -252,25 +251,25 @@ impl Layer {
             .unwrap_or(id);
         self.attrs()
             .iter()
-            .chain(self.root.class.headers().iter())
+            .chain(self.class.headers().iter())
             .find(|attr| attr.id() == id)
             .map(|attr| attr.as_ref())
     }
 
     /// Adds an attribute to the Layer.
     pub fn add_attr<T: Into<Fixed<Attr>>>(&mut self, attr: T) {
-        let func = self.root.class.add_attr;
+        let func = self.class.add_attr;
         (func)(&mut self.root, attr.into());
     }
 
     /// Returns the slice of payloads.
     pub fn payloads(&self) -> &[Payload] {
-        self.root.class.payloads(&self.root)
+        self.class.payloads(&self.root)
     }
 
     /// Adds a payload to the Layer.
     pub fn add_payload(&mut self, payload: Payload) {
-        let func = self.root.class.add_payload;
+        let func = self.class.add_payload;
         (func)(&mut self.root, payload);
     }
 }
