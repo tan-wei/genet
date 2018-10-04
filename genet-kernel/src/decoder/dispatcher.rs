@@ -42,19 +42,19 @@ impl Dispatcher {
                 let mut children = 0;
                 loop {
                     let mut executed = 0;
+                    let mut layer = LayerProxy::from_mut_ref(unsafe { &mut *sublayers[index] });
                     for mut r in &mut runners.iter_mut() {
-                        let mut layer = LayerProxy::from_mut_ref(unsafe { &mut *sublayers[index] });
                         let done = r.execute(&sublayers, &mut layer);
                         if done {
                             executed += 1;
                         }
-                        let mut layers = layer.children().to_vec();
-                        children += layers.len();
-                        sublayers.append(&mut layers);
                     }
                     if executed == 0 {
                         break;
                     }
+                    let mut layers = layer.children().to_vec();
+                    children += layers.len();
+                    sublayers.append(&mut layers);
                 }
                 indices.push(children as u8);
             }
