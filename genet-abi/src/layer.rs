@@ -84,7 +84,14 @@ impl<'a> LayerProxy<'a> {
     }
 
     fn get_next(&mut self) -> &mut LayerData {
-        if self.next.is_null() {}
+        if self.next.is_null() {
+            self.next = Box::into_raw(Box::new(LayerData {
+                next: AtomicPtr::default(),
+                attrs: Vec::new(),
+                payloads: Vec::new(),
+                next_child: None,
+            }));
+        }
         unsafe { &mut *self.next }
     }
 
