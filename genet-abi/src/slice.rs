@@ -1,6 +1,5 @@
 use std::{
     io::{Error, ErrorKind, Result},
-    marker::PhantomData,
     mem,
     ops::{Deref, Range, RangeFrom, RangeFull, RangeInclusive, RangeTo, RangeToInclusive},
     slice,
@@ -116,26 +115,5 @@ impl AsRef<[u8]> for ByteSlice {
     #[inline]
     fn as_ref(&self) -> &[u8] {
         &self.0
-    }
-}
-
-#[repr(C)]
-struct SafeByteSlice<'a, T: 'a> {
-    ptr: *const T,
-    len: u64,
-    phantom: PhantomData<&'a T>,
-}
-
-impl<'a, T: 'a> SafeByteSlice<'a, T> {
-    pub fn as_slice(&self) -> &[T] {
-        unsafe { slice::from_raw_parts(&*self.ptr, self.len as usize) }
-    }
-}
-
-impl<'a, T: 'a> Deref for SafeByteSlice<'a, T> {
-    type Target = [T];
-
-    fn deref(&self) -> &[T] {
-        self.as_slice()
     }
 }

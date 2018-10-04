@@ -22,7 +22,8 @@ impl AttrBuilder {
     pub fn build(self) -> Attr {
         Attr {
             class: self.class,
-            range: self.range,
+            start: self.range.start as u64,
+            end: self.range.end as u64,
             value: self.value,
         }
     }
@@ -44,7 +45,10 @@ impl AttrBuilder {
 #[repr(C)]
 pub struct Attr {
     class: Fixed<AttrClass>,
-    range: Range<usize>,
+    start: u64,
+    end: u64,
+
+    // ABI unsafe
     value: Option<Fixed<Variant>>,
 }
 
@@ -82,7 +86,7 @@ impl Attr {
 
     /// Returns the range of self.
     pub fn range(&self) -> Range<usize> {
-        self.class.range(self)
+        self.start as usize..self.end as usize
     }
 
     /// Returns the attribute value.
@@ -159,10 +163,7 @@ impl AttrClassBuilder {
     /// Builds a new AttrClass.
     pub fn build(self) -> AttrClass {
         AttrClass {
-            get_id: abi_id,
-            get_typ: abi_typ,
             is_value: abi_is_value,
-            range: abi_range,
             get: abi_get,
             id: self.id,
             typ: self.typ,
@@ -174,13 +175,12 @@ impl AttrClassBuilder {
 /// An attribute class.
 #[repr(C)]
 pub struct AttrClass {
-    get_id: extern "C" fn(class: *const AttrClass) -> Token,
-    get_typ: extern "C" fn(class: *const AttrClass) -> Token,
-    is_value: extern "C" fn(class: *const AttrClass) -> u8,
-    range: extern "C" fn(*const Attr, *mut u64, *mut u64),
-    get: extern "C" fn(*const Attr, *mut *const u8, u64, *mut i64, *mut Error) -> ValueType,
     id: Token,
     typ: Token,
+    is_value: extern "C" fn(class: *const AttrClass) -> u8,
+    get: extern "C" fn(*const Attr, *mut *const u8, u64, *mut i64, *mut Error) -> ValueType,
+
+    // ABI unsafe
     cast: Option<Box<Cast>>,
 }
 
@@ -195,31 +195,20 @@ impl AttrClass {
     }
 
     fn id(&self) -> Token {
-        (self.get_id)(self)
+        self.id
     }
 
     fn typ(&self) -> Token {
-        (self.get_typ)(self)
+        self.typ
     }
 
     fn is_value(&self) -> bool {
         (self.is_value)(self) != 0
     }
 
-    fn range(&self, attr: &Attr) -> Range<usize> {
-        let mut start;
-        let mut end;
-        unsafe {
-            start = mem::uninitialized();
-            end = mem::uninitialized();
-        }
-        (self.range)(attr, &mut start, &mut end);
-        start as usize..end as usize
-    }
-
     fn try_get(&self, attr: &Attr, layer: &Layer) -> Result<Variant> {
         let data = layer.data();
-        let data = if let Some(data) = data.get(self.range(attr)) {
+        let data = if let Some(data) = data.get(attr.range()) {
             data
         } else {
             return Err(Box::new(Error::new("out of bounds")));
@@ -262,22 +251,6 @@ impl Into<Fixed<AttrClass>> for &'static AttrClass {
     fn into(self) -> Fixed<AttrClass> {
         Fixed::from_static(self)
     }
-}
-
-extern "C" fn abi_range(attr: *const Attr, start: *mut u64, end: *mut u64) {
-    unsafe {
-        let range = &(*attr).range;
-        *start = range.start as u64;
-        *end = range.end as u64;
-    }
-}
-
-extern "C" fn abi_id(class: *const AttrClass) -> Token {
-    unsafe { (*class).id }
-}
-
-extern "C" fn abi_typ(class: *const AttrClass) -> Token {
-    unsafe { (*class).typ }
 }
 
 extern "C" fn abi_is_value(class: *const AttrClass) -> u8 {

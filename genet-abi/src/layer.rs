@@ -61,7 +61,7 @@ pub struct LayerProxy<'a> {
     children_len: extern "C" fn(*const LayerProxy) -> u64,
     children_data: extern "C" fn(*const LayerProxy) -> *const *mut Layer,
     phantom: PhantomData<&'a ()>,
-    next: Option<MutFixed<LayerData>>,
+    next: *mut LayerData,
     children: Vec<*mut Layer>,
 }
 
@@ -74,7 +74,7 @@ impl<'a> LayerProxy<'a> {
             children_len: abi_children_len,
             children_data: abi_children_data,
             phantom: PhantomData,
-            next: None,
+            next: &mut layer.root as *mut LayerData,
             children: Vec::new(),
         }
     }
@@ -87,18 +87,23 @@ impl<'a> LayerProxy<'a> {
             children_len: abi_children_len,
             children_data: abi_children_data,
             phantom: PhantomData,
-            next: None,
+            next: ptr::null_mut(),
             children: Vec::new(),
         }
     }
 
+    fn get_next(&mut self) -> &mut LayerData {
+        if self.next.is_null() {}
+        unsafe { &mut *self.next }
+    }
+
     pub fn apply(&mut self) {
-        if let Some(next) = self.next.take() {
+        if !self.next.is_null() {
             let mut data = &mut self.deref_mut().root as *mut LayerData;
             while !data.is_null() {
                 data = unsafe { &(*data).next }.compare_and_swap(
                     ptr::null_mut(),
-                    next.as_mut_ptr(),
+                    self.next,
                     Ordering::Relaxed,
                 );
             }
@@ -222,7 +227,7 @@ impl Layer {
 
     /// Returns the type of self.
     pub fn data(&self) -> ByteSlice {
-        self.root.class.data(&self)
+        self.data
     }
 
     /// Returns the slice of headers.
@@ -354,8 +359,6 @@ impl LayerClassBuilder {
     /// Builds a new LayerClass.
     pub fn build(self) -> LayerClass {
         LayerClass {
-            get_id: abi_id,
-            data: abi_data,
             attrs_len: abi_attrs_len,
             attrs_data: abi_attrs_data,
             aliases_len: abi_aliases_len,
@@ -382,12 +385,10 @@ struct Alias {
 /// A layer class object.
 #[repr(C)]
 pub struct LayerClass {
-    get_id: extern "C" fn(*const LayerClass) -> Token,
     aliases_len: extern "C" fn(*const LayerClass) -> u64,
     aliases_data: extern "C" fn(*const LayerClass) -> *const Alias,
     headers_len: extern "C" fn(*const LayerClass) -> u64,
     headers_data: extern "C" fn(*const LayerClass) -> *const Fixed<Attr>,
-    data: extern "C" fn(*const Layer, *mut u64) -> *const u8,
     attrs_len: extern "C" fn(*const LayerData) -> u64,
     attrs_data: extern "C" fn(*const LayerData) -> *const Fixed<Attr>,
     add_attr: extern "C" fn(*mut LayerData, Fixed<Attr>),
@@ -410,7 +411,7 @@ impl LayerClass {
     }
 
     fn id(&self) -> Token {
-        (self.get_id)(self)
+        self.id
     }
 
     fn aliases(&self) -> impl Iterator<Item = &Alias> {
@@ -424,12 +425,6 @@ impl LayerClass {
         let data = (self.headers_data)(self);
         let len = (self.headers_len)(self) as usize;
         unsafe { slice::from_raw_parts(data, len) }
-    }
-
-    fn data(&self, layer: &Layer) -> ByteSlice {
-        let mut len = 0;
-        let data = (self.data)(layer, &mut len);
-        unsafe { ByteSlice::from_raw_parts(data, len as usize) }
     }
 
     fn attrs(&self, layer: &LayerData) -> &[Fixed<Attr>] {
@@ -451,10 +446,6 @@ impl Into<Fixed<LayerClass>> for &'static LayerClass {
     }
 }
 
-extern "C" fn abi_id(class: *const LayerClass) -> Token {
-    unsafe { (*class).id }
-}
-
 extern "C" fn abi_aliases_len(class: *const LayerClass) -> u64 {
     unsafe { (*class).aliases.len() as u64 }
 }
@@ -469,14 +460,6 @@ extern "C" fn abi_headers_len(class: *const LayerClass) -> u64 {
 
 extern "C" fn abi_headers_data(class: *const LayerClass) -> *const Fixed<Attr> {
     unsafe { (*class).headers.as_ptr() }
-}
-
-extern "C" fn abi_data(layer: *const Layer, len: *mut u64) -> *const u8 {
-    unsafe {
-        let data = &(*layer).data;
-        *len = data.len() as u64;
-        data.as_ptr()
-    }
 }
 
 extern "C" fn abi_attrs_len(layer: *const LayerData) -> u64 {
