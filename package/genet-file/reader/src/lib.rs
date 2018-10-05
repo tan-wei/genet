@@ -103,7 +103,7 @@ impl ReaderWorker for GenetFileReaderWorker {
                 let value: Variant = attr.value.into();
                 layer.add_attr(attr!(self.attrs[attr.index].clone(), value: value));
             }
-            layers.push(layer);
+            layers.push(layer.into());
         }
         self.header.entries = 0;
         Ok(layers)

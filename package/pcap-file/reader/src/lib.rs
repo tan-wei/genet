@@ -126,7 +126,7 @@ impl PcapFileReaderWorker {
         layer.add_attr(attr!(&TS_SEC_CLASS, value: u64::from(ts_sec)));
         layer.add_attr(attr!(&TS_USEC_CLASS, value: u64::from(ts_usec)));
 
-        Ok(layer)
+        Ok(layer.into())
     }
 }
 

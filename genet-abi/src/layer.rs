@@ -182,6 +182,52 @@ struct LayerData {
     next_child: Option<MutFixed<Layer>>,
 }
 
+pub struct LayerXProxy {
+    class: Fixed<LayerClass>,
+    data: ByteSlice,
+    attrs: Vec<Fixed<Attr>>,
+    payloads: Vec<Payload>,
+    children: Vec<MutFixed<Layer>>,
+}
+
+impl Into<Layer> for LayerXProxy {
+    fn into(self) -> Layer {
+        Layer {
+            class: self.class,
+            data: self.data,
+            root: LayerData {
+                next: AtomicPtr::default(),
+                attrs: self.attrs,
+                payloads: self.payloads,
+                next_child: None,
+            },
+        }
+    }
+}
+
+impl LayerXProxy {
+    /// Returns the type of self.
+    pub fn data(&self) -> ByteSlice {
+        self.data
+    }
+
+    /// Adds an attribute to the Layer.
+    pub fn add_attr<T: Into<Fixed<Attr>>>(&mut self, attr: T) {
+        self.attrs.push(attr.into());
+    }
+
+    /// Adds a payload to the Layer.
+    pub fn add_payload(&mut self, payload: Payload) {
+        self.payloads.push(payload);
+    }
+}
+
+impl Into<MutFixed<Layer>> for LayerXProxy {
+    fn into(self) -> MutFixed<Layer> {
+        MutFixed::new(self.into())
+    }
+}
+
 /// A layer object.
 #[repr(C)]
 pub struct Layer {
@@ -194,16 +240,13 @@ unsafe impl Send for Layer {}
 
 impl Layer {
     /// Creates a new Layer.
-    pub fn new<C: Into<Fixed<LayerClass>>, B: Into<ByteSlice>>(class: C, data: B) -> Layer {
-        Layer {
+    pub fn new<C: Into<Fixed<LayerClass>>, B: Into<ByteSlice>>(class: C, data: B) -> LayerXProxy {
+        LayerXProxy {
             class: class.into(),
             data: data.into(),
-            root: LayerData {
-                next: AtomicPtr::default(),
-                attrs: Vec::new(),
-                payloads: Vec::new(),
-                next_child: None,
-            },
+            attrs: Vec::new(),
+            payloads: Vec::new(),
+            children: Vec::new(),
         }
     }
 

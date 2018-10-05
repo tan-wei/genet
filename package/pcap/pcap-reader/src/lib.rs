@@ -93,7 +93,7 @@ impl ReaderWorker for PcapReaderWorker {
             &TS_USEC_CLASS,
             value: u64::from(header.ts_usec)
         ));
-        Ok(vec![layer])
+        Ok(vec![layer.into()])
     }
 }
 

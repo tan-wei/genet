@@ -42,7 +42,7 @@ impl ReaderWorker for TestReaderWorker {
     fn read(&mut self) -> Result<Vec<Layer>> {
         let layers = iter::repeat(())
             .take(1000)
-            .map(|_| Layer::new(&ETH_CLASS, ByteSlice::from(tcp_ipv4_pcap())))
+            .map(|_| Layer::new(&ETH_CLASS, ByteSlice::from(tcp_ipv4_pcap())).into())
             .collect();
         Ok(layers)
     }
