@@ -14,7 +14,7 @@ impl Worker for EthWorker {
     ) -> Result<Status> {
         if parent.id() == token!("[link-1]") {
             let mut layer = Layer::new(&ETH_CLASS, parent.data());
-            let len = LEN_ATTR_HEADER.try_get(&layer)?.try_into()?;
+            let len = LEN_ATTR_HEADER.try_get(&layer.data())?.try_into()?;
             if len <= 1500 {
                 layer.add_attr(&LEN_ATTR_HEADER);
             } else {

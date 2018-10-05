@@ -80,7 +80,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
     fn attr_value<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let wrapper = env.unwrap::<AttrWrapper>(info.this())?;
-        variant_to_js(env, &wrapper.attr().try_get(wrapper.layer()))
+        variant_to_js(env, &wrapper.attr().try_get(&wrapper.layer().data()))
     }
 
     let class = env

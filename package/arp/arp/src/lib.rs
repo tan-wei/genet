@@ -26,22 +26,22 @@ impl Worker for ArpWorker {
 
         let mut layer = Layer::new(&ARP_CLASS, data);
 
-        let hw_type = HWTYPE_ATTR_HEADER.try_get(&layer)?.try_into()?;
+        let hw_type = HWTYPE_ATTR_HEADER.try_get(&layer.data())?.try_into()?;
         let hw = get_hw(hw_type);
         if let Some((attr, _, _)) = hw {
             layer.add_attr(attr!(attr, range: 0..2));
         }
 
-        let proto_type = PROTO_ATTR_HEADER.try_get(&layer)?.try_into()?;
+        let proto_type = PROTO_ATTR_HEADER.try_get(&layer.data())?.try_into()?;
         let proto = get_proto(proto_type);
         if let Some((attr, _, _)) = proto {
             layer.add_attr(attr!(attr, range: 2..4));
         }
 
-        let hlen: usize = HLEN_ATTR_HEADER.try_get(&layer)?.try_into()?;
-        let plen: usize = PLEN_ATTR_HEADER.try_get(&layer)?.try_into()?;
+        let hlen: usize = HLEN_ATTR_HEADER.try_get(&layer.data())?.try_into()?;
+        let plen: usize = PLEN_ATTR_HEADER.try_get(&layer.data())?.try_into()?;
 
-        let op_type = OP_ATTR_HEADER.try_get(&layer)?.try_into()?;
+        let op_type = OP_ATTR_HEADER.try_get(&layer.data())?.try_into()?;
         if let Some(attr) = get_op(op_type) {
             layer.add_attr(attr!(attr, range: 6..8));
         }

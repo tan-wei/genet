@@ -2,7 +2,6 @@ use cast::{Cast, Typed};
 use env;
 use error::Error;
 use fixed::Fixed;
-use layer::Layer;
 use result::Result;
 use slice::ByteSlice;
 use std::{fmt, io, mem, ops::Range, slice};
@@ -90,8 +89,8 @@ impl Attr {
     }
 
     /// Returns the attribute value.
-    pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
-        self.class.try_get(self, layer)
+    pub fn try_get(&self, data: &[u8]) -> Result<Variant> {
+        self.class.try_get(self, data)
     }
 }
 
@@ -206,8 +205,7 @@ impl AttrClass {
         (self.is_value)(self) != 0
     }
 
-    fn try_get(&self, attr: &Attr, layer: &Layer) -> Result<Variant> {
-        let data = layer.data();
+    fn try_get(&self, attr: &Attr, data: &[u8]) -> Result<Variant> {
         let data = if let Some(data) = data.get(attr.range()) {
             data
         } else {

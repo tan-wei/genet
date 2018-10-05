@@ -25,7 +25,7 @@ impl Worker for IPv4Worker {
         }
 
         let mut layer = Layer::new(&IPV4_CLASS, data);
-        let proto = PROTO_ATTR_HEADER.try_get(&layer)?.try_into()?;
+        let proto = PROTO_ATTR_HEADER.try_get(&layer.data())?.try_into()?;
         if let Some((typ, attr)) = get_proto(proto) {
             layer.add_attr(attr!(attr, range: 9..10));
             let payload = layer.data().try_get(20..)?;

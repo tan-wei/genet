@@ -87,22 +87,22 @@ impl Worker for TcpStreamWorker {
                 let parent_src: ByteSlice = stack
                     .attr(token!("_.src"))
                     .unwrap()
-                    .try_get(parent)?
+                    .try_get(&parent.data())?
                     .try_into()?;
                 let parent_dst: ByteSlice = stack
                     .attr(token!("_.dst"))
                     .unwrap()
-                    .try_get(parent)?
+                    .try_get(&parent.data())?
                     .try_into()?;
                 let src: u32 = parent
                     .attr(token!("tcp.src"))
                     .unwrap()
-                    .try_get(parent)?
+                    .try_get(&parent.data())?
                     .try_into()?;
                 let dst: u32 = parent
                     .attr(token!("tcp.dst"))
                     .unwrap()
-                    .try_get(parent)?
+                    .try_get(&parent.data())?
                     .try_into()?;
                 (parent_src, parent_dst, src, dst)
             };
@@ -116,17 +116,17 @@ impl Worker for TcpStreamWorker {
             let seq: u32 = parent
                 .attr(token!("tcp.seq"))
                 .unwrap()
-                .try_get(parent)?
+                .try_get(&parent.data())?
                 .try_into()?;
             let window: u16 = parent
                 .attr(token!("tcp.window"))
                 .unwrap()
-                .try_get(parent)?
+                .try_get(&parent.data())?
                 .try_into()?;
             let flags: u8 = parent
                 .attr(token!("tcp.flags"))
                 .unwrap()
-                .try_get(parent)?
+                .try_get(&parent.data())?
                 .try_into()?;
 
             let syn = (flags & (0x1 << 1)) != 0;

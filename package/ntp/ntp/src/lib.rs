@@ -27,13 +27,13 @@ impl Worker for NtpWorker {
         let parent_src: u16 = stack
             .attr(token!("udp.src"))
             .unwrap()
-            .try_get(parent)?
+            .try_get(&parent.data())?
             .try_into()?;
 
         let parent_dst: u16 = stack
             .attr(token!("udp.dst"))
             .unwrap()
-            .try_get(parent)?
+            .try_get(&parent.data())?
             .try_into()?;
 
         if parent_src != 123 && parent_dst != 123 {
@@ -41,21 +41,21 @@ impl Worker for NtpWorker {
         }
 
         let mut layer = Layer::new(&NTP_CLASS, data);
-        let leap_type = LEAP_ATTR_HEADER.try_get(&layer)?.try_into()?;
+        let leap_type = LEAP_ATTR_HEADER.try_get(&layer.data())?.try_into()?;
 
         let leap = get_leap(leap_type);
         if let Some(attr) = leap {
             layer.add_attr(attr!(attr, range: 0..1));
         }
 
-        let mode_type = MODE_ATTR_HEADER.try_get(&layer)?.try_into()?;
+        let mode_type = MODE_ATTR_HEADER.try_get(&layer.data())?.try_into()?;
 
         let mode = get_mode(mode_type);
         if let Some(attr) = mode {
             layer.add_attr(attr!(attr, range: 0..1));
         }
 
-        let stratum: u8 = STRATUM_ATTR_HEADER.try_get(&layer)?.try_into()?;
+        let stratum: u8 = STRATUM_ATTR_HEADER.try_get(&layer.data())?.try_into()?;
         layer.add_attr(if stratum >= 2 {
             attr!(&ID_IP_ATTR, range: 12..16)
         } else {

@@ -48,7 +48,7 @@ impl Expr {
                         .chain(layer.attrs().iter())
                         .find(|a| a.id() == *t)
                     {
-                        if let Ok(val) = attr.try_get(layer) {
+                        if let Ok(val) = attr.try_get(&layer.data()) {
                             return val;
                         }
                     }

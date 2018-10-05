@@ -78,7 +78,7 @@ impl WriterWorker for GenetFileWriterWorker {
                 let index = self.get_attr_index(attr.id(), attr.typ());
                 attrs.push(genet_format::Attr {
                     index,
-                    value: attr.try_get(&layer)?.into(),
+                    value: attr.try_get(&layer.data())?.into(),
                 });
             }
             let id = self.get_token_index(layer.id());
