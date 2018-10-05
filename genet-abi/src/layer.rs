@@ -182,7 +182,7 @@ struct LayerData {
     next_child: Option<MutFixed<Layer>>,
 }
 
-pub struct LayerXProxy {
+pub struct LayerBuilder {
     class: Fixed<LayerClass>,
     data: ByteSlice,
     attrs: Vec<Fixed<Attr>>,
@@ -190,7 +190,7 @@ pub struct LayerXProxy {
     children: Vec<MutFixed<Layer>>,
 }
 
-impl Into<Layer> for LayerXProxy {
+impl Into<Layer> for LayerBuilder {
     fn into(self) -> Layer {
         Layer {
             class: self.class,
@@ -205,7 +205,7 @@ impl Into<Layer> for LayerXProxy {
     }
 }
 
-impl LayerXProxy {
+impl LayerBuilder {
     /// Returns the type of self.
     pub fn data(&self) -> ByteSlice {
         self.data
@@ -222,7 +222,7 @@ impl LayerXProxy {
     }
 }
 
-impl Into<MutFixed<Layer>> for LayerXProxy {
+impl Into<MutFixed<Layer>> for LayerBuilder {
     fn into(self) -> MutFixed<Layer> {
         MutFixed::new(self.into())
     }
@@ -240,8 +240,8 @@ unsafe impl Send for Layer {}
 
 impl Layer {
     /// Creates a new Layer.
-    pub fn new<C: Into<Fixed<LayerClass>>, B: Into<ByteSlice>>(class: C, data: B) -> LayerXProxy {
-        LayerXProxy {
+    pub fn new<C: Into<Fixed<LayerClass>>, B: Into<ByteSlice>>(class: C, data: B) -> LayerBuilder {
+        LayerBuilder {
             class: class.into(),
             data: data.into(),
             attrs: Vec::new(),
