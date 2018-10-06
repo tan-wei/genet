@@ -388,9 +388,9 @@ impl EventLoop {
     ) {
         for (id, fctx) in filter_map.iter_mut() {
             loop {
-                let mut indices: Vec<u32> = {
+                let (mut indices, end) = {
                     let frames = frames.read().unwrap();
-                    let mut indeces = frames
+                    let mut indices = frames
                         .iter()
                         .skip(fctx.offset)
                         .take(MAX_FILTER_SIZE)
@@ -404,11 +404,9 @@ impl EventLoop {
                         })
                         .collect::<Vec<_>>();
                     fctx.offset = frames.len().min(fctx.offset + MAX_FILTER_SIZE);
-                    indeces
+                    (indices, fctx.offset >= frames.len())
                 };
-                if indices.is_empty() {
-                    break;
-                } else {
+                if !indices.is_empty() {
                     let len = {
                         let mut filtered = filtered.write().unwrap();
                         let mut frames = filtered.entry(*id).or_insert_with(Vec::new);
@@ -416,6 +414,9 @@ impl EventLoop {
                         frames.len()
                     };
                     callback.on_filtered_frames_updated(*id, len as u32);
+                }
+                if end {
+                    break;
                 }
             }
         }
