@@ -4,6 +4,7 @@ use slice::ByteSlice;
 use std::{
     fmt,
     marker::PhantomData,
+    mem,
     ops::{Deref, DerefMut},
     ptr, slice,
     sync::atomic::{AtomicPtr, Ordering},
@@ -385,21 +386,26 @@ impl LayerClassBuilder {
 
     /// Builds a new LayerClass.
     pub fn build(self) -> LayerClass {
-        LayerClass {
+        let aliases_len = self.aliases.len() as u16;
+        let aliases = self.aliases.as_ptr();
+        let headers_len = self.headers.len() as u16;
+        let headers = self.headers.as_ptr();
+        mem::forget(self.aliases);
+        mem::forget(self.headers);
+        let class = LayerClass {
             attrs_len: abi_attrs_len,
             attrs_data: abi_attrs_data,
-            aliases_len: abi_aliases_len,
-            aliases_data: abi_aliases_data,
-            headers_len: abi_headers_len,
-            headers_data: abi_headers_data,
             add_attr: abi_add_attr,
             payloads_len: abi_payloads_len,
             payloads_data: abi_payloads_data,
             add_payload: abi_add_payload,
             id: self.id,
-            aliases: self.aliases,
-            headers: self.headers,
-        }
+            aliases,
+            headers,
+            aliases_len,
+            headers_len,
+        };
+        class
     }
 }
 
@@ -412,10 +418,6 @@ struct Alias {
 /// A layer class object.
 #[repr(C)]
 pub struct LayerClass {
-    aliases_len: extern "C" fn(*const LayerClass) -> u64,
-    aliases_data: extern "C" fn(*const LayerClass) -> *const Alias,
-    headers_len: extern "C" fn(*const LayerClass) -> u64,
-    headers_data: extern "C" fn(*const LayerClass) -> *const Fixed<Attr>,
     attrs_len: extern "C" fn(*const LayerData) -> u64,
     attrs_data: extern "C" fn(*const LayerData) -> *const Fixed<Attr>,
     add_attr: extern "C" fn(*mut LayerData, Fixed<Attr>),
@@ -423,9 +425,14 @@ pub struct LayerClass {
     payloads_data: extern "C" fn(*const LayerData) -> *const Payload,
     add_payload: extern "C" fn(*mut LayerData, Payload),
     id: Token,
-    aliases: Vec<Alias>,
-    headers: Vec<Fixed<Attr>>,
+    aliases: *const Alias,
+    headers: *const Fixed<Attr>,
+    aliases_len: u16,
+    headers_len: u16,
 }
+
+unsafe impl Send for LayerClass {}
+unsafe impl Sync for LayerClass {}
 
 impl LayerClass {
     /// Creates a new builder object for LayerClass.
@@ -442,16 +449,12 @@ impl LayerClass {
     }
 
     fn aliases(&self) -> impl Iterator<Item = &Alias> {
-        let data = (self.aliases_data)(self);
-        let len = (self.aliases_len)(self) as usize;
-        let iter = unsafe { slice::from_raw_parts(data, len).iter() };
+        let iter = unsafe { slice::from_raw_parts(self.aliases, self.aliases_len as usize).iter() };
         iter.map(|v| &*v)
     }
 
     fn headers(&self) -> &[Fixed<Attr>] {
-        let data = (self.headers_data)(self);
-        let len = (self.headers_len)(self) as usize;
-        unsafe { slice::from_raw_parts(data, len) }
+        unsafe { slice::from_raw_parts(self.headers, self.headers_len as usize) }
     }
 
     fn attrs(&self, layer: &LayerData) -> &[Fixed<Attr>] {
@@ -471,22 +474,6 @@ impl Into<Fixed<LayerClass>> for &'static LayerClass {
     fn into(self) -> Fixed<LayerClass> {
         Fixed::from_static(self)
     }
-}
-
-extern "C" fn abi_aliases_len(class: *const LayerClass) -> u64 {
-    unsafe { (*class).aliases.len() as u64 }
-}
-
-extern "C" fn abi_aliases_data(class: *const LayerClass) -> *const Alias {
-    unsafe { (*class).aliases.as_ptr() }
-}
-
-extern "C" fn abi_headers_len(class: *const LayerClass) -> u64 {
-    unsafe { (*class).headers.len() as u64 }
-}
-
-extern "C" fn abi_headers_data(class: *const LayerClass) -> *const Fixed<Attr> {
-    unsafe { (*class).headers.as_ptr() }
 }
 
 extern "C" fn abi_attrs_len(layer: *const LayerData) -> u64 {
