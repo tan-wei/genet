@@ -1,6 +1,6 @@
 use context::Context;
 use error::Error;
-use layer::{Layer, LayerProxy, LayerStack};
+use layer::{Layer, LayerStack, Parent};
 use result::Result;
 use std::ptr;
 
@@ -22,7 +22,7 @@ pub enum Status {
 
 /// Decoder worker trait.
 pub trait Worker {
-    fn decode(&mut self, &mut Context, &LayerStack, &mut LayerProxy) -> Result<Status>;
+    fn decode(&mut self, &mut Context, &LayerStack, &mut Parent) -> Result<Status>;
 }
 
 #[repr(C)]
@@ -32,7 +32,7 @@ pub struct WorkerBox {
         *mut Context,
         *const *const Layer,
         u64,
-        *mut LayerProxy,
+        *mut Parent,
         *mut Error,
     ) -> u8,
     worker: *mut Box<Worker>,
@@ -50,7 +50,7 @@ impl WorkerBox {
         &mut self,
         ctx: &mut Context,
         layers: &[*mut Layer],
-        layer: &mut LayerProxy,
+        layer: &mut Parent,
     ) -> Result<bool> {
         let stack = layers.as_ptr() as *const *const Layer;
         let mut error = Error::new("");
@@ -68,7 +68,7 @@ extern "C" fn abi_decode(
     ctx: *mut Context,
     layers: *const *const Layer,
     len: u64,
-    layer: *mut LayerProxy,
+    layer: *mut Parent,
     error: *mut Error,
 ) -> u8 {
     let worker = unsafe { &mut *((*worker).worker) };
@@ -169,7 +169,7 @@ mod tests {
     use decoder::{Decoder, DecoderBox, ExecType, Status, Worker};
     use fixed::Fixed;
     use fnv::FnvHashMap;
-    use layer::{Layer, LayerClass, LayerProxy, LayerStack};
+    use layer::{Layer, LayerClass, LayerStack, Parent};
     use result::Result;
     use slice::ByteSlice;
     use token::Token;
@@ -183,7 +183,7 @@ mod tests {
                 &mut self,
                 _ctx: &mut Context,
                 _stack: &LayerStack,
-                parent: &mut LayerProxy,
+                parent: &mut Parent,
             ) -> Result<Status> {
                 let class = Fixed::new(LayerClass::builder(Token::from(1234)).build());
                 let layer = Layer::new(class, ByteSlice::new());
@@ -211,7 +211,7 @@ mod tests {
 
         let class = Fixed::new(LayerClass::builder(Token::null()).build());
         let mut layer = Layer::new(class, ByteSlice::new());
-        let mut layer = LayerProxy::from_mut_ref(&mut layer);
+        let mut layer = Parent::from_mut_ref(&mut layer);
 
         assert_eq!(worker.decode(&mut ctx, &[], &mut layer).unwrap(), true);
     }

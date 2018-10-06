@@ -55,7 +55,7 @@ impl<'a> LayerStack<'a> {
 
 /// A mutable proxy for a layer object.
 #[repr(C)]
-pub struct LayerProxy<'a> {
+pub struct Parent<'a> {
     layer: *mut Layer,
     next: *mut LayerData,
     attrs: Vec<Fixed<Attr>>,
@@ -64,9 +64,9 @@ pub struct LayerProxy<'a> {
     phantom: PhantomData<&'a ()>,
 }
 
-impl<'a> LayerProxy<'a> {
-    pub fn from_mut_ref(layer: &'a mut Layer) -> LayerProxy {
-        LayerProxy {
+impl<'a> Parent<'a> {
+    pub fn from_mut_ref(layer: &'a mut Layer) -> Parent {
+        Parent {
             layer,
             next: &mut layer.root as *mut LayerData,
             attrs: Vec::new(),
@@ -76,8 +76,8 @@ impl<'a> LayerProxy<'a> {
         }
     }
 
-    pub fn from_ref(layer: &'a Layer) -> LayerProxy {
-        LayerProxy {
+    pub fn from_ref(layer: &'a Layer) -> Parent {
+        Parent {
             layer: unsafe { &mut *((layer as *const Layer) as *mut Layer) },
             next: ptr::null_mut(),
             attrs: Vec::new(),
@@ -163,7 +163,7 @@ impl<'a> LayerProxy<'a> {
     }
 }
 
-impl<'a> Deref for LayerProxy<'a> {
+impl<'a> Deref for Parent<'a> {
     type Target = Layer;
 
     fn deref(&self) -> &Layer {
@@ -171,7 +171,7 @@ impl<'a> Deref for LayerProxy<'a> {
     }
 }
 
-impl<'a> DerefMut for LayerProxy<'a> {
+impl<'a> DerefMut for Parent<'a> {
     fn deref_mut(&mut self) -> &mut Layer {
         unsafe { &mut *self.layer }
     }
