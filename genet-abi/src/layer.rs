@@ -92,8 +92,9 @@ impl<'a> LayerProxy<'a> {
             self.next = Box::into_raw(Box::new(LayerData {
                 next: AtomicPtr::default(),
                 attrs: Vec::new(),
-                payloads: Vec::new(),
                 next_child: None,
+                payloads: ptr::null(),
+                payloads_len: 0,
             }));
         }
         unsafe { &mut *self.next }
@@ -179,8 +180,9 @@ impl<'a> DerefMut for LayerProxy<'a> {
 struct LayerData {
     next: AtomicPtr<LayerData>,
     attrs: Vec<Fixed<Attr>>,
-    payloads: Vec<Payload>,
     next_child: Option<MutFixed<Layer>>,
+    payloads: *const Payload,
+    payloads_len: u16,
 }
 
 pub struct LayerBuilder {
@@ -192,16 +194,21 @@ pub struct LayerBuilder {
 
 impl Into<Layer> for LayerBuilder {
     fn into(self) -> Layer {
-        Layer {
+        let payloads = self.payloads.as_ptr();
+        let payloads_len = self.payloads.len() as u16;
+        mem::forget(self.payloads);
+        let layer = Layer {
             class: self.class,
             data: self.data,
             root: LayerData {
                 next: AtomicPtr::default(),
                 attrs: self.attrs,
-                payloads: self.payloads,
                 next_child: None,
+                payloads,
+                payloads_len,
             },
-        }
+        };
+        layer
     }
 }
 
@@ -294,12 +301,6 @@ impl Layer {
     /// Returns the slice of payloads.
     pub fn payloads(&self) -> &[Payload] {
         self.class.payloads(&self.root)
-    }
-
-    /// Adds a payload to the Layer.
-    pub fn add_payload(&mut self, payload: Payload) {
-        let func = self.class.add_payload;
-        (func)(&mut self.root, payload);
     }
 }
 
@@ -396,9 +397,6 @@ impl LayerClassBuilder {
             attrs_len: abi_attrs_len,
             attrs_data: abi_attrs_data,
             add_attr: abi_add_attr,
-            payloads_len: abi_payloads_len,
-            payloads_data: abi_payloads_data,
-            add_payload: abi_add_payload,
             id: self.id,
             aliases,
             headers,
@@ -421,9 +419,6 @@ pub struct LayerClass {
     attrs_len: extern "C" fn(*const LayerData) -> u64,
     attrs_data: extern "C" fn(*const LayerData) -> *const Fixed<Attr>,
     add_attr: extern "C" fn(*mut LayerData, Fixed<Attr>),
-    payloads_len: extern "C" fn(*const LayerData) -> u64,
-    payloads_data: extern "C" fn(*const LayerData) -> *const Payload,
-    add_payload: extern "C" fn(*mut LayerData, Payload),
     id: Token,
     aliases: *const Alias,
     headers: *const Fixed<Attr>,
@@ -454,7 +449,11 @@ impl LayerClass {
     }
 
     fn headers(&self) -> &[Fixed<Attr>] {
-        unsafe { slice::from_raw_parts(self.headers, self.headers_len as usize) }
+        if self.headers_len == 0 {
+            &[]
+        } else {
+            unsafe { slice::from_raw_parts(self.headers, self.headers_len as usize) }
+        }
     }
 
     fn attrs(&self, layer: &LayerData) -> &[Fixed<Attr>] {
@@ -464,9 +463,11 @@ impl LayerClass {
     }
 
     fn payloads(&self, layer: &LayerData) -> &[Payload] {
-        let data = (self.payloads_data)(layer);
-        let len = (self.payloads_len)(layer) as usize;
-        unsafe { slice::from_raw_parts(data, len) }
+        if layer.payloads_len == 0 {
+            &[]
+        } else {
+            unsafe { slice::from_raw_parts(layer.payloads, layer.payloads_len as usize) }
+        }
     }
 }
 
@@ -487,19 +488,6 @@ extern "C" fn abi_attrs_data(layer: *const LayerData) -> *const Fixed<Attr> {
 extern "C" fn abi_add_attr(layer: *mut LayerData, attr: Fixed<Attr>) {
     let attrs = unsafe { &mut (*layer).attrs };
     attrs.push(attr);
-}
-
-extern "C" fn abi_payloads_len(layer: *const LayerData) -> u64 {
-    unsafe { (*layer).payloads.len() as u64 }
-}
-
-extern "C" fn abi_payloads_data(layer: *const LayerData) -> *const Payload {
-    unsafe { (*layer).payloads.as_ptr() }
-}
-
-extern "C" fn abi_add_payload(layer: *mut LayerData, payload: Payload) {
-    let payloads = unsafe { &mut (*layer).payloads };
-    payloads.push(payload);
 }
 
 #[cfg(test)]
