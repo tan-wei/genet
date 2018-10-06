@@ -91,8 +91,9 @@ impl<'a> LayerProxy<'a> {
         if self.next.is_null() {
             self.next = Box::into_raw(Box::new(LayerData {
                 next: AtomicPtr::default(),
-                attrs: Vec::new(),
                 next_child: None,
+                attrs: ptr::null(),
+                attrs_len: 0,
                 payloads: ptr::null(),
                 payloads_len: 0,
             }));
@@ -179,9 +180,10 @@ impl<'a> DerefMut for LayerProxy<'a> {
 #[repr(C)]
 struct LayerData {
     next: AtomicPtr<LayerData>,
-    attrs: Vec<Fixed<Attr>>,
     next_child: Option<MutFixed<Layer>>,
+    attrs: *const Fixed<Attr>,
     payloads: *const Payload,
+    attrs_len: u16,
     payloads_len: u16,
 }
 
@@ -194,16 +196,20 @@ pub struct LayerBuilder {
 
 impl Into<Layer> for LayerBuilder {
     fn into(self) -> Layer {
+        let attrs = self.attrs.as_ptr();
+        let attrs_len = self.attrs.len() as u16;
         let payloads = self.payloads.as_ptr();
         let payloads_len = self.payloads.len() as u16;
+        mem::forget(self.attrs);
         mem::forget(self.payloads);
         let layer = Layer {
             class: self.class,
             data: self.data,
             root: LayerData {
                 next: AtomicPtr::default(),
-                attrs: self.attrs,
                 next_child: None,
+                attrs,
+                attrs_len,
                 payloads,
                 payloads_len,
             },
@@ -290,12 +296,6 @@ impl Layer {
             .chain(self.class.headers().iter())
             .find(|attr| attr.id() == id)
             .map(|attr| attr.as_ref())
-    }
-
-    /// Adds an attribute to the Layer.
-    pub fn add_attr<T: Into<Fixed<Attr>>>(&mut self, attr: T) {
-        let func = self.class.add_attr;
-        (func)(&mut self.root, attr.into());
     }
 
     /// Returns the slice of payloads.
@@ -394,9 +394,6 @@ impl LayerClassBuilder {
         mem::forget(self.aliases);
         mem::forget(self.headers);
         let class = LayerClass {
-            attrs_len: abi_attrs_len,
-            attrs_data: abi_attrs_data,
-            add_attr: abi_add_attr,
             id: self.id,
             aliases,
             headers,
@@ -416,9 +413,6 @@ struct Alias {
 /// A layer class object.
 #[repr(C)]
 pub struct LayerClass {
-    attrs_len: extern "C" fn(*const LayerData) -> u64,
-    attrs_data: extern "C" fn(*const LayerData) -> *const Fixed<Attr>,
-    add_attr: extern "C" fn(*mut LayerData, Fixed<Attr>),
     id: Token,
     aliases: *const Alias,
     headers: *const Fixed<Attr>,
@@ -457,9 +451,11 @@ impl LayerClass {
     }
 
     fn attrs(&self, layer: &LayerData) -> &[Fixed<Attr>] {
-        let data = (self.attrs_data)(layer);
-        let len = (self.attrs_len)(layer) as usize;
-        unsafe { slice::from_raw_parts(data, len) }
+        if layer.attrs_len == 0 {
+            &[]
+        } else {
+            unsafe { slice::from_raw_parts(layer.attrs, layer.attrs_len as usize) }
+        }
     }
 
     fn payloads(&self, layer: &LayerData) -> &[Payload] {
@@ -475,19 +471,6 @@ impl Into<Fixed<LayerClass>> for &'static LayerClass {
     fn into(self) -> Fixed<LayerClass> {
         Fixed::from_static(self)
     }
-}
-
-extern "C" fn abi_attrs_len(layer: *const LayerData) -> u64 {
-    unsafe { (*layer).attrs.len() as u64 }
-}
-
-extern "C" fn abi_attrs_data(layer: *const LayerData) -> *const Fixed<Attr> {
-    unsafe { (*layer).attrs.as_ptr() }
-}
-
-extern "C" fn abi_add_attr(layer: *mut LayerData, attr: Fixed<Attr>) {
-    let attrs = unsafe { &mut (*layer).attrs };
-    attrs.push(attr);
 }
 
 #[cfg(test)]
