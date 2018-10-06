@@ -14,11 +14,7 @@ impl Worker for IPv6Worker {
     ) -> Result<Status> {
         let data;
 
-        if let Some(payload) = parent
-            .payloads()
-            .iter()
-            .find(|p| p.id() == token!("@data:ipv6"))
-        {
+        if let Some(payload) = parent.payloads().find(|p| p.id() == token!("@data:ipv6")) {
             data = payload.data();
         } else {
             return Ok(Status::Skip);

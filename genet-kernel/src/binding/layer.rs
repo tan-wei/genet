@@ -38,26 +38,20 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
     fn layer_attrs<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
-        let headers = layer.headers();
-        let attrs = layer.attrs();
+        let attrs = layer.attrs().collect::<Vec<_>>();
         let attr_class = env.get_constructor(JsClass::Attr as usize).unwrap();
-        let array = env.create_array(headers.len() + attrs.len())?;
-        for i in 0..headers.len() {
-            let instance = env.new_instance(&attr_class, &[])?;
-            env.wrap(instance, AttrWrapper::new(&headers[i], layer))?;
-            env.set_element(array, i as u32, instance)?;
-        }
+        let array = env.create_array(attrs.len())?;
         for i in 0..attrs.len() {
             let instance = env.new_instance(&attr_class, &[])?;
             env.wrap(instance, AttrWrapper::new(&attrs[i], layer))?;
-            env.set_element(array, (headers.len() + i) as u32, instance)?;
+            env.set_element(array, i as u32, instance)?;
         }
         Ok(array)
     }
 
     fn layer_payloads<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
-        let payloads = layer.payloads();
+        let payloads = layer.payloads().collect::<Vec<_>>();
         let array = env.create_array(payloads.len())?;
         for i in 0..payloads.len() {
             let paylaod = &payloads[i];

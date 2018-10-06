@@ -124,13 +124,8 @@ impl<'a> Parent<'a> {
         self.deref().data()
     }
 
-    /// Returns the slice of headers.
-    pub fn headers(&self) -> &[Fixed<Attr>] {
-        self.deref().headers()
-    }
-
     /// Returns the slice of attributes.
-    pub fn attrs(&self) -> &[Fixed<Attr>] {
+    pub fn attrs(&self) -> impl Iterator<Item = &Fixed<Attr>> {
         self.deref().attrs()
     }
 
@@ -145,7 +140,7 @@ impl<'a> Parent<'a> {
     }
 
     /// Returns the slice of payloads.
-    pub fn payloads(&self) -> &[Payload] {
+    pub fn payloads(&self) -> impl Iterator<Item = &Payload> {
         self.deref().payloads()
     }
 
@@ -185,6 +180,24 @@ struct LayerData {
     payloads: *const Payload,
     attrs_len: u16,
     payloads_len: u16,
+}
+
+impl LayerData {
+    fn attrs(&self) -> &[Fixed<Attr>] {
+        if self.attrs_len == 0 {
+            &[]
+        } else {
+            unsafe { slice::from_raw_parts(self.attrs, self.attrs_len as usize) }
+        }
+    }
+
+    fn payloads(&self) -> &[Payload] {
+        if self.payloads_len == 0 {
+            &[]
+        } else {
+            unsafe { slice::from_raw_parts(self.payloads, self.payloads_len as usize) }
+        }
+    }
 }
 
 pub struct LayerBuilder {
@@ -272,14 +285,9 @@ impl Layer {
         self.data
     }
 
-    /// Returns the slice of headers.
-    pub fn headers(&self) -> &[Fixed<Attr>] {
-        self.class.headers()
-    }
-
     /// Returns the slice of attributes.
-    pub fn attrs(&self) -> &[Fixed<Attr>] {
-        self.class.attrs(&self.root)
+    pub fn attrs(&self) -> impl Iterator<Item = &Fixed<Attr>> {
+        self.class.headers().chain(self.root.attrs().iter())
     }
 
     /// Find the attribute in the Layer.
@@ -292,15 +300,13 @@ impl Layer {
             .map(|alias| alias.target)
             .unwrap_or(id);
         self.attrs()
-            .iter()
-            .chain(self.class.headers().iter())
             .find(|attr| attr.id() == id)
             .map(|attr| attr.as_ref())
     }
 
     /// Returns the slice of payloads.
-    pub fn payloads(&self) -> &[Payload] {
-        self.class.payloads(&self.root)
+    pub fn payloads(&self) -> impl Iterator<Item = &Payload> {
+        self.root.payloads().iter()
     }
 }
 
@@ -442,27 +448,11 @@ impl LayerClass {
         iter.map(|v| &*v)
     }
 
-    fn headers(&self) -> &[Fixed<Attr>] {
+    fn headers(&self) -> impl Iterator<Item = &Fixed<Attr>> {
         if self.headers_len == 0 {
-            &[]
+            [].iter()
         } else {
-            unsafe { slice::from_raw_parts(self.headers, self.headers_len as usize) }
-        }
-    }
-
-    fn attrs(&self, layer: &LayerData) -> &[Fixed<Attr>] {
-        if layer.attrs_len == 0 {
-            &[]
-        } else {
-            unsafe { slice::from_raw_parts(layer.attrs, layer.attrs_len as usize) }
-        }
-    }
-
-    fn payloads(&self, layer: &LayerData) -> &[Payload] {
-        if layer.payloads_len == 0 {
-            &[]
-        } else {
-            unsafe { slice::from_raw_parts(layer.payloads, layer.payloads_len as usize) }
+            unsafe { slice::from_raw_parts(self.headers, self.headers_len as usize) }.iter()
         }
     }
 }
@@ -504,7 +494,7 @@ mod tests {
     fn payloads() {
         let class = Fixed::new(LayerClass::builder(Token::null()).build());
         let mut layer = Layer::new(class, ByteSlice::new());
-        assert!(layer.payloads().iter().next().is_none());
+        assert!(layer.payloads().next().is_none());
 
         let count = 100;
         let data = b"hello";
@@ -513,7 +503,7 @@ mod tests {
             layer.add_payload(Payload::new(ByteSlice::from(&data[..]), Token::from(i)));
         }
 
-        let mut iter = layer.payloads().iter();
+        let mut iter = layer.payloads();
         for i in 0..count {
             let payload = iter.next().unwrap();
             assert_eq!(payload.data(), ByteSlice::from(&data[..]));
@@ -548,7 +538,7 @@ mod tests {
             let attr = Attr::builder(class.clone()).range(0..i).build();
             layer.add_attr(attr);
         }
-        let mut iter = layer.attrs().iter();
+        let mut iter = layer.attrs();
         for i in 0..count {
             let attr = iter.next().unwrap();
             assert_eq!(attr.id(), Token::from("nil"));

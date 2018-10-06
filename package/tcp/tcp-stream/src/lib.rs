@@ -78,7 +78,6 @@ impl Worker for TcpStreamWorker {
         if parent.id() == token!("tcp") {
             let slice: ByteSlice = parent
                 .payloads()
-                .iter()
                 .find(|p| p.id() == token!("@data:tcp"))
                 .unwrap()
                 .data();

@@ -14,11 +14,7 @@ impl Worker for IPv4Worker {
     ) -> Result<Status> {
         let data;
 
-        if let Some(payload) = parent
-            .payloads()
-            .iter()
-            .find(|p| p.id() == token!("@data:ipv4"))
-        {
+        if let Some(payload) = parent.payloads().find(|p| p.id() == token!("@data:ipv4")) {
             data = payload.data();
         } else {
             return Ok(Status::Skip);
