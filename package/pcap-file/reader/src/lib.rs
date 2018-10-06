@@ -88,7 +88,7 @@ struct PcapFileReaderWorker {
 }
 
 impl PcapFileReaderWorker {
-    fn read_one(&mut self) -> io::Result<Layer> {
+    fn read_one(&mut self) -> io::Result<LayerBuilder> {
         let (ts_sec, mut ts_usec, inc_len, orig_len) = if self.le {
             (
                 self.reader.read_u32::<LittleEndian>()?,
@@ -126,14 +126,14 @@ impl PcapFileReaderWorker {
         layer.add_attr(attr!(&TS_SEC_CLASS, value: u64::from(ts_sec)));
         layer.add_attr(attr!(&TS_USEC_CLASS, value: u64::from(ts_usec)));
 
-        Ok(layer.into())
+        Ok(layer)
     }
 }
 
 const BLOCK_SIZE: usize = 1024;
 
 impl ReaderWorker for PcapFileReaderWorker {
-    fn read(&mut self) -> Result<Vec<Layer>> {
+    fn read(&mut self) -> Result<Vec<LayerBuilder>> {
         let mut layers = Vec::with_capacity(BLOCK_SIZE);
         for _ in 0..BLOCK_SIZE {
             match self.read_one() {

@@ -84,7 +84,7 @@ struct GenetFileReaderWorker {
 }
 
 impl ReaderWorker for GenetFileReaderWorker {
-    fn read(&mut self) -> Result<Vec<Layer>> {
+    fn read(&mut self) -> Result<Vec<LayerBuilder>> {
         let mut layers = Vec::new();
         for _ in 0..self.header.entries {
             let mut frame_buf = vec![0; read_usize(&mut self.reader)?];
@@ -103,7 +103,7 @@ impl ReaderWorker for GenetFileReaderWorker {
                 let value: Variant = attr.value.into();
                 layer.add_attr(attr!(self.attrs[attr.index].clone(), value: value));
             }
-            layers.push(layer.into());
+            layers.push(layer);
         }
         self.header.entries = 0;
         Ok(layers)

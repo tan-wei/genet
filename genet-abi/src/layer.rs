@@ -187,7 +187,6 @@ pub struct LayerBuilder {
     data: ByteSlice,
     attrs: Vec<Fixed<Attr>>,
     payloads: Vec<Payload>,
-    children: Vec<MutFixed<Layer>>,
 }
 
 impl Into<Layer> for LayerBuilder {
@@ -246,7 +245,6 @@ impl Layer {
             data: data.into(),
             attrs: Vec::new(),
             payloads: Vec::new(),
-            children: Vec::new(),
         }
     }
 

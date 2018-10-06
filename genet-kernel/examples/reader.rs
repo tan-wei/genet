@@ -4,7 +4,7 @@ extern crate genet_sdk;
 use genet_sdk::{
     context::Context,
     io::{Reader, ReaderWorker},
-    layer::Layer,
+    layer::{Layer, LayerBuilder},
     result::Result,
     slice::ByteSlice,
 };
@@ -39,7 +39,7 @@ impl Reader for TestReader {
 struct TestReaderWorker {}
 
 impl ReaderWorker for TestReaderWorker {
-    fn read(&mut self) -> Result<Vec<Layer>> {
+    fn read(&mut self) -> Result<Vec<LayerBuilder>> {
         let layers = iter::repeat(())
             .take(1000)
             .map(|_| Layer::new(&ETH_CLASS, ByteSlice::from(tcp_ipv4_pcap())).into())

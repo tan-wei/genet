@@ -1,7 +1,7 @@
 use context::Context;
 use error::Error;
 use fixed::MutFixed;
-use layer::{Layer, LayerStack};
+use layer::{Layer, LayerBuilder, LayerStack};
 use result::Result;
 use std::{fmt, mem, ptr};
 use string::SafeString;
@@ -163,7 +163,7 @@ pub trait WriterWorker: Send {
 
 /// Reader worker trait.
 pub trait ReaderWorker: Send {
-    fn read(&mut self) -> Result<Vec<Layer>>;
+    fn read(&mut self) -> Result<Vec<LayerBuilder>>;
 }
 
 type WriterFunc =
@@ -312,7 +312,7 @@ extern "C" fn abi_reader_worker_read(
         Ok(layers) => {
             let mut safe = SafeVec::with_capacity(layers.len() as u64);
             for layer in layers {
-                safe.push(MutFixed::new(layer));
+                safe.push(layer.into());
             }
             unsafe { *out = safe };
             1

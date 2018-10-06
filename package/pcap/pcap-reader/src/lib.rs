@@ -65,7 +65,7 @@ struct PcapReaderWorker {
 }
 
 impl ReaderWorker for PcapReaderWorker {
-    fn read(&mut self) -> Result<Vec<Layer>> {
+    fn read(&mut self) -> Result<Vec<LayerBuilder>> {
         let mut header = String::new();
         self.reader.read_line(&mut header)?;
         let header = header.trim();
@@ -93,7 +93,7 @@ impl ReaderWorker for PcapReaderWorker {
             &TS_USEC_CLASS,
             value: u64::from(header.ts_usec)
         ));
-        Ok(vec![layer.into()])
+        Ok(vec![layer])
     }
 }
 
