@@ -50,7 +50,11 @@ impl Dispatcher {
                     }
                 }
                 layer.apply();
-                let mut layers = layer.children().to_vec();
+                let mut layers = layer
+                    .children()
+                    .iter()
+                    .map(|v| v.as_mut_ptr())
+                    .collect::<Vec<_>>();
                 let children = layers.len();
                 sublayers.append(&mut layers);
                 indices.push(children as u8);

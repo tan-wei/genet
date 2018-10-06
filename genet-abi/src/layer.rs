@@ -60,7 +60,7 @@ pub struct Parent<'a> {
     next: *mut LayerData,
     attrs: Vec<Fixed<Attr>>,
     payloads: Vec<Payload>,
-    children: Vec<*mut Layer>,
+    children: Vec<MutFixed<Layer>>,
     phantom: PhantomData<&'a ()>,
 }
 
@@ -83,6 +83,8 @@ impl<'a> Parent<'a> {
             attrs_len: 0,
             payloads: ptr::null(),
             payloads_len: 0,
+            children: ptr::null(),
+            children_len: 0,
         }));
         let mut data = &mut self.deref_mut().root as *mut LayerData;
         while !data.is_null() {
@@ -101,7 +103,7 @@ impl<'a> Parent<'a> {
         self.deref().data()
     }
 
-    /// Returns the slice of attributes.
+    /// Returns an iterator of attributes.
     pub fn attrs(&self) -> impl Iterator<Item = &Fixed<Attr>> {
         self.deref().attrs()
     }
@@ -116,7 +118,7 @@ impl<'a> Parent<'a> {
         self.attrs.push(attr.into());
     }
 
-    /// Returns the slice of payloads.
+    /// Returns an iterator of payloads.
     pub fn payloads(&self) -> impl Iterator<Item = &Payload> {
         self.deref().payloads()
     }
@@ -127,10 +129,10 @@ impl<'a> Parent<'a> {
     }
 
     pub fn add_child<T: Into<MutFixed<Layer>>>(&mut self, layer: T) {
-        self.children.push(layer.into().as_mut_ptr());
+        self.children.push(layer.into());
     }
 
-    pub fn children(&self) -> &[*mut Layer] {
+    pub fn children(&self) -> &[MutFixed<Layer>] {
         &self.children
     }
 }
@@ -154,8 +156,10 @@ struct LayerData {
     next: AtomicPtr<LayerData>,
     attrs: *const Fixed<Attr>,
     payloads: *const Payload,
+    children: *const MutFixed<Layer>,
     attrs_len: u16,
     payloads_len: u16,
+    children_len: u16,
 }
 
 impl LayerData {
@@ -172,6 +176,14 @@ impl LayerData {
             &[]
         } else {
             unsafe { slice::from_raw_parts(self.payloads, self.payloads_len as usize) }
+        }
+    }
+
+    fn children(&self) -> &[MutFixed<Layer>] {
+        if self.children_len == 0 {
+            &[]
+        } else {
+            unsafe { slice::from_raw_parts(self.children, self.children_len as usize) }
         }
     }
 
@@ -226,6 +238,8 @@ impl Into<Layer> for LayerBuilder {
                 attrs_len,
                 payloads,
                 payloads_len,
+                children: ptr::null(),
+                children_len: 0,
             },
         };
         layer
@@ -286,7 +300,7 @@ impl Layer {
         self.data
     }
 
-    /// Returns the slice of attributes.
+    /// Returns an iterator of attributes.
     pub fn attrs(&self) -> impl Iterator<Item = &Fixed<Attr>> {
         self.class
             .headers()
@@ -307,9 +321,14 @@ impl Layer {
             .map(|attr| attr.as_ref())
     }
 
-    /// Returns the slice of payloads.
+    /// Returns an iterator of payloads.
     pub fn payloads(&self) -> impl Iterator<Item = &Payload> {
         self.root.revisions().map(|r| r.payloads().iter()).flatten()
+    }
+
+    /// Returns an iterator of children.
+    pub fn children(&self) -> impl Iterator<Item = &MutFixed<Layer>> {
+        self.root.revisions().map(|r| r.children().iter()).flatten()
     }
 }
 
