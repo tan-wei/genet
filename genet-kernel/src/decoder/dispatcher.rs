@@ -39,7 +39,7 @@ impl Dispatcher {
         loop {
             let len = sublayers.len() - offset;
             for index in offset..sublayers.len() {
-                let mut layer = Parent::from_mut_ref(unsafe { &mut *sublayers[index] });
+                let mut layer = Parent::from_ref(unsafe { &mut *sublayers[index] });
                 loop {
                     let mut executed = false;
                     for mut r in &mut runners.iter_mut() {

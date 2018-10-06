@@ -211,7 +211,7 @@ mod tests {
 
         let class = Fixed::new(LayerClass::builder(Token::null()).build());
         let mut layer = Layer::new(class, ByteSlice::new());
-        let mut layer = Parent::from_mut_ref(&mut layer);
+        let mut layer = Parent::from_ref(&mut layer);
 
         assert_eq!(worker.decode(&mut ctx, &[], &mut layer).unwrap(), true);
     }

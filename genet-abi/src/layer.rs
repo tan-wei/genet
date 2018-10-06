@@ -65,20 +65,9 @@ pub struct Parent<'a> {
 }
 
 impl<'a> Parent<'a> {
-    pub fn from_mut_ref(layer: &'a mut Layer) -> Parent {
+    pub fn from_ref(layer: &'a mut Layer) -> Parent {
         Parent {
             layer,
-            next: &mut layer.root as *mut LayerData,
-            attrs: Vec::new(),
-            payloads: Vec::new(),
-            children: Vec::new(),
-            phantom: PhantomData,
-        }
-    }
-
-    pub fn from_ref(layer: &'a Layer) -> Parent {
-        Parent {
-            layer: unsafe { &mut *((layer as *const Layer) as *mut Layer) },
             next: ptr::null_mut(),
             attrs: Vec::new(),
             payloads: Vec::new(),
@@ -87,30 +76,18 @@ impl<'a> Parent<'a> {
         }
     }
 
-    fn get_next(&mut self) -> &mut LayerData {
-        if self.next.is_null() {
-            self.next = Box::into_raw(Box::new(LayerData {
-                next: AtomicPtr::default(),
-                next_child: None,
-                attrs: ptr::null(),
-                attrs_len: 0,
-                payloads: ptr::null(),
-                payloads_len: 0,
-            }));
-        }
-        unsafe { &mut *self.next }
-    }
-
     pub fn apply(&mut self) {
+        let next = Box::into_raw(Box::new(LayerData {
+            next: AtomicPtr::default(),
+            attrs: ptr::null(),
+            attrs_len: 0,
+            payloads: ptr::null(),
+            payloads_len: 0,
+        }));
         let mut data = &mut self.deref_mut().root as *mut LayerData;
-        if !self.next.is_null() && self.next != data {
-            while !data.is_null() {
-                data = unsafe { &(*data).next }.compare_and_swap(
-                    ptr::null_mut(),
-                    self.next,
-                    Ordering::Relaxed,
-                );
-            }
+        while !data.is_null() {
+            data =
+                unsafe { &(*data).next }.compare_and_swap(ptr::null_mut(), next, Ordering::Relaxed);
         }
     }
 
@@ -175,7 +152,6 @@ impl<'a> DerefMut for Parent<'a> {
 #[repr(C)]
 struct LayerData {
     next: AtomicPtr<LayerData>,
-    next_child: Option<MutFixed<Layer>>,
     attrs: *const Fixed<Attr>,
     payloads: *const Payload,
     attrs_len: u16,
@@ -246,7 +222,6 @@ impl Into<Layer> for LayerBuilder {
             data: self.data,
             root: LayerData {
                 next: AtomicPtr::default(),
-                next_child: None,
                 attrs,
                 attrs_len,
                 payloads,
