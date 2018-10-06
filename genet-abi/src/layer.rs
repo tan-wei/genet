@@ -198,6 +198,32 @@ impl LayerData {
             unsafe { slice::from_raw_parts(self.payloads, self.payloads_len as usize) }
         }
     }
+
+    fn revisions<'a>(&self) -> LayerDataIter<'a> {
+        LayerDataIter {
+            data: self,
+            phantom: PhantomData,
+        }
+    }
+}
+
+struct LayerDataIter<'a> {
+    data: *const LayerData,
+    phantom: PhantomData<&'a ()>,
+}
+
+impl<'a> Iterator for LayerDataIter<'a> {
+    type Item = &'a LayerData;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.data.is_null() {
+            None
+        } else {
+            let data = unsafe { &*self.data };
+            self.data = data.next.load(Ordering::Relaxed);
+            Some(data)
+        }
+    }
 }
 
 pub struct LayerBuilder {
@@ -287,7 +313,9 @@ impl Layer {
 
     /// Returns the slice of attributes.
     pub fn attrs(&self) -> impl Iterator<Item = &Fixed<Attr>> {
-        self.class.headers().chain(self.root.attrs().iter())
+        self.class
+            .headers()
+            .chain(self.root.revisions().map(|r| r.attrs().iter()).flatten())
     }
 
     /// Find the attribute in the Layer.
@@ -306,7 +334,7 @@ impl Layer {
 
     /// Returns the slice of payloads.
     pub fn payloads(&self) -> impl Iterator<Item = &Payload> {
-        self.root.payloads().iter()
+        self.root.revisions().map(|r| r.payloads().iter()).flatten()
     }
 }
 
