@@ -49,7 +49,6 @@ impl Dispatcher {
                         break;
                     }
                 }
-                layer.apply();
                 let mut layers = layer
                     .children()
                     .iter()
@@ -58,6 +57,7 @@ impl Dispatcher {
                 let children = layers.len();
                 sublayers.append(&mut layers);
                 indices.push(children as u8);
+                layer.apply();
             }
 
             offset += len;

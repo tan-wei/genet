@@ -56,8 +56,7 @@ impl<'a> LayerStack<'a> {
 /// A mutable proxy for a layer object.
 #[repr(C)]
 pub struct Parent<'a> {
-    layer: *mut Layer,
-    next: *mut LayerData,
+    layer: &'a mut Layer,
     attrs: Vec<Fixed<Attr>>,
     payloads: Vec<Payload>,
     children: Vec<MutFixed<Layer>>,
@@ -68,7 +67,6 @@ impl<'a> Parent<'a> {
     pub fn from_ref(layer: &'a mut Layer) -> Parent {
         Parent {
             layer,
-            next: ptr::null_mut(),
             attrs: Vec::new(),
             payloads: Vec::new(),
             children: Vec::new(),
@@ -76,21 +74,24 @@ impl<'a> Parent<'a> {
         }
     }
 
-    pub fn apply(&mut self) {
+    pub fn apply(mut self) {
         let next = Box::into_raw(Box::new(LayerData {
             next: AtomicPtr::default(),
-            attrs: ptr::null(),
-            attrs_len: 0,
-            payloads: ptr::null(),
-            payloads_len: 0,
-            children: ptr::null(),
-            children_len: 0,
+            attrs: self.attrs.as_ptr(),
+            attrs_len: self.attrs.len() as u16,
+            payloads: self.payloads.as_ptr(),
+            payloads_len: self.payloads.len() as u16,
+            children: self.children.as_ptr(),
+            children_len: self.children.len() as u16,
         }));
         let mut data = &mut self.deref_mut().root as *mut LayerData;
         while !data.is_null() {
             data =
                 unsafe { &(*data).next }.compare_and_swap(ptr::null_mut(), next, Ordering::Relaxed);
         }
+        mem::forget(self.attrs);
+        mem::forget(self.payloads);
+        mem::forget(self.children);
     }
 
     /// Returns the ID of self.
@@ -141,13 +142,13 @@ impl<'a> Deref for Parent<'a> {
     type Target = Layer;
 
     fn deref(&self) -> &Layer {
-        unsafe { &*self.layer }
+        self.layer
     }
 }
 
 impl<'a> DerefMut for Parent<'a> {
     fn deref_mut(&mut self) -> &mut Layer {
-        unsafe { &mut *self.layer }
+        self.layer
     }
 }
 
