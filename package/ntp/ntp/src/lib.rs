@@ -6,12 +6,7 @@ use genet_sdk::prelude::*;
 struct NtpWorker {}
 
 impl Worker for NtpWorker {
-    fn decode(
-        &mut self,
-        _ctx: &mut Context,
-        stack: &LayerStack,
-        parent: &mut Parent,
-    ) -> Result<Status> {
+    fn decode(&mut self, _ctx: &mut Context, parent: &mut Parent) -> Result<Status> {
         if parent.id() != token!("udp") {
             return Ok(Status::Skip);
         }
@@ -24,13 +19,13 @@ impl Worker for NtpWorker {
             return Ok(Status::Skip);
         }
 
-        let parent_src: u16 = stack
+        let parent_src: u16 = parent
             .attr(token!("udp.src"))
             .unwrap()
             .try_get(&parent.data())?
             .try_into()?;
 
-        let parent_dst: u16 = stack
+        let parent_dst: u16 = parent
             .attr(token!("udp.dst"))
             .unwrap()
             .try_get(&parent.data())?

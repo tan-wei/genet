@@ -6,12 +6,7 @@ use genet_sdk::prelude::*;
 struct IPv4Worker {}
 
 impl Worker for IPv4Worker {
-    fn decode(
-        &mut self,
-        _ctx: &mut Context,
-        _stack: &LayerStack,
-        parent: &mut Parent,
-    ) -> Result<Status> {
+    fn decode(&mut self, _ctx: &mut Context, parent: &mut Parent) -> Result<Status> {
         let data;
 
         if let Some(payload) = parent.payloads().find(|p| p.id() == token!("@data:ipv4")) {

@@ -6,12 +6,7 @@ use genet_sdk::prelude::*;
 struct EthWorker {}
 
 impl Worker for EthWorker {
-    fn decode(
-        &mut self,
-        _ctx: &mut Context,
-        _stack: &LayerStack,
-        parent: &mut Parent,
-    ) -> Result<Status> {
+    fn decode(&mut self, _ctx: &mut Context, parent: &mut Parent) -> Result<Status> {
         if parent.id() == token!("[link-1]") {
             let mut layer = Layer::new(&ETH_CLASS, parent.data());
             let len = LEN_ATTR_HEADER.try_get(&layer.data())?.try_into()?;

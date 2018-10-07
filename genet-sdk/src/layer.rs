@@ -2,6 +2,4 @@
 //!
 //! Type Layer represents a layer of a protocol stack.
 
-pub use genet_abi::layer::{
-    Layer, LayerBuilder, LayerClass, LayerClassBuilder, LayerStack, Parent, Payload,
-};
+pub use genet_abi::layer::{Layer, LayerBuilder, LayerClass, LayerClassBuilder, Parent, Payload};

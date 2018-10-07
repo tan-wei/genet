@@ -81,7 +81,7 @@ impl Runner {
 
     fn execute(&mut self, layers: &[*mut Layer], layer: &mut Parent) -> bool {
         if let Some(worker) = &mut self.worker {
-            match worker.decode(&mut self.ctx, layers, layer) {
+            match worker.decode(&mut self.ctx, layer) {
                 Ok(done) => done,
                 Err(_) => true,
             }

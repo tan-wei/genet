@@ -1,7 +1,7 @@
 use context::Context;
 use error::Error;
 use fixed::MutFixed;
-use layer::{Layer, LayerBuilder, LayerStack};
+use layer::{Layer, LayerBuilder};
 use result::Result;
 use std::{fmt, mem, ptr};
 use string::SafeString;
