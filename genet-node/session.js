@@ -13,7 +13,7 @@ class Frame {
   }
 
   get root() {
-    return this._frame.layers[0] || null
+    return this._frame.root
   }
 
   get primary() {

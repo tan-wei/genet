@@ -17,16 +17,6 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         env.create_uint32(frame.index())
     }
 
-    fn frame_tree_indices<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
-        let frame = env.unwrap::<Frame>(info.this())?;
-        let indices = frame.tree_indices();
-        let array = env.create_array(indices.len())?;
-        for i in 0..indices.len() {
-            env.set_element(array, i as u32, env.create_uint32(u32::from(indices[i]))?)?;
-        }
-        Ok(array)
-    }
-
     fn frame_query<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let frame = env.unwrap::<Frame>(info.this())?;
         if let Some(id) = info.argv().get(0) {
@@ -55,17 +45,13 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         }
     }
 
-    fn frame_layers<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
+    fn frame_root<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let frame = env.unwrap::<Frame>(info.this())?;
         let layers = frame.layers();
         let layer_class = env.get_constructor(JsClass::Layer as usize).unwrap();
-        let array = env.create_array(layers.len())?;
-        for i in 0..layers.len() {
-            let instance = env.new_instance(&layer_class, &[])?;
-            env.wrap_mut_fixed(instance, &layers[i])?;
-            env.set_element(array, i as u32, instance)?;
-        }
-        Ok(array)
+        let instance = env.new_instance(&layer_class, &[])?;
+        env.wrap_mut_fixed(instance, &layers[0])?;
+        Ok(instance)
     }
 
     let class = env
@@ -82,16 +68,9 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
                 ),
                 PropertyDescriptor::new_property(
                     env,
-                    "layers",
+                    "root",
                     PropertyAttributes::Default,
-                    frame_layers,
-                    false,
-                ),
-                PropertyDescriptor::new_property(
-                    env,
-                    "treeIndices",
-                    PropertyAttributes::Default,
-                    frame_tree_indices,
+                    frame_root,
                     false,
                 ),
                 PropertyDescriptor::new_method(
