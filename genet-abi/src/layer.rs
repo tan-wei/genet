@@ -148,6 +148,22 @@ impl LayerData {
         }
     }
 
+    fn children_all(&self) -> Box<DoubleEndedIterator<Item = &MutFixed<Layer>>> {
+        let slice = if self.children_len == 0 {
+            &[]
+        } else {
+            unsafe { slice::from_raw_parts(self.children, self.children_len as usize) }
+        };
+        Box::new(
+            slice.iter().chain(
+                slice
+                    .iter()
+                    .map(|v| v.root.revisions().map(|r| r.children_all()).flatten())
+                    .flatten(),
+            ),
+        )
+    }
+
     fn revisions<'a>(&self) -> LayerDataIter<'a> {
         LayerDataIter {
             data: self,
@@ -307,6 +323,11 @@ impl Layer {
     /// Returns an iterator of children.
     pub fn children(&self) -> impl DoubleEndedIterator<Item = &MutFixed<Layer>> {
         self.root.revisions().map(|r| r.children().iter()).flatten()
+    }
+
+    /// Returns an iterator of children.
+    pub fn children_all(&self) -> impl DoubleEndedIterator<Item = &MutFixed<Layer>> {
+        self.root.revisions().map(|r| r.children_all()).flatten()
     }
 
     /// Returns the parent layer.

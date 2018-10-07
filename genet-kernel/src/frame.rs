@@ -28,7 +28,9 @@ impl Frame {
     }
 
     pub fn layers(&self) -> impl DoubleEndedIterator<Item = &MutFixed<Layer>> {
-        vec![self.root()].into_iter().chain(self.root.children())
+        vec![self.root()]
+            .into_iter()
+            .chain(self.root.children_all())
     }
 
     pub fn attr(&self, id: Token) -> Option<&Attr> {

@@ -70,7 +70,8 @@ impl TcpStreamWorker {
 
 impl Worker for TcpStreamWorker {
     fn decode(&mut self, _ctx: &mut Context, parent: &mut Parent) -> Result<Status> {
-        if parent.id() == token!("tcp") {
+        if parent.id() == token!("tcpx") {
+            // FIXME
             let slice: ByteSlice = parent
                 .payloads()
                 .find(|p| p.id() == token!("@data:tcp"))
