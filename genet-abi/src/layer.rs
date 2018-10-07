@@ -130,7 +130,9 @@ impl<'a> Parent<'a> {
     }
 
     pub fn add_child<T: Into<MutFixed<Layer>>>(&mut self, layer: T) {
-        self.children.push(layer.into());
+        let mut layer = layer.into();
+        layer.parent = self.layer;
+        self.children.push(layer);
     }
 
     pub fn children(&self) -> &[MutFixed<Layer>] {
@@ -242,6 +244,7 @@ impl Into<Layer> for LayerBuilder {
                 children: ptr::null(),
                 children_len: 0,
             },
+            parent: ptr::null(),
         };
         layer
     }
@@ -276,6 +279,7 @@ pub struct Layer {
     class: Fixed<LayerClass>,
     data: ByteSlice,
     root: LayerData,
+    parent: *const Layer,
 }
 
 unsafe impl Send for Layer {}
@@ -330,6 +334,15 @@ impl Layer {
     /// Returns an iterator of children.
     pub fn children(&self) -> impl Iterator<Item = &MutFixed<Layer>> {
         self.root.revisions().map(|r| r.children().iter()).flatten()
+    }
+
+    /// Returns the parent layer.
+    pub fn parent(&self) -> Option<&Layer> {
+        if self.parent.is_null() {
+            None
+        } else {
+            Some(unsafe { &*self.parent })
+        }
     }
 }
 

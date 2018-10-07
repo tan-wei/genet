@@ -2,31 +2,6 @@ const native = require('./binding')
 const { Token } = native
 const { Disposable } = require('disposables')
 const { EventEmitter } = require('events')
-function consume(len, layerStack, indexStack) {
-  const indices = indexStack.splice(0, len)
-  const layers = layerStack.splice(0, len)
-  for (let index = 0; index < indices.length; index += 1) {
-    const parent = layers[index]
-    parent.children = (parent.children || [])
-      .concat(consume(indices[index], layerStack, indexStack))
-    parent.children.forEach((layer) => {
-      layer.parent = parent
-    })
-  }
-  return layers
-}
-
-function treefy(layerStack, indexStack) {
-  const layers = [].concat(layerStack)
-  const indices = [].concat(indexStack)
-  const root = consume(1, layers, indices)
-  const len = layerStack.length - layers.length
-  if (indices.length >= len) {
-    consume(len, [].concat(layerStack), indices)
-  }
-  return root
-}
-
 class Frame {
   constructor(frame) {
     this._frame = frame
@@ -38,10 +13,7 @@ class Frame {
   }
 
   get root() {
-    if (!this._root) {
-      [this._root] = treefy(this._frame.layers, this._frame.treeIndices)
-    }
-    return this._root
+    return this._frame.layers[0] || null
   }
 
   get primary() {

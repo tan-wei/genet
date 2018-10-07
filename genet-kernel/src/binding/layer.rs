@@ -77,6 +77,31 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         Ok(array)
     }
 
+    fn layer_children<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
+        let layer = env.unwrap::<Layer>(info.this())?;
+        let children = layer.children().collect::<Vec<_>>();
+        let layer_class = env.get_constructor(JsClass::Layer as usize).unwrap();
+        let array = env.create_array(children.len())?;
+        for i in 0..children.len() {
+            let instance = env.new_instance(&layer_class, &[])?;
+            env.wrap_mut_fixed(instance, &children[i])?;
+            env.set_element(array, i as u32, instance)?;
+        }
+        Ok(array)
+    }
+
+    fn layer_parent<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
+        let layer = env.unwrap::<Layer>(info.this())?;
+        let layer_class = env.get_constructor(JsClass::Layer as usize).unwrap();
+        if let Some(parent) = layer.parent() {
+            let instance = env.new_instance(&layer_class, &[])?;
+            env.wrap_ptr(instance, parent)?;
+            Ok(instance)
+        } else {
+            env.get_null()
+        }
+    }
+
     fn layer_data<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
         env.create_typedarray(
@@ -117,6 +142,20 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
                     "payloads",
                     PropertyAttributes::Default,
                     layer_payloads,
+                    false,
+                ),
+                PropertyDescriptor::new_property(
+                    env,
+                    "children",
+                    PropertyAttributes::Default,
+                    layer_children,
+                    false,
+                ),
+                PropertyDescriptor::new_property(
+                    env,
+                    "parent",
+                    PropertyAttributes::Default,
+                    layer_parent,
                     false,
                 ),
                 PropertyDescriptor::new_property(
