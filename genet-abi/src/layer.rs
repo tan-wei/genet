@@ -193,14 +193,14 @@ impl LayerData {
     fn revisions<'a>(&self) -> LayerDataIter<'a> {
         LayerDataIter {
             data: self,
-            phantom: PhantomData,
+            back: None,
         }
     }
 }
 
 struct LayerDataIter<'a> {
     data: *const LayerData,
-    phantom: PhantomData<&'a ()>,
+    back: Option<Vec<&'a LayerData>>,
 }
 
 impl<'a> Iterator for LayerDataIter<'a> {
@@ -214,6 +214,21 @@ impl<'a> Iterator for LayerDataIter<'a> {
             self.data = data.next.load(Ordering::Relaxed);
             Some(data)
         }
+    }
+}
+
+impl<'a> DoubleEndedIterator for LayerDataIter<'a> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        if self.back.is_none() {
+            let mut layers = Vec::new();
+            while !self.data.is_null() {
+                let data = unsafe { &*self.data };
+                layers.push(data);
+                self.data = data.next.load(Ordering::Relaxed);
+            }
+            self.back = Some(layers);
+        }
+        self.back.as_mut().unwrap().pop()
     }
 }
 
@@ -332,7 +347,7 @@ impl Layer {
     }
 
     /// Returns an iterator of children.
-    pub fn children(&self) -> impl Iterator<Item = &MutFixed<Layer>> {
+    pub fn children(&self) -> impl DoubleEndedIterator<Item = &MutFixed<Layer>> {
         self.root.revisions().map(|r| r.children().iter()).flatten()
     }
 
