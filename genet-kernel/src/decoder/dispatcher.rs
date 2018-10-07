@@ -37,7 +37,7 @@ impl Dispatcher {
                 loop {
                     let mut executed = false;
                     for mut r in &mut runners.iter_mut() {
-                        executed = executed || r.execute(&sublayers, &mut layer);
+                        executed = executed || r.execute(&mut layer);
                     }
                     if !executed {
                         break;
@@ -79,7 +79,7 @@ impl Runner {
         runner
     }
 
-    fn execute(&mut self, layers: &[*mut Layer], layer: &mut Parent) -> bool {
+    fn execute(&mut self, layer: &mut Parent) -> bool {
         if let Some(worker) = &mut self.worker {
             match worker.decode(&mut self.ctx, layer) {
                 Ok(done) => done,
@@ -112,9 +112,9 @@ impl<'a> OnceRunner<'a> {
         }
     }
 
-    fn execute(&mut self, layers: &[*mut Layer], layer: &mut Parent) -> bool {
+    fn execute(&mut self, layer: &mut Parent) -> bool {
         if !self.used {
-            let done = self.runner.execute(layers, layer);
+            let done = self.runner.execute(layer);
             if done {
                 self.used = true;
             }
