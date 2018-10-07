@@ -69,35 +69,33 @@ impl PcapFileWriterWorker {
 }
 
 impl WriterWorker for PcapFileWriterWorker {
-    fn write(&mut self, _index: u32, stack: &LayerStack) -> Result<()> {
-        if let Some(layer) = stack.bottom() {
-            let incl_len = layer.data().len();
-            let mut orig_len = 0;
-            let mut ts_sec = 0;
-            let mut ts_usec = 0;
-            let mut link = 0;
+    fn write(&mut self, _index: u32, root: &Layer) -> Result<()> {
+        let incl_len = root.data().len();
+        let mut orig_len = 0;
+        let mut ts_sec = 0;
+        let mut ts_usec = 0;
+        let mut link = 0;
 
-            if let Some(attr) = layer.attr(token!("link.length")) {
-                orig_len = attr.try_get(&layer.data())?.try_into()?;
-            }
-            if let Some(attr) = layer.attr(token!("link.type")) {
-                link = attr.try_get(&layer.data())?.try_into()?;
-            }
-            if let Some(attr) = layer.attr(token!("link.timestamp.sec")) {
-                ts_sec = attr.try_get(&layer.data())?.try_into()?;
-            }
-            if let Some(attr) = layer.attr(token!("link.timestamp.usec")) {
-                ts_usec = attr.try_get(&layer.data())?.try_into()?;
-            }
-
-            self.write_header(0, link as u32)?;
-
-            self.writer.write_u32::<LittleEndian>(ts_sec as u32)?;
-            self.writer.write_u32::<LittleEndian>(ts_usec as u32)?;
-            self.writer.write_u32::<LittleEndian>(incl_len as u32)?;
-            self.writer.write_u32::<LittleEndian>(orig_len as u32)?;
-            self.writer.write_all(&layer.data())?;
+        if let Some(attr) = root.attr(token!("link.length")) {
+            orig_len = attr.try_get(&root.data())?.try_into()?;
         }
+        if let Some(attr) = root.attr(token!("link.type")) {
+            link = attr.try_get(&root.data())?.try_into()?;
+        }
+        if let Some(attr) = root.attr(token!("link.timestamp.sec")) {
+            ts_sec = attr.try_get(&root.data())?.try_into()?;
+        }
+        if let Some(attr) = root.attr(token!("link.timestamp.usec")) {
+            ts_usec = attr.try_get(&root.data())?.try_into()?;
+        }
+
+        self.write_header(0, link as u32)?;
+
+        self.writer.write_u32::<LittleEndian>(ts_sec as u32)?;
+        self.writer.write_u32::<LittleEndian>(ts_usec as u32)?;
+        self.writer.write_u32::<LittleEndian>(incl_len as u32)?;
+        self.writer.write_u32::<LittleEndian>(orig_len as u32)?;
+        self.writer.write_all(&root.data())?;
         Ok(())
     }
 }

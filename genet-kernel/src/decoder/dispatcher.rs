@@ -27,10 +27,7 @@ impl Dispatcher {
     }
 
     pub fn process_frame(&mut self, frame: &mut Frame) {
-        let mut sublayers: Vec<*mut Layer> = frame
-            .layers()
-            .map(|v| v.as_mut_ptr())
-            .collect();
+        let mut sublayers: Vec<*mut Layer> = frame.layers().map(|v| v.as_mut_ptr()).collect();
         let mut offset = 0;
         let mut runners = self.runners();
         loop {

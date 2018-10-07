@@ -71,26 +71,24 @@ impl GenetFileWriterWorker {
 }
 
 impl WriterWorker for GenetFileWriterWorker {
-    fn write(&mut self, _index: u32, stack: &LayerStack) -> Result<()> {
-        if let Some(layer) = stack.bottom() {
-            let mut attrs = Vec::new();
-            for attr in layer.attrs().filter(|attr| attr.is_value()) {
-                let index = self.get_attr_index(attr.id(), attr.typ());
-                attrs.push(genet_format::Attr {
-                    index,
-                    value: attr.try_get(&layer.data())?.into(),
-                });
-            }
-            let id = self.get_token_index(layer.id());
-            self.entries.push(genet_format::Entry {
-                frame: genet_format::Frame {
-                    id,
-                    len: layer.data().len(),
-                    attrs,
-                },
-                data: layer.data(),
+    fn write(&mut self, _index: u32, root: &Layer) -> Result<()> {
+        let mut attrs = Vec::new();
+        for attr in root.attrs().filter(|attr| attr.is_value()) {
+            let index = self.get_attr_index(attr.id(), attr.typ());
+            attrs.push(genet_format::Attr {
+                index,
+                value: attr.try_get(&root.data())?.into(),
             });
         }
+        let id = self.get_token_index(root.id());
+        self.entries.push(genet_format::Entry {
+            frame: genet_format::Frame {
+                id,
+                len: root.data().len(),
+                attrs,
+            },
+            data: root.data(),
+        });
         Ok(())
     }
 

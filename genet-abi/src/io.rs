@@ -155,7 +155,7 @@ extern "C" fn abi_reader_new_worker(
 
 /// Writer worker trait.
 pub trait WriterWorker: Send {
-    fn write(&mut self, index: u32, stack: &LayerStack) -> Result<()>;
+    fn write(&mut self, index: u32, root: &Layer) -> Result<()>;
     fn end(&mut self) -> Result<()> {
         Ok(())
     }
@@ -166,8 +166,7 @@ pub trait ReaderWorker: Send {
     fn read(&mut self) -> Result<Vec<LayerBuilder>>;
 }
 
-type WriterFunc =
-    extern "C" fn(*mut Box<WriterWorker>, u32, *const *const Layer, u64, *mut Error) -> u8;
+type WriterFunc = extern "C" fn(*mut Box<WriterWorker>, u32, *const Layer, *mut Error) -> u8;
 
 type WriterEndFunc = extern "C" fn(*mut Box<WriterWorker>, *mut Error) -> u8;
 
@@ -190,10 +189,9 @@ impl WriterWorkerBox {
         }
     }
 
-    pub fn write(&mut self, index: u32, layers: &[MutFixed<Layer>]) -> Result<()> {
+    pub fn write(&mut self, index: u32, root: &MutFixed<Layer>) -> Result<()> {
         let mut e = Error::new("");
-        let stack = layers.as_ptr() as *const *const Layer;
-        if (self.write)(self.worker, index, stack, layers.len() as u64, &mut e) == 0 {
+        if (self.write)(self.worker, index, root.as_ptr(), &mut e) == 0 {
             Err(Box::new(e))
         } else {
             Ok(())
@@ -276,13 +274,12 @@ extern "C" fn abi_reader_worker_drop(worker: *mut Box<ReaderWorker>) {
 extern "C" fn abi_writer_worker_write(
     worker: *mut Box<WriterWorker>,
     index: u32,
-    layers: *const *const Layer,
-    len: u64,
+    root: *const Layer,
     err: *mut Error,
 ) -> u8 {
     let worker = unsafe { &mut *worker };
-    let stack = unsafe { LayerStack::new(layers, len as usize) };
-    match worker.write(index, &stack) {
+    let root = unsafe { &*root };
+    match worker.write(index, root) {
         Ok(()) => 1,
         Err(e) => {
             unsafe { *err = Error::new(e.description()) };

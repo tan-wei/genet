@@ -16,10 +16,7 @@ unsafe impl Send for Frame {}
 
 impl Frame {
     pub fn new(index: u32, root: MutFixed<Layer>) -> Frame {
-        Frame {
-            index,
-            root,
-        }
+        Frame { index, root }
     }
 
     pub fn index(&self) -> u32 {
@@ -30,7 +27,7 @@ impl Frame {
         &self.root
     }
 
-    pub fn layers(&self) -> impl DoubleEndedIterator <Item = &MutFixed<Layer>> {
+    pub fn layers(&self) -> impl DoubleEndedIterator<Item = &MutFixed<Layer>> {
         vec![self.root()].into_iter().chain(self.root.children())
     }
 
