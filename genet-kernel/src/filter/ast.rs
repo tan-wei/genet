@@ -38,7 +38,7 @@ impl Expr {
             Expr::UnaryPlus(v) => v.eval(ctx).op_unary_plus(),
             Expr::UnaryNegation(v) => v.eval(ctx).op_unary_negation(),
             Expr::Token(t) => {
-                for layer in ctx.frame().layers().iter().rev() {
+                for layer in ctx.frame().layers().rev() {
                     if layer.id() == *t {
                         return Variant::Bool(true);
                     }

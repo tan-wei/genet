@@ -2,7 +2,6 @@ use frame::Frame;
 use genet_abi::{
     context::Context,
     decoder::{DecoderBox, ExecType, WorkerBox},
-    fixed::MutFixed,
     layer::{Layer, Parent},
 };
 use profile::Profile;
@@ -29,11 +28,9 @@ impl Dispatcher {
 
     pub fn process_frame(&mut self, frame: &mut Frame) {
         let mut sublayers: Vec<*mut Layer> = frame
-            .layers_mut()
-            .drain(..)
+            .layers()
             .map(|v| v.as_mut_ptr())
             .collect();
-        let mut indices = Vec::new();
         let mut offset = 0;
         let mut runners = self.runners();
         loop {
@@ -54,9 +51,7 @@ impl Dispatcher {
                     .iter()
                     .map(|v| v.as_mut_ptr())
                     .collect::<Vec<_>>();
-                let children = layers.len();
                 sublayers.append(&mut layers);
-                indices.push(children as u8);
                 layer.apply();
             }
 
@@ -65,13 +60,6 @@ impl Dispatcher {
                 break;
             }
         }
-
-        let mut sublayers = sublayers
-            .into_iter()
-            .map(|v| unsafe { MutFixed::from_ptr(v) })
-            .collect();
-        frame.append_layers(&mut sublayers);
-        frame.append_tree_indices(&mut indices);
     }
 }
 

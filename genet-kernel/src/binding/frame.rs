@@ -25,7 +25,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
                 _ => Token::from(env.get_value_string(env.coerce_to_string(id)?)?.as_str()),
             };
 
-            for layer in frame.layers().iter().rev() {
+            for layer in frame.layers().rev() {
                 if layer.id() == id {
                     let layer_class = env.get_constructor(JsClass::Layer as usize).unwrap();
                     let instance = env.new_instance(&layer_class, &[])?;
@@ -47,10 +47,9 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
     fn frame_root<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let frame = env.unwrap::<Frame>(info.this())?;
-        let layers = frame.layers();
         let layer_class = env.get_constructor(JsClass::Layer as usize).unwrap();
         let instance = env.new_instance(&layer_class, &[])?;
-        env.wrap_mut_fixed(instance, &layers[0])?;
+        env.wrap_mut_fixed(instance, &frame.root())?;
         Ok(instance)
     }
 

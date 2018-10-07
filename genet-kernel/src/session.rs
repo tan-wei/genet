@@ -239,7 +239,10 @@ impl WriterWorkerOutput {
 impl Output for WriterWorkerOutput {
     fn write(&mut self, frames: &[&Frame]) -> genet_abi::result::Result<()> {
         for frame in frames.iter() {
-            self.worker.write(frame.index(), frame.layers())?;
+            for layer in frame.layers() {
+                // FIXME
+                //self.worker.write(frame.index(), &[layer])?;
+            }
         }
         Ok(())
     }
