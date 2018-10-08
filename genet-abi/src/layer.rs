@@ -32,24 +32,37 @@ impl<'a> Parent<'a> {
         }
     }
 
-    pub fn apply(mut self) {
-        let next = Box::into_raw(Box::new(LayerData {
-            next: AtomicPtr::default(),
-            attrs: self.attrs.as_ptr(),
-            attrs_len: self.attrs.len() as u16,
-            payloads: self.payloads.as_ptr(),
-            payloads_len: self.payloads.len() as u16,
-            children: self.children.as_ptr(),
-            children_len: self.children.len() as u16,
-        }));
-        let mut data = &mut self.deref_mut().root as *mut LayerData;
-        while !data.is_null() {
-            data =
-                unsafe { &(*data).next }.compare_and_swap(ptr::null_mut(), next, Ordering::Relaxed);
+    pub fn apply(self) {
+        if self.attrs.is_empty() && self.payloads.is_empty() && self.layer.root.initialized == 0 {
+            let children = self.children.as_ptr();
+            let children_len = self.children.len() as u16;
+            self.layer.root.children = children;
+            self.layer.root.children_len = children_len;
+            self.layer.root.initialized = 1;
+            mem::forget(self.children);
+        } else {
+            let next = Box::into_raw(Box::new(LayerData {
+                next: AtomicPtr::default(),
+                attrs: self.attrs.as_ptr(),
+                attrs_len: self.attrs.len() as u16,
+                payloads: self.payloads.as_ptr(),
+                payloads_len: self.payloads.len() as u16,
+                children: self.children.as_ptr(),
+                children_len: self.children.len() as u16,
+                initialized: 1,
+            }));
+            let mut data = &mut self.layer.root as *mut LayerData;
+            while !data.is_null() {
+                data = unsafe { &(*data).next }.compare_and_swap(
+                    ptr::null_mut(),
+                    next,
+                    Ordering::Relaxed,
+                );
+            }
+            mem::forget(self.attrs);
+            mem::forget(self.payloads);
+            mem::forget(self.children);
         }
-        mem::forget(self.attrs);
-        mem::forget(self.payloads);
-        mem::forget(self.children);
     }
 
     /// Returns the ID of self.
@@ -121,6 +134,7 @@ struct LayerData {
     attrs_len: u16,
     payloads_len: u16,
     children_len: u16,
+    initialized: u8,
 }
 
 impl LayerData {
@@ -232,6 +246,7 @@ impl Into<Layer> for LayerBuilder {
                 payloads_len,
                 children: ptr::null(),
                 children_len: 0,
+                initialized: 0,
             },
             parent: ptr::null(),
         };
