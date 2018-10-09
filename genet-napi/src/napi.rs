@@ -13,11 +13,11 @@ pub type Result<T> = ::std::result::Result<T, Status>;
 
 bitflags! {
     pub struct PropertyAttributes: u32 {
-        const Default = 0;
-        const Writable = 1;
-        const Enumerable = 1 << 1;
-        const Configurable = 1 << 2;
-        const Static = 1 << 10;
+        const DEFAULT = 0;
+        const WRITABLE = 1;
+        const ENUMERABLE = 1 << 1;
+        const CONFIGURABLE = 1 << 2;
+        const STATIC = 1 << 10;
     }
 }
 
