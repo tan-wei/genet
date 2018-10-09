@@ -1,5 +1,6 @@
 extern crate fnv;
 extern crate libc;
+extern crate parking_lot;
 
 #[macro_use]
 extern crate lazy_static;

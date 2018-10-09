@@ -7,14 +7,11 @@ use genet_napi::{
     },
     uv,
 };
+use parking_lot::Mutex;
 use profile::Profile;
 use serde_json;
 use session::{Callback, Event, Session};
-use std::{
-    collections::VecDeque,
-    rc::Rc,
-    sync::{Arc, Mutex},
-};
+use std::{collections::VecDeque, rc::Rc, sync::Arc};
 
 #[derive(Clone)]
 struct SessionCallback {
@@ -25,7 +22,7 @@ struct SessionCallback {
 impl Callback for SessionCallback {
     fn on_event(&self, event: Event) {
         let json = serde_json::to_string(&event).unwrap();
-        self.events.lock().unwrap().push_back(json);
+        self.events.lock().push_back(json);
         self.asyn.send();
     }
 }
@@ -37,7 +34,7 @@ impl SessionCallback {
         SessionCallback {
             asyn: Arc::new(uv::Async::new(move || {
                 let _scope = HandleScope::new(env);
-                while let Some(json) = ev.lock().unwrap().pop_front() {
+                while let Some(json) = ev.lock().pop_front() {
                     let argv = vec![env.create_string(&json).unwrap()];
                     let _ = env.call_function(&callback, &callback, &argv);
                 }

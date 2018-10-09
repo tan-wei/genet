@@ -1,7 +1,8 @@
 use fixed::Fixed;
 use fnv::FnvHashMap;
 use libc;
-use std::{cell::RefCell, collections::hash_map::Entry, slice, str, sync::Mutex};
+use parking_lot::Mutex;
+use std::{cell::RefCell, collections::hash_map::Entry, slice, str};
 use token::Token;
 
 #[no_mangle]
@@ -57,9 +58,9 @@ pub extern "C" fn abi_genet_get_allocator() -> Fixed<Allocator> {
 }
 
 pub unsafe extern "C" fn abi_genet_get_token(data: *const u8, len: u64) -> Token {
-    let tokens = GLOBAL_TOKENS.lock().unwrap();
+    let tokens = GLOBAL_TOKENS.lock();
     let mut tokens = tokens.borrow_mut();
-    let strings = GLOBAL_STRINGS.lock().unwrap();
+    let strings = GLOBAL_STRINGS.lock();
     let mut strings = strings.borrow_mut();
     let id = str::from_utf8_unchecked(slice::from_raw_parts(data, len as usize));
     if id.is_empty() {
@@ -74,7 +75,7 @@ pub unsafe extern "C" fn abi_genet_get_token(data: *const u8, len: u64) -> Token
 }
 
 pub unsafe extern "C" fn abi_genet_get_string(token: Token, len: *mut u64) -> *const u8 {
-    let strings = GLOBAL_STRINGS.lock().unwrap();
+    let strings = GLOBAL_STRINGS.lock();
     let strings = strings.borrow();
     let index: u32 = token.into();
     let index = index as usize;

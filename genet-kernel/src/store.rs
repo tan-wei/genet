@@ -6,13 +6,14 @@ use fnv::FnvHashMap;
 use frame::Frame;
 use genet_abi::{fixed::MutFixed, layer::Layer};
 use io::{Input, Output};
+use parking_lot::RwLock;
 use profile::Profile;
 use result::Result;
 use std::{
     fmt,
     ops::Range,
     panic::{self, AssertUnwindSafe},
-    sync::{Arc, RwLock},
+    sync::Arc,
     thread::{self, JoinHandle},
 };
 
@@ -84,7 +85,6 @@ impl Store {
     pub fn frames(&self, range: Range<usize>) -> Vec<*const Frame> {
         self.frames
             .read()
-            .unwrap()
             .iter()
             .skip(range.start)
             .take(range.end.saturating_sub(range.start))
@@ -93,7 +93,7 @@ impl Store {
     }
 
     pub fn filtered_frames(&self, id: u32, range: Range<usize>) -> Vec<u32> {
-        let filtered = self.filtered.read().unwrap();
+        let filtered = self.filtered.read();
         if let Some(vec) = filtered.get(&id) {
             vec.iter()
                 .skip(range.start)
@@ -106,7 +106,7 @@ impl Store {
     }
 
     pub fn len(&self) -> usize {
-        let frames = self.frames.read().unwrap();
+        let frames = self.frames.read();
         frames.len()
     }
 
@@ -240,7 +240,7 @@ impl EventLoop {
                             }
                             Command::StoreFrames(mut vec) => {
                                 let len = {
-                                    let mut frames = frames.write().unwrap();
+                                    let mut frames = frames.write();
                                     for f in vec {
                                         frames.push(f);
                                     }
@@ -327,7 +327,7 @@ impl EventLoop {
         frames: &FrameStore,
         callback: &Callback,
     ) {
-        let frames = frames.read().unwrap();
+        let frames = frames.read();
         let mut offset = 0;
         {
             let mut output = output;
@@ -377,7 +377,7 @@ impl EventLoop {
         } else {
             filter_map.remove(&id);
         }
-        filtered.write().unwrap().remove(&id);
+        filtered.write().remove(&id);
     }
 
     fn process_filters(
@@ -389,7 +389,7 @@ impl EventLoop {
         for (id, fctx) in filter_map.iter_mut() {
             loop {
                 let (mut indices, end) = {
-                    let frames = frames.read().unwrap();
+                    let frames = frames.read();
                     let mut indices = frames
                         .iter()
                         .skip(fctx.offset)
@@ -408,7 +408,7 @@ impl EventLoop {
                 };
                 if !indices.is_empty() {
                     let len = {
-                        let mut filtered = filtered.write().unwrap();
+                        let mut filtered = filtered.write();
                         let mut frames = filtered.entry(*id).or_insert_with(Vec::new);
                         frames.append(&mut indices);
                         frames.len()

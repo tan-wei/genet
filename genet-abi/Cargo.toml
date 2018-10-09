@@ -9,3 +9,4 @@ authors = ["Ron Hashimoto <mail@h2so5.net>"]
 libc = "0.2"
 lazy_static = "1"
 fnv = "1"
+parking_lot = "0.6"
