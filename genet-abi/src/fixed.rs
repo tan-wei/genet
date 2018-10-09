@@ -106,7 +106,9 @@ impl<T> MutFixed<T> {
     }
 
     pub unsafe fn from_ptr(ptr: *mut T) -> MutFixed<T> {
-        Self { ptr }
+        Self {
+            ptr: NonNull::new_unchecked(ptr),
+        }
     }
 }
 

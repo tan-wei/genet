@@ -10,7 +10,7 @@ impl Worker for IPv6Worker {
         &mut self,
         _ctx: &mut Context,
         _stack: &LayerStack,
-        parent: &mut LayerProxy,
+        parent: &mut Parent,
     ) -> Result<Status> {
         let data;
 
