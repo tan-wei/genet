@@ -1,6 +1,7 @@
 extern crate combine;
 extern crate combine_language;
 extern crate crossbeam_channel;
+extern crate evmap;
 extern crate fnv;
 extern crate genet_abi;
 extern crate genet_napi;
@@ -22,5 +23,6 @@ mod decoder;
 mod filter;
 mod frame;
 mod io;
+mod metadata;
 mod result;
 mod store;
