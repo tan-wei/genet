@@ -241,6 +241,7 @@ impl Into<MutFixed<Layer>> for Layer {
 
 /// A payload object.
 #[repr(C)]
+#[derive(Clone)]
 pub struct Payload {
     data: *const u8,
     len: u64,

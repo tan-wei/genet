@@ -23,6 +23,6 @@ mod decoder;
 mod filter;
 mod frame;
 mod io;
-mod metadata;
+mod appendix;
 mod result;
 mod store;
