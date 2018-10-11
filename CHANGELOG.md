@@ -5,14 +5,25 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [0.5.0] - 2018-10-12
 ### Changed
+- Upgrade Electron.
 - genet-abi: Use helper macros to construct Attr, AttrClass and LayerClass.
 - genet-abi: Use AttrBuilder to construct Attr.
 - genet-abi: Make Mapped trait more generic.
+- genet-abi: Use ExecType for Decoder.
+- genet-abi: Manipulate parent layers through Parent class.
 - genet-kernel: Show new_worker errors in gui instead of stderr.
+- genet-kernel: Introduce rust-based display filter.
+- genet-kernel: Replace NAN/V8 API with N-API.
 
 ### Removed
 - genet-abi: Rmove cast::Nil and cast::Const.
+
+### Fixed
+- tcp: Fix a buffer overrun in the option parsing.
+- tcp: Fix the range of tcp.options.
 
 ## [0.4.0] - 2018-09-03
 ### Added
@@ -69,7 +80,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## 0.1.0 - 2018-08-03
 - Initial Release
 
-[Unreleased]: https://github.com/genet-app/genet/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/genet-app/genet/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/genet-app/genet/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/genet-app/genet/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/genet-app/genet/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/genet-app/genet/compare/v0.1.0...v0.2.0
