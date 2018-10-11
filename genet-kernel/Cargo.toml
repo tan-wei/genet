@@ -17,8 +17,8 @@ num-traits = "0.2"
 num_cpus = "1"
 parking_lot = "0.6"
 fnv = "1"
-genet-abi = "0.4.0"
-genet-sdk = "0.4.0"
+genet-abi = "0.5.0"
+genet-sdk = "0.5.0"
 genet-napi = { path = "../genet-napi" }
 
 [lib]

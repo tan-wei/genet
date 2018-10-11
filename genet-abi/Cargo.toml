@@ -2,7 +2,7 @@
 name = "genet-abi"
 description = "genet ABI definitions"
 license = "MIT"
-version = "0.4.0"
+version = "0.5.0"
 authors = ["Ron Hashimoto <mail@h2so5.net>"]
 
 [dependencies]

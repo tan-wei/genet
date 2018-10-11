@@ -3,5 +3,5 @@ members = ["genet-kernel", "genet-sdk", "genet-abi", "genet-napi"]
 exclude = ["package"]
 
 [replace]
-"genet-abi:0.4.0" = { path = "./genet-abi" }
-"genet-sdk:0.4.0" = { path = "./genet-sdk" }
+"genet-abi:0.5.0" = { path = "./genet-abi" }
+"genet-sdk:0.5.0" = { path = "./genet-sdk" }
