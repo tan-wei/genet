@@ -39,15 +39,11 @@ async function exec() {
 
   const binaryFiles = glob.sync(path.resolve(nodeSrc, `build/${gypTarget}/*.{node,lib}`))
   for (const file of binaryFiles) {
-    fs.createReadStream(file)
-      .pipe(fs.createWriteStream(
-        path.resolve(dstBin, path.basename(file))))
+    await fs.copy(file, path.resolve(dstBin, path.basename(file)))
   }
 
   for (const file of scriptFiles) {
-    fs.createReadStream(file)
-      .pipe(fs.createWriteStream(
-        path.resolve(dst, path.basename(file))))
+    await fs.copy(file, path.resolve(dst, path.basename(file)))
   }
 }
 
