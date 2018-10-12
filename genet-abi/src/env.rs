@@ -19,6 +19,22 @@ pub extern "C" fn genet_abi_version() -> u64 {
 }
 
 #[no_mangle]
+pub extern "C" fn genet_abi_version_marker__() -> *const u8 {
+    concat!(
+        "################################",
+        "################################",
+        "################################",
+        "################################",
+        ":GENET:ABI:",
+        env!("CARGO_PKG_VERSION_MAJOR"),
+        ".",
+        env!("CARGO_PKG_VERSION_MINOR"),
+        ":"
+    )
+    .as_ptr()
+}
+
+#[no_mangle]
 pub extern "C" fn genet_abi_v1_register_get_token(ptr: extern "C" fn(*const u8, u64) -> Token) {
     unsafe { GENET_GET_TOKEN = ptr };
 }
