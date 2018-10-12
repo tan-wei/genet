@@ -90,7 +90,16 @@ impl Profile {
         {
             let func = unsafe { lib.get::<FnVersion>(b"genet_abi_version")? };
 
-            if env::genet_abi_version() != func() {
+            // In the initial development, minor version changes may break ABI.
+            fn canonical(ver: u64) -> u64 {
+                if ver >> 32 == 0 {
+                    ver
+                } else {
+                    ver & (0xffffffff << 32)
+                }
+            }
+
+            if canonical(env::genet_abi_version()) != canonical(func()) {
                 return Err(io::Error::new(io::ErrorKind::Other, "abi version mismatch"));
             }
 
