@@ -1,9 +1,9 @@
 use combine::{
-    between, choice,
+    attempt, between, choice,
     combinator::{parser, recognize},
     eof, from_str, many, many1, not_followed_by,
     parser::char::{alpha_num, digit, hex_digit, letter, oct_digit, spaces, string},
-    skip_many, token, try, Parser,
+    skip_many, token, Parser,
 };
 use combine_language;
 use filter::{ast::Expr, variant::VariantExt};
@@ -12,19 +12,19 @@ use num_bigint::BigInt;
 use num_traits::Num;
 
 fn unsigned_bin<'a>() -> impl Parser<Input = &'a str, Output = BigInt> {
-    try(string("0b"))
+    attempt(string("0b"))
         .with(many1(token('0').or(token('1').skip(skip_many(token('_'))))))
         .map(|s: String| BigInt::from_str_radix(&s, 2).unwrap())
 }
 
 fn unsigned_oct<'a>() -> impl Parser<Input = &'a str, Output = BigInt> {
-    try(string("0o"))
+    attempt(string("0o"))
         .with(many1(oct_digit().skip(skip_many(token('_')))))
         .map(|s: String| BigInt::from_str_radix(&s, 8).unwrap())
 }
 
 fn unsigned_hex<'a>() -> impl Parser<Input = &'a str, Output = BigInt> {
-    try(string("0x"))
+    attempt(string("0x"))
         .with(many1(hex_digit().skip(skip_many(token('_')))))
         .map(|s: String| BigInt::from_str_radix(&s, 16).unwrap())
 }
@@ -83,9 +83,11 @@ fn identifier<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
 
 fn literal<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
     choice((
-        try(boolean().map(Variant::Bool)),
-        try(float().map(Variant::Float64)),
-        try(number().map(|v| Variant::BigInt(v.to_signed_bytes_be().into_boxed_slice()).shrink())),
+        attempt(boolean().map(Variant::Bool)),
+        attempt(float().map(Variant::Float64)),
+        attempt(
+            number().map(|v| Variant::BigInt(v.to_signed_bytes_be().into_boxed_slice()).shrink()),
+        ),
     ))
     .map(Expr::Literal)
 }
@@ -139,14 +141,14 @@ fn op(l: Expr, op: &'static str, r: Expr) -> Expr {
 
 pub fn expression<'a>() -> impl Parser<Input = &'a str, Output = Expr> {
     let op_parser = choice([
-        try(string("<=")),
-        try(string("<")),
-        try(string(">=")),
-        try(string(">")),
-        try(string("==")),
-        try(string("!=")),
-        try(string("&&")),
-        try(string("||")),
+        attempt(string("<=")),
+        attempt(string("<")),
+        attempt(string(">=")),
+        attempt(string(">")),
+        attempt(string("==")),
+        attempt(string("!=")),
+        attempt(string("&&")),
+        attempt(string("||")),
     ])
     .map(|op| {
         let prec = match op {
