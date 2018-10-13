@@ -27,5 +27,6 @@ script:
 - cargo build
 - cargo test
 - (cd genet-node && node-gyp rebuild --debug)
+- (cd gpm && npm i && npm test)
 notifications:
   email: false
