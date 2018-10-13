@@ -11,7 +11,6 @@ use std::ptr;
 pub enum ExecType {
     ParallelSync = 0,
     SerialSync = 1,
-    SerialAsync = 2,
 }
 
 /// Dissection status.
