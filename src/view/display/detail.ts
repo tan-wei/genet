@@ -41,11 +41,11 @@ class LayerItem {
       index,
     }))
     attrs.sort((lhs, rhs) => {
-      if (lhs.attr.range[0] !== rhs.attr.range[0]) {
-        return lhs.attr.range[0] - rhs.attr.range[0]
+      if (lhs.attr.bitRange[0] !== rhs.attr.bitRange[0]) {
+        return lhs.attr.bitRange[0] - rhs.attr.bitRange[0]
       }
-      const llen = lhs.attr.range[1] - lhs.attr.range[0]
-      const rlen = rhs.attr.range[1] - rhs.attr.range[0]
+      const llen = lhs.attr.bitRange[1] - lhs.attr.bitRange[0]
+      const rlen = rhs.attr.bitRange[1] - rhs.attr.bitRange[0]
       if (llen !== rlen) {
         return rlen - llen
       }

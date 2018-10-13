@@ -69,6 +69,15 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         env.create_string(&attr.typ().to_string())
     }
 
+    fn attr_bit_range<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
+        let attr = env.unwrap::<AttrWrapper>(info.this())?.attr();
+        let range = attr.bit_range();
+        let array = env.create_array(2)?;
+        env.set_element(array, 0, env.create_uint32(range.start as u32)?)?;
+        env.set_element(array, 1, env.create_uint32(range.end as u32)?)?;
+        Ok(array)
+    }
+
     fn attr_range<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let attr = env.unwrap::<AttrWrapper>(info.this())?.attr();
         let range = attr.range();
@@ -100,6 +109,13 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
                     "type",
                     PropertyAttributes::DEFAULT,
                     attr_type,
+                    false,
+                ),
+                PropertyDescriptor::new_property(
+                    env,
+                    "bitRange",
+                    PropertyAttributes::DEFAULT,
+                    attr_bit_range,
                     false,
                 ),
                 PropertyDescriptor::new_property(

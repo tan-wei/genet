@@ -27,9 +27,15 @@ impl AttrBuilder {
         }
     }
 
-    /// Sets a range of Attr.
+    /// Sets a byte range of Attr.
     pub fn range(mut self, range: Range<usize>) -> AttrBuilder {
-        self.range = range;
+        self.range = (range.start * 8)..(range.end * 8);
+        self
+    }
+
+    /// Sets a bit range of Attr.
+    pub fn bit_range(mut self, byte_offset: usize, range: Range<usize>) -> AttrBuilder {
+        self.range = (range.start + byte_offset * 8)..(range.end + byte_offset * 8);
         self
     }
 
@@ -80,9 +86,14 @@ impl Attr {
         self.class.is_value()
     }
 
-    /// Returns the range of self.
+    /// Returns the byte range of self.
     pub fn range(&self) -> Range<usize> {
         self.class.range(self)
+    }
+
+    /// Returns the bit range of self.
+    pub fn bit_range(&self) -> Range<usize> {
+        self.class.bit_range(self)
     }
 
     /// Returns the attribute value.
@@ -206,7 +217,7 @@ impl AttrClass {
         (self.is_value)(self) != 0
     }
 
-    fn range(&self, attr: &Attr) -> Range<usize> {
+    fn bit_range(&self, attr: &Attr) -> Range<usize> {
         let mut start;
         let mut end;
         unsafe {
@@ -215,6 +226,11 @@ impl AttrClass {
         }
         (self.range)(attr, &mut start, &mut end);
         start as usize..end as usize
+    }
+
+    fn range(&self, attr: &Attr) -> Range<usize> {
+        let range = self.bit_range(attr);
+        (range.start / 8)..((range.end + 7) / 8)
     }
 
     fn try_get(&self, attr: &Attr, layer: &Layer) -> Result<Variant> {

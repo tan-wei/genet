@@ -146,7 +146,6 @@ impl DecoderBox {
     pub fn execution_type(&self) -> ExecType {
         match (self.execution_type)(self) {
             1 => ExecType::SerialSync,
-            2 => ExecType::SerialAsync,
             _ => ExecType::ParallelSync,
         }
     }
