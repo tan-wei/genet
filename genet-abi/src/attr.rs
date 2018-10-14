@@ -3,6 +3,7 @@ use env;
 use error::Error;
 use fixed::Fixed;
 use layer::Layer;
+use metadata::Metadata;
 use result::Result;
 use slice::ByteSlice;
 use std::{fmt, io, mem, ops::Range, slice};
@@ -142,6 +143,7 @@ impl<T: Into<Variant> + Clone> Typed for Const<T> {
 pub struct AttrClassBuilder {
     id: Token,
     typ: Token,
+    meta: Metadata,
     cast: Option<Box<Cast>>,
 }
 
@@ -149,6 +151,18 @@ impl AttrClassBuilder {
     /// Sets a type of AttrClass.
     pub fn typ<T: Into<Token>>(mut self, typ: T) -> AttrClassBuilder {
         self.typ = typ.into();
+        self
+    }
+
+    /// Sets a name of AttrClass.
+    pub fn name(mut self, name: &'static str) -> AttrClassBuilder {
+        self.meta.set_name(name);
+        self
+    }
+
+    /// Sets a description of AttrClass.
+    pub fn description(mut self, desc: &'static str) -> AttrClassBuilder {
+        self.meta.set_description(desc);
         self
     }
 
@@ -177,6 +191,7 @@ impl AttrClassBuilder {
             get: abi_get,
             id: self.id,
             typ: self.typ,
+            meta: self.meta,
             cast: self.cast,
         }
     }
@@ -192,6 +207,7 @@ pub struct AttrClass {
     get: extern "C" fn(*const Attr, *mut *const u8, u64, *mut i64, *mut Error) -> ValueType,
     id: Token,
     typ: Token,
+    meta: Metadata,
     cast: Option<Box<Cast>>,
 }
 
@@ -201,6 +217,7 @@ impl AttrClass {
         AttrClassBuilder {
             id: id.into(),
             typ: Token::null(),
+            meta: Metadata::new(),
             cast: None,
         }
     }

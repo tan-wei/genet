@@ -1,5 +1,6 @@
 use attr::Attr;
 use fixed::{Fixed, MutFixed};
+use metadata::Metadata;
 use slice::ByteSlice;
 use std::{
     fmt,
@@ -290,6 +291,7 @@ pub struct LayerClassBuilder {
     id: Token,
     aliases: Vec<Alias>,
     headers: Vec<Fixed<Attr>>,
+    meta: Metadata,
 }
 
 impl LayerClassBuilder {
@@ -305,6 +307,18 @@ impl LayerClassBuilder {
     /// Adds a header attribute for LayerClass.
     pub fn header<T: Into<Fixed<Attr>>>(mut self, attr: T) -> LayerClassBuilder {
         self.headers.push(attr.into());
+        self
+    }
+
+    /// Sets a name of LayerClass.
+    pub fn name(mut self, name: &'static str) -> LayerClassBuilder {
+        self.meta.set_name(name);
+        self
+    }
+
+    /// Sets a description of LayerClass.
+    pub fn description(mut self, desc: &'static str) -> LayerClassBuilder {
+        self.meta.set_description(desc);
         self
     }
 
@@ -324,6 +338,7 @@ impl LayerClassBuilder {
             payloads_data: abi_payloads_data,
             add_payload: abi_add_payload,
             id: self.id,
+            meta: self.meta,
             aliases: self.aliases,
             headers: self.headers,
         }
@@ -352,6 +367,7 @@ pub struct LayerClass {
     payloads_data: extern "C" fn(*const Layer) -> *const Payload,
     add_payload: extern "C" fn(*mut Layer, Payload),
     id: Token,
+    meta: Metadata,
     aliases: Vec<Alias>,
     headers: Vec<Fixed<Attr>>,
 }
@@ -361,6 +377,7 @@ impl LayerClass {
     pub fn builder<T: Into<Token>>(id: T) -> LayerClassBuilder {
         LayerClassBuilder {
             id: id.into(),
+            meta: Metadata::new(),
             aliases: Vec::new(),
             headers: Vec::new(),
         }

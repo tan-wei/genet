@@ -14,6 +14,7 @@ pub mod error;
 pub mod fixed;
 pub mod io;
 pub mod layer;
+pub mod metadata;
 pub mod result;
 pub mod slice;
 pub mod token;
