@@ -28,31 +28,35 @@ impl Dispatcher {
     }
 
     pub fn process_frame(&mut self, frame: &mut Frame) {
-        let mut sublayers = Vec::new();
-        sublayers.append(frame.layers_mut());
-        let mut indices = Vec::new();
+        let mut indices = frame.fetch_tree_indices();
+        let mut layers = frame.fetch_layers();
         let mut offset = 0;
         let mut runners = self.runners();
         loop {
-            let len = sublayers.len() - offset;
-            for index in offset..sublayers.len() {
+            let len = layers.len() - offset;
+            for index in offset..layers.len() {
+                if let Some(n) = indices.get(index) {
+                    if *n > 0 {
+                        continue;
+                    }
+                }
                 let mut children = 0;
                 loop {
                     let mut executed = 0;
                     for mut r in &mut runners.iter_mut() {
                         let mut layer =
-                            Parent::from_mut_ref(unsafe { &mut *sublayers[index].as_mut_ptr() });
-                        let done = r.execute(&sublayers, &mut layer);
+                            Parent::from_mut_ref(unsafe { &mut *layers[index].as_mut_ptr() });
+                        let done = r.execute(&layers, &mut layer);
                         if done {
                             executed += 1;
                         }
-                        let mut layers: Vec<MutFixed<Layer>> = layer
+                        let mut results: Vec<MutFixed<Layer>> = layer
                             .children()
                             .iter()
                             .map(|v| unsafe { MutFixed::from_ptr(*v) })
                             .collect();
-                        children += layers.len();
-                        sublayers.append(&mut layers);
+                        children += results.len();
+                        layers.append(&mut results);
                     }
                     if executed == 0 {
                         break;
@@ -62,13 +66,13 @@ impl Dispatcher {
             }
 
             offset += len;
-            if offset >= sublayers.len() {
+            if offset >= layers.len() {
                 break;
             }
         }
 
-        frame.append_layers(&mut sublayers);
-        frame.append_tree_indices(&mut indices);
+        frame.set_layers(layers);
+        frame.set_tree_indices(indices);
     }
 }
 

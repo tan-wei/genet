@@ -1,5 +1,5 @@
 use genet_abi::{attr::Attr, fixed::MutFixed, layer::Layer, token::Token};
-use std::fmt;
+use std::{fmt, mem};
 
 pub struct Frame {
     index: u32,
@@ -41,19 +41,27 @@ impl Frame {
         None
     }
 
-    pub fn layers_mut(&mut self) -> &mut Vec<MutFixed<Layer>> {
-        &mut self.layers
+    pub fn fetch_layers(&mut self) -> Vec<MutFixed<Layer>> {
+        let mut v = Vec::new();
+        mem::swap(&mut self.layers, &mut v);
+        v
     }
 
-    pub fn append_layers(&mut self, mut layers: &mut Vec<MutFixed<Layer>>) {
-        self.layers.append(&mut layers);
+    pub fn set_layers(&mut self, layers: Vec<MutFixed<Layer>>) {
+        self.layers = layers;
     }
 
     pub fn tree_indices(&self) -> &[u8] {
         &self.tree_indices
     }
 
-    pub fn append_tree_indices(&mut self, tree_indices: &mut Vec<u8>) {
-        self.tree_indices.append(tree_indices);
+    pub fn fetch_tree_indices(&mut self) -> Vec<u8> {
+        let mut v = Vec::new();
+        mem::swap(&mut self.tree_indices, &mut v);
+        v
+    }
+
+    pub fn set_tree_indices(&mut self, tree_indices: Vec<u8>) {
+        self.tree_indices = tree_indices;
     }
 }
