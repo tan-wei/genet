@@ -8,7 +8,6 @@ const versionFile = process.env.GENET_VERSION_FILE ||
 let resourcePath = null
 let genetVersion = null
 let genetAbiVersion = null
-let genetTarget = null
 try {
   const ver = fs.readJsonSync(versionFile)
   resourcePath = ver
@@ -16,12 +15,10 @@ try {
     .replace(/\bapp\.asar\b/, 'app.asar.unpacked')
   genetVersion = ver.genet
   genetAbiVersion = ver.abi
-  genetTarget = ver.target
 } catch (err) {
   resourcePath = null
   genetVersion = null
   genetAbiVersion = null
-  genetTarget = null
 }
 
 const builtinPackagePath = resourcePath
@@ -31,7 +28,7 @@ module.exports = {
   version: fs.readJSONSync(path.join(__dirname, '../package.json')).version,
   genetVersion,
   genetAbiVersion,
-  genetTarget,
+  genetTarget: process.env.GENET_TARGET || 'release',
   resourcePath,
   builtinPackagePath,
   userPackagePath: path.join(os.homedir(), '.genet', 'package'),

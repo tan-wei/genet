@@ -19,8 +19,6 @@ program
     (val) => semver.valid(semver.coerce(val)) || false)
   .option('-d, --dst <path>', 'specify installation directory')
   .option('-w, --watch', 'automatically install updated local packages')
-  .option('--debug', 'debug build')
-  .option('--release', 'release build')
   .usage('[packages...]')
   .parse(process.argv)
 
@@ -36,24 +34,12 @@ if (!sdkVersion) {
   process.exit(1)
 }
 
-const debugBuild = program.debug || genetTarget === 'debug'
-const releaseBuild = program.release || genetTarget === 'release'
-if (!debugBuild && !releaseBuild) {
-  console.info('Failed to detect genet target (debug/release).')
-  console.info('Attempt to build both targets.')
-}
-
 const dst = program.dst || userPackagePath
 async function run (source) {
   const dir = await fetch(source)
   await verify(dir, genetVersion)
   await npm(dir)
-  if (debugBuild || (!debugBuild && !releaseBuild)) {
-    await cargo(dir, sdkVersion, 'debug')
-  }
-  if (releaseBuild || (!debugBuild && !releaseBuild)) {
-    await cargo(dir, sdkVersion, 'release')
-  }
+  await cargo(dir, sdkVersion, genetTarget)
   await install(source, dst, dir)
 }
 
