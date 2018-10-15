@@ -24,9 +24,19 @@ export default class DetailView {
     const config = Object.entries(genet.config.schema)
       .filter(([id]) => id.startsWith(`${pkg.metadata.name}.`)) as [string, any][]
     return m('article', [
-      m('h1', { disabled: pkg.disabled }, [pkg.metadata.name,
-      m('span', { class: 'version' },
-        [pkg.metadata.version])]),
+      m('h1', { disabled: pkg.disabled }, [
+        pkg.metadata.name,
+        m('span', { class: 'version' },
+          [pkg.metadata.version]),
+        m('span', {
+          class: 'version',
+          style: {
+            display: pkg.abi
+              ? 'inline'
+              : 'none',
+          },
+        }, ['abi: ', pkg.abi]),
+      ]),
       m('p', [pkg.metadata.description]),
       m('p', {
         style: {
