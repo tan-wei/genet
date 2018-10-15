@@ -1,25 +1,20 @@
 const crypto = require('crypto')
-const glob = require('glob')
 const path = require('path')
-const semver = require('semver')
-const getAbiVersion = require('./abi')
-const { genetTarget } = require('./env')
+const fs = require('fs-extra')
 class Package {
   constructor (dir, pkgJson, source) {
     Reflect.set(this, 'metadata', pkgJson)
     Reflect.set(this, 'source', source)
     Reflect.set(this, 'dir', dir)
 
-    const abiVers = glob.sync(
-      path.join(dir,
-        `/target/${genetTarget}/*.{dll,so,dylib}`), { absolute: true })
-      .map((file) => getAbiVersion(file))
-      .filter((ver) => ver !== null)
-    const sorted = semver.sort(abiVers.map((ver) => `${ver}.0`))
-      .map((ver) => ver.split('.').slice(0, 2)
-        .join('.'))
-    if (sorted.length > 0) {
-      Reflect.set(this, 'abi', sorted[0])
+    try {
+      const pattern =
+        /\[\[package\]\]\sname = "genet-abi"\sversion = "(\d+\.\d+\.\d+)"/
+      const cargoLock = fs.readFileSync(path.join(dir, 'Cargo.lock'), 'utf8')
+      const result = cargoLock.match(pattern)
+      Reflect.set(this, 'abi', result[1])
+    } catch (err) {
+      Reflect.set(this, 'abi', null)
     }
 
     const hash = crypto.createHash('sha256')

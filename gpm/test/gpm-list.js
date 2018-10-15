@@ -59,6 +59,7 @@ describe('gpm', () => {
           'genet': { 'components': [] },
         },
         'source': ':builtin:',
+        'abi': null,
         'dir': path.join(dir, 'package/pkg'),
         'id': ':builtin::@genet/pkg:da4446a8',
       }, {
@@ -70,6 +71,7 @@ describe('gpm', () => {
           '_gpm': { source: 'test' },
         },
         'source': 'test',
+        'abi': null,
         'dir': path.join(dir, 'user/userpkg'),
         'id': 'test:@genet/userpkg:a646fbc7',
       }])
