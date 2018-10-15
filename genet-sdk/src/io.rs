@@ -19,6 +19,7 @@ macro_rules! genet_readers {
                 v
             };
         }
+        #[cfg(not(feature = "genet-static"))]
         #[no_mangle]
         pub extern "C" fn genet_abi_v1_get_readers(len: *mut u64) -> *const genet_sdk::io::ReaderBox {
             READERS.with(|d| {
@@ -45,6 +46,7 @@ macro_rules! genet_writers {
                 v
             };
         }
+        #[cfg(not(feature = "genet-static"))]
         #[no_mangle]
         pub extern "C" fn genet_abi_v1_get_writers(len: *mut u64) -> *const genet_sdk::io::WriterBox {
             WRITERS.with(|d| {

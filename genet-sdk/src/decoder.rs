@@ -19,6 +19,7 @@ macro_rules! genet_decoders {
                 v
             };
         }
+        #[cfg(not(feature = "genet-static"))]
         #[no_mangle]
         pub extern "C" fn genet_abi_v1_get_decoders(len: *mut u64) -> *const genet_sdk::decoder::DecoderBox {
             DISSECTORS.with(|d| {

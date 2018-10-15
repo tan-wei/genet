@@ -5,6 +5,7 @@ use parking_lot::Mutex;
 use std::{cell::RefCell, collections::hash_map::Entry, slice, str};
 use token::Token;
 
+#[cfg(not(feature = "genet-static"))]
 #[no_mangle]
 pub extern "C" fn genet_abi_version() -> u64 {
     let major: u64 = env!("CARGO_PKG_VERSION_MAJOR").parse().unwrap_or(0);
@@ -12,6 +13,7 @@ pub extern "C" fn genet_abi_version() -> u64 {
     major << 32 | minor
 }
 
+#[cfg(not(feature = "genet-static"))]
 #[no_mangle]
 pub extern "C" fn genet_abi_version_marker__() -> *const u8 {
     concat!(
@@ -28,11 +30,13 @@ pub extern "C" fn genet_abi_version_marker__() -> *const u8 {
     .as_ptr()
 }
 
+#[cfg(not(feature = "genet-static"))]
 #[no_mangle]
 pub extern "C" fn genet_abi_v1_register_get_token(ptr: extern "C" fn(*const u8, u64) -> Token) {
     unsafe { GENET_GET_TOKEN = ptr };
 }
 
+#[cfg(not(feature = "genet-static"))]
 #[no_mangle]
 pub extern "C" fn genet_abi_v1_register_get_string(
     ptr: extern "C" fn(Token, *mut u64) -> *const u8,
@@ -40,6 +44,7 @@ pub extern "C" fn genet_abi_v1_register_get_string(
     unsafe { GENET_GET_STRING = ptr };
 }
 
+#[cfg(not(feature = "genet-static"))]
 #[no_mangle]
 pub extern "C" fn genet_abi_v1_register_get_allocator(ptr: extern "C" fn() -> Fixed<Allocator>) {
     unsafe { GENET_GET_ALLOCATOR = ptr };
@@ -50,7 +55,7 @@ static mut GENET_GET_STRING: unsafe extern "C" fn(Token, *mut u64) -> *const u8 
     abi_genet_get_string;
 static mut GENET_GET_ALLOCATOR: extern "C" fn() -> Fixed<Allocator> = abi_genet_get_allocator;
 
-pub extern "C" fn abi_genet_get_allocator() -> Fixed<Allocator> {
+extern "C" fn abi_genet_get_allocator() -> Fixed<Allocator> {
     extern "C" fn alloc(size: u64) -> *mut u8 {
         unsafe { libc::malloc(size as usize) as *mut u8 }
     }
