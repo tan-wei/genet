@@ -14,6 +14,7 @@ class Package {
       path.join(dir,
         `/target/${genetTarget}/*.{dll,so,dylib}`), { absolute: true })
       .map((file) => getAbiVersion(file))
+      .filter((ver) => ver !== null)
     const sorted = semver.sort(abiVers.map((ver) => `${ver}.0`))
       .map((ver) => ver.split('.').slice(0, 2)
         .join('.'))
