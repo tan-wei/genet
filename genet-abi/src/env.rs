@@ -55,7 +55,7 @@ static mut GENET_GET_STRING: unsafe extern "C" fn(Token, *mut u64) -> *const u8 
     abi_genet_get_string;
 static mut GENET_GET_ALLOCATOR: extern "C" fn() -> Fixed<Allocator> = abi_genet_get_allocator;
 
-extern "C" fn abi_genet_get_allocator() -> Fixed<Allocator> {
+pub extern "C" fn abi_genet_get_allocator() -> Fixed<Allocator> {
     extern "C" fn alloc(size: u64) -> *mut u8 {
         unsafe { libc::malloc(size as usize) as *mut u8 }
     }
