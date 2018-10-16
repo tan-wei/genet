@@ -1,5 +1,4 @@
-use combine::Parser;
-use filter::{ast::Expr, context::Context, parser::expression, variant::VariantExt};
+use filter::{ast::Expr, context::Context, parser::parse, variant::VariantExt};
 use result::Result;
 use std::fmt;
 
@@ -15,8 +14,8 @@ pub struct Filter {
 
 impl Filter {
     pub fn compile(filter: &str) -> Result<Filter> {
-        match expression().parse(filter) {
-            Ok((expr, _)) => Ok(Filter { expr }),
+        match parse(filter) {
+            Ok(expr) => Ok(Filter { expr }),
             Err(err) => Err(Box::new(Error(format!("{}", err)))),
         }
     }
