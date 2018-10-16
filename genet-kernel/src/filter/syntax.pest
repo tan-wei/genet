@@ -1,4 +1,5 @@
 WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
+macro_exp = @{ "@" ~ (!(WHITESPACE) ~ ANY)+ }
 
 dec_integer = @{ ASCII_DIGIT+ }
 hex_integer = @{ "0x" ~ ASCII_HEX_DIGIT+ }
@@ -29,7 +30,7 @@ op_logical_or = { "||" }
 
 infix_operator = _{ op_eq | op_ne | op_lte | op_gte | op_lt | op_gt | op_logical_and | op_logical_or }
 unary = _{ op_unary_plus | op_unary_negation | op_logical_negation }
-unary_operand = _{ ("(" ~ expression ~ ")") | literal | member }
+unary_operand = _{ ("(" ~ expression ~ ")") | literal | member | macro_exp }
 
 expression = { primary ~ (infix_operator ~ primary)* }
 primary = { unary* ~ unary_operand }
