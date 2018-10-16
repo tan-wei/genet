@@ -12,6 +12,10 @@ extern crate num_traits;
 extern crate parking_lot;
 extern crate serde;
 extern crate serde_json;
+extern crate pest;
+
+#[macro_use]
+extern crate pest_derive;
 
 pub mod binding;
 pub mod profile;

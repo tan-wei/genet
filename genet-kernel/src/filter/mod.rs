@@ -6,6 +6,7 @@ use std::fmt;
 pub mod ast;
 pub mod context;
 pub mod parser;
+pub mod parser2;
 pub mod variant;
 
 #[derive(Clone, Debug)]
