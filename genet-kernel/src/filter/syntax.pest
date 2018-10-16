@@ -1,9 +1,9 @@
 WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
 
-dec_integer = @{ ASCII_DIGIT ~ (ASCII_DIGIT | "_")* }
-hex_integer = @{ "0x" ~ ASCII_HEX_DIGIT ~ (ASCII_HEX_DIGIT | "_")* }
-oct_integer = @{ "0o" ~ ASCII_OCT_DIGIT ~ (ASCII_OCT_DIGIT | "_")* }
-bin_integer = @{ "0b" ~ ASCII_BIN_DIGIT ~ (ASCII_BIN_DIGIT | "_")* }
+dec_integer = @{ ASCII_DIGIT+ }
+hex_integer = @{ "0x" ~ ASCII_HEX_DIGIT+ }
+oct_integer = @{ "0o" ~ ASCII_OCT_DIGIT+ }
+bin_integer = @{ "0b" ~ ASCII_BIN_DIGIT+ }
 
 float = @{ "-"? ~ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+ }
 
@@ -32,6 +32,6 @@ unary = _{ op_unary_plus | op_unary_negation | op_logical_negation }
 unary_operand = _{ ("(" ~ expression ~ ")") | literal | member }
 
 expression = { primary ~ (infix_operator ~ primary)* }
-primary = _{ unary* ~ unary_operand }
+primary = { unary* ~ unary_operand }
 
 filter = !{ SOI ~ expression ~ EOI }

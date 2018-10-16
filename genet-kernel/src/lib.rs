@@ -10,9 +10,9 @@ extern crate num_bigint;
 extern crate num_cpus;
 extern crate num_traits;
 extern crate parking_lot;
+extern crate pest;
 extern crate serde;
 extern crate serde_json;
-extern crate pest;
 
 #[macro_use]
 extern crate pest_derive;
