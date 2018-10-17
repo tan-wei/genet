@@ -78,6 +78,7 @@ fn consume_primary(pair: Pair<Rule>) -> Expr {
                 Expr::Literal(Variant::BigInt(v.to_signed_bytes_be().into_boxed_slice()).shrink())
             }
             Rule::float => Expr::Literal(Variant::Float64(item.as_str().parse().unwrap())),
+            Rule::nil => Expr::Literal(Variant::Nil),
             Rule::boolean => Expr::Literal(Variant::Bool(item.as_str() == "true")),
             Rule::member => Expr::Token(Token::from(item.as_str())),
             _ => Expr::Literal(Variant::Nil),
@@ -95,6 +96,8 @@ mod tests {
 
     #[test]
     fn literal() {
+        assert_eq!(parse("nil"), Ok(Literal(Variant::Nil)));
+        assert_eq!(parse("nile"), Ok(Token(Token::from("nile"))));
         assert_eq!(parse("true"), Ok(Literal(Variant::Bool(true))));
         assert_eq!(parse("truely"), Ok(Token(Token::from("truely"))));
         assert_eq!(parse("false"), Ok(Literal(Variant::Bool(false))));

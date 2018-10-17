@@ -9,8 +9,9 @@ bin_integer = @{ "0b" ~ ASCII_BIN_DIGIT+ }
 float = @{ "-"? ~ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+ }
 
 integer = _{ hex_integer | oct_integer | bin_integer | dec_integer }
+nil = @{ "nil" ~ !(ASCII_ALPHA | "_" | ".") }
 boolean = @{ ("true" | "false") ~ !(ASCII_ALPHA | "_" | ".") }
-literal = _{ boolean | float | integer }
+literal = _{ nil | boolean | float | integer }
 
 identifier = @{ (ASCII_ALPHA | "_") ~ (ASCII_ALPHA | ASCII_DIGIT | "_")* }
 member = @{ identifier ~ ("." ~ identifier)* }
