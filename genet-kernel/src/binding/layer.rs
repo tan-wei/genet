@@ -1,4 +1,5 @@
 use binding::{attr::AttrWrapper, JsClass};
+use filter::{ast::Expr, unparser::unparse};
 use genet_abi::{layer::Layer, token::Token};
 use genet_napi::napi::{
     CallbackInfo, Env, PropertyAttributes, PropertyDescriptor, Result, Status, TypedArrayType,
@@ -93,6 +94,11 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         )
     }
 
+    fn layer_filter_expression<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
+        let layer = env.unwrap::<Layer>(info.this())?;
+        env.create_string(&unparse(&Expr::Token(layer.id())))
+    }
+
     let class = env
         .define_class(
             "Layer",
@@ -130,6 +136,13 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
                     "data",
                     PropertyAttributes::DEFAULT,
                     layer_data,
+                    false,
+                ),
+                PropertyDescriptor::new_property(
+                    env,
+                    "filterExpression",
+                    PropertyAttributes::DEFAULT,
+                    layer_filter_expression,
                     false,
                 ),
             ],

@@ -14,6 +14,7 @@ pub trait VariantExt {
     fn op_lte(&self, other: &Variant) -> bool;
     fn op_gte(&self, other: &Variant) -> bool;
     fn op_eq(&self, other: &Variant) -> bool;
+    fn to_string(&self) -> String;
 }
 
 impl VariantExt for Variant {
@@ -160,5 +161,9 @@ impl VariantExt for Variant {
             Some(Ordering::Equal) => true,
             _ => false,
         }
+    }
+
+    fn to_string(&self) -> String {
+        String::new()
     }
 }
