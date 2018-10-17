@@ -101,7 +101,7 @@ class LayerItem {
             oncontextmenu: (event) => {
               genet.menu.showContextMenu(event, [
                 {
-                  label: `Apply Filter: ${layer.id}`,
+                  label: `Apply Filter: ${layer.filterExpression}`,
                   click: () => genet.action
                     .emit('core:filter:set', layer.id),
                 },

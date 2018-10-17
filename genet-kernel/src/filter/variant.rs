@@ -1,6 +1,7 @@
 use genet_abi::variant::Variant;
 use num_bigint::{BigInt, Sign};
 use num_traits::ToPrimitive;
+use serde_json;
 use std::cmp::Ordering;
 
 pub trait VariantExt {
@@ -14,6 +15,7 @@ pub trait VariantExt {
     fn op_lte(&self, other: &Variant) -> bool;
     fn op_gte(&self, other: &Variant) -> bool;
     fn op_eq(&self, other: &Variant) -> bool;
+    fn to_string(&self) -> String;
 }
 
 impl VariantExt for Variant {
@@ -159,6 +161,23 @@ impl VariantExt for Variant {
         match self.ord(other) {
             Some(Ordering::Equal) => true,
             _ => false,
+        }
+    }
+
+    fn to_string(&self) -> String {
+        match self {
+            Variant::Nil => "nil".to_string(),
+            Variant::Bool(v) => if *v { "true" } else { "false" }.to_string(),
+            Variant::Int64(v) => format!("{}", v),
+            Variant::UInt64(v) => format!("{}", v),
+            Variant::Float64(v) => format!("{}", v),
+            Variant::String(s) => serde_json::to_string(&s).unwrap(),
+            Variant::BigInt(b) | Variant::Buffer(b) => {
+                "0x".to_string() + &BigInt::from_bytes_be(Sign::Plus, &b).to_str_radix(16)
+            }
+            Variant::Slice(b) => {
+                "0x".to_string() + &BigInt::from_bytes_be(Sign::Plus, &b).to_str_radix(16)
+            }
         }
     }
 }

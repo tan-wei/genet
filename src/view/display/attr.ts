@@ -7,24 +7,6 @@ function selectRange(range: any = null) {
   genet.action.emit('core:frame:range-selected', range)
 }
 
-function filterExpression(attr) {
-  const macro = genet.session.attrMacro(attr.type)
-  if (macro !== null) {
-    const exp = macro(attr)
-    const prefix = '@'
-    return `${attr.id} == ${prefix}${exp}`
-  }
-  const { value } = attr
-  if (value === true) {
-    return attr.id
-  } else if (value === false) {
-    return `!${attr.id}`
-  } else if (value instanceof Uint8Array) {
-    return `${attr.id} == ${JSON.stringify(Array.from(value))}`
-  }
-  return `${attr.id} == ${JSON.stringify(value)}`
-}
-
 export default class AttributeItem {
   view(vnode) {
     const { item, layer } = vnode.attrs
@@ -47,12 +29,11 @@ export default class AttributeItem {
           }),
           onmouseout: () => selectRange(),
           oncontextmenu: (event) => {
-            const filter = filterExpression(attr)
             genet.menu.showContextMenu(event, [
               {
-                label: `Apply Filter: ${filter}`,
+                label: `Apply Filter: ${attr.filterExpression}`,
                 click: () => genet.action
-                  .emit('core:filter:set', filter),
+                  .emit('core:filter:set', attr.filterExpression),
               },
               {
                 label: 'Reveal in Developer Tools...',
