@@ -1,6 +1,11 @@
 WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
 macro_exp = @{ "@" ~ (!(WHITESPACE) ~ ANY)+ }
 
+string_unicode = @{ "u" ~ ASCII_HEX_DIGIT{4} }
+string_escape = @{ "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "n" | "r" | "t" | string_unicode) }
+string_token = @{ string_escape | (!("\\" | "\"") ~ ANY) }
+string = @{ "\"" ~ string_token* ~ "\"" }
+
 dec_integer = @{ ASCII_DIGIT+ }
 hex_integer = @{ "0x" ~ ASCII_HEX_DIGIT+ }
 oct_integer = @{ "0o" ~ ASCII_OCT_DIGIT+ }
@@ -11,7 +16,7 @@ float = @{ "-"? ~ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+ }
 integer = _{ hex_integer | oct_integer | bin_integer | dec_integer }
 nil = @{ "nil" ~ !(ASCII_ALPHA | "_" | ".") }
 boolean = @{ ("true" | "false") ~ !(ASCII_ALPHA | "_" | ".") }
-literal = _{ nil | boolean | float | integer }
+literal = _{ nil | boolean | float | integer | string }
 
 identifier = @{ (ASCII_ALPHA | "_") ~ (ASCII_ALPHA | ASCII_DIGIT | "_")* }
 member = @{ identifier ~ ("." ~ identifier)* }

@@ -8,6 +8,7 @@ use pest::{
     prec_climber::{Assoc, Operator, PrecClimber},
     Parser,
 };
+use serde_json;
 
 #[derive(Parser)]
 #[grammar = "filter/syntax.pest"]
@@ -77,6 +78,9 @@ fn consume_primary(pair: Pair<Rule>) -> Expr {
                 let v = BigInt::from_str_radix(item.as_str(), 10).unwrap();
                 Expr::Literal(Variant::BigInt(v.to_signed_bytes_be().into_boxed_slice()).shrink())
             }
+            Rule::string => Expr::Literal(Variant::String(
+                serde_json::from_str(item.as_str()).unwrap(),
+            )),
             Rule::float => Expr::Literal(Variant::Float64(item.as_str().parse().unwrap())),
             Rule::nil => Expr::Literal(Variant::Nil),
             Rule::boolean => Expr::Literal(Variant::Bool(item.as_str() == "true")),
@@ -110,6 +114,24 @@ mod tests {
         assert_eq!(parse("0b110110"), Ok(Literal(Variant::UInt64(54))));
         assert_eq!(parse("0o776503"), Ok(Literal(Variant::UInt64(261_443))));
         assert_eq!(parse("0xff5678"), Ok(Literal(Variant::UInt64(16_733_816))));
+        assert_eq!(
+            parse(r#" "aaaa" "#),
+            Ok(Literal(Variant::String(
+                "aaaa".to_string().into_boxed_str()
+            )))
+        );
+        assert_eq!(
+            parse(r#" "aa\\aa" "#),
+            Ok(Literal(Variant::String(
+                "aa\\aa".to_string().into_boxed_str()
+            )))
+        );
+        assert_eq!(
+            parse(r#" " \u1234 " "#),
+            Ok(Literal(Variant::String(
+                " \u{1234} ".to_string().into_boxed_str()
+            )))
+        );
         assert_eq!(
             parse("9999999999999999999999999"),
             Ok(Literal(Variant::BigInt(
@@ -243,5 +265,9 @@ mod tests {
         assert!(parse(">= 12.5").is_err());
         assert!(parse("< 12.5").is_err());
         assert!(parse("> 12.5").is_err());
+        assert!(parse(r#" """ "#).is_err());
+        assert!(parse(r#" "\x" "#).is_err());
+        assert!(parse(r#" "\\"" "#).is_err());
+        assert!(parse(r#" "\u000" "#).is_err());
     }
 }
