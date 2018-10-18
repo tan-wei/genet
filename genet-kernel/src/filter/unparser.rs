@@ -1,9 +1,29 @@
 use filter::{ast::Expr, variant::VariantExt};
-use genet_abi::variant::Variant;
-use genet_abi::token::Token;
+use genet_abi::{token::Token, variant::Variant};
+use hwaddr::HwAddr;
+use std::net::{Ipv4Addr, Ipv6Addr};
 
-pub fn unparse_attr(_typ: &Token, var: Variant) -> Expr {
-    Expr::Literal(var)
+pub fn unparse_attr(typ: &Token, var: &Variant) -> Expr {
+    let typ = typ.to_string();
+    match (typ.as_str(), var) {
+        ("@ipv4:addr", Variant::Slice(b)) => {
+            if b.len() == 4 {
+                return Expr::Macro(Ipv4Addr::from(*array_ref![b, 0, 4]).to_string());
+            }
+        }
+        ("@ipv6:addr", Variant::Slice(b)) => {
+            if b.len() == 16 {
+                return Expr::Macro(Ipv6Addr::from(*array_ref![b, 0, 16]).to_string());
+            }
+        }
+        ("@eth:mac", Variant::Slice(b)) => {
+            if b.len() == 6 {
+                return Expr::Macro(HwAddr::from(*array_ref![b, 0, 6]).to_string());
+            }
+        }
+        _ => {}
+    }
+    Expr::Literal(var.clone())
 }
 
 pub fn unparse(expr: &Expr) -> String {

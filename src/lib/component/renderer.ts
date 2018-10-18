@@ -9,13 +9,11 @@ export namespace RendererComponent {
     main: string
     id: string
     type: string
-    macro?: string
   }
 
   export class Loader implements BaseLoader {
     private id: string
     private mainFile: string
-    private macroFile: string
     private type: string
     private disposable: CompositeDisposable
 
@@ -38,22 +36,12 @@ export namespace RendererComponent {
         default:
           throw new Error(`unknown renderer type: ${comp.type}`)
       }
-      if (comp.macro) {
-        this.macroFile = path.resolve(dir, comp.macro)
-      }
     }
     async load() {
       const component = await Script.execute(this.mainFile)
       if (this.type === 'attr') {
         this.disposable =
           genet.session.registerAttrRenderer(this.id, component)
-        if (this.macroFile) {
-          const func = await Script.execute(this.macroFile)
-          this.disposable = new CompositeDisposable([
-            this.disposable,
-            genet.session.registerAttrMacro(this.id, func)
-          ])
-        }
       } else if (this.type === 'layer') {
         this.disposable =
           genet.session.registerLayerRenderer(this.id, component)

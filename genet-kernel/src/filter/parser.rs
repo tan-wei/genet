@@ -1,5 +1,6 @@
 use filter::{ast::Expr, variant::VariantExt};
 use genet_abi::{token::Token, variant::Variant};
+use hwaddr::HwAddr;
 use num_bigint::BigInt;
 use num_traits::Num;
 use pest::{
@@ -9,6 +10,7 @@ use pest::{
     Parser,
 };
 use serde_json;
+use std::net::{Ipv4Addr, Ipv6Addr};
 
 #[derive(Parser)]
 #[grammar = "filter/syntax.pest"]
@@ -22,6 +24,19 @@ pub fn parse(filter: &str) -> Result<Expr, Error<Rule>> {
         )),
         Err(e) => Err(e),
     }
+}
+
+fn parse_macro(exp: String) -> Expr {
+    if let Ok(addr) = exp.parse::<Ipv4Addr>() {
+        return Expr::Literal(Variant::Buffer(addr.octets().to_vec().into_boxed_slice()));
+    }
+    if let Ok(addr) = exp.parse::<Ipv6Addr>() {
+        return Expr::Literal(Variant::Buffer(addr.octets().to_vec().into_boxed_slice()));
+    }
+    if let Ok(addr) = exp.parse::<HwAddr>() {
+        return Expr::Literal(Variant::Buffer(addr.octets().to_vec().into_boxed_slice()));
+    }
+    Expr::Macro(exp)
 }
 
 fn consume_expr(pair: Pair<Rule>) -> Expr {
@@ -81,7 +96,7 @@ fn consume_primary(pair: Pair<Rule>) -> Expr {
             Rule::string => Expr::Literal(Variant::String(
                 serde_json::from_str(item.as_str()).unwrap(),
             )),
-            Rule::macro_exp => Expr::Macro(item.as_str()[1..].to_string()),
+            Rule::macro_exp => parse_macro(item.as_str()[1..].to_string()),
             Rule::float => Expr::Literal(Variant::Float64(item.as_str().parse().unwrap())),
             Rule::nil => Expr::Literal(Variant::Nil),
             Rule::boolean => Expr::Literal(Variant::Bool(item.as_str() == "true")),

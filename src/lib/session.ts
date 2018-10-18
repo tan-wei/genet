@@ -13,8 +13,6 @@ export default class Session extends EventEmitter {
   private _fileReaders: Set<any>
   private _layerRenderers: Map<string, any>
   private _attrRenderers: Map<string, any>
-  private _attrMacros: Map<string, any>
-  private _filterMacros: Set<any>
 
   constructor(config) {
     super()
@@ -24,8 +22,6 @@ export default class Session extends EventEmitter {
     this._fileReaders = new Set()
     this._layerRenderers = new Map()
     this._attrRenderers = new Map()
-    this._attrMacros = new Map()
-    this._filterMacros = new Set()
   }
 
   get tokens() {
@@ -68,20 +64,6 @@ export default class Session extends EventEmitter {
     })
   }
 
-  registerAttrMacro(id: string, macro) {
-    this._attrMacros.set(id, macro)
-    return new Disposable(() => {
-      this._attrMacros.delete(id)
-    })
-  }
-
-  registerFilterMacro(macro) {
-    this._filterMacros.add(macro)
-    return new Disposable(() => {
-      this._filterMacros.delete(macro)
-    })
-  }
-
   registerLibrary(file: string) {
     const filePath = path.normalize(file)
     this._libs.add(filePath)
@@ -111,14 +93,6 @@ export default class Session extends EventEmitter {
     return null
   }
 
-  attrMacro(id: string) {
-    const data = this._attrMacros.get(id)
-    if (typeof data !== 'undefined') {
-      return data
-    }
-    return null
-  }
-
   async create() {
     const profile = new native.Session.Profile()
     profile.concurrency = genet.config.get('_.decoder.concurrency')
@@ -132,8 +106,6 @@ export default class Session extends EventEmitter {
         this.emit('error', new Error(`Filed to load ${file}: ${err.message}`))
       }
     }
-    return new native.Session(profile, {
-      filterMacros: this._filterMacros
-    })
+    return new native.Session(profile, {})
   }
 }

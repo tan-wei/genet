@@ -34,17 +34,9 @@
         "main": "novalue.js"
       },
       {
-        "type": "core:filter:macro",
-        "id": "unixdate",
-        "name": "UNIX Date",
-        "description": "{{prefix}}2014-09-08T08:02:17-05:00",
-        "main": "unixdate-macro.js"
-      },
-      {
         "type": "core:renderer:attr",
         "id": "@date:unix",
-        "main": "unixdate.js",
-        "macro": "unixdate-macro-rev.js"
+        "main": "unixdate.js"
       }
     ]
   }

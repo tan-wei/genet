@@ -13,17 +13,9 @@
         "main": "ipv4"
       },
       {
-        "type": "core:filter:macro",
-        "id": "ipv4-literal",
-        "name": "IPv4 Address",
-        "description": "{{prefix}}127.0.0.1",
-        "main": "macro.js"
-      },
-      {
         "type": "core:renderer:attr",
         "id": "@ipv4:addr",
-        "main": "ipv4-addr.js",
-        "macro": "macro-rev.js"
+        "main": "ipv4-addr.js"
       },
       {
         "type": "core:style",

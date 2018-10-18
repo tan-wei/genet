@@ -13,17 +13,9 @@
         "main": "ipv6"
       },
       {
-        "type": "core:filter:macro",
-        "id": "ipv6-literal",
-        "name": "IPv6 Address",
-        "description": "{{prefix}}::1",
-        "main": "macro.js"
-      },
-      {
         "type": "core:renderer:attr",
         "id": "@ipv6:addr",
-        "main": "ipv6-addr.js",
-        "macro": "macro-rev.js"
+        "main": "ipv6-addr.js"
       },
       {
         "type": "core:style",

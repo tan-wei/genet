@@ -1,6 +1,5 @@
 import { FileComponent } from './component/file'
 import { LibraryComponent } from './component/library'
-import { MacroComponent } from './component/macro'
 import { PanelComponent } from './component/panel'
 import { RendererComponent } from './component/renderer'
 import { StyleComponent } from './component/style'
@@ -21,8 +20,6 @@ export default class ComponentFactory {
         return new StyleComponent.Loader(comp, dir)
       case 'core:panel':
         return new PanelComponent.Loader(comp, dir)
-      case 'core:filter:macro':
-        return new MacroComponent.Loader(comp, dir)
       default:
         throw new Error(`unknown component type: ${comp.type}`)
     }
