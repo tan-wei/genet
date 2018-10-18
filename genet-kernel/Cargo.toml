@@ -17,6 +17,8 @@ parking_lot = "0.6"
 fnv = "1"
 pest = "2"
 pest_derive = "2"
+hwaddr = "0.1"
+arrayref = "0.3"
 genet-abi = "0.5.0"
 genet-sdk = "0.5.0"
 genet-napi = { path = "../genet-napi" }

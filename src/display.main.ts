@@ -9,8 +9,7 @@ export default function main() {
     'core:library',
     'core:file:reader',
     'core:renderer:attr',
-    'core:renderer:layer',
-    'core:filter:macro'
+    'core:renderer:layer'
   ]
 
   const content = new Content(

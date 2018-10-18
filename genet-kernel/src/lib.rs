@@ -2,6 +2,7 @@ extern crate crossbeam_channel;
 extern crate fnv;
 extern crate genet_abi;
 extern crate genet_napi;
+extern crate hwaddr;
 extern crate libc;
 extern crate libloading;
 extern crate num_bigint;
@@ -14,6 +15,9 @@ extern crate serde_json;
 
 #[macro_use]
 extern crate pest_derive;
+
+#[macro_use]
+extern crate arrayref;
 
 pub mod binding;
 pub mod profile;
