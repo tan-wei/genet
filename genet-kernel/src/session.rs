@@ -1,4 +1,3 @@
-use filter::Filter;
 use frame::Frame;
 use genet_abi::{
     self,
@@ -6,6 +5,7 @@ use genet_abi::{
     io::{ReaderWorkerBox, WriterWorkerBox},
     layer::Layer,
 };
+use genet_filter::Filter;
 use io::{Input, Output};
 use profile::Profile;
 use serde::ser::{Serialize, SerializeMap, Serializer};

@@ -1,10 +1,10 @@
 use array_vec::ArrayVec;
 use crossbeam_channel;
 use decoder::{parallel, serial};
-use filter::{self, Filter};
 use fnv::FnvHashMap;
 use frame::Frame;
 use genet_abi::{fixed::MutFixed, layer::Layer};
+use genet_filter::{self, Filter};
 use io::{Input, Output};
 use parking_lot::RwLock;
 use profile::Profile;
@@ -338,7 +338,7 @@ impl EventLoop {
                     .skip(offset)
                     .take(len)
                     .filter(|frame| {
-                        let ctx = filter::context::Context::new(frame);
+                        let ctx = genet_filter::context::Context::new(frame.layers());
                         filter.as_ref().map_or(true, |f| f.test(&ctx))
                     })
                     .collect::<Vec<_>>();
@@ -395,7 +395,7 @@ impl EventLoop {
                         .skip(fctx.offset)
                         .take(MAX_FILTER_SIZE)
                         .filter_map(|frame| {
-                            let ctx = filter::context::Context::new(frame);
+                            let ctx = genet_filter::context::Context::new(frame.layers());
                             if fctx.filter.test(&ctx) {
                                 Some(frame.index())
                             } else {
@@ -438,7 +438,7 @@ impl fmt::Debug for EventLoop {
 
 #[cfg(test)]
 mod tests {
-    use filter::Filter;
+    use genet_filter::Filter;
     use profile::Profile;
     use store::{Callback, Store};
 

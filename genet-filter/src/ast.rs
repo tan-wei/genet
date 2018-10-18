@@ -1,5 +1,6 @@
-use filter::{context::Context, variant::VariantExt};
+use context::Context;
 use genet_abi::{token::Token, variant::Variant};
+use variant::VariantExt;
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum Expr {
@@ -39,7 +40,7 @@ impl Expr {
             Expr::UnaryPlus(v) => v.eval(ctx).op_unary_plus(),
             Expr::UnaryNegation(v) => v.eval(ctx).op_unary_negation(),
             Expr::Token(t) => {
-                for layer in ctx.frame().layers().iter().rev() {
+                for layer in ctx.layers().iter().rev() {
                     if layer.id() == *t {
                         return Variant::Bool(true);
                     }

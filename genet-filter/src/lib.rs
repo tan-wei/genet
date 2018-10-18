@@ -1,10 +1,28 @@
-use filter::{ast::Expr, context::Context, parser::parse, variant::VariantExt};
+extern crate genet_abi;
+extern crate hwaddr;
+extern crate num_bigint;
+extern crate num_traits;
+extern crate pest;
+extern crate serde;
+extern crate serde_json;
+
+#[macro_use]
+extern crate pest_derive;
+
+#[macro_use]
+extern crate arrayref;
+
+use ast::Expr;
+use context::Context;
+use parser::parse;
 use result::Result;
 use std::fmt;
+use variant::VariantExt;
 
 pub mod ast;
 pub mod context;
 pub mod parser;
+pub mod result;
 pub mod unparser;
 pub mod variant;
 

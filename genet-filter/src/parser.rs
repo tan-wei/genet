@@ -1,4 +1,4 @@
-use filter::{ast::Expr, variant::VariantExt};
+use ast::Expr;
 use genet_abi::{token::Token, variant::Variant};
 use hwaddr::HwAddr;
 use num_bigint::BigInt;
@@ -11,9 +11,10 @@ use pest::{
 };
 use serde_json;
 use std::net::{Ipv4Addr, Ipv6Addr};
+use variant::VariantExt;
 
 #[derive(Parser)]
-#[grammar = "filter/syntax.pest"]
+#[grammar = "syntax.pest"]
 pub struct FilterParser;
 
 pub fn parse(filter: &str) -> Result<Expr, Error<Rule>> {
@@ -110,7 +111,7 @@ fn consume_primary(pair: Pair<Rule>) -> Expr {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use filter::ast::Expr::*;
+    use ast::Expr::*;
     use genet_abi::{token::Token, variant::Variant};
     use num_bigint::BigInt;
 

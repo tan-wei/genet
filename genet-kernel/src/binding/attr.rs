@@ -1,8 +1,8 @@
-use filter::{
+use genet_abi::{self, attr::Attr, layer::Layer, variant::Variant};
+use genet_filter::{
     ast::Expr,
     unparser::{unparse, unparse_attr},
 };
-use genet_abi::{self, attr::Attr, layer::Layer, variant::Variant};
 use genet_napi::napi::{
     CallbackInfo, Env, PropertyAttributes, PropertyDescriptor, Result, TypedArrayType, Value,
     ValueRef,

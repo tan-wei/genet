@@ -1,6 +1,6 @@
 use binding::{attr::AttrWrapper, JsClass};
-use filter::{ast::Expr, unparser::unparse};
 use genet_abi::{layer::Layer, token::Token};
+use genet_filter::{ast::Expr, unparser::unparse};
 use genet_napi::napi::{
     CallbackInfo, Env, PropertyAttributes, PropertyDescriptor, Result, Status, TypedArrayType,
     Value, ValueRef, ValueType,

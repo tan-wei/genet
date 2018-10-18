@@ -1,5 +1,5 @@
 use binding::JsClass;
-use filter::Filter;
+use genet_filter::Filter;
 use genet_napi::{
     napi::{
         CallbackInfo, Env, HandleScope, PropertyAttributes, PropertyDescriptor, Result, Status,
