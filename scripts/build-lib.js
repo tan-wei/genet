@@ -30,12 +30,7 @@ fs.ensureDirSync(dstBin)
 
 async function exec() {
   await execa('cargo', ['build'].concat(mode), { env, cwd: src, stdio: 'inherit' })
-  const [slib] = glob.sync(`target/${target}/*genet_kernel.{a,lib}`)
-  const { atime, mtime } = fs.statSync(slib)
-  fs.utimesSync('genet-node/src/main.cpp', atime, mtime)
-
-  await execa('node-gyp', ['configure', `--${target}`], { env, cwd: nodeSrc, stdio: 'inherit' })
-  await execa('node-gyp', ['build'], { env, cwd: nodeSrc, stdio: 'inherit' })
+  await execa('node-gyp', ['rebuild', `--${target}`], { env, cwd: nodeSrc, stdio: 'inherit' })
 
   const binaryFiles = glob.sync(path.resolve(nodeSrc, `build/${gypTarget}/*.{node,lib}`))
   for (const file of binaryFiles) {
