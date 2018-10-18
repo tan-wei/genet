@@ -81,6 +81,7 @@ fn consume_primary(pair: Pair<Rule>) -> Expr {
             Rule::string => Expr::Literal(Variant::String(
                 serde_json::from_str(item.as_str()).unwrap(),
             )),
+            Rule::macro_exp => Expr::Macro(item.as_str()[1..].to_string()),
             Rule::float => Expr::Literal(Variant::Float64(item.as_str().parse().unwrap())),
             Rule::nil => Expr::Literal(Variant::Nil),
             Rule::boolean => Expr::Literal(Variant::Bool(item.as_str() == "true")),

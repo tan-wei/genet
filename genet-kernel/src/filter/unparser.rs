@@ -1,10 +1,16 @@
 use filter::{ast::Expr, variant::VariantExt};
 use genet_abi::variant::Variant;
+use genet_abi::token::Token;
+
+pub fn unparse_attr(_typ: &Token, var: Variant) -> Expr {
+    Expr::Literal(var)
+}
 
 pub fn unparse(expr: &Expr) -> String {
     match expr {
         Expr::Literal(var) => var.to_string(),
         Expr::Token(t) => t.to_string(),
+        Expr::Macro(expr) => format!("@{}", expr),
         Expr::CmpEq(lhs, rhs) => match (lhs.as_ref(), rhs.as_ref()) {
             (lhs, &Expr::Literal(Variant::Bool(true))) => unparse(lhs),
             (lhs, &Expr::Literal(Variant::Bool(false))) => format!("!{}", unparse(lhs)),

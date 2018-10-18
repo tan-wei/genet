@@ -5,6 +5,7 @@ use genet_abi::{token::Token, variant::Variant};
 pub enum Expr {
     Literal(Variant),
     Token(Token),
+    Macro(String),
     CmpEq(Box<Expr>, Box<Expr>),
     CmpNotEq(Box<Expr>, Box<Expr>),
     CmpLt(Box<Expr>, Box<Expr>),
@@ -55,6 +56,7 @@ impl Expr {
                 }
                 Variant::Nil
             }
+            Expr::Macro(_) => Variant::Nil,
         }
     }
 }

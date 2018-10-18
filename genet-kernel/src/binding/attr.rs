@@ -1,4 +1,4 @@
-use filter::{ast::Expr, unparser::unparse};
+use filter::{ast::Expr, unparser::{unparse, unparse_attr}};
 use genet_abi::{self, attr::Attr, layer::Layer, variant::Variant};
 use genet_napi::napi::{
     CallbackInfo, Env, PropertyAttributes, PropertyDescriptor, Result, TypedArrayType, Value,
@@ -95,10 +95,11 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
     fn attr_filter_expression<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let wrapper = env.unwrap::<AttrWrapper>(info.this())?;
-        match wrapper.attr().try_get(wrapper.layer()) {
+        let attr = wrapper.attr();
+        match attr.try_get(wrapper.layer()) {
             Ok(val) => env.create_string(&unparse(&Expr::CmpEq(
-                Box::new(Expr::Token(wrapper.attr().id())),
-                Box::new(Expr::Literal(val)),
+                Box::new(Expr::Token(attr.id())),
+                Box::new(unparse_attr(&attr.typ(), val)),
             ))),
             Err(_) => env.get_null(),
         }
