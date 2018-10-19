@@ -1,6 +1,5 @@
 use genet_napi::napi::{Env, Value};
-use libc::c_char;
-use std::ffi::CString;
+use std::{ffi::CString, os::raw::c_char};
 
 mod attr;
 mod frame;

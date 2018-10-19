@@ -10,6 +10,7 @@ extern crate serde;
 extern crate capabilities;
 
 use std::{
+    os::raw::{c_char, c_uchar},
     sync::mpsc::{channel, Receiver, Sender},
     thread,
 };
@@ -90,7 +91,7 @@ impl Pcap {
                 snaplen as i32,
                 0,
                 1,
-                errbuf.as_ptr() as *mut libc::c_char,
+                errbuf.as_ptr() as *mut c_char,
             );
             if pcap.is_null() {
                 let mut msg = String::new();
@@ -105,9 +106,9 @@ impl Pcap {
             self.handles.push(pcap);
 
             extern "C" fn handler(
-                user: *mut libc::c_uchar,
+                user: *mut c_uchar,
                 h: *const ffi::PcapPkthdr,
-                data: *const libc::c_uchar,
+                data: *const c_uchar,
             ) {
                 unsafe {
                     let holder = &*(user as *const PcapHolder);
@@ -145,7 +146,6 @@ impl Pcap {
 
     pub fn devices(&self) -> Option<Vec<Device>> {
         use ffi::*;
-        use libc;
         use std::ptr;
         let mut front: *mut PcapIf = ptr::null_mut();
 
@@ -168,7 +168,7 @@ impl Pcap {
                         2048,
                         0,
                         0,
-                        errbuf.as_ptr() as *mut libc::c_char,
+                        errbuf.as_ptr() as *mut c_char,
                     );
                     let mut link = 0;
                     if !pcap.is_null() {
@@ -243,6 +243,7 @@ impl Device {
 mod platform {
     extern crate libc;
     use super::Device;
+    use std::os::raw::{c_char, c_long};
 
     #[cfg(target_os = "macos")]
     pub(crate) fn device_descriptions(devices: Vec<Device>) -> Vec<Device> {
@@ -251,13 +252,13 @@ mod platform {
         fn getstr(string: *const CFString) -> String {
             use std::ffi::CStr;
             const K_CF_STRING_ENCODING_UTF8: u32 = 0x0800_0100;
-            const BUFSIZE: libc::c_long = 2048;
+            const BUFSIZE: c_long = 2048;
 
             let buf = [0i8; BUFSIZE as usize];
             unsafe {
                 CFStringGetCString(
                     string,
-                    buf.as_ptr() as *mut libc::c_char,
+                    buf.as_ptr() as *mut c_char,
                     BUFSIZE,
                     K_CF_STRING_ENCODING_UTF8,
                 );
@@ -292,6 +293,7 @@ mod platform {
     #[cfg(target_os = "macos")]
     mod macos {
         extern crate libc;
+        use std::os::raw::{c_char, c_long};
 
         pub(crate) enum CFString {}
         pub(crate) enum CFArray {}
@@ -301,14 +303,14 @@ mod platform {
         extern "C" {
             pub(crate) fn CFStringGetCString(
                 string: *const CFString,
-                buffer: *mut libc::c_char,
-                bufferSize: libc::c_long,
+                buffer: *mut c_char,
+                bufferSize: c_long,
                 encoding: u32,
             ) -> bool;
-            pub(crate) fn CFArrayGetCount(ptr: *const CFArray) -> libc::c_long;
+            pub(crate) fn CFArrayGetCount(ptr: *const CFArray) -> c_long;
             pub(crate) fn CFArrayGetValueAtIndex(
                 ptr: *const CFArray,
-                index: libc::c_long,
+                index: c_long,
             ) -> *const SCNetworkInterface;
             pub(crate) fn CFRelease(ptr: *const CFArray);
         }
@@ -343,14 +345,14 @@ mod platform {
         unsafe {
             if GetIfTable(
                 ptr::null_mut::<MibIftable>(),
-                &mut size as *mut libc::c_ulong,
+                &mut size as *mut c_ulong,
                 false,
             ) == ERROR_INSUFFICIENT_BUFFER
             {
                 table = mem::transmute(libc::malloc(size as libc::size_t));
             }
 
-            if GetIfTable(table, &mut size as *mut libc::c_ulong, false) == NO_ERROR {
+            if GetIfTable(table, &mut size as *mut c_ulong, false) == NO_ERROR {
                 for i in 1..((*table).dw_num_entries + 1) {
                     let mut row = MibIfrow {
                         wsz_name: [0; MAX_INTERFACE_NAME_LEN],
@@ -414,7 +416,7 @@ mod platform {
         extern "system" {
             pub(crate) fn GetIfTable(
                 table: *mut MibIftable,
-                size: *mut libc::c_ulong,
+                size: *mut c_ulong,
                 order: bool,
             ) -> u32;
             pub(crate) fn GetIfEntry(row: *mut MibIfrow) -> u32;
@@ -473,9 +475,12 @@ mod platform {
 
 mod ffi {
     extern crate libc;
-    use std::sync::Arc;
+    use std::{
+        os::raw::{c_char, c_int, c_uchar},
+        sync::Arc,
+    };
 
-    pub(crate) fn getstr(ptr: *mut libc::c_char) -> String {
+    pub(crate) fn getstr(ptr: *mut c_char) -> String {
         use std::ffi::CStr;
         if ptr.is_null() {
             String::new()
@@ -487,22 +492,22 @@ mod ffi {
     #[derive(Debug, Clone)]
     pub(crate) struct Symbols {
         lib: Option<Arc<super::libloading::Library>>,
-        pub pcap_findalldevs: unsafe extern "C" fn(alldevsp: *mut *mut PcapIf) -> libc::c_int,
+        pub pcap_findalldevs: unsafe extern "C" fn(alldevsp: *mut *mut PcapIf) -> c_int,
         pub pcap_freealldevs: unsafe extern "C" fn(alldevsp: *mut PcapIf),
         pub pcap_open_live: unsafe extern "C" fn(
-            device: *const libc::c_char,
-            snaplen: libc::c_int,
-            promisc: libc::c_int,
-            to_ms: libc::c_int,
-            errbuf: *mut libc::c_char,
+            device: *const c_char,
+            snaplen: c_int,
+            promisc: c_int,
+            to_ms: c_int,
+            errbuf: *mut c_char,
         ) -> *mut Pcap,
-        pub pcap_datalink: unsafe extern "C" fn(pcap: *mut Pcap) -> libc::c_int,
+        pub pcap_datalink: unsafe extern "C" fn(pcap: *mut Pcap) -> c_int,
         pub pcap_loop: unsafe extern "C" fn(
             pcap: *mut Pcap,
-            cnt: libc::c_int,
+            cnt: c_int,
             callback: PcapHandler,
-            user: *mut libc::c_uchar,
-        ) -> libc::c_int,
+            user: *mut c_uchar,
+        ) -> c_int,
         pub pcap_breakloop: unsafe extern "C" fn(pcap: *mut Pcap),
         pub pcap_close: unsafe extern "C" fn(pcap: *mut Pcap),
     }
@@ -539,30 +544,30 @@ mod ffi {
 
             {
                 let pcap_findalldevs_: libloading::Symbol<
-                    unsafe extern "C" fn(alldevsp: *mut *mut PcapIf) -> libc::c_int,
+                    unsafe extern "C" fn(alldevsp: *mut *mut PcapIf) -> c_int,
                 >;
                 let pcap_freealldevs_: libloading::Symbol<
                     unsafe extern "C" fn(alldevsp: *mut PcapIf),
                 >;
                 let pcap_open_live_: libloading::Symbol<
                     unsafe extern "C" fn(
-                        device: *const libc::c_char,
-                        snaplen: libc::c_int,
-                        promisc: libc::c_int,
-                        to_ms: libc::c_int,
-                        errbuf: *mut libc::c_char,
+                        device: *const c_char,
+                        snaplen: c_int,
+                        promisc: c_int,
+                        to_ms: c_int,
+                        errbuf: *mut c_char,
                     ) -> *mut Pcap,
                 >;
                 let pcap_datalink_: libloading::Symbol<
-                    unsafe extern "C" fn(pcap: *mut Pcap) -> libc::c_int,
+                    unsafe extern "C" fn(pcap: *mut Pcap) -> c_int,
                 >;
                 let pcap_loop_: libloading::Symbol<
                     unsafe extern "C" fn(
                         pcap: *mut Pcap,
-                        cnt: libc::c_int,
+                        cnt: c_int,
                         callback: PcapHandler,
-                        user: *mut libc::c_uchar,
-                    ) -> libc::c_int,
+                        user: *mut c_uchar,
+                    ) -> c_int,
                 >;
                 let pcap_breakloop_: libloading::Symbol<
                     unsafe extern "C" fn(pcap: *mut Pcap),
@@ -634,8 +639,8 @@ mod ffi {
     #[derive(Debug)]
     pub(crate) struct PcapIf {
         pub next: *mut PcapIf,
-        pub name: *mut libc::c_char,
-        pub description: *mut libc::c_char,
+        pub name: *mut c_char,
+        pub description: *mut c_char,
         pub addresses: *mut PcapAddr,
         pub flags: u32,
     }
@@ -645,31 +650,30 @@ mod ffi {
         pub ts: libc::timeval,
         pub caplen: u32,
         pub len: u32,
-        pub comment: *mut libc::c_char,
+        pub comment: *mut c_char,
     }
 
-    pub(crate) type PcapHandler =
-        extern "C" fn(*mut libc::c_uchar, *const PcapPkthdr, *const libc::c_uchar);
+    pub(crate) type PcapHandler = extern "C" fn(*mut c_uchar, *const PcapPkthdr, *const c_uchar);
 
     #[cfg(not(target_os = "windows"))]
     #[link(name = "pcap")]
     extern "C" {
-        fn pcap_findalldevs(alldevsp: *mut *mut PcapIf) -> libc::c_int;
+        fn pcap_findalldevs(alldevsp: *mut *mut PcapIf) -> c_int;
         fn pcap_freealldevs(alldevsp: *mut PcapIf);
         fn pcap_open_live(
-            device: *const libc::c_char,
-            snaplen: libc::c_int,
-            promisc: libc::c_int,
-            to_ms: libc::c_int,
-            errbuf: *mut libc::c_char,
+            device: *const c_char,
+            snaplen: c_int,
+            promisc: c_int,
+            to_ms: c_int,
+            errbuf: *mut c_char,
         ) -> *mut Pcap;
-        fn pcap_datalink(pcap: *mut Pcap) -> libc::c_int;
+        fn pcap_datalink(pcap: *mut Pcap) -> c_int;
         fn pcap_loop(
             pcap: *mut Pcap,
-            cnt: libc::c_int,
+            cnt: c_int,
             callback: PcapHandler,
-            user: *mut libc::c_uchar,
-        ) -> libc::c_int;
+            user: *mut c_uchar,
+        ) -> c_int;
         fn pcap_breakloop(pcap: *mut Pcap);
         fn pcap_close(pcap: *mut Pcap);
     }

@@ -3,7 +3,9 @@ use genet_abi::{
     slice::ByteSlice,
 };
 use libc;
-use std::{cell::RefCell, convert::AsRef, ffi::CString, mem, ops::Deref, ptr, rc::Rc};
+use std::{
+    cell::RefCell, convert::AsRef, ffi::CString, mem, ops::Deref, os::raw::c_char, ptr, rc::Rc,
+};
 
 thread_local! {
     pub static ENV_CONSTRUCTORS: RefCell<Vec<Option<Rc<ValueRef>>>> = RefCell::new(Vec::new());
@@ -892,7 +894,7 @@ impl<'env> CallbackInfo<'env> {
 
 #[repr(C)]
 pub struct PropertyDescriptor {
-    utf8name: *const libc::c_char,
+    utf8name: *const c_char,
     name: *const Value,
     method: Option<Cb>,
     getter: Option<Cb>,
@@ -970,19 +972,19 @@ extern "C" {
     fn napi_create_object(env: *const Env, result: *mut *const Value) -> Status;
     fn napi_create_string_latin1(
         env: *const Env,
-        s: *const libc::c_char,
+        s: *const c_char,
         length: libc::size_t,
         result: *mut *const Value,
     ) -> Status;
     fn napi_create_string_utf8(
         env: *const Env,
-        s: *const libc::c_char,
+        s: *const c_char,
         length: libc::size_t,
         result: *mut *const Value,
     ) -> Status;
     fn napi_create_function(
         env: *const Env,
-        utf8name: *const libc::c_char,
+        utf8name: *const c_char,
         length: libc::size_t,
         cb: Cb,
         data: *mut libc::c_void,
@@ -1078,7 +1080,7 @@ extern "C" {
     fn napi_get_value_string_utf8(
         env: *const Env,
         value: *const Value,
-        buf: *mut libc::c_char,
+        buf: *mut c_char,
         bufsize: libc::size_t,
         result: *mut libc::size_t,
     ) -> Status;
@@ -1121,23 +1123,15 @@ extern "C" {
     fn napi_set_named_property(
         env: *const Env,
         object: *const Value,
-        utf8name: *const libc::c_char,
+        utf8name: *const c_char,
         value: *const Value,
     ) -> Status;
 
     fn napi_throw(env: *const Env, error: *const Value) -> Status;
 
-    fn napi_throw_error(
-        env: *const Env,
-        code: *const libc::c_char,
-        msg: *const libc::c_char,
-    ) -> Status;
+    fn napi_throw_error(env: *const Env, code: *const c_char, msg: *const c_char) -> Status;
 
-    fn napi_throw_range_error(
-        env: *const Env,
-        code: *const libc::c_char,
-        msg: *const libc::c_char,
-    ) -> Status;
+    fn napi_throw_range_error(env: *const Env, code: *const c_char, msg: *const c_char) -> Status;
 
     fn napi_is_error(env: *const Env, value: *const Value, result: *mut u8) -> Status;
 
@@ -1188,7 +1182,7 @@ extern "C" {
 
     fn napi_define_class(
         env: *const Env,
-        utf8name: *const libc::c_char,
+        utf8name: *const c_char,
         length: libc::size_t,
         constructor: Cb,
         data: *const libc::c_void,

@@ -1,4 +1,5 @@
 use libc;
+use std::os::raw::c_int;
 
 pub enum Loop {}
 
@@ -52,8 +53,8 @@ extern "C" {
         evloop: *mut Loop,
         async: *mut Inner,
         async_cb: extern "C" fn(*mut Inner),
-    ) -> libc::c_int;
-    fn uv_async_send(async: *const Inner) -> libc::c_int;
+    ) -> c_int;
+    fn uv_async_send(async: *const Inner) -> c_int;
     fn uv_close(async: *mut Inner, close_cb: extern "C" fn(*mut Inner));
     fn uv_default_loop() -> *mut Loop;
 }
