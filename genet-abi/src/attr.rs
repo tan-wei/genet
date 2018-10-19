@@ -404,7 +404,6 @@ mod tests {
     use layer::{Layer, LayerClass};
     use slice::{ByteSlice, TryGet};
     use std::{
-        error,
         io::{Error, ErrorKind, Result},
         str::from_utf8,
     };
@@ -565,7 +564,7 @@ mod tests {
 
         impl Cast for TestCast {
             fn cast(&self, data: &ByteSlice) -> Result<Variant> {
-                data.try_get(0..3).map(|v| Variant::Slice(v))
+                data.try_get(0..3).map(Variant::Slice)
             }
         }
         let class = Fixed::new(

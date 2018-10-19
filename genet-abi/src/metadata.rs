@@ -11,6 +11,12 @@ pub struct Metadata {
 unsafe impl Send for Metadata {}
 unsafe impl Sync for Metadata {}
 
+impl Default for Metadata {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Metadata {
     pub fn new() -> Metadata {
         Metadata {

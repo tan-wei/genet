@@ -1,7 +1,7 @@
 //! Fixed-lifetime shareable containers.
 
 use std::{
-    fmt, mem,
+    fmt,
     ops::{Deref, DerefMut},
     ptr::NonNull,
 };
@@ -41,7 +41,7 @@ impl<T> Fixed<T> {
     /// Creates a new Fixed from the given static value.
     pub fn from_static(data: &'static T) -> Fixed<T> {
         Self {
-            ptr: unsafe { NonNull::new_unchecked(mem::transmute(data)) },
+            ptr: unsafe { NonNull::new_unchecked(data as *const T as *mut T) },
         }
     }
 
@@ -54,7 +54,7 @@ impl<T> Fixed<T> {
 impl<T, D: Deref<Target = T>> From<&'static D> for Fixed<T> {
     fn from(data: &'static D) -> Fixed<T> {
         Self {
-            ptr: unsafe { NonNull::new_unchecked(mem::transmute(data.deref())) },
+            ptr: unsafe { NonNull::new_unchecked(data.deref() as *const T as *mut T) },
         }
     }
 }
