@@ -3,21 +3,42 @@ use error::Error;
 use fixed::MutFixed;
 use layer::{Layer, LayerStack, Parent};
 use result::Result;
+use serde_json;
 use std::ptr;
+use string::SafeString;
 
 /// Execution type.
-#[repr(u8)]
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub enum ExecType {
-    ParallelSync = 0,
-    SerialSync = 1,
+    ParallelSync,
+    SerialSync,
 }
 
-/// Dissection status.
+/// Decoding status.
 #[derive(Debug)]
 pub enum Status {
     Done,
     Skip,
+}
+
+/// Decoder metadata.
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Metadata {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub exec_type: ExecType,
+}
+
+impl Default for Metadata {
+    fn default() -> Self {
+        Metadata {
+            id: format!("app.genet.decoder.{}", env!("CARGO_PKG_NAME")),
+            name: env!("CARGO_PKG_NAME").to_string(),
+            description: env!("CARGO_PKG_DESCRIPTION").to_string(),
+            exec_type: ExecType::ParallelSync,
+        }
+    }
 }
 
 /// Decoder worker trait.
@@ -92,7 +113,7 @@ extern "C" fn abi_decode(
 /// Decoder trait.
 pub trait Decoder: DecoderClone + Send {
     fn new_worker(&self, &Context) -> Box<Worker>;
-    fn execution_type(&self) -> ExecType;
+    fn metadata(&self) -> Metadata;
 }
 
 pub trait DecoderClone {
@@ -123,7 +144,7 @@ impl Clone for Box<Decoder> {
 #[derive(Clone, Copy)]
 pub struct DecoderBox {
     new_worker: extern "C" fn(*mut DecoderBox, *const Context) -> WorkerBox,
-    execution_type: extern "C" fn(*const DecoderBox) -> u8,
+    metadata: extern "C" fn(*const DecoderBox) -> SafeString,
     decoder: *mut Box<Decoder>,
 }
 
@@ -134,7 +155,7 @@ impl DecoderBox {
         let diss: Box<Decoder> = Box::new(diss);
         Self {
             new_worker: abi_new_worker,
-            execution_type: abi_execution_type,
+            metadata: abi_metadata,
             decoder: Box::into_raw(Box::new(diss)),
         }
     }
@@ -143,11 +164,8 @@ impl DecoderBox {
         (self.new_worker)(self, ctx)
     }
 
-    pub fn execution_type(&self) -> ExecType {
-        match (self.execution_type)(self) {
-            1 => ExecType::SerialSync,
-            _ => ExecType::ParallelSync,
-        }
+    pub fn metadata(&self) -> Metadata {
+        serde_json::from_str(&(self.metadata)(self)).unwrap()
     }
 }
 
@@ -157,15 +175,15 @@ extern "C" fn abi_new_worker(diss: *mut DecoderBox, ctx: *const Context) -> Work
     WorkerBox::new(diss.new_worker(ctx))
 }
 
-extern "C" fn abi_execution_type(diss: *const DecoderBox) -> u8 {
+extern "C" fn abi_metadata(diss: *const DecoderBox) -> SafeString {
     let diss = unsafe { &*((*diss).decoder) };
-    diss.execution_type() as u8
+    SafeString::from(&serde_json::to_string(&diss.metadata()).unwrap())
 }
 
 #[cfg(test)]
 mod tests {
     use context::Context;
-    use decoder::{Decoder, DecoderBox, ExecType, Status, Worker};
+    use decoder::{Decoder, DecoderBox, ExecType, Metadata, Status, Worker};
     use fixed::Fixed;
     use fnv::FnvHashMap;
     use layer::{Layer, LayerClass, LayerStack, Parent};
@@ -199,8 +217,11 @@ mod tests {
                 Box::new(TestWorker {})
             }
 
-            fn execution_type(&self) -> ExecType {
-                ExecType::ParallelSync
+            fn metadata(&self) -> Metadata {
+                Metadata {
+                    exec_type: ExecType::ParallelSync,
+                    ..Metadata::default()
+                }
             }
         }
 

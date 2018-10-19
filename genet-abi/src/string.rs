@@ -40,6 +40,14 @@ impl<'a> From<&'a str> for SafeString {
     }
 }
 
+impl<'a> From<&'a String> for SafeString {
+    fn from(s: &'a String) -> SafeString {
+        SafeString {
+            data: SafeVec::from(s.as_bytes()),
+        }
+    }
+}
+
 impl Deref for SafeString {
     type Target = str;
 
