@@ -75,8 +75,11 @@ impl Decoder for NtpDecoder {
         Box::new(NtpWorker {})
     }
 
-    fn execution_type(&self) -> ExecType {
-        ExecType::ParallelSync
+    fn metadata(&self) -> Metadata {
+        Metadata {
+            exec_type: ExecType::ParallelSync,
+            ..Metadata::default()
+        }
     }
 }
 

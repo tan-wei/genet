@@ -72,8 +72,11 @@ impl Decoder for ArpDecoder {
         Box::new(ArpWorker {})
     }
 
-    fn execution_type(&self) -> ExecType {
-        ExecType::ParallelSync
+    fn metadata(&self) -> Metadata {
+        Metadata {
+            exec_type: ExecType::ParallelSync,
+            ..Metadata::default()
+        }
     }
 }
 

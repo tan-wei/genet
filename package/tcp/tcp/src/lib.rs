@@ -80,8 +80,11 @@ impl Decoder for TcpDecoder {
         Box::new(TcpWorker {})
     }
 
-    fn execution_type(&self) -> ExecType {
-        ExecType::ParallelSync
+    fn metadata(&self) -> Metadata {
+        Metadata {
+            exec_type: ExecType::ParallelSync,
+            ..Metadata::default()
+        }
     }
 }
 

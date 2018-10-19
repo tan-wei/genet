@@ -1,7 +1,7 @@
 use frame::Frame;
 use genet_abi::{
     context::Context,
-    decoder::{DecoderBox, ExecType, WorkerBox},
+    decoder::{DecoderBox, ExecType, Metadata, WorkerBox},
     fixed::MutFixed,
     layer::{Layer, Parent},
 };
@@ -80,6 +80,7 @@ struct Runner {
     ctx: Context,
     typ: ExecType,
     decoder: DecoderBox,
+    metadata: Metadata,
     worker: Option<WorkerBox>,
 }
 
@@ -89,6 +90,7 @@ impl Runner {
             ctx,
             typ: typ.clone(),
             decoder,
+            metadata: decoder.metadata(),
             worker: None,
         };
         runner.reset();
@@ -107,7 +109,7 @@ impl Runner {
     }
 
     fn reset(&mut self) {
-        self.worker = if self.decoder.execution_type() == self.typ {
+        self.worker = if self.metadata.exec_type == self.typ {
             Some(self.decoder.new_worker(&self.ctx))
         } else {
             None

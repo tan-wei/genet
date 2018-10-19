@@ -177,8 +177,11 @@ impl Decoder for TcpStreamDecoder {
         Box::new(TcpStreamWorker::new())
     }
 
-    fn execution_type(&self) -> ExecType {
-        ExecType::SerialSync
+    fn metadata(&self) -> Metadata {
+        Metadata {
+            exec_type: ExecType::SerialSync,
+            ..Metadata::default()
+        }
     }
 }
 

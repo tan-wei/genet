@@ -41,8 +41,11 @@ impl Decoder for EthDecoder {
         Box::new(EthWorker {})
     }
 
-    fn execution_type(&self) -> ExecType {
-        ExecType::ParallelSync
+    fn metadata(&self) -> Metadata {
+        Metadata {
+            exec_type: ExecType::ParallelSync,
+            ..Metadata::default()
+        }
     }
 }
 
