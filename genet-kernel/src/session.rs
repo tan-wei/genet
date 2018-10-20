@@ -1,10 +1,5 @@
 use frame::Frame;
-use genet_abi::{
-    self,
-    fixed::MutFixed,
-    io::{ReaderWorkerBox, WriterWorkerBox},
-    layer::Layer,
-};
+use genet_abi::{self, fixed::MutFixed, layer::Layer, reader, writer};
 use genet_filter::Filter;
 use io::{Input, Output};
 use profile::Profile;
@@ -52,8 +47,7 @@ impl Session {
             let ctx = self.profile.context();
             match reader.new_worker(&ctx, arg) {
                 Ok(input) => {
-                    self.store
-                        .set_input(self.io_cnt, ReaderWorkerInput::new(input));
+                    self.store.set_input(self.io_cnt, WorkerInput::new(input));
                     return self.io_cnt;
                 }
                 Err(err) => {
@@ -72,7 +66,7 @@ impl Session {
             match writer.new_worker(&ctx, arg) {
                 Ok(output) => {
                     self.store
-                        .push_output(self.io_cnt, WriterWorkerOutput::new(output), filter);
+                        .push_output(self.io_cnt, WorkerOutput::new(output), filter);
                     return self.io_cnt;
                 }
                 Err(err) => {
@@ -226,17 +220,17 @@ impl Serialize for Event {
 }
 
 #[derive(Debug)]
-struct WriterWorkerOutput {
-    worker: WriterWorkerBox,
+struct WorkerOutput {
+    worker: writer::WorkerBox,
 }
 
-impl WriterWorkerOutput {
-    fn new(worker: WriterWorkerBox) -> WriterWorkerOutput {
+impl WorkerOutput {
+    fn new(worker: writer::WorkerBox) -> WorkerOutput {
         Self { worker }
     }
 }
 
-impl Output for WriterWorkerOutput {
+impl Output for WorkerOutput {
     fn write(&mut self, frames: &[&Frame]) -> genet_abi::result::Result<()> {
         for frame in frames.iter() {
             self.worker.write(frame.index(), frame.layers())?;
@@ -250,17 +244,17 @@ impl Output for WriterWorkerOutput {
 }
 
 #[derive(Debug)]
-struct ReaderWorkerInput {
-    worker: ReaderWorkerBox,
+struct WorkerInput {
+    worker: reader::WorkerBox,
 }
 
-impl ReaderWorkerInput {
-    fn new(worker: ReaderWorkerBox) -> ReaderWorkerInput {
+impl WorkerInput {
+    fn new(worker: reader::WorkerBox) -> WorkerInput {
         Self { worker }
     }
 }
 
-impl Input for ReaderWorkerInput {
+impl Input for WorkerInput {
     fn read(&mut self) -> genet_abi::result::Result<Vec<MutFixed<Layer>>> {
         self.worker.read()
     }

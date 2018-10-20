@@ -9,11 +9,7 @@ extern crate genet_sdk;
 #[macro_use]
 extern crate serde_derive;
 
-use genet_sdk::{
-    io::{Reader, ReaderWorker},
-    prelude::*,
-    variant::Variant,
-};
+use genet_sdk::{prelude::*, reader::*, variant::Variant};
 
 use std::{
     collections::HashMap,
@@ -37,7 +33,7 @@ fn read_usize(reader: &mut BufReader<File>) -> Result<usize> {
 }
 
 impl Reader for GenetFileReader {
-    fn new_worker(&self, _ctx: &Context, arg: &str) -> Result<Box<ReaderWorker>> {
+    fn new_worker(&self, _ctx: &Context, arg: &str) -> Result<Box<Worker>> {
         let arg: Arg = serde_json::from_str(arg)?;
         let file = File::open(&arg.file)?;
         let mut reader = BufReader::new(file);
@@ -61,7 +57,7 @@ impl Reader for GenetFileReader {
             })
             .collect();
 
-        Ok(Box::new(GenetFileReaderWorker {
+        Ok(Box::new(GenetFileWorker {
             reader,
             header,
             tokens,
@@ -75,7 +71,7 @@ impl Reader for GenetFileReader {
     }
 }
 
-struct GenetFileReaderWorker {
+struct GenetFileWorker {
     reader: BufReader<File>,
     header: genet_format::Header,
     tokens: Vec<Token>,
@@ -83,7 +79,7 @@ struct GenetFileReaderWorker {
     attrs: Vec<Fixed<AttrClass>>,
 }
 
-impl ReaderWorker for GenetFileReaderWorker {
+impl Worker for GenetFileWorker {
     fn read(&mut self) -> Result<Vec<Layer>> {
         let mut layers = Vec::new();
         for _ in 0..self.header.entries {

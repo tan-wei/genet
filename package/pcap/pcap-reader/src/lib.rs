@@ -8,10 +8,7 @@ extern crate genet_sdk;
 #[macro_use]
 extern crate serde_derive;
 
-use genet_sdk::{
-    io::{Reader, ReaderWorker},
-    prelude::*,
-};
+use genet_sdk::{prelude::*, reader::*};
 use pcap::Header;
 
 use std::{
@@ -30,7 +27,7 @@ struct Arg {
 struct PcapReader {}
 
 impl Reader for PcapReader {
-    fn new_worker(&self, _ctx: &Context, arg: &str) -> Result<Box<ReaderWorker>> {
+    fn new_worker(&self, _ctx: &Context, arg: &str) -> Result<Box<Worker>> {
         let arg: Arg = serde_json::from_str(arg)?;
         let mut child = Command::new(&arg.cmd)
             .args(&arg.args)
@@ -46,7 +43,7 @@ impl Reader for PcapReader {
             format!("[link-{}]", arg.link),
             header: attr!(&TYPE_CLASS, value: u64::from(arg.link))
         ));
-        Ok(Box::new(PcapReaderWorker {
+        Ok(Box::new(PcapWorker {
             child,
             reader,
             link_class,
@@ -58,13 +55,13 @@ impl Reader for PcapReader {
     }
 }
 
-struct PcapReaderWorker {
+struct PcapWorker {
     child: Child,
     reader: BufReader<ChildStdout>,
     link_class: Fixed<LayerClass>,
 }
 
-impl ReaderWorker for PcapReaderWorker {
+impl Worker for PcapWorker {
     fn read(&mut self) -> Result<Vec<Layer>> {
         let mut header = String::new();
         self.reader.read_line(&mut header)?;
@@ -97,7 +94,7 @@ impl ReaderWorker for PcapReaderWorker {
     }
 }
 
-impl Drop for PcapReaderWorker {
+impl Drop for PcapWorker {
     fn drop(&mut self) {
         let _ = self.child.kill();
     }

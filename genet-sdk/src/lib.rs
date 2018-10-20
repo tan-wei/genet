@@ -7,8 +7,9 @@ extern crate lazy_static;
 
 pub mod decoder;
 pub mod helper;
-pub mod io;
+pub mod reader;
 pub mod token;
+pub mod writer;
 
 pub mod attr;
 pub mod cast;

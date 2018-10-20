@@ -4,8 +4,9 @@ use genet_abi::{
     decoder::DecoderBox,
     env::{self, Allocator},
     fixed::Fixed,
-    io::{ReaderBox, WriterBox},
+    reader::ReaderBox,
     token::Token,
+    writer::WriterBox,
 };
 use libloading::Library;
 use num_cpus;

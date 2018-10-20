@@ -1,13 +1,7 @@
 #[macro_use]
 extern crate genet_sdk;
 
-use genet_sdk::{
-    context::Context,
-    io::{Reader, ReaderWorker},
-    layer::Layer,
-    result::Result,
-    slice::ByteSlice,
-};
+use genet_sdk::{context::Context, layer::Layer, reader::*, result::Result, slice::ByteSlice};
 use std::iter;
 
 pub fn tcp_ipv4_pcap() -> &'static [u8] {
@@ -27,8 +21,8 @@ pub fn tcp_ipv4_pcap() -> &'static [u8] {
 struct TestReader {}
 
 impl Reader for TestReader {
-    fn new_worker(&self, _ctx: &Context, _arg: &str) -> Result<Box<ReaderWorker>> {
-        Ok(Box::new(TestReaderWorker {}))
+    fn new_worker(&self, _ctx: &Context, _arg: &str) -> Result<Box<Worker>> {
+        Ok(Box::new(TestWorker {}))
     }
 
     fn id(&self) -> &str {
@@ -36,9 +30,9 @@ impl Reader for TestReader {
     }
 }
 
-struct TestReaderWorker {}
+struct TestWorker {}
 
-impl ReaderWorker for TestReaderWorker {
+impl Worker for TestWorker {
     fn read(&mut self) -> Result<Vec<Layer>> {
         let layers = iter::repeat(())
             .take(1000)

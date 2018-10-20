@@ -9,10 +9,7 @@ extern crate genet_sdk;
 extern crate serde_derive;
 
 use byteorder::{LittleEndian, WriteBytesExt};
-use genet_sdk::{
-    io::{Writer, WriterWorker},
-    prelude::*,
-};
+use genet_sdk::{prelude::*, writer::*};
 
 use std::{
     fs::File,
@@ -28,12 +25,12 @@ struct Arg {
 struct PcapFileWriter {}
 
 impl Writer for PcapFileWriter {
-    fn new_worker(&self, _ctx: &Context, arg: &str) -> Result<Box<WriterWorker>> {
+    fn new_worker(&self, _ctx: &Context, arg: &str) -> Result<Box<Worker>> {
         let arg: Arg = serde_json::from_str(arg)?;
         let file = File::create(&arg.file)?;
         let mut writer = BufWriter::new(file);
         writer.write_all(&[0x4d, 0x3c, 0xb2, 0xa1])?;
-        Ok(Box::new(PcapFileWriterWorker {
+        Ok(Box::new(PcapFileWorker {
             writer,
             header: false,
         }))
@@ -44,12 +41,12 @@ impl Writer for PcapFileWriter {
     }
 }
 
-struct PcapFileWriterWorker {
+struct PcapFileWorker {
     writer: BufWriter<File>,
     header: bool,
 }
 
-impl PcapFileWriterWorker {
+impl PcapFileWorker {
     fn write_header(&mut self, snaplen: u32, network: u32) -> Result<()> {
         if !self.header {
             self.header = true;
@@ -68,7 +65,7 @@ impl PcapFileWriterWorker {
     }
 }
 
-impl WriterWorker for PcapFileWriterWorker {
+impl Worker for PcapFileWorker {
     fn write(&mut self, _index: u32, stack: &LayerStack) -> Result<()> {
         if let Some(layer) = stack.bottom() {
             let incl_len = layer.data().len();

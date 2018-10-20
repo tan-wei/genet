@@ -12,13 +12,14 @@ pub mod decoder;
 pub mod env;
 pub mod error;
 pub mod fixed;
-pub mod io;
 pub mod layer;
 pub mod metadata;
+pub mod reader;
 pub mod result;
 pub mod slice;
 pub mod token;
 pub mod variant;
+pub mod writer;
 
 mod string;
 mod vec;

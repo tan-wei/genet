@@ -9,10 +9,7 @@ extern crate genet_sdk;
 #[macro_use]
 extern crate serde_derive;
 
-use genet_sdk::{
-    io::{Writer, WriterWorker},
-    prelude::*,
-};
+use genet_sdk::{prelude::*, writer::*};
 
 use std::{
     fs::File,
@@ -28,11 +25,11 @@ struct Arg {
 struct GenetFileWriter {}
 
 impl Writer for GenetFileWriter {
-    fn new_worker(&self, _ctx: &Context, arg: &str) -> Result<Box<WriterWorker>> {
+    fn new_worker(&self, _ctx: &Context, arg: &str) -> Result<Box<Worker>> {
         let arg: Arg = serde_json::from_str(arg)?;
         let file = File::create(&arg.file)?;
         let writer = BufWriter::new(file);
-        Ok(Box::new(GenetFileWriterWorker {
+        Ok(Box::new(GenetFileWorker {
             writer,
             tokens: Vec::new(),
             attrs: Vec::new(),
@@ -45,14 +42,14 @@ impl Writer for GenetFileWriter {
     }
 }
 
-struct GenetFileWriterWorker {
+struct GenetFileWorker {
     writer: BufWriter<File>,
     tokens: Vec<Token>,
     attrs: Vec<(Token, Token)>,
     entries: Vec<genet_format::Entry>,
 }
 
-impl GenetFileWriterWorker {
+impl GenetFileWorker {
     fn get_token_index(&mut self, id: Token) -> usize {
         if let Some(index) = self.tokens.iter().position(|x| *x == id) {
             return index;
@@ -70,7 +67,7 @@ impl GenetFileWriterWorker {
     }
 }
 
-impl WriterWorker for GenetFileWriterWorker {
+impl Worker for GenetFileWorker {
     fn write(&mut self, _index: u32, stack: &LayerStack) -> Result<()> {
         if let Some(layer) = stack.bottom() {
             let mut attrs = Vec::new();
