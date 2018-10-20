@@ -66,8 +66,12 @@ impl Reader for GenetFileReader {
         }))
     }
 
-    fn id(&self) -> &str {
-        "genet-file"
+    fn metadata(&self) -> Metadata {
+        Metadata {
+            id: "app.genet.reader.genet-file".into(),
+            filters: vec![FileType::new("genet", &["genet"])],
+            ..Metadata::default()
+        }
     }
 }
 

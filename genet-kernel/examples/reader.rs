@@ -25,8 +25,11 @@ impl Reader for TestReader {
         Ok(Box::new(TestWorker {}))
     }
 
-    fn id(&self) -> &str {
-        "test-input"
+    fn metadata(&self) -> Metadata {
+        Metadata {
+            id: "app.genet.reader.test-input".into(),
+            ..Metadata::default()
+        }
     }
 }
 

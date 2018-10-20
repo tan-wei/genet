@@ -34,7 +34,7 @@ class PcapView {
       args,
       link,
     }
-    const name = 'pcap'
+    const name = 'app.genet.reader.pcap'
     genet.resumer.set('core:session:stream-reader', {
       name,
       stream,

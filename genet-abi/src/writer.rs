@@ -1,25 +1,47 @@
 use context::Context;
 use error::Error;
+use file::FileType;
 use fixed::MutFixed;
 use layer::{Layer, LayerStack};
 use result::Result;
+use serde_json;
 use std::{fmt, mem, ptr};
 use string::SafeString;
+
+/// Writer metadata.
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Metadata {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub filters: Vec<FileType>,
+}
+
+impl Default for Metadata {
+    fn default() -> Self {
+        Metadata {
+            id: format!("app.genet.writer.{}", env!("CARGO_PKG_NAME")),
+            name: env!("CARGO_PKG_NAME").to_string(),
+            description: env!("CARGO_PKG_DESCRIPTION").to_string(),
+            filters: Vec::new(),
+        }
+    }
+}
 
 /// Writer trait.
 pub trait Writer: Send {
     fn new_worker(&self, ctx: &Context, args: &str) -> Result<Box<Worker>>;
-    fn id(&self) -> &str;
+    fn metadata(&self) -> Metadata;
 }
 
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct WriterBox {
     writer: *mut Box<Writer>,
-    id: extern "C" fn(*mut Box<Writer>) -> SafeString,
     new_worker:
         extern "C" fn(*mut Box<Writer>, *const Context, SafeString, *mut WorkerBox, *mut Error)
             -> u8,
+    metadata: extern "C" fn(*const WriterBox) -> SafeString,
 }
 
 unsafe impl Send for WriterBox {}
@@ -29,13 +51,9 @@ impl WriterBox {
         let writer: Box<Writer> = Box::new(writer);
         Self {
             writer: Box::into_raw(Box::new(writer)),
-            id: abi_writer_id,
             new_worker: abi_writer_new_worker,
+            metadata: abi_metadata,
         }
-    }
-
-    pub fn id(&self) -> SafeString {
-        (self.id)(self.writer)
     }
 
     pub fn new_worker(&self, ctx: &Context, args: &str) -> Result<WorkerBox> {
@@ -48,10 +66,10 @@ impl WriterBox {
             Err(Box::new(err))
         }
     }
-}
 
-extern "C" fn abi_writer_id(writer: *mut Box<Writer>) -> SafeString {
-    SafeString::from(unsafe { (*writer).id() })
+    pub fn metadata(&self) -> Metadata {
+        serde_json::from_str(&(self.metadata)(self)).unwrap()
+    }
 }
 
 extern "C" fn abi_writer_new_worker(
@@ -73,6 +91,11 @@ extern "C" fn abi_writer_new_worker(
             0
         }
     }
+}
+
+extern "C" fn abi_metadata(writer: *const WriterBox) -> SafeString {
+    let writer = unsafe { &*((*writer).writer) };
+    SafeString::from(&serde_json::to_string(&writer.metadata()).unwrap())
 }
 
 /// Writer worker trait.

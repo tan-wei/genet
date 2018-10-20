@@ -59,5 +59,5 @@ fn session() {
 
     let mut session = Session::new(profile, SessionCallback {});
 
-    assert_eq!(session.create_reader("test-input", ""), 1);
+    assert_eq!(session.create_reader("app.genet.reader.test-input", ""), 1);
 }

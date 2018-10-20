@@ -16,7 +16,7 @@ class OutputView {
               }],
             })
             if (typeof file !== 'undefined') {
-              vnode.attrs.callback('pcap-file', { file })
+              vnode.attrs.callback('app.genet.writer.pcap-file', { file })
             }
           },
         })

@@ -36,8 +36,12 @@ impl Writer for PcapFileWriter {
         }))
     }
 
-    fn id(&self) -> &str {
-        "pcap-file"
+    fn metadata(&self) -> Metadata {
+        Metadata {
+            id: "app.genet.writer.pcap-file".into(),
+            filters: vec![FileType::new("Pcap File", &["pcap"])],
+            ..Metadata::default()
+        }
     }
 }
 

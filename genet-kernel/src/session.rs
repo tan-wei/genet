@@ -42,7 +42,11 @@ impl Session {
     }
 
     pub fn create_reader(&mut self, id: &str, arg: &str) -> u32 {
-        if let Some(reader) = self.profile.readers().find(|&&r| r.id().as_str() == id) {
+        if let Some(reader) = self
+            .profile
+            .readers()
+            .find(|&&r| r.metadata().id.as_str() == id)
+        {
             self.io_cnt += 1;
             let ctx = self.profile.context();
             match reader.new_worker(&ctx, arg) {
@@ -60,7 +64,11 @@ impl Session {
     }
 
     pub fn create_writer(&mut self, id: &str, arg: &str, filter: Option<Filter>) -> u32 {
-        if let Some(writer) = self.profile.writers().find(|&&r| r.id().as_str() == id) {
+        if let Some(writer) = self
+            .profile
+            .writers()
+            .find(|&&r| r.metadata().id.as_str() == id)
+        {
             self.io_cnt += 1;
             let ctx = self.profile.context();
             match writer.new_worker(&ctx, arg) {

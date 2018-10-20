@@ -37,8 +37,12 @@ impl Writer for GenetFileWriter {
         }))
     }
 
-    fn id(&self) -> &str {
-        "genet-file"
+    fn metadata(&self) -> Metadata {
+        Metadata {
+            id: "app.genet.writer.genet-file".into(),
+            filters: vec![FileType::new("genet", &["genet"])],
+            ..Metadata::default()
+        }
     }
 }
 

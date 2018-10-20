@@ -50,8 +50,11 @@ impl Reader for PcapReader {
         }))
     }
 
-    fn id(&self) -> &str {
-        "pcap"
+    fn metadata(&self) -> Metadata {
+        Metadata {
+            id: "app.genet.reader.pcap".into(),
+            ..Metadata::default()
+        }
     }
 }
 

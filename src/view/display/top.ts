@@ -225,7 +225,7 @@ export default class TopView {
       if (this.sess) {
         const file = tempy.file({ extension: 'genet' })
         genet.resumer.set('core:session:dump', file)
-        dump = this.sess.createWriter('genet-file', { file })
+        dump = this.sess.createWriter('app.genet.writer.genet-file', { file })
       }
       dump.then(() => {
         genet.resumer.reload()

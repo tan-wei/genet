@@ -1,26 +1,48 @@
 use context::Context;
 use error::Error;
+use file::FileType;
 use fixed::MutFixed;
 use layer::Layer;
 use result::Result;
+use serde_json;
 use std::{fmt, mem, ptr};
 use string::SafeString;
 use vec::SafeVec;
 
+/// Reader metadata.
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Metadata {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub filters: Vec<FileType>,
+}
+
+impl Default for Metadata {
+    fn default() -> Self {
+        Metadata {
+            id: format!("app.genet.reader.{}", env!("CARGO_PKG_NAME")),
+            name: env!("CARGO_PKG_NAME").to_string(),
+            description: env!("CARGO_PKG_DESCRIPTION").to_string(),
+            filters: Vec::new(),
+        }
+    }
+}
+
 /// Reader trait.
 pub trait Reader: Send {
     fn new_worker(&self, ctx: &Context, arg: &str) -> Result<Box<Worker>>;
-    fn id(&self) -> &str;
+    fn metadata(&self) -> Metadata;
 }
 
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct ReaderBox {
     reader: *mut Box<Reader>,
-    id: extern "C" fn(*mut Box<Reader>) -> SafeString,
     new_worker:
         extern "C" fn(*mut Box<Reader>, *const Context, SafeString, *mut WorkerBox, *mut Error)
             -> u8,
+    metadata: extern "C" fn(*const ReaderBox) -> SafeString,
 }
 
 unsafe impl Send for ReaderBox {}
@@ -30,13 +52,9 @@ impl ReaderBox {
         let reader: Box<Reader> = Box::new(reader);
         Self {
             reader: Box::into_raw(Box::new(reader)),
-            id: abi_reader_id,
             new_worker: abi_reader_new_worker,
+            metadata: abi_metadata,
         }
-    }
-
-    pub fn id(&self) -> SafeString {
-        (self.id)(self.reader)
     }
 
     pub fn new_worker(&self, ctx: &Context, args: &str) -> Result<WorkerBox> {
@@ -49,10 +67,10 @@ impl ReaderBox {
             Err(Box::new(err))
         }
     }
-}
 
-extern "C" fn abi_reader_id(reader: *mut Box<Reader>) -> SafeString {
-    SafeString::from(unsafe { (*reader).id() })
+    pub fn metadata(&self) -> Metadata {
+        serde_json::from_str(&(self.metadata)(self)).unwrap()
+    }
 }
 
 extern "C" fn abi_reader_new_worker(
@@ -74,6 +92,11 @@ extern "C" fn abi_reader_new_worker(
             0
         }
     }
+}
+
+extern "C" fn abi_metadata(reader: *const ReaderBox) -> SafeString {
+    let reader = unsafe { &*((*reader).reader) };
+    SafeString::from(&serde_json::to_string(&reader.metadata()).unwrap())
 }
 
 /// Reader worker trait.
