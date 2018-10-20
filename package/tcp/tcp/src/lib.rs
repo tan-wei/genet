@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate genet_sdk;
 
-use genet_sdk::prelude::*;
+use genet_sdk::{cast, decoder::*, prelude::*};
 
 struct TcpWorker {}
 
