@@ -40,6 +40,13 @@ impl Writer for GenetFileWriter {
     fn id(&self) -> &str {
         "genet-file"
     }
+
+    fn metadata(&self) -> Metadata {
+        Metadata {
+            filters: vec![FileType::new("genet", &["genet"])],
+            ..Metadata::default()
+        }
+    }
 }
 
 struct GenetFileWorker {

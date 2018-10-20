@@ -39,6 +39,13 @@ impl Writer for PcapFileWriter {
     fn id(&self) -> &str {
         "pcap-file"
     }
+
+    fn metadata(&self) -> Metadata {
+        Metadata {
+            filters: vec![FileType::new("Pcap File", &["pcap"])],
+            ..Metadata::default()
+        }
+    }
 }
 
 struct PcapFileWorker {

@@ -1,15 +1,37 @@
 use context::Context;
 use error::Error;
+use file::FileType;
 use fixed::MutFixed;
 use layer::{Layer, LayerStack};
 use result::Result;
 use std::{fmt, mem, ptr};
 use string::SafeString;
 
+/// Writer metadata.
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Metadata {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub filters: Vec<FileType>,
+}
+
+impl Default for Metadata {
+    fn default() -> Self {
+        Metadata {
+            id: format!("app.genet.writer.{}", env!("CARGO_PKG_NAME")),
+            name: env!("CARGO_PKG_NAME").to_string(),
+            description: env!("CARGO_PKG_DESCRIPTION").to_string(),
+            filters: Vec::new(),
+        }
+    }
+}
+
 /// Writer trait.
 pub trait Writer: Send {
     fn new_worker(&self, ctx: &Context, args: &str) -> Result<Box<Worker>>;
     fn id(&self) -> &str;
+    fn metadata(&self) -> Metadata;
 }
 
 #[repr(C)]

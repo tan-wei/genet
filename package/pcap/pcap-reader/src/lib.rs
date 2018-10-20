@@ -53,6 +53,12 @@ impl Reader for PcapReader {
     fn id(&self) -> &str {
         "pcap"
     }
+
+    fn metadata(&self) -> Metadata {
+        Metadata {
+            ..Metadata::default()
+        }
+    }
 }
 
 struct PcapWorker {

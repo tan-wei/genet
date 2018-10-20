@@ -28,6 +28,10 @@ impl Reader for TestReader {
     fn id(&self) -> &str {
         "test-input"
     }
+
+    fn metadata(&self) -> Metadata {
+        Metadata::default()
+    }
 }
 
 struct TestWorker {}
