@@ -145,7 +145,7 @@ class Session extends EventEmitter {
 
   async createWriter (id, arg = {}, filter = '') {
     const handle = this._sess.createWriter(
-      id, JSON.stringify(arg), this.applyFilterMacros(filter))
+      id, JSON.stringify(arg), filter)
     if (handle === 0) {
       throw new Error(`failed to invoke writer: ${id}`)
     }
