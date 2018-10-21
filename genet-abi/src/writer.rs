@@ -1,12 +1,13 @@
+use bincode;
 use context::Context;
 use error::Error;
 use file::FileType;
 use fixed::MutFixed;
 use layer::{Layer, LayerStack};
 use result::Result;
-use serde_json;
 use std::{fmt, mem, ptr};
 use string::SafeString;
+use vec::SafeVec;
 
 /// Writer metadata.
 #[derive(Serialize, Deserialize, Debug)]
@@ -41,7 +42,7 @@ pub struct WriterBox {
     new_worker:
         extern "C" fn(*mut Box<Writer>, *const Context, SafeString, *mut WorkerBox, *mut Error)
             -> u8,
-    metadata: extern "C" fn(*const WriterBox) -> SafeString,
+    metadata: extern "C" fn(*const WriterBox) -> SafeVec<u8>,
 }
 
 unsafe impl Send for WriterBox {}
@@ -68,7 +69,7 @@ impl WriterBox {
     }
 
     pub fn metadata(&self) -> Metadata {
-        serde_json::from_str(&(self.metadata)(self)).unwrap()
+        bincode::deserialize(&(self.metadata)(self)).unwrap()
     }
 }
 
@@ -93,9 +94,9 @@ extern "C" fn abi_writer_new_worker(
     }
 }
 
-extern "C" fn abi_metadata(writer: *const WriterBox) -> SafeString {
+extern "C" fn abi_metadata(writer: *const WriterBox) -> SafeVec<u8> {
     let writer = unsafe { &*((*writer).writer) };
-    SafeString::from(&serde_json::to_string(&writer.metadata()).unwrap())
+    bincode::serialize(&writer.metadata()).unwrap().into()
 }
 
 /// Writer worker trait.

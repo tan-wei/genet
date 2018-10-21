@@ -180,13 +180,15 @@ impl<'a, T: Clone> From<&'a [T]> for SafeVec<T> {
     }
 }
 
+impl<T: Clone> From<Vec<T>> for SafeVec<T> {
+    fn from(s: Vec<T>) -> SafeVec<T> {
+        s.as_slice().into()
+    }
+}
+
 impl<'a, T: Clone> From<&'a Box<[T]>> for SafeVec<T> {
     fn from(s: &'a Box<[T]>) -> SafeVec<T> {
-        let mut v = SafeVec::with_capacity(s.len() as u64);
-        for i in s.iter() {
-            v.push(i.clone());
-        }
-        v
+        s.as_ref().into()
     }
 }
 

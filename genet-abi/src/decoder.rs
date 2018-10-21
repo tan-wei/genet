@@ -1,11 +1,11 @@
+use bincode;
 use context::Context;
 use error::Error;
 use fixed::MutFixed;
 use layer::{Layer, LayerStack, Parent};
 use result::Result;
-use serde_json;
 use std::ptr;
-use string::SafeString;
+use vec::SafeVec;
 
 /// Execution type.
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
@@ -144,7 +144,7 @@ impl Clone for Box<Decoder> {
 #[derive(Clone, Copy)]
 pub struct DecoderBox {
     new_worker: extern "C" fn(*mut DecoderBox, *const Context) -> WorkerBox,
-    metadata: extern "C" fn(*const DecoderBox) -> SafeString,
+    metadata: extern "C" fn(*const DecoderBox) -> SafeVec<u8>,
     decoder: *mut Box<Decoder>,
 }
 
@@ -165,7 +165,7 @@ impl DecoderBox {
     }
 
     pub fn metadata(&self) -> Metadata {
-        serde_json::from_str(&(self.metadata)(self)).unwrap()
+        bincode::deserialize(&(self.metadata)(self)).unwrap()
     }
 }
 
@@ -175,9 +175,9 @@ extern "C" fn abi_new_worker(diss: *mut DecoderBox, ctx: *const Context) -> Work
     WorkerBox::new(diss.new_worker(ctx))
 }
 
-extern "C" fn abi_metadata(diss: *const DecoderBox) -> SafeString {
+extern "C" fn abi_metadata(diss: *const DecoderBox) -> SafeVec<u8> {
     let diss = unsafe { &*((*diss).decoder) };
-    SafeString::from(&serde_json::to_string(&diss.metadata()).unwrap())
+    bincode::serialize(&diss.metadata()).unwrap().into()
 }
 
 #[cfg(test)]

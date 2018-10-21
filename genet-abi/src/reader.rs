@@ -1,10 +1,10 @@
+use bincode;
 use context::Context;
 use error::Error;
 use file::FileType;
 use fixed::MutFixed;
 use layer::Layer;
 use result::Result;
-use serde_json;
 use std::{fmt, mem, ptr};
 use string::SafeString;
 use vec::SafeVec;
@@ -42,7 +42,7 @@ pub struct ReaderBox {
     new_worker:
         extern "C" fn(*mut Box<Reader>, *const Context, SafeString, *mut WorkerBox, *mut Error)
             -> u8,
-    metadata: extern "C" fn(*const ReaderBox) -> SafeString,
+    metadata: extern "C" fn(*const ReaderBox) -> SafeVec<u8>,
 }
 
 unsafe impl Send for ReaderBox {}
@@ -69,7 +69,7 @@ impl ReaderBox {
     }
 
     pub fn metadata(&self) -> Metadata {
-        serde_json::from_str(&(self.metadata)(self)).unwrap()
+        bincode::deserialize(&(self.metadata)(self)).unwrap()
     }
 }
 
@@ -94,9 +94,9 @@ extern "C" fn abi_reader_new_worker(
     }
 }
 
-extern "C" fn abi_metadata(reader: *const ReaderBox) -> SafeString {
+extern "C" fn abi_metadata(reader: *const ReaderBox) -> SafeVec<u8> {
     let reader = unsafe { &*((*reader).reader) };
-    SafeString::from(&serde_json::to_string(&reader.metadata()).unwrap())
+    bincode::serialize(&reader.metadata()).unwrap().into()
 }
 
 /// Reader worker trait.
