@@ -34,9 +34,9 @@ pub struct Metadata {
 impl Default for Metadata {
     fn default() -> Self {
         Metadata {
-            id: format!("app.genet.decoder.{}", env!("CARGO_PKG_NAME")),
-            name: env!("CARGO_PKG_NAME").to_string(),
-            description: env!("CARGO_PKG_DESCRIPTION").to_string(),
+            id: String::new(),
+            name: String::new(),
+            description: String::new(),
             exec_type: ExecType::ParallelSync,
         }
     }
