@@ -5,8 +5,7 @@ use file::FileType;
 use fixed::MutFixed;
 use layer::Layer;
 use result::Result;
-use std::{fmt, mem, ptr};
-use string::SafeString;
+use std::{fmt, mem, ptr, slice, str};
 use vec::SafeVec;
 
 /// Reader metadata.
@@ -40,7 +39,7 @@ pub trait Reader: Send {
 pub struct ReaderBox {
     reader: *mut Box<Reader>,
     new_worker:
-        extern "C" fn(*mut Box<Reader>, *const Context, SafeString, *mut WorkerBox, *mut Error)
+        extern "C" fn(*mut Box<Reader>, *const Context, *const u8, u64, *mut WorkerBox, *mut Error)
             -> u8,
     metadata: extern "C" fn(*const ReaderBox) -> SafeVec<u8>,
 }
@@ -60,7 +59,15 @@ impl ReaderBox {
     pub fn new_worker(&self, ctx: &Context, args: &str) -> Result<WorkerBox> {
         let mut out: WorkerBox = unsafe { mem::uninitialized() };
         let mut err = Error::new("");
-        if (self.new_worker)(self.reader, ctx, SafeString::from(args), &mut out, &mut err) == 1 {
+        if (self.new_worker)(
+            self.reader,
+            ctx,
+            args.as_ptr(),
+            args.len() as u64,
+            &mut out,
+            &mut err,
+        ) == 1
+        {
             Ok(out)
         } else {
             mem::forget(out);
@@ -76,13 +83,15 @@ impl ReaderBox {
 extern "C" fn abi_reader_new_worker(
     reader: *mut Box<Reader>,
     ctx: *const Context,
-    arg: SafeString,
+    arg: *const u8,
+    arg_len: u64,
     out: *mut WorkerBox,
     err: *mut Error,
 ) -> u8 {
     let reader = unsafe { &*reader };
     let ctx = unsafe { &*ctx };
-    match reader.new_worker(ctx, arg.as_str()) {
+    let arg = unsafe { str::from_utf8_unchecked(slice::from_raw_parts(arg, arg_len as usize)) };
+    match reader.new_worker(ctx, arg) {
         Ok(worker) => {
             unsafe { ptr::write(out, WorkerBox::new(worker)) };
             1
