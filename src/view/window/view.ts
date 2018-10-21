@@ -142,11 +142,15 @@ export default class WindowView {
       shell.showItemInFolder(Env.userProfilePath)
     })
     genet.action.global.on('core:file:import', () => {
-      const filters = flatten([...genet.session.fileReaders]
-        .map((reader) => reader.filters))
       const files = dialog.showOpenDialog({
         properties: ['openFile'],
-        filters,
+        filters: [{
+          name: 'Pcap Files',
+          extensions: ['pcap'],
+        },{
+          name: 'All Files',
+          extensions: [],
+        }],
       })
       if (typeof files !== 'undefined' && files.length > 0) {
         const [file] = files
