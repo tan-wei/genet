@@ -94,6 +94,10 @@ impl Session {
         self.store.len()
     }
 
+    pub fn profile(&self) -> &Profile {
+        &self.profile
+    }
+
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }

@@ -12,7 +12,7 @@ use libloading::Library;
 use num_cpus;
 use std::{fmt, io, mem};
 
-#[derive(Clone, Default)]
+#[derive(Serialize, Clone, Default)]
 pub struct Profile {
     concurrency: u32,
     decoders: Vec<DecoderBox>,

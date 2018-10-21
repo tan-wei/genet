@@ -195,6 +195,10 @@ class Session extends EventEmitter {
   get length () {
     return this._sess.length
   }
+
+  get profile () {
+    return JSON.parse(this._sess.profile)
+  }
 }
 
 class Profile extends native.Session.Profile { }

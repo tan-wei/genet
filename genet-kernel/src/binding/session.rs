@@ -198,6 +198,12 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
         env.create_uint32(session.len() as u32)
     }
 
+    fn session_profile<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
+        let session = env.unwrap::<Session>(info.this())?;
+        let json = serde_json::to_string(&session.profile()).unwrap();
+        env.create_string(&json)
+    }
+
     let session_class = env.define_class(
         "Session",
         session_ctor,
@@ -243,6 +249,13 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
                 "length",
                 PropertyAttributes::DEFAULT,
                 session_length,
+                true,
+            ),
+            PropertyDescriptor::new_property(
+                env,
+                "profile",
+                PropertyAttributes::DEFAULT,
+                session_profile,
                 true,
             ),
         ],

@@ -4,6 +4,7 @@ use error::Error;
 use fixed::MutFixed;
 use layer::{Layer, LayerStack, Parent};
 use result::Result;
+use serde::ser::{Serialize, Serializer};
 use std::ptr;
 use vec::SafeVec;
 
@@ -166,6 +167,15 @@ impl DecoderBox {
 
     pub fn metadata(&self) -> Metadata {
         bincode::deserialize(&(self.metadata)(self)).unwrap()
+    }
+}
+
+impl Serialize for DecoderBox {
+    fn serialize<S>(&self, serializer: S) -> ::std::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        self.metadata().serialize(serializer)
     }
 }
 

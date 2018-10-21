@@ -5,6 +5,7 @@ use file::FileType;
 use fixed::MutFixed;
 use layer::{Layer, LayerStack};
 use result::Result;
+use serde::ser::{Serialize, Serializer};
 use std::{fmt, mem, ptr, slice, str};
 use vec::SafeVec;
 
@@ -77,6 +78,15 @@ impl WriterBox {
 
     pub fn metadata(&self) -> Metadata {
         bincode::deserialize(&(self.metadata)(self)).unwrap()
+    }
+}
+
+impl Serialize for WriterBox {
+    fn serialize<S>(&self, serializer: S) -> ::std::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        self.metadata().serialize(serializer)
     }
 }
 
