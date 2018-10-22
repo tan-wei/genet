@@ -144,7 +144,13 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
                 if filter.is_empty() {
                     None
                 } else {
-                    Filter::compile(&filter).ok()
+                    match Filter::compile(&filter) {
+                        Ok(filter) => Some(filter),
+                        Err(err) => {
+                            env.throw_error("load_library", &err.to_string())?;
+                            None
+                        }
+                    }
                 },
             );
             env.get_null()
@@ -174,7 +180,13 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
                 if filter.is_empty() {
                     None
                 } else {
-                    Filter::compile(&filter).ok()
+                    match Filter::compile(&filter) {
+                        Ok(filter) => Some(filter),
+                        Err(err) => {
+                            env.throw_error("load_library", &err.to_string())?;
+                            None
+                        }
+                    }
                 },
             );
             env.create_uint32(handle)
