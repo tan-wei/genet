@@ -41,11 +41,12 @@ fn parse_macro(exp: String) -> Expr {
 }
 
 fn consume_expr(pair: Pair<Rule>) -> Expr {
+    let cmp = Operator::new(Rule::op_lt, Assoc::Left)
+        | Operator::new(Rule::op_lte, Assoc::Left)
+        | Operator::new(Rule::op_gt, Assoc::Left)
+        | Operator::new(Rule::op_gte, Assoc::Left);
     let climber = PrecClimber::new(vec![
-        Operator::new(Rule::op_lt, Assoc::Left)
-            | Operator::new(Rule::op_lte, Assoc::Left)
-            | Operator::new(Rule::op_gt, Assoc::Left)
-            | Operator::new(Rule::op_gte, Assoc::Left),
+        cmp,
         Operator::new(Rule::op_eq, Assoc::Left) | Operator::new(Rule::op_ne, Assoc::Left),
         Operator::new(Rule::op_logical_and, Assoc::Left),
         Operator::new(Rule::op_logical_or, Assoc::Left),

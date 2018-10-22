@@ -107,9 +107,9 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
             let frames = session.frames(start as usize..end as usize);
             let frame_class = env.get_constructor(JsClass::Frame as usize).unwrap();
             let array = env.create_array(frames.len())?;
-            for i in 0..frames.len() {
+            for (i, item) in frames.iter().enumerate() {
                 let instance = env.new_instance(&frame_class, &[])?;
-                env.wrap_ptr(instance, frames[i])?;
+                env.wrap_ptr(instance, *item)?;
                 env.set_element(array, i as u32, instance)?;
             }
             Ok(array)
@@ -126,8 +126,8 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
             let end = env.get_value_uint32(end)?;
             let frames = session.filtered_frames(id, start as usize..end as usize);
             let array = env.create_array(frames.len())?;
-            for i in 0..frames.len() {
-                env.set_element(array, i as u32, env.create_uint32(frames[i])?)?;
+            for (i, item) in frames.iter().enumerate() {
+                env.set_element(array, i as u32, env.create_uint32(*item)?)?;
             }
             Ok(array)
         } else {

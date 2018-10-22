@@ -43,14 +43,14 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         let attrs = layer.attrs();
         let attr_class = env.get_constructor(JsClass::Attr as usize).unwrap();
         let array = env.create_array(headers.len() + attrs.len())?;
-        for i in 0..headers.len() {
+        for (i, item) in headers.iter().enumerate() {
             let instance = env.new_instance(&attr_class, &[])?;
-            env.wrap(instance, AttrWrapper::new(&headers[i], layer))?;
+            env.wrap(instance, AttrWrapper::new(item, layer))?;
             env.set_element(array, i as u32, instance)?;
         }
-        for i in 0..attrs.len() {
+        for (i, item) in attrs.iter().enumerate() {
             let instance = env.new_instance(&attr_class, &[])?;
-            env.wrap(instance, AttrWrapper::new(&attrs[i], layer))?;
+            env.wrap(instance, AttrWrapper::new(item, layer))?;
             env.set_element(array, (headers.len() + i) as u32, instance)?;
         }
         Ok(array)
@@ -60,8 +60,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         let layer = env.unwrap::<Layer>(info.this())?;
         let payloads = layer.payloads();
         let array = env.create_array(payloads.len())?;
-        for i in 0..payloads.len() {
-            let paylaod = &payloads[i];
+        for (i, paylaod) in payloads.iter().enumerate() {
             let object = env.create_object()?;
             env.set_named_property(object, "id", env.create_string(&paylaod.id().to_string())?)?;
             env.set_named_property(

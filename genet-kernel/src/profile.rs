@@ -96,7 +96,7 @@ impl Profile {
                 if ver >> 32 == 0 {
                     ver
                 } else {
-                    ver & (0xffffffff << 32)
+                    ver & (0xffff_ffff << 32)
                 }
             }
 

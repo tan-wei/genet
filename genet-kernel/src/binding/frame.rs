@@ -21,8 +21,8 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         let frame = env.unwrap::<Frame>(info.this())?;
         let indices = frame.tree_indices();
         let array = env.create_array(indices.len())?;
-        for i in 0..indices.len() {
-            env.set_element(array, i as u32, env.create_uint32(u32::from(indices[i]))?)?;
+        for (i, item) in indices.iter().enumerate() {
+            env.set_element(array, i as u32, env.create_uint32(u32::from(*item))?)?;
         }
         Ok(array)
     }
@@ -60,9 +60,9 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         let layers = frame.layers();
         let layer_class = env.get_constructor(JsClass::Layer as usize).unwrap();
         let array = env.create_array(layers.len())?;
-        for i in 0..layers.len() {
+        for (i, item) in layers.iter().enumerate() {
             let instance = env.new_instance(&layer_class, &[])?;
-            env.wrap_mut_fixed(instance, &layers[i])?;
+            env.wrap_mut_fixed(instance, item)?;
             env.set_element(array, i as u32, instance)?;
         }
         Ok(array)

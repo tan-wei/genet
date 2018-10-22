@@ -4,7 +4,7 @@ use hwaddr::HwAddr;
 use std::net::{Ipv4Addr, Ipv6Addr};
 use variant::VariantExt;
 
-pub fn unparse_attr(typ: &Token, var: &Variant) -> Expr {
+pub fn unparse_attr(typ: Token, var: &Variant) -> Expr {
     let typ = typ.to_string();
     match (typ.as_str(), var) {
         ("@ipv4:addr", Variant::Slice(b)) => {
