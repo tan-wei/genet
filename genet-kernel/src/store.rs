@@ -17,8 +17,8 @@ use std::{
     thread::{self, JoinHandle},
 };
 
-const OUTPUT_BLOCK_SIZE: usize = 1024;
-const MAX_FILTER_SIZE: usize = 10000;
+const OUTPUT_BLOCK_SIZE: usize = 65536;
+const MAX_FILTER_SIZE: usize = 16384;
 
 pub trait Callback: Send {
     fn on_frames_updated(&self, _frames: u32) {}

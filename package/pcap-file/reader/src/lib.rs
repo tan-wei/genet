@@ -131,7 +131,7 @@ impl PcapFileWorker {
     }
 }
 
-const BLOCK_SIZE: usize = 1024;
+const BLOCK_SIZE: usize = 65535;
 
 impl Worker for PcapFileWorker {
     fn read(&mut self) -> Result<Vec<Layer>> {
