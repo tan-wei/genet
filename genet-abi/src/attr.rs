@@ -11,6 +11,58 @@ use token::Token;
 use variant::Variant;
 use vec::SafeVec;
 
+trait PxAttr {
+    fn id() -> Token;
+    fn name() -> String {
+        "".into()
+    }
+    fn description() -> String {
+        "".into()
+    }
+    fn bit_range() -> Range<usize> {
+        0..0
+    }
+    fn width() -> usize {
+        0
+    }
+}
+
+/// A builder object for Attr.
+pub struct AttrBuilder {
+    class: Fixed<AttrClass>,
+    range: Range<usize>,
+    value: Option<Fixed<Variant>>,
+}
+
+impl AttrBuilder {
+    /// Builds a new Attr.
+    pub fn build(self) -> Attr {
+        Attr {
+            class: self.class,
+            range: self.range,
+            value: self.value,
+        }
+    }
+
+    /// Sets a byte range of Attr.
+    pub fn range(mut self, range: Range<usize>) -> AttrBuilder {
+        self.range = (range.start * 8)..(range.end * 8);
+        self
+    }
+
+    /// Sets a bit range of Attr.
+    pub fn bit_range(mut self, byte_offset: usize, range: Range<usize>) -> AttrBuilder {
+        self.range = (range.start + byte_offset * 8)..(range.end + byte_offset * 8);
+        self
+    }
+
+    /// Sets a value of Attr.
+    pub fn value<T: Into<Variant>>(mut self, value: T) -> AttrBuilder {
+        self.value = Some(Fixed::new(value.into()));
+        self
+    }
+}
+
 /// An attribute object.
 #[repr(C)]
 pub struct Attr {
