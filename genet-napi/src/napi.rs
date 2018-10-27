@@ -4,7 +4,8 @@ use genet_abi::{
 };
 use libc;
 use std::{
-    cell::RefCell, convert::AsRef, ffi::CString, mem, ops::Deref, os::raw::c_char, ptr, rc::Rc,
+    any::TypeId, cell::RefCell, convert::AsRef, ffi::CString, mem, ops::Deref, os::raw::c_char,
+    ptr, rc::Rc,
 };
 
 thread_local! {
@@ -75,6 +76,11 @@ pub enum TypedArrayType {
     Float64Array,
     Bigint64Array,
     Biguint64Array,
+}
+
+struct Holder {
+    ty: TypeId,
+    data: *mut libc::c_void,
 }
 
 pub enum Env {}
@@ -713,16 +719,23 @@ impl Env {
         }
     }
 
-    pub fn wrap<T>(&self, js_object: &Value, value: T) -> Result<()> {
+    pub fn wrap<T: 'static>(&self, js_object: &Value, value: T) -> Result<()> {
         extern "C" fn finalize_cb<T>(_env: *const Env, data: *mut u8, _hint: *mut u8) {
-            unsafe { Box::from_raw(data as *mut T) };
+            unsafe {
+                let holder = Box::from_raw(data as *mut Holder);
+                Box::from_raw(holder.data as *mut T);
+            }
         }
         let value = Box::into_raw(Box::new(value));
+        let holder = Box::into_raw(Box::new(Holder {
+            ty: TypeId::of::<T>(),
+            data: value as *mut libc::c_void,
+        }));
         unsafe {
             match napi_wrap(
                 self,
                 js_object,
-                value as *mut libc::c_void,
+                holder as *mut libc::c_void,
                 finalize_cb::<T>,
                 ptr::null_mut(),
                 ptr::null_mut(),
@@ -733,13 +746,21 @@ impl Env {
         }
     }
 
-    pub fn wrap_fixed<T>(&self, js_object: &Value, value: &Fixed<T>) -> Result<()> {
-        extern "C" fn finalize_cb<T>(_env: *const Env, _data: *mut u8, _hint: *mut u8) {}
+    pub fn wrap_fixed<T: 'static>(&self, js_object: &Value, value: &Fixed<T>) -> Result<()> {
+        extern "C" fn finalize_cb<T>(_env: *const Env, data: *mut u8, _hint: *mut u8) {
+            unsafe {
+                Box::from_raw(data as *mut Holder);
+            }
+        }
+        let holder = Box::into_raw(Box::new(Holder {
+            ty: TypeId::of::<T>(),
+            data: value.as_ptr() as *mut libc::c_void,
+        }));
         unsafe {
             match napi_wrap(
                 self,
                 js_object,
-                value.as_ptr() as *mut libc::c_void,
+                holder as *mut libc::c_void,
                 finalize_cb::<T>,
                 ptr::null_mut(),
                 ptr::null_mut(),
@@ -750,13 +771,21 @@ impl Env {
         }
     }
 
-    pub fn wrap_mut_fixed<T>(&self, js_object: &Value, value: &MutFixed<T>) -> Result<()> {
-        extern "C" fn finalize_cb<T>(_env: *const Env, _data: *mut u8, _hint: *mut u8) {}
+    pub fn wrap_mut_fixed<T: 'static>(&self, js_object: &Value, value: &MutFixed<T>) -> Result<()> {
+        extern "C" fn finalize_cb<T>(_env: *const Env, data: *mut u8, _hint: *mut u8) {
+            unsafe {
+                Box::from_raw(data as *mut Holder);
+            }
+        }
+        let holder = Box::into_raw(Box::new(Holder {
+            ty: TypeId::of::<T>(),
+            data: value.as_ptr() as *mut libc::c_void,
+        }));
         unsafe {
             match napi_wrap(
                 self,
                 js_object,
-                value.as_ptr() as *mut libc::c_void,
+                holder as *mut libc::c_void,
                 finalize_cb::<T>,
                 ptr::null_mut(),
                 ptr::null_mut(),
@@ -767,13 +796,21 @@ impl Env {
         }
     }
 
-    pub fn wrap_ptr<T>(&self, js_object: &Value, value: *const T) -> Result<()> {
-        extern "C" fn finalize_cb<T>(_env: *const Env, _data: *mut u8, _hint: *mut u8) {}
+    pub fn wrap_ptr<T: 'static>(&self, js_object: &Value, value: *const T) -> Result<()> {
+        extern "C" fn finalize_cb<T>(_env: *const Env, data: *mut u8, _hint: *mut u8) {
+            unsafe {
+                Box::from_raw(data as *mut Holder);
+            }
+        }
+        let holder = Box::into_raw(Box::new(Holder {
+            ty: TypeId::of::<T>(),
+            data: value as *mut libc::c_void,
+        }));
         unsafe {
             match napi_wrap(
                 self,
                 js_object,
-                value as *mut libc::c_void,
+                holder as *mut libc::c_void,
                 finalize_cb::<T>,
                 ptr::null_mut(),
                 ptr::null_mut(),
@@ -784,11 +821,17 @@ impl Env {
         }
     }
 
-    pub fn unwrap<T>(&self, js_object: &Value) -> Result<&mut T> {
+    pub fn unwrap<T: 'static>(&self, js_object: &Value) -> Result<&mut T> {
         unsafe {
             let mut result: *mut libc::c_void = mem::uninitialized();
             match napi_unwrap(self, js_object, &mut result) {
-                Status::Ok => Ok(&mut *(result as *mut T)),
+                Status::Ok => {
+                    let holder = &*(result as *const Holder);
+                    if holder.ty != TypeId::of::<T>() {
+                        return Err(Status::InvalidArg);
+                    }
+                    Ok(&mut *(holder.data as *mut T))
+                }
                 s => Err(s),
             }
         }
