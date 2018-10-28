@@ -73,7 +73,7 @@ impl Decoder for EthDecoder {
             path: "eth".into(),
             ..AttrContext::default()
         });
-        println!("{:?}", ch);
+        println!("{:#?}", ch);
 
         Box::new(EthWorker {})
     }
