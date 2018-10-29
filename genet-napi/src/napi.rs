@@ -78,9 +78,10 @@ pub enum TypedArrayType {
     Biguint64Array,
 }
 
+#[repr(C)]
 struct Holder {
-    ty: TypeId,
     data: *mut libc::c_void,
+    ty: TypeId,
 }
 
 pub enum Env {}
@@ -720,9 +721,9 @@ impl Env {
     }
 
     pub fn wrap<T: 'static>(&self, js_object: &Value, value: T) -> Result<()> {
-        extern "C" fn finalize_cb<T>(_env: *const Env, data: *mut u8, _hint: *mut u8) {
+        extern "C" fn finalize_cb<T>(_env: *const Env, data: *mut Holder, _hint: *mut u8) {
             unsafe {
-                let holder = Box::from_raw(data as *mut Holder);
+                let holder = Box::from_raw(data);
                 Box::from_raw(holder.data as *mut T);
             }
         }
@@ -747,9 +748,9 @@ impl Env {
     }
 
     pub fn wrap_fixed<T: 'static>(&self, js_object: &Value, value: &Fixed<T>) -> Result<()> {
-        extern "C" fn finalize_cb<T>(_env: *const Env, data: *mut u8, _hint: *mut u8) {
+        extern "C" fn finalize_cb<T>(_env: *const Env, data: *mut Holder, _hint: *mut u8) {
             unsafe {
-                Box::from_raw(data as *mut Holder);
+                Box::from_raw(data);
             }
         }
         let holder = Box::into_raw(Box::new(Holder {
@@ -772,9 +773,9 @@ impl Env {
     }
 
     pub fn wrap_mut_fixed<T: 'static>(&self, js_object: &Value, value: &MutFixed<T>) -> Result<()> {
-        extern "C" fn finalize_cb<T>(_env: *const Env, data: *mut u8, _hint: *mut u8) {
+        extern "C" fn finalize_cb<T>(_env: *const Env, data: *mut Holder, _hint: *mut u8) {
             unsafe {
-                Box::from_raw(data as *mut Holder);
+                Box::from_raw(data);
             }
         }
         let holder = Box::into_raw(Box::new(Holder {
@@ -797,9 +798,9 @@ impl Env {
     }
 
     pub fn wrap_ptr<T: 'static>(&self, js_object: &Value, value: *const T) -> Result<()> {
-        extern "C" fn finalize_cb<T>(_env: *const Env, data: *mut u8, _hint: *mut u8) {
+        extern "C" fn finalize_cb<T>(_env: *const Env, data: *mut Holder, _hint: *mut u8) {
             unsafe {
-                Box::from_raw(data as *mut Holder);
+                Box::from_raw(data);
             }
         }
         let holder = Box::into_raw(Box::new(Holder {
@@ -1234,11 +1235,12 @@ extern "C" {
         result: *mut *const Value,
     ) -> Status;
 
+    #[allow(improper_ctypes)]
     fn napi_wrap(
         env: *const Env,
         js_object: *const Value,
         native_object: *mut libc::c_void,
-        finalize_cb: extern "C" fn(*const Env, *mut u8, *mut u8),
+        finalize_cb: extern "C" fn(*const Env, *mut Holder, *mut u8),
         finalize_hint: *mut libc::c_void,
         result: *mut *const Ref,
     ) -> Status;
