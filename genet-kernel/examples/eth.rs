@@ -5,7 +5,13 @@ extern crate genet_derive;
 
 #[derive(Attr, Default)]
 /// Ethernet
-struct EthLayer {
+struct Attrs {
+    eth: Eth,
+}
+
+#[derive(Attr, Default)]
+/// Ethernet
+struct Eth {
     /// Source Hardware Address
     #[genet(alias = "_.src")]
     src: MacAddr,
@@ -16,7 +22,7 @@ struct EthLayer {
 
     /// Protocol Type
     #[genet(typ = "@enum")]
-    r#type: Detach<EthType>,
+    type_type: Detach<EthType>,
 }
 
 #[derive(Attr, Default)]
@@ -42,7 +48,7 @@ struct EthType {
 use genet_sdk::{cast, decoder::*, field::*, prelude::*};
 
 struct EthWorker {
-    eth: EthLayer,
+    attrs: Attrs,
 }
 
 impl Worker for EthWorker {
@@ -85,16 +91,11 @@ struct EthDecoder {}
 impl Decoder for EthDecoder {
     fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
         use genet_sdk::attr::{AttrContext, AttrNode};
-        let mut d = EthLayer::default();
-        let ch = d.init(&AttrContext {
-            path: "eth".into(),
-            ..AttrContext::default()
-        });
+        let mut attrs = Attrs::default();
+        let ch = attrs.init(&AttrContext::default());
         println!("{:#?}", ch);
 
-        Box::new(EthWorker {
-            eth: EthLayer::default(),
-        })
+        Box::new(EthWorker { attrs })
     }
 
     fn metadata(&self) -> Metadata {
