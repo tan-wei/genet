@@ -47,7 +47,7 @@ fn main() {
         Ok(p) => p,
         Err(e) => {
             eprintln!("error: {:?}", e);
-            ::std::process::exit(1)
+            std::process::exit(1)
         }
     };
 
@@ -66,7 +66,7 @@ fn main() {
             Ok(r) => r,
             Err(e) => {
                 eprintln!("error: {:?}", e);
-                ::std::process::exit(1)
+                std::process::exit(1)
             }
         };
 

@@ -106,7 +106,7 @@ impl Session {
 #[derive(Debug)]
 struct Error(String);
 
-impl ::std::error::Error for Error {
+impl std::error::Error for Error {
     fn description(&self) -> &str {
         &self.0
     }
@@ -183,7 +183,7 @@ impl Clone for Box<Callback> {
 }
 
 impl Serialize for Event {
-    fn serialize<S>(&self, serializer: S) -> ::std::result::Result<S::Ok, S::Error>
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
         S: Serializer,
     {

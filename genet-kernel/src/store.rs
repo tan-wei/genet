@@ -42,7 +42,7 @@ enum Command {
 #[derive(Debug)]
 struct Error(String);
 
-impl ::std::error::Error for Error {
+impl std::error::Error for Error {
     fn description(&self) -> &str {
         &self.0
     }
@@ -271,7 +271,7 @@ impl EventLoop {
                 } else if let Some(string) = err.downcast_ref::<&str>() {
                     string
                 } else if let Some(err) = err.downcast_ref::<Error>() {
-                    ::std::error::Error::description(err)
+                    std::error::Error::description(err)
                 } else {
                     "Thread Panicked"
                 };

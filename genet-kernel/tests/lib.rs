@@ -17,7 +17,7 @@ impl Callback for SessionCallback {
         if let Event::Frames(len) = event {
             println!("{:?}", len);
             if len == 40000 {
-                ::std::process::exit(0);
+                std::process::exit(0);
             }
         }
     }
@@ -27,7 +27,7 @@ impl Callback for SessionCallback {
 fn session() {
     let mut profile = Profile::new();
 
-    let libdir = ::std::env::current_exe()
+    let libdir = std::env::current_exe()
         .unwrap()
         .parent()
         .unwrap()

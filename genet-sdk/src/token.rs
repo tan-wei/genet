@@ -20,7 +20,9 @@ macro_rules! token {
     }};
     ($name:expr) => {{
         use $crate::token::Token;
-        thread_local!(static TOKEN: Token = { Token::from($name) };);
+        thread_local!(
+            static TOKEN: Token = { Token::from($name) };
+        );
         TOKEN.with(|&t| t)
     }};
 }

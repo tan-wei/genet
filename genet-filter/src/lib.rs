@@ -47,7 +47,7 @@ impl Filter {
 #[derive(Debug)]
 struct Error(String);
 
-impl ::std::error::Error for Error {
+impl std::error::Error for Error {
     fn description(&self) -> &str {
         &self.0
     }

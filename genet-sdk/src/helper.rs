@@ -16,7 +16,7 @@ macro_rules! layer_class_lazy {
     ($id:expr) => (
         {
             lazy_static! {
-                static ref LAYER_CLASS : ::genet_sdk::layer::LayerClass = layer_class!($id);
+                static ref LAYER_CLASS : genet_sdk::layer::LayerClass = layer_class!($id);
             }
             &LAYER_CLASS
         }
@@ -24,7 +24,7 @@ macro_rules! layer_class_lazy {
     ($id:expr, $($key:ident : $($arg:expr)*),*) => (
         {
             lazy_static! {
-                static ref LAYER_CLASS : ::genet_sdk::layer::LayerClass = layer_class!($id,  $($key : $($arg)* ),* );
+                static ref LAYER_CLASS : genet_sdk::layer::LayerClass = layer_class!($id,  $($key : $($arg)* ),* );
             }
             &LAYER_CLASS
         }
@@ -36,12 +36,12 @@ macro_rules! layer_class_lazy {
 macro_rules! def_layer_class {
     ($name:ident, $id:expr) => (
         lazy_static! {
-            static ref $name : ::genet_sdk::layer::LayerClass = layer_class!($id);
+            static ref $name : genet_sdk::layer::LayerClass = layer_class!($id);
         }
     );
     ($name:ident, $id:expr, $($key:ident : $($arg:expr)*),*) => (
         lazy_static! {
-            static ref $name : ::genet_sdk::layer::LayerClass = layer_class!($id,  $($key : $($arg)* ),* );
+            static ref $name : genet_sdk::layer::LayerClass = layer_class!($id,  $($key : $($arg)* ),* );
         }
     );
 }
@@ -61,7 +61,7 @@ macro_rules! attr_class_lazy {
     ($id:expr) => (
         {
             lazy_static! {
-                static ref ATTR_CLASS : ::genet_sdk::attr::AttrClass = attr_class!($id);
+                static ref ATTR_CLASS : genet_sdk::attr::AttrClass = attr_class!($id);
             }
             &ATTR_CLASS
         }
@@ -69,7 +69,7 @@ macro_rules! attr_class_lazy {
     ($id:expr, $($key:ident : $($arg:expr)*),*) => (
         {
             lazy_static! {
-                static ref ATTR_CLASS : ::genet_sdk::attr::AttrClass = attr_class!($id, $($key : $($arg)* ),* );
+                static ref ATTR_CLASS : genet_sdk::attr::AttrClass = attr_class!($id, $($key : $($arg)* ),* );
             }
             &ATTR_CLASS
         }
@@ -81,12 +81,12 @@ macro_rules! attr_class_lazy {
 macro_rules! def_attr_class {
     ($name:ident, $id:expr) => (
         lazy_static! {
-            static ref $name : ::genet_sdk::attr::AttrClass = attr_class!($id);
+            static ref $name : genet_sdk::attr::AttrClass = attr_class!($id);
         }
     );
     ($name:ident, $id:expr, $($key:ident : $($arg:expr)*),*) => (
         lazy_static! {
-            static ref $name : ::genet_sdk::attr::AttrClass = attr_class!($id, $($key : $($arg)* ),* );
+            static ref $name : genet_sdk::attr::AttrClass = attr_class!($id, $($key : $($arg)* ),* );
         }
     );
 }
@@ -106,7 +106,7 @@ macro_rules! attr_lazy {
     ($class:expr) => {
         {
             lazy_static! {
-                static ref ATTR : ::genet_sdk::attr::Attr = attr!($class);
+                static ref ATTR : genet_sdk::attr::Attr = attr!($class);
             }
             &ATTR
         }
@@ -114,7 +114,7 @@ macro_rules! attr_lazy {
     ($class:expr, $($key:ident : $($arg:expr)*),*) => {
         {
             lazy_static! {
-                static ref ATTR : ::genet_sdk::attr::Attr = attr!($class, $($key : $($arg)* ),* );
+                static ref ATTR : genet_sdk::attr::Attr = attr!($class, $($key : $($arg)* ),* );
             }
             &ATTR
         }
@@ -126,12 +126,12 @@ macro_rules! attr_lazy {
 macro_rules! def_attr {
     ($name:ident, $class:expr) => {
         lazy_static! {
-            static ref $name: ::genet_sdk::attr::Attr = attr!($class);
+            static ref $name: genet_sdk::attr::Attr = attr!($class);
         }
     };
     ($name:ident, $class:expr, $($key:ident : $($arg:expr)*),*) => {
         lazy_static! {
-            static ref $name: ::genet_sdk::attr::Attr = attr!($class, $($key : $($arg)* ),* );
+            static ref $name: genet_sdk::attr::Attr = attr!($class, $($key : $($arg)* ),* );
         }
     };
 }

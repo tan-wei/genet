@@ -12,7 +12,7 @@ thread_local! {
     pub static ENV_CONSTRUCTORS: RefCell<Vec<Option<Rc<ValueRef>>>> = RefCell::new(Vec::new());
 }
 
-pub type Result<T> = ::std::result::Result<T, Status>;
+pub type Result<T> = std::result::Result<T, Status>;
 
 bitflags! {
     pub struct PropertyAttributes: u32 {
