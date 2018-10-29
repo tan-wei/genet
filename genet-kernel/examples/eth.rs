@@ -41,7 +41,9 @@ struct EthType {
 
 use genet_sdk::{cast, decoder::*, field::*, prelude::*};
 
-struct EthWorker {}
+struct EthWorker {
+    eth: EthLayer,
+}
 
 impl Worker for EthWorker {
     fn decode(
@@ -90,7 +92,9 @@ impl Decoder for EthDecoder {
         });
         println!("{:#?}", ch);
 
-        Box::new(EthWorker {})
+        Box::new(EthWorker {
+            eth: EthLayer::default(),
+        })
     }
 
     fn metadata(&self) -> Metadata {
