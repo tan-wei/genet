@@ -1,9 +1,7 @@
 extern crate byteorder;
+extern crate genet_sdk;
 extern crate serde;
 extern crate serde_json;
-
-#[macro_use]
-extern crate genet_sdk;
 
 #[macro_use]
 extern crate serde_derive;

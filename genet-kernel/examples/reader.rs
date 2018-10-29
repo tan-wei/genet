@@ -1,7 +1,9 @@
-#[macro_use]
 extern crate genet_sdk;
 
-use genet_sdk::{context::Context, layer::Layer, reader::*, result::Result, slice::ByteSlice};
+use genet_sdk::{
+    context::Context, def_layer_class, genet_readers, layer::Layer, layer_class, lazy_static,
+    reader::*, result::Result, slice::ByteSlice,
+};
 use std::iter;
 
 pub fn tcp_ipv4_pcap() -> &'static [u8] {
