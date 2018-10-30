@@ -5,12 +5,6 @@ extern crate genet_derive;
 
 #[derive(Attr, Default)]
 /// Ethernet
-struct Attrs {
-    eth: Eth,
-}
-
-#[derive(Attr, Default)]
-/// Ethernet
 struct Eth {
     /// Source Hardware Address
     #[genet(alias = "_.src")]
@@ -48,7 +42,7 @@ struct EthType {
 use genet_sdk::{cast, decoder::*, field::*, prelude::*};
 
 struct EthWorker {
-    attrs: Attrs,
+    eth: LayerBox<Eth>,
 }
 
 impl Worker for EthWorker {
@@ -90,12 +84,8 @@ struct EthDecoder {}
 
 impl Decoder for EthDecoder {
     fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
-        use genet_sdk::attr::{AttrContext, AttrNode};
-        let mut attrs = Attrs::default();
-        let ch = attrs.init(&AttrContext::default());
-        println!("{:#?}", ch);
-
-        Box::new(EthWorker { attrs })
+        let eth = LayerBox::new("eth", Eth::default());
+        Box::new(EthWorker { eth })
     }
 
     fn metadata(&self) -> Metadata {
