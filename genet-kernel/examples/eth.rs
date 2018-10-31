@@ -19,6 +19,10 @@ struct Eth {
     /// Protocol Type
     #[genet(typ = "@enum")]
     r#type: Node<Uint8, EthType>,
+
+    /// Protocol Type
+    #[genet(typ = "@enum")]
+    type2: EthType2,
 }
 
 type DUint8 = Detach<Uint8>;
