@@ -7,28 +7,20 @@ extern crate genet_derive;
 /// Ethernet
 struct Eth {
     /// Source Hardware Address
-    #[genet(alias = "_.src")]
-    src: MacAddr,
+    #[genet(alias = "_.src", typ = "@eth:mac")]
+    src: Uint8,
 
     /// Destination Hardware Address
-    #[genet(alias = "_.dst")]
-    dst: MacAddr,
+    #[genet(alias = "_.dst", typ = "@eth:mac")]
+    dst: Uint8,
 
     /// Protocol Type
     #[genet(typ = "@enum")]
-    type_type: Detach<EthType>,
-}
-
-#[derive(Attr, Default)]
-struct MacAddr {
-    #[genet(typ = "@eth:mac")]
-    _self: Uint8,
+    r#type: Detach<EthType>,
 }
 
 #[derive(Attr, Default)]
 struct EthType {
-    _self: Uint8,
-
     /// IPv4
     ipv4: Detach<Uint8>,
 
