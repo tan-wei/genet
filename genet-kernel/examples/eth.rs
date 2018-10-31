@@ -18,7 +18,7 @@ struct Eth {
 
     /// Protocol Type
     #[genet(typ = "@enum")]
-    r#type: Detach<EthType>,
+    r#type: Node<Uint8, EthType>,
 }
 
 type DUint8 = Detach<Uint8>;
@@ -28,9 +28,9 @@ struct EthType {
     /// IPv4
     ipv4: DUint8,
     /// IPv6
-    ipv6: DUint8,
+    ipv6: Uint8,
     /// ARP
-    arp: DUint8,
+    arp: Uint8,
 }
 
 use genet_sdk::{cast, decoder::*, field::*, prelude::*};
