@@ -82,7 +82,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
             fn init(&mut self, ctx: &::genet_sdk::attr::AttrContext)
                 -> genet_sdk::attr::AttrList {
                 use genet_sdk::attr::{Attr, AttrField, AttrList, AttrContext, AttrClass, AttrFieldType};
-                use genet_sdk::cast::ByteSlice;
+                use genet_sdk::cast;
                 use genet_sdk::fixed::Fixed;
 
                 let mut class = None;
