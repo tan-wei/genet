@@ -30,6 +30,16 @@ struct EthType {
     /// IPv6
     ipv6: Uint8,
     /// ARP
+    arp: Node<Uint8, EthType2>,
+}
+
+#[derive(Attr, Default)]
+struct EthType2 {
+    /// IPv4
+    ipv4: Uint8,
+    /// IPv6
+    ipv6: Uint8,
+    /// ARP
     arp: Uint8,
 }
 
