@@ -47,16 +47,8 @@ impl AttrList {
     }
 }
 
-#[derive(Debug, PartialEq)]
-pub enum AttrFieldType {
-    Attached,
-    Detached,
-    Padding,
-}
-
 pub trait AttrField {
     fn init(&mut self, ctx: &AttrContext) -> AttrList;
-    fn node_type(&self) -> AttrFieldType;
 }
 
 pub trait SizedAttrField: AttrField {

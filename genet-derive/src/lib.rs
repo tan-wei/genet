@@ -81,7 +81,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
         impl genet_sdk::attr::AttrField for #ident {
             fn init(&mut self, ctx: &::genet_sdk::attr::AttrContext)
                 -> genet_sdk::attr::AttrList {
-                use genet_sdk::attr::{Attr, SizedAttrField, AttrList, AttrContext, AttrClass, AttrFieldType};
+                use genet_sdk::attr::{Attr, SizedAttrField, AttrList, AttrContext, AttrClass};
                 use genet_sdk::cast;
                 use genet_sdk::fixed::Fixed;
 
@@ -98,34 +98,26 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         let mut subctx = #fields_ctx;
                         subctx.bit_offset = bit_offset;
                         let attr : &mut SizedAttrField = &mut self.#fields_ident;
-                        if ctx.detached || attr.node_type() == AttrFieldType::Detached {
+                        let size = attr.bit_size();
+                        if ctx.detached || size == 0 {
                             subctx.detached = true
                         }
                         let mut child = attr.init(&subctx);
-                        match attr.node_type() {
-                            AttrFieldType::Attached => {
-                                let size = attr.bit_size();
-                                attrs.push(
-                                    Attr::builder(child.class.clone())
-                                        .bit_range(0, bit_offset..(bit_offset + size))
-                                        .build()
-                                );
-                                bit_offset += size;
-                            },
-                            AttrFieldType::Padding => {
-                                bit_offset += attr.bit_size();
-                            },
-                            _ => {}
+                        if size > 0 {
+                            attrs.push(
+                                Attr::builder(child.class.clone())
+                                    .bit_range(0, bit_offset..(bit_offset + size))
+                                    .build()
+                            );
                         }
+                        bit_offset += size;
 
-                        if (attr.node_type() != AttrFieldType::Padding) {
-                            children.push(child.class.clone());
-                            children.append(&mut child.children);
-                            if (!subctx.detached) {
-                                attrs.append(&mut child.attrs);
-                            }
-                            aliases.append(&mut child.aliases);
+                        children.push(child.class.clone());
+                        children.append(&mut child.children);
+                        if (!subctx.detached) {
+                            attrs.append(&mut child.attrs);
                         }
+                        aliases.append(&mut child.aliases);
                     }
                 )*
 
@@ -151,23 +143,17 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     aliases,
                 }
             }
-
-            fn node_type(&self) -> genet_sdk::attr::AttrFieldType {
-                genet_sdk::attr::AttrFieldType::Attached
-            }
         }
 
         impl genet_sdk::attr::SizedAttrField for #ident {
             fn bit_size(&self) -> usize {
-                use genet_sdk::attr::{AttrFieldType, SizedAttrField, AttrField};
+                use genet_sdk::attr::{SizedAttrField, AttrField};
                 let mut size = 0;
 
                 #(
                     {
                         let attr : &SizedAttrField = &self.#fields_ident2;
-                        if attr.node_type() != AttrFieldType::Detached {
-                            size += attr.bit_size();
-                        }
+                        size += attr.bit_size();
                     }
                 )*
 

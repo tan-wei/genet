@@ -1,4 +1,4 @@
-use attr::{AttrClass, AttrContext, AttrField, AttrFieldType, AttrList, SizedAttrField};
+use attr::{AttrClass, AttrContext, AttrField, AttrList, SizedAttrField};
 use fixed::Fixed;
 use num_traits::Num;
 use result::Result;
@@ -16,10 +16,6 @@ impl<T: AttrField> AttrField for Detach<T> {
         let child = self.attr.init(ctx);
         self.class = Some(child.class.clone());
         child
-    }
-
-    fn node_type(&self) -> AttrFieldType {
-        AttrFieldType::Detached
     }
 }
 
@@ -76,10 +72,6 @@ impl<T: SizedAttrField, U: AttrField> AttrField for Node<T, U> {
         node.aliases.append(&mut fields.aliases);
         node
     }
-
-    fn node_type(&self) -> AttrFieldType {
-        AttrFieldType::Attached
-    }
 }
 
 impl<T: SizedAttrField, U: AttrField> SizedAttrField for Node<T, U> {
@@ -124,10 +116,6 @@ impl<V: Into<Variant>, T: Decode<Output = V>> AttrField for T {
             attrs: Vec::new(),
             aliases: Vec::new(),
         }
-    }
-
-    fn node_type(&self) -> AttrFieldType {
-        AttrFieldType::Attached
     }
 }
 

@@ -3,7 +3,7 @@
 use cast;
 pub use genet_abi::field::{Detach, Node};
 use genet_abi::{
-    attr::{AttrContext, AttrField, AttrFieldType, AttrList, SizedAttrField},
+    attr::{AttrContext, AttrField, AttrList, SizedAttrField},
     variant::Variant,
 };
 
@@ -25,10 +25,6 @@ impl AttrField for Uint8 {
     fn init(&mut self, ctx: &AttrContext) -> AttrList {
         AttrList::from_ctx(ctx, cast::UInt8())
     }
-
-    fn node_type(&self) -> AttrFieldType {
-        AttrFieldType::Attached
-    }
 }
 
 impl SizedAttrField for Uint8 {
@@ -45,10 +41,6 @@ macro_rules! impl_pad {
         impl AttrField for $id {
             fn init(&mut self, ctx: &AttrContext) -> AttrList {
                 AttrList::from_ctx(ctx, cast::UInt8())
-            }
-
-            fn node_type(&self) -> AttrFieldType {
-                AttrFieldType::Padding
             }
         }
 
@@ -82,10 +74,6 @@ impl BytePad {
 impl AttrField for BytePad {
     fn init(&mut self, ctx: &AttrContext) -> AttrList {
         AttrList::from_ctx(ctx, cast::UInt8())
-    }
-
-    fn node_type(&self) -> AttrFieldType {
-        AttrFieldType::Padding
     }
 }
 
