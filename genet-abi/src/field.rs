@@ -48,12 +48,12 @@ impl<T: AttrField> AsRef<Fixed<AttrClass>> for Detach<T> {
     }
 }
 
-pub struct Node<T: AttrField, U: AttrField> {
+pub struct Node<T: SizedAttrField, U: AttrField> {
     node: T,
     fields: U,
 }
 
-impl<T: AttrField, U: AttrField> Node<T, U> {
+impl<T: SizedAttrField, U: AttrField> Node<T, U> {
     pub fn new(node: T, fields: U) -> Self {
         Self { node, fields }
     }
@@ -63,7 +63,7 @@ impl<T: AttrField, U: AttrField> Node<T, U> {
     }
 }
 
-impl<T: AttrField, U: AttrField> AttrField for Node<T, U> {
+impl<T: SizedAttrField, U: AttrField> AttrField for Node<T, U> {
     fn init(&mut self, ctx: &AttrContext) -> AttrList {
         let mut node = self.node.init(ctx);
         let mut fields = self.fields.init(ctx);
@@ -78,13 +78,13 @@ impl<T: AttrField, U: AttrField> AttrField for Node<T, U> {
     }
 }
 
-impl<T: SizedAttrField, U: SizedAttrField> SizedAttrField for Node<T, U> {
+impl<T: SizedAttrField, U: AttrField> SizedAttrField for Node<T, U> {
     fn bit_size(&self) -> usize {
         self.node.bit_size()
     }
 }
 
-impl<T: AttrField + Default, U: AttrField + Default> Default for Node<T, U> {
+impl<T: SizedAttrField + Default, U: AttrField + Default> Default for Node<T, U> {
     fn default() -> Self {
         Self {
             node: T::default(),
@@ -93,7 +93,7 @@ impl<T: AttrField + Default, U: AttrField + Default> Default for Node<T, U> {
     }
 }
 
-impl<T: AttrField, U: AttrField> Deref for Node<T, U> {
+impl<T: SizedAttrField, U: AttrField> Deref for Node<T, U> {
     type Target = T;
 
     fn deref(&self) -> &T {

@@ -1,11 +1,25 @@
 //! Attribute field types.
 
 use cast;
-use genet_abi::attr::{AttrContext, AttrField, AttrFieldType, AttrList, SizedAttrField};
 pub use genet_abi::field::{Detach, Node};
+use genet_abi::{
+    attr::{AttrContext, AttrField, AttrFieldType, AttrList, SizedAttrField},
+    variant::Variant,
+};
 
-#[derive(Default)]
 pub struct Uint8 {}
+
+impl Uint8 {
+    fn map<T: Into<Variant>, F: Fn(u8) -> T>(self, f: F) -> Self {
+        self
+    }
+}
+
+impl Default for Uint8 {
+    fn default() -> Self {
+        Self {}
+    }
+}
 
 impl AttrField for Uint8 {
     fn init(&mut self, ctx: &AttrContext) -> AttrList {
