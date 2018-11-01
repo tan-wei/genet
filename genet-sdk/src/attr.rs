@@ -4,4 +4,5 @@
 
 pub use genet_abi::attr::{
     Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField, AttrFieldType, AttrList,
+    SizedAttrField,
 };

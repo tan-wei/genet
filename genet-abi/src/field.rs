@@ -1,4 +1,4 @@
-use attr::{AttrClass, AttrContext, AttrField, AttrFieldType, AttrList};
+use attr::{AttrClass, AttrContext, AttrField, AttrFieldType, AttrList, SizedAttrField};
 use fixed::Fixed;
 use std::ops::Deref;
 
@@ -17,9 +17,11 @@ impl<T: AttrField> AttrField for Detach<T> {
     fn node_type(&self) -> AttrFieldType {
         AttrFieldType::Detached
     }
+}
 
+impl<T: AttrField> SizedAttrField for Detach<T> {
     fn bit_size(&self) -> usize {
-        self.attr.bit_size()
+        0
     }
 }
 
@@ -74,7 +76,9 @@ impl<T: AttrField, U: AttrField> AttrField for Node<T, U> {
     fn node_type(&self) -> AttrFieldType {
         AttrFieldType::Attached
     }
+}
 
+impl<T: SizedAttrField, U: SizedAttrField> SizedAttrField for Node<T, U> {
     fn bit_size(&self) -> usize {
         self.node.bit_size()
     }

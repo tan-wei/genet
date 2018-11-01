@@ -57,6 +57,9 @@ pub enum AttrFieldType {
 pub trait AttrField {
     fn init(&mut self, ctx: &AttrContext) -> AttrList;
     fn node_type(&self) -> AttrFieldType;
+}
+
+pub trait SizedAttrField: AttrField {
     fn bit_size(&self) -> usize;
 }
 
