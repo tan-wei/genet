@@ -1,6 +1,6 @@
 use inflector::cases::titlecase;
 
-// From golint source code
+// From go-lint source code
 // https://github.com/golang/lint
 static WORDLIST: &[&str] = &[
     "ACL", "API", "ASCII", "CPU", "CSS", "DNS", "EOF", "GUID", "HTML", "HTTP", "HTTPS", "ID", "IP",

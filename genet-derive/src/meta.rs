@@ -5,6 +5,7 @@ pub struct AttrMetadata {
     pub name: String,
     pub description: String,
     pub aliases: Vec<String>,
+    pub bit_size: Option<usize>,
     pub padding: bool,
 }
 
@@ -13,6 +14,7 @@ impl AttrMetadata {
         let mut typ = String::new();
         let mut aliases = Vec::new();
         let mut docs = String::new();
+        let mut bit_size = None;
         let mut padding = false;
         for attr in attrs {
             if let Some(meta) = attr.interpret_meta() {
@@ -49,6 +51,20 @@ impl AttrMetadata {
                                             }
                                             _ => panic!("unsupported attribute: {}", name),
                                         }
+                                    } else if let Meta::NameValue(MetaNameValue {
+                                        lit: Lit::Int(lit_int),
+                                        ..
+                                    }) = meta
+                                    {
+                                        match name.as_str() {
+                                            "byte_size" => {
+                                                bit_size = Some(lit_int.value() as usize *8);
+                                            }
+                                            "bit_size" => {
+                                                bit_size = Some(lit_int.value() as usize);
+                                            }
+                                            _ => panic!("unsupported attribute: {}", name),
+                                        }
                                     }
                                 }
                                 _ => {}
@@ -68,6 +84,7 @@ impl AttrMetadata {
             name: name.into(),
             description: description.trim().into(),
             aliases,
+            bit_size,
             padding,
         }
     }
