@@ -6,44 +6,44 @@ extern crate genet_derive;
 #[derive(Attr, Default)]
 /// Ethernet
 struct Eth {
-    _pad: BytePad2,
+    #[genet(alias = "_.src", typ = "@eth:mac", padding)]
+    _pad: cast::UInt64BE,
 
     /// Source Hardware Address
     #[genet(alias = "_.src", typ = "@eth:mac")]
-    src: Uint8,
+    src: cast::UInt8,
 
     /// Destination Hardware Address
     #[genet(alias = "_.dst", typ = "@eth:mac")]
-    dst: Uint8,
+    dst: cast::UInt8,
 
     /// Protocol Type
-    #[genet(typ = "@enum")]
-    len2: Detach<Node<Uint8, EthType2>>,
+    type_fr: Detach<Node<cast::UInt64BE, EthType>>,
 
     /// Protocol Type
-    len: Detach<EthType2>,
+    type2: EthType2,
 }
 
-type DUint8 = Detach<Uint8>;
+type DUInt8 = Detach<cast::UInt8>;
 
 #[derive(Attr, Default)]
 struct EthType {
     /// IPv4
-    ipv4: DUint8,
+    ipv4: DUInt8,
     /// IPv6
-    ipv6: Uint8,
+    ipv6: cast::UInt8,
     /// ARP
-    arp: Node<Uint8, EthType2>,
+    arp: Node<cast::UInt8, EthType2>,
 }
 
 #[derive(Attr, Default)]
 struct EthType2 {
     /// IPv4
-    ipv4: Uint8,
+    ipv4: DUInt8,
     /// IPv6
-    ipv6: Uint8,
+    ipv6: cast::UInt8,
     /// ARP
-    arp: Uint8,
+    arp: cast::UInt8,
 }
 
 use genet_sdk::{cast, decoder::*, field::*, prelude::*};

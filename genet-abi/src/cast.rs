@@ -1,5 +1,13 @@
-use slice;
-use std::{convert::Into, io::Result};
+use attr::{Attr, AttrClass, AttrContext, AttrField, AttrList, SizedAttrField};
+use fixed::Fixed;
+use num_traits::Num;
+use slice::{self, TryGet};
+use std::{
+    convert::Into,
+    io::Result,
+    mem::size_of,
+    ops::{Range, RangeFrom, RangeFull, RangeInclusive, RangeTo, RangeToInclusive},
+};
 use variant::Variant;
 
 /// Cast trait.
@@ -95,3 +103,62 @@ where
         T::cast(self, data).map(|r| r.into())
     }
 }
+
+impl<T: Into<Variant>, V: Typed<Output = T> + CastClone> AttrField for V {
+    fn init(&mut self, ctx: &AttrContext) -> AttrList {
+        AttrList {
+            class: Fixed::new(
+                AttrClass::builder(ctx.path.clone())
+                    .cast_box(self.clone_box())
+                    .typ(ctx.typ.clone())
+                    .name(ctx.name)
+                    .description(ctx.description)
+                    .build(),
+            ),
+            children: Vec::new(),
+            attrs: Vec::new(),
+            aliases: Vec::new(),
+        }
+    }
+}
+
+impl<T, X> SizedAttrField for T
+where
+    T: AttrField + Typed<Output = X>,
+    X: Into<Variant> + Num,
+{
+    fn bit_size(&self) -> usize {
+        size_of::<X>() * 8
+    }
+}
+
+/// Ranged combinator.
+#[derive(Clone)]
+pub struct Ranged<T, R>(pub T, pub R);
+
+macro_rules! impl_ranged {
+    ( $( $x:ty ), * ) => {
+        $(
+            impl<T, X> Typed for Ranged<T, $x>
+            where
+                T: 'static + Typed<Output = X> + Clone,
+                X: Into<Variant>,
+            {
+                type Output = X;
+
+                fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<Self::Output> {
+                    self.0.cast(attr, &data.try_get(self.1.clone())?)
+                }
+            }
+        )*
+    };
+}
+
+impl_ranged!(
+    Range<usize>,
+    RangeFrom<usize>,
+    RangeFull,
+    RangeInclusive<usize>,
+    RangeTo<usize>,
+    RangeToInclusive<usize>
+);

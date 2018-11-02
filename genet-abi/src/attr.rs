@@ -227,6 +227,11 @@ impl AttrClassBuilder {
         self
     }
 
+    pub fn cast_box(mut self, cast: Box<Cast>) -> AttrClassBuilder {
+        self.cast = Some(cast);
+        self
+    }
+
     /// Sets a constant value of AttrClass.
     pub fn value<T: 'static + Into<Variant> + Send + Sync + Clone>(
         mut self,

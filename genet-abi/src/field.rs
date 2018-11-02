@@ -1,10 +1,6 @@
 use attr::{AttrClass, AttrContext, AttrField, AttrList, SizedAttrField};
 use fixed::Fixed;
-use num_traits::Num;
-use result::Result;
-use slice::ByteSlice;
 use std::ops::Deref;
-use variant::Variant;
 
 pub struct Detach<T: AttrField> {
     attr: T,
@@ -94,33 +90,5 @@ impl<T: SizedAttrField, U: AttrField> Deref for Node<T, U> {
 
     fn deref(&self) -> &T {
         &self.node
-    }
-}
-
-pub trait Decode: Clone {
-    type Output: Into<Variant>;
-    fn decode(&self, data: &ByteSlice) -> Result<Self::Output>;
-}
-
-impl<V: Into<Variant>, T: Decode<Output = V>> AttrField for T {
-    fn init(&mut self, ctx: &AttrContext) -> AttrList {
-        AttrList {
-            class: Fixed::new(
-                AttrClass::builder(ctx.path.clone())
-                    .typ(ctx.typ.clone())
-                    .name(ctx.name)
-                    .description(ctx.description)
-                    .build(),
-            ),
-            children: Vec::new(),
-            attrs: Vec::new(),
-            aliases: Vec::new(),
-        }
-    }
-}
-
-impl<V: Into<Variant> + Num, T: Decode<Output = V>> SizedAttrField for T {
-    fn bit_size(&self) -> usize {
-        std::mem::size_of::<V>()
     }
 }
