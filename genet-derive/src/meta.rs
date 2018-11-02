@@ -5,6 +5,7 @@ pub struct AttrMetadata {
     pub name: String,
     pub description: String,
     pub aliases: Vec<String>,
+    pub padding: bool,
 }
 
 impl AttrMetadata {
@@ -12,6 +13,7 @@ impl AttrMetadata {
         let mut typ = String::new();
         let mut aliases = Vec::new();
         let mut docs = String::new();
+        let mut padding = false;
         for attr in attrs {
             if let Some(meta) = attr.interpret_meta() {
                 let name = meta.name().to_string();
@@ -28,23 +30,28 @@ impl AttrMetadata {
                     }
                     ("genet", Meta::List(list)) => {
                         for item in list.nested {
-                            if let NestedMeta::Meta(meta) = item {
-                                let name = meta.name().to_string();
-                                if let Meta::NameValue(MetaNameValue {
-                                    lit: Lit::Str(lit_str),
-                                    ..
-                                }) = meta
-                                {
-                                    match name.as_str() {
-                                        "typ" => {
-                                            typ = lit_str.value().to_string();
+                            match item {
+                                NestedMeta::Meta(meta) => {
+                                    let name = meta.name().to_string();
+                                    if name == "padding" {
+                                        padding = true;
+                                    } else if let Meta::NameValue(MetaNameValue {
+                                        lit: Lit::Str(lit_str),
+                                        ..
+                                    }) = meta
+                                    {
+                                        match name.as_str() {
+                                            "typ" => {
+                                                typ = lit_str.value().to_string();
+                                            }
+                                            "alias" => {
+                                                aliases.push(lit_str.value().to_string());
+                                            }
+                                            _ => panic!("unsupported attribute: {}", name),
                                         }
-                                        "alias" => {
-                                            aliases.push(lit_str.value().to_string());
-                                        }
-                                        _ => panic!("unsupported attribute: {}", name),
                                     }
                                 }
+                                _ => {}
                             }
                         }
                     }
@@ -61,6 +68,7 @@ impl AttrMetadata {
             name: name.into(),
             description: description.trim().into(),
             aliases,
+            padding,
         }
     }
 }
