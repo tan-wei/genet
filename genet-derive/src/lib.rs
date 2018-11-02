@@ -10,12 +10,15 @@ extern crate genet_abi;
 extern crate inflector;
 extern crate proc_macro;
 
-use inflector::cases::{camelcase::to_camel_case, titlecase::to_title_case};
+use inflector::cases::camelcase::to_camel_case;
 use proc_macro::TokenStream;
 use syn::{Data, DataStruct, DeriveInput, Fields, Ident};
 
 mod meta;
 use meta::AttrMetadata;
+
+mod initialisms;
+use initialisms::to_title_case;
 
 #[proc_macro_derive(Attr, attributes(genet))]
 pub fn derive_attr(input: TokenStream) -> TokenStream {

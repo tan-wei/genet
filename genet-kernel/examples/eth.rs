@@ -17,6 +17,8 @@ struct Eth {
     #[genet(alias = "_.dst", typ = "@eth:mac")]
     dst: cast::UInt8,
 
+    json_xml_string: cast::UInt8,
+
     /// Protocol Type
     #[genet(typ = "@enum")]
     r#type: Detach<Node<cast::UInt8, EthType>>,
