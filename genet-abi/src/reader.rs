@@ -35,13 +35,15 @@ pub trait Reader: Send {
     fn metadata(&self) -> Metadata;
 }
 
+type ReaderNewWorkerFunc =
+    extern "C" fn(*mut Box<Reader>, *const Context, *const u8, u64, *mut WorkerBox, *mut Error)
+        -> u8;
+
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct ReaderBox {
     reader: *mut Box<Reader>,
-    new_worker:
-        extern "C" fn(*mut Box<Reader>, *const Context, *const u8, u64, *mut WorkerBox, *mut Error)
-            -> u8,
+    new_worker: ReaderNewWorkerFunc,
     metadata: extern "C" fn(*const ReaderBox) -> SafeVec<u8>,
 }
 

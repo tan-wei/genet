@@ -35,13 +35,15 @@ pub trait Writer: Send {
     fn metadata(&self) -> Metadata;
 }
 
+type WriterNewWorkerFunc =
+    extern "C" fn(*mut Box<Writer>, *const Context, *const u8, u64, *mut WorkerBox, *mut Error)
+        -> u8;
+
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct WriterBox {
     writer: *mut Box<Writer>,
-    new_worker:
-        extern "C" fn(*mut Box<Writer>, *const Context, *const u8, u64, *mut WorkerBox, *mut Error)
-            -> u8,
+    new_worker: WriterNewWorkerFunc,
     metadata: extern "C" fn(*const WriterBox) -> SafeVec<u8>,
 }
 
