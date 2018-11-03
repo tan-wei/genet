@@ -103,10 +103,11 @@ impl fmt::Debug for Attr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "Attr {} {} {:?}",
+            "Attr {} {} {:?} {:?}",
             self.id().to_string(),
             self.typ().to_string(),
-            self.range()
+            self.range(),
+            self.bit_range()
         )
     }
 }

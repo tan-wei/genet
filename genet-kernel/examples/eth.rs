@@ -23,7 +23,18 @@ struct Eth {
 
     /// Protocol Type
     #[genet(typ = "@enum")]
-    r#type: Detach<Node<cast::UInt16BE, EthType>>,
+    r#type: Node<cast::UInt16BE, EthType>,
+
+    #[genet(bit_size = 1)]
+    n1_ipv4_addr: cast::UInt8,
+
+    #[genet(bit_size = 1)]
+    n2: cast::UInt8,
+
+    #[genet(bit_size = 6)]
+    n3: cast::UInt8,
+
+    n4: cast::UInt8,
 }
 
 type DUInt8 = Detach<cast::UInt8>;
