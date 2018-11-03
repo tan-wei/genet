@@ -17,7 +17,8 @@ struct Eth {
     #[genet(alias = "_.dst", typ = "@eth:mac")]
     dst: cast::UInt8,
 
-    json_xml_string: cast::UInt8,
+    #[genet(byte_size = 6)]
+    json_xml_string: cast::ByteSlice,
 
     /// Protocol Type
     #[genet(typ = "@enum")]

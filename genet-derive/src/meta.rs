@@ -58,7 +58,7 @@ impl AttrMetadata {
                                     {
                                         match name.as_str() {
                                             "byte_size" => {
-                                                bit_size = Some(lit_int.value() as usize *8);
+                                                bit_size = Some(lit_int.value() as usize * 8);
                                             }
                                             "bit_size" => {
                                                 bit_size = Some(lit_int.value() as usize);

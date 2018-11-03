@@ -36,8 +36,10 @@ fn normalize_ident(ident: &Ident) -> String {
 }
 
 fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
+    let mut fields_ident_mut = Vec::new();
     let mut fields_ident = Vec::new();
     let mut fields_ctx = Vec::new();
+    let mut fields_padding = Vec::new();
     let mut fields_aliases = Vec::new();
 
     if let Fields::Named(f) = &s.fields {
@@ -63,7 +65,37 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         ..Default::default()
                     }
                 });
-                fields_ident.push(ident);
+                fields_padding.push(meta.padding);
+
+                if let Some(bit_size) = meta.bit_size {
+                    fields_ident_mut.push(quote!{
+                        {
+                            let attr : &mut AttrField = &mut self.#ident;
+                            (attr, #bit_size)
+                        }
+                    });
+                    fields_ident.push(quote!{
+                        {
+                            let attr : &AttrField = &self.#ident;
+                            (attr, #bit_size)
+                        }
+                    });
+                } else {
+                    fields_ident_mut.push(quote!{
+                        {
+                            let attr : &mut SizedAttrField = &mut self.#ident;
+                            let size = attr.bit_size();
+                            (attr, size)
+                        }
+                    });
+                    fields_ident.push(quote!{
+                        {
+                            let attr : &SizedAttrField = &self.#ident;
+                            let size = attr.bit_size();
+                            (attr, size)
+                        }
+                    });
+                }
 
                 for name in meta.aliases {
                     fields_aliases.push(quote!{
@@ -79,12 +111,11 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let self_desc = self_attrs.description;
 
     let ident = &input.ident;
-    let fields_ident2 = fields_ident.clone();
     let tokens = quote!{
         impl genet_sdk::attr::AttrField for #ident {
             fn init(&mut self, ctx: &::genet_sdk::attr::AttrContext)
                 -> genet_sdk::attr::AttrList {
-                use genet_sdk::attr::{Attr, SizedAttrField, AttrList, AttrContext, AttrClass};
+                use genet_sdk::attr::{Attr, SizedAttrField, AttrField, AttrList, AttrContext, AttrClass};
                 use genet_sdk::cast;
                 use genet_sdk::fixed::Fixed;
 
@@ -100,27 +131,31 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     {
                         let mut subctx = #fields_ctx;
                         subctx.bit_offset = bit_offset;
-                        let attr : &mut SizedAttrField = &mut self.#fields_ident;
-                        let size = attr.bit_size();
+                        let (attr, size) = #fields_ident_mut;
                         if ctx.detached || size == 0 {
                             subctx.detached = true
                         }
+                        let padding = #fields_padding;
                         let mut child = attr.init(&subctx);
-                        if size > 0 {
+
+                        if !padding {
                             attrs.push(
                                 Attr::builder(child.class.clone())
                                     .bit_range(0, bit_offset..(bit_offset + size))
                                     .build()
                             );
                         }
+
                         bit_offset += size;
 
-                        children.push(child.class.clone());
-                        children.append(&mut child.children);
-                        if (!subctx.detached) {
-                            attrs.append(&mut child.attrs);
+                        if !padding {
+                            children.push(child.class.clone());
+                            children.append(&mut child.children);
+                            if (!subctx.detached) {
+                                attrs.append(&mut child.attrs);
+                            }
+                            aliases.append(&mut child.aliases);
                         }
-                        aliases.append(&mut child.aliases);
                     }
                 )*
 
@@ -155,8 +190,8 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
 
                 #(
                     {
-                        let attr : &SizedAttrField = &self.#fields_ident2;
-                        size += attr.bit_size();
+                        let (_, bit_size) = #fields_ident;
+                        size += bit_size;
                     }
                 )*
 
