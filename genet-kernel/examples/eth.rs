@@ -30,11 +30,8 @@ type DUInt8 = Detach<cast::UInt8>;
 
 #[derive(Attr, Default)]
 struct EthType {
-    /// IPv4
     ipv4: DUInt8,
-    /// IPv6
     ipv6: DUInt8,
-    /// ARP
     arp: DUInt8,
 }
 
