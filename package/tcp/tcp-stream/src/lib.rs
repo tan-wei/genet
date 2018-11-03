@@ -186,7 +186,7 @@ impl Decoder for TcpStreamDecoder {
 
 def_attr_class!(STREAM_ATTR, "tcp.stream",
     typ: "@novalue",
-    cast: cast::Ranged(cast::UInt8(), 0..0).map(|v| v)
+    cast: cast::UInt8().map(|v| v)
 );
 
 genet_decoders!(TcpStreamDecoder {});

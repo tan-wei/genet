@@ -41,16 +41,16 @@ impl Worker for TcpWorker {
             let len = layer.data().try_get(offset + 1)? as usize;
             match typ {
                 2 => {
-                    layer.add_attr(attr!(&OPTIONS_MSS_ATTR, range: offset..offset + len));
+                    layer.add_attr(attr!(&OPTIONS_MSS_ATTR, range: offset + 2..offset + len));
                 }
                 3 => {
-                    layer.add_attr(attr!(&OPTIONS_SCALE_ATTR, range: offset..offset + len));
+                    layer.add_attr(attr!(&OPTIONS_SCALE_ATTR, range: offset + 2..offset + len));
                 }
                 4 => {
                     layer.add_attr(attr!(&OPTIONS_SACKP_ATTR, range: offset..offset + len));
                 }
                 5 => {
-                    layer.add_attr(attr!(&OPTIONS_SACK_ATTR, range: offset..offset + len));
+                    layer.add_attr(attr!(&OPTIONS_SACK_ATTR, range: offset + 2..offset + len));
                 }
                 8 => {
                     layer.add_attr(attr!(&OPTIONS_TS_ATTR, range: offset..offset + len));
@@ -185,21 +185,19 @@ def_attr_class!(OPTIONS_NOP_ATTR, "tcp.options.nop",
     value: true
 );
 
-def_attr_class!(OPTIONS_MSS_ATTR, "tcp.options.mss",
-    cast: cast::Ranged(cast::UInt16BE(), 2..)
-);
+def_attr_class!(OPTIONS_MSS_ATTR, "tcp.options.mss", cast: cast::UInt16BE());
 
-def_attr_class!(OPTIONS_SCALE_ATTR, "tcp.options.scale",
-    cast: cast::Ranged(cast::UInt8(), 2..)
-);
+def_attr_class!(OPTIONS_SCALE_ATTR, "tcp.options.scale", cast: cast::UInt8());
 
 def_attr_class!(OPTIONS_SACKP_ATTR, "tcp.options.selectiveAckPermitted",
     typ: "@novalue",
     value: true
 );
 
-def_attr_class!(OPTIONS_SACK_ATTR, "tcp.options.selectiveAck",
-    cast: cast::Ranged(cast::ByteSlice(), 2..)
+def_attr_class!(
+    OPTIONS_SACK_ATTR,
+    "tcp.options.selectiveAck",
+    cast: cast::ByteSlice()
 );
 
 def_attr_class!(OPTIONS_TS_ATTR, "tcp.options.ts",

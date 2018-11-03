@@ -1,9 +1,5 @@
-use slice::{self, TryGet};
-use std::{
-    convert::Into,
-    io::Result,
-    ops::{Range, RangeFrom, RangeFull, RangeInclusive, RangeTo, RangeToInclusive},
-};
+use slice;
+use std::{convert::Into, io::Result};
 use variant::Variant;
 
 /// Cast trait.
@@ -99,34 +95,3 @@ where
         T::cast(self, data).map(|r| r.into())
     }
 }
-
-/// Ranged combinator.
-#[derive(Clone)]
-pub struct Ranged<T, R>(pub T, pub R);
-
-macro_rules! impl_ranged {
-    ( $( $x:ty ), * ) => {
-        $(
-            impl<T, X> Typed for Ranged<T, $x>
-            where
-                T: 'static + Typed<Output = X> + Clone,
-                X: Into<Variant>,
-            {
-                type Output = X;
-
-                fn cast(&self, data: &slice::ByteSlice) -> Result<Self::Output> {
-                    self.0.cast(&data.try_get(self.1.clone())?)
-                }
-            }
-        )*
-    };
-}
-
-impl_ranged!(
-    Range<usize>,
-    RangeFrom<usize>,
-    RangeFull,
-    RangeInclusive<usize>,
-    RangeTo<usize>,
-    RangeToInclusive<usize>
-);
