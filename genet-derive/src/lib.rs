@@ -131,22 +131,24 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     {
                         let mut subctx = #fields_ctx;
                         subctx.bit_offset = bit_offset;
-                        let (attr, size) = #fields_ident_mut;
-                        if ctx.detached || size == 0 {
+                        let (attr, bit_size) = #fields_ident_mut;
+                        if ctx.detached || bit_size == 0 {
                             subctx.detached = true
                         }
                         let padding = #fields_padding;
                         let mut child = attr.init(&subctx);
 
-                        if !padding {
-                            attrs.push(
-                                Attr::builder(child.class.clone())
-                                    .bit_range(0, bit_offset..(bit_offset + size))
-                                    .build()
-                            );
-                        }
+                        if !subctx.detached {
+                            if !padding {
+                                attrs.push(
+                                    Attr::builder(child.class.clone())
+                                        .bit_range(0, bit_offset..(bit_offset + bit_size))
+                                        .build()
+                                );
+                            }
 
-                        bit_offset += size;
+                            bit_offset += bit_size;
+                        }
 
                         if !padding {
                             children.push(child.class.clone());
