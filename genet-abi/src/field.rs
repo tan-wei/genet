@@ -5,12 +5,20 @@ use std::ops::Deref;
 pub struct Detach<T: AttrField> {
     attr: T,
     class: Option<Fixed<AttrClass>>,
+    children: Vec<Fixed<AttrClass>>,
+}
+
+impl<T: AttrField> Detach<T> {
+    pub fn children(&self) -> &[Fixed<AttrClass>] {
+        &self.children
+    }
 }
 
 impl<T: AttrField> AttrField for Detach<T> {
     fn init(&mut self, ctx: &AttrContext) -> AttrList {
         let child = self.attr.init(ctx);
         self.class = Some(child.class.clone());
+        self.children = child.children.clone();
         child
     }
 }
@@ -34,6 +42,7 @@ impl<T: AttrField + Default> Default for Detach<T> {
         Self {
             attr: T::default(),
             class: None,
+            children: Vec::new(),
         }
     }
 }
