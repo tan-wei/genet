@@ -1,4 +1,4 @@
-use attr::{Attr, AttrContext, SizedAttrField};
+use attr::{Attr, AttrClass, AttrContext, FixedAttrField, SizedAttrField};
 use fixed::{Fixed, MutFixed};
 use metadata::Metadata;
 use slice::ByteSlice;
@@ -233,6 +233,28 @@ impl Layer {
                 range: (range.start * 8)..(range.end * 8),
             },
         );
+    }
+
+    pub fn add_attr_offset<T: SizedAttrField + AsRef<Fixed<AttrClass>>>(
+        &mut self,
+        attr: &T,
+        offset: usize,
+    ) {
+        let func = self.class.add_attr;
+        let bit_offset = offset * 8;
+        let attr = Attr::builder(attr.as_ref().clone())
+            .range(bit_offset..(bit_offset + attr.bit_size()))
+            .build();
+        (func)(self, attr.into());
+    }
+
+    pub fn add_attr_range<T: FixedAttrField + AsRef<Fixed<AttrClass>>>(&mut self, attr: &T) {
+        let func = self.class.add_attr;
+        let bit_offset = attr.bit_offset();
+        let attr = Attr::builder(attr.as_ref().clone())
+            .range(bit_offset..(bit_offset + attr.bit_size()))
+            .build();
+        (func)(self, attr.into());
     }
 
     /// Returns the slice of payloads.

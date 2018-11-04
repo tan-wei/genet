@@ -55,6 +55,10 @@ pub trait SizedAttrField: AttrField {
     fn bit_size(&self) -> usize;
 }
 
+pub trait FixedAttrField: SizedAttrField {
+    fn bit_offset(&self) -> usize;
+}
+
 /// A builder object for Attr.
 pub struct AttrBuilder {
     class: Fixed<AttrClass>,
