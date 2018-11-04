@@ -2,6 +2,7 @@ use attr::{AttrClass, AttrContext, AttrField, AttrList, SizedAttrField};
 use fixed::Fixed;
 use std::ops::Deref;
 
+/*
 pub struct Detach<T: AttrField> {
     attr: T,
     class: Option<Fixed<AttrClass>>,
@@ -52,6 +53,7 @@ impl<T: AttrField> AsRef<Fixed<AttrClass>> for Detach<T> {
         self.class.as_ref().unwrap()
     }
 }
+*/
 
 pub struct Node<T: SizedAttrField, U: AttrField> {
     node: T,

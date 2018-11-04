@@ -3,46 +3,45 @@ extern crate genet_sdk;
 #[macro_use]
 extern crate genet_derive;
 
-#[derive(Attr, Default)]
 /// Ethernet
+#[derive(Attr, Default)]
 struct Eth {
-    #[genet(alias = "_.src", typ = "@eth:mac", padding)]
-    _pad: cast::UInt64BE,
-
     /// Source Hardware Address
-    #[genet(alias = "_.src", typ = "@eth:mac")]
-    src: cast::UInt8,
+    #[genet(alias = "_.src", typ = "@eth:mac", byte_size = 6)]
+    src: cast::ByteSlice,
 
     /// Destination Hardware Address
-    #[genet(alias = "_.dst", typ = "@eth:mac")]
-    dst: cast::UInt8,
+    #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
+    dst: cast::ByteSlice,
+
+    // Length or Protocol Type
+    #[genet(padding)]
+    _pad: cast::UInt16BE,
+
+    /// Length
+    #[genet(detach)]
+    len: cast::UInt16BE,
 
     /// Protocol Type
-    type_fr: Detach<Node<cast::UInt64BE, EthType>>,
+    #[genet(typ = "@enum", detach)]
+    r#type: Node<cast::UInt16BE, EthType>,
 
-    /// Protocol Type
-    type2: EthType2,
+    #[genet(bit_size = 1)]
+    n1_ipv4_addr: cast::BitFlag,
+
+    #[genet(bit_size = 1)]
+    n2: cast::UInt8,
+
+    #[genet(bit_size = 6)]
+    n3: cast::UInt8,
+
+    n4: cast::UInt8,
 }
-
-type DUInt8 = Detach<cast::UInt8>;
 
 #[derive(Attr, Default)]
 struct EthType {
-    /// IPv4
-    ipv4: DUInt8,
-    /// IPv6
+    ipv4: cast::UInt8,
     ipv6: cast::UInt8,
-    /// ARP
-    arp: Node<cast::UInt8, EthType2>,
-}
-
-#[derive(Attr, Default)]
-struct EthType2 {
-    /// IPv4
-    ipv4: DUInt8,
-    /// IPv6
-    ipv6: cast::UInt8,
-    /// ARP
     arp: cast::UInt8,
 }
 

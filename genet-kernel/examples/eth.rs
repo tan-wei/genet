@@ -19,10 +19,11 @@ struct Eth {
     _pad: cast::UInt16BE,
 
     /// Length
-    len: Detach<cast::UInt16BE>,
+    #[genet(detach)]
+    len: cast::UInt16BE,
 
     /// Protocol Type
-    #[genet(typ = "@enum")]
+    #[genet(typ = "@enum", detach)]
     r#type: Node<cast::UInt16BE, EthType>,
 
     #[genet(bit_size = 1)]
@@ -37,13 +38,11 @@ struct Eth {
     n4: cast::UInt8,
 }
 
-type DUInt8 = Detach<cast::UInt8>;
-
 #[derive(Attr, Default)]
 struct EthType {
-    ipv4: DUInt8,
-    ipv6: DUInt8,
-    arp: DUInt8,
+    ipv4: cast::UInt8,
+    ipv6: cast::UInt8,
+    arp: cast::UInt8,
 }
 
 use genet_sdk::{cast, decoder::*, field::*, prelude::*};

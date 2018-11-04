@@ -40,6 +40,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let mut fields_ident = Vec::new();
     let mut fields_ctx = Vec::new();
     let mut fields_padding = Vec::new();
+    let mut fields_detach = Vec::new();
     let mut fields_aliases = Vec::new();
 
     if let Fields::Named(f) = &s.fields {
@@ -66,6 +67,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     }
                 });
                 fields_padding.push(meta.padding);
+                fields_detach.push(meta.detach);
 
                 if let Some(bit_size) = meta.bit_size {
                     fields_ident_mut.push(quote!{
@@ -106,6 +108,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
         }
     }
 
+    let fields_detach2 = fields_detach.clone();
     let self_attrs = AttrMetadata::parse(&input.attrs);
     let self_name = self_attrs.name;
     let self_desc = self_attrs.description;
@@ -132,13 +135,11 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         let mut subctx = #fields_ctx;
                         subctx.bit_offset = bit_offset;
                         let (attr, bit_size) = #fields_ident_mut;
-                        if ctx.detached || bit_size == 0 {
-                            subctx.detached = true
-                        }
                         let padding = #fields_padding;
+                        let detach = #fields_detach;
                         let mut child = attr.init(&subctx);
 
-                        if !subctx.detached {
+                        if !detach {
                             if !padding {
                                 attrs.push(
                                     Attr::builder(child.class.clone())
@@ -153,7 +154,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         if !padding {
                             children.push(child.class.clone());
                             children.append(&mut child.children);
-                            if (!subctx.detached) {
+                            if (!detach) {
                                 attrs.append(&mut child.attrs);
                             }
                             aliases.append(&mut child.aliases);
@@ -191,7 +192,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 let mut size = 0;
 
                 #(
-                    {
+                    if !#fields_detach2 {
                         let (_, bit_size) = #fields_ident;
                         size += bit_size;
                     }
