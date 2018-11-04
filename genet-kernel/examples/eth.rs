@@ -20,7 +20,7 @@ struct Eth {
 
     /// Length
     #[genet(detach)]
-    len: cast::UInt16BE,
+    len: Node<cast::UInt16BE>,
 
     /// Protocol Type
     #[genet(typ = "@enum", detach)]

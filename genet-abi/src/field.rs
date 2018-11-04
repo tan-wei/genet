@@ -2,60 +2,21 @@ use attr::{AttrClass, AttrContext, AttrField, AttrList, SizedAttrField};
 use fixed::Fixed;
 use std::ops::Deref;
 
-/*
-pub struct Detach<T: AttrField> {
-    attr: T,
-    class: Option<Fixed<AttrClass>>,
-    children: Vec<Fixed<AttrClass>>,
-}
+#[derive(Default)]
+pub struct Empty();
 
-impl<T: AttrField> Detach<T> {
-    pub fn children(&self) -> &[Fixed<AttrClass>] {
-        &self.children
-    }
-}
-
-impl<T: AttrField> AttrField for Detach<T> {
+impl AttrField for Empty {
     fn init(&mut self, ctx: &AttrContext) -> AttrList {
-        let child = self.attr.init(ctx);
-        self.class = Some(child.class.clone());
-        self.children = child.children.clone();
-        child
-    }
-}
-
-impl<T: AttrField> SizedAttrField for Detach<T> {
-    fn bit_size(&self) -> usize {
-        0
-    }
-}
-
-impl<T: AttrField> Deref for Detach<T> {
-    type Target = T;
-
-    fn deref(&self) -> &T {
-        &self.attr
-    }
-}
-
-impl<T: AttrField + Default> Default for Detach<T> {
-    fn default() -> Self {
-        Self {
-            attr: T::default(),
-            class: None,
+        AttrList {
+            class: Fixed::new(AttrClass::builder("").build()),
             children: Vec::new(),
+            attrs: Vec::new(),
+            aliases: Vec::new(),
         }
     }
 }
 
-impl<T: AttrField> AsRef<Fixed<AttrClass>> for Detach<T> {
-    fn as_ref(&self) -> &Fixed<AttrClass> {
-        self.class.as_ref().unwrap()
-    }
-}
-*/
-
-pub struct Node<T: SizedAttrField, U: AttrField> {
+pub struct Node<T: SizedAttrField, U: AttrField = Empty> {
     node: T,
     fields: U,
 }
