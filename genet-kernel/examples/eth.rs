@@ -26,7 +26,7 @@ struct Eth {
     r#type: Node<cast::UInt16BE, EthType>,
 
     #[genet(bit_size = 1)]
-    n1_ipv4_addr: cast::UInt8,
+    n1_ipv4_addr: cast::BitFlag,
 
     #[genet(bit_size = 1)]
     n2: cast::UInt8,

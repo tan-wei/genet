@@ -248,3 +248,15 @@ impl Typed for ByteSlice {
         Ok(*data)
     }
 }
+
+#[derive(Clone, Default)]
+pub struct BitFlag();
+
+impl Typed for BitFlag {
+    type Output = bool;
+
+    fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<bool> {
+        let byte = Cursor::new(data.try_get(attr.range())?).read_u8()?;
+        Ok((byte & (0b1 << (attr.bit_range().start % 8))) != 0)
+    }
+}
