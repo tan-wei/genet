@@ -133,10 +133,15 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 #(
                     {
                         let mut subctx = #fields_ctx;
-                        subctx.bit_offset = bit_offset;
                         let (attr, bit_size) = #fields_ident_mut;
                         let padding = #fields_padding;
                         let detach = #fields_detach;
+
+                        subctx.bit_offset = if detach {
+                            0
+                        } else {
+                            bit_offset
+                        };
                         let mut child = attr.init(&subctx);
 
                         if !detach {

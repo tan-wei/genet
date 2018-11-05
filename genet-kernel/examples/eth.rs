@@ -16,7 +16,7 @@ struct Eth {
 
     // Length or Protocol Type
     #[genet(padding)]
-    _pad: cast::UInt16BE,
+    pad: Node<cast::UInt16BE>,
 
     /// Length
     #[genet(detach)]
