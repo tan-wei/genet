@@ -6,7 +6,7 @@ pub struct AttrMetadata {
     pub description: String,
     pub aliases: Vec<String>,
     pub bit_size: Option<usize>,
-    pub padding: bool,
+    pub skip: bool,
     pub detach: bool,
 }
 
@@ -16,7 +16,7 @@ impl AttrMetadata {
         let mut aliases = Vec::new();
         let mut docs = String::new();
         let mut bit_size = None;
-        let mut padding = false;
+        let mut skip = false;
         let mut detach = false;
         for attr in attrs {
             if let Some(meta) = attr.interpret_meta() {
@@ -37,8 +37,8 @@ impl AttrMetadata {
                             match item {
                                 NestedMeta::Meta(meta) => {
                                     let name = meta.name().to_string();
-                                    if name == "padding" {
-                                        padding = true;
+                                    if name == "skip" {
+                                        skip = true;
                                     } else if name == "detach" {
                                         detach = true;
                                     } else if let Meta::NameValue(MetaNameValue {
@@ -89,7 +89,7 @@ impl AttrMetadata {
             description: description.trim().into(),
             aliases,
             bit_size,
-            padding,
+            skip,
             detach,
         }
     }

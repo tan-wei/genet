@@ -15,7 +15,7 @@ struct Eth {
     dst: cast::ByteSlice,
 
     // Length or Protocol Type
-    #[genet(padding)]
+    #[genet(skip)]
     pad: Node<cast::UInt16BE>,
 
     /// Length

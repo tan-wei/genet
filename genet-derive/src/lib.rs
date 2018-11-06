@@ -39,7 +39,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let mut fields_ident_mut = Vec::new();
     let mut fields_ident = Vec::new();
     let mut fields_ctx = Vec::new();
-    let mut fields_padding = Vec::new();
+    let mut fields_skip = Vec::new();
     let mut fields_detach = Vec::new();
     let mut fields_aliases = Vec::new();
 
@@ -66,7 +66,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         ..Default::default()
                     }
                 });
-                fields_padding.push(meta.padding);
+                fields_skip.push(meta.skip);
                 fields_detach.push(meta.detach);
 
                 if let Some(bit_size) = meta.bit_size {
@@ -134,7 +134,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     {
                         let mut subctx = #fields_ctx;
                         let (attr, bit_size) = #fields_ident_mut;
-                        let padding = #fields_padding;
+                        let skip = #fields_skip;
                         let detach = #fields_detach;
 
                         subctx.bit_offset = if detach {
@@ -145,7 +145,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         let mut child = attr.init(&subctx);
 
                         if !detach {
-                            if !padding {
+                            if !skip {
                                 attrs.push(
                                     Attr::builder(child.class.clone())
                                         .bit_range(0, bit_offset..(bit_offset + bit_size))
@@ -156,7 +156,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                             bit_offset += bit_size;
                         }
 
-                        if !padding {
+                        if !skip {
                             children.push(child.class.clone());
                             children.append(&mut child.children);
                             if (!detach) {
