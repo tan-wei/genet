@@ -76,7 +76,7 @@ export default class PackageManager extends EventEmitter {
     this._updating = true
 
     const builtinPluginPattern =
-      path.join(Env.builtinPackagePath, '/**/package.json')
+      path.join(Env.builtinPackagePath, '/*/package.json')
     const userPluginPattern =
       path.join(Env.userPackagePath, '/**/package.json')
 
