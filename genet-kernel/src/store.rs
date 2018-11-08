@@ -111,11 +111,11 @@ impl Store {
     }
 
     pub fn set_filter(&mut self, id: u32, filter: Option<Filter>) {
-        self.sender.send(Command::SetFilter(id, filter));
+        let _ = self.sender.send(Command::SetFilter(id, filter));
     }
 
     pub fn push_output<O: 'static + Output>(&mut self, id: u32, output: O, filter: Option<Filter>) {
-        self.sender
+        let _ = self.sender
             .send(Command::PushOutput(id, Box::new(output), filter));
     }
 
@@ -128,12 +128,12 @@ impl Store {
                 match input.read() {
                     Ok(layers) => {
                         if !layers.is_empty() {
-                            sender.send(Command::PushFrames(Some(id), Ok(layers)));
+                            let _ = sender.send(Command::PushFrames(Some(id), Ok(layers)));
                         }
                     }
                     Err(err) => {
                         let err = Error(err.description().to_string());
-                        sender.send(Command::PushFrames(Some(id), Err(Box::new(err))));
+                        let _ = sender.send(Command::PushFrames(Some(id), Err(Box::new(err))));
                         break;
                     }
                 }
@@ -176,7 +176,7 @@ struct ParallelCallback {
 
 impl parallel::Callback for ParallelCallback {
     fn done(&self, result: Vec<Frame>) {
-        self.sender.send(Command::PushSerialFrames(result));
+        let _ = self.sender.send(Command::PushSerialFrames(result));
     }
 }
 
@@ -187,7 +187,7 @@ struct SerialCallback {
 
 impl serial::Callback for SerialCallback {
     fn done(&self, result: Vec<Frame>) {
-        self.sender.send(Command::StoreFrames(result));
+        let _ = self.sender.send(Command::StoreFrames(result));
     }
 }
 
@@ -230,7 +230,7 @@ impl EventLoop {
                 callback.on_frames_updated(0);
                 callback.on_async_frames_updated(0);
                 loop {
-                    if let Some(cmd) = recv.recv() {
+                    if let Ok(cmd) = recv.recv() {
                         match cmd {
                             Command::PushFrames(id, result) => {
                                 Self::process_input(id, result, &mut cnt, &mut ppool, &callback)
@@ -425,7 +425,7 @@ impl EventLoop {
 
 impl Drop for EventLoop {
     fn drop(&mut self) {
-        self.sender.send(Command::Close);
+        let _ = self.sender.send(Command::Close);
         self.handle.take().unwrap().join().expect("failed to join");
     }
 }

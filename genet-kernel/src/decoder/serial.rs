@@ -28,7 +28,7 @@ impl Pool {
             let mut map = BTreeMap::new();
             let mut next = 0;
             loop {
-                if let Some(frames) = recv.recv() {
+                if let Ok(frames) = recv.recv() {
                     if let Some(frames) = frames {
                         if !frames.is_empty() {
                             map.insert(frames[0].index() as usize, frames);
@@ -57,14 +57,14 @@ impl Pool {
     }
 
     pub fn process(&mut self, frames: Vec<Frame>) {
-        self.sender.send(Some(frames));
+        let _ = self.sender.send(Some(frames));
     }
 }
 
 impl Drop for Pool {
     fn drop(&mut self) {
         for _ in 0..self.handles.len() {
-            self.sender.send(None);
+            let _ = self.sender.send(None);
         }
         while let Some(h) = self.handles.pop() {
             h.join().unwrap();
