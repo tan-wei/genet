@@ -441,8 +441,13 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, _attr: &Attr, data: &ByteSlice) -> Result<Variant> {
-                Ok(Variant::UInt64(from_utf8(data).unwrap().parse().unwrap()))
+            fn cast(&self, attr: &Attr, data: &ByteSlice) -> Result<Variant> {
+                Ok(Variant::UInt64(
+                    from_utf8(&data.try_get(attr.range())?)
+                        .unwrap()
+                        .parse()
+                        .unwrap(),
+                ))
             }
         }
         let class = Fixed::new(
@@ -470,8 +475,13 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, _attr: &Attr, data: &ByteSlice) -> Result<Variant> {
-                Ok(Variant::Int64(from_utf8(data).unwrap().parse().unwrap()))
+            fn cast(&self, attr: &Attr, data: &ByteSlice) -> Result<Variant> {
+                Ok(Variant::Int64(
+                    from_utf8(&data.try_get(attr.range())?)
+                        .unwrap()
+                        .parse()
+                        .unwrap(),
+                ))
             }
         }
         let class = Fixed::new(
@@ -499,8 +509,10 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, _attr: &Attr, data: &ByteSlice) -> Result<Variant> {
-                Ok(Variant::Buffer(data.to_vec().into_boxed_slice()))
+            fn cast(&self, attr: &Attr, data: &ByteSlice) -> Result<Variant> {
+                Ok(Variant::Buffer(
+                    data.try_get(attr.range())?.to_vec().into_boxed_slice(),
+                ))
             }
         }
         let class = Fixed::new(
@@ -528,9 +540,12 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, _attr: &Attr, data: &ByteSlice) -> Result<Variant> {
+            fn cast(&self, attr: &Attr, data: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::String(
-                    from_utf8(data).unwrap().to_string().into_boxed_str(),
+                    from_utf8(&data.try_get(attr.range())?)
+                        .unwrap()
+                        .to_string()
+                        .into_boxed_str(),
                 ))
             }
         }
@@ -588,7 +603,7 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, _attr: &Attr, data: &ByteSlice) -> Result<Variant> {
+            fn cast(&self, _attr: &Attr, _data: &ByteSlice) -> Result<Variant> {
                 Err(Error::new(ErrorKind::Other, "oh no!"))
             }
         }
