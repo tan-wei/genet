@@ -41,9 +41,6 @@ impl Expr {
             Expr::UnaryNegation(v) => v.eval(ctx).op_unary_negation(),
             Expr::Token(t) => {
                 for layer in ctx.layers().iter().rev() {
-                    if layer.id() == *t {
-                        return Variant::Bool(true);
-                    }
                     if let Some(attr) = layer
                         .headers()
                         .iter()

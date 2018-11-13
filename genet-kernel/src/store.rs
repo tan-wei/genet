@@ -115,7 +115,8 @@ impl Store {
     }
 
     pub fn push_output<O: 'static + Output>(&mut self, id: u32, output: O, filter: Option<Filter>) {
-        let _ = self.sender
+        let _ = self
+            .sender
             .send(Command::PushOutput(id, Box::new(output), filter));
     }
 
