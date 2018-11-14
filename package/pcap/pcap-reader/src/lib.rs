@@ -39,7 +39,12 @@ impl Reader for PcapReader {
         );
         let link_class = Fixed::new(layer_class!(
             format!("[link-{}]", arg.link),
-            header: attr!(&TYPE_CLASS)
+            header: attr!(&TYPE_CLASS),
+            header: attr!(&PAYLOAD_LENGTH_CLASS),
+            header: attr!(&ORIG_LENGTH_CLASS),
+            header: attr!(&TS_CLASS),
+            header: attr!(&TS_SEC_CLASS),
+            header: attr!(&TS_USEC_CLASS)
         ));
         Ok(Box::new(PcapWorker {
             child,
@@ -74,11 +79,7 @@ impl Worker for PcapWorker {
         let mut data = vec![0u8; header.datalen as usize];
         self.reader.read_exact(&mut data)?;
         let payload = ByteSlice::from(data);
-        let mut layer = Layer::new(self.link_class.clone(), payload);
-        layer.add_attr(attr!(&LENGTH_CLASS));
-        layer.add_attr(attr!(&TS_CLASS));
-        layer.add_attr(attr!(&TS_SEC_CLASS));
-        layer.add_attr(attr!(&TS_USEC_CLASS));
+        let layer = Layer::new(self.link_class.clone(), payload);
         /*
         layer.add_attr(attr!(
             &LENGTH_CLASS,
@@ -108,7 +109,8 @@ impl Drop for PcapWorker {
 }
 
 def_attr_class!(TYPE_CLASS, "link.type");
-def_attr_class!(LENGTH_CLASS, "link.length");
+def_attr_class!(PAYLOAD_LENGTH_CLASS, "link.payloadLength");
+def_attr_class!(ORIG_LENGTH_CLASS, "link.originalLength");
 def_attr_class!(TS_CLASS, "link.timestamp",
     typ: "@datetime:unix"
 );

@@ -76,7 +76,7 @@ impl Worker for PcapFileWorker {
             let mut ts_usec = 0;
             let mut link = 0;
 
-            if let Some(attr) = layer.attr(token!("link.length")) {
+            if let Some(attr) = layer.attr(token!("link.originalLength")) {
                 orig_len = attr.try_get(layer)?.try_into()?;
             }
             if let Some(attr) = layer.attr(token!("link.type")) {
