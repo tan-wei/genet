@@ -73,13 +73,6 @@ impl Worker for GenetFileWorker {
     fn write(&mut self, _index: u32, stack: &LayerStack) -> Result<()> {
         if let Some(layer) = stack.bottom() {
             let mut attrs = Vec::new();
-            for attr in layer.attrs().filter(|attr| attr.is_value()) {
-                let index = self.get_attr_index(attr.id(), attr.typ());
-                attrs.push(genet_format::Attr {
-                    index,
-                    value: attr.try_get(&layer)?.into(),
-                });
-            }
             let id = self.get_token_index(layer.id());
             self.entries.push(genet_format::Entry {
                 frame: genet_format::Frame {

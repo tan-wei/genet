@@ -59,7 +59,7 @@ impl Reader for PcapFileReader {
 
         let link_class = Fixed::new(layer_class!(
             format!("[link-{}]", network),
-            header: attr!(&TYPE_CLASS, value: i64::from(network))
+            header: attr!(&TYPE_CLASS)
         ));
 
         Ok(Box::new(PcapFileWorker {
@@ -116,15 +116,19 @@ impl PcapFileWorker {
 
         let payload = ByteSlice::from(data);
         let mut layer = Layer::new(self.link_class.clone(), payload);
-
-        layer.add_attr(attr!(&LENGTH_CLASS, value: u64::from(orig_len)));
-        layer.add_attr(attr!(
-            &TS_CLASS,
-            value: f64::from(ts_sec) + f64::from(ts_usec) / 1_000_000f64
-        ));
-        layer.add_attr(attr!(&TS_SEC_CLASS, value: u64::from(ts_sec)));
-        layer.add_attr(attr!(&TS_USEC_CLASS, value: u64::from(ts_usec)));
-
+        layer.add_attr(attr!(&LENGTH_CLASS));
+        layer.add_attr(attr!(&TS_CLASS));
+        layer.add_attr(attr!(&TS_SEC_CLASS));
+        layer.add_attr(attr!(&TS_USEC_CLASS));
+        /*
+                layer.add_attr(attr!(&LENGTH_CLASS, value: u64::from(orig_len)));
+                layer.add_attr(attr!(
+                    &TS_CLASS,
+                    value: f64::from(ts_sec) + f64::from(ts_usec) / 1_000_000f64
+                ));
+                layer.add_attr(attr!(&TS_SEC_CLASS, value: u64::from(ts_sec)));
+                layer.add_attr(attr!(&TS_USEC_CLASS, value: u64::from(ts_usec)));
+        */
         Ok(layer)
     }
 }

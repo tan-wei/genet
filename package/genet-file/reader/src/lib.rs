@@ -96,11 +96,7 @@ impl Worker for GenetFileWorker {
                 .link_layers
                 .entry(id)
                 .or_insert_with(|| Fixed::new(layer_class!(id)));
-            let mut layer = Layer::new(link_class.clone(), ByteSlice::from(payload));
-            for attr in frame.attrs {
-                let value: Variant = attr.value.into();
-                layer.add_attr(attr!(self.attrs[attr.index].clone(), value: value));
-            }
+            let layer = Layer::new(link_class.clone(), ByteSlice::from(payload));
             layers.push(layer);
         }
         self.header.entries = 0;

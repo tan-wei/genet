@@ -39,7 +39,7 @@ impl Reader for PcapReader {
         );
         let link_class = Fixed::new(layer_class!(
             format!("[link-{}]", arg.link),
-            header: attr!(&TYPE_CLASS, value: u64::from(arg.link))
+            header: attr!(&TYPE_CLASS)
         ));
         Ok(Box::new(PcapWorker {
             child,
@@ -75,6 +75,11 @@ impl Worker for PcapWorker {
         self.reader.read_exact(&mut data)?;
         let payload = ByteSlice::from(data);
         let mut layer = Layer::new(self.link_class.clone(), payload);
+        layer.add_attr(attr!(&LENGTH_CLASS));
+        layer.add_attr(attr!(&TS_CLASS));
+        layer.add_attr(attr!(&TS_SEC_CLASS));
+        layer.add_attr(attr!(&TS_USEC_CLASS));
+        /*
         layer.add_attr(attr!(
             &LENGTH_CLASS,
             value: u64::from(header.actlen)
@@ -91,6 +96,7 @@ impl Worker for PcapWorker {
             &TS_USEC_CLASS,
             value: u64::from(header.ts_usec)
         ));
+        */
         Ok(vec![layer])
     }
 }
