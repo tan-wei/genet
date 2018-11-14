@@ -39,8 +39,8 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
     fn layer_attrs<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
-        let headers = layer.headers();
-        let attrs = layer.attrs();
+        let headers = layer.headers().collect::<Vec<_>>();
+        let attrs = layer.attrs().collect::<Vec<_>>();
         let attr_class = env.get_constructor(JsClass::Attr as usize).unwrap();
         let array = env.create_array(headers.len() + attrs.len())?;
         for (i, item) in headers.iter().enumerate() {
@@ -58,7 +58,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
     fn layer_payloads<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
-        let payloads = layer.payloads();
+        let payloads = layer.payloads().collect::<Vec<_>>();
         let array = env.create_array(payloads.len())?;
         for (i, paylaod) in payloads.iter().enumerate() {
             let object = env.create_object()?;

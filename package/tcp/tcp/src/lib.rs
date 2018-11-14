@@ -13,11 +13,7 @@ impl Worker for TcpWorker {
     ) -> Result<Status> {
         let data;
 
-        if let Some(payload) = parent
-            .payloads()
-            .iter()
-            .find(|p| p.id() == token!("@data:tcp"))
-        {
+        if let Some(payload) = parent.payloads().find(|p| p.id() == token!("@data:tcp")) {
             data = payload.data();
         } else {
             return Ok(Status::Skip);

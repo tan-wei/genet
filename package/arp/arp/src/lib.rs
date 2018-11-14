@@ -13,11 +13,7 @@ impl Worker for ArpWorker {
     ) -> Result<Status> {
         let data;
 
-        if let Some(payload) = parent
-            .payloads()
-            .iter()
-            .find(|p| p.id() == token!("@data:arp"))
-        {
+        if let Some(payload) = parent.payloads().find(|p| p.id() == token!("@data:arp")) {
             data = payload.data();
         } else {
             return Ok(Status::Skip);

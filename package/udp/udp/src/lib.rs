@@ -13,11 +13,7 @@ impl Worker for UdpWorker {
     ) -> Result<Status> {
         let data;
 
-        if let Some(payload) = parent
-            .payloads()
-            .iter()
-            .find(|p| p.id() == token!("@data:udp"))
-        {
+        if let Some(payload) = parent.payloads().find(|p| p.id() == token!("@data:udp")) {
             data = payload.data();
         } else {
             return Ok(Status::Skip);

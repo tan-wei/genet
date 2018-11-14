@@ -17,7 +17,7 @@ impl Worker for NtpWorker {
 
         let data;
 
-        if let Some(payload) = parent.payloads().iter().next() {
+        if let Some(payload) = parent.payloads().next() {
             data = payload.data();
         } else {
             return Ok(Status::Skip);
