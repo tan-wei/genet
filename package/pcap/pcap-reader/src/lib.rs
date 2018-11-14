@@ -1,3 +1,4 @@
+extern crate byteorder;
 extern crate genet_sdk;
 extern crate pcap;
 extern crate serde;
@@ -6,11 +7,12 @@ extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
 
-use genet_sdk::{prelude::*, reader::*};
+use byteorder::{BigEndian, WriteBytesExt};
+use genet_sdk::{cast, prelude::*, reader::*};
 use pcap::Header;
 
 use std::{
-    io::{BufRead, BufReader, Error, ErrorKind, Read},
+    io::{BufRead, BufReader, Cursor, Error, ErrorKind, Read},
     process::{Child, ChildStdout, Command, Stdio},
 };
 
@@ -39,11 +41,17 @@ impl Reader for PcapReader {
         );
         let link_class = Fixed::new(layer_class!(
             format!("[link-{}]", arg.link),
-            header: attr!(&TYPE_CLASS, value: u64::from(arg.link))
+            header: attr!(&TYPE_CLASS, range: 0..4),
+            header: attr!(&PAYLOAD_LENGTH_CLASS, range: 4..8),
+            header: attr!(&ORIG_LENGTH_CLASS, range: 8..12),
+            header: attr!(&TS_CLASS, range: 12..20),
+            header: attr!(&TS_SEC_CLASS, range: 12..16),
+            header: attr!(&TS_USEC_CLASS, range: 16..20)
         ));
         Ok(Box::new(PcapWorker {
             child,
             reader,
+            link: arg.link,
             link_class,
         }))
     }
@@ -59,6 +67,7 @@ impl Reader for PcapReader {
 struct PcapWorker {
     child: Child,
     reader: BufReader<ChildStdout>,
+    link: u32,
     link_class: Fixed<LayerClass>,
 }
 
@@ -71,26 +80,22 @@ impl Worker for PcapWorker {
             return Ok(vec![]);
         }
         let header: Header = serde_json::from_str(header)?;
-        let mut data = vec![0u8; header.datalen as usize];
-        self.reader.read_exact(&mut data)?;
-        let payload = ByteSlice::from(data);
+        let size = header.datalen as usize;
+
+        let metalen = 20;
+        let mut data = vec![0u8; size + metalen];
+        self.reader.read_exact(&mut data[metalen..])?;
+
+        let mut cur = Cursor::new(data);
+        cur.write_u32::<BigEndian>(self.link)?;
+        cur.write_u32::<BigEndian>(header.datalen)?;
+        cur.write_u32::<BigEndian>(header.actlen)?;
+        cur.write_u32::<BigEndian>(header.ts_sec)?;
+        cur.write_u32::<BigEndian>(header.ts_usec)?;
+
+        let payload = ByteSlice::from(cur.into_inner());
         let mut layer = Layer::new(self.link_class.clone(), payload);
-        layer.add_attr(attr!(
-            &LENGTH_CLASS,
-            value: u64::from(header.actlen)
-        ));
-        layer.add_attr(attr!(
-            &TS_CLASS,
-            value: f64::from(header.ts_sec) + f64::from(header.ts_usec) / 1_000_000f64
-        ));
-        layer.add_attr(attr!(
-            &TS_SEC_CLASS,
-            value: u64::from(header.ts_sec)
-        ));
-        layer.add_attr(attr!(
-            &TS_USEC_CLASS,
-            value: u64::from(header.ts_usec)
-        ));
+        layer.add_payload(Payload::new(payload.try_get(metalen..)?, "@data:link"));
         Ok(vec![layer])
     }
 }
@@ -101,12 +106,22 @@ impl Drop for PcapWorker {
     }
 }
 
-def_attr_class!(TYPE_CLASS, "link.type");
-def_attr_class!(LENGTH_CLASS, "link.length");
-def_attr_class!(TS_CLASS, "link.timestamp",
-    typ: "@datetime:unix"
+def_attr_class!(TYPE_CLASS, "link.type", cast: cast::UInt32BE());
+def_attr_class!(
+    PAYLOAD_LENGTH_CLASS,
+    "link.payloadLength",
+    cast: cast::UInt32BE()
 );
-def_attr_class!(TS_SEC_CLASS, "link.timestamp.sec");
-def_attr_class!(TS_USEC_CLASS, "link.timestamp.usec");
+def_attr_class!(
+    ORIG_LENGTH_CLASS,
+    "link.originalLength",
+    cast: cast::UInt32BE()
+);
+def_attr_class!(TS_CLASS, "link.timestamp",
+    typ: "@datetime:unix", 
+    cast: cast::UInt64BE().map(|v| (v >> 32) as f64 + (v & 0xffff_ffff) as f64 / 1_000_000f64)
+);
+def_attr_class!(TS_SEC_CLASS, "link.timestamp.sec", cast: cast::UInt32BE());
+def_attr_class!(TS_USEC_CLASS, "link.timestamp.usec", cast: cast::UInt32BE());
 
 genet_readers!(PcapReader {});

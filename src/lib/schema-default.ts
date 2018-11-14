@@ -13,7 +13,7 @@ export default {
         },
         {
           name: 'Length',
-          value: 'link.length',
+          value: 'link.originalLength',
         }
       ],
     },

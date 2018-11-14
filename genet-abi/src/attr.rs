@@ -15,7 +15,6 @@ use vec::SafeVec;
 pub struct AttrBuilder {
     class: Fixed<AttrClass>,
     range: Range<usize>,
-    value: Option<Fixed<Variant>>,
 }
 
 impl AttrBuilder {
@@ -24,7 +23,6 @@ impl AttrBuilder {
         Attr {
             class: self.class,
             range: self.range,
-            value: self.value,
         }
     }
 
@@ -39,12 +37,6 @@ impl AttrBuilder {
         self.range = (range.start + byte_offset * 8)..(range.end + byte_offset * 8);
         self
     }
-
-    /// Sets a value of Attr.
-    pub fn value<T: Into<Variant>>(mut self, value: T) -> AttrBuilder {
-        self.value = Some(Fixed::new(value.into()));
-        self
-    }
 }
 
 /// An attribute object.
@@ -52,7 +44,6 @@ impl AttrBuilder {
 pub struct Attr {
     class: Fixed<AttrClass>,
     range: Range<usize>,
-    value: Option<Fixed<Variant>>,
 }
 
 impl fmt::Debug for Attr {
@@ -67,7 +58,6 @@ impl Attr {
         AttrBuilder {
             class: class.into(),
             range: 0..0,
-            value: None,
         }
     }
 
@@ -79,12 +69,6 @@ impl Attr {
     /// Returns the type of self.
     pub fn typ(&self) -> Token {
         self.class.typ()
-    }
-
-    /// Returns true if the self has no cast function.
-    /// Otherwise, returns false.
-    pub fn is_value(&self) -> bool {
-        self.class.is_value()
     }
 
     /// Returns the byte range of self.
@@ -144,7 +128,7 @@ pub struct AttrClassBuilder {
     id: Token,
     typ: Token,
     meta: Metadata,
-    cast: Option<Box<Cast>>,
+    cast: Box<Cast>,
 }
 
 impl AttrClassBuilder {
@@ -168,7 +152,7 @@ impl AttrClassBuilder {
 
     /// Sets a cast of AttrClass.
     pub fn cast<T: Cast>(mut self, cast: T) -> AttrClassBuilder {
-        self.cast = Some(cast.into_box());
+        self.cast = cast.into_box();
         self
     }
 
@@ -177,7 +161,7 @@ impl AttrClassBuilder {
         mut self,
         value: T,
     ) -> AttrClassBuilder {
-        self.cast = Some(Box::new(Const(value)));
+        self.cast = Box::new(Const(value));
         self
     }
 
@@ -186,7 +170,6 @@ impl AttrClassBuilder {
         AttrClass {
             get_id: abi_id,
             get_typ: abi_typ,
-            is_value: abi_is_value,
             range: abi_range,
             get: abi_get,
             id: self.id,
@@ -202,13 +185,12 @@ impl AttrClassBuilder {
 pub struct AttrClass {
     get_id: extern "C" fn(class: *const AttrClass) -> Token,
     get_typ: extern "C" fn(class: *const AttrClass) -> Token,
-    is_value: extern "C" fn(class: *const AttrClass) -> u8,
     range: extern "C" fn(*const Attr, *mut u64, *mut u64),
     get: extern "C" fn(*const Attr, *mut *const u8, u64, *mut i64, *mut Error) -> ValueType,
     id: Token,
     typ: Token,
     meta: Metadata,
-    cast: Option<Box<Cast>>,
+    cast: Box<Cast>,
 }
 
 impl AttrClass {
@@ -218,7 +200,7 @@ impl AttrClass {
             id: id.into(),
             typ: Token::null(),
             meta: Metadata::new(),
-            cast: None,
+            cast: Box::new(Const(true)),
         }
     }
 
@@ -228,10 +210,6 @@ impl AttrClass {
 
     fn typ(&self) -> Token {
         (self.get_typ)(self)
-    }
-
-    fn is_value(&self) -> bool {
-        (self.is_value)(self) != 0
     }
 
     fn bit_range(&self, attr: &Attr) -> Range<usize> {
@@ -308,16 +286,6 @@ extern "C" fn abi_typ(class: *const AttrClass) -> Token {
     unsafe { (*class).typ }
 }
 
-extern "C" fn abi_is_value(class: *const AttrClass) -> u8 {
-    unsafe {
-        if (*class).cast.is_none() {
-            1
-        } else {
-            0
-        }
-    }
-}
-
 extern "C" fn abi_get(
     attr: *const Attr,
     data: *mut *const u8,
@@ -326,43 +294,31 @@ extern "C" fn abi_get(
     err: *mut Error,
 ) -> ValueType {
     let attr = unsafe { &(*attr) };
-    let value = &attr.value;
     let cast = &attr.class.cast;
     let slice = unsafe { ByteSlice::from_raw_parts(*data, len as usize) };
-    let res;
-    let verr;
-
-    let result = if let Some(cast) = cast.as_ref() {
-        res = cast.cast(attr, &slice);
-        res.as_ref()
-    } else if let Some(val) = value {
-        Ok(val.as_ref())
-    } else {
-        verr = io::Error::new(io::ErrorKind::Other, "no value");
-        Err(&verr)
-    };
+    let result = cast.cast(attr, &slice);
 
     match result {
         Ok(v) => match v {
             Variant::Bool(val) => {
-                unsafe { *num = if *val { 1 } else { 0 } };
+                unsafe { *num = if val { 1 } else { 0 } };
                 ValueType::Bool
             }
             Variant::Int64(val) => {
-                unsafe { *num = *val };
+                unsafe { *num = val };
                 ValueType::Int64
             }
             Variant::UInt64(val) => {
-                unsafe { *(num as *mut u64) = *val };
+                unsafe { *(num as *mut u64) = val };
                 ValueType::UInt64
             }
             Variant::Float64(val) => {
-                unsafe { *(num as *mut f64) = *val };
+                unsafe { *(num as *mut f64) = val };
                 ValueType::Float64
             }
             Variant::Buffer(val) => {
                 unsafe {
-                    let (buf, len) = SafeVec::into_raw(SafeVec::from(val));
+                    let (buf, len) = SafeVec::into_raw(SafeVec::from(&val));
                     *data = buf;
                     *(num as *mut u64) = len as u64;
                 };
@@ -386,7 +342,7 @@ extern "C" fn abi_get(
             _ => ValueType::Nil,
         },
         Err(e) => {
-            unsafe { *err = Error::new(::std::error::Error::description(&*e)) }
+            unsafe { *err = Error::new(::std::error::Error::description(&e)) }
             ValueType::Error
         }
     }

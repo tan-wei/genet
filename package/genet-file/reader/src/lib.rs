@@ -7,7 +7,7 @@ extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
 
-use genet_sdk::{prelude::*, reader::*, variant::Variant};
+use genet_sdk::{prelude::*, reader::*};
 
 use std::{
     collections::HashMap,
@@ -45,22 +45,11 @@ impl Reader for GenetFileReader {
             .map(|t| Token::from(t.as_str()))
             .collect();
 
-        let attrs = header
-            .attrs
-            .iter()
-            .map(|attr| {
-                Fixed::new(attr_class!(tokens[attr.id],
-                        typ: tokens[attr.typ]
-                    ))
-            })
-            .collect();
-
         Ok(Box::new(GenetFileWorker {
             reader,
             header,
             tokens,
             link_layers: HashMap::new(),
-            attrs,
         }))
     }
 
@@ -78,7 +67,6 @@ struct GenetFileWorker {
     header: genet_format::Header,
     tokens: Vec<Token>,
     link_layers: HashMap<Token, Fixed<LayerClass>>,
-    attrs: Vec<Fixed<AttrClass>>,
 }
 
 impl Worker for GenetFileWorker {
@@ -96,11 +84,7 @@ impl Worker for GenetFileWorker {
                 .link_layers
                 .entry(id)
                 .or_insert_with(|| Fixed::new(layer_class!(id)));
-            let mut layer = Layer::new(link_class.clone(), ByteSlice::from(payload));
-            for attr in frame.attrs {
-                let value: Variant = attr.value.into();
-                layer.add_attr(attr!(self.attrs[attr.index].clone(), value: value));
-            }
+            let layer = Layer::new(link_class.clone(), ByteSlice::from(payload));
             layers.push(layer);
         }
         self.header.entries = 0;
