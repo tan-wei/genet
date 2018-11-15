@@ -28,7 +28,7 @@ impl Worker for EthWorker {
         }
         if let Some((typ, attr)) = get_type(len) {
             layer.add_attr(attr!(attr, range: 12..14));
-            let payload = parent.data().try_get(14..)?;
+            let payload = data.try_get(14..)?;
             layer.add_payload(Payload::new(payload, typ));
         }
 

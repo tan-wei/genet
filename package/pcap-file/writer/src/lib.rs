@@ -70,7 +70,8 @@ impl PcapFileWorker {
 impl Worker for PcapFileWorker {
     fn write(&mut self, _index: u32, stack: &LayerStack) -> Result<()> {
         if let Some(layer) = stack.bottom() {
-            let incl_len = layer.data().len();
+            let data = layer.payloads().next().unwrap().data();
+            let incl_len = data.len();
             let mut orig_len = 0;
             let mut ts_sec = 0;
             let mut ts_usec = 0;
@@ -95,7 +96,7 @@ impl Worker for PcapFileWorker {
             self.writer.write_u32::<LittleEndian>(ts_usec as u32)?;
             self.writer.write_u32::<LittleEndian>(incl_len as u32)?;
             self.writer.write_u32::<LittleEndian>(orig_len as u32)?;
-            self.writer.write_all(&layer.data())?;
+            self.writer.write_all(&data)?;
         }
         Ok(())
     }

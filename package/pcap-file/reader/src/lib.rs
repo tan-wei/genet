@@ -6,11 +6,11 @@ extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
 
-use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
-use genet_sdk::{prelude::*, reader::*};
+use byteorder::{BigEndian, LittleEndian, ReadBytesExt, WriteBytesExt};
+use genet_sdk::{cast, prelude::*, reader::*};
 use std::{
     fs::File,
-    io::{self, BufReader, Error, ErrorKind, Read},
+    io::{self, BufReader, Cursor, Error, ErrorKind, Read},
 };
 
 #[derive(Deserialize)]
@@ -59,18 +59,19 @@ impl Reader for PcapFileReader {
 
         let link_class = Fixed::new(layer_class!(
             format!("[link-{}]", network),
-            header: attr!(&TYPE_CLASS),
-            header: attr!(&PAYLOAD_LENGTH_CLASS),
-            header: attr!(&ORIG_LENGTH_CLASS),
-            header: attr!(&TS_CLASS),
-            header: attr!(&TS_SEC_CLASS),
-            header: attr!(&TS_USEC_CLASS)
+            header: attr!(&TYPE_CLASS, range: 0..4),
+            header: attr!(&PAYLOAD_LENGTH_CLASS, range: 4..8),
+            header: attr!(&ORIG_LENGTH_CLASS, range: 8..12),
+            header: attr!(&TS_CLASS, range: 12..20),
+            header: attr!(&TS_SEC_CLASS, range: 12..16),
+            header: attr!(&TS_USEC_CLASS, range: 16..20)
         ));
 
         Ok(Box::new(PcapFileWorker {
             le,
             nsec,
             reader,
+            link: network,
             link_class,
         }))
     }
@@ -88,6 +89,7 @@ struct PcapFileWorker {
     le: bool,
     nsec: bool,
     reader: BufReader<File>,
+    link: u32,
     link_class: Fixed<LayerClass>,
 }
 
@@ -113,24 +115,21 @@ impl PcapFileWorker {
             ts_usec *= 1000;
         }
 
-        let mut data = Vec::<u8>::with_capacity(inc_len as usize);
-        unsafe {
-            data.set_len(inc_len as usize);
-        }
-        self.reader.read_exact(&mut data)?;
+        let size = inc_len as usize;
+        let metalen = 20;
+        let mut data = vec![0u8; size + metalen];
+        self.reader.read_exact(&mut data[metalen..])?;
 
-        let payload = ByteSlice::from(data);
+        let mut cur = Cursor::new(data);
+        cur.write_u32::<BigEndian>(self.link)?;
+        cur.write_u32::<BigEndian>(inc_len)?;
+        cur.write_u32::<BigEndian>(orig_len)?;
+        cur.write_u32::<BigEndian>(ts_sec)?;
+        cur.write_u32::<BigEndian>(ts_usec)?;
+
+        let payload = ByteSlice::from(cur.into_inner());
         let mut layer = Layer::new(self.link_class.clone(), payload);
-        layer.add_payload(Payload::new(payload, ""));
-        /*
-                layer.add_attr(attr!(&LENGTH_CLASS, value: u64::from(orig_len)));
-                layer.add_attr(attr!(
-                    &TS_CLASS,
-                    value: f64::from(ts_sec) + f64::from(ts_usec) / 1_000_000f64
-                ));
-                layer.add_attr(attr!(&TS_SEC_CLASS, value: u64::from(ts_sec)));
-                layer.add_attr(attr!(&TS_USEC_CLASS, value: u64::from(ts_usec)));
-        */
+        layer.add_payload(Payload::new(payload.try_get(metalen..)?, "@data:link"));
         Ok(layer)
     }
 }
@@ -154,13 +153,22 @@ impl Worker for PcapFileWorker {
     }
 }
 
-def_attr_class!(TYPE_CLASS, "link.type");
-def_attr_class!(PAYLOAD_LENGTH_CLASS, "link.payloadLength");
-def_attr_class!(ORIG_LENGTH_CLASS, "link.originalLength");
-def_attr_class!(TS_CLASS, "link.timestamp",
-    typ: "@datetime:unix"
+def_attr_class!(TYPE_CLASS, "link.type", cast: cast::UInt32BE());
+def_attr_class!(
+    PAYLOAD_LENGTH_CLASS,
+    "link.payloadLength",
+    cast: cast::UInt32BE()
 );
-def_attr_class!(TS_SEC_CLASS, "link.timestamp.sec");
-def_attr_class!(TS_USEC_CLASS, "link.timestamp.usec");
+def_attr_class!(
+    ORIG_LENGTH_CLASS,
+    "link.originalLength",
+    cast: cast::UInt32BE()
+);
+def_attr_class!(TS_CLASS, "link.timestamp",
+    typ: "@datetime:unix", 
+    cast: cast::UInt64BE().map(|v| (v >> 32) as f64 + (v & 0xffff_ffff) as f64 / 1_000_000f64)
+);
+def_attr_class!(TS_SEC_CLASS, "link.timestamp.sec", cast: cast::UInt32BE());
+def_attr_class!(TS_USEC_CLASS, "link.timestamp.usec", cast: cast::UInt32BE());
 
 genet_readers!(PcapFileReader {});
