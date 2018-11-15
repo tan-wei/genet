@@ -79,7 +79,8 @@ impl Worker for PcapWorker {
         let mut data = vec![0u8; header.datalen as usize];
         self.reader.read_exact(&mut data)?;
         let payload = ByteSlice::from(data);
-        let layer = Layer::new(self.link_class.clone(), payload);
+        let mut layer = Layer::new(self.link_class.clone(), payload);
+        layer.add_payload(Payload::new(payload, ""));
         /*
         layer.add_attr(attr!(
             &LENGTH_CLASS,

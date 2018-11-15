@@ -11,25 +11,29 @@ impl Worker for EthWorker {
         _stack: &LayerStack,
         parent: &mut Parent,
     ) -> Result<Status> {
-        if parent.id() == token!("[link-1]") {
-            let mut layer = Layer::new(&ETH_CLASS, parent.data());
-            let len = LEN_ATTR_HEADER.try_get(&layer)?.try_into()?;
-            if len <= 1500 {
-                layer.add_attr(&LEN_ATTR_HEADER);
-            } else {
-                layer.add_attr(&TYPE_ATTR_HEADER);
-            }
-            if let Some((typ, attr)) = get_type(len) {
-                layer.add_attr(attr!(attr, range: 12..14));
-                let payload = parent.data().try_get(14..)?;
-                layer.add_payload(Payload::new(payload, typ));
-            }
+        let data;
 
-            parent.add_child(layer);
-            Ok(Status::Done)
+        if parent.id() == token!("[link-1]") {
+            data = parent.payloads().next().unwrap().data();
         } else {
-            Ok(Status::Skip)
+            return Ok(Status::Skip);
         }
+
+        let mut layer = Layer::new(&ETH_CLASS, data);
+        let len = LEN_ATTR_HEADER.try_get(&layer)?.try_into()?;
+        if len <= 1500 {
+            layer.add_attr(&LEN_ATTR_HEADER);
+        } else {
+            layer.add_attr(&TYPE_ATTR_HEADER);
+        }
+        if let Some((typ, attr)) = get_type(len) {
+            layer.add_attr(attr!(attr, range: 12..14));
+            let payload = parent.data().try_get(14..)?;
+            layer.add_payload(Payload::new(payload, typ));
+        }
+
+        parent.add_child(layer);
+        Ok(Status::Done)
     }
 }
 
