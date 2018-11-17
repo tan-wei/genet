@@ -289,6 +289,7 @@ pub struct LayerClassBuilder {
     id: Token,
     aliases: Vec<Alias>,
     headers: Vec<Attr>,
+    headers2: Vec<Fixed<AttrClass>>,
     meta: Metadata,
 }
 
@@ -305,6 +306,11 @@ impl LayerClassBuilder {
     /// Adds a header attribute for LayerClass.
     pub fn header(mut self, attr: &Attr) -> LayerClassBuilder {
         self.headers.push(attr.clone());
+        self
+    }
+
+    pub fn header2<T: Into<Fixed<AttrClass>>>(mut self, attr: T) -> LayerClassBuilder {
+        self.headers2.push(attr.into());
         self
     }
 
@@ -339,6 +345,7 @@ impl LayerClassBuilder {
             meta: self.meta,
             aliases: self.aliases,
             headers: self.headers,
+            headers2: self.headers2,
         }
     }
 }
@@ -368,6 +375,7 @@ pub struct LayerClass {
     meta: Metadata,
     aliases: Vec<Alias>,
     headers: Vec<Attr>,
+    headers2: Vec<Fixed<AttrClass>>,
 }
 
 impl LayerClass {
@@ -378,6 +386,7 @@ impl LayerClass {
             meta: Metadata::new(),
             aliases: Vec::new(),
             headers: Vec::new(),
+            headers2: Vec::new(),
         }
     }
 
@@ -396,6 +405,10 @@ impl LayerClass {
         let data = (self.headers_data)(self);
         let len = (self.headers_len)(self) as usize;
         unsafe { slice::from_raw_parts(data, len) }.iter().cloned()
+    }
+
+    fn header2(&self) -> impl Iterator<Item = &Fixed<AttrClass>> {
+        self.headers2.iter()
     }
 
     fn data(&self, layer: &Layer) -> ByteSlice {

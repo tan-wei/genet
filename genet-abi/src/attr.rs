@@ -74,12 +74,12 @@ impl Attr {
 
     /// Returns the byte range of self.
     pub fn range(&self) -> Range<usize> {
-        self.class.range(self)
+        self.class.range_attr(self)
     }
 
     /// Returns the bit range of self.
     pub fn bit_range(&self) -> Range<usize> {
-        self.class.bit_range(self)
+        self.class.bit_range_attr(self)
     }
 
     /// Returns the attribute value.
@@ -217,7 +217,16 @@ impl AttrClass {
         (self.get_typ)(self)
     }
 
-    fn bit_range(&self, attr: &Attr) -> Range<usize> {
+    pub fn range(&self) -> Range<usize> {
+        let range = self.bit_range();
+        (range.start / 8)..((range.end + 7) / 8)
+    }
+
+    pub fn bit_range(&self) -> Range<usize> {
+        self.range.clone()
+    }
+
+    fn bit_range_attr(&self, attr: &Attr) -> Range<usize> {
         let mut start;
         let mut end;
         unsafe {
@@ -228,8 +237,8 @@ impl AttrClass {
         start as usize..end as usize
     }
 
-    fn range(&self, attr: &Attr) -> Range<usize> {
-        let range = self.bit_range(attr);
+    fn range_attr(&self, attr: &Attr) -> Range<usize> {
+        let range = self.bit_range_attr(attr);
         (range.start / 8)..((range.end + 7) / 8)
     }
 
