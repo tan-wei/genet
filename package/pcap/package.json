@@ -19,6 +19,10 @@
       {
         "type": "core:library",
         "main": "pcap_reader"
+      },
+      {
+        "type": "core:library",
+        "main": "pcap_layer"
       }
     ],
     "configSchema": {

@@ -1,5 +1,5 @@
 [workspace]
-members = ["pcap", "pcap-cli", "pcap-reader"]
+members = ["pcap", "pcap-cli", "pcap-reader", "pcap-layer"]
 
 [replace]
 "genet-abi:0.5.0" = { path = "../../genet-abi" }

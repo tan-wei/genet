@@ -57,22 +57,11 @@ impl Reader for PcapFileReader {
             )
         };
 
-        let link_class = Fixed::new(layer_class!(
-            format!("[link-{}]", network),
-            header: attr!(&TYPE_CLASS, range: 0..4),
-            header: attr!(&PAYLOAD_LENGTH_CLASS, range: 4..8),
-            header: attr!(&ORIG_LENGTH_CLASS, range: 8..12),
-            header: attr!(&TS_CLASS, range: 12..20),
-            header: attr!(&TS_SEC_CLASS, range: 12..16),
-            header: attr!(&TS_USEC_CLASS, range: 16..20)
-        ));
-
         Ok(Box::new(PcapFileWorker {
             le,
             nsec,
             reader,
             link: network,
-            link_class,
         }))
     }
 
@@ -90,7 +79,6 @@ struct PcapFileWorker {
     nsec: bool,
     reader: BufReader<File>,
     link: u32,
-    link_class: Fixed<LayerClass>,
 }
 
 impl PcapFileWorker {
@@ -128,8 +116,7 @@ impl PcapFileWorker {
         cur.write_u32::<BigEndian>(ts_usec)?;
 
         let payload = ByteSlice::from(cur.into_inner());
-        let mut layer = Layer::new(self.link_class.clone(), payload);
-        layer.add_payload(Payload::new(payload.try_get(metalen..)?, "@data:link"));
+        let layer = Layer::new(&PCAP_CLASS, payload);
         Ok(layer)
     }
 }
@@ -153,22 +140,6 @@ impl Worker for PcapFileWorker {
     }
 }
 
-def_attr_class!(TYPE_CLASS, "link.type", cast: cast::UInt32BE());
-def_attr_class!(
-    PAYLOAD_LENGTH_CLASS,
-    "link.payloadLength",
-    cast: cast::UInt32BE()
-);
-def_attr_class!(
-    ORIG_LENGTH_CLASS,
-    "link.originalLength",
-    cast: cast::UInt32BE()
-);
-def_attr_class!(TS_CLASS, "link.timestamp",
-    typ: "@datetime:unix", 
-    cast: cast::UInt64BE().map(|v| (v >> 32) as f64 + (v & 0xffff_ffff) as f64 / 1_000_000f64)
-);
-def_attr_class!(TS_SEC_CLASS, "link.timestamp.sec", cast: cast::UInt32BE());
-def_attr_class!(TS_USEC_CLASS, "link.timestamp.usec", cast: cast::UInt32BE());
+def_layer_class!(PCAP_CLASS, "[pcap]");
 
 genet_readers!(PcapFileReader {});
