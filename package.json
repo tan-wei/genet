@@ -89,7 +89,7 @@
     "execa": "^1.0.0",
     "flat": "^4.1.0",
     "font-awesome": "^4.7.0",
-    "fs-extra": "^7.0.0",
+    "fs-extra": "^7.0.1",
     "fuse.js": "^3.3.0",
     "glob": "^7.1.3",
     "js-yaml": "^3.12.0",
@@ -113,7 +113,7 @@
     "@genet/image-assets": "^0.1.0",
     "benchmark": "^2.1.4",
     "electron": "2.0.12",
-    "electron-builder": "^20.34.0",
+    "electron-builder": "^20.36.2",
     "less": "^3.8.1",
     "node-gyp": "^3.8.0",
     "pretty-bytes": "^5.1.0",
@@ -121,7 +121,7 @@
     "typedoc": "^0.13.0",
     "typedoc-plugin-internal-external": "^1.0.10",
     "typescript": "^3.1.6",
-    "webpack": "^4.25.0",
+    "webpack": "^4.25.1",
     "webpack-cli": "^3.1.2",
     "webpack-node-externals": "^1.7.2"
   }
