@@ -117,6 +117,7 @@ pub struct AttrClassBuilder {
     id: Token,
     typ: Token,
     meta: Metadata,
+    range: Range<usize>,
     cast: Box<Cast>,
 }
 
@@ -136,6 +137,18 @@ impl AttrClassBuilder {
     /// Sets a description of AttrClass.
     pub fn description(mut self, desc: &'static str) -> AttrClassBuilder {
         self.meta.set_description(desc);
+        self
+    }
+
+    /// Sets a byte range of Attr.
+    pub fn range(mut self, range: Range<usize>) -> AttrClassBuilder {
+        self.range = (range.start * 8)..(range.end * 8);
+        self
+    }
+
+    /// Sets a bit range of Attr.
+    pub fn bit_range(mut self, byte_offset: usize, range: Range<usize>) -> AttrClassBuilder {
+        self.range = (range.start + byte_offset * 8)..(range.end + byte_offset * 8);
         self
     }
 
@@ -159,11 +172,12 @@ impl AttrClassBuilder {
         AttrClass {
             get_id: abi_id,
             get_typ: abi_typ,
-            range: abi_range,
+            get_range: abi_range,
             get: abi_get,
             id: self.id,
             typ: self.typ,
             meta: self.meta,
+            range: self.range,
             cast: self.cast,
         }
     }
@@ -174,11 +188,12 @@ impl AttrClassBuilder {
 pub struct AttrClass {
     get_id: extern "C" fn(class: *const AttrClass) -> Token,
     get_typ: extern "C" fn(class: *const AttrClass) -> Token,
-    range: extern "C" fn(*const Attr, *mut u64, *mut u64),
+    get_range: extern "C" fn(*const Attr, *mut u64, *mut u64),
     get: extern "C" fn(*const Attr, *mut *const u8, u64, *mut i64, *mut Error) -> ValueType,
     id: Token,
     typ: Token,
     meta: Metadata,
+    range: Range<usize>,
     cast: Box<Cast>,
 }
 
@@ -189,6 +204,7 @@ impl AttrClass {
             id: id.into(),
             typ: Token::null(),
             meta: Metadata::new(),
+            range: 0..0,
             cast: Box::new(Const(true)),
         }
     }
@@ -208,7 +224,7 @@ impl AttrClass {
             start = mem::uninitialized();
             end = mem::uninitialized();
         }
-        (self.range)(attr, &mut start, &mut end);
+        (self.get_range)(attr, &mut start, &mut end);
         start as usize..end as usize
     }
 
