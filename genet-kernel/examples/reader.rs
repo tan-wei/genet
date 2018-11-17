@@ -1,8 +1,7 @@
 extern crate genet_sdk;
 
 use genet_sdk::{
-    context::Context, def_layer_class, genet_readers, layer_class, lazy_static, reader::*,
-    result::Result, slice::ByteSlice,
+    context::Context, genet_readers, reader::*, result::Result, slice::ByteSlice, token::Token,
 };
 use std::iter;
 
@@ -45,8 +44,10 @@ impl Worker for TestWorker {
             .collect();
         Ok(slices)
     }
-}
 
-def_layer_class!(ETH_CLASS, "[link-1]");
+    fn layer_id(&self) -> Token {
+        "[link-1]".into()
+    }
+}
 
 genet_readers!(TestReader {});
