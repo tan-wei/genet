@@ -1,11 +1,10 @@
-use attr::Attr;
 use slice;
 use std::{convert::Into, io::Result};
 use variant::Variant;
 
 /// Cast trait.
 pub trait Cast: Send + Sync + CastClone {
-    fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<Variant>;
+    fn cast(&self, &slice::ByteSlice) -> Result<Variant>;
 }
 
 pub trait CastClone {
@@ -35,7 +34,7 @@ impl Clone for Box<Cast> {
 /// Typed cast trait.
 pub trait Typed {
     type Output: Into<Variant>;
-    fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<Self::Output>;
+    fn cast(&self, data: &slice::ByteSlice) -> Result<Self::Output>;
 }
 
 /// Mappable cast trait.
@@ -82,8 +81,8 @@ where
 {
     type Output = R;
 
-    fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<Self::Output> {
-        self.cast.cast(attr, data).map(self.func.clone())
+    fn cast(&self, data: &slice::ByteSlice) -> Result<Self::Output> {
+        self.cast.cast(data).map(self.func.clone())
     }
 }
 
@@ -92,7 +91,7 @@ where
     T: 'static + Typed<Output = X> + Send + Sync + Clone,
     X: Into<Variant>,
 {
-    fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<Variant> {
-        T::cast(self, attr, data).map(|r| r.into())
+    fn cast(&self, data: &slice::ByteSlice) -> Result<Variant> {
+        T::cast(self, data).map(|r| r.into())
     }
 }

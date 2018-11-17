@@ -11,40 +11,12 @@ use token::Token;
 use variant::Variant;
 use vec::SafeVec;
 
-/// A builder object for Attr.
-pub struct AttrBuilder {
-    class: Fixed<AttrClass>,
-    range: Range<usize>,
-}
-
-impl AttrBuilder {
-    /// Builds a new Attr.
-    pub fn build(self) -> Attr {
-        Attr {
-            class: self.class,
-            range: self.range,
-        }
-    }
-
-    /// Sets a byte range of Attr.
-    pub fn range(mut self, range: Range<usize>) -> AttrBuilder {
-        self.range = (range.start * 8)..(range.end * 8);
-        self
-    }
-
-    /// Sets a bit range of Attr.
-    pub fn bit_range(mut self, byte_offset: usize, range: Range<usize>) -> AttrBuilder {
-        self.range = (range.start + byte_offset * 8)..(range.end + byte_offset * 8);
-        self
-    }
-}
-
 /// An attribute object.
 #[repr(C)]
-#[derive(Clone)]
 pub struct Attr {
     class: Fixed<AttrClass>,
     range: Range<usize>,
+    data: Option<ByteSlice>,
 }
 
 impl fmt::Debug for Attr {
@@ -54,11 +26,15 @@ impl fmt::Debug for Attr {
 }
 
 impl Attr {
-    /// Creates a new builder object for Attr.
-    pub fn builder<C: Into<Fixed<AttrClass>>>(class: C) -> AttrBuilder {
-        AttrBuilder {
+    pub fn new<C: Into<Fixed<AttrClass>>>(
+        class: C,
+        range: Range<usize>,
+        data: Option<ByteSlice>,
+    ) -> Attr {
+        Attr {
             class: class.into(),
-            range: 0..0,
+            range,
+            data,
         }
     }
 
@@ -74,17 +50,18 @@ impl Attr {
 
     /// Returns the byte range of self.
     pub fn range(&self) -> Range<usize> {
-        self.class.range(self)
+        let range = self.bit_range();
+        (range.start / 8)..((range.end + 7) / 8)
     }
 
     /// Returns the bit range of self.
     pub fn bit_range(&self) -> Range<usize> {
-        self.class.bit_range(self)
+        self.range.clone()
     }
 
     /// Returns the attribute value.
-    pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
-        self.class.try_get(self, layer)
+    pub fn try_get(&self) -> Result<Variant> {
+        self.class.try_get_data(self.data.map(|s| s.as_slice()))
     }
 }
 
@@ -107,7 +84,7 @@ struct Const<T>(pub T);
 impl<T: Into<Variant> + Clone> Typed for Const<T> {
     type Output = T;
 
-    fn cast(&self, _attr: &Attr, _data: &ByteSlice) -> io::Result<T> {
+    fn cast(&self, _data: &ByteSlice) -> io::Result<T> {
         Ok(self.0.clone())
     }
 }
@@ -117,6 +94,7 @@ pub struct AttrClassBuilder {
     id: Token,
     typ: Token,
     meta: Metadata,
+    range: Range<usize>,
     cast: Box<Cast>,
 }
 
@@ -136,6 +114,18 @@ impl AttrClassBuilder {
     /// Sets a description of AttrClass.
     pub fn description(mut self, desc: &'static str) -> AttrClassBuilder {
         self.meta.set_description(desc);
+        self
+    }
+
+    /// Sets a byte range of Attr.
+    pub fn range(mut self, range: Range<usize>) -> AttrClassBuilder {
+        self.range = (range.start * 8)..(range.end * 8);
+        self
+    }
+
+    /// Sets a bit range of Attr.
+    pub fn bit_range(mut self, byte_offset: usize, range: Range<usize>) -> AttrClassBuilder {
+        self.range = (range.start + byte_offset * 8)..(range.end + byte_offset * 8);
         self
     }
 
@@ -159,11 +149,11 @@ impl AttrClassBuilder {
         AttrClass {
             get_id: abi_id,
             get_typ: abi_typ,
-            range: abi_range,
             get: abi_get,
             id: self.id,
             typ: self.typ,
             meta: self.meta,
+            range: self.range,
             cast: self.cast,
         }
     }
@@ -174,11 +164,11 @@ impl AttrClassBuilder {
 pub struct AttrClass {
     get_id: extern "C" fn(class: *const AttrClass) -> Token,
     get_typ: extern "C" fn(class: *const AttrClass) -> Token,
-    range: extern "C" fn(*const Attr, *mut u64, *mut u64),
-    get: extern "C" fn(*const Attr, *mut *const u8, u64, *mut i64, *mut Error) -> ValueType,
+    get: extern "C" fn(*const AttrClass, *mut *const u8, u64, *mut i64, *mut Error) -> ValueType,
     id: Token,
     typ: Token,
     meta: Metadata,
+    range: Range<usize>,
     cast: Box<Cast>,
 }
 
@@ -189,6 +179,7 @@ impl AttrClass {
             id: id.into(),
             typ: Token::null(),
             meta: Metadata::new(),
+            range: 0..0,
             cast: Box::new(Const(true)),
         }
     }
@@ -201,28 +192,33 @@ impl AttrClass {
         (self.get_typ)(self)
     }
 
-    fn bit_range(&self, attr: &Attr) -> Range<usize> {
-        let mut start;
-        let mut end;
-        unsafe {
-            start = mem::uninitialized();
-            end = mem::uninitialized();
-        }
-        (self.range)(attr, &mut start, &mut end);
-        start as usize..end as usize
-    }
-
-    fn range(&self, attr: &Attr) -> Range<usize> {
-        let range = self.bit_range(attr);
+    pub fn range(&self) -> Range<usize> {
+        let range = self.bit_range();
         (range.start / 8)..((range.end + 7) / 8)
     }
 
-    fn try_get(&self, attr: &Attr, layer: &Layer) -> Result<Variant> {
-        let data = layer.data();
+    pub fn bit_range(&self) -> Range<usize> {
+        self.range.clone()
+    }
+
+    pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
+        self.try_get_range(layer, self.range())
+    }
+
+    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<Variant> {
+        self.try_get_data(layer.data().get(range))
+    }
+
+    fn try_get_data(&self, data: Option<&[u8]>) -> Result<Variant> {
+        let data = if let Some(data) = data {
+            data
+        } else {
+            return Err(Box::new(Error::new("out of bounds")));
+        };
         let mut buf: *const u8 = data.as_ptr();
         let mut num = 0;
         let mut err = Error::new("");
-        let typ = (self.get)(attr, &mut buf, data.len() as u64, &mut num, &mut err);
+        let typ = (self.get)(self, &mut buf, data.len() as u64, &mut num, &mut err);
         match typ {
             ValueType::Error => Err(Box::new(err)),
             ValueType::Bool => Ok(Variant::Bool(num == 1)),
@@ -259,14 +255,6 @@ impl Into<Fixed<AttrClass>> for &'static AttrClass {
     }
 }
 
-extern "C" fn abi_range(attr: *const Attr, start: *mut u64, end: *mut u64) {
-    unsafe {
-        let range = &(*attr).range;
-        *start = range.start as u64;
-        *end = range.end as u64;
-    }
-}
-
 extern "C" fn abi_id(class: *const AttrClass) -> Token {
     unsafe { (*class).id }
 }
@@ -276,18 +264,16 @@ extern "C" fn abi_typ(class: *const AttrClass) -> Token {
 }
 
 extern "C" fn abi_get(
-    attr: *const Attr,
+    attr: *const AttrClass,
     data: *mut *const u8,
     len: u64,
     num: *mut i64,
     err: *mut Error,
 ) -> ValueType {
-    let attr = unsafe { &(*attr) };
-    let cast = &attr.class.cast;
+    let cast = unsafe { &(*attr).cast };
     let slice = unsafe { ByteSlice::from_raw_parts(*data, len as usize) };
-    let result = cast.cast(attr, &slice);
 
-    match result {
+    match cast.cast(&slice) {
         Ok(v) => match v {
             Variant::Bool(val) => {
                 unsafe { *num = if val { 1 } else { 0 } };
@@ -342,7 +328,6 @@ mod tests {
     use attr::{Attr, AttrClass};
     use cast::Cast;
     use fixed::Fixed;
-    use layer::{Layer, LayerClass};
     use slice::{ByteSlice, TryGet};
     use std::{
         io::{Error, ErrorKind, Result},
@@ -357,24 +342,23 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, _attr: &Attr, data: &ByteSlice) -> Result<Variant> {
+            fn cast(&self, data: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::Bool(data[0] == 1))
             }
         }
         let class = Fixed::new(
             AttrClass::builder("bool")
                 .typ("@bool")
+                .range(0..1)
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = Attr::builder(class).range(0..1).build();
+        let attr = Attr::new(class, 0..8, Some(ByteSlice::from(&[1][..])));
         assert_eq!(attr.id(), Token::from("bool"));
         assert_eq!(attr.typ(), Token::from("@bool"));
         assert_eq!(attr.range(), 0..1);
 
-        let class = Fixed::new(LayerClass::builder(Token::null()).build());
-        let layer = Layer::new(class, ByteSlice::from(&[1][..]));
-        match attr.try_get(&layer).unwrap() {
+        match attr.try_get().unwrap() {
             Variant::Bool(val) => assert!(val),
             _ => panic!(),
         };
@@ -386,30 +370,24 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, attr: &Attr, data: &ByteSlice) -> Result<Variant> {
-                Ok(Variant::UInt64(
-                    from_utf8(&data.try_get(attr.range())?)
-                        .unwrap()
-                        .parse()
-                        .unwrap(),
-                ))
+            fn cast(&self, data: &ByteSlice) -> Result<Variant> {
+                Ok(Variant::UInt64(from_utf8(data).unwrap().parse().unwrap()))
             }
         }
         let class = Fixed::new(
             AttrClass::builder("u64")
                 .typ("@u64")
+                .range(0..6)
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = Attr::builder(class).range(0..6).build();
+        let attr = Attr::new(class, 0..48, Some(ByteSlice::from(&b"123456789"[..])));
         assert_eq!(attr.id(), Token::from("u64"));
         assert_eq!(attr.typ(), Token::from("@u64"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = Fixed::new(LayerClass::builder(Token::null()).build());
-        let layer = Layer::new(class, ByteSlice::from(&b"123456789"[..]));
-        match attr.try_get(&layer).unwrap() {
-            Variant::UInt64(val) => assert_eq!(val, 123_456),
+        match attr.try_get().unwrap() {
+            Variant::UInt64(val) => assert_eq!(val, 123_456_789),
             _ => panic!(),
         };
     }
@@ -420,30 +398,24 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, attr: &Attr, data: &ByteSlice) -> Result<Variant> {
-                Ok(Variant::Int64(
-                    from_utf8(&data.try_get(attr.range())?)
-                        .unwrap()
-                        .parse()
-                        .unwrap(),
-                ))
+            fn cast(&self, data: &ByteSlice) -> Result<Variant> {
+                Ok(Variant::Int64(from_utf8(data).unwrap().parse().unwrap()))
             }
         }
         let class = Fixed::new(
             AttrClass::builder("i64")
                 .typ("@i64")
+                .range(0..6)
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = Attr::builder(class).range(0..6).build();
+        let attr = Attr::new(class, 0..48, Some(ByteSlice::from(&b"-123456789"[..])));
         assert_eq!(attr.id(), Token::from("i64"));
         assert_eq!(attr.typ(), Token::from("@i64"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = Fixed::new(LayerClass::builder(Token::null()).build());
-        let layer = Layer::new(class, ByteSlice::from(&b"-123456789"[..]));
-        match attr.try_get(&layer).unwrap() {
-            Variant::Int64(val) => assert_eq!(val, -12345),
+        match attr.try_get().unwrap() {
+            Variant::Int64(val) => assert_eq!(val, -123456789),
             _ => panic!(),
         };
     }
@@ -454,27 +426,24 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, attr: &Attr, data: &ByteSlice) -> Result<Variant> {
-                Ok(Variant::Buffer(
-                    data.try_get(attr.range())?.to_vec().into_boxed_slice(),
-                ))
+            fn cast(&self, data: &ByteSlice) -> Result<Variant> {
+                Ok(Variant::Buffer(data.to_vec().into_boxed_slice()))
             }
         }
         let class = Fixed::new(
             AttrClass::builder("buffer")
                 .typ("@buffer")
+                .range(0..6)
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = Attr::builder(class).range(0..6).build();
+        let attr = Attr::new(class, 0..48, Some(ByteSlice::from(&b"123456789"[..])));
         assert_eq!(attr.id(), Token::from("buffer"));
         assert_eq!(attr.typ(), Token::from("@buffer"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = Fixed::new(LayerClass::builder(Token::null()).build());
-        let layer = Layer::new(class, ByteSlice::from(&b"123456789"[..]));
-        match attr.try_get(&layer).unwrap() {
-            Variant::Buffer(val) => assert_eq!(&*val, b"123456"),
+        match attr.try_get().unwrap() {
+            Variant::Buffer(val) => assert_eq!(&*val, b"123456789"),
             _ => panic!(),
         };
     }
@@ -485,30 +454,26 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, attr: &Attr, data: &ByteSlice) -> Result<Variant> {
+            fn cast(&self, data: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::String(
-                    from_utf8(&data.try_get(attr.range())?)
-                        .unwrap()
-                        .to_string()
-                        .into_boxed_str(),
+                    from_utf8(&data).unwrap().to_string().into_boxed_str(),
                 ))
             }
         }
         let class = Fixed::new(
             AttrClass::builder("string")
                 .typ("@string")
+                .range(0..6)
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = Attr::builder(class).range(0..6).build();
+        let attr = Attr::new(class, 0..48, Some(ByteSlice::from(&b"123456789"[..])));
         assert_eq!(attr.id(), Token::from("string"));
         assert_eq!(attr.typ(), Token::from("@string"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = Fixed::new(LayerClass::builder(Token::null()).build());
-        let layer = Layer::new(class, ByteSlice::from(&b"123456789"[..]));
-        match attr.try_get(&layer).unwrap() {
-            Variant::String(val) => assert_eq!(&*val, "123456"),
+        match attr.try_get().unwrap() {
+            Variant::String(val) => assert_eq!(&*val, "123456789"),
             _ => panic!(),
         };
     }
@@ -519,24 +484,23 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, _attr: &Attr, data: &ByteSlice) -> Result<Variant> {
+            fn cast(&self, data: &ByteSlice) -> Result<Variant> {
                 data.try_get(0..3).map(Variant::Slice)
             }
         }
         let class = Fixed::new(
             AttrClass::builder("slice")
                 .typ("@slice")
+                .range(0..6)
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = Attr::builder(class).range(0..6).build();
+        let attr = Attr::new(class, 0..48, Some(ByteSlice::from(&b"123456789"[..])));
         assert_eq!(attr.id(), Token::from("slice"));
         assert_eq!(attr.typ(), Token::from("@slice"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = Fixed::new(LayerClass::builder(Token::null()).build());
-        let layer = Layer::new(class, ByteSlice::from(&b"123456789"[..]));
-        match attr.try_get(&layer).unwrap() {
+        match attr.try_get().unwrap() {
             Variant::Slice(val) => assert_eq!(val, ByteSlice::from(&b"123"[..])),
             _ => panic!(),
         };
@@ -548,24 +512,23 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, _attr: &Attr, _data: &ByteSlice) -> Result<Variant> {
+            fn cast(&self, _: &ByteSlice) -> Result<Variant> {
                 Err(Error::new(ErrorKind::Other, "oh no!"))
             }
         }
         let class = Fixed::new(
             AttrClass::builder("slice")
                 .typ("@slice")
+                .range(0..6)
                 .cast(TestCast {})
                 .build(),
         );
-        let attr = Attr::builder(class).range(0..6).build();
+        let attr = Attr::new(class, 0..48, Some(ByteSlice::from(&b"123456789"[..])));
         assert_eq!(attr.id(), Token::from("slice"));
         assert_eq!(attr.typ(), Token::from("@slice"));
         assert_eq!(attr.range(), 0..6);
 
-        let class = Fixed::new(LayerClass::builder(Token::null()).build());
-        let layer = Layer::new(class, ByteSlice::from(&b"123456789"[..]));
-        match attr.try_get(&layer) {
+        match attr.try_get() {
             Err(err) => assert_eq!(err.description(), "oh no!"),
             _ => panic!(),
         };

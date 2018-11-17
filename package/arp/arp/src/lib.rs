@@ -21,22 +21,22 @@ impl Worker for ArpWorker {
 
         let mut layer = Layer::new(&ARP_CLASS, data);
 
-        let hw_type = HWTYPE_ATTR_HEADER.try_get(&layer)?.try_into()?;
+        let hw_type = HWTYPE_ATTR.try_get(&layer)?.try_into()?;
         let hw = get_hw(hw_type);
         if let Some((attr, _, _)) = hw {
             layer.add_attr(attr, 0..2);
         }
 
-        let proto_type = PROTO_ATTR_HEADER.try_get(&layer)?.try_into()?;
+        let proto_type = PROTO_ATTR.try_get(&layer)?.try_into()?;
         let proto = get_proto(proto_type);
         if let Some((attr, _, _)) = proto {
             layer.add_attr(attr, 2..4);
         }
 
-        let hlen: usize = HLEN_ATTR_HEADER.try_get(&layer)?.try_into()?;
-        let plen: usize = PLEN_ATTR_HEADER.try_get(&layer)?.try_into()?;
+        let hlen: usize = HLEN_ATTR.try_get(&layer)?.try_into()?;
+        let plen: usize = PLEN_ATTR.try_get(&layer)?.try_into()?;
 
-        let op_type = OP_ATTR_HEADER.try_get(&layer)?.try_into()?;
+        let op_type = OP_ATTR.try_get(&layer)?.try_into()?;
         if let Some(attr) = get_op(op_type) {
             layer.add_attr(attr, 6..8);
         }
@@ -78,36 +78,39 @@ impl Decoder for ArpDecoder {
 def_layer_class!(ARP_CLASS, "arp",
     alias: "_.src" "arp.sha",
     alias: "_.dst" "arp.tha",
-    header: &HWTYPE_ATTR_HEADER,
-    header: &PROTO_ATTR_HEADER,
-    header: &HLEN_ATTR_HEADER,
-    header: &PLEN_ATTR_HEADER,
-    header: &OP_ATTR_HEADER
+    header: &HWTYPE_ATTR,
+    header: &PROTO_ATTR,
+    header: &HLEN_ATTR,
+    header: &PLEN_ATTR,
+    header: &OP_ATTR
 );
-
-def_attr!(HWTYPE_ATTR_HEADER,  &HWTYPE_ATTR, range: 0..2);
-def_attr!(PROTO_ATTR_HEADER,  &PROTO_ATTR, range: 2..4);
-def_attr!(HLEN_ATTR_HEADER,  &HLEN_ATTR, range: 4..5);
-def_attr!(PLEN_ATTR_HEADER,  &PLEN_ATTR, range: 5..6);
-def_attr!(OP_ATTR_HEADER,  &OP_ATTR, range: 6..8);
 
 def_attr_class!(HWTYPE_ATTR, "arp.hwtype",
     typ: "@enum",
-    cast: cast::UInt16BE()
+    cast: cast::UInt16BE(),
+    range: 0..2
 );
 
 def_attr_class!(PROTO_ATTR, "arp.protocol",
     typ: "@enum",
-    cast: cast::UInt16BE()
+    cast: cast::UInt16BE(),
+    range: 2..4
 );
 
-def_attr_class!(HLEN_ATTR, "arp.hlen", cast: cast::UInt8());
+def_attr_class!(HLEN_ATTR, "arp.hlen",
+    cast: cast::UInt8(),
+    range: 4..5
+);
 
-def_attr_class!(PLEN_ATTR, "arp.plen", cast: cast::UInt8());
+def_attr_class!(PLEN_ATTR, "arp.plen",
+    cast: cast::UInt8(),
+    range: 5..6
+);
 
 def_attr_class!(OP_ATTR, "arp.op",
     cast: cast::UInt16BE(),
-    typ: "@enum"
+    typ: "@enum",
+    range: 6..8
 );
 
 fn get_hw(val: u64) -> Option<(&'static AttrClass, &'static AttrClass, &'static AttrClass)> {

@@ -1,7 +1,7 @@
 use attr::{Attr, AttrClass};
 use fixed::{Fixed, MutFixed};
 use metadata::Metadata;
-use slice::ByteSlice;
+use slice::{ByteSlice, TryGet};
 use std::{
     fmt,
     marker::PhantomData,
@@ -86,7 +86,7 @@ impl<'a> Parent<'a> {
     }
 
     /// Returns the slice of headers.
-    pub fn headers(&self) -> impl Iterator<Item = Attr> {
+    pub fn headers(&self) -> impl Iterator<Item = &Fixed<AttrClass>> {
         self.deref().headers()
     }
 
@@ -152,12 +152,18 @@ extern "C" fn abi_children_data(layer: *const Parent) -> *const *mut Layer {
     unsafe { (*layer).children.as_ptr() }
 }
 
+#[repr(C)]
+struct BoundAttr {
+    attr: Fixed<AttrClass>,
+    range: Range<usize>,
+}
+
 /// A layer object.
 #[repr(C)]
 pub struct Layer {
     class: Fixed<LayerClass>,
     data: ByteSlice,
-    attrs: Vec<Attr>,
+    attrs: Vec<BoundAttr>,
     payloads: Vec<Payload>,
 }
 
@@ -185,7 +191,7 @@ impl Layer {
     }
 
     /// Returns the slice of headers.
-    pub fn headers(&self) -> impl Iterator<Item = Attr> {
+    pub fn headers(&self) -> impl Iterator<Item = &Fixed<AttrClass>> {
         self.class.headers()
     }
 
@@ -204,14 +210,24 @@ impl Layer {
             .map(|alias| alias.target)
             .unwrap_or(id);
         self.attrs()
-            .chain(self.class.headers())
+            .chain(
+                self.class.headers().map(|c| {
+                    Attr::new(c.clone(), c.bit_range(), self.data.try_get(c.range()).ok())
+                }),
+            )
             .find(|attr| attr.id() == id)
     }
 
     /// Adds an attribute to the Layer.
     pub fn add_attr<C: Into<Fixed<AttrClass>>>(&mut self, attr: C, range: Range<usize>) {
         let func = self.class.add_attr;
-        (func)(self, Attr::builder(attr).range(range).build());
+        (func)(
+            self,
+            BoundAttr {
+                attr: attr.into(),
+                range: (range.start * 8)..(range.end * 8),
+            },
+        );
     }
 
     /// Returns the slice of payloads.
@@ -288,7 +304,7 @@ impl Payload {
 pub struct LayerClassBuilder {
     id: Token,
     aliases: Vec<Alias>,
-    headers: Vec<Attr>,
+    headers: Vec<Fixed<AttrClass>>,
     meta: Metadata,
 }
 
@@ -303,8 +319,8 @@ impl LayerClassBuilder {
     }
 
     /// Adds a header attribute for LayerClass.
-    pub fn header(mut self, attr: &Attr) -> LayerClassBuilder {
-        self.headers.push(attr.clone());
+    pub fn header<T: Into<Fixed<AttrClass>>>(mut self, attr: T) -> LayerClassBuilder {
+        self.headers.push(attr.into());
         self
     }
 
@@ -356,18 +372,18 @@ pub struct LayerClass {
     aliases_len: extern "C" fn(*const LayerClass) -> u64,
     aliases_data: extern "C" fn(*const LayerClass) -> *const Alias,
     headers_len: extern "C" fn(*const LayerClass) -> u64,
-    headers_data: extern "C" fn(*const LayerClass) -> *const Attr,
+    headers_data: extern "C" fn(*const LayerClass) -> *const Fixed<AttrClass>,
     data: extern "C" fn(*const Layer, *mut u64) -> *const u8,
     attrs_len: extern "C" fn(*const Layer) -> u64,
-    attrs_data: extern "C" fn(*const Layer) -> *const Attr,
-    add_attr: extern "C" fn(*mut Layer, Attr),
+    attrs_data: extern "C" fn(*const Layer) -> *const BoundAttr,
+    add_attr: extern "C" fn(*mut Layer, BoundAttr),
     payloads_len: extern "C" fn(*const Layer) -> u64,
     payloads_data: extern "C" fn(*const Layer) -> *const Payload,
     add_payload: extern "C" fn(*mut Layer, Payload),
     id: Token,
     meta: Metadata,
     aliases: Vec<Alias>,
-    headers: Vec<Attr>,
+    headers: Vec<Fixed<AttrClass>>,
 }
 
 impl LayerClass {
@@ -392,10 +408,10 @@ impl LayerClass {
         iter.map(|v| &*v)
     }
 
-    fn headers(&self) -> impl Iterator<Item = Attr> {
+    fn headers(&self) -> impl Iterator<Item = &Fixed<AttrClass>> {
         let data = (self.headers_data)(self);
         let len = (self.headers_len)(self) as usize;
-        unsafe { slice::from_raw_parts(data, len) }.iter().cloned()
+        unsafe { slice::from_raw_parts(data, len) }.iter()
     }
 
     fn data(&self, layer: &Layer) -> ByteSlice {
@@ -407,7 +423,18 @@ impl LayerClass {
     fn attrs(&self, layer: &Layer) -> impl Iterator<Item = Attr> {
         let data = (self.attrs_data)(layer);
         let len = (self.attrs_len)(layer) as usize;
-        unsafe { slice::from_raw_parts(data, len) }.iter().cloned()
+        let attrs = unsafe { slice::from_raw_parts(data, len) }
+            .iter()
+            .map(|c| {
+                let range = (c.range.start / 8)..((c.range.end + 7) / 8);
+                Attr::new(
+                    c.attr.clone(),
+                    c.range.clone(),
+                    layer.data().try_get(range).ok(),
+                )
+            })
+            .collect::<Vec<_>>();
+        attrs.into_iter()
     }
 
     fn payloads(&self, layer: &Layer) -> impl Iterator<Item = &Payload> {
@@ -439,7 +466,7 @@ extern "C" fn abi_headers_len(class: *const LayerClass) -> u64 {
     unsafe { (*class).headers.len() as u64 }
 }
 
-extern "C" fn abi_headers_data(class: *const LayerClass) -> *const Attr {
+extern "C" fn abi_headers_data(class: *const LayerClass) -> *const Fixed<AttrClass> {
     unsafe { (*class).headers.as_ptr() }
 }
 
@@ -455,11 +482,11 @@ extern "C" fn abi_attrs_len(layer: *const Layer) -> u64 {
     unsafe { (*layer).attrs.len() as u64 }
 }
 
-extern "C" fn abi_attrs_data(layer: *const Layer) -> *const Attr {
+extern "C" fn abi_attrs_data(layer: *const Layer) -> *const BoundAttr {
     unsafe { (*layer).attrs.as_ptr() }
 }
 
-extern "C" fn abi_add_attr(layer: *mut Layer, attr: Attr) {
+extern "C" fn abi_add_attr(layer: *mut Layer, attr: BoundAttr) {
     let attrs = unsafe { &mut (*layer).attrs };
     attrs.push(attr);
 }
@@ -479,7 +506,7 @@ extern "C" fn abi_add_payload(layer: *mut Layer, payload: Payload) {
 
 #[cfg(test)]
 mod tests {
-    use attr::{Attr, AttrClass};
+    use attr::AttrClass;
     use cast::Cast;
     use fixed::Fixed;
     use layer::{Layer, LayerClass, Payload};
@@ -536,7 +563,7 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, _attr: &Attr, _data: &ByteSlice) -> Result<Variant> {
+            fn cast(&self, _: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::Nil)
             }
         }
@@ -549,14 +576,14 @@ mod tests {
 
         let count = 100;
         for i in 0..count {
-            layer.add_attr(class, 0..i);
+            layer.add_attr(class.clone(), 0..i);
         }
         let mut iter = layer.attrs();
-        for i in 0..count {
+        for _ in 0..count {
             let attr = iter.next().unwrap();
             assert_eq!(attr.id(), Token::from("nil"));
             assert_eq!(attr.typ(), Token::from("@nil"));
-            assert_eq!(attr.range(), 0..i);
+            assert_eq!(attr.range(), 0..0);
         }
         assert!(iter.next().is_none());
     }

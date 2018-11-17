@@ -14,7 +14,6 @@ pub use variant::Value;
 pub use attr;
 pub use attr_class;
 pub use attr_class_lazy;
-pub use def_attr;
 pub use def_attr_class;
 pub use def_layer_class;
 pub use genet_decoders;

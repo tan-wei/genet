@@ -82,6 +82,10 @@ impl ByteSlice {
     pub fn as_ptr(&self) -> *const u8 {
         self.0.as_ptr()
     }
+
+    pub fn as_slice(&self) -> &'static [u8] {
+        self.0
+    }
 }
 
 impl From<&'static [u8]> for ByteSlice {
