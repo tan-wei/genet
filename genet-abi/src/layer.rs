@@ -189,6 +189,10 @@ impl Layer {
         self.class.headers()
     }
 
+    pub fn headers2(&self) -> impl Iterator<Item = &Fixed<AttrClass>> {
+        self.class.headers2()
+    }
+
     /// Returns the slice of attributes.
     pub fn attrs(&self) -> impl Iterator<Item = Attr> {
         self.class.attrs(self)
@@ -203,8 +207,18 @@ impl Layer {
             .find(|alias| alias.id == id)
             .map(|alias| alias.target)
             .unwrap_or(id);
+        let tmp_attrs = self
+            .class
+            .headers2()
+            .map(|c| {
+                let offset = c.range().start;
+                let range = (c.bit_range().start - offset * 8)..(c.bit_range().end - offset * 8);
+                Attr::builder(c.clone()).bit_range(offset, range).build()
+            })
+            .collect::<Vec<_>>();
         self.attrs()
             .chain(self.class.headers())
+            .chain(tmp_attrs.into_iter())
             .find(|attr| attr.id() == id)
     }
 
@@ -407,7 +421,7 @@ impl LayerClass {
         unsafe { slice::from_raw_parts(data, len) }.iter().cloned()
     }
 
-    fn header2(&self) -> impl Iterator<Item = &Fixed<AttrClass>> {
+    fn headers2(&self) -> impl Iterator<Item = &Fixed<AttrClass>> {
         self.headers2.iter()
     }
 
