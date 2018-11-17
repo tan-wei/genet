@@ -1,8 +1,8 @@
 extern crate genet_sdk;
 
 use genet_sdk::{
-    context::Context, def_layer_class, genet_readers, layer::Layer, layer_class, lazy_static,
-    reader::*, result::Result, slice::ByteSlice,
+    context::Context, def_layer_class, genet_readers, layer_class, lazy_static, reader::*,
+    result::Result, slice::ByteSlice,
 };
 use std::iter;
 
@@ -38,12 +38,12 @@ impl Reader for TestReader {
 struct TestWorker {}
 
 impl Worker for TestWorker {
-    fn read(&mut self) -> Result<Vec<Layer>> {
-        let layers = iter::repeat(())
+    fn read(&mut self) -> Result<Vec<ByteSlice>> {
+        let slices = iter::repeat(())
             .take(1000)
-            .map(|_| Layer::new(&ETH_CLASS, ByteSlice::from(tcp_ipv4_pcap())))
+            .map(|_| ByteSlice::from(tcp_ipv4_pcap()))
             .collect();
-        Ok(layers)
+        Ok(slices)
     }
 }
 

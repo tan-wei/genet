@@ -7,7 +7,7 @@ extern crate serde_json;
 extern crate serde_derive;
 
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt, WriteBytesExt};
-use genet_sdk::{cast, prelude::*, reader::*};
+use genet_sdk::{prelude::*, reader::*};
 use std::{
     fs::File,
     io::{self, BufReader, Cursor, Error, ErrorKind, Read},
@@ -82,7 +82,7 @@ struct PcapFileWorker {
 }
 
 impl PcapFileWorker {
-    fn read_one(&mut self) -> io::Result<Layer> {
+    fn read_one(&mut self) -> io::Result<ByteSlice> {
         let (ts_sec, mut ts_usec, inc_len, orig_len) = if self.le {
             (
                 self.reader.read_u32::<LittleEndian>()?,
@@ -116,30 +116,31 @@ impl PcapFileWorker {
         cur.write_u32::<BigEndian>(ts_usec)?;
 
         let payload = ByteSlice::from(cur.into_inner());
-        let layer = Layer::new(&PCAP_CLASS, payload);
-        Ok(layer)
+        Ok(payload)
     }
 }
 
 const BLOCK_SIZE: usize = 65535;
 
 impl Worker for PcapFileWorker {
-    fn read(&mut self) -> Result<Vec<Layer>> {
-        let mut layers = Vec::with_capacity(BLOCK_SIZE);
+    fn read(&mut self) -> Result<Vec<ByteSlice>> {
+        let mut slices = Vec::with_capacity(BLOCK_SIZE);
         for _ in 0..BLOCK_SIZE {
             match self.read_one() {
-                Ok(layer) => layers.push(layer),
+                Ok(s) => slices.push(s),
                 Err(err) => {
-                    if layers.is_empty() {
+                    if slices.is_empty() {
                         return Err(err.into());
                     }
                 }
             }
         }
-        Ok(layers)
+        Ok(slices)
+    }
+
+    fn layer_id(&self) -> Token {
+        token!("[pcap]")
     }
 }
-
-def_layer_class!(PCAP_CLASS, "[pcap]");
 
 genet_readers!(PcapFileReader {});

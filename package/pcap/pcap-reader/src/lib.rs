@@ -61,7 +61,7 @@ struct PcapWorker {
 }
 
 impl Worker for PcapWorker {
-    fn read(&mut self) -> Result<Vec<Layer>> {
+    fn read(&mut self) -> Result<Vec<ByteSlice>> {
         let mut header = String::new();
         self.reader.read_line(&mut header)?;
         let header = header.trim();
@@ -83,8 +83,11 @@ impl Worker for PcapWorker {
         cur.write_u32::<BigEndian>(header.ts_usec)?;
 
         let payload = ByteSlice::from(cur.into_inner());
-        let layer = Layer::new(&PCAP_CLASS, payload);
-        Ok(vec![layer])
+        Ok(vec![payload])
+    }
+
+    fn layer_id(&self) -> Token {
+        token!("[pcap]")
     }
 }
 
@@ -93,7 +96,5 @@ impl Drop for PcapWorker {
         let _ = self.child.kill();
     }
 }
-
-def_layer_class!(PCAP_CLASS, "[pcap]");
 
 genet_readers!(PcapReader {});

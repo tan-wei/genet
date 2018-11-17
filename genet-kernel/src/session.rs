@@ -1,5 +1,12 @@
 use frame::Frame;
-use genet_abi::{self, fixed::MutFixed, layer::Layer, reader, writer};
+use genet_abi::{
+    self,
+    fixed::{Fixed, MutFixed},
+    layer::{Layer, LayerClass},
+    reader,
+    token::Token,
+    writer,
+};
 use genet_filter::Filter;
 use io::{Input, Output};
 use profile::Profile;
@@ -51,7 +58,9 @@ impl Session {
             let ctx = self.profile.context();
             match reader.new_worker(&ctx, arg) {
                 Ok(input) => {
-                    self.store.set_input(self.io_cnt, WorkerInput::new(input));
+                    let id = input.layer_id();
+                    self.store
+                        .set_input(self.io_cnt, WorkerInput::new(input, id));
                     return self.io_cnt;
                 }
                 Err(err) => {
@@ -258,16 +267,25 @@ impl Output for WorkerOutput {
 #[derive(Debug)]
 struct WorkerInput {
     worker: reader::WorkerBox,
+    class: Fixed<LayerClass>,
 }
 
 impl WorkerInput {
-    fn new(worker: reader::WorkerBox) -> WorkerInput {
-        Self { worker }
+    fn new(worker: reader::WorkerBox, id: Token) -> WorkerInput {
+        Self {
+            worker,
+            class: Fixed::new(LayerClass::builder(id).build()),
+        }
     }
 }
 
 impl Input for WorkerInput {
     fn read(&mut self) -> genet_abi::result::Result<Vec<MutFixed<Layer>>> {
-        self.worker.read()
+        self.worker.read().map(|slices| {
+            slices
+                .into_iter()
+                .map(|s| MutFixed::new(Layer::new(self.class.clone(), s)))
+                .collect()
+        })
     }
 }

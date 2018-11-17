@@ -1,6 +1,6 @@
 extern crate genet_sdk;
 
-use genet_sdk::{decoder::*, prelude::*, cast};
+use genet_sdk::{cast, decoder::*, prelude::*};
 
 struct PcapLayerWorker {
     class: Option<Fixed<LayerClass>>,

@@ -2,11 +2,11 @@ use bincode;
 use context::Context;
 use error::Error;
 use file::FileType;
-use fixed::MutFixed;
-use layer::Layer;
 use result::Result;
 use serde::ser::{Serialize, Serializer};
+use slice::ByteSlice;
 use std::{fmt, mem, ptr, slice, str};
+use token::Token;
 use vec::SafeVec;
 
 /// Reader metadata.
@@ -122,14 +122,16 @@ extern "C" fn abi_metadata(reader: *const ReaderBox) -> SafeVec<u8> {
 
 /// Reader worker trait.
 pub trait Worker: Send {
-    fn read(&mut self) -> Result<Vec<Layer>>;
+    fn read(&mut self) -> Result<Vec<ByteSlice>>;
+    fn layer_id(&self) -> Token;
 }
 
-type ReaderFunc = extern "C" fn(*mut Box<Worker>, *mut SafeVec<MutFixed<Layer>>, *mut Error) -> u8;
+type ReaderFunc = extern "C" fn(*mut Box<Worker>, *mut SafeVec<ByteSlice>, *mut Error) -> u8;
 
 pub struct WorkerBox {
     worker: *mut Box<Worker>,
     read: ReaderFunc,
+    layer_id: extern "C" fn(*const Box<Worker>) -> u32,
     drop: extern "C" fn(*mut Box<Worker>),
 }
 
@@ -140,11 +142,12 @@ impl WorkerBox {
         Self {
             worker: Box::into_raw(Box::new(worker)),
             read: abi_reader_worker_read,
+            layer_id: abi_reader_worker_layer_id,
             drop: abi_reader_worker_drop,
         }
     }
 
-    pub fn read(&mut self) -> Result<Vec<MutFixed<Layer>>> {
+    pub fn read(&mut self) -> Result<Vec<ByteSlice>> {
         let mut v = SafeVec::new();
         let mut e = Error::new("");
         if (self.read)(self.worker, &mut v, &mut e) == 0 {
@@ -152,6 +155,10 @@ impl WorkerBox {
         } else {
             Ok(v.into_iter().collect())
         }
+    }
+
+    pub fn layer_id(&self) -> Token {
+        (self.layer_id)(self.worker).into()
     }
 }
 
@@ -171,17 +178,22 @@ extern "C" fn abi_reader_worker_drop(worker: *mut Box<Worker>) {
     unsafe { Box::from_raw(worker) };
 }
 
+extern "C" fn abi_reader_worker_layer_id(worker: *const Box<Worker>) -> u32 {
+    let worker = unsafe { &*worker };
+    worker.layer_id().into()
+}
+
 extern "C" fn abi_reader_worker_read(
     worker: *mut Box<Worker>,
-    out: *mut SafeVec<MutFixed<Layer>>,
+    out: *mut SafeVec<ByteSlice>,
     err: *mut Error,
 ) -> u8 {
     let worker = unsafe { &mut *worker };
     match worker.read() {
-        Ok(layers) => {
-            let mut safe = SafeVec::with_capacity(layers.len() as u64);
-            for layer in layers {
-                safe.push(MutFixed::new(layer));
+        Ok(slices) => {
+            let mut safe = SafeVec::with_capacity(slices.len() as u64);
+            for slice in slices {
+                safe.push(slice);
             }
             unsafe { *out = safe };
             1

@@ -29,9 +29,8 @@ impl Writer for GenetFileWriter {
         let writer = BufWriter::new(file);
         Ok(Box::new(GenetFileWorker {
             writer,
-            tokens: Vec::new(),
-            attrs: Vec::new(),
             entries: Vec::new(),
+            layer_id: Token::null(),
         }))
     }
 
@@ -46,31 +45,17 @@ impl Writer for GenetFileWriter {
 
 struct GenetFileWorker {
     writer: BufWriter<File>,
-    tokens: Vec<Token>,
-    attrs: Vec<(Token, Token)>,
     entries: Vec<genet_format::Entry>,
-}
-
-impl GenetFileWorker {
-    fn get_token_index(&mut self, id: Token) -> usize {
-        if let Some(index) = self.tokens.iter().position(|x| *x == id) {
-            return index;
-        }
-        self.tokens.push(id);
-        self.tokens.len() - 1
-    }
+    layer_id: Token,
 }
 
 impl Worker for GenetFileWorker {
     fn write(&mut self, _index: u32, stack: &LayerStack) -> Result<()> {
         if let Some(layer) = stack.bottom() {
-            let mut attrs = Vec::new();
-            let id = self.get_token_index(layer.id());
+            self.layer_id = layer.id();
             self.entries.push(genet_format::Entry {
                 frame: genet_format::Frame {
-                    id,
                     len: layer.data().len(),
-                    attrs,
                 },
                 data: layer.data(),
             });
@@ -79,18 +64,8 @@ impl Worker for GenetFileWorker {
     }
 
     fn end(&mut self) -> Result<()> {
-        let attrs = self
-            .attrs
-            .clone()
-            .iter()
-            .map(|(id, typ)| genet_format::AttrClass {
-                id: self.get_token_index(*id),
-                typ: self.get_token_index(*typ),
-            })
-            .collect();
         let header = genet_format::Header {
-            tokens: self.tokens.iter().map(|x| x.to_string()).collect(),
-            attrs,
+            layer_id: self.layer_id.to_string(),
             entries: self.entries.len(),
         };
         let bin = bincode::serialize(&header)?;

@@ -10,7 +10,6 @@ extern crate serde_derive;
 use genet_sdk::{prelude::*, reader::*};
 
 use std::{
-    collections::HashMap,
     fs::File,
     io::{BufReader, Read},
 };
@@ -39,18 +38,8 @@ impl Reader for GenetFileReader {
         let mut header_buf = vec![0; read_usize(&mut reader)?];
         reader.read_exact(&mut header_buf)?;
         let header: genet_format::Header = bincode::deserialize(&header_buf)?;
-        let tokens: Vec<Token> = header
-            .tokens
-            .iter()
-            .map(|t| Token::from(t.as_str()))
-            .collect();
 
-        Ok(Box::new(GenetFileWorker {
-            reader,
-            header,
-            tokens,
-            link_layers: HashMap::new(),
-        }))
+        Ok(Box::new(GenetFileWorker { reader, header }))
     }
 
     fn metadata(&self) -> Metadata {
@@ -65,30 +54,25 @@ impl Reader for GenetFileReader {
 struct GenetFileWorker {
     reader: BufReader<File>,
     header: genet_format::Header,
-    tokens: Vec<Token>,
-    link_layers: HashMap<Token, Fixed<LayerClass>>,
 }
 
 impl Worker for GenetFileWorker {
-    fn read(&mut self) -> Result<Vec<Layer>> {
-        let mut layers = Vec::new();
+    fn read(&mut self) -> Result<Vec<ByteSlice>> {
+        let mut slices = Vec::new();
         for _ in 0..self.header.entries {
             let mut frame_buf = vec![0; read_usize(&mut self.reader)?];
             self.reader.read_exact(&mut frame_buf)?;
             let frame: genet_format::Frame = bincode::deserialize(&frame_buf)?;
             let mut payload = vec![0; frame.len];
             self.reader.read_exact(&mut payload)?;
-
-            let id = self.tokens[frame.id];
-            let link_class = self
-                .link_layers
-                .entry(id)
-                .or_insert_with(|| Fixed::new(layer_class!(id)));
-            let layer = Layer::new(link_class.clone(), ByteSlice::from(payload));
-            layers.push(layer);
+            slices.push(ByteSlice::from(payload));
         }
         self.header.entries = 0;
-        Ok(layers)
+        Ok(slices)
+    }
+
+    fn layer_id(&self) -> Token {
+        self.header.layer_id.clone().into()
     }
 }
 
