@@ -32,7 +32,7 @@ impl Frame {
         &self.layers
     }
 
-    pub fn attr(&self, id: Token) -> Option<&Attr> {
+    pub fn attr(&self, id: Token) -> Option<Attr> {
         for layer in self.layers().iter().rev() {
             if let Some(attr) = layer.attr(id) {
                 return Some(attr);

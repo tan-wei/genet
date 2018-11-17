@@ -40,9 +40,9 @@ impl Worker for IPv6Worker {
         let range = NHEADER_ATTR_HEADER.range();
         let proto_attr = attr!(&PROTOCOL_ATTR, range: range.clone());
         let proto = proto_attr.try_get(&layer)?.try_into()?;
-        layer.add_attr(proto_attr);
+        layer.add_attr(&proto_attr);
         if let Some((typ, attr)) = get_proto(proto) {
-            layer.add_attr(attr!(attr, range: range.clone()));
+            layer.add_attr(&attr!(attr, range: range.clone()));
             let payload = layer.data().try_get(40..)?;
             layer.add_payload(Payload::new(payload, typ));
         }
@@ -71,14 +71,14 @@ impl Decoder for IPv6Decoder {
 def_layer_class!(IPV6_CLASS, "ipv6",
     alias: "_.src" "ipv6.src",
     alias: "_.dst" "ipv6.dst",
-    header: attr!(&VERSION_ATTR, bit_range: 0 0..4),
-    header: attr!(&TRAFFIC_ATTR, bit_range: 0 4..12),
-    header: attr!(&FLOW_ATTR, bit_range: 1 4..24),
-    header: attr!(&LENGTH_ATTR, range: 4..6),
+    header: &attr!(&VERSION_ATTR, bit_range: 0 0..4),
+    header: &attr!(&TRAFFIC_ATTR, bit_range: 0 4..12),
+    header: &attr!(&FLOW_ATTR, bit_range: 1 4..24),
+    header: &attr!(&LENGTH_ATTR, range: 4..6),
     header: &NHEADER_ATTR_HEADER,
-    header: attr!(&HLIMIT_ATTR, range: 7..8),
-    header: attr!(&SRC_ATTR, range: 8..24),
-    header: attr!(&DST_ATTR, range: 24..40)
+    header: &attr!(&HLIMIT_ATTR, range: 7..8),
+    header: &attr!(&SRC_ATTR, range: 8..24),
+    header: &attr!(&DST_ATTR, range: 24..40)
 );
 
 def_attr!(NHEADER_ATTR_HEADER,  &NHEADER_ATTR, range: 6..7);

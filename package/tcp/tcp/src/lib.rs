@@ -29,7 +29,7 @@ impl Worker for TcpWorker {
             let typ = layer.data().try_get(offset)?;
             if typ <= 1 {
                 if typ == 1 {
-                    layer.add_attr(attr!(&OPTIONS_NOP_ATTR, range: offset..offset + 1));
+                    layer.add_attr(&attr!(&OPTIONS_NOP_ATTR, range: offset..offset + 1));
                 }
                 offset += 1;
                 continue;
@@ -37,27 +37,30 @@ impl Worker for TcpWorker {
             let len = layer.data().try_get(offset + 1)? as usize;
             match typ {
                 2 => {
-                    layer.add_attr(attr!(&OPTIONS_MSS_ATTR, range: offset + 2..offset + len));
+                    layer.add_attr(&attr!(&OPTIONS_MSS_ATTR, range: offset + 2..offset + len));
                 }
                 3 => {
-                    layer.add_attr(attr!(&OPTIONS_SCALE_ATTR, range: offset + 2..offset + len));
+                    layer.add_attr(&attr!(&OPTIONS_SCALE_ATTR, range: offset + 2..offset + len));
                 }
                 4 => {
-                    layer.add_attr(attr!(&OPTIONS_SACKP_ATTR, range: offset..offset + len));
+                    layer.add_attr(&attr!(&OPTIONS_SACKP_ATTR, range: offset..offset + len));
                 }
                 5 => {
-                    layer.add_attr(attr!(&OPTIONS_SACK_ATTR, range: offset + 2..offset + len));
+                    layer.add_attr(&attr!(&OPTIONS_SACK_ATTR, range: offset + 2..offset + len));
                 }
                 8 => {
-                    layer.add_attr(attr!(&OPTIONS_TS_ATTR, range: offset..offset + len));
-                    layer.add_attr(attr!(&OPTIONS_TS_MY_ATTR, range: offset + 2..offset + 6));
-                    layer.add_attr(attr!(&OPTIONS_TS_ECHO_ATTR, range: offset + 6..offset + 10));
+                    layer.add_attr(&attr!(&OPTIONS_TS_ATTR, range: offset..offset + len));
+                    layer.add_attr(&attr!(&OPTIONS_TS_MY_ATTR, range: offset + 2..offset + 6));
+                    layer.add_attr(&attr!(
+                        &OPTIONS_TS_ECHO_ATTR,
+                        range: offset + 6..offset + 10
+                    ));
                 }
                 _ => {}
             }
             offset += len;
         }
-        layer.add_attr(attr!(&OPTIONS_ATTR, range: 20..offset));
+        layer.add_attr(&attr!(&OPTIONS_ATTR, range: 20..offset));
 
         let payload = layer.data().try_get(data_offset..)?;
         layer.add_payload(Payload::new(payload, "@data:tcp"));
@@ -86,24 +89,24 @@ impl Decoder for TcpDecoder {
 def_layer_class!(
     TCP_CLASS,
     "tcp",
-    header: attr!(&SRC_ATTR, range: 0..2),
-    header: attr!(&DST_ATTR, range: 2..4),
-    header: attr!(&SEQ_ATTR, range: 4..8),
-    header: attr!(&ACK_ATTR, range: 8..12),
+    header: &attr!(&SRC_ATTR, range: 0..2),
+    header: &attr!(&DST_ATTR, range: 2..4),
+    header: &attr!(&SEQ_ATTR, range: 4..8),
+    header: &attr!(&ACK_ATTR, range: 8..12),
     header: &OFFSET_ATTR_HEADER,
-    header: attr!(&FLAGS_ATTR, bit_range: 12 7..16),
-    header: attr!(&FLAGS_NS_ATTR, bit_range: 12 7..8),
-    header: attr!(&FLAGS_CWR_ATTR, bit_range: 13 0..1),
-    header: attr!(&FLAGS_ECE_ATTR, bit_range: 13 1..2),
-    header: attr!(&FLAGS_URG_ATTR, bit_range: 13 2..3),
-    header: attr!(&FLAGS_ACK_ATTR, bit_range: 13 3..4),
-    header: attr!(&FLAGS_PSH_ATTR, bit_range: 13 4..5),
-    header: attr!(&FLAGS_RST_ATTR, bit_range: 13 5..6),
-    header: attr!(&FLAGS_SYN_ATTR, bit_range: 13 6..7),
-    header: attr!(&FLAGS_FIN_ATTR, bit_range: 13 7..8),
-    header: attr!(&WINDOW_ATTR, range: 14..16),
-    header: attr!(&CHECKSUM_ATTR, range: 16..18),
-    header: attr!(&URGENT_ATTR, range: 18..20)
+    header: &attr!(&FLAGS_ATTR, bit_range: 12 7..16),
+    header: &attr!(&FLAGS_NS_ATTR, bit_range: 12 7..8),
+    header: &attr!(&FLAGS_CWR_ATTR, bit_range: 13 0..1),
+    header: &attr!(&FLAGS_ECE_ATTR, bit_range: 13 1..2),
+    header: &attr!(&FLAGS_URG_ATTR, bit_range: 13 2..3),
+    header: &attr!(&FLAGS_ACK_ATTR, bit_range: 13 3..4),
+    header: &attr!(&FLAGS_PSH_ATTR, bit_range: 13 4..5),
+    header: &attr!(&FLAGS_RST_ATTR, bit_range: 13 5..6),
+    header: &attr!(&FLAGS_SYN_ATTR, bit_range: 13 6..7),
+    header: &attr!(&FLAGS_FIN_ATTR, bit_range: 13 7..8),
+    header: &attr!(&WINDOW_ATTR, range: 14..16),
+    header: &attr!(&CHECKSUM_ATTR, range: 16..18),
+    header: &attr!(&URGENT_ATTR, range: 18..20)
 );
 
 def_attr!(OFFSET_ATTR_HEADER,  &OFFSET_ATTR, range: 12..13);

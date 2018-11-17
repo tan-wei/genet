@@ -33,7 +33,7 @@ impl<'a> LayerStack<'a> {
     }
 
     /// Find the attribute in the LayerStack.
-    pub fn attr(&self, id: Token) -> Option<&Attr> {
+    pub fn attr(&self, id: Token) -> Option<Attr> {
         for layer in self.layers().rev() {
             if let Some(attr) = layer.attr(id) {
                 return Some(attr);
@@ -86,22 +86,22 @@ impl<'a> Parent<'a> {
     }
 
     /// Returns the slice of headers.
-    pub fn headers(&self) -> impl Iterator<Item = &Fixed<Attr>> {
+    pub fn headers(&self) -> impl Iterator<Item = Attr> {
         self.deref().headers()
     }
 
     /// Returns the slice of attributes.
-    pub fn attrs(&self) -> impl Iterator<Item = &Fixed<Attr>> {
+    pub fn attrs(&self) -> impl Iterator<Item = Attr> {
         self.deref().attrs()
     }
 
     /// Find the attribute in the Layer.
-    pub fn attr<T: Into<Token>>(&self, id: T) -> Option<&Attr> {
+    pub fn attr<T: Into<Token>>(&self, id: T) -> Option<Attr> {
         self.deref().attr(id)
     }
 
     /// Adds an attribute to the Layer.
-    pub fn add_attr<T: Into<Fixed<Attr>>>(&mut self, attr: T) {
+    pub fn add_attr(&mut self, attr: &Attr) {
         self.deref_mut().add_attr(attr);
     }
 
@@ -157,7 +157,7 @@ extern "C" fn abi_children_data(layer: *const Parent) -> *const *mut Layer {
 pub struct Layer {
     class: Fixed<LayerClass>,
     data: ByteSlice,
-    attrs: Vec<Fixed<Attr>>,
+    attrs: Vec<Attr>,
     payloads: Vec<Payload>,
 }
 
@@ -185,17 +185,17 @@ impl Layer {
     }
 
     /// Returns the slice of headers.
-    pub fn headers(&self) -> impl Iterator<Item = &Fixed<Attr>> {
+    pub fn headers(&self) -> impl Iterator<Item = Attr> {
         self.class.headers()
     }
 
     /// Returns the slice of attributes.
-    pub fn attrs(&self) -> impl Iterator<Item = &Fixed<Attr>> {
+    pub fn attrs(&self) -> impl Iterator<Item = Attr> {
         self.class.attrs(self)
     }
 
     /// Find the attribute in the Layer.
-    pub fn attr<T: Into<Token>>(&self, id: T) -> Option<&Attr> {
+    pub fn attr<T: Into<Token>>(&self, id: T) -> Option<Attr> {
         let id = id.into();
         let id = self
             .class
@@ -206,13 +206,12 @@ impl Layer {
         self.attrs()
             .chain(self.class.headers())
             .find(|attr| attr.id() == id)
-            .map(|attr| attr.as_ref())
     }
 
     /// Adds an attribute to the Layer.
-    pub fn add_attr<T: Into<Fixed<Attr>>>(&mut self, attr: T) {
+    pub fn add_attr(&mut self, attr: &Attr) {
         let func = self.class.add_attr;
-        (func)(self, attr.into());
+        (func)(self, attr.clone());
     }
 
     /// Returns the slice of payloads.
@@ -289,7 +288,7 @@ impl Payload {
 pub struct LayerClassBuilder {
     id: Token,
     aliases: Vec<Alias>,
-    headers: Vec<Fixed<Attr>>,
+    headers: Vec<Attr>,
     meta: Metadata,
 }
 
@@ -304,8 +303,8 @@ impl LayerClassBuilder {
     }
 
     /// Adds a header attribute for LayerClass.
-    pub fn header<T: Into<Fixed<Attr>>>(mut self, attr: T) -> LayerClassBuilder {
-        self.headers.push(attr.into());
+    pub fn header(mut self, attr: &Attr) -> LayerClassBuilder {
+        self.headers.push(attr.clone());
         self
     }
 
@@ -357,18 +356,18 @@ pub struct LayerClass {
     aliases_len: extern "C" fn(*const LayerClass) -> u64,
     aliases_data: extern "C" fn(*const LayerClass) -> *const Alias,
     headers_len: extern "C" fn(*const LayerClass) -> u64,
-    headers_data: extern "C" fn(*const LayerClass) -> *const Fixed<Attr>,
+    headers_data: extern "C" fn(*const LayerClass) -> *const Attr,
     data: extern "C" fn(*const Layer, *mut u64) -> *const u8,
     attrs_len: extern "C" fn(*const Layer) -> u64,
-    attrs_data: extern "C" fn(*const Layer) -> *const Fixed<Attr>,
-    add_attr: extern "C" fn(*mut Layer, Fixed<Attr>),
+    attrs_data: extern "C" fn(*const Layer) -> *const Attr,
+    add_attr: extern "C" fn(*mut Layer, Attr),
     payloads_len: extern "C" fn(*const Layer) -> u64,
     payloads_data: extern "C" fn(*const Layer) -> *const Payload,
     add_payload: extern "C" fn(*mut Layer, Payload),
     id: Token,
     meta: Metadata,
     aliases: Vec<Alias>,
-    headers: Vec<Fixed<Attr>>,
+    headers: Vec<Attr>,
 }
 
 impl LayerClass {
@@ -393,10 +392,10 @@ impl LayerClass {
         iter.map(|v| &*v)
     }
 
-    fn headers(&self) -> impl Iterator<Item = &Fixed<Attr>> {
+    fn headers(&self) -> impl Iterator<Item = Attr> {
         let data = (self.headers_data)(self);
         let len = (self.headers_len)(self) as usize;
-        unsafe { slice::from_raw_parts(data, len) }.iter()
+        unsafe { slice::from_raw_parts(data, len) }.iter().cloned()
     }
 
     fn data(&self, layer: &Layer) -> ByteSlice {
@@ -405,10 +404,10 @@ impl LayerClass {
         unsafe { ByteSlice::from_raw_parts(data, len as usize) }
     }
 
-    fn attrs(&self, layer: &Layer) -> impl Iterator<Item = &Fixed<Attr>> {
+    fn attrs(&self, layer: &Layer) -> impl Iterator<Item = Attr> {
         let data = (self.attrs_data)(layer);
         let len = (self.attrs_len)(layer) as usize;
-        unsafe { slice::from_raw_parts(data, len) }.iter()
+        unsafe { slice::from_raw_parts(data, len) }.iter().cloned()
     }
 
     fn payloads(&self, layer: &Layer) -> impl Iterator<Item = &Payload> {
@@ -440,7 +439,7 @@ extern "C" fn abi_headers_len(class: *const LayerClass) -> u64 {
     unsafe { (*class).headers.len() as u64 }
 }
 
-extern "C" fn abi_headers_data(class: *const LayerClass) -> *const Fixed<Attr> {
+extern "C" fn abi_headers_data(class: *const LayerClass) -> *const Attr {
     unsafe { (*class).headers.as_ptr() }
 }
 
@@ -456,11 +455,11 @@ extern "C" fn abi_attrs_len(layer: *const Layer) -> u64 {
     unsafe { (*layer).attrs.len() as u64 }
 }
 
-extern "C" fn abi_attrs_data(layer: *const Layer) -> *const Fixed<Attr> {
+extern "C" fn abi_attrs_data(layer: *const Layer) -> *const Attr {
     unsafe { (*layer).attrs.as_ptr() }
 }
 
-extern "C" fn abi_add_attr(layer: *mut Layer, attr: Fixed<Attr>) {
+extern "C" fn abi_add_attr(layer: *mut Layer, attr: Attr) {
     let attrs = unsafe { &mut (*layer).attrs };
     attrs.push(attr);
 }

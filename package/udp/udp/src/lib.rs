@@ -47,10 +47,10 @@ impl Decoder for UdpDecoder {
 def_layer_class!(UDP_CLASS, "udp",
     alias: "_.src" "udp.src",
     alias: "_.dst" "udp.dst",
-    header: attr!(&SRC_ATTR, range: 0..2),
-    header: attr!(&DST_ATTR, range: 2..4),
-    header: attr!(&LEN_ATTR, range: 4..6),
-    header: attr!(&CHECKSUM_ATTR, range: 6..8)
+    header: &attr!(&SRC_ATTR, range: 0..2),
+    header: &attr!(&DST_ATTR, range: 2..4),
+    header: &attr!(&LEN_ATTR, range: 4..6),
+    header: &attr!(&CHECKSUM_ATTR, range: 6..8)
 );
 
 def_attr_class!(SRC_ATTR, "udp.src",

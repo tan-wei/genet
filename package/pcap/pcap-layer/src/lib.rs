@@ -25,12 +25,12 @@ impl Worker for PcapLayerWorker {
             let link: u32 = TYPE_CLASS_ATTR.try_get(&parent)?.try_into()?;
             let link_class = Fixed::new(layer_class!(
                 format!("[link-{}]", link),
-                header: attr!(&TYPE_CLASS, range: 0..4),
-                header: attr!(&PAYLOAD_LENGTH_CLASS, range: 4..8),
-                header: attr!(&ORIG_LENGTH_CLASS, range: 8..12),
-                header: attr!(&TS_CLASS, range: 12..20),
-                header: attr!(&TS_SEC_CLASS, range: 12..16),
-                header: attr!(&TS_USEC_CLASS, range: 16..20)
+                header: &attr!(&TYPE_CLASS, range: 0..4),
+                header: &attr!(&PAYLOAD_LENGTH_CLASS, range: 4..8),
+                header: &attr!(&ORIG_LENGTH_CLASS, range: 8..12),
+                header: &attr!(&TS_CLASS, range: 12..20),
+                header: &attr!(&TS_SEC_CLASS, range: 12..16),
+                header: &attr!(&TS_USEC_CLASS, range: 16..20)
             ));
             self.class = Some(link_class);
         }

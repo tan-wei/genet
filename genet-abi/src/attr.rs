@@ -41,6 +41,7 @@ impl AttrBuilder {
 
 /// An attribute object.
 #[repr(C)]
+#[derive(Clone)]
 pub struct Attr {
     class: Fixed<AttrClass>,
     range: Range<usize>,
@@ -84,18 +85,6 @@ impl Attr {
     /// Returns the attribute value.
     pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
         self.class.try_get(self, layer)
-    }
-}
-
-impl Into<Fixed<Attr>> for Attr {
-    fn into(self) -> Fixed<Attr> {
-        Fixed::new(self)
-    }
-}
-
-impl Into<Fixed<Attr>> for &'static Attr {
-    fn into(self) -> Fixed<Attr> {
-        Fixed::from_static(self)
     }
 }
 

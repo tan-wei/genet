@@ -24,13 +24,13 @@ impl Worker for ArpWorker {
         let hw_type = HWTYPE_ATTR_HEADER.try_get(&layer)?.try_into()?;
         let hw = get_hw(hw_type);
         if let Some((attr, _, _)) = hw {
-            layer.add_attr(attr!(attr, range: 0..2));
+            layer.add_attr(&attr!(attr, range: 0..2));
         }
 
         let proto_type = PROTO_ATTR_HEADER.try_get(&layer)?.try_into()?;
         let proto = get_proto(proto_type);
         if let Some((attr, _, _)) = proto {
-            layer.add_attr(attr!(attr, range: 2..4));
+            layer.add_attr(&attr!(attr, range: 2..4));
         }
 
         let hlen: usize = HLEN_ATTR_HEADER.try_get(&layer)?.try_into()?;
@@ -38,19 +38,19 @@ impl Worker for ArpWorker {
 
         let op_type = OP_ATTR_HEADER.try_get(&layer)?.try_into()?;
         if let Some(attr) = get_op(op_type) {
-            layer.add_attr(attr!(attr, range: 6..8));
+            layer.add_attr(&attr!(attr, range: 6..8));
         }
 
         if let Some((_, sha, tha)) = hw {
             if let Some((_, spa, tpa)) = proto {
                 let mut offset = 8;
-                layer.add_attr(attr!(sha, range: offset..offset + hlen));
+                layer.add_attr(&attr!(sha, range: offset..offset + hlen));
                 offset += hlen;
-                layer.add_attr(attr!(spa, range: offset..offset + plen));
+                layer.add_attr(&attr!(spa, range: offset..offset + plen));
                 offset += plen;
-                layer.add_attr(attr!(tha, range: offset..offset + hlen));
+                layer.add_attr(&attr!(tha, range: offset..offset + hlen));
                 offset += hlen;
-                layer.add_attr(attr!(tpa, range: offset..offset + plen));
+                layer.add_attr(&attr!(tpa, range: offset..offset + plen));
             }
         }
 

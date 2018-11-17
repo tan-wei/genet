@@ -40,17 +40,17 @@ fn variant_to_js<'env>(
 }
 
 pub struct AttrWrapper {
-    attr: *const Attr,
+    attr: Attr,
     layer: *const Layer,
 }
 
 impl AttrWrapper {
-    pub fn new(attr: &Attr, layer: &Layer) -> AttrWrapper {
+    pub fn new(attr: Attr, layer: &Layer) -> AttrWrapper {
         AttrWrapper { attr, layer }
     }
 
     fn attr(&self) -> &Attr {
-        unsafe { &*self.attr }
+        &self.attr
     }
 
     fn layer(&self) -> &Layer {
