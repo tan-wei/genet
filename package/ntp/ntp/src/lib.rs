@@ -85,10 +85,10 @@ impl Decoder for NtpDecoder {
 def_layer_class!(
     NTP_CLASS,
     "ntp",
-    header: &LEAP_ATTR_HEADER,
+    header2: &LEAP_ATTR,
     header2: &VERSION_ATTR,
-    header: &MODE_ATTR_HEADER,
-    header: &STRATUM_ATTR_HEADER,
+    header2: &MODE_ATTR,
+    header2: &STRATUM_ATTR,
     header2: &POLL_ATTR,
     header2: &PRECISION_ATTR,
     header2: &RDELAY_ATTR,
@@ -117,7 +117,8 @@ def_attr!(STRATUM_ATTR_HEADER,  &STRATUM_ATTR, range: 1..2);
 
 def_attr_class!(LEAP_ATTR, "ntp.leapIndicator",
     typ: "@enum",
-    cast: cast::UInt8().map(|v| v >> 6)
+    cast: cast::UInt8().map(|v| v >> 6),
+    range: 0..1
 );
 
 def_attr_class!(VERSION_ATTR, "ntp.version",
@@ -127,10 +128,14 @@ def_attr_class!(VERSION_ATTR, "ntp.version",
 
 def_attr_class!(MODE_ATTR, "ntp.mode",
     typ: "@enum",
-    cast: cast::UInt8().map(|v| v & 0b111)
+    cast: cast::UInt8().map(|v| v & 0b111),
+    range: 0..1
 );
 
-def_attr_class!(STRATUM_ATTR, "ntp.stratum", cast: cast::UInt8());
+def_attr_class!(STRATUM_ATTR, "ntp.stratum",
+    cast: cast::UInt8(),
+    range: 1..2
+);
 
 def_attr_class!(POLL_ATTR, "ntp.pollInterval",
     cast: cast::UInt8(),

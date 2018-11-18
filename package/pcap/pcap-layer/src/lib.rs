@@ -25,12 +25,12 @@ impl Worker for PcapLayerWorker {
             let link: u32 = TYPE_CLASS_ATTR.try_get(&parent)?.try_into()?;
             let link_class = Fixed::new(layer_class!(
                 format!("[link-{}]", link),
-                header: &attr!(&TYPE_CLASS, range: 0..4),
-                header: &attr!(&PAYLOAD_LENGTH_CLASS, range: 4..8),
-                header: &attr!(&ORIG_LENGTH_CLASS, range: 8..12),
-                header: &attr!(&TS_CLASS, range: 12..20),
-                header: &attr!(&TS_SEC_CLASS, range: 12..16),
-                header: &attr!(&TS_USEC_CLASS, range: 16..20)
+                header2: &TYPE_CLASS,
+                header2: &PAYLOAD_LENGTH_CLASS,
+                header2: &ORIG_LENGTH_CLASS,
+                header2: &TS_CLASS,
+                header2: &TS_SEC_CLASS,
+                header2: &TS_USEC_CLASS
             ));
             self.class = Some(link_class);
         }
@@ -58,23 +58,40 @@ impl Decoder for PcapLayerDecoder {
     }
 }
 
-def_attr_class!(TYPE_CLASS, "link.type", cast: cast::UInt32BE());
+def_attr_class!(TYPE_CLASS, "link.type",
+    cast: cast::UInt32BE(),
+    range: 0..4
+);
+
 def_attr_class!(
     PAYLOAD_LENGTH_CLASS,
     "link.payloadLength",
-    cast: cast::UInt32BE()
+    cast: cast::UInt32BE(),
+    range: 4..8
 );
+
 def_attr_class!(
     ORIG_LENGTH_CLASS,
     "link.originalLength",
-    cast: cast::UInt32BE()
+    cast: cast::UInt32BE(),
+    range: 8..12
 );
+
 def_attr_class!(TS_CLASS, "link.timestamp",
     typ: "@datetime:unix", 
-    cast: cast::UInt64BE().map(|v| (v >> 32) as f64 + (v & 0xffff_ffff) as f64 / 1_000_000f64)
+    cast: cast::UInt64BE().map(|v| (v >> 32) as f64 + (v & 0xffff_ffff) as f64 / 1_000_000f64),
+    range: 12..20
 );
-def_attr_class!(TS_SEC_CLASS, "link.timestamp.sec", cast: cast::UInt32BE());
-def_attr_class!(TS_USEC_CLASS, "link.timestamp.usec", cast: cast::UInt32BE());
+
+def_attr_class!(TS_SEC_CLASS, "link.timestamp.sec",
+    cast: cast::UInt32BE(),
+    range: 12..16
+);
+
+def_attr_class!(TS_USEC_CLASS, "link.timestamp.usec",
+    cast: cast::UInt32BE(),
+    range: 16..20
+);
 
 def_attr!(TYPE_CLASS_ATTR,  &TYPE_CLASS, range: 0..4);
 

@@ -78,11 +78,11 @@ impl Decoder for ArpDecoder {
 def_layer_class!(ARP_CLASS, "arp",
     alias: "_.src" "arp.sha",
     alias: "_.dst" "arp.tha",
-    header: &HWTYPE_ATTR_HEADER,
-    header: &PROTO_ATTR_HEADER,
-    header: &HLEN_ATTR_HEADER,
-    header: &PLEN_ATTR_HEADER,
-    header: &OP_ATTR_HEADER
+    header2: &HWTYPE_ATTR,
+    header2: &PROTO_ATTR,
+    header2: &HLEN_ATTR,
+    header2: &PLEN_ATTR,
+    header2: &OP_ATTR
 );
 
 def_attr!(HWTYPE_ATTR_HEADER,  &HWTYPE_ATTR, range: 0..2);
@@ -93,21 +93,30 @@ def_attr!(OP_ATTR_HEADER,  &OP_ATTR, range: 6..8);
 
 def_attr_class!(HWTYPE_ATTR, "arp.hwtype",
     typ: "@enum",
-    cast: cast::UInt16BE()
+    cast: cast::UInt16BE(),
+    range: 0..2
 );
 
 def_attr_class!(PROTO_ATTR, "arp.protocol",
     typ: "@enum",
-    cast: cast::UInt16BE()
+    cast: cast::UInt16BE(),
+    range: 2..4
 );
 
-def_attr_class!(HLEN_ATTR, "arp.hlen", cast: cast::UInt8());
+def_attr_class!(HLEN_ATTR, "arp.hlen",
+    cast: cast::UInt8(),
+    range: 4..5
+);
 
-def_attr_class!(PLEN_ATTR, "arp.plen", cast: cast::UInt8());
+def_attr_class!(PLEN_ATTR, "arp.plen",
+    cast: cast::UInt8(),
+    range: 5..6
+);
 
 def_attr_class!(OP_ATTR, "arp.op",
     cast: cast::UInt16BE(),
-    typ: "@enum"
+    typ: "@enum",
+    range: 6..8
 );
 
 fn get_hw(val: u64) -> Option<(&'static AttrClass, &'static AttrClass, &'static AttrClass)> {
