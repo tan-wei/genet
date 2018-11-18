@@ -84,7 +84,7 @@ impl Attr {
 
     /// Returns the attribute value.
     pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
-        self.class.try_get(self, layer)
+        self.class.try_get_range(layer, self.range())
     }
 }
 
@@ -189,7 +189,7 @@ pub struct AttrClass {
     get_id: extern "C" fn(class: *const AttrClass) -> Token,
     get_typ: extern "C" fn(class: *const AttrClass) -> Token,
     get_range: extern "C" fn(*const Attr, *mut u64, *mut u64),
-    get: extern "C" fn(*const Attr, *mut *const u8, u64, *mut i64, *mut Error) -> ValueType,
+    get: extern "C" fn(*const AttrClass, *mut *const u8, u64, *mut i64, *mut Error) -> ValueType,
     id: Token,
     typ: Token,
     meta: Metadata,
@@ -242,9 +242,13 @@ impl AttrClass {
         (range.start / 8)..((range.end + 7) / 8)
     }
 
-    fn try_get(&self, attr: &Attr, layer: &Layer) -> Result<Variant> {
+    pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
+        self.try_get_range(layer, self.range())
+    }
+
+    fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<Variant> {
         let data = layer.data();
-        let data = if let Some(data) = data.get(self.range_attr(attr)) {
+        let data = if let Some(data) = data.get(range) {
             data
         } else {
             return Err(Box::new(Error::new("out of bounds")));
@@ -252,7 +256,7 @@ impl AttrClass {
         let mut buf: *const u8 = data.as_ptr();
         let mut num = 0;
         let mut err = Error::new("");
-        let typ = (self.get)(attr, &mut buf, data.len() as u64, &mut num, &mut err);
+        let typ = (self.get)(self, &mut buf, data.len() as u64, &mut num, &mut err);
         match typ {
             ValueType::Error => Err(Box::new(err)),
             ValueType::Bool => Ok(Variant::Bool(num == 1)),
@@ -306,13 +310,13 @@ extern "C" fn abi_typ(class: *const AttrClass) -> Token {
 }
 
 extern "C" fn abi_get(
-    attr: *const Attr,
+    attr: *const AttrClass,
     data: *mut *const u8,
     len: u64,
     num: *mut i64,
     err: *mut Error,
 ) -> ValueType {
-    let cast = unsafe { &(*attr).class.cast };
+    let cast = unsafe { &(*attr).cast };
     let slice = unsafe { ByteSlice::from_raw_parts(*data, len as usize) };
 
     match cast.cast(&slice) {
