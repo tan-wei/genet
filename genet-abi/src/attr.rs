@@ -246,7 +246,7 @@ impl AttrClass {
         self.try_get_range(layer, self.range())
     }
 
-    fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<Variant> {
+    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<Variant> {
         let data = layer.data();
         let data = if let Some(data) = data.get(range) {
             data

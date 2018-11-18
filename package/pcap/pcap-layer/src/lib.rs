@@ -22,7 +22,7 @@ impl Worker for PcapLayerWorker {
         }
 
         if self.class.is_none() {
-            let link: u32 = TYPE_CLASS_ATTR.try_get(&parent)?.try_into()?;
+            let link: u32 = TYPE_CLASS.try_get(&parent)?.try_into()?;
             let link_class = Fixed::new(layer_class!(
                 format!("[link-{}]", link),
                 header: &TYPE_CLASS,
@@ -92,7 +92,5 @@ def_attr_class!(TS_USEC_CLASS, "link.timestamp.usec",
     cast: cast::UInt32BE(),
     range: 16..20
 );
-
-def_attr!(TYPE_CLASS_ATTR,  &TYPE_CLASS, range: 0..4);
 
 genet_decoders!(PcapLayerDecoder {});

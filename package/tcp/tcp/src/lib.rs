@@ -21,7 +21,7 @@ impl Worker for TcpWorker {
 
         let mut layer = Layer::new(&TCP_CLASS, data);
 
-        let data_offset: usize = OFFSET_ATTR_HEADER.try_get(&layer)?.try_into()?;
+        let data_offset: usize = OFFSET_ATTR.try_get(&layer)?.try_into()?;
         let data_offset = data_offset * 4;
         let mut offset = 20;
 
@@ -105,8 +105,6 @@ def_layer_class!(
     header: &CHECKSUM_ATTR,
     header: &URGENT_ATTR
 );
-
-def_attr!(OFFSET_ATTR_HEADER,  &OFFSET_ATTR, range: 12..13);
 
 def_attr_class!(SRC_ATTR, "tcp.src",
     typ: "@tcp:port",

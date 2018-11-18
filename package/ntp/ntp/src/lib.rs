@@ -40,21 +40,21 @@ impl Worker for NtpWorker {
         }
 
         let mut layer = Layer::new(&NTP_CLASS, data);
-        let leap_type = LEAP_ATTR_HEADER.try_get(&layer)?.try_into()?;
+        let leap_type = LEAP_ATTR.try_get(&layer)?.try_into()?;
 
         let leap = get_leap(leap_type);
         if let Some(attr) = leap {
             layer.add_attr(attr, 0..1);
         }
 
-        let mode_type = MODE_ATTR_HEADER.try_get(&layer)?.try_into()?;
+        let mode_type = MODE_ATTR.try_get(&layer)?.try_into()?;
 
         let mode = get_mode(mode_type);
         if let Some(attr) = mode {
             layer.add_attr(attr, 0..1);
         }
 
-        let stratum: u8 = STRATUM_ATTR_HEADER.try_get(&layer)?.try_into()?;
+        let stratum: u8 = STRATUM_ATTR.try_get(&layer)?.try_into()?;
         if stratum >= 2 {
             layer.add_attr(&ID_IP_ATTR, 12..16);
         } else {
@@ -110,10 +110,6 @@ def_layer_class!(
     header: &TRATS_SEC_ATTR,
     header: &TRATS_FRA_ATTR
 );
-
-def_attr!(LEAP_ATTR_HEADER,  &LEAP_ATTR, range: 0..1);
-def_attr!(MODE_ATTR_HEADER,  &MODE_ATTR, range: 0..1);
-def_attr!(STRATUM_ATTR_HEADER,  &STRATUM_ATTR, range: 1..2);
 
 def_attr_class!(LEAP_ATTR, "ntp.leapIndicator",
     typ: "@enum",

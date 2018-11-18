@@ -20,7 +20,7 @@ impl Worker for IPv6Worker {
         }
 
         let mut layer = Layer::new(&IPV6_CLASS, data);
-        let nheader = NHEADER_ATTR_HEADER.try_get(&layer)?.try_into()?;
+        let nheader = NHEADER_ATTR.try_get(&layer)?.try_into()?;
 
         loop {
             match nheader {
@@ -37,9 +37,10 @@ impl Worker for IPv6Worker {
             }
         }
 
-        let range = NHEADER_ATTR_HEADER.range();
-        let proto_attr = attr!(&PROTOCOL_ATTR, range: range.clone());
-        let proto = proto_attr.try_get(&layer)?.try_into()?;
+        let range = NHEADER_ATTR.range();
+        let proto = PROTOCOL_ATTR
+            .try_get_range(&layer, range.clone())?
+            .try_into()?;
         layer.add_attr(&PROTOCOL_ATTR, range.clone());
         if let Some((typ, attr)) = get_proto(proto) {
             layer.add_attr(attr, range.clone());
@@ -80,8 +81,6 @@ def_layer_class!(IPV6_CLASS, "ipv6",
     header: &SRC_ATTR,
     header: &DST_ATTR
 );
-
-def_attr!(NHEADER_ATTR_HEADER,  &NHEADER_ATTR, range: 6..7);
 
 def_attr_class!(VERSION_ATTR, "ipv6.version",
     cast: cast::UInt8().map(|v| v >> 4),
