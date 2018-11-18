@@ -204,10 +204,7 @@ impl Layer {
             .map(|alias| alias.target)
             .unwrap_or(id);
         self.attrs()
-            .chain(self
-            .class
-            .headers()
-            .map(|c| {
+            .chain(self.class.headers().map(|c| {
                 let offset = c.range().start;
                 let range = (c.bit_range().start - offset * 8)..(c.bit_range().end - offset * 8);
                 Attr::builder(c.clone()).bit_range(offset, range).build()

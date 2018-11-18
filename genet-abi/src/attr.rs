@@ -244,7 +244,7 @@ impl AttrClass {
 
     fn try_get(&self, attr: &Attr, layer: &Layer) -> Result<Variant> {
         let data = layer.data();
-        let data = if let Some(data) = data.get(self.range()) {
+        let data = if let Some(data) = data.get(self.range_attr(attr)) {
             data
         } else {
             return Err(Box::new(Error::new("out of bounds")));
