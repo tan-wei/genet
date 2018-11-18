@@ -1,11 +1,11 @@
-use attr::Attr;
+use attr::{Attr, AttrClass};
 use fixed::{Fixed, MutFixed};
 use metadata::Metadata;
 use slice::ByteSlice;
 use std::{
     fmt,
     marker::PhantomData,
-    ops::{Deref, DerefMut},
+    ops::{Deref, DerefMut, Range},
     slice,
 };
 use token::Token;
@@ -101,8 +101,8 @@ impl<'a> Parent<'a> {
     }
 
     /// Adds an attribute to the Layer.
-    pub fn add_attr(&mut self, attr: &Attr) {
-        self.deref_mut().add_attr(attr);
+    pub fn add_attr<C: Into<Fixed<AttrClass>>>(&mut self, attr: C, range: Range<usize>) {
+        self.deref_mut().add_attr(attr, range);
     }
 
     /// Returns the slice of payloads.
@@ -209,9 +209,9 @@ impl Layer {
     }
 
     /// Adds an attribute to the Layer.
-    pub fn add_attr(&mut self, attr: &Attr) {
+    pub fn add_attr<C: Into<Fixed<AttrClass>>>(&mut self, attr: C, range: Range<usize>) {
         let func = self.class.add_attr;
-        (func)(self, attr.clone());
+        (func)(self, Attr::builder(attr).range(range).build());
     }
 
     /// Returns the slice of payloads.
@@ -549,8 +549,7 @@ mod tests {
 
         let count = 100;
         for i in 0..count {
-            let attr = Attr::builder(class.clone()).range(0..i).build();
-            layer.add_attr(attr);
+            layer.add_attr(class, 0..i);
         }
         let mut iter = layer.attrs();
         for i in 0..count {

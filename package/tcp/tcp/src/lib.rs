@@ -29,7 +29,7 @@ impl Worker for TcpWorker {
             let typ = layer.data().try_get(offset)?;
             if typ <= 1 {
                 if typ == 1 {
-                    layer.add_attr(&attr!(&OPTIONS_NOP_ATTR, range: offset..offset + 1));
+                    layer.add_attr(&OPTIONS_NOP_ATTR, offset..offset + 1);
                 }
                 offset += 1;
                 continue;
@@ -37,30 +37,27 @@ impl Worker for TcpWorker {
             let len = layer.data().try_get(offset + 1)? as usize;
             match typ {
                 2 => {
-                    layer.add_attr(&attr!(&OPTIONS_MSS_ATTR, range: offset + 2..offset + len));
+                    layer.add_attr(&OPTIONS_MSS_ATTR, offset + 2..offset + len);
                 }
                 3 => {
-                    layer.add_attr(&attr!(&OPTIONS_SCALE_ATTR, range: offset + 2..offset + len));
+                    layer.add_attr(&OPTIONS_SCALE_ATTR, offset + 2..offset + len);
                 }
                 4 => {
-                    layer.add_attr(&attr!(&OPTIONS_SACKP_ATTR, range: offset..offset + len));
+                    layer.add_attr(&OPTIONS_SACKP_ATTR, offset..offset + len);
                 }
                 5 => {
-                    layer.add_attr(&attr!(&OPTIONS_SACK_ATTR, range: offset + 2..offset + len));
+                    layer.add_attr(&OPTIONS_SACK_ATTR, offset + 2..offset + len);
                 }
                 8 => {
-                    layer.add_attr(&attr!(&OPTIONS_TS_ATTR, range: offset..offset + len));
-                    layer.add_attr(&attr!(&OPTIONS_TS_MY_ATTR, range: offset + 2..offset + 6));
-                    layer.add_attr(&attr!(
-                        &OPTIONS_TS_ECHO_ATTR,
-                        range: offset + 6..offset + 10
-                    ));
+                    layer.add_attr(&OPTIONS_TS_ATTR, offset..offset + len);
+                    layer.add_attr(&OPTIONS_TS_MY_ATTR, offset + 2..offset + 6);
+                    layer.add_attr(&OPTIONS_TS_ECHO_ATTR, offset + 6..offset + 10);
                 }
                 _ => {}
             }
             offset += len;
         }
-        layer.add_attr(&attr!(&OPTIONS_ATTR, range: 20..offset));
+        layer.add_attr(&OPTIONS_ATTR, 20..offset);
 
         let payload = layer.data().try_get(data_offset..)?;
         layer.add_payload(Payload::new(payload, "@data:tcp"));

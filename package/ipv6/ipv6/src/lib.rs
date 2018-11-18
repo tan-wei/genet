@@ -40,9 +40,9 @@ impl Worker for IPv6Worker {
         let range = NHEADER_ATTR_HEADER.range();
         let proto_attr = attr!(&PROTOCOL_ATTR, range: range.clone());
         let proto = proto_attr.try_get(&layer)?.try_into()?;
-        layer.add_attr(&proto_attr);
+        layer.add_attr(&PROTOCOL_ATTR, range.clone());
         if let Some((typ, attr)) = get_proto(proto) {
-            layer.add_attr(&attr!(attr, range: range.clone()));
+            layer.add_attr(attr, range.clone());
             let payload = layer.data().try_get(40..)?;
             layer.add_payload(Payload::new(payload, typ));
         }

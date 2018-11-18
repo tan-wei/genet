@@ -1,6 +1,6 @@
 extern crate genet_sdk;
 
-use genet_sdk::{cast, decoder::*, prelude::*};
+use genet_sdk::{decoder::*, prelude::*};
 use std::collections::{BTreeMap, HashMap};
 
 #[derive(Debug)]
@@ -159,7 +159,6 @@ impl Worker for TcpStreamWorker {
                 parent.add_payload(Payload::new(payload, "@stream:tcp"));
             }
 
-            parent.add_attr(&attr!(&STREAM_ATTR));
             Ok(Status::Done)
         } else {
             Ok(Status::Skip)
@@ -182,10 +181,5 @@ impl Decoder for TcpStreamDecoder {
         }
     }
 }
-
-def_attr_class!(STREAM_ATTR, "tcp.stream",
-    typ: "@novalue",
-    cast: cast::UInt8().map(|v| v)
-);
 
 genet_decoders!(TcpStreamDecoder {});

@@ -21,13 +21,15 @@ impl Worker for EthWorker {
 
         let mut layer = Layer::new(&ETH_CLASS, data);
         let len = LEN_ATTR_HEADER.try_get(&layer)?.try_into()?;
+
         if len <= 1500 {
-            layer.add_attr(&LEN_ATTR_HEADER);
+            layer.add_attr(&LEN_ATTR, 12..14);
         } else {
-            layer.add_attr(&TYPE_ATTR_HEADER);
+            layer.add_attr(&TYPE_ATTR, 12..14);
         }
+
         if let Some((typ, attr)) = get_type(len) {
-            layer.add_attr(&attr!(attr, range: 12..14));
+            layer.add_attr(attr, 12..14);
             let payload = data.try_get(14..)?;
             layer.add_payload(Payload::new(payload, typ));
         }
