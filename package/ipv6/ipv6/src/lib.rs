@@ -71,46 +71,60 @@ impl Decoder for IPv6Decoder {
 def_layer_class!(IPV6_CLASS, "ipv6",
     alias: "_.src" "ipv6.src",
     alias: "_.dst" "ipv6.dst",
-    header: &attr!(&VERSION_ATTR, bit_range: 0 0..4),
-    header: &attr!(&TRAFFIC_ATTR, bit_range: 0 4..12),
-    header: &attr!(&FLOW_ATTR, bit_range: 1 4..24),
-    header: &attr!(&LENGTH_ATTR, range: 4..6),
-    header: &NHEADER_ATTR_HEADER,
-    header: &attr!(&HLIMIT_ATTR, range: 7..8),
-    header: &attr!(&SRC_ATTR, range: 8..24),
-    header: &attr!(&DST_ATTR, range: 24..40)
+    header2: &VERSION_ATTR,
+    header2: &TRAFFIC_ATTR,
+    header2: &FLOW_ATTR,
+    header2: &LENGTH_ATTR,
+    header2: &NHEADER_ATTR,
+    header2: &HLIMIT_ATTR,
+    header2: &SRC_ATTR,
+    header2: &DST_ATTR
 );
 
 def_attr!(NHEADER_ATTR_HEADER,  &NHEADER_ATTR, range: 6..7);
 
 def_attr_class!(VERSION_ATTR, "ipv6.version",
-    cast: cast::UInt8().map(|v| v >> 4)
+    cast: cast::UInt8().map(|v| v >> 4),
+    bit_range: 0 0..4
 );
 
 def_attr_class!(TRAFFIC_ATTR, "ipv6.trafficClass",
-    cast: cast::UInt16BE().map(|v| (v >> 4) & 0xff)
+    cast: cast::UInt16BE().map(|v| (v >> 4) & 0xff),
+    bit_range: 0 4..12
 );
 
 def_attr_class!(FLOW_ATTR, "ipv6.flowLabel", 
     cast:
         cast::ByteSlice()
-            .map(|v| (((v[2] as u32) & 0xf) << 16) | ((v[1] as u32) << 8) | v[2] as u32)
+            .map(|v| (((v[2] as u32) & 0xf) << 16) | ((v[1] as u32) << 8) | v[2] as u32),
+    bit_range: 1 4..24
 );
 
-def_attr_class!(LENGTH_ATTR, "ipv6.payloadLength", cast: cast::UInt8());
+def_attr_class!(LENGTH_ATTR, "ipv6.payloadLength",
+    cast: cast::UInt8(),
+    range: 4..6
+);
 
-def_attr_class!(NHEADER_ATTR, "ipv6.nextHeader", cast: cast::UInt8());
+def_attr_class!(NHEADER_ATTR, "ipv6.nextHeader",
+    cast: cast::UInt8(),
+    range: 6..7
+);
 
-def_attr_class!(HLIMIT_ATTR, "ipv6.hopLimit", cast: cast::UInt8());
+def_attr_class!(HLIMIT_ATTR, "ipv6.hopLimit",
+    cast: cast::UInt8(),
+    range: 7..8
+);
 
 def_attr_class!(SRC_ATTR, "ipv6.src",
     typ: "@ipv6:addr",
-    cast: cast::ByteSlice()
+    cast: cast::ByteSlice(),
+    range: 8..24
 );
 
 def_attr_class!(DST_ATTR, "ipv6.dst",
     typ: "@ipv6:addr",
-    cast: cast::ByteSlice()
+    cast: cast::ByteSlice(),
+    range: 24..40
 );
 
 def_attr_class!(PROTOCOL_ATTR, "ipv6.protocol",

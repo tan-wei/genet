@@ -86,90 +86,119 @@ impl Decoder for TcpDecoder {
 def_layer_class!(
     TCP_CLASS,
     "tcp",
-    header: &attr!(&SRC_ATTR, range: 0..2),
-    header: &attr!(&DST_ATTR, range: 2..4),
-    header: &attr!(&SEQ_ATTR, range: 4..8),
-    header: &attr!(&ACK_ATTR, range: 8..12),
-    header: &OFFSET_ATTR_HEADER,
-    header: &attr!(&FLAGS_ATTR, bit_range: 12 7..16),
-    header: &attr!(&FLAGS_NS_ATTR, bit_range: 12 7..8),
-    header: &attr!(&FLAGS_CWR_ATTR, bit_range: 13 0..1),
-    header: &attr!(&FLAGS_ECE_ATTR, bit_range: 13 1..2),
-    header: &attr!(&FLAGS_URG_ATTR, bit_range: 13 2..3),
-    header: &attr!(&FLAGS_ACK_ATTR, bit_range: 13 3..4),
-    header: &attr!(&FLAGS_PSH_ATTR, bit_range: 13 4..5),
-    header: &attr!(&FLAGS_RST_ATTR, bit_range: 13 5..6),
-    header: &attr!(&FLAGS_SYN_ATTR, bit_range: 13 6..7),
-    header: &attr!(&FLAGS_FIN_ATTR, bit_range: 13 7..8),
-    header: &attr!(&WINDOW_ATTR, range: 14..16),
-    header: &attr!(&CHECKSUM_ATTR, range: 16..18),
-    header: &attr!(&URGENT_ATTR, range: 18..20)
+    header2: &SRC_ATTR,
+    header2: &DST_ATTR,
+    header2: &SEQ_ATTR,
+    header2: &ACK_ATTR,
+    header2: &OFFSET_ATTR,
+    header2: &FLAGS_ATTR,
+    header2: &FLAGS_NS_ATTR,
+    header2: &FLAGS_CWR_ATTR,
+    header2: &FLAGS_ECE_ATTR,
+    header2: &FLAGS_URG_ATTR,
+    header2: &FLAGS_ACK_ATTR,
+    header2: &FLAGS_PSH_ATTR,
+    header2: &FLAGS_RST_ATTR,
+    header2: &FLAGS_SYN_ATTR,
+    header2: &FLAGS_FIN_ATTR,
+    header2: &WINDOW_ATTR,
+    header2: &CHECKSUM_ATTR,
+    header2: &URGENT_ATTR
 );
 
 def_attr!(OFFSET_ATTR_HEADER,  &OFFSET_ATTR, range: 12..13);
 
 def_attr_class!(SRC_ATTR, "tcp.src",
     typ: "@tcp:port",
-    cast: cast::UInt16BE()
+    cast: cast::UInt16BE(),
+    range: 0..2
 );
 
 def_attr_class!(DST_ATTR, "tcp.dst",
     typ: "@tcp:port",
-    cast: cast::UInt16BE()
+    cast: cast::UInt16BE(),
+    range: 2..4
 );
 
-def_attr_class!(SEQ_ATTR, "tcp.seq", cast: cast::UInt32BE());
-def_attr_class!(ACK_ATTR, "tcp.ack", cast: cast::UInt32BE());
+def_attr_class!(SEQ_ATTR, "tcp.seq", 
+    cast: cast::UInt32BE(),
+    range: 4..8
+);
+
+def_attr_class!(ACK_ATTR, "tcp.ack",
+    cast: cast::UInt32BE(),
+    range: 8..12
+);
 
 def_attr_class!(OFFSET_ATTR, "tcp.dataOffset",
-    cast: cast::UInt8().map(|v| v >> 4)
+    cast: cast::UInt8().map(|v| v >> 4),
+    range: 12..13
 );
 
 def_attr_class!(FLAGS_ATTR, "tcp.flags",
     typ: "@flags",
-    cast: cast::UInt16BE().map(|v| v & 0xfff)
+    cast: cast::UInt16BE().map(|v| v & 0xfff),
+    bit_range: 12 7..16
 );
 
 def_attr_class!(FLAGS_NS_ATTR, "tcp.flags.ns",
-    cast: cast::UInt8().map(|v| (v & 0b0000_0001) != 0)
+    cast: cast::UInt8().map(|v| (v & 0b0000_0001) != 0),
+    bit_range: 12 7..8
 );
 def_attr_class!(FLAGS_CWR_ATTR, "tcp.flags.cwr",
-    cast: cast::UInt8().map(|v| (v & 0b1000_0000) != 0)
+    cast: cast::UInt8().map(|v| (v & 0b1000_0000) != 0),
+    bit_range: 13 0..1
 );
 
 def_attr_class!(FLAGS_ECE_ATTR, "tcp.flags.ece",
-    cast: cast::UInt8().map(|v| (v & 0b0100_0000) != 0)
+    cast: cast::UInt8().map(|v| (v & 0b0100_0000) != 0),
+    bit_range: 13 1..2
 );
 
 def_attr_class!(FLAGS_URG_ATTR, "tcp.flags.urg",
-    cast: cast::UInt8().map(|v| (v & 0b0010_0000) != 0)
+    cast: cast::UInt8().map(|v| (v & 0b0010_0000) != 0),
+    bit_range: 13 2..3
 );
 
 def_attr_class!(FLAGS_ACK_ATTR, "tcp.flags.ack",
-    cast: cast::UInt8().map(|v| (v & 0b0001_0000) != 0)
+    cast: cast::UInt8().map(|v| (v & 0b0001_0000) != 0),
+    bit_range: 13 3..4
 );
 
 def_attr_class!(FLAGS_PSH_ATTR, "tcp.flags.psh",
-    cast: cast::UInt8().map(|v| (v & 0b0000_1000) != 0)
+    cast: cast::UInt8().map(|v| (v & 0b0000_1000) != 0),
+    bit_range: 13 4..5
 );
 
 def_attr_class!(FLAGS_RST_ATTR, "tcp.flags.rst",
-    cast: cast::UInt8().map(|v| (v & 0b0000_0100) != 0)
+    cast: cast::UInt8().map(|v| (v & 0b0000_0100) != 0),
+    bit_range: 13 5..6
 );
 
 def_attr_class!(FLAGS_SYN_ATTR, "tcp.flags.syn",
-    cast: cast::UInt8().map(|v| (v & 0b0000_0010) != 0)
+    cast: cast::UInt8().map(|v| (v & 0b0000_0010) != 0),
+    bit_range: 13 6..7
 );
 
 def_attr_class!(FLAGS_FIN_ATTR, "tcp.flags.fin",
-    cast: cast::UInt8().map(|v| (v & 0b0000_0001) != 0)
+    cast: cast::UInt8().map(|v| (v & 0b0000_0001) != 0),
+    bit_range: 13 7..8
 );
 
-def_attr_class!(WINDOW_ATTR, "tcp.window", cast: cast::UInt16BE());
+def_attr_class!(WINDOW_ATTR, "tcp.window", 
+    cast: cast::UInt16BE(),
+    range: 14..16
+);
 
-def_attr_class!(CHECKSUM_ATTR, "tcp.checksum", cast: cast::UInt16BE());
+def_attr_class!(CHECKSUM_ATTR, "tcp.checksum",
+    cast: cast::UInt16BE(),
+    range: 16..18
+);
 
-def_attr_class!(URGENT_ATTR, "tcp.urgent", cast: cast::UInt16BE());
+def_attr_class!(URGENT_ATTR, "tcp.urgent",
+    cast: cast::UInt16BE(),
+    range: 18..20
+);
 
 def_attr_class!(OPTIONS_ATTR, "tcp.options",
     typ: "@nested",

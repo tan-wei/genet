@@ -21,7 +21,6 @@ impl Worker for EthWorker {
 
         let mut layer = Layer::new(&ETH_CLASS, data);
         let len = LEN_ATTR_HEADER.try_get(&layer)?.try_into()?;
-
         if len <= 1500 {
             layer.add_attr(&LEN_ATTR, 12..14);
         } else {
@@ -56,32 +55,33 @@ impl Decoder for EthDecoder {
 }
 
 def_layer_class!(ETH_CLASS, "eth",
-            alias: "_.src" "eth.src",
-            alias: "_.dst" "eth.dst",
-            header: &attr!(&SRC_ATTR, range: 0..6),
-            header: &attr!(&DST_ATTR, range: 6..12)
-        );
+    alias: "_.src" "eth.src",
+    alias: "_.dst" "eth.dst",
+    header2: &SRC_ATTR,
+    header2: &DST_ATTR
+);
 
 def_attr_class!(SRC_ATTR, "eth.src",
-            typ: "@eth:mac",
-            cast: cast::ByteSlice()
-        );
+    typ: "@eth:mac",
+    cast: cast::ByteSlice(),
+    range: 0..6
+);
 
 def_attr_class!(DST_ATTR, "eth.dst",
-            typ: "@eth:mac",
-            cast: cast::ByteSlice()
-        );
+    typ: "@eth:mac",
+    cast: cast::ByteSlice(),
+    range: 6..12
+);
 
-def_attr_class!(LEN_ATTR, "eth.len", cast: cast::UInt16BE());
+def_attr_class!(LEN_ATTR, "eth.len", cast: cast::UInt16BE(), range: 12..14);
 
 def_attr_class!(TYPE_ATTR, "eth.type",
-            typ: "@enum",
-            cast: cast::UInt16BE()
-        );
+    typ: "@enum",
+    cast: cast::UInt16BE(),
+    range: 12..14
+);
 
 def_attr!(LEN_ATTR_HEADER,  &LEN_ATTR, range: 12..14);
-
-def_attr!(TYPE_ATTR_HEADER,  &TYPE_ATTR, range: 12..14);
 
 fn get_type(val: u64) -> Option<(Token, &'static AttrClass)> {
     match val {
