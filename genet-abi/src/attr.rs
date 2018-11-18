@@ -245,10 +245,13 @@ impl AttrClass {
     pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
         self.try_get_range(layer, self.range())
     }
-
+    
     pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<Variant> {
-        let data = layer.data();
-        let data = if let Some(data) = data.get(range) {
+        self.try_get_data(layer.data().get(range))
+    }
+
+    fn try_get_data(&self, data: Option<&[u8]>) -> Result<Variant> {
+        let data = if let Some(data) = data {
             data
         } else {
             return Err(Box::new(Error::new("out of bounds")));
