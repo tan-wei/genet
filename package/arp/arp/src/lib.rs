@@ -78,11 +78,11 @@ impl Decoder for ArpDecoder {
 def_layer_class!(ARP_CLASS, "arp",
     alias: "_.src" "arp.sha",
     alias: "_.dst" "arp.tha",
-    header2: &HWTYPE_ATTR,
-    header2: &PROTO_ATTR,
-    header2: &HLEN_ATTR,
-    header2: &PLEN_ATTR,
-    header2: &OP_ATTR
+    header: &HWTYPE_ATTR,
+    header: &PROTO_ATTR,
+    header: &HLEN_ATTR,
+    header: &PLEN_ATTR,
+    header: &OP_ATTR
 );
 
 def_attr!(HWTYPE_ATTR_HEADER,  &HWTYPE_ATTR, range: 0..2);

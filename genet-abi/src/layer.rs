@@ -318,12 +318,7 @@ impl LayerClassBuilder {
     }
 
     /// Adds a header attribute for LayerClass.
-    pub fn header(mut self, attr: &Attr) -> LayerClassBuilder {
-        self.headers.push(attr.clone());
-        self
-    }
-
-    pub fn header2<T: Into<Fixed<AttrClass>>>(mut self, attr: T) -> LayerClassBuilder {
+    pub fn header<T: Into<Fixed<AttrClass>>>(mut self, attr: T) -> LayerClassBuilder {
         self.headers2.push(attr.into());
         self
     }

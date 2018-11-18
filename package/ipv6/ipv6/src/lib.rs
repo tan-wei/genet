@@ -71,14 +71,14 @@ impl Decoder for IPv6Decoder {
 def_layer_class!(IPV6_CLASS, "ipv6",
     alias: "_.src" "ipv6.src",
     alias: "_.dst" "ipv6.dst",
-    header2: &VERSION_ATTR,
-    header2: &TRAFFIC_ATTR,
-    header2: &FLOW_ATTR,
-    header2: &LENGTH_ATTR,
-    header2: &NHEADER_ATTR,
-    header2: &HLIMIT_ATTR,
-    header2: &SRC_ATTR,
-    header2: &DST_ATTR
+    header: &VERSION_ATTR,
+    header: &TRAFFIC_ATTR,
+    header: &FLOW_ATTR,
+    header: &LENGTH_ATTR,
+    header: &NHEADER_ATTR,
+    header: &HLIMIT_ATTR,
+    header: &SRC_ATTR,
+    header: &DST_ATTR
 );
 
 def_attr!(NHEADER_ATTR_HEADER,  &NHEADER_ATTR, range: 6..7);

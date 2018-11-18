@@ -57,8 +57,8 @@ impl Decoder for EthDecoder {
 def_layer_class!(ETH_CLASS, "eth",
     alias: "_.src" "eth.src",
     alias: "_.dst" "eth.dst",
-    header2: &SRC_ATTR,
-    header2: &DST_ATTR
+    header: &SRC_ATTR,
+    header: &DST_ATTR
 );
 
 def_attr_class!(SRC_ATTR, "eth.src",
