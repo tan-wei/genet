@@ -40,17 +40,14 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
     fn layer_attrs<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
 
-        let mut tmp_attrs = layer
-            .headers2()
+        let headers = layer
+            .headers()
             .map(|c| {
                 let offset = c.range().start;
                 let range = (c.bit_range().start - offset * 8)..(c.bit_range().end - offset * 8);
                 Attr::builder(c.clone()).bit_range(offset, range).build()
             })
             .collect::<Vec<_>>();
-
-        let mut headers = layer.headers().collect::<Vec<_>>();
-        headers.append(&mut tmp_attrs);
         let attrs = layer.attrs().collect::<Vec<_>>();
         let attr_class = env.get_constructor(JsClass::Attr as usize).unwrap();
         let array = env.create_array(headers.len() + attrs.len())?;

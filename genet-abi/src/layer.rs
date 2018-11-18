@@ -86,7 +86,7 @@ impl<'a> Parent<'a> {
     }
 
     /// Returns the slice of headers.
-    pub fn headers(&self) -> impl Iterator<Item = Attr> {
+    pub fn headers(&self) -> impl Iterator<Item = &Fixed<AttrClass>> {
         self.deref().headers()
     }
 
@@ -185,12 +185,8 @@ impl Layer {
     }
 
     /// Returns the slice of headers.
-    pub fn headers(&self) -> impl Iterator<Item = Attr> {
+    pub fn headers(&self) -> impl Iterator<Item = &Fixed<AttrClass>> {
         self.class.headers()
-    }
-
-    pub fn headers2(&self) -> impl Iterator<Item = &Fixed<AttrClass>> {
-        self.class.headers2()
     }
 
     /// Returns the slice of attributes.
@@ -207,18 +203,15 @@ impl Layer {
             .find(|alias| alias.id == id)
             .map(|alias| alias.target)
             .unwrap_or(id);
-        let tmp_attrs = self
+        self.attrs()
+            .chain(self
             .class
-            .headers2()
+            .headers()
             .map(|c| {
                 let offset = c.range().start;
                 let range = (c.bit_range().start - offset * 8)..(c.bit_range().end - offset * 8);
                 Attr::builder(c.clone()).bit_range(offset, range).build()
-            })
-            .collect::<Vec<_>>();
-        self.attrs()
-            .chain(self.class.headers())
-            .chain(tmp_attrs.into_iter())
+            }))
             .find(|attr| attr.id() == id)
     }
 
@@ -302,8 +295,7 @@ impl Payload {
 pub struct LayerClassBuilder {
     id: Token,
     aliases: Vec<Alias>,
-    headers: Vec<Attr>,
-    headers2: Vec<Fixed<AttrClass>>,
+    headers: Vec<Fixed<AttrClass>>,
     meta: Metadata,
 }
 
@@ -319,7 +311,7 @@ impl LayerClassBuilder {
 
     /// Adds a header attribute for LayerClass.
     pub fn header<T: Into<Fixed<AttrClass>>>(mut self, attr: T) -> LayerClassBuilder {
-        self.headers2.push(attr.into());
+        self.headers.push(attr.into());
         self
     }
 
@@ -354,7 +346,6 @@ impl LayerClassBuilder {
             meta: self.meta,
             aliases: self.aliases,
             headers: self.headers,
-            headers2: self.headers2,
         }
     }
 }
@@ -372,7 +363,7 @@ pub struct LayerClass {
     aliases_len: extern "C" fn(*const LayerClass) -> u64,
     aliases_data: extern "C" fn(*const LayerClass) -> *const Alias,
     headers_len: extern "C" fn(*const LayerClass) -> u64,
-    headers_data: extern "C" fn(*const LayerClass) -> *const Attr,
+    headers_data: extern "C" fn(*const LayerClass) -> *const Fixed<AttrClass>,
     data: extern "C" fn(*const Layer, *mut u64) -> *const u8,
     attrs_len: extern "C" fn(*const Layer) -> u64,
     attrs_data: extern "C" fn(*const Layer) -> *const Attr,
@@ -383,8 +374,7 @@ pub struct LayerClass {
     id: Token,
     meta: Metadata,
     aliases: Vec<Alias>,
-    headers: Vec<Attr>,
-    headers2: Vec<Fixed<AttrClass>>,
+    headers: Vec<Fixed<AttrClass>>,
 }
 
 impl LayerClass {
@@ -395,7 +385,6 @@ impl LayerClass {
             meta: Metadata::new(),
             aliases: Vec::new(),
             headers: Vec::new(),
-            headers2: Vec::new(),
         }
     }
 
@@ -410,14 +399,10 @@ impl LayerClass {
         iter.map(|v| &*v)
     }
 
-    fn headers(&self) -> impl Iterator<Item = Attr> {
+    fn headers(&self) -> impl Iterator<Item = &Fixed<AttrClass>> {
         let data = (self.headers_data)(self);
         let len = (self.headers_len)(self) as usize;
-        unsafe { slice::from_raw_parts(data, len) }.iter().cloned()
-    }
-
-    fn headers2(&self) -> impl Iterator<Item = &Fixed<AttrClass>> {
-        self.headers2.iter()
+        unsafe { slice::from_raw_parts(data, len) }.iter()
     }
 
     fn data(&self, layer: &Layer) -> ByteSlice {
@@ -461,7 +446,7 @@ extern "C" fn abi_headers_len(class: *const LayerClass) -> u64 {
     unsafe { (*class).headers.len() as u64 }
 }
 
-extern "C" fn abi_headers_data(class: *const LayerClass) -> *const Attr {
+extern "C" fn abi_headers_data(class: *const LayerClass) -> *const Fixed<AttrClass> {
     unsafe { (*class).headers.as_ptr() }
 }
 

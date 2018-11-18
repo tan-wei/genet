@@ -41,19 +41,15 @@ impl Expr {
             Expr::UnaryNegation(v) => v.eval(ctx).op_unary_negation(),
             Expr::Token(t) => {
                 for layer in ctx.layers().iter().rev() {
-                    let tmp_attrs = layer
-                        .headers2()
+
+                    if let Some(attr) = layer
+                        .headers()
                         .map(|c| {
                             let offset = c.range().start;
                             let range = (c.bit_range().start - offset * 8)
                                 ..(c.bit_range().end - offset * 8);
                             Attr::builder(c.clone()).bit_range(offset, range).build()
                         })
-                        .collect::<Vec<_>>();
-
-                    if let Some(attr) = layer
-                        .headers()
-                        .chain(tmp_attrs.into_iter())
                         .chain(layer.attrs())
                         .find(|a| a.id() == *t)
                     {
