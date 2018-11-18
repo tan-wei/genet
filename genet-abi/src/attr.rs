@@ -74,17 +74,17 @@ impl Attr {
 
     /// Returns the byte range of self.
     pub fn range(&self) -> Range<usize> {
-        self.class.range_attr(self)
+        self.class.range()
     }
 
     /// Returns the bit range of self.
     pub fn bit_range(&self) -> Range<usize> {
-        self.class.bit_range_attr(self)
+        self.class.bit_range()
     }
 
     /// Returns the attribute value.
     pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
-        self.class.try_get_range(layer, self.range())
+        self.class.try_get_range(layer, self.class.range_attr(self))
     }
 }
 
@@ -245,7 +245,7 @@ impl AttrClass {
     pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
         self.try_get_range(layer, self.range())
     }
-    
+
     pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<Variant> {
         self.try_get_data(layer.data().get(range))
     }
