@@ -1,5 +1,5 @@
 use context::Context;
-use genet_abi::{attr::Attr, token::Token, variant::Variant};
+use genet_abi::{attr::Attr, slice::TryGet, token::Token, variant::Variant};
 use variant::VariantExt;
 
 #[derive(PartialEq, Clone, Debug)]
@@ -44,15 +44,14 @@ impl Expr {
                     if let Some(attr) = layer
                         .headers()
                         .map(|c| {
-                            let offset = c.range().start;
-                            let range = (c.bit_range().start - offset * 8)
-                                ..(c.bit_range().end - offset * 8);
-                            Attr::builder(c.clone()).bit_range(offset, range).build()
+                            Attr::builder(c.clone())
+                                .data(layer.data().try_get(c.range()).ok())
+                                .build()
                         })
                         .chain(layer.attrs())
                         .find(|a| a.id() == *t)
                     {
-                        if let Ok(val) = attr.try_get(layer) {
+                        if let Ok(val) = attr.try_get() {
                             return val;
                         }
                     }

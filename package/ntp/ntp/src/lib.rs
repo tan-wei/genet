@@ -26,13 +26,13 @@ impl Worker for NtpWorker {
         let parent_src: u16 = stack
             .attr(token!("udp.src"))
             .unwrap()
-            .try_get(parent)?
+            .try_get()?
             .try_into()?;
 
         let parent_dst: u16 = stack
             .attr(token!("udp.dst"))
             .unwrap()
-            .try_get(parent)?
+            .try_get()?
             .try_into()?;
 
         if parent_src != 123 && parent_dst != 123 {

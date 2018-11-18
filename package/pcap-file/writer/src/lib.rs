@@ -78,16 +78,16 @@ impl Worker for PcapFileWorker {
             let mut link = 0;
 
             if let Some(attr) = layer.attr(token!("link.originalLength")) {
-                orig_len = attr.try_get(layer)?.try_into()?;
+                orig_len = attr.try_get()?.try_into()?;
             }
             if let Some(attr) = layer.attr(token!("link.type")) {
-                link = attr.try_get(layer)?.try_into()?;
+                link = attr.try_get()?.try_into()?;
             }
             if let Some(attr) = layer.attr(token!("link.timestamp.sec")) {
-                ts_sec = attr.try_get(layer)?.try_into()?;
+                ts_sec = attr.try_get()?.try_into()?;
             }
             if let Some(attr) = layer.attr(token!("link.timestamp.usec")) {
-                ts_usec = attr.try_get(layer)?.try_into()?;
+                ts_usec = attr.try_get()?.try_into()?;
             }
 
             self.write_header(0, link as u32)?;

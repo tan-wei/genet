@@ -14,7 +14,7 @@ use vec::SafeVec;
 /// A builder object for Attr.
 pub struct AttrBuilder {
     class: Fixed<AttrClass>,
-    range: Range<usize>,
+    data: Option<ByteSlice>,
 }
 
 impl AttrBuilder {
@@ -22,19 +22,13 @@ impl AttrBuilder {
     pub fn build(self) -> Attr {
         Attr {
             class: self.class,
-            range: self.range,
+            data: self.data,
         }
     }
 
     /// Sets a byte range of Attr.
-    pub fn range(mut self, range: Range<usize>) -> AttrBuilder {
-        self.range = (range.start * 8)..(range.end * 8);
-        self
-    }
-
-    /// Sets a bit range of Attr.
-    pub fn bit_range(mut self, byte_offset: usize, range: Range<usize>) -> AttrBuilder {
-        self.range = (range.start + byte_offset * 8)..(range.end + byte_offset * 8);
+    pub fn data(mut self, data: Option<ByteSlice>) -> AttrBuilder {
+        self.data = data;
         self
     }
 }
@@ -44,7 +38,7 @@ impl AttrBuilder {
 #[derive(Clone)]
 pub struct Attr {
     class: Fixed<AttrClass>,
-    range: Range<usize>,
+    data: Option<ByteSlice>,
 }
 
 impl fmt::Debug for Attr {
@@ -58,7 +52,7 @@ impl Attr {
     pub fn builder<C: Into<Fixed<AttrClass>>>(class: C) -> AttrBuilder {
         AttrBuilder {
             class: class.into(),
-            range: 0..0,
+            data: None,
         }
     }
 
@@ -83,8 +77,8 @@ impl Attr {
     }
 
     /// Returns the attribute value.
-    pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
-        self.class.try_get_range(layer, self.class.range_attr(self))
+    pub fn try_get(&self) -> Result<Variant> {
+        self.class.try_get_data(self.data.map(|s| s.as_slice()))
     }
 }
 
@@ -172,7 +166,6 @@ impl AttrClassBuilder {
         AttrClass {
             get_id: abi_id,
             get_typ: abi_typ,
-            get_range: abi_range,
             get: abi_get,
             id: self.id,
             typ: self.typ,
@@ -188,7 +181,6 @@ impl AttrClassBuilder {
 pub struct AttrClass {
     get_id: extern "C" fn(class: *const AttrClass) -> Token,
     get_typ: extern "C" fn(class: *const AttrClass) -> Token,
-    get_range: extern "C" fn(*const Attr, *mut u64, *mut u64),
     get: extern "C" fn(*const AttrClass, *mut *const u8, u64, *mut i64, *mut Error) -> ValueType,
     id: Token,
     typ: Token,
@@ -224,22 +216,6 @@ impl AttrClass {
 
     pub fn bit_range(&self) -> Range<usize> {
         self.range.clone()
-    }
-
-    fn bit_range_attr(&self, attr: &Attr) -> Range<usize> {
-        let mut start;
-        let mut end;
-        unsafe {
-            start = mem::uninitialized();
-            end = mem::uninitialized();
-        }
-        (self.get_range)(attr, &mut start, &mut end);
-        start as usize..end as usize
-    }
-
-    fn range_attr(&self, attr: &Attr) -> Range<usize> {
-        let range = self.bit_range_attr(attr);
-        (range.start / 8)..((range.end + 7) / 8)
     }
 
     pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
@@ -293,14 +269,6 @@ impl AttrClass {
 impl Into<Fixed<AttrClass>> for &'static AttrClass {
     fn into(self) -> Fixed<AttrClass> {
         Fixed::from_static(self)
-    }
-}
-
-extern "C" fn abi_range(attr: *const Attr, start: *mut u64, end: *mut u64) {
-    unsafe {
-        let range = &(*attr).range;
-        *start = range.start as u64;
-        *end = range.end as u64;
     }
 }
 

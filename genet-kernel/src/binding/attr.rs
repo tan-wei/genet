@@ -93,13 +93,13 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
     fn attr_value<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let wrapper = env.unwrap::<AttrWrapper>(info.this())?;
-        variant_to_js(env, &wrapper.attr().try_get(wrapper.layer()))
+        variant_to_js(env, &wrapper.attr().try_get())
     }
 
     fn attr_filter_expression<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let wrapper = env.unwrap::<AttrWrapper>(info.this())?;
         let attr = wrapper.attr();
-        match attr.try_get(wrapper.layer()) {
+        match attr.try_get() {
             Ok(val) => env.create_string(&unparse(&Expr::CmpEq(
                 Box::new(Expr::Token(attr.id())),
                 Box::new(unparse_attr(attr.typ(), &val)),

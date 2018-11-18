@@ -1,7 +1,7 @@
 use attr::{Attr, AttrClass};
 use fixed::{Fixed, MutFixed};
 use metadata::Metadata;
-use slice::ByteSlice;
+use slice::{ByteSlice, TryGet};
 use std::{
     fmt,
     marker::PhantomData,
@@ -205,9 +205,9 @@ impl Layer {
             .unwrap_or(id);
         self.attrs()
             .chain(self.class.headers().map(|c| {
-                let offset = c.range().start;
-                let range = (c.bit_range().start - offset * 8)..(c.bit_range().end - offset * 8);
-                Attr::builder(c.clone()).bit_range(offset, range).build()
+                Attr::builder(c.clone())
+                    .data(self.data.try_get(c.range()).ok())
+                    .build()
             }))
             .find(|attr| attr.id() == id)
     }
@@ -215,7 +215,12 @@ impl Layer {
     /// Adds an attribute to the Layer.
     pub fn add_attr<C: Into<Fixed<AttrClass>>>(&mut self, attr: C, range: Range<usize>) {
         let func = self.class.add_attr;
-        (func)(self, Attr::builder(attr).range(range).build());
+        (func)(
+            self,
+            Attr::builder(attr)
+                .data(self.data().try_get(range).ok())
+                .build(),
+        );
     }
 
     /// Returns the slice of payloads.
