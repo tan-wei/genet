@@ -543,7 +543,7 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, _attr: &Attr, _data: &ByteSlice) -> Result<Variant> {
+            fn cast(&self, _: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::Nil)
             }
         }
