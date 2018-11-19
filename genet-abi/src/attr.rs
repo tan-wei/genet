@@ -13,7 +13,6 @@ use vec::SafeVec;
 
 /// An attribute object.
 #[repr(C)]
-#[derive(Clone)]
 pub struct Attr {
     class: Fixed<AttrClass>,
     range: Range<usize>,

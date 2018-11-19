@@ -50,18 +50,19 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
                 )
             })
             .collect::<Vec<_>>();
+        let hlen = headers.len();
         let attrs = layer.attrs().collect::<Vec<_>>();
         let attr_class = env.get_constructor(JsClass::Attr as usize).unwrap();
-        let array = env.create_array(headers.len() + attrs.len())?;
-        for (i, item) in headers.iter().enumerate() {
+        let array = env.create_array(hlen + attrs.len())?;
+        for (i, item) in headers.into_iter().enumerate() {
             let instance = env.new_instance(&attr_class, &[])?;
-            env.wrap(instance, item.clone())?;
+            env.wrap(instance, item)?;
             env.set_element(array, i as u32, instance)?;
         }
-        for (i, item) in attrs.iter().enumerate() {
+        for (i, item) in attrs.into_iter().enumerate() {
             let instance = env.new_instance(&attr_class, &[])?;
-            env.wrap(instance, item.clone())?;
-            env.set_element(array, (headers.len() + i) as u32, instance)?;
+            env.wrap(instance, item)?;
+            env.set_element(array, (hlen + i) as u32, instance)?;
         }
         Ok(array)
     }

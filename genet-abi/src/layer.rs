@@ -152,12 +152,18 @@ extern "C" fn abi_children_data(layer: *const Parent) -> *const *mut Layer {
     unsafe { (*layer).children.as_ptr() }
 }
 
+#[repr(C)]
+struct BoundAttr {
+    attr: Fixed<AttrClass>,
+    range: Range<usize>,
+}
+
 /// A layer object.
 #[repr(C)]
 pub struct Layer {
     class: Fixed<LayerClass>,
     data: ByteSlice,
-    attrs: Vec<Attr>,
+    attrs: Vec<BoundAttr>,
     payloads: Vec<Payload>,
 }
 
@@ -217,11 +223,10 @@ impl Layer {
         let func = self.class.add_attr;
         (func)(
             self,
-            Attr::new(
-                attr,
-                (range.start * 8)..(range.end * 8),
-                self.data().try_get(range).ok(),
-            ),
+            BoundAttr {
+                attr: attr.into(),
+                range: (range.start * 8)..(range.end * 8),
+            },
         );
     }
 
@@ -370,8 +375,8 @@ pub struct LayerClass {
     headers_data: extern "C" fn(*const LayerClass) -> *const Fixed<AttrClass>,
     data: extern "C" fn(*const Layer, *mut u64) -> *const u8,
     attrs_len: extern "C" fn(*const Layer) -> u64,
-    attrs_data: extern "C" fn(*const Layer) -> *const Attr,
-    add_attr: extern "C" fn(*mut Layer, Attr),
+    attrs_data: extern "C" fn(*const Layer) -> *const BoundAttr,
+    add_attr: extern "C" fn(*mut Layer, BoundAttr),
     payloads_len: extern "C" fn(*const Layer) -> u64,
     payloads_data: extern "C" fn(*const Layer) -> *const Payload,
     add_payload: extern "C" fn(*mut Layer, Payload),
@@ -418,7 +423,18 @@ impl LayerClass {
     fn attrs(&self, layer: &Layer) -> impl Iterator<Item = Attr> {
         let data = (self.attrs_data)(layer);
         let len = (self.attrs_len)(layer) as usize;
-        unsafe { slice::from_raw_parts(data, len) }.iter().cloned()
+        let attrs = unsafe { slice::from_raw_parts(data, len) }
+            .iter()
+            .map(|c| {
+                let range = (c.range.start / 8)..((c.range.end + 7) / 8);
+                Attr::new(
+                    c.attr.clone(),
+                    c.range.clone(),
+                    layer.data().try_get(range).ok(),
+                )
+            })
+            .collect::<Vec<_>>();
+        attrs.into_iter()
     }
 
     fn payloads(&self, layer: &Layer) -> impl Iterator<Item = &Payload> {
@@ -466,11 +482,11 @@ extern "C" fn abi_attrs_len(layer: *const Layer) -> u64 {
     unsafe { (*layer).attrs.len() as u64 }
 }
 
-extern "C" fn abi_attrs_data(layer: *const Layer) -> *const Attr {
+extern "C" fn abi_attrs_data(layer: *const Layer) -> *const BoundAttr {
     unsafe { (*layer).attrs.as_ptr() }
 }
 
-extern "C" fn abi_add_attr(layer: *mut Layer, attr: Attr) {
+extern "C" fn abi_add_attr(layer: *mut Layer, attr: BoundAttr) {
     let attrs = unsafe { &mut (*layer).attrs };
     attrs.push(attr);
 }
