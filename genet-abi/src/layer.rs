@@ -205,9 +205,9 @@ impl Layer {
             .unwrap_or(id);
         self.attrs()
             .chain(
-                self.class
-                    .headers()
-                    .map(|c| Attr::new(c.clone(), self.data.try_get(c.range()).ok())),
+                self.class.headers().map(|c| {
+                    Attr::new(c.clone(), c.bit_range(), self.data.try_get(c.range()).ok())
+                }),
             )
             .find(|attr| attr.id() == id)
     }
@@ -215,7 +215,14 @@ impl Layer {
     /// Adds an attribute to the Layer.
     pub fn add_attr<C: Into<Fixed<AttrClass>>>(&mut self, attr: C, range: Range<usize>) {
         let func = self.class.add_attr;
-        (func)(self, Attr::new(attr, self.data().try_get(range).ok()));
+        (func)(
+            self,
+            Attr::new(
+                attr,
+                (range.start * 8)..(range.end * 8),
+                self.data().try_get(range).ok(),
+            ),
+        );
     }
 
     /// Returns the slice of payloads.

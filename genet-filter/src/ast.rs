@@ -43,7 +43,13 @@ impl Expr {
                 for layer in ctx.layers().iter().rev() {
                     if let Some(attr) = layer
                         .headers()
-                        .map(|c| Attr::new(c.clone(), layer.data().try_get(c.range()).ok()))
+                        .map(|c| {
+                            Attr::new(
+                                c.clone(),
+                                c.bit_range(),
+                                layer.data().try_get(c.range()).ok(),
+                            )
+                        })
                         .chain(layer.attrs())
                         .find(|a| a.id() == *t)
                     {
