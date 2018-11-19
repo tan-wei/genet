@@ -204,23 +204,18 @@ impl Layer {
             .map(|alias| alias.target)
             .unwrap_or(id);
         self.attrs()
-            .chain(self.class.headers().map(|c| {
-                Attr::builder(c.clone())
-                    .data(self.data.try_get(c.range()).ok())
-                    .build()
-            }))
+            .chain(
+                self.class
+                    .headers()
+                    .map(|c| Attr::new(c.clone(), self.data.try_get(c.range()).ok())),
+            )
             .find(|attr| attr.id() == id)
     }
 
     /// Adds an attribute to the Layer.
     pub fn add_attr<C: Into<Fixed<AttrClass>>>(&mut self, attr: C, range: Range<usize>) {
         let func = self.class.add_attr;
-        (func)(
-            self,
-            Attr::builder(attr)
-                .data(self.data().try_get(range).ok())
-                .build(),
-        );
+        (func)(self, Attr::new(attr, self.data().try_get(range).ok()));
     }
 
     /// Returns the slice of payloads.
@@ -488,7 +483,7 @@ extern "C" fn abi_add_payload(layer: *mut Layer, payload: Payload) {
 
 #[cfg(test)]
 mod tests {
-    use attr::{Attr, AttrClass};
+    use attr::AttrClass;
     use cast::Cast;
     use fixed::Fixed;
     use layer::{Layer, LayerClass, Payload};
@@ -558,14 +553,14 @@ mod tests {
 
         let count = 100;
         for i in 0..count {
-            layer.add_attr(class, 0..i);
+            layer.add_attr(class.clone(), 0..i);
         }
         let mut iter = layer.attrs();
-        for i in 0..count {
+        for _ in 0..count {
             let attr = iter.next().unwrap();
             assert_eq!(attr.id(), Token::from("nil"));
             assert_eq!(attr.typ(), Token::from("@nil"));
-            assert_eq!(attr.range(), 0..i);
+            assert_eq!(attr.range(), 0..0);
         }
         assert!(iter.next().is_none());
     }

@@ -42,11 +42,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
         let headers = layer
             .headers()
-            .map(|c| {
-                Attr::builder(c.clone())
-                    .data(layer.data().try_get(c.range()).ok())
-                    .build()
-            })
+            .map(|c| Attr::new(c.clone(), layer.data().try_get(c.range()).ok()))
             .collect::<Vec<_>>();
         let attrs = layer.attrs().collect::<Vec<_>>();
         let attr_class = env.get_constructor(JsClass::Attr as usize).unwrap();
