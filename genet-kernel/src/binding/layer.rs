@@ -1,4 +1,4 @@
-use binding::{attr::AttrWrapper, JsClass};
+use binding::JsClass;
 use genet_abi::{attr::Attr, layer::Layer, slice::TryGet, token::Token};
 use genet_filter::{ast::Expr, unparser::unparse};
 use genet_napi::napi::{
@@ -27,7 +27,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
             if let Some(attr) = layer.attr(id) {
                 let attr_class = env.get_constructor(JsClass::Attr as usize).unwrap();
                 let instance = env.new_instance(&attr_class, &[])?;
-                env.wrap(instance, AttrWrapper::new(attr, layer))?;
+                env.wrap(instance, attr)?;
                 Ok(instance)
             } else {
                 env.get_null()
@@ -53,12 +53,12 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         let array = env.create_array(headers.len() + attrs.len())?;
         for (i, item) in headers.iter().enumerate() {
             let instance = env.new_instance(&attr_class, &[])?;
-            env.wrap(instance, AttrWrapper::new(item.clone(), layer))?;
+            env.wrap(instance, item.clone())?;
             env.set_element(array, i as u32, instance)?;
         }
         for (i, item) in attrs.iter().enumerate() {
             let instance = env.new_instance(&attr_class, &[])?;
-            env.wrap(instance, AttrWrapper::new(item.clone(), layer))?;
+            env.wrap(instance, item.clone())?;
             env.set_element(array, (headers.len() + i) as u32, instance)?;
         }
         Ok(array)

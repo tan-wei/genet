@@ -1,4 +1,4 @@
-use genet_abi::{self, attr::Attr, layer::Layer, variant::Variant};
+use genet_abi::{self, attr::Attr, variant::Variant};
 use genet_filter::{
     ast::Expr,
     unparser::{unparse, unparse_attr},
@@ -39,42 +39,23 @@ fn variant_to_js<'env>(
     }
 }
 
-pub struct AttrWrapper {
-    attr: Attr,
-    layer: *const Layer,
-}
-
-impl AttrWrapper {
-    pub fn new(attr: Attr, layer: &Layer) -> AttrWrapper {
-        AttrWrapper { attr, layer }
-    }
-
-    fn attr(&self) -> &Attr {
-        &self.attr
-    }
-
-    fn layer(&self) -> &Layer {
-        unsafe { &*self.layer }
-    }
-}
-
 pub fn wrapper(env: &Env) -> Rc<ValueRef> {
     fn ctor<'env>(env: &'env Env, _info: &CallbackInfo) -> Result<&'env Value> {
         env.get_null()
     }
 
     fn attr_id<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
-        let attr = env.unwrap::<AttrWrapper>(info.this())?.attr();
+        let attr = env.unwrap::<Attr>(info.this())?;
         env.create_string(&attr.id().to_string())
     }
 
     fn attr_type<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
-        let attr = env.unwrap::<AttrWrapper>(info.this())?.attr();
+        let attr = env.unwrap::<Attr>(info.this())?;
         env.create_string(&attr.typ().to_string())
     }
 
     fn attr_bit_range<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
-        let attr = env.unwrap::<AttrWrapper>(info.this())?.attr();
+        let attr = env.unwrap::<Attr>(info.this())?;
         let range = attr.bit_range();
         let array = env.create_array(2)?;
         env.set_element(array, 0, env.create_uint32(range.start as u32)?)?;
@@ -83,7 +64,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
     }
 
     fn attr_range<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
-        let attr = env.unwrap::<AttrWrapper>(info.this())?.attr();
+        let attr = env.unwrap::<Attr>(info.this())?;
         let range = attr.range();
         let array = env.create_array(2)?;
         env.set_element(array, 0, env.create_uint32(range.start as u32)?)?;
@@ -92,13 +73,12 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
     }
 
     fn attr_value<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
-        let wrapper = env.unwrap::<AttrWrapper>(info.this())?;
-        variant_to_js(env, &wrapper.attr().try_get())
+        let attr = env.unwrap::<Attr>(info.this())?;
+        variant_to_js(env, &attr.try_get())
     }
 
     fn attr_filter_expression<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
-        let wrapper = env.unwrap::<AttrWrapper>(info.this())?;
-        let attr = wrapper.attr();
+        let attr = env.unwrap::<Attr>(info.this())?;
         match attr.try_get() {
             Ok(val) => env.create_string(&unparse(&Expr::CmpEq(
                 Box::new(Expr::Token(attr.id())),

@@ -82,16 +82,10 @@ impl Worker for TcpStreamWorker {
                 .data();
 
             let stream_id = {
-                let parent_src: ByteSlice = stack
-                    .attr(token!("_.src"))
-                    .unwrap()
-                    .try_get()?
-                    .try_into()?;
-                let parent_dst: ByteSlice = stack
-                    .attr(token!("_.dst"))
-                    .unwrap()
-                    .try_get()?
-                    .try_into()?;
+                let parent_src: ByteSlice =
+                    stack.attr(token!("_.src")).unwrap().try_get()?.try_into()?;
+                let parent_dst: ByteSlice =
+                    stack.attr(token!("_.dst")).unwrap().try_get()?.try_into()?;
                 let src: u32 = parent
                     .attr(token!("tcp.src"))
                     .unwrap()
