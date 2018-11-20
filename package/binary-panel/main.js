@@ -93,7 +93,11 @@ class BinaryView {
       return m('div', { class: 'binary-view' }, ['No frame selected'])
     }
     const frame = this.selectedFrame
-    return m(BinaryItem, { payload: frame.root.data })
+    let children = [frame.root]
+    while (children.every((layer) => layer.id.startsWith('['))) {
+      children = [].concat(...children.map((layer) => layer.children))
+    }
+    return m(BinaryItem, { payload: children[0].data })
   }
 }
 
