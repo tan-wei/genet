@@ -214,9 +214,10 @@ export default class PcapDetailView {
       length += ` (actual: ${actual})`
     }
 
-    const children = frame.root.id.startsWith('[')
-      ? frame.root.children
-      : [frame.root]
+    let children = [frame.root]
+    while (children.every(layer => layer.id.startsWith('['))) {
+      children = [].concat(...children.map(layer => layer.children))
+    }
 
     return m('div', { class: 'detail-view' }, [
       m('ul', [
