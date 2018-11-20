@@ -1,5 +1,5 @@
 use context::Context;
-use genet_abi::{attr::Attr, slice::TryGet, token::Token, variant::Variant};
+use genet_abi::{token::Token, variant::Variant};
 use variant::VariantExt;
 
 #[derive(PartialEq, Clone, Debug)]
@@ -41,18 +41,7 @@ impl Expr {
             Expr::UnaryNegation(v) => v.eval(ctx).op_unary_negation(),
             Expr::Token(t) => {
                 for layer in ctx.layers().iter().rev() {
-                    if let Some(attr) = layer
-                        .headers()
-                        .map(|c| {
-                            Attr::new(
-                                c.clone(),
-                                c.bit_range(),
-                                layer.data().try_get(c.range()).ok(),
-                            )
-                        })
-                        .chain(layer.attrs())
-                        .find(|a| a.id() == *t)
-                    {
+                    if let Some(attr) = layer.attr(t) {
                         if let Ok(val) = attr.try_get() {
                             return val;
                         }

@@ -1,6 +1,7 @@
 use frame::Frame;
 use genet_abi::{
     self,
+    attr::AttrClass,
     fixed::{Fixed, MutFixed},
     layer::{Layer, LayerClass},
     reader,
@@ -272,9 +273,10 @@ struct WorkerInput {
 
 impl WorkerInput {
     fn new(worker: reader::WorkerBox, id: Token) -> WorkerInput {
+        let attr = Fixed::new(AttrClass::builder(id).build());
         Self {
             worker,
-            class: Fixed::new(LayerClass::builder(id).build()),
+            class: Fixed::new(LayerClass::builder(attr).build()),
         }
     }
 }

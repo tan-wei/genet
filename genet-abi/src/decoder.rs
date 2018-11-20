@@ -192,6 +192,7 @@ extern "C" fn abi_metadata(diss: *const DecoderBox) -> SafeVec<u8> {
 
 #[cfg(test)]
 mod tests {
+    use attr::AttrClass;
     use context::Context;
     use decoder::{Decoder, DecoderBox, ExecType, Metadata, Status, Worker};
     use fixed::Fixed;
@@ -212,7 +213,8 @@ mod tests {
                 _stack: &LayerStack,
                 parent: &mut Parent,
             ) -> Result<Status> {
-                let class = Fixed::new(LayerClass::builder(Token::from(1234)).build());
+                let attr = Fixed::new(AttrClass::builder(Token::from(1234)).build());
+                let class = Fixed::new(LayerClass::builder(attr).build());
                 let layer = Layer::new(class, ByteSlice::new());
                 parent.add_child(layer);
                 Ok(Status::Done)
@@ -239,7 +241,8 @@ mod tests {
         let mut diss = DecoderBox::new(TestDecoder {});
         let mut worker = diss.new_worker(&ctx);
 
-        let class = Fixed::new(LayerClass::builder(Token::null()).build());
+        let attr = Fixed::new(AttrClass::builder(Token::null()).build());
+        let class = Fixed::new(LayerClass::builder(attr).build());
         let mut layer = Layer::new(class, ByteSlice::new());
         let mut layer = Parent::from_mut_ref(&mut layer);
 

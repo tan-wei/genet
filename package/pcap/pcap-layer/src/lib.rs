@@ -23,15 +23,19 @@ impl Worker for PcapLayerWorker {
 
         if self.class.is_none() {
             let link: u32 = TYPE_CLASS.try_get(&parent)?.try_into()?;
-            let link_class = Fixed::new(layer_class!(
-                format!("[link-{}]", link),
-                header: &TYPE_CLASS,
-                header: &PAYLOAD_LENGTH_CLASS,
-                header: &ORIG_LENGTH_CLASS,
-                header: &TS_CLASS,
-                header: &TS_SEC_CLASS,
-                header: &TS_USEC_CLASS
+
+            let id = format!("[link-{}]", link);
+            let attr = Fixed::new(attr_class!(
+                id,
+                child: &TYPE_CLASS,
+                child: &PAYLOAD_LENGTH_CLASS,
+                child: &ORIG_LENGTH_CLASS,
+                child: &TS_CLASS,
+                child: &TS_SEC_CLASS,
+                child: &TS_USEC_CLASS
             ));
+
+            let link_class = Fixed::new(layer_class!(attr));
             self.class = Some(link_class);
         }
 
@@ -57,6 +61,17 @@ impl Decoder for PcapLayerDecoder {
         }
     }
 }
+
+def_attr_class!(
+    LINK_ATTR,
+    "link",
+    child: &TYPE_CLASS,
+    child: &PAYLOAD_LENGTH_CLASS,
+    child: &ORIG_LENGTH_CLASS,
+    child: &TS_CLASS,
+    child: &TS_SEC_CLASS,
+    child: &TS_USEC_CLASS
+);
 
 def_attr_class!(TYPE_CLASS, "link.type",
     cast: cast::UInt32BE(),

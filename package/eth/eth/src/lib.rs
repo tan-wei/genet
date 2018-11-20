@@ -54,12 +54,12 @@ impl Decoder for EthDecoder {
     }
 }
 
-def_layer_class!(ETH_CLASS, "eth",
+def_layer_class!(ETH_CLASS, &ETH_ATTR,
     alias: "_.src" "eth.src",
-    alias: "_.dst" "eth.dst",
-    header: &SRC_ATTR,
-    header: &DST_ATTR
+    alias: "_.dst" "eth.dst"
 );
+
+def_attr_class!(ETH_ATTR, "eth", child: &SRC_ATTR, child: &DST_ATTR);
 
 def_attr_class!(SRC_ATTR, "eth.src",
     typ: "@eth:mac",

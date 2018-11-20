@@ -75,14 +75,19 @@ impl Decoder for ArpDecoder {
     }
 }
 
-def_layer_class!(ARP_CLASS, "arp",
+def_layer_class!(ARP_CLASS, &ARP_ATTR,
     alias: "_.src" "arp.sha",
-    alias: "_.dst" "arp.tha",
-    header: &HWTYPE_ATTR,
-    header: &PROTO_ATTR,
-    header: &HLEN_ATTR,
-    header: &PLEN_ATTR,
-    header: &OP_ATTR
+    alias: "_.dst" "arp.tha"
+);
+
+def_attr_class!(
+    ARP_ATTR,
+    "arp",
+    child: &HWTYPE_ATTR,
+    child: &PROTO_ATTR,
+    child: &HLEN_ATTR,
+    child: &PLEN_ATTR,
+    child: &OP_ATTR
 );
 
 def_attr_class!(HWTYPE_ATTR, "arp.hwtype",

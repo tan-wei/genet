@@ -120,7 +120,7 @@ impl PcapFileWorker {
     }
 }
 
-const BLOCK_SIZE: usize = 65535;
+const BLOCK_SIZE: usize = 2048;
 
 impl Worker for PcapFileWorker {
     fn read(&mut self) -> Result<Vec<ByteSlice>> {

@@ -83,27 +83,29 @@ impl Decoder for TcpDecoder {
     }
 }
 
-def_layer_class!(
-    TCP_CLASS,
+def_layer_class!(TCP_CLASS, &TCP_ATTR);
+
+def_attr_class!(
+    TCP_ATTR,
     "tcp",
-    header: &SRC_ATTR,
-    header: &DST_ATTR,
-    header: &SEQ_ATTR,
-    header: &ACK_ATTR,
-    header: &OFFSET_ATTR,
-    header: &FLAGS_ATTR,
-    header: &FLAGS_NS_ATTR,
-    header: &FLAGS_CWR_ATTR,
-    header: &FLAGS_ECE_ATTR,
-    header: &FLAGS_URG_ATTR,
-    header: &FLAGS_ACK_ATTR,
-    header: &FLAGS_PSH_ATTR,
-    header: &FLAGS_RST_ATTR,
-    header: &FLAGS_SYN_ATTR,
-    header: &FLAGS_FIN_ATTR,
-    header: &WINDOW_ATTR,
-    header: &CHECKSUM_ATTR,
-    header: &URGENT_ATTR
+    child: &SRC_ATTR,
+    child: &DST_ATTR,
+    child: &SEQ_ATTR,
+    child: &ACK_ATTR,
+    child: &OFFSET_ATTR,
+    child: &FLAGS_ATTR,
+    child: &FLAGS_NS_ATTR,
+    child: &FLAGS_CWR_ATTR,
+    child: &FLAGS_ECE_ATTR,
+    child: &FLAGS_URG_ATTR,
+    child: &FLAGS_ACK_ATTR,
+    child: &FLAGS_PSH_ATTR,
+    child: &FLAGS_RST_ATTR,
+    child: &FLAGS_SYN_ATTR,
+    child: &FLAGS_FIN_ATTR,
+    child: &WINDOW_ATTR,
+    child: &CHECKSUM_ATTR,
+    child: &URGENT_ATTR
 );
 
 def_attr_class!(SRC_ATTR, "tcp.src",

@@ -69,17 +69,22 @@ impl Decoder for IPv6Decoder {
     }
 }
 
-def_layer_class!(IPV6_CLASS, "ipv6",
+def_layer_class!(IPV6_CLASS, &IPV6_ATTR,
     alias: "_.src" "ipv6.src",
-    alias: "_.dst" "ipv6.dst",
-    header: &VERSION_ATTR,
-    header: &TRAFFIC_ATTR,
-    header: &FLOW_ATTR,
-    header: &LENGTH_ATTR,
-    header: &NHEADER_ATTR,
-    header: &HLIMIT_ATTR,
-    header: &SRC_ATTR,
-    header: &DST_ATTR
+    alias: "_.dst" "ipv6.dst"
+);
+
+def_attr_class!(
+    IPV6_ATTR,
+    "ipv6",
+    child: &VERSION_ATTR,
+    child: &TRAFFIC_ATTR,
+    child: &FLOW_ATTR,
+    child: &LENGTH_ATTR,
+    child: &NHEADER_ATTR,
+    child: &HLIMIT_ATTR,
+    child: &SRC_ATTR,
+    child: &DST_ATTR
 );
 
 def_attr_class!(VERSION_ATTR, "ipv6.version",

@@ -5,7 +5,7 @@ use fixed::Fixed;
 use layer::Layer;
 use metadata::Metadata;
 use result::Result;
-use slice::ByteSlice;
+use slice::{ByteSlice, TryGet};
 use std::{fmt, io, mem, ops::Range, slice};
 use token::Token;
 use variant::Variant;
@@ -95,6 +95,7 @@ pub struct AttrClassBuilder {
     typ: Token,
     meta: Metadata,
     range: Range<usize>,
+    children: Vec<Fixed<AttrClass>>,
     cast: Box<Cast>,
 }
 
@@ -135,6 +136,11 @@ impl AttrClassBuilder {
         self
     }
 
+    pub fn child<C: Into<Fixed<AttrClass>>>(mut self, class: C) -> AttrClassBuilder {
+        self.children.push(class.into());
+        self
+    }
+
     /// Sets a constant value of AttrClass.
     pub fn value<T: 'static + Into<Variant> + Send + Sync + Clone>(
         mut self,
@@ -154,6 +160,7 @@ impl AttrClassBuilder {
             typ: self.typ,
             meta: self.meta,
             range: self.range,
+            children: self.children,
             cast: self.cast,
         }
     }
@@ -169,6 +176,7 @@ pub struct AttrClass {
     typ: Token,
     meta: Metadata,
     range: Range<usize>,
+    children: Vec<Fixed<AttrClass>>,
     cast: Box<Cast>,
 }
 
@@ -180,15 +188,16 @@ impl AttrClass {
             typ: Token::null(),
             meta: Metadata::new(),
             range: 0..0,
+            children: Vec::new(),
             cast: Box::new(Const(true)),
         }
     }
 
-    fn id(&self) -> Token {
+    pub fn id(&self) -> Token {
         (self.get_id)(self)
     }
 
-    fn typ(&self) -> Token {
+    pub fn typ(&self) -> Token {
         (self.get_typ)(self)
     }
 
@@ -207,6 +216,36 @@ impl AttrClass {
 
     pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<Variant> {
         self.try_get_data(layer.data().get(range))
+    }
+
+    pub fn expand(
+        attr: &Fixed<AttrClass>,
+        data: &ByteSlice,
+        bit_range: Option<Range<usize>>,
+    ) -> Vec<Attr> {
+        let range = if let Some(range) = bit_range {
+            range
+        } else {
+            attr.bit_range()
+        };
+        let byte_range = (range.start / 8)..((range.end + 7) / 8);
+        let mut attrs = vec![Attr::new(
+            attr.clone(),
+            range.clone(),
+            data.try_get(byte_range.clone()).ok(),
+        )];
+        for child in &attr.children {
+            let offset = byte_range.start;
+            let range =
+                (child.bit_range().start + offset * 8)..(child.bit_range().end + offset * 8);
+            let byte_range = (child.range().start + offset)..(child.range().end + offset);
+            attrs.push(Attr::new(
+                child.clone(),
+                range,
+                data.try_get(byte_range).ok(),
+            ))
+        }
+        attrs
     }
 
     fn try_get_data(&self, data: Option<&[u8]>) -> Result<Variant> {
