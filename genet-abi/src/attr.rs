@@ -5,7 +5,7 @@ use fixed::Fixed;
 use layer::Layer;
 use metadata::Metadata;
 use result::Result;
-use slice::ByteSlice;
+use slice::{ByteSlice, TryGet};
 use std::{fmt, io, mem, ops::Range, slice};
 use token::Token;
 use variant::Variant;
@@ -207,6 +207,21 @@ impl AttrClass {
 
     pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<Variant> {
         self.try_get_data(layer.data().get(range))
+    }
+
+    pub fn expand(
+        attr: &Fixed<AttrClass>,
+        data: &ByteSlice,
+        bit_range: Option<Range<usize>>,
+    ) -> Vec<Attr> {
+        let range = if let Some(range) = bit_range {
+            range
+        } else {
+            attr.bit_range()
+        };
+        let byte_range = (range.start / 8)..((range.end + 7) / 8);
+        let attr = Attr::new(attr.clone(), range, data.try_get(byte_range).ok());
+        vec![attr]
     }
 
     fn try_get_data(&self, data: Option<&[u8]>) -> Result<Variant> {

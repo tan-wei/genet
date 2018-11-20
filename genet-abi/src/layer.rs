@@ -1,7 +1,7 @@
 use attr::{Attr, AttrClass};
 use fixed::{Fixed, MutFixed};
 use metadata::Metadata;
-use slice::{ByteSlice, TryGet};
+use slice::ByteSlice;
 use std::{
     fmt,
     marker::PhantomData,
@@ -211,9 +211,10 @@ impl Layer {
             .unwrap_or(id);
         self.attrs()
             .chain(
-                self.class.headers().map(|c| {
-                    Attr::new(c.clone(), c.bit_range(), self.data.try_get(c.range()).ok())
-                }),
+                self.class
+                    .headers()
+                    .map(|c| AttrClass::expand(c, &self.data, None).into_iter())
+                    .flatten(),
             )
             .find(|attr| attr.id() == id)
     }
@@ -425,14 +426,8 @@ impl LayerClass {
         let len = (self.attrs_len)(layer) as usize;
         let attrs = unsafe { slice::from_raw_parts(data, len) }
             .iter()
-            .map(|c| {
-                let range = (c.range.start / 8)..((c.range.end + 7) / 8);
-                Attr::new(
-                    c.attr.clone(),
-                    c.range.clone(),
-                    layer.data().try_get(range).ok(),
-                )
-            })
+            .map(|c| AttrClass::expand(&c.attr, &layer.data(), Some(c.range.clone())).into_iter())
+            .flatten()
             .collect::<Vec<_>>();
         attrs.into_iter()
     }

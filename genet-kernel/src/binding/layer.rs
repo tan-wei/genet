@@ -1,5 +1,5 @@
 use binding::JsClass;
-use genet_abi::{attr::Attr, layer::Layer, slice::TryGet, token::Token};
+use genet_abi::{attr::AttrClass, layer::Layer, token::Token};
 use genet_filter::{ast::Expr, unparser::unparse};
 use genet_napi::napi::{
     CallbackInfo, Env, PropertyAttributes, PropertyDescriptor, Result, Status, TypedArrayType,
@@ -42,13 +42,8 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
         let headers = layer
             .headers()
-            .map(|c| {
-                Attr::new(
-                    c.clone(),
-                    c.bit_range(),
-                    layer.data().try_get(c.range()).ok(),
-                )
-            })
+            .map(|c| AttrClass::expand(c, &layer.data(), None))
+            .flatten()
             .collect::<Vec<_>>();
         let hlen = headers.len();
         let attrs = layer.attrs().collect::<Vec<_>>();

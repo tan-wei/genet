@@ -1,5 +1,5 @@
 use context::Context;
-use genet_abi::{attr::Attr, slice::TryGet, token::Token, variant::Variant};
+use genet_abi::{attr::AttrClass, token::Token, variant::Variant};
 use variant::VariantExt;
 
 #[derive(PartialEq, Clone, Debug)]
@@ -43,13 +43,8 @@ impl Expr {
                 for layer in ctx.layers().iter().rev() {
                     if let Some(attr) = layer
                         .headers()
-                        .map(|c| {
-                            Attr::new(
-                                c.clone(),
-                                c.bit_range(),
-                                layer.data().try_get(c.range()).ok(),
-                            )
-                        })
+                        .map(|c| AttrClass::expand(c, &layer.data(), None))
+                        .flatten()
                         .chain(layer.attrs())
                         .find(|a| a.id() == *t)
                     {
