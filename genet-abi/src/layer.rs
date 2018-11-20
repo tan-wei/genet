@@ -209,11 +209,17 @@ impl Layer {
             .find(|alias| alias.id == id)
             .map(|alias| alias.target)
             .unwrap_or(id);
-        self.attrs()
+
+        self.class
+            .headers()
+            .map(|c| AttrClass::expand(c, &self.data, None).into_iter())
+            .flatten()
             .chain(
-                self.class
-                    .headers()
-                    .map(|c| AttrClass::expand(c, &self.data, None).into_iter())
+                self.attrs
+                    .iter()
+                    .map(|c| {
+                        AttrClass::expand(&c.attr, &self.data(), Some(c.range.clone())).into_iter()
+                    })
                     .flatten(),
             )
             .find(|attr| attr.id() == id)
