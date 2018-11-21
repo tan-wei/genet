@@ -95,6 +95,7 @@ pub struct AttrClassBuilder {
     typ: Token,
     meta: Metadata,
     range: Range<usize>,
+    children: Vec<Fixed<AttrClass>>,
     cast: Box<Cast>,
 }
 
@@ -135,6 +136,11 @@ impl AttrClassBuilder {
         self
     }
 
+    pub fn child<C: Into<Fixed<AttrClass>>>(mut self, class: C) -> AttrClassBuilder {
+        self.children.push(class.into());
+        self
+    }
+
     /// Sets a constant value of AttrClass.
     pub fn value<T: 'static + Into<Variant> + Send + Sync + Clone>(
         mut self,
@@ -154,6 +160,7 @@ impl AttrClassBuilder {
             typ: self.typ,
             meta: self.meta,
             range: self.range,
+            children: self.children,
             cast: self.cast,
         }
     }
@@ -169,6 +176,7 @@ pub struct AttrClass {
     typ: Token,
     meta: Metadata,
     range: Range<usize>,
+    children: Vec<Fixed<AttrClass>>,
     cast: Box<Cast>,
 }
 
@@ -180,6 +188,7 @@ impl AttrClass {
             typ: Token::null(),
             meta: Metadata::new(),
             range: 0..0,
+            children: Vec::new(),
             cast: Box::new(Const(true)),
         }
     }
@@ -220,8 +229,23 @@ impl AttrClass {
             attr.bit_range()
         };
         let byte_range = (range.start / 8)..((range.end + 7) / 8);
-        let attr = Attr::new(attr.clone(), range, data.try_get(byte_range).ok());
-        vec![attr]
+        let mut attrs = vec![Attr::new(
+            attr.clone(),
+            range.clone(),
+            data.try_get(byte_range.clone()).ok(),
+        )];
+        for child in &attr.children {
+            let offset = byte_range.start;
+            let range =
+                (child.bit_range().start + offset * 8)..(child.bit_range().end + offset * 8);
+            let byte_range = (child.range().start + offset)..(child.range().end + offset);
+            attrs.push(Attr::new(
+                child.clone(),
+                range,
+                data.try_get(byte_range).ok(),
+            ))
+        }
+        attrs
     }
 
     fn try_get_data(&self, data: Option<&[u8]>) -> Result<Variant> {

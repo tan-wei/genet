@@ -580,11 +580,11 @@ mod tests {
             layer.add_attr(class.clone(), 0..i);
         }
         let mut iter = layer.attrs();
-        for _ in 0..count {
+        for i in 0..count {
             let attr = iter.next().unwrap();
             assert_eq!(attr.id(), Token::from("nil"));
             assert_eq!(attr.typ(), Token::from("@nil"));
-            assert_eq!(attr.range(), 0..0);
+            assert_eq!(attr.range(), 0..i);
         }
         assert!(iter.next().is_none());
     }
