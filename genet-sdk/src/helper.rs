@@ -3,8 +3,8 @@
 /// Creates a LayerClass.
 #[macro_export]
 macro_rules! layer_class {
-    ($id:expr) => (::genet_sdk::layer::LayerClass::builder($id).build());
-    ($id:expr, $($key:ident : $($arg:expr)*),*) => (::genet_sdk::layer::LayerClass::builder($id)
+    ($id:expr, $header:expr) => (::genet_sdk::layer::LayerClass::builder($id, $header).build());
+    ($id:expr, $header:expr, $($key:ident : $($arg:expr)*),*) => (::genet_sdk::layer::LayerClass::builder($id, $header)
                 $( . $key ( $($arg),* ) )*
                 .build()
     );
@@ -34,14 +34,14 @@ macro_rules! layer_class_lazy {
 /// Defines a LayerClass.
 #[macro_export]
 macro_rules! def_layer_class {
-    ($name:ident, $id:expr) => (
+    ($name:ident, $id:expr, $header:expr) => (
         lazy_static! {
-            static ref $name : genet_sdk::layer::LayerClass = layer_class!($id);
+            static ref $name : genet_sdk::layer::LayerClass = layer_class!($id, $header);
         }
     );
-    ($name:ident, $id:expr, $($key:ident : $($arg:expr)*),*) => (
+    ($name:ident, $id:expr, $header:expr, $($key:ident : $($arg:expr)*),*) => (
         lazy_static! {
-            static ref $name : genet_sdk::layer::LayerClass = layer_class!($id,  $($key : $($arg)* ),* );
+            static ref $name : genet_sdk::layer::LayerClass = layer_class!($id, $header, $($key : $($arg)* ),* );
         }
     );
 }

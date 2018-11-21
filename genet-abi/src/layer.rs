@@ -86,8 +86,8 @@ impl<'a> Parent<'a> {
     }
 
     /// Returns the slice of headers.
-    pub fn headers(&self) -> impl Iterator<Item = &Fixed<AttrClass>> {
-        self.deref().headers()
+    pub fn header(&self) -> &Fixed<AttrClass> {
+        self.deref().header()
     }
 
     /// Returns the slice of attributes.
@@ -191,8 +191,8 @@ impl Layer {
     }
 
     /// Returns the slice of headers.
-    pub fn headers(&self) -> impl Iterator<Item = &Fixed<AttrClass>> {
-        self.class.headers()
+    pub fn header(&self) -> &Fixed<AttrClass> {
+        self.class.header()
     }
 
     /// Returns the slice of attributes.
@@ -210,10 +210,8 @@ impl Layer {
             .map(|alias| alias.target)
             .unwrap_or(id);
 
-        self.class
-            .headers()
-            .map(|c| AttrClass::expand(c, &self.data, None).into_iter())
-            .flatten()
+        AttrClass::expand(self.class.header(), &self.data, None)
+            .into_iter()
             .chain(
                 self.attrs
                     .iter()
@@ -310,8 +308,8 @@ impl Payload {
 /// A builder object for LayerClass.
 pub struct LayerClassBuilder {
     id: Token,
+    header: Fixed<AttrClass>,
     aliases: Vec<Alias>,
-    headers: Vec<Fixed<AttrClass>>,
     meta: Metadata,
 }
 
@@ -322,12 +320,6 @@ impl LayerClassBuilder {
             id: id.into(),
             target: target.into(),
         });
-        self
-    }
-
-    /// Adds a header attribute for LayerClass.
-    pub fn header<T: Into<Fixed<AttrClass>>>(mut self, attr: T) -> LayerClassBuilder {
-        self.headers.push(attr.into());
         self
     }
 
@@ -352,8 +344,6 @@ impl LayerClassBuilder {
             attrs_data: abi_attrs_data,
             aliases_len: abi_aliases_len,
             aliases_data: abi_aliases_data,
-            headers_len: abi_headers_len,
-            headers_data: abi_headers_data,
             add_attr: abi_add_attr,
             payloads_len: abi_payloads_len,
             payloads_data: abi_payloads_data,
@@ -361,7 +351,7 @@ impl LayerClassBuilder {
             id: self.id,
             meta: self.meta,
             aliases: self.aliases,
-            headers: self.headers,
+            header: self.header,
         }
     }
 }
@@ -378,8 +368,6 @@ pub struct LayerClass {
     get_id: extern "C" fn(*const LayerClass) -> Token,
     aliases_len: extern "C" fn(*const LayerClass) -> u64,
     aliases_data: extern "C" fn(*const LayerClass) -> *const Alias,
-    headers_len: extern "C" fn(*const LayerClass) -> u64,
-    headers_data: extern "C" fn(*const LayerClass) -> *const Fixed<AttrClass>,
     data: extern "C" fn(*const Layer, *mut u64) -> *const u8,
     attrs_len: extern "C" fn(*const Layer) -> u64,
     attrs_data: extern "C" fn(*const Layer) -> *const BoundAttr,
@@ -388,19 +376,22 @@ pub struct LayerClass {
     payloads_data: extern "C" fn(*const Layer) -> *const Payload,
     add_payload: extern "C" fn(*mut Layer, Payload),
     id: Token,
+    header: Fixed<AttrClass>,
     meta: Metadata,
     aliases: Vec<Alias>,
-    headers: Vec<Fixed<AttrClass>>,
 }
 
 impl LayerClass {
     /// Creates a new builder object for LayerClass.
-    pub fn builder<T: Into<Token>>(id: T) -> LayerClassBuilder {
+    pub fn builder<T: Into<Token>, H: Into<Fixed<AttrClass>>>(
+        id: T,
+        header: H,
+    ) -> LayerClassBuilder {
         LayerClassBuilder {
             id: id.into(),
             meta: Metadata::new(),
             aliases: Vec::new(),
-            headers: Vec::new(),
+            header: header.into(),
         }
     }
 
@@ -415,10 +406,8 @@ impl LayerClass {
         iter.map(|v| &*v)
     }
 
-    fn headers(&self) -> impl Iterator<Item = &Fixed<AttrClass>> {
-        let data = (self.headers_data)(self);
-        let len = (self.headers_len)(self) as usize;
-        unsafe { slice::from_raw_parts(data, len) }.iter()
+    fn header(&self) -> &Fixed<AttrClass> {
+        &self.header
     }
 
     fn data(&self, layer: &Layer) -> ByteSlice {
@@ -461,14 +450,6 @@ extern "C" fn abi_aliases_len(class: *const LayerClass) -> u64 {
 
 extern "C" fn abi_aliases_data(class: *const LayerClass) -> *const Alias {
     unsafe { (*class).aliases.as_ptr() }
-}
-
-extern "C" fn abi_headers_len(class: *const LayerClass) -> u64 {
-    unsafe { (*class).headers.len() as u64 }
-}
-
-extern "C" fn abi_headers_data(class: *const LayerClass) -> *const Fixed<AttrClass> {
-    unsafe { (*class).headers.as_ptr() }
 }
 
 extern "C" fn abi_data(layer: *const Layer, len: *mut u64) -> *const u8 {

@@ -82,33 +82,35 @@ impl Decoder for NtpDecoder {
     }
 }
 
-def_layer_class!(
-    NTP_CLASS,
+def_layer_class!(NTP_CLASS, "ntp", &NTP_ATTR);
+
+def_attr_class!(
+    NTP_ATTR,
     "ntp",
-    header: &LEAP_ATTR,
-    header: &VERSION_ATTR,
-    header: &MODE_ATTR,
-    header: &STRATUM_ATTR,
-    header: &POLL_ATTR,
-    header: &PRECISION_ATTR,
-    header: &RDELAY_ATTR,
-    header: &RDELAY_SEC_ATTR,
-    header: &RDELAY_FRA_ATTR,
-    header: &RDISP_ATTR,
-    header: &RDISP_SEC_ATTR,
-    header: &RDISP_FRA_ATTR,
-    header: &REFTS_ATTR,
-    header: &REFTS_SEC_ATTR,
-    header: &REFTS_FRA_ATTR,
-    header: &ORITS_ATTR,
-    header: &ORITS_SEC_ATTR,
-    header: &ORITS_FRA_ATTR,
-    header: &RECTS_ATTR,
-    header: &RECTS_SEC_ATTR,
-    header: &RECTS_FRA_ATTR,
-    header: &TRATS_ATTR,
-    header: &TRATS_SEC_ATTR,
-    header: &TRATS_FRA_ATTR
+    child: &LEAP_ATTR,
+    child: &VERSION_ATTR,
+    child: &MODE_ATTR,
+    child: &STRATUM_ATTR,
+    child: &POLL_ATTR,
+    child: &PRECISION_ATTR,
+    child: &RDELAY_ATTR,
+    child: &RDELAY_SEC_ATTR,
+    child: &RDELAY_FRA_ATTR,
+    child: &RDISP_ATTR,
+    child: &RDISP_SEC_ATTR,
+    child: &RDISP_FRA_ATTR,
+    child: &REFTS_ATTR,
+    child: &REFTS_SEC_ATTR,
+    child: &REFTS_FRA_ATTR,
+    child: &ORITS_ATTR,
+    child: &ORITS_SEC_ATTR,
+    child: &ORITS_FRA_ATTR,
+    child: &RECTS_ATTR,
+    child: &RECTS_SEC_ATTR,
+    child: &RECTS_FRA_ATTR,
+    child: &TRATS_ATTR,
+    child: &TRATS_SEC_ATTR,
+    child: &TRATS_FRA_ATTR
 );
 
 def_attr_class!(LEAP_ATTR, "ntp.leapIndicator",

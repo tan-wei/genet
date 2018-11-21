@@ -48,24 +48,29 @@ impl Decoder for IPv4Decoder {
     }
 }
 
-def_layer_class!(IPV4_CLASS, "ipv4",
+def_layer_class!(IPV4_CLASS, "ipv4", &IPV4_ATTR,
     alias: "_.src" "ipv4.src",
-    alias: "_.dst" "ipv4.dst",
-    header: &VERSION_ATTR,
-    header: &HLEN_ATTR,
-    header: &TOS_ATTR,
-    header: &LENGTH_ATTR,
-    header: &ID_ATTR,
-    header: &FLAGS_ATTR,
-    header: &FLAGS_RV_ATTR,
-    header: &FLAGS_DF_ATTR,
-    header: &FLAGS_MF_ATTR,
-    header: &OFFSET_ATTR,
-    header: &TTL_ATTR,
-    header: &PROTO_ATTR,
-    header: &CHECKSUM_ATTR,
-    header: &SRC_ATTR,
-    header: &DST_ATTR
+    alias: "_.dst" "ipv4.dst"
+);
+
+def_attr_class!(
+    IPV4_ATTR,
+    "ipv4",
+    child: &VERSION_ATTR,
+    child: &HLEN_ATTR,
+    child: &TOS_ATTR,
+    child: &LENGTH_ATTR,
+    child: &ID_ATTR,
+    child: &FLAGS_ATTR,
+    child: &FLAGS_RV_ATTR,
+    child: &FLAGS_DF_ATTR,
+    child: &FLAGS_MF_ATTR,
+    child: &OFFSET_ATTR,
+    child: &TTL_ATTR,
+    child: &PROTO_ATTR,
+    child: &CHECKSUM_ATTR,
+    child: &SRC_ATTR,
+    child: &DST_ATTR
 );
 
 def_attr_class!(VERSION_ATTR, "ipv4.version",
