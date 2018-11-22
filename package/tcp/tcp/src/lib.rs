@@ -83,7 +83,7 @@ impl Decoder for TcpDecoder {
     }
 }
 
-def_layer_class!(TCP_CLASS, "tcp", &TCP_ATTR);
+def_layer_class!(TCP_CLASS, &TCP_ATTR);
 
 def_attr_class!(
     TCP_ATTR,

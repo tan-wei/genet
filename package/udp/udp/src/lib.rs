@@ -44,7 +44,7 @@ impl Decoder for UdpDecoder {
     }
 }
 
-def_layer_class!(UDP_CLASS, "udp", &UDP_ATTR,
+def_layer_class!(UDP_CLASS, &UDP_ATTR,
     alias: "_.src" "udp.src",
     alias: "_.dst" "udp.dst"
 );

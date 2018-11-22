@@ -276,7 +276,7 @@ impl WorkerInput {
         let attr = Fixed::new(AttrClass::builder(id).build());
         Self {
             worker,
-            class: Fixed::new(LayerClass::builder(id, attr).build()),
+            class: Fixed::new(LayerClass::builder(attr).build()),
         }
     }
 }

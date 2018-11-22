@@ -48,7 +48,7 @@ impl Decoder for IPv4Decoder {
     }
 }
 
-def_layer_class!(IPV4_CLASS, "ipv4", &IPV4_ATTR,
+def_layer_class!(IPV4_CLASS, &IPV4_ATTR,
     alias: "_.src" "ipv4.src",
     alias: "_.dst" "ipv4.dst"
 );

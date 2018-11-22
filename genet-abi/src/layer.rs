@@ -307,7 +307,6 @@ impl Payload {
 
 /// A builder object for LayerClass.
 pub struct LayerClassBuilder {
-    id: Token,
     header: Fixed<AttrClass>,
     aliases: Vec<Alias>,
     meta: Metadata,
@@ -348,7 +347,6 @@ impl LayerClassBuilder {
             payloads_len: abi_payloads_len,
             payloads_data: abi_payloads_data,
             add_payload: abi_add_payload,
-            id: self.id,
             meta: self.meta,
             aliases: self.aliases,
             header: self.header,
@@ -375,7 +373,6 @@ pub struct LayerClass {
     payloads_len: extern "C" fn(*const Layer) -> u64,
     payloads_data: extern "C" fn(*const Layer) -> *const Payload,
     add_payload: extern "C" fn(*mut Layer, Payload),
-    id: Token,
     header: Fixed<AttrClass>,
     meta: Metadata,
     aliases: Vec<Alias>,
@@ -383,12 +380,8 @@ pub struct LayerClass {
 
 impl LayerClass {
     /// Creates a new builder object for LayerClass.
-    pub fn builder<T: Into<Token>, H: Into<Fixed<AttrClass>>>(
-        id: T,
-        header: H,
-    ) -> LayerClassBuilder {
+    pub fn builder<H: Into<Fixed<AttrClass>>>(header: H) -> LayerClassBuilder {
         LayerClassBuilder {
-            id: id.into(),
             meta: Metadata::new(),
             aliases: Vec::new(),
             header: header.into(),

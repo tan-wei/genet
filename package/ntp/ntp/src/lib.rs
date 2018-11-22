@@ -82,7 +82,7 @@ impl Decoder for NtpDecoder {
     }
 }
 
-def_layer_class!(NTP_CLASS, "ntp", &NTP_ATTR);
+def_layer_class!(NTP_CLASS, &NTP_ATTR);
 
 def_attr_class!(
     NTP_ATTR,

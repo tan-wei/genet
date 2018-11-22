@@ -75,7 +75,7 @@ impl Decoder for ArpDecoder {
     }
 }
 
-def_layer_class!(ARP_CLASS, "arp", &ARP_ATTR,
+def_layer_class!(ARP_CLASS, &ARP_ATTR,
     alias: "_.src" "arp.sha",
     alias: "_.dst" "arp.tha"
 );

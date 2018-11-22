@@ -69,7 +69,7 @@ impl Decoder for IPv6Decoder {
     }
 }
 
-def_layer_class!(IPV6_CLASS, "ipv6", &IPV6_ATTR,
+def_layer_class!(IPV6_CLASS, &IPV6_ATTR,
     alias: "_.src" "ipv6.src",
     alias: "_.dst" "ipv6.dst"
 );
