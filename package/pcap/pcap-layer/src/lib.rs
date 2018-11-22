@@ -23,8 +23,20 @@ impl Worker for PcapLayerWorker {
 
         if self.class.is_none() {
             let link: u32 = TYPE_CLASS.try_get(&parent)?.try_into()?;
+
+            let id = format!("[link-{}]", link);
+            let attr = Fixed::new(attr_class!(
+                id.clone(),
+                child: &TYPE_CLASS,
+                child: &PAYLOAD_LENGTH_CLASS,
+                child: &ORIG_LENGTH_CLASS,
+                child: &TS_CLASS,
+                child: &TS_SEC_CLASS,
+                child: &TS_USEC_CLASS
+            ));
+
             let link_class =
-                Fixed::new(layer_class!(format!("[link-{}]", link), &LINK_ATTR));
+                Fixed::new(layer_class!(id, attr));
             self.class = Some(link_class);
         }
 

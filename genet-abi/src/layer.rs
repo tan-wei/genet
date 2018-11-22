@@ -441,7 +441,7 @@ impl Into<Fixed<LayerClass>> for &'static LayerClass {
 }
 
 extern "C" fn abi_id(class: *const LayerClass) -> Token {
-    unsafe { (*class).id }
+    unsafe { (*class).header.id() }
 }
 
 extern "C" fn abi_aliases_len(class: *const LayerClass) -> u64 {

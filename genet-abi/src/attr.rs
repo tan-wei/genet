@@ -193,11 +193,11 @@ impl AttrClass {
         }
     }
 
-    fn id(&self) -> Token {
+    pub fn id(&self) -> Token {
         (self.get_id)(self)
     }
 
-    fn typ(&self) -> Token {
+    pub fn typ(&self) -> Token {
         (self.get_typ)(self)
     }
 
