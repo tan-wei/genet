@@ -481,7 +481,7 @@ extern "C" fn abi_add_payload(layer: *mut Layer, payload: Payload) {
 
 #[cfg(test)]
 mod tests {
-    use attr::AttrClass;
+    use attr::{Attr, AttrClass};
     use cast::Cast;
     use fixed::Fixed;
     use layer::{Layer, LayerClass, Payload};
@@ -542,7 +542,7 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, _: &ByteSlice) -> Result<Variant> {
+            fn cast(&self, _attr: &Attr, _: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::Nil)
             }
         }

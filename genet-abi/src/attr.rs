@@ -53,7 +53,7 @@ impl<'a> Attr<'a> {
 
     /// Returns the attribute value.
     pub fn try_get(&self) -> Result<Variant> {
-        self.class.try_get_data(self.data.map(|s| s.as_slice()))
+        self.class.try_get_attr(self)
     }
 }
 
@@ -76,7 +76,7 @@ struct Const<T>(pub T);
 impl<T: Into<Variant> + Clone> Typed for Const<T> {
     type Output = T;
 
-    fn cast(&self, _data: &ByteSlice) -> io::Result<T> {
+    fn cast(&self, _attr: &Attr, _data: &ByteSlice) -> io::Result<T> {
         Ok(self.0.clone())
     }
 }
@@ -163,7 +163,7 @@ impl AttrClassBuilder {
 pub struct AttrClass {
     get_id: extern "C" fn(class: *const AttrClass) -> Token,
     get_typ: extern "C" fn(class: *const AttrClass) -> Token,
-    get: extern "C" fn(*const AttrClass, *mut *const u8, u64, *mut i64, *mut Error) -> ValueType,
+    get: extern "C" fn(*const Attr, *mut *const u8, u64, *mut i64, *mut Error) -> ValueType,
     id: Token,
     typ: Token,
     meta: Metadata,
@@ -202,14 +202,6 @@ impl AttrClass {
         self.range.clone()
     }
 
-    pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
-        self.try_get_range(layer, self.range())
-    }
-
-    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<Variant> {
-        self.try_get_data(layer.data().get(range))
-    }
-
     pub fn expand<'a>(
         attr: &'a AttrClass,
         data: &ByteSlice,
@@ -236,8 +228,18 @@ impl AttrClass {
         attrs
     }
 
-    fn try_get_data(&self, data: Option<&[u8]>) -> Result<Variant> {
-        let data = if let Some(data) = data {
+    pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
+        self.try_get_range(layer, self.range())
+    }
+
+    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<Variant> {
+        let data = layer.data().try_get(range).ok();
+        let attr = Attr::new(self, self.bit_range(), data);
+        self.try_get_attr(&attr)
+    }
+
+    fn try_get_attr(&self, attr: &Attr) -> Result<Variant> {
+        let data = if let Some(data) = attr.data {
             data
         } else {
             return Err(Box::new(Error::new("out of bounds")));
@@ -245,7 +247,7 @@ impl AttrClass {
         let mut buf: *const u8 = data.as_ptr();
         let mut num = 0;
         let mut err = Error::new("");
-        let typ = (self.get)(self, &mut buf, data.len() as u64, &mut num, &mut err);
+        let typ = (self.get)(attr, &mut buf, data.len() as u64, &mut num, &mut err);
         match typ {
             ValueType::Error => Err(Box::new(err)),
             ValueType::Bool => Ok(Variant::Bool(num == 1)),
@@ -291,16 +293,17 @@ extern "C" fn abi_typ(class: *const AttrClass) -> Token {
 }
 
 extern "C" fn abi_get(
-    attr: *const AttrClass,
+    attr: *const Attr,
     data: *mut *const u8,
     len: u64,
     num: *mut i64,
     err: *mut Error,
 ) -> ValueType {
-    let cast = unsafe { &(*attr).cast };
+    let attr = unsafe { &(*attr) };
+    let cast = &attr.class.cast;
     let slice = unsafe { ByteSlice::from_raw_parts(*data, len as usize) };
 
-    match cast.cast(&slice) {
+    match cast.cast(attr, &slice) {
         Ok(v) => match v {
             Variant::Bool(val) => {
                 unsafe { *num = if val { 1 } else { 0 } };
@@ -368,7 +371,7 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, data: &ByteSlice) -> Result<Variant> {
+            fn cast(&self, _attr: &Attr, data: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::Bool(data[0] == 1))
             }
         }
@@ -394,7 +397,7 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, data: &ByteSlice) -> Result<Variant> {
+            fn cast(&self, _attr: &Attr, data: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::UInt64(from_utf8(data).unwrap().parse().unwrap()))
             }
         }
@@ -420,7 +423,7 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, data: &ByteSlice) -> Result<Variant> {
+            fn cast(&self, _attr: &Attr, data: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::Int64(from_utf8(data).unwrap().parse().unwrap()))
             }
         }
@@ -446,7 +449,7 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, data: &ByteSlice) -> Result<Variant> {
+            fn cast(&self, _attr: &Attr, data: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::Buffer(data.to_vec().into_boxed_slice()))
             }
         }
@@ -472,7 +475,7 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, data: &ByteSlice) -> Result<Variant> {
+            fn cast(&self, _attr: &Attr, data: &ByteSlice) -> Result<Variant> {
                 Ok(Variant::String(
                     from_utf8(&data).unwrap().to_string().into_boxed_str(),
                 ))
@@ -500,7 +503,7 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, data: &ByteSlice) -> Result<Variant> {
+            fn cast(&self, _attr: &Attr, data: &ByteSlice) -> Result<Variant> {
                 data.try_get(0..3).map(Variant::Slice)
             }
         }
@@ -526,7 +529,7 @@ mod tests {
         struct TestCast {}
 
         impl Cast for TestCast {
-            fn cast(&self, _: &ByteSlice) -> Result<Variant> {
+            fn cast(&self, _attr: &Attr, _: &ByteSlice) -> Result<Variant> {
                 Err(Error::new(ErrorKind::Other, "oh no!"))
             }
         }
