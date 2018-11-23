@@ -63,24 +63,24 @@ def_attr_class!(ETH_ATTR, "eth", child: &SRC_ATTR, child: &DST_ATTR);
 
 def_attr_class!(SRC_ATTR, "eth.src",
     typ: "@eth:mac",
-    cast: cast::ByteSlice(),
+    cast: &cast::ByteSlice(),
     range: 0..6
 );
 
 def_attr_class!(DST_ATTR, "eth.dst",
     typ: "@eth:mac",
-    cast: cast::ByteSlice(),
+    cast: &cast::ByteSlice(),
     range: 6..12
 );
 
 def_attr_class!(LEN_ATTR, "eth.len",
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     range: 12..14
 );
 
 def_attr_class!(TYPE_ATTR, "eth.type",
     typ: "@enum",
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     range: 12..14
 );
 

@@ -10,7 +10,6 @@ pub trait Cast: Send + Sync + CastClone {
 
 pub trait CastClone {
     fn clone_box(&self) -> Box<Cast>;
-    fn into_box(self) -> Box<Cast>;
 }
 
 impl<T> CastClone for T
@@ -19,10 +18,6 @@ where
 {
     fn clone_box(&self) -> Box<Cast> {
         Box::new(self.clone())
-    }
-
-    fn into_box(self) -> Box<Cast> {
-        Box::new(self)
     }
 }
 

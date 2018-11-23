@@ -74,81 +74,81 @@ def_attr_class!(
 );
 
 def_attr_class!(VERSION_ATTR, "ipv4.version",
-    cast: cast::UInt8().map(|v| v >> 4),
+    cast: &cast::UInt8().map(|v| v >> 4),
     bit_range: 0 0..4
 );
 
 def_attr_class!(HLEN_ATTR, "ipv4.headerLength",
-    cast: cast::UInt8().map(|v| v & 0b00001111),
+    cast: &cast::UInt8().map(|v| v & 0b00001111),
     bit_range: 0 4..8
 );
 
 def_attr_class!(TOS_ATTR, "ipv4.tos",
-    cast: cast::UInt8(),
+    cast: &cast::UInt8(),
     range: 1..2
 );
 
 def_attr_class!(LENGTH_ATTR, "ipv4.totalLength",
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     range: 2..4
 );
 
 def_attr_class!(ID_ATTR, "ipv4.id",
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     range: 4..6
 );
 
 def_attr_class!(FLAGS_ATTR, "ipv4.flags",
-    cast: cast::UInt8().map(|v| (v >> 5) & 0b00000111),
+    cast: &cast::UInt8().map(|v| (v >> 5) & 0b00000111),
     typ: "@flags",
     bit_range: 6 0..1
 );
 
 def_attr_class!(FLAGS_RV_ATTR, "ipv4.flags.reserved",
-    cast: cast::UInt8().map(|v| v & 0b10000000 != 0),
+    cast: &cast::UInt8().map(|v| v & 0b10000000 != 0),
     bit_range: 6 1..2
 );
 
 def_attr_class!(FLAGS_DF_ATTR, "ipv4.flags.dontFragment",
-    cast: cast::UInt8().map(|v| v & 0b01000000 != 0),
+    cast: &cast::UInt8().map(|v| v & 0b01000000 != 0),
     bit_range: 6 2..3
 );
 
 def_attr_class!(FLAGS_MF_ATTR, "ipv4.flags.moreFragments",
-    cast: cast::UInt8().map(|v| v & 0b00100000 != 0),
+    cast: &cast::UInt8().map(|v| v & 0b00100000 != 0),
     bit_range: 6 3..4
 );
 
 def_attr_class!(OFFSET_ATTR, "ipv4.fragmentOffset",
-    cast: cast::UInt16BE().map(|v| v & 0x1fff),
+    cast: &cast::UInt16BE().map(|v| v & 0x1fff),
     bit_range: 6 4..16
 );
 
 def_attr_class!(TTL_ATTR, "ipv4.ttl",
-    cast: cast::UInt8(),
+    cast: &cast::UInt8(),
     range: 8..9
 );
 
 def_attr_class!(PROTO_ATTR, "ipv4.protocol",
-    cast: cast::UInt8(),
+    cast: &cast::UInt8(),
     typ: "@enum",
     range: 9..10
 );
 
 def_attr_class!(CHECKSUM_ATTR, "ipv4.checksum",
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     range: 10..12
 );
 
 def_attr_class!(SRC_ATTR, "ipv4.src",
     typ: "@ipv4:addr",
-    cast: cast::ByteSlice(),
+    cast: &cast::ByteSlice(),
     range: 12..16
 );
 
 def_attr_class!(DST_ATTR, "ipv4.dst",
     typ: "@ipv4:addr",
-    cast: cast::ByteSlice(),
+    cast: &cast::ByteSlice(),
     range: 16..20
 );
 

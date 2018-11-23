@@ -92,28 +92,28 @@ def_attr_class!(
 
 def_attr_class!(HWTYPE_ATTR, "arp.hwtype",
     typ: "@enum",
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     range: 0..2
 );
 
 def_attr_class!(PROTO_ATTR, "arp.protocol",
     typ: "@enum",
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     range: 2..4
 );
 
 def_attr_class!(HLEN_ATTR, "arp.hlen",
-    cast: cast::UInt8(),
+    cast: &cast::UInt8(),
     range: 4..5
 );
 
 def_attr_class!(PLEN_ATTR, "arp.plen",
-    cast: cast::UInt8(),
+    cast: &cast::UInt8(),
     range: 5..6
 );
 
 def_attr_class!(OP_ATTR, "arp.op",
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     typ: "@enum",
     range: 6..8
 );
@@ -122,8 +122,8 @@ fn get_hw(val: u64) -> Option<(&'static AttrClass, &'static AttrClass, &'static 
     match val {
         0x0001 => Some((
             attr_class_lazy!("arp.hwtype.eth", typ: "@novalue", value: true),
-            attr_class_lazy!("arp.sha", typ: "@eth:mac", cast: cast::ByteSlice()),
-            attr_class_lazy!("arp.tha", typ: "@eth:mac", cast: cast::ByteSlice()),
+            attr_class_lazy!("arp.sha", typ: "@eth:mac", cast: &cast::ByteSlice()),
+            attr_class_lazy!("arp.tha", typ: "@eth:mac", cast: &cast::ByteSlice()),
         )),
         _ => None,
     }
@@ -133,13 +133,13 @@ fn get_proto(val: u64) -> Option<(&'static AttrClass, &'static AttrClass, &'stat
     match val {
         0x0800 => Some((
             attr_class_lazy!("arp.protocol.ipv4", typ: "@novalue", value: true),
-            attr_class_lazy!("arp.spa", typ: "@ipv4:addr", cast: cast::ByteSlice()),
-            attr_class_lazy!("arp.tpa", typ: "@ipv4:addr", cast: cast::ByteSlice()),
+            attr_class_lazy!("arp.spa", typ: "@ipv4:addr", cast: &cast::ByteSlice()),
+            attr_class_lazy!("arp.tpa", typ: "@ipv4:addr", cast: &cast::ByteSlice()),
         )),
         0x86DD => Some((
             attr_class_lazy!("arp.protocol.ipv6", typ: "@novalue", value: true),
-            attr_class_lazy!("arp.spa", typ: "@ipv6:addr", cast: cast::ByteSlice()),
-            attr_class_lazy!("arp.tpa", typ: "@ipv6:addr", cast: cast::ByteSlice()),
+            attr_class_lazy!("arp.spa", typ: "@ipv6:addr", cast: &cast::ByteSlice()),
+            attr_class_lazy!("arp.tpa", typ: "@ipv6:addr", cast: &cast::ByteSlice()),
         )),
         _ => None,
     }

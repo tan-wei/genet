@@ -110,93 +110,93 @@ def_attr_class!(
 
 def_attr_class!(SRC_ATTR, "tcp.src",
     typ: "@tcp:port",
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     range: 0..2
 );
 
 def_attr_class!(DST_ATTR, "tcp.dst",
     typ: "@tcp:port",
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     range: 2..4
 );
 
 def_attr_class!(SEQ_ATTR, "tcp.seq", 
-    cast: cast::UInt32BE(),
+    cast: &cast::UInt32BE(),
     range: 4..8
 );
 
 def_attr_class!(ACK_ATTR, "tcp.ack",
-    cast: cast::UInt32BE(),
+    cast: &cast::UInt32BE(),
     range: 8..12
 );
 
 def_attr_class!(OFFSET_ATTR, "tcp.dataOffset",
-    cast: cast::UInt8().map(|v| v >> 4),
+    cast: &cast::UInt8().map(|v| v >> 4),
     range: 12..13
 );
 
 def_attr_class!(FLAGS_ATTR, "tcp.flags",
     typ: "@flags",
-    cast: cast::UInt16BE().map(|v| v & 0xfff),
+    cast: &cast::UInt16BE().map(|v| v & 0xfff),
     bit_range: 12 7..16
 );
 
 def_attr_class!(FLAGS_NS_ATTR, "tcp.flags.ns",
-    cast: cast::UInt8().map(|v| (v & 0b0000_0001) != 0),
+    cast: &cast::UInt8().map(|v| (v & 0b0000_0001) != 0),
     bit_range: 12 7..8
 );
 def_attr_class!(FLAGS_CWR_ATTR, "tcp.flags.cwr",
-    cast: cast::UInt8().map(|v| (v & 0b1000_0000) != 0),
+    cast: &cast::UInt8().map(|v| (v & 0b1000_0000) != 0),
     bit_range: 13 0..1
 );
 
 def_attr_class!(FLAGS_ECE_ATTR, "tcp.flags.ece",
-    cast: cast::UInt8().map(|v| (v & 0b0100_0000) != 0),
+    cast: &cast::UInt8().map(|v| (v & 0b0100_0000) != 0),
     bit_range: 13 1..2
 );
 
 def_attr_class!(FLAGS_URG_ATTR, "tcp.flags.urg",
-    cast: cast::UInt8().map(|v| (v & 0b0010_0000) != 0),
+    cast: &cast::UInt8().map(|v| (v & 0b0010_0000) != 0),
     bit_range: 13 2..3
 );
 
 def_attr_class!(FLAGS_ACK_ATTR, "tcp.flags.ack",
-    cast: cast::UInt8().map(|v| (v & 0b0001_0000) != 0),
+    cast: &cast::UInt8().map(|v| (v & 0b0001_0000) != 0),
     bit_range: 13 3..4
 );
 
 def_attr_class!(FLAGS_PSH_ATTR, "tcp.flags.psh",
-    cast: cast::UInt8().map(|v| (v & 0b0000_1000) != 0),
+    cast: &cast::UInt8().map(|v| (v & 0b0000_1000) != 0),
     bit_range: 13 4..5
 );
 
 def_attr_class!(FLAGS_RST_ATTR, "tcp.flags.rst",
-    cast: cast::UInt8().map(|v| (v & 0b0000_0100) != 0),
+    cast: &cast::UInt8().map(|v| (v & 0b0000_0100) != 0),
     bit_range: 13 5..6
 );
 
 def_attr_class!(FLAGS_SYN_ATTR, "tcp.flags.syn",
-    cast: cast::UInt8().map(|v| (v & 0b0000_0010) != 0),
+    cast: &cast::UInt8().map(|v| (v & 0b0000_0010) != 0),
     bit_range: 13 6..7
 );
 
 def_attr_class!(FLAGS_FIN_ATTR, "tcp.flags.fin",
-    cast: cast::UInt8().map(|v| (v & 0b0000_0001) != 0),
+    cast: &cast::UInt8().map(|v| (v & 0b0000_0001) != 0),
     bit_range: 13 7..8
 );
 
 def_attr_class!(WINDOW_ATTR, "tcp.window", 
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     range: 14..16
 );
 
 def_attr_class!(CHECKSUM_ATTR, "tcp.checksum",
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     range: 16..18
 );
 
 def_attr_class!(URGENT_ATTR, "tcp.urgent",
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     range: 18..20
 );
 
@@ -210,9 +210,13 @@ def_attr_class!(OPTIONS_NOP_ATTR, "tcp.options.nop",
     value: true
 );
 
-def_attr_class!(OPTIONS_MSS_ATTR, "tcp.options.mss", cast: cast::UInt16BE());
+def_attr_class!(OPTIONS_MSS_ATTR, "tcp.options.mss", cast: &cast::UInt16BE());
 
-def_attr_class!(OPTIONS_SCALE_ATTR, "tcp.options.scale", cast: cast::UInt8());
+def_attr_class!(
+    OPTIONS_SCALE_ATTR,
+    "tcp.options.scale",
+    cast: &cast::UInt8()
+);
 
 def_attr_class!(OPTIONS_SACKP_ATTR, "tcp.options.selectiveAckPermitted",
     typ: "@novalue",
@@ -222,7 +226,7 @@ def_attr_class!(OPTIONS_SACKP_ATTR, "tcp.options.selectiveAckPermitted",
 def_attr_class!(
     OPTIONS_SACK_ATTR,
     "tcp.options.selectiveAck",
-    cast: cast::ByteSlice()
+    cast: &cast::ByteSlice()
 );
 
 def_attr_class!(OPTIONS_TS_ATTR, "tcp.options.ts",
@@ -233,13 +237,13 @@ def_attr_class!(OPTIONS_TS_ATTR, "tcp.options.ts",
 def_attr_class!(
     OPTIONS_TS_MY_ATTR,
     "tcp.options.ts.my",
-    cast: cast::UInt32BE()
+    cast: &cast::UInt32BE()
 );
 
 def_attr_class!(
     OPTIONS_TS_ECHO_ATTR,
     "tcp.options.ts.echo",
-    cast: cast::UInt32BE()
+    cast: &cast::UInt32BE()
 );
 
 genet_decoders!(TcpDecoder {});

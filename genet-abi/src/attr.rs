@@ -123,8 +123,8 @@ impl AttrClassBuilder {
     }
 
     /// Sets a cast of AttrClass.
-    pub fn cast<T: Cast>(mut self, cast: T) -> AttrClassBuilder {
-        self.cast = cast.into_box();
+    pub fn cast<T: Cast>(mut self, cast: &T) -> AttrClassBuilder {
+        self.cast = cast.clone_box();
         self
     }
 
@@ -378,7 +378,7 @@ mod tests {
         let class = AttrClass::builder("bool")
             .typ("@bool")
             .range(0..1)
-            .cast(TestCast {})
+            .cast(&TestCast {})
             .build();
         let attr = Attr::new(&class, 0..8, Some(ByteSlice::from(&[1][..])));
         assert_eq!(attr.id(), Token::from("bool"));
@@ -404,7 +404,7 @@ mod tests {
         let class = AttrClass::builder("u64")
             .typ("@u64")
             .range(0..6)
-            .cast(TestCast {})
+            .cast(&TestCast {})
             .build();
         let attr = Attr::new(&class, 0..48, Some(ByteSlice::from(&b"123456789"[..])));
         assert_eq!(attr.id(), Token::from("u64"));
@@ -430,7 +430,7 @@ mod tests {
         let class = AttrClass::builder("i64")
             .typ("@i64")
             .range(0..6)
-            .cast(TestCast {})
+            .cast(&TestCast {})
             .build();
         let attr = Attr::new(&class, 0..48, Some(ByteSlice::from(&b"-123456789"[..])));
         assert_eq!(attr.id(), Token::from("i64"));
@@ -456,7 +456,7 @@ mod tests {
         let class = AttrClass::builder("buffer")
             .typ("@buffer")
             .range(0..6)
-            .cast(TestCast {})
+            .cast(&TestCast {})
             .build();
         let attr = Attr::new(&class, 0..48, Some(ByteSlice::from(&b"123456789"[..])));
         assert_eq!(attr.id(), Token::from("buffer"));
@@ -484,7 +484,7 @@ mod tests {
         let class = AttrClass::builder("string")
             .typ("@string")
             .range(0..6)
-            .cast(TestCast {})
+            .cast(&TestCast {})
             .build();
         let attr = Attr::new(&class, 0..48, Some(ByteSlice::from(&b"123456789"[..])));
         assert_eq!(attr.id(), Token::from("string"));
@@ -510,7 +510,7 @@ mod tests {
         let class = AttrClass::builder("slice")
             .typ("@slice")
             .range(0..6)
-            .cast(TestCast {})
+            .cast(&TestCast {})
             .build();
         let attr = Attr::new(&class, 0..48, Some(ByteSlice::from(&b"123456789"[..])));
         assert_eq!(attr.id(), Token::from("slice"));
@@ -536,7 +536,7 @@ mod tests {
         let class = AttrClass::builder("slice")
             .typ("@slice")
             .range(0..6)
-            .cast(TestCast {})
+            .cast(&TestCast {})
             .build();
         let attr = Attr::new(&class, 0..48, Some(ByteSlice::from(&b"123456789"[..])));
         assert_eq!(attr.id(), Token::from("slice"));

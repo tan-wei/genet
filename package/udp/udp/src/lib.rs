@@ -60,23 +60,23 @@ def_attr_class!(
 
 def_attr_class!(SRC_ATTR, "udp.src",
     typ: "@udp:port",
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     range: 0..2
 );
 
 def_attr_class!(DST_ATTR, "udp.dst",
     typ: "@udp:port",
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     range: 2..4
 );
 
 def_attr_class!(LEN_ATTR, "udp.length", 
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     range: 4..6
 );
 
 def_attr_class!(CHECKSUM_ATTR, "udp.checksum",
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     range: 6..8
 );
 

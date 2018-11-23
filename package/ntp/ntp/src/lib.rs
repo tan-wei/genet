@@ -115,158 +115,158 @@ def_attr_class!(
 
 def_attr_class!(LEAP_ATTR, "ntp.leapIndicator",
     typ: "@enum",
-    cast: cast::UInt8().map(|v| v >> 6),
+    cast: &cast::UInt8().map(|v| v >> 6),
     range: 0..1
 );
 
 def_attr_class!(VERSION_ATTR, "ntp.version",
-    cast: cast::UInt8().map(|v| (v >> 3) & 0b111),
+    cast: &cast::UInt8().map(|v| (v >> 3) & 0b111),
     range: 0..1
 );
 
 def_attr_class!(MODE_ATTR, "ntp.mode",
     typ: "@enum",
-    cast: cast::UInt8().map(|v| v & 0b111),
+    cast: &cast::UInt8().map(|v| v & 0b111),
     range: 0..1
 );
 
 def_attr_class!(STRATUM_ATTR, "ntp.stratum",
-    cast: cast::UInt8(),
+    cast: &cast::UInt8(),
     range: 1..2
 );
 
 def_attr_class!(POLL_ATTR, "ntp.pollInterval",
-    cast: cast::UInt8(),
+    cast: &cast::UInt8(),
     range: 2..3
 );
 
 def_attr_class!(PRECISION_ATTR, "ntp.precision",
-    cast: cast::UInt8(),
+    cast: &cast::UInt8(),
     range: 3..4
 );
 
 def_attr_class!(RDELAY_ATTR, "ntp.rootDelay",
-    cast: cast::UInt32BE().map(|v| (v >> 16) as f64 + ((v & 0xffff) as f64 / 65536f64)),
+    cast: &cast::UInt32BE().map(|v| (v >> 16) as f64 + ((v & 0xffff) as f64 / 65536f64)),
     range: 4..8
 );
 
 def_attr_class!(
     RDELAY_SEC_ATTR,
     "ntp.rootDelay.seconds",
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     range: 4..6
 );
 
 def_attr_class!(
     RDELAY_FRA_ATTR,
     "ntp.rootDelay.fraction",
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     range: 6..8
 );
 
 def_attr_class!(RDISP_ATTR, "ntp.rootDispersion",
-    cast: cast::UInt32BE().map(|v| (v >> 16) as f64 + ((v & 0xffff) as f64 / 65536f64)),
+    cast: &cast::UInt32BE().map(|v| (v >> 16) as f64 + ((v & 0xffff) as f64 / 65536f64)),
     range: 8..12
 );
 
 def_attr_class!(
     RDISP_SEC_ATTR,
     "ntp.rootDispersion.seconds",
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     range: 8..10
 );
 
 def_attr_class!(
     RDISP_FRA_ATTR,
     "ntp.rootDispersion.fraction",
-    cast: cast::UInt16BE(),
+    cast: &cast::UInt16BE(),
     range: 10..12
 );
 
-def_attr_class!(ID_ATTR, "ntp.identifier", cast: cast::ByteSlice());
+def_attr_class!(ID_ATTR, "ntp.identifier", cast: &cast::ByteSlice());
 
 def_attr_class!(ID_IP_ATTR, "ntp.identifier",
     typ: "@ipv4:addr",
-    cast: cast::ByteSlice()
+    cast: &cast::ByteSlice()
 );
 
 def_attr_class!(REFTS_ATTR, "ntp.referenceTs",
     typ: "@ntp:time",
-    cast: cast::UInt64BE().map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64)),
+    cast: &cast::UInt64BE().map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64)),
     range: 16..24
 );
 
 def_attr_class!(
     REFTS_SEC_ATTR,
     "ntp.referenceTs.seconds",
-    cast: cast::UInt32BE(),
+    cast: &cast::UInt32BE(),
     range: 16..20
 );
 
 def_attr_class!(
     REFTS_FRA_ATTR,
     "ntp.referenceTs.fraction",
-    cast: cast::UInt32BE(),
+    cast: &cast::UInt32BE(),
     range: 20..24
 );
 
 def_attr_class!(ORITS_ATTR, "ntp.originateTs",
     typ: "@ntp:time",
-    cast: cast::UInt64BE().map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64)),
+    cast: &cast::UInt64BE().map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64)),
     range: 24..32
 );
 
 def_attr_class!(
     ORITS_SEC_ATTR,
     "ntp.originateTs.seconds",
-    cast: cast::UInt32BE(),
+    cast: &cast::UInt32BE(),
     range: 24..28
 );
 
 def_attr_class!(
     ORITS_FRA_ATTR,
     "ntp.originateTs.fraction",
-    cast: cast::UInt32BE(),
+    cast: &cast::UInt32BE(),
     range: 28..32
 );
 
 def_attr_class!(RECTS_ATTR, "ntp.receiveTs",
     typ: "@ntp:time",
-    cast: cast::UInt64BE().map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64)),
+    cast: &cast::UInt64BE().map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64)),
     range: 32..40
 );
 
 def_attr_class!(
     RECTS_SEC_ATTR,
     "ntp.receiveTs.seconds",
-    cast: cast::UInt32BE(),
+    cast: &cast::UInt32BE(),
     range: 32..36
 );
 
 def_attr_class!(
     RECTS_FRA_ATTR,
     "ntp.receiveTs.fraction",
-    cast: cast::UInt32BE(),
+    cast: &cast::UInt32BE(),
     range: 36..40
 );
 
 def_attr_class!(TRATS_ATTR, "ntp.transmitTs",
     typ: "@ntp:time",
-    cast: cast::UInt64BE().map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64)),
+    cast: &cast::UInt64BE().map(|v| (v >> 32) as f64 + ((v & 0xffff_ffff) as f64 / 4294967296f64)),
     range: 40..48
 );
 
 def_attr_class!(
     TRATS_SEC_ATTR,
     "ntp.transmitTs.seconds",
-    cast: cast::UInt32BE(),
+    cast: &cast::UInt32BE(),
     range: 40..44
 );
 
 def_attr_class!(
     TRATS_FRA_ATTR,
     "ntp.transmitTs.fraction",
-    cast: cast::UInt32BE(),
+    cast: &cast::UInt32BE(),
     range: 44..48
 );
 
