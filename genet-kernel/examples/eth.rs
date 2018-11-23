@@ -2,6 +2,21 @@ extern crate genet_sdk;
 
 use genet_sdk::{cast, decoder::*, prelude::*};
 
+#[macro_use]
+extern crate genet_derive;
+
+/// Ethernet
+#[derive(Attr, Default)]
+struct Eth {
+    /// Source Hardware Address
+    #[genet(alias = "_.src", typ = "@eth:mac", byte_size = 6)]
+    src: cast::ByteSlice,
+
+    /// Destination Hardware Address
+    #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
+    dst: cast::ByteSlice,
+}
+
 struct EthWorker {}
 
 impl Worker for EthWorker {

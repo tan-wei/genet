@@ -1,7 +1,10 @@
-use attr::Attr;
+use attr::{Attr, AttrClass, AttrContext, AttrField, AttrList, SizedAttrField};
 use slice;
 use std::{convert::Into, io::Result};
 use variant::Variant;
+use std::mem::size_of;
+use fixed::Fixed;
+use num_traits::Num;
 
 /// Cast trait.
 pub trait Cast: Send + Sync + CastClone {
@@ -89,5 +92,31 @@ where
 {
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<Variant> {
         T::cast(self, attr, data).map(|r| r.into())
+    }
+}
+
+impl<T: Into<Variant>, V: Typed<Output = T> + CastClone> AttrField for V {
+    fn init(&mut self, ctx: &AttrContext) -> AttrList {
+        AttrList {
+            class: Fixed::new(
+                AttrClass::builder(ctx.path.clone())
+                    .cast_box(self.clone_box())
+                    .typ(ctx.typ.clone())
+                    .name(ctx.name)
+                    .description(ctx.description)
+                    .build(),
+            ),
+            aliases: Vec::new(),
+        }
+    }
+}
+
+impl<T, X> SizedAttrField for T
+where
+    T: AttrField + Typed<Output = X>,
+    X: Into<Variant> + Num,
+{
+    fn bit_size(&self) -> usize {
+        size_of::<X>() * 8
     }
 }
