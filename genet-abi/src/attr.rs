@@ -11,6 +11,34 @@ use token::Token;
 use variant::Variant;
 use vec::SafeVec;
 
+#[derive(Debug, Clone, Default)]
+pub struct AttrContext {
+    pub path: String,
+    pub typ: String,
+    pub name: &'static str,
+    pub description: &'static str,
+    pub bit_offset: usize,
+    pub detached: bool,
+}
+
+#[derive(Debug)]
+pub struct AttrList {
+    pub class: Fixed<AttrClass>,
+    pub aliases: Vec<(String, String)>,
+}
+
+pub trait AttrField {
+    fn init(&mut self, ctx: &AttrContext) -> AttrList;
+}
+
+pub trait SizedAttrField: AttrField {
+    fn bit_size(&self) -> usize;
+}
+
+pub trait FixedAttrField: SizedAttrField {
+    fn bit_offset(&self) -> usize;
+}
+
 /// An attribute object.
 #[repr(C)]
 pub struct Attr<'a> {
