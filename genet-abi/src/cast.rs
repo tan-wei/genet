@@ -1,10 +1,9 @@
 use attr::{Attr, AttrClass, AttrContext, AttrField, AttrList, SizedAttrField};
-use slice;
-use std::{convert::Into, io::Result};
-use variant::Variant;
-use std::mem::size_of;
 use fixed::Fixed;
 use num_traits::Num;
+use slice;
+use std::{convert::Into, io::Result, mem::size_of};
+use variant::Variant;
 
 /// Cast trait.
 pub trait Cast: Send + Sync + CastClone {
@@ -95,12 +94,12 @@ where
     }
 }
 
-impl<T: Into<Variant>, V: Typed<Output = T> + CastClone> AttrField for V {
+impl<T: Into<Variant>, V: Typed<Output = T> + Cast> AttrField for V {
     fn init(&mut self, ctx: &AttrContext) -> AttrList {
         AttrList {
             class: Fixed::new(
                 AttrClass::builder(ctx.path.clone())
-                    .cast_box(self.clone_box())
+                    .cast(self)
                     .typ(ctx.typ.clone())
                     .name(ctx.name)
                     .description(ctx.description)
