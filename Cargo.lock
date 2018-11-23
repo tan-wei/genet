@@ -1,4 +1,13 @@
 [[package]]
+name = "Inflector"
+version = "0.11.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "lazy_static 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "regex 1.0.6 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "adler32"
 version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -253,6 +262,7 @@ dependencies = [
  "fnv 1.0.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.44 (registry+https://github.com/rust-lang/crates.io-index)",
+ "num-traits 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "parking_lot 0.6.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.80 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.80 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -263,6 +273,17 @@ name = "genet-abi"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 replace = "genet-abi 0.5.0"
+
+[[package]]
+name = "genet-derive"
+version = "0.5.0"
+dependencies = [
+ "Inflector 0.11.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "genet-abi 0.5.0",
+ "proc-macro2 0.4.24 (registry+https://github.com/rust-lang/crates.io-index)",
+ "quote 0.6.10 (registry+https://github.com/rust-lang/crates.io-index)",
+ "syn 0.15.22 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "genet-filter"
@@ -286,6 +307,7 @@ dependencies = [
  "crossbeam-channel 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "fnv 1.0.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "genet-abi 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "genet-derive 0.5.0",
  "genet-filter 0.1.0",
  "genet-napi 0.1.0",
  "genet-sdk 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1435,6 +1457,7 @@ dependencies = [
 ]
 
 [metadata]
+"checksum Inflector 0.11.3 (registry+https://github.com/rust-lang/crates.io-index)" = "4467f98bb61f615f8273359bf1c989453dfc1ea4a45ae9298f1dcd0672febe5d"
 "checksum adler32 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)" = "7e522997b529f05601e05166c07ed17789691f562762c7f3b987263d2dedee5c"
 "checksum aho-corasick 0.6.9 (registry+https://github.com/rust-lang/crates.io-index)" = "1e9a933f4e58658d7b12defcf96dc5c720f20832deebe3e0a19efd3b6aaeeb9e"
 "checksum arrayref 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)" = "0d382e583f07208808f6b1249e60848879ba3543f57c32277bf52d69c2f0f0ee"

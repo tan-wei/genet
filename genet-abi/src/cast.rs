@@ -1,11 +1,12 @@
-use attr::Attr;
+use attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField, SizedAttrField};
+use num_traits::Num;
 use slice;
-use std::{convert::Into, io::Result};
+use std::{convert::Into, io::Result, mem::size_of};
 use variant::Variant;
 
 /// Cast trait.
 pub trait Cast: Send + Sync + CastClone {
-    fn cast(&self, _attr: &Attr, &slice::ByteSlice) -> Result<Variant>;
+    fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<Variant>;
 }
 
 pub trait CastClone {
@@ -89,5 +90,51 @@ where
 {
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<Variant> {
         T::cast(self, attr, data).map(|r| r.into())
+    }
+}
+
+impl<I: 'static + Into<Variant> + Clone, V: 'static + Typed<Output = I> + Clone + Cast> AttrField
+    for V
+{
+    type I = I;
+
+    fn class(
+        &self,
+        ctx: &AttrContext,
+        bit_size: usize,
+        filter: Option<fn(Self::I) -> Variant>,
+    ) -> AttrClassBuilder {
+        let mut b = AttrClass::builder(ctx.path.clone());
+        if let Some(f) = filter {
+            b = b.cast(&self.clone().map(f));
+        } else {
+            b = b.cast(self)
+        }
+        b.typ(ctx.typ.clone())
+            .aliases(ctx.aliases.clone())
+            .bit_range(0, ctx.bit_offset..(ctx.bit_offset + bit_size))
+            .name(ctx.name)
+            .description(ctx.description)
+    }
+}
+
+impl<T, X> SizedAttrField for T
+where
+    T: Typed<Output = X>,
+    X: Into<Variant> + Num,
+{
+    fn bit_size(&self) -> usize {
+        size_of::<X>() * 8
+    }
+}
+
+#[derive(Default, Clone)]
+pub struct Nil();
+
+impl Typed for Nil {
+    type Output = Variant;
+
+    fn cast(&self, _attr: &Attr, _data: &slice::ByteSlice) -> Result<Variant> {
+        Ok(Variant::Nil)
     }
 }

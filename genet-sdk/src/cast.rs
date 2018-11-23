@@ -8,7 +8,7 @@ use slice;
 use std::io::{Cursor, Error, ErrorKind, Result};
 
 /// Cast for 8bit unsigned integer.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct UInt8();
 
 impl Typed for UInt8 {
@@ -20,7 +20,7 @@ impl Typed for UInt8 {
 }
 
 /// Cast for 8bit signed integer.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Int8();
 
 impl Typed for Int8 {
@@ -32,7 +32,7 @@ impl Typed for Int8 {
 }
 
 /// Cast for big-endian 16bit unsigned integer.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct UInt16BE();
 
 impl Typed for UInt16BE {
@@ -44,7 +44,7 @@ impl Typed for UInt16BE {
 }
 
 /// Cast for big-endian 32bit unsigned integer.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct UInt32BE();
 
 impl Typed for UInt32BE {
@@ -56,7 +56,7 @@ impl Typed for UInt32BE {
 }
 
 /// Cast for big-endian 64bit unsigned integer.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct UInt64BE();
 
 impl Typed for UInt64BE {
@@ -68,7 +68,7 @@ impl Typed for UInt64BE {
 }
 
 /// Cast for big-endian 16bit signed integer.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Int16BE();
 
 impl Typed for Int16BE {
@@ -80,7 +80,7 @@ impl Typed for Int16BE {
 }
 
 /// Cast for big-endian 32bit signed integer.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Int32BE();
 
 impl Typed for Int32BE {
@@ -92,7 +92,7 @@ impl Typed for Int32BE {
 }
 
 /// Cast for big-endian 64bit signed integer.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Int64BE();
 
 impl Typed for Int64BE {
@@ -104,7 +104,7 @@ impl Typed for Int64BE {
 }
 
 /// Cast for big-endian 32bit floating point number.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Float32BE();
 
 impl Typed for Float32BE {
@@ -116,7 +116,7 @@ impl Typed for Float32BE {
 }
 
 /// Cast for big-endian 64bit floating point number.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Float64BE();
 
 impl Typed for Float64BE {
@@ -128,7 +128,7 @@ impl Typed for Float64BE {
 }
 
 /// Cast for little-endian 16bit unsigned integer.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct UInt16LE();
 
 impl Typed for UInt16LE {
@@ -140,7 +140,7 @@ impl Typed for UInt16LE {
 }
 
 /// Cast for little-endian 32bit unsigned integer.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct UInt32LE();
 
 impl Typed for UInt32LE {
@@ -152,7 +152,7 @@ impl Typed for UInt32LE {
 }
 
 /// Cast for little-endian 64bit unsigned integer.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct UInt64LE();
 
 impl Typed for UInt64LE {
@@ -164,7 +164,7 @@ impl Typed for UInt64LE {
 }
 
 /// Cast for little-endian 16bit signed integer.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Int16LE();
 
 impl Typed for Int16LE {
@@ -176,7 +176,7 @@ impl Typed for Int16LE {
 }
 
 /// Cast for little-endian 32bit signed integer.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Int32LE();
 
 impl Typed for Int32LE {
@@ -188,7 +188,7 @@ impl Typed for Int32LE {
 }
 
 /// Cast for little-endian 64bit signed integer.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Int64LE();
 
 impl Typed for Int64LE {
@@ -200,7 +200,7 @@ impl Typed for Int64LE {
 }
 
 /// Cast for little-endian 32bit floating point number.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Float32LE();
 
 impl Typed for Float32LE {
@@ -212,7 +212,7 @@ impl Typed for Float32LE {
 }
 
 /// Cast for little-endian 64bit floating point number.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Float64LE();
 
 impl Typed for Float64LE {
@@ -224,7 +224,7 @@ impl Typed for Float64LE {
 }
 
 /// Cast for UTF-8 string.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Utf8();
 
 impl Typed for Utf8 {
@@ -240,7 +240,7 @@ impl Typed for Utf8 {
 }
 
 /// Cast for ByteSlice.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct ByteSlice();
 
 impl Typed for ByteSlice {
@@ -248,5 +248,17 @@ impl Typed for ByteSlice {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<slice::ByteSlice> {
         Ok(data.try_get(attr.range())?)
+    }
+}
+
+#[derive(Clone, Default)]
+pub struct BitFlag();
+
+impl Typed for BitFlag {
+    type Output = bool;
+
+    fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<bool> {
+        let byte = Cursor::new(data.try_get(attr.range())?).read_u8()?;
+        Ok((byte & (0b1 << (attr.bit_range().start % 8))) != 0)
     }
 }

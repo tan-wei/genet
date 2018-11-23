@@ -1,4 +1,4 @@
-use cast::{Cast, Typed};
+use cast::{Cast, Nil, Typed};
 use env;
 use error::Error;
 use fixed::Fixed;
@@ -6,10 +6,41 @@ use layer::Layer;
 use metadata::Metadata;
 use result::Result;
 use slice::ByteSlice;
-use std::{fmt, io, mem, ops::Range, slice};
+use std::{
+    cell::Cell,
+    fmt, io, mem,
+    ops::{Deref, Range},
+    slice,
+};
 use token::Token;
 use variant::Variant;
 use vec::SafeVec;
+
+#[derive(Debug, Clone, Default)]
+pub struct AttrContext {
+    pub path: String,
+    pub typ: String,
+    pub name: &'static str,
+    pub description: &'static str,
+    pub bit_offset: usize,
+    pub detached: bool,
+    pub aliases: Vec<String>,
+}
+
+pub trait AttrField {
+    type I;
+
+    fn class(
+        &self,
+        ctx: &AttrContext,
+        bit_size: usize,
+        filter: Option<fn(Self::I) -> Variant>,
+    ) -> AttrClassBuilder;
+}
+
+pub trait SizedAttrField {
+    fn bit_size(&self) -> usize;
+}
 
 /// An attribute object.
 #[repr(C)]
@@ -138,9 +169,25 @@ impl AttrClassBuilder {
         self
     }
 
+    pub fn aliases<T: Into<Token>>(mut self, aliases: Vec<T>) -> AttrClassBuilder {
+        let mut aliases = aliases.into_iter().map(|s| s.into()).collect();
+        self.aliases.append(&mut aliases);
+        self
+    }
+
     pub fn child<C: Into<Fixed<AttrClass>>>(mut self, class: C) -> AttrClassBuilder {
         self.children.push(class.into());
         self
+    }
+
+    pub fn add_children<C: Into<Fixed<AttrClass>>>(mut self, children: Vec<C>) -> AttrClassBuilder {
+        let mut children = children.into_iter().map(|s| s.into()).collect();
+        self.children.append(&mut children);
+        self
+    }
+
+    pub fn children(&self) -> &[Fixed<AttrClass>] {
+        &self.children
     }
 
     /// Sets a constant value of AttrClass.
@@ -184,6 +231,20 @@ pub struct AttrClass {
     children: Vec<Fixed<AttrClass>>,
     aliases: Vec<Token>,
     cast: Box<Cast>,
+}
+
+impl fmt::Debug for AttrClass {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("AttrClass")
+            .field("id", &self.id)
+            .field("name", &self.meta.name())
+            .field("description", &self.meta.description())
+            .field("typ", &self.typ)
+            .field("range", &self.range)
+            .field("aliases", &self.aliases)
+            .field("children", &self.children)
+            .finish()
+    }
 }
 
 impl AttrClass {
@@ -231,12 +292,11 @@ impl AttrClass {
         } else {
             attr.bit_range()
         };
-        let byte_range = (range.start / 8)..((range.end + 7) / 8);
-        let mut attrs = vec![Attr::new(attr, range.clone(), *data)];
+        let root = Attr::new(attr, range.clone(), *data);
+        let mut attrs = vec![root];
         for child in &attr.children {
-            let offset = byte_range.start;
-            let range =
-                (child.bit_range().start + offset * 8)..(child.bit_range().end + offset * 8);
+            let offset = range.start - attr.bit_range().start;
+            let range = (child.bit_range().start + offset)..(child.bit_range().end + offset);
             attrs.append(&mut AttrClass::expand(&child, &data, Some(range)));
         }
         attrs
@@ -370,6 +430,69 @@ extern "C" fn abi_get(
         Err(e) => {
             unsafe { *err = Error::new(::std::error::Error::description(&e)) }
             ValueType::Error
+        }
+    }
+}
+
+pub struct Node<T, U = Nil> {
+    node: T,
+    fields: U,
+    class: Cell<Option<Fixed<AttrClass>>>,
+}
+
+impl<T, U> Node<T, U> {
+    pub fn class(&self) -> Fixed<AttrClass> {
+        self.class.get().unwrap()
+    }
+}
+
+impl<T, U> Deref for Node<T, U> {
+    type Target = U;
+
+    fn deref(&self) -> &U {
+        &self.fields
+    }
+}
+
+impl<I: Into<Variant>, J: Into<Variant>, T: AttrField<I = I>, U: AttrField<I = J>> AttrField
+    for Node<T, U>
+{
+    type I = I;
+
+    fn class(
+        &self,
+        ctx: &AttrContext,
+        bit_size: usize,
+        filter: Option<fn(Self::I) -> Variant>,
+    ) -> AttrClassBuilder {
+        let node = self.node.class(ctx, bit_size, filter);
+        let fields = self.fields.class(ctx, bit_size, None);
+
+        if self.class.get().is_none() {
+            self.class.set(Some(Fixed::new(
+                self.node
+                    .class(ctx, bit_size, filter)
+                    .add_children(fields.children().to_vec())
+                    .build(),
+            )))
+        }
+
+        node.add_children(fields.children().to_vec())
+    }
+}
+
+impl<T: SizedAttrField, U> SizedAttrField for Node<T, U> {
+    fn bit_size(&self) -> usize {
+        self.node.bit_size()
+    }
+}
+
+impl<T: Default, U: Default> Default for Node<T, U> {
+    fn default() -> Self {
+        Self {
+            node: T::default(),
+            fields: U::default(),
+            class: Cell::new(None),
         }
     }
 }

@@ -1,4 +1,4 @@
-use attr::{Attr, AttrClass};
+use attr::{Attr, AttrClass, AttrContext, AttrField, SizedAttrField};
 use fixed::{Fixed, MutFixed};
 use slice::ByteSlice;
 use std::{
@@ -8,6 +8,7 @@ use std::{
     slice,
 };
 use token::Token;
+use variant::Variant;
 
 /// A layer stack object.
 pub struct LayerStack<'a> {
@@ -320,6 +321,57 @@ impl LayerClassBuilder {
     }
 }
 
+pub struct LayerType<T> {
+    field: T,
+    layer: Fixed<LayerClass>,
+}
+
+impl<T: fmt::Debug> fmt::Debug for LayerType<T> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("LayerType")
+            .field("field", &self.field)
+            .field("layer", &self.layer)
+            .finish()
+    }
+}
+
+impl<T> Deref for LayerType<T> {
+    type Target = T;
+
+    fn deref(&self) -> &T {
+        &self.field
+    }
+}
+
+impl<T> AsRef<Fixed<LayerClass>> for LayerType<T> {
+    fn as_ref(&self) -> &Fixed<LayerClass> {
+        &self.layer
+    }
+}
+
+impl<I: Into<Variant>, T: AttrField<I = I> + SizedAttrField> LayerType<T> {
+    pub fn new<D: Into<Token>>(id: D, field: T) -> Self {
+        let ctx = AttrContext {
+            path: id.into().to_string(),
+            typ: "@layer".into(),
+            ..Default::default()
+        };
+        let class = field.class(&ctx, field.bit_size(), None).build();
+        let layer = Fixed::new(LayerClass {
+            get_id: abi_id,
+            data: abi_data,
+            attrs_len: abi_attrs_len,
+            attrs_data: abi_attrs_data,
+            add_attr: abi_add_attr,
+            payloads_len: abi_payloads_len,
+            payloads_data: abi_payloads_data,
+            add_payload: abi_add_payload,
+            header: Fixed::new(class),
+        });
+        Self { field, layer }
+    }
+}
+
 /// A layer class object.
 #[repr(C)]
 pub struct LayerClass {
@@ -339,6 +391,29 @@ impl LayerClass {
     pub fn builder<H: Into<Fixed<AttrClass>>>(header: H) -> LayerClassBuilder {
         LayerClassBuilder {
             header: header.into(),
+        }
+    }
+
+    pub fn new<I: Into<Variant>, T: Into<Token>, A: SizedAttrField + AttrField<I = I>>(
+        id: T,
+        attr: &A,
+    ) -> LayerClass {
+        let ctx = AttrContext {
+            path: id.into().to_string(),
+            typ: "@layer".into(),
+            ..Default::default()
+        };
+        let class = attr.class(&ctx, attr.bit_size(), None).build();
+        LayerClass {
+            get_id: abi_id,
+            data: abi_data,
+            attrs_len: abi_attrs_len,
+            attrs_data: abi_attrs_data,
+            add_attr: abi_add_attr,
+            payloads_len: abi_payloads_len,
+            payloads_data: abi_payloads_data,
+            add_payload: abi_add_payload,
+            header: Fixed::new(class),
         }
     }
 
@@ -371,6 +446,14 @@ impl LayerClass {
         let data = (self.payloads_data)(layer);
         let len = (self.payloads_len)(layer) as usize;
         unsafe { slice::from_raw_parts(data, len) }.iter()
+    }
+}
+
+impl fmt::Debug for LayerClass {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("LayerClass")
+            .field("header", &self.header)
+            .finish()
     }
 }
 

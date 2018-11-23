@@ -227,3 +227,12 @@ impl Into<Variant> for ByteSlice {
         Variant::Slice(self)
     }
 }
+
+impl<T: Into<Variant>> From<Option<T>> for Variant {
+    fn from(v: Option<T>) -> Self {
+        match v {
+            Some(v) => v.into(),
+            None => Variant::Nil,
+        }
+    }
+}
