@@ -44,10 +44,7 @@ impl Decoder for UdpDecoder {
     }
 }
 
-def_layer_class!(UDP_CLASS, &UDP_ATTR,
-    alias: "_.src" "udp.src",
-    alias: "_.dst" "udp.dst"
-);
+def_layer_class!(UDP_CLASS, &UDP_ATTR);
 
 def_attr_class!(
     UDP_ATTR,
@@ -60,12 +57,14 @@ def_attr_class!(
 
 def_attr_class!(SRC_ATTR, "udp.src",
     typ: "@udp:port",
+    alias: "_.src",
     cast: &cast::UInt16BE(),
     range: 0..2
 );
 
 def_attr_class!(DST_ATTR, "udp.dst",
     typ: "@udp:port",
+    alias: "_.dst",
     cast: &cast::UInt16BE(),
     range: 2..4
 );

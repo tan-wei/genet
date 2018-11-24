@@ -69,10 +69,7 @@ impl Decoder for IPv6Decoder {
     }
 }
 
-def_layer_class!(IPV6_CLASS, &IPV6_ATTR,
-    alias: "_.src" "ipv6.src",
-    alias: "_.dst" "ipv6.dst"
-);
+def_layer_class!(IPV6_CLASS, &IPV6_ATTR);
 
 def_attr_class!(
     IPV6_ATTR,
@@ -121,12 +118,14 @@ def_attr_class!(HLIMIT_ATTR, "ipv6.hopLimit",
 
 def_attr_class!(SRC_ATTR, "ipv6.src",
     typ: "@ipv6:addr",
+    alias: "_.src",
     cast: &cast::ByteSlice(),
     range: 8..24
 );
 
 def_attr_class!(DST_ATTR, "ipv6.dst",
     typ: "@ipv6:addr",
+    alias: "_.dst",
     cast: &cast::ByteSlice(),
     range: 24..40
 );

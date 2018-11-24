@@ -48,10 +48,7 @@ impl Decoder for IPv4Decoder {
     }
 }
 
-def_layer_class!(IPV4_CLASS, &IPV4_ATTR,
-    alias: "_.src" "ipv4.src",
-    alias: "_.dst" "ipv4.dst"
-);
+def_layer_class!(IPV4_CLASS, &IPV4_ATTR);
 
 def_attr_class!(
     IPV4_ATTR,
@@ -142,12 +139,14 @@ def_attr_class!(CHECKSUM_ATTR, "ipv4.checksum",
 
 def_attr_class!(SRC_ATTR, "ipv4.src",
     typ: "@ipv4:addr",
+    alias: "_.src",
     cast: &cast::ByteSlice(),
     range: 12..16
 );
 
 def_attr_class!(DST_ATTR, "ipv4.dst",
     typ: "@ipv4:addr",
+    alias: "_.dst",
     cast: &cast::ByteSlice(),
     range: 16..20
 );

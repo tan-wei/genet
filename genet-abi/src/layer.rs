@@ -203,12 +203,6 @@ impl Layer {
     /// Find the attribute in the Layer.
     pub fn attr<T: Into<Token>>(&self, id: T) -> Option<Attr> {
         let id = id.into();
-        let id = self
-            .class
-            .aliases()
-            .find(|alias| alias.id == id)
-            .map(|alias| alias.target)
-            .unwrap_or(id);
 
         AttrClass::expand(self.class.header(), &self.data, None)
             .into_iter()
@@ -220,7 +214,7 @@ impl Layer {
                     })
                     .flatten(),
             )
-            .find(|attr| attr.id() == id)
+            .find(|attr| attr.is_match(&id))
     }
 
     /// Adds an attribute to the Layer.
@@ -308,20 +302,10 @@ impl Payload {
 /// A builder object for LayerClass.
 pub struct LayerClassBuilder {
     header: Fixed<AttrClass>,
-    aliases: Vec<Alias>,
     meta: Metadata,
 }
 
 impl LayerClassBuilder {
-    /// Adds an attribute alias for LayerClass.
-    pub fn alias<T: Into<Token>, U: Into<Token>>(mut self, id: T, target: U) -> LayerClassBuilder {
-        self.aliases.push(Alias {
-            id: id.into(),
-            target: target.into(),
-        });
-        self
-    }
-
     /// Sets a name of LayerClass.
     pub fn name(mut self, name: &'static str) -> LayerClassBuilder {
         self.meta.set_name(name);
@@ -341,31 +325,20 @@ impl LayerClassBuilder {
             data: abi_data,
             attrs_len: abi_attrs_len,
             attrs_data: abi_attrs_data,
-            aliases_len: abi_aliases_len,
-            aliases_data: abi_aliases_data,
             add_attr: abi_add_attr,
             payloads_len: abi_payloads_len,
             payloads_data: abi_payloads_data,
             add_payload: abi_add_payload,
             meta: self.meta,
-            aliases: self.aliases,
             header: self.header,
         }
     }
-}
-
-#[repr(C)]
-struct Alias {
-    id: Token,
-    target: Token,
 }
 
 /// A layer class object.
 #[repr(C)]
 pub struct LayerClass {
     get_id: extern "C" fn(*const LayerClass) -> Token,
-    aliases_len: extern "C" fn(*const LayerClass) -> u64,
-    aliases_data: extern "C" fn(*const LayerClass) -> *const Alias,
     data: extern "C" fn(*const Layer, *mut u64) -> *const u8,
     attrs_len: extern "C" fn(*const Layer) -> u64,
     attrs_data: extern "C" fn(*const Layer) -> *const BoundAttr,
@@ -375,7 +348,6 @@ pub struct LayerClass {
     add_payload: extern "C" fn(*mut Layer, Payload),
     header: Fixed<AttrClass>,
     meta: Metadata,
-    aliases: Vec<Alias>,
 }
 
 impl LayerClass {
@@ -383,20 +355,12 @@ impl LayerClass {
     pub fn builder<H: Into<Fixed<AttrClass>>>(header: H) -> LayerClassBuilder {
         LayerClassBuilder {
             meta: Metadata::new(),
-            aliases: Vec::new(),
             header: header.into(),
         }
     }
 
     fn id(&self) -> Token {
         (self.get_id)(self)
-    }
-
-    fn aliases(&self) -> impl Iterator<Item = &Alias> {
-        let data = (self.aliases_data)(self);
-        let len = (self.aliases_len)(self) as usize;
-        let iter = unsafe { slice::from_raw_parts(data, len).iter() };
-        iter.map(|v| &*v)
     }
 
     fn header(&self) -> &Fixed<AttrClass> {
@@ -435,14 +399,6 @@ impl Into<Fixed<LayerClass>> for &'static LayerClass {
 
 extern "C" fn abi_id(class: *const LayerClass) -> Token {
     unsafe { (*class).header.id() }
-}
-
-extern "C" fn abi_aliases_len(class: *const LayerClass) -> u64 {
-    unsafe { (*class).aliases.len() as u64 }
-}
-
-extern "C" fn abi_aliases_data(class: *const LayerClass) -> *const Alias {
-    unsafe { (*class).aliases.as_ptr() }
 }
 
 extern "C" fn abi_data(layer: *const Layer, len: *mut u64) -> *const u8 {

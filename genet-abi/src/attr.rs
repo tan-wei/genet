@@ -35,6 +35,10 @@ impl<'a> Attr<'a> {
         self.class.id()
     }
 
+    pub fn is_match(&self, id: &Token) -> bool {
+        self.class.is_match(id)
+    }
+
     /// Returns the type of self.
     pub fn typ(&self) -> Token {
         self.class.typ()
@@ -88,6 +92,7 @@ pub struct AttrClassBuilder {
     meta: Metadata,
     range: Range<usize>,
     children: Vec<Fixed<AttrClass>>,
+    aliases: Vec<Token>,
     cast: Box<Cast>,
 }
 
@@ -128,6 +133,11 @@ impl AttrClassBuilder {
         self
     }
 
+    pub fn alias<T: Into<Token>>(mut self, id: T) -> AttrClassBuilder {
+        self.aliases.push(id.into());
+        self
+    }
+
     pub fn child<C: Into<Fixed<AttrClass>>>(mut self, class: C) -> AttrClassBuilder {
         self.children.push(class.into());
         self
@@ -146,6 +156,7 @@ impl AttrClassBuilder {
     pub fn build(self) -> AttrClass {
         AttrClass {
             get_id: abi_id,
+            is_match: abi_is_match,
             get_typ: abi_typ,
             get: abi_get,
             id: self.id,
@@ -153,6 +164,7 @@ impl AttrClassBuilder {
             meta: self.meta,
             range: self.range,
             children: self.children,
+            aliases: self.aliases,
             cast: self.cast,
         }
     }
@@ -162,6 +174,7 @@ impl AttrClassBuilder {
 #[repr(C)]
 pub struct AttrClass {
     get_id: extern "C" fn(class: *const AttrClass) -> Token,
+    is_match: extern "C" fn(class: *const AttrClass, id: Token) -> u8,
     get_typ: extern "C" fn(class: *const AttrClass) -> Token,
     get: extern "C" fn(*const Attr, *mut *const u8, u64, *mut i64, *mut Error) -> ValueType,
     id: Token,
@@ -169,6 +182,7 @@ pub struct AttrClass {
     meta: Metadata,
     range: Range<usize>,
     children: Vec<Fixed<AttrClass>>,
+    aliases: Vec<Token>,
     cast: Box<Cast>,
 }
 
@@ -181,12 +195,17 @@ impl AttrClass {
             meta: Metadata::new(),
             range: 0..0,
             children: Vec::new(),
+            aliases: Vec::new(),
             cast: Box::new(Const(true)),
         }
     }
 
     pub fn id(&self) -> Token {
         (self.get_id)(self)
+    }
+
+    pub fn is_match(&self, id: &Token) -> bool {
+        (self.is_match)(self, *id) != 0
     }
 
     pub fn typ(&self) -> Token {
@@ -279,6 +298,15 @@ impl Into<Fixed<AttrClass>> for &'static AttrClass {
 
 extern "C" fn abi_id(class: *const AttrClass) -> Token {
     unsafe { (*class).id }
+}
+
+extern "C" fn abi_is_match(class: *const AttrClass, id: Token) -> u8 {
+    let class = unsafe { &(*class) };
+    if class.id == id || class.aliases.iter().any(|&x| x == id) {
+        1
+    } else {
+        0
+    }
 }
 
 extern "C" fn abi_typ(class: *const AttrClass) -> Token {

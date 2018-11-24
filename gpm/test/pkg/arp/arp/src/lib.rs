@@ -75,10 +75,7 @@ impl Decoder for ArpDecoder {
     }
 }
 
-def_layer_class!(ARP_CLASS, &ARP_ATTR,
-    alias: "_.src" "arp.sha",
-    alias: "_.dst" "arp.tha"
-);
+def_layer_class!(ARP_CLASS, &ARP_ATTR);
 
 def_attr_class!(
     ARP_ATTR,
@@ -122,8 +119,8 @@ fn get_hw(val: u64) -> Option<(&'static AttrClass, &'static AttrClass, &'static 
     match val {
         0x0001 => Some((
             attr_class_lazy!("arp.hwtype.eth", typ: "@novalue", value: true),
-            attr_class_lazy!("arp.sha", typ: "@eth:mac", cast: &cast::ByteSlice()),
-            attr_class_lazy!("arp.tha", typ: "@eth:mac", cast: &cast::ByteSlice()),
+            attr_class_lazy!("arp.sha", typ: "@eth:mac", alias: "_.src", cast: &cast::ByteSlice()),
+            attr_class_lazy!("arp.tha", typ: "@eth:mac", alias: "_.dst", cast: &cast::ByteSlice()),
         )),
         _ => None,
     }
