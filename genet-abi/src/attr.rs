@@ -5,7 +5,7 @@ use fixed::Fixed;
 use layer::Layer;
 use metadata::Metadata;
 use result::Result;
-use slice::{ByteSlice, TryGet};
+use slice::ByteSlice;
 use std::{fmt, io, mem, ops::Range, slice};
 use token::Token;
 use variant::Variant;
@@ -16,7 +16,7 @@ use vec::SafeVec;
 pub struct Attr<'a> {
     class: &'a AttrClass,
     range: Range<usize>,
-    data: Option<ByteSlice>,
+    data: ByteSlice,
 }
 
 impl<'a> fmt::Debug for Attr<'a> {
@@ -26,7 +26,7 @@ impl<'a> fmt::Debug for Attr<'a> {
 }
 
 impl<'a> Attr<'a> {
-    pub fn new(class: &'a AttrClass, range: Range<usize>, data: Option<ByteSlice>) -> Attr<'a> {
+    pub fn new(class: &'a AttrClass, range: Range<usize>, data: ByteSlice) -> Attr<'a> {
         Attr { class, range, data }
     }
 
@@ -213,17 +213,12 @@ impl AttrClass {
             attr.bit_range()
         };
         let byte_range = (range.start / 8)..((range.end + 7) / 8);
-        let mut attrs = vec![Attr::new(
-            attr,
-            range.clone(),
-            data.try_get(byte_range.clone()).ok(),
-        )];
+        let mut attrs = vec![Attr::new(attr, range.clone(), data.clone())];
         for child in &attr.children {
             let offset = byte_range.start;
             let range =
                 (child.bit_range().start + offset * 8)..(child.bit_range().end + offset * 8);
-            let byte_range = (child.range().start + offset)..(child.range().end + offset);
-            attrs.push(Attr::new(&child, range, data.try_get(byte_range).ok()))
+            attrs.push(Attr::new(&child, range, data.clone()))
         }
         attrs
     }
@@ -233,17 +228,15 @@ impl AttrClass {
     }
 
     pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<Variant> {
-        let data = layer.data().try_get(range).ok();
-        let attr = Attr::new(self, self.bit_range(), data);
+        let bit_offset = self.bit_range().start;
+        let range = (self.bit_range().start - bit_offset + range.start * 8)
+            ..(self.bit_range().end - bit_offset + range.end * 8);
+        let attr = Attr::new(self, range, layer.data().clone());
         self.try_get_attr(&attr)
     }
 
     fn try_get_attr(&self, attr: &Attr) -> Result<Variant> {
-        let data = if let Some(data) = attr.data {
-            data
-        } else {
-            return Err(Box::new(Error::new("out of bounds")));
-        };
+        let data = attr.data;
         let mut buf: *const u8 = data.as_ptr();
         let mut num = 0;
         let mut err = Error::new("");
