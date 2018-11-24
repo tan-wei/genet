@@ -1,6 +1,5 @@
 use attr::{Attr, AttrClass};
 use fixed::{Fixed, MutFixed};
-use metadata::Metadata;
 use slice::ByteSlice;
 use std::{
     fmt,
@@ -302,22 +301,9 @@ impl Payload {
 /// A builder object for LayerClass.
 pub struct LayerClassBuilder {
     header: Fixed<AttrClass>,
-    meta: Metadata,
 }
 
 impl LayerClassBuilder {
-    /// Sets a name of LayerClass.
-    pub fn name(mut self, name: &'static str) -> LayerClassBuilder {
-        self.meta.set_name(name);
-        self
-    }
-
-    /// Sets a description of LayerClass.
-    pub fn description(mut self, desc: &'static str) -> LayerClassBuilder {
-        self.meta.set_description(desc);
-        self
-    }
-
     /// Builds a new LayerClass.
     pub fn build(self) -> LayerClass {
         LayerClass {
@@ -329,7 +315,6 @@ impl LayerClassBuilder {
             payloads_len: abi_payloads_len,
             payloads_data: abi_payloads_data,
             add_payload: abi_add_payload,
-            meta: self.meta,
             header: self.header,
         }
     }
@@ -347,14 +332,12 @@ pub struct LayerClass {
     payloads_data: extern "C" fn(*const Layer) -> *const Payload,
     add_payload: extern "C" fn(*mut Layer, Payload),
     header: Fixed<AttrClass>,
-    meta: Metadata,
 }
 
 impl LayerClass {
     /// Creates a new builder object for LayerClass.
     pub fn builder<H: Into<Fixed<AttrClass>>>(header: H) -> LayerClassBuilder {
         LayerClassBuilder {
-            meta: Metadata::new(),
             header: header.into(),
         }
     }
