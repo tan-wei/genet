@@ -1,5 +1,4 @@
-use attr::{Attr, AttrClass, AttrContext, AttrField, AttrList, SizedAttrField};
-use fixed::Fixed;
+use attr::{Attr, AttrClass, AttrContext, AttrField, SizedAttrField};
 use num_traits::Num;
 use slice;
 use std::{convert::Into, io::Result, mem::size_of};
@@ -95,17 +94,14 @@ where
 }
 
 impl<T: Into<Variant>, V: Typed<Output = T> + Cast> AttrField for V {
-    fn init(&mut self, ctx: &AttrContext) -> AttrList {
-        AttrList {
-            class: Fixed::new(
-                AttrClass::builder(ctx.path.clone())
-                    .cast(self)
-                    .typ(ctx.typ.clone())
-                    .name(ctx.name)
-                    .description(ctx.description)
-                    .build(),
-            ),
-        }
+    fn init(&mut self, ctx: &AttrContext) -> AttrClass {
+        AttrClass::builder(ctx.path.clone())
+            .cast(self)
+            .typ(ctx.typ.clone())
+            .aliases(ctx.aliases.clone())
+            .name(ctx.name)
+            .description(ctx.description)
+            .build()
     }
 }
 

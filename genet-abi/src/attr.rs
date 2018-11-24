@@ -19,15 +19,11 @@ pub struct AttrContext {
     pub description: &'static str,
     pub bit_offset: usize,
     pub detached: bool,
-}
-
-#[derive(Debug)]
-pub struct AttrList {
-    pub class: Fixed<AttrClass>,
+    pub aliases: Vec<String>,
 }
 
 pub trait AttrField {
-    fn init(&mut self, ctx: &AttrContext) -> AttrList;
+    fn init(&mut self, ctx: &AttrContext) -> AttrClass;
 }
 
 pub trait SizedAttrField: AttrField {
@@ -162,6 +158,12 @@ impl AttrClassBuilder {
 
     pub fn alias<T: Into<Token>>(mut self, id: T) -> AttrClassBuilder {
         self.aliases.push(id.into());
+        self
+    }
+
+    pub fn aliases<T: Into<Token>>(mut self, aliases: Vec<T>) -> AttrClassBuilder {
+        let mut aliases = aliases.into_iter().map(|s| s.into()).collect();
+        self.aliases.append(&mut aliases);
         self
     }
 

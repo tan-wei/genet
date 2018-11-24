@@ -15,6 +15,19 @@ struct Eth {
     /// Destination Hardware Address
     #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
     dst: cast::ByteSlice,
+
+    sub: EthSub,
+}
+
+#[derive(Attr, Default)]
+struct EthSub {
+    /// Source Hardware Address
+    #[genet(byte_size = 6)]
+    src: cast::ByteSlice,
+
+    /// Destination Hardware Address
+    #[genet(byte_size = 6)]
+    dst: cast::ByteSlice,
 }
 
 struct EthWorker {}

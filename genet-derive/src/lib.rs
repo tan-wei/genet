@@ -41,7 +41,6 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let mut fields_ctx = Vec::new();
     let mut fields_skip = Vec::new();
     let mut fields_detach = Vec::new();
-    let mut fields_aliases = Vec::new();
 
     if let Fields::Named(f) = &s.fields {
         for field in &f.named {
@@ -55,6 +54,12 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 } else {
                     meta.name
                 };
+                let aliases = meta
+                    .aliases
+                    .iter()
+                    .fold(String::new(), |acc, x| acc + x + " ")
+                    .trim()
+                    .to_string();
                 let desc = meta.description;
                 fields_ctx.push(quote!{
                     AttrContext{
@@ -63,6 +68,11 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         typ: #typ.into(),
                         name: #name.into(),
                         description: #desc.into(),
+                        aliases: #aliases
+                            .split(' ')
+                            .filter(|s| !s.is_empty())
+                            .map(|s| s.to_string())
+                            .collect(),
                         ..Default::default()
                     }
                 });
@@ -98,12 +108,6 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         }
                     });
                 }
-
-                for name in meta.aliases {
-                    fields_aliases.push(quote!{
-                        (format!("{}", #name), format!("{}{}", ctx.path, #id))
-                    });
-                }
             }
         }
     }
@@ -117,18 +121,14 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let tokens = quote!{
         impl genet_sdk::attr::AttrField for #ident {
             fn init(&mut self, ctx: &::genet_sdk::attr::AttrContext)
-                -> genet_sdk::attr::AttrList {
-                use genet_sdk::attr::{Attr, SizedAttrField, AttrField, AttrList, AttrContext, AttrClass};
+                -> genet_sdk::attr::AttrClass {
+                use genet_sdk::attr::{Attr, SizedAttrField, AttrField, AttrContext, AttrClass};
                 use genet_sdk::cast;
                 use genet_sdk::fixed::Fixed;
 
-                let mut class = None;
                 let mut bit_offset = ctx.bit_offset;
                 // let mut attrs = Vec::new();
                 let mut children = Vec::new();
-                let mut aliases = vec![
-                    #( #fields_aliases ),*
-                ];
 
                 #(
                     {
@@ -155,7 +155,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         }
 
                         if !skip {
-                            children.push(child.class.clone());
+                            children.push(Fixed::new(child));
                             if (!detach) {
                                 // attrs.append(&mut child.attrs);
                             }
@@ -164,25 +164,22 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     }
                 )*
 
-                AttrList {
-                    class: class.unwrap_or_else(|| Fixed::new(
-                        AttrClass::builder(ctx.path.clone())
-                        .children(children)
-                        .cast(&cast::ByteSlice())
-                        .typ(ctx.typ.clone())
-                        .name(if ctx.name.is_empty() {
-                            #self_name
-                        } else {
-                            ctx.name
-                        })
-                        .description(if ctx.description.is_empty() {
-                            #self_desc
-                        } else {
-                            ctx.description
-                        })
-                        .build()
-                    ))
-                }
+                AttrClass::builder(ctx.path.clone())
+                    .children(children)
+                    .aliases(ctx.aliases.clone())
+                    .cast(&cast::ByteSlice())
+                    .typ(ctx.typ.clone())
+                    .name(if ctx.name.is_empty() {
+                        #self_name
+                    } else {
+                        ctx.name
+                    })
+                    .description(if ctx.description.is_empty() {
+                        #self_desc
+                    } else {
+                        ctx.description
+                    })
+                    .build()
             }
         }
 
