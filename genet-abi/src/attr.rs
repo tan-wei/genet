@@ -221,7 +221,14 @@ pub struct AttrClass {
 
 impl fmt::Debug for AttrClass {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "AttrClass {:?}", self.id())
+        f.debug_struct("AttrClass")
+            .field("id", &self.id)
+            .field("name", &self.meta.name())
+            .field("description", &self.meta.description())
+            .field("typ", &self.typ)
+            .field("range", &self.range)
+            .field("children", &self.children)
+            .finish()
     }
 }
 
