@@ -105,7 +105,6 @@ impl<T: Into<Variant>, V: Typed<Output = T> + Cast> AttrField for V {
                     .description(ctx.description)
                     .build(),
             ),
-            aliases: Vec::new(),
         }
     }
 }

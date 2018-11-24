@@ -24,7 +24,6 @@ pub struct AttrContext {
 #[derive(Debug)]
 pub struct AttrList {
     pub class: Fixed<AttrClass>,
-    pub aliases: Vec<(String, String)>,
 }
 
 pub trait AttrField {
@@ -227,6 +226,7 @@ impl fmt::Debug for AttrClass {
             .field("description", &self.meta.description())
             .field("typ", &self.typ)
             .field("range", &self.range)
+            .field("aliases", &self.aliases)
             .field("children", &self.children)
             .finish()
     }

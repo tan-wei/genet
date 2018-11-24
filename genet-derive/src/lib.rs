@@ -159,7 +159,6 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                             if (!detach) {
                                 // attrs.append(&mut child.attrs);
                             }
-                            aliases.append(&mut child.aliases);
                         }
                         // children.append(&mut child.children);
                     }
@@ -182,8 +181,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                             ctx.description
                         })
                         .build()
-                    )),
-                    aliases,
+                    ))
                 }
             }
         }
