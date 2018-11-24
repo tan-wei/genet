@@ -171,6 +171,11 @@ impl AttrClassBuilder {
         self
     }
 
+    pub fn children(mut self, mut children: Vec<Fixed<AttrClass>>) -> AttrClassBuilder {
+        self.children.append(&mut children);
+        self
+    }
+
     /// Sets a constant value of AttrClass.
     pub fn value<T: 'static + Into<Variant> + Send + Sync + Clone>(
         mut self,
@@ -212,6 +217,12 @@ pub struct AttrClass {
     children: Vec<Fixed<AttrClass>>,
     aliases: Vec<Token>,
     cast: Box<Cast>,
+}
+
+impl fmt::Debug for AttrClass {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "AttrClass {:?}", self.id())
+    }
 }
 
 impl AttrClass {

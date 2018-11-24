@@ -374,6 +374,12 @@ impl LayerClass {
     }
 }
 
+impl fmt::Debug for LayerClass {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "LayerClass {:?}", self.id())
+    }
+}
+
 impl Into<Fixed<LayerClass>> for &'static LayerClass {
     fn into(self) -> Fixed<LayerClass> {
         Fixed::from_static(self)

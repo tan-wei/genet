@@ -3,7 +3,7 @@ use std::fmt;
 
 /// A token value.
 #[repr(C)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Token(u32);
 
 impl Token {
@@ -15,6 +15,12 @@ impl Token {
     /// Returns the corresponded string.
     pub fn to_string(self) -> String {
         env::string(self)
+    }
+}
+
+impl fmt::Debug for Token {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} ({})", self.to_string(), self.0)
     }
 }
 
