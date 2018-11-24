@@ -124,7 +124,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
 
                 let mut class = None;
                 let mut bit_offset = ctx.bit_offset;
-                let mut attrs = Vec::new();
+                // let mut attrs = Vec::new();
                 let mut children = Vec::new();
                 let mut aliases = vec![
                     #( #fields_aliases ),*
@@ -142,11 +142,13 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
 
                         if !detach {
                             if !skip {
+                                /*
                                 attrs.push(
                                     Attr::builder(child.class.clone())
                                         .bit_range(0, bit_offset..(bit_offset + bit_size))
                                         .build()
                                 );
+                                */
                             }
 
                             bit_offset += bit_size;
@@ -155,11 +157,11 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         if !skip {
                             children.push(child.class.clone());
                             if (!detach) {
-                                attrs.append(&mut child.attrs);
+                                // attrs.append(&mut child.attrs);
                             }
                             aliases.append(&mut child.aliases);
                         }
-                        children.append(&mut child.children);
+                        // children.append(&mut child.children);
                     }
                 )*
 
@@ -180,8 +182,6 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         })
                         .build()
                     )),
-                    children,
-                    attrs,
                     aliases,
                 }
             }
