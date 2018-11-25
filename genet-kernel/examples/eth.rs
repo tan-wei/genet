@@ -16,7 +16,7 @@ struct Eth {
     #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
     dst: cast::ByteSlice,
 
-    sub: Node<EthSub, EthSub>,
+    sub: Node<cast::UInt16BE, EthSub>,
 }
 
 #[derive(Attr, Default)]
@@ -74,7 +74,9 @@ impl Decoder for EthDecoder {
         use genet_sdk::attr::{AttrField, SizedAttrField};
         let ctx = genet_sdk::attr::AttrContext::default();
         let mut eth = Eth::default();
-        println!("{:#?}", eth.class(&ctx, eth.bit_size()));
+
+        println!("{:#?}", eth.class(&ctx, eth.bit_size()).build());
+        println!("{:#?}", eth.sub.class());
         Box::new(EthWorker {})
     }
 

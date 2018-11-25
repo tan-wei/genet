@@ -28,7 +28,7 @@ pub struct AttrContext {
 }
 
 pub trait AttrField {
-    fn class(&self, ctx: &AttrContext, bit_size: usize) -> AttrClass;
+    fn class(&self, ctx: &AttrContext, bit_size: usize) -> AttrClassBuilder;
 }
 
 pub trait SizedAttrField: AttrField {
@@ -448,13 +448,14 @@ impl<T: SizedAttrField, U: AttrField> Deref for Node<T, U> {
 }
 
 impl<T: SizedAttrField, U: AttrField> AttrField for Node<T, U> {
-    fn class(&self, ctx: &AttrContext, bit_size: usize) -> AttrClass {
+    fn class(&self, ctx: &AttrContext, bit_size: usize) -> AttrClassBuilder {
         let node = self.node.class(ctx, self.node.bit_size());
         self.fields.class(ctx, bit_size);
 
         if self.class.get().is_none() {
-            self.class
-                .set(Some(Fixed::new(self.node.class(ctx, self.node.bit_size()))))
+            self.class.set(Some(Fixed::new(
+                self.node.class(ctx, self.node.bit_size()).build(),
+            )))
         }
 
         node
