@@ -422,6 +422,52 @@ extern "C" fn abi_get(
     }
 }
 
+pub struct Node<T: SizedAttrField, U: AttrField> {
+    node: T,
+    fields: U,
+    attr: Option<AttrClass>,
+}
+
+impl<T: SizedAttrField, U: AttrField> Node<T, U> {
+    pub fn fields(&self) -> &U {
+        &self.fields
+    }
+
+    pub fn attr(&self) -> &AttrClass {
+        self.attr.as_ref().unwrap()
+    }
+}
+
+impl<T: SizedAttrField, U: AttrField> AttrField for Node<T, U> {
+    fn init(&mut self, ctx: &AttrContext) -> AttrClass {
+        let mut node = self.node.init(ctx);
+        let mut fields = self.fields.init(ctx);
+
+        let byte_offset = ctx.bit_offset / 8;
+        let bit_offset = ctx.bit_offset - (byte_offset * 8);
+        let bit_range = bit_offset..(bit_offset + self.node.bit_size());
+        // self.attr = Some(node.clone());
+
+        node
+    }
+}
+
+impl<T: SizedAttrField, U: AttrField> SizedAttrField for Node<T, U> {
+    fn bit_size(&self) -> usize {
+        self.node.bit_size()
+    }
+}
+
+impl<T: SizedAttrField + Default, U: AttrField + Default> Default for Node<T, U> {
+    fn default() -> Self {
+        Self {
+            node: T::default(),
+            fields: U::default(),
+            attr: None,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use attr::{Attr, AttrClass};

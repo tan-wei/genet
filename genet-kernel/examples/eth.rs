@@ -16,7 +16,7 @@ struct Eth {
     #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
     dst: cast::ByteSlice,
 
-    sub: EthSub,
+    sub: Node<EthSub, EthSub>,
 }
 
 #[derive(Attr, Default)]

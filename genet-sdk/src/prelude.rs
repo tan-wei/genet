@@ -1,6 +1,6 @@
 //! The SDK Prelude
 
-pub use attr::{Attr, AttrClass};
+pub use attr::{Attr, AttrClass, Node};
 pub use cast::Map;
 pub use context::Context;
 pub use file::FileType;
