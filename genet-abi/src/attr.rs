@@ -237,7 +237,7 @@ impl AttrClass {
             let offset = byte_range.start;
             let range =
                 (child.bit_range().start + offset * 8)..(child.bit_range().end + offset * 8);
-            attrs.push(Attr::new(&child, range, data.clone()))
+            attrs.append(&mut AttrClass::expand(&child, &data, Some(range)));
         }
         attrs
     }
