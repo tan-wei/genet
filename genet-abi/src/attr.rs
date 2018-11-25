@@ -23,7 +23,7 @@ pub struct AttrContext {
 }
 
 pub trait AttrField {
-    fn init(&mut self, ctx: &AttrContext) -> AttrClass;
+    fn class(&self, ctx: &AttrContext) -> AttrClass;
 }
 
 pub trait SizedAttrField: AttrField {
@@ -439,9 +439,9 @@ impl<T: SizedAttrField, U: AttrField> Node<T, U> {
 }
 
 impl<T: SizedAttrField, U: AttrField> AttrField for Node<T, U> {
-    fn init(&mut self, ctx: &AttrContext) -> AttrClass {
-        let mut node = self.node.init(ctx);
-        let mut fields = self.fields.init(ctx);
+    fn class(&self, ctx: &AttrContext) -> AttrClass {
+        let mut node = self.node.class(ctx);
+        let mut fields = self.fields.class(ctx);
 
         let byte_offset = ctx.bit_offset / 8;
         let bit_offset = ctx.bit_offset - (byte_offset * 8);

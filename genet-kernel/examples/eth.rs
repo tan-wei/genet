@@ -74,7 +74,7 @@ impl Decoder for EthDecoder {
         use genet_sdk::attr::AttrField;
         let ctx = genet_sdk::attr::AttrContext::default();
         let mut eth = Eth::default();
-        println!("{:#?}", eth.init(&ctx));
+        println!("{:#?}", eth.class(&ctx));
         Box::new(EthWorker {})
     }
 

@@ -94,7 +94,7 @@ where
 }
 
 impl<T: Into<Variant>, V: Typed<Output = T> + Cast> AttrField for V {
-    fn init(&mut self, ctx: &AttrContext) -> AttrClass {
+    fn class(&self, ctx: &AttrContext) -> AttrClass {
         AttrClass::builder(ctx.path.clone())
             .cast(self)
             .typ(ctx.typ.clone())

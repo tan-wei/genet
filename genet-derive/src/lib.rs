@@ -82,7 +82,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 if let Some(bit_size) = meta.bit_size {
                     fields_ident_mut.push(quote!{
                         {
-                            let attr : &mut AttrField = &mut self.#ident;
+                            let attr : &AttrField = &self.#ident;
                             (attr, #bit_size)
                         }
                     });
@@ -95,7 +95,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 } else {
                     fields_ident_mut.push(quote!{
                         {
-                            let attr : &mut SizedAttrField = &mut self.#ident;
+                            let attr : &SizedAttrField = &self.#ident;
                             let size = attr.bit_size();
                             (attr, size)
                         }
@@ -120,7 +120,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let ident = &input.ident;
     let tokens = quote!{
         impl genet_sdk::attr::AttrField for #ident {
-            fn init(&mut self, ctx: &::genet_sdk::attr::AttrContext)
+            fn class(&self, ctx: &::genet_sdk::attr::AttrContext)
                 -> genet_sdk::attr::AttrClass {
                 use genet_sdk::attr::{Attr, SizedAttrField, AttrField, AttrContext, AttrClass};
                 use genet_sdk::cast;
@@ -138,7 +138,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         let detach = #fields_detach;
 
                         subctx.bit_offset = bit_offset;
-                        let mut child = attr.init(&subctx);
+                        let mut child = attr.class(&subctx);
 
                         if !detach {
                             if !skip {
