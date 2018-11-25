@@ -120,7 +120,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let ident = &input.ident;
     let tokens = quote!{
         impl genet_sdk::attr::AttrField for #ident {
-            fn class(&self, ctx: &::genet_sdk::attr::AttrContext)
+            fn class(&self, ctx: &::genet_sdk::attr::AttrContext, bit_size: usize)
                 -> genet_sdk::attr::AttrClass {
                 use genet_sdk::attr::{Attr, SizedAttrField, AttrField, AttrContext, AttrClass};
                 use genet_sdk::cast;
@@ -138,7 +138,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         let detach = #fields_detach;
 
                         subctx.bit_offset = bit_offset;
-                        let mut child = attr.class(&subctx);
+                        let mut child = AttrField::class(attr, &subctx, bit_size);
 
                         if !detach {
                             if !skip {
@@ -169,6 +169,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     .aliases(ctx.aliases.clone())
                     .cast(&cast::ByteSlice())
                     .typ(ctx.typ.clone())
+                    .bit_range(0, ctx.bit_offset..(ctx.bit_offset + self.bit_size()))
                     .name(if ctx.name.is_empty() {
                         #self_name
                     } else {
