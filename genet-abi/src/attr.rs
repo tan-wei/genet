@@ -6,7 +6,12 @@ use layer::Layer;
 use metadata::Metadata;
 use result::Result;
 use slice::ByteSlice;
-use std::{fmt, io, mem, ops::Range, slice};
+use std::{
+    cell::Cell,
+    fmt, io, mem,
+    ops::{Deref, Range},
+    slice,
+};
 use token::Token;
 use variant::Variant;
 use vec::SafeVec;
@@ -425,16 +430,20 @@ extern "C" fn abi_get(
 pub struct Node<T: SizedAttrField, U: AttrField> {
     node: T,
     fields: U,
-    attr: Option<AttrClass>,
+    class: Cell<Option<Fixed<AttrClass>>>,
 }
 
 impl<T: SizedAttrField, U: AttrField> Node<T, U> {
-    pub fn fields(&self) -> &U {
-        &self.fields
+    pub fn class(&self) -> Fixed<AttrClass> {
+        self.class.get().unwrap()
     }
+}
 
-    pub fn attr(&self) -> &AttrClass {
-        self.attr.as_ref().unwrap()
+impl<T: SizedAttrField, U: AttrField> Deref for Node<T, U> {
+    type Target = U;
+
+    fn deref(&self) -> &U {
+        &self.fields
     }
 }
 
@@ -446,7 +455,10 @@ impl<T: SizedAttrField, U: AttrField> AttrField for Node<T, U> {
         let byte_offset = ctx.bit_offset / 8;
         let bit_offset = ctx.bit_offset - (byte_offset * 8);
         let bit_range = bit_offset..(bit_offset + self.node.bit_size());
-        // self.attr = Some(node.clone());
+
+        if self.class.get().is_none() {
+            self.class.set(Some(Fixed::new(self.node.class(ctx))))
+        }
 
         node
     }
@@ -463,7 +475,7 @@ impl<T: SizedAttrField + Default, U: AttrField + Default> Default for Node<T, U>
         Self {
             node: T::default(),
             fields: U::default(),
-            attr: None,
+            class: Cell::new(None),
         }
     }
 }
