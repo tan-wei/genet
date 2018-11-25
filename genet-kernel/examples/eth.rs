@@ -16,11 +16,26 @@ struct Eth {
     #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
     dst: cast::ByteSlice,
 
+    #[genet(typ = "@eth:macx")]
     sub: Node<cast::UInt16BE, EthSub>,
+
+    #[genet(typ = "@eth:")]
+    sub222: Node<cast::UInt32BE, EthSub>,
 }
 
 #[derive(Attr, Default)]
 struct EthSub {
+    /// Source Hardware Address
+    #[genet(byte_size = 6)]
+    src: EthSub2,
+
+    /// Destination Hardware Address
+    #[genet(byte_size = 6)]
+    dsttttt_x: Node<cast::UInt32BE, EthSub2>,
+}
+
+#[derive(Attr, Default)]
+struct EthSub2 {
     /// Source Hardware Address
     #[genet(byte_size = 6)]
     src: cast::ByteSlice,

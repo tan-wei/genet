@@ -165,7 +165,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 )*
 
                 AttrClass::builder(ctx.path.clone())
-                    .children(children)
+                    .add_children(children)
                     .aliases(ctx.aliases.clone())
                     .cast(&cast::ByteSlice())
                     .typ(ctx.typ.clone())

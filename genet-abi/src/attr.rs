@@ -177,9 +177,14 @@ impl AttrClassBuilder {
         self
     }
 
-    pub fn children(mut self, mut children: Vec<Fixed<AttrClass>>) -> AttrClassBuilder {
+    pub fn add_children<C: Into<Fixed<AttrClass>>>(mut self, children: Vec<C>) -> AttrClassBuilder {
+        let mut children = children.into_iter().map(|s| s.into()).collect();
         self.children.append(&mut children);
         self
+    }
+
+    pub fn children(&self) -> &[Fixed<AttrClass>] {
+        &self.children
     }
 
     /// Sets a constant value of AttrClass.
@@ -450,15 +455,15 @@ impl<T: SizedAttrField, U: AttrField> Deref for Node<T, U> {
 impl<T: SizedAttrField, U: AttrField> AttrField for Node<T, U> {
     fn class(&self, ctx: &AttrContext, bit_size: usize) -> AttrClassBuilder {
         let node = self.node.class(ctx, self.node.bit_size());
-        self.fields.class(ctx, bit_size);
+        let fields = self.fields.class(ctx, bit_size);
 
         if self.class.get().is_none() {
             self.class.set(Some(Fixed::new(
-                self.node.class(ctx, self.node.bit_size()).build(),
+                self.node.class(ctx, self.node.bit_size()).add_children(fields.children().to_vec()).build(),
             )))
         }
 
-        node
+        node.add_children(fields.children().to_vec())
     }
 }
 
