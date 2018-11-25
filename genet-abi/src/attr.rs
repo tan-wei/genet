@@ -401,7 +401,7 @@ mod tests {
             .range(0..1)
             .cast(&TestCast {})
             .build();
-        let attr = Attr::new(&class, 0..8, Some(ByteSlice::from(&[1][..])));
+        let attr = Attr::new(&class, 0..8, ByteSlice::from(&[1][..]));
         assert_eq!(attr.id(), Token::from("bool"));
         assert_eq!(attr.typ(), Token::from("@bool"));
         assert_eq!(attr.range(), 0..1);
@@ -427,7 +427,7 @@ mod tests {
             .range(0..6)
             .cast(&TestCast {})
             .build();
-        let attr = Attr::new(&class, 0..48, Some(ByteSlice::from(&b"123456789"[..])));
+        let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("u64"));
         assert_eq!(attr.typ(), Token::from("@u64"));
         assert_eq!(attr.range(), 0..6);
@@ -453,7 +453,7 @@ mod tests {
             .range(0..6)
             .cast(&TestCast {})
             .build();
-        let attr = Attr::new(&class, 0..48, Some(ByteSlice::from(&b"-123456789"[..])));
+        let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"-123456789"[..]));
         assert_eq!(attr.id(), Token::from("i64"));
         assert_eq!(attr.typ(), Token::from("@i64"));
         assert_eq!(attr.range(), 0..6);
@@ -479,7 +479,7 @@ mod tests {
             .range(0..6)
             .cast(&TestCast {})
             .build();
-        let attr = Attr::new(&class, 0..48, Some(ByteSlice::from(&b"123456789"[..])));
+        let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("buffer"));
         assert_eq!(attr.typ(), Token::from("@buffer"));
         assert_eq!(attr.range(), 0..6);
@@ -507,7 +507,7 @@ mod tests {
             .range(0..6)
             .cast(&TestCast {})
             .build();
-        let attr = Attr::new(&class, 0..48, Some(ByteSlice::from(&b"123456789"[..])));
+        let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("string"));
         assert_eq!(attr.typ(), Token::from("@string"));
         assert_eq!(attr.range(), 0..6);
@@ -533,7 +533,7 @@ mod tests {
             .range(0..6)
             .cast(&TestCast {})
             .build();
-        let attr = Attr::new(&class, 0..48, Some(ByteSlice::from(&b"123456789"[..])));
+        let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("slice"));
         assert_eq!(attr.typ(), Token::from("@slice"));
         assert_eq!(attr.range(), 0..6);
@@ -559,7 +559,7 @@ mod tests {
             .range(0..6)
             .cast(&TestCast {})
             .build();
-        let attr = Attr::new(&class, 0..48, Some(ByteSlice::from(&b"123456789"[..])));
+        let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("slice"));
         assert_eq!(attr.typ(), Token::from("@slice"));
         assert_eq!(attr.range(), 0..6);
