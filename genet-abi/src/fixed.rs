@@ -8,7 +8,6 @@ use std::{
 
 /// A fixed memory location.
 #[repr(C)]
-#[derive(Copy)]
 pub struct Fixed<T> {
     ptr: NonNull<T>,
 }
@@ -21,6 +20,8 @@ impl<T> fmt::Debug for Fixed<T> {
         write!(f, "Fixed {:?}", self.ptr)
     }
 }
+
+impl<T> Copy for Fixed<T> {}
 
 impl<T> Clone for Fixed<T> {
     fn clone(&self) -> Fixed<T> {
