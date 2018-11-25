@@ -71,10 +71,10 @@ struct EthDecoder {}
 
 impl Decoder for EthDecoder {
     fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
-        use genet_sdk::attr::SizedAttrField;
+        use genet_sdk::attr::{AttrField, SizedAttrField};
         let ctx = genet_sdk::attr::AttrContext::default();
         let mut eth = Eth::default();
-        println!("{:#?}", SizedAttrField::class(&eth, &ctx));
+        println!("{:#?}", eth.class(&ctx, eth.bit_size()));
         Box::new(EthWorker {})
     }
 
