@@ -141,26 +141,12 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         let mut child = attr.class(&subctx, bit_size);
 
                         if !detach {
-                            if !skip {
-                                /*
-                                attrs.push(
-                                    Attr::builder(child.class.clone())
-                                        .bit_range(0, bit_offset..(bit_offset + bit_size))
-                                        .build()
-                                );
-                                */
-                            }
-
                             bit_offset += bit_size;
                         }
 
-                        if !skip {
+                        if !skip && !detach {
                             children.push(Fixed::new(child.build()));
-                            if (!detach) {
-                                // attrs.append(&mut child.attrs);
-                            }
                         }
-                        // children.append(&mut child.children);
                     }
                 )*
 

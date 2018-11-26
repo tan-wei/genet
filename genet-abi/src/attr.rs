@@ -459,7 +459,10 @@ impl<T: SizedAttrField, U: AttrField> AttrField for Node<T, U> {
 
         if self.class.get().is_none() {
             self.class.set(Some(Fixed::new(
-                self.node.class(ctx, self.node.bit_size()).add_children(fields.children().to_vec()).build(),
+                self.node
+                    .class(ctx, self.node.bit_size())
+                    .add_children(fields.children().to_vec())
+                    .build(),
             )))
         }
 
