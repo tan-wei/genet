@@ -127,8 +127,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 use genet_sdk::fixed::Fixed;
 
                 let mut bit_offset = ctx.bit_offset;
-                // let mut attrs = Vec::new();
-                let mut children = Vec::new();
+                let mut children = Vec::<Fixed<AttrClass>>::new();
 
                 #(
                     {

@@ -114,3 +114,14 @@ where
         size_of::<X>() * 8
     }
 }
+
+#[derive(Default, Clone)]
+pub struct Nil();
+
+impl Typed for Nil {
+    type Output = Variant;
+
+    fn cast(&self, _attr: &Attr, _data: &slice::ByteSlice) -> Result<Variant> {
+        Ok(Variant::Nil)
+    }
+}

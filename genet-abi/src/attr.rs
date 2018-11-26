@@ -1,4 +1,4 @@
-use cast::{Cast, Typed};
+use cast::{Cast, Nil, Typed};
 use env;
 use error::Error;
 use fixed::Fixed;
@@ -432,7 +432,7 @@ extern "C" fn abi_get(
     }
 }
 
-pub struct Node<T: AttrField, U: AttrField> {
+pub struct Node<T: AttrField, U: AttrField = Nil> {
     node: T,
     fields: U,
     class: Cell<Option<Fixed<AttrClass>>>,

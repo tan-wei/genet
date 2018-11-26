@@ -16,19 +16,20 @@ struct Eth {
     #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
     dst: cast::ByteSlice,
 
-    #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 600)]
-    sub: Node<cast::ByteSlice, Eth2>,
+    #[genet(detach)]
+    len: Node<cast::UInt16BE>,
+
+    #[genet(typ = "@enum", detach)]
+    r#type: Node<cast::UInt16BE, EthType>,
 }
 
 #[derive(Attr, Default)]
-struct Eth2 {
-    /// Source Hardware Address
-    #[genet(alias = "_.src", typ = "@eth:mac", byte_size = 6)]
-    src: cast::ByteSlice,
-
-    /// Destination Hardware Address
-    #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
-    dst: cast::ByteSlice,
+struct EthType {
+    ipv4: cast::UInt16BE,
+    arp: cast::UInt16BE,
+    wol: cast::UInt16BE,
+    ipv6: cast::UInt16BE,
+    eap: cast::UInt16BE,
 }
 
 struct EthWorker {}
@@ -75,7 +76,7 @@ impl Decoder for EthDecoder {
         let eth = Eth::default();
         let typ = LayerType::new("eth", eth);
         println!("{:#?}", typ.as_ref());
-        println!("{:#?}", typ.sub.class());
+        println!("{:#?}", typ.r#type.class());
         Box::new(EthWorker {})
     }
 
