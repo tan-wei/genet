@@ -9,7 +9,21 @@ extern crate genet_derive;
 #[derive(Attr, Default)]
 struct Eth {
     /// Source Hardware Address
-    #[genet(alias = "_.src", typ = "@eth:mac", byte_size = 6, detach)]
+    #[genet(alias = "_.src", typ = "@eth:mac", byte_size = 6)]
+    src: cast::ByteSlice,
+
+    /// Destination Hardware Address
+    #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
+    dst: cast::ByteSlice,
+
+    #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 600)]
+    sub: Node<cast::ByteSlice, Eth2>,
+}
+
+#[derive(Attr, Default)]
+struct Eth2 {
+    /// Source Hardware Address
+    #[genet(alias = "_.src", typ = "@eth:mac", byte_size = 6)]
     src: cast::ByteSlice,
 
     /// Destination Hardware Address
@@ -58,11 +72,10 @@ struct EthDecoder {}
 
 impl Decoder for EthDecoder {
     fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
-        use genet_sdk::attr::{AttrField, SizedAttrField};
-        let ctx = genet_sdk::attr::AttrContext::default();
-        let mut eth = Eth::default();
-
-        println!("{:#?}", eth.class(&ctx, eth.bit_size()).build());
+        let eth = Eth::default();
+        let typ = LayerType::new("eth", eth);
+        println!("{:#?}", typ.as_ref());
+        println!("{:#?}", typ.sub.class());
         Box::new(EthWorker {})
     }
 

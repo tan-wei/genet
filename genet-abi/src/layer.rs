@@ -1,4 +1,4 @@
-use attr::{Attr, AttrClass};
+use attr::{Attr, AttrClass, AttrContext, SizedAttrField};
 use fixed::{Fixed, MutFixed};
 use slice::ByteSlice;
 use std::{
@@ -320,6 +320,57 @@ impl LayerClassBuilder {
     }
 }
 
+pub struct LayerType<T: SizedAttrField> {
+    field: T,
+    layer: Fixed<LayerClass>,
+}
+
+impl<T: SizedAttrField + fmt::Debug> fmt::Debug for LayerType<T> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("LayerType")
+            .field("field", &self.field)
+            .field("layer", &self.layer)
+            .finish()
+    }
+}
+
+impl<T: SizedAttrField> Deref for LayerType<T> {
+    type Target = T;
+
+    fn deref(&self) -> &T {
+        &self.field
+    }
+}
+
+impl<T: SizedAttrField> AsRef<Fixed<LayerClass>> for LayerType<T> {
+    fn as_ref(&self) -> &Fixed<LayerClass> {
+        &self.layer
+    }
+}
+
+impl<T: SizedAttrField> LayerType<T> {
+    pub fn new<I: Into<Token>>(id: I, field: T) -> Self {
+        let ctx = AttrContext {
+            path: id.into().to_string(),
+            typ: "@layer".into(),
+            ..Default::default()
+        };
+        let class = field.class(&ctx, field.bit_size()).build();
+        let layer = Fixed::new(LayerClass {
+            get_id: abi_id,
+            data: abi_data,
+            attrs_len: abi_attrs_len,
+            attrs_data: abi_attrs_data,
+            add_attr: abi_add_attr,
+            payloads_len: abi_payloads_len,
+            payloads_data: abi_payloads_data,
+            add_payload: abi_add_payload,
+            header: Fixed::new(class),
+        });
+        Self { field, layer }
+    }
+}
+
 /// A layer class object.
 #[repr(C)]
 pub struct LayerClass {
@@ -339,6 +390,26 @@ impl LayerClass {
     pub fn builder<H: Into<Fixed<AttrClass>>>(header: H) -> LayerClassBuilder {
         LayerClassBuilder {
             header: header.into(),
+        }
+    }
+
+    pub fn new<T: Into<Token>, A: SizedAttrField>(id: T, attr: A) -> LayerClass {
+        let ctx = AttrContext {
+            path: id.into().to_string(),
+            typ: "@layer".into(),
+            ..Default::default()
+        };
+        let class = attr.class(&ctx, attr.bit_size()).build();
+        LayerClass {
+            get_id: abi_id,
+            data: abi_data,
+            attrs_len: abi_attrs_len,
+            attrs_data: abi_attrs_data,
+            add_attr: abi_add_attr,
+            payloads_len: abi_payloads_len,
+            payloads_data: abi_payloads_data,
+            add_payload: abi_add_payload,
+            header: Fixed::new(class),
         }
     }
 
@@ -376,7 +447,9 @@ impl LayerClass {
 
 impl fmt::Debug for LayerClass {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "LayerClass {:?}", self.id())
+        f.debug_struct("LayerClass")
+            .field("header", &self.header)
+            .finish()
     }
 }
 

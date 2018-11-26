@@ -432,19 +432,19 @@ extern "C" fn abi_get(
     }
 }
 
-pub struct Node<T: SizedAttrField, U: AttrField> {
+pub struct Node<T: AttrField, U: AttrField> {
     node: T,
     fields: U,
     class: Cell<Option<Fixed<AttrClass>>>,
 }
 
-impl<T: SizedAttrField, U: AttrField> Node<T, U> {
+impl<T: AttrField, U: AttrField> Node<T, U> {
     pub fn class(&self) -> Fixed<AttrClass> {
         self.class.get().unwrap()
     }
 }
 
-impl<T: SizedAttrField, U: AttrField> Deref for Node<T, U> {
+impl<T: AttrField, U: AttrField> Deref for Node<T, U> {
     type Target = U;
 
     fn deref(&self) -> &U {
@@ -452,15 +452,15 @@ impl<T: SizedAttrField, U: AttrField> Deref for Node<T, U> {
     }
 }
 
-impl<T: SizedAttrField, U: AttrField> AttrField for Node<T, U> {
+impl<T: AttrField, U: AttrField> AttrField for Node<T, U> {
     fn class(&self, ctx: &AttrContext, bit_size: usize) -> AttrClassBuilder {
-        let node = self.node.class(ctx, self.node.bit_size());
+        let node = self.node.class(ctx, bit_size);
         let fields = self.fields.class(ctx, bit_size);
 
         if self.class.get().is_none() {
             self.class.set(Some(Fixed::new(
                 self.node
-                    .class(ctx, self.node.bit_size())
+                    .class(ctx, bit_size)
                     .add_children(fields.children().to_vec())
                     .build(),
             )))
@@ -476,7 +476,7 @@ impl<T: SizedAttrField, U: AttrField> SizedAttrField for Node<T, U> {
     }
 }
 
-impl<T: SizedAttrField + Default, U: AttrField + Default> Default for Node<T, U> {
+impl<T: AttrField + Default, U: AttrField + Default> Default for Node<T, U> {
     fn default() -> Self {
         Self {
             node: T::default(),
