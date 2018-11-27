@@ -213,7 +213,7 @@ impl Layer {
                     })
                     .flatten(),
             )
-            .find(|attr| attr.is_match(&id))
+            .find(|attr| attr.is_match(id))
     }
 
     /// Adds an attribute to the Layer.

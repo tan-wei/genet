@@ -35,9 +35,14 @@ pub trait Reader: Send {
     fn metadata(&self) -> Metadata;
 }
 
-type ReaderNewWorkerFunc =
-    extern "C" fn(*mut Box<Reader>, *const Context, *const u8, u64, *mut WorkerBox, *mut Error)
-        -> u8;
+type ReaderNewWorkerFunc = extern "C" fn(
+    *mut Box<Reader>,
+    *const Context,
+    *const u8,
+    u64,
+    *mut WorkerBox,
+    *mut Error,
+) -> u8;
 
 #[repr(C)]
 #[derive(Clone, Copy)]

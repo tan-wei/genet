@@ -13,7 +13,7 @@ impl Context {
     /// Creates a new Context.
     pub fn new(config: FnvHashMap<String, String>) -> Context {
         Self {
-            class: CONTEXT_CLASS.clone(),
+            class: *CONTEXT_CLASS,
             config,
         }
     }

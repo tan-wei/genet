@@ -569,12 +569,8 @@ mod ffi {
                         user: *mut c_uchar,
                     ) -> c_int,
                 >;
-                let pcap_breakloop_: libloading::Symbol<
-                    unsafe extern "C" fn(pcap: *mut Pcap),
-                >;
-                let pcap_close_: libloading::Symbol<
-                    unsafe extern "C" fn(pcap: *mut Pcap),
-                >;
+                let pcap_breakloop_: libloading::Symbol<unsafe extern "C" fn(pcap: *mut Pcap)>;
+                let pcap_close_: libloading::Symbol<unsafe extern "C" fn(pcap: *mut Pcap)>;
 
                 unsafe {
                     pcap_findalldevs_ = lib

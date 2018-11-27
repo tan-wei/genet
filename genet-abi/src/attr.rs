@@ -35,7 +35,7 @@ impl<'a> Attr<'a> {
         self.class.id()
     }
 
-    pub fn is_match(&self, id: &Token) -> bool {
+    pub fn is_match(&self, id: Token) -> bool {
         self.class.is_match(id)
     }
 
@@ -204,8 +204,8 @@ impl AttrClass {
         (self.get_id)(self)
     }
 
-    pub fn is_match(&self, id: &Token) -> bool {
-        (self.is_match)(self, *id) != 0
+    pub fn is_match(&self, id: Token) -> bool {
+        (self.is_match)(self, id) != 0
     }
 
     pub fn typ(&self) -> Token {
@@ -232,7 +232,7 @@ impl AttrClass {
             attr.bit_range()
         };
         let byte_range = (range.start / 8)..((range.end + 7) / 8);
-        let mut attrs = vec![Attr::new(attr, range.clone(), data.clone())];
+        let mut attrs = vec![Attr::new(attr, range.clone(), *data)];
         for child in &attr.children {
             let offset = byte_range.start;
             let range =
@@ -250,7 +250,7 @@ impl AttrClass {
         let bit_offset = self.bit_range().start;
         let range = (self.bit_range().start - bit_offset + range.start * 8)
             ..(self.bit_range().end - bit_offset + range.end * 8);
-        let attr = Attr::new(self, range, layer.data().clone());
+        let attr = Attr::new(self, range, layer.data());
         self.try_get_attr(&attr)
     }
 
