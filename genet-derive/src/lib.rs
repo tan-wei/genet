@@ -41,6 +41,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let mut fields_ctx = Vec::new();
     let mut fields_skip = Vec::new();
     let mut fields_detach = Vec::new();
+    let mut fields_align = Vec::new();
 
     if let Fields::Named(f) = &s.fields {
         for field in &f.named {
@@ -78,6 +79,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 });
                 fields_skip.push(meta.skip);
                 fields_detach.push(meta.detach);
+                fields_align.push(meta.align_before);
 
                 if let Some(bit_size) = meta.bit_size {
                     fields_ident_mut.push(quote!{
@@ -112,6 +114,9 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
         }
     }
 
+    fields_align.drain(..1);
+    fields_align.push(false);
+
     let fields_detach2 = fields_detach.clone();
     let self_attrs = AttrMetadata::parse(&input.attrs);
     let self_name = self_attrs.name;
@@ -135,11 +140,12 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         let (attr, bit_size) = #fields_ident_mut;
                         let skip = #fields_skip;
                         let detach = #fields_detach;
+                        let align = #fields_align;
 
                         subctx.bit_offset = bit_offset;
                         let mut child = attr.class(&subctx, bit_size);
 
-                        if !detach {
+                        if !align {
                             bit_offset += bit_size;
                         }
 

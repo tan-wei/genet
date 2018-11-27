@@ -6,6 +6,7 @@ pub struct AttrMetadata {
     pub description: String,
     pub aliases: Vec<String>,
     pub bit_size: Option<usize>,
+    pub align_before: bool,
     pub skip: bool,
     pub detach: bool,
 }
@@ -18,6 +19,7 @@ impl AttrMetadata {
         let mut bit_size = None;
         let mut skip = false;
         let mut detach = false;
+        let mut align_before = false;
         for attr in attrs {
             if let Some(meta) = attr.interpret_meta() {
                 let name = meta.name().to_string();
@@ -41,6 +43,8 @@ impl AttrMetadata {
                                         skip = true;
                                     } else if name == "detach" {
                                         detach = true;
+                                    } else if name == "align_before" {
+                                        align_before = true;
                                     } else if let Meta::NameValue(MetaNameValue {
                                         lit: Lit::Str(lit_str),
                                         ..
@@ -91,6 +95,7 @@ impl AttrMetadata {
             bit_size,
             skip,
             detach,
+            align_before,
         }
     }
 }

@@ -6,7 +6,7 @@ use variant::Variant;
 
 /// Cast trait.
 pub trait Cast: Send + Sync + CastClone {
-    fn cast(&self, _attr: &Attr, &slice::ByteSlice) -> Result<Variant>;
+    fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<Variant>;
 }
 
 pub trait CastClone {

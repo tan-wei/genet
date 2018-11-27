@@ -35,10 +35,6 @@ pub trait SizedAttrField: AttrField {
     fn bit_size(&self) -> usize;
 }
 
-pub trait FixedAttrField: SizedAttrField {
-    fn bit_offset(&self) -> usize;
-}
-
 /// An attribute object.
 #[repr(C)]
 pub struct Attr<'a> {

@@ -16,19 +16,27 @@ struct Eth {
     #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
     dst: cast::ByteSlice,
 
-    #[genet(detach)]
     len: Node<cast::UInt16BE>,
 
-    #[genet(typ = "@enum", detach)]
+    #[genet(typ = "@enum", align_before)]
     r#type: Node<cast::UInt16BE, EthType>,
 }
 
 #[derive(Attr, Default)]
 struct EthType {
+    #[genet(align_before)]
     ipv4: cast::UInt16BE,
+
+    #[genet(align_before)]
     arp: cast::UInt16BE,
+
+    #[genet(align_before)]
     wol: cast::UInt16BE,
+
+    #[genet(align_before)]
     ipv6: cast::UInt16BE,
+
+    #[genet(align_before)]
     eap: cast::UInt16BE,
 }
 
