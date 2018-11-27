@@ -36,46 +36,43 @@ impl AttrMetadata {
                     }
                     ("genet", Meta::List(list)) => {
                         for item in list.nested {
-                            match item {
-                                NestedMeta::Meta(meta) => {
-                                    let name = meta.name().to_string();
-                                    if name == "skip" {
-                                        skip = true;
-                                    } else if name == "detach" {
-                                        detach = true;
-                                    } else if name == "align_before" {
-                                        align_before = true;
-                                    } else if let Meta::NameValue(MetaNameValue {
-                                        lit: Lit::Str(lit_str),
-                                        ..
-                                    }) = meta
-                                    {
-                                        match name.as_str() {
-                                            "typ" => {
-                                                typ = lit_str.value().to_string();
-                                            }
-                                            "alias" => {
-                                                aliases.push(lit_str.value().to_string());
-                                            }
-                                            _ => panic!("unsupported attribute: {}", name),
+                            if let NestedMeta::Meta(meta) = item {
+                                let name = meta.name().to_string();
+                                if name == "skip" {
+                                    skip = true;
+                                } else if name == "detach" {
+                                    detach = true;
+                                } else if name == "align_before" {
+                                    align_before = true;
+                                } else if let Meta::NameValue(MetaNameValue {
+                                    lit: Lit::Str(lit_str),
+                                    ..
+                                }) = meta
+                                {
+                                    match name.as_str() {
+                                        "typ" => {
+                                            typ = lit_str.value().to_string();
                                         }
-                                    } else if let Meta::NameValue(MetaNameValue {
-                                        lit: Lit::Int(lit_int),
-                                        ..
-                                    }) = meta
-                                    {
-                                        match name.as_str() {
-                                            "byte_size" => {
-                                                bit_size = Some(lit_int.value() as usize * 8);
-                                            }
-                                            "bit_size" => {
-                                                bit_size = Some(lit_int.value() as usize);
-                                            }
-                                            _ => panic!("unsupported attribute: {}", name),
+                                        "alias" => {
+                                            aliases.push(lit_str.value().to_string());
                                         }
+                                        _ => panic!("unsupported attribute: {}", name),
+                                    }
+                                } else if let Meta::NameValue(MetaNameValue {
+                                    lit: Lit::Int(lit_int),
+                                    ..
+                                }) = meta
+                                {
+                                    match name.as_str() {
+                                        "byte_size" => {
+                                            bit_size = Some(lit_int.value() as usize * 8);
+                                        }
+                                        "bit_size" => {
+                                            bit_size = Some(lit_int.value() as usize);
+                                        }
+                                        _ => panic!("unsupported attribute: {}", name),
                                     }
                                 }
-                                _ => {}
                             }
                         }
                     }

@@ -393,7 +393,7 @@ impl LayerClass {
         }
     }
 
-    pub fn new<T: Into<Token>, A: SizedAttrField>(id: T, attr: A) -> LayerClass {
+    pub fn new<T: Into<Token>, A: SizedAttrField>(id: T, attr: &A) -> LayerClass {
         let ctx = AttrContext {
             path: id.into().to_string(),
             typ: "@layer".into(),
