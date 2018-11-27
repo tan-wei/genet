@@ -62,7 +62,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     .trim()
                     .to_string();
                 let desc = meta.description;
-                fields_ctx.push(quote!{
+                fields_ctx.push(quote! {
                     AttrContext{
                         path: format!("{}{}", ctx.path, #id)
                             .trim_matches('.').into(),
@@ -82,27 +82,27 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 fields_align.push(meta.align_before);
 
                 if let Some(bit_size) = meta.bit_size {
-                    fields_ident_mut.push(quote!{
+                    fields_ident_mut.push(quote! {
                         {
                             let attr : &AttrField = &self.#ident;
                             (attr, #bit_size)
                         }
                     });
-                    fields_ident.push(quote!{
+                    fields_ident.push(quote! {
                         {
                             let attr : &AttrField = &self.#ident;
                             (attr, #bit_size)
                         }
                     });
                 } else {
-                    fields_ident_mut.push(quote!{
+                    fields_ident_mut.push(quote! {
                         {
                             let attr : &SizedAttrField = &self.#ident;
                             let size = attr.bit_size();
                             (attr, size)
                         }
                     });
-                    fields_ident.push(quote!{
+                    fields_ident.push(quote! {
                         {
                             let attr : &SizedAttrField = &self.#ident;
                             let size = attr.bit_size();
@@ -117,13 +117,13 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     fields_align.drain(..1);
     fields_align.push(false);
 
-    let fields_detach2 = fields_detach.clone();
+    let fields_align2 = fields_align.clone();
     let self_attrs = AttrMetadata::parse(&input.attrs);
     let self_name = self_attrs.name;
     let self_desc = self_attrs.description;
 
     let ident = &input.ident;
-    let tokens = quote!{
+    let tokens = quote! {
         impl genet_sdk::attr::AttrField for #ident {
             fn class(&self, ctx: &::genet_sdk::attr::AttrContext, bit_size: usize)
                 -> genet_sdk::attr::AttrClassBuilder {
@@ -143,7 +143,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         let align = #fields_align;
 
                         subctx.bit_offset = bit_offset;
-                        let mut child = attr.class(&subctx, bit_size);
+                        let child = attr.class(&subctx, bit_size);
 
                         if !align {
                             bit_offset += bit_size;
@@ -180,7 +180,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 let mut size = 0;
 
                 #(
-                    if !#fields_detach2 {
+                    if !#fields_align2 {
                         let (_, bit_size) = #fields_ident;
                         size += bit_size;
                     }
