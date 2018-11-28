@@ -1,5 +1,5 @@
 use binding::JsClass;
-use genet_filter::Filter;
+use genet_filter::CompiledLayerFilter;
 use genet_napi::{
     napi::{
         CallbackInfo, Env, HandleScope, PropertyAttributes, PropertyDescriptor, Result, Status,
@@ -144,7 +144,7 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
                 if filter.is_empty() {
                     None
                 } else {
-                    match Filter::compile(&filter) {
+                    match CompiledLayerFilter::compile(&filter) {
                         Ok(filter) => Some(filter),
                         Err(err) => {
                             env.throw_error("load_library", &err.to_string())?;
@@ -180,7 +180,7 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
                 if filter.is_empty() {
                     None
                 } else {
-                    match Filter::compile(&filter) {
+                    match CompiledLayerFilter::compile(&filter) {
                         Ok(filter) => Some(filter),
                         Err(err) => {
                             env.throw_error("load_library", &err.to_string())?;

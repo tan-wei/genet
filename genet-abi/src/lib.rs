@@ -17,6 +17,7 @@ pub mod decoder;
 pub mod env;
 pub mod error;
 pub mod file;
+pub mod filter;
 pub mod fixed;
 pub mod layer;
 pub mod metadata;

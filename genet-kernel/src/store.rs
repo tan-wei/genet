@@ -3,8 +3,12 @@ use crossbeam_channel;
 use decoder::{parallel, serial};
 use fnv::FnvHashMap;
 use frame::Frame;
-use genet_abi::{fixed::MutFixed, layer::Layer};
-use genet_filter::{self, Filter};
+use genet_abi::{
+    filter::{LayerContext, LayerFilter},
+    fixed::MutFixed,
+    layer::Layer,
+};
+use genet_filter::CompiledLayerFilter;
 use io::{Input, Output};
 use parking_lot::RwLock;
 use profile::Profile;
@@ -34,8 +38,8 @@ enum Command {
     PushFrames(Option<u32>, Result<Vec<MutFixed<Layer>>>),
     PushSerialFrames(Vec<Frame>),
     StoreFrames(Vec<Frame>),
-    SetFilter(u32, Option<Filter>),
-    PushOutput(u32, Box<Output>, Option<Filter>),
+    SetFilter(u32, Option<CompiledLayerFilter>),
+    PushOutput(u32, Box<Output>, Option<CompiledLayerFilter>),
     Close,
 }
 
@@ -110,11 +114,16 @@ impl Store {
         frames.len()
     }
 
-    pub fn set_filter(&mut self, id: u32, filter: Option<Filter>) {
+    pub fn set_filter(&mut self, id: u32, filter: Option<CompiledLayerFilter>) {
         let _ = self.sender.send(Command::SetFilter(id, filter));
     }
 
-    pub fn push_output<O: 'static + Output>(&mut self, id: u32, output: O, filter: Option<Filter>) {
+    pub fn push_output<O: 'static + Output>(
+        &mut self,
+        id: u32,
+        output: O,
+        filter: Option<CompiledLayerFilter>,
+    ) {
         let _ = self
             .sender
             .send(Command::PushOutput(id, Box::new(output), filter));
@@ -193,7 +202,7 @@ impl serial::Callback for SerialCallback {
 }
 
 struct FilterContext {
-    filter: Filter,
+    filter: CompiledLayerFilter,
     offset: usize,
 }
 
@@ -324,7 +333,7 @@ impl EventLoop {
     fn process_output(
         id: u32,
         output: Box<Output>,
-        filter: &Option<Filter>,
+        filter: &Option<CompiledLayerFilter>,
         frames: &FrameStore,
         callback: &Callback,
     ) {
@@ -339,7 +348,7 @@ impl EventLoop {
                     .skip(offset)
                     .take(len)
                     .filter(|frame| {
-                        let ctx = genet_filter::context::Context::new(frame.layers());
+                        let ctx = LayerContext::new(frame.layers());
                         filter.as_ref().map_or(true, |f| f.test(&ctx))
                     })
                     .collect::<Vec<_>>();
@@ -361,7 +370,7 @@ impl EventLoop {
 
     fn process_push_filter(
         id: u32,
-        filter: Option<Filter>,
+        filter: Option<CompiledLayerFilter>,
         filtered: &FilteredFrameStore,
         filter_map: &mut FnvHashMap<u32, FilterContext>,
         callback: &Callback,
@@ -396,7 +405,7 @@ impl EventLoop {
                         .skip(fctx.offset)
                         .take(MAX_FILTER_SIZE)
                         .filter_map(|frame| {
-                            let ctx = genet_filter::context::Context::new(frame.layers());
+                            let ctx = LayerContext::new(frame.layers());
                             if fctx.filter.test(&ctx) {
                                 Some(frame.index())
                             } else {
@@ -439,7 +448,7 @@ impl fmt::Debug for EventLoop {
 
 #[cfg(test)]
 mod tests {
-    use genet_filter::Filter;
+    use genet_filter::CompiledLayerFilter;
     use profile::Profile;
     use store::{Callback, Store};
 
@@ -457,7 +466,7 @@ mod tests {
     fn invalid_range() {
         let profile = Profile::new();
         let mut store = Store::new(profile, TestCallback {});
-        store.set_filter(0, Filter::compile("false").ok());
+        store.set_filter(0, CompiledLayerFilter::compile("false").ok());
         assert_eq!(store.frames(100..0).len(), 0);
         assert_eq!(store.filtered_frames(0, 100..0).len(), 0);
     }

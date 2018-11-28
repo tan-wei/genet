@@ -8,7 +8,7 @@ use genet_abi::{
     token::Token,
     writer,
 };
-use genet_filter::Filter;
+use genet_filter::CompiledLayerFilter;
 use io::{Input, Output};
 use profile::Profile;
 use serde::ser::{Serialize, SerializeMap, Serializer};
@@ -45,7 +45,7 @@ impl Session {
         self.store.filtered_frames(id, range)
     }
 
-    pub fn set_filter(&mut self, id: u32, filter: Option<Filter>) {
+    pub fn set_filter(&mut self, id: u32, filter: Option<CompiledLayerFilter>) {
         self.store.set_filter(id, filter);
     }
 
@@ -73,7 +73,12 @@ impl Session {
         0
     }
 
-    pub fn create_writer(&mut self, id: &str, arg: &str, filter: Option<Filter>) -> u32 {
+    pub fn create_writer(
+        &mut self,
+        id: &str,
+        arg: &str,
+        filter: Option<CompiledLayerFilter>,
+    ) -> u32 {
         if let Some(writer) = self
             .profile
             .writers()

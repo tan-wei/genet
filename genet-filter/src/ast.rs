@@ -1,5 +1,4 @@
-use context::Context;
-use genet_abi::{token::Token, variant::Variant};
+use genet_abi::{filter::LayerContext, token::Token, variant::Variant};
 use variant::VariantExt;
 
 #[derive(PartialEq, Clone, Debug)]
@@ -21,7 +20,7 @@ pub enum Expr {
 }
 
 impl Expr {
-    pub fn eval(&self, ctx: &Context) -> Variant {
+    pub fn eval(&self, ctx: &LayerContext) -> Variant {
         match self {
             Expr::Literal(v) => v.clone(),
             Expr::CmpEq(l, r) => Variant::Bool(l.eval(ctx).op_eq(&r.eval(ctx))),

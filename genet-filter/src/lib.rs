@@ -13,33 +13,34 @@ extern crate pest_derive;
 extern crate arrayref;
 
 use ast::Expr;
-use context::Context;
+use genet_abi::filter::{LayerContext, LayerFilter};
 use parser::parse;
 use result::Result;
 use std::fmt;
 use variant::VariantExt;
 
 pub mod ast;
-pub mod context;
 pub mod parser;
 pub mod result;
 pub mod unparser;
 pub mod variant;
 
 #[derive(Clone, Debug)]
-pub struct Filter {
+pub struct CompiledLayerFilter {
     expr: Expr,
 }
 
-impl Filter {
-    pub fn compile(filter: &str) -> Result<Filter> {
+impl CompiledLayerFilter {
+    pub fn compile(filter: &str) -> Result<Self> {
         match parse(filter) {
-            Ok(expr) => Ok(Filter { expr }),
+            Ok(expr) => Ok(Self { expr }),
             Err(err) => Err(Box::new(Error(format!("{}", err)))),
         }
     }
+}
 
-    pub fn test(&self, ctx: &Context) -> bool {
+impl LayerFilter for CompiledLayerFilter {
+    fn test(&self, ctx: &LayerContext) -> bool {
         self.expr.eval(ctx).is_truthy()
     }
 }
