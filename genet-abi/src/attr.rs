@@ -477,6 +477,28 @@ impl<T: AttrField, U: AttrField> AttrField for Node<T, U> {
     }
 }
 
+impl<I, T: AttrField + TypedAttrField<I>, U: AttrField> TypedAttrField<I> for Node<T, U> {
+    fn class(
+        &self,
+        ctx: &AttrContext,
+        bit_size: usize,
+        filter: fn(&I) -> bool,
+    ) -> AttrClassBuilder {
+        let node = TypedAttrField::<I>::class(&self.node, ctx, bit_size, filter);
+        let fields = AttrField::class(&self.fields, ctx, bit_size);
+
+        if self.class.get().is_none() {
+            self.class.set(Some(Fixed::new(
+                AttrField::class(&self.node, ctx, bit_size)
+                    .add_children(fields.children().to_vec())
+                    .build(),
+            )))
+        }
+
+        node.add_children(fields.children().to_vec())
+    }
+}
+
 impl<T: SizedAttrField, U: AttrField> SizedAttrField for Node<T, U> {
     fn bit_size(&self) -> usize {
         self.node.bit_size()
