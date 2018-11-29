@@ -84,32 +84,30 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 if let Some(bit_size) = meta.bit_size {
                     fields_ident_mut.push(quote! {
                         {
-                            let attr : &AttrField = &self.#ident;
-                            let _ : &TypedAttrField<_> = &self.#ident;
+                            let attr : &TypedAttrField<_> = &self.#ident;
                             (attr, #bit_size)
                         }
                     });
                     fields_ident.push(quote! {
                         {
-                            let attr : &AttrField = &self.#ident;
-                            let _ : &TypedAttrField<_> = &self.#ident;
+                            let attr : &TypedAttrField<_> = &self.#ident;
                             (attr, #bit_size)
                         }
                     });
                 } else {
                     fields_ident_mut.push(quote! {
                         {
-                            let attr : &SizedAttrField = &self.#ident;
-                            let _ : &TypedAttrField<_> = &self.#ident;
-                            let size = attr.bit_size();
+                            let sized : &SizedAttrField = &self.#ident;
+                            let attr : &TypedAttrField<_> = &self.#ident;
+                            let size = sized.bit_size();
                             (attr, size)
                         }
                     });
                     fields_ident.push(quote! {
                         {
-                            let attr : &SizedAttrField = &self.#ident;
-                            let _ : &TypedAttrField<_> = &self.#ident;
-                            let size = attr.bit_size();
+                            let sized : &SizedAttrField = &self.#ident;
+                            let attr : &TypedAttrField<_> = &self.#ident;
+                            let size = sized.bit_size();
                             (attr, size)
                         }
                     });
@@ -147,7 +145,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         let align = #fields_align;
 
                         subctx.bit_offset = bit_offset;
-                        let child = attr.class(&subctx, bit_size);
+                        let child = attr.class(&subctx, bit_size, |_| true);
 
                         if !align {
                             bit_offset += bit_size;
