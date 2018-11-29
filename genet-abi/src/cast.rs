@@ -1,4 +1,6 @@
-use attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField, SizedAttrField};
+use attr::{
+    Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField, SizedAttrField, TypedAttrField,
+};
 use num_traits::Num;
 use slice;
 use std::{convert::Into, io::Result, mem::size_of};
@@ -97,6 +99,29 @@ impl<T: Into<Variant>, V: Typed<Output = T> + Cast> AttrField for V {
     fn class(&self, ctx: &AttrContext, bit_size: usize) -> AttrClassBuilder {
         AttrClass::builder(ctx.path.clone())
             .cast(self)
+            .typ(ctx.typ.clone())
+            .aliases(ctx.aliases.clone())
+            .bit_range(0, ctx.bit_offset..(ctx.bit_offset + bit_size))
+            .name(ctx.name)
+            .description(ctx.description)
+    }
+}
+
+impl<T: 'static + Into<Variant> + Clone, V: 'static + Typed<Output = T> + Clone + Cast>
+    TypedAttrField<T> for V
+{
+    fn class(
+        &self,
+        ctx: &AttrContext,
+        bit_size: usize,
+        filter: fn(&T) -> bool,
+    ) -> AttrClassBuilder {
+        AttrClass::builder(ctx.path.clone())
+            .cast(
+                &self
+                    .clone()
+                    .map(move |x| if filter(&x) { x.into() } else { Variant::Nil }),
+            )
             .typ(ctx.typ.clone())
             .aliases(ctx.aliases.clone())
             .bit_range(0, ctx.bit_offset..(ctx.bit_offset + bit_size))

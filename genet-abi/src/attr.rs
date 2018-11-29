@@ -31,6 +31,17 @@ pub trait AttrField {
     fn class(&self, ctx: &AttrContext, bit_size: usize) -> AttrClassBuilder;
 }
 
+pub trait TypedAttrField<I> {
+    fn class(&self, ctx: &AttrContext, bit_size: usize, filter: fn(&I) -> bool)
+        -> AttrClassBuilder;
+}
+
+impl<I> AttrField for TypedAttrField<I> {
+    fn class(&self, ctx: &AttrContext, bit_size: usize) -> AttrClassBuilder {
+        Self::class(self, ctx, bit_size, |_| true)
+    }
+}
+
 pub trait SizedAttrField: AttrField {
     fn bit_size(&self) -> usize;
 }
