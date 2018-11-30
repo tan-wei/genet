@@ -1,6 +1,4 @@
-use attr::{
-    Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField, SizedAttrField, TypedAttrField,
-};
+use attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, SizedAttrField, TypedAttrField};
 use num_traits::Num;
 use slice;
 use std::{convert::Into, io::Result, mem::size_of};
@@ -95,18 +93,6 @@ where
     }
 }
 
-impl<T: Into<Variant>, V: Typed<Output = T> + Cast> AttrField for V {
-    fn class(&self, ctx: &AttrContext, bit_size: usize) -> AttrClassBuilder {
-        AttrClass::builder(ctx.path.clone())
-            .cast(self)
-            .typ(ctx.typ.clone())
-            .aliases(ctx.aliases.clone())
-            .bit_range(0, ctx.bit_offset..(ctx.bit_offset + bit_size))
-            .name(ctx.name)
-            .description(ctx.description)
-    }
-}
-
 impl<I: 'static + Into<Variant> + Clone, V: 'static + Typed<Output = I> + Clone + Cast>
     TypedAttrField for V
 {
@@ -134,7 +120,7 @@ impl<I: 'static + Into<Variant> + Clone, V: 'static + Typed<Output = I> + Clone 
 
 impl<T, X> SizedAttrField for T
 where
-    T: AttrField + Typed<Output = X>,
+    T: Typed<Output = X>,
     X: Into<Variant> + Num,
 {
     fn bit_size(&self) -> usize {

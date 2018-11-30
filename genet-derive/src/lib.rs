@@ -137,7 +137,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
 
             fn class(&self, ctx: &::genet_sdk::attr::AttrContext, bit_size: usize, filter: fn(&ByteSlice) -> bool)
                 -> genet_sdk::attr::AttrClassBuilder {
-                use genet_sdk::attr::{Attr, TypedAttrField, SizedAttrField, AttrField, AttrContext, AttrClass};
+                use genet_sdk::attr::{Attr, TypedAttrField, SizedAttrField, AttrContext, AttrClass};
                 use genet_sdk::cast;
                 use genet_sdk::fixed::Fixed;
 
@@ -184,16 +184,9 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
             }
         }
 
-        impl genet_sdk::attr::AttrField for #ident {
-            fn class(&self, ctx: &::genet_sdk::attr::AttrContext, bit_size: usize)
-                -> genet_sdk::attr::AttrClassBuilder {
-                genet_sdk::attr::TypedAttrField::class(self, ctx, bit_size, |_| true)
-            }
-        }
-
         impl genet_sdk::attr::SizedAttrField for #ident {
             fn bit_size(&self) -> usize {
-                use genet_sdk::attr::{TypedAttrField, SizedAttrField, AttrField};
+                use genet_sdk::attr::{TypedAttrField, SizedAttrField};
                 let mut size = 0;
 
                 #(

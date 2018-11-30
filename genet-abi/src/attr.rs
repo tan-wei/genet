@@ -27,10 +27,6 @@ pub struct AttrContext {
     pub aliases: Vec<String>,
 }
 
-pub trait AttrField {
-    fn class(&self, ctx: &AttrContext, bit_size: usize) -> AttrClassBuilder;
-}
-
 pub trait TypedAttrField {
     type I;
 
@@ -42,13 +38,7 @@ pub trait TypedAttrField {
     ) -> AttrClassBuilder;
 }
 
-impl<I> AttrField for TypedAttrField<I = I> {
-    fn class(&self, ctx: &AttrContext, bit_size: usize) -> AttrClassBuilder {
-        Self::class(self, ctx, bit_size, |_| true)
-    }
-}
-
-pub trait SizedAttrField: AttrField {
+pub trait SizedAttrField {
     fn bit_size(&self) -> usize;
 }
 
@@ -445,19 +435,19 @@ extern "C" fn abi_get(
     }
 }
 
-pub struct Node<T: AttrField, U: AttrField = Nil> {
+pub struct Node<T, U = Nil> {
     node: T,
     fields: U,
     class: Cell<Option<Fixed<AttrClass>>>,
 }
 
-impl<T: AttrField, U: AttrField> Node<T, U> {
+impl<T, U> Node<T, U> {
     pub fn class(&self) -> Fixed<AttrClass> {
         self.class.get().unwrap()
     }
 }
 
-impl<T: AttrField, U: AttrField> Deref for Node<T, U> {
+impl<T, U> Deref for Node<T, U> {
     type Target = U;
 
     fn deref(&self) -> &U {
@@ -465,25 +455,7 @@ impl<T: AttrField, U: AttrField> Deref for Node<T, U> {
     }
 }
 
-impl<T: AttrField, U: AttrField> AttrField for Node<T, U> {
-    fn class(&self, ctx: &AttrContext, bit_size: usize) -> AttrClassBuilder {
-        let node = self.node.class(ctx, bit_size);
-        let fields = self.fields.class(ctx, bit_size);
-
-        if self.class.get().is_none() {
-            self.class.set(Some(Fixed::new(
-                self.node
-                    .class(ctx, bit_size)
-                    .add_children(fields.children().to_vec())
-                    .build(),
-            )))
-        }
-
-        node.add_children(fields.children().to_vec())
-    }
-}
-
-impl<I, T: AttrField + TypedAttrField<I = I>, U: AttrField> TypedAttrField for Node<T, U> {
+impl<I, J, T: TypedAttrField<I = I>, U: TypedAttrField<I = J>> TypedAttrField for Node<T, U> {
     type I = I;
 
     fn class(
@@ -493,11 +465,11 @@ impl<I, T: AttrField + TypedAttrField<I = I>, U: AttrField> TypedAttrField for N
         filter: fn(&Self::I) -> bool,
     ) -> AttrClassBuilder {
         let node = TypedAttrField::class(&self.node, ctx, bit_size, filter);
-        let fields = AttrField::class(&self.fields, ctx, bit_size);
+        let fields = TypedAttrField::class(&self.fields, ctx, bit_size, |_| true);
 
         if self.class.get().is_none() {
             self.class.set(Some(Fixed::new(
-                AttrField::class(&self.node, ctx, bit_size)
+                TypedAttrField::class(&self.node, ctx, bit_size, filter)
                     .add_children(fields.children().to_vec())
                     .build(),
             )))
@@ -507,13 +479,13 @@ impl<I, T: AttrField + TypedAttrField<I = I>, U: AttrField> TypedAttrField for N
     }
 }
 
-impl<T: SizedAttrField, U: AttrField> SizedAttrField for Node<T, U> {
+impl<T: SizedAttrField, U> SizedAttrField for Node<T, U> {
     fn bit_size(&self) -> usize {
         self.node.bit_size()
     }
 }
 
-impl<T: AttrField + Default, U: AttrField + Default> Default for Node<T, U> {
+impl<T: Default, U: Default> Default for Node<T, U> {
     fn default() -> Self {
         Self {
             node: T::default(),

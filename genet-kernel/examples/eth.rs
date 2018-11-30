@@ -85,7 +85,7 @@ impl Decoder for EthDecoder {
         let eth = Eth::default();
         let typ = LayerType::new("eth", eth);
         println!("{:#?}", typ.as_ref());
-        println!("{:#?}", typ.r#type.class());
+        //println!("{:#?}", typ.r#type.class());
         Box::new(EthWorker {})
     }
 

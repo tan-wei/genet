@@ -393,13 +393,16 @@ impl LayerClass {
         }
     }
 
-    pub fn new<T: Into<Token>, A: SizedAttrField>(id: T, attr: &A) -> LayerClass {
+    pub fn new<I, T: Into<Token>, A: SizedAttrField + TypedAttrField<I = I>>(
+        id: T,
+        attr: &A,
+    ) -> LayerClass {
         let ctx = AttrContext {
             path: id.into().to_string(),
             typ: "@layer".into(),
             ..Default::default()
         };
-        let class = attr.class(&ctx, attr.bit_size()).build();
+        let class = TypedAttrField::class(attr, &ctx, attr.bit_size(), |_| true).build();
         LayerClass {
             get_id: abi_id,
             data: abi_data,
