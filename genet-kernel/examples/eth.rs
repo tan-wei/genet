@@ -16,10 +16,10 @@ struct Eth {
     #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
     dst: cast::ByteSlice,
 
-    #[genet(cond = "x < 0")]
-    len: Node<cast::UInt16BE>,
+    #[genet(map = "x > 0")]
+    len: cast::UInt16BE,
 
-    #[genet(typ = "@enum", cond = "x > 0", align_before)]
+    #[genet(typ = "@enum", map = "x + 1000 + x", align_before)]
     r#type: Node<cast::UInt16BE, EthType>,
 }
 

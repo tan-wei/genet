@@ -97,19 +97,16 @@ impl<I: 'static + Into<Variant> + Clone, V: 'static + Typed<Output = I> + Clone 
     for V
 {
     type I = I;
+    type O = Variant;
 
     fn class(
         &self,
         ctx: &AttrContext,
         bit_size: usize,
-        filter: fn(&I) -> bool,
+        filter: fn(Self::I) -> Self::O,
     ) -> AttrClassBuilder {
         AttrClass::builder(ctx.path.clone())
-            .cast(
-                &self
-                    .clone()
-                    .map(move |x| if filter(&x) { x.into() } else { Variant::Nil }),
-            )
+            .cast(&self.clone().map(move |x| filter(x)))
             .typ(ctx.typ.clone())
             .aliases(ctx.aliases.clone())
             .bit_range(0, ctx.bit_offset..(ctx.bit_offset + bit_size))

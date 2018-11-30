@@ -56,10 +56,9 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 } else {
                     meta.name
                 };
-                let filter = syn::parse_str::<Expr>(
-                    meta.cond.as_ref().map(|s| s.as_str()).unwrap_or("true"),
-                )
-                .unwrap();
+                let filter =
+                    syn::parse_str::<Expr>(meta.map.as_ref().map(|s| s.as_str()).unwrap_or("x"))
+                        .unwrap();
                 fields_filter.push(filter);
                 let aliases = meta
                     .aliases
@@ -90,13 +89,13 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 if let Some(bit_size) = meta.bit_size {
                     fields_ident_mut.push(quote! {
                         {
-                            let attr : &AttrField<I = _> = &self.#ident;
+                            let attr : &AttrField<I = _, O = _> = &self.#ident;
                             (attr, #bit_size)
                         }
                     });
                     fields_ident.push(quote! {
                         {
-                            let attr : &AttrField<I = _> = &self.#ident;
+                            let attr : &AttrField<I = _, O = _> = &self.#ident;
                             (attr, #bit_size)
                         }
                     });
@@ -104,7 +103,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     fields_ident_mut.push(quote! {
                         {
                             let sized : &SizedAttrField = &self.#ident;
-                            let attr : &AttrField<I = _> = &self.#ident;
+                            let attr : &AttrField<I = _, O = _> = &self.#ident;
                             let size = sized.bit_size();
                             (attr, size)
                         }
@@ -112,7 +111,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     fields_ident.push(quote! {
                         {
                             let sized : &SizedAttrField = &self.#ident;
-                            let attr : &AttrField<I = _> = &self.#ident;
+                            let attr : &AttrField<I = _, O = _> = &self.#ident;
                             let size = sized.bit_size();
                             (attr, size)
                         }
@@ -134,8 +133,9 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let tokens = quote! {
         impl genet_sdk::attr::AttrField for #ident {
             type I = genet_sdk::slice::ByteSlice;
+            type O = genet_sdk::slice::ByteSlice;
 
-            fn class(&self, ctx: &::genet_sdk::attr::AttrContext, bit_size: usize, filter: fn(&ByteSlice) -> bool)
+            fn class(&self, ctx: &::genet_sdk::attr::AttrContext, bit_size: usize, filter: fn(ByteSlice) -> ByteSlice)
                 -> genet_sdk::attr::AttrClassBuilder {
                 use genet_sdk::attr::{Attr, AttrField, SizedAttrField, AttrContext, AttrClass};
                 use genet_sdk::cast;
@@ -153,7 +153,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         let align = #fields_align;
 
                         subctx.bit_offset = bit_offset;
-                        let child = attr.class(&subctx, bit_size, |&x| #fields_filter);
+                        let child = attr.class(&subctx, bit_size, |x| (#fields_filter).into());
 
                         if !align {
                             bit_offset += bit_size;

@@ -348,14 +348,14 @@ impl<T> AsRef<Fixed<LayerClass>> for LayerType<T> {
     }
 }
 
-impl<I, T: AttrField<I = I> + SizedAttrField> LayerType<T> {
+impl<I, T: AttrField<I = I, O = I> + SizedAttrField> LayerType<T> {
     pub fn new<D: Into<Token>>(id: D, field: T) -> Self {
         let ctx = AttrContext {
             path: id.into().to_string(),
             typ: "@layer".into(),
             ..Default::default()
         };
-        let class = field.class(&ctx, field.bit_size(), |_| true).build();
+        let class = field.class(&ctx, field.bit_size(), |x| x).build();
         let layer = Fixed::new(LayerClass {
             get_id: abi_id,
             data: abi_data,
@@ -393,7 +393,7 @@ impl LayerClass {
         }
     }
 
-    pub fn new<I, T: Into<Token>, A: SizedAttrField + AttrField<I = I>>(
+    pub fn new<I, T: Into<Token>, A: SizedAttrField + AttrField<I = I, O = I>>(
         id: T,
         attr: &A,
     ) -> LayerClass {
@@ -402,7 +402,7 @@ impl LayerClass {
             typ: "@layer".into(),
             ..Default::default()
         };
-        let class = attr.class(&ctx, attr.bit_size(), |_| true).build();
+        let class = attr.class(&ctx, attr.bit_size(), |x| x).build();
         LayerClass {
             get_id: abi_id,
             data: abi_data,

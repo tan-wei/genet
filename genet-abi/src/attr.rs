@@ -29,12 +29,13 @@ pub struct AttrContext {
 
 pub trait AttrField {
     type I;
+    type O;
 
     fn class(
         &self,
         ctx: &AttrContext,
         bit_size: usize,
-        filter: fn(&Self::I) -> bool,
+        filter: fn(Self::I) -> Self::O,
     ) -> AttrClassBuilder;
 }
 
@@ -455,17 +456,18 @@ impl<T, U> Deref for Node<T, U> {
     }
 }
 
-impl<I, J, T: AttrField<I = I>, U: AttrField<I = J>> AttrField for Node<T, U> {
+impl<I, J, O, T: AttrField<I = I, O = O>, U: AttrField<I = J, O = J>> AttrField for Node<T, U> {
     type I = I;
+    type O = O;
 
     fn class(
         &self,
         ctx: &AttrContext,
         bit_size: usize,
-        filter: fn(&Self::I) -> bool,
+        filter: fn(Self::I) -> Self::O,
     ) -> AttrClassBuilder {
         let node = self.node.class(ctx, bit_size, filter);
-        let fields = self.fields.class(ctx, bit_size, |_| true);
+        let fields = self.fields.class(ctx, bit_size, |x| x);
 
         if self.class.get().is_none() {
             self.class.set(Some(Fixed::new(
