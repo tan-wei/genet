@@ -1,4 +1,4 @@
-use attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, SizedAttrField, TypedAttrField};
+use attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField, SizedAttrField};
 use num_traits::Num;
 use slice;
 use std::{convert::Into, io::Result, mem::size_of};
@@ -93,8 +93,8 @@ where
     }
 }
 
-impl<I: 'static + Into<Variant> + Clone, V: 'static + Typed<Output = I> + Clone + Cast>
-    TypedAttrField for V
+impl<I: 'static + Into<Variant> + Clone, V: 'static + Typed<Output = I> + Clone + Cast> AttrField
+    for V
 {
     type I = I;
 

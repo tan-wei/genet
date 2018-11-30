@@ -27,7 +27,7 @@ pub struct AttrContext {
     pub aliases: Vec<String>,
 }
 
-pub trait TypedAttrField {
+pub trait AttrField {
     type I;
 
     fn class(
@@ -455,7 +455,7 @@ impl<T, U> Deref for Node<T, U> {
     }
 }
 
-impl<I, J, T: TypedAttrField<I = I>, U: TypedAttrField<I = J>> TypedAttrField for Node<T, U> {
+impl<I, J, T: AttrField<I = I>, U: AttrField<I = J>> AttrField for Node<T, U> {
     type I = I;
 
     fn class(
@@ -464,12 +464,12 @@ impl<I, J, T: TypedAttrField<I = I>, U: TypedAttrField<I = J>> TypedAttrField fo
         bit_size: usize,
         filter: fn(&Self::I) -> bool,
     ) -> AttrClassBuilder {
-        let node = TypedAttrField::class(&self.node, ctx, bit_size, filter);
-        let fields = TypedAttrField::class(&self.fields, ctx, bit_size, |_| true);
+        let node = AttrField::class(&self.node, ctx, bit_size, filter);
+        let fields = AttrField::class(&self.fields, ctx, bit_size, |_| true);
 
         if self.class.get().is_none() {
             self.class.set(Some(Fixed::new(
-                TypedAttrField::class(&self.node, ctx, bit_size, filter)
+                AttrField::class(&self.node, ctx, bit_size, filter)
                     .add_children(fields.children().to_vec())
                     .build(),
             )))

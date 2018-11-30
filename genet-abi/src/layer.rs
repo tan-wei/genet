@@ -1,4 +1,4 @@
-use attr::{Attr, AttrClass, AttrContext, SizedAttrField, TypedAttrField};
+use attr::{Attr, AttrClass, AttrContext, AttrField, SizedAttrField};
 use fixed::{Fixed, MutFixed};
 use slice::ByteSlice;
 use std::{
@@ -320,12 +320,12 @@ impl LayerClassBuilder {
     }
 }
 
-pub struct LayerType<I, T: TypedAttrField<I = I>> {
+pub struct LayerType<T> {
     field: T,
     layer: Fixed<LayerClass>,
 }
 
-impl<I, T: TypedAttrField<I = I> + fmt::Debug> fmt::Debug for LayerType<I, T> {
+impl<T: fmt::Debug> fmt::Debug for LayerType<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("LayerType")
             .field("field", &self.field)
@@ -334,7 +334,7 @@ impl<I, T: TypedAttrField<I = I> + fmt::Debug> fmt::Debug for LayerType<I, T> {
     }
 }
 
-impl<I, T: TypedAttrField<I = I>> Deref for LayerType<I, T> {
+impl<T> Deref for LayerType<T> {
     type Target = T;
 
     fn deref(&self) -> &T {
@@ -342,20 +342,20 @@ impl<I, T: TypedAttrField<I = I>> Deref for LayerType<I, T> {
     }
 }
 
-impl<I, T: TypedAttrField<I = I>> AsRef<Fixed<LayerClass>> for LayerType<I, T> {
+impl<T> AsRef<Fixed<LayerClass>> for LayerType<T> {
     fn as_ref(&self) -> &Fixed<LayerClass> {
         &self.layer
     }
 }
 
-impl<I, T: TypedAttrField<I = I> + SizedAttrField> LayerType<I, T> {
+impl<I, T: AttrField<I = I> + SizedAttrField> LayerType<T> {
     pub fn new<D: Into<Token>>(id: D, field: T) -> Self {
         let ctx = AttrContext {
             path: id.into().to_string(),
             typ: "@layer".into(),
             ..Default::default()
         };
-        let class = TypedAttrField::class(&field, &ctx, field.bit_size(), |_| true).build();
+        let class = AttrField::class(&field, &ctx, field.bit_size(), |_| true).build();
         let layer = Fixed::new(LayerClass {
             get_id: abi_id,
             data: abi_data,
@@ -393,7 +393,7 @@ impl LayerClass {
         }
     }
 
-    pub fn new<I, T: Into<Token>, A: SizedAttrField + TypedAttrField<I = I>>(
+    pub fn new<I, T: Into<Token>, A: SizedAttrField + AttrField<I = I>>(
         id: T,
         attr: &A,
     ) -> LayerClass {
@@ -402,7 +402,7 @@ impl LayerClass {
             typ: "@layer".into(),
             ..Default::default()
         };
-        let class = TypedAttrField::class(attr, &ctx, attr.bit_size(), |_| true).build();
+        let class = AttrField::class(attr, &ctx, attr.bit_size(), |_| true).build();
         LayerClass {
             get_id: abi_id,
             data: abi_data,
