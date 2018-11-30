@@ -107,16 +107,16 @@ impl<T: Into<Variant>, V: Typed<Output = T> + Cast> AttrField for V {
     }
 }
 
-impl<T: 'static + Into<Variant> + Clone, V: 'static + Typed<Output = T> + Clone + Cast>
+impl<I: 'static + Into<Variant> + Clone, V: 'static + Typed<Output = I> + Clone + Cast>
     TypedAttrField for V
 {
-    type I = T;
+    type I = I;
 
     fn class(
         &self,
         ctx: &AttrContext,
         bit_size: usize,
-        filter: fn(&T) -> bool,
+        filter: fn(&I) -> bool,
     ) -> AttrClassBuilder {
         AttrClass::builder(ctx.path.clone())
             .cast(

@@ -42,7 +42,7 @@ pub trait TypedAttrField {
     ) -> AttrClassBuilder;
 }
 
-impl<T> AttrField for TypedAttrField<I = T> {
+impl<I> AttrField for TypedAttrField<I = I> {
     fn class(&self, ctx: &AttrContext, bit_size: usize) -> AttrClassBuilder {
         Self::class(self, ctx, bit_size, |_| true)
     }
@@ -483,8 +483,8 @@ impl<T: AttrField, U: AttrField> AttrField for Node<T, U> {
     }
 }
 
-impl<N, T: AttrField + TypedAttrField<I = N>, U: AttrField> TypedAttrField for Node<T, U> {
-    type I = N;
+impl<I, T: AttrField + TypedAttrField<I = I>, U: AttrField> TypedAttrField for Node<T, U> {
+    type I = I;
 
     fn class(
         &self,

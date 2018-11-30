@@ -1,4 +1,4 @@
-use attr::{Attr, AttrClass, AttrContext, SizedAttrField};
+use attr::{Attr, AttrClass, AttrContext, SizedAttrField, TypedAttrField};
 use fixed::{Fixed, MutFixed};
 use slice::ByteSlice;
 use std::{
@@ -320,12 +320,12 @@ impl LayerClassBuilder {
     }
 }
 
-pub struct LayerType<T: SizedAttrField> {
+pub struct LayerType<I, T: TypedAttrField<I = I>> {
     field: T,
     layer: Fixed<LayerClass>,
 }
 
-impl<T: SizedAttrField + fmt::Debug> fmt::Debug for LayerType<T> {
+impl<I, T: TypedAttrField<I = I> + fmt::Debug> fmt::Debug for LayerType<I, T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("LayerType")
             .field("field", &self.field)
@@ -334,7 +334,7 @@ impl<T: SizedAttrField + fmt::Debug> fmt::Debug for LayerType<T> {
     }
 }
 
-impl<T: SizedAttrField> Deref for LayerType<T> {
+impl<I, T: TypedAttrField<I = I>> Deref for LayerType<I, T> {
     type Target = T;
 
     fn deref(&self) -> &T {
@@ -342,20 +342,20 @@ impl<T: SizedAttrField> Deref for LayerType<T> {
     }
 }
 
-impl<T: SizedAttrField> AsRef<Fixed<LayerClass>> for LayerType<T> {
+impl<I, T: TypedAttrField<I = I>> AsRef<Fixed<LayerClass>> for LayerType<I, T> {
     fn as_ref(&self) -> &Fixed<LayerClass> {
         &self.layer
     }
 }
 
-impl<T: SizedAttrField> LayerType<T> {
-    pub fn new<I: Into<Token>>(id: I, field: T) -> Self {
+impl<I, T: TypedAttrField<I = I> + SizedAttrField> LayerType<I, T> {
+    pub fn new<D: Into<Token>>(id: D, field: T) -> Self {
         let ctx = AttrContext {
             path: id.into().to_string(),
             typ: "@layer".into(),
             ..Default::default()
         };
-        let class = field.class(&ctx, field.bit_size()).build();
+        let class = TypedAttrField::class(&field, &ctx, field.bit_size(), |_| true).build();
         let layer = Fixed::new(LayerClass {
             get_id: abi_id,
             data: abi_data,
