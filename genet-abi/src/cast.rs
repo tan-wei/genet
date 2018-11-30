@@ -108,8 +108,10 @@ impl<T: Into<Variant>, V: Typed<Output = T> + Cast> AttrField for V {
 }
 
 impl<T: 'static + Into<Variant> + Clone, V: 'static + Typed<Output = T> + Clone + Cast>
-    TypedAttrField<T> for V
+    TypedAttrField for V
 {
+    type I = T;
+
     fn class(
         &self,
         ctx: &AttrContext,

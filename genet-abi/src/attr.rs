@@ -31,12 +31,18 @@ pub trait AttrField {
     fn class(&self, ctx: &AttrContext, bit_size: usize) -> AttrClassBuilder;
 }
 
-pub trait TypedAttrField<I> {
-    fn class(&self, ctx: &AttrContext, bit_size: usize, filter: fn(&I) -> bool)
-        -> AttrClassBuilder;
+pub trait TypedAttrField {
+    type I;
+
+    fn class(
+        &self,
+        ctx: &AttrContext,
+        bit_size: usize,
+        filter: fn(&Self::I) -> bool,
+    ) -> AttrClassBuilder;
 }
 
-impl<I> AttrField for TypedAttrField<I> {
+impl<T> AttrField for TypedAttrField<I = T> {
     fn class(&self, ctx: &AttrContext, bit_size: usize) -> AttrClassBuilder {
         Self::class(self, ctx, bit_size, |_| true)
     }
@@ -477,14 +483,16 @@ impl<T: AttrField, U: AttrField> AttrField for Node<T, U> {
     }
 }
 
-impl<I, T: AttrField + TypedAttrField<I>, U: AttrField> TypedAttrField<I> for Node<T, U> {
+impl<N, T: AttrField + TypedAttrField<I = N>, U: AttrField> TypedAttrField for Node<T, U> {
+    type I = N;
+
     fn class(
         &self,
         ctx: &AttrContext,
         bit_size: usize,
-        filter: fn(&I) -> bool,
+        filter: fn(&Self::I) -> bool,
     ) -> AttrClassBuilder {
-        let node = TypedAttrField::<I>::class(&self.node, ctx, bit_size, filter);
+        let node = TypedAttrField::class(&self.node, ctx, bit_size, filter);
         let fields = AttrField::class(&self.fields, ctx, bit_size);
 
         if self.class.get().is_none() {
