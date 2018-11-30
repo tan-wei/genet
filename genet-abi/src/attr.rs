@@ -464,12 +464,13 @@ impl<I, J, T: AttrField<I = I>, U: AttrField<I = J>> AttrField for Node<T, U> {
         bit_size: usize,
         filter: fn(&Self::I) -> bool,
     ) -> AttrClassBuilder {
-        let node = AttrField::class(&self.node, ctx, bit_size, filter);
-        let fields = AttrField::class(&self.fields, ctx, bit_size, |_| true);
+        let node = self.node.class(ctx, bit_size, filter);
+        let fields = self.fields.class(ctx, bit_size, |_| true);
 
         if self.class.get().is_none() {
             self.class.set(Some(Fixed::new(
-                AttrField::class(&self.node, ctx, bit_size, filter)
+                self.node
+                    .class(ctx, bit_size, filter)
                     .add_children(fields.children().to_vec())
                     .build(),
             )))

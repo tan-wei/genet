@@ -355,7 +355,7 @@ impl<I, T: AttrField<I = I> + SizedAttrField> LayerType<T> {
             typ: "@layer".into(),
             ..Default::default()
         };
-        let class = AttrField::class(&field, &ctx, field.bit_size(), |_| true).build();
+        let class = field.class(&ctx, field.bit_size(), |_| true).build();
         let layer = Fixed::new(LayerClass {
             get_id: abi_id,
             data: abi_data,
@@ -402,7 +402,7 @@ impl LayerClass {
             typ: "@layer".into(),
             ..Default::default()
         };
-        let class = AttrField::class(attr, &ctx, attr.bit_size(), |_| true).build();
+        let class = attr.class(&ctx, attr.bit_size(), |_| true).build();
         LayerClass {
             get_id: abi_id,
             data: abi_data,
