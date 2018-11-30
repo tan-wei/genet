@@ -12,7 +12,7 @@ extern crate proc_macro;
 
 use inflector::cases::camelcase::to_camel_case;
 use proc_macro::TokenStream;
-use syn::{Data, DataStruct, DeriveInput, Fields, Ident};
+use syn::{Data, DataStruct, DeriveInput, Expr, Fields, Ident};
 
 mod meta;
 use meta::AttrMetadata;
@@ -42,6 +42,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let mut fields_skip = Vec::new();
     let mut fields_detach = Vec::new();
     let mut fields_align = Vec::new();
+    let mut fields_filter = Vec::new();
 
     if let Fields::Named(f) = &s.fields {
         for field in &f.named {
@@ -55,6 +56,11 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 } else {
                     meta.name
                 };
+                let filter = syn::parse_str::<Expr>(
+                    meta.cond.as_ref().map(|s| s.as_str()).unwrap_or("true"),
+                )
+                .unwrap();
+                fields_filter.push(filter);
                 let aliases = meta
                     .aliases
                     .iter()
@@ -145,7 +151,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         let align = #fields_align;
 
                         subctx.bit_offset = bit_offset;
-                        let child = attr.class(&subctx, bit_size, |_| true);
+                        let child = attr.class(&subctx, bit_size, |&x| #fields_filter);
 
                         if !align {
                             bit_offset += bit_size;

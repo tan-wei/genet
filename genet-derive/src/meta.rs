@@ -7,6 +7,7 @@ pub struct AttrMetadata {
     pub aliases: Vec<String>,
     pub bit_size: Option<usize>,
     pub align_before: bool,
+    pub cond: Option<String>,
     pub skip: bool,
     pub detach: bool,
 }
@@ -20,6 +21,7 @@ impl AttrMetadata {
         let mut skip = false;
         let mut detach = false;
         let mut align_before = false;
+        let mut cond = None;
         for attr in attrs {
             if let Some(meta) = attr.interpret_meta() {
                 let name = meta.name().to_string();
@@ -55,6 +57,9 @@ impl AttrMetadata {
                                         }
                                         "alias" => {
                                             aliases.push(lit_str.value().to_string());
+                                        }
+                                        "cond" => {
+                                            cond = Some(lit_str.value().to_string());
                                         }
                                         _ => panic!("unsupported attribute: {}", name),
                                     }
@@ -93,6 +98,7 @@ impl AttrMetadata {
             skip,
             detach,
             align_before,
+            cond,
         }
     }
 }
