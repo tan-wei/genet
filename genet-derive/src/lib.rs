@@ -50,7 +50,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
     let tokens = quote! {
 
     impl<T: Into<genet_sdk::variant::Variant>> genet_sdk::attr::EnumAttrField<T> for #ident {
-        fn class_enum<C: genet_sdk::cast::Typed<Output=T> + Clone>(
+        fn class_enum<C: genet_sdk::cast::Typed<Output=T> + 'static + Send + Clone>(
             &self,
             ctx: &genet_sdk::attr::AttrContext,
             bit_size: usize,
@@ -61,6 +61,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
 
             AttrClass::builder(ctx.path.clone())
                 .add_children(children)
+                .cast(&cast)
         }
     }
 

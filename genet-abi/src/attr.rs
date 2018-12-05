@@ -500,7 +500,7 @@ impl<T: Default, U: Default> Default for Node<T, U> {
 }
 
 pub trait EnumAttrField<T: Into<Variant>> {
-    fn class_enum<C: Typed<Output = T> + Clone>(
+    fn class_enum<C: Typed<Output = T> + 'static + Send + Clone>(
         &self,
         ctx: &AttrContext,
         bit_size: usize,
@@ -513,7 +513,7 @@ pub struct EnumField<T, U> {
     fields: U,
 }
 
-impl<I: Into<Variant>, T: Typed<Output = I> + Clone, U: EnumAttrField<I>> AttrField
+impl<I: Into<Variant>, T: Typed<Output = I> + 'static + Send + Clone, U: EnumAttrField<I>> AttrField
     for EnumField<T, U>
 {
     type I = I;
