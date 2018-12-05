@@ -35,6 +35,37 @@ struct EthType {
 
     #[genet(cond_eq = "0x888E", align_before)]
     eap: cast::UInt16BE,
+
+    z: EnumField<cast::UInt16BE, EthTypeEnum>,
+}
+
+#[derive(Attr)]
+enum EthTypeEnum {
+    IPv4,
+    ARP,
+    WOL,
+    IPv6,
+    EAP,
+    Unknown,
+}
+
+impl Default for EthTypeEnum {
+    fn default() -> Self {
+        EthTypeEnum::Unknown
+    }
+}
+
+impl From<u16> for EthTypeEnum {
+    fn from(data: u16) -> EthTypeEnum {
+        match data {
+            0x0800 => EthTypeEnum::IPv4,
+            0x0806 => EthTypeEnum::ARP,
+            0x0842 => EthTypeEnum::WOL,
+            0x86DD => EthTypeEnum::IPv6,
+            0x888E => EthTypeEnum::EAP,
+            _ => EthTypeEnum::Unknown,
+        }
+    }
 }
 
 struct EthWorker {

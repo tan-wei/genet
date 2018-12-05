@@ -499,6 +499,50 @@ impl<T: Default, U: Default> Default for Node<T, U> {
     }
 }
 
+pub trait EnumAttrField<T: Into<Variant>> {
+    fn class_enum<C: Typed<Output = T> + Clone>(
+        &self,
+        ctx: &AttrContext,
+        bit_size: usize,
+        cast: C,
+    ) -> AttrClassBuilder;
+}
+
+pub struct EnumField<T, U> {
+    node: T,
+    fields: U,
+}
+
+impl<I: Into<Variant>, T: Typed<Output = I> + Clone, U: EnumAttrField<I>> AttrField
+    for EnumField<T, U>
+{
+    type I = I;
+
+    fn class(
+        &self,
+        ctx: &AttrContext,
+        bit_size: usize,
+        _filter: Option<fn(Self::I) -> Variant>,
+    ) -> AttrClassBuilder {
+        self.fields.class_enum(ctx, bit_size, self.node.clone())
+    }
+}
+
+impl<T: SizedField, U> SizedField for EnumField<T, U> {
+    fn bit_size(&self) -> usize {
+        self.node.bit_size()
+    }
+}
+
+impl<T: Default, U: Default> Default for EnumField<T, U> {
+    fn default() -> Self {
+        Self {
+            node: T::default(),
+            fields: U::default(),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{

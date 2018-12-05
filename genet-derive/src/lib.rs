@@ -5,7 +5,7 @@ extern crate proc_macro;
 use inflector::cases::camelcase::to_camel_case;
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, Data, DataStruct, DeriveInput, Expr, Fields, Ident};
+use syn::{parse_macro_input, Data, DataEnum, DataStruct, DeriveInput, Expr, Fields, Ident};
 
 mod meta;
 use crate::meta::{AttrMapExpr, AttrMetadata};
@@ -19,13 +19,53 @@ pub fn derive_attr(input: TokenStream) -> TokenStream {
 
     match &input.data {
         Data::Struct(s) => parse_struct(&input, &s),
-        _ => panic!("Attr derive supports struct types only"),
+        Data::Enum(e) => parse_enum(&input, &e),
+        _ => panic!("Attr derive supports struct and enum types only"),
     }
 }
 
 fn normalize_ident(ident: &Ident) -> String {
     let ident = ident.to_string();
     ident.trim_start_matches("r#").into()
+}
+
+fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
+    let mut fields_ctx = Vec::new();
+
+    for v in &s.variants {
+        let id = normalize_ident(&v.ident);
+        let id = to_camel_case(&id);
+        println!("{}", id);
+
+        fields_ctx.push(quote! {
+            AttrContext{
+                path: format!("{}{}", ctx.path, #id)
+                    .trim_matches('.').into(),
+                ..Default::default()
+            }
+        });
+    }
+
+    let ident = &input.ident;
+    let tokens = quote! {
+
+    impl<T: Into<genet_sdk::variant::Variant>> genet_sdk::attr::EnumAttrField<T> for #ident {
+        fn class_enum<C: genet_sdk::cast::Typed<Output=T> + Clone>(
+            &self,
+            ctx: &genet_sdk::attr::AttrContext,
+            bit_size: usize,
+            cast: C
+        ) -> genet_sdk::attr::AttrClassBuilder {
+            use genet_sdk::attr::AttrClass;
+            let mut children = Vec::<Fixed<AttrClass>>::new();
+
+            AttrClass::builder(ctx.path.clone())
+                .add_children(children)
+        }
+    }
+
+    };
+    tokens.into()
 }
 
 fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
