@@ -499,6 +499,98 @@ impl<T: Default, U: Default> Default for Node<T, U> {
     }
 }
 
+pub trait EnumField<T: Into<Variant>> {
+    fn class_enum<C: Typed<Output = T> + 'static + Send + Sync + Clone>(
+        &self,
+        ctx: &AttrContext,
+        bit_size: usize,
+        cast: C,
+    ) -> AttrClassBuilder;
+}
+
+pub struct EnumNode<T, U> {
+    node: T,
+    fields: U,
+    class: Cell<Option<Fixed<AttrClass>>>,
+}
+
+impl<
+        I: Into<Variant>,
+        T: AttrField<I = I> + Typed<Output = I> + 'static + Send + Sync + Clone,
+        U: EnumField<I>,
+    > AttrField for EnumNode<T, U>
+{
+    type I = I;
+
+    fn class(
+        &self,
+        ctx: &AttrContext,
+        bit_size: usize,
+        filter: Option<fn(Self::I) -> Variant>,
+    ) -> AttrClassBuilder {
+        let fields = self.fields.class_enum(ctx, bit_size, self.node.clone());
+
+        if self.class.get().is_none() {
+            self.class.set(Some(Fixed::new(
+                self.node
+                    .class(ctx, bit_size, filter)
+                    .add_children(fields.children().to_vec())
+                    .build(),
+            )))
+        }
+
+        fields
+    }
+}
+
+impl<
+        I: Into<Variant> + Into<U>,
+        T: Typed<Output = I> + 'static + Send + Sync + Clone,
+        U: EnumField<I>,
+    > EnumNode<T, U>
+{
+    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<U> {
+        let class = self.class.get().unwrap();
+
+        let bit_offset = class.bit_range().start;
+        let range = (class.bit_range().start - bit_offset + range.start * 8)
+            ..(class.bit_range().end - bit_offset + range.end * 8);
+
+        let root = Attr::new(&class, range, layer.data());
+        match self.node.cast(&root, &layer.data()) {
+            Ok(data) => Ok(data.into()),
+            Err(err) => Err(Box::new(err)),
+        }
+    }
+
+    pub fn try_get(&self, layer: &Layer) -> Result<U> {
+        let class = self.class.get().unwrap();
+        self.try_get_range(layer, class.range())
+    }
+}
+
+impl<T: SizedField, U> SizedField for EnumNode<T, U> {
+    fn bit_size(&self) -> usize {
+        self.node.bit_size()
+    }
+}
+
+impl<T, U> EnumNode<T, U> {
+    pub fn class(&self) -> Fixed<AttrClass> {
+        self.class.get().unwrap()
+    }
+}
+
+impl<T: Default, U: Default> Default for EnumNode<T, U> {
+    fn default() -> Self {
+        Self {
+            node: T::default(),
+            fields: U::default(),
+            class: Cell::new(None),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{
