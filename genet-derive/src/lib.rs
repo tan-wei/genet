@@ -31,7 +31,10 @@ fn normalize_ident(ident: &Ident) -> String {
 
 fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
     let mut fields_ctx = Vec::new();
+    let mut fields_variant = Vec::new();
+    let mut fields_ident = Vec::new();
 
+    let ident = &input.ident;
     for v in &s.variants {
         let id = normalize_ident(&v.ident);
         let id = to_camel_case(&id);
@@ -44,20 +47,39 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
                 ..Default::default()
             }
         });
+        fields_variant.push(v.ident.clone());
+        fields_ident.push(ident.clone());
     }
 
-    let ident = &input.ident;
+    let fields_ident2 = fields_ident.clone();
     let tokens = quote! {
 
-    impl<T: Into<genet_sdk::variant::Variant>> genet_sdk::attr::EnumAttrField<T> for #ident {
-        fn class_enum<C: genet_sdk::cast::Typed<Output=T> + 'static + Send + Clone>(
+    impl<T: Into<genet_sdk::variant::Variant> + Into<#ident> + 'static + Clone> genet_sdk::attr::EnumAttrField<T> for #ident {
+        fn class_enum<C: genet_sdk::cast::Typed<Output=T> + 'static + Send + Sync + Clone>(
             &self,
             ctx: &genet_sdk::attr::AttrContext,
             bit_size: usize,
             cast: C
         ) -> genet_sdk::attr::AttrClassBuilder {
-            use genet_sdk::attr::AttrClass;
+            use genet_sdk::attr::{AttrClass, AttrContext};
             let mut children = Vec::<Fixed<AttrClass>>::new();
+
+            #(
+                {
+                    let mut subctx = #fields_ctx;
+                    subctx.bit_offset = ctx.bit_offset;
+                    let child = AttrClass::builder(ctx.path.clone())
+                        .cast(&cast.clone().map(|x| {
+                            let x : #fields_ident = x.into();
+                            match x {
+                                #fields_ident2::#fields_variant => true,
+                                _ => false
+                            }
+                        }))
+                        .bit_range(0, ctx.bit_offset..(ctx.bit_offset + bit_size));
+                    children.push(Fixed::new(child.build()));
+                }
+            )*
 
             AttrClass::builder(ctx.path.clone())
                 .add_children(children)
