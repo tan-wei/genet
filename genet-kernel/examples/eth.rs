@@ -16,7 +16,7 @@ struct Eth {
     len: cast::UInt16BE,
 
     #[genet(cond = "x > 1500", typ = "@enum", align_before)]
-    r#type: Node<cast::UInt16BE, EthType>,
+    r#type: EnumField<cast::UInt16BE, EthTypeEnum>,
 }
 
 #[derive(Attr, Default)]
@@ -35,8 +35,6 @@ struct EthType {
 
     #[genet(cond_eq = "0x888E", align_before)]
     eap: cast::UInt16BE,
-
-    z: EnumField<cast::UInt16BE, EthTypeEnum>,
 }
 
 #[derive(Attr)]

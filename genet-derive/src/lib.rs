@@ -37,8 +37,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
     let ident = &input.ident;
     for v in &s.variants {
         let id = normalize_ident(&v.ident);
-        let id = to_camel_case(&id);
-        println!("{}", id);
+        let id = format!(".{}", to_camel_case(&id));
 
         fields_ctx.push(quote! {
             AttrContext{
@@ -62,21 +61,25 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
             cast: C
         ) -> genet_sdk::attr::AttrClassBuilder {
             use genet_sdk::attr::{AttrClass, AttrContext};
+
+            let bit_range = ctx.bit_offset..(ctx.bit_offset + bit_size);
             let mut children = Vec::<Fixed<AttrClass>>::new();
 
             #(
                 {
+                    use genet_sdk::variant::Variant;
                     let mut subctx = #fields_ctx;
                     subctx.bit_offset = ctx.bit_offset;
-                    let child = AttrClass::builder(ctx.path.clone())
+                    let child = AttrClass::builder(subctx.path.clone())
                         .cast(&cast.clone().map(|x| {
                             let x : #fields_ident = x.into();
                             match x {
-                                #fields_ident2::#fields_variant => true,
-                                _ => false
+                                #fields_ident2::#fields_variant => Variant::Bool(true),
+                                _ => Variant::Nil,
                             }
                         }))
-                        .bit_range(0, ctx.bit_offset..(ctx.bit_offset + bit_size));
+                        .typ(token!("@novalue"))
+                        .bit_range(0, bit_range.clone());
                     children.push(Fixed::new(child.build()));
                 }
             )*
@@ -84,6 +87,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
             AttrClass::builder(ctx.path.clone())
                 .add_children(children)
                 .cast(&cast)
+                .bit_range(0, bit_range)
         }
     }
 
