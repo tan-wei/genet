@@ -137,7 +137,7 @@ class LayerItem {
                   ' Stream #', layer.streamId])
             ]),
           mergeOrphanedItems(attrArray[0]).children
-            .filter((item) => item.attr)
+            .filter((item) => item.attr && item.attr.value !== null)
             .map((item) =>
               m(AttributeItem, {
                 item,

@@ -58,10 +58,12 @@ export default class AttributeItem {
             })
           ]),
         m('ul', [
-          children.map((child) => m(AttributeItem, {
-            item: child,
-            layer,
-          }))
+          children
+            .filter((item) => item.attr && item.attr.value !== null)
+            .map((item) => m(AttributeItem, {
+              item,
+              layer,
+            }))
         ])
       ])
     ])
