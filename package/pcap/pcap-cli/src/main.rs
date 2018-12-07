@@ -1,9 +1,5 @@
 #![windows_subsystem = "windows"]
 
-extern crate clap;
-extern crate pcap;
-extern crate serde_json;
-
 use clap::{App, Arg, SubCommand};
 use pcap::Pcap;
 use std::{

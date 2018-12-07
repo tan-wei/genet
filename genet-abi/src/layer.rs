@@ -1,14 +1,16 @@
-use attr::{Attr, AttrClass, AttrContext, AttrField, SizedAttrField};
-use fixed::{Fixed, MutFixed};
-use slice::ByteSlice;
+use crate::{
+    attr::{Attr, AttrClass, AttrContext, AttrField, SizedAttrField},
+    fixed::{Fixed, MutFixed},
+    slice::ByteSlice,
+    token::Token,
+    variant::Variant,
+};
 use std::{
     fmt,
     marker::PhantomData,
     ops::{Deref, DerefMut, Range},
     slice,
 };
-use token::Token;
-use variant::Variant;
 
 /// A layer stack object.
 pub struct LayerStack<'a> {
@@ -503,14 +505,16 @@ extern "C" fn abi_add_payload(layer: *mut Layer, payload: Payload) {
 
 #[cfg(test)]
 mod tests {
-    use attr::{Attr, AttrClass};
-    use cast::Cast;
-    use fixed::Fixed;
-    use layer::{Layer, LayerClass, Payload};
-    use slice::ByteSlice;
+    use crate::{
+        attr::{Attr, AttrClass},
+        cast::Cast,
+        fixed::Fixed,
+        layer::{Layer, LayerClass, Payload},
+        slice::ByteSlice,
+        token::Token,
+        variant::Variant,
+    };
     use std::io::Result;
-    use token::Token;
-    use variant::Variant;
 
     #[test]
     fn id() {

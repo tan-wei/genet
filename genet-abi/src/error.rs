@@ -1,5 +1,5 @@
+use crate::string::SafeString;
 use std::{error, fmt, str};
-use string::SafeString;
 
 /// An error object.
 #[repr(C)]

@@ -1,5 +1,5 @@
+use crate::variant::VariantExt;
 use genet_abi::{filter::LayerContext, token::Token, variant::Variant};
-use variant::VariantExt;
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum Expr {

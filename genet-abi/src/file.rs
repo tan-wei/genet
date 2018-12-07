@@ -1,3 +1,5 @@
+use serde_derive::{Deserialize, Serialize};
+
 /// File type.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct FileType {

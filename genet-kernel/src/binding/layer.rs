@@ -1,4 +1,4 @@
-use binding::JsClass;
+use crate::binding::JsClass;
 use genet_abi::{attr::AttrClass, layer::Layer, token::Token};
 use genet_filter::{ast::Expr, unparser::unparse};
 use genet_napi::napi::{

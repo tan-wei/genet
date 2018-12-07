@@ -1,3 +1,4 @@
+use bitflags::bitflags;
 use genet_abi::{
     fixed::{Fixed, MutFixed},
     slice::ByteSlice,

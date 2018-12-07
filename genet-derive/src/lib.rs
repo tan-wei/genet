@@ -1,24 +1,17 @@
 #![recursion_limit = "512"]
 
-#[macro_use]
-extern crate quote;
-
-#[macro_use]
-extern crate syn;
-
-extern crate genet_abi;
-extern crate inflector;
 extern crate proc_macro;
 
 use inflector::cases::camelcase::to_camel_case;
 use proc_macro::TokenStream;
-use syn::{Data, DataStruct, DeriveInput, Expr, Fields, Ident};
+use quote::quote;
+use syn::{parse_macro_input, Data, DataStruct, DeriveInput, Expr, Fields, Ident};
 
 mod meta;
-use meta::{AttrMapExpr, AttrMetadata};
+use crate::meta::{AttrMapExpr, AttrMetadata};
 
 mod initialisms;
-use initialisms::to_title_case;
+use crate::initialisms::to_title_case;
 
 #[proc_macro_derive(Attr, attributes(genet))]
 pub fn derive_attr(input: TokenStream) -> TokenStream {

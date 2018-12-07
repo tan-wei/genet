@@ -1,20 +1,22 @@
-use cast::{Cast, Nil, Typed};
-use env;
-use error::Error;
-use fixed::Fixed;
-use layer::Layer;
-use metadata::Metadata;
-use result::Result;
-use slice::ByteSlice;
+use crate::{
+    cast::{Cast, Nil, Typed},
+    env,
+    error::Error,
+    fixed::Fixed,
+    layer::Layer,
+    metadata::Metadata,
+    result::Result,
+    slice::ByteSlice,
+    token::Token,
+    variant::Variant,
+    vec::SafeVec,
+};
 use std::{
     cell::Cell,
     fmt, io, mem,
     ops::{Deref, Range},
     slice,
 };
-use token::Token;
-use variant::Variant;
-use vec::SafeVec;
 
 #[derive(Debug, Clone, Default)]
 pub struct AttrContext {
@@ -499,15 +501,17 @@ impl<T: Default, U: Default> Default for Node<T, U> {
 
 #[cfg(test)]
 mod tests {
-    use attr::{Attr, AttrClass};
-    use cast::Cast;
-    use slice::{ByteSlice, TryGet};
+    use crate::{
+        attr::{Attr, AttrClass},
+        cast::Cast,
+        slice::{ByteSlice, TryGet},
+        token::Token,
+        variant::Variant,
+    };
     use std::{
         io::{Error, ErrorKind, Result},
         str::from_utf8,
     };
-    use token::Token;
-    use variant::Variant;
 
     #[test]
     fn bool() {

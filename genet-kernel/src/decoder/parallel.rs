@@ -1,8 +1,6 @@
+use crate::{decoder::dispatcher::Dispatcher, frame::Frame, profile::Profile};
 use crossbeam_channel;
-use decoder::dispatcher::Dispatcher;
-use frame::Frame;
 use genet_abi::decoder::ExecType;
-use profile::Profile;
 use std::thread::{self, JoinHandle};
 
 pub trait Callback: Sync + Send + Clone {
@@ -37,7 +35,7 @@ impl Pool {
             loop {
                 if let Ok(frames) = recv.recv() {
                     if let Some(mut frames) = frames {
-                        for mut f in &mut frames {
+                        for f in &mut frames {
                             disp.process_frame(f);
                         }
                         callback.done(frames);

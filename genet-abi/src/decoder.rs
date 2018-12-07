@@ -1,12 +1,15 @@
+use crate::{
+    context::Context,
+    error::Error,
+    fixed::MutFixed,
+    layer::{Layer, LayerStack, Parent},
+    result::Result,
+    vec::SafeVec,
+};
 use bincode;
-use context::Context;
-use error::Error;
-use fixed::MutFixed;
-use layer::{Layer, LayerStack, Parent};
-use result::Result;
 use serde::ser::{Serialize, Serializer};
+use serde_derive::{Deserialize, Serialize};
 use std::ptr;
-use vec::SafeVec;
 
 /// Execution type.
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
@@ -44,7 +47,12 @@ impl Default for Metadata {
 
 /// Decoder worker trait.
 pub trait Worker {
-    fn decode(&mut self, &mut Context, &LayerStack, &mut Parent) -> Result<Status>;
+    fn decode(
+        &mut self,
+        ctx: &mut Context,
+        stack: &LayerStack,
+        parent: &mut Parent,
+    ) -> Result<Status>;
 }
 
 #[repr(C)]
@@ -113,7 +121,7 @@ extern "C" fn abi_decode(
 
 /// Decoder trait.
 pub trait Decoder: DecoderClone + Send {
-    fn new_worker(&self, &Context) -> Box<Worker>;
+    fn new_worker(&self, ctx: &Context) -> Box<Worker>;
     fn metadata(&self) -> Metadata;
 }
 
@@ -187,15 +195,17 @@ extern "C" fn abi_metadata(diss: *const DecoderBox) -> SafeVec<u8> {
 
 #[cfg(test)]
 mod tests {
-    use attr::AttrClass;
-    use context::Context;
-    use decoder::{Decoder, DecoderBox, ExecType, Metadata, Status, Worker};
-    use fixed::Fixed;
+    use crate::{
+        attr::AttrClass,
+        context::Context,
+        decoder::{Decoder, DecoderBox, ExecType, Metadata, Status, Worker},
+        fixed::Fixed,
+        layer::{Layer, LayerClass, LayerStack, Parent},
+        result::Result,
+        slice::ByteSlice,
+        token::Token,
+    };
     use fnv::FnvHashMap;
-    use layer::{Layer, LayerClass, LayerStack, Parent};
-    use result::Result;
-    use slice::ByteSlice;
-    use token::Token;
 
     #[test]
     fn decode() {

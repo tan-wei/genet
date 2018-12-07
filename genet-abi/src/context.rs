@@ -1,5 +1,6 @@
-use fixed::Fixed;
+use crate::fixed::Fixed;
 use fnv::FnvHashMap;
+use lazy_static::lazy_static;
 use std::{slice, str};
 
 /// A context object.

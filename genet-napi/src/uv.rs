@@ -51,10 +51,10 @@ impl Drop for Async {
 extern "C" {
     fn uv_async_init(
         evloop: *mut Loop,
-        async: *mut Inner,
+        async_data: *mut Inner,
         async_cb: extern "C" fn(*mut Inner),
     ) -> c_int;
-    fn uv_async_send(async: *const Inner) -> c_int;
-    fn uv_close(async: *mut Inner, close_cb: extern "C" fn(*mut Inner));
+    fn uv_async_send(async_data: *const Inner) -> c_int;
+    fn uv_close(async_data: *mut Inner, close_cb: extern "C" fn(*mut Inner));
     fn uv_default_loop() -> *mut Loop;
 }

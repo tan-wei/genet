@@ -1,5 +1,4 @@
-use binding::JsClass;
-use frame::Frame;
+use crate::{binding::JsClass, frame::Frame};
 use genet_abi::token::Token;
 use genet_napi::napi::{
     CallbackInfo, Env, PropertyAttributes, PropertyDescriptor, Result, Status, Value, ValueRef,

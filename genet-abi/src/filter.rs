@@ -1,5 +1,4 @@
-use fixed::MutFixed;
-use layer::Layer;
+use crate::{fixed::MutFixed, layer::Layer};
 
 pub struct LayerContext<'a> {
     layers: &'a [MutFixed<Layer>],

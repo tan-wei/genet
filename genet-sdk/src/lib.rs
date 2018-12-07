@@ -1,10 +1,6 @@
 //! This crate provides APIs for creating plugin pacakges for
 //! [genet](https://genet.app/).
 
-extern crate byteorder;
-extern crate genet_abi;
-extern crate lazy_static;
-
 pub mod attr;
 pub mod cast;
 pub mod context;

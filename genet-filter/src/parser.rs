@@ -1,4 +1,4 @@
-use ast::Expr;
+use crate::{ast::Expr, variant::VariantExt};
 use genet_abi::{token::Token, variant::Variant};
 use hwaddr::HwAddr;
 use num_bigint::BigInt;
@@ -9,9 +9,9 @@ use pest::{
     prec_climber::{Assoc, Operator, PrecClimber},
     Parser,
 };
+use pest_derive::Parser;
 use serde_json;
 use std::net::{Ipv4Addr, Ipv6Addr};
-use variant::VariantExt;
 
 #[derive(Parser)]
 #[grammar = "syntax.pest"]
@@ -112,7 +112,7 @@ fn consume_primary(pair: Pair<Rule>) -> Expr {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ast::Expr::*;
+    use crate::ast::Expr::*;
     use genet_abi::{token::Token, variant::Variant};
     use num_bigint::BigInt;
 

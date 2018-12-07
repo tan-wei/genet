@@ -1,13 +1,5 @@
-extern crate bincode;
-extern crate genet_format;
-extern crate genet_sdk;
-extern crate serde;
-extern crate serde_json;
-
-#[macro_use]
-extern crate serde_derive;
-
 use genet_sdk::{prelude::*, writer::*};
+use serde_derive::Deserialize;
 
 use std::{
     fs::File,

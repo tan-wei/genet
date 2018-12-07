@@ -1,13 +1,16 @@
+use crate::{
+    context::Context,
+    error::Error,
+    file::FileType,
+    fixed::MutFixed,
+    layer::{Layer, LayerStack},
+    result::Result,
+    vec::SafeVec,
+};
 use bincode;
-use context::Context;
-use error::Error;
-use file::FileType;
-use fixed::MutFixed;
-use layer::{Layer, LayerStack};
-use result::Result;
 use serde::ser::{Serialize, Serializer};
+use serde_derive::{Deserialize, Serialize};
 use std::{fmt, mem, ptr, slice, str};
-use vec::SafeVec;
 
 /// Writer metadata.
 #[derive(Serialize, Deserialize, Debug)]

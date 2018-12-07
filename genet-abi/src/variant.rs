@@ -1,4 +1,4 @@
-use slice::ByteSlice;
+use crate::slice::ByteSlice;
 use std::{
     convert::Into,
     io::{Error, ErrorKind, Result},

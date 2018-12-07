@@ -1,8 +1,8 @@
-use ast::Expr;
+use crate::{ast::Expr, variant::VariantExt};
+use arrayref::array_ref;
 use genet_abi::{token::Token, variant::Variant};
 use hwaddr::HwAddr;
 use std::net::{Ipv4Addr, Ipv6Addr};
-use variant::VariantExt;
 
 pub fn unparse_attr(typ: Token, var: &Variant) -> Expr {
     let typ = typ.to_string();

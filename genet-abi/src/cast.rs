@@ -1,8 +1,10 @@
-use attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField, SizedAttrField};
+use crate::{
+    attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField, SizedAttrField},
+    slice,
+    variant::Variant,
+};
 use num_traits::Num;
-use slice;
 use std::{convert::Into, io::Result, mem::size_of};
-use variant::Variant;
 
 /// Cast trait.
 pub trait Cast: Send + Sync + CastClone {

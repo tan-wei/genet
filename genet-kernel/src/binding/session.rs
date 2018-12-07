@@ -1,4 +1,8 @@
-use binding::JsClass;
+use crate::{
+    binding::JsClass,
+    profile::Profile,
+    session::{Callback, Event, Session},
+};
 use genet_filter::CompiledLayerFilter;
 use genet_napi::{
     napi::{
@@ -8,9 +12,7 @@ use genet_napi::{
     uv,
 };
 use parking_lot::Mutex;
-use profile::Profile;
 use serde_json;
-use session::{Callback, Event, Session};
 use std::{collections::VecDeque, rc::Rc, sync::Arc};
 
 #[derive(Clone)]

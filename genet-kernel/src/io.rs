@@ -1,4 +1,4 @@
-use frame::Frame;
+use crate::frame::Frame;
 use genet_abi::{fixed::MutFixed, layer::Layer, result::Result};
 use std::fmt::Debug;
 

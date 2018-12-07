@@ -1,13 +1,4 @@
-extern crate libc;
-extern crate libloading;
-
-#[macro_use]
-extern crate serde_derive;
-
-extern crate serde;
-
-#[cfg(target_os = "linux")]
-extern crate capabilities;
+use serde_derive::{Deserialize, Serialize};
 
 use std::{
     os::raw::{c_char, c_uchar},
@@ -58,7 +49,7 @@ impl Pcap {
     }
 
     fn test_permission(&self) -> bool {
-        use ffi::*;
+        use crate::ffi::*;
         use std::ptr;
         let mut front: *mut PcapIf = ptr::null_mut();
         unsafe {
@@ -145,7 +136,7 @@ impl Pcap {
     }
 
     pub fn devices(&self) -> Option<Vec<Device>> {
-        use ffi::*;
+        use crate::ffi::*;
         use std::ptr;
         let mut front: *mut PcapIf = ptr::null_mut();
 
@@ -241,7 +232,6 @@ impl Device {
 }
 
 mod platform {
-    extern crate libc;
     use super::Device;
     use std::os::raw::{c_char, c_long};
 
@@ -292,7 +282,6 @@ mod platform {
 
     #[cfg(target_os = "macos")]
     mod macos {
-        extern crate libc;
         use std::os::raw::{c_char, c_long};
 
         pub(crate) enum CFString {}
@@ -392,8 +381,6 @@ mod platform {
 
     #[cfg(target_os = "windows")]
     mod windows {
-        extern crate libc;
-
         pub(crate) const MAX_INTERFACE_NAME_LEN: usize = 256;
         pub(crate) const MAXLEN_IFDESCR: usize = 256;
 
@@ -474,7 +461,6 @@ mod platform {
 }
 
 mod ffi {
-    extern crate libc;
     use std::{
         os::raw::{c_char, c_int, c_uchar},
         sync::Arc,
@@ -491,7 +477,7 @@ mod ffi {
 
     #[derive(Debug, Clone)]
     pub(crate) struct Symbols {
-        lib: Option<Arc<super::libloading::Library>>,
+        lib: Option<Arc<libloading::Library>>,
         pub pcap_findalldevs: unsafe extern "C" fn(alldevsp: *mut *mut PcapIf) -> c_int,
         pub pcap_freealldevs: unsafe extern "C" fn(alldevsp: *mut PcapIf),
         pub pcap_open_live: unsafe extern "C" fn(

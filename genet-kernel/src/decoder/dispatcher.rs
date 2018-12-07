@@ -1,11 +1,10 @@
-use frame::Frame;
+use crate::{frame::Frame, profile::Profile};
 use genet_abi::{
     context::Context,
     decoder::{DecoderBox, ExecType, Metadata, WorkerBox},
     fixed::MutFixed,
     layer::{Layer, Parent},
 };
-use profile::Profile;
 
 pub struct Dispatcher {
     runners: Vec<Runner>,
@@ -43,7 +42,7 @@ impl Dispatcher {
                 let mut children = 0;
                 loop {
                     let mut executed = 0;
-                    for mut r in &mut runners.iter_mut() {
+                    for r in &mut runners.iter_mut() {
                         let mut layer =
                             Parent::from_mut_ref(unsafe { &mut *layers[index].as_mut_ptr() });
                         let done = r.execute(&layers, &mut layer);

@@ -1,18 +1,20 @@
-use array_vec::ArrayVec;
+use crate::{
+    array_vec::ArrayVec,
+    decoder::{parallel, serial},
+    frame::Frame,
+    io::{Input, Output},
+    profile::Profile,
+    result::Result,
+};
 use crossbeam_channel;
-use decoder::{parallel, serial};
 use fnv::FnvHashMap;
-use frame::Frame;
 use genet_abi::{
     filter::{LayerContext, LayerFilter},
     fixed::MutFixed,
     layer::Layer,
 };
 use genet_filter::CompiledLayerFilter;
-use io::{Input, Output};
 use parking_lot::RwLock;
-use profile::Profile;
-use result::Result;
 use std::{
     fmt,
     ops::Range,
@@ -248,7 +250,7 @@ impl EventLoop {
                             Command::PushSerialFrames(vec) => {
                                 spool.process(vec);
                             }
-                            Command::StoreFrames(mut vec) => {
+                            Command::StoreFrames(vec) => {
                                 let len = {
                                     let mut frames = frames.write();
                                     for f in vec {
@@ -400,7 +402,7 @@ impl EventLoop {
             loop {
                 let (mut indices, end) = {
                     let frames = frames.read();
-                    let mut indices = frames
+                    let indices = frames
                         .iter()
                         .skip(fctx.offset)
                         .take(MAX_FILTER_SIZE)
@@ -419,7 +421,7 @@ impl EventLoop {
                 if !indices.is_empty() {
                     let len = {
                         let mut filtered = filtered.write();
-                        let mut frames = filtered.entry(*id).or_insert_with(Vec::new);
+                        let frames = filtered.entry(*id).or_insert_with(Vec::new);
                         frames.append(&mut indices);
                         frames.len()
                     };
@@ -448,9 +450,11 @@ impl fmt::Debug for EventLoop {
 
 #[cfg(test)]
 mod tests {
+    use crate::{
+        profile::Profile,
+        store::{Callback, Store},
+    };
     use genet_filter::CompiledLayerFilter;
-    use profile::Profile;
-    use store::{Callback, Store};
 
     #[derive(Clone)]
     struct TestCallback {}

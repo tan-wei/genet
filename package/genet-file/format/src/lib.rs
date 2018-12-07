@@ -1,10 +1,5 @@
-extern crate genet_sdk;
-extern crate serde;
-
-#[macro_use]
-extern crate serde_derive;
-
 use genet_sdk::prelude::*;
+use serde_derive::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Header {

@@ -10,6 +10,7 @@ use genet_abi::{
 };
 use libloading::Library;
 use num_cpus;
+use serde_derive::Serialize;
 use std::{fmt, io, mem};
 
 #[derive(Serialize, Clone, Default)]

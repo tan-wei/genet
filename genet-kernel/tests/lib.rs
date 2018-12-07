@@ -1,9 +1,3 @@
-extern crate genet_abi;
-extern crate genet_kernel;
-extern crate libloading;
-
-extern crate genet_sdk;
-
 use genet_kernel::{
     profile::Profile,
     session::{Callback, Event, Session},

@@ -1,9 +1,9 @@
-use fixed::Fixed;
+use crate::{fixed::Fixed, token::Token};
 use fnv::FnvHashMap;
+use lazy_static::lazy_static;
 use libc;
 use parking_lot::Mutex;
 use std::{cell::RefCell, collections::hash_map::Entry, slice, str};
-use token::Token;
 
 #[cfg(not(feature = "genet-static"))]
 #[no_mangle]
@@ -133,7 +133,7 @@ pub fn dealloc(ptr: *mut u8) {
 
 #[cfg(test)]
 mod tests {
-    use token::Token;
+    use crate::token::Token;
 
     #[test]
     fn token() {

@@ -1,5 +1,3 @@
-extern crate genet_sdk;
-
 use genet_sdk::{decoder::*, prelude::*};
 use std::collections::{BTreeMap, HashMap};
 

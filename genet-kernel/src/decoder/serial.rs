@@ -1,8 +1,6 @@
+use crate::{decoder::dispatcher::Dispatcher, frame::Frame, profile::Profile};
 use crossbeam_channel;
-use decoder::dispatcher::Dispatcher;
-use frame::Frame;
 use genet_abi::decoder::ExecType;
-use profile::Profile;
 use std::{
     collections::BTreeMap,
     thread::{self, JoinHandle},

@@ -31,7 +31,7 @@ pub use genet_abi::token::Token;
 
 #[cfg(test)]
 mod tests {
-    use token::Token;
+    use crate::token::Token;
 
     #[test]
     fn token() {

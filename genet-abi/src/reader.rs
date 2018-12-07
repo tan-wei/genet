@@ -1,13 +1,11 @@
+use crate::{
+    context::Context, error::Error, file::FileType, result::Result, slice::ByteSlice, token::Token,
+    vec::SafeVec,
+};
 use bincode;
-use context::Context;
-use error::Error;
-use file::FileType;
-use result::Result;
 use serde::ser::{Serialize, Serializer};
-use slice::ByteSlice;
+use serde_derive::{Deserialize, Serialize};
 use std::{fmt, mem, ptr, slice, str};
-use token::Token;
-use vec::SafeVec;
 
 /// Reader metadata.
 #[derive(Serialize, Deserialize, Debug)]

@@ -1,5 +1,3 @@
-extern crate genet_sdk;
-
 use genet_sdk::{
     context::Context, genet_readers, reader::*, result::Result, slice::ByteSlice, token::Token,
 };

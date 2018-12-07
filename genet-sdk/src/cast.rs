@@ -1,10 +1,9 @@
 //! Cast objects for the usual data structures.
 
-use attr::Attr;
+use crate::{attr::Attr, slice};
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 pub use genet_abi::cast::{Cast, Map, Typed};
 use genet_abi::slice::TryGet;
-use slice;
 use std::io::{Cursor, Error, ErrorKind, Result};
 
 /// Cast for 8bit unsigned integer.

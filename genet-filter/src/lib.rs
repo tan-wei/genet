@@ -1,23 +1,6 @@
-extern crate genet_abi;
-extern crate hwaddr;
-extern crate num_bigint;
-extern crate num_traits;
-extern crate pest;
-extern crate serde;
-extern crate serde_json;
-
-#[macro_use]
-extern crate pest_derive;
-
-#[macro_use]
-extern crate arrayref;
-
-use ast::Expr;
+use crate::{ast::Expr, parser::parse, result::Result, variant::VariantExt};
 use genet_abi::filter::{LayerContext, LayerFilter};
-use parser::parse;
-use result::Result;
 use std::fmt;
-use variant::VariantExt;
 
 pub mod ast;
 pub mod parser;

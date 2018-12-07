@@ -1,9 +1,5 @@
-extern crate genet_sdk;
-
+use genet_derive::Attr;
 use genet_sdk::{cast, decoder::*, prelude::*};
-
-#[macro_use]
-extern crate genet_derive;
 
 /// Ethernet
 #[derive(Attr, Default)]
