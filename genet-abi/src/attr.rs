@@ -511,11 +511,12 @@ pub trait EnumAttrField<T: Into<Variant>> {
 pub struct EnumField<T, U> {
     node: T,
     fields: U,
+    class: Cell<Option<Fixed<AttrClass>>>,
 }
 
 impl<
         I: Into<Variant>,
-        T: Typed<Output = I> + 'static + Send + Sync + Clone,
+        T: AttrField<I = I> + Typed<Output = I> + 'static + Send + Sync + Clone,
         U: EnumAttrField<I>,
     > AttrField for EnumField<T, U>
 {
@@ -525,9 +526,33 @@ impl<
         &self,
         ctx: &AttrContext,
         bit_size: usize,
-        _filter: Option<fn(Self::I) -> Variant>,
+        filter: Option<fn(Self::I) -> Variant>,
     ) -> AttrClassBuilder {
+        if self.class.get().is_none() {
+            self.class.set(Some(Fixed::new(
+                self.node.class(ctx, bit_size, filter).build(),
+            )))
+        }
+
         self.fields.class_enum(ctx, bit_size, self.node.clone())
+    }
+}
+
+impl<
+        I: Into<Variant> + Into<U>,
+        T: Typed<Output = I> + 'static + Send + Sync + Clone,
+        U: EnumAttrField<I>,
+    > EnumField<T, U>
+{
+    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> U {
+        let class = self.class.get().unwrap();
+        let root = Attr::new(&class, 0..0, layer.data());
+        self.node.cast(&root, &layer.data()).unwrap().into()
+    }
+
+    pub fn try_get(&self, layer: &Layer) -> U {
+        let class = self.class.get().unwrap();
+        self.try_get_range(layer, class.range())
     }
 }
 
@@ -542,6 +567,7 @@ impl<T: Default, U: Default> Default for EnumField<T, U> {
         Self {
             node: T::default(),
             fields: U::default(),
+            class: Cell::new(None),
         }
     }
 }
