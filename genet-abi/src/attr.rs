@@ -544,13 +544,21 @@ impl<
         U: EnumAttrField<I>,
     > EnumField<T, U>
 {
-    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> U {
+    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<U> {
         let class = self.class.get().unwrap();
-        let root = Attr::new(&class, 0..0, layer.data());
-        self.node.cast(&root, &layer.data()).unwrap().into()
+
+        let bit_offset = class.bit_range().start;
+        let range = (class.bit_range().start - bit_offset + range.start * 8)
+            ..(class.bit_range().end - bit_offset + range.end * 8);
+
+        let root = Attr::new(&class, range, layer.data());
+        match self.node.cast(&root, &layer.data()) {
+            Ok(data) => Ok(data.into()),
+            Err(err) => Err(Box::new(err)),
+        }
     }
 
-    pub fn try_get(&self, layer: &Layer) -> U {
+    pub fn try_get(&self, layer: &Layer) -> Result<U> {
         let class = self.class.get().unwrap();
         self.try_get_range(layer, class.range())
     }

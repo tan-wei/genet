@@ -41,7 +41,7 @@ struct EthType {
     eap: cast::UInt16BE,
 }
 
-#[derive(Attr)]
+#[derive(Attr, Debug)]
 enum EthTypeEnum {
     IPv4,
     ARP,
@@ -84,6 +84,9 @@ impl Worker for EthWorker {
         if parent.id() == token!("[link-1]") {
             let data = parent.payloads().next().unwrap().data();
             let layer = Layer::new(self.layer.as_ref().clone(), data);
+
+            println!("{:?}", self.layer.r#type.try_get(&layer));
+
             parent.add_child(layer);
             Ok(Status::Done)
         } else {

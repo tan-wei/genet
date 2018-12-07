@@ -87,6 +87,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
             AttrClass::builder(ctx.path.clone())
                 .add_children(children)
                 .cast(&cast)
+                .typ(token!("@enum"))
                 .bit_range(0, bit_range)
         }
     }
