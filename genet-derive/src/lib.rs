@@ -36,13 +36,25 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
 
     let ident = &input.ident;
     for v in &s.variants {
+        let meta = AttrMetadata::parse(&v.attrs);
         let id = normalize_ident(&v.ident);
         let id = format!(".{}", to_camel_case(&id));
+
+        let typ = meta.typ;
+        let name = if meta.name.is_empty() {
+            to_title_case(&id)
+        } else {
+            meta.name
+        };
+        let desc = meta.description;
 
         fields_ctx.push(quote! {
             AttrContext{
                 path: format!("{}{}", ctx.path, #id)
                     .trim_matches('.').into(),
+                typ: #typ.into(),
+                name: #name.into(),
+                description: #desc.into(),
                 ..Default::default()
             }
         });
@@ -51,6 +63,10 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
     }
 
     let fields_ident2 = fields_ident.clone();
+    let self_attrs = AttrMetadata::parse(&input.attrs);
+    let self_name = self_attrs.name;
+    let self_desc = self_attrs.description;
+
     let tokens = quote! {
 
     impl<T: Into<genet_sdk::variant::Variant> + Into<#ident> + 'static + Clone> genet_sdk::attr::EnumAttrField<T> for #ident {
@@ -78,8 +94,14 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
                                 _ => Variant::Nil,
                             }
                         }))
-                        .typ(token!("@novalue"))
-                        .bit_range(0, bit_range.clone());
+                        .typ(if subctx.typ.is_empty() {
+                            "@novalue".into()
+                        } else {
+                            subctx.typ.clone()
+                        })
+                        .bit_range(0, bit_range.clone())
+                        .name(subctx.name)
+                        .description(subctx.description);
                     children.push(Fixed::new(child.build()));
                 }
             )*
@@ -87,7 +109,21 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
             AttrClass::builder(ctx.path.clone())
                 .add_children(children)
                 .cast(&cast)
-                .typ(token!("@enum"))
+                .typ(if ctx.typ.is_empty() {
+                    "@enum".into()
+                } else {
+                    ctx.typ.clone()
+                })
+                .name(if ctx.name.is_empty() {
+                    #self_name
+                } else {
+                    ctx.name
+                })
+                .description(if ctx.description.is_empty() {
+                    #self_desc
+                } else {
+                    ctx.description
+                })
                 .bit_range(0, bit_range)
         }
     }
@@ -117,6 +153,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 } else {
                     meta.name
                 };
+                let desc = meta.description;
                 let filter = match meta.map {
                     AttrMapExpr::Map(s) => {
                         let expr = syn::parse_str::<Expr>(&s).unwrap();
@@ -139,7 +176,6 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     .fold(String::new(), |acc, x| acc + x + " ")
                     .trim()
                     .to_string();
-                let desc = meta.description;
                 fields_ctx.push(quote! {
                     AttrContext{
                         path: format!("{}{}", ctx.path, #id)
