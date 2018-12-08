@@ -528,13 +528,18 @@ impl<
         bit_size: usize,
         filter: Option<fn(Self::I) -> Variant>,
     ) -> AttrClassBuilder {
+        let fields = self.fields.class_enum(ctx, bit_size, self.node.clone());
+
         if self.class.get().is_none() {
             self.class.set(Some(Fixed::new(
-                self.node.class(ctx, bit_size, filter).build(),
+                self.node
+                    .class(ctx, bit_size, filter)
+                    .add_children(fields.children().to_vec())
+                    .build(),
             )))
         }
 
-        self.fields.class_enum(ctx, bit_size, self.node.clone())
+        fields
     }
 }
 
@@ -567,6 +572,12 @@ impl<
 impl<T: SizedField, U> SizedField for EnumField<T, U> {
     fn bit_size(&self) -> usize {
         self.node.bit_size()
+    }
+}
+
+impl<T, U> EnumField<T, U> {
+    pub fn class(&self) -> Fixed<AttrClass> {
+        self.class.get().unwrap()
     }
 }
 

@@ -23,24 +23,6 @@ struct Eth {
     r#type: EnumField<cast::UInt16BE, EthTypeEnum>,
 }
 
-#[derive(Attr, Default)]
-struct EthType {
-    #[genet(cond_eq = "0x0800", align_before)]
-    ipv4: cast::UInt16BE,
-
-    #[genet(cond_eq = "0x0806", align_before)]
-    arp: cast::UInt16BE,
-
-    #[genet(cond_eq = "0x0842", align_before)]
-    wol: cast::UInt16BE,
-
-    #[genet(cond_eq = "0x86DD", align_before)]
-    ipv6: cast::UInt16BE,
-
-    #[genet(cond_eq = "0x888E", align_before)]
-    eap: cast::UInt16BE,
-}
-
 #[derive(Attr, Debug)]
 enum EthTypeEnum {
     IPv4,
@@ -84,9 +66,6 @@ impl Worker for EthWorker {
         if parent.id() == token!("[link-1]") {
             let data = parent.payloads().next().unwrap().data();
             let layer = Layer::new(self.layer.as_ref().clone(), data);
-
-            println!("{:?}", self.layer.r#type.try_get(&layer));
-
             parent.add_child(layer);
             Ok(Status::Done)
         } else {
