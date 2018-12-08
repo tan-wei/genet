@@ -77,7 +77,15 @@ impl Store {
     pub fn new<C: 'static + Callback + Clone>(profile: Profile, callback: C) -> Store {
         let frames = Arc::new(RwLock::new(ArrayVec::new()));
         let filtered = Arc::new(RwLock::new(FnvHashMap::default()));
-        let (ev, send) = EventLoop::new(profile, callback, frames.clone(), filtered.clone());
+        let (send, recv) = crossbeam_channel::unbounded();
+        let ev = EventLoop::new(
+            profile,
+            callback,
+            frames.clone(),
+            filtered.clone(),
+            &send,
+            recv,
+        );
         Store {
             sender: send,
             ev,
@@ -219,8 +227,9 @@ impl EventLoop {
         callback: C,
         frames: FrameStore,
         filtered: FilteredFrameStore,
-    ) -> (EventLoop, crossbeam_channel::Sender<Command>) {
-        let (send, recv) = crossbeam_channel::unbounded();
+        send: &crossbeam_channel::Sender<Command>,
+        recv: crossbeam_channel::Receiver<Command>,
+    ) -> EventLoop {
         let sender = send.clone();
         let handle = thread::spawn(move || {
             let err_callback = callback.clone();
@@ -291,11 +300,10 @@ impl EventLoop {
                 err_callback.on_error(Box::new(err));
             }
         });
-        let ev = EventLoop {
+        EventLoop {
             handle: Some(handle),
             sender: send.clone(),
-        };
-        (ev, send)
+        }
     }
 
     fn process_input(
