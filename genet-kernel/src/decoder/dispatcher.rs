@@ -1,7 +1,6 @@
 use crate::{frame::Frame, profile::Profile};
 use genet_abi::{
-    context::Context,
-    decoder::{DecoderBox, ExecType, Metadata, WorkerBox},
+    decoder::{ExecType, WorkerBox},
     fixed::MutFixed,
     layer::{Layer, Parent},
 };
@@ -14,7 +13,8 @@ impl Dispatcher {
     pub fn new(typ: &ExecType, profile: &Profile) -> Dispatcher {
         let runners = profile
             .decoders()
-            .map(|d| Runner::new(typ, profile.context(), *d))
+            .filter(|d| d.metadata().exec_type == *typ)
+            .map(|d| Runner::new(d.new_worker(&profile.context())))
             .collect();
         Dispatcher { runners }
     }
@@ -76,42 +76,18 @@ impl Dispatcher {
 }
 
 struct Runner {
-    ctx: Context,
-    typ: ExecType,
-    decoder: DecoderBox,
-    metadata: Metadata,
-    worker: Option<WorkerBox>,
+    worker: WorkerBox,
 }
 
 impl Runner {
-    fn new(typ: &ExecType, ctx: Context, decoder: DecoderBox) -> Runner {
-        let mut runner = Runner {
-            ctx,
-            typ: typ.clone(),
-            decoder,
-            metadata: decoder.metadata(),
-            worker: None,
-        };
-        runner.reset();
-        runner
+    fn new(worker: WorkerBox) -> Runner {
+        Runner { worker }
     }
 
     fn execute(&mut self, layers: &[MutFixed<Layer>], layer: &mut Parent) -> bool {
-        if let Some(worker) = &mut self.worker {
-            match worker.decode(layers, layer) {
-                Ok(done) => done,
-                Err(_) => true,
-            }
-        } else {
-            true
-        }
-    }
-
-    fn reset(&mut self) {
-        self.worker = if self.metadata.exec_type == self.typ {
-            Some(self.decoder.new_worker(&self.ctx))
-        } else {
-            None
+        match self.worker.decode(layers, layer) {
+            Ok(done) => done,
+            Err(_) => true,
         }
     }
 }

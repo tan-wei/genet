@@ -128,7 +128,7 @@ impl Clone for Box<Decoder> {
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct DecoderBox {
-    new_worker: extern "C" fn(*mut DecoderBox, *const Context) -> WorkerBox,
+    new_worker: extern "C" fn(*const DecoderBox, *const Context) -> WorkerBox,
     metadata: extern "C" fn(*const DecoderBox) -> SafeVec<u8>,
     decoder: *mut Box<Decoder>,
 }
@@ -145,7 +145,7 @@ impl DecoderBox {
         }
     }
 
-    pub fn new_worker(&mut self, ctx: &Context) -> WorkerBox {
+    pub fn new_worker(&self, ctx: &Context) -> WorkerBox {
         (self.new_worker)(self, ctx)
     }
 
@@ -163,8 +163,8 @@ impl Serialize for DecoderBox {
     }
 }
 
-extern "C" fn abi_new_worker(diss: *mut DecoderBox, ctx: *const Context) -> WorkerBox {
-    let diss = unsafe { &mut *((*diss).decoder) };
+extern "C" fn abi_new_worker(diss: *const DecoderBox, ctx: *const Context) -> WorkerBox {
+    let diss = unsafe { &*(*diss).decoder };
     let ctx = unsafe { &(*ctx) };
     WorkerBox::new(diss.new_worker(ctx))
 }
@@ -218,7 +218,7 @@ mod tests {
         }
 
         let ctx = Context::default();
-        let mut diss = DecoderBox::new(TestDecoder {});
+        let diss = DecoderBox::new(TestDecoder {});
         let mut worker = diss.new_worker(&ctx);
 
         let attr = Fixed::new(AttrClass::builder(Token::null()).build());
