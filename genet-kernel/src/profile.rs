@@ -11,7 +11,7 @@ use genet_abi::{
 use libloading::Library;
 use num_cpus;
 use serde_derive::Serialize;
-use std::{fmt, io, mem};
+use std::{io, mem};
 
 #[derive(Serialize, Clone, Default)]
 pub struct Profile {
@@ -20,12 +20,6 @@ pub struct Profile {
     readers: Vec<ReaderBox>,
     writers: Vec<WriterBox>,
     config: FnvHashMap<String, String>,
-}
-
-impl fmt::Debug for Profile {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Profile")
-    }
 }
 
 impl Profile {
