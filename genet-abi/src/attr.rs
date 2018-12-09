@@ -499,7 +499,7 @@ impl<T: Default, U: Default> Default for Node<T, U> {
     }
 }
 
-pub trait EnumAttrField<T: Into<Variant>> {
+pub trait EnumField<T: Into<Variant>> {
     fn class_enum<C: Typed<Output = T> + 'static + Send + Sync + Clone>(
         &self,
         ctx: &AttrContext,
@@ -508,7 +508,7 @@ pub trait EnumAttrField<T: Into<Variant>> {
     ) -> AttrClassBuilder;
 }
 
-pub struct EnumField<T, U> {
+pub struct EnumNode<T, U> {
     node: T,
     fields: U,
     class: Cell<Option<Fixed<AttrClass>>>,
@@ -517,8 +517,8 @@ pub struct EnumField<T, U> {
 impl<
         I: Into<Variant>,
         T: AttrField<I = I> + Typed<Output = I> + 'static + Send + Sync + Clone,
-        U: EnumAttrField<I>,
-    > AttrField for EnumField<T, U>
+        U: EnumField<I>,
+    > AttrField for EnumNode<T, U>
 {
     type I = I;
 
@@ -546,8 +546,8 @@ impl<
 impl<
         I: Into<Variant> + Into<U>,
         T: Typed<Output = I> + 'static + Send + Sync + Clone,
-        U: EnumAttrField<I>,
-    > EnumField<T, U>
+        U: EnumField<I>,
+    > EnumNode<T, U>
 {
     pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<U> {
         let class = self.class.get().unwrap();
@@ -575,13 +575,13 @@ impl<T: SizedField, U> SizedField for EnumField<T, U> {
     }
 }
 
-impl<T, U> EnumField<T, U> {
+impl<T, U> EnumNode<T, U> {
     pub fn class(&self) -> Fixed<AttrClass> {
         self.class.get().unwrap()
     }
 }
 
-impl<T: Default, U: Default> Default for EnumField<T, U> {
+impl<T: Default, U: Default> Default for EnumNode<T, U> {
     fn default() -> Self {
         Self {
             node: T::default(),

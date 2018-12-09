@@ -20,7 +20,7 @@ struct Eth {
     len: cast::UInt16BE,
 
     #[genet(cond = "x > 1500", typ = "@enum", align_before)]
-    r#type: EnumField<cast::UInt16BE, EthTypeEnum>,
+    r#type: EnumNode<cast::UInt16BE, EthTypeEnum>,
 }
 
 #[derive(Attr, Debug)]
