@@ -161,8 +161,8 @@ impl AttrClassBuilder {
     }
 
     /// Sets a cast of AttrClass.
-    pub fn cast<T: Cast>(mut self, cast: &T) -> AttrClassBuilder {
-        self.cast = cast.clone_box();
+    pub fn cast<T: 'static + Cast + Clone>(mut self, cast: &T) -> AttrClassBuilder {
+        self.cast = Box::new(cast.clone());
         self
     }
 

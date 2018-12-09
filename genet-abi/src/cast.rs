@@ -7,27 +7,8 @@ use num_traits::Num;
 use std::{convert::Into, io::Result, mem::size_of};
 
 /// Cast trait.
-pub trait Cast: Send + Sync + CastClone {
+pub trait Cast: Send + Sync {
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<Variant>;
-}
-
-pub trait CastClone {
-    fn clone_box(&self) -> Box<Cast>;
-}
-
-impl<T> CastClone for T
-where
-    T: 'static + Cast + Clone,
-{
-    fn clone_box(&self) -> Box<Cast> {
-        Box::new(self.clone())
-    }
-}
-
-impl Clone for Box<Cast> {
-    fn clone(&self) -> Box<Cast> {
-        self.clone_box()
-    }
 }
 
 /// Typed cast trait.
@@ -95,8 +76,8 @@ where
     }
 }
 
-impl<I: 'static + Into<Variant> + Clone, V: 'static + Typed<Output = I> + Clone + Cast> AttrField
-    for V
+impl<I: 'static + Into<Variant> + Clone, V: 'static + Typed<Output = I> + Sync + Clone + Cast>
+    AttrField for V
 {
     type I = I;
 
