@@ -3,12 +3,7 @@ use genet_sdk::{cast, decoder::*, prelude::*};
 struct NtpWorker {}
 
 impl Worker for NtpWorker {
-    fn decode(
-        &mut self,
-        _ctx: &mut Context,
-        stack: &LayerStack,
-        parent: &mut Parent,
-    ) -> Result<Status> {
+    fn decode(&mut self, stack: &LayerStack, parent: &mut Parent) -> Result<Status> {
         if parent.id() != token!("udp") {
             return Ok(Status::Skip);
         }

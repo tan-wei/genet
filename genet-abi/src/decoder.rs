@@ -47,24 +47,12 @@ impl Default for Metadata {
 
 /// Decoder worker trait.
 pub trait Worker {
-    fn decode(
-        &mut self,
-        ctx: &mut Context,
-        stack: &LayerStack,
-        parent: &mut Parent,
-    ) -> Result<Status>;
+    fn decode(&mut self, stack: &LayerStack, parent: &mut Parent) -> Result<Status>;
 }
 
 #[repr(C)]
 pub struct WorkerBox {
-    decode: extern "C" fn(
-        *mut WorkerBox,
-        *mut Context,
-        *const *const Layer,
-        u64,
-        *mut Parent,
-        *mut Error,
-    ) -> u8,
+    decode: extern "C" fn(*mut WorkerBox, *const *const Layer, u64, *mut Parent, *mut Error) -> u8,
     worker: *mut Box<Worker>,
 }
 
@@ -76,15 +64,10 @@ impl WorkerBox {
         }
     }
 
-    pub fn decode(
-        &mut self,
-        ctx: &mut Context,
-        layers: &[MutFixed<Layer>],
-        layer: &mut Parent,
-    ) -> Result<bool> {
+    pub fn decode(&mut self, layers: &[MutFixed<Layer>], layer: &mut Parent) -> Result<bool> {
         let stack = layers.as_ptr() as *const *const Layer;
         let mut error = Error::new("");
-        let result = (self.decode)(self, ctx, stack, layers.len() as u64, layer, &mut error);
+        let result = (self.decode)(self, stack, layers.len() as u64, layer, &mut error);
         match result {
             2 => Ok(true),
             1 => Ok(false),
@@ -95,17 +78,15 @@ impl WorkerBox {
 
 extern "C" fn abi_decode(
     worker: *mut WorkerBox,
-    ctx: *mut Context,
     layers: *const *const Layer,
     len: u64,
     layer: *mut Parent,
     error: *mut Error,
 ) -> u8 {
     let worker = unsafe { &mut *((*worker).worker) };
-    let ctx = unsafe { &mut (*ctx) };
     let mut layer = unsafe { &mut *layer };
     let stack = unsafe { LayerStack::new(layers, len as usize) };
-    match worker.decode(ctx, &stack, &mut layer) {
+    match worker.decode(&stack, &mut layer) {
         Ok(stat) => match stat {
             Status::Done => 2,
             Status::Skip => 1,
@@ -211,12 +192,7 @@ mod tests {
         struct TestWorker {}
 
         impl Worker for TestWorker {
-            fn decode(
-                &mut self,
-                _ctx: &mut Context,
-                _stack: &LayerStack,
-                parent: &mut Parent,
-            ) -> Result<Status> {
+            fn decode(&mut self, _stack: &LayerStack, parent: &mut Parent) -> Result<Status> {
                 let attr = Fixed::new(AttrClass::builder(Token::from(1234)).build());
                 let class = Fixed::new(LayerClass::builder(attr).build());
                 let layer = Layer::new(class, ByteSlice::new());
@@ -241,7 +217,7 @@ mod tests {
             }
         }
 
-        let mut ctx = Context::default();
+        let ctx = Context::default();
         let mut diss = DecoderBox::new(TestDecoder {});
         let mut worker = diss.new_worker(&ctx);
 
@@ -250,6 +226,6 @@ mod tests {
         let mut layer = Layer::new(class, ByteSlice::new());
         let mut layer = Parent::from_mut_ref(&mut layer);
 
-        assert_eq!(worker.decode(&mut ctx, &[], &mut layer).unwrap(), true);
+        assert_eq!(worker.decode(&[], &mut layer).unwrap(), true);
     }
 }

@@ -66,12 +66,7 @@ impl TcpStreamWorker {
 }
 
 impl Worker for TcpStreamWorker {
-    fn decode(
-        &mut self,
-        _ctx: &mut Context,
-        stack: &LayerStack,
-        parent: &mut Parent,
-    ) -> Result<Status> {
+    fn decode(&mut self, stack: &LayerStack, parent: &mut Parent) -> Result<Status> {
         if parent.id() == token!("tcp") {
             let slice: ByteSlice = parent
                 .payloads()

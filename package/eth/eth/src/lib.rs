@@ -5,12 +5,7 @@ use genet_sdk::{cast, decoder::*, prelude::*};
 struct EthWorker {}
 
 impl Worker for EthWorker {
-    fn decode(
-        &mut self,
-        _ctx: &mut Context,
-        _stack: &LayerStack,
-        parent: &mut Parent,
-    ) -> Result<Status> {
+    fn decode(&mut self, _stack: &LayerStack, parent: &mut Parent) -> Result<Status> {
         let data;
 
         if parent.id() == token!("[link-1]") {
