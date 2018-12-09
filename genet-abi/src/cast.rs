@@ -1,5 +1,5 @@
 use crate::{
-    attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField, SizedAttrField},
+    attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField, SizedField},
     slice,
     variant::Variant,
 };
@@ -101,7 +101,7 @@ impl<I: 'static + Into<Variant> + Clone, V: 'static + Typed<Output = I> + Sync +
     }
 }
 
-impl<T, X> SizedAttrField for T
+impl<T, X> SizedField for T
 where
     T: Typed<Output = X>,
     X: Into<Variant> + Num,

@@ -40,7 +40,7 @@ pub trait AttrField {
     ) -> AttrClassBuilder;
 }
 
-pub trait SizedAttrField {
+pub trait SizedField {
     fn bit_size(&self) -> usize;
 }
 
@@ -483,7 +483,7 @@ impl<I: Into<Variant>, J: Into<Variant>, T: AttrField<I = I>, U: AttrField<I = J
     }
 }
 
-impl<T: SizedAttrField, U> SizedAttrField for Node<T, U> {
+impl<T: SizedField, U> SizedField for Node<T, U> {
     fn bit_size(&self) -> usize {
         self.node.bit_size()
     }

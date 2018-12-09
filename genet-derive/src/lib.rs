@@ -107,7 +107,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 } else {
                     fields_ident_mut.push(quote! {
                         {
-                            let sized : &SizedAttrField = &self.#ident;
+                            let sized : &SizedField = &self.#ident;
                             let attr : &AttrField<I = _> = &self.#ident;
                             let size = sized.bit_size();
                             (attr, size)
@@ -115,7 +115,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     });
                     fields_ident.push(quote! {
                         {
-                            let sized : &SizedAttrField = &self.#ident;
+                            let sized : &SizedField = &self.#ident;
                             let attr : &AttrField<I = _> = &self.#ident;
                             let size = sized.bit_size();
                             (attr, size)
@@ -141,7 +141,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
 
             fn class(&self, ctx: &::genet_sdk::attr::AttrContext, bit_size: usize, filter: Option<fn(genet_sdk::slice::ByteSlice) -> genet_sdk::variant::Variant>)
                 -> genet_sdk::attr::AttrClassBuilder {
-                use genet_sdk::attr::{Attr, AttrField, SizedAttrField, AttrContext, AttrClass};
+                use genet_sdk::attr::{Attr, AttrField, SizedField, AttrContext, AttrClass};
                 use genet_sdk::cast;
                 use genet_sdk::fixed::Fixed;
 
@@ -188,9 +188,9 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
             }
         }
 
-        impl genet_sdk::attr::SizedAttrField for #ident {
+        impl genet_sdk::attr::SizedField for #ident {
             fn bit_size(&self) -> usize {
-                use genet_sdk::attr::{AttrField, SizedAttrField};
+                use genet_sdk::attr::{AttrField, SizedField};
                 let mut size = 0;
 
                 #(
