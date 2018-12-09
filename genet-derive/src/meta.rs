@@ -4,7 +4,6 @@ pub enum AttrMapExpr {
     None,
     Map(String),
     Cond(String),
-    CondEq(String),
 }
 
 pub struct AttrMetadata {
@@ -70,9 +69,6 @@ impl AttrMetadata {
                                         }
                                         "cond" => {
                                             map = AttrMapExpr::Cond(lit_str.value().to_string());
-                                        }
-                                        "cond_eq" => {
-                                            map = AttrMapExpr::CondEq(lit_str.value().to_string());
                                         }
                                         _ => panic!("unsupported attribute: {}", name),
                                     }

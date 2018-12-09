@@ -163,10 +163,6 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         let expr = syn::parse_str::<Expr>(&s).unwrap();
                         quote! { Some(|x| if (#expr) { x.into() } else { genet_sdk::variant::Variant::Nil }) }
                     }
-                    AttrMapExpr::CondEq(s) => {
-                        let expr = syn::parse_str::<Expr>(&s).unwrap();
-                        quote! { Some(|x| if (x == #expr) { true.into() } else { genet_sdk::variant::Variant::Nil }) }
-                    }
                     _ => quote! { None },
                 };
                 fields_filter.push(filter);
