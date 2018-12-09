@@ -569,7 +569,7 @@ impl<
     }
 }
 
-impl<T: SizedField, U> SizedField for EnumField<T, U> {
+impl<T: SizedField, U> SizedField for EnumNode<T, U> {
     fn bit_size(&self) -> usize {
         self.node.bit_size()
     }
