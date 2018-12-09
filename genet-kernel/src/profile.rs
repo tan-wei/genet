@@ -74,7 +74,7 @@ impl Profile {
     }
 
     pub fn context(&self) -> Context {
-        Context::new(self.config.clone())
+        Context::default()
     }
 
     pub fn load_library(&mut self, path: &str) -> Result<(), io::Error> {

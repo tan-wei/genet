@@ -205,7 +205,6 @@ mod tests {
         slice::ByteSlice,
         token::Token,
     };
-    use fnv::FnvHashMap;
 
     #[test]
     fn decode() {
@@ -242,7 +241,7 @@ mod tests {
             }
         }
 
-        let mut ctx = Context::new(FnvHashMap::default());
+        let mut ctx = Context::default();
         let mut diss = DecoderBox::new(TestDecoder {});
         let mut worker = diss.new_worker(&ctx);
 
