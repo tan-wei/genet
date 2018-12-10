@@ -1,35 +1,73 @@
-extern crate genet_sdk;
-
+use genet_derive::Attr;
 use genet_sdk::{cast, decoder::*, prelude::*};
 
-struct EthWorker {}
+/// Ethernet
+#[derive(Attr, Default)]
+struct Eth {
+    /// Source Hardware Address
+    #[genet(alias = "_.src", typ = "@eth:mac", byte_size = 6)]
+    src: cast::ByteSlice,
+
+    /// Destination Hardware Address
+    #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
+    dst: cast::ByteSlice,
+
+    #[genet(cond = "x <= 1500")]
+    len: cast::UInt16BE,
+
+    #[genet(cond = "x > 1500", typ = "@enum", align_before)]
+    r#type: EnumNode<cast::UInt16BE, EthTypeEnum>,
+}
+
+#[derive(Attr)]
+enum EthTypeEnum {
+    IPv4,
+    ARP,
+    WOL,
+    IPv6,
+    EAP,
+    Unknown,
+}
+
+impl Default for EthTypeEnum {
+    fn default() -> Self {
+        EthTypeEnum::Unknown
+    }
+}
+
+impl From<u16> for EthTypeEnum {
+    fn from(data: u16) -> EthTypeEnum {
+        match data {
+            0x0800 => EthTypeEnum::IPv4,
+            0x0806 => EthTypeEnum::ARP,
+            0x0842 => EthTypeEnum::WOL,
+            0x86DD => EthTypeEnum::IPv6,
+            0x888E => EthTypeEnum::EAP,
+            _ => EthTypeEnum::Unknown,
+        }
+    }
+}
+
+struct EthWorker {
+    layer: LayerType<Eth>,
+    ipv4: WorkerBox,
+}
 
 impl Worker for EthWorker {
-    fn decode(&mut self, _stack: &LayerStack, parent: &mut Parent) -> Result<Status> {
-        let data;
-
+    fn decode(&mut self, stack: &LayerStack, parent: &mut Parent) -> Result<Status> {
         if parent.id() == token!("[link-1]") {
-            data = parent.payloads().next().unwrap().data();
+            let data = parent.payloads().next().unwrap().data();
+            let layer = Layer::new(self.layer.as_ref().clone(), data);
+
+            match self.layer.r#type.try_get(&layer) {
+                _ => {}
+            };
+
+            parent.add_child(layer);
+            Ok(Status::Done)
         } else {
-            return Ok(Status::Skip);
+            Ok(Status::Skip)
         }
-
-        let mut layer = Layer::new(&ETH_CLASS, data);
-        let len = LEN_ATTR.try_get(&layer)?.try_into()?;
-        if len <= 1500 {
-            layer.add_attr(&LEN_ATTR, 12..14);
-        } else {
-            layer.add_attr(&TYPE_ATTR, 12..14);
-        }
-
-        if let Some((typ, attr)) = get_type(len) {
-            layer.add_attr(attr, 12..14);
-            let payload = data.try_get(14..)?;
-            layer.add_payload(Payload::new(payload, typ));
-        }
-
-        parent.add_child(layer);
-        Ok(Status::Done)
     }
 }
 
@@ -37,70 +75,19 @@ impl Worker for EthWorker {
 struct EthDecoder {}
 
 impl Decoder for EthDecoder {
-    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
-        Box::new(EthWorker {})
+    fn new_worker(&self, ctx: &Context) -> Box<Worker> {
+        Box::new(EthWorker {
+            layer: LayerType::new("eth", Eth::default()),
+            ipv4: ctx.decoder("ipv4").unwrap(),
+        })
     }
 
     fn metadata(&self) -> Metadata {
         Metadata {
+            id: "eth".into(),
             exec_type: ExecType::ParallelSync,
             ..Metadata::default()
         }
-    }
-}
-
-def_layer_class!(ETH_CLASS, &ETH_ATTR);
-
-def_attr_class!(ETH_ATTR, "eth", child: &SRC_ATTR, child: &DST_ATTR);
-
-def_attr_class!(SRC_ATTR, "eth.src",
-    typ: "@eth:mac",
-    alias: "_.src",
-    cast: &cast::ByteSlice(),
-    range: 0..6
-);
-
-def_attr_class!(DST_ATTR, "eth.dst",
-    typ: "@eth:mac",
-    alias: "_.dst",
-    cast: &cast::ByteSlice(),
-    range: 6..12
-);
-
-def_attr_class!(LEN_ATTR, "eth.len",
-    cast: &cast::UInt16BE(),
-    range: 12..14
-);
-
-def_attr_class!(TYPE_ATTR, "eth.type",
-    typ: "@enum",
-    cast: &cast::UInt16BE(),
-    range: 12..14
-);
-
-fn get_type(val: u64) -> Option<(Token, &'static AttrClass)> {
-    match val {
-        0x0800 => Some((
-            token!("@data:ipv4"),
-            attr_class_lazy!("eth.type.ipv4", typ: "@novalue", value: true),
-        )),
-        0x0806 => Some((
-            token!("@data:arp"),
-            attr_class_lazy!("eth.type.arp", typ: "@novalue", value: true),
-        )),
-        0x0842 => Some((
-            token!("@data:wol"),
-            attr_class_lazy!("eth.type.wol", typ: "@novalue", value: true),
-        )),
-        0x86DD => Some((
-            token!("@data:ipv6"),
-            attr_class_lazy!("eth.type.ipv6", typ: "@novalue", value: true),
-        )),
-        0x888E => Some((
-            token!("@data:eap"),
-            attr_class_lazy!("eth.type.eap", typ: "@novalue", value: true),
-        )),
-        _ => None,
     }
 }
 

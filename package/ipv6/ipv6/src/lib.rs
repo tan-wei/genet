@@ -56,6 +56,7 @@ impl Decoder for IPv6Decoder {
 
     fn metadata(&self) -> Metadata {
         Metadata {
+            id: "ipv6".into(),
             exec_type: ExecType::ParallelSync,
             ..Metadata::default()
         }

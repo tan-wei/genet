@@ -12,68 +12,33 @@ use std::{
     slice,
 };
 
-/// A layer stack object.
-pub struct LayerStack<'a> {
-    buffer: &'a [*const Layer],
-}
-
-impl<'a> LayerStack<'a> {
-    pub(crate) unsafe fn new(ptr: *const *const Layer, len: usize) -> LayerStack<'a> {
-        Self {
-            buffer: slice::from_raw_parts(ptr, len),
-        }
-    }
-
-    /// Returns the top of the LayerStack.
-    pub fn top(&self) -> Option<&Layer> {
-        self.layers().last()
-    }
-
-    /// Returns the bottom of the LayerStack.
-    pub fn bottom(&self) -> Option<&Layer> {
-        self.layers().next()
-    }
-
-    /// Find the attribute in the LayerStack.
-    pub fn attr(&self, id: Token) -> Option<Attr> {
-        for layer in self.layers().rev() {
-            if let Some(attr) = layer.attr(id) {
-                return Some(attr);
-            }
-        }
-        None
-    }
-
-    /// Find the layer in the LayerStack.
-    pub fn layer(&self, id: Token) -> Option<&Layer> {
-        self.layers().find(|layer| layer.id() == id)
-    }
-
-    fn layers(&self) -> impl DoubleEndedIterator<Item = &'a Layer> {
-        self.buffer.iter().map(|layer| unsafe { &**layer })
-    }
+#[repr(C)]
+pub struct LayerStackData {
+    pub children: Vec<MutFixed<Layer>>,
 }
 
 /// A mutable proxy for a layer object.
 #[repr(C)]
-pub struct Parent<'a> {
+pub struct LayerStack<'a> {
+    data: *mut LayerStackData,
+    depth: u8,
+    add_child: extern "C" fn(*mut LayerStackData, *mut Layer),
+    children_len: extern "C" fn(*const LayerStackData) -> u64,
+    children_data: extern "C" fn(*const LayerStackData) -> *const MutFixed<Layer>,
     layer: *mut Layer,
-    add_child: extern "C" fn(*mut Parent, *mut Layer),
-    children_len: extern "C" fn(*const Parent) -> u64,
-    children_data: extern "C" fn(*const Parent) -> *const *mut Layer,
     phantom: PhantomData<&'a ()>,
-    children: Vec<*mut Layer>,
 }
 
-impl<'a> Parent<'a> {
-    pub fn from_mut_ref(layer: &'a mut Layer) -> Parent {
-        Parent {
-            layer,
+impl<'a> LayerStack<'a> {
+    pub fn from_mut_ref(stack: &'a mut LayerStackData, layer: &'a mut Layer) -> LayerStack<'a> {
+        LayerStack {
+            data: stack,
+            depth: 0,
             add_child: abi_add_child,
             children_len: abi_children_len,
             children_data: abi_children_data,
+            layer,
             phantom: PhantomData,
-            children: Vec::new(),
         }
     }
 
@@ -85,11 +50,6 @@ impl<'a> Parent<'a> {
     /// Returns the type of self.
     pub fn data(&self) -> ByteSlice {
         self.deref().data()
-    }
-
-    /// Returns the slice of headers.
-    pub fn header(&self) -> &Fixed<AttrClass> {
-        self.deref().header()
     }
 
     /// Returns the slice of attributes.
@@ -118,17 +78,25 @@ impl<'a> Parent<'a> {
     }
 
     pub fn add_child<T: Into<MutFixed<Layer>>>(&mut self, layer: T) {
-        (self.add_child)(self, layer.into().as_mut_ptr());
+        (self.add_child)(self.data, layer.into().as_mut_ptr());
     }
 
-    pub fn children(&self) -> &[*mut Layer] {
-        let data = (self.children_data)(self);
-        let len = (self.children_len)(self) as usize;
+    pub fn top(&self) -> Option<&Layer> {
+        self.children().iter().rev().next().map(Deref::deref)
+    }
+
+    pub fn bottom(&self) -> Option<&Layer> {
+        self.children().iter().next().map(Deref::deref)
+    }
+
+    fn children(&self) -> &[MutFixed<Layer>] {
+        let data = (self.children_data)(self.data);
+        let len = (self.children_len)(self.data) as usize;
         unsafe { slice::from_raw_parts(data, len) }
     }
 }
 
-impl<'a> Deref for Parent<'a> {
+impl<'a> Deref for LayerStack<'a> {
     type Target = Layer;
 
     fn deref(&self) -> &Layer {
@@ -136,22 +104,22 @@ impl<'a> Deref for Parent<'a> {
     }
 }
 
-impl<'a> DerefMut for Parent<'a> {
+impl<'a> DerefMut for LayerStack<'a> {
     fn deref_mut(&mut self) -> &mut Layer {
         unsafe { &mut *self.layer }
     }
 }
 
-extern "C" fn abi_add_child(layer: *mut Parent, child: *mut Layer) {
-    unsafe { (*layer).children.push(child) }
+extern "C" fn abi_add_child(data: *mut LayerStackData, child: *mut Layer) {
+    unsafe { (*data).children.push(MutFixed::from_ptr(child)) }
 }
 
-extern "C" fn abi_children_len(layer: *const Parent) -> u64 {
-    unsafe { (*layer).children.len() as u64 }
+extern "C" fn abi_children_len(data: *const LayerStackData) -> u64 {
+    unsafe { (*data).children.len() as u64 }
 }
 
-extern "C" fn abi_children_data(layer: *const Parent) -> *const *mut Layer {
-    unsafe { (*layer).children.as_ptr() }
+extern "C" fn abi_children_data(data: *const LayerStackData) -> *const MutFixed<Layer> {
+    unsafe { (*data).children.as_ptr() }
 }
 
 #[repr(C)]
@@ -173,10 +141,10 @@ unsafe impl Send for Layer {}
 
 impl Layer {
     /// Creates a new Layer.
-    pub fn new<C: Into<Fixed<LayerClass>>, B: Into<ByteSlice>>(class: C, data: B) -> Layer {
+    pub fn new<C: Into<Fixed<LayerClass>>>(class: C, data: &ByteSlice) -> Layer {
         Layer {
             class: class.into(),
-            data: data.into(),
+            data: *data,
             attrs: Vec::new(),
             payloads: Vec::new(),
         }
@@ -521,7 +489,7 @@ mod tests {
         let id = Token::from(123);
         let attr = Fixed::new(AttrClass::builder(id).build());
         let class = Fixed::new(LayerClass::builder(attr).build());
-        let layer = Layer::new(class, ByteSlice::new());
+        let layer = Layer::new(class, &ByteSlice::new());
         assert_eq!(layer.id(), id);
     }
 
@@ -530,7 +498,7 @@ mod tests {
         let data = b"hello";
         let attr = Fixed::new(AttrClass::builder(Token::null()).build());
         let class = Fixed::new(LayerClass::builder(attr).build());
-        let layer = Layer::new(class, ByteSlice::from(&data[..]));
+        let layer = Layer::new(class, &ByteSlice::from(&data[..]));
         assert_eq!(layer.data(), ByteSlice::from(&data[..]));
     }
 
@@ -538,7 +506,7 @@ mod tests {
     fn payloads() {
         let attr = Fixed::new(AttrClass::builder(Token::null()).build());
         let class = Fixed::new(LayerClass::builder(attr).build());
-        let mut layer = Layer::new(class, ByteSlice::new());
+        let mut layer = Layer::new(class, &ByteSlice::new());
         assert!(layer.payloads().next().is_none());
 
         let count = 100;
@@ -561,7 +529,7 @@ mod tests {
     fn attrs() {
         let attr = Fixed::new(AttrClass::builder(Token::null()).build());
         let class = Fixed::new(LayerClass::builder(attr).build());
-        let mut layer = Layer::new(class, ByteSlice::new());
+        let mut layer = Layer::new(class, &ByteSlice::new());
         assert!(layer.attrs().next().is_none());
 
         #[derive(Clone)]

@@ -42,6 +42,9 @@ pub trait AttrField {
 
 pub trait SizedField {
     fn bit_size(&self) -> usize;
+    fn byte_size(&self) -> usize {
+        (self.bit_size() + 7) / 8
+    }
 }
 
 /// An attribute object.
@@ -446,6 +449,14 @@ pub struct Node<T, U = Nil> {
 impl<T, U> Node<T, U> {
     pub fn class(&self) -> Fixed<AttrClass> {
         self.class.get().unwrap()
+    }
+
+    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<Variant> {
+        self.class().try_get_range(layer, range)
+    }
+
+    pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
+        self.class().try_get(layer)
     }
 }
 

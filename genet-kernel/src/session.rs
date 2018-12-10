@@ -262,7 +262,7 @@ impl WorkerOutput {
 impl Output for WorkerOutput {
     fn write(&mut self, frames: &[&Frame]) -> genet_abi::result::Result<()> {
         for frame in frames.iter() {
-            self.worker.write(frame.index(), frame.layers())?;
+            self.worker.write(frame.index(), &frame.layers()[0])?;
         }
         Ok(())
     }
@@ -293,7 +293,7 @@ impl Input for WorkerInput {
         self.worker.read().map(|slices| {
             slices
                 .into_iter()
-                .map(|s| MutFixed::new(Layer::new(self.class, s)))
+                .map(|data| MutFixed::new(Layer::new(self.class, &data)))
                 .collect()
         })
     }

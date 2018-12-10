@@ -31,6 +31,7 @@ impl Decoder for UdpDecoder {
 
     fn metadata(&self) -> Metadata {
         Metadata {
+            id: "udp".into(),
             exec_type: ExecType::ParallelSync,
             ..Metadata::default()
         }

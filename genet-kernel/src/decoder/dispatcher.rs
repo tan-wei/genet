@@ -1,9 +1,9 @@
 use crate::{frame::Frame, profile::Profile};
 use genet_abi::{
-    decoder::{ExecType, WorkerBox},
-    fixed::MutFixed,
-    layer::{Layer, Parent},
+    decoder::{ExecType, Status, WorkerBox},
+    layer::{LayerStack, LayerStackData},
 };
+use genet_sdk::slice::ByteSlice;
 
 pub struct Dispatcher {
     runners: Vec<Runner>,
@@ -36,18 +36,17 @@ impl Dispatcher {
                 loop {
                     let mut executed = 0;
                     for r in &mut runners.iter_mut() {
-                        let mut layer =
-                            Parent::from_mut_ref(unsafe { &mut *layers[index].as_mut_ptr() });
-                        let done = r.execute(&layers, &mut layer);
+                        let mut data = LayerStackData {
+                            children: Vec::new(),
+                        };
+                        let mut layer = LayerStack::from_mut_ref(&mut data, unsafe {
+                            &mut *layers[index].as_mut_ptr()
+                        });
+                        let done = r.execute(&mut layer, &ByteSlice::new());
                         if done {
                             executed += 1;
                         }
-                        let mut results: Vec<MutFixed<Layer>> = layer
-                            .children()
-                            .iter()
-                            .map(|v| unsafe { MutFixed::from_ptr(*v) })
-                            .collect();
-                        layers.append(&mut results);
+                        layers.append(&mut data.children);
                     }
                     if executed == 0 {
                         break;
@@ -74,10 +73,10 @@ impl Runner {
         Runner { worker }
     }
 
-    fn execute(&mut self, layers: &[MutFixed<Layer>], layer: &mut Parent) -> bool {
-        match self.worker.decode(layers, layer) {
-            Ok(done) => done,
-            Err(_) => true,
+    fn execute(&mut self, layer: &mut LayerStack, data: &ByteSlice) -> bool {
+        match self.worker.decode(layer, data) {
+            Ok(Status::Skip) => false,
+            _ => true,
         }
     }
 }
@@ -95,9 +94,9 @@ impl<'a> OnceRunner<'a> {
         }
     }
 
-    fn execute(&mut self, layers: &[MutFixed<Layer>], layer: &mut Parent) -> bool {
+    fn execute(&mut self, layer: &mut LayerStack, data: &ByteSlice) -> bool {
         if !self.used {
-            let done = self.runner.execute(layers, layer);
+            let done = self.runner.execute(layer, data);
             if done {
                 self.used = true;
             }

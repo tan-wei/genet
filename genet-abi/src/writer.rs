@@ -1,11 +1,5 @@
 use crate::{
-    context::Context,
-    error::Error,
-    file::FileType,
-    fixed::MutFixed,
-    layer::{Layer, LayerStack},
-    result::Result,
-    vec::SafeVec,
+    context::Context, error::Error, file::FileType, layer::Layer, result::Result, vec::SafeVec,
 };
 use bincode;
 use serde::ser::{Serialize, Serializer};
@@ -130,13 +124,13 @@ extern "C" fn abi_metadata(writer: *const WriterBox) -> SafeVec<u8> {
 
 /// Writer worker trait.
 pub trait Worker: Send {
-    fn write(&mut self, index: u32, stack: &LayerStack) -> Result<()>;
+    fn write(&mut self, index: u32, layer: &Layer) -> Result<()>;
     fn end(&mut self) -> Result<()> {
         Ok(())
     }
 }
 
-type WriterFunc = extern "C" fn(*mut Box<Worker>, u32, *const *const Layer, u64, *mut Error) -> u8;
+type WriterFunc = extern "C" fn(*mut Box<Worker>, u32, *const Layer, *mut Error) -> u8;
 
 type WriterEndFunc = extern "C" fn(*mut Box<Worker>, *mut Error) -> u8;
 
@@ -159,10 +153,10 @@ impl WorkerBox {
         }
     }
 
-    pub fn write(&mut self, index: u32, layers: &[MutFixed<Layer>]) -> Result<()> {
+    pub fn write(&mut self, index: u32, layer: &Layer) -> Result<()> {
         let mut e = Error::new("");
-        let stack = layers.as_ptr() as *const *const Layer;
-        if (self.write)(self.worker, index, stack, layers.len() as u64, &mut e) == 0 {
+        let layer = layer as *const Layer;
+        if (self.write)(self.worker, index, layer, &mut e) == 0 {
             Err(Box::new(e))
         } else {
             Ok(())
@@ -198,13 +192,12 @@ extern "C" fn abi_writer_worker_drop(worker: *mut Box<Worker>) {
 extern "C" fn abi_writer_worker_write(
     worker: *mut Box<Worker>,
     index: u32,
-    layers: *const *const Layer,
-    len: u64,
+    layer: *const Layer,
     err: *mut Error,
 ) -> u8 {
     let worker = unsafe { &mut *worker };
-    let stack = unsafe { LayerStack::new(layers, len as usize) };
-    match worker.write(index, &stack) {
+    let layer = unsafe { &*layer };
+    match worker.write(index, &layer) {
         Ok(()) => 1,
         Err(e) => {
             unsafe { *err = Error::new(e.description()) };

@@ -35,6 +35,7 @@ impl Decoder for IPv4Decoder {
 
     fn metadata(&self) -> Metadata {
         Metadata {
+            id: "ipv4".into(),
             exec_type: ExecType::ParallelSync,
             ..Metadata::default()
         }
