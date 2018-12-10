@@ -49,6 +49,7 @@ impl Decoder for PcapLayerDecoder {
 
     fn metadata(&self) -> Metadata {
         Metadata {
+            id: "pcap_layer".into(),
             exec_type: ExecType::ParallelSync,
             ..Metadata::default()
         }

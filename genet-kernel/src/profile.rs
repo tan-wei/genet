@@ -68,7 +68,9 @@ impl Profile {
     }
 
     pub fn context(&self) -> Context {
-        Context::default()
+        let mut ctx = Context::default();
+        ctx.set_decoders(self.decoders.clone());
+        ctx
     }
 
     pub fn load_library(&mut self, path: &str) -> Result<(), io::Error> {

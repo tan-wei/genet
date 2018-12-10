@@ -53,6 +53,7 @@ pub trait Worker {
 #[repr(C)]
 pub struct WorkerBox {
     decode: extern "C" fn(*mut WorkerBox, *const *const Layer, u64, *mut Parent, *mut Error) -> u8,
+    drop: extern "C" fn(*mut Box<Worker>),
     worker: *mut Box<Worker>,
 }
 
@@ -60,6 +61,7 @@ impl WorkerBox {
     fn new(worker: Box<Worker>) -> WorkerBox {
         Self {
             decode: abi_decode,
+            drop: abi_drop,
             worker: Box::into_raw(Box::new(worker)),
         }
     }
@@ -73,6 +75,12 @@ impl WorkerBox {
             1 => Ok(false),
             _ => Err(Box::new(error)),
         }
+    }
+}
+
+impl Drop for WorkerBox {
+    fn drop(&mut self) {
+        (self.drop)(self.worker);
     }
 }
 
@@ -98,6 +106,10 @@ extern "C" fn abi_decode(
             0
         }
     }
+}
+
+extern "C" fn abi_drop(worker: *mut Box<Worker>) {
+    unsafe { Box::from_raw(worker) };
 }
 
 /// Decoder trait.
