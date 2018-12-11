@@ -27,19 +27,12 @@ impl Dispatcher {
     }
 
     pub fn process_frame(&mut self, frame: &mut Frame) {
-        let mut indices = frame.fetch_tree_indices();
         let mut layers = frame.fetch_layers();
         let mut offset = 0;
         let mut runners = self.runners();
         loop {
             let len = layers.len() - offset;
             for index in offset..layers.len() {
-                if let Some(n) = indices.get(index) {
-                    if *n > 0 {
-                        continue;
-                    }
-                }
-                let mut children = 0;
                 loop {
                     let mut executed = 0;
                     for r in &mut runners.iter_mut() {
@@ -54,14 +47,12 @@ impl Dispatcher {
                             .iter()
                             .map(|v| unsafe { MutFixed::from_ptr(*v) })
                             .collect();
-                        children += results.len();
                         layers.append(&mut results);
                     }
                     if executed == 0 {
                         break;
                     }
                 }
-                indices.push(children as u8);
             }
 
             offset += len;
@@ -71,7 +62,6 @@ impl Dispatcher {
         }
 
         frame.set_layers(layers);
-        frame.set_tree_indices(indices);
     }
 }
 

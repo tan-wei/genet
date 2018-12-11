@@ -4,7 +4,6 @@ use std::{fmt, mem};
 pub struct Frame {
     index: u32,
     layers: Vec<MutFixed<Layer>>,
-    tree_indices: Vec<u8>,
 }
 
 impl fmt::Debug for Frame {
@@ -20,7 +19,6 @@ impl Frame {
         Frame {
             index,
             layers: vec![root],
-            tree_indices: Vec::new(),
         }
     }
 
@@ -49,19 +47,5 @@ impl Frame {
 
     pub fn set_layers(&mut self, layers: Vec<MutFixed<Layer>>) {
         self.layers = layers;
-    }
-
-    pub fn tree_indices(&self) -> &[u8] {
-        &self.tree_indices
-    }
-
-    pub fn fetch_tree_indices(&mut self) -> Vec<u8> {
-        let mut v = Vec::new();
-        mem::swap(&mut self.tree_indices, &mut v);
-        v
-    }
-
-    pub fn set_tree_indices(&mut self, tree_indices: Vec<u8>) {
-        self.tree_indices = tree_indices;
     }
 }

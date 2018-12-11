@@ -1,30 +1,29 @@
 const native = require('./binding')
-const { Token } = native
+const { Token, ByteSlice } = native
 const { Disposable } = require('disposables')
 const { EventEmitter } = require('events')
-function consume (len, layerStack, indexStack) {
-  const indices = indexStack.splice(0, len)
-  const layers = layerStack.splice(0, len)
-  for (let index = 0; index < indices.length; index += 1) {
-    const parent = layers[index]
-    parent.children = (parent.children || [])
-      .concat(consume(indices[index], layerStack, indexStack))
-    parent.children.forEach((layer) => {
-      layer.parent = parent
-    })
+function treefy (layerStack) {
+  if (layerStack.length === 0) {
+    return []
+  }
+  const layers = [layerStack[0]]
+  let [cursor] = layerStack
+  cursor.children = cursor.children || []
+  layerStack.shift()
+  for (const layer of layerStack) {
+    layer.children = layer.children || []
+
+    let cursorAddr = Number.parseInt(ByteSlice.address(cursor.data), 10)
+    const layerAddr = Number.parseInt(ByteSlice.address(layer.data), 10)
+    while (layerAddr < cursorAddr) {
+      cursor = cursor.parent
+      cursorAddr = Number.parseInt(ByteSlice.address(cursor.data), 10)
+    }
+    cursor.children.push(layer)
+    layer.parent = cursor
+    cursor = layer
   }
   return layers
-}
-
-function treefy (layerStack, indexStack) {
-  const layers = [].concat(layerStack)
-  const indices = [].concat(indexStack)
-  const root = consume(1, layers, indices)
-  const len = layerStack.length - layers.length
-  if (indices.length >= len) {
-    consume(len, [].concat(layerStack), indices)
-  }
-  return root
 }
 
 class Frame {
@@ -39,7 +38,7 @@ class Frame {
 
   get root () {
     if (!this._root) {
-      [this._root] = treefy(this._frame.layers, this._frame.treeIndices)
+      [this._root] = treefy(this._frame.layers)
     }
     return this._root
   }
