@@ -3,10 +3,10 @@ use genet_sdk::{cast, decoder::*, prelude::*};
 struct UdpWorker {}
 
 impl Worker for UdpWorker {
-    fn decode(&mut self, parent: &mut Parent) -> Result<Status> {
+    fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
         let data;
 
-        if let Some(payload) = parent.payloads().find(|p| p.id() == token!("@data:udp")) {
+        if let Some(payload) = stack.payloads().find(|p| p.id() == token!("@data:udp")) {
             data = payload.data();
         } else {
             return Ok(Status::Skip);
@@ -16,7 +16,7 @@ impl Worker for UdpWorker {
         let payload = data.try_get(8..)?;
         layer.add_payload(Payload::new(payload, ""));
 
-        parent.add_child(layer);
+        stack.add_child(layer);
         Ok(Status::Done)
     }
 }

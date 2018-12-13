@@ -66,9 +66,9 @@ impl TcpStreamWorker {
 }
 
 impl Worker for TcpStreamWorker {
-    fn decode(&mut self, parent: &mut Parent) -> Result<Status> {
-        if parent.id() == token!("tcp") {
-            let slice: ByteSlice = parent
+    fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
+        if stack.id() == token!("tcp") {
+            let slice: ByteSlice = stack
                 .payloads()
                 .find(|p| p.id() == token!("@data:tcp"))
                 .unwrap()
@@ -79,12 +79,12 @@ impl Worker for TcpStreamWorker {
                 // stack.attr(token!("_.src")).unwrap().try_get()?.try_into()?;
                 let parent_dst: ByteSlice = ByteSlice::new();
                 // stack.attr(token!("_.dst")).unwrap().try_get()?.try_into()?;
-                let src: u32 = parent
+                let src: u32 = stack
                     .attr(token!("tcp.src"))
                     .unwrap()
                     .try_get()?
                     .try_into()?;
-                let dst: u32 = parent
+                let dst: u32 = stack
                     .attr(token!("tcp.dst"))
                     .unwrap()
                     .try_get()?
@@ -98,17 +98,17 @@ impl Worker for TcpStreamWorker {
                 .entry(stream_id)
                 .or_insert_with(|| Stream::new(id as u64));
 
-            let seq: u32 = parent
+            let seq: u32 = stack
                 .attr(token!("tcp.seq"))
                 .unwrap()
                 .try_get()?
                 .try_into()?;
-            let window: u16 = parent
+            let window: u16 = stack
                 .attr(token!("tcp.window"))
                 .unwrap()
                 .try_get()?
                 .try_into()?;
-            let flags: u8 = parent
+            let flags: u8 = stack
                 .attr(token!("tcp.flags"))
                 .unwrap()
                 .try_get()?
@@ -143,7 +143,7 @@ impl Worker for TcpStreamWorker {
 
             let payloads = stream.fetch();
             for payload in payloads {
-                parent.add_payload(Payload::new(payload, "@stream:tcp"));
+                stack.add_payload(Payload::new(payload, "@stream:tcp"));
             }
 
             Ok(Status::Done)

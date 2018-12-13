@@ -5,10 +5,10 @@ use genet_sdk::{cast, decoder::*, prelude::*};
 struct ArpWorker {}
 
 impl Worker for ArpWorker {
-    fn decode(&mut self, parent: &mut Parent) -> Result<Status> {
+    fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
         let data;
 
-        if let Some(payload) = parent.payloads().find(|p| p.id() == token!("@data:arp")) {
+        if let Some(payload) = stack.payloads().find(|p| p.id() == token!("@data:arp")) {
             data = payload.data();
         } else {
             return Ok(Status::Skip);
@@ -49,7 +49,7 @@ impl Worker for ArpWorker {
             }
         }
 
-        parent.add_child(layer);
+        stack.add_child(layer);
         Ok(Status::Done)
     }
 }

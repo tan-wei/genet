@@ -1,4 +1,4 @@
-use crate::{context::Context, error::Error, layer::Parent, result::Result, vec::SafeVec};
+use crate::{context::Context, error::Error, layer::LayerStack, result::Result, vec::SafeVec};
 use bincode;
 use serde::ser::{Serialize, Serializer};
 use serde_derive::{Deserialize, Serialize};
@@ -40,12 +40,12 @@ impl Default for Metadata {
 
 /// Decoder worker trait.
 pub trait Worker {
-    fn decode(&mut self, parent: &mut Parent) -> Result<Status>;
+    fn decode(&mut self, stack: &mut LayerStack) -> Result<Status>;
 }
 
 #[repr(C)]
 pub struct WorkerBox {
-    decode: extern "C" fn(*mut WorkerBox, *mut Parent, *mut Error) -> u8,
+    decode: extern "C" fn(*mut WorkerBox, *mut LayerStack, *mut Error) -> u8,
     drop: extern "C" fn(*mut Box<Worker>),
     worker: *mut Box<Worker>,
 }
@@ -59,7 +59,7 @@ impl WorkerBox {
         }
     }
 
-    pub fn decode(&mut self, layer: &mut Parent) -> Result<bool> {
+    pub fn decode(&mut self, layer: &mut LayerStack) -> Result<bool> {
         let mut error = Error::new("");
         let result = (self.decode)(self, layer, &mut error);
         match result {
@@ -76,7 +76,7 @@ impl Drop for WorkerBox {
     }
 }
 
-extern "C" fn abi_decode(worker: *mut WorkerBox, layer: *mut Parent, error: *mut Error) -> u8 {
+extern "C" fn abi_decode(worker: *mut WorkerBox, layer: *mut LayerStack, error: *mut Error) -> u8 {
     let worker = unsafe { &mut *((*worker).worker) };
     let mut layer = unsafe { &mut *layer };
     match worker.decode(&mut layer) {
@@ -178,7 +178,7 @@ mod tests {
         context::Context,
         decoder::{Decoder, DecoderBox, ExecType, Metadata, Status, Worker},
         fixed::Fixed,
-        layer::{Layer, LayerClass, Parent},
+        layer::{Layer, LayerClass, LayerStack},
         result::Result,
         slice::ByteSlice,
         token::Token,
@@ -189,11 +189,11 @@ mod tests {
         struct TestWorker {}
 
         impl Worker for TestWorker {
-            fn decode(&mut self, parent: &mut Parent) -> Result<Status> {
+            fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
                 let attr = Fixed::new(AttrClass::builder(Token::from(1234)).build());
                 let class = Fixed::new(LayerClass::builder(attr).build());
                 let layer = Layer::new(class, ByteSlice::new());
-                parent.add_child(layer);
+                stack.add_child(layer);
                 Ok(Status::Done)
             }
         }
@@ -221,7 +221,7 @@ mod tests {
         let attr = Fixed::new(AttrClass::builder(Token::null()).build());
         let class = Fixed::new(LayerClass::builder(attr).build());
         let mut layer = Layer::new(class, ByteSlice::new());
-        let mut layer = Parent::from_mut_ref(&mut layer);
+        let mut layer = LayerStack::from_mut_ref(&mut layer);
 
         assert_eq!(worker.decode(&[], &mut layer).unwrap(), true);
     }

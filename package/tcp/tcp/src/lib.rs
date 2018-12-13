@@ -3,10 +3,10 @@ use genet_sdk::{cast, decoder::*, prelude::*};
 struct TcpWorker {}
 
 impl Worker for TcpWorker {
-    fn decode(&mut self, parent: &mut Parent) -> Result<Status> {
+    fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
         let data;
 
-        if let Some(payload) = parent.payloads().find(|p| p.id() == token!("@data:tcp")) {
+        if let Some(payload) = stack.payloads().find(|p| p.id() == token!("@data:tcp")) {
             data = payload.data();
         } else {
             return Ok(Status::Skip);
@@ -55,7 +55,7 @@ impl Worker for TcpWorker {
         let payload = layer.data().try_get(data_offset..)?;
         layer.add_payload(Payload::new(payload, "@data:tcp"));
 
-        parent.add_child(layer);
+        stack.add_child(layer);
         Ok(Status::Done)
     }
 }

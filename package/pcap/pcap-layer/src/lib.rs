@@ -5,17 +5,17 @@ struct PcapLayerWorker {
 }
 
 impl Worker for PcapLayerWorker {
-    fn decode(&mut self, parent: &mut Parent) -> Result<Status> {
+    fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
         let data;
 
-        if parent.id() == token!("[pcap]") {
-            data = parent.data();
+        if stack.id() == token!("[pcap]") {
+            data = stack.data();
         } else {
             return Ok(Status::Skip);
         }
 
         if self.class.is_none() {
-            let link: u32 = TYPE_CLASS.try_get(&parent)?.try_into()?;
+            let link: u32 = TYPE_CLASS.try_get(&stack)?.try_into()?;
 
             let id = format!("[link-{}]", link);
             let attr = Fixed::new(attr_class!(
@@ -34,7 +34,7 @@ impl Worker for PcapLayerWorker {
 
         let mut layer = Layer::new(self.class.as_ref().unwrap().clone(), data);
         layer.add_payload(Payload::new(data.try_get(20..)?, "@data:link"));
-        parent.add_child(layer);
+        stack.add_child(layer);
         Ok(Status::Done)
     }
 }

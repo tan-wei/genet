@@ -6,7 +6,7 @@ pub use crate::{
     context::Context,
     file::FileType,
     fixed::Fixed,
-    layer::{Layer, LayerClass, LayerType, Parent, Payload},
+    layer::{Layer, LayerClass, LayerStack, LayerType, Payload},
     result::Result,
     slice::{ByteSlice, TryGet},
     token::Token,

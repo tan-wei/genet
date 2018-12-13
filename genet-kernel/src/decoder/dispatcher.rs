@@ -2,7 +2,7 @@ use crate::{frame::Frame, profile::Profile};
 use genet_abi::{
     decoder::{ExecType, WorkerBox},
     fixed::MutFixed,
-    layer::{Layer, Parent},
+    layer::{Layer, LayerStack},
 };
 
 pub struct Dispatcher {
@@ -37,7 +37,7 @@ impl Dispatcher {
                     let mut executed = 0;
                     for r in &mut runners.iter_mut() {
                         let mut layer =
-                            Parent::from_mut_ref(unsafe { &mut *layers[index].as_mut_ptr() });
+                            LayerStack::from_mut_ref(unsafe { &mut *layers[index].as_mut_ptr() });
                         let done = r.execute(&mut layer);
                         if done {
                             executed += 1;
@@ -74,7 +74,7 @@ impl Runner {
         Runner { worker }
     }
 
-    fn execute(&mut self, layer: &mut Parent) -> bool {
+    fn execute(&mut self, layer: &mut LayerStack) -> bool {
         match self.worker.decode(layer) {
             Ok(done) => done,
             Err(_) => true,
@@ -95,7 +95,7 @@ impl<'a> OnceRunner<'a> {
         }
     }
 
-    fn execute(&mut self, layer: &mut Parent) -> bool {
+    fn execute(&mut self, layer: &mut LayerStack) -> bool {
         if !self.used {
             let done = self.runner.execute(layer);
             if done {

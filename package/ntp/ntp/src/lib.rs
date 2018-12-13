@@ -3,14 +3,14 @@ use genet_sdk::{cast, decoder::*, prelude::*};
 struct NtpWorker {}
 
 impl Worker for NtpWorker {
-    fn decode(&mut self, parent: &mut Parent) -> Result<Status> {
-        if parent.id() != token!("udp") {
+    fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
+        if stack.id() != token!("udp") {
             return Ok(Status::Skip);
         }
 
         let data;
 
-        if let Some(payload) = parent.payloads().next() {
+        if let Some(payload) = stack.payloads().next() {
             data = payload.data();
         } else {
             return Ok(Status::Skip);
@@ -54,7 +54,7 @@ impl Worker for NtpWorker {
             layer.add_attr(&ID_ATTR, 12..16);
         }
 
-        parent.add_child(layer);
+        stack.add_child(layer);
         Ok(Status::Done)
     }
 }

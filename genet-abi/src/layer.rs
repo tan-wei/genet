@@ -14,18 +14,18 @@ use std::{
 
 /// A mutable proxy for a layer object.
 #[repr(C)]
-pub struct Parent<'a> {
+pub struct LayerStack<'a> {
     layer: *mut Layer,
-    add_child: extern "C" fn(*mut Parent, *mut Layer),
-    children_len: extern "C" fn(*const Parent) -> u64,
-    children_data: extern "C" fn(*const Parent) -> *const *mut Layer,
+    add_child: extern "C" fn(*mut LayerStack, *mut Layer),
+    children_len: extern "C" fn(*const LayerStack) -> u64,
+    children_data: extern "C" fn(*const LayerStack) -> *const *mut Layer,
     phantom: PhantomData<&'a ()>,
     children: Vec<*mut Layer>,
 }
 
-impl<'a> Parent<'a> {
-    pub fn from_mut_ref(layer: &'a mut Layer) -> Parent {
-        Parent {
+impl<'a> LayerStack<'a> {
+    pub fn from_mut_ref(layer: &'a mut Layer) -> LayerStack {
+        LayerStack {
             layer,
             add_child: abi_add_child,
             children_len: abi_children_len,
@@ -86,7 +86,7 @@ impl<'a> Parent<'a> {
     }
 }
 
-impl<'a> Deref for Parent<'a> {
+impl<'a> Deref for LayerStack<'a> {
     type Target = Layer;
 
     fn deref(&self) -> &Layer {
@@ -94,21 +94,21 @@ impl<'a> Deref for Parent<'a> {
     }
 }
 
-impl<'a> DerefMut for Parent<'a> {
+impl<'a> DerefMut for LayerStack<'a> {
     fn deref_mut(&mut self) -> &mut Layer {
         unsafe { &mut *self.layer }
     }
 }
 
-extern "C" fn abi_add_child(layer: *mut Parent, child: *mut Layer) {
+extern "C" fn abi_add_child(layer: *mut LayerStack, child: *mut Layer) {
     unsafe { (*layer).children.push(child) }
 }
 
-extern "C" fn abi_children_len(layer: *const Parent) -> u64 {
+extern "C" fn abi_children_len(layer: *const LayerStack) -> u64 {
     unsafe { (*layer).children.len() as u64 }
 }
 
-extern "C" fn abi_children_data(layer: *const Parent) -> *const *mut Layer {
+extern "C" fn abi_children_data(layer: *const LayerStack) -> *const *mut Layer {
     unsafe { (*layer).children.as_ptr() }
 }
 
