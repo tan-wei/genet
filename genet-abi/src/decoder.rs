@@ -1,11 +1,4 @@
-use crate::{
-    context::Context,
-    error::Error,
-    fixed::MutFixed,
-    layer::{Layer, LayerStack, Parent},
-    result::Result,
-    vec::SafeVec,
-};
+use crate::{context::Context, error::Error, layer::Parent, result::Result, vec::SafeVec};
 use bincode;
 use serde::ser::{Serialize, Serializer};
 use serde_derive::{Deserialize, Serialize};
@@ -47,12 +40,12 @@ impl Default for Metadata {
 
 /// Decoder worker trait.
 pub trait Worker {
-    fn decode(&mut self, stack: &LayerStack, parent: &mut Parent) -> Result<Status>;
+    fn decode(&mut self, parent: &mut Parent) -> Result<Status>;
 }
 
 #[repr(C)]
 pub struct WorkerBox {
-    decode: extern "C" fn(*mut WorkerBox, *const *const Layer, u64, *mut Parent, *mut Error) -> u8,
+    decode: extern "C" fn(*mut WorkerBox, *mut Parent, *mut Error) -> u8,
     drop: extern "C" fn(*mut Box<Worker>),
     worker: *mut Box<Worker>,
 }
@@ -66,10 +59,9 @@ impl WorkerBox {
         }
     }
 
-    pub fn decode(&mut self, layers: &[MutFixed<Layer>], layer: &mut Parent) -> Result<bool> {
-        let stack = layers.as_ptr() as *const *const Layer;
+    pub fn decode(&mut self, layer: &mut Parent) -> Result<bool> {
         let mut error = Error::new("");
-        let result = (self.decode)(self, stack, layers.len() as u64, layer, &mut error);
+        let result = (self.decode)(self, layer, &mut error);
         match result {
             2 => Ok(true),
             1 => Ok(false),
@@ -84,17 +76,10 @@ impl Drop for WorkerBox {
     }
 }
 
-extern "C" fn abi_decode(
-    worker: *mut WorkerBox,
-    layers: *const *const Layer,
-    len: u64,
-    layer: *mut Parent,
-    error: *mut Error,
-) -> u8 {
+extern "C" fn abi_decode(worker: *mut WorkerBox, layer: *mut Parent, error: *mut Error) -> u8 {
     let worker = unsafe { &mut *((*worker).worker) };
     let mut layer = unsafe { &mut *layer };
-    let stack = unsafe { LayerStack::new(layers, len as usize) };
-    match worker.decode(&stack, &mut layer) {
+    match worker.decode(&mut layer) {
         Ok(stat) => match stat {
             Status::Done => 2,
             Status::Skip => 1,
@@ -193,7 +178,7 @@ mod tests {
         context::Context,
         decoder::{Decoder, DecoderBox, ExecType, Metadata, Status, Worker},
         fixed::Fixed,
-        layer::{Layer, LayerClass, LayerStack, Parent},
+        layer::{Layer, LayerClass, Parent},
         result::Result,
         slice::ByteSlice,
         token::Token,
@@ -204,7 +189,7 @@ mod tests {
         struct TestWorker {}
 
         impl Worker for TestWorker {
-            fn decode(&mut self, _stack: &LayerStack, parent: &mut Parent) -> Result<Status> {
+            fn decode(&mut self, parent: &mut Parent) -> Result<Status> {
                 let attr = Fixed::new(AttrClass::builder(Token::from(1234)).build());
                 let class = Fixed::new(LayerClass::builder(attr).build());
                 let layer = Layer::new(class, ByteSlice::new());

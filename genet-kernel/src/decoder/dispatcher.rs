@@ -38,7 +38,7 @@ impl Dispatcher {
                     for r in &mut runners.iter_mut() {
                         let mut layer =
                             Parent::from_mut_ref(unsafe { &mut *layers[index].as_mut_ptr() });
-                        let done = r.execute(&layers, &mut layer);
+                        let done = r.execute(&mut layer);
                         if done {
                             executed += 1;
                         }
@@ -74,8 +74,8 @@ impl Runner {
         Runner { worker }
     }
 
-    fn execute(&mut self, layers: &[MutFixed<Layer>], layer: &mut Parent) -> bool {
-        match self.worker.decode(layers, layer) {
+    fn execute(&mut self, layer: &mut Parent) -> bool {
+        match self.worker.decode(layer) {
             Ok(done) => done,
             Err(_) => true,
         }
@@ -95,9 +95,9 @@ impl<'a> OnceRunner<'a> {
         }
     }
 
-    fn execute(&mut self, layers: &[MutFixed<Layer>], layer: &mut Parent) -> bool {
+    fn execute(&mut self, layer: &mut Parent) -> bool {
         if !self.used {
-            let done = self.runner.execute(layers, layer);
+            let done = self.runner.execute(layer);
             if done {
                 self.used = true;
             }

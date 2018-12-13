@@ -12,48 +12,6 @@ use std::{
     slice,
 };
 
-/// A layer stack object.
-pub struct LayerStack<'a> {
-    buffer: &'a [*const Layer],
-}
-
-impl<'a> LayerStack<'a> {
-    pub(crate) unsafe fn new(ptr: *const *const Layer, len: usize) -> LayerStack<'a> {
-        Self {
-            buffer: slice::from_raw_parts(ptr, len),
-        }
-    }
-
-    /// Returns the top of the LayerStack.
-    pub fn top(&self) -> Option<&Layer> {
-        self.layers().last()
-    }
-
-    /// Returns the bottom of the LayerStack.
-    pub fn bottom(&self) -> Option<&Layer> {
-        self.layers().next()
-    }
-
-    /// Find the attribute in the LayerStack.
-    pub fn attr(&self, id: Token) -> Option<Attr> {
-        for layer in self.layers().rev() {
-            if let Some(attr) = layer.attr(id) {
-                return Some(attr);
-            }
-        }
-        None
-    }
-
-    /// Find the layer in the LayerStack.
-    pub fn layer(&self, id: Token) -> Option<&Layer> {
-        self.layers().find(|layer| layer.id() == id)
-    }
-
-    fn layers(&self) -> impl DoubleEndedIterator<Item = &'a Layer> {
-        self.buffer.iter().map(|layer| unsafe { &**layer })
-    }
-}
-
 /// A mutable proxy for a layer object.
 #[repr(C)]
 pub struct Parent<'a> {
