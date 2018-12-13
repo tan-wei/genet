@@ -12,26 +12,35 @@ use std::{
     slice,
 };
 
+#[repr(C)]
+struct LayerStackData {
+    children: Vec<*mut Layer>,
+}
+
 /// A mutable proxy for a layer object.
 #[repr(C)]
 pub struct LayerStack<'a> {
+    data: *mut LayerStackData,
+    depth: u8,
+    add_child: extern "C" fn(*mut LayerStackData, *mut Layer),
+    children_len: extern "C" fn(*const LayerStackData) -> u64,
+    children_data: extern "C" fn(*const LayerStackData) -> *const *mut Layer,
     layer: *mut Layer,
-    add_child: extern "C" fn(*mut LayerStack, *mut Layer),
-    children_len: extern "C" fn(*const LayerStack) -> u64,
-    children_data: extern "C" fn(*const LayerStack) -> *const *mut Layer,
     phantom: PhantomData<&'a ()>,
-    children: Vec<*mut Layer>,
 }
 
 impl<'a> LayerStack<'a> {
     pub fn from_mut_ref(layer: &'a mut Layer) -> LayerStack {
         LayerStack {
-            layer,
+            data: Box::into_raw(Box::new(LayerStackData {
+                children: Vec::new(),
+            })),
+            depth: 0,
             add_child: abi_add_child,
             children_len: abi_children_len,
             children_data: abi_children_data,
+            layer,
             phantom: PhantomData,
-            children: Vec::new(),
         }
     }
 
@@ -76,12 +85,12 @@ impl<'a> LayerStack<'a> {
     }
 
     pub fn add_child<T: Into<MutFixed<Layer>>>(&mut self, layer: T) {
-        (self.add_child)(self, layer.into().as_mut_ptr());
+        (self.add_child)(self.data, layer.into().as_mut_ptr());
     }
 
     pub fn children(&self) -> &[*mut Layer] {
-        let data = (self.children_data)(self);
-        let len = (self.children_len)(self) as usize;
+        let data = (self.children_data)(self.data);
+        let len = (self.children_len)(self.data) as usize;
         unsafe { slice::from_raw_parts(data, len) }
     }
 }
@@ -100,16 +109,16 @@ impl<'a> DerefMut for LayerStack<'a> {
     }
 }
 
-extern "C" fn abi_add_child(layer: *mut LayerStack, child: *mut Layer) {
-    unsafe { (*layer).children.push(child) }
+extern "C" fn abi_add_child(data: *mut LayerStackData, child: *mut Layer) {
+    unsafe { (*data).children.push(child) }
 }
 
-extern "C" fn abi_children_len(layer: *const LayerStack) -> u64 {
-    unsafe { (*layer).children.len() as u64 }
+extern "C" fn abi_children_len(data: *const LayerStackData) -> u64 {
+    unsafe { (*data).children.len() as u64 }
 }
 
-extern "C" fn abi_children_data(layer: *const LayerStack) -> *const *mut Layer {
-    unsafe { (*layer).children.as_ptr() }
+extern "C" fn abi_children_data(data: *const LayerStackData) -> *const *mut Layer {
+    unsafe { (*data).children.as_ptr() }
 }
 
 #[repr(C)]
