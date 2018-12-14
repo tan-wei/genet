@@ -1,8 +1,7 @@
 use crate::{frame::Frame, profile::Profile};
 use genet_abi::{
     decoder::{ExecType, WorkerBox},
-    fixed::MutFixed,
-    layer::{Layer, LayerStack},
+    layer::{LayerStack, LayerStackData},
 };
 
 pub struct Dispatcher {
@@ -36,18 +35,17 @@ impl Dispatcher {
                 loop {
                     let mut executed = 0;
                     for r in &mut runners.iter_mut() {
-                        let mut layer =
-                            LayerStack::from_mut_ref(unsafe { &mut *layers[index].as_mut_ptr() });
+                        let mut data = LayerStackData {
+                            children: Vec::new(),
+                        };
+                        let mut layer = LayerStack::from_mut_ref(&mut data, unsafe {
+                            &mut *layers[index].as_mut_ptr()
+                        });
                         let done = r.execute(&mut layer);
                         if done {
                             executed += 1;
                         }
-                        let mut results: Vec<MutFixed<Layer>> = layer
-                            .children()
-                            .iter()
-                            .map(|v| unsafe { MutFixed::from_ptr(*v) })
-                            .collect();
-                        layers.append(&mut results);
+                        layers.append(&mut data.children);
                     }
                     if executed == 0 {
                         break;

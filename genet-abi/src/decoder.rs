@@ -178,7 +178,7 @@ mod tests {
         context::Context,
         decoder::{Decoder, DecoderBox, ExecType, Metadata, Status, Worker},
         fixed::Fixed,
-        layer::{Layer, LayerClass, LayerStack},
+        layer::{Layer, LayerClass, LayerStack, LayerStackData},
         result::Result,
         slice::ByteSlice,
         token::Token,
@@ -221,8 +221,11 @@ mod tests {
         let attr = Fixed::new(AttrClass::builder(Token::null()).build());
         let class = Fixed::new(LayerClass::builder(attr).build());
         let mut layer = Layer::new(class, ByteSlice::new());
-        let mut layer = LayerStack::from_mut_ref(&mut layer);
+        let mut data = LayerStackData {
+            children: Vec::new(),
+        };
+        let mut layer = LayerStack::from_mut_ref(&mut data, &mut layer);
 
-        assert_eq!(worker.decode(&[], &mut layer).unwrap(), true);
+        assert_eq!(worker.decode(&mut layer).unwrap(), true);
     }
 }
