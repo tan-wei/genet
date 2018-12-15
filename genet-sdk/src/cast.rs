@@ -381,9 +381,3 @@ impl SizedField for BitFlag {
         1
     }
 }
-
-impl SizedField for BitFlag {
-    fn bit_size(&self) -> usize {
-        1
-    }
-}

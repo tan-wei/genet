@@ -201,7 +201,7 @@ mod tests {
             fn decode(&mut self, stack: &mut LayerStack, _data: &ByteSlice) -> Result<Status> {
                 let attr = Fixed::new(AttrClass::builder(Token::from(1234)).build());
                 let class = Fixed::new(LayerClass::builder(attr).build());
-                let layer = Layer::new(class, ByteSlice::new());
+                let layer = Layer::new(class, &ByteSlice::new());
                 stack.add_child(layer);
                 Ok(Status::Done)
             }
@@ -229,12 +229,15 @@ mod tests {
 
         let attr = Fixed::new(AttrClass::builder(Token::null()).build());
         let class = Fixed::new(LayerClass::builder(attr).build());
-        let mut layer = Layer::new(class, ByteSlice::new());
+        let mut layer = Layer::new(class, &ByteSlice::new());
         let mut data = LayerStackData {
             children: Vec::new(),
         };
         let mut layer = LayerStack::from_mut_ref(&mut data, &mut layer);
 
-        assert_eq!(worker.decode(&mut layer).unwrap(), Status::Done);
+        assert_eq!(
+            worker.decode(&mut layer, &ByteSlice::new()).unwrap(),
+            Status::Done
+        );
     }
 }

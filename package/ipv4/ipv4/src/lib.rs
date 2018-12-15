@@ -149,8 +149,11 @@ struct IPv4 {
 
     id: cast::UInt16BE,
 
-    #[genet(bit_size = 3, map = "(x >> 5) & 0b00000111", typ = "@flags")]
+    #[genet(bit_size = 3, map = "(x >> 5) & 0b0000_0111", typ = "@flags")]
     flags: Node<cast::UInt8, Flags>,
+
+    #[genet(bit_size = 5, map = "x & 0b0001_1111")]
+    fragment_offset: cast::UInt8,
 }
 
 #[derive(Attr, Default)]
@@ -186,28 +189,6 @@ impl From<u16> for ProtoType {
             0x11 => ProtoType::UDP,
             _ => Self::default(),
         }
-    }
-}
-
-fn get_proto(val: u64) -> Option<(Token, &'static AttrClass)> {
-    match val {
-        0x01 => Some((
-            token!("@data:icmp"),
-            attr_class_lazy!("ipv4.protocol.icmp", typ: "@novalue", value: true),
-        )),
-        0x02 => Some((
-            token!("@data:igmp"),
-            attr_class_lazy!("ipv4.protocol.igmp", typ: "@novalue", value: true),
-        )),
-        0x06 => Some((
-            token!("@data:tcp"),
-            attr_class_lazy!("ipv4.protocol.tcp", typ: "@novalue", value: true),
-        )),
-        0x11 => Some((
-            token!("@data:udp"),
-            attr_class_lazy!("ipv4.protocol.udp", typ: "@novalue", value: true),
-        )),
-        _ => None,
     }
 }
 
