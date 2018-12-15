@@ -226,8 +226,10 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
         }
     }
 
-    fields_align.drain(..1);
-    fields_align.push(false);
+    if !fields_align.is_empty() {
+        fields_align.drain(..1);
+        fields_align.push(false);
+    }
 
     let fields_align2 = fields_align.clone();
     let self_attrs = AttrMetadata::parse(&input.attrs);
