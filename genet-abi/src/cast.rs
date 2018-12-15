@@ -1,10 +1,9 @@
 use crate::{
-    attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField, SizedField},
+    attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField},
     slice,
     variant::Variant,
 };
-use num_traits::Num;
-use std::{convert::Into, io::Result, mem::size_of};
+use std::{convert::Into, io::Result};
 
 /// Cast trait.
 pub trait Cast: Send + Sync {
@@ -98,16 +97,6 @@ impl<I: 'static + Into<Variant> + Clone, V: 'static + Typed<Output = I> + Sync +
             .bit_range(0, ctx.bit_offset..(ctx.bit_offset + bit_size))
             .name(ctx.name)
             .description(ctx.description)
-    }
-}
-
-impl<T, X> SizedField for T
-where
-    T: Typed<Output = X>,
-    X: Into<Variant> + Num,
-{
-    fn bit_size(&self) -> usize {
-        size_of::<X>() * 8
     }
 }
 

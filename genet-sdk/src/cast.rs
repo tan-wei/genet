@@ -1,10 +1,16 @@
 //! Cast objects for the usual data structures.
 
-use crate::{attr::Attr, slice};
+use crate::{
+    attr::{Attr, SizedField},
+    slice,
+};
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 pub use genet_abi::cast::{Cast, Map, Typed};
 use genet_abi::slice::TryGet;
-use std::io::{Cursor, Error, ErrorKind, Result};
+use std::{
+    io::{Cursor, Error, ErrorKind, Result},
+    mem::size_of,
+};
 
 /// Cast for 8bit unsigned integer.
 #[derive(Clone, Default)]
@@ -15,6 +21,12 @@ impl Typed for UInt8 {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<u8> {
         Cursor::new(data.try_get(attr.range())?).read_u8()
+    }
+}
+
+impl SizedField for UInt8 {
+    fn bit_size(&self) -> usize {
+        size_of::<u8>() * 8
     }
 }
 
@@ -30,6 +42,12 @@ impl Typed for Int8 {
     }
 }
 
+impl SizedField for Int8 {
+    fn bit_size(&self) -> usize {
+        size_of::<i8>() * 8
+    }
+}
+
 /// Cast for big-endian 16bit unsigned integer.
 #[derive(Clone, Default)]
 pub struct UInt16BE();
@@ -39,6 +57,12 @@ impl Typed for UInt16BE {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<u16> {
         Cursor::new(data.try_get(attr.range())?).read_u16::<BigEndian>()
+    }
+}
+
+impl SizedField for UInt16BE {
+    fn bit_size(&self) -> usize {
+        size_of::<u16>() * 8
     }
 }
 
@@ -54,6 +78,12 @@ impl Typed for UInt32BE {
     }
 }
 
+impl SizedField for UInt32BE {
+    fn bit_size(&self) -> usize {
+        size_of::<u32>() * 8
+    }
+}
+
 /// Cast for big-endian 64bit unsigned integer.
 #[derive(Clone, Default)]
 pub struct UInt64BE();
@@ -63,6 +93,12 @@ impl Typed for UInt64BE {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<u64> {
         Cursor::new(data.try_get(attr.range())?).read_u64::<BigEndian>()
+    }
+}
+
+impl SizedField for UInt64BE {
+    fn bit_size(&self) -> usize {
+        size_of::<u64>() * 8
     }
 }
 
@@ -78,6 +114,12 @@ impl Typed for Int16BE {
     }
 }
 
+impl SizedField for Int16BE {
+    fn bit_size(&self) -> usize {
+        size_of::<i16>() * 8
+    }
+}
+
 /// Cast for big-endian 32bit signed integer.
 #[derive(Clone, Default)]
 pub struct Int32BE();
@@ -87,6 +129,12 @@ impl Typed for Int32BE {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<i32> {
         Cursor::new(data.try_get(attr.range())?).read_i32::<BigEndian>()
+    }
+}
+
+impl SizedField for Int32BE {
+    fn bit_size(&self) -> usize {
+        size_of::<i32>() * 8
     }
 }
 
@@ -102,6 +150,12 @@ impl Typed for Int64BE {
     }
 }
 
+impl SizedField for Int64BE {
+    fn bit_size(&self) -> usize {
+        size_of::<i64>() * 8
+    }
+}
+
 /// Cast for big-endian 32bit floating point number.
 #[derive(Clone, Default)]
 pub struct Float32BE();
@@ -111,6 +165,12 @@ impl Typed for Float32BE {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<f32> {
         Cursor::new(data.try_get(attr.range())?).read_f32::<BigEndian>()
+    }
+}
+
+impl SizedField for Float32BE {
+    fn bit_size(&self) -> usize {
+        size_of::<f32>() * 8
     }
 }
 
@@ -126,6 +186,12 @@ impl Typed for Float64BE {
     }
 }
 
+impl SizedField for Float64BE {
+    fn bit_size(&self) -> usize {
+        size_of::<f64>() * 8
+    }
+}
+
 /// Cast for little-endian 16bit unsigned integer.
 #[derive(Clone, Default)]
 pub struct UInt16LE();
@@ -135,6 +201,12 @@ impl Typed for UInt16LE {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<u16> {
         Cursor::new(data.try_get(attr.range())?).read_u16::<LittleEndian>()
+    }
+}
+
+impl SizedField for UInt16LE {
+    fn bit_size(&self) -> usize {
+        size_of::<u16>() * 8
     }
 }
 
@@ -150,6 +222,12 @@ impl Typed for UInt32LE {
     }
 }
 
+impl SizedField for UInt32LE {
+    fn bit_size(&self) -> usize {
+        size_of::<u32>() * 8
+    }
+}
+
 /// Cast for little-endian 64bit unsigned integer.
 #[derive(Clone, Default)]
 pub struct UInt64LE();
@@ -159,6 +237,12 @@ impl Typed for UInt64LE {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<u64> {
         Cursor::new(data.try_get(attr.range())?).read_u64::<LittleEndian>()
+    }
+}
+
+impl SizedField for UInt64LE {
+    fn bit_size(&self) -> usize {
+        size_of::<u64>() * 8
     }
 }
 
@@ -174,6 +258,12 @@ impl Typed for Int16LE {
     }
 }
 
+impl SizedField for Int16LE {
+    fn bit_size(&self) -> usize {
+        size_of::<i16>() * 8
+    }
+}
+
 /// Cast for little-endian 32bit signed integer.
 #[derive(Clone, Default)]
 pub struct Int32LE();
@@ -183,6 +273,12 @@ impl Typed for Int32LE {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<i32> {
         Cursor::new(data.try_get(attr.range())?).read_i32::<LittleEndian>()
+    }
+}
+
+impl SizedField for Int32LE {
+    fn bit_size(&self) -> usize {
+        size_of::<i32>() * 8
     }
 }
 
@@ -198,6 +294,12 @@ impl Typed for Int64LE {
     }
 }
 
+impl SizedField for Int64LE {
+    fn bit_size(&self) -> usize {
+        size_of::<i64>() * 8
+    }
+}
+
 /// Cast for little-endian 32bit floating point number.
 #[derive(Clone, Default)]
 pub struct Float32LE();
@@ -210,6 +312,12 @@ impl Typed for Float32LE {
     }
 }
 
+impl SizedField for Float32LE {
+    fn bit_size(&self) -> usize {
+        size_of::<f32>() * 8
+    }
+}
+
 /// Cast for little-endian 64bit floating point number.
 #[derive(Clone, Default)]
 pub struct Float64LE();
@@ -219,6 +327,12 @@ impl Typed for Float64LE {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<f64> {
         Cursor::new(data.try_get(attr.range())?).read_f64::<LittleEndian>()
+    }
+}
+
+impl SizedField for Float64LE {
+    fn bit_size(&self) -> usize {
+        size_of::<f64>() * 8
     }
 }
 
@@ -259,5 +373,11 @@ impl Typed for BitFlag {
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<bool> {
         let byte = Cursor::new(data.try_get(attr.range())?).read_u8()?;
         Ok((byte & (0b1 << (attr.bit_range().start % 8))) != 0)
+    }
+}
+
+impl SizedField for BitFlag {
+    fn bit_size(&self) -> usize {
+        1
     }
 }
