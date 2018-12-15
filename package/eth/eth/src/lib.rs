@@ -55,18 +55,15 @@ struct EthWorker {
 
 impl Worker for EthWorker {
     fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
-        if stack.id() == token!("[link-1]") {
-            let data = stack.payloads().next().unwrap().data();
-            let layer = Layer::new(self.layer.as_ref().clone(), data);
+        let data = stack.top().unwrap().payloads().next().unwrap().data();
 
-            match self.layer.r#type.try_get(&layer) {
-                _ => {}
-            };
+        let layer = Layer::new(self.layer.as_ref().clone(), data);
+        let typ = self.layer.r#type.try_get(&layer);
+        stack.add_child(layer);
 
-            stack.add_child(layer);
-            Ok(Status::Done)
-        } else {
-            Ok(Status::Skip)
+        match typ {
+            Ok(EthTypeEnum::IPv4) => self.ipv4.decode(stack),
+            _ => Ok(Status::Done),
         }
     }
 }
@@ -85,7 +82,6 @@ impl Decoder for EthDecoder {
     fn metadata(&self) -> Metadata {
         Metadata {
             id: "eth".into(),
-            exec_type: ExecType::ParallelSync,
             ..Metadata::default()
         }
     }

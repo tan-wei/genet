@@ -4,14 +4,7 @@ struct IPv4Worker {}
 
 impl Worker for IPv4Worker {
     fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
-        let data;
-
-        if let Some(payload) = stack.payloads().find(|p| p.id() == token!("@data:ipv4")) {
-            data = payload.data();
-        } else {
-            return Ok(Status::Skip);
-        }
-
+        let data = stack.top().unwrap().data().try_get(14..)?;
         let mut layer = Layer::new(&IPV4_CLASS, data);
         let proto = PROTO_ATTR.try_get(&layer)?.try_into()?;
         if let Some((typ, attr)) = get_proto(proto) {
@@ -36,7 +29,6 @@ impl Decoder for IPv4Decoder {
     fn metadata(&self) -> Metadata {
         Metadata {
             id: "ipv4".into(),
-            exec_type: ExecType::ParallelSync,
             ..Metadata::default()
         }
     }

@@ -7,12 +7,13 @@ use std::ptr;
 /// Execution type.
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub enum ExecType {
+    Lazy,
     ParallelSync,
     SerialSync,
 }
 
 /// Decoding status.
-#[derive(Debug)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum Status {
     Done,
     Skip,
@@ -33,7 +34,7 @@ impl Default for Metadata {
             id: String::new(),
             name: String::new(),
             description: String::new(),
-            exec_type: ExecType::ParallelSync,
+            exec_type: ExecType::Lazy,
         }
     }
 }
@@ -59,12 +60,12 @@ impl WorkerBox {
         }
     }
 
-    pub fn decode(&mut self, layer: &mut LayerStack) -> Result<bool> {
+    pub fn decode(&mut self, layer: &mut LayerStack) -> Result<Status> {
         let mut error = Error::new("");
         let result = (self.decode)(self, layer, &mut error);
         match result {
-            2 => Ok(true),
-            1 => Ok(false),
+            2 => Ok(Status::Done),
+            1 => Ok(Status::Skip),
             _ => Err(Box::new(error)),
         }
     }
@@ -226,6 +227,6 @@ mod tests {
         };
         let mut layer = LayerStack::from_mut_ref(&mut data, &mut layer);
 
-        assert_eq!(worker.decode(&mut layer).unwrap(), true);
+        assert_eq!(worker.decode(&mut layer).unwrap(), Status::Done);
     }
 }

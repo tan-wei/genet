@@ -70,7 +70,6 @@ impl Decoder for NtpDecoder {
     fn metadata(&self) -> Metadata {
         Metadata {
             id: "ntp".into(),
-            exec_type: ExecType::ParallelSync,
             ..Metadata::default()
         }
     }

@@ -65,7 +65,7 @@ impl Decoder for ArpDecoder {
     fn metadata(&self) -> Metadata {
         Metadata {
             id: "arp".into(),
-            exec_type: ExecType::ParallelSync,
+            exec_type: ExecType::Lazy,
             ..Metadata::default()
         }
     }

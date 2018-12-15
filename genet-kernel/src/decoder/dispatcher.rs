@@ -1,6 +1,6 @@
 use crate::{frame::Frame, profile::Profile};
 use genet_abi::{
-    decoder::{ExecType, WorkerBox},
+    decoder::{ExecType, Status, WorkerBox},
     layer::{LayerStack, LayerStackData},
 };
 
@@ -74,8 +74,8 @@ impl Runner {
 
     fn execute(&mut self, layer: &mut LayerStack) -> bool {
         match self.worker.decode(layer) {
-            Ok(done) => done,
-            Err(_) => true,
+            Ok(Status::Skip) => false,
+            _ => true,
         }
     }
 }

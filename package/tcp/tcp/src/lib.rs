@@ -71,7 +71,6 @@ impl Decoder for TcpDecoder {
     fn metadata(&self) -> Metadata {
         Metadata {
             id: "tcp".into(),
-            exec_type: ExecType::ParallelSync,
             ..Metadata::default()
         }
     }

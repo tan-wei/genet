@@ -2,6 +2,7 @@ use genet_sdk::{cast, decoder::*, prelude::*};
 
 struct PcapLayerWorker {
     class: Option<Fixed<LayerClass>>,
+    eth: WorkerBox,
 }
 
 impl Worker for PcapLayerWorker {
@@ -35,7 +36,8 @@ impl Worker for PcapLayerWorker {
         let mut layer = Layer::new(self.class.as_ref().unwrap().clone(), data);
         layer.add_payload(Payload::new(data.try_get(20..)?, "@data:link"));
         stack.add_child(layer);
-        Ok(Status::Done)
+
+        self.eth.decode(stack)
     }
 }
 
@@ -43,8 +45,11 @@ impl Worker for PcapLayerWorker {
 struct PcapLayerDecoder {}
 
 impl Decoder for PcapLayerDecoder {
-    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
-        Box::new(PcapLayerWorker { class: None })
+    fn new_worker(&self, ctx: &Context) -> Box<Worker> {
+        Box::new(PcapLayerWorker {
+            class: None,
+            eth: ctx.decoder("eth").unwrap(),
+        })
     }
 
     fn metadata(&self) -> Metadata {

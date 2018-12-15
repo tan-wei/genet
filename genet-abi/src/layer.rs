@@ -52,11 +52,6 @@ impl<'a> LayerStack<'a> {
         self.deref().data()
     }
 
-    /// Returns the slice of headers.
-    pub fn header(&self) -> &Fixed<AttrClass> {
-        self.deref().header()
-    }
-
     /// Returns the slice of attributes.
     pub fn attrs(&self) -> impl Iterator<Item = Attr> {
         self.deref().attrs()
@@ -84,6 +79,20 @@ impl<'a> LayerStack<'a> {
 
     pub fn add_child<T: Into<MutFixed<Layer>>>(&mut self, layer: T) {
         (self.add_child)(self.data, layer.into().as_mut_ptr());
+    }
+
+    pub fn top(&self) -> Option<&Layer> {
+        self.children().iter().rev().next().map(Deref::deref)
+    }
+
+    pub fn bottom(&self) -> Option<&Layer> {
+        self.children().iter().next().map(Deref::deref)
+    }
+
+    fn children(&self) -> &[MutFixed<Layer>] {
+        let data = (self.children_data)(self.data);
+        let len = (self.children_len)(self.data) as usize;
+        unsafe { slice::from_raw_parts(data, len) }
     }
 }
 

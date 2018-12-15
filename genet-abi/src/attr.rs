@@ -42,6 +42,9 @@ pub trait AttrField {
 
 pub trait SizedField {
     fn bit_size(&self) -> usize;
+    fn byte_size(&self) -> usize {
+        (self.bit_size() + 7) / 8
+    }
 }
 
 /// An attribute object.

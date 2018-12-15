@@ -64,7 +64,6 @@ impl Decoder for ArpDecoder {
 
     fn metadata(&self) -> Metadata {
         Metadata {
-            exec_type: ExecType::ParallelSync,
             ..Metadata::default()
         }
     }
