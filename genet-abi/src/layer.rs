@@ -141,10 +141,10 @@ unsafe impl Send for Layer {}
 
 impl Layer {
     /// Creates a new Layer.
-    pub fn new<C: Into<Fixed<LayerClass>>, B: Into<ByteSlice>>(class: C, data: B) -> Layer {
+    pub fn new<C: Into<Fixed<LayerClass>>>(class: C, data: &ByteSlice) -> Layer {
         Layer {
             class: class.into(),
-            data: data.into(),
+            data: *data,
             attrs: Vec::new(),
             payloads: Vec::new(),
         }

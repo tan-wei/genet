@@ -3,7 +3,7 @@ use genet_sdk::{cast, decoder::*, prelude::*};
 struct NtpWorker {}
 
 impl Worker for NtpWorker {
-    fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
+    fn decode(&mut self, stack: &mut LayerStack, _data: &ByteSlice) -> Result<Status> {
         if stack.id() != token!("udp") {
             return Ok(Status::Skip);
         }
@@ -32,7 +32,7 @@ impl Worker for NtpWorker {
             return Ok(Status::Skip);
         }
 
-        let mut layer = Layer::new(&NTP_CLASS, data);
+        let mut layer = Layer::new(&NTP_CLASS, &data);
         let leap_type = LEAP_ATTR.try_get(&layer)?.try_into()?;
 
         let leap = get_leap(leap_type);

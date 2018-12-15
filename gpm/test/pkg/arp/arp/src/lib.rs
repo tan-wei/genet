@@ -5,7 +5,7 @@ use genet_sdk::{cast, decoder::*, prelude::*};
 struct ArpWorker {}
 
 impl Worker for ArpWorker {
-    fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
+    fn decode(&mut self, stack: &mut LayerStack, _data: &ByteSlice) -> Result<Status> {
         let data;
 
         if let Some(payload) = stack.payloads().find(|p| p.id() == token!("@data:arp")) {
@@ -14,7 +14,7 @@ impl Worker for ArpWorker {
             return Ok(Status::Skip);
         }
 
-        let mut layer = Layer::new(&ARP_CLASS, data);
+        let mut layer = Layer::new(&ARP_CLASS, &data);
 
         let hw_type = HWTYPE_ATTR.try_get(&layer)?.try_into()?;
         let hw = get_hw(hw_type);

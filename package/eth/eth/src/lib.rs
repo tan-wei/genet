@@ -54,15 +54,14 @@ struct EthWorker {
 }
 
 impl Worker for EthWorker {
-    fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
-        let data = stack.top().unwrap().payloads().next().unwrap().data();
-
+    fn decode(&mut self, stack: &mut LayerStack, data: &ByteSlice) -> Result<Status> {
         let layer = Layer::new(self.layer.as_ref().clone(), data);
         let typ = self.layer.r#type.try_get(&layer);
         stack.add_child(layer);
 
+        let payload = data.try_get(self.layer.byte_size()..)?;
         match typ {
-            Ok(EthTypeEnum::IPv4) => self.ipv4.decode(stack),
+            Ok(EthTypeEnum::IPv4) => self.ipv4.decode(stack, &payload),
             _ => Ok(Status::Done),
         }
     }

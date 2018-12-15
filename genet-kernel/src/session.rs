@@ -293,7 +293,7 @@ impl Input for WorkerInput {
         self.worker.read().map(|slices| {
             slices
                 .into_iter()
-                .map(|s| MutFixed::new(Layer::new(self.class, s)))
+                .map(|data| MutFixed::new(Layer::new(self.class, &data)))
                 .collect()
         })
     }

@@ -3,7 +3,7 @@ use genet_sdk::{cast, decoder::*, prelude::*};
 struct IPv6Worker {}
 
 impl Worker for IPv6Worker {
-    fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
+    fn decode(&mut self, stack: &mut LayerStack, _data: &ByteSlice) -> Result<Status> {
         let data;
 
         if let Some(payload) = stack.payloads().find(|p| p.id() == token!("@data:ipv6")) {
@@ -12,7 +12,7 @@ impl Worker for IPv6Worker {
             return Ok(Status::Skip);
         }
 
-        let mut layer = Layer::new(&IPV6_CLASS, data);
+        let mut layer = Layer::new(&IPV6_CLASS, &data);
         let nheader = NHEADER_ATTR.try_get(&layer)?.try_into()?;
 
         loop {
