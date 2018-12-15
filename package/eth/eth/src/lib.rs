@@ -16,11 +16,11 @@ struct Eth {
     len: cast::UInt16BE,
 
     #[genet(cond = "x > 1500", typ = "@enum", align_before)]
-    r#type: EnumNode<cast::UInt16BE, EthTypeEnum>,
+    r#type: EnumNode<cast::UInt16BE, EthType>,
 }
 
 #[derive(Attr)]
-enum EthTypeEnum {
+enum EthType {
     IPv4,
     ARP,
     WOL,
@@ -29,21 +29,21 @@ enum EthTypeEnum {
     Unknown,
 }
 
-impl Default for EthTypeEnum {
+impl Default for EthType {
     fn default() -> Self {
-        EthTypeEnum::Unknown
+        EthType::Unknown
     }
 }
 
-impl From<u16> for EthTypeEnum {
-    fn from(data: u16) -> EthTypeEnum {
+impl From<u16> for EthType {
+    fn from(data: u16) -> EthType {
         match data {
-            0x0800 => EthTypeEnum::IPv4,
-            0x0806 => EthTypeEnum::ARP,
-            0x0842 => EthTypeEnum::WOL,
-            0x86DD => EthTypeEnum::IPv6,
-            0x888E => EthTypeEnum::EAP,
-            _ => EthTypeEnum::Unknown,
+            0x0800 => EthType::IPv4,
+            0x0806 => EthType::ARP,
+            0x0842 => EthType::WOL,
+            0x86DD => EthType::IPv6,
+            0x888E => EthType::EAP,
+            _ => EthType::Unknown,
         }
     }
 }
@@ -51,6 +51,7 @@ impl From<u16> for EthTypeEnum {
 struct EthWorker {
     layer: LayerType<Eth>,
     ipv4: WorkerBox,
+    ipv6: WorkerBox,
 }
 
 impl Worker for EthWorker {
@@ -61,7 +62,8 @@ impl Worker for EthWorker {
 
         let payload = data.try_get(self.layer.byte_size()..)?;
         match typ {
-            Ok(EthTypeEnum::IPv4) => self.ipv4.decode(stack, &payload),
+            Ok(EthType::IPv4) => self.ipv4.decode(stack, &payload),
+            Ok(EthType::IPv6) => self.ipv6.decode(stack, &payload),
             _ => Ok(Status::Done),
         }
     }
@@ -75,6 +77,7 @@ impl Decoder for EthDecoder {
         Box::new(EthWorker {
             layer: LayerType::new("eth", Eth::default()),
             ipv4: ctx.decoder("ipv4").unwrap(),
+            ipv6: ctx.decoder("ipv6").unwrap(),
         })
     }
 
