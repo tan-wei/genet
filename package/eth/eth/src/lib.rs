@@ -36,14 +36,14 @@ impl Default for EthType {
 }
 
 impl From<u16> for EthType {
-    fn from(data: u16) -> EthType {
+    fn from(data: u16) -> Self {
         match data {
             0x0800 => EthType::IPv4,
             0x0806 => EthType::ARP,
             0x0842 => EthType::WOL,
             0x86DD => EthType::IPv6,
             0x888E => EthType::EAP,
-            _ => EthType::Unknown,
+            _ => Self::default(),
         }
     }
 }

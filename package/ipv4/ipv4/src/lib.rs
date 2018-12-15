@@ -1,18 +1,15 @@
+use genet_derive::Attr;
 use genet_sdk::{cast, decoder::*, prelude::*};
 
-struct IPv4Worker {}
+struct IPv4Worker {
+    layer: LayerType<IPv4>,
+}
 
 impl Worker for IPv4Worker {
     fn decode(&mut self, stack: &mut LayerStack, data: &ByteSlice) -> Result<Status> {
-        let mut layer = Layer::new(&IPV4_CLASS, data);
-        let proto = PROTO_ATTR.try_get(&layer)?.try_into()?;
-        if let Some((typ, attr)) = get_proto(proto) {
-            layer.add_attr(attr, 9..10);
-            let payload = layer.data().try_get(20..)?;
-            layer.add_payload(Payload::new(payload, typ));
-        }
-
+        let layer = Layer::new(self.layer.as_ref().clone(), data);
         stack.add_child(layer);
+
         Ok(Status::Done)
     }
 }
@@ -22,7 +19,9 @@ struct IPv4Decoder {}
 
 impl Decoder for IPv4Decoder {
     fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
-        Box::new(IPv4Worker {})
+        Box::new(IPv4Worker {
+            layer: LayerType::new("ipv4", IPv4::default()),
+        })
     }
 
     fn metadata(&self) -> Metadata {
@@ -135,6 +134,60 @@ def_attr_class!(DST_ATTR, "ipv4.dst",
     cast: &cast::ByteSlice(),
     range: 16..20
 );
+
+#[derive(Attr, Default)]
+struct IPv4 {
+    #[genet(bit_size = 4, map = "x >> 4")]
+    version: cast::UInt8,
+
+    #[genet(bit_size = 4, map = "x & 0b00001111")]
+    header_length: cast::UInt8,
+
+    tos: cast::UInt8,
+
+    total_length: cast::UInt16BE,
+
+    id: cast::UInt16BE,
+
+    #[genet(bit_size = 3, map = "(x >> 5) & 0b00000111", typ = "@flags")]
+    flags: Node<cast::UInt8, Flags>,
+}
+
+#[derive(Attr, Default)]
+struct Flags {
+    reserved: cast::BitFlag,
+
+    dont_fragment: cast::BitFlag,
+
+    more_fragments: cast::BitFlag,
+}
+
+#[derive(Attr)]
+enum ProtoType {
+    ICPM,
+    IGMP,
+    TCP,
+    UDP,
+    Unknown,
+}
+
+impl Default for ProtoType {
+    fn default() -> Self {
+        ProtoType::Unknown
+    }
+}
+
+impl From<u16> for ProtoType {
+    fn from(data: u16) -> Self {
+        match data {
+            0x01 => ProtoType::ICPM,
+            0x02 => ProtoType::IGMP,
+            0x06 => ProtoType::TCP,
+            0x11 => ProtoType::UDP,
+            _ => Self::default(),
+        }
+    }
+}
 
 fn get_proto(val: u64) -> Option<(Token, &'static AttrClass)> {
     match val {
