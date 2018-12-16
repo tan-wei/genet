@@ -3,6 +3,8 @@ use genet_sdk::{cast, decoder::*, prelude::*};
 
 struct IPv6Worker {
     layer: LayerType<IPv6>,
+    tcp: WorkerBox,
+    udp: WorkerBox,
 }
 
 impl Worker for IPv6Worker {
@@ -26,12 +28,16 @@ impl Worker for IPv6Worker {
         }
 
         let range = self.layer.next_header.class().range();
-        let proto = self.layer.protocol.try_get_range(&layer, range.clone())?;
-
+        let typ = self.layer.protocol.try_get_range(&layer, range.clone());
         layer.add_attr(self.layer.protocol.class(), range.clone());
         stack.add_child(layer);
 
-        Ok(Status::Done)
+        let payload = data.try_get(self.layer.byte_size()..)?;
+        match typ {
+            Ok(ProtoType::TCP) => self.tcp.decode(stack, &payload),
+            Ok(ProtoType::UDP) => self.udp.decode(stack, &payload),
+            _ => Ok(Status::Done),
+        }
     }
 }
 
@@ -39,9 +45,11 @@ impl Worker for IPv6Worker {
 struct IPv6Decoder {}
 
 impl Decoder for IPv6Decoder {
-    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
+    fn new_worker(&self, ctx: &Context) -> Box<Worker> {
         Box::new(IPv6Worker {
             layer: LayerType::new("ipv6", IPv6::default()),
+            tcp: ctx.decoder("tcp").unwrap(),
+            udp: ctx.decoder("udp").unwrap(),
         })
     }
 

@@ -3,14 +3,22 @@ use genet_sdk::{cast, decoder::*, prelude::*};
 
 struct IPv4Worker {
     layer: LayerType<IPv4>,
+    tcp: WorkerBox,
+    udp: WorkerBox,
 }
 
 impl Worker for IPv4Worker {
     fn decode(&mut self, stack: &mut LayerStack, data: &ByteSlice) -> Result<Status> {
         let layer = Layer::new(self.layer.as_ref().clone(), data);
+        let protocol = self.layer.protocol.try_get(&layer);
         stack.add_child(layer);
 
-        Ok(Status::Done)
+        let payload = data.try_get(self.layer.byte_size()..)?;
+        match protocol {
+            Ok(ProtoType::TCP) => self.tcp.decode(stack, &payload),
+            Ok(ProtoType::UDP) => self.udp.decode(stack, &payload),
+            _ => Ok(Status::Done),
+        }
     }
 }
 
@@ -18,9 +26,11 @@ impl Worker for IPv4Worker {
 struct IPv4Decoder {}
 
 impl Decoder for IPv4Decoder {
-    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
+    fn new_worker(&self, ctx: &Context) -> Box<Worker> {
         Box::new(IPv4Worker {
             layer: LayerType::new("ipv4", IPv4::default()),
+            tcp: ctx.decoder("tcp").unwrap(),
+            udp: ctx.decoder("udp").unwrap(),
         })
     }
 

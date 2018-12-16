@@ -3,16 +3,8 @@ use genet_sdk::{cast, decoder::*, prelude::*};
 struct TcpWorker {}
 
 impl Worker for TcpWorker {
-    fn decode(&mut self, stack: &mut LayerStack, _data: &ByteSlice) -> Result<Status> {
-        let data;
-
-        if let Some(payload) = stack.payloads().find(|p| p.id() == token!("@data:tcp")) {
-            data = payload.data();
-        } else {
-            return Ok(Status::Skip);
-        }
-
-        let mut layer = Layer::new(&TCP_CLASS, &data);
+    fn decode(&mut self, stack: &mut LayerStack, data: &ByteSlice) -> Result<Status> {
+        let mut layer = Layer::new(&TCP_CLASS, data);
 
         let data_offset: usize = OFFSET_ATTR.try_get(&layer)?.try_into()?;
         let data_offset = data_offset * 4;
