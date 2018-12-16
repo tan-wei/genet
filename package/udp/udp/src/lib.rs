@@ -1,13 +1,13 @@
+use genet_derive::Attr;
 use genet_sdk::{cast, decoder::*, prelude::*};
 
-struct UdpWorker {}
+struct UdpWorker {
+    layer: LayerType<Udp>,
+}
 
 impl Worker for UdpWorker {
     fn decode(&mut self, stack: &mut LayerStack, data: &ByteSlice) -> Result<Status> {
-        let mut layer = Layer::new(&UDP_CLASS, data);
-        let payload = data.try_get(8..)?;
-        layer.add_payload(Payload::new(payload, ""));
-
+        let layer = Layer::new(self.layer.as_ref().clone(), data);
         stack.add_child(layer);
         Ok(Status::Done)
     }
@@ -18,7 +18,9 @@ struct UdpDecoder {}
 
 impl Decoder for UdpDecoder {
     fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
-        Box::new(UdpWorker {})
+        Box::new(UdpWorker {
+            layer: LayerType::new("udp", Udp::default()),
+        })
     }
 
     fn metadata(&self) -> Metadata {
@@ -29,39 +31,17 @@ impl Decoder for UdpDecoder {
     }
 }
 
-def_layer_class!(UDP_CLASS, &UDP_ATTR);
+#[derive(Attr, Default)]
+struct Udp {
+    #[genet(alias = "_.src", typ = "@udp:port")]
+    src: cast::UInt16BE,
 
-def_attr_class!(
-    UDP_ATTR,
-    "udp",
-    child: &SRC_ATTR,
-    child: &DST_ATTR,
-    child: &LEN_ATTR,
-    child: &CHECKSUM_ATTR
-);
+    #[genet(alias = "_.dst", typ = "@udp:port")]
+    dst: cast::UInt16BE,
 
-def_attr_class!(SRC_ATTR, "udp.src",
-    typ: "@udp:port",
-    alias: "_.src",
-    cast: &cast::UInt16BE(),
-    range: 0..2
-);
+    length: cast::UInt16BE,
 
-def_attr_class!(DST_ATTR, "udp.dst",
-    typ: "@udp:port",
-    alias: "_.dst",
-    cast: &cast::UInt16BE(),
-    range: 2..4
-);
-
-def_attr_class!(LEN_ATTR, "udp.length", 
-    cast: &cast::UInt16BE(),
-    range: 4..6
-);
-
-def_attr_class!(CHECKSUM_ATTR, "udp.checksum",
-    cast: &cast::UInt16BE(),
-    range: 6..8
-);
+    checksum: cast::UInt16BE,
+}
 
 genet_decoders!(UdpDecoder {});

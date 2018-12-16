@@ -164,7 +164,6 @@ impl Decoder for TcpStreamDecoder {
     fn metadata(&self) -> Metadata {
         Metadata {
             id: "tcp_stream".into(),
-            exec_type: ExecType::SerialSync,
             ..Metadata::default()
         }
     }
