@@ -5,7 +5,7 @@ use crate::{
     slice,
 };
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
-pub use genet_abi::cast::{Cast, Map, Typed};
+pub use genet_abi::cast::{Cast, Map, Nil, Typed};
 use genet_abi::slice::TryGet;
 use std::{
     io::{Cursor, Error, ErrorKind, Result},
