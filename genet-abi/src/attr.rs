@@ -297,8 +297,9 @@ impl AttrClass {
         let root = Attr::new(attr, range.clone(), *data);
         let mut attrs = vec![root];
         for child in &attr.children {
-            let offset = range.start - attr.bit_range().start;
-            let range = (child.bit_range().start + offset)..(child.bit_range().end + offset);
+            let offset = range.start as isize - attr.bit_range().start as isize;
+            let range = (child.bit_range().start as isize + offset) as usize
+                ..(child.bit_range().end as isize + offset) as usize;
             attrs.append(&mut AttrClass::expand(&child, &data, Some(range)));
         }
         attrs
