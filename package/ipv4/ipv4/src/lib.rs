@@ -32,109 +32,6 @@ impl Decoder for IPv4Decoder {
     }
 }
 
-def_layer_class!(IPV4_CLASS, &IPV4_ATTR);
-
-def_attr_class!(
-    IPV4_ATTR,
-    "ipv4",
-    child: &VERSION_ATTR,
-    child: &HLEN_ATTR,
-    child: &TOS_ATTR,
-    child: &LENGTH_ATTR,
-    child: &ID_ATTR,
-    child: &FLAGS_ATTR,
-    child: &FLAGS_RV_ATTR,
-    child: &FLAGS_DF_ATTR,
-    child: &FLAGS_MF_ATTR,
-    child: &OFFSET_ATTR,
-    child: &TTL_ATTR,
-    child: &PROTO_ATTR,
-    child: &CHECKSUM_ATTR,
-    child: &SRC_ATTR,
-    child: &DST_ATTR
-);
-
-def_attr_class!(VERSION_ATTR, "ipv4.version",
-    cast: &cast::UInt8().map(|v| v >> 4),
-    bit_range: 0 0..4
-);
-
-def_attr_class!(HLEN_ATTR, "ipv4.headerLength",
-    cast: &cast::UInt8().map(|v| v & 0b00001111),
-    bit_range: 0 4..8
-);
-
-def_attr_class!(TOS_ATTR, "ipv4.tos",
-    cast: &cast::UInt8(),
-    range: 1..2
-);
-
-def_attr_class!(LENGTH_ATTR, "ipv4.totalLength",
-    cast: &cast::UInt16BE(),
-    range: 2..4
-);
-
-def_attr_class!(ID_ATTR, "ipv4.id",
-    cast: &cast::UInt16BE(),
-    range: 4..6
-);
-
-def_attr_class!(FLAGS_ATTR, "ipv4.flags",
-    cast: &cast::UInt8().map(|v| (v >> 5) & 0b00000111),
-    typ: "@flags",
-    bit_range: 6 0..1
-);
-
-def_attr_class!(FLAGS_RV_ATTR, "ipv4.flags.reserved",
-    cast: &cast::UInt8().map(|v| v & 0b10000000 != 0),
-    bit_range: 6 1..2
-);
-
-def_attr_class!(FLAGS_DF_ATTR, "ipv4.flags.dontFragment",
-    cast: &cast::UInt8().map(|v| v & 0b01000000 != 0),
-    bit_range: 6 2..3
-);
-
-def_attr_class!(FLAGS_MF_ATTR, "ipv4.flags.moreFragments",
-    cast: &cast::UInt8().map(|v| v & 0b00100000 != 0),
-    bit_range: 6 3..4
-);
-
-def_attr_class!(OFFSET_ATTR, "ipv4.fragmentOffset",
-    cast: &cast::UInt16BE().map(|v| v & 0x1fff),
-    bit_range: 6 4..16
-);
-
-def_attr_class!(TTL_ATTR, "ipv4.ttl",
-    cast: &cast::UInt8(),
-    range: 8..9
-);
-
-def_attr_class!(PROTO_ATTR, "ipv4.protocol",
-    cast: &cast::UInt8(),
-    typ: "@enum",
-    range: 9..10
-);
-
-def_attr_class!(CHECKSUM_ATTR, "ipv4.checksum",
-    cast: &cast::UInt16BE(),
-    range: 10..12
-);
-
-def_attr_class!(SRC_ATTR, "ipv4.src",
-    typ: "@ipv4:addr",
-    alias: "_.src",
-    cast: &cast::ByteSlice(),
-    range: 12..16
-);
-
-def_attr_class!(DST_ATTR, "ipv4.dst",
-    typ: "@ipv4:addr",
-    alias: "_.dst",
-    cast: &cast::ByteSlice(),
-    range: 16..20
-);
-
 #[derive(Attr, Default)]
 struct IPv4 {
     #[genet(bit_size = 4, map = "x >> 4")]
@@ -152,8 +49,21 @@ struct IPv4 {
     #[genet(bit_size = 3, map = "(x >> 5) & 0b0000_0111", typ = "@flags")]
     flags: Node<cast::UInt8, Flags>,
 
-    #[genet(bit_size = 5, map = "x & 0b0001_1111")]
-    fragment_offset: cast::UInt8,
+    #[genet(bit_size = 13, map = "x & 0x1fff")]
+    fragment_offset: cast::UInt16BE,
+
+    ttl: cast::UInt8,
+
+    #[genet(typ = "@enum")]
+    protocol: EnumNode<cast::UInt8, ProtoType>,
+
+    checksum: cast::UInt16BE,
+
+    #[genet(alias = "_.src", typ = "@ipv4:addr", byte_size = 4)]
+    src: cast::ByteSlice,
+
+    #[genet(alias = "_.dst", typ = "@ipv4:addr", byte_size = 4)]
+    dst: cast::ByteSlice,
 }
 
 #[derive(Attr, Default)]
@@ -180,8 +90,8 @@ impl Default for ProtoType {
     }
 }
 
-impl From<u16> for ProtoType {
-    fn from(data: u16) -> Self {
+impl From<u8> for ProtoType {
+    fn from(data: u8) -> Self {
         match data {
             0x01 => ProtoType::ICPM,
             0x02 => ProtoType::IGMP,
