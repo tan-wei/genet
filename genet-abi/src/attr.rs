@@ -450,6 +450,14 @@ impl<T, U> Node<T, U> {
     pub fn class(&self) -> Fixed<AttrClass> {
         self.class.get().unwrap()
     }
+
+    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<Variant> {
+        self.class().try_get_range(layer, range)
+    }
+
+    pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
+        self.class().try_get(layer)
+    }
 }
 
 impl<T, U> Deref for Node<T, U> {
