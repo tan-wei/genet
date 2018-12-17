@@ -52,6 +52,7 @@ struct EthWorker {
     layer: LayerType<Eth>,
     ipv4: WorkerBox,
     ipv6: WorkerBox,
+    arp: WorkerBox,
 }
 
 impl Worker for EthWorker {
@@ -64,6 +65,7 @@ impl Worker for EthWorker {
         match typ {
             Ok(EthType::IPv4) => self.ipv4.decode(stack, &payload),
             Ok(EthType::IPv6) => self.ipv6.decode(stack, &payload),
+            Ok(EthType::ARP) => self.arp.decode(stack, &payload),
             _ => Ok(Status::Done),
         }
     }
@@ -78,6 +80,7 @@ impl Decoder for EthDecoder {
             layer: LayerType::new("eth", Eth::default()),
             ipv4: ctx.decoder("ipv4").unwrap(),
             ipv6: ctx.decoder("ipv6").unwrap(),
+            arp: ctx.decoder("arp").unwrap(),
         })
     }
 
