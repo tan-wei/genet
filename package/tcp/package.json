@@ -13,10 +13,6 @@
         "main": "tcp"
       },
       {
-        "type": "core:library",
-        "main": "tcp_stream"
-      },
-      {
         "type": "core:style",
         "main": "tcp.css"
       },
