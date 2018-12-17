@@ -232,6 +232,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     }
 
     let fields_align2 = fields_align.clone();
+    let fields_detach2 = fields_detach.clone();
     let self_attrs = AttrMetadata::parse(&input.attrs);
     let self_name = self_attrs.name;
     let self_desc = self_attrs.description;
@@ -261,7 +262,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         subctx.bit_offset = bit_offset;
                         let child = attr.class(&subctx, bit_size, #fields_filter);
 
-                        if !align {
+                        if !align && !detach {
                             bit_offset += bit_size;
                         }
 
@@ -296,7 +297,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 let mut size = 0;
 
                 #(
-                    if !#fields_align2 {
+                    if !#fields_align2 && !#fields_detach2 {
                         let (_, bit_size) = #fields_ident;
                         size += bit_size;
                     }
