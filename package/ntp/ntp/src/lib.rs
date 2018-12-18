@@ -16,17 +16,17 @@ impl Worker for NtpWorker {
             return Ok(Status::Skip);
         }
 
-        let parent_src: u16 = 0; /*stack
-                                 .attr(token!("udp.src"))
-                                 .unwrap()
-                                 .try_get()?
-                                 .try_into()?;*/
+        let parent_src: u16 = stack
+            .attr(token!("udp.src"))
+            .unwrap()
+            .try_get()?
+            .try_into()?;
 
-        let parent_dst: u16 = 0; /*stack
-                                 .attr(token!("udp.dst"))
-                                 .unwrap()
-                                 .try_get()?
-                                 .try_into()?;*/
+        let parent_dst: u16 = stack
+            .attr(token!("udp.dst"))
+            .unwrap()
+            .try_get()?
+            .try_into()?;
 
         if parent_src != 123 && parent_dst != 123 {
             return Ok(Status::Skip);
