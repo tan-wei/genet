@@ -37,7 +37,11 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
     let ident = &input.ident;
     for v in &s.variants {
         let meta = AttrMetadata::parse(&v.attrs);
-        let id = normalize_ident(&v.ident);
+        let id = if meta.id.is_empty() {
+            normalize_ident(&v.ident)
+        } else {
+            meta.id
+        };
         let id = format!(".{}", to_camel_case(&id));
 
         let typ = meta.typ;
@@ -145,7 +149,11 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
         for field in &f.named {
             if let Some(ident) = &field.ident {
                 let meta = AttrMetadata::parse(&field.attrs);
-                let id = normalize_ident(&ident);
+                let id = if meta.id.is_empty() {
+                    normalize_ident(&ident)
+                } else {
+                    meta.id
+                };
                 let id = format!(".{}", to_camel_case(&id));
                 let typ = meta.typ;
                 let name = if meta.name.is_empty() {

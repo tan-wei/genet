@@ -7,6 +7,7 @@ pub enum AttrMapExpr {
 }
 
 pub struct AttrMetadata {
+    pub id: String,
     pub typ: String,
     pub name: String,
     pub description: String,
@@ -20,6 +21,7 @@ pub struct AttrMetadata {
 
 impl AttrMetadata {
     pub fn parse(attrs: &[Attribute]) -> AttrMetadata {
+        let mut id = String::new();
         let mut typ = String::new();
         let mut aliases = Vec::new();
         let mut docs = String::new();
@@ -58,6 +60,9 @@ impl AttrMetadata {
                                 }) = meta
                                 {
                                     match name.as_str() {
+                                        "id" => {
+                                            id = lit_str.value().to_string();
+                                        }
                                         "typ" => {
                                             typ = lit_str.value().to_string();
                                         }
@@ -99,6 +104,7 @@ impl AttrMetadata {
         let description = lines.fold(String::new(), |acc, x| acc + x + "\n");
 
         AttrMetadata {
+            id: id.trim().into(),
             typ: typ.trim().into(),
             name: name.into(),
             description: description.trim().into(),
