@@ -11,14 +11,6 @@ impl Worker for NtpWorker {
             return Ok(Status::Skip);
         }
 
-        let data;
-
-        if let Some(payload) = stack.payloads().next() {
-            data = payload.data();
-        } else {
-            return Ok(Status::Skip);
-        }
-
         let parent_src: u16 = stack
             .attr(token!("udp.src"))
             .unwrap()
@@ -34,6 +26,8 @@ impl Worker for NtpWorker {
         if parent_src != 123 && parent_dst != 123 {
             return Ok(Status::Skip);
         }
+
+        let data = stack.data().try_get(8..)?;
 
         let layer = Layer::new(self.layer.as_ref().clone(), &data);
 
@@ -78,6 +72,7 @@ impl Decoder for NtpDecoder {
     fn metadata(&self) -> Metadata {
         Metadata {
             id: "ntp".into(),
+            exec_type: ExecType::ParallelSync,
             ..Metadata::default()
         }
     }
