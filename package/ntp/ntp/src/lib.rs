@@ -1,6 +1,9 @@
+use genet_derive::Attr;
 use genet_sdk::{cast, decoder::*, prelude::*};
 
-struct NtpWorker {}
+struct NtpWorker {
+    layer: LayerType<Ntp>,
+}
 
 impl Worker for NtpWorker {
     fn decode(&mut self, stack: &mut LayerStack, _data: &ByteSlice) -> Result<Status> {
@@ -32,28 +35,31 @@ impl Worker for NtpWorker {
             return Ok(Status::Skip);
         }
 
-        let mut layer = Layer::new(&NTP_CLASS, &data);
-        let leap_type = LEAP_ATTR.try_get(&layer)?.try_into()?;
+        let layer = Layer::new(self.layer.as_ref().clone(), &data);
 
-        let leap = get_leap(leap_type);
-        if let Some(attr) = leap {
-            layer.add_attr(attr, 0..1);
-        }
+        /*
+                let mut layer = Layer::new(&NTP_CLASS, &data);
+                let leap_type = LEAP_ATTR.try_get(&layer)?.try_into()?;
 
-        let mode_type = MODE_ATTR.try_get(&layer)?.try_into()?;
+                let leap = get_leap(leap_type);
+                if let Some(attr) = leap {
+                    layer.add_attr(attr, 0..1);
+                }
 
-        let mode = get_mode(mode_type);
-        if let Some(attr) = mode {
-            layer.add_attr(attr, 0..1);
-        }
+                let mode_type = MODE_ATTR.try_get(&layer)?.try_into()?;
 
-        let stratum: u8 = STRATUM_ATTR.try_get(&layer)?.try_into()?;
-        if stratum >= 2 {
-            layer.add_attr(&ID_IP_ATTR, 12..16);
-        } else {
-            layer.add_attr(&ID_ATTR, 12..16);
-        }
+                let mode = get_mode(mode_type);
+                if let Some(attr) = mode {
+                    layer.add_attr(attr, 0..1);
+                }
 
+                let stratum: u8 = STRATUM_ATTR.try_get(&layer)?.try_into()?;
+                if stratum >= 2 {
+                    layer.add_attr(&ID_IP_ATTR, 12..16);
+                } else {
+                    layer.add_attr(&ID_ATTR, 12..16);
+                }
+        */
         stack.add_child(layer);
         Ok(Status::Done)
     }
@@ -64,7 +70,9 @@ struct NtpDecoder {}
 
 impl Decoder for NtpDecoder {
     fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
-        Box::new(NtpWorker {})
+        Box::new(NtpWorker {
+            layer: LayerType::new("ntp", Ntp::default()),
+        })
     }
 
     fn metadata(&self) -> Metadata {
@@ -105,6 +113,18 @@ def_attr_class!(
     child: &TRATS_SEC_ATTR,
     child: &TRATS_FRA_ATTR
 );
+
+#[derive(Attr, Default)]
+struct Ntp {
+    #[genet(bit_size = 2, map = "x >> 6")]
+    leap_indicator: EnumNode<cast::UInt8, Leap>,
+
+    #[genet(bit_size = 3, map = "(x >> 3) & 0b111")]
+    version: cast::UInt8,
+
+    #[genet(bit_size = 3, map = "x & 0b111")]
+    mode: EnumNode<cast::UInt8, Mode>,
+}
 
 def_attr_class!(LEAP_ATTR, "ntp.leapIndicator",
     typ: "@enum",
@@ -263,27 +283,63 @@ def_attr_class!(
     range: 44..48
 );
 
-fn get_leap(val: u64) -> Option<&'static AttrClass> {
-    match val {
-        0 => Some(attr_class_lazy!("ntp.leapIndicator.noWarning", typ: "@novalue", value: true)),
-        1 => Some(attr_class_lazy!("ntp.leapIndicator.sec61", typ: "@novalue", value: true)),
-        2 => Some(attr_class_lazy!("ntp.leapIndicator.sec59", typ: "@novalue", value: true)),
-        3 => Some(attr_class_lazy!("ntp.leapIndicator.unknown", typ: "@novalue", value: true)),
-        _ => None,
+#[derive(Attr)]
+enum Leap {
+    NoWarning,
+    Sec61,
+    Sec59,
+    Unknown,
+}
+
+impl Default for Leap {
+    fn default() -> Self {
+        Leap::Unknown
     }
 }
 
-fn get_mode(val: u64) -> Option<&'static AttrClass> {
-    match val {
-        0 => Some(attr_class_lazy!("ntp.mode.reserved", typ: "@novalue", value: true)),
-        1 => Some(attr_class_lazy!("ntp.mode.symmetricActive", typ: "@novalue", value: true)),
-        2 => Some(attr_class_lazy!("ntp.mode.symmetricPassive", typ: "@novalue", value: true)),
-        3 => Some(attr_class_lazy!("ntp.mode.client", typ: "@novalue", value: true)),
-        4 => Some(attr_class_lazy!("ntp.mode.server", typ: "@novalue", value: true)),
-        5 => Some(attr_class_lazy!("ntp.mode.broadcast", typ: "@novalue", value: true)),
-        6 => Some(attr_class_lazy!("ntp.mode.controlMessage", typ: "@novalue", value: true)),
-        7 => Some(attr_class_lazy!("ntp.mode.reservedForPrivate", typ: "@novalue", value: true)),
-        _ => None,
+impl From<u8> for Leap {
+    fn from(data: u8) -> Self {
+        match data {
+            0 => Leap::NoWarning,
+            1 => Leap::Sec61,
+            2 => Leap::Sec59,
+            _ => Self::default(),
+        }
+    }
+}
+
+#[derive(Attr)]
+enum Mode {
+    Reserved,
+    SymmetricActive,
+    SymmetricPassive,
+    Client,
+    Server,
+    Broadcast,
+    ControlMessage,
+    ReservedForPrivate,
+    Unknown,
+}
+
+impl Default for Mode {
+    fn default() -> Self {
+        Mode::Unknown
+    }
+}
+
+impl From<u8> for Mode {
+    fn from(data: u8) -> Self {
+        match data {
+            0 => Mode::Reserved,
+            1 => Mode::SymmetricActive,
+            2 => Mode::SymmetricPassive,
+            3 => Mode::Client,
+            4 => Mode::Server,
+            5 => Mode::Broadcast,
+            6 => Mode::ControlMessage,
+            7 => Mode::ReservedForPrivate,
+            _ => Self::default(),
+        }
     }
 }
 
