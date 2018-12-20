@@ -1,55 +1,42 @@
-extern crate genet_sdk;
-
+use genet_derive::Attr;
 use genet_sdk::{cast, decoder::*, prelude::*};
 
-struct ArpWorker {}
+struct ArpWorker {
+    layer: LayerType<ARP>,
+}
 
 impl Worker for ArpWorker {
-    fn decode(&mut self, _stack: &LayerStack, parent: &mut Parent) -> Result<Status> {
-        let data;
+    fn decode(&mut self, stack: &mut LayerStack, data: &ByteSlice) -> Result<Status> {
+        let mut layer = Layer::new(self.layer.as_ref().clone(), data);
 
-        if let Some(payload) = parent.payloads().find(|p| p.id() == token!("@data:arp")) {
-            data = payload.data();
-        } else {
-            return Ok(Status::Skip);
-        }
+        let hwtype = self.layer.hwtype.try_get(&layer)?;
+        let protocol = self.layer.protocol.try_get(&layer)?;
 
-        let mut layer = Layer::new(&ARP_CLASS, data);
+        let hlen: usize = self.layer.hlen.try_get(&layer)?.try_into()?;
+        let plen: usize = self.layer.plen.try_get(&layer)?.try_into()?;
 
-        let hw_type = HWTYPE_ATTR.try_get(&layer)?.try_into()?;
-        let hw = get_hw(hw_type);
-        if let Some((attr, _, _)) = hw {
-            layer.add_attr(attr, 0..2);
-        }
+        let (sha, tha) = match hwtype {
+            HardwareType::Eth => (&self.layer.sha_eth, &self.layer.tha_eth),
+            _ => return Ok(Status::Skip),
+        };
 
-        let proto_type = PROTO_ATTR.try_get(&layer)?.try_into()?;
-        let proto = get_proto(proto_type);
-        if let Some((attr, _, _)) = proto {
-            layer.add_attr(attr, 2..4);
-        }
+        let (spa, tpa) = match protocol {
+            ProtocolType::IPv4 => (&self.layer.spa_ipv4, &self.layer.tpa_ipv4),
+            ProtocolType::IPv6 => (&self.layer.spa_ipv6, &self.layer.tpa_ipv6),
+            _ => return Ok(Status::Skip),
+        };
 
-        let hlen: usize = HLEN_ATTR.try_get(&layer)?.try_into()?;
-        let plen: usize = PLEN_ATTR.try_get(&layer)?.try_into()?;
+        let mut offset = self.layer.byte_size();
+        layer.add_attr(sha.class(), offset..offset + hlen);
+        offset += hlen;
+        layer.add_attr(spa.class(), offset..offset + plen);
+        offset += plen;
+        layer.add_attr(tha.class(), offset..offset + hlen);
+        offset += hlen;
+        layer.add_attr(tpa.class(), offset..offset + plen);
+        offset += plen;
 
-        let op_type = OP_ATTR.try_get(&layer)?.try_into()?;
-        if let Some(attr) = get_op(op_type) {
-            layer.add_attr(attr, 6..8);
-        }
-
-        if let Some((_, sha, tha)) = hw {
-            if let Some((_, spa, tpa)) = proto {
-                let mut offset = 8;
-                layer.add_attr(sha, offset..offset + hlen);
-                offset += hlen;
-                layer.add_attr(spa, offset..offset + plen);
-                offset += plen;
-                layer.add_attr(tha, offset..offset + hlen);
-                offset += hlen;
-                layer.add_attr(tpa, offset..offset + plen);
-            }
-        }
-
-        parent.add_child(layer);
+        stack.add_child(layer);
         Ok(Status::Done)
     }
 }
@@ -59,90 +46,110 @@ struct ArpDecoder {}
 
 impl Decoder for ArpDecoder {
     fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
-        Box::new(ArpWorker {})
+        Box::new(ArpWorker {
+            layer: LayerType::new("arp", ARP::default()),
+        })
     }
 
     fn metadata(&self) -> Metadata {
         Metadata {
             id: "arp".into(),
-            exec_type: ExecType::ParallelSync,
             ..Metadata::default()
         }
     }
 }
 
-def_layer_class!(ARP_CLASS, &ARP_ATTR);
+#[derive(Attr, Default)]
+struct ARP {
+    hwtype: EnumNode<cast::UInt16BE, HardwareType>,
+    protocol: EnumNode<cast::UInt16BE, ProtocolType>,
+    hlen: Node<cast::UInt8>,
+    plen: Node<cast::UInt8>,
+    op: EnumNode<cast::UInt16BE, OperationType>,
 
-def_attr_class!(
-    ARP_ATTR,
-    "arp",
-    child: &HWTYPE_ATTR,
-    child: &PROTO_ATTR,
-    child: &HLEN_ATTR,
-    child: &PLEN_ATTR,
-    child: &OP_ATTR
-);
+    #[genet(detach, id = "sha", typ = "@eth:mac", alias = "_.src", byte_size = 6)]
+    sha_eth: Node<cast::ByteSlice>,
 
-def_attr_class!(HWTYPE_ATTR, "arp.hwtype",
-    typ: "@enum",
-    cast: &cast::UInt16BE(),
-    range: 0..2
-);
+    #[genet(detach, id = "tha", typ = "@eth:mac", alias = "_.dst", byte_size = 6)]
+    tha_eth: Node<cast::ByteSlice>,
 
-def_attr_class!(PROTO_ATTR, "arp.protocol",
-    typ: "@enum",
-    cast: &cast::UInt16BE(),
-    range: 2..4
-);
+    #[genet(detach, id = "spa", typ = "@ipv4:addr", byte_size = 4)]
+    spa_ipv4: Node<cast::ByteSlice>,
 
-def_attr_class!(HLEN_ATTR, "arp.hlen",
-    cast: &cast::UInt8(),
-    range: 4..5
-);
+    #[genet(detach, id = "tpa", typ = "@ipv4:addr", byte_size = 4)]
+    tpa_ipv4: Node<cast::ByteSlice>,
 
-def_attr_class!(PLEN_ATTR, "arp.plen",
-    cast: &cast::UInt8(),
-    range: 5..6
-);
+    #[genet(detach, id = "spa", typ = "@ipv6:addr", byte_size = 16)]
+    spa_ipv6: Node<cast::ByteSlice>,
 
-def_attr_class!(OP_ATTR, "arp.op",
-    cast: &cast::UInt16BE(),
-    typ: "@enum",
-    range: 6..8
-);
+    #[genet(detach, id = "tpa", typ = "@ipv6:addr", byte_size = 16)]
+    tpa_ipv6: Node<cast::ByteSlice>,
+}
 
-fn get_hw(val: u64) -> Option<(&'static AttrClass, &'static AttrClass, &'static AttrClass)> {
-    match val {
-        0x0001 => Some((
-            attr_class_lazy!("arp.hwtype.eth", typ: "@novalue", value: true),
-            attr_class_lazy!("arp.sha", typ: "@eth:mac", alias: "_.src", cast: &cast::ByteSlice()),
-            attr_class_lazy!("arp.tha", typ: "@eth:mac", alias: "_.dst", cast: &cast::ByteSlice()),
-        )),
-        _ => None,
+#[derive(Attr)]
+enum HardwareType {
+    Eth,
+    Unknown,
+}
+
+impl Default for HardwareType {
+    fn default() -> Self {
+        HardwareType::Unknown
     }
 }
 
-fn get_proto(val: u64) -> Option<(&'static AttrClass, &'static AttrClass, &'static AttrClass)> {
-    match val {
-        0x0800 => Some((
-            attr_class_lazy!("arp.protocol.ipv4", typ: "@novalue", value: true),
-            attr_class_lazy!("arp.spa", typ: "@ipv4:addr", cast: &cast::ByteSlice()),
-            attr_class_lazy!("arp.tpa", typ: "@ipv4:addr", cast: &cast::ByteSlice()),
-        )),
-        0x86DD => Some((
-            attr_class_lazy!("arp.protocol.ipv6", typ: "@novalue", value: true),
-            attr_class_lazy!("arp.spa", typ: "@ipv6:addr", cast: &cast::ByteSlice()),
-            attr_class_lazy!("arp.tpa", typ: "@ipv6:addr", cast: &cast::ByteSlice()),
-        )),
-        _ => None,
+impl From<u16> for HardwareType {
+    fn from(data: u16) -> Self {
+        match data {
+            0x0001 => HardwareType::Eth,
+            _ => Self::default(),
+        }
     }
 }
 
-fn get_op(val: u64) -> Option<&'static AttrClass> {
-    match val {
-        0x0001 => Some(attr_class_lazy!("arp.op.request", typ: "@novalue", value: true)),
-        0x0002 => Some(attr_class_lazy!("arp.op.reply", typ: "@novalue", value: true)),
-        _ => None,
+#[derive(Attr)]
+enum ProtocolType {
+    IPv4,
+    IPv6,
+    Unknown,
+}
+
+impl Default for ProtocolType {
+    fn default() -> Self {
+        ProtocolType::Unknown
+    }
+}
+
+impl From<u16> for ProtocolType {
+    fn from(data: u16) -> Self {
+        match data {
+            0x0800 => ProtocolType::IPv4,
+            0x86DD => ProtocolType::IPv6,
+            _ => Self::default(),
+        }
+    }
+}
+
+#[derive(Attr)]
+enum OperationType {
+    Requset,
+    Reply,
+    Unknown,
+}
+
+impl Default for OperationType {
+    fn default() -> Self {
+        OperationType::Unknown
+    }
+}
+
+impl From<u16> for OperationType {
+    fn from(data: u16) -> Self {
+        match data {
+            0x0001 => OperationType::Requset,
+            0x0002 => OperationType::Reply,
+            _ => Self::default(),
+        }
     }
 }
 

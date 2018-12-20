@@ -1,27 +1,24 @@
+use genet_derive::Attr;
 use genet_sdk::{cast, decoder::*, prelude::*};
 
-struct IPv4Worker {}
+struct IPv4Worker {
+    layer: LayerType<IPv4>,
+    tcp: WorkerBox,
+    udp: WorkerBox,
+}
 
 impl Worker for IPv4Worker {
-    fn decode(&mut self, _stack: &LayerStack, parent: &mut Parent) -> Result<Status> {
-        let data;
+    fn decode(&mut self, stack: &mut LayerStack, data: &ByteSlice) -> Result<Status> {
+        let layer = Layer::new(self.layer.as_ref().clone(), data);
+        let protocol = self.layer.protocol.try_get(&layer);
+        stack.add_child(layer);
 
-        if let Some(payload) = parent.payloads().find(|p| p.id() == token!("@data:ipv4")) {
-            data = payload.data();
-        } else {
-            return Ok(Status::Skip);
+        let payload = data.try_get(self.layer.byte_size()..)?;
+        match protocol {
+            Ok(ProtoType::TCP) => self.tcp.decode(stack, &payload),
+            Ok(ProtoType::UDP) => self.udp.decode(stack, &payload),
+            _ => Ok(Status::Done),
         }
-
-        let mut layer = Layer::new(&IPV4_CLASS, data);
-        let proto = PROTO_ATTR.try_get(&layer)?.try_into()?;
-        if let Some((typ, attr)) = get_proto(proto) {
-            layer.add_attr(attr, 9..10);
-            let payload = layer.data().try_get(20..)?;
-            layer.add_payload(Payload::new(payload, typ));
-        }
-
-        parent.add_child(layer);
-        Ok(Status::Done)
     }
 }
 
@@ -29,141 +26,89 @@ impl Worker for IPv4Worker {
 struct IPv4Decoder {}
 
 impl Decoder for IPv4Decoder {
-    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
-        Box::new(IPv4Worker {})
+    fn new_worker(&self, ctx: &Context) -> Box<Worker> {
+        Box::new(IPv4Worker {
+            layer: LayerType::new("ipv4", IPv4::default()),
+            tcp: ctx.decoder("tcp").unwrap(),
+            udp: ctx.decoder("udp").unwrap(),
+        })
     }
 
     fn metadata(&self) -> Metadata {
         Metadata {
             id: "ipv4".into(),
-            exec_type: ExecType::ParallelSync,
             ..Metadata::default()
         }
     }
 }
 
-def_layer_class!(IPV4_CLASS, &IPV4_ATTR);
+#[derive(Attr, Default)]
+struct IPv4 {
+    #[genet(bit_size = 4, map = "x >> 4")]
+    version: cast::UInt8,
 
-def_attr_class!(
-    IPV4_ATTR,
-    "ipv4",
-    child: &VERSION_ATTR,
-    child: &HLEN_ATTR,
-    child: &TOS_ATTR,
-    child: &LENGTH_ATTR,
-    child: &ID_ATTR,
-    child: &FLAGS_ATTR,
-    child: &FLAGS_RV_ATTR,
-    child: &FLAGS_DF_ATTR,
-    child: &FLAGS_MF_ATTR,
-    child: &OFFSET_ATTR,
-    child: &TTL_ATTR,
-    child: &PROTO_ATTR,
-    child: &CHECKSUM_ATTR,
-    child: &SRC_ATTR,
-    child: &DST_ATTR
-);
+    #[genet(bit_size = 4, map = "x & 0b00001111")]
+    header_length: cast::UInt8,
 
-def_attr_class!(VERSION_ATTR, "ipv4.version",
-    cast: &cast::UInt8().map(|v| v >> 4),
-    bit_range: 0 0..4
-);
+    tos: cast::UInt8,
 
-def_attr_class!(HLEN_ATTR, "ipv4.headerLength",
-    cast: &cast::UInt8().map(|v| v & 0b00001111),
-    bit_range: 0 4..8
-);
+    total_length: cast::UInt16BE,
 
-def_attr_class!(TOS_ATTR, "ipv4.tos",
-    cast: &cast::UInt8(),
-    range: 1..2
-);
+    id: cast::UInt16BE,
 
-def_attr_class!(LENGTH_ATTR, "ipv4.totalLength",
-    cast: &cast::UInt16BE(),
-    range: 2..4
-);
+    #[genet(bit_size = 3, map = "(x >> 5) & 0b0000_0111", typ = "@flags")]
+    flags: Node<cast::UInt8, Flags>,
 
-def_attr_class!(ID_ATTR, "ipv4.id",
-    cast: &cast::UInt16BE(),
-    range: 4..6
-);
+    #[genet(bit_size = 13, map = "x & 0x1fff")]
+    fragment_offset: cast::UInt16BE,
 
-def_attr_class!(FLAGS_ATTR, "ipv4.flags",
-    cast: &cast::UInt8().map(|v| (v >> 5) & 0b00000111),
-    typ: "@flags",
-    bit_range: 6 0..1
-);
+    ttl: cast::UInt8,
 
-def_attr_class!(FLAGS_RV_ATTR, "ipv4.flags.reserved",
-    cast: &cast::UInt8().map(|v| v & 0b10000000 != 0),
-    bit_range: 6 1..2
-);
+    #[genet(typ = "@enum")]
+    protocol: EnumNode<cast::UInt8, ProtoType>,
 
-def_attr_class!(FLAGS_DF_ATTR, "ipv4.flags.dontFragment",
-    cast: &cast::UInt8().map(|v| v & 0b01000000 != 0),
-    bit_range: 6 2..3
-);
+    checksum: cast::UInt16BE,
 
-def_attr_class!(FLAGS_MF_ATTR, "ipv4.flags.moreFragments",
-    cast: &cast::UInt8().map(|v| v & 0b00100000 != 0),
-    bit_range: 6 3..4
-);
+    #[genet(alias = "_.src", typ = "@ipv4:addr", byte_size = 4)]
+    src: cast::ByteSlice,
 
-def_attr_class!(OFFSET_ATTR, "ipv4.fragmentOffset",
-    cast: &cast::UInt16BE().map(|v| v & 0x1fff),
-    bit_range: 6 4..16
-);
+    #[genet(alias = "_.dst", typ = "@ipv4:addr", byte_size = 4)]
+    dst: cast::ByteSlice,
+}
 
-def_attr_class!(TTL_ATTR, "ipv4.ttl",
-    cast: &cast::UInt8(),
-    range: 8..9
-);
+#[derive(Attr, Default)]
+struct Flags {
+    reserved: cast::BitFlag,
 
-def_attr_class!(PROTO_ATTR, "ipv4.protocol",
-    cast: &cast::UInt8(),
-    typ: "@enum",
-    range: 9..10
-);
+    dont_fragment: cast::BitFlag,
 
-def_attr_class!(CHECKSUM_ATTR, "ipv4.checksum",
-    cast: &cast::UInt16BE(),
-    range: 10..12
-);
+    more_fragments: cast::BitFlag,
+}
 
-def_attr_class!(SRC_ATTR, "ipv4.src",
-    typ: "@ipv4:addr",
-    alias: "_.src",
-    cast: &cast::ByteSlice(),
-    range: 12..16
-);
+#[derive(Attr)]
+enum ProtoType {
+    ICPM,
+    IGMP,
+    TCP,
+    UDP,
+    Unknown,
+}
 
-def_attr_class!(DST_ATTR, "ipv4.dst",
-    typ: "@ipv4:addr",
-    alias: "_.dst",
-    cast: &cast::ByteSlice(),
-    range: 16..20
-);
+impl Default for ProtoType {
+    fn default() -> Self {
+        ProtoType::Unknown
+    }
+}
 
-fn get_proto(val: u64) -> Option<(Token, &'static AttrClass)> {
-    match val {
-        0x01 => Some((
-            token!("@data:icmp"),
-            attr_class_lazy!("ipv4.protocol.icmp", typ: "@novalue", value: true),
-        )),
-        0x02 => Some((
-            token!("@data:igmp"),
-            attr_class_lazy!("ipv4.protocol.igmp", typ: "@novalue", value: true),
-        )),
-        0x06 => Some((
-            token!("@data:tcp"),
-            attr_class_lazy!("ipv4.protocol.tcp", typ: "@novalue", value: true),
-        )),
-        0x11 => Some((
-            token!("@data:udp"),
-            attr_class_lazy!("ipv4.protocol.udp", typ: "@novalue", value: true),
-        )),
-        _ => None,
+impl From<u8> for ProtoType {
+    fn from(data: u8) -> Self {
+        match data {
+            0x01 => ProtoType::ICPM,
+            0x02 => ProtoType::IGMP,
+            0x06 => ProtoType::TCP,
+            0x11 => ProtoType::UDP,
+            _ => Self::default(),
+        }
     }
 }
 

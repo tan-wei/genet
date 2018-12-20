@@ -1,20 +1,17 @@
+use genet_derive::Attr;
 use genet_sdk::{cast, decoder::*, prelude::*};
 
-struct IPv6Worker {}
+struct IPv6Worker {
+    layer: LayerType<IPv6>,
+    tcp: WorkerBox,
+    udp: WorkerBox,
+}
 
 impl Worker for IPv6Worker {
-    fn decode(&mut self, _stack: &LayerStack, parent: &mut Parent) -> Result<Status> {
-        let data;
+    fn decode(&mut self, stack: &mut LayerStack, data: &ByteSlice) -> Result<Status> {
+        let mut layer = Layer::new(self.layer.as_ref().clone(), data);
 
-        if let Some(payload) = parent.payloads().find(|p| p.id() == token!("@data:ipv6")) {
-            data = payload.data();
-        } else {
-            return Ok(Status::Skip);
-        }
-
-        let mut layer = Layer::new(&IPV6_CLASS, data);
-        let nheader = NHEADER_ATTR.try_get(&layer)?.try_into()?;
-
+        let nheader = self.layer.next_header.try_get(&layer)?.try_into()?;
         loop {
             match nheader {
                 // TODO:
@@ -30,19 +27,17 @@ impl Worker for IPv6Worker {
             }
         }
 
-        let range = NHEADER_ATTR.range();
-        let proto = PROTOCOL_ATTR
-            .try_get_range(&layer, range.clone())?
-            .try_into()?;
-        layer.add_attr(&PROTOCOL_ATTR, range.clone());
-        if let Some((typ, attr)) = get_proto(proto) {
-            layer.add_attr(attr, range.clone());
-            let payload = layer.data().try_get(40..)?;
-            layer.add_payload(Payload::new(payload, typ));
-        }
+        let range = self.layer.next_header.class().range();
+        let typ = self.layer.protocol.try_get_range(&layer, range.clone());
+        layer.add_attr(self.layer.protocol.class(), range.clone());
+        stack.add_child(layer);
 
-        parent.add_child(layer);
-        Ok(Status::Done)
+        let payload = data.try_get(self.layer.byte_size()..)?;
+        match typ {
+            Ok(ProtoType::TCP) => self.tcp.decode(stack, &payload),
+            Ok(ProtoType::UDP) => self.udp.decode(stack, &payload),
+            _ => Ok(Status::Done),
+        }
     }
 }
 
@@ -50,104 +45,76 @@ impl Worker for IPv6Worker {
 struct IPv6Decoder {}
 
 impl Decoder for IPv6Decoder {
-    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
-        Box::new(IPv6Worker {})
+    fn new_worker(&self, ctx: &Context) -> Box<Worker> {
+        Box::new(IPv6Worker {
+            layer: LayerType::new("ipv6", IPv6::default()),
+            tcp: ctx.decoder("tcp").unwrap(),
+            udp: ctx.decoder("udp").unwrap(),
+        })
     }
 
     fn metadata(&self) -> Metadata {
         Metadata {
             id: "ipv6".into(),
-            exec_type: ExecType::ParallelSync,
             ..Metadata::default()
         }
     }
 }
 
-def_layer_class!(IPV6_CLASS, &IPV6_ATTR);
+#[derive(Attr, Default)]
+struct IPv6 {
+    #[genet(bit_size = 4, map = "x >> 4")]
+    version: cast::UInt8,
 
-def_attr_class!(
-    IPV6_ATTR,
-    "ipv6",
-    child: &VERSION_ATTR,
-    child: &TRAFFIC_ATTR,
-    child: &FLOW_ATTR,
-    child: &LENGTH_ATTR,
-    child: &NHEADER_ATTR,
-    child: &HLIMIT_ATTR,
-    child: &SRC_ATTR,
-    child: &DST_ATTR
-);
+    #[genet(bit_size = 8, map = "(x >> 4) & 0xff")]
+    traffic_class: cast::UInt16BE,
 
-def_attr_class!(VERSION_ATTR, "ipv6.version",
-    cast: &cast::UInt8().map(|v| v >> 4),
-    bit_range: 0 0..4
-);
+    #[genet(
+        bit_size = 20,
+        map = "(((x[2] as u32) & 0xf) << 16) | ((x[1] as u32) << 8) | x[2] as u32"
+    )]
+    flow_label: cast::ByteSlice,
 
-def_attr_class!(TRAFFIC_ATTR, "ipv6.trafficClass",
-    cast: &cast::UInt16BE().map(|v| (v >> 4) & 0xff),
-    bit_range: 0 4..12
-);
+    payload_length: cast::UInt16BE,
 
-def_attr_class!(FLOW_ATTR, "ipv6.flowLabel", 
-    cast:
-        &cast::ByteSlice()
-            .map(|v| (((v[2] as u32) & 0xf) << 16) | ((v[1] as u32) << 8) | v[2] as u32),
-    bit_range: 1 4..24
-);
+    next_header: Node<cast::UInt8>,
 
-def_attr_class!(LENGTH_ATTR, "ipv6.payloadLength",
-    cast: &cast::UInt8(),
-    range: 4..6
-);
+    hop_limit: cast::UInt8,
 
-def_attr_class!(NHEADER_ATTR, "ipv6.nextHeader",
-    cast: &cast::UInt8(),
-    range: 6..7
-);
+    #[genet(alias = "_.dst", typ = "@ipv6:addr", byte_size = 16)]
+    dst: cast::ByteSlice,
 
-def_attr_class!(HLIMIT_ATTR, "ipv6.hopLimit",
-    cast: &cast::UInt8(),
-    range: 7..8
-);
+    #[genet(alias = "_.src", typ = "@ipv6:addr", byte_size = 16)]
+    src: cast::ByteSlice,
 
-def_attr_class!(SRC_ATTR, "ipv6.src",
-    typ: "@ipv6:addr",
-    alias: "_.src",
-    cast: &cast::ByteSlice(),
-    range: 8..24
-);
+    #[genet(detach, typ = "@enum")]
+    protocol: EnumNode<cast::UInt8, ProtoType>,
+}
 
-def_attr_class!(DST_ATTR, "ipv6.dst",
-    typ: "@ipv6:addr",
-    alias: "_.dst",
-    cast: &cast::ByteSlice(),
-    range: 24..40
-);
+#[derive(Attr)]
+enum ProtoType {
+    ICPM,
+    IGMP,
+    TCP,
+    UDP,
+    Unknown,
+}
 
-def_attr_class!(PROTOCOL_ATTR, "ipv6.protocol",
-    typ: "@enum",
-    cast: &cast::UInt8()
-);
+impl Default for ProtoType {
+    fn default() -> Self {
+        ProtoType::Unknown
+    }
+}
 
-fn get_proto(val: u64) -> Option<(Token, &'static AttrClass)> {
-    match val {
-        0x02 => Some((
-            token!("@data:igmp"),
-            attr_class_lazy!("ipv6.protocol.igmp", typ: "@novalue", value: true),
-        )),
-        0x06 => Some((
-            token!("@data:tcp"),
-            attr_class_lazy!("ipv6.protocol.tcp", typ: "@novalue", value: true),
-        )),
-        0x11 => Some((
-            token!("@data:udp"),
-            attr_class_lazy!("ipv6.protocol.udp", typ: "@novalue", value: true),
-        )),
-        0x3a => Some((
-            token!("@data:icmp"),
-            attr_class_lazy!("ipv6.protocol.icmp", typ: "@novalue", value: true),
-        )),
-        _ => None,
+impl From<u8> for ProtoType {
+    fn from(data: u8) -> Self {
+        match data {
+            0x3a => ProtoType::ICPM,
+            0x02 => ProtoType::IGMP,
+            0x06 => ProtoType::TCP,
+            0x11 => ProtoType::UDP,
+            _ => Self::default(),
+        }
     }
 }
 

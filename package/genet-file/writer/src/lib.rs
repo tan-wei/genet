@@ -42,16 +42,14 @@ struct GenetFileWorker {
 }
 
 impl Worker for GenetFileWorker {
-    fn write(&mut self, _index: u32, stack: &LayerStack) -> Result<()> {
-        if let Some(layer) = stack.bottom() {
-            self.layer_id = layer.id();
-            self.entries.push(genet_format::Entry {
-                frame: genet_format::Frame {
-                    len: layer.data().len(),
-                },
-                data: layer.data(),
-            });
-        }
+    fn write(&mut self, _index: u32, layer: &Layer) -> Result<()> {
+        self.layer_id = layer.id();
+        self.entries.push(genet_format::Entry {
+            frame: genet_format::Frame {
+                len: layer.data().len(),
+            },
+            data: layer.data(),
+        });
         Ok(())
     }
 
