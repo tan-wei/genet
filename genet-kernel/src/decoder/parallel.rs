@@ -1,6 +1,6 @@
-use crate::{decoder::dispatcher::Dispatcher, frame::Frame, profile::Profile};
+use crate::{frame::Frame, profile::Profile};
 use crossbeam_channel;
-use genet_abi::decoder::ExecType;
+use genet_abi::layer::{LayerStack, LayerStackData};
 use std::thread::{self, JoinHandle};
 
 pub trait Callback: Sync + Send + Clone {
@@ -31,19 +31,30 @@ impl Pool {
         recv: crossbeam_channel::Receiver<Option<Vec<Frame>>>,
     ) -> JoinHandle<()> {
         thread::spawn(move || {
-            let mut disp = Dispatcher::new(&ExecType::ParallelSync, &profile);
-            loop {
-                if let Ok(frames) = recv.recv() {
-                    if let Some(mut frames) = frames {
-                        for f in &mut frames {
-                            disp.process_frame(f);
+            if let Some(mut decoder) = profile.context().decoder("pcap_layer") {
+                loop {
+                    if let Ok(frames) = recv.recv() {
+                        if let Some(mut frames) = frames {
+                            for f in &mut frames {
+                                let mut layers = f.fetch_layers();
+
+                                let mut data = LayerStackData {
+                                    children: Vec::new(),
+                                };
+                                let mut layer = LayerStack::from_mut_ref(&mut data, unsafe {
+                                    &mut *layers[0].as_mut_ptr()
+                                });
+                                let _ = decoder.decode(&mut layer);
+                                layers.append(&mut data.children);
+                                f.set_layers(layers);
+                            }
+                            callback.done(frames);
+                        } else {
+                            return;
                         }
-                        callback.done(frames);
                     } else {
                         return;
                     }
-                } else {
-                    return;
                 }
             }
         })

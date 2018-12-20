@@ -50,9 +50,9 @@ impl From<u16> for EthType {
 
 struct EthWorker {
     layer: LayerType<Eth>,
-    ipv4: WorkerBox,
-    ipv6: WorkerBox,
-    arp: WorkerBox,
+    ipv4: DecoderStack,
+    ipv6: DecoderStack,
+    arp: DecoderStack,
 }
 
 impl Worker for EthWorker {

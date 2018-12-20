@@ -29,6 +29,7 @@ pub struct Metadata {
     pub name: String,
     pub description: String,
     pub exec_type: ExecType,
+    pub trigger_after: Vec<String>,
 }
 
 impl Default for Metadata {
@@ -38,6 +39,7 @@ impl Default for Metadata {
             name: String::new(),
             description: String::new(),
             exec_type: ExecType::Lazy,
+            trigger_after: Vec::new(),
         }
     }
 }
@@ -45,6 +47,33 @@ impl Default for Metadata {
 /// Decoder worker trait.
 pub trait Worker {
     fn decode(&mut self, stack: &mut LayerStack) -> Result<Status>;
+}
+
+pub struct DecoderStack {
+    worker: WorkerBox,
+    sub_workers: Vec<DecoderStack>,
+}
+
+impl DecoderStack {
+    pub fn new(worker: WorkerBox, sub_workers: Vec<DecoderStack>) -> DecoderStack {
+        Self {
+            worker,
+            sub_workers,
+        }
+    }
+
+    pub fn decode(&mut self, layer: &mut LayerStack) -> Result<Status> {
+        match self.worker.decode(layer) {
+            Ok(Status::Done) => {
+                for worker in self.sub_workers.iter_mut() {
+                    let _ = worker.decode(layer);
+                }
+                Ok(Status::Done)
+            }
+            Ok(Status::Skip) => Ok(Status::Skip),
+            Err(err) => Err(err),
+        }
+    }
 }
 
 #[repr(C)]

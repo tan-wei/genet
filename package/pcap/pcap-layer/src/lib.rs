@@ -3,19 +3,12 @@ use genet_sdk::{cast, decoder::*, prelude::*};
 
 struct PcapLayerWorker {
     layer: LayerType<Link>,
-    eth: WorkerBox,
+    eth: DecoderStack,
 }
 
 impl Worker for PcapLayerWorker {
     fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
-        let data;
-
-        if stack.id() == token!("[pcap]") {
-            data = stack.data();
-        } else {
-            return Ok(Status::Skip);
-        }
-
+        let data = stack.data();
         let mut layer = Layer::new(&self.layer, &data);
         let payload = data.try_get(self.layer.byte_size()..)?;
         layer.set_payload(&payload);
@@ -39,7 +32,6 @@ impl Decoder for PcapLayerDecoder {
     fn metadata(&self) -> Metadata {
         Metadata {
             id: "pcap_layer".into(),
-            exec_type: ExecType::ParallelSync,
             ..Metadata::default()
         }
     }

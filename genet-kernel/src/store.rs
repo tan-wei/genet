@@ -1,6 +1,6 @@
 use crate::{
     array_vec::ArrayVec,
-    decoder::{parallel, serial},
+    decoder::parallel,
     frame::Frame,
     io::{Input, Output},
     profile::Profile,
@@ -39,7 +39,6 @@ pub trait Callback: Send {
 #[derive(Debug)]
 enum Command {
     PushFrames(Option<u32>, Result<Vec<MutFixed<Layer>>>),
-    PushSerialFrames(Vec<Frame>),
     StoreFrames(Vec<Frame>),
     SetFilter(u32, Option<CompiledLayerFilter>),
     PushOutput(u32, Box<Output>, Option<CompiledLayerFilter>),
@@ -181,17 +180,6 @@ struct ParallelCallback {
 
 impl parallel::Callback for ParallelCallback {
     fn done(&self, result: Vec<Frame>) {
-        let _ = self.sender.send(Command::PushSerialFrames(result));
-    }
-}
-
-#[derive(Clone)]
-struct SerialCallback {
-    sender: crossbeam_channel::Sender<Command>,
-}
-
-impl serial::Callback for SerialCallback {
-    fn done(&self, result: Vec<Frame>) {
         let _ = self.sender.send(Command::StoreFrames(result));
     }
 }
@@ -226,12 +214,6 @@ impl EventLoop {
                         sender: sender.clone(),
                     },
                 );
-                let mut spool = serial::Pool::new(
-                    profile.clone(),
-                    SerialCallback {
-                        sender: sender.clone(),
-                    },
-                );
                 let mut cnt = 0;
                 callback.on_frames_updated(0);
                 callback.on_async_frames_updated(0);
@@ -240,9 +222,6 @@ impl EventLoop {
                         match cmd {
                             Command::PushFrames(id, result) => {
                                 Self::process_input(id, result, &mut cnt, &mut ppool, &callback)
-                            }
-                            Command::PushSerialFrames(vec) => {
-                                spool.process(vec);
                             }
                             Command::StoreFrames(vec) => {
                                 let len = {

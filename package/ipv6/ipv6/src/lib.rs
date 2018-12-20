@@ -3,8 +3,8 @@ use genet_sdk::{cast, decoder::*, prelude::*};
 
 struct IPv6Worker {
     layer: LayerType<IPv6>,
-    tcp: WorkerBox,
-    udp: WorkerBox,
+    tcp: DecoderStack,
+    udp: DecoderStack,
 }
 
 impl Worker for IPv6Worker {
