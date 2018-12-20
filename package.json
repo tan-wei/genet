@@ -112,7 +112,7 @@
   "devDependencies": {
     "@genet/image-assets": "^0.1.0",
     "benchmark": "^2.1.4",
-    "electron": "2.0.12",
+    "electron": "2.0.16",
     "electron-builder": "^20.38.3",
     "less": "^3.9.0",
     "node-gyp": "^3.8.0",
