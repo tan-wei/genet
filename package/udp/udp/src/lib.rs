@@ -6,8 +6,11 @@ struct UdpWorker {
 }
 
 impl Worker for UdpWorker {
-    fn decode(&mut self, stack: &mut LayerStack, data: &ByteSlice) -> Result<Status> {
-        let layer = Layer::new(self.layer.as_ref().clone(), data);
+    fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
+        let data = stack.top().unwrap().payload();
+        let mut layer = Layer::new(self.layer.as_ref().clone(), &data);
+        let payload = data.try_get(self.layer.byte_size()..)?;
+        layer.set_payload(&payload);
         stack.add_child(layer);
         Ok(Status::Done)
     }

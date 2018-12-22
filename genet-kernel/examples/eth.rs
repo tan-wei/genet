@@ -53,9 +53,9 @@ struct EthWorker {
 }
 
 impl Worker for EthWorker {
-    fn decode(&mut self, stack: &mut LayerStack, _data: &ByteSlice) -> Result<Status> {
+    fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
         if stack.id() == token!("[link-1]") {
-            let data = stack.payloads().next().unwrap().data();
+            let data = stack.top().unwrap().payload();
             let layer = Layer::new(self.layer.as_ref().clone(), &data);
             stack.add_child(layer);
             Ok(Status::Done)

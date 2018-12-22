@@ -67,14 +67,14 @@ impl<'a> LayerStack<'a> {
         self.deref_mut().add_attr(attr, range);
     }
 
-    /// Returns the slice of payloads.
-    pub fn payloads(&self) -> impl Iterator<Item = &Payload> {
-        self.deref().payloads()
+    /// Returns the payload.
+    pub fn payload(&self) -> ByteSlice {
+        self.deref().payload()
     }
 
     /// Adds a payload to the Layer.
-    pub fn add_payload(&mut self, payload: Payload) {
-        self.deref_mut().add_payload(payload);
+    pub fn set_payload(&mut self, payload: &ByteSlice) {
+        self.deref_mut().set_payload(payload);
     }
 
     pub fn add_child<T: Into<MutFixed<Layer>>>(&mut self, layer: T) {
@@ -134,7 +134,7 @@ pub struct Layer {
     class: Fixed<LayerClass>,
     data: ByteSlice,
     attrs: Vec<BoundAttr>,
-    payloads: Vec<Payload>,
+    payload: ByteSlice,
 }
 
 unsafe impl Send for Layer {}
@@ -146,7 +146,7 @@ impl Layer {
             class: class.into(),
             data: *data,
             attrs: Vec::new(),
-            payloads: Vec::new(),
+            payload: ByteSlice::new(),
         }
     }
 
@@ -199,15 +199,15 @@ impl Layer {
         );
     }
 
-    /// Returns the slice of payloads.
-    pub fn payloads(&self) -> impl Iterator<Item = &Payload> {
-        self.class.payloads(self)
+    /// Returns the payload.
+    pub fn payload(&self) -> ByteSlice {
+        self.class.payload(self)
     }
 
-    /// Adds a payload to the Layer.
-    pub fn add_payload(&mut self, payload: Payload) {
-        let func = self.class.add_payload;
-        (func)(self, payload);
+    /// Sets a payload to the Layer.
+    pub fn set_payload(&mut self, payload: &ByteSlice) {
+        let func = self.class.set_payload;
+        (func)(self, payload.as_ptr(), payload.len() as u64);
     }
 }
 
@@ -232,43 +232,6 @@ pub struct Payload {
     typ: Token,
 }
 
-impl Payload {
-    /// Creates a new payload.
-    pub fn new<B: Into<ByteSlice>, T: Into<Token>>(data: B, id: T) -> Payload {
-        Self::with_typ(data, id, "")
-    }
-
-    /// Creates a new payload with the given type.
-    pub fn with_typ<B: Into<ByteSlice>, T: Into<Token>, U: Into<Token>>(
-        data: B,
-        id: T,
-        typ: U,
-    ) -> Payload {
-        let data: ByteSlice = data.into();
-        Self {
-            data: data.as_ptr(),
-            len: data.len() as u64,
-            id: id.into(),
-            typ: typ.into(),
-        }
-    }
-
-    /// Returns the ID of self.
-    pub fn id(&self) -> Token {
-        self.id
-    }
-
-    /// Returns the type of self.
-    pub fn typ(&self) -> Token {
-        self.typ
-    }
-
-    /// Returns the data of self.
-    pub fn data(&self) -> ByteSlice {
-        unsafe { ByteSlice::from_raw_parts(self.data, self.len as usize) }
-    }
-}
-
 /// A builder object for LayerClass.
 pub struct LayerClassBuilder {
     header: Fixed<AttrClass>,
@@ -283,9 +246,8 @@ impl LayerClassBuilder {
             attrs_len: abi_attrs_len,
             attrs_data: abi_attrs_data,
             add_attr: abi_add_attr,
-            payloads_len: abi_payloads_len,
-            payloads_data: abi_payloads_data,
-            add_payload: abi_add_payload,
+            set_payload: abi_set_payload,
+            payload: abi_payload,
             header: self.header,
         }
     }
@@ -333,9 +295,8 @@ impl<I: Into<Variant>, T: AttrField<I = I> + SizedField> LayerType<T> {
             attrs_len: abi_attrs_len,
             attrs_data: abi_attrs_data,
             add_attr: abi_add_attr,
-            payloads_len: abi_payloads_len,
-            payloads_data: abi_payloads_data,
-            add_payload: abi_add_payload,
+            set_payload: abi_set_payload,
+            payload: abi_payload,
             header: Fixed::new(class),
         });
         Self { field, layer }
@@ -350,9 +311,8 @@ pub struct LayerClass {
     attrs_len: extern "C" fn(*const Layer) -> u64,
     attrs_data: extern "C" fn(*const Layer) -> *const BoundAttr,
     add_attr: extern "C" fn(*mut Layer, BoundAttr),
-    payloads_len: extern "C" fn(*const Layer) -> u64,
-    payloads_data: extern "C" fn(*const Layer) -> *const Payload,
-    add_payload: extern "C" fn(*mut Layer, Payload),
+    set_payload: extern "C" fn(*mut Layer, *const u8, u64),
+    payload: extern "C" fn(*const Layer, *mut u64) -> *const u8,
     header: Fixed<AttrClass>,
 }
 
@@ -380,9 +340,8 @@ impl LayerClass {
             attrs_len: abi_attrs_len,
             attrs_data: abi_attrs_data,
             add_attr: abi_add_attr,
-            payloads_len: abi_payloads_len,
-            payloads_data: abi_payloads_data,
-            add_payload: abi_add_payload,
+            set_payload: abi_set_payload,
+            payload: abi_payload,
             header: Fixed::new(class),
         }
     }
@@ -412,10 +371,10 @@ impl LayerClass {
         attrs.into_iter()
     }
 
-    fn payloads(&self, layer: &Layer) -> impl Iterator<Item = &Payload> {
-        let data = (self.payloads_data)(layer);
-        let len = (self.payloads_len)(layer) as usize;
-        unsafe { slice::from_raw_parts(data, len) }.iter()
+    fn payload(&self, layer: &Layer) -> ByteSlice {
+        let mut len = 0;
+        let data = (self.payload)(layer, &mut len);
+        unsafe { ByteSlice::from_raw_parts(data, len as usize) }
     }
 }
 
@@ -458,17 +417,19 @@ extern "C" fn abi_add_attr(layer: *mut Layer, attr: BoundAttr) {
     attrs.push(attr);
 }
 
-extern "C" fn abi_payloads_len(layer: *const Layer) -> u64 {
-    unsafe { (*layer).payloads.len() as u64 }
+extern "C" fn abi_payload(layer: *const Layer, len: *mut u64) -> *const u8 {
+    unsafe {
+        let data = &(*layer).payload;
+        *len = data.len() as u64;
+        data.as_ptr()
+    }
 }
 
-extern "C" fn abi_payloads_data(layer: *const Layer) -> *const Payload {
-    unsafe { (*layer).payloads.as_ptr() }
-}
-
-extern "C" fn abi_add_payload(layer: *mut Layer, payload: Payload) {
-    let payloads = unsafe { &mut (*layer).payloads };
-    payloads.push(payload);
+extern "C" fn abi_set_payload(layer: *mut Layer, data: *const u8, len: u64) {
+    unsafe {
+        let layer = &mut (*layer);
+        layer.payload = ByteSlice::from_raw_parts(data, len as usize);
+    }
 }
 
 #[cfg(test)]
@@ -477,7 +438,7 @@ mod tests {
         attr::{Attr, AttrClass},
         cast::Cast,
         fixed::Fixed,
-        layer::{Layer, LayerClass, Payload},
+        layer::{Layer, LayerClass},
         slice::ByteSlice,
         token::Token,
         variant::Variant,
@@ -500,29 +461,6 @@ mod tests {
         let class = Fixed::new(LayerClass::builder(attr).build());
         let layer = Layer::new(class, &ByteSlice::from(&data[..]));
         assert_eq!(layer.data(), ByteSlice::from(&data[..]));
-    }
-
-    #[test]
-    fn payloads() {
-        let attr = Fixed::new(AttrClass::builder(Token::null()).build());
-        let class = Fixed::new(LayerClass::builder(attr).build());
-        let mut layer = Layer::new(class, &ByteSlice::new());
-        assert!(layer.payloads().next().is_none());
-
-        let count = 100;
-        let data = b"hello";
-
-        for i in 0..count {
-            layer.add_payload(Payload::new(ByteSlice::from(&data[..]), Token::from(i)));
-        }
-
-        let mut iter = layer.payloads();
-        for i in 0..count {
-            let payload = iter.next().unwrap();
-            assert_eq!(payload.data(), ByteSlice::from(&data[..]));
-            assert_eq!(payload.id(), Token::from(i));
-        }
-        assert!(iter.next().is_none());
     }
 
     #[test]

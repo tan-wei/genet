@@ -3,7 +3,6 @@ use genet_abi::{
     decoder::{ExecType, Status, WorkerBox},
     layer::{LayerStack, LayerStackData},
 };
-use genet_sdk::slice::ByteSlice;
 
 pub struct Dispatcher {
     runners: Vec<Runner>,
@@ -42,7 +41,7 @@ impl Dispatcher {
                         let mut layer = LayerStack::from_mut_ref(&mut data, unsafe {
                             &mut *layers[index].as_mut_ptr()
                         });
-                        let done = r.execute(&mut layer, &ByteSlice::new());
+                        let done = r.execute(&mut layer);
                         if done {
                             executed += 1;
                         }
@@ -73,8 +72,8 @@ impl Runner {
         Runner { worker }
     }
 
-    fn execute(&mut self, layer: &mut LayerStack, data: &ByteSlice) -> bool {
-        match self.worker.decode(layer, data) {
+    fn execute(&mut self, layer: &mut LayerStack) -> bool {
+        match self.worker.decode(layer) {
             Ok(Status::Skip) => false,
             _ => true,
         }
@@ -94,9 +93,9 @@ impl<'a> OnceRunner<'a> {
         }
     }
 
-    fn execute(&mut self, layer: &mut LayerStack, data: &ByteSlice) -> bool {
+    fn execute(&mut self, layer: &mut LayerStack) -> bool {
         if !self.used {
-            let done = self.runner.execute(layer, data);
+            let done = self.runner.execute(layer);
             if done {
                 self.used = true;
             }

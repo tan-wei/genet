@@ -7,7 +7,7 @@ struct PcapLayerWorker {
 }
 
 impl Worker for PcapLayerWorker {
-    fn decode(&mut self, stack: &mut LayerStack, _data: &ByteSlice) -> Result<Status> {
+    fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
         let data;
 
         if stack.id() == token!("[pcap]") {
@@ -16,11 +16,12 @@ impl Worker for PcapLayerWorker {
             return Ok(Status::Skip);
         }
 
-        let layer = Layer::new(self.layer.as_ref().clone(), &data);
-        stack.add_child(layer);
-
+        let mut layer = Layer::new(self.layer.as_ref().clone(), &data);
         let payload = data.try_get(self.layer.byte_size()..)?;
-        self.eth.decode(stack, &payload)
+        layer.set_payload(&payload);
+
+        stack.add_child(layer);
+        self.eth.decode(stack)
     }
 }
 

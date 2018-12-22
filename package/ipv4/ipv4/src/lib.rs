@@ -8,15 +8,18 @@ struct IPv4Worker {
 }
 
 impl Worker for IPv4Worker {
-    fn decode(&mut self, stack: &mut LayerStack, data: &ByteSlice) -> Result<Status> {
-        let layer = Layer::new(self.layer.as_ref().clone(), data);
+    fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
+        let data = stack.top().unwrap().payload();
+        let mut layer = Layer::new(self.layer.as_ref().clone(), &data);
+
         let protocol = self.layer.protocol.try_get(&layer);
+        let payload = data.try_get(self.layer.byte_size()..)?;
+        layer.set_payload(&payload);
         stack.add_child(layer);
 
-        let payload = data.try_get(self.layer.byte_size()..)?;
         match protocol {
-            Ok(ProtoType::TCP) => self.tcp.decode(stack, &payload),
-            Ok(ProtoType::UDP) => self.udp.decode(stack, &payload),
+            Ok(ProtoType::TCP) => self.tcp.decode(stack),
+            Ok(ProtoType::UDP) => self.udp.decode(stack),
             _ => Ok(Status::Done),
         }
     }

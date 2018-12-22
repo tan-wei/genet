@@ -56,16 +56,20 @@ struct EthWorker {
 }
 
 impl Worker for EthWorker {
-    fn decode(&mut self, stack: &mut LayerStack, data: &ByteSlice) -> Result<Status> {
-        let layer = Layer::new(self.layer.as_ref().clone(), data);
+    fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
+        let data = stack.top().unwrap().payload();
+        let mut layer = Layer::new(self.layer.as_ref().clone(), &data);
+
         let typ = self.layer.r#type.try_get(&layer);
+        let payload = data.try_get(self.layer.byte_size()..)?;
+        layer.set_payload(&payload);
+
         stack.add_child(layer);
 
-        let payload = data.try_get(self.layer.byte_size()..)?;
         match typ {
-            Ok(EthType::IPv4) => self.ipv4.decode(stack, &payload),
-            Ok(EthType::IPv6) => self.ipv6.decode(stack, &payload),
-            Ok(EthType::ARP) => self.arp.decode(stack, &payload),
+            Ok(EthType::IPv4) => self.ipv4.decode(stack),
+            Ok(EthType::IPv6) => self.ipv6.decode(stack),
+            Ok(EthType::ARP) => self.arp.decode(stack),
             _ => Ok(Status::Done),
         }
     }

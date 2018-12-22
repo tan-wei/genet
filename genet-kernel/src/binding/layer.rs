@@ -58,31 +58,15 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         Ok(array)
     }
 
-    fn layer_payloads<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
+    fn layer_payload<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
-        let payloads = layer.payloads().collect::<Vec<_>>();
-        let array = env.create_array(payloads.len())?;
-        for (i, paylaod) in payloads.iter().enumerate() {
-            let object = env.create_object()?;
-            env.set_named_property(object, "id", env.create_string(&paylaod.id().to_string())?)?;
-            env.set_named_property(
-                object,
-                "type",
-                env.create_string(&paylaod.typ().to_string())?,
-            )?;
-            env.set_named_property(
-                object,
-                "data",
-                env.create_typedarray(
-                    TypedArrayType::Uint8Array,
-                    paylaod.data().len(),
-                    env.create_arraybuffer_from_slice(&paylaod.data())?,
-                    0,
-                )?,
-            )?;
-            env.set_element(array, i as u32, object)?;
-        }
-        Ok(array)
+        let payload = layer.payload();
+        env.create_typedarray(
+            TypedArrayType::Uint8Array,
+            payload.len(),
+            env.create_arraybuffer_from_slice(&payload)?,
+            0,
+        )
     }
 
     fn layer_data<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
@@ -127,9 +111,9 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
                 ),
                 PropertyDescriptor::new_property(
                     env,
-                    "payloads",
+                    "payload",
                     PropertyAttributes::DEFAULT,
-                    layer_payloads,
+                    layer_payload,
                     false,
                 ),
                 PropertyDescriptor::new_property(

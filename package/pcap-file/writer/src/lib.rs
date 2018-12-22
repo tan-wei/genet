@@ -63,7 +63,7 @@ impl PcapFileWorker {
 
 impl Worker for PcapFileWorker {
     fn write(&mut self, _index: u32, layer: &Layer) -> Result<()> {
-        let data = layer.payloads().next().unwrap().data();
+        let data = layer.payload();
         let incl_len = data.len();
         let mut orig_len = 0;
         let mut ts_sec = 0;

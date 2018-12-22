@@ -104,9 +104,6 @@ class ObjectValueItem {
 class LayerValueItem {
   view(vnode) {
     const layer = vnode.attrs.value
-    if (layer.payloads.length) {
-      return m('span', [' [', layer.id, '] Payloads '])
-    }
     return m('span', [' [', layer.id, '] '])
   }
 }

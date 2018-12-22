@@ -6,7 +6,7 @@ struct NtpWorker {
 }
 
 impl Worker for NtpWorker {
-    fn decode(&mut self, stack: &mut LayerStack, _data: &ByteSlice) -> Result<Status> {
+    fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
         if stack.id() != token!("udp") {
             return Ok(Status::Skip);
         }
@@ -27,7 +27,11 @@ impl Worker for NtpWorker {
             return Ok(Status::Skip);
         }
 
-        let data = stack.data().try_get(8..)?;
+        if stack.top().is_none() {
+            return Ok(Status::Skip);
+        }
+
+        let data = stack.top().unwrap().payload();
         let mut layer = Layer::new(self.layer.as_ref().clone(), &data);
 
         let stratum: u8 = self.layer.stratum.try_get(&layer)?.try_into()?;

@@ -8,8 +8,9 @@ struct IPv6Worker {
 }
 
 impl Worker for IPv6Worker {
-    fn decode(&mut self, stack: &mut LayerStack, data: &ByteSlice) -> Result<Status> {
-        let mut layer = Layer::new(self.layer.as_ref().clone(), data);
+    fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
+        let data = stack.top().unwrap().payload();
+        let mut layer = Layer::new(self.layer.as_ref().clone(), &data);
 
         let nheader = self.layer.next_header.try_get(&layer)?.try_into()?;
         loop {
@@ -30,12 +31,14 @@ impl Worker for IPv6Worker {
         let range = self.layer.next_header.class().range();
         let typ = self.layer.protocol.try_get_range(&layer, range.clone());
         layer.add_attr(self.layer.protocol.class(), range.clone());
-        stack.add_child(layer);
 
         let payload = data.try_get(self.layer.byte_size()..)?;
+        layer.set_payload(&payload);
+        stack.add_child(layer);
+
         match typ {
-            Ok(ProtoType::TCP) => self.tcp.decode(stack, &payload),
-            Ok(ProtoType::UDP) => self.udp.decode(stack, &payload),
+            Ok(ProtoType::TCP) => self.tcp.decode(stack),
+            Ok(ProtoType::UDP) => self.udp.decode(stack),
             _ => Ok(Status::Done),
         }
     }
