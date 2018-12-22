@@ -10,7 +10,7 @@ struct IPv6Worker {
 impl Worker for IPv6Worker {
     fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
         let data = stack.top().unwrap().payload();
-        let mut layer = Layer::new(self.layer.as_ref().clone(), &data);
+        let mut layer = Layer::new(&self.layer, &data);
 
         let nheader = self.layer.next_header.try_get(&layer)?.try_into()?;
         loop {

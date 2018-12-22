@@ -32,7 +32,7 @@ impl Worker for NtpWorker {
         }
 
         let data = stack.top().unwrap().payload();
-        let mut layer = Layer::new(self.layer.as_ref().clone(), &data);
+        let mut layer = Layer::new(&self.layer, &data);
 
         let stratum: u8 = self.layer.stratum.try_get(&layer)?.try_into()?;
         let class = if stratum >= 2 {

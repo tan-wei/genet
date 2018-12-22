@@ -275,7 +275,7 @@ impl Output for WorkerOutput {
 #[derive(Debug)]
 struct WorkerInput {
     worker: reader::WorkerBox,
-    class: Fixed<LayerClass>,
+    class: Box<Fixed<LayerClass>>,
 }
 
 impl WorkerInput {
@@ -283,7 +283,7 @@ impl WorkerInput {
         let attr = Fixed::new(AttrClass::builder(id).build());
         Self {
             worker,
-            class: Fixed::new(LayerClass::builder(attr).build()),
+            class: Box::new(Fixed::new(LayerClass::builder(attr).build())),
         }
     }
 }
@@ -293,7 +293,7 @@ impl Input for WorkerInput {
         self.worker.read().map(|slices| {
             slices
                 .into_iter()
-                .map(|data| MutFixed::new(Layer::new(self.class, &data)))
+                .map(|data| MutFixed::new(Layer::new(&self.class, &data)))
                 .collect()
         })
     }

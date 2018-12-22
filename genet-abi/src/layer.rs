@@ -141,9 +141,9 @@ unsafe impl Send for Layer {}
 
 impl Layer {
     /// Creates a new Layer.
-    pub fn new<C: Into<Fixed<LayerClass>>>(class: C, data: &ByteSlice) -> Layer {
+    pub fn new<C: AsRef<Fixed<LayerClass>>>(class: &C, data: &ByteSlice) -> Layer {
         Layer {
-            class: class.into(),
+            class: class.as_ref().clone(),
             data: *data,
             attrs: Vec::new(),
             payload: ByteSlice::new(),
@@ -449,7 +449,7 @@ mod tests {
     fn id() {
         let id = Token::from(123);
         let attr = Fixed::new(AttrClass::builder(id).build());
-        let class = Fixed::new(LayerClass::builder(attr).build());
+        let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
         let layer = Layer::new(class, &ByteSlice::new());
         assert_eq!(layer.id(), id);
     }
@@ -458,7 +458,7 @@ mod tests {
     fn data() {
         let data = b"hello";
         let attr = Fixed::new(AttrClass::builder(Token::null()).build());
-        let class = Fixed::new(LayerClass::builder(attr).build());
+        let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
         let layer = Layer::new(class, &ByteSlice::from(&data[..]));
         assert_eq!(layer.data(), ByteSlice::from(&data[..]));
     }
@@ -466,7 +466,7 @@ mod tests {
     #[test]
     fn attrs() {
         let attr = Fixed::new(AttrClass::builder(Token::null()).build());
-        let class = Fixed::new(LayerClass::builder(attr).build());
+        let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
         let mut layer = Layer::new(class, &ByteSlice::new());
         assert!(layer.attrs().next().is_none());
 

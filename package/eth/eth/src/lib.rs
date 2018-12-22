@@ -58,7 +58,7 @@ struct EthWorker {
 impl Worker for EthWorker {
     fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
         let data = stack.top().unwrap().payload();
-        let mut layer = Layer::new(self.layer.as_ref().clone(), &data);
+        let mut layer = Layer::new(&self.layer, &data);
 
         let typ = self.layer.r#type.try_get(&layer);
         let payload = data.try_get(self.layer.byte_size()..)?;

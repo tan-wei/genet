@@ -16,7 +16,7 @@ impl Worker for PcapLayerWorker {
             return Ok(Status::Skip);
         }
 
-        let mut layer = Layer::new(self.layer.as_ref().clone(), &data);
+        let mut layer = Layer::new(&self.layer, &data);
         let payload = data.try_get(self.layer.byte_size()..)?;
         layer.set_payload(&payload);
 

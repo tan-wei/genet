@@ -8,7 +8,7 @@ struct TcpWorker {
 impl Worker for TcpWorker {
     fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
         let data = stack.top().unwrap().payload();
-        let mut layer = Layer::new(self.layer.as_ref().clone(), &data);
+        let mut layer = Layer::new(&self.layer, &data);
 
         let data_offset: usize = self.layer.data_offset.try_get(&layer)?.try_into()?;
         let data_offset = data_offset * 4;

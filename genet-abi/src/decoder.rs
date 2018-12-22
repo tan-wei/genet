@@ -192,7 +192,7 @@ mod tests {
         impl Worker for TestWorker {
             fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
                 let attr = Fixed::new(AttrClass::builder(Token::from(1234)).build());
-                let class = Fixed::new(LayerClass::builder(attr).build());
+                let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
                 let layer = Layer::new(class, &ByteSlice::new());
                 stack.add_child(layer);
                 Ok(Status::Done)
@@ -220,7 +220,7 @@ mod tests {
         let mut worker = diss.new_worker(&ctx);
 
         let attr = Fixed::new(AttrClass::builder(Token::null()).build());
-        let class = Fixed::new(LayerClass::builder(attr).build());
+        let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
         let mut layer = Layer::new(class, &ByteSlice::new());
         let mut data = LayerStackData {
             children: Vec::new(),

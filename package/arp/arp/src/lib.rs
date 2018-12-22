@@ -8,7 +8,7 @@ struct ArpWorker {
 impl Worker for ArpWorker {
     fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
         let data = stack.top().unwrap().payload();
-        let mut layer = Layer::new(self.layer.as_ref().clone(), &data);
+        let mut layer = Layer::new(&self.layer, &data);
 
         let hwtype = self.layer.hwtype.try_get(&layer)?;
         let protocol = self.layer.protocol.try_get(&layer)?;
