@@ -450,7 +450,7 @@ mod tests {
         let id = Token::from(123);
         let attr = Fixed::new(AttrClass::builder(id).build());
         let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
-        let layer = Layer::new(class, &ByteSlice::new());
+        let layer = Layer::new(&class, &ByteSlice::new());
         assert_eq!(layer.id(), id);
     }
 
@@ -459,7 +459,7 @@ mod tests {
         let data = b"hello";
         let attr = Fixed::new(AttrClass::builder(Token::null()).build());
         let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
-        let layer = Layer::new(class, &ByteSlice::from(&data[..]));
+        let layer = Layer::new(&class, &ByteSlice::from(&data[..]));
         assert_eq!(layer.data(), ByteSlice::from(&data[..]));
     }
 
@@ -467,7 +467,7 @@ mod tests {
     fn attrs() {
         let attr = Fixed::new(AttrClass::builder(Token::null()).build());
         let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
-        let mut layer = Layer::new(class, &ByteSlice::new());
+        let mut layer = Layer::new(&class, &ByteSlice::new());
         assert!(layer.attrs().next().is_none());
 
         #[derive(Clone)]

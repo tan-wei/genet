@@ -7,6 +7,7 @@ use crate::{
     result::Result,
 };
 use crossbeam_channel;
+use failure::{format_err, Error};
 use fnv::FnvHashMap;
 use genet_abi::{
     filter::{LayerContext, LayerFilter},
@@ -30,9 +31,9 @@ pub trait Callback: Send {
     fn on_frames_updated(&self, _frames: u32) {}
     fn on_async_frames_updated(&self, _frames: u32) {}
     fn on_filtered_frames_updated(&self, _id: u32, _frames: u32) {}
-    fn on_output_done(&self, _id: u32, _error: Option<Box<::std::error::Error + Send>>) {}
-    fn on_input_done(&self, _id: u32, _error: Option<Box<::std::error::Error + Send>>) {}
-    fn on_error(&self, _error: Box<::std::error::Error + Send>) {}
+    fn on_output_done(&self, _id: u32, _error: Option<Error>) {}
+    fn on_input_done(&self, _id: u32, _error: Option<Error>) {}
+    fn on_error(&self, _error: Error) {}
 }
 
 #[derive(Debug)]
@@ -43,21 +44,6 @@ enum Command {
     SetFilter(u32, Option<CompiledLayerFilter>),
     PushOutput(u32, Box<Output>, Option<CompiledLayerFilter>),
     Close,
-}
-
-#[derive(Debug)]
-struct Error(String);
-
-impl std::error::Error for Error {
-    fn description(&self) -> &str {
-        &self.0
-    }
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0)
-    }
 }
 
 type FrameStore = Arc<RwLock<ArrayVec<Frame>>>;
@@ -152,8 +138,7 @@ impl Store {
                         }
                     }
                     Err(err) => {
-                        let err = Error(err.description().to_string());
-                        let _ = sender.send(Command::PushFrames(Some(id), Err(Box::new(err))));
+                        let _ = sender.send(Command::PushFrames(Some(id), Err(err)));
                         break;
                     }
                 }
@@ -287,17 +272,7 @@ impl EventLoop {
                 }
             }));
             if let Err(err) = result {
-                let message = if let Some(string) = err.downcast_ref::<String>() {
-                    string
-                } else if let Some(string) = err.downcast_ref::<&str>() {
-                    string
-                } else if let Some(err) = err.downcast_ref::<Error>() {
-                    std::error::Error::description(err)
-                } else {
-                    "Thread Panicked"
-                };
-                let err = Error(message.to_string());
-                err_callback.on_error(Box::new(err));
+                err_callback.on_error(format_err!("{:?}", err));
             }
         });
         EventLoop {
@@ -363,15 +338,13 @@ impl EventLoop {
                     })
                     .collect::<Vec<_>>();
                 if let Err(err) = output.write(frames.as_slice()) {
-                    let err = Error(err.description().to_string());
-                    callback.on_output_done(id, Some(Box::new(err)));
+                    callback.on_output_done(id, Some(err));
                     return;
                 }
                 offset += len;
             }
             if let Err(err) = output.end() {
-                let err = Error(err.description().to_string());
-                callback.on_output_done(id, Some(Box::new(err)));
+                callback.on_output_done(id, Some(err));
                 return;
             }
         }

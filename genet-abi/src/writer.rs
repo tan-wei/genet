@@ -1,7 +1,9 @@
 use crate::{
-    context::Context, error::Error, file::FileType, layer::Layer, result::Result, vec::SafeVec,
+    context::Context, file::FileType, layer::Layer, result::Result, string::SafeString,
+    vec::SafeVec,
 };
 use bincode;
+use failure::format_err;
 use serde::ser::{Serialize, Serializer};
 use serde_derive::{Deserialize, Serialize};
 use std::{fmt, mem, ptr, slice, str};
@@ -38,7 +40,7 @@ type WriterNewWorkerFunc = extern "C" fn(
     *const u8,
     u64,
     *mut WorkerBox,
-    *mut Error,
+    *mut SafeString,
 ) -> u8;
 
 #[repr(C)]
@@ -63,7 +65,7 @@ impl WriterBox {
 
     pub fn new_worker(&self, ctx: &Context, args: &str) -> Result<WorkerBox> {
         let mut out: WorkerBox = unsafe { mem::uninitialized() };
-        let mut err = Error::new("");
+        let mut err = SafeString::new();
         if (self.new_worker)(
             self.writer,
             ctx,
@@ -76,7 +78,7 @@ impl WriterBox {
             Ok(out)
         } else {
             mem::forget(out);
-            Err(Box::new(err))
+            Err(format_err!("{}", err))
         }
     }
 
@@ -100,7 +102,7 @@ extern "C" fn abi_writer_new_worker(
     arg: *const u8,
     arg_len: u64,
     out: *mut WorkerBox,
-    err: *mut Error,
+    err: *mut SafeString,
 ) -> u8 {
     let writer = unsafe { &*writer };
     let ctx = unsafe { &*ctx };
@@ -111,7 +113,7 @@ extern "C" fn abi_writer_new_worker(
             1
         }
         Err(e) => {
-            unsafe { *err = Error::new(e.description()) };
+            unsafe { *err = SafeString::from(&format!("{}", e)) };
             0
         }
     }
@@ -130,9 +132,9 @@ pub trait Worker: Send {
     }
 }
 
-type WriterFunc = extern "C" fn(*mut Box<Worker>, u32, *const Layer, *mut Error) -> u8;
+type WriterFunc = extern "C" fn(*mut Box<Worker>, u32, *const Layer, *mut SafeString) -> u8;
 
-type WriterEndFunc = extern "C" fn(*mut Box<Worker>, *mut Error) -> u8;
+type WriterEndFunc = extern "C" fn(*mut Box<Worker>, *mut SafeString) -> u8;
 
 pub struct WorkerBox {
     worker: *mut Box<Worker>,
@@ -154,19 +156,19 @@ impl WorkerBox {
     }
 
     pub fn write(&mut self, index: u32, layer: &Layer) -> Result<()> {
-        let mut e = Error::new("");
+        let mut e = SafeString::new();
         let layer = layer as *const Layer;
         if (self.write)(self.worker, index, layer, &mut e) == 0 {
-            Err(Box::new(e))
+            Err(format_err!("{}", e))
         } else {
             Ok(())
         }
     }
 
     pub fn end(&mut self) -> Result<()> {
-        let mut e = Error::new("");
+        let mut e = SafeString::new();
         if (self.end)(self.worker, &mut e) == 0 {
-            Err(Box::new(e))
+            Err(format_err!("{}", e))
         } else {
             Ok(())
         }
@@ -193,25 +195,25 @@ extern "C" fn abi_writer_worker_write(
     worker: *mut Box<Worker>,
     index: u32,
     layer: *const Layer,
-    err: *mut Error,
+    err: *mut SafeString,
 ) -> u8 {
     let worker = unsafe { &mut *worker };
     let layer = unsafe { &*layer };
     match worker.write(index, &layer) {
         Ok(()) => 1,
         Err(e) => {
-            unsafe { *err = Error::new(e.description()) };
+            unsafe { *err = SafeString::from(&format!("{}", e)) };
             0
         }
     }
 }
 
-extern "C" fn abi_writer_worker_end(worker: *mut Box<Worker>, err: *mut Error) -> u8 {
+extern "C" fn abi_writer_worker_end(worker: *mut Box<Worker>, err: *mut SafeString) -> u8 {
     let worker = unsafe { &mut *worker };
     match worker.end() {
         Ok(()) => 1,
         Err(e) => {
-            unsafe { *err = Error::new(e.description()) };
+            unsafe { *err = SafeString::from(&format!("{}", e)) };
             0
         }
     }

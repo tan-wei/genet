@@ -16,7 +16,7 @@ fn variant_to_js<'env>(
     match value {
         Err(err) => env.create_error(
             env.create_string("")?,
-            env.create_string(err.description())?,
+            env.create_string(&format!("{}", err))?,
         ),
         Ok(Variant::Bool(b)) => env.get_boolean(*b),
         Ok(Variant::Int64(v)) => env.create_int64(*v),

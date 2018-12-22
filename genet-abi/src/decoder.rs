@@ -1,5 +1,8 @@
-use crate::{context::Context, error::Error, layer::LayerStack, result::Result, vec::SafeVec};
+use crate::{
+    context::Context, layer::LayerStack, result::Result, string::SafeString, vec::SafeVec,
+};
 use bincode;
+use failure::format_err;
 use serde::ser::{Serialize, Serializer};
 use serde_derive::{Deserialize, Serialize};
 use std::ptr;
@@ -46,7 +49,7 @@ pub trait Worker {
 
 #[repr(C)]
 pub struct WorkerBox {
-    decode: extern "C" fn(*mut WorkerBox, *mut LayerStack, *mut Error) -> u8,
+    decode: extern "C" fn(*mut WorkerBox, *mut LayerStack, *mut SafeString) -> u8,
     drop: extern "C" fn(*mut Box<Worker>),
     worker: *mut Box<Worker>,
 }
@@ -61,12 +64,12 @@ impl WorkerBox {
     }
 
     pub fn decode(&mut self, layer: &mut LayerStack) -> Result<Status> {
-        let mut error = Error::new("");
-        let result = (self.decode)(self, layer, &mut error);
+        let mut err = SafeString::new();
+        let result = (self.decode)(self, layer, &mut err);
         match result {
             2 => Ok(Status::Done),
             1 => Ok(Status::Skip),
-            _ => Err(Box::new(error)),
+            _ => Err(format_err!("{}", err)),
         }
     }
 }
@@ -77,7 +80,11 @@ impl Drop for WorkerBox {
     }
 }
 
-extern "C" fn abi_decode(worker: *mut WorkerBox, layer: *mut LayerStack, error: *mut Error) -> u8 {
+extern "C" fn abi_decode(
+    worker: *mut WorkerBox,
+    layer: *mut LayerStack,
+    error: *mut SafeString,
+) -> u8 {
     let worker = unsafe { &mut *((*worker).worker) };
     let mut layer = unsafe { &mut *layer };
     match worker.decode(&mut layer) {
@@ -87,7 +94,7 @@ extern "C" fn abi_decode(worker: *mut WorkerBox, layer: *mut LayerStack, error: 
         },
         Err(err) => {
             unsafe {
-                ptr::write(error, Error::new(err.description()));
+                ptr::write(error, SafeString::from(&format!("{}", err)));
             }
             0
         }
@@ -193,7 +200,7 @@ mod tests {
             fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
                 let attr = Fixed::new(AttrClass::builder(Token::from(1234)).build());
                 let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
-                let layer = Layer::new(class, &ByteSlice::new());
+                let layer = Layer::new(&class, &ByteSlice::new());
                 stack.add_child(layer);
                 Ok(Status::Done)
             }
@@ -221,7 +228,7 @@ mod tests {
 
         let attr = Fixed::new(AttrClass::builder(Token::null()).build());
         let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
-        let mut layer = Layer::new(class, &ByteSlice::new());
+        let mut layer = Layer::new(&class, &ByteSlice::new());
         let mut data = LayerStackData {
             children: Vec::new(),
         };

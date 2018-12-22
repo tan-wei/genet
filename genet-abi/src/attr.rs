@@ -1,16 +1,17 @@
 use crate::{
     cast::{Cast, Nil, Typed},
     env,
-    error::Error,
     fixed::Fixed,
     layer::Layer,
     metadata::Metadata,
     result::Result,
     slice::ByteSlice,
+    string::SafeString,
     token::Token,
     variant::Variant,
     vec::SafeVec,
 };
+use failure::format_err;
 use std::{
     cell::Cell,
     fmt, io, mem,
@@ -228,7 +229,7 @@ pub struct AttrClass {
     get_id: extern "C" fn(class: *const AttrClass) -> Token,
     is_match: extern "C" fn(class: *const AttrClass, id: Token) -> u8,
     get_typ: extern "C" fn(class: *const AttrClass) -> Token,
-    get: extern "C" fn(*const Attr, *mut *const u8, u64, *mut i64, *mut Error) -> ValueType,
+    get: extern "C" fn(*const Attr, *mut *const u8, u64, *mut i64, *mut SafeString) -> ValueType,
     id: Token,
     typ: Token,
     meta: Metadata,
@@ -324,10 +325,10 @@ impl AttrClass {
         let data = attr.data;
         let mut buf: *const u8 = data.as_ptr();
         let mut num = 0;
-        let mut err = Error::new("");
+        let mut err = SafeString::new();
         let typ = (self.get)(attr, &mut buf, data.len() as u64, &mut num, &mut err);
         match typ {
-            ValueType::Error => Err(Box::new(err)),
+            ValueType::Error => Err(format_err!("{}", err)),
             ValueType::Bool => Ok(Variant::Bool(num == 1)),
             ValueType::Int64 => Ok(Variant::Int64(num)),
             ValueType::UInt64 => Ok(Variant::UInt64(unsafe { mem::transmute_copy(&num) })),
@@ -384,7 +385,7 @@ extern "C" fn abi_get(
     data: *mut *const u8,
     len: u64,
     num: *mut i64,
-    err: *mut Error,
+    err: *mut SafeString,
 ) -> ValueType {
     let attr = unsafe { &(*attr) };
     let cast = &attr.class.cast;
@@ -434,7 +435,7 @@ extern "C" fn abi_get(
             _ => ValueType::Nil,
         },
         Err(e) => {
-            unsafe { *err = Error::new(::std::error::Error::description(&e)) }
+            unsafe { *err = SafeString::from(&format!("{}", e)) }
             ValueType::Error
         }
     }
@@ -571,7 +572,7 @@ impl<
         let root = Attr::new(&class, range, layer.data());
         match self.node.cast(&root, &layer.data()) {
             Ok(data) => Ok(data.into()),
-            Err(err) => Err(Box::new(err)),
+            Err(err) => Err(format_err!("{}", err)),
         }
     }
 
@@ -796,7 +797,7 @@ mod tests {
         assert_eq!(attr.range(), 0..6);
 
         match attr.try_get() {
-            Err(err) => assert_eq!(err.description(), "oh no!"),
+            Err(err) => assert_eq!(format!("{}", err), "oh no!"),
             _ => panic!(),
         };
     }

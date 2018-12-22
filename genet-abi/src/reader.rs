@@ -1,8 +1,9 @@
 use crate::{
-    context::Context, error::Error, file::FileType, result::Result, slice::ByteSlice, token::Token,
-    vec::SafeVec,
+    context::Context, file::FileType, result::Result, slice::ByteSlice, string::SafeString,
+    token::Token, vec::SafeVec,
 };
 use bincode;
+use failure::format_err;
 use serde::ser::{Serialize, Serializer};
 use serde_derive::{Deserialize, Serialize};
 use std::{fmt, mem, ptr, slice, str};
@@ -39,7 +40,7 @@ type ReaderNewWorkerFunc = extern "C" fn(
     *const u8,
     u64,
     *mut WorkerBox,
-    *mut Error,
+    *mut SafeString,
 ) -> u8;
 
 #[repr(C)]
@@ -64,7 +65,7 @@ impl ReaderBox {
 
     pub fn new_worker(&self, ctx: &Context, args: &str) -> Result<WorkerBox> {
         let mut out: WorkerBox = unsafe { mem::uninitialized() };
-        let mut err = Error::new("");
+        let mut err = SafeString::new();
         if (self.new_worker)(
             self.reader,
             ctx,
@@ -77,7 +78,7 @@ impl ReaderBox {
             Ok(out)
         } else {
             mem::forget(out);
-            Err(Box::new(err))
+            Err(format_err!("{}", err))
         }
     }
 
@@ -101,7 +102,7 @@ extern "C" fn abi_reader_new_worker(
     arg: *const u8,
     arg_len: u64,
     out: *mut WorkerBox,
-    err: *mut Error,
+    err: *mut SafeString,
 ) -> u8 {
     let reader = unsafe { &*reader };
     let ctx = unsafe { &*ctx };
@@ -112,7 +113,7 @@ extern "C" fn abi_reader_new_worker(
             1
         }
         Err(e) => {
-            unsafe { *err = Error::new(e.description()) };
+            unsafe { *err = SafeString::from(&format!("{}", e)) };
             0
         }
     }
@@ -129,7 +130,7 @@ pub trait Worker: Send {
     fn layer_id(&self) -> Token;
 }
 
-type ReaderFunc = extern "C" fn(*mut Box<Worker>, *mut SafeVec<ByteSlice>, *mut Error) -> u8;
+type ReaderFunc = extern "C" fn(*mut Box<Worker>, *mut SafeVec<ByteSlice>, *mut SafeString) -> u8;
 
 pub struct WorkerBox {
     worker: *mut Box<Worker>,
@@ -152,9 +153,9 @@ impl WorkerBox {
 
     pub fn read(&mut self) -> Result<Vec<ByteSlice>> {
         let mut v = SafeVec::new();
-        let mut e = Error::new("");
+        let mut e = SafeString::new();
         if (self.read)(self.worker, &mut v, &mut e) == 0 {
-            Err(Box::new(e))
+            Err(format_err!("{}", e))
         } else {
             Ok(v.into_iter().collect())
         }
@@ -189,7 +190,7 @@ extern "C" fn abi_reader_worker_layer_id(worker: *const Box<Worker>) -> u32 {
 extern "C" fn abi_reader_worker_read(
     worker: *mut Box<Worker>,
     out: *mut SafeVec<ByteSlice>,
-    err: *mut Error,
+    err: *mut SafeString,
 ) -> u8 {
     let worker = unsafe { &mut *worker };
     match worker.read() {
@@ -202,7 +203,7 @@ extern "C" fn abi_reader_worker_read(
             1
         }
         Err(e) => {
-            unsafe { *err = Error::new(e.description()) };
+            unsafe { *err = SafeString::from(&format!("{}", e)) };
             0
         }
     }

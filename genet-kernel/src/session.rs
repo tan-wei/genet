@@ -4,6 +4,7 @@ use crate::{
     profile::Profile,
     store::{self, Store},
 };
+use failure::Error;
 use genet_abi::{
     self,
     attr::AttrClass,
@@ -15,7 +16,7 @@ use genet_abi::{
 };
 use genet_filter::CompiledLayerFilter;
 use serde::ser::{Serialize, SerializeMap, Serializer};
-use std::{fmt, ops::Range};
+use std::ops::Range;
 
 pub struct Session {
     store: Store,
@@ -67,8 +68,7 @@ impl Session {
                     return self.io_cnt;
                 }
                 Err(err) => {
-                    let err = Error(err.description().to_string());
-                    self.callback.on_event(Event::Error(Box::new(err)));
+                    self.callback.on_event(Event::Error(err));
                 }
             }
         }
@@ -95,8 +95,7 @@ impl Session {
                     return self.io_cnt;
                 }
                 Err(err) => {
-                    let err = Error(err.description().to_string());
-                    self.callback.on_event(Event::Error(Box::new(err)));
+                    self.callback.on_event(Event::Error(err));
                 }
             }
         }
@@ -120,21 +119,6 @@ impl Session {
     }
 }
 
-#[derive(Debug)]
-struct Error(String);
-
-impl std::error::Error for Error {
-    fn description(&self) -> &str {
-        &self.0
-    }
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
 #[derive(Clone)]
 struct StoreCallback {
     callback: Box<Callback>,
@@ -153,15 +137,15 @@ impl store::Callback for StoreCallback {
         self.callback.on_event(Event::FilteredFrames(id, frames));
     }
 
-    fn on_output_done(&self, id: u32, error: Option<Box<::std::error::Error + Send>>) {
+    fn on_output_done(&self, id: u32, error: Option<Error>) {
         self.callback.on_event(Event::Output(id, error));
     }
 
-    fn on_input_done(&self, id: u32, error: Option<Box<::std::error::Error + Send>>) {
+    fn on_input_done(&self, id: u32, error: Option<Error>) {
         self.callback.on_event(Event::Input(id, error));
     }
 
-    fn on_error(&self, error: Box<::std::error::Error + Send>) {
+    fn on_error(&self, error: Error) {
         self.callback.on_event(Event::Error(error));
     }
 }
@@ -171,9 +155,9 @@ pub enum Event {
     Frames(u32),
     AsyncFrames(u32),
     FilteredFrames(u32, u32),
-    Input(u32, Option<Box<::std::error::Error + Send>>),
-    Output(u32, Option<Box<::std::error::Error + Send>>),
-    Error(Box<::std::error::Error + Send>),
+    Input(u32, Option<Error>),
+    Output(u32, Option<Error>),
+    Error(Error),
 }
 
 pub trait Callback: CallbackClone + Send {

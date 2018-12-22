@@ -1,5 +1,6 @@
 use super::vec::SafeVec;
 use std::{
+    fmt,
     ops::{Deref, DerefMut},
     str,
 };
@@ -13,6 +14,12 @@ pub struct SafeString {
 impl Default for SafeString {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl fmt::Display for SafeString {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 

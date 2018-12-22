@@ -1,4 +1,5 @@
-use std::{error::Error, result};
+use failure::Error;
+use std::result;
 
 /// A result object.
-pub type Result<T> = result::Result<T, Box<Error>>;
+pub type Result<T> = result::Result<T, Error>;

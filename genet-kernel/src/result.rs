@@ -1,3 +1,1 @@
-use std::{error::Error, result};
-
-pub type Result<T> = result::Result<T, Box<Error + Send>>;
+pub use genet_abi::result::Result;
