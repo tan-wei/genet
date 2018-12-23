@@ -7,14 +7,6 @@ use serde::ser::{Serialize, Serializer};
 use serde_derive::{Deserialize, Serialize};
 use std::ptr;
 
-/// Execution type.
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
-pub enum ExecType {
-    Lazy,
-    ParallelSync,
-    SerialSync,
-}
-
 /// Decoding status.
 #[derive(Clone, PartialEq, Debug)]
 pub enum Status {
@@ -28,7 +20,6 @@ pub struct Metadata {
     pub id: String,
     pub name: String,
     pub description: String,
-    pub exec_type: ExecType,
     pub trigger_after: Vec<String>,
 }
 
@@ -38,7 +29,6 @@ impl Default for Metadata {
             id: String::new(),
             name: String::new(),
             description: String::new(),
-            exec_type: ExecType::Lazy,
             trigger_after: Vec::new(),
         }
     }
@@ -213,7 +203,7 @@ mod tests {
     use crate::{
         attr::AttrClass,
         context::Context,
-        decoder::{Decoder, DecoderBox, ExecType, Metadata, Status, Worker},
+        decoder::{Decoder, DecoderBox, Metadata, Status, Worker},
         fixed::Fixed,
         layer::{Layer, LayerClass, LayerStack, LayerStackData},
         result::Result,
@@ -245,7 +235,6 @@ mod tests {
 
             fn metadata(&self) -> Metadata {
                 Metadata {
-                    exec_type: ExecType::ParallelSync,
                     ..Metadata::default()
                 }
             }

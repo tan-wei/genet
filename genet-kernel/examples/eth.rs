@@ -78,7 +78,6 @@ impl Decoder for EthDecoder {
     fn metadata(&self) -> Metadata {
         Metadata {
             id: "eth".into(),
-            exec_type: ExecType::ParallelSync,
             ..Metadata::default()
         }
     }
