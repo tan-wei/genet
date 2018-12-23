@@ -35,7 +35,6 @@ impl Worker for ArpWorker {
         layer.add_attr(tha.class(), offset..offset + hlen);
         offset += hlen;
         layer.add_attr(tpa.class(), offset..offset + plen);
-        offset += plen;
 
         stack.add_child(layer);
         Ok(Status::Done)
