@@ -60,7 +60,7 @@ impl Decoder for ArpDecoder {
     }
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct ARP {
     hwtype: EnumNode<cast::UInt16BE, HardwareType>,
     protocol: EnumNode<cast::UInt16BE, ProtocolType>,

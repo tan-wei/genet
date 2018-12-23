@@ -144,10 +144,12 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let mut fields_detach = Vec::new();
     let mut fields_align = Vec::new();
     let mut fields_filter = Vec::new();
+    let mut fields_name = Vec::new();
 
     if let Fields::Named(f) = &s.fields {
         for field in &f.named {
             if let Some(ident) = &field.ident {
+                fields_name.push(ident);
                 let meta = AttrMetadata::parse(&field.attrs);
                 let id = if meta.id.is_empty() {
                     normalize_ident(&ident)
@@ -312,6 +314,16 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 )*
 
                 size
+            }
+        }
+
+        impl genet_sdk::decoder::DecoderBuilder for #ident {
+            fn build(ctx: &genet_sdk::context::Context) -> Self {
+                Self {
+                    #(
+                        #fields_name: genet_sdk::decoder::DecoderBuilder::build(ctx),
+                    )*
+                }
             }
         }
     };

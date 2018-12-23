@@ -20,9 +20,9 @@ impl Worker for UdpWorker {
 struct UdpDecoder {}
 
 impl Decoder for UdpDecoder {
-    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
+    fn new_worker(&self, ctx: &Context) -> Box<Worker> {
         Box::new(UdpWorker {
-            layer: LayerType::new("udp", Udp::default()),
+            layer: LayerType::new("udp", Udp::build(ctx)),
         })
     }
 
@@ -34,7 +34,7 @@ impl Decoder for UdpDecoder {
     }
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Udp {
     #[genet(alias = "_.src", typ = "@udp:port")]
     src: cast::UInt16BE,

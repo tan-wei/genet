@@ -24,7 +24,7 @@ struct PcapLayerDecoder {}
 impl Decoder for PcapLayerDecoder {
     fn new_worker(&self, ctx: &Context) -> Box<Worker> {
         Box::new(PcapLayerWorker {
-            layer: LayerType::new("link", Link::default()),
+            layer: LayerType::new("link", Link::build(ctx)),
             eth: ctx.decoder("eth").unwrap(),
         })
     }
@@ -37,7 +37,7 @@ impl Decoder for PcapLayerDecoder {
     }
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Link {
     r#type: cast::UInt32BE,
     payload_length: cast::UInt32BE,
@@ -50,7 +50,7 @@ struct Link {
     timestamp: Node<cast::UInt64BE, Timestamp>,
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Timestamp {
     sec: cast::UInt32BE,
     usec: cast::UInt32BE,

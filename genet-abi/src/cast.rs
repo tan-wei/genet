@@ -1,5 +1,7 @@
 use crate::{
     attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField},
+    context::Context,
+    decoder::DecoderBuilder,
     slice,
     variant::Variant,
 };
@@ -108,5 +110,11 @@ impl Typed for Nil {
 
     fn cast(&self, _attr: &Attr, _data: &slice::ByteSlice) -> Result<Variant> {
         Ok(Variant::Nil)
+    }
+}
+
+impl DecoderBuilder for Nil {
+    fn build(_ctx: &Context) -> Self {
+        Nil()
     }
 }

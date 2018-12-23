@@ -45,9 +45,9 @@ impl Worker for ArpWorker {
 struct ArpDecoder {}
 
 impl Decoder for ArpDecoder {
-    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
+    fn new_worker(&self, ctx: &Context) -> Box<Worker> {
         Box::new(ArpWorker {
-            layer: LayerType::new("arp", ARP::default()),
+            layer: LayerType::new("arp", ARP::build(ctx)),
         })
     }
 
@@ -59,7 +59,7 @@ impl Decoder for ArpDecoder {
     }
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct ARP {
     hwtype: EnumNode<cast::UInt16BE, HardwareType>,
     protocol: EnumNode<cast::UInt16BE, ProtocolType>,

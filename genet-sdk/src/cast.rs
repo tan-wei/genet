@@ -2,11 +2,14 @@
 
 use crate::{
     attr::{Attr, SizedField},
+    context::Context,
+    decoder::DecoderBuilder,
     slice,
 };
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 pub use genet_abi::cast::{Cast, Map, Nil, Typed};
 use genet_abi::slice::TryGet;
+
 use std::{
     io::{Cursor, Error, ErrorKind, Result},
     mem::size_of,
@@ -30,6 +33,12 @@ impl SizedField for UInt8 {
     }
 }
 
+impl DecoderBuilder for UInt8 {
+    fn build(_ctx: &Context) -> Self {
+        UInt8()
+    }
+}
+
 /// Cast for 8bit signed integer.
 #[derive(Clone, Default)]
 pub struct Int8();
@@ -45,6 +54,12 @@ impl Typed for Int8 {
 impl SizedField for Int8 {
     fn bit_size(&self) -> usize {
         size_of::<i8>() * 8
+    }
+}
+
+impl DecoderBuilder for Int8 {
+    fn build(_ctx: &Context) -> Self {
+        Int8()
     }
 }
 
@@ -66,6 +81,12 @@ impl SizedField for UInt16BE {
     }
 }
 
+impl DecoderBuilder for UInt16BE {
+    fn build(_ctx: &Context) -> Self {
+        UInt16BE()
+    }
+}
+
 /// Cast for big-endian 32bit unsigned integer.
 #[derive(Clone, Default)]
 pub struct UInt32BE();
@@ -81,6 +102,12 @@ impl Typed for UInt32BE {
 impl SizedField for UInt32BE {
     fn bit_size(&self) -> usize {
         size_of::<u32>() * 8
+    }
+}
+
+impl DecoderBuilder for UInt32BE {
+    fn build(_ctx: &Context) -> Self {
+        UInt32BE()
     }
 }
 
@@ -102,6 +129,12 @@ impl SizedField for UInt64BE {
     }
 }
 
+impl DecoderBuilder for UInt64BE {
+    fn build(_ctx: &Context) -> Self {
+        UInt64BE()
+    }
+}
+
 /// Cast for big-endian 16bit signed integer.
 #[derive(Clone, Default)]
 pub struct Int16BE();
@@ -111,6 +144,12 @@ impl Typed for Int16BE {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<i16> {
         Cursor::new(data.try_get(attr.range())?).read_i16::<BigEndian>()
+    }
+}
+
+impl DecoderBuilder for Int16BE {
+    fn build(_ctx: &Context) -> Self {
+        Int16BE()
     }
 }
 
@@ -138,6 +177,12 @@ impl SizedField for Int32BE {
     }
 }
 
+impl DecoderBuilder for Int32BE {
+    fn build(_ctx: &Context) -> Self {
+        Int32BE()
+    }
+}
+
 /// Cast for big-endian 64bit signed integer.
 #[derive(Clone, Default)]
 pub struct Int64BE();
@@ -153,6 +198,12 @@ impl Typed for Int64BE {
 impl SizedField for Int64BE {
     fn bit_size(&self) -> usize {
         size_of::<i64>() * 8
+    }
+}
+
+impl DecoderBuilder for Int64BE {
+    fn build(_ctx: &Context) -> Self {
+        Int64BE()
     }
 }
 
@@ -174,6 +225,12 @@ impl SizedField for Float32BE {
     }
 }
 
+impl DecoderBuilder for Float32BE {
+    fn build(_ctx: &Context) -> Self {
+        Float32BE()
+    }
+}
+
 /// Cast for big-endian 64bit floating point number.
 #[derive(Clone, Default)]
 pub struct Float64BE();
@@ -189,6 +246,12 @@ impl Typed for Float64BE {
 impl SizedField for Float64BE {
     fn bit_size(&self) -> usize {
         size_of::<f64>() * 8
+    }
+}
+
+impl DecoderBuilder for Float64BE {
+    fn build(_ctx: &Context) -> Self {
+        Float64BE()
     }
 }
 
@@ -210,6 +273,12 @@ impl SizedField for UInt16LE {
     }
 }
 
+impl DecoderBuilder for UInt16LE {
+    fn build(_ctx: &Context) -> Self {
+        UInt16LE()
+    }
+}
+
 /// Cast for little-endian 32bit unsigned integer.
 #[derive(Clone, Default)]
 pub struct UInt32LE();
@@ -225,6 +294,12 @@ impl Typed for UInt32LE {
 impl SizedField for UInt32LE {
     fn bit_size(&self) -> usize {
         size_of::<u32>() * 8
+    }
+}
+
+impl DecoderBuilder for UInt32LE {
+    fn build(_ctx: &Context) -> Self {
+        UInt32LE()
     }
 }
 
@@ -246,6 +321,12 @@ impl SizedField for UInt64LE {
     }
 }
 
+impl DecoderBuilder for UInt64LE {
+    fn build(_ctx: &Context) -> Self {
+        UInt64LE()
+    }
+}
+
 /// Cast for little-endian 16bit signed integer.
 #[derive(Clone, Default)]
 pub struct Int16LE();
@@ -261,6 +342,12 @@ impl Typed for Int16LE {
 impl SizedField for Int16LE {
     fn bit_size(&self) -> usize {
         size_of::<i16>() * 8
+    }
+}
+
+impl DecoderBuilder for Int16LE {
+    fn build(_ctx: &Context) -> Self {
+        Int16LE()
     }
 }
 
@@ -282,6 +369,12 @@ impl SizedField for Int32LE {
     }
 }
 
+impl DecoderBuilder for Int32LE {
+    fn build(_ctx: &Context) -> Self {
+        Int32LE()
+    }
+}
+
 /// Cast for little-endian 64bit signed integer.
 #[derive(Clone, Default)]
 pub struct Int64LE();
@@ -297,6 +390,12 @@ impl Typed for Int64LE {
 impl SizedField for Int64LE {
     fn bit_size(&self) -> usize {
         size_of::<i64>() * 8
+    }
+}
+
+impl DecoderBuilder for Int64LE {
+    fn build(_ctx: &Context) -> Self {
+        Int64LE()
     }
 }
 
@@ -318,6 +417,12 @@ impl SizedField for Float32LE {
     }
 }
 
+impl DecoderBuilder for Float32LE {
+    fn build(_ctx: &Context) -> Self {
+        Float32LE()
+    }
+}
+
 /// Cast for little-endian 64bit floating point number.
 #[derive(Clone, Default)]
 pub struct Float64LE();
@@ -333,6 +438,12 @@ impl Typed for Float64LE {
 impl SizedField for Float64LE {
     fn bit_size(&self) -> usize {
         size_of::<f64>() * 8
+    }
+}
+
+impl DecoderBuilder for Float64LE {
+    fn build(_ctx: &Context) -> Self {
+        Float64LE()
     }
 }
 
@@ -352,6 +463,12 @@ impl Typed for Utf8 {
     }
 }
 
+impl DecoderBuilder for Utf8 {
+    fn build(_ctx: &Context) -> Self {
+        Utf8()
+    }
+}
+
 /// Cast for ByteSlice.
 #[derive(Clone, Default)]
 pub struct ByteSlice();
@@ -361,6 +478,12 @@ impl Typed for ByteSlice {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<slice::ByteSlice> {
         Ok(data.try_get(attr.range())?)
+    }
+}
+
+impl DecoderBuilder for ByteSlice {
+    fn build(_ctx: &Context) -> Self {
+        ByteSlice()
     }
 }
 
@@ -379,5 +502,11 @@ impl Typed for BitFlag {
 impl SizedField for BitFlag {
     fn bit_size(&self) -> usize {
         1
+    }
+}
+
+impl DecoderBuilder for BitFlag {
+    fn build(_ctx: &Context) -> Self {
+        BitFlag()
     }
 }

@@ -39,6 +39,10 @@ pub trait Worker {
     fn decode(&mut self, stack: &mut LayerStack) -> Result<Status>;
 }
 
+pub trait DecoderBuilder {
+    fn build(ctx: &Context) -> Self;
+}
+
 pub struct DecoderStack {
     worker: WorkerBox,
     sub_workers: Vec<DecoderStack>,

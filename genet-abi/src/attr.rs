@@ -1,5 +1,7 @@
 use crate::{
     cast::{Cast, Nil, Typed},
+    context::Context,
+    decoder::DecoderBuilder,
     env,
     fixed::Fixed,
     layer::Layer,
@@ -502,6 +504,16 @@ impl<T: SizedField, U> SizedField for Node<T, U> {
     }
 }
 
+impl<T: DecoderBuilder, U: DecoderBuilder> DecoderBuilder for Node<T, U> {
+    fn build(ctx: &Context) -> Self {
+        Self {
+            node: T::build(ctx),
+            fields: U::build(ctx),
+            class: Cell::new(None),
+        }
+    }
+}
+
 impl<T: Default, U: Default> Default for Node<T, U> {
     fn default() -> Self {
         Self {
@@ -591,6 +603,16 @@ impl<T: SizedField, U> SizedField for EnumNode<T, U> {
 impl<T, U> EnumNode<T, U> {
     pub fn class(&self) -> Fixed<AttrClass> {
         self.class.get().unwrap()
+    }
+}
+
+impl<T: DecoderBuilder, U: Default> DecoderBuilder for EnumNode<T, U> {
+    fn build(ctx: &Context) -> Self {
+        Self {
+            node: T::build(ctx),
+            fields: U::default(),
+            class: Cell::new(None),
+        }
     }
 }
 

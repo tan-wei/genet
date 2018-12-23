@@ -2,7 +2,7 @@ use genet_derive::Attr;
 use genet_sdk::{cast, decoder::*, prelude::*};
 
 /// Ethernet
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Eth {
     /// Source Hardware Address
     #[genet(alias = "_.src", typ = "@eth:mac", byte_size = 6)]
