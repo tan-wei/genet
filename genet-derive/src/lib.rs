@@ -4,6 +4,7 @@ extern crate proc_macro;
 
 use inflector::cases::camelcase::to_camel_case;
 use proc_macro::TokenStream;
+use proc_macro2::Span;
 use quote::quote;
 use syn::{parse_macro_input, Data, DataEnum, DataStruct, DeriveInput, Expr, Fields, Ident};
 
@@ -145,10 +146,17 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let mut fields_align = Vec::new();
     let mut fields_filter = Vec::new();
     let mut fields_name = Vec::new();
+    let mut fields_name_alias = Vec::new();
+    let mut fields_ty = Vec::new();
 
     if let Fields::Named(f) = &s.fields {
         for field in &f.named {
             if let Some(ident) = &field.ident {
+                fields_ty.push(field.ty.clone());
+                fields_name_alias.push(Ident::new(
+                    &format!("__type__{}", fields_ty.len()),
+                    Span::call_site(),
+                ));
                 fields_name.push(ident);
                 let meta = AttrMetadata::parse(&field.attrs);
                 let id = if meta.id.is_empty() {
@@ -243,6 +251,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
 
     let fields_align2 = fields_align.clone();
     let fields_detach2 = fields_detach.clone();
+    let fields_name_alias2 = fields_name_alias.clone();
     let self_attrs = AttrMetadata::parse(&input.attrs);
     let self_name = self_attrs.name;
     let self_desc = self_attrs.description;
@@ -319,9 +328,14 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
 
         impl genet_sdk::decoder::DecoderBuilder for #ident {
             fn build(ctx: &genet_sdk::context::Context) -> Self {
+
+                #(
+                    type #fields_name_alias = #fields_ty;
+                )*
+
                 Self {
                     #(
-                        #fields_name: genet_sdk::decoder::DecoderBuilder::build(ctx),
+                        #fields_name: #fields_name_alias2 :: build(ctx),
                     )*
                 }
             }
