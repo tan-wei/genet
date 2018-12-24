@@ -69,9 +69,9 @@ impl Worker for EthWorker {
 struct EthDecoder {}
 
 impl Decoder for EthDecoder {
-    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
+    fn new_worker(&self, ctx: &Context) -> Box<Worker> {
         Box::new(EthWorker {
-            layer: LayerType::new("eth", Eth::default()),
+            layer: LayerType::new("eth", Eth::build(ctx)),
         })
     }
 
