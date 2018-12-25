@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events'
 const { ipcRenderer, remote } = require('electron')
 
-const windowId = remote.getCurrentWindow().id
+const windowId = remote.getCurrentWebContents().id
 const { webContents } = remote
 class GlobalAction {
   on(channel: string, listener: (...args) => void) {

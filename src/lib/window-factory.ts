@@ -23,6 +23,9 @@ export default class WindowFactory {
       height: size[1],
       titleBarStyle: conf.get('_.window.titleBarStyle'),
       show: true,
+      webPreferences: {
+        nodeIntegration: true,
+      },
       icon: '',
     }
     if (process.platform === 'linux') {

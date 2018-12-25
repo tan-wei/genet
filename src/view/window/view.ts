@@ -22,7 +22,7 @@ interface Tab {
   icon: string
 }
 
-const windowId = remote.getCurrentWindow().id
+const windowId = remote.getCurrentWebContents().id
 export default class WindowView {
   private _tabs: Tab[]
   private _systemTabs: Tab[]
