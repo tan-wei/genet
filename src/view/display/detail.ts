@@ -28,7 +28,7 @@ function mergeOrphanedItems(item) {
 class LayerItem {
   view(vnode) {
     const { layer, frame } = vnode.attrs
-    const addr = Number.parseInt(ByteSlice.address(layer.data), 10)
+    const addr = Number(ByteSlice.address(layer.data))
     const name = genet.session.tokenName(layer.id)
 
     const attrArray = [{

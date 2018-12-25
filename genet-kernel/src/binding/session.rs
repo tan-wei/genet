@@ -305,7 +305,7 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
         if let Some(id) = info.argv().get(0) {
             if env.is_typedarray(id)? {
                 let (ptr, _, offset) = env.get_typedarray_info(id)?;
-                return env.create_string(&format!("{}", ptr as usize + offset));
+                return env.create_bigint(&((ptr as usize + offset) as u64).into());
             }
         }
         Err(Status::InvalidArg)
