@@ -89,7 +89,7 @@ export default class MainMenu {
 
     event.preventDefault()
     event.stopPropagation()
-    Menu.buildFromTemplate(contextMenu).popup(remote.getCurrentWindow())
+    Menu.buildFromTemplate(contextMenu).popup()
   }
 
   enableContextMenu() {

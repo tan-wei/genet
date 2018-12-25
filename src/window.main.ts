@@ -13,6 +13,6 @@ export default function main() {
       components
     })
   content.load().then(() => {
-    ipcRenderer.send('core:window:loaded', remote.getCurrentWindow().id)
+    ipcRenderer.send('core:window:loaded', remote.getCurrentWebContents().id)
   })
 }
