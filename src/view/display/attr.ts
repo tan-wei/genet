@@ -11,7 +11,7 @@ export default class AttributeItem {
   view(vnode) {
     const { item, layer } = vnode.attrs
     const { attr, children } = item
-    const addr = Number.parseInt(ByteSlice.address(layer.data), 10)
+    const addr = Number(ByteSlice.address(layer.data))
     let faClass = 'attribute'
     if (children.length) {
       faClass = 'attribute children'

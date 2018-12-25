@@ -4,6 +4,7 @@ use genet_abi::{
     slice::ByteSlice,
 };
 use libc;
+use num_bigint::{BigInt, Sign};
 use std::{
     cell::RefCell, convert::AsRef, ffi::CString, mem, ops::Deref, os::raw::c_char, ptr, rc::Rc,
 };
@@ -238,6 +239,26 @@ impl Env {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
             match napi_create_int64(self, value, &mut result) {
+                Status::Ok => Ok(&*result),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn create_bigint<'env>(&self, value: &BigInt) -> Result<&'env Value> {
+        unsafe {
+            let mut result: *const Value = mem::uninitialized();
+            let (sign, mut words) = value.to_bytes_le();
+            let sign = if sign == Sign::Minus { 1 } else { 0 };
+            let len = (words.len() + 7) / 8;
+            words.resize(len * 8, 0);
+            match napi_create_bigint_words(
+                self,
+                sign,
+                len,
+                words.as_ptr() as *const u64,
+                &mut result,
+            ) {
                 Status::Ok => Ok(&*result),
                 s => Err(s),
             }
@@ -996,6 +1017,14 @@ extern "C" {
     fn napi_create_int32(env: *const Env, value: i32, result: *mut *const Value) -> Status;
     fn napi_create_uint32(env: *const Env, value: u32, result: *mut *const Value) -> Status;
     fn napi_create_int64(env: *const Env, value: i64, result: *mut *const Value) -> Status;
+
+    fn napi_create_bigint_words(
+        env: *const Env,
+        sign_bit: libc::c_int,
+        word_count: libc::size_t,
+        words: *const u64,
+        result: *mut *const Value,
+    ) -> Status;
 
     fn napi_create_array_with_length(
         env: *const Env,
