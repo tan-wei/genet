@@ -514,16 +514,6 @@ impl<T: DecoderBuilder, U: DecoderBuilder> DecoderBuilder for Node<T, U> {
     }
 }
 
-impl<T: Default, U: Default> Default for Node<T, U> {
-    fn default() -> Self {
-        Self {
-            node: T::default(),
-            fields: U::default(),
-            class: Cell::new(None),
-        }
-    }
-}
-
 pub trait EnumField<T: Into<Variant>> {
     fn class_enum<C: Typed<Output = T> + 'static + Send + Sync + Clone>(
         &self,
@@ -610,16 +600,6 @@ impl<T: DecoderBuilder, U: Default> DecoderBuilder for EnumNode<T, U> {
     fn build(ctx: &Context) -> Self {
         Self {
             node: T::build(ctx),
-            fields: U::default(),
-            class: Cell::new(None),
-        }
-    }
-}
-
-impl<T: Default, U: Default> Default for EnumNode<T, U> {
-    fn default() -> Self {
-        Self {
-            node: T::default(),
             fields: U::default(),
             class: Cell::new(None),
         }
