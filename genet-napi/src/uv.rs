@@ -1,5 +1,6 @@
+use crate::napi::{Env, Status};
 use libc;
-use std::os::raw::c_int;
+use std::{os::raw::c_int, ptr};
 
 pub enum Loop {}
 
@@ -15,7 +16,7 @@ unsafe impl Send for Async {}
 unsafe impl Sync for Async {}
 
 impl Async {
-    pub fn new<F: Fn()>(callback: F) -> Async {
+    pub fn new<F: Fn()>(env: &Env, callback: F) -> Async {
         unsafe {
             extern "C" fn async_cb(asyn: *mut Inner) {
                 unsafe {
@@ -29,7 +30,13 @@ impl Async {
                 data: data as *mut libc::c_void,
                 buf: [0; 128],
             }));
-            uv_async_init(uv_default_loop(), inner, async_cb);
+
+            let mut evloop: *mut Loop = ptr::null_mut();
+            if napi_get_uv_event_loop(env, &mut evloop) != Status::Ok {
+                panic!("napi_get_uv_event_loop failed");
+            }
+
+            uv_async_init(evloop, inner, async_cb);
             Async(inner)
         }
     }
@@ -56,5 +63,6 @@ extern "C" {
     ) -> c_int;
     fn uv_async_send(async_data: *const Inner) -> c_int;
     fn uv_close(async_data: *mut Inner, close_cb: extern "C" fn(*mut Inner));
-    fn uv_default_loop() -> *mut Loop;
+
+    fn napi_get_uv_event_loop(env: *const Env, evloop: *mut *mut Loop) -> Status;
 }
