@@ -43,6 +43,13 @@ pub trait DecoderBuilder {
     fn build(ctx: &Context) -> Self;
 }
 
+pub trait DecoderBuilder2 {
+    type Item;
+    type Builder: Into<Self::Item>;
+
+    fn build(ctx: &Context) -> Self::Builder;
+}
+
 pub struct DecoderStack {
     worker: WorkerBox,
     sub_workers: Vec<DecoderStack>,

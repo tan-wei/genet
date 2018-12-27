@@ -1,7 +1,7 @@
 use crate::{
     attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField},
     context::Context,
-    decoder::DecoderBuilder,
+    decoder::{DecoderBuilder, DecoderBuilder2},
     slice,
     variant::Variant,
 };
@@ -116,5 +116,22 @@ impl Typed for Nil {
 impl DecoderBuilder for Nil {
     fn build(_ctx: &Context) -> Self {
         Nil()
+    }
+}
+
+pub struct NilBuilder {}
+
+impl Into<Nil> for NilBuilder {
+    fn into(self) -> Nil {
+        Nil()
+    }
+}
+
+impl DecoderBuilder2 for Nil {
+    type Builder = NilBuilder;
+    type Item = Nil;
+
+    fn build(_ctx: &Context) -> NilBuilder {
+        NilBuilder {}
     }
 }
