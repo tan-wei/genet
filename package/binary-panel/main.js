@@ -3,12 +3,12 @@ const genet = require('@genet/api')
 const { ByteSlice } = require('@genet/load-module')
 class BinaryItem {
   constructor () {
-    this.range = [-1, -1]
+    this.range = [-1n, -1n]
   }
   oncreate () {
     genet.action.on('core:frame:range-selected', (range) => {
       this.range = range === null
-        ? [-1, -1]
+        ? [-1n, -1n]
         : [range.base, range.base + range.length]
       m.redraw()
     })
@@ -18,7 +18,7 @@ class BinaryItem {
     const showHex = true
     const showAscii = true
     const { payload } = vnode.attrs
-    const base = Number(ByteSlice.address(payload))
+    const base = ByteSlice.address(payload)
     const range = [this.range[0] - base, this.range[1] - base]
     return m('div', { class: 'binary-view' }, [
       m('ul', {

@@ -13,11 +13,11 @@ function treefy (layerStack) {
   for (const layer of layerStack) {
     layer.children = layer.children || []
 
-    let cursorAddr = Number(ByteSlice.address(cursor.data))
-    const layerAddr = Number(ByteSlice.address(layer.data))
+    let cursorAddr = ByteSlice.address(cursor.data)
+    const layerAddr = ByteSlice.address(layer.data)
     while (layerAddr < cursorAddr) {
       cursor = cursor.parent
-      cursorAddr = Number(ByteSlice.address(cursor.data))
+      cursorAddr = ByteSlice.address(cursor.data)
     }
     cursor.children.push(layer)
     layer.parent = cursor
