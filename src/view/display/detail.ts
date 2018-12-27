@@ -28,7 +28,7 @@ function mergeOrphanedItems(item) {
 class LayerItem {
   view(vnode) {
     const { layer, frame } = vnode.attrs
-    const addr = Number(ByteSlice.address(layer.data))
+    const addr = ByteSlice.address(layer.data)
     const name = genet.session.tokenName(layer.id)
 
     const attrArray = [{
@@ -95,7 +95,7 @@ class LayerItem {
             },
             onmouseover: () => selectRange({
               base: addr,
-              length: layer.data.length,
+              length: BigInt(layer.data.length),
             }),
             onmouseout: () => selectRange(),
             oncontextmenu: (event) => {

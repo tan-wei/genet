@@ -11,7 +11,7 @@ export default class AttributeItem {
   view(vnode) {
     const { item, layer } = vnode.attrs
     const { attr, children } = item
-    const addr = Number(ByteSlice.address(layer.data))
+    const addr = ByteSlice.address(layer.data)
     let faClass = 'attribute'
     if (children.length) {
       faClass = 'attribute children'
@@ -24,8 +24,8 @@ export default class AttributeItem {
         m('summary', {
           class: faClass,
           onmouseover: () => selectRange({
-            base: addr + attr.range[0],
-            length: attr.range[1] - attr.range[0],
+            base: addr + BigInt(attr.range[0]),
+            length: BigInt(attr.range[1] - attr.range[0]),
           }),
           onmouseout: () => selectRange(),
           oncontextmenu: (event) => {
