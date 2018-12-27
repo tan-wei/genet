@@ -34,7 +34,7 @@ impl SessionCallback {
         let ev = Arc::new(Mutex::new(VecDeque::<String>::new()));
         let events = ev.clone();
         SessionCallback {
-            asyn: Arc::new(uv::Async::new(move || {
+            asyn: Arc::new(uv::Async::new(env, move || {
                 let _scope = HandleScope::new(env);
                 while let Some(json) = ev.lock().pop_front() {
                     let argv = vec![env.create_string(&json).unwrap()];
