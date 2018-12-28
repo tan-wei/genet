@@ -43,9 +43,8 @@ pub trait DecoderBuilder {
     fn build(ctx: &Context) -> Self;
 }
 
-pub trait DecoderBuilder2 {
-    type Item;
-    type Builder: Into<Self::Item>;
+pub trait DecoderBuilder2<T> {
+    type Builder: Into<T>;
 
     fn build(ctx: &Context) -> Self::Builder;
 }

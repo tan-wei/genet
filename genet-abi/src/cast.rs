@@ -127,9 +127,8 @@ impl Into<Nil> for NilBuilder {
     }
 }
 
-impl DecoderBuilder2 for Nil {
+impl DecoderBuilder2<Nil> for Nil {
     type Builder = NilBuilder;
-    type Item = Nil;
 
     fn build(_ctx: &Context) -> NilBuilder {
         NilBuilder {}
