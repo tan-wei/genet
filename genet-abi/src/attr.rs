@@ -598,7 +598,7 @@ impl<T, U> EnumNode<T, U> {
     }
 }
 
-impl<T: DecoderBuilder<T>, U: Default> DecoderBuilder<EnumNode<T, U>> for EnumNode<T, U> {
+impl<T: DecoderBuilder<T>, U: Default> DecoderBuilder<Self> for EnumNode<T, U> {
     type Builder = Self;
 
     fn build(ctx: &Context) -> Self {

@@ -113,7 +113,7 @@ impl Typed for Nil {
     }
 }
 
-impl DecoderBuilder<Nil> for Nil {
+impl DecoderBuilder<Self> for Nil {
     type Builder = Nil;
 
     fn build(_ctx: &Context) -> Nil {

@@ -326,7 +326,9 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
             }
         }
 
-        impl genet_sdk::decoder::DecoderBuilder for #ident {
+        impl genet_sdk::decoder::DecoderBuilder<Self> for #ident {
+            type Builder = Self;
+
             fn build(ctx: &genet_sdk::context::Context) -> Self {
 
                 #(
