@@ -46,20 +46,18 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
         let id = format!(".{}", to_camel_case(&id));
 
         let typ = meta.typ;
-        let name = if meta.name.is_empty() {
+        let _name = if meta.name.is_empty() {
             to_title_case(&id)
         } else {
             meta.name
         };
-        let desc = meta.description;
+        let _desc = meta.description;
 
         fields_ctx.push(quote! {
             AttrContext{
                 path: format!("{}{}", ctx.path, #id)
                     .trim_matches('.').into(),
                 typ: #typ.into(),
-                name: #name.into(),
-                description: #desc.into(),
                 ..Default::default()
             }
         });
@@ -68,9 +66,6 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
     }
 
     let fields_ident2 = fields_ident.clone();
-    let self_attrs = AttrMetadata::parse(&input.attrs);
-    let self_name = self_attrs.name;
-    let self_desc = self_attrs.description;
 
     let tokens = quote! {
 
@@ -104,9 +99,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
                         } else {
                             subctx.typ.clone()
                         })
-                        .bit_range(0, bit_range.clone())
-                        .name(subctx.name)
-                        .description(subctx.description);
+                        .bit_range(0, bit_range.clone());
                     children.push(Fixed::new(child.build()));
                 }
             )*
@@ -118,16 +111,6 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
                     "@enum".into()
                 } else {
                     ctx.typ.clone()
-                })
-                .name(if ctx.name.is_empty() {
-                    #self_name
-                } else {
-                    ctx.name
-                })
-                .description(if ctx.description.is_empty() {
-                    #self_desc
-                } else {
-                    ctx.description
                 })
                 .bit_range(0, bit_range)
         }
@@ -145,19 +128,19 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let mut fields_detach = Vec::new();
     let mut fields_align = Vec::new();
     let mut fields_filter = Vec::new();
-    let mut fields_name = Vec::new();
-    let mut fields_name_alias = Vec::new();
+    let mut fields_builder = Vec::new();
+    let mut fields_ty_alias = Vec::new();
     let mut fields_ty = Vec::new();
 
     if let Fields::Named(f) = &s.fields {
         for field in &f.named {
             if let Some(ident) = &field.ident {
                 fields_ty.push(field.ty.clone());
-                fields_name_alias.push(Ident::new(
-                    &format!("__type__{}", fields_ty.len()),
-                    Span::call_site(),
-                ));
-                fields_name.push(ident);
+
+                let ty_alias =
+                    Ident::new(&format!("__type__{}", fields_ty.len()), Span::call_site());
+                fields_ty_alias.push(ty_alias.clone());
+
                 let meta = AttrMetadata::parse(&field.attrs);
                 let id = if meta.id.is_empty() {
                     normalize_ident(&ident)
@@ -172,6 +155,16 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     meta.name
                 };
                 let desc = meta.description;
+
+                fields_builder.push(quote! {
+                    #ident: {
+                        let mut builder = #ty_alias :: build(ctx);
+                        builder.name(#name);
+                        builder.description(#desc);
+                        builder.into()
+                    }
+                });
+
                 let filter = match meta.map {
                     AttrMapExpr::Map(s) => {
                         let expr = syn::parse_str::<Expr>(&s).unwrap();
@@ -195,8 +188,6 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         path: format!("{}{}", ctx.path, #id)
                             .trim_matches('.').into(),
                         typ: #typ.into(),
-                        name: #name.into(),
-                        description: #desc.into(),
                         aliases: #aliases
                             .split(' ')
                             .filter(|s| !s.is_empty())
@@ -251,12 +242,10 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
 
     let fields_align2 = fields_align.clone();
     let fields_detach2 = fields_detach.clone();
-    let fields_name_alias2 = fields_name_alias.clone();
-    let self_attrs = AttrMetadata::parse(&input.attrs);
-    let self_name = self_attrs.name;
-    let self_desc = self_attrs.description;
 
     let ident = &input.ident;
+    let builder_ident = Ident::new(&format!("__builder__{}", ident), Span::call_site());
+
     let tokens = quote! {
         impl genet_sdk::attr::AttrField for #ident {
             type I = genet_sdk::slice::ByteSlice;
@@ -297,16 +286,6 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     .cast(&cast::ByteSlice())
                     .typ(ctx.typ.clone())
                     .bit_range(0, ctx.bit_offset..(ctx.bit_offset + self.bit_size()))
-                    .name(if ctx.name.is_empty() {
-                        #self_name
-                    } else {
-                        ctx.name
-                    })
-                    .description(if ctx.description.is_empty() {
-                        #self_desc
-                    } else {
-                        ctx.description
-                    })
             }
         }
 
@@ -326,26 +305,40 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
             }
         }
 
-        impl genet_sdk::attr::MetadataOption for #ident {}
+        struct #builder_ident {
+            typ: Token,
+            data: #ident
+        }
+
+        impl Into<#ident> for #builder_ident {
+            fn into(self) -> #ident {
+                self.data
+            }
+        }
+
+        impl genet_sdk::attr::MetadataOption for #builder_ident {
+            fn typ(&mut self, typ: Token) {
+                self.typ = typ;
+            }
+        }
 
         impl genet_sdk::attr::NodeBuilder<Self> for #ident {
-            type Builder = Self;
+            type Builder = #builder_ident;
 
-            fn build(ctx: &genet_sdk::context::Context) -> Self {
+            fn build(ctx: &genet_sdk::context::Context) -> Self::Builder {
                 use genet_sdk::attr::MetadataOption;
 
                 #(
-                    type #fields_name_alias = #fields_ty;
+                    type #fields_ty_alias = #fields_ty;
                 )*
 
-                Self {
-                    #(
-                        #fields_name: {
-                            let mut builder = #fields_name_alias2 :: build(ctx);
-                            builder.name("");
-                            builder.into()
-                        },
-                    )*
+                #builder_ident{
+                    typ: Token::null(),
+                    data: #ident {
+                        #(
+                            #fields_builder,
+                        )*
+                    }
                 }
             }
         }

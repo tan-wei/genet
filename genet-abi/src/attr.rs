@@ -24,8 +24,6 @@ use std::{
 pub struct AttrContext {
     pub path: String,
     pub typ: String,
-    pub name: &'static str,
-    pub description: &'static str,
     pub bit_offset: usize,
     pub detached: bool,
     pub aliases: Vec<String>,
@@ -443,7 +441,7 @@ extern "C" fn abi_get(
 }
 
 pub trait MetadataOption {
-    fn id(&mut self, _id: &str) {}
+    fn typ(&mut self, _typ: Token) {}
     fn name(&mut self, _name: &str) {}
     fn description(&mut self, _desc: &str) {}
 }

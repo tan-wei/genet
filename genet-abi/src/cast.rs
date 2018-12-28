@@ -98,8 +98,6 @@ impl<I: 'static + Into<Variant> + Clone, V: 'static + Typed<Output = I> + Sync +
         b.typ(ctx.typ.clone())
             .aliases(ctx.aliases.clone())
             .bit_range(0, ctx.bit_offset..(ctx.bit_offset + bit_size))
-            .name(ctx.name)
-            .description(ctx.description)
     }
 }
 

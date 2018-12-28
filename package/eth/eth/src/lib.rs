@@ -81,7 +81,7 @@ struct EthDecoder {}
 impl Decoder for EthDecoder {
     fn new_worker(&self, ctx: &Context) -> Box<Worker> {
         Box::new(EthWorker {
-            layer: LayerType::new("eth", Eth::build(ctx)),
+            layer: LayerType::new("eth", Eth::build(ctx).into()),
             ipv4: ctx.decoder("ipv4").unwrap(),
             ipv6: ctx.decoder("ipv6").unwrap(),
             arp: ctx.decoder("arp").unwrap(),
