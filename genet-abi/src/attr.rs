@@ -442,6 +442,10 @@ extern "C" fn abi_get(
     }
 }
 
+pub trait MetadataOption {
+    fn name(&mut self, name: &str);
+}
+
 pub trait NodeBuilder<T> {
     type Builder: Into<T>;
 
@@ -530,6 +534,30 @@ pub trait EnumField<T: Into<Variant>> {
     ) -> AttrClassBuilder;
 }
 
+pub struct EnumNodeBuilder<T: NodeBuilder<T>, U> {
+    node: T::Builder,
+    fields: U,
+}
+
+impl<T: NodeBuilder<T>, U> Into<EnumNode<T, U>> for EnumNodeBuilder<T, U> {
+    fn into(self) -> EnumNode<T, U> {
+        EnumNode {
+            node: self.node.into(),
+            fields: self.fields,
+            class: Cell::new(None),
+        }
+    }
+}
+
+impl<T: NodeBuilder<T>, U> MetadataOption for EnumNodeBuilder<T, U>
+where
+    T::Builder: MetadataOption,
+{
+    fn name(&mut self, name: &str) {
+        self.node.name(name)
+    }
+}
+
 pub struct EnumNode<T, U> {
     node: T,
     fields: U,
@@ -604,13 +632,12 @@ impl<T, U> EnumNode<T, U> {
 }
 
 impl<T: NodeBuilder<T>, U: Default> NodeBuilder<Self> for EnumNode<T, U> {
-    type Builder = Self;
+    type Builder = EnumNodeBuilder<T, U>;
 
-    fn build(ctx: &Context) -> Self {
-        Self {
-            node: T::build(ctx).into(),
+    fn build(ctx: &Context) -> Self::Builder {
+        EnumNodeBuilder {
+            node: T::build(ctx),
             fields: U::default(),
-            class: Cell::new(None),
         }
     }
 }

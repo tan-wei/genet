@@ -337,7 +337,10 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
 
                 Self {
                     #(
-                        #fields_name: #fields_name_alias2 :: build(ctx),
+                        #fields_name: {
+                            let mut builder = #fields_name_alias2 :: build(ctx);
+                            builder.into()
+                        },
                     )*
                 }
             }
