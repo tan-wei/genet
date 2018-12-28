@@ -1,7 +1,7 @@
 use crate::{
     cast::{Cast, Nil, Typed},
     context::Context,
-    decoder::{DecoderBuilder, DecoderBuilder2},
+    decoder::DecoderBuilder,
     env,
     fixed::Fixed,
     layer::Layer,
@@ -504,11 +504,13 @@ impl<T: SizedField, U> SizedField for Node<T, U> {
     }
 }
 
-impl<T: DecoderBuilder, U: DecoderBuilder> DecoderBuilder for Node<T, U> {
+impl<T: DecoderBuilder<T>, U: DecoderBuilder<U>> DecoderBuilder<Node<T, U>> for Node<T, U> {
+    type Builder = Self;
+
     fn build(ctx: &Context) -> Self {
         Self {
-            node: T::build(ctx),
-            fields: U::build(ctx),
+            node: T::build(ctx).into(),
+            fields: U::build(ctx).into(),
             class: Cell::new(None),
         }
     }
@@ -596,10 +598,12 @@ impl<T, U> EnumNode<T, U> {
     }
 }
 
-impl<T: DecoderBuilder, U: Default> DecoderBuilder for EnumNode<T, U> {
+impl<T: DecoderBuilder<T>, U: Default> DecoderBuilder<EnumNode<T, U>> for EnumNode<T, U> {
+    type Builder = Self;
+
     fn build(ctx: &Context) -> Self {
         Self {
-            node: T::build(ctx),
+            node: T::build(ctx).into(),
             fields: U::default(),
             class: Cell::new(None),
         }
@@ -608,46 +612,6 @@ impl<T: DecoderBuilder, U: Default> DecoderBuilder for EnumNode<T, U> {
 
 pub trait Sizable {
     fn size(&mut self);
-}
-
-pub struct EnumNodeBuilder<T: DecoderBuilder2<T>, U> {
-    node: T::Builder,
-    fields: U,
-    class: Cell<Option<Fixed<AttrClass>>>,
-}
-
-impl<T: DecoderBuilder2<T>, U> Sizable for EnumNodeBuilder<T, U>
-where
-    T::Builder: Sizable,
-{
-    fn size(&mut self) {
-        self.node.size()
-    }
-}
-
-impl<T: DecoderBuilder2<T>, U> Into<EnumNode<T, U>> for EnumNodeBuilder<T, U> {
-    fn into(self) -> EnumNode<T, U> {
-        EnumNode {
-            node: self.node.into(),
-            fields: self.fields,
-            class: self.class,
-        }
-    }
-}
-
-impl<T: DecoderBuilder2<T>, U: Default> DecoderBuilder2<T> for EnumNode<T, U>
-where
-    T: From<EnumNodeBuilder<T, U>>,
-{
-    type Builder = EnumNodeBuilder<T, U>;
-
-    fn build(ctx: &Context) -> Self::Builder {
-        EnumNodeBuilder {
-            node: T::build(ctx),
-            fields: U::default(),
-            class: Cell::new(None),
-        }
-    }
 }
 
 #[cfg(test)]

@@ -39,11 +39,7 @@ pub trait Worker {
     fn decode(&mut self, stack: &mut LayerStack) -> Result<Status>;
 }
 
-pub trait DecoderBuilder {
-    fn build(ctx: &Context) -> Self;
-}
-
-pub trait DecoderBuilder2<T> {
+pub trait DecoderBuilder<T> {
     type Builder: Into<T>;
 
     fn build(ctx: &Context) -> Self::Builder;
