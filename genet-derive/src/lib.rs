@@ -326,10 +326,13 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
             }
         }
 
+        impl genet_sdk::attr::MetadataOption for #ident {}
+
         impl genet_sdk::attr::NodeBuilder<Self> for #ident {
             type Builder = Self;
 
             fn build(ctx: &genet_sdk::context::Context) -> Self {
+                use genet_sdk::attr::MetadataOption;
 
                 #(
                     type #fields_name_alias = #fields_ty;
@@ -339,6 +342,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     #(
                         #fields_name: {
                             let mut builder = #fields_name_alias2 :: build(ctx);
+                            builder.name("");
                             builder.into()
                         },
                     )*

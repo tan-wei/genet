@@ -443,7 +443,9 @@ extern "C" fn abi_get(
 }
 
 pub trait MetadataOption {
-    fn name(&mut self, name: &str);
+    fn id(&mut self, _id: &str) {}
+    fn name(&mut self, _name: &str) {}
+    fn description(&mut self, _desc: &str) {}
 }
 
 pub trait NodeBuilder<T> {
@@ -525,6 +527,11 @@ impl<T: NodeBuilder<T>, U: NodeBuilder<U>> NodeBuilder<Node<T, U>> for Node<T, U
     }
 }
 
+impl<T: NodeBuilder<T>, U: NodeBuilder<U>> MetadataOption for Node<T, U> where
+    T::Builder: MetadataOption
+{
+}
+
 pub trait EnumField<T: Into<Variant>> {
     fn class_enum<C: Typed<Output = T> + 'static + Send + Sync + Clone>(
         &self,
@@ -549,14 +556,7 @@ impl<T: NodeBuilder<T>, U> Into<EnumNode<T, U>> for EnumNodeBuilder<T, U> {
     }
 }
 
-impl<T: NodeBuilder<T>, U> MetadataOption for EnumNodeBuilder<T, U>
-where
-    T::Builder: MetadataOption,
-{
-    fn name(&mut self, name: &str) {
-        self.node.name(name)
-    }
-}
+impl<T: NodeBuilder<T>, U> MetadataOption for EnumNodeBuilder<T, U> where T::Builder: MetadataOption {}
 
 pub struct EnumNode<T, U> {
     node: T,

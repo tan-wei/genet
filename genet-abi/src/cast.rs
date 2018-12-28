@@ -1,5 +1,7 @@
 use crate::{
-    attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField, NodeBuilder},
+    attr::{
+        Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField, MetadataOption, NodeBuilder,
+    },
     context::Context,
     slice,
     variant::Variant,
@@ -112,10 +114,20 @@ impl Typed for Nil {
     }
 }
 
-impl NodeBuilder<Self> for Nil {
-    type Builder = Nil;
+pub struct NilBuilder {}
 
-    fn build(_ctx: &Context) -> Nil {
+impl MetadataOption for NilBuilder {}
+
+impl Into<Nil> for NilBuilder {
+    fn into(self) -> Nil {
         Nil()
+    }
+}
+
+impl NodeBuilder<Self> for Nil {
+    type Builder = NilBuilder;
+
+    fn build(_ctx: &Context) -> NilBuilder {
+        NilBuilder {}
     }
 }
