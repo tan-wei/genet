@@ -1,9 +1,8 @@
 //! Cast objects for the usual data structures.
 
 use crate::{
-    attr::{Attr, SizedField},
+    attr::{Attr, NodeBuilder, SizedField},
     context::Context,
-    decoder::DecoderBuilder,
     slice,
 };
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
@@ -33,7 +32,7 @@ impl SizedField for UInt8 {
     }
 }
 
-impl DecoderBuilder<Self> for UInt8 {
+impl NodeBuilder<Self> for UInt8 {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {
@@ -59,7 +58,7 @@ impl SizedField for Int8 {
     }
 }
 
-impl DecoderBuilder<Self> for Int8 {
+impl NodeBuilder<Self> for Int8 {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {
@@ -85,7 +84,7 @@ impl SizedField for UInt16BE {
     }
 }
 
-impl DecoderBuilder<Self> for UInt16BE {
+impl NodeBuilder<Self> for UInt16BE {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {
@@ -111,7 +110,7 @@ impl SizedField for UInt32BE {
     }
 }
 
-impl DecoderBuilder<Self> for UInt32BE {
+impl NodeBuilder<Self> for UInt32BE {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {
@@ -137,7 +136,7 @@ impl SizedField for UInt64BE {
     }
 }
 
-impl DecoderBuilder<Self> for UInt64BE {
+impl NodeBuilder<Self> for UInt64BE {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {
@@ -157,7 +156,7 @@ impl Typed for Int16BE {
     }
 }
 
-impl DecoderBuilder<Self> for Int16BE {
+impl NodeBuilder<Self> for Int16BE {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {
@@ -189,7 +188,7 @@ impl SizedField for Int32BE {
     }
 }
 
-impl DecoderBuilder<Self> for Int32BE {
+impl NodeBuilder<Self> for Int32BE {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {
@@ -215,7 +214,7 @@ impl SizedField for Int64BE {
     }
 }
 
-impl DecoderBuilder<Self> for Int64BE {
+impl NodeBuilder<Self> for Int64BE {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {
@@ -241,7 +240,7 @@ impl SizedField for Float32BE {
     }
 }
 
-impl DecoderBuilder<Self> for Float32BE {
+impl NodeBuilder<Self> for Float32BE {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {
@@ -267,7 +266,7 @@ impl SizedField for Float64BE {
     }
 }
 
-impl DecoderBuilder<Self> for Float64BE {
+impl NodeBuilder<Self> for Float64BE {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {
@@ -293,7 +292,7 @@ impl SizedField for UInt16LE {
     }
 }
 
-impl DecoderBuilder<Self> for UInt16LE {
+impl NodeBuilder<Self> for UInt16LE {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {
@@ -319,7 +318,7 @@ impl SizedField for UInt32LE {
     }
 }
 
-impl DecoderBuilder<Self> for UInt32LE {
+impl NodeBuilder<Self> for UInt32LE {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {
@@ -345,7 +344,7 @@ impl SizedField for UInt64LE {
     }
 }
 
-impl DecoderBuilder<Self> for UInt64LE {
+impl NodeBuilder<Self> for UInt64LE {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {
@@ -371,7 +370,7 @@ impl SizedField for Int16LE {
     }
 }
 
-impl DecoderBuilder<Self> for Int16LE {
+impl NodeBuilder<Self> for Int16LE {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {
@@ -397,7 +396,7 @@ impl SizedField for Int32LE {
     }
 }
 
-impl DecoderBuilder<Self> for Int32LE {
+impl NodeBuilder<Self> for Int32LE {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {
@@ -423,7 +422,7 @@ impl SizedField for Int64LE {
     }
 }
 
-impl DecoderBuilder<Self> for Int64LE {
+impl NodeBuilder<Self> for Int64LE {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {
@@ -449,7 +448,7 @@ impl SizedField for Float32LE {
     }
 }
 
-impl DecoderBuilder<Self> for Float32LE {
+impl NodeBuilder<Self> for Float32LE {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {
@@ -475,7 +474,7 @@ impl SizedField for Float64LE {
     }
 }
 
-impl DecoderBuilder<Self> for Float64LE {
+impl NodeBuilder<Self> for Float64LE {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {
@@ -499,7 +498,7 @@ impl Typed for Utf8 {
     }
 }
 
-impl DecoderBuilder<Self> for Utf8 {
+impl NodeBuilder<Self> for Utf8 {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {
@@ -519,7 +518,7 @@ impl Typed for ByteSlice {
     }
 }
 
-impl DecoderBuilder<Self> for ByteSlice {
+impl NodeBuilder<Self> for ByteSlice {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {
@@ -545,7 +544,7 @@ impl SizedField for BitFlag {
     }
 }
 
-impl DecoderBuilder<Self> for BitFlag {
+impl NodeBuilder<Self> for BitFlag {
     type Builder = Self;
 
     fn build(_ctx: &Context) -> Self {

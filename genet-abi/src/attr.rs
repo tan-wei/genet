@@ -1,7 +1,6 @@
 use crate::{
     cast::{Cast, Nil, Typed},
     context::Context,
-    decoder::DecoderBuilder,
     env,
     fixed::Fixed,
     layer::Layer,
@@ -443,6 +442,12 @@ extern "C" fn abi_get(
     }
 }
 
+pub trait NodeBuilder<T> {
+    type Builder: Into<T>;
+
+    fn build(ctx: &Context) -> Self::Builder;
+}
+
 pub struct Node<T, U = Nil> {
     node: T,
     fields: U,
@@ -504,7 +509,7 @@ impl<T: SizedField, U> SizedField for Node<T, U> {
     }
 }
 
-impl<T: DecoderBuilder<T>, U: DecoderBuilder<U>> DecoderBuilder<Node<T, U>> for Node<T, U> {
+impl<T: NodeBuilder<T>, U: NodeBuilder<U>> NodeBuilder<Node<T, U>> for Node<T, U> {
     type Builder = Self;
 
     fn build(ctx: &Context) -> Self {
@@ -598,7 +603,7 @@ impl<T, U> EnumNode<T, U> {
     }
 }
 
-impl<T: DecoderBuilder<T>, U: Default> DecoderBuilder<Self> for EnumNode<T, U> {
+impl<T: NodeBuilder<T>, U: Default> NodeBuilder<Self> for EnumNode<T, U> {
     type Builder = Self;
 
     fn build(ctx: &Context) -> Self {
