@@ -1,5 +1,5 @@
 use crate::{
-    attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField, AttrField2},
+    attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField, AttrXField},
     slice,
     variant::Variant,
 };
@@ -109,17 +109,42 @@ impl Typed for Nil {
     }
 }
 
-impl<V: Typed + Clone + Default> AttrField2 for V {
-    type Builder = TypedBuilder<V>;
+impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone + Default> AttrXField for T {
+    type Builder = TypedBuilder<I, T>;
 }
 
-#[derive(Default)]
-pub struct TypedBuilder<T: Default> {
+pub struct TypedBuilder<I: 'static + Into<Variant> + Clone, T: Default + Typed<Output = I>> {
     data: T,
+    id: String,
+    name: &'static str,
+    desc: &'static str,
+    aliases: Vec<String>,
+    filter: fn(I) -> Variant,
 }
 
-impl<T: Typed + Clone + Default> Into<AttrClassBuilder> for TypedBuilder<T> {
+impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone + Default> Default
+    for TypedBuilder<I, T>
+{
+    fn default() -> Self {
+        Self {
+            data: T::default(),
+            id: String::default(),
+            name: "",
+            desc: "",
+            aliases: Vec::new(),
+            filter: |x| x.into(),
+        }
+    }
+}
+
+impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone + Default>
+    Into<AttrClassBuilder> for TypedBuilder<I, T>
+{
     fn into(self) -> AttrClassBuilder {
-        AttrClass::builder("bool").cast(&self.data)
+        AttrClass::builder(&self.id)
+            .cast(&self.data.map(self.filter))
+            .aliases(self.aliases)
+            .name(self.name)
+            .description(self.desc)
     }
 }

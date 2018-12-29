@@ -441,7 +441,7 @@ extern "C" fn abi_get(
     }
 }
 
-pub trait AttrField2 {
+pub trait AttrXField {
     type Builder: Into<AttrClassBuilder> + Default;
 }
 
@@ -516,7 +516,7 @@ impl<T: Default, U: Default> Default for Node<T, U> {
     }
 }
 
-impl<T: AttrField2, U> AttrField2 for Node<T, U> {
+impl<T: AttrXField, U> AttrXField for Node<T, U> {
     type Builder = NodeBuilder;
 }
 
@@ -613,7 +613,7 @@ impl<T: Default, U: Default> Default for EnumNode<T, U> {
     }
 }
 
-impl<T: AttrField2, U> AttrField2 for EnumNode<T, U> {
+impl<T: AttrXField, U> AttrXField for EnumNode<T, U> {
     type Builder = EnumNodeBuilder;
 }
 
