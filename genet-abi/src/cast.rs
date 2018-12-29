@@ -6,12 +6,12 @@ use crate::{
 use std::{convert::Into, io::Result};
 
 /// Cast trait.
-pub trait Cast: Send + Sync {
+pub trait Cast: 'static + Send + Sync {
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<Variant>;
 }
 
 /// Typed cast trait.
-pub trait Typed {
+pub trait Typed: Cast {
     type Output: Into<Variant>;
     fn cast(&self, _attr: &Attr, data: &slice::ByteSlice) -> Result<Self::Output>;
 }
@@ -53,31 +53,29 @@ where
 
 impl<T, I, R, F> Typed for Mapped<T, I, R, F>
 where
-    T: Typed<Output = I>,
-    I: Into<Variant>,
-    R: Into<Variant>,
-    F: Fn(I) -> R + Clone,
+    T: Typed<Output = I> + Clone + 'static,
+    I: Into<Variant> + Clone + 'static,
+    R: Into<Variant> + Clone + 'static,
+    F: Fn(I) -> R + Clone + Send + Sync + 'static,
 {
     type Output = R;
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<Self::Output> {
-        self.cast.cast(attr, data).map(self.func.clone())
+        Typed::cast(&self.cast, attr, data).map(self.func.clone())
     }
 }
 
 impl<T, X> Cast for T
 where
-    T: 'static + Typed<Output = X> + Send + Sync + Clone,
+    T: Typed<Output = X> + Clone,
     X: Into<Variant>,
 {
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<Variant> {
-        T::cast(self, attr, data).map(|r| r.into())
+        Typed::cast(self, attr, data).map(|r| r.into())
     }
 }
 
-impl<I: 'static + Into<Variant> + Clone, V: 'static + Typed<Output = I> + Sync + Clone + Cast>
-    AttrField for V
-{
+impl<I: 'static + Into<Variant> + Clone, V: Typed<Output = I> + Clone> AttrField for V {
     type I = I;
 
     fn class(

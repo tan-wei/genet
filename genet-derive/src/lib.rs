@@ -74,7 +74,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
     let tokens = quote! {
 
     impl<T: Into<genet_sdk::variant::Variant> + Into<#ident> + 'static + Clone> genet_sdk::attr::EnumField<T> for #ident {
-        fn class_enum<C: genet_sdk::cast::Typed<Output=T> + 'static + Send + Sync + Clone>(
+        fn class_enum<C: genet_sdk::cast::Typed<Output=T> + Clone>(
             &self,
             ctx: &genet_sdk::attr::AttrContext,
             bit_size: usize,

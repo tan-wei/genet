@@ -114,7 +114,7 @@ enum ValueType {
 #[derive(Clone)]
 struct Const<T>(pub T);
 
-impl<T: Into<Variant> + Clone> Typed for Const<T> {
+impl<T: 'static + Into<Variant> + Send + Sync + Clone> Typed for Const<T> {
     type Output = T;
 
     fn cast(&self, _attr: &Attr, _data: &ByteSlice) -> io::Result<T> {
@@ -513,7 +513,7 @@ impl<T: Default, U: Default> Default for Node<T, U> {
 }
 
 pub trait EnumField<T: Into<Variant>> {
-    fn class_enum<C: Typed<Output = T> + 'static + Send + Sync + Clone>(
+    fn class_enum<C: Typed<Output = T> + Clone>(
         &self,
         ctx: &AttrContext,
         bit_size: usize,
@@ -527,11 +527,8 @@ pub struct EnumNode<T, U> {
     class: Cell<Option<Fixed<AttrClass>>>,
 }
 
-impl<
-        I: Into<Variant>,
-        T: AttrField<I = I> + Typed<Output = I> + 'static + Send + Sync + Clone,
-        U: EnumField<I>,
-    > AttrField for EnumNode<T, U>
+impl<I: Into<Variant>, T: AttrField<I = I> + Typed<Output = I> + Clone, U: EnumField<I>> AttrField
+    for EnumNode<T, U>
 {
     type I = I;
 
@@ -556,12 +553,7 @@ impl<
     }
 }
 
-impl<
-        I: Into<Variant> + Into<U>,
-        T: Typed<Output = I> + 'static + Send + Sync + Clone,
-        U: EnumField<I>,
-    > EnumNode<T, U>
-{
+impl<I: Into<Variant> + Into<U>, T: Typed<Output = I>, U: EnumField<I>> EnumNode<T, U> {
     pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<U> {
         let class = self.class.get().unwrap();
 
@@ -570,7 +562,7 @@ impl<
             ..(class.bit_range().end - bit_offset + range.end * 8);
 
         let root = Attr::new(&class, range, layer.data());
-        match self.node.cast(&root, &layer.data()) {
+        match Typed::cast(&self.node, &root, &layer.data()) {
             Ok(data) => Ok(data.into()),
             Err(err) => Err(format_err!("{}", err)),
         }
