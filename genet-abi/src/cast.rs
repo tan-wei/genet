@@ -116,9 +116,12 @@ impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone + Default>
 pub struct TypedBuilder<I: 'static + Into<Variant> + Clone, T: Default + Typed<Output = I>> {
     data: T,
     id: String,
+    typ: String,
     name: &'static str,
     desc: &'static str,
     aliases: Vec<String>,
+    bit_offset: usize,
+    bit_size: usize,
     filter: fn(I) -> Variant,
 }
 
@@ -129,9 +132,12 @@ impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone + Default>
         Self {
             data: T::default(),
             id: String::default(),
+            typ: String::default(),
             name: "",
             desc: "",
             aliases: Vec::new(),
+            bit_offset: 0,
+            bit_size: 0,
             filter: |x| x.into(),
         }
     }
@@ -142,8 +148,10 @@ impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone + Default>
 {
     fn into(self) -> AttrClassBuilder {
         AttrClass::builder(&self.id)
+            .typ(&self.typ)
             .cast(&self.data.map(self.filter))
             .aliases(self.aliases)
+            .bit_range(0, self.bit_offset..(self.bit_offset + self.bit_size))
             .name(self.name)
             .description(self.desc)
     }
