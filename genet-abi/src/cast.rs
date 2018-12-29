@@ -14,6 +14,9 @@ pub trait Cast: 'static + Send + Sync {
 pub trait Typed: Cast {
     type Output: Into<Variant>;
     fn cast(&self, _attr: &Attr, data: &slice::ByteSlice) -> Result<Self::Output>;
+    fn bit_size(&self) -> usize {
+        8
+    }
 }
 
 /// Mappable cast trait.
@@ -129,15 +132,17 @@ impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone + Default>
     for TypedBuilder<I, T>
 {
     fn default() -> Self {
+        let data = T::default();
+        let bit_size = data.bit_size();
         Self {
-            data: T::default(),
+            data,
             id: String::default(),
             typ: String::default(),
             name: "",
             desc: "",
             aliases: Vec::new(),
             bit_offset: 0,
-            bit_size: 0,
+            bit_size,
             filter: |x| x.into(),
         }
     }

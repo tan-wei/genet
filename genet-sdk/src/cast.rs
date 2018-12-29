@@ -22,6 +22,10 @@ impl Typed for UInt8 {
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<u8> {
         Cursor::new(data.try_get(attr.range())?).read_u8()
     }
+
+    fn bit_size(&self) -> usize {
+        size_of::<u8>() * 8
+    }
 }
 
 impl SizedField for UInt8 {
@@ -39,6 +43,10 @@ impl Typed for Int8 {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<i8> {
         Cursor::new(data.try_get(attr.range())?).read_i8()
+    }
+
+    fn bit_size(&self) -> usize {
+        size_of::<i8>() * 8
     }
 }
 
@@ -58,6 +66,10 @@ impl Typed for UInt16BE {
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<u16> {
         Cursor::new(data.try_get(attr.range())?).read_u16::<BigEndian>()
     }
+
+    fn bit_size(&self) -> usize {
+        size_of::<u16>() * 8
+    }
 }
 
 impl SizedField for UInt16BE {
@@ -75,6 +87,10 @@ impl Typed for UInt32BE {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<u32> {
         Cursor::new(data.try_get(attr.range())?).read_u32::<BigEndian>()
+    }
+
+    fn bit_size(&self) -> usize {
+        size_of::<u32>() * 8
     }
 }
 
@@ -94,6 +110,10 @@ impl Typed for UInt64BE {
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<u64> {
         Cursor::new(data.try_get(attr.range())?).read_u64::<BigEndian>()
     }
+
+    fn bit_size(&self) -> usize {
+        size_of::<u64>() * 8
+    }
 }
 
 impl SizedField for UInt64BE {
@@ -111,6 +131,10 @@ impl Typed for Int16BE {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<i16> {
         Cursor::new(data.try_get(attr.range())?).read_i16::<BigEndian>()
+    }
+
+    fn bit_size(&self) -> usize {
+        size_of::<i16>() * 8
     }
 }
 
@@ -130,6 +154,10 @@ impl Typed for Int32BE {
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<i32> {
         Cursor::new(data.try_get(attr.range())?).read_i32::<BigEndian>()
     }
+
+    fn bit_size(&self) -> usize {
+        size_of::<i32>() * 8
+    }
 }
 
 impl SizedField for Int32BE {
@@ -147,6 +175,10 @@ impl Typed for Int64BE {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<i64> {
         Cursor::new(data.try_get(attr.range())?).read_i64::<BigEndian>()
+    }
+
+    fn bit_size(&self) -> usize {
+        size_of::<i64>() * 8
     }
 }
 
@@ -166,6 +198,10 @@ impl Typed for Float32BE {
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<f32> {
         Cursor::new(data.try_get(attr.range())?).read_f32::<BigEndian>()
     }
+
+    fn bit_size(&self) -> usize {
+        size_of::<f32>() * 8
+    }
 }
 
 impl SizedField for Float32BE {
@@ -183,6 +219,10 @@ impl Typed for Float64BE {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<f64> {
         Cursor::new(data.try_get(attr.range())?).read_f64::<BigEndian>()
+    }
+
+    fn bit_size(&self) -> usize {
+        size_of::<f64>() * 8
     }
 }
 
@@ -202,6 +242,10 @@ impl Typed for UInt16LE {
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<u16> {
         Cursor::new(data.try_get(attr.range())?).read_u16::<LittleEndian>()
     }
+
+    fn bit_size(&self) -> usize {
+        size_of::<u16>() * 8
+    }
 }
 
 impl SizedField for UInt16LE {
@@ -219,6 +263,10 @@ impl Typed for UInt32LE {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<u32> {
         Cursor::new(data.try_get(attr.range())?).read_u32::<LittleEndian>()
+    }
+
+    fn bit_size(&self) -> usize {
+        size_of::<u32>() * 8
     }
 }
 
@@ -238,6 +286,10 @@ impl Typed for UInt64LE {
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<u64> {
         Cursor::new(data.try_get(attr.range())?).read_u64::<LittleEndian>()
     }
+
+    fn bit_size(&self) -> usize {
+        size_of::<u64>() * 8
+    }
 }
 
 impl SizedField for UInt64LE {
@@ -255,6 +307,10 @@ impl Typed for Int16LE {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<i16> {
         Cursor::new(data.try_get(attr.range())?).read_i16::<LittleEndian>()
+    }
+
+    fn bit_size(&self) -> usize {
+        size_of::<i16>() * 8
     }
 }
 
@@ -274,6 +330,10 @@ impl Typed for Int32LE {
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<i32> {
         Cursor::new(data.try_get(attr.range())?).read_i32::<LittleEndian>()
     }
+
+    fn bit_size(&self) -> usize {
+        size_of::<i32>() * 8
+    }
 }
 
 impl SizedField for Int32LE {
@@ -291,6 +351,10 @@ impl Typed for Int64LE {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<i64> {
         Cursor::new(data.try_get(attr.range())?).read_i64::<LittleEndian>()
+    }
+
+    fn bit_size(&self) -> usize {
+        size_of::<i64>() * 8
     }
 }
 
@@ -310,6 +374,10 @@ impl Typed for Float32LE {
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<f32> {
         Cursor::new(data.try_get(attr.range())?).read_f32::<LittleEndian>()
     }
+
+    fn bit_size(&self) -> usize {
+        size_of::<f32>() * 8
+    }
 }
 
 impl SizedField for Float32LE {
@@ -327,6 +395,10 @@ impl Typed for Float64LE {
 
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<f64> {
         Cursor::new(data.try_get(attr.range())?).read_f64::<LittleEndian>()
+    }
+
+    fn bit_size(&self) -> usize {
+        size_of::<f64>() * 8
     }
 }
 
@@ -373,6 +445,10 @@ impl Typed for BitFlag {
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<bool> {
         let byte = Cursor::new(data.try_get(attr.range())?).read_u8()?;
         Ok((byte & (0b1000_0000 >> (attr.bit_range().start % 8))) != 0)
+    }
+
+    fn bit_size(&self) -> usize {
+        1
     }
 }
 
