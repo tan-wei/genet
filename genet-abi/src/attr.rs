@@ -1,5 +1,5 @@
 use crate::{
-    cast::{Cast, Nil, Typed},
+    cast::{Cast, Map, Nil, Typed},
     env,
     fixed::Fixed,
     layer::Layer,
@@ -613,20 +613,39 @@ impl<T: Default, U: Default> Default for EnumNode<T, U> {
     }
 }
 
-impl<T: AttrXField, U> AttrXField for EnumNode<T, U> {
-    type Builder = EnumNodeBuilder;
+impl<I: 'static + Into<Variant> + Into<U> + Clone, T: Typed<Output = I> + Clone + Default, U>
+    AttrXField for EnumNode<T, U>
+{
+    type Builder = EnumNodeBuilder<I, T, U>;
 }
 
-#[derive(Default)]
-pub struct EnumNodeBuilder {}
+pub struct EnumNodeBuilder<I, T, U> {
+    data: T,
+    mapper: fn(I) -> Variant,
+    enum_mapper: fn(I) -> U,
+}
 
-impl EnumNodeBuilder {
+impl<I, T, U> EnumNodeBuilder<I, T, U> {
     pub fn set_name(&mut self, name: &'static str) {}
 }
 
-impl Into<AttrClassBuilder> for EnumNodeBuilder {
+impl<I: 'static + Into<Variant> + Into<U> + Clone, T: Typed<Output = I> + Default, U> Default
+    for EnumNodeBuilder<I, T, U>
+{
+    fn default() -> Self {
+        Self {
+            data: T::default(),
+            mapper: |x| x.into(),
+            enum_mapper: |x| x.into(),
+        }
+    }
+}
+
+impl<I: 'static + Into<Variant> + Into<U> + Clone, T: Typed<Output = I> + Clone + Default, U>
+    Into<AttrClassBuilder> for EnumNodeBuilder<I, T, U>
+{
     fn into(self) -> AttrClassBuilder {
-        AttrClass::builder("bool")
+        AttrClass::builder("bool").cast(&self.data.map(self.mapper))
     }
 }
 

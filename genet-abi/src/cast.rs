@@ -125,12 +125,16 @@ pub struct TypedBuilder<I: 'static + Into<Variant> + Clone, T: Default + Typed<O
     aliases: Vec<String>,
     bit_offset: usize,
     bit_size: usize,
-    filter: fn(I) -> Variant,
+    mapper: fn(I) -> Variant,
 }
 
 impl<I: 'static + Into<Variant> + Clone, T: Default + Typed<Output = I>> TypedBuilder<I, T> {
     pub fn set_name(&mut self, name: &'static str) {
         self.name = name;
+    }
+
+    pub fn set_mapper(&mut self, mapper: fn(I) -> Variant) {
+        self.mapper = mapper;
     }
 }
 
@@ -149,7 +153,7 @@ impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone + Default>
             aliases: Vec::new(),
             bit_offset: 0,
             bit_size,
-            filter: |x| x.into(),
+            mapper: |x| x.into(),
         }
     }
 }
@@ -160,7 +164,7 @@ impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone + Default>
     fn into(self) -> AttrClassBuilder {
         AttrClass::builder(&self.path)
             .typ(&self.typ)
-            .cast(&self.data.map(self.filter))
+            .cast(&self.data.map(self.mapper))
             .aliases(self.aliases)
             .bit_range(0, self.bit_offset..(self.bit_offset + self.bit_size))
             .name(self.name)
