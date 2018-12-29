@@ -118,7 +118,7 @@ impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone + Default>
 
 pub struct TypedBuilder<I: 'static + Into<Variant> + Clone, T: Default + Typed<Output = I>> {
     data: T,
-    id: String,
+    path: String,
     typ: String,
     name: &'static str,
     desc: &'static str,
@@ -126,6 +126,12 @@ pub struct TypedBuilder<I: 'static + Into<Variant> + Clone, T: Default + Typed<O
     bit_offset: usize,
     bit_size: usize,
     filter: fn(I) -> Variant,
+}
+
+impl<I: 'static + Into<Variant> + Clone, T: Default + Typed<Output = I>> TypedBuilder<I, T> {
+    pub fn set_name(&mut self, name: &'static str) {
+        self.name = name;
+    }
 }
 
 impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone + Default> Default
@@ -136,7 +142,7 @@ impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone + Default>
         let bit_size = data.bit_size();
         Self {
             data,
-            id: String::default(),
+            path: String::default(),
             typ: String::default(),
             name: "",
             desc: "",
@@ -152,7 +158,7 @@ impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone + Default>
     Into<AttrClassBuilder> for TypedBuilder<I, T>
 {
     fn into(self) -> AttrClassBuilder {
-        AttrClass::builder(&self.id)
+        AttrClass::builder(&self.path)
             .typ(&self.typ)
             .cast(&self.data.map(self.filter))
             .aliases(self.aliases)

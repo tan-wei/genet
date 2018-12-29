@@ -4,6 +4,7 @@ extern crate proc_macro;
 
 use inflector::cases::camelcase::to_camel_case;
 use proc_macro::TokenStream;
+use proc_macro2::Span;
 use quote::quote;
 use syn::{parse_macro_input, Data, DataEnum, DataStruct, DeriveInput, Expr, Fields, Ident};
 
@@ -144,6 +145,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let mut fields_detach = Vec::new();
     let mut fields_align = Vec::new();
     let mut fields_filter = Vec::new();
+    let mut fields_builder = Vec::new();
 
     if let Fields::Named(f) = &s.fields {
         for field in &f.named {
@@ -162,6 +164,16 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     meta.name
                 };
                 let desc = meta.description;
+
+                let ty = &field.ty;
+                fields_builder.push(quote! {
+                    {
+                        type Alias = #ty;
+                        let mut builder = <Alias as genet_sdk::attr::AttrXField>::Builder::default();
+                        builder.set_name(#name);
+                    }
+                });
+
                 let filter = match meta.map {
                     AttrMapExpr::Map(s) => {
                         let expr = syn::parse_str::<Expr>(&s).unwrap();
@@ -246,7 +258,26 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let self_desc = self_attrs.description;
 
     let ident = &input.ident;
+    let ident_builder = Ident::new(&format!("{}_Builder", ident), Span::call_site());
+
     let tokens = quote! {
+        impl genet_sdk::attr::AttrXField for #ident {
+            type Builder = #ident_builder;
+        }
+
+        #[derive(Default)]
+        struct #ident_builder {}
+
+        impl Into<genet_sdk::attr::AttrClassBuilder> for #ident_builder {
+            fn into(self) -> genet_sdk::attr::AttrClassBuilder {
+                #(
+                    #fields_builder
+                )*
+
+                genet_sdk::attr::AttrClass::builder("bool")
+            }
+        }
+
         impl genet_sdk::attr::AttrField for #ident {
             type I = genet_sdk::slice::ByteSlice;
 

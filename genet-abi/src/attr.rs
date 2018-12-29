@@ -620,6 +620,10 @@ impl<T: AttrXField, U> AttrXField for EnumNode<T, U> {
 #[derive(Default)]
 pub struct EnumNodeBuilder {}
 
+impl EnumNodeBuilder {
+    pub fn set_name(&mut self, name: &'static str) {}
+}
+
 impl Into<AttrClassBuilder> for EnumNodeBuilder {
     fn into(self) -> AttrClassBuilder {
         AttrClass::builder("bool")
