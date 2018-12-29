@@ -109,17 +109,17 @@ impl Typed for Nil {
     }
 }
 
-impl<I: 'static + Into<Variant> + Clone, V: 'static + Typed<Output = I> + Sync + Clone + Cast>
-    AttrField2 for V
-{
-    type Builder = TypedBuilder;
+impl<V: Typed + Clone + Default> AttrField2 for V {
+    type Builder = TypedBuilder<V>;
 }
 
 #[derive(Default)]
-pub struct TypedBuilder {}
+pub struct TypedBuilder<T: Default> {
+    data: T,
+}
 
-impl Into<AttrClassBuilder> for TypedBuilder {
+impl<T: Typed + Clone + Default> Into<AttrClassBuilder> for TypedBuilder<T> {
     fn into(self) -> AttrClassBuilder {
-        AttrClass::builder("bool")
+        AttrClass::builder("bool").cast(&self.data)
     }
 }
