@@ -1,5 +1,5 @@
 use crate::{
-    attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField},
+    attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField, AttrField2},
     slice,
     variant::Variant,
 };
@@ -106,5 +106,20 @@ impl Typed for Nil {
 
     fn cast(&self, _attr: &Attr, _data: &slice::ByteSlice) -> Result<Variant> {
         Ok(Variant::Nil)
+    }
+}
+
+impl<I: 'static + Into<Variant> + Clone, V: 'static + Typed<Output = I> + Sync + Clone + Cast>
+    AttrField2 for V
+{
+    type Builder = TypedBuilder;
+}
+
+#[derive(Default)]
+pub struct TypedBuilder {}
+
+impl Into<AttrClassBuilder> for TypedBuilder {
+    fn into(self) -> AttrClassBuilder {
+        AttrClass::builder("bool")
     }
 }

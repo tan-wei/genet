@@ -441,6 +441,10 @@ extern "C" fn abi_get(
     }
 }
 
+pub trait AttrField2 {
+    type Builder: Into<AttrClassBuilder> + Default;
+}
+
 pub struct Node<T, U = Nil> {
     node: T,
     fields: U,
@@ -509,6 +513,19 @@ impl<T: Default, U: Default> Default for Node<T, U> {
             fields: U::default(),
             class: Cell::new(None),
         }
+    }
+}
+
+impl<T: AttrField2, U> AttrField2 for Node<T, U> {
+    type Builder = NodeBuilder;
+}
+
+#[derive(Default)]
+pub struct NodeBuilder {}
+
+impl Into<AttrClassBuilder> for NodeBuilder {
+    fn into(self) -> AttrClassBuilder {
+        AttrClass::builder("bool")
     }
 }
 
@@ -593,6 +610,19 @@ impl<T: Default, U: Default> Default for EnumNode<T, U> {
             fields: U::default(),
             class: Cell::new(None),
         }
+    }
+}
+
+impl<T: AttrField2, U> AttrField2 for EnumNode<T, U> {
+    type Builder = EnumNodeBuilder;
+}
+
+#[derive(Default)]
+pub struct EnumNodeBuilder {}
+
+impl Into<AttrClassBuilder> for EnumNodeBuilder {
+    fn into(self) -> AttrClassBuilder {
+        AttrClass::builder("bool")
     }
 }
 
