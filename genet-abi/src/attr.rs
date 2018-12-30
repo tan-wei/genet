@@ -547,10 +547,11 @@ pub trait EnumField<T: Into<Variant>> {
     ) -> AttrClassBuilder;
 }
 
-pub struct EnumNode<T, U> {
+pub struct EnumNode<T: Typed, U> {
     node: T,
     fields: U,
     class: Cell<Option<Fixed<AttrClass>>>,
+    enum_mapper: fn(T::Output) -> U,
 }
 
 impl<I: Into<Variant>, T: AttrField<I = I> + Typed<Output = I> + Clone, U: EnumField<I>> AttrField
@@ -589,7 +590,7 @@ impl<I: Into<Variant> + Into<U>, T: Typed<Output = I>, U: EnumField<I>> EnumNode
 
         let root = Attr::new(&class, range, layer.data());
         match Typed::cast(&self.node, &root, &layer.data()) {
-            Ok(data) => Ok(data.into()),
+            Ok(data) => Ok((self.enum_mapper)(data)),
             Err(err) => Err(format_err!("{}", err)),
         }
     }
@@ -600,24 +601,27 @@ impl<I: Into<Variant> + Into<U>, T: Typed<Output = I>, U: EnumField<I>> EnumNode
     }
 }
 
-impl<T: SizedField, U> SizedField for EnumNode<T, U> {
+impl<T: Typed, U> SizedField for EnumNode<T, U> {
     fn bit_size(&self) -> usize {
         self.node.bit_size()
     }
 }
 
-impl<T, U> EnumNode<T, U> {
+impl<T: Typed, U> EnumNode<T, U> {
     pub fn class(&self) -> Fixed<AttrClass> {
         self.class.get().unwrap()
     }
 }
 
-impl<T: Default, U: Default> Default for EnumNode<T, U> {
+impl<I: Into<Variant> + Into<U>, T: Typed<Output = I> + Default, U: Default> Default
+    for EnumNode<T, U>
+{
     fn default() -> Self {
         Self {
             node: T::default(),
             fields: U::default(),
             class: Cell::new(None),
+            enum_mapper: |x| x.into(),
         }
     }
 }
@@ -635,6 +639,7 @@ impl<
             node: T::default(),
             fields: U::default(),
             class: Cell::new(None),
+            enum_mapper: builder.enum_mapper,
         }
     }
 }
