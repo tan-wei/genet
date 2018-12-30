@@ -1,5 +1,10 @@
 use genet_derive::Attr;
-use genet_sdk::{cast, decoder::*, prelude::*};
+use genet_sdk::{
+    attr::{AttrClassBuilder, AttrXField},
+    cast,
+    decoder::*,
+    prelude::*,
+};
 
 /// Ethernet
 #[derive(Attr, Default)]
@@ -84,3 +89,11 @@ impl Decoder for EthDecoder {
 }
 
 genet_decoders!(EthDecoder {});
+
+#[test]
+fn session() {
+    let mut builder = <Eth as AttrXField>::Builder::default();
+    builder.set_path("eth");
+    let x: AttrClassBuilder = builder.into();
+    println!("{:#?}", x.build());
+}

@@ -573,7 +573,7 @@ impl<T> NodeBuilder<T> {
 
 impl<T> Into<AttrClassBuilder> for NodeBuilder<T> {
     fn into(self) -> AttrClassBuilder {
-        AttrClass::builder("bool")
+        AttrClass::builder(&self.path)
     }
 }
 
@@ -751,7 +751,13 @@ impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone, U> Into<A
     for EnumNodeBuilder<I, T, U>
 {
     fn into(self) -> AttrClassBuilder {
-        AttrClass::builder("bool").cast(&self.data.map(self.mapper))
+        AttrClass::builder(&self.path)
+            .cast(&self.data.map(self.mapper))
+            .typ(&self.typ)
+            .aliases(self.aliases)
+            .bit_range(0, self.bit_offset..(self.bit_offset + self.bit_size))
+            .name(self.name)
+            .description(self.desc)
     }
 }
 

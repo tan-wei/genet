@@ -188,10 +188,11 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     {
                         type Alias = #ty;
                         let mut builder = <Alias as genet_sdk::attr::AttrXField>::Builder::default();
-                        builder.set_path(#id);
+                        builder.set_path(&format!("{}{}", parnet_path, #id));
                         builder.set_typ(#typ);
                         builder.set_name(#name);
                         builder.set_description(#desc);
+                        builder.into()
                     }
                 });
 
@@ -272,16 +273,54 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
             }
         }
 
-        #[derive(Default)]
-        struct #ident_builder {}
+        struct #ident_builder {
+            path: String,
+            typ: String,
+            name: &'static str,
+            desc: &'static str,
+            aliases: Vec<String>,
+            bit_offset: usize,
+            bit_size: usize,
+        }
+
+        impl #ident_builder {
+            fn set_path(&mut self, path: &str) {
+                self.path = path.to_string();
+            }
+        }
+
+        impl Default for #ident_builder {
+            fn default() -> Self {
+                Self {
+                    path: String::new(),
+                    typ: String::default(),
+                    name: "",
+                    desc: "",
+                    aliases: Vec::new(),
+                    bit_offset: 0,
+                    bit_size: 0,
+                }
+            }
+        }
 
         impl Into<genet_sdk::attr::AttrClassBuilder> for #ident_builder {
             fn into(self) -> genet_sdk::attr::AttrClassBuilder {
+                let parnet_path = self.path;
+
+                let mut children : Vec<genet_sdk::attr::AttrClassBuilder> = Vec::new();
                 #(
-                    #fields_builder
+                    children.push(#fields_builder);
                 )*
 
-                genet_sdk::attr::AttrClass::builder("bool")
+                let children = children.into_iter().map(|b| Fixed::new(b.build())).collect::<Vec<_>>();
+
+                genet_sdk::attr::AttrClass::builder(&parnet_path)
+                    .add_children(children)
+                    .typ(&self.typ)
+                    .aliases(self.aliases)
+                    .bit_range(0, self.bit_offset..(self.bit_offset + self.bit_size))
+                    .name(self.name)
+                    .description(self.desc)
             }
         }
 
