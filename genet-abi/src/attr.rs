@@ -584,6 +584,8 @@ pub trait EnumField<T: Into<Variant>> {
         bit_size: usize,
         cast: C,
     ) -> AttrClassBuilder;
+
+    fn builder<C: Typed<Output = T> + Clone>(&self, builder: AttrClassBuilder) -> AttrClassBuilder;
 }
 
 pub struct EnumNode<T: Typed, U> {
@@ -668,7 +670,7 @@ impl<I: Into<Variant> + Into<U>, T: Typed<Output = I> + Default, U: Default> Def
 impl<
         I: 'static + Into<Variant> + Into<U> + Clone,
         T: Typed<Output = I> + Clone + Default,
-        U: Default,
+        U: Default + EnumField<I>,
     > AttrXField for EnumNode<T, U>
 {
     type Builder = EnumNodeBuilder<I, T, U>;
@@ -685,6 +687,7 @@ impl<
 
 pub struct EnumNodeBuilder<I, T, U> {
     data: T,
+    field: U,
     path: String,
     typ: String,
     name: &'static str,
@@ -726,14 +729,18 @@ impl<I, T, U> EnumNodeBuilder<I, T, U> {
     }
 }
 
-impl<I: 'static + Into<Variant> + Into<U> + Clone, T: Typed<Output = I> + Default, U> Default
-    for EnumNodeBuilder<I, T, U>
+impl<
+        I: 'static + Into<Variant> + Into<U> + Clone,
+        T: Typed<Output = I> + Default,
+        U: Default + EnumField<I>,
+    > Default for EnumNodeBuilder<I, T, U>
 {
     fn default() -> Self {
         let data = T::default();
         let bit_size = data.bit_size();
         Self {
             data,
+            field: U::default(),
             path: String::default(),
             typ: String::default(),
             name: "",
@@ -747,17 +754,18 @@ impl<I: 'static + Into<Variant> + Into<U> + Clone, T: Typed<Output = I> + Defaul
     }
 }
 
-impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone, U> Into<AttrClassBuilder>
-    for EnumNodeBuilder<I, T, U>
+impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone, U: EnumField<I>>
+    Into<AttrClassBuilder> for EnumNodeBuilder<I, T, U>
 {
     fn into(self) -> AttrClassBuilder {
-        AttrClass::builder(&self.path)
+        let builder = AttrClass::builder(&self.path)
             .cast(&self.data.map(self.mapper))
             .typ(&self.typ)
             .aliases(self.aliases)
             .bit_range(0, self.bit_offset..(self.bit_offset + self.bit_size))
             .name(self.name)
-            .description(self.desc)
+            .description(self.desc);
+        self.field.builder::<T>(builder)
     }
 }
 
