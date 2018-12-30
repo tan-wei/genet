@@ -518,7 +518,7 @@ impl<T: Default, U: Default> Default for Node<T, U> {
 }
 
 impl<T: Default, U: Default> AttrXField for Node<T, U> {
-    type Builder = NodeBuilder;
+    type Builder = NodeBuilder<T>;
 
     fn from_builder(builder: &Self::Builder) -> Self {
         Self {
@@ -530,9 +530,48 @@ impl<T: Default, U: Default> AttrXField for Node<T, U> {
 }
 
 #[derive(Default)]
-pub struct NodeBuilder {}
+pub struct NodeBuilder<T> {
+    data: T,
+    path: String,
+    typ: String,
+    name: &'static str,
+    desc: &'static str,
+    aliases: Vec<String>,
+    bit_offset: usize,
+    bit_size: usize,
+}
 
-impl Into<AttrClassBuilder> for NodeBuilder {
+impl<T> NodeBuilder<T> {
+    pub fn set_path(&mut self, path: &str) {
+        self.path = path.to_string();
+    }
+
+    pub fn set_typ(&mut self, typ: &str) {
+        self.typ = typ.to_string();
+    }
+
+    pub fn set_name(&mut self, name: &'static str) {
+        self.name = name;
+    }
+
+    pub fn set_description(&mut self, desc: &'static str) {
+        self.desc = desc;
+    }
+
+    pub fn set_aliases(&mut self, aliases: Vec<String>) {
+        self.aliases = aliases;
+    }
+
+    pub fn set_bit_size(&mut self, size: usize) {
+        self.bit_size = size;
+    }
+
+    pub fn set_bit_offset(&mut self, offset: usize) {
+        self.bit_offset = offset;
+    }
+}
+
+impl<T> Into<AttrClassBuilder> for NodeBuilder<T> {
     fn into(self) -> AttrClassBuilder {
         AttrClass::builder("bool")
     }
@@ -646,20 +685,62 @@ impl<
 
 pub struct EnumNodeBuilder<I, T, U> {
     data: T,
+    path: String,
+    typ: String,
+    name: &'static str,
+    desc: &'static str,
+    aliases: Vec<String>,
+    bit_offset: usize,
+    bit_size: usize,
     mapper: fn(I) -> Variant,
     enum_mapper: fn(I) -> U,
 }
 
 impl<I, T, U> EnumNodeBuilder<I, T, U> {
-    pub fn set_name(&mut self, name: &'static str) {}
+    pub fn set_path(&mut self, path: &str) {
+        self.path = path.to_string();
+    }
+
+    pub fn set_typ(&mut self, typ: &str) {
+        self.typ = typ.to_string();
+    }
+
+    pub fn set_name(&mut self, name: &'static str) {
+        self.name = name;
+    }
+
+    pub fn set_description(&mut self, desc: &'static str) {
+        self.desc = desc;
+    }
+
+    pub fn set_aliases(&mut self, aliases: Vec<String>) {
+        self.aliases = aliases;
+    }
+
+    pub fn set_bit_size(&mut self, size: usize) {
+        self.bit_size = size;
+    }
+
+    pub fn set_bit_offset(&mut self, offset: usize) {
+        self.bit_offset = offset;
+    }
 }
 
 impl<I: 'static + Into<Variant> + Into<U> + Clone, T: Typed<Output = I> + Default, U> Default
     for EnumNodeBuilder<I, T, U>
 {
     fn default() -> Self {
+        let data = T::default();
+        let bit_size = data.bit_size();
         Self {
-            data: T::default(),
+            data,
+            path: String::default(),
+            typ: String::default(),
+            name: "",
+            desc: "",
+            aliases: Vec::new(),
+            bit_offset: 0,
+            bit_size,
             mapper: |x| x.into(),
             enum_mapper: |x| x.into(),
         }

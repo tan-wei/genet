@@ -133,8 +133,32 @@ pub struct TypedBuilder<I: 'static + Into<Variant> + Clone, T: Default + Typed<O
 }
 
 impl<I: 'static + Into<Variant> + Clone, T: Default + Typed<Output = I>> TypedBuilder<I, T> {
+    pub fn set_path(&mut self, path: &str) {
+        self.path = path.to_string();
+    }
+
+    pub fn set_typ(&mut self, typ: &str) {
+        self.typ = typ.to_string();
+    }
+
     pub fn set_name(&mut self, name: &'static str) {
         self.name = name;
+    }
+
+    pub fn set_description(&mut self, desc: &'static str) {
+        self.desc = desc;
+    }
+
+    pub fn set_aliases(&mut self, aliases: Vec<String>) {
+        self.aliases = aliases;
+    }
+
+    pub fn set_bit_size(&mut self, size: usize) {
+        self.bit_size = size;
+    }
+
+    pub fn set_bit_offset(&mut self, offset: usize) {
+        self.bit_offset = offset;
     }
 
     pub fn set_mapper(&mut self, mapper: fn(I) -> Variant) {

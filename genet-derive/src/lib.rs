@@ -164,16 +164,6 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     meta.name
                 };
                 let desc = meta.description;
-
-                let ty = &field.ty;
-                fields_builder.push(quote! {
-                    {
-                        type Alias = #ty;
-                        let mut builder = <Alias as genet_sdk::attr::AttrXField>::Builder::default();
-                        builder.set_name(#name);
-                    }
-                });
-
                 let filter = match meta.map {
                     AttrMapExpr::Map(s) => {
                         let expr = syn::parse_str::<Expr>(&s).unwrap();
@@ -192,6 +182,19 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     .fold(String::new(), |acc, x| acc + x + " ")
                     .trim()
                     .to_string();
+
+                let ty = &field.ty;
+                fields_builder.push(quote! {
+                    {
+                        type Alias = #ty;
+                        let mut builder = <Alias as genet_sdk::attr::AttrXField>::Builder::default();
+                        builder.set_path(#id);
+                        builder.set_typ(#typ);
+                        builder.set_name(#name);
+                        builder.set_description(#desc);
+                    }
+                });
+
                 fields_ctx.push(quote! {
                     AttrContext{
                         path: format!("{}{}", ctx.path, #id)
