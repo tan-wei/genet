@@ -661,8 +661,8 @@ impl<I: 'static + Into<Variant> + Into<U> + Clone, T: Typed<Output = I> + Defaul
     }
 }
 
-impl<I: 'static + Into<Variant> + Into<U> + Clone, T: Typed<Output = I> + Clone + Default, U>
-    Into<AttrClassBuilder> for EnumNodeBuilder<I, T, U>
+impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone, U> Into<AttrClassBuilder>
+    for EnumNodeBuilder<I, T, U>
 {
     fn into(self) -> AttrClassBuilder {
         AttrClass::builder("bool").cast(&self.data.map(self.mapper))
