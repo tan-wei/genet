@@ -263,6 +263,10 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let tokens = quote! {
         impl genet_sdk::attr::AttrXField for #ident {
             type Builder = #ident_builder;
+
+            fn from_builder(builder: &Self::Builder) -> Self {
+                Self::default()
+            }
         }
 
         #[derive(Default)]

@@ -443,6 +443,7 @@ extern "C" fn abi_get(
 
 pub trait AttrXField {
     type Builder: Into<AttrClassBuilder> + Default;
+    fn from_builder(builder: &Self::Builder) -> Self;
 }
 
 pub struct Node<T, U = Nil> {
@@ -516,8 +517,16 @@ impl<T: Default, U: Default> Default for Node<T, U> {
     }
 }
 
-impl<T: AttrXField, U> AttrXField for Node<T, U> {
+impl<T: Default, U: Default> AttrXField for Node<T, U> {
     type Builder = NodeBuilder;
+
+    fn from_builder(builder: &Self::Builder) -> Self {
+        Self {
+            node: T::default(),
+            fields: U::default(),
+            class: Cell::new(None),
+        }
+    }
 }
 
 #[derive(Default)]
@@ -613,10 +622,21 @@ impl<T: Default, U: Default> Default for EnumNode<T, U> {
     }
 }
 
-impl<I: 'static + Into<Variant> + Into<U> + Clone, T: Typed<Output = I> + Clone + Default, U>
-    AttrXField for EnumNode<T, U>
+impl<
+        I: 'static + Into<Variant> + Into<U> + Clone,
+        T: Typed<Output = I> + Clone + Default,
+        U: Default,
+    > AttrXField for EnumNode<T, U>
 {
     type Builder = EnumNodeBuilder<I, T, U>;
+
+    fn from_builder(builder: &Self::Builder) -> Self {
+        Self {
+            node: T::default(),
+            fields: U::default(),
+            class: Cell::new(None),
+        }
+    }
 }
 
 pub struct EnumNodeBuilder<I, T, U> {

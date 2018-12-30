@@ -114,6 +114,10 @@ impl Typed for Nil {
 
 impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone + Default> AttrXField for T {
     type Builder = TypedBuilder<I, T>;
+
+    fn from_builder(builder: &Self::Builder) -> Self {
+        Self::default()
+    }
 }
 
 pub struct TypedBuilder<I: 'static + Into<Variant> + Clone, T: Default + Typed<Output = I>> {
