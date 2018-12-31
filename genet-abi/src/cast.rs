@@ -6,8 +6,27 @@ use crate::{
 use std::{convert::Into, io::Result};
 
 /// Cast trait.
-pub trait Cast: 'static + Send + Sync {
+pub trait Cast: 'static + Send + Sync + CastClone {
     fn cast(&self, attr: &Attr, data: &slice::ByteSlice) -> Result<Variant>;
+}
+
+pub trait CastClone {
+    fn clone_box(&self) -> Box<Cast>;
+}
+
+impl<T> CastClone for T
+where
+    T: 'static + Cast + Clone,
+{
+    fn clone_box(&self) -> Box<Cast> {
+        Box::new(self.clone())
+    }
+}
+
+impl Clone for Box<Cast> {
+    fn clone(&self) -> Box<Cast> {
+        self.clone_box()
+    }
 }
 
 /// Typed cast trait.
