@@ -59,6 +59,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
                 let mut builder = AttrClass::builder(&format!("{}{}", parent_path, #id))
                     .typ("@novalue")
                     .name(#name)
+                    .bit_range(0, builder.range.clone())
                     .description(#desc);
                 builder.cast = cast;
                 builder
@@ -212,18 +213,24 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 let ty = &field.ty;
                 fields_builder.push(quote! {
                     {
+                        let bit_size = 8;
+
                         type Alias = #ty;
                         let mut builder = <Alias as genet_sdk::attr::AttrXField>::Builder::default();
                         builder.set_path(&format!("{}{}", parnet_path, #id));
                         builder.set_typ(#typ);
                         builder.set_name(#name);
                         builder.set_description(#desc);
+                        builder.set_bit_offset(bit_offset);
+                        builder.set_bit_size(bit_size);
                         builder.set_aliases(
                             #aliases
                                 .split(' ')
                                 .filter(|s| !s.is_empty())
                                 .map(|s| s.to_string())
                                 .collect());
+
+                        bit_offset += bit_size;
                         builder.into()
                     }
                 });
@@ -339,6 +346,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
             fn into(self) -> genet_sdk::attr::AttrClassBuilder {
                 let parnet_path = self.path;
 
+                let mut bit_offset = self.bit_offset;
                 let mut children : Vec<genet_sdk::attr::AttrClassBuilder> = Vec::new();
                 #(
                     children.push(#fields_builder);
