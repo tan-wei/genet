@@ -86,11 +86,12 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
     let tokens = quote! {
 
     impl<I: Into<genet_sdk::variant::Variant> + Into<#ident> + 'static + Clone> genet_sdk::attr::EnumField<I> for #ident {
-        fn enum_builder<C: genet_sdk::cast::Typed<Output=I> + Clone>(&self, parent_path: &str, builder: genet_sdk::attr::AttrClassBuilder, cast: &C, mapper: fn(I) -> genet_abi::variant::Variant) -> genet_sdk::attr::AttrClassBuilder {
+        fn enum_builder<C: genet_sdk::cast::Typed<Output=I> + Clone>(&self, builder: genet_sdk::attr::AttrClassBuilder, cast: &C, mapper: fn(I) -> genet_abi::variant::Variant) -> genet_sdk::attr::AttrClassBuilder {
             let mut children : Vec<genet_sdk::attr::AttrClassBuilder> = Vec::new();
             #(
                 {
                     let cast = cast.clone().map(mapper);
+                    let parent_path = builder.id.clone();
                     children.push(#fields_builder);
                 }
             )*
@@ -115,7 +116,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
                     use genet_sdk::variant::Variant;
                     let mut subctx = #fields_ctx;
                     subctx.bit_offset = ctx.bit_offset;
-                    let child = AttrClass::builder(subctx.path.clone())
+                    let child = AttrClass::builder(&subctx.path)
                         .cast(&cast.clone().map(|x| {
                             let x : #fields_ident = x.into();
                             match x {
@@ -124,9 +125,9 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
                             }
                         }))
                         .typ(if subctx.typ.is_empty() {
-                            "@novalue".into()
+                            "@novalue"
                         } else {
-                            subctx.typ.clone()
+                            &subctx.typ
                         })
                         .bit_range(0, bit_range.clone())
                         .name(subctx.name)
@@ -135,13 +136,13 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
                 }
             )*
 
-            AttrClass::builder(ctx.path.clone())
+            AttrClass::builder(&ctx.path)
                 .add_children(children)
                 .cast(&cast)
                 .typ(if ctx.typ.is_empty() {
-                    "@enum".into()
+                    "@enum"
                 } else {
-                    ctx.typ.clone()
+                    &ctx.typ
                 })
                 .name(if ctx.name.is_empty() {
                     #self_name
@@ -381,11 +382,11 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     }
                 )*
 
-                AttrClass::builder(ctx.path.clone())
+                AttrClass::builder(&ctx.path)
                     .add_children(children)
                     .aliases(ctx.aliases.clone())
                     .cast(&cast::ByteSlice())
-                    .typ(ctx.typ.clone())
+                    .typ(&ctx.typ)
                     .bit_range(0, ctx.bit_offset..(ctx.bit_offset + self.bit_size()))
                     .name(if ctx.name.is_empty() {
                         #self_name

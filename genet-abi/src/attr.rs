@@ -124,19 +124,19 @@ impl<T: 'static + Into<Variant> + Send + Sync + Clone> Typed for Const<T> {
 
 /// A builder object for AttrClass.
 pub struct AttrClassBuilder {
-    id: Token,
-    typ: Token,
-    meta: Metadata,
-    range: Range<usize>,
-    children: Vec<Fixed<AttrClass>>,
-    aliases: Vec<Token>,
-    cast: Box<Cast>,
+    pub id: String,
+    pub typ: String,
+    pub meta: Metadata,
+    pub range: Range<usize>,
+    pub children: Vec<Fixed<AttrClass>>,
+    pub aliases: Vec<Token>,
+    pub cast: Box<Cast>,
 }
 
 impl AttrClassBuilder {
     /// Sets a type of AttrClass.
-    pub fn typ<T: Into<Token>>(mut self, typ: T) -> AttrClassBuilder {
-        self.typ = typ.into();
+    pub fn typ(mut self, typ: &str) -> AttrClassBuilder {
+        self.typ = typ.to_string();
         self
     }
 
@@ -212,8 +212,8 @@ impl AttrClassBuilder {
             is_match: abi_is_match,
             get_typ: abi_typ,
             get: abi_get,
-            id: self.id,
-            typ: self.typ,
+            id: self.id.into(),
+            typ: self.typ.into(),
             meta: self.meta,
             range: self.range,
             children: self.children,
@@ -255,10 +255,10 @@ impl fmt::Debug for AttrClass {
 
 impl AttrClass {
     /// Creates a new builder object for AttrClass.
-    pub fn builder<T: Into<Token>>(id: T) -> AttrClassBuilder {
+    pub fn builder(id: &str) -> AttrClassBuilder {
         AttrClassBuilder {
-            id: id.into(),
-            typ: Token::null(),
+            id: id.to_string(),
+            typ: String::new(),
             meta: Metadata::new(),
             range: 0..0,
             children: Vec::new(),
@@ -587,7 +587,6 @@ pub trait EnumField<I: Into<Variant>> {
 
     fn enum_builder<C: Typed<Output = I> + Clone>(
         &self,
-        parent_path: &str,
         builder: AttrClassBuilder,
         cast: &C,
         mapper: fn(I) -> Variant,
@@ -772,7 +771,7 @@ impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone, U: EnumFi
             .name(self.name)
             .description(self.desc);
         self.field
-            .enum_builder::<T>(&self.path, builder, &self.data, self.mapper)
+            .enum_builder::<T>(builder, &self.data, self.mapper)
     }
 }
 

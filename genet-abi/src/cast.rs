@@ -87,13 +87,13 @@ impl<I: 'static + Into<Variant> + Clone, V: Typed<Output = I> + Clone> AttrField
         bit_size: usize,
         filter: Option<fn(Self::I) -> Variant>,
     ) -> AttrClassBuilder {
-        let mut b = AttrClass::builder(ctx.path.clone());
+        let mut b = AttrClass::builder(&ctx.path);
         if let Some(f) = filter {
             b = b.cast(&self.clone().map(f));
         } else {
             b = b.cast(self)
         }
-        b.typ(ctx.typ.clone())
+        b.typ(&ctx.typ)
             .aliases(ctx.aliases.clone())
             .bit_range(0, ctx.bit_offset..(ctx.bit_offset + bit_size))
             .name(ctx.name)

@@ -264,7 +264,7 @@ struct WorkerInput {
 
 impl WorkerInput {
     fn new(worker: reader::WorkerBox, id: Token) -> WorkerInput {
-        let attr = Fixed::new(AttrClass::builder(id).build());
+        let attr = Fixed::new(AttrClass::builder(&id.to_string()).build());
         Self {
             worker,
             class: Box::new(Fixed::new(LayerClass::builder(attr).build())),
