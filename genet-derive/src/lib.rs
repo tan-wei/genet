@@ -56,11 +56,11 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
 
         fields_builder.push(quote! {
             {
-                let mut builder = AttrClass::builder(&format!("{}{}", parent_path, #id))
-                    .typ("@novalue")
-                    .name(#name)
-                    .bit_range(0, builder.range.clone())
-                    .description(#desc);
+                let mut builder = AttrClass::builder(&format!("{}{}", parent_path, #id));
+                builder.typ = "@novalue".to_string();
+                builder.meta.set_name(#name);
+                builder.meta.set_description(#desc);
+                builder.range = builder.range.clone();
                 builder.cast = cast;
                 builder
             }
@@ -99,7 +99,9 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
             )*
             let children = children.into_iter().map(|b| Fixed::new(b.build())).collect::<Vec<_>>();
 
-            builder.add_children(children)
+            builder
+                .typ("@enum")
+                .add_children(children)
         }
 
         fn class_enum<C: genet_sdk::cast::Typed<Output=I> + Clone>(
