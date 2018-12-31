@@ -577,15 +577,20 @@ impl<T> Into<AttrClassBuilder> for NodeBuilder<T> {
     }
 }
 
-pub trait EnumField<T: Into<Variant>> {
-    fn class_enum<C: Typed<Output = T> + Clone>(
+pub trait EnumField<I: Into<Variant>> {
+    fn class_enum<C: Typed<Output = I> + Clone>(
         &self,
         ctx: &AttrContext,
         bit_size: usize,
         cast: C,
     ) -> AttrClassBuilder;
 
-    fn builder<C: Typed<Output = T> + Clone>(&self, builder: AttrClassBuilder) -> AttrClassBuilder;
+    fn enum_builder<C: Typed<Output = I> + Clone>(
+        &self,
+        builder: AttrClassBuilder,
+        cast: &C,
+        mapper: fn(I) -> Variant,
+    ) -> AttrClassBuilder;
 }
 
 pub struct EnumNode<T: Typed, U> {
@@ -759,13 +764,14 @@ impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone, U: EnumFi
 {
     fn into(self) -> AttrClassBuilder {
         let builder = AttrClass::builder(&self.path)
-            .cast(&self.data.map(self.mapper))
+            .cast(&self.data.clone().map(self.mapper))
             .typ(&self.typ)
             .aliases(self.aliases)
             .bit_range(0, self.bit_offset..(self.bit_offset + self.bit_size))
             .name(self.name)
             .description(self.desc);
-        self.field.builder::<T>(builder)
+        self.field
+            .enum_builder::<T>(builder, &self.data, self.mapper)
     }
 }
 

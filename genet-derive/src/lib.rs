@@ -57,6 +57,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
         fields_builder.push(quote! {
             {
                 AttrClass::builder(#id)
+                    .cast(&cast)
                     .name(#name)
                     .description(#desc)
             }
@@ -83,18 +84,21 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
 
     let tokens = quote! {
 
-    impl<T: Into<genet_sdk::variant::Variant> + Into<#ident> + 'static + Clone> genet_sdk::attr::EnumField<T> for #ident {
-        fn builder<C: genet_sdk::cast::Typed<Output=T> + Clone>(&self, builder: genet_sdk::attr::AttrClassBuilder) -> genet_sdk::attr::AttrClassBuilder {
+    impl<I: Into<genet_sdk::variant::Variant> + Into<#ident> + 'static + Clone> genet_sdk::attr::EnumField<I> for #ident {
+        fn enum_builder<C: genet_sdk::cast::Typed<Output=I> + Clone>(&self, builder: genet_sdk::attr::AttrClassBuilder, cast: &C, mapper: fn(I) -> genet_abi::variant::Variant) -> genet_sdk::attr::AttrClassBuilder {
             let mut children : Vec<genet_sdk::attr::AttrClassBuilder> = Vec::new();
             #(
-                children.push(#fields_builder);
+                {
+                    let cast = cast.clone().map(mapper);
+                    children.push(#fields_builder);
+                }
             )*
             let children = children.into_iter().map(|b| Fixed::new(b.build())).collect::<Vec<_>>();
 
             builder.add_children(children)
         }
 
-        fn class_enum<C: genet_sdk::cast::Typed<Output=T> + Clone>(
+        fn class_enum<C: genet_sdk::cast::Typed<Output=I> + Clone>(
             &self,
             ctx: &genet_sdk::attr::AttrContext,
             bit_size: usize,
