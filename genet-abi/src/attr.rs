@@ -587,6 +587,7 @@ pub trait EnumField<I: Into<Variant>> {
 
     fn enum_builder<C: Typed<Output = I> + Clone>(
         &self,
+        parent_path: &str,
         builder: AttrClassBuilder,
         cast: &C,
         mapper: fn(I) -> Variant,
@@ -771,7 +772,7 @@ impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone, U: EnumFi
             .name(self.name)
             .description(self.desc);
         self.field
-            .enum_builder::<T>(builder, &self.data, self.mapper)
+            .enum_builder::<T>(&self.path, builder, &self.data, self.mapper)
     }
 }
 
