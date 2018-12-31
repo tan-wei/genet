@@ -87,7 +87,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
     let tokens = quote! {
 
     impl<I: Into<genet_sdk::variant::Variant> + Into<#ident> + 'static + Clone> genet_sdk::attr::EnumField<I> for #ident {
-        fn enum_builder<C: genet_sdk::cast::Typed<Output=I> + Clone>(&self, builder: genet_sdk::attr::AttrClassBuilder, cast: &C, mapper: fn(I) -> genet_abi::variant::Variant) -> genet_sdk::attr::AttrClassBuilder {
+        fn enum_builder<C: genet_sdk::cast::Typed<Output=I> + Clone>(&self, builder: genet_sdk::attr::AttrClassBuilder, cast: &C, mapper: fn(I) -> genet_sdk::variant::Variant) -> genet_sdk::attr::AttrClassBuilder {
             let mut children : Vec<genet_sdk::attr::AttrClassBuilder> = Vec::new();
             #(
                 {
@@ -218,6 +218,12 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         builder.set_typ(#typ);
                         builder.set_name(#name);
                         builder.set_description(#desc);
+                        builder.set_aliases(
+                            #aliases
+                                .split(' ')
+                                .filter(|s| !s.is_empty())
+                                .map(|s| s.to_string())
+                                .collect());
                         builder.into()
                     }
                 });
