@@ -213,24 +213,21 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 let ty = &field.ty;
                 fields_builder.push(quote! {
                     {
-                        let bit_size = 8;
-
                         type Alias = #ty;
                         let mut builder = <Alias as genet_sdk::attr::AttrXField>::Builder::default();
-                        builder.set_path(&format!("{}{}", parnet_path, #id));
-                        builder.set_typ(#typ);
-                        builder.set_name(#name);
-                        builder.set_description(#desc);
-                        builder.set_bit_offset(bit_offset);
-                        builder.set_bit_size(bit_size);
-                        builder.set_aliases(
+                        builder.path = format!("{}{}", parnet_path, #id);
+                        builder.typ = #typ.to_string();
+                        builder.name = #name;
+                        builder.desc = #desc;
+                        builder.bit_offset = bit_offset;
+                        builder.aliases =
                             #aliases
                                 .split(' ')
                                 .filter(|s| !s.is_empty())
                                 .map(|s| s.to_string())
-                                .collect());
+                                .collect();
 
-                        bit_offset += bit_size;
+                        bit_offset += builder.bit_size;
                         builder.into()
                     }
                 });
@@ -358,7 +355,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     .add_children(children)
                     .typ(&self.typ)
                     .aliases(self.aliases)
-                    .bit_range(0, self.bit_offset..(self.bit_offset + self.bit_size))
+                    .bit_range(0, self.bit_offset..bit_offset)
                     .name(self.name)
                     .description(self.desc)
             }

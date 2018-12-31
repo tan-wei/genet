@@ -532,43 +532,13 @@ impl<T: Default, U: Default> AttrXField for Node<T, U> {
 #[derive(Default)]
 pub struct NodeBuilder<T> {
     data: T,
-    path: String,
-    typ: String,
-    name: &'static str,
-    desc: &'static str,
-    aliases: Vec<String>,
-    bit_offset: usize,
-    bit_size: usize,
-}
-
-impl<T> NodeBuilder<T> {
-    pub fn set_path(&mut self, path: &str) {
-        self.path = path.to_string();
-    }
-
-    pub fn set_typ(&mut self, typ: &str) {
-        self.typ = typ.to_string();
-    }
-
-    pub fn set_name(&mut self, name: &'static str) {
-        self.name = name;
-    }
-
-    pub fn set_description(&mut self, desc: &'static str) {
-        self.desc = desc;
-    }
-
-    pub fn set_aliases(&mut self, aliases: Vec<String>) {
-        self.aliases = aliases;
-    }
-
-    pub fn set_bit_size(&mut self, size: usize) {
-        self.bit_size = size;
-    }
-
-    pub fn set_bit_offset(&mut self, offset: usize) {
-        self.bit_offset = offset;
-    }
+    pub path: String,
+    pub typ: String,
+    pub name: &'static str,
+    pub desc: &'static str,
+    pub aliases: Vec<String>,
+    pub bit_offset: usize,
+    pub bit_size: usize,
 }
 
 impl<T> Into<AttrClassBuilder> for NodeBuilder<T> {
@@ -693,45 +663,15 @@ impl<
 pub struct EnumNodeBuilder<I, T, U> {
     data: T,
     field: U,
-    path: String,
-    typ: String,
-    name: &'static str,
-    desc: &'static str,
-    aliases: Vec<String>,
-    bit_offset: usize,
-    bit_size: usize,
+    pub path: String,
+    pub typ: String,
+    pub name: &'static str,
+    pub desc: &'static str,
+    pub aliases: Vec<String>,
+    pub bit_offset: usize,
+    pub bit_size: usize,
     mapper: fn(I) -> Variant,
     enum_mapper: fn(I) -> U,
-}
-
-impl<I, T, U> EnumNodeBuilder<I, T, U> {
-    pub fn set_path(&mut self, path: &str) {
-        self.path = path.to_string();
-    }
-
-    pub fn set_typ(&mut self, typ: &str) {
-        self.typ = typ.to_string();
-    }
-
-    pub fn set_name(&mut self, name: &'static str) {
-        self.name = name;
-    }
-
-    pub fn set_description(&mut self, desc: &'static str) {
-        self.desc = desc;
-    }
-
-    pub fn set_aliases(&mut self, aliases: Vec<String>) {
-        self.aliases = aliases;
-    }
-
-    pub fn set_bit_size(&mut self, size: usize) {
-        self.bit_size = size;
-    }
-
-    pub fn set_bit_offset(&mut self, offset: usize) {
-        self.bit_offset = offset;
-    }
 }
 
 impl<

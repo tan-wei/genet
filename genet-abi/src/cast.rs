@@ -141,48 +141,14 @@ impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone + Default>
 
 pub struct TypedBuilder<I: 'static + Into<Variant> + Clone, T: Default + Typed<Output = I>> {
     data: T,
-    path: String,
-    typ: String,
-    name: &'static str,
-    desc: &'static str,
-    aliases: Vec<String>,
-    bit_offset: usize,
-    bit_size: usize,
+    pub path: String,
+    pub typ: String,
+    pub name: &'static str,
+    pub desc: &'static str,
+    pub aliases: Vec<String>,
+    pub bit_offset: usize,
+    pub bit_size: usize,
     mapper: fn(I) -> Variant,
-}
-
-impl<I: 'static + Into<Variant> + Clone, T: Default + Typed<Output = I>> TypedBuilder<I, T> {
-    pub fn set_path(&mut self, path: &str) {
-        self.path = path.to_string();
-    }
-
-    pub fn set_typ(&mut self, typ: &str) {
-        self.typ = typ.to_string();
-    }
-
-    pub fn set_name(&mut self, name: &'static str) {
-        self.name = name;
-    }
-
-    pub fn set_description(&mut self, desc: &'static str) {
-        self.desc = desc;
-    }
-
-    pub fn set_aliases(&mut self, aliases: Vec<String>) {
-        self.aliases = aliases;
-    }
-
-    pub fn set_bit_size(&mut self, size: usize) {
-        self.bit_size = size;
-    }
-
-    pub fn set_bit_offset(&mut self, offset: usize) {
-        self.bit_offset = offset;
-    }
-
-    pub fn set_mapper(&mut self, mapper: fn(I) -> Variant) {
-        self.mapper = mapper;
-    }
 }
 
 impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone + Default> Default
