@@ -103,63 +103,6 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
                 .typ("@enum")
                 .add_children(children)
         }
-
-        fn class_enum<C: genet_sdk::cast::Typed<Output=I> + Clone>(
-            &self,
-            ctx: &genet_sdk::attr::AttrContext,
-            bit_size: usize,
-            cast: C
-        ) -> genet_sdk::attr::AttrClassBuilder {
-            use genet_sdk::attr::{AttrClass, AttrContext};
-
-            let bit_range = ctx.bit_offset..(ctx.bit_offset + bit_size);
-            let mut children = Vec::<Fixed<AttrClass>>::new();
-
-            #(
-                {
-                    use genet_sdk::variant::Variant;
-                    let mut subctx = #fields_ctx;
-                    subctx.bit_offset = ctx.bit_offset;
-                    let child = AttrClass::builder(&subctx.path)
-                        .cast(&cast.clone().map(|x| {
-                            let x : #fields_ident = x.into();
-                            match x {
-                                #fields_ident2::#fields_variant => Variant::Bool(true),
-                                _ => Variant::Nil,
-                            }
-                        }))
-                        .typ(if subctx.typ.is_empty() {
-                            "@novalue"
-                        } else {
-                            &subctx.typ
-                        })
-                        .bit_range(0, bit_range.clone())
-                        .name(subctx.name)
-                        .description(subctx.description);
-                    children.push(Fixed::new(child.build()));
-                }
-            )*
-
-            AttrClass::builder(&ctx.path)
-                .add_children(children)
-                .cast(&cast)
-                .typ(if ctx.typ.is_empty() {
-                    "@enum"
-                } else {
-                    &ctx.typ
-                })
-                .name(if ctx.name.is_empty() {
-                    #self_name
-                } else {
-                    ctx.name
-                })
-                .description(if ctx.description.is_empty() {
-                    #self_desc
-                } else {
-                    ctx.description
-                })
-                .bit_range(0, bit_range)
-        }
     }
 
     };

@@ -520,13 +520,6 @@ impl<I: 'static + Into<Variant> + Clone + Default, T: Typed<Output = I> + Clone 
 }
 
 pub trait EnumField<I: Into<Variant>> {
-    fn class_enum<C: Typed<Output = I> + Clone>(
-        &self,
-        ctx: &AttrContext,
-        bit_size: usize,
-        cast: C,
-    ) -> AttrClassBuilder;
-
     fn enum_builder<C: Typed<Output = I> + Clone>(
         &self,
         builder: AttrClassBuilder,
@@ -538,19 +531,17 @@ pub trait EnumField<I: Into<Variant>> {
 pub struct EnumNode<T: Typed, U> {
     node: T,
     fields: U,
-    class: Cell<Option<Fixed<AttrClass>>>,
+    class: Fixed<AttrClass>,
     enum_mapper: fn(T::Output) -> U,
 }
 
 impl<I: Into<Variant> + Into<U>, T: Typed<Output = I>, U: EnumField<I>> EnumNode<T, U> {
     pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<U> {
-        let class = self.class.get().unwrap();
+        let bit_offset = self.class.bit_range().start;
+        let range = (self.class.bit_range().start - bit_offset + range.start * 8)
+            ..(self.class.bit_range().end - bit_offset + range.end * 8);
 
-        let bit_offset = class.bit_range().start;
-        let range = (class.bit_range().start - bit_offset + range.start * 8)
-            ..(class.bit_range().end - bit_offset + range.end * 8);
-
-        let root = Attr::new(&class, range, layer.data());
+        let root = Attr::new(&self.class, range, layer.data());
         match Typed::cast(&self.node, &root, &layer.data()) {
             Ok(data) => Ok((self.enum_mapper)(data)),
             Err(err) => Err(format_err!("{}", err)),
@@ -558,14 +549,13 @@ impl<I: Into<Variant> + Into<U>, T: Typed<Output = I>, U: EnumField<I>> EnumNode
     }
 
     pub fn try_get(&self, layer: &Layer) -> Result<U> {
-        let class = self.class.get().unwrap();
-        self.try_get_range(layer, class.range())
+        self.try_get_range(layer, self.class.range())
     }
 }
 
 impl<T: Typed, U> EnumNode<T, U> {
-    pub fn class(&self) -> Fixed<AttrClass> {
-        self.class.get().unwrap()
+    pub fn class(&self) -> &Fixed<AttrClass> {
+        &self.class
     }
 }
 
@@ -578,10 +568,11 @@ impl<
     type Builder = EnumNodeBuilder<I, T, U>;
 
     fn from_builder(builder: &Self::Builder) -> Self {
+        let class: AttrClassBuilder = Self::Builder::default().into();
         Self {
             node: T::default(),
             fields: U::default(),
-            class: Cell::new(None),
+            class: Fixed::new(class.build()),
             enum_mapper: builder.enum_mapper,
         }
     }
