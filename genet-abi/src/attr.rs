@@ -456,16 +456,6 @@ impl<T, U> Deref for Node<T, U> {
     }
 }
 
-impl<T: Default, U: Default> Default for Node<T, U> {
-    fn default() -> Self {
-        Self {
-            node: T::default(),
-            fields: U::default(),
-            class: Cell::new(None),
-        }
-    }
-}
-
 impl<
         I: 'static + Into<Variant> + Clone + Default,
         T: Typed<Output = I> + Clone + Default,
@@ -576,19 +566,6 @@ impl<I: Into<Variant> + Into<U>, T: Typed<Output = I>, U: EnumField<I>> EnumNode
 impl<T: Typed, U> EnumNode<T, U> {
     pub fn class(&self) -> Fixed<AttrClass> {
         self.class.get().unwrap()
-    }
-}
-
-impl<I: Into<Variant> + Into<U>, T: Typed<Output = I> + Default, U: Default> Default
-    for EnumNode<T, U>
-{
-    fn default() -> Self {
-        Self {
-            node: T::default(),
-            fields: U::default(),
-            class: Cell::new(None),
-            enum_mapper: |x| x.into(),
-        }
     }
 }
 

@@ -31,7 +31,7 @@ struct IPv4Decoder {}
 impl Decoder for IPv4Decoder {
     fn new_worker(&self, ctx: &Context) -> Box<Worker> {
         Box::new(IPv4Worker {
-            layer: LayerType::new("ipv4", IPv4::default()),
+            layer: LayerType::new("ipv4"),
             tcp: ctx.decoder("tcp").unwrap(),
             udp: ctx.decoder("udp").unwrap(),
         })
@@ -45,7 +45,7 @@ impl Decoder for IPv4Decoder {
     }
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct IPv4 {
     #[genet(bit_size = 4, map = "x >> 4")]
     version: cast::UInt8,
@@ -79,7 +79,7 @@ struct IPv4 {
     dst: cast::ByteSlice,
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Flags {
     reserved: cast::BitFlag,
 

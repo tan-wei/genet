@@ -64,7 +64,7 @@ struct TcpDecoder {}
 impl Decoder for TcpDecoder {
     fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
         Box::new(TcpWorker {
-            layer: LayerType::new("tcp", Tcp::default()),
+            layer: LayerType::new("tcp"),
         })
     }
 
@@ -76,7 +76,7 @@ impl Decoder for TcpDecoder {
     }
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Tcp {
     #[genet(alias = "_.src", typ = "@tcp:port")]
     src: cast::UInt16BE,
@@ -103,7 +103,7 @@ struct Tcp {
     options: Node<cast::ByteSlice, Options>,
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Flags {
     #[genet(bit_size = 3)]
     reserved: cast::Nil,
@@ -127,7 +127,7 @@ struct Flags {
     fin: cast::BitFlag,
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Options {
     #[genet(detach)]
     nop: Node<cast::UInt8>,
@@ -148,7 +148,7 @@ struct Options {
     ts: Node<cast::UInt8, Timestamp>, // FIXME
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Timestamp {
     my: cast::UInt32BE,
     echo: cast::UInt32BE,

@@ -49,7 +49,7 @@ struct NtpDecoder {}
 impl Decoder for NtpDecoder {
     fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
         Box::new(NtpWorker {
-            layer: LayerType::new("ntp", Ntp::default()),
+            layer: LayerType::new("ntp"),
         })
     }
 
@@ -62,7 +62,7 @@ impl Decoder for NtpDecoder {
     }
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Ntp {
     #[genet(bit_size = 2, map = "x >> 6")]
     leap_indicator: EnumNode<cast::UInt8, Leap>,
@@ -122,13 +122,13 @@ struct Ntp {
     transmit_ts: Node<cast::UInt64BE, TimeFormat>,
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct ShortFormat {
     seconds: cast::UInt16BE,
     fraction: cast::UInt16BE,
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct TimeFormat {
     seconds: cast::UInt32BE,
     fraction: cast::UInt32BE,

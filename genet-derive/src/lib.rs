@@ -172,6 +172,8 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let mut fields_detach = Vec::new();
     let mut fields_align = Vec::new();
     let mut fields_filter = Vec::new();
+
+    let mut fields_name = Vec::new();
     let mut fields_builder = Vec::new();
 
     if let Fields::Named(f) = &s.fields {
@@ -211,10 +213,12 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     .to_string();
 
                 let ty = &field.ty;
+                fields_name.push(ident);
                 fields_builder.push(quote! {
                     {
+                        use genet_sdk::attr::AttrField;
                         type Alias = #ty;
-                        let mut builder = <Alias as genet_sdk::attr::AttrField>::Builder::default();
+                        let mut builder = <Alias as AttrField>::Builder::default();
                         builder.path = format!("{}{}", parnet_path, #id);
                         builder.typ = #typ.to_string();
                         builder.name = #name;
@@ -228,7 +232,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                                 .collect();
 
                         bit_offset += builder.bit_size;
-                        builder.into()
+                        (Alias::from_builder(&builder), builder)
                     }
                 });
 
@@ -262,13 +266,23 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let self_attrs = AttrMetadata::parse(&input.attrs);
     let ident = &input.ident;
     let ident_builder = Ident::new(&format!("{}_Builder", ident), Span::call_site());
+    let fields_builder2 = fields_builder.clone();
 
     let tokens = quote! {
         impl genet_sdk::attr::AttrField for #ident {
             type Builder = #ident_builder;
 
             fn from_builder(builder: &Self::Builder) -> Self {
-                Self::default()
+                let parnet_path = builder.path.clone();
+                let mut bit_offset = builder.bit_offset;
+
+                Self {
+                    #(
+                        #fields_name: {
+                            #fields_builder.0
+                        },
+                    )*
+                }
             }
         }
 
@@ -309,7 +323,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 let mut bit_offset = self.bit_offset;
                 let mut children : Vec<genet_sdk::attr::AttrClassBuilder> = Vec::new();
                 #(
-                    children.push(#fields_builder);
+                    children.push(#fields_builder2.1.into());
                 )*
 
                 let children = children.into_iter().map(|b| Fixed::new(b.build())).collect::<Vec<_>>();

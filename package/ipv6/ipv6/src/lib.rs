@@ -50,7 +50,7 @@ struct IPv6Decoder {}
 impl Decoder for IPv6Decoder {
     fn new_worker(&self, ctx: &Context) -> Box<Worker> {
         Box::new(IPv6Worker {
-            layer: LayerType::new("ipv6", IPv6::default()),
+            layer: LayerType::new("ipv6"),
             tcp: ctx.decoder("tcp").unwrap(),
             udp: ctx.decoder("udp").unwrap(),
         })
@@ -64,7 +64,7 @@ impl Decoder for IPv6Decoder {
     }
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct IPv6 {
     #[genet(bit_size = 4, map = "x >> 4")]
     version: cast::UInt8,

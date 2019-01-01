@@ -282,13 +282,14 @@ impl<T> AsRef<Fixed<LayerClass>> for LayerType<T> {
 }
 
 impl<T: AttrField> LayerType<T> {
-    pub fn new<D: Into<Token>>(id: D, field: T) -> Self {
+    pub fn new<D: Into<Token>>(id: D) -> Self {
         let ctx = AttrContext {
             path: id.into().to_string(),
             typ: "@layer".into(),
             ..Default::default()
         };
         let builder = T::Builder::default();
+        let field = T::from_builder(&builder);
         let builder: AttrClassBuilder = builder.into();
         let class = builder.build();
         let layer = Fixed::new(LayerClass {

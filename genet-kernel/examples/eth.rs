@@ -7,7 +7,7 @@ use genet_sdk::{
 };
 
 /// Ethernet
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Eth {
     /// Source Hardware Address
     #[genet(alias = "_.src", typ = "@eth:mac", byte_size = 6)]
@@ -76,7 +76,7 @@ struct EthDecoder {}
 impl Decoder for EthDecoder {
     fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
         Box::new(EthWorker {
-            layer: LayerType::new("eth", Eth::default()),
+            layer: LayerType::new("eth"),
         })
     }
 
