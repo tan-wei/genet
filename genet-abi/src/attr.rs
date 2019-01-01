@@ -517,8 +517,13 @@ impl<T: Default, U: Default> Default for Node<T, U> {
     }
 }
 
-impl<T: Default, U: Default> AttrXField for Node<T, U> {
-    type Builder = NodeBuilder<T>;
+impl<
+        I: 'static + Into<Variant> + Clone + Default,
+        T: Typed<Output = I> + Clone + Default,
+        U: Default,
+    > AttrXField for Node<T, U>
+{
+    type Builder = NodeBuilder<I, T>;
 
     fn from_builder(builder: &Self::Builder) -> Self {
         Self {
@@ -529,8 +534,7 @@ impl<T: Default, U: Default> AttrXField for Node<T, U> {
     }
 }
 
-#[derive(Default)]
-pub struct NodeBuilder<T> {
+pub struct NodeBuilder<I, T> {
     data: T,
     pub path: String,
     pub typ: String,
@@ -539,11 +543,40 @@ pub struct NodeBuilder<T> {
     pub aliases: Vec<String>,
     pub bit_offset: usize,
     pub bit_size: usize,
+    mapper: fn(I) -> Variant,
 }
 
-impl<T> Into<AttrClassBuilder> for NodeBuilder<T> {
+impl<I: 'static + Into<Variant> + Clone + Default, T: Typed<Output = I> + Default> Default
+    for NodeBuilder<I, T>
+{
+    fn default() -> Self {
+        let data = T::default();
+        let bit_size = data.bit_size();
+        Self {
+            data,
+            path: String::default(),
+            typ: String::default(),
+            name: "",
+            desc: "",
+            aliases: Vec::new(),
+            bit_offset: 0,
+            bit_size,
+            mapper: |x| x.into(),
+        }
+    }
+}
+
+impl<I: 'static + Into<Variant> + Clone + Default, T: Typed<Output = I> + Clone + Default>
+    Into<AttrClassBuilder> for NodeBuilder<I, T>
+{
     fn into(self) -> AttrClassBuilder {
         AttrClass::builder(&self.path)
+            .cast(&self.data.clone().map(self.mapper))
+            .typ(&self.typ)
+            .aliases(self.aliases)
+            .bit_range(0, self.bit_offset..(self.bit_offset + self.bit_size))
+            .name(self.name)
+            .description(self.desc)
     }
 }
 
