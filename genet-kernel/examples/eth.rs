@@ -1,6 +1,6 @@
 use genet_derive::Attr;
 use genet_sdk::{
-    attr::{AttrClassBuilder, AttrXField},
+    attr::{AttrClassBuilder, AttrField},
     cast,
     decoder::*,
     prelude::*,
@@ -92,7 +92,7 @@ genet_decoders!(EthDecoder {});
 
 #[test]
 fn session() {
-    let mut builder = <Eth as AttrXField>::Builder::default();
+    let mut builder = <Eth as AttrField>::Builder::default();
     builder.set_path("eth");
     let x: AttrClassBuilder = builder.into();
     println!("{:#?}", x.build());

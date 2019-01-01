@@ -1,5 +1,5 @@
 use crate::{
-    attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField, AttrXField},
+    attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField},
     slice,
     variant::Variant,
 };
@@ -97,29 +97,6 @@ where
     }
 }
 
-impl<I: 'static + Into<Variant> + Clone, V: Typed<Output = I> + Clone> AttrField for V {
-    type I = I;
-
-    fn class(
-        &self,
-        ctx: &AttrContext,
-        bit_size: usize,
-        filter: Option<fn(Self::I) -> Variant>,
-    ) -> AttrClassBuilder {
-        let mut b = AttrClass::builder(&ctx.path);
-        if let Some(f) = filter {
-            b = b.cast(&self.clone().map(f));
-        } else {
-            b = b.cast(self)
-        }
-        b.typ(&ctx.typ)
-            .aliases(ctx.aliases.clone())
-            .bit_range(0, ctx.bit_offset..(ctx.bit_offset + bit_size))
-            .name(ctx.name)
-            .description(ctx.description)
-    }
-}
-
 #[derive(Default, Clone)]
 pub struct Nil();
 
@@ -131,7 +108,7 @@ impl Typed for Nil {
     }
 }
 
-impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone + Default> AttrXField for T {
+impl<I: 'static + Into<Variant> + Clone, T: Typed<Output = I> + Clone + Default> AttrField for T {
     type Builder = TypedBuilder<I, T>;
 
     fn from_builder(builder: &Self::Builder) -> Self {

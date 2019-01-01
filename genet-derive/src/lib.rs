@@ -167,8 +167,6 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
 }
 
 fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
-    let mut fields_ident_mut = Vec::new();
-    let mut fields_ident = Vec::new();
     let mut fields_ctx = Vec::new();
     let mut fields_skip = Vec::new();
     let mut fields_detach = Vec::new();
@@ -216,7 +214,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 fields_builder.push(quote! {
                     {
                         type Alias = #ty;
-                        let mut builder = <Alias as genet_sdk::attr::AttrXField>::Builder::default();
+                        let mut builder = <Alias as genet_sdk::attr::AttrField>::Builder::default();
                         builder.path = format!("{}{}", parnet_path, #id);
                         builder.typ = #typ.to_string();
                         builder.name = #name;
@@ -252,38 +250,6 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 fields_skip.push(meta.skip);
                 fields_detach.push(meta.detach);
                 fields_align.push(meta.align_before);
-
-                if let Some(bit_size) = meta.bit_size {
-                    fields_ident_mut.push(quote! {
-                        {
-                            let attr : &AttrField<I = _> = &self.#ident;
-                            (attr, #bit_size)
-                        }
-                    });
-                    fields_ident.push(quote! {
-                        {
-                            let attr : &AttrField<I = _> = &self.#ident;
-                            (attr, #bit_size)
-                        }
-                    });
-                } else {
-                    fields_ident_mut.push(quote! {
-                        {
-                            let sized : &SizedField = &self.#ident;
-                            let attr : &AttrField<I = _> = &self.#ident;
-                            let size = sized.bit_size();
-                            (attr, size)
-                        }
-                    });
-                    fields_ident.push(quote! {
-                        {
-                            let sized : &SizedField = &self.#ident;
-                            let attr : &AttrField<I = _> = &self.#ident;
-                            let size = sized.bit_size();
-                            (attr, size)
-                        }
-                    });
-                }
             }
         }
     }
@@ -293,17 +259,12 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
         fields_align.push(false);
     }
 
-    let fields_align2 = fields_align.clone();
-    let fields_detach2 = fields_detach.clone();
     let self_attrs = AttrMetadata::parse(&input.attrs);
-    let self_name = self_attrs.name;
-    let self_desc = self_attrs.description;
-
     let ident = &input.ident;
     let ident_builder = Ident::new(&format!("{}_Builder", ident), Span::call_site());
 
     let tokens = quote! {
-        impl genet_sdk::attr::AttrXField for #ident {
+        impl genet_sdk::attr::AttrField for #ident {
             type Builder = #ident_builder;
 
             fn from_builder(builder: &Self::Builder) -> Self {
@@ -360,74 +321,6 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     .bit_range(0, self.bit_offset..bit_offset)
                     .name(self.name)
                     .description(self.desc)
-            }
-        }
-
-        impl genet_sdk::attr::AttrField for #ident {
-            type I = genet_sdk::slice::ByteSlice;
-
-            fn class(&self, ctx: &::genet_sdk::attr::AttrContext, bit_size: usize, filter: Option<fn(genet_sdk::slice::ByteSlice) -> genet_sdk::variant::Variant>)
-                -> genet_sdk::attr::AttrClassBuilder {
-                use genet_sdk::attr::{Attr, AttrField, SizedField, AttrContext, AttrClass};
-                use genet_sdk::cast;
-                use genet_sdk::fixed::Fixed;
-
-                let mut bit_offset = ctx.bit_offset;
-                let mut children = Vec::<Fixed<AttrClass>>::new();
-
-                #(
-                    {
-                        let mut subctx = #fields_ctx;
-                        let (attr, bit_size) = #fields_ident_mut;
-                        let skip = #fields_skip;
-                        let detach = #fields_detach;
-                        let align = #fields_align;
-
-                        subctx.bit_offset = bit_offset;
-                        let child = attr.class(&subctx, bit_size, #fields_filter);
-
-                        if !align && !detach {
-                            bit_offset += bit_size;
-                        }
-
-                        if !skip && !detach {
-                            children.push(Fixed::new(child.build()));
-                        }
-                    }
-                )*
-
-                AttrClass::builder(&ctx.path)
-                    .add_children(children)
-                    .aliases(ctx.aliases.clone())
-                    .cast(&cast::ByteSlice())
-                    .typ(&ctx.typ)
-                    .bit_range(0, ctx.bit_offset..(ctx.bit_offset + self.bit_size()))
-                    .name(if ctx.name.is_empty() {
-                        #self_name
-                    } else {
-                        ctx.name
-                    })
-                    .description(if ctx.description.is_empty() {
-                        #self_desc
-                    } else {
-                        ctx.description
-                    })
-            }
-        }
-
-        impl genet_sdk::attr::SizedField for #ident {
-            fn bit_size(&self) -> usize {
-                use genet_sdk::attr::{AttrField, SizedField};
-                let mut size = 0;
-
-                #(
-                    if !#fields_align2 && !#fields_detach2 {
-                        let (_, bit_size) = #fields_ident;
-                        size += bit_size;
-                    }
-                )*
-
-                size
             }
         }
     };

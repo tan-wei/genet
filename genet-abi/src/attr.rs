@@ -30,24 +30,6 @@ pub struct AttrContext {
     pub aliases: Vec<String>,
 }
 
-pub trait AttrField {
-    type I;
-
-    fn class(
-        &self,
-        ctx: &AttrContext,
-        bit_size: usize,
-        filter: Option<fn(Self::I) -> Variant>,
-    ) -> AttrClassBuilder;
-}
-
-pub trait SizedField {
-    fn bit_size(&self) -> usize;
-    fn byte_size(&self) -> usize {
-        (self.bit_size() + 7) / 8
-    }
-}
-
 /// An attribute object.
 #[repr(C)]
 pub struct Attr<'a> {
@@ -441,7 +423,7 @@ extern "C" fn abi_get(
     }
 }
 
-pub trait AttrXField {
+pub trait AttrField {
     type Builder: Into<AttrClassBuilder> + Default;
     fn from_builder(builder: &Self::Builder) -> Self;
 }
@@ -474,39 +456,6 @@ impl<T, U> Deref for Node<T, U> {
     }
 }
 
-impl<I: Into<Variant>, J: Into<Variant>, T: AttrField<I = I>, U: AttrField<I = J>> AttrField
-    for Node<T, U>
-{
-    type I = I;
-
-    fn class(
-        &self,
-        ctx: &AttrContext,
-        bit_size: usize,
-        filter: Option<fn(Self::I) -> Variant>,
-    ) -> AttrClassBuilder {
-        let node = self.node.class(ctx, bit_size, filter);
-        let fields = self.fields.class(ctx, bit_size, None);
-
-        if self.class.get().is_none() {
-            self.class.set(Some(Fixed::new(
-                self.node
-                    .class(ctx, bit_size, filter)
-                    .add_children(fields.children().to_vec())
-                    .build(),
-            )))
-        }
-
-        node.add_children(fields.children().to_vec())
-    }
-}
-
-impl<T: SizedField, U> SizedField for Node<T, U> {
-    fn bit_size(&self) -> usize {
-        self.node.bit_size()
-    }
-}
-
 impl<T: Default, U: Default> Default for Node<T, U> {
     fn default() -> Self {
         Self {
@@ -521,7 +470,7 @@ impl<
         I: 'static + Into<Variant> + Clone + Default,
         T: Typed<Output = I> + Clone + Default,
         U: Default,
-    > AttrXField for Node<T, U>
+    > AttrField for Node<T, U>
 {
     type Builder = NodeBuilder<I, T>;
 
@@ -603,32 +552,6 @@ pub struct EnumNode<T: Typed, U> {
     enum_mapper: fn(T::Output) -> U,
 }
 
-impl<I: Into<Variant>, T: AttrField<I = I> + Typed<Output = I> + Clone, U: EnumField<I>> AttrField
-    for EnumNode<T, U>
-{
-    type I = I;
-
-    fn class(
-        &self,
-        ctx: &AttrContext,
-        bit_size: usize,
-        filter: Option<fn(Self::I) -> Variant>,
-    ) -> AttrClassBuilder {
-        let fields = self.fields.class_enum(ctx, bit_size, self.node.clone());
-
-        if self.class.get().is_none() {
-            self.class.set(Some(Fixed::new(
-                self.node
-                    .class(ctx, bit_size, filter)
-                    .add_children(fields.children().to_vec())
-                    .build(),
-            )))
-        }
-
-        fields
-    }
-}
-
 impl<I: Into<Variant> + Into<U>, T: Typed<Output = I>, U: EnumField<I>> EnumNode<T, U> {
     pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<U> {
         let class = self.class.get().unwrap();
@@ -647,12 +570,6 @@ impl<I: Into<Variant> + Into<U>, T: Typed<Output = I>, U: EnumField<I>> EnumNode
     pub fn try_get(&self, layer: &Layer) -> Result<U> {
         let class = self.class.get().unwrap();
         self.try_get_range(layer, class.range())
-    }
-}
-
-impl<T: Typed, U> SizedField for EnumNode<T, U> {
-    fn bit_size(&self) -> usize {
-        self.node.bit_size()
     }
 }
 
@@ -679,7 +596,7 @@ impl<
         I: 'static + Into<Variant> + Into<U> + Clone,
         T: Typed<Output = I> + Clone + Default,
         U: Default + EnumField<I>,
-    > AttrXField for EnumNode<T, U>
+    > AttrField for EnumNode<T, U>
 {
     type Builder = EnumNodeBuilder<I, T, U>;
 

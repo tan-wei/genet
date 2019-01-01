@@ -1,5 +1,5 @@
 use crate::{
-    attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField, AttrXField, SizedField},
+    attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField},
     fixed::{Fixed, MutFixed},
     slice::ByteSlice,
     token::Token,
@@ -281,7 +281,7 @@ impl<T> AsRef<Fixed<LayerClass>> for LayerType<T> {
     }
 }
 
-impl<T: AttrXField> LayerType<T> {
+impl<T: AttrField> LayerType<T> {
     pub fn new<D: Into<Token>>(id: D, field: T) -> Self {
         let ctx = AttrContext {
             path: id.into().to_string(),
@@ -303,6 +303,10 @@ impl<T: AttrXField> LayerType<T> {
         });
         Self { field, layer }
     }
+
+    pub fn byte_size(&self) -> usize {
+        self.layer.header().range().end
+    }
 }
 
 /// A layer class object.
@@ -323,28 +327,6 @@ impl LayerClass {
     pub fn builder<H: Into<Fixed<AttrClass>>>(header: H) -> LayerClassBuilder {
         LayerClassBuilder {
             header: header.into(),
-        }
-    }
-
-    pub fn new<I: Into<Variant>, T: Into<Token>, A: SizedField + AttrField<I = I>>(
-        id: T,
-        attr: &A,
-    ) -> LayerClass {
-        let ctx = AttrContext {
-            path: id.into().to_string(),
-            typ: "@layer".into(),
-            ..Default::default()
-        };
-        let class = attr.class(&ctx, attr.bit_size(), None).build();
-        LayerClass {
-            get_id: abi_id,
-            data: abi_data,
-            attrs_len: abi_attrs_len,
-            attrs_data: abi_attrs_data,
-            add_attr: abi_add_attr,
-            set_payload: abi_set_payload,
-            payload: abi_payload,
-            header: Fixed::new(class),
         }
     }
 
