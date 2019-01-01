@@ -145,7 +145,7 @@ struct Options {
     selective_ack: Node<cast::ByteSlice>,
 
     #[genet(detach, typ = "@nested")]
-    ts: Node<Timestamp>,
+    ts: Node<cast::UInt8, Timestamp>, // FIXME
 }
 
 #[derive(Attr, Default)]

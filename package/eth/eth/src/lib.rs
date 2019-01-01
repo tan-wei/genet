@@ -66,6 +66,7 @@ impl Worker for EthWorker {
 
         stack.add_child(layer);
 
+        return Ok(Status::Done);
         match typ {
             Ok(EthType::IPv4) => self.ipv4.decode(stack),
             Ok(EthType::IPv6) => self.ipv6.decode(stack),

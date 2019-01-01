@@ -1,5 +1,5 @@
 use crate::{
-    attr::{Attr, AttrClass, AttrContext, AttrField, SizedField},
+    attr::{Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField, AttrXField, SizedField},
     fixed::{Fixed, MutFixed},
     slice::ByteSlice,
     token::Token,
@@ -281,14 +281,16 @@ impl<T> AsRef<Fixed<LayerClass>> for LayerType<T> {
     }
 }
 
-impl<I: Into<Variant>, T: AttrField<I = I> + SizedField> LayerType<T> {
+impl<T: AttrXField> LayerType<T> {
     pub fn new<D: Into<Token>>(id: D, field: T) -> Self {
         let ctx = AttrContext {
             path: id.into().to_string(),
             typ: "@layer".into(),
             ..Default::default()
         };
-        let class = field.class(&ctx, field.bit_size(), None).build();
+        let builder = T::Builder::default();
+        let builder: AttrClassBuilder = builder.into();
+        let class = builder.build();
         let layer = Fixed::new(LayerClass {
             get_id: abi_id,
             data: abi_data,

@@ -571,7 +571,7 @@ impl<I: 'static + Into<Variant> + Clone + Default, T: Typed<Output = I> + Clone 
 {
     fn into(self) -> AttrClassBuilder {
         AttrClass::builder(&self.path)
-            .cast(&self.data.clone().map(self.mapper))
+            .cast(&self.data.map(self.mapper))
             .typ(&self.typ)
             .aliases(self.aliases)
             .bit_range(0, self.bit_offset..(self.bit_offset + self.bit_size))
