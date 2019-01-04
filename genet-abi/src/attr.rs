@@ -5,7 +5,7 @@ use crate::{
     layer::Layer,
     metadata::Metadata,
     result::Result,
-    slice::{ByteSlice},
+    slice::{ByteSlice, TryGet},
     string::SafeString,
     token::Token,
     variant::Variant,
@@ -30,7 +30,7 @@ pub struct Attr2Context<T> {
     pub name: &'static str,
     pub description: &'static str,
     pub little_endian: bool,
-    pub bit_size: Option<usize>,
+    pub bit_size: usize,
     pub bit_offset: usize,
     pub aliases: Vec<String>,
     pub func_map: fn(T) -> T,
@@ -44,10 +44,10 @@ impl<T> Default for Attr2Context<T> {
             path: Default::default(),
             typ: Default::default(),
             name: Default::default(),
+            description: Default::default(),
             little_endian: Default::default(),
             bit_size: Default::default(),
             bit_offset: Default::default(),
-            description: Default::default(),
             aliases: Default::default(),
             func_map: |x| x,
             func_cond: |_| true,
@@ -55,32 +55,59 @@ impl<T> Default for Attr2Context<T> {
     }
 }
 
+pub struct Attr2Cast {
+    func: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync>,
+}
+
+impl Cast for Attr2Cast {
+    fn cast(&self, attr: &Attr, data: &ByteSlice) -> io::Result<Variant> {
+        (self.func)(attr, data)
+    }
+}
+
 pub trait Attr2Field {
-    type Output;
+    type Output: Into<Variant>;
+    fn context() -> Attr2Context<Self::Output>;
     fn build(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder;
 }
 
 impl Attr2Field for u8 {
     type Output = Self;
 
+    fn context() -> Attr2Context<Self::Output> {
+        Attr2Context {
+            bit_size: mem::size_of::<Self>(),
+            ..Default::default()
+        }
+    }
+
     fn build(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder {
-        let bit_size = ctx.bit_size.unwrap_or(mem::size_of::<Self>() * 8);
+        let bit_size = ctx.bit_size;
 
-        let _map_cast: Box<Fn(&Attr, &ByteSlice) -> Result<Self::Output>> = Box::new(|_, data| {
-            Cursor::new(data)
-                .read_u8()
-                .map(ctx.func_map)
-                .map_err(|e| format_err!("{}", e))
-        });
+        let _map_cast: Box<Fn(&Attr, &ByteSlice) -> io::Result<Self::Output> + Send + Sync> =
+            Box::new(|attr, data| {
+                Cursor::new(data.try_get(attr.range())?)
+                    .read_u8()
+                    .map(ctx.func_map)
+            });
 
-        let _cond_cast: Box<Fn(&Attr, &ByteSlice) -> bool> = Box::new(|_, data| {
-            Cursor::new(data)
-                .read_u8()
-                .ok()
-                .map(ctx.func_map)
-                .map(ctx.func_cond)
-                .is_some()
-        });
+        let _map_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> =
+            Box::new(|attr, data| {
+                Cursor::new(data.try_get(attr.range())?)
+                    .read_u8()
+                    .map(ctx.func_map)
+                    .map(|x| x.into())
+            });
+
+        let _cond_cast: Box<Fn(&Attr, &ByteSlice) -> bool + Send + Sync> =
+            Box::new(|attr, data| {
+                data.try_get(attr.range())
+                    .ok()
+                    .and_then(|data| return Cursor::new(data).read_u8().ok())
+                    .map(ctx.func_map)
+                    .map(ctx.func_cond)
+                    .is_some()
+            });
 
         AttrClass::builder(&format!("{}.{}", ctx.path, ctx.id))
             .aliases(ctx.aliases.clone())
