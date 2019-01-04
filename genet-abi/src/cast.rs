@@ -86,9 +86,9 @@ impl<I: 'static + Into<Variant> + Clone, V: Typed<Output = I> + Clone> AttrField
     ) -> AttrClassBuilder {
         let mut b = AttrClass::builder(ctx.path.clone());
         if let Some(f) = filter {
-            b = b.cast(&self.clone().map(f));
+            b = b.cast(self.clone().map(f));
         } else {
-            b = b.cast(self)
+            b = b.cast(self.clone())
         }
         b.typ(ctx.typ.clone())
             .aliases(ctx.aliases.clone())

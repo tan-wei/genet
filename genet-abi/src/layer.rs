@@ -481,7 +481,7 @@ mod tests {
         let class = Fixed::new(
             AttrClass::builder("nil")
                 .typ("@nil")
-                .cast(&TestCast {})
+                .cast(TestCast {})
                 .build(),
         );
 

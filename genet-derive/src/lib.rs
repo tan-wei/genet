@@ -91,7 +91,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
                     let mut subctx = #fields_ctx;
                     subctx.bit_offset = ctx.bit_offset;
                     let child = AttrClass::builder(subctx.path.clone())
-                        .cast(&cast.clone().map(|x| {
+                        .cast(cast.clone().map(|x| {
                             let x : #fields_ident = x.into();
                             match x {
                                 #fields_ident2::#fields_variant => Variant::Bool(true),
@@ -112,7 +112,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
 
             AttrClass::builder(ctx.path.clone())
                 .add_children(children)
-                .cast(&cast)
+                .cast(cast)
                 .typ(if ctx.typ.is_empty() {
                     "@enum".into()
                 } else {
@@ -283,7 +283,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 AttrClass::builder(ctx.path.clone())
                     .add_children(children)
                     .aliases(ctx.aliases.clone())
-                    .cast(&cast::ByteSlice())
+                    .cast(cast::ByteSlice())
                     .typ(ctx.typ.clone())
                     .bit_range(0, ctx.bit_offset..(ctx.bit_offset + self.bit_size()))
                     .name(if ctx.name.is_empty() {
