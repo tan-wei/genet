@@ -58,7 +58,7 @@ impl From<u8> for Mode {
 }
 
 pub fn aaaaa() {
-    let ctx = Enum2Field::<u8, Mode>::context();
+    let ctx = Enum2Field::<u8, u8>::context();
     let ctx = Node2Field::<u8, u8>::context();
 }
 
@@ -127,7 +127,7 @@ pub trait Attr2Field {
     type Output: Into<Variant>;
     fn context() -> Attr2Context<Self::Output>;
     fn new(ctx: &Attr2Context<Self::Output>) -> Self;
-    fn class(ctx: Attr2Functor<Self::Output>) -> AttrClassBuilder;
+    fn class(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder;
     fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output>;
 }
 
@@ -137,7 +137,7 @@ pub struct Node2Field<F: Attr2Field, C: Attr2Field> {
     func: Box<Fn(&Attr, &ByteSlice) -> io::Result<F::Output> + Send + Sync>,
 }
 
-impl<F: Attr2Field, C: Attr2Field> Attr2Field for Node2Field<F, C>
+impl<F: Attr2Field, C: Attr2Field<Output = F::Output>> Attr2Field for Node2Field<F, C>
 where
     F::Output: 'static,
 {
@@ -151,13 +151,13 @@ where
         let func = Self::build(ctx);
         Self {
             phantom: PhantomData,
-            class: Fixed::new(Self::class(Self::build(ctx)).build()),
+            class: Fixed::new(Self::class(ctx).build()),
             func: Box::new(move |attr, data| (func.func_map)(attr, data)),
         }
     }
 
-    fn class(ctx: Attr2Functor<Self::Output>) -> AttrClassBuilder {
-        F::class(ctx)
+    fn class(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder {
+        F::class(ctx).merge_children(C::class(ctx))
     }
 
     fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output> {
@@ -171,7 +171,7 @@ pub struct Enum2Field<F, E> {
     func: Box<Fn(&Attr, &ByteSlice) -> io::Result<E> + Send + Sync>,
 }
 
-impl<F: Attr2Field, E> Attr2Field for Enum2Field<F, E>
+impl<F: Attr2Field, E: Attr2Field<Output = F::Output>> Attr2Field for Enum2Field<F, E>
 where
     F::Output: 'static + Into<E>,
 {
@@ -185,13 +185,13 @@ where
         let func = Self::build(ctx);
         Self {
             phantom: PhantomData,
-            class: Fixed::new(Self::class(Self::build(ctx)).build()),
+            class: Fixed::new(Self::class(ctx).build()),
             func: Box::new(move |attr, data| (func.func_map)(attr, data).map(|x| x.into())),
         }
     }
 
-    fn class(ctx: Attr2Functor<Self::Output>) -> AttrClassBuilder {
-        F::class(ctx)
+    fn class(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder {
+        F::class(ctx).merge_children(E::class(ctx))
     }
 
     fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output> {
@@ -227,8 +227,8 @@ impl Attr2Field for u8 {
         Default::default()
     }
 
-    fn class(ctx: Attr2Functor<Self::Output>) -> AttrClassBuilder {
-        ctx.into()
+    fn class(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder {
+        Self::build(ctx).into()
     }
 
     fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output> {
@@ -453,6 +453,10 @@ impl AttrClassBuilder {
     ) -> AttrClassBuilder {
         self.cast = Box::new(Const(value));
         self
+    }
+
+    pub(crate) fn merge_children(mut self, other: AttrClassBuilder) -> AttrClassBuilder {
+        self.add_children(other.children)
     }
 
     /// Builds a new AttrClass.
