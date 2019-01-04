@@ -80,6 +80,12 @@ pub trait Attr2Field {
     fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output>;
 }
 
+pub struct Node2Field<F: Attr2Field, C: Attr2Field<Output = F::Output>> {
+    phantom: PhantomData<C>,
+    class: Fixed<AttrClass>,
+    func: Box<Fn(&Attr, &ByteSlice) -> io::Result<F::Output> + Send + Sync>,
+}
+
 pub struct Enum2Field<F, E> {
     phantom: PhantomData<F>,
     class: Fixed<AttrClass>,
