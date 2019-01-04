@@ -132,9 +132,17 @@ pub trait Attr2Field {
 }
 
 pub struct Node2Field<F: Attr2Field, C: Attr2Field> {
-    phantom: PhantomData<C>,
+    data: C,
     class: Fixed<AttrClass>,
     func: Box<Fn(&Attr, &ByteSlice) -> io::Result<F::Output> + Send + Sync>,
+}
+
+impl<F: Attr2Field, C: Attr2Field> Deref for Node2Field<F, C> {
+    type Target = C;
+
+    fn deref(&self) -> &C {
+        &self.data
+    }
 }
 
 impl<F: Attr2Field, C: Attr2Field<Output = F::Output>> Attr2Field for Node2Field<F, C>
@@ -150,7 +158,7 @@ where
     fn new(ctx: &Attr2Context<Self::Output>) -> Self {
         let func = Self::build(ctx);
         Self {
-            phantom: PhantomData,
+            data: C::new(ctx),
             class: Fixed::new(Self::class(ctx).build()),
             func: Box::new(move |attr, data| (func.func_map)(attr, data)),
         }
