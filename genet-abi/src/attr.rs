@@ -5,16 +5,19 @@ use crate::{
     layer::Layer,
     metadata::Metadata,
     result::Result,
-    slice::ByteSlice,
+    slice::{ByteSlice},
     string::SafeString,
     token::Token,
     variant::Variant,
     vec::SafeVec,
 };
+use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 use failure::format_err;
 use std::{
     cell::Cell,
-    fmt, io, mem,
+    fmt,
+    io::{self, Cursor},
+    mem,
     ops::{Deref, Range},
     slice,
 };
@@ -59,8 +62,26 @@ pub trait Attr2Field {
 
 impl Attr2Field for u8 {
     type Output = Self;
+
     fn build(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder {
         let bit_size = ctx.bit_size.unwrap_or(mem::size_of::<Self>() * 8);
+
+        let _map_cast: Box<Fn(&Attr, &ByteSlice) -> Result<Self::Output>> = Box::new(|_, data| {
+            Cursor::new(data)
+                .read_u8()
+                .map(ctx.func_map)
+                .map_err(|e| format_err!("{}", e))
+        });
+
+        let _cond_cast: Box<Fn(&Attr, &ByteSlice) -> bool> = Box::new(|_, data| {
+            Cursor::new(data)
+                .read_u8()
+                .ok()
+                .map(ctx.func_map)
+                .map(ctx.func_cond)
+                .is_some()
+        });
+
         AttrClass::builder(&format!("{}.{}", ctx.path, ctx.id))
             .aliases(ctx.aliases.clone())
             .name(ctx.name)
