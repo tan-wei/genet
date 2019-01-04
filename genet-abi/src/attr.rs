@@ -1,50 +1,599 @@
 use crate::{
-    cast::{Cast, Nil, Typed},
     env,
     fixed::Fixed,
     layer::Layer,
     metadata::Metadata,
     result::Result,
-    slice::ByteSlice,
+    slice::{ByteSlice, TryGet},
     string::SafeString,
     token::Token,
-    variant::Variant,
+    variant::{TryInto, Variant},
     vec::SafeVec,
 };
+use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 use failure::format_err;
 use std::{
-    cell::Cell,
-    fmt, io, mem,
+    fmt,
+    io::Cursor,
+    marker::PhantomData,
+    mem,
     ops::{Deref, Range},
     slice,
 };
 
-#[derive(Debug, Clone, Default)]
-pub struct AttrContext {
+#[derive(Clone)]
+pub struct AttrContext<I, O> {
+    pub id: String,
     pub path: String,
     pub typ: String,
     pub name: &'static str,
     pub description: &'static str,
+    pub little_endian: bool,
+    pub bit_size: usize,
     pub bit_offset: usize,
-    pub detached: bool,
     pub aliases: Vec<String>,
+    pub func_map: fn(I) -> Result<O>,
+    pub func_cond: fn(&O) -> bool,
+}
+
+pub struct AttrFunctor<I: 'static, O: 'static + Into<Variant>> {
+    pub ctx: AttrContext<I, O>,
+    pub func_map: Box<Fn(&Attr, &ByteSlice) -> Result<O> + Send + Sync>,
+}
+
+impl<I: 'static, O: 'static + Into<Variant>> Into<AttrClassBuilder> for AttrFunctor<I, O> {
+    fn into(self) -> AttrClassBuilder {
+        let func_map = self.func_map;
+        let func_cond = self.ctx.func_cond;
+        AttrClass::builder(format!("{}.{}", self.ctx.path, self.ctx.id).trim_matches('.'))
+            .cast(Box::new(move |attr, data| {
+                (func_map)(attr, data).map(|x| {
+                    if (func_cond)(&x) {
+                        x.into()
+                    } else {
+                        Variant::Nil
+                    }
+                })
+            }))
+            .aliases(self.ctx.aliases.clone())
+            .name(self.ctx.name)
+            .description(self.ctx.description)
+            .typ(&self.ctx.typ)
+            .bit_range(
+                0,
+                self.ctx.bit_offset..(self.ctx.bit_offset + self.ctx.bit_size),
+            )
+    }
+}
+
+impl<I, O> Default for AttrContext<I, O>
+where
+    I: Into<Variant>,
+    Variant: TryInto<O>,
+{
+    fn default() -> Self {
+        Self {
+            id: Default::default(),
+            path: Default::default(),
+            typ: Default::default(),
+            name: Default::default(),
+            description: Default::default(),
+            little_endian: Default::default(),
+            bit_size: Default::default(),
+            bit_offset: Default::default(),
+            aliases: Default::default(),
+            func_map: |x| x.into().try_into().map_err(|e| e.into()),
+            func_cond: |_| true,
+        }
+    }
+}
+
+pub struct Cast<I, O> {
+    phantom: PhantomData<(I, O)>,
+}
+
+impl<I: AttrField, O: AttrField> AttrField for Cast<I, O>
+where
+    I::Input: 'static + Into<Variant>,
+    I::Output: 'static + Into<I::Input>,
+    O::Input: 'static,
+    Variant: TryInto<O::Input>,
+{
+    type Input = I::Input;
+    type Output = O::Input;
+
+    fn context() -> AttrContext<Self::Input, Self::Output> {
+        AttrContext {
+            bit_size: I::context().bit_size,
+            ..AttrContext::default()
+        }
+    }
+
+    fn new(_ctx: &AttrContext<Self::Input, Self::Output>) -> Self {
+        Self {
+            phantom: PhantomData,
+        }
+    }
+
+    fn class(ctx: &AttrContext<Self::Input, Self::Output>) -> AttrClassBuilder {
+        Self::build(ctx).into()
+    }
+
+    fn build(
+        ctx: &AttrContext<Self::Input, Self::Output>,
+    ) -> AttrFunctor<Self::Input, Self::Output> {
+        let mctx_fm = ctx.func_map;
+
+        let mut subctx = I::context();
+        subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
+        subctx.bit_offset = ctx.bit_offset;
+        subctx.bit_size = ctx.bit_size;
+        let func = I::build(&subctx);
+
+        let func_map: Box<Fn(&Attr, &ByteSlice) -> Result<Self::Output> + Send + Sync> =
+            Box::new(move |attr, data| {
+                (func.func_map)(attr, data)
+                    .map(|x| x.into())
+                    .and_then(mctx_fm)
+            });
+
+        let mut subctx = Self::context();
+        subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
+        subctx.typ = ctx.typ.clone();
+        subctx.aliases = ctx.aliases.clone();
+        subctx.name = ctx.name;
+        subctx.description = ctx.description;
+        subctx.bit_offset = ctx.bit_offset;
+        subctx.bit_size = ctx.bit_size;
+
+        AttrFunctor {
+            ctx: subctx,
+            func_map,
+        }
+    }
 }
 
 pub trait AttrField {
-    type I;
+    type Input: Into<Variant>;
+    type Output: Into<Variant>;
+    fn context() -> AttrContext<Self::Input, Self::Output>;
+    fn new(ctx: &AttrContext<Self::Input, Self::Output>) -> Self;
+    fn class(ctx: &AttrContext<Self::Input, Self::Output>) -> AttrClassBuilder;
+    fn build(
+        ctx: &AttrContext<Self::Input, Self::Output>,
+    ) -> AttrFunctor<Self::Input, Self::Output>;
+}
 
-    fn class(
-        &self,
-        ctx: &AttrContext,
-        bit_size: usize,
-        filter: Option<fn(Self::I) -> Variant>,
+pub struct Node<F: AttrField, C: AttrField = F> {
+    data: C,
+    class: Fixed<AttrClass>,
+    func: Box<Fn(&Attr, &ByteSlice) -> Result<F::Output> + Send + Sync>,
+}
+
+impl<F: AttrField, C: AttrField> Node<F, C> {
+    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<F::Output> {
+        let class = self.class;
+        let bit_offset = class.bit_range().start;
+        let range = (class.bit_range().start - bit_offset + range.start * 8)
+            ..(class.bit_range().end - bit_offset + range.end * 8);
+        let attr = Attr::new(&self.class, range, layer.data());
+        (self.func)(&attr, &layer.data())
+    }
+
+    pub fn try_get(&self, layer: &Layer) -> Result<F::Output> {
+        self.try_get_range(layer, self.class.range())
+    }
+}
+
+impl<F: AttrField, C: AttrField> AsRef<Fixed<AttrClass>> for Node<F, C> {
+    fn as_ref(&self) -> &Fixed<AttrClass> {
+        &self.class
+    }
+}
+
+impl<F: AttrField, C: AttrField> Deref for Node<F, C> {
+    type Target = C;
+
+    fn deref(&self) -> &C {
+        &self.data
+    }
+}
+
+impl<F: AttrField, C: AttrField> AttrField for Node<F, C>
+where
+    F::Input: 'static,
+    F::Output: 'static,
+{
+    type Input = F::Input;
+    type Output = F::Output;
+
+    fn context() -> AttrContext<Self::Input, Self::Output> {
+        F::context()
+    }
+
+    fn new(ctx: &AttrContext<Self::Input, Self::Output>) -> Self {
+        let func = Self::build(ctx);
+        let mut subctx = C::context();
+        subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
+        subctx.bit_offset = ctx.bit_offset;
+        Self {
+            data: C::new(&subctx),
+            class: Fixed::new(Self::class(ctx).build()),
+            func: Box::new(move |attr, data| (func.func_map)(attr, data)),
+        }
+    }
+
+    fn class(ctx: &AttrContext<Self::Input, Self::Output>) -> AttrClassBuilder {
+        let mut subctx = C::context();
+        subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
+        subctx.bit_offset = ctx.bit_offset;
+        F::class(ctx).merge_children(C::class(&subctx))
+    }
+
+    fn build(
+        ctx: &AttrContext<Self::Input, Self::Output>,
+    ) -> AttrFunctor<Self::Input, Self::Output> {
+        F::build(ctx)
+    }
+}
+
+pub trait EnumType {
+    type Output;
+    fn class<T: 'static + AttrField<Output = E>, E: 'static + Into<Variant> + Into<Self::Output>>(
+        ctx: &AttrContext<T::Input, E>,
     ) -> AttrClassBuilder;
 }
 
-pub trait SizedField {
-    fn bit_size(&self) -> usize;
-    fn byte_size(&self) -> usize {
-        (self.bit_size() + 7) / 8
+pub struct Enum<F, E> {
+    phantom: PhantomData<F>,
+    class: Fixed<AttrClass>,
+    func: Box<Fn(&Attr, &ByteSlice) -> Result<E> + Send + Sync>,
+}
+
+impl<F: AttrField, E: EnumType> AsRef<Fixed<AttrClass>> for Enum<F, E> {
+    fn as_ref(&self) -> &Fixed<AttrClass> {
+        &self.class
+    }
+}
+
+impl<F: 'static + AttrField, E: 'static + EnumType<Output = E>> AttrField for Enum<F, E>
+where
+    F::Input: 'static,
+    F::Output: 'static + Into<E>,
+{
+    type Input = F::Input;
+    type Output = F::Output;
+
+    fn context() -> AttrContext<Self::Input, Self::Output> {
+        AttrContext {
+            typ: "@enum".into(),
+            ..F::context()
+        }
+    }
+
+    fn new(ctx: &AttrContext<Self::Input, Self::Output>) -> Self {
+        let func = Self::build(ctx);
+        Self {
+            phantom: PhantomData,
+            class: Fixed::new(Self::class(ctx).build()),
+            func: Box::new(move |attr, data| (func.func_map)(attr, data).map(|x| x.into())),
+        }
+    }
+
+    fn class(ctx: &AttrContext<Self::Input, Self::Output>) -> AttrClassBuilder {
+        let mut subctx = F::context();
+        subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
+        subctx.bit_offset = ctx.bit_offset;
+        subctx.bit_size = ctx.bit_size;
+        subctx.func_map = ctx.func_map;
+        subctx.func_cond = ctx.func_cond;
+        F::class(ctx).merge_children(E::class::<Self, Self::Output>(&subctx))
+    }
+
+    fn build(
+        ctx: &AttrContext<Self::Input, Self::Output>,
+    ) -> AttrFunctor<Self::Input, Self::Output> {
+        F::build(ctx)
+    }
+}
+
+impl<F: AttrField, E> Enum<F, E>
+where
+    F::Output: Into<E>,
+{
+    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<E> {
+        let class = self.class;
+        let bit_offset = class.bit_range().start;
+        let range = (class.bit_range().start - bit_offset + range.start * 8)
+            ..(class.bit_range().end - bit_offset + range.end * 8);
+        let attr = Attr::new(&self.class, range, layer.data());
+        (self.func)(&attr, &layer.data())
+    }
+
+    pub fn try_get(&self, layer: &Layer) -> Result<E> {
+        self.try_get_range(layer, self.class.range())
+    }
+}
+
+macro_rules! define_field {
+    ($t:ty, $size:expr, $little:block, $big:block) => {
+        impl AttrField for $t {
+            type Input = Self;
+            type Output = Self;
+
+            fn context() -> AttrContext<Self::Input, Self::Output> {
+                AttrContext {
+                    bit_size: $size,
+                    ..Default::default()
+                }
+            }
+
+            fn new(_ctx: &AttrContext<Self::Input, Self::Output>) -> Self {
+                Default::default()
+            }
+
+            fn class(ctx: &AttrContext<Self::Input, Self::Output>) -> AttrClassBuilder {
+                Self::build(ctx).into()
+            }
+
+            fn build(
+                ctx: &AttrContext<Self::Input, Self::Output>,
+            ) -> AttrFunctor<Self::Input, Self::Output> {
+                let parse: fn(&ByteSlice, Range<usize>) -> Result<Self::Output> =
+                    if ctx.little_endian { $little } else { $big };
+
+                let mctx = ctx.clone();
+                let func_map: Box<Fn(&Attr, &ByteSlice) -> Result<Self::Output> + Send + Sync> =
+                    Box::new(move |attr, data| parse(data, attr.range()).and_then(mctx.func_map));
+
+                AttrFunctor {
+                    ctx: ctx.clone(),
+                    func_map,
+                }
+            }
+        }
+    };
+}
+
+define_field!(
+    u8,
+    mem::size_of::<Self>() * 8,
+    {
+        |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_u8()
+                .map_err(|e| e.into())
+        }
+    },
+    {
+        |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_u8()
+                .map_err(|e| e.into())
+        }
+    }
+);
+
+define_field!(
+    i8,
+    mem::size_of::<Self>() * 8,
+    {
+        |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_i8()
+                .map_err(|e| e.into())
+        }
+    },
+    {
+        |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_i8()
+                .map_err(|e| e.into())
+        }
+    }
+);
+
+define_field!(
+    u16,
+    mem::size_of::<Self>() * 8,
+    {
+        |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_u16::<LittleEndian>()
+                .map_err(|e| e.into())
+        }
+    },
+    {
+        |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_u16::<BigEndian>()
+                .map_err(|e| e.into())
+        }
+    }
+);
+
+define_field!(
+    i16,
+    mem::size_of::<Self>() * 8,
+    {
+        |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_i16::<LittleEndian>()
+                .map_err(|e| e.into())
+        }
+    },
+    {
+        |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_i16::<BigEndian>()
+                .map_err(|e| e.into())
+        }
+    }
+);
+
+define_field!(
+    u32,
+    mem::size_of::<Self>() * 8,
+    {
+        |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_u32::<LittleEndian>()
+                .map_err(|e| e.into())
+        }
+    },
+    {
+        |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_u32::<BigEndian>()
+                .map_err(|e| e.into())
+        }
+    }
+);
+
+define_field!(
+    i32,
+    mem::size_of::<Self>() * 8,
+    {
+        |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_i32::<LittleEndian>()
+                .map_err(|e| e.into())
+        }
+    },
+    {
+        |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_i32::<BigEndian>()
+                .map_err(|e| e.into())
+        }
+    }
+);
+
+define_field!(
+    u64,
+    mem::size_of::<Self>() * 8,
+    {
+        |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_u64::<LittleEndian>()
+                .map_err(|e| e.into())
+        }
+    },
+    {
+        |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_u64::<BigEndian>()
+                .map_err(|e| e.into())
+        }
+    }
+);
+
+define_field!(
+    i64,
+    mem::size_of::<Self>() * 8,
+    {
+        |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_i64::<LittleEndian>()
+                .map_err(|e| e.into())
+        }
+    },
+    {
+        |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_i64::<BigEndian>()
+                .map_err(|e| e.into())
+        }
+    }
+);
+
+define_field!(
+    f32,
+    mem::size_of::<Self>() * 8,
+    {
+        |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_f32::<LittleEndian>()
+                .map_err(|e| e.into())
+        }
+    },
+    {
+        |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_f32::<BigEndian>()
+                .map_err(|e| e.into())
+        }
+    }
+);
+
+define_field!(
+    f64,
+    mem::size_of::<Self>() * 8,
+    {
+        |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_f64::<LittleEndian>()
+                .map_err(|e| e.into())
+        }
+    },
+    {
+        |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_f64::<BigEndian>()
+                .map_err(|e| e.into())
+        }
+    }
+);
+
+define_field!(
+    ByteSlice,
+    8,
+    { |data: &ByteSlice, range: Range<usize>| data.try_get(range).map_err(|e| e.into()) },
+    { |data: &ByteSlice, range: Range<usize>| data.try_get(range).map_err(|e| e.into()) }
+);
+
+pub struct BitFlag();
+
+impl AttrField for BitFlag {
+    type Input = bool;
+    type Output = bool;
+
+    fn context() -> AttrContext<Self::Input, Self::Output> {
+        AttrContext {
+            bit_size: 1,
+            ..Default::default()
+        }
+    }
+
+    fn new(_ctx: &AttrContext<Self::Input, Self::Output>) -> Self {
+        BitFlag()
+    }
+
+    fn class(ctx: &AttrContext<Self::Input, Self::Output>) -> AttrClassBuilder {
+        Self::build(ctx).into()
+    }
+
+    fn build(
+        ctx: &AttrContext<Self::Input, Self::Output>,
+    ) -> AttrFunctor<Self::Input, Self::Output> {
+        let parse = |data: &ByteSlice, range: Range<usize>| {
+            Cursor::new(data.try_get(range)?)
+                .read_u8()
+                .map_err(|e| e.into())
+        };
+
+        let mctx = ctx.clone();
+        let func_map: Box<Fn(&Attr, &ByteSlice) -> Result<Self::Output> + Send + Sync> =
+            Box::new(move |attr, data| {
+                parse(data, attr.range())
+                    .map(|byte| (byte & (0b1000_0000 >> (attr.bit_range().start % 8))) != 0)
+                    .and_then(mctx.func_map)
+            });
+
+        AttrFunctor {
+            ctx: ctx.clone(),
+            func_map,
+        }
     }
 }
 
@@ -111,17 +660,6 @@ enum ValueType {
     ByteSlice = 7,
 }
 
-#[derive(Clone)]
-struct Const<T>(pub T);
-
-impl<T: 'static + Into<Variant> + Send + Sync + Clone> Typed for Const<T> {
-    type Output = T;
-
-    fn cast(&self, _attr: &Attr, _data: &ByteSlice) -> io::Result<T> {
-        Ok(self.0.clone())
-    }
-}
-
 /// A builder object for AttrClass.
 pub struct AttrClassBuilder {
     id: Token,
@@ -130,7 +668,7 @@ pub struct AttrClassBuilder {
     range: Range<usize>,
     children: Vec<Fixed<AttrClass>>,
     aliases: Vec<Token>,
-    cast: Box<Cast>,
+    cast: Box<Fn(&Attr, &ByteSlice) -> Result<Variant> + Send + Sync>,
 }
 
 impl AttrClassBuilder {
@@ -165,8 +703,11 @@ impl AttrClassBuilder {
     }
 
     /// Sets a cast of AttrClass.
-    pub fn cast<T: Cast>(mut self, cast: T) -> AttrClassBuilder {
-        self.cast = Box::new(cast);
+    pub fn cast(
+        mut self,
+        cast: Box<Fn(&Attr, &ByteSlice) -> Result<Variant> + Send + Sync>,
+    ) -> AttrClassBuilder {
+        self.cast = cast;
         self
     }
 
@@ -201,8 +742,13 @@ impl AttrClassBuilder {
         mut self,
         value: T,
     ) -> AttrClassBuilder {
-        self.cast = Box::new(Const(value));
+        let value: Variant = value.into();
+        self.cast = Box::new(move |_, _| Ok(value.clone()));
         self
+    }
+
+    pub(crate) fn merge_children(self, other: AttrClassBuilder) -> AttrClassBuilder {
+        self.add_children(other.children)
     }
 
     /// Builds a new AttrClass.
@@ -236,7 +782,7 @@ pub struct AttrClass {
     range: Range<usize>,
     children: Vec<Fixed<AttrClass>>,
     aliases: Vec<Token>,
-    cast: Box<Cast>,
+    cast: Box<Fn(&Attr, &ByteSlice) -> Result<Variant> + Send + Sync>,
 }
 
 impl fmt::Debug for AttrClass {
@@ -263,7 +809,7 @@ impl AttrClass {
             range: 0..0,
             children: Vec::new(),
             aliases: Vec::new(),
-            cast: Box::new(Const(true)),
+            cast: Box::new(|_, _| Ok(Variant::Nil)),
         }
     }
 
@@ -391,7 +937,7 @@ extern "C" fn abi_get(
     let cast = &attr.class.cast;
     let slice = unsafe { ByteSlice::from_raw_parts(*data, len as usize) };
 
-    match cast.cast(attr, &slice) {
+    match (cast)(attr, &slice) {
         Ok(v) => match v {
             Variant::Bool(val) => {
                 unsafe { *num = if val { 1 } else { 0 } };
@@ -441,166 +987,10 @@ extern "C" fn abi_get(
     }
 }
 
-pub struct Node<T, U = Nil> {
-    node: T,
-    fields: U,
-    class: Cell<Option<Fixed<AttrClass>>>,
-}
-
-impl<T, U> Node<T, U> {
-    pub fn class(&self) -> Fixed<AttrClass> {
-        self.class.get().unwrap()
-    }
-
-    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<Variant> {
-        self.class().try_get_range(layer, range)
-    }
-
-    pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
-        self.class().try_get(layer)
-    }
-}
-
-impl<T, U> Deref for Node<T, U> {
-    type Target = U;
-
-    fn deref(&self) -> &U {
-        &self.fields
-    }
-}
-
-impl<I: Into<Variant>, J: Into<Variant>, T: AttrField<I = I>, U: AttrField<I = J>> AttrField
-    for Node<T, U>
-{
-    type I = I;
-
-    fn class(
-        &self,
-        ctx: &AttrContext,
-        bit_size: usize,
-        filter: Option<fn(Self::I) -> Variant>,
-    ) -> AttrClassBuilder {
-        let node = self.node.class(ctx, bit_size, filter);
-        let fields = self.fields.class(ctx, bit_size, None);
-
-        if self.class.get().is_none() {
-            self.class.set(Some(Fixed::new(
-                self.node
-                    .class(ctx, bit_size, filter)
-                    .add_children(fields.children().to_vec())
-                    .build(),
-            )))
-        }
-
-        node.add_children(fields.children().to_vec())
-    }
-}
-
-impl<T: SizedField, U> SizedField for Node<T, U> {
-    fn bit_size(&self) -> usize {
-        self.node.bit_size()
-    }
-}
-
-impl<T: Default, U: Default> Default for Node<T, U> {
-    fn default() -> Self {
-        Self {
-            node: T::default(),
-            fields: U::default(),
-            class: Cell::new(None),
-        }
-    }
-}
-
-pub trait EnumField<T: Into<Variant>> {
-    fn class_enum<C: Typed<Output = T> + Clone>(
-        &self,
-        ctx: &AttrContext,
-        bit_size: usize,
-        cast: C,
-    ) -> AttrClassBuilder;
-}
-
-pub struct EnumNode<T, U> {
-    node: T,
-    fields: U,
-    class: Cell<Option<Fixed<AttrClass>>>,
-}
-
-impl<I: Into<Variant>, T: AttrField<I = I> + Typed<Output = I> + Clone, U: EnumField<I>> AttrField
-    for EnumNode<T, U>
-{
-    type I = I;
-
-    fn class(
-        &self,
-        ctx: &AttrContext,
-        bit_size: usize,
-        filter: Option<fn(Self::I) -> Variant>,
-    ) -> AttrClassBuilder {
-        let fields = self.fields.class_enum(ctx, bit_size, self.node.clone());
-
-        if self.class.get().is_none() {
-            self.class.set(Some(Fixed::new(
-                self.node
-                    .class(ctx, bit_size, filter)
-                    .add_children(fields.children().to_vec())
-                    .build(),
-            )))
-        }
-
-        fields
-    }
-}
-
-impl<I: Into<Variant> + Into<U>, T: Typed<Output = I>, U: EnumField<I>> EnumNode<T, U> {
-    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<U> {
-        let class = self.class.get().unwrap();
-
-        let bit_offset = class.bit_range().start;
-        let range = (class.bit_range().start - bit_offset + range.start * 8)
-            ..(class.bit_range().end - bit_offset + range.end * 8);
-
-        let root = Attr::new(&class, range, layer.data());
-        match Typed::cast(&self.node, &root, &layer.data()) {
-            Ok(data) => Ok(data.into()),
-            Err(err) => Err(format_err!("{}", err)),
-        }
-    }
-
-    pub fn try_get(&self, layer: &Layer) -> Result<U> {
-        let class = self.class.get().unwrap();
-        self.try_get_range(layer, class.range())
-    }
-}
-
-impl<T: SizedField, U> SizedField for EnumNode<T, U> {
-    fn bit_size(&self) -> usize {
-        self.node.bit_size()
-    }
-}
-
-impl<T, U> EnumNode<T, U> {
-    pub fn class(&self) -> Fixed<AttrClass> {
-        self.class.get().unwrap()
-    }
-}
-
-impl<T: Default, U: Default> Default for EnumNode<T, U> {
-    fn default() -> Self {
-        Self {
-            node: T::default(),
-            fields: U::default(),
-            class: Cell::new(None),
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use crate::{
         attr::{Attr, AttrClass},
-        cast::Cast,
         slice::{ByteSlice, TryGet},
         token::Token,
         variant::Variant,

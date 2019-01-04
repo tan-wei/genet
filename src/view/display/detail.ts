@@ -184,7 +184,7 @@ export default class PcapDetailView {
     const frame = this.selectedFrame
 
     const tsString =
-      moment(frame.query('link.timestamp').value * 1000)
+      moment(Number(frame.query('link.timestamp').value) * 1000)
         .format('YYYY-MM-DDTHH:mm:ss.SSSZ')
 
     const payload = frame.root.data

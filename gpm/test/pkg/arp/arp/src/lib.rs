@@ -1,5 +1,5 @@
 use genet_derive::Attr;
-use genet_sdk::{cast, decoder::*, prelude::*};
+use genet_sdk::{decoder::*, prelude::*};
 
 struct ArpWorker {
     layer: LayerType<ARP>,
@@ -13,8 +13,8 @@ impl Worker for ArpWorker {
         let hwtype = self.layer.hwtype.try_get(&layer)?;
         let protocol = self.layer.protocol.try_get(&layer)?;
 
-        let hlen: usize = self.layer.hlen.try_get(&layer)?.try_into()?;
-        let plen: usize = self.layer.plen.try_get(&layer)?.try_into()?;
+        let hlen: usize = self.layer.hlen.try_get(&layer)?;
+        let plen: usize = self.layer.plen.try_get(&layer)?;
 
         let (sha, tha) = match hwtype {
             HardwareType::Eth => (&self.layer.sha_eth, &self.layer.tha_eth),
@@ -28,13 +28,13 @@ impl Worker for ArpWorker {
         };
 
         let mut offset = self.layer.byte_size();
-        layer.add_attr(sha.class(), offset..offset + hlen);
+        layer.add_attr(&sha, offset..offset + hlen);
         offset += hlen;
-        layer.add_attr(spa.class(), offset..offset + plen);
+        layer.add_attr(&spa, offset..offset + plen);
         offset += plen;
-        layer.add_attr(tha.class(), offset..offset + hlen);
+        layer.add_attr(&tha, offset..offset + hlen);
         offset += hlen;
-        layer.add_attr(tpa.class(), offset..offset + plen);
+        layer.add_attr(&tpa, offset..offset + plen);
         offset += plen;
 
         stack.add_child(layer);
@@ -48,7 +48,7 @@ struct ArpDecoder {}
 impl Decoder for ArpDecoder {
     fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
         Box::new(ArpWorker {
-            layer: LayerType::new("arp", ARP::default()),
+            layer: LayerType::new("arp"),
         })
     }
 
@@ -60,31 +60,31 @@ impl Decoder for ArpDecoder {
     }
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct ARP {
-    hwtype: EnumNode<cast::UInt16BE, HardwareType>,
-    protocol: EnumNode<cast::UInt16BE, ProtocolType>,
-    hlen: Node<cast::UInt8>,
-    plen: Node<cast::UInt8>,
-    op: EnumNode<cast::UInt16BE, OperationType>,
+    hwtype: Enum<u16, HardwareType>,
+    protocol: Enum<u16, ProtocolType>,
+    hlen: Node<u8>,
+    plen: Node<u8>,
+    op: Enum<u16, OperationType>,
 
     #[genet(detach, id = "sha", typ = "@eth:mac", alias = "_.src", byte_size = 6)]
-    sha_eth: Node<cast::ByteSlice>,
+    sha_eth: Node<ByteSlice>,
 
     #[genet(detach, id = "tha", typ = "@eth:mac", alias = "_.dst", byte_size = 6)]
-    tha_eth: Node<cast::ByteSlice>,
+    tha_eth: Node<ByteSlice>,
 
     #[genet(detach, id = "spa", typ = "@ipv4:addr", byte_size = 4)]
-    spa_ipv4: Node<cast::ByteSlice>,
+    spa_ipv4: Node<ByteSlice>,
 
     #[genet(detach, id = "tpa", typ = "@ipv4:addr", byte_size = 4)]
-    tpa_ipv4: Node<cast::ByteSlice>,
+    tpa_ipv4: Node<ByteSlice>,
 
     #[genet(detach, id = "spa", typ = "@ipv6:addr", byte_size = 16)]
-    spa_ipv6: Node<cast::ByteSlice>,
+    spa_ipv6: Node<ByteSlice>,
 
     #[genet(detach, id = "tpa", typ = "@ipv6:addr", byte_size = 16)]
-    tpa_ipv6: Node<cast::ByteSlice>,
+    tpa_ipv6: Node<ByteSlice>,
 }
 
 #[derive(Attr)]

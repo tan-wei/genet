@@ -1,8 +1,6 @@
-use crate::slice::ByteSlice;
-use std::{
-    convert::Into,
-    io::{Error, ErrorKind, Result},
-};
+use crate::{result::Result, slice::ByteSlice};
+use failure::err_msg;
+use std::convert::Into;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Variant {
@@ -26,7 +24,7 @@ impl TryInto<String> for Variant {
     fn try_into(self) -> Result<String> {
         match self {
             Variant::String(val) => Ok(val.to_string()),
-            _ => Err(Error::new(ErrorKind::InvalidData, "wrong type")),
+            _ => Err(err_msg("wrong type")),
         }
     }
 }
@@ -37,7 +35,7 @@ impl TryInto<Vec<u8>> for Variant {
             Variant::String(val) => Ok(val.to_string().into_bytes()),
             Variant::Buffer(val) => Ok(val.into_vec()),
             Variant::Slice(val) => Ok(val.as_ref().to_vec()),
-            _ => Err(Error::new(ErrorKind::InvalidData, "wrong type")),
+            _ => Err(err_msg("wrong type")),
         }
     }
 }
@@ -46,7 +44,7 @@ impl TryInto<ByteSlice> for Variant {
     fn try_into(self) -> Result<ByteSlice> {
         match self {
             Variant::Slice(val) => Ok(val),
-            _ => Err(Error::new(ErrorKind::InvalidData, "wrong type")),
+            _ => Err(err_msg("wrong type")),
         }
     }
 }
@@ -59,7 +57,16 @@ impl TryInto<u64> for Variant {
             Variant::Int64(val) => Ok(val as u64),
             Variant::UInt64(val) => Ok(val as u64),
             Variant::Float64(val) => Ok(val as u64),
-            _ => Err(Error::new(ErrorKind::InvalidData, "wrong type")),
+            _ => Err(err_msg("wrong type")),
+        }
+    }
+}
+
+impl TryInto<bool> for Variant {
+    fn try_into(self) -> Result<bool> {
+        match self {
+            Variant::Bool(val) => Ok(val),
+            _ => Err(err_msg("wrong type")),
         }
     }
 }
@@ -96,7 +103,7 @@ impl TryInto<i64> for Variant {
             Variant::Int64(val) => Ok(val as i64),
             Variant::UInt64(val) => Ok(val as i64),
             Variant::Float64(val) => Ok(val as i64),
-            _ => Err(Error::new(ErrorKind::InvalidData, "wrong type")),
+            _ => Err(err_msg("wrong type")),
         }
     }
 }
@@ -133,7 +140,7 @@ impl TryInto<f64> for Variant {
             Variant::Int64(val) => Ok(val as f64),
             Variant::UInt64(val) => Ok(val as f64),
             Variant::Float64(val) => Ok(val as f64),
-            _ => Err(Error::new(ErrorKind::InvalidData, "wrong type")),
+            _ => Err(err_msg("wrong type")),
         }
     }
 }

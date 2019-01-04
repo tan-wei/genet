@@ -1,25 +1,25 @@
 use genet_derive::Attr;
-use genet_sdk::{cast, decoder::*, prelude::*};
+use genet_sdk::{decoder::*, prelude::*};
 
 /// Ethernet
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Eth {
     /// Source Hardware Address
     #[genet(alias = "_.src", typ = "@eth:mac", byte_size = 6)]
-    src: cast::ByteSlice,
+    src: ByteSlice,
 
     /// Destination Hardware Address
     #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
-    dst: cast::ByteSlice,
+    dst: ByteSlice,
 
     #[genet(cond = "x <= 1500")]
-    len: cast::UInt16BE,
+    len: u16,
 
-    #[genet(cond = "x > 1500", typ = "@enum", align_before)]
-    r#type: EnumNode<cast::UInt16BE, EthType>,
+    #[genet(cond = "x > 1500", align_before)]
+    r#type: Enum<u16, EthType>,
 }
 
-#[derive(Attr)]
+#[derive(Attr, Debug)]
 enum EthType {
     IPv4,
     ARP,
@@ -81,7 +81,7 @@ struct EthDecoder {}
 impl Decoder for EthDecoder {
     fn new_worker(&self, ctx: &Context) -> Box<Worker> {
         Box::new(EthWorker {
-            layer: LayerType::new("eth", Eth::default()),
+            layer: LayerType::new("eth"),
             ipv4: ctx.decoder("ipv4").unwrap(),
             ipv6: ctx.decoder("ipv6").unwrap(),
             arp: ctx.decoder("arp").unwrap(),

@@ -22,7 +22,7 @@ impl Context {
     pub fn sub_decoders(
         &self,
         used: &mut HashSet<String>,
-        id: &String,
+        id: &str,
         decoders: &[DecoderBox],
     ) -> Vec<DecoderStack> {
         let used_decoders = used.clone();
@@ -30,11 +30,7 @@ impl Context {
             .iter()
             .filter(|d| {
                 !used_decoders.contains(&d.metadata().id)
-                    && d.metadata()
-                        .trigger_after
-                        .iter()
-                        .find(|&x| x.as_str() == id)
-                        .is_some()
+                    && d.metadata().trigger_after.iter().any(|x| x == id)
             })
             .map(|d| {
                 used.insert(d.metadata().id);

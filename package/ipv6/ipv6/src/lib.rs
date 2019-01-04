@@ -1,5 +1,5 @@
 use genet_derive::Attr;
-use genet_sdk::{cast, decoder::*, prelude::*};
+use genet_sdk::{decoder::*, prelude::*};
 
 struct IPv6Worker {
     layer: LayerType<IPv6>,
@@ -12,7 +12,7 @@ impl Worker for IPv6Worker {
         let data = stack.top().unwrap().payload();
         let mut layer = Layer::new(&self.layer, &data);
 
-        let nheader = self.layer.next_header.try_get(&layer)?.try_into()?;
+        let nheader = self.layer.next_header.try_get(&layer)?;
         loop {
             match nheader {
                 // TODO:
@@ -28,9 +28,9 @@ impl Worker for IPv6Worker {
             }
         }
 
-        let range = self.layer.next_header.class().range();
+        let range = self.layer.next_header.as_ref().range();
         let typ = self.layer.protocol.try_get_range(&layer, range.clone());
-        layer.add_attr(self.layer.protocol.class(), range.clone());
+        layer.add_attr(&self.layer.protocol, range.clone());
 
         let payload = data.try_get(self.layer.byte_size()..)?;
         layer.set_payload(&payload);
@@ -50,7 +50,7 @@ struct IPv6Decoder {}
 impl Decoder for IPv6Decoder {
     fn new_worker(&self, ctx: &Context) -> Box<Worker> {
         Box::new(IPv6Worker {
-            layer: LayerType::new("ipv6", IPv6::default()),
+            layer: LayerType::new("ipv6"),
             tcp: ctx.decoder("tcp").unwrap(),
             udp: ctx.decoder("udp").unwrap(),
         })
@@ -64,34 +64,34 @@ impl Decoder for IPv6Decoder {
     }
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct IPv6 {
     #[genet(bit_size = 4, map = "x >> 4")]
-    version: cast::UInt8,
+    version: u8,
 
     #[genet(bit_size = 8, map = "(x >> 4) & 0xff")]
-    traffic_class: cast::UInt16BE,
+    traffic_class: u16,
 
     #[genet(
         bit_size = 20,
         map = "(((x[2] as u32) & 0xf) << 16) | ((x[1] as u32) << 8) | x[2] as u32"
     )]
-    flow_label: cast::ByteSlice,
+    flow_label: Cast<ByteSlice, u32>,
 
-    payload_length: cast::UInt16BE,
+    payload_length: u16,
 
-    next_header: Node<cast::UInt8>,
+    next_header: Node<u8>,
 
-    hop_limit: cast::UInt8,
+    hop_limit: u8,
 
     #[genet(alias = "_.dst", typ = "@ipv6:addr", byte_size = 16)]
-    dst: cast::ByteSlice,
+    dst: ByteSlice,
 
     #[genet(alias = "_.src", typ = "@ipv6:addr", byte_size = 16)]
-    src: cast::ByteSlice,
+    src: ByteSlice,
 
-    #[genet(detach, typ = "@enum")]
-    protocol: EnumNode<cast::UInt8, ProtoType>,
+    #[genet(detach)]
+    protocol: Enum<u8, ProtoType>,
 }
 
 #[derive(Attr)]

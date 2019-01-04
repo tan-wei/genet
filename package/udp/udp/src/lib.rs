@@ -1,5 +1,5 @@
 use genet_derive::Attr;
-use genet_sdk::{cast, decoder::*, prelude::*};
+use genet_sdk::{decoder::*, prelude::*};
 
 struct UdpWorker {
     layer: LayerType<Udp>,
@@ -22,7 +22,7 @@ struct UdpDecoder {}
 impl Decoder for UdpDecoder {
     fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
         Box::new(UdpWorker {
-            layer: LayerType::new("udp", Udp::default()),
+            layer: LayerType::new("udp"),
         })
     }
 
@@ -34,17 +34,17 @@ impl Decoder for UdpDecoder {
     }
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Udp {
     #[genet(alias = "_.src", typ = "@udp:port")]
-    src: cast::UInt16BE,
+    src: u16,
 
     #[genet(alias = "_.dst", typ = "@udp:port")]
-    dst: cast::UInt16BE,
+    dst: u16,
 
-    length: cast::UInt16BE,
+    length: u16,
 
-    checksum: cast::UInt16BE,
+    checksum: u16,
 }
 
 genet_decoders!(UdpDecoder {});

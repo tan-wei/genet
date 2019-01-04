@@ -13,6 +13,7 @@ const dirs = glob.sync(path.join(__dirname, '../package/*/Cargo.toml'))
 
 async function exec() {
   for (const dir of dirs) {
+    console.log(dir)
     await execa('cargo', ['build'].concat(mode), {
       cwd: dir,
       stdio: 'inherit'

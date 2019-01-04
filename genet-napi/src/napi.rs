@@ -248,17 +248,12 @@ impl Env {
     pub fn create_bigint<'env>(&self, value: &BigInt) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
-            let (sign, mut words) = value.to_bytes_le();
+            let (sign, words) = value.to_bytes_le();
             let sign = if sign == Sign::Minus { 1 } else { 0 };
             let len = (words.len() + 7) / 8;
-            words.resize(len * 8, 0);
-            match napi_create_bigint_words(
-                self,
-                sign,
-                len,
-                words.as_ptr() as *const u64,
-                &mut result,
-            ) {
+            let mut aligned = vec![0u64; len];
+            ptr::copy_nonoverlapping(words.as_ptr(), aligned.as_mut_ptr() as *mut u8, words.len());
+            match napi_create_bigint_words(self, sign, len, aligned.as_ptr(), &mut result) {
                 Status::Ok => Ok(&*result),
                 s => Err(s),
             }

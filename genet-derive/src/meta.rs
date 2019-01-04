@@ -1,35 +1,33 @@
 use syn::{Attribute, Lit, Meta, MetaNameValue, NestedMeta};
 
-pub enum AttrMapExpr {
-    None,
-    Map(String),
-    Cond(String),
-}
-
 pub struct AttrMetadata {
-    pub id: String,
-    pub typ: String,
-    pub name: String,
-    pub description: String,
+    pub id: Option<String>,
+    pub typ: Option<String>,
+    pub name: Option<String>,
+    pub description: Option<String>,
     pub aliases: Vec<String>,
     pub bit_size: Option<usize>,
+    pub little_endian: bool,
     pub align_before: bool,
-    pub map: AttrMapExpr,
+    pub func_map: Option<String>,
+    pub func_cond: Option<String>,
     pub skip: bool,
     pub detach: bool,
 }
 
 impl AttrMetadata {
     pub fn parse(attrs: &[Attribute]) -> AttrMetadata {
-        let mut id = String::new();
-        let mut typ = String::new();
+        let mut id = None;
+        let mut typ = None;
         let mut aliases = Vec::new();
         let mut docs = String::new();
         let mut bit_size = None;
         let mut skip = false;
         let mut detach = false;
+        let mut little_endian = false;
         let mut align_before = false;
-        let mut map = AttrMapExpr::None;
+        let mut func_map = None;
+        let mut func_cond = None;
         for attr in attrs {
             if let Some(meta) = attr.interpret_meta() {
                 let name = meta.name().to_string();
@@ -54,6 +52,10 @@ impl AttrMetadata {
                                     detach = true;
                                 } else if name == "align_before" {
                                     align_before = true;
+                                } else if name == "little_endian" {
+                                    little_endian = true;
+                                } else if name == "big_endian" {
+                                    little_endian = false;
                                 } else if let Meta::NameValue(MetaNameValue {
                                     lit: Lit::Str(lit_str),
                                     ..
@@ -61,19 +63,19 @@ impl AttrMetadata {
                                 {
                                     match name.as_str() {
                                         "id" => {
-                                            id = lit_str.value().to_string();
+                                            id = Some(lit_str.value().trim().into());
                                         }
                                         "typ" => {
-                                            typ = lit_str.value().to_string();
+                                            typ = Some(lit_str.value().trim().into());
                                         }
                                         "alias" => {
                                             aliases.push(lit_str.value().to_string());
                                         }
                                         "map" => {
-                                            map = AttrMapExpr::Map(lit_str.value().to_string());
+                                            func_map = Some(lit_str.value().to_string());
                                         }
                                         "cond" => {
-                                            map = AttrMapExpr::Cond(lit_str.value().to_string());
+                                            func_cond = Some(lit_str.value().to_string());
                                         }
                                         _ => panic!("unsupported attribute: {}", name),
                                     }
@@ -100,20 +102,33 @@ impl AttrMetadata {
             }
         }
         let mut lines = docs.split('\n').map(|line| line.trim());
-        let name = lines.next().unwrap_or("");
-        let description = lines.fold(String::new(), |acc, x| acc + x + "\n");
+        let name = lines
+            .next()
+            .map(|line| line.trim().to_string())
+            .filter(|line| !line.is_empty());
+        let description = lines
+            .fold(String::new(), |acc, x| acc + x + "\n")
+            .trim()
+            .to_string();
+        let description = if description.is_empty() {
+            None
+        } else {
+            Some(description)
+        };
 
         AttrMetadata {
-            id: id.trim().into(),
-            typ: typ.trim().into(),
-            name: name.into(),
-            description: description.trim().into(),
+            id,
+            typ,
+            name,
+            description,
             aliases,
             bit_size,
             skip,
             detach,
+            little_endian,
             align_before,
-            map,
+            func_map,
+            func_cond,
         }
     }
 }
