@@ -84,32 +84,36 @@ impl Attr2Field for u8 {
     fn build(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder {
         let bit_size = ctx.bit_size;
 
+        let mctx = ctx.clone();
         let _map_cast: Box<Fn(&Attr, &ByteSlice) -> io::Result<Self::Output> + Send + Sync> =
-            Box::new(|attr, data| {
+            Box::new(move |attr, data| {
                 Cursor::new(data.try_get(attr.range())?)
                     .read_u8()
-                    .map(ctx.func_map)
+                    .map(mctx.func_map)
             });
 
-        let _map_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> =
-            Box::new(|attr, data| {
+        let mctx = ctx.clone();
+        let map_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> =
+            Box::new(move |attr, data| {
                 Cursor::new(data.try_get(attr.range())?)
                     .read_u8()
-                    .map(ctx.func_map)
+                    .map(mctx.func_map)
                     .map(|x| x.into())
             });
 
+        let mctx = ctx.clone();
         let _cond_cast: Box<Fn(&Attr, &ByteSlice) -> bool + Send + Sync> =
-            Box::new(|attr, data| {
+            Box::new(move |attr, data| {
                 data.try_get(attr.range())
                     .ok()
                     .and_then(|data| return Cursor::new(data).read_u8().ok())
-                    .map(ctx.func_map)
-                    .map(ctx.func_cond)
+                    .map(mctx.func_map)
+                    .map(mctx.func_cond)
                     .is_some()
             });
 
         AttrClass::builder(&format!("{}.{}", ctx.path, ctx.id))
+            .cast(Attr2Cast{ func: map_var })
             .aliases(ctx.aliases.clone())
             .name(ctx.name)
             .description(ctx.description)
