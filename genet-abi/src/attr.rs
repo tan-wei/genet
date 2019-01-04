@@ -17,6 +17,7 @@ use std::{
     cell::Cell,
     fmt,
     io::{self, Cursor},
+    marker::PhantomData,
     mem,
     ops::{Deref, Range},
     slice,
@@ -35,6 +36,13 @@ pub struct Attr2Context<T> {
     pub aliases: Vec<String>,
     pub func_map: fn(T) -> T,
     pub func_cond: fn(T) -> bool,
+}
+
+pub struct Attr2Functor<T> {
+    ctx: Attr2Context<T>,
+    func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<T> + Send + Sync>,
+    func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync>,
+    func_cond: Box<Fn(&Attr, &ByteSlice) -> bool + Send + Sync>,
 }
 
 impl<T> Default for Attr2Context<T> {
@@ -68,7 +76,51 @@ impl Cast for Attr2Cast {
 pub trait Attr2Field {
     type Output: Into<Variant>;
     fn context() -> Attr2Context<Self::Output>;
-    fn build(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder;
+    fn new(ctx: Attr2Functor<Self::Output>) -> Self;
+    fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output>;
+}
+
+pub struct Enum2Field<F, E> {
+    phantom: PhantomData<F>,
+    class: Fixed<AttrClass>,
+    func: Box<Fn(&Attr, &ByteSlice) -> io::Result<E> + Send + Sync>,
+}
+
+impl<F: Attr2Field, E> Attr2Field for Enum2Field<F, E>
+where
+    F::Output: 'static + Into<E>,
+{
+    type Output = F::Output;
+
+    fn context() -> Attr2Context<Self::Output> {
+        F::context()
+    }
+
+    fn new(ctx: Attr2Functor<Self::Output>) -> Self {
+        Self {
+            phantom: PhantomData,
+            class: Fixed::new(AttrClass::builder("").build()),
+            func: Box::new(move |attr, data| (ctx.func_map)(attr, data).map(|x| x.into())),
+        }
+    }
+
+    fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output> {
+        F::build(ctx)
+    }
+}
+
+impl<F: Attr2Field, E> Enum2Field<F, E>
+where
+    F::Output: Into<E>,
+{
+    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> io::Result<E> {
+        let attr = Attr::new(&self.class, range, layer.data());
+        (self.func)(&attr, &layer.data())
+    }
+
+    pub fn try_get(&self, layer: &Layer) -> io::Result<E> {
+        self.try_get_range(layer, self.class.range())
+    }
 }
 
 impl Attr2Field for u8 {
@@ -81,11 +133,13 @@ impl Attr2Field for u8 {
         }
     }
 
-    fn build(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder {
-        let bit_size = ctx.bit_size;
+    fn new(_ctx: Attr2Functor<Self::Output>) -> Self {
+        0
+    }
 
+    fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output> {
         let mctx = ctx.clone();
-        let _map_cast: Box<Fn(&Attr, &ByteSlice) -> io::Result<Self::Output> + Send + Sync> =
+        let func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<Self::Output> + Send + Sync> =
             Box::new(move |attr, data| {
                 Cursor::new(data.try_get(attr.range())?)
                     .read_u8()
@@ -93,7 +147,7 @@ impl Attr2Field for u8 {
             });
 
         let mctx = ctx.clone();
-        let map_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> =
+        let func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> =
             Box::new(move |attr, data| {
                 Cursor::new(data.try_get(attr.range())?)
                     .read_u8()
@@ -102,16 +156,25 @@ impl Attr2Field for u8 {
             });
 
         let mctx = ctx.clone();
-        let _cond_cast: Box<Fn(&Attr, &ByteSlice) -> bool + Send + Sync> =
+        let func_cond: Box<Fn(&Attr, &ByteSlice) -> bool + Send + Sync> =
             Box::new(move |attr, data| {
                 data.try_get(attr.range())
                     .ok()
-                    .and_then(|data| return Cursor::new(data).read_u8().ok())
+                    .and_then(|data| Cursor::new(data).read_u8().ok())
                     .map(mctx.func_map)
                     .map(mctx.func_cond)
                     .is_some()
             });
 
+        Attr2Functor {
+            ctx: ctx.clone(),
+            func_map,
+            func_var,
+            func_cond,
+        }
+
+        /*
+        let bit_size = ctx.bit_size;
         AttrClass::builder(&format!("{}.{}", ctx.path, ctx.id))
             .cast(Attr2Cast{ func: map_var })
             .aliases(ctx.aliases.clone())
@@ -119,6 +182,7 @@ impl Attr2Field for u8 {
             .description(ctx.description)
             .typ(&ctx.typ)
             .bit_range(0, ctx.bit_offset..(ctx.bit_offset + bit_size))
+        */
     }
 }
 
