@@ -48,6 +48,12 @@ impl From<String> for Token {
     }
 }
 
+impl From<&String> for Token {
+    fn from(id: &String) -> Token {
+        Token::from(id.as_str())
+    }
+}
+
 impl<'a> From<&'a str> for Token {
     fn from(id: &'a str) -> Token {
         env::token(id)
