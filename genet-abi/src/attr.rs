@@ -59,6 +59,7 @@ impl From<u8> for Mode {
 
 pub fn aaaaa() {
     let ctx = Enum2Field::<u8, Mode>::context();
+    let ctx = Node2Field::<u8, u8>::context();
 }
 
 #[derive(Debug, Clone)]
@@ -86,9 +87,7 @@ pub struct Attr2Functor<T> {
 impl<T> Into<AttrClassBuilder> for Attr2Functor<T> {
     fn into(self) -> AttrClassBuilder {
         AttrClass::builder(&format!("{}.{}", self.ctx.path, self.ctx.id))
-            .cast(Attr2Cast {
-                func: self.func_var,
-            })
+            .cast(self.func_var)
             .aliases(self.ctx.aliases.clone())
             .name(self.ctx.name)
             .description(self.ctx.description)
@@ -118,13 +117,9 @@ impl<T> Default for Attr2Context<T> {
     }
 }
 
-pub struct Attr2Cast {
-    func: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync>,
-}
-
-impl Cast for Attr2Cast {
+impl Cast for Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> {
     fn cast(&self, attr: &Attr, data: &ByteSlice) -> io::Result<Variant> {
-        (self.func)(attr, data)
+        (self)(attr, data)
     }
 }
 
@@ -140,6 +135,34 @@ pub struct Node2Field<F: Attr2Field, C: Attr2Field> {
     phantom: PhantomData<C>,
     class: Fixed<AttrClass>,
     func: Box<Fn(&Attr, &ByteSlice) -> io::Result<F::Output> + Send + Sync>,
+}
+
+impl<F: Attr2Field, C: Attr2Field> Attr2Field for Node2Field<F, C>
+where
+    F::Output: 'static,
+{
+    type Output = F::Output;
+
+    fn context() -> Attr2Context<Self::Output> {
+        F::context()
+    }
+
+    fn new(ctx: &Attr2Context<Self::Output>) -> Self {
+        let func = Self::build(ctx);
+        Self {
+            phantom: PhantomData,
+            class: Fixed::new(Self::class(Self::build(ctx)).build()),
+            func: Box::new(move |attr, data| (func.func_map)(attr, data)),
+        }
+    }
+
+    fn class(ctx: Attr2Functor<Self::Output>) -> AttrClassBuilder {
+        F::class(ctx)
+    }
+
+    fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output> {
+        F::build(ctx)
+    }
 }
 
 pub struct Enum2Field<F, E> {
