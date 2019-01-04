@@ -19,6 +19,57 @@ use std::{
     slice,
 };
 
+#[derive(Debug, Clone)]
+pub struct Attr2Context<T> {
+    pub id: String,
+    pub path: String,
+    pub typ: String,
+    pub name: &'static str,
+    pub description: &'static str,
+    pub little_endian: bool,
+    pub bit_size: Option<usize>,
+    pub bit_offset: usize,
+    pub aliases: Vec<String>,
+    pub func_map: fn(T) -> T,
+    pub func_cond: fn(T) -> bool,
+}
+
+impl<T> Default for Attr2Context<T> {
+    fn default() -> Self {
+        Self {
+            id: Default::default(),
+            path: Default::default(),
+            typ: Default::default(),
+            name: Default::default(),
+            little_endian: Default::default(),
+            bit_size: Default::default(),
+            bit_offset: Default::default(),
+            description: Default::default(),
+            aliases: Default::default(),
+            func_map: |x| x,
+            func_cond: |_| true,
+        }
+    }
+}
+
+pub trait Attr2Field {
+    type Output;
+    fn build(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder;
+}
+
+impl Attr2Field for u8 {
+    type Output = Self;
+    fn build(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder {
+        let bit_size = ctx.bit_size.unwrap_or(mem::size_of::<Self>() * 8);
+        AttrClass::builder(&format!("{}.{}", ctx.path, ctx.id))
+            .aliases(ctx.aliases.clone())
+            .name(ctx.name)
+            .description(ctx.description)
+            .typ(&ctx.typ)
+            .bit_range(0, ctx.bit_offset..(ctx.bit_offset + bit_size))
+    }
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct AttrContext {
     pub path: String,
