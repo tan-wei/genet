@@ -23,6 +23,44 @@ use std::{
     slice,
 };
 
+pub enum Mode {
+    Reserved,
+    SymmetricActive,
+    SymmetricPassive,
+    Client,
+    Server,
+    Broadcast,
+    ControlMessage,
+    ReservedForPrivate,
+    Unknown,
+}
+
+impl Default for Mode {
+    fn default() -> Self {
+        Mode::Unknown
+    }
+}
+
+impl From<u8> for Mode {
+    fn from(data: u8) -> Self {
+        match data {
+            0 => Mode::Reserved,
+            1 => Mode::SymmetricActive,
+            2 => Mode::SymmetricPassive,
+            3 => Mode::Client,
+            4 => Mode::Server,
+            5 => Mode::Broadcast,
+            6 => Mode::ControlMessage,
+            7 => Mode::ReservedForPrivate,
+            _ => Self::default(),
+        }
+    }
+}
+
+pub fn aaaaa() {
+    let ctx = Enum2Field::<u8, Mode>::context();
+}
+
 #[derive(Debug, Clone)]
 pub struct Attr2Context<T> {
     pub id: String,
@@ -43,6 +81,23 @@ pub struct Attr2Functor<T> {
     func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<T> + Send + Sync>,
     func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync>,
     func_cond: Box<Fn(&Attr, &ByteSlice) -> bool + Send + Sync>,
+}
+
+impl<T> Into<AttrClassBuilder> for Attr2Functor<T> {
+    fn into(self) -> AttrClassBuilder {
+        AttrClass::builder(&format!("{}.{}", self.ctx.path, self.ctx.id))
+            .cast(Attr2Cast {
+                func: self.func_var,
+            })
+            .aliases(self.ctx.aliases.clone())
+            .name(self.ctx.name)
+            .description(self.ctx.description)
+            .typ(&self.ctx.typ)
+            .bit_range(
+                0,
+                self.ctx.bit_offset..(self.ctx.bit_offset + self.ctx.bit_size),
+            )
+    }
 }
 
 impl<T> Default for Attr2Context<T> {
@@ -76,11 +131,12 @@ impl Cast for Attr2Cast {
 pub trait Attr2Field {
     type Output: Into<Variant>;
     fn context() -> Attr2Context<Self::Output>;
-    fn new(ctx: Attr2Functor<Self::Output>) -> Self;
+    fn new(ctx: &Attr2Context<Self::Output>) -> Self;
+    fn class(ctx: Attr2Functor<Self::Output>) -> AttrClassBuilder;
     fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output>;
 }
 
-pub struct Node2Field<F: Attr2Field, C: Attr2Field<Output = F::Output>> {
+pub struct Node2Field<F: Attr2Field, C: Attr2Field> {
     phantom: PhantomData<C>,
     class: Fixed<AttrClass>,
     func: Box<Fn(&Attr, &ByteSlice) -> io::Result<F::Output> + Send + Sync>,
@@ -102,12 +158,17 @@ where
         F::context()
     }
 
-    fn new(ctx: Attr2Functor<Self::Output>) -> Self {
+    fn new(ctx: &Attr2Context<Self::Output>) -> Self {
+        let func = Self::build(ctx);
         Self {
             phantom: PhantomData,
-            class: Fixed::new(AttrClass::builder("").build()),
-            func: Box::new(move |attr, data| (ctx.func_map)(attr, data).map(|x| x.into())),
+            class: Fixed::new(Self::class(Self::build(ctx)).build()),
+            func: Box::new(move |attr, data| (func.func_map)(attr, data).map(|x| x.into())),
         }
+    }
+
+    fn class(ctx: Attr2Functor<Self::Output>) -> AttrClassBuilder {
+        F::class(ctx)
     }
 
     fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output> {
@@ -139,8 +200,12 @@ impl Attr2Field for u8 {
         }
     }
 
-    fn new(_ctx: Attr2Functor<Self::Output>) -> Self {
-        0
+    fn new(_ctx: &Attr2Context<Self::Output>) -> Self {
+        Default::default()
+    }
+
+    fn class(ctx: Attr2Functor<Self::Output>) -> AttrClassBuilder {
+        ctx.into()
     }
 
     fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output> {
@@ -178,17 +243,6 @@ impl Attr2Field for u8 {
             func_var,
             func_cond,
         }
-
-        /*
-        let bit_size = ctx.bit_size;
-        AttrClass::builder(&format!("{}.{}", ctx.path, ctx.id))
-            .cast(Attr2Cast{ func: map_var })
-            .aliases(ctx.aliases.clone())
-            .name(ctx.name)
-            .description(ctx.description)
-            .typ(&ctx.typ)
-            .bit_range(0, ctx.bit_offset..(ctx.bit_offset + bit_size))
-        */
     }
 }
 
