@@ -158,7 +158,7 @@ impl<F: Attr2Field, C: Attr2Field> Deref for Node2Field<F, C> {
     }
 }
 
-impl<F: Attr2Field, C: Attr2Field<Output = F::Output>> Attr2Field for Node2Field<F, C>
+impl<F: Attr2Field, C: Attr2Field> Attr2Field for Node2Field<F, C>
 where
     F::Output: 'static,
 {
@@ -171,14 +171,14 @@ where
     fn new(ctx: &Attr2Context<Self::Output>) -> Self {
         let func = Self::build(ctx);
         Self {
-            data: C::new(ctx),
+            data: C::new(&C::context()),
             class: Fixed::new(Self::class(ctx).build()),
             func: Box::new(move |attr, data| (func.func_map)(attr, data)),
         }
     }
 
     fn class(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder {
-        F::class(ctx).merge_children(C::class(ctx))
+        F::class(ctx).merge_children(C::class(&C::context()))
     }
 
     fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output> {
