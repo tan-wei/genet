@@ -170,15 +170,21 @@ where
 
     fn new(ctx: &Attr2Context<Self::Output>) -> Self {
         let func = Self::build(ctx);
+        let mut subctx = C::context();
+        subctx.path = format!("{}.{}", ctx.path, ctx.id);
+        subctx.bit_offset = ctx.bit_offset;
         Self {
-            data: C::new(&C::context()),
+            data: C::new(&subctx),
             class: Fixed::new(Self::class(ctx).build()),
             func: Box::new(move |attr, data| (func.func_map)(attr, data)),
         }
     }
 
     fn class(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder {
-        F::class(ctx).merge_children(C::class(&C::context()))
+        let mut subctx = C::context();
+        subctx.path = format!("{}.{}", ctx.path, ctx.id);
+        subctx.bit_offset = ctx.bit_offset;
+        F::class(ctx).merge_children(C::class(&subctx))
     }
 
     fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output> {
