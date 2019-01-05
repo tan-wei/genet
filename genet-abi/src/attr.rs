@@ -57,8 +57,18 @@ impl From<u8> for Mode {
     }
 }
 
+impl Enum2Type for Mode {
+    type Output = Self;
+
+    fn class<T: Into<Self::Output>>(ctx: Attr2Functor<T>) -> AttrClassBuilder {
+        let func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<Self> + Send + Sync> =
+            Box::new(move |attr, data| (ctx.func_map)(attr, data).map(|x| x.into()));
+        AttrClass::builder("aaaa")
+    }
+}
+
 pub fn aaaaa() {
-    let ctx = Enum2Field::<u8, u8>::context();
+    let ctx = Enum2Field::<u8, Mode>::context();
     let ctx = Node2Field::<u8, u8>::context();
 }
 
@@ -173,13 +183,18 @@ where
     }
 }
 
+pub trait Enum2Type {
+    type Output;
+    fn class<T: Into<Self::Output>>(ctx: Attr2Functor<T>) -> AttrClassBuilder;
+}
+
 pub struct Enum2Field<F, E> {
     phantom: PhantomData<F>,
     class: Fixed<AttrClass>,
     func: Box<Fn(&Attr, &ByteSlice) -> io::Result<E> + Send + Sync>,
 }
 
-impl<F: Attr2Field, E: Attr2Field<Output = F::Output>> Attr2Field for Enum2Field<F, E>
+impl<F: Attr2Field, E: Enum2Type<Output = E>> Attr2Field for Enum2Field<F, E>
 where
     F::Output: 'static + Into<E>,
 {
@@ -199,7 +214,7 @@ where
     }
 
     fn class(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder {
-        F::class(ctx).merge_children(E::class(ctx))
+        F::class(ctx).merge_children(E::class(F::build(ctx)))
     }
 
     fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output> {
