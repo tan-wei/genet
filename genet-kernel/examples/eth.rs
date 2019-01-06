@@ -4,6 +4,7 @@ use genet_sdk::{cast, decoder::*, prelude::*};
 /// Ethernet
 #[derive(Attr)]
 struct Eth {
+    #[genet(typ = "@eth:mac")]
     ex: Eth2,
     /*
     /// Source Hardware Address

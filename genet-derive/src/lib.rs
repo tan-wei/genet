@@ -56,7 +56,6 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
             AttrContext{
                 path: format!("{}{}", ctx.path, #id)
                     .trim_matches('.').into(),
-                typ: #typ.into(),
                 name: #name.into(),
                 description: #desc.into(),
                 ..Default::default()
@@ -71,68 +70,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
     let self_name = self_attrs.name;
     let self_desc = self_attrs.description;
 
-    let tokens = quote! {
-
-    impl<T: Into<genet_sdk::variant::Variant> + Into<#ident> + 'static + Clone> genet_sdk::attr::EnumField<T> for #ident {
-        fn class_enum<C: genet_sdk::cast::Typed<Output=T> + Clone>(
-            &self,
-            ctx: &genet_sdk::attr::AttrContext,
-            bit_size: usize,
-            cast: C
-        ) -> genet_sdk::attr::AttrClassBuilder {
-            use genet_sdk::attr::{AttrClass, AttrContext};
-
-            let bit_range = ctx.bit_offset..(ctx.bit_offset + bit_size);
-            let mut children = Vec::<Fixed<AttrClass>>::new();
-
-            #(
-                {
-                    use genet_sdk::variant::Variant;
-                    let mut subctx = #fields_ctx;
-                    subctx.bit_offset = ctx.bit_offset;
-                    let child = AttrClass::builder(subctx.path.clone())
-                        .cast(cast.clone().map(|x| {
-                            let x : #fields_ident = x.into();
-                            match x {
-                                #fields_ident2::#fields_variant => Variant::Bool(true),
-                                _ => Variant::Nil,
-                            }
-                        }))
-                        .typ(if subctx.typ.is_empty() {
-                            "@novalue".into()
-                        } else {
-                            subctx.typ.clone()
-                        })
-                        .bit_range(0, bit_range.clone())
-                        .name(subctx.name)
-                        .description(subctx.description);
-                    children.push(Fixed::new(child.build()));
-                }
-            )*
-
-            AttrClass::builder(ctx.path.clone())
-                .add_children(children)
-                .cast(cast)
-                .typ(if ctx.typ.is_empty() {
-                    "@enum".into()
-                } else {
-                    ctx.typ.clone()
-                })
-                .name(if ctx.name.is_empty() {
-                    #self_name
-                } else {
-                    ctx.name
-                })
-                .description(if ctx.description.is_empty() {
-                    #self_desc
-                } else {
-                    ctx.description
-                })
-                .bit_range(0, bit_range)
-        }
-    }
-
-    };
+    let tokens = quote! {};
     tokens.into()
 }
 
@@ -147,6 +85,11 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
         for field in &f.named {
             if let Some(ident) = &field.ident {
                 let meta = AttrMetadata::parse(&field.attrs);
+                let assign_typ = if let Some(typ) = meta.typ {
+                    quote! { subctx.typ = #typ.into() }
+                } else {
+                    quote! {}
+                };
                 let ty = &field.ty;
                 let idstr = normalize_ident(ident);
                 fields_bit_size.push(quote! {
@@ -160,6 +103,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     #ident: {
                         type Alias = #ty;
                         let mut subctx = #ty::context();
+                        #assign_typ;
                         subctx.id = #idstr.into();
                         subctx.path = format!("{}.{}", ctx.path, ctx.id);
                         subctx.bit_offset = bit_offset;
@@ -171,6 +115,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     {
                         type Alias = #ty;
                         let mut subctx = #ty::context();
+                        #assign_typ;
                         subctx.id = #idstr.into();
                         subctx.path = format!("{}.{}", ctx.path, ctx.id);
                         subctx.bit_offset = bit_offset;
