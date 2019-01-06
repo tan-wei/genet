@@ -225,7 +225,11 @@ where
     }
 
     fn class(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder {
-        F::class(ctx).merge_children(E::class::<Self, Self::Output>(ctx))
+        let mut subctx = F::context();
+        subctx.path = format!("{}.{}", ctx.path, ctx.id);
+        subctx.bit_offset = ctx.bit_offset;
+        subctx.bit_size = ctx.bit_size;
+        F::class(ctx).merge_children(E::class::<Self, Self::Output>(&subctx))
     }
 
     fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output> {

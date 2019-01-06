@@ -31,8 +31,26 @@ fn normalize_ident(ident: &Ident) -> String {
 
 fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
     let ident = &input.ident;
+
+    let mut fields_class = Vec::new();
     for v in &s.variants {
         let meta = AttrMetadata::parse(&v.attrs);
+        let id = normalize_ident(&v.ident);
+        let id = to_camel_case(&id);
+
+        let name = if let Some(name) = meta.name {
+            name.into()
+        } else {
+            to_title_case(&v.ident.to_string())
+        };
+
+        fields_class.push(quote! {
+            {
+                AttrClass::builder(format!("{}.{}", ctx.path, #id).trim_matches('.'))
+                    .bit_range(0, ctx.bit_offset..(ctx.bit_offset + ctx.bit_size))
+                    .name(#name)
+            }
+        });
     }
 
     let tokens = quote! {
@@ -48,7 +66,15 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
                 let func = T::build(ctx);
                 let func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<Self> + Send + Sync> =
                     Box::new(move |attr, data| (func.func_map)(attr, data).map(|x| x.into()));
-                AttrClass::builder("aaaa")
+
+                let mut children : Vec<genet_sdk::attr::AttrClassBuilder> = Vec::new();
+
+                #(
+                    children.push(#fields_class);
+                )*
+
+                AttrClass::builder("")
+                    .add_children(children.into_iter().map(|attr| Fixed::new(attr.build())).collect())
             }
         }
     };

@@ -100,14 +100,20 @@ impl AttrMetadata {
             }
         }
         let mut lines = docs.split('\n').map(|line| line.trim());
-        let name = lines.next();
-        let description = lines.fold(String::new(), |acc, x| acc + x + "\n");
+        let name = lines
+            .next()
+            .map(|line| line.trim().to_string())
+            .filter(|line| !line.is_empty());
+        let description = lines
+            .fold(String::new(), |acc, x| acc + x + "\n")
+            .trim()
+            .to_string();
 
         AttrMetadata {
             id: id.trim().into(),
             typ,
-            name: name.map(|s| s.to_string()),
-            description: description.trim().into(),
+            name,
+            description,
             aliases,
             bit_size,
             skip,
