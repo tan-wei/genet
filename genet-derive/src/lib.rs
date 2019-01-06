@@ -30,47 +30,28 @@ fn normalize_ident(ident: &Ident) -> String {
 }
 
 fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
-    let mut fields_ctx = Vec::new();
-    let mut fields_variant = Vec::new();
-    let mut fields_ident = Vec::new();
-
     let ident = &input.ident;
     for v in &s.variants {
         let meta = AttrMetadata::parse(&v.attrs);
-        let id = if meta.id.is_empty() {
-            normalize_ident(&v.ident)
-        } else {
-            meta.id
-        };
-        let id = format!(".{}", to_camel_case(&id));
-
-        let typ = meta.typ;
-        let name = if meta.name.is_empty() {
-            to_title_case(&id)
-        } else {
-            meta.name
-        };
-        let desc = meta.description;
-
-        fields_ctx.push(quote! {
-            AttrContext{
-                path: format!("{}{}", ctx.path, #id)
-                    .trim_matches('.').into(),
-                name: #name.into(),
-                description: #desc.into(),
-                ..Default::default()
-            }
-        });
-        fields_variant.push(v.ident.clone());
-        fields_ident.push(ident.clone());
     }
 
-    let fields_ident2 = fields_ident.clone();
-    let self_attrs = AttrMetadata::parse(&input.attrs);
-    let self_name = self_attrs.name;
-    let self_desc = self_attrs.description;
+    let tokens = quote! {
+        impl genet_sdk::attr::Enum2Type for #ident {
+            type Output = Self;
 
-    let tokens = quote! {};
+            fn class<T: genet_abi::attr::Attr2Field<Output = E>, E: Into<genet_sdk::variant::Variant> + Into<Self::Output>>(
+                ctx: &genet_abi::attr::Attr2Context<E>,
+            ) -> genet_sdk::attr::AttrClassBuilder {
+                use std::io;
+                use genet_sdk::attr::{AttrClass, Attr2Field};
+
+                let func = T::build(ctx);
+                let func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<Self> + Send + Sync> =
+                    Box::new(move |attr, data| (func.func_map)(attr, data).map(|x| x.into()));
+                AttrClass::builder("aaaa")
+            }
+        }
+    };
     tokens.into()
 }
 
@@ -90,21 +71,27 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 } else {
                     quote! {}
                 };
+                let name = if let Some(name) = meta.name {
+                    name.into()
+                } else {
+                    to_title_case(&ident.to_string())
+                };
                 let ty = &field.ty;
                 let idstr = normalize_ident(ident);
                 fields_bit_size.push(quote! {
                     {
                         type Alias = #ty;
-                        let ctx = #ty::context();
+                        let ctx = Alias::context();
                         bit_size += ctx.bit_size;
                     }
                 });
                 fields_new.push(quote! {
                     #ident: {
                         type Alias = #ty;
-                        let mut subctx = #ty::context();
+                        let mut subctx = Alias::context();
                         #assign_typ;
                         subctx.id = #idstr.into();
+                        subctx.name = #name;
                         subctx.path = format!("{}.{}", ctx.path, ctx.id);
                         subctx.bit_offset = bit_offset;
                         bit_offset += subctx.bit_size;
@@ -114,9 +101,10 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 fields_class.push(quote! {
                     {
                         type Alias = #ty;
-                        let mut subctx = #ty::context();
+                        let mut subctx = Alias::context();
                         #assign_typ;
                         subctx.id = #idstr.into();
+                        subctx.name = #name;
                         subctx.path = format!("{}.{}", ctx.path, ctx.id);
                         subctx.bit_offset = bit_offset;
                         bit_offset += subctx.bit_size;

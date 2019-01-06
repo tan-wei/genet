@@ -91,10 +91,10 @@ pub struct Attr2Context<T> {
 }
 
 pub struct Attr2Functor<T> {
-    ctx: Attr2Context<T>,
-    func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<T> + Send + Sync>,
-    func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync>,
-    func_cond: Box<Fn(&Attr, &ByteSlice) -> bool + Send + Sync>,
+    pub ctx: Attr2Context<T>,
+    pub func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<T> + Send + Sync>,
+    pub func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync>,
+    pub func_cond: Box<Fn(&Attr, &ByteSlice) -> bool + Send + Sync>,
 }
 
 impl<T> Into<AttrClassBuilder> for Attr2Functor<T> {
@@ -289,6 +289,62 @@ impl Attr2Field for u8 {
                 data.try_get(attr.range())
                     .ok()
                     .and_then(|data| Cursor::new(data).read_u8().ok())
+                    .map(mctx.func_map)
+                    .map(mctx.func_cond)
+                    .is_some()
+            });
+
+        Attr2Functor {
+            ctx: ctx.clone(),
+            func_map,
+            func_var,
+            func_cond,
+        }
+    }
+}
+
+impl Attr2Field for u16 {
+    type Output = Self;
+
+    fn context() -> Attr2Context<Self::Output> {
+        Attr2Context {
+            bit_size: mem::size_of::<Self>(),
+            ..Default::default()
+        }
+    }
+
+    fn new(_ctx: &Attr2Context<Self::Output>) -> Self {
+        Default::default()
+    }
+
+    fn class(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder {
+        Self::build(ctx).into()
+    }
+
+    fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output> {
+        let mctx = ctx.clone();
+        let func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<Self::Output> + Send + Sync> =
+            Box::new(move |attr, data| {
+                Cursor::new(data.try_get(attr.range())?)
+                    .read_u16::<BigEndian>()
+                    .map(mctx.func_map)
+            });
+
+        let mctx = ctx.clone();
+        let func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> =
+            Box::new(move |attr, data| {
+                Cursor::new(data.try_get(attr.range())?)
+                    .read_u16::<BigEndian>()
+                    .map(mctx.func_map)
+                    .map(|x| x.into())
+            });
+
+        let mctx = ctx.clone();
+        let func_cond: Box<Fn(&Attr, &ByteSlice) -> bool + Send + Sync> =
+            Box::new(move |attr, data| {
+                data.try_get(attr.range())
+                    .ok()
+                    .and_then(|data| Cursor::new(data).read_u16::<BigEndian>().ok())
                     .map(mctx.func_map)
                     .map(mctx.func_cond)
                     .is_some()

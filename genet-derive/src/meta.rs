@@ -9,7 +9,7 @@ pub enum AttrMapExpr {
 pub struct AttrMetadata {
     pub id: String,
     pub typ: Option<String>,
-    pub name: String,
+    pub name: Option<String>,
     pub description: String,
     pub aliases: Vec<String>,
     pub bit_size: Option<usize>,
@@ -100,13 +100,13 @@ impl AttrMetadata {
             }
         }
         let mut lines = docs.split('\n').map(|line| line.trim());
-        let name = lines.next().unwrap_or("");
+        let name = lines.next();
         let description = lines.fold(String::new(), |acc, x| acc + x + "\n");
 
         AttrMetadata {
             id: id.trim().into(),
             typ,
-            name: name.into(),
+            name: name.map(|s| s.to_string()),
             description: description.trim().into(),
             aliases,
             bit_size,
