@@ -4,6 +4,8 @@ use genet_sdk::{cast, decoder::*, prelude::*};
 /// Ethernet
 #[derive(Attr, Default)]
 struct Eth {
+    ex: u8,
+    /*
     /// Source Hardware Address
     #[genet(alias = "_.src", typ = "@eth:mac", byte_size = 6)]
     src: cast::ByteSlice,
@@ -17,6 +19,7 @@ struct Eth {
 
     #[genet(cond = "x > 1500", typ = "@enum", align_before)]
     r#type: EnumNode<cast::UInt16BE, EthTypeEnum>,
+    */
 }
 
 #[derive(Attr)]
@@ -71,7 +74,7 @@ struct EthDecoder {}
 impl Decoder for EthDecoder {
     fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
         Box::new(EthWorker {
-            layer: LayerType::new("eth", Eth::default()),
+            layer: LayerType::new("eth"),
         })
     }
 

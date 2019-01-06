@@ -1,5 +1,5 @@
 use crate::{
-    attr::{Attr, AttrClass, AttrContext, AttrField, SizedField},
+    attr::{Attr, Attr2Field, AttrClass, AttrContext, AttrField, SizedField},
     fixed::{Fixed, MutFixed},
     slice::ByteSlice,
     token::Token,
@@ -281,14 +281,12 @@ impl<T> AsRef<Fixed<LayerClass>> for LayerType<T> {
     }
 }
 
-impl<I: Into<Variant>, T: AttrField<I = I> + SizedField> LayerType<T> {
-    pub fn new<D: Into<Token>>(id: D, field: T) -> Self {
-        let ctx = AttrContext {
-            path: id.into().to_string(),
-            typ: "@layer".into(),
-            ..Default::default()
-        };
-        let class = field.class(&ctx, field.bit_size(), None).build();
+impl<T: Attr2Field> LayerType<T> {
+    pub fn new<D: Into<Token>>(id: D) -> Self {
+        let mut ctx = T::context();
+        ctx.path = id.into().to_string();
+        ctx.typ = "@layer".into();
+        let class = T::class(&ctx).build();
         let layer = Fixed::new(LayerClass {
             get_id: abi_id,
             data: abi_data,
@@ -299,6 +297,7 @@ impl<I: Into<Variant>, T: AttrField<I = I> + SizedField> LayerType<T> {
             payload: abi_payload,
             header: Fixed::new(class),
         });
+        let field = T::new(&ctx);
         Self { field, layer }
     }
 }

@@ -303,6 +303,56 @@ impl Attr2Field for u8 {
     }
 }
 
+impl Attr2Field for ByteSlice {
+    type Output = Self;
+
+    fn context() -> Attr2Context<Self::Output> {
+        Attr2Context {
+            bit_size: 8,
+            ..Default::default()
+        }
+    }
+
+    fn new(_ctx: &Attr2Context<Self::Output>) -> Self {
+        Default::default()
+    }
+
+    fn class(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder {
+        Self::build(ctx).into()
+    }
+
+    fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output> {
+        let mctx = ctx.clone();
+        let func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<Self::Output> + Send + Sync> =
+            Box::new(move |attr, data| data.try_get(attr.range()).map(mctx.func_map));
+
+        let mctx = ctx.clone();
+        let func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> =
+            Box::new(move |attr, data| {
+                data.try_get(attr.range())
+                    .map(mctx.func_map)
+                    .map(|x| x.into())
+            });
+
+        let mctx = ctx.clone();
+        let func_cond: Box<Fn(&Attr, &ByteSlice) -> bool + Send + Sync> =
+            Box::new(move |attr, data| {
+                data.try_get(attr.range())
+                    .ok()
+                    .map(mctx.func_map)
+                    .map(mctx.func_cond)
+                    .is_some()
+            });
+
+        Attr2Functor {
+            ctx: ctx.clone(),
+            func_map,
+            func_var,
+            func_cond,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct AttrContext {
     pub path: String,
