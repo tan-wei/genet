@@ -139,13 +139,38 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
 fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let ident = &input.ident;
 
+    let mut fields_bit_size = Vec::new();
+
+    if let Fields::Named(f) = &s.fields {
+        for field in &f.named {
+            if let Some(ident) = &field.ident {
+                let meta = AttrMetadata::parse(&field.attrs);
+                let ty = &field.ty;
+                fields_bit_size.push(quote! {
+                    {
+                        type Alias = #ty;
+                        let ctx = #ty::context();
+                        bit_size += ctx.bit_size;
+                    }
+                })
+            }
+        }
+    }
+
     let tokens = quote! {
 
         impl genet_sdk::attr::Attr2Field for #ident {
             type Output = genet_sdk::slice::ByteSlice;
 
             fn context() -> genet_sdk::attr::Attr2Context<Self::Output> {
+                let mut bit_size = 0;
+
+                #(
+                    #fields_bit_size
+                )*
+
                 genet_sdk::attr::Attr2Context {
+                    bit_size,
                     ..Default::default()
                 }
             }
@@ -155,7 +180,12 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
             }
 
             fn class(ctx: &genet_sdk::attr::Attr2Context<Self::Output>) -> genet_sdk::attr::AttrClassBuilder {
-                genet_sdk::attr::AttrClass::builder("")
+                genet_sdk::attr::AttrClass::builder(format!("{}.{}", ctx.path, ctx.id).trim_matches('.'))
+                    .bit_range(0, ctx.bit_offset..(ctx.bit_offset + ctx.bit_size))
+                    .aliases(ctx.aliases.clone())
+                    .name(ctx.name)
+                    .description(ctx.description)
+                    .typ(&ctx.typ)
             }
 
             fn build(ctx: &genet_sdk::attr::Attr2Context<Self::Output>) -> genet_sdk::attr::Attr2Functor<Self::Output> {

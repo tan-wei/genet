@@ -284,7 +284,7 @@ impl<T> AsRef<Fixed<LayerClass>> for LayerType<T> {
 impl<T: Attr2Field> LayerType<T> {
     pub fn new<D: Into<Token>>(id: D) -> Self {
         let mut ctx = T::context();
-        ctx.path = id.into().to_string();
+        ctx.id = id.into().to_string();
         ctx.typ = "@layer".into();
         let class = T::class(&ctx).build();
         let layer = Fixed::new(LayerClass {
