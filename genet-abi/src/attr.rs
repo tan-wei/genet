@@ -99,7 +99,7 @@ pub struct Attr2Functor<T> {
 
 impl<T> Into<AttrClassBuilder> for Attr2Functor<T> {
     fn into(self) -> AttrClassBuilder {
-        AttrClass::builder(&format!("{}.{}", self.ctx.path, self.ctx.id))
+        AttrClass::builder(format!("{}.{}", self.ctx.path, self.ctx.id).trim_matches('.'))
             .cast(self.func_var)
             .aliases(self.ctx.aliases.clone())
             .name(self.ctx.name)

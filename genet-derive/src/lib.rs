@@ -140,19 +140,44 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let ident = &input.ident;
 
     let mut fields_bit_size = Vec::new();
+    let mut fields_new = Vec::new();
+    let mut fields_class = Vec::new();
 
     if let Fields::Named(f) = &s.fields {
         for field in &f.named {
             if let Some(ident) = &field.ident {
                 let meta = AttrMetadata::parse(&field.attrs);
                 let ty = &field.ty;
+                let idstr = normalize_ident(ident);
                 fields_bit_size.push(quote! {
                     {
                         type Alias = #ty;
                         let ctx = #ty::context();
                         bit_size += ctx.bit_size;
                     }
-                })
+                });
+                fields_new.push(quote! {
+                    #ident: {
+                        type Alias = #ty;
+                        let mut subctx = #ty::context();
+                        subctx.id = #idstr.into();
+                        subctx.path = format!("{}.{}", ctx.path, ctx.id);
+                        subctx.bit_offset = bit_offset;
+                        bit_offset += subctx.bit_size;
+                        Alias::new(&subctx)
+                    },
+                });
+                fields_class.push(quote! {
+                    {
+                        type Alias = #ty;
+                        let mut subctx = #ty::context();
+                        subctx.id = #idstr.into();
+                        subctx.path = format!("{}.{}", ctx.path, ctx.id);
+                        subctx.bit_offset = bit_offset;
+                        bit_offset += subctx.bit_size;
+                        Alias::class(&subctx)
+                    }
+                });
             }
         }
     }
@@ -175,12 +200,24 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 }
             }
 
-            fn new(_ctx: &genet_sdk::attr::Attr2Context<Self::Output>) -> Self {
-                Self::default()
+            fn new(ctx: &genet_sdk::attr::Attr2Context<Self::Output>) -> Self {
+                let mut bit_offset = ctx.bit_offset;
+                Self {
+                    #(
+                        #fields_new
+                    )*
+                }
             }
 
             fn class(ctx: &genet_sdk::attr::Attr2Context<Self::Output>) -> genet_sdk::attr::AttrClassBuilder {
+                let mut bit_offset = ctx.bit_offset;
+                let mut children : Vec<genet_sdk::attr::AttrClassBuilder> = Vec::new();
+                #(
+                    children.push(#fields_class);
+                )*
+
                 genet_sdk::attr::AttrClass::builder(format!("{}.{}", ctx.path, ctx.id).trim_matches('.'))
+                    .add_children(children.into_iter().map(|attr| Fixed::new(attr.build())).collect())
                     .bit_range(0, ctx.bit_offset..(ctx.bit_offset + ctx.bit_size))
                     .aliases(ctx.aliases.clone())
                     .name(ctx.name)

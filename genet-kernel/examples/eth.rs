@@ -2,9 +2,9 @@ use genet_derive::Attr;
 use genet_sdk::{cast, decoder::*, prelude::*};
 
 /// Ethernet
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Eth {
-    ex: u8,
+    ex: Eth2,
     /*
     /// Source Hardware Address
     #[genet(alias = "_.src", typ = "@eth:mac", byte_size = 6)]
@@ -20,6 +20,12 @@ struct Eth {
     #[genet(cond = "x > 1500", typ = "@enum", align_before)]
     r#type: EnumNode<cast::UInt16BE, EthTypeEnum>,
     */
+}
+
+#[derive(Attr)]
+struct Eth2 {
+    ex2: u8,
+    ex3: u8,
 }
 
 #[derive(Attr)]
