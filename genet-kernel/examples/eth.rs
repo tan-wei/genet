@@ -5,7 +5,8 @@ use genet_sdk::{cast, decoder::*, prelude::*};
 #[derive(Attr)]
 struct Eth {
     /// Source Hardware Address
-    #[genet(typ = "@eth:mac")]
+    /// Destination Hardware Address
+    #[genet(typ = "@eth:mac", alias = "_.dst")]
     ex: Eth2,
 
     ttt: Enum2Field<u16, EthTypeEnum>,

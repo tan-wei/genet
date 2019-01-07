@@ -35,20 +35,37 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
     let mut fields_class = Vec::new();
     for v in &s.variants {
         let meta = AttrMetadata::parse(&v.attrs);
-        let id = normalize_ident(&v.ident);
-        let id = to_camel_case(&id);
+        let id = if let Some(id) = meta.id {
+            id
+        } else {
+            to_camel_case(&normalize_ident(&v.ident))
+        };
 
         let name = if let Some(name) = meta.name {
             name.into()
         } else {
             to_title_case(&v.ident.to_string())
         };
+        let description = meta.description.unwrap_or_else(|| String::new());
+
+        let aliases = meta
+            .aliases
+            .iter()
+            .fold(String::new(), |acc, x| acc + x + " ")
+            .trim()
+            .to_string();
 
         fields_class.push(quote! {
             {
                 AttrClass::builder(format!("{}.{}", ctx.path, #id).trim_matches('.'))
                     .bit_range(0, ctx.bit_offset..(ctx.bit_offset + ctx.bit_size))
+                    .aliases(#aliases
+                            .split(' ')
+                            .filter(|s| !s.is_empty())
+                            .map(|s| s.to_string())
+                            .collect())
                     .name(#name)
+                    .description(#description)
             }
         });
     }
@@ -102,8 +119,13 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 } else {
                     to_title_case(&ident.to_string())
                 };
+                let description = meta.description.unwrap_or_else(|| String::new());
                 let ty = &field.ty;
-                let idstr = normalize_ident(ident);
+                let id = if let Some(id) = meta.id {
+                    id
+                } else {
+                    to_camel_case(&normalize_ident(ident))
+                };
                 fields_bit_size.push(quote! {
                     {
                         type Alias = #ty;
@@ -111,13 +133,22 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         bit_size += ctx.bit_size;
                     }
                 });
+
+                let aliases = meta
+                    .aliases
+                    .iter()
+                    .fold(String::new(), |acc, x| acc + x + " ")
+                    .trim()
+                    .to_string();
+
                 fields_new.push(quote! {
                     #ident: {
                         type Alias = #ty;
                         let mut subctx = Alias::context();
                         #assign_typ;
-                        subctx.id = #idstr.into();
+                        subctx.id = #id.into();
                         subctx.name = #name;
+                        subctx.description = #description;
                         subctx.path = format!("{}.{}", ctx.path, ctx.id);
                         subctx.bit_offset = bit_offset;
                         bit_offset += subctx.bit_size;
@@ -129,10 +160,16 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         type Alias = #ty;
                         let mut subctx = Alias::context();
                         #assign_typ;
-                        subctx.id = #idstr.into();
+                        subctx.id = #id.into();
                         subctx.name = #name;
+                        subctx.description = #description;
                         subctx.path = format!("{}.{}", ctx.path, ctx.id);
                         subctx.bit_offset = bit_offset;
+                        subctx.aliases = #aliases
+                            .split(' ')
+                            .filter(|s| !s.is_empty())
+                            .map(|s| s.to_string())
+                            .collect();
                         bit_offset += subctx.bit_size;
                         Alias::class(&subctx)
                     }
