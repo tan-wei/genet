@@ -9,6 +9,7 @@ struct Eth {
     #[genet(typ = "@eth:mac", alias = "_.dst")]
     ex: Eth2,
 
+    #[genet(typ = "@eth:mac", alias = "_.dst", map = "x >> 5")]
     ttt: Enum2Field<u16, EthTypeEnum>,
     /*
     /// Source Hardware Address

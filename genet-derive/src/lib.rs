@@ -134,6 +134,14 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     }
                 });
 
+                let filter = match meta.map {
+                    AttrMapExpr::Map(s) => {
+                        let expr = syn::parse_str::<Expr>(&s).unwrap();
+                        quote! { subctx.func_map = |x| { #expr }; }
+                    }
+                    _ => quote! {},
+                };
+
                 let aliases = meta
                     .aliases
                     .iter()
@@ -146,6 +154,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         type Alias = #ty;
                         let mut subctx = Alias::context();
                         #assign_typ;
+                        #filter;
                         subctx.id = #id.into();
                         subctx.name = #name;
                         subctx.description = #description;
@@ -160,6 +169,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         type Alias = #ty;
                         let mut subctx = Alias::context();
                         #assign_typ;
+                        #filter;
                         subctx.id = #id.into();
                         subctx.name = #name;
                         subctx.description = #description;

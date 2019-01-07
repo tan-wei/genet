@@ -229,6 +229,8 @@ where
         subctx.path = format!("{}.{}", ctx.path, ctx.id);
         subctx.bit_offset = ctx.bit_offset;
         subctx.bit_size = ctx.bit_size;
+        subctx.func_map = ctx.func_map;
+        subctx.func_cond = ctx.func_cond;
         F::class(ctx).merge_children(E::class::<Self, Self::Output>(&subctx))
     }
 
