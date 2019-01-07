@@ -23,58 +23,6 @@ use std::{
     slice,
 };
 
-pub enum Mode {
-    Reserved,
-    SymmetricActive,
-    SymmetricPassive,
-    Client,
-    Server,
-    Broadcast,
-    ControlMessage,
-    ReservedForPrivate,
-    Unknown,
-}
-
-impl Default for Mode {
-    fn default() -> Self {
-        Mode::Unknown
-    }
-}
-
-impl From<u8> for Mode {
-    fn from(data: u8) -> Self {
-        match data {
-            0 => Mode::Reserved,
-            1 => Mode::SymmetricActive,
-            2 => Mode::SymmetricPassive,
-            3 => Mode::Client,
-            4 => Mode::Server,
-            5 => Mode::Broadcast,
-            6 => Mode::ControlMessage,
-            7 => Mode::ReservedForPrivate,
-            _ => Self::default(),
-        }
-    }
-}
-
-impl Enum2Type for Mode {
-    type Output = Self;
-
-    fn class<T: Attr2Field<Output = E>, E: Into<Variant> + Into<Self::Output>>(
-        ctx: &Attr2Context<E>,
-    ) -> AttrClassBuilder {
-        let func = T::build(ctx);
-        let func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<Self> + Send + Sync> =
-            Box::new(move |attr, data| (func.func_map)(attr, data).map(|x| x.into()));
-        AttrClass::builder("aaaa")
-    }
-}
-
-pub fn aaaaa() {
-    let ctx = Enum2Field::<u8, Mode>::context();
-    let ctx = Node2Field::<u8, u8>::context();
-}
-
 #[derive(Debug, Clone)]
 pub struct Attr2Context<T> {
     pub id: String,
@@ -328,19 +276,24 @@ impl Attr2Field for u16 {
     }
 
     fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output> {
+        let parse: fn(&ByteSlice, Range<usize>) -> io::Result<u16> = if ctx.little_endian {
+            |data: &ByteSlice, range: Range<usize>| -> io::Result<u16> {
+                Cursor::new(data.try_get(range)?).read_u16::<LittleEndian>()
+            }
+        } else {
+            |data: &ByteSlice, range: Range<usize>| -> io::Result<u16> {
+                Cursor::new(data.try_get(range)?).read_u16::<BigEndian>()
+            }
+        };
+
         let mctx = ctx.clone();
         let func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<Self::Output> + Send + Sync> =
-            Box::new(move |attr, data| {
-                Cursor::new(data.try_get(attr.range())?)
-                    .read_u16::<BigEndian>()
-                    .map(mctx.func_map)
-            });
+            Box::new(move |attr, data| parse(data, attr.range()).map(mctx.func_map));
 
         let mctx = ctx.clone();
         let func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> =
             Box::new(move |attr, data| {
-                Cursor::new(data.try_get(attr.range())?)
-                    .read_u16::<BigEndian>()
+                parse(data, attr.range())
                     .map(mctx.func_map)
                     .map(|x| x.into())
             });
@@ -348,9 +301,8 @@ impl Attr2Field for u16 {
         let mctx = ctx.clone();
         let func_cond: Box<Fn(&Attr, &ByteSlice) -> bool + Send + Sync> =
             Box::new(move |attr, data| {
-                data.try_get(attr.range())
+                parse(data, attr.range())
                     .ok()
-                    .and_then(|data| Cursor::new(data).read_u16::<BigEndian>().ok())
                     .map(mctx.func_map)
                     .map(mctx.func_cond)
                     .is_some()

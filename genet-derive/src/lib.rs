@@ -114,6 +114,11 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 } else {
                     quote! {}
                 };
+                let assign_bit_size = if let Some(bit_size) = meta.bit_size {
+                    quote! { subctx.bit_size = #bit_size }
+                } else {
+                    quote! {}
+                };
                 let name = if let Some(name) = meta.name {
                     name.into()
                 } else {
@@ -126,13 +131,17 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 } else {
                     to_camel_case(&normalize_ident(ident))
                 };
-                fields_bit_size.push(quote! {
-                    {
-                        type Alias = #ty;
-                        let ctx = Alias::context();
-                        bit_size += ctx.bit_size;
-                    }
-                });
+                if !meta.detach {
+                    // TODO: align_before
+                    fields_bit_size.push(quote! {
+                        {
+                            type Alias = #ty;
+                            let mut subctx = Alias::context();
+                            #assign_bit_size;
+                            bit_size += subctx.bit_size;
+                        }
+                    });
+                }
 
                 let filter = match meta.map {
                     AttrMapExpr::Map(s) => {
@@ -149,41 +158,40 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     .trim()
                     .to_string();
 
+                let field = quote! {
+                    type Alias = #ty;
+                    let mut subctx = Alias::context();
+                    #assign_typ;
+                    #assign_bit_size;
+                    #filter;
+                    subctx.id = #id.into();
+                    subctx.name = #name;
+                    subctx.description = #description;
+                    subctx.path = format!("{}.{}", ctx.path, ctx.id);
+                    subctx.bit_offset = bit_offset;
+                    subctx.aliases = #aliases
+                        .split(' ')
+                        .filter(|s| !s.is_empty())
+                        .map(|s| s.to_string())
+                        .collect();
+                    bit_offset += subctx.bit_size;
+                };
+
                 fields_new.push(quote! {
                     #ident: {
-                        type Alias = #ty;
-                        let mut subctx = Alias::context();
-                        #assign_typ;
-                        #filter;
-                        subctx.id = #id.into();
-                        subctx.name = #name;
-                        subctx.description = #description;
-                        subctx.path = format!("{}.{}", ctx.path, ctx.id);
-                        subctx.bit_offset = bit_offset;
-                        bit_offset += subctx.bit_size;
+                        #field
                         Alias::new(&subctx)
                     },
                 });
-                fields_class.push(quote! {
-                    {
-                        type Alias = #ty;
-                        let mut subctx = Alias::context();
-                        #assign_typ;
-                        #filter;
-                        subctx.id = #id.into();
-                        subctx.name = #name;
-                        subctx.description = #description;
-                        subctx.path = format!("{}.{}", ctx.path, ctx.id);
-                        subctx.bit_offset = bit_offset;
-                        subctx.aliases = #aliases
-                            .split(' ')
-                            .filter(|s| !s.is_empty())
-                            .map(|s| s.to_string())
-                            .collect();
-                        bit_offset += subctx.bit_size;
-                        Alias::class(&subctx)
-                    }
-                });
+
+                if !meta.skip && !meta.detach {
+                    fields_class.push(quote! {
+                        {
+                            #field
+                            Alias::class(&subctx)
+                        }
+                    });
+                }
             }
         }
     }

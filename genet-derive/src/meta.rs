@@ -13,6 +13,7 @@ pub struct AttrMetadata {
     pub description: Option<String>,
     pub aliases: Vec<String>,
     pub bit_size: Option<usize>,
+    pub little_endian: bool,
     pub align_before: bool,
     pub map: AttrMapExpr,
     pub skip: bool,
@@ -28,6 +29,7 @@ impl AttrMetadata {
         let mut bit_size = None;
         let mut skip = false;
         let mut detach = false;
+        let mut little_endian = false;
         let mut align_before = false;
         let mut map = AttrMapExpr::None;
         for attr in attrs {
@@ -54,6 +56,10 @@ impl AttrMetadata {
                                     detach = true;
                                 } else if name == "align_before" {
                                     align_before = true;
+                                } else if name == "little_endian" {
+                                    little_endian = true;
+                                } else if name == "big_endian" {
+                                    little_endian = false;
                                 } else if let Meta::NameValue(MetaNameValue {
                                     lit: Lit::Str(lit_str),
                                     ..
@@ -123,6 +129,7 @@ impl AttrMetadata {
             bit_size,
             skip,
             detach,
+            little_endian,
             align_before,
             map,
         }

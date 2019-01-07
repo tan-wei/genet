@@ -6,10 +6,10 @@ use genet_sdk::{cast, decoder::*, prelude::*};
 struct Eth {
     /// Source Hardware Address
     /// Destination Hardware Address
-    #[genet(typ = "@eth:mac", alias = "_.dst")]
+    #[genet(typ = "@eth:mac", alias = "_.dst", big_endian)]
     ex: Eth2,
 
-    #[genet(typ = "@eth:mac", alias = "_.dst", map = "x >> 5")]
+    #[genet(typ = "@eth:mac", alias = "_.dst", map = "x >> 5", little_endian)]
     ttt: Enum2Field<u16, EthTypeEnum>,
     /*
     /// Source Hardware Address
