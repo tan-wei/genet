@@ -7,10 +7,10 @@ pub enum AttrMapExpr {
 }
 
 pub struct AttrMetadata {
-    pub id: String,
+    pub id: Option<String>,
     pub typ: Option<String>,
     pub name: Option<String>,
-    pub description: String,
+    pub description: Option<String>,
     pub aliases: Vec<String>,
     pub bit_size: Option<usize>,
     pub align_before: bool,
@@ -21,7 +21,7 @@ pub struct AttrMetadata {
 
 impl AttrMetadata {
     pub fn parse(attrs: &[Attribute]) -> AttrMetadata {
-        let mut id = String::new();
+        let mut id = None;
         let mut typ = None;
         let mut aliases = Vec::new();
         let mut docs = String::new();
@@ -61,7 +61,7 @@ impl AttrMetadata {
                                 {
                                     match name.as_str() {
                                         "id" => {
-                                            id = lit_str.value().to_string();
+                                            id = Some(lit_str.value().trim().into());
                                         }
                                         "typ" => {
                                             typ = Some(lit_str.value().trim().into());
@@ -108,9 +108,14 @@ impl AttrMetadata {
             .fold(String::new(), |acc, x| acc + x + "\n")
             .trim()
             .to_string();
+        let description = if description.is_empty() {
+            None
+        } else {
+            Some(description)
+        };
 
         AttrMetadata {
-            id: id.trim().into(),
+            id,
             typ,
             name,
             description,
