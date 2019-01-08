@@ -7,7 +7,7 @@ struct Eth {
     /// Source Hardware Address
     /// Destination Hardware Address
     #[genet(typ = "@eth:mac", alias = "_.dst", big_endian)]
-    ex: Eth2,
+    ex: Node2Field<u8, Eth2>,
 
     #[genet(typ = "@eth:mac", alias = "_.dst", map = "x >> 5", little_endian)]
     ttt: Enum2Field<u16, EthTypeEnum>,
@@ -31,7 +31,7 @@ struct Eth {
 #[derive(Attr)]
 struct Eth2 {
     ex2: u8,
-    ex3: u8,
+    ex3: u16,
 }
 
 #[derive(Attr)]

@@ -5,6 +5,7 @@ extern crate proc_macro;
 use inflector::cases::camelcase::to_camel_case;
 use proc_macro::TokenStream;
 use quote::quote;
+use std::collections::VecDeque;
 use syn::{parse_macro_input, Data, DataEnum, DataStruct, DeriveInput, Expr, Fields, Ident};
 
 mod meta;
@@ -104,6 +105,21 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let mut fields_bit_size = Vec::new();
     let mut fields_new = Vec::new();
     let mut fields_class = Vec::new();
+    let mut fields_align = VecDeque::new();
+
+    if let Fields::Named(f) = &s.fields {
+        for field in &f.named {
+            if let Some(_) = &field.ident {
+                let meta = AttrMetadata::parse(&field.attrs);
+                fields_align.push_back(meta.align_before);
+            }
+        }
+    }
+
+    if !fields_align.is_empty() {
+        fields_align.pop_front();
+        fields_align.push_back(false);
+    }
 
     if let Fields::Named(f) = &s.fields {
         for field in &f.named {
@@ -131,8 +147,10 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 } else {
                     to_camel_case(&normalize_ident(ident))
                 };
-                if !meta.detach {
-                    // TODO: align_before
+
+                let align_before = fields_align.pop_front() == Some(true);
+
+                if !meta.detach && !align_before {
                     fields_bit_size.push(quote! {
                         {
                             type Alias = #ty;
@@ -158,6 +176,12 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     .trim()
                     .to_string();
 
+                let assign_bit_offset = if align_before {
+                    quote! {}
+                } else {
+                    quote! { bit_offset += subctx.bit_size }
+                };
+
                 let field = quote! {
                     type Alias = #ty;
                     let mut subctx = Alias::context();
@@ -174,7 +198,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         .filter(|s| !s.is_empty())
                         .map(|s| s.to_string())
                         .collect();
-                    bit_offset += subctx.bit_size;
+                    #assign_bit_offset;
                 };
 
                 fields_new.push(quote! {
