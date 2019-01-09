@@ -141,7 +141,7 @@ where
 
 pub trait Enum2Type {
     type Output;
-    fn class<T: Attr2Field<Output = E>, E: Into<Variant> + Into<Self::Output>>(
+    fn class<T: Attr2Field<Output = E>, E: 'static + Into<Variant> + Into<Self::Output>>(
         ctx: &Attr2Context<E>,
     ) -> AttrClassBuilder;
 }

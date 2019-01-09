@@ -2,21 +2,21 @@ use genet_derive::Attr;
 use genet_sdk::{cast, decoder::*, prelude::*};
 
 /// Ethernet
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Eth {
     /// Source Hardware Address
     #[genet(alias = "_.src", typ = "@eth:mac", byte_size = 6)]
-    src: cast::ByteSlice,
+    src: ByteSlice,
 
     /// Destination Hardware Address
     #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
-    dst: cast::ByteSlice,
+    dst: ByteSlice,
 
     #[genet(cond = "x <= 1500")]
-    len: cast::UInt16BE,
+    len: u16,
 
     #[genet(cond = "x > 1500", typ = "@enum", align_before)]
-    r#type: EnumNode<cast::UInt16BE, EthType>,
+    r#type: Enum2Field<u16, EthType>,
 }
 
 #[derive(Attr)]
@@ -61,7 +61,8 @@ impl Worker for EthWorker {
         let mut layer = Layer::new(&self.layer, &data);
 
         let typ = self.layer.r#type.try_get(&layer);
-        let payload = data.try_get(self.layer.byte_size()..)?;
+        // let payload = data.try_get(self.layer.byte_size()..)?;
+        let payload = data.try_get(14..)?;
         layer.set_payload(&payload);
 
         stack.add_child(layer);
@@ -81,7 +82,7 @@ struct EthDecoder {}
 impl Decoder for EthDecoder {
     fn new_worker(&self, ctx: &Context) -> Box<Worker> {
         Box::new(EthWorker {
-            layer: LayerType::new("eth", Eth::default()),
+            layer: LayerType::new("eth"),
             ipv4: ctx.decoder("ipv4").unwrap(),
             ipv6: ctx.decoder("ipv6").unwrap(),
             arp: ctx.decoder("arp").unwrap(),

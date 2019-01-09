@@ -56,9 +56,23 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
             .trim()
             .to_string();
 
+        let field_ident = &v.ident;
+
         fields_class.push(quote! {
             {
+                let func = T::build(ctx);
+                let func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<genet_sdk::variant::Variant> + Send + Sync> =
+                    Box::new(move |attr, data| {
+                        (func.func_map)(attr, data)
+                            .map(|x| x.into())
+                            .map(|x| match x {
+                                #ident::#field_ident => genet_sdk::variant::Variant::Bool(true),
+                                _ => genet_sdk::variant::Variant::Nil
+                            })
+                    });
+
                 AttrClass::builder(format!("{}.{}", ctx.path, #id).trim_matches('.'))
+                    .cast(func_var)
                     .bit_range(0, ctx.bit_offset..(ctx.bit_offset + ctx.bit_size))
                     .aliases(#aliases
                             .split(' ')
@@ -75,15 +89,11 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
         impl genet_sdk::attr::Enum2Type for #ident {
             type Output = Self;
 
-            fn class<T: genet_abi::attr::Attr2Field<Output = E>, E: Into<genet_sdk::variant::Variant> + Into<Self::Output>>(
-                ctx: &genet_abi::attr::Attr2Context<E>,
+            fn class<T: genet_sdk::attr::Attr2Field<Output = E>, E: 'static + Into<genet_sdk::variant::Variant> + Into<Self::Output>>(
+                ctx: &genet_sdk::attr::Attr2Context<E>,
             ) -> genet_sdk::attr::AttrClassBuilder {
                 use std::io;
                 use genet_sdk::attr::{AttrClass, Attr2Field};
-
-                let func = T::build(ctx);
-                let func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<Self> + Send + Sync> =
-                    Box::new(move |attr, data| (func.func_map)(attr, data).map(|x| x.into()));
 
                 let mut children : Vec<genet_sdk::attr::AttrClassBuilder> = Vec::new();
 
