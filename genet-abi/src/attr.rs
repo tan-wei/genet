@@ -191,6 +191,10 @@ where
     F::Output: Into<E>,
 {
     pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> io::Result<E> {
+        let class = self.class;
+        let bit_offset = class.bit_range().start;
+        let range = (class.bit_range().start - bit_offset + range.start * 8)
+            ..(class.bit_range().end - bit_offset + range.end * 8);
         let attr = Attr::new(&self.class, range, layer.data());
         (self.func)(&attr, &layer.data())
     }

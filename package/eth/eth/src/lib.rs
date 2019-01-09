@@ -19,7 +19,7 @@ struct Eth {
     r#type: Enum2Field<u16, EthType>,
 }
 
-#[derive(Attr)]
+#[derive(Attr, Debug)]
 enum EthType {
     IPv4,
     ARP,
