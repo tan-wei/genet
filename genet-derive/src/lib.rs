@@ -154,7 +154,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     fields_bit_size.push(quote! {
                         {
                             type Alias = #ty;
-                            let mut subctx = Alias::context();
+                            let mut subctx = <Alias as genet_sdk::attr::Attr2Field>::context();
                             #assign_bit_size;
                             bit_size += subctx.bit_size;
                         }
@@ -184,7 +184,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
 
                 let field = quote! {
                     type Alias = #ty;
-                    let mut subctx = Alias::context();
+                    let mut subctx = <Alias as genet_sdk::attr::Attr2Field>::context();
                     #assign_typ;
                     #assign_bit_size;
                     #filter;
@@ -204,7 +204,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 fields_new.push(quote! {
                     #ident: {
                         #field
-                        Alias::new(&subctx)
+                        <Alias as genet_sdk::attr::Attr2Field>::new(&subctx)
                     },
                 });
 
@@ -212,7 +212,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     fields_class.push(quote! {
                         {
                             #field
-                            Alias::class(&subctx)
+                            <Alias as genet_sdk::attr::Attr2Field>::class(&subctx)
                         }
                     });
                 }

@@ -5,33 +5,18 @@ use genet_sdk::{cast, decoder::*, prelude::*};
 #[derive(Attr)]
 struct Eth {
     /// Source Hardware Address
-    /// Destination Hardware Address
-    #[genet(typ = "@eth:mac", alias = "_.dst", big_endian)]
-    ex: Node2Field<u8, Eth2>,
-
-    #[genet(typ = "@eth:mac", alias = "_.dst", map = "x >> 5", little_endian)]
-    ttt: Enum2Field<u16, EthTypeEnum>,
-    /*
-    /// Source Hardware Address
     #[genet(alias = "_.src", typ = "@eth:mac", byte_size = 6)]
-    src: cast::ByteSlice,
+    src: ByteSlice,
 
     /// Destination Hardware Address
     #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
-    dst: cast::ByteSlice,
+    dst: ByteSlice,
 
     #[genet(cond = "x <= 1500")]
-    len: cast::UInt16BE,
+    len: u16,
 
     #[genet(cond = "x > 1500", typ = "@enum", align_before)]
-    r#type: EnumNode<cast::UInt16BE, EthTypeEnum>,
-    */
-}
-
-#[derive(Attr)]
-struct Eth2 {
-    ex2: u8,
-    ex3: u16,
+    r#type: Enum2Field<u16, EthTypeEnum>,
 }
 
 #[derive(Attr)]
