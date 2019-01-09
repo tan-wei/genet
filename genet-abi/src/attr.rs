@@ -23,7 +23,7 @@ use std::{
     slice,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Attr2Context<T> {
     pub id: String,
     pub path: String,
@@ -35,14 +35,13 @@ pub struct Attr2Context<T> {
     pub bit_offset: usize,
     pub aliases: Vec<String>,
     pub func_map: fn(T) -> T,
-    pub func_cond: fn(T) -> bool,
+    pub func_cond: fn(&T) -> bool,
 }
 
 pub struct Attr2Functor<T> {
     pub ctx: Attr2Context<T>,
     pub func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<T> + Send + Sync>,
     pub func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync>,
-    pub func_cond: Box<Fn(&Attr, &ByteSlice) -> bool + Send + Sync>,
 }
 
 impl<T> Into<AttrClassBuilder> for Attr2Functor<T> {
@@ -232,26 +231,19 @@ macro_rules! define_field {
                 let mctx = ctx.clone();
                 let func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> =
                     Box::new(move |attr, data| {
-                        parse(data, attr.range())
-                            .map(mctx.func_map)
-                            .map(|x| x.into())
-                    });
-
-                let mctx = ctx.clone();
-                let func_cond: Box<Fn(&Attr, &ByteSlice) -> bool + Send + Sync> =
-                    Box::new(move |attr, data| {
-                        parse(data, attr.range())
-                            .ok()
-                            .map(mctx.func_map)
-                            .map(mctx.func_cond)
-                            .is_some()
+                        parse(data, attr.range()).map(mctx.func_map).map(|x| {
+                            if (mctx.func_cond)(&x) {
+                                x.into()
+                            } else {
+                                Variant::Nil
+                            }
+                        })
                     });
 
                 Attr2Functor {
                     ctx: ctx.clone(),
                     func_map,
                     func_var,
-                    func_cond,
                 }
             }
         }
