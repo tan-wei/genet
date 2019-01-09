@@ -260,21 +260,21 @@ macro_rules! define_field {
 
 define_field!(
     u8,
-    mem::size_of::<Self>(),
+    mem::size_of::<Self>() * 8,
     { |data: &ByteSlice, range: Range<usize>| Cursor::new(data.try_get(range)?).read_u8() },
     { |data: &ByteSlice, range: Range<usize>| Cursor::new(data.try_get(range)?).read_u8() }
 );
 
 define_field!(
     i8,
-    mem::size_of::<Self>(),
+    mem::size_of::<Self>() * 8,
     { |data: &ByteSlice, range: Range<usize>| Cursor::new(data.try_get(range)?).read_i8() },
     { |data: &ByteSlice, range: Range<usize>| Cursor::new(data.try_get(range)?).read_i8() }
 );
 
 define_field!(
     u16,
-    mem::size_of::<Self>(),
+    mem::size_of::<Self>() * 8,
     {
         |data: &ByteSlice, range: Range<usize>| {
             Cursor::new(data.try_get(range)?).read_u16::<LittleEndian>()
@@ -289,7 +289,7 @@ define_field!(
 
 define_field!(
     i16,
-    mem::size_of::<Self>(),
+    mem::size_of::<Self>() * 8,
     {
         |data: &ByteSlice, range: Range<usize>| {
             Cursor::new(data.try_get(range)?).read_i16::<LittleEndian>()
@@ -304,7 +304,7 @@ define_field!(
 
 define_field!(
     u32,
-    mem::size_of::<Self>(),
+    mem::size_of::<Self>() * 8,
     {
         |data: &ByteSlice, range: Range<usize>| {
             Cursor::new(data.try_get(range)?).read_u32::<LittleEndian>()
@@ -319,7 +319,7 @@ define_field!(
 
 define_field!(
     i32,
-    mem::size_of::<Self>(),
+    mem::size_of::<Self>() * 8,
     {
         |data: &ByteSlice, range: Range<usize>| {
             Cursor::new(data.try_get(range)?).read_i32::<LittleEndian>()
@@ -334,7 +334,7 @@ define_field!(
 
 define_field!(
     u64,
-    mem::size_of::<Self>(),
+    mem::size_of::<Self>() * 8,
     {
         |data: &ByteSlice, range: Range<usize>| {
             Cursor::new(data.try_get(range)?).read_u64::<LittleEndian>()
@@ -349,7 +349,7 @@ define_field!(
 
 define_field!(
     i64,
-    mem::size_of::<Self>(),
+    mem::size_of::<Self>() * 8,
     {
         |data: &ByteSlice, range: Range<usize>| {
             Cursor::new(data.try_get(range)?).read_i64::<LittleEndian>()
@@ -364,7 +364,7 @@ define_field!(
 
 define_field!(
     f32,
-    mem::size_of::<Self>(),
+    mem::size_of::<Self>() * 8,
     {
         |data: &ByteSlice, range: Range<usize>| {
             Cursor::new(data.try_get(range)?).read_f32::<LittleEndian>()
@@ -379,7 +379,7 @@ define_field!(
 
 define_field!(
     f64,
-    mem::size_of::<Self>(),
+    mem::size_of::<Self>() * 8,
     {
         |data: &ByteSlice, range: Range<usize>| {
             Cursor::new(data.try_get(range)?).read_f64::<LittleEndian>()
@@ -394,7 +394,7 @@ define_field!(
 
 define_field!(
     ByteSlice,
-    1,
+    8,
     { |data: &ByteSlice, range: Range<usize>| data.try_get(range) },
     { |data: &ByteSlice, range: Range<usize>| data.try_get(range) }
 );
