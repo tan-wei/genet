@@ -94,7 +94,13 @@ pub trait Attr2Field {
 pub struct Node2Field<F: Attr2Field, C: Attr2Field> {
     data: C,
     class: Fixed<AttrClass>,
-    func: Box<Fn(&Attr, &ByteSlice) -> io::Result<F::Output> + Send + Sync>,
+    phantom: PhantomData<F>,
+}
+
+impl<F: Attr2Field, C: Attr2Field> AsRef<Fixed<AttrClass>> for Node2Field<F, C> {
+    fn as_ref(&self) -> &Fixed<AttrClass> {
+        &self.class
+    }
 }
 
 impl<F: Attr2Field, C: Attr2Field> Deref for Node2Field<F, C> {
@@ -123,7 +129,7 @@ where
         Self {
             data: C::new(&subctx),
             class: Fixed::new(Self::class(ctx).build()),
-            func: Box::new(move |attr, data| (func.func_map)(attr, data)),
+            phantom: PhantomData,
         }
     }
 
@@ -581,7 +587,7 @@ impl AttrClassBuilder {
         self
     }
 
-    pub(crate) fn merge_children(mut self, other: AttrClassBuilder) -> AttrClassBuilder {
+    pub(crate) fn merge_children(self, other: AttrClassBuilder) -> AttrClassBuilder {
         self.add_children(other.children)
     }
 
