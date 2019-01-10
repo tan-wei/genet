@@ -63,7 +63,7 @@ impl<'a> LayerStack<'a> {
     }
 
     /// Adds an attribute to the Layer.
-    pub fn add_attr<C: Into<Fixed<AttrClass>>>(&mut self, attr: C, range: Range<usize>) {
+    pub fn add_attr<C: AsRef<Fixed<AttrClass>>>(&mut self, attr: &C, range: Range<usize>) {
         self.deref_mut().add_attr(attr, range);
     }
 
@@ -188,12 +188,12 @@ impl Layer {
     }
 
     /// Adds an attribute to the Layer.
-    pub fn add_attr<C: Into<Fixed<AttrClass>>>(&mut self, attr: C, range: Range<usize>) {
+    pub fn add_attr<C: AsRef<Fixed<AttrClass>>>(&mut self, attr: &C, range: Range<usize>) {
         let func = self.class.add_attr;
         (func)(
             self,
             BoundAttr {
-                attr: attr.into(),
+                attr: attr.as_ref().clone(),
                 range: (range.start * 8)..(range.end * 8),
             },
         );

@@ -91,10 +91,25 @@ pub trait Attr2Field {
     fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output>;
 }
 
-pub struct Node2Field<F: Attr2Field, C: Attr2Field> {
+pub struct Node2Field<F: Attr2Field, C: Attr2Field = F> {
     data: C,
     class: Fixed<AttrClass>,
-    phantom: PhantomData<F>,
+    func: Box<Fn(&Attr, &ByteSlice) -> io::Result<F::Output> + Send + Sync>,
+}
+
+impl<F: Attr2Field, C: Attr2Field> Node2Field<F, C> {
+    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> io::Result<F::Output> {
+        let class = self.class;
+        let bit_offset = class.bit_range().start;
+        let range = (class.bit_range().start - bit_offset + range.start * 8)
+            ..(class.bit_range().end - bit_offset + range.end * 8);
+        let attr = Attr::new(&self.class, range, layer.data());
+        (self.func)(&attr, &layer.data())
+    }
+
+    pub fn try_get(&self, layer: &Layer) -> io::Result<F::Output> {
+        self.try_get_range(layer, self.class.range())
+    }
 }
 
 impl<F: Attr2Field, C: Attr2Field> AsRef<Fixed<AttrClass>> for Node2Field<F, C> {
@@ -122,13 +137,14 @@ where
     }
 
     fn new(ctx: &Attr2Context<Self::Output>) -> Self {
+        let func = Self::build(ctx);
         let mut subctx = C::context();
         subctx.path = format!("{}.{}", ctx.path, ctx.id);
         subctx.bit_offset = ctx.bit_offset;
         Self {
             data: C::new(&subctx),
             class: Fixed::new(Self::class(ctx).build()),
-            phantom: PhantomData,
+            func: Box::new(move |attr, data| (func.func_map)(attr, data)),
         }
     }
 

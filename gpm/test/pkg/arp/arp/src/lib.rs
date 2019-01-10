@@ -13,8 +13,8 @@ impl Worker for ArpWorker {
         let hwtype = self.layer.hwtype.try_get(&layer)?;
         let protocol = self.layer.protocol.try_get(&layer)?;
 
-        let hlen: usize = self.layer.hlen.try_get(&layer)?.try_into()?;
-        let plen: usize = self.layer.plen.try_get(&layer)?.try_into()?;
+        let hlen: usize = self.layer.hlen.try_get(&layer)?;
+        let plen: usize = self.layer.plen.try_get(&layer)?;
 
         let (sha, tha) = match hwtype {
             HardwareType::Eth => (&self.layer.sha_eth, &self.layer.tha_eth),
@@ -28,13 +28,13 @@ impl Worker for ArpWorker {
         };
 
         let mut offset = self.layer.byte_size();
-        layer.add_attr(sha.class(), offset..offset + hlen);
+        layer.add_attr(&sha, offset..offset + hlen);
         offset += hlen;
-        layer.add_attr(spa.class(), offset..offset + plen);
+        layer.add_attr(&spa, offset..offset + plen);
         offset += plen;
-        layer.add_attr(tha.class(), offset..offset + hlen);
+        layer.add_attr(&tha, offset..offset + hlen);
         offset += hlen;
-        layer.add_attr(tpa.class(), offset..offset + plen);
+        layer.add_attr(&tpa, offset..offset + plen);
         offset += plen;
 
         stack.add_child(layer);
