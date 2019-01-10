@@ -122,7 +122,6 @@ where
     }
 
     fn new(ctx: &Attr2Context<Self::Output>) -> Self {
-        let func = Self::build(ctx);
         let mut subctx = C::context();
         subctx.path = format!("{}.{}", ctx.path, ctx.id);
         subctx.bit_offset = ctx.bit_offset;
