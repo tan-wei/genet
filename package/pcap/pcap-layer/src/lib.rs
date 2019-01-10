@@ -1,5 +1,5 @@
 use genet_derive::Attr;
-use genet_sdk::{cast, decoder::*, prelude::*};
+use genet_sdk::{decoder::*, prelude::*};
 
 struct PcapLayerWorker {
     layer: LayerType<Link>,
@@ -24,7 +24,7 @@ struct PcapLayerDecoder {}
 impl Decoder for PcapLayerDecoder {
     fn new_worker(&self, ctx: &Context) -> Box<Worker> {
         Box::new(PcapLayerWorker {
-            layer: LayerType::new("link", Link::default()),
+            layer: LayerType::new("link"),
             eth: ctx.decoder("eth").unwrap(),
         })
     }
@@ -37,23 +37,23 @@ impl Decoder for PcapLayerDecoder {
     }
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Link {
-    r#type: cast::UInt32BE,
-    payload_length: cast::UInt32BE,
-    original_length: cast::UInt32BE,
+    r#type: u32,
+    payload_length: u32,
+    original_length: u32,
 
     #[genet(
         typ = "@datetime:unix",
-        map = "(x >> 32) as f64 + (x & 0xffff_ffff) as f64 / 1_000_000f64"
+// TODO:       map = "(x >> 32) as f64 + (x & 0xffff_ffff) as f64 / 1_000_000f64"
     )]
-    timestamp: Node<cast::UInt64BE, Timestamp>,
+    timestamp: Node2Field<u64, Timestamp>,
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Timestamp {
-    sec: cast::UInt32BE,
-    usec: cast::UInt32BE,
+    sec: u32,
+    usec: u32,
 }
 
 genet_decoders!(PcapLayerDecoder {});

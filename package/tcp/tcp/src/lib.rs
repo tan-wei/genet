@@ -1,5 +1,5 @@
 use genet_derive::Attr;
-use genet_sdk::{cast, decoder::*, prelude::*};
+use genet_sdk::{decoder::*, prelude::*};
 
 struct TcpWorker {
     layer: LayerType<Tcp>,
@@ -10,7 +10,7 @@ impl Worker for TcpWorker {
         let data = stack.top().unwrap().payload();
         let mut layer = Layer::new(&self.layer, &data);
 
-        let data_offset: usize = self.layer.data_offset.try_get(&layer)?.try_into()?;
+        let data_offset: usize = self.layer.data_offset.try_get(&layer)? as usize;
         let data_offset = data_offset * 4;
 
         let opt_offset = self.layer.byte_size();
@@ -19,7 +19,7 @@ impl Worker for TcpWorker {
             let typ = layer.data().try_get(offset)?;
             if typ <= 1 {
                 if typ == 1 {
-                    layer.add_attr(self.layer.options.nop.class(), offset..offset + 1);
+                    layer.add_attr(&self.layer.options.nop, offset..offset + 1);
                 }
                 offset += 1;
                 continue;
@@ -27,31 +27,28 @@ impl Worker for TcpWorker {
             let len = layer.data().try_get(offset + 1)? as usize;
             match typ {
                 2 => {
-                    layer.add_attr(self.layer.options.mss.class(), offset + 2..offset + len);
+                    layer.add_attr(&self.layer.options.mss, offset + 2..offset + len);
                 }
                 3 => {
-                    layer.add_attr(self.layer.options.scale.class(), offset + 2..offset + len);
+                    layer.add_attr(&self.layer.options.scale, offset + 2..offset + len);
                 }
                 4 => {
                     layer.add_attr(
-                        self.layer.options.selective_ack_permitted.class(),
+                        &self.layer.options.selective_ack_permitted,
                         offset..offset + len,
                     );
                 }
                 5 => {
-                    layer.add_attr(
-                        self.layer.options.selective_ack.class(),
-                        offset + 2..offset + len,
-                    );
+                    layer.add_attr(&self.layer.options.selective_ack, offset + 2..offset + len);
                 }
                 8 => {
-                    layer.add_attr(self.layer.options.ts.class(), offset + 2..offset + len);
+                    layer.add_attr(&self.layer.options.ts, offset + 2..offset + len);
                 }
                 _ => {}
             }
             offset += len;
         }
-        layer.add_attr(self.layer.options.class(), opt_offset..offset);
+        layer.add_attr(&self.layer.options, opt_offset..offset);
 
         stack.add_child(layer);
         Ok(Status::Done)
@@ -64,7 +61,7 @@ struct TcpDecoder {}
 impl Decoder for TcpDecoder {
     fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
         Box::new(TcpWorker {
-            layer: LayerType::new("tcp", Tcp::default()),
+            layer: LayerType::new("tcp"),
         })
     }
 
@@ -76,82 +73,82 @@ impl Decoder for TcpDecoder {
     }
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Tcp {
     #[genet(alias = "_.src", typ = "@tcp:port")]
-    src: cast::UInt16BE,
+    src: u16,
 
     #[genet(alias = "_.dst", typ = "@tcp:port")]
-    dst: cast::UInt16BE,
+    dst: u16,
 
-    seq: cast::UInt32BE,
+    seq: u32,
 
-    ask: cast::UInt32BE,
+    ask: u32,
     #[genet(bit_size = 4, map = "x >> 4")]
-    data_offset: Node<cast::UInt8>,
+    data_offset: Node2Field<u8>,
 
     #[genet(bit_size = 12, typ = "@flags", map = "x & 0xfff")]
-    flags: Node<cast::UInt16BE, Flags>,
+    flags: Node2Field<u16, Flags>,
 
-    window: cast::UInt16BE,
+    window: u16,
 
-    checksum: cast::UInt16BE,
+    checksum: u16,
 
-    urgent: cast::UInt16BE,
+    urgent: u16,
 
     #[genet(detach, byte_size = 1)]
-    options: Node<cast::ByteSlice, Options>,
+    options: Node2Field<ByteSlice, Options>,
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Flags {
-    #[genet(bit_size = 3)]
-    reserved: cast::Nil,
+    #[genet(bit_size = 3, skip)]
+    reserved: u8,
 
-    ns: cast::BitFlag,
+    ns: Bit2Flag,
 
-    cwr: cast::BitFlag,
+    cwr: Bit2Flag,
 
-    ece: cast::BitFlag,
+    ece: Bit2Flag,
 
-    urg: cast::BitFlag,
+    urg: Bit2Flag,
 
-    ack: cast::BitFlag,
+    ack: Bit2Flag,
 
-    psh: cast::BitFlag,
+    psh: Bit2Flag,
 
-    rst: cast::BitFlag,
+    rst: Bit2Flag,
 
-    syn: cast::BitFlag,
+    syn: Bit2Flag,
 
-    fin: cast::BitFlag,
+    fin: Bit2Flag,
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Options {
     #[genet(detach)]
-    nop: Node<cast::UInt8>,
+    nop: Node2Field<u8>,
 
     #[genet(detach)]
-    mss: Node<cast::UInt16BE>,
+    mss: Node2Field<u16>,
 
     #[genet(detach)]
-    scale: Node<cast::UInt8>,
+    scale: Node2Field<u8>,
 
     #[genet(detach)]
-    selective_ack_permitted: Node<cast::UInt8>,
+    selective_ack_permitted: Node2Field<u8>,
 
     #[genet(detach, byte_size = 1)]
-    selective_ack: Node<cast::ByteSlice>,
+    selective_ack: Node2Field<ByteSlice>,
 
     #[genet(detach, typ = "@nested")]
-    ts: Node<Timestamp>,
+    ts: Node2Field<Timestamp>,
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Timestamp {
-    my: cast::UInt32BE,
-    echo: cast::UInt32BE,
+    my: u32,
+    echo: u32,
 }
 
 genet_decoders!(TcpDecoder {});

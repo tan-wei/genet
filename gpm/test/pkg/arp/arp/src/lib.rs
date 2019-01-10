@@ -1,5 +1,5 @@
 use genet_derive::Attr;
-use genet_sdk::{cast, decoder::*, prelude::*};
+use genet_sdk::{decoder::*, prelude::*};
 
 struct ArpWorker {
     layer: LayerType<ARP>,
@@ -48,7 +48,7 @@ struct ArpDecoder {}
 impl Decoder for ArpDecoder {
     fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
         Box::new(ArpWorker {
-            layer: LayerType::new("arp", ARP::default()),
+            layer: LayerType::new("arp"),
         })
     }
 
@@ -60,31 +60,31 @@ impl Decoder for ArpDecoder {
     }
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct ARP {
-    hwtype: EnumNode<cast::UInt16BE, HardwareType>,
-    protocol: EnumNode<cast::UInt16BE, ProtocolType>,
-    hlen: Node<cast::UInt8>,
-    plen: Node<cast::UInt8>,
-    op: EnumNode<cast::UInt16BE, OperationType>,
+    hwtype: Enum2Field<u16, HardwareType>,
+    protocol: Enum2Field<u16, ProtocolType>,
+    hlen: Node2Field<u8>,
+    plen: Node2Field<u8>,
+    op: Enum2Field<u16, OperationType>,
 
     #[genet(detach, id = "sha", typ = "@eth:mac", alias = "_.src", byte_size = 6)]
-    sha_eth: Node<cast::ByteSlice>,
+    sha_eth: Node2Field<ByteSlice>,
 
     #[genet(detach, id = "tha", typ = "@eth:mac", alias = "_.dst", byte_size = 6)]
-    tha_eth: Node<cast::ByteSlice>,
+    tha_eth: Node2Field<ByteSlice>,
 
     #[genet(detach, id = "spa", typ = "@ipv4:addr", byte_size = 4)]
-    spa_ipv4: Node<cast::ByteSlice>,
+    spa_ipv4: Node2Field<ByteSlice>,
 
     #[genet(detach, id = "tpa", typ = "@ipv4:addr", byte_size = 4)]
-    tpa_ipv4: Node<cast::ByteSlice>,
+    tpa_ipv4: Node2Field<ByteSlice>,
 
     #[genet(detach, id = "spa", typ = "@ipv6:addr", byte_size = 16)]
-    spa_ipv6: Node<cast::ByteSlice>,
+    spa_ipv6: Node2Field<ByteSlice>,
 
     #[genet(detach, id = "tpa", typ = "@ipv6:addr", byte_size = 16)]
-    tpa_ipv6: Node<cast::ByteSlice>,
+    tpa_ipv6: Node2Field<ByteSlice>,
 }
 
 #[derive(Attr)]

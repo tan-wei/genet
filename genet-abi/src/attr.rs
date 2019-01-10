@@ -173,6 +173,12 @@ pub struct Enum2Field<F, E> {
     func: Box<Fn(&Attr, &ByteSlice) -> io::Result<E> + Send + Sync>,
 }
 
+impl<F: Attr2Field, E: Enum2Type> AsRef<Fixed<AttrClass>> for Enum2Field<F, E> {
+    fn as_ref(&self) -> &Fixed<AttrClass> {
+        &self.class
+    }
+}
+
 impl<F: Attr2Field, E: Enum2Type<Output = E>> Attr2Field for Enum2Field<F, E>
 where
     F::Output: 'static + Into<E>,
@@ -415,6 +421,61 @@ define_field!(
     { |data: &ByteSlice, range: Range<usize>| data.try_get(range) },
     { |data: &ByteSlice, range: Range<usize>| data.try_get(range) }
 );
+
+pub struct Bit2Flag();
+
+impl Attr2Field for Bit2Flag {
+    type Output = bool;
+
+    fn context() -> Attr2Context<Self::Output> {
+        Attr2Context {
+            bit_size: 1,
+            ..Default::default()
+        }
+    }
+
+    fn new(_ctx: &Attr2Context<Self::Output>) -> Self {
+        Bit2Flag()
+    }
+
+    fn class(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder {
+        Self::build(ctx).into()
+    }
+
+    fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output> {
+        let parse =
+            |data: &ByteSlice, range: Range<usize>| Cursor::new(data.try_get(range)?).read_u8();
+
+        let mctx = ctx.clone();
+        let func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<Self::Output> + Send + Sync> =
+            Box::new(move |attr, data| {
+                parse(data, attr.range())
+                    .map(|byte| (byte & (0b1000_0000 >> (attr.bit_range().start % 8))) != 0)
+                    .map(mctx.func_map)
+            });
+
+        let mctx = ctx.clone();
+        let func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> =
+            Box::new(move |attr, data| {
+                parse(data, attr.range())
+                    .map(|byte| (byte & (0b1000_0000 >> (attr.bit_range().start % 8))) != 0)
+                    .map(mctx.func_map)
+                    .map(|x| {
+                        if (mctx.func_cond)(&x) {
+                            x.into()
+                        } else {
+                            Variant::Nil
+                        }
+                    })
+            });
+
+        Attr2Functor {
+            ctx: ctx.clone(),
+            func_map,
+            func_var,
+        }
+    }
+}
 
 #[derive(Debug, Clone, Default)]
 pub struct AttrContext {

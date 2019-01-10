@@ -1,5 +1,5 @@
 use genet_derive::Attr;
-use genet_sdk::{cast, decoder::*, prelude::*};
+use genet_sdk::{decoder::*, prelude::*};
 
 struct IPv4Worker {
     layer: LayerType<IPv4>,
@@ -31,7 +31,7 @@ struct IPv4Decoder {}
 impl Decoder for IPv4Decoder {
     fn new_worker(&self, ctx: &Context) -> Box<Worker> {
         Box::new(IPv4Worker {
-            layer: LayerType::new("ipv4", IPv4::default()),
+            layer: LayerType::new("ipv4"),
             tcp: ctx.decoder("tcp").unwrap(),
             udp: ctx.decoder("udp").unwrap(),
         })
@@ -45,47 +45,47 @@ impl Decoder for IPv4Decoder {
     }
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct IPv4 {
     #[genet(bit_size = 4, map = "x >> 4")]
-    version: cast::UInt8,
+    version: u8,
 
     #[genet(bit_size = 4, map = "x & 0b00001111")]
-    header_length: cast::UInt8,
+    header_length: u8,
 
-    tos: cast::UInt8,
+    tos: u8,
 
-    total_length: cast::UInt16BE,
+    total_length: u16,
 
-    id: cast::UInt16BE,
+    id: u16,
 
     #[genet(bit_size = 3, map = "(x >> 5) & 0b0000_0111", typ = "@flags")]
-    flags: Node<cast::UInt8, Flags>,
+    flags: Node2Field<u8, Flags>,
 
     #[genet(bit_size = 13, map = "x & 0x1fff")]
-    fragment_offset: cast::UInt16BE,
+    fragment_offset: u16,
 
-    ttl: cast::UInt8,
+    ttl: u8,
 
     #[genet(typ = "@enum")]
-    protocol: EnumNode<cast::UInt8, ProtoType>,
+    protocol: Enum2Field<u8, ProtoType>,
 
-    checksum: cast::UInt16BE,
+    checksum: u16,
 
     #[genet(alias = "_.src", typ = "@ipv4:addr", byte_size = 4)]
-    src: cast::ByteSlice,
+    src: ByteSlice,
 
     #[genet(alias = "_.dst", typ = "@ipv4:addr", byte_size = 4)]
-    dst: cast::ByteSlice,
+    dst: ByteSlice,
 }
 
-#[derive(Attr, Default)]
+#[derive(Attr)]
 struct Flags {
-    reserved: cast::BitFlag,
+    reserved: Bit2Flag,
 
-    dont_fragment: cast::BitFlag,
+    dont_fragment: Bit2Flag,
 
-    more_fragments: cast::BitFlag,
+    more_fragments: Bit2Flag,
 }
 
 #[derive(Attr)]
