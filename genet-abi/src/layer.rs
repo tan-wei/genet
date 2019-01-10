@@ -300,6 +300,11 @@ impl<T: Attr2Field> LayerType<T> {
         let field = T::new(&ctx);
         Self { field, layer }
     }
+
+    pub fn byte_size(&self) -> usize {
+        let range = self.layer.header().range();
+        range.end - range.start
+    }
 }
 
 /// A layer class object.
