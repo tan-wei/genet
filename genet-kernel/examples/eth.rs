@@ -87,7 +87,6 @@ genet_decoders!(EthDecoder {});
 
 #[test]
 fn session() {
-    use genet_abi::attr::Attr2Field;
     let leyer: LayerType<Eth> = LayerType::new("eth");
     println!("{:#?}", leyer.as_ref());
 }
