@@ -114,6 +114,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
 
     let mut fields_bit_size = Vec::new();
     let mut fields_new = Vec::new();
+    let mut fields_eq = Vec::new();
     let mut fields_class = Vec::new();
     let mut fields_align = VecDeque::new();
 
@@ -218,6 +219,11 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     },
                 });
 
+                // Suppress unused field warnings
+                fields_eq.push(quote! {
+                    std::ptr::eq(&data.#ident, &data.#ident);
+                });
+
                 if !meta.skip && !meta.detach {
                     fields_class.push(quote! {
                         {
@@ -250,11 +256,15 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
 
             fn new(ctx: &genet_sdk::attr::Attr2Context<Self::Output>) -> Self {
                 let mut bit_offset = ctx.bit_offset;
-                Self {
+                let data = Self {
                     #(
                         #fields_new
                     )*
-                }
+                };
+                #(
+                    #fields_eq
+                )*
+                data
             }
 
             fn class(ctx: &genet_sdk::attr::Attr2Context<Self::Output>) -> genet_sdk::attr::AttrClassBuilder {
