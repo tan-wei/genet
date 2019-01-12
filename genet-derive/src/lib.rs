@@ -243,6 +243,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let tokens = quote! {
 
         impl genet_sdk::attr::Attr2Field for #ident {
+            type Input = genet_sdk::slice::ByteSlice;
             type Output = genet_sdk::slice::ByteSlice;
 
             fn context() -> genet_sdk::attr::Attr2Context<Self::Output> {

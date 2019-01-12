@@ -84,6 +84,7 @@ impl Cast for Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> {
 }
 
 pub trait Attr2Field {
+    type Input: Into<Variant>;
     type Output: Into<Variant>;
     fn context() -> Attr2Context<Self::Output>;
     fn new(ctx: &Attr2Context<Self::Output>) -> Self;
@@ -130,6 +131,7 @@ impl<F: Attr2Field, C: Attr2Field> Attr2Field for Node2Field<F, C>
 where
     F::Output: 'static,
 {
+    type Input = F::Output;
     type Output = F::Output;
 
     fn context() -> Attr2Context<Self::Output> {
@@ -183,6 +185,7 @@ impl<F: Attr2Field, E: Enum2Type<Output = E>> Attr2Field for Enum2Field<F, E>
 where
     F::Output: 'static + Into<E>,
 {
+    type Input = F::Output;
     type Output = F::Output;
 
     fn context() -> Attr2Context<Self::Output> {
@@ -234,6 +237,7 @@ where
 macro_rules! define_field {
     ($t:ty, $size:expr, $little:block, $big:block) => {
         impl Attr2Field for $t {
+            type Input = Self;
             type Output = Self;
 
             fn context() -> Attr2Context<Self::Output> {
@@ -425,6 +429,7 @@ define_field!(
 pub struct Bit2Flag();
 
 impl Attr2Field for Bit2Flag {
+    type Input = bool;
     type Output = bool;
 
     fn context() -> Attr2Context<Self::Output> {
