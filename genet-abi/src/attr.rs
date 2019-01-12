@@ -24,7 +24,7 @@ use std::{
 };
 
 #[derive(Clone)]
-pub struct Attr2Context<T> {
+pub struct Attr2Context<I, O> {
     pub id: String,
     pub path: String,
     pub typ: String,
@@ -34,17 +34,17 @@ pub struct Attr2Context<T> {
     pub bit_size: usize,
     pub bit_offset: usize,
     pub aliases: Vec<String>,
-    pub func_map: fn(T) -> io::Result<T>,
-    pub func_cond: fn(&T) -> bool,
+    pub func_map: fn(I) -> io::Result<O>,
+    pub func_cond: fn(&O) -> bool,
 }
 
-pub struct Attr2Functor<T> {
-    pub ctx: Attr2Context<T>,
-    pub func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<T> + Send + Sync>,
+pub struct Attr2Functor<I, O> {
+    pub ctx: Attr2Context<I, O>,
+    pub func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<O> + Send + Sync>,
     pub func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync>,
 }
 
-impl<T> Into<AttrClassBuilder> for Attr2Functor<T> {
+impl<I, O> Into<AttrClassBuilder> for Attr2Functor<I, O> {
     fn into(self) -> AttrClassBuilder {
         AttrClass::builder(format!("{}.{}", self.ctx.path, self.ctx.id).trim_matches('.'))
             .cast(self.func_var)
@@ -59,7 +59,7 @@ impl<T> Into<AttrClassBuilder> for Attr2Functor<T> {
     }
 }
 
-impl<T> Default for Attr2Context<T> {
+impl<I: Into<O>, O> Default for Attr2Context<I, O> {
     fn default() -> Self {
         Self {
             id: Default::default(),
@@ -71,7 +71,7 @@ impl<T> Default for Attr2Context<T> {
             bit_size: Default::default(),
             bit_offset: Default::default(),
             aliases: Default::default(),
-            func_map: |x| Ok(x),
+            func_map: |x| Ok(x.into()),
             func_cond: |_| true,
         }
     }
@@ -86,10 +86,12 @@ impl Cast for Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> {
 pub trait Attr2Field {
     type Input: Into<Variant>;
     type Output: Into<Variant>;
-    fn context() -> Attr2Context<Self::Output>;
-    fn new(ctx: &Attr2Context<Self::Output>) -> Self;
-    fn class(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder;
-    fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output>;
+    fn context() -> Attr2Context<Self::Input, Self::Output>;
+    fn new(ctx: &Attr2Context<Self::Input, Self::Output>) -> Self;
+    fn class(ctx: &Attr2Context<Self::Input, Self::Output>) -> AttrClassBuilder;
+    fn build(
+        ctx: &Attr2Context<Self::Input, Self::Output>,
+    ) -> Attr2Functor<Self::Input, Self::Output>;
 }
 
 pub struct Node2Field<F: Attr2Field, C: Attr2Field = F> {
@@ -129,16 +131,17 @@ impl<F: Attr2Field, C: Attr2Field> Deref for Node2Field<F, C> {
 
 impl<F: Attr2Field, C: Attr2Field> Attr2Field for Node2Field<F, C>
 where
+    F::Input: 'static,
     F::Output: 'static,
 {
-    type Input = F::Output;
+    type Input = F::Input;
     type Output = F::Output;
 
-    fn context() -> Attr2Context<Self::Output> {
+    fn context() -> Attr2Context<Self::Input, Self::Output> {
         F::context()
     }
 
-    fn new(ctx: &Attr2Context<Self::Output>) -> Self {
+    fn new(ctx: &Attr2Context<Self::Input, Self::Output>) -> Self {
         let func = Self::build(ctx);
         let mut subctx = C::context();
         subctx.path = format!("{}.{}", ctx.path, ctx.id);
@@ -150,22 +153,24 @@ where
         }
     }
 
-    fn class(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder {
+    fn class(ctx: &Attr2Context<Self::Input, Self::Output>) -> AttrClassBuilder {
         let mut subctx = C::context();
         subctx.path = format!("{}.{}", ctx.path, ctx.id);
         subctx.bit_offset = ctx.bit_offset;
         F::class(ctx).merge_children(C::class(&subctx))
     }
 
-    fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output> {
+    fn build(
+        ctx: &Attr2Context<Self::Input, Self::Output>,
+    ) -> Attr2Functor<Self::Input, Self::Output> {
         F::build(ctx)
     }
 }
 
 pub trait Enum2Type {
     type Output;
-    fn class<T: Attr2Field<Output = E>, E: 'static + Into<Variant> + Into<Self::Output>>(
-        ctx: &Attr2Context<E>,
+    fn class<T: 'static + Attr2Field<Output = E>, E: 'static + Into<Variant> + Into<Self::Output>>(
+        ctx: &Attr2Context<T::Input, E>,
     ) -> AttrClassBuilder;
 }
 
@@ -181,18 +186,19 @@ impl<F: Attr2Field, E: Enum2Type> AsRef<Fixed<AttrClass>> for Enum2Field<F, E> {
     }
 }
 
-impl<F: Attr2Field, E: Enum2Type<Output = E>> Attr2Field for Enum2Field<F, E>
+impl<F: 'static + Attr2Field, E: 'static + Enum2Type<Output = E>> Attr2Field for Enum2Field<F, E>
 where
+    F::Input: 'static,
     F::Output: 'static + Into<E>,
 {
-    type Input = F::Output;
+    type Input = F::Input;
     type Output = F::Output;
 
-    fn context() -> Attr2Context<Self::Output> {
+    fn context() -> Attr2Context<Self::Input, Self::Output> {
         F::context()
     }
 
-    fn new(ctx: &Attr2Context<Self::Output>) -> Self {
+    fn new(ctx: &Attr2Context<Self::Input, Self::Output>) -> Self {
         let func = Self::build(ctx);
         Self {
             phantom: PhantomData,
@@ -201,7 +207,7 @@ where
         }
     }
 
-    fn class(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder {
+    fn class(ctx: &Attr2Context<Self::Input, Self::Output>) -> AttrClassBuilder {
         let mut subctx = F::context();
         subctx.path = format!("{}.{}", ctx.path, ctx.id);
         subctx.bit_offset = ctx.bit_offset;
@@ -211,7 +217,9 @@ where
         F::class(ctx).merge_children(E::class::<Self, Self::Output>(&subctx))
     }
 
-    fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output> {
+    fn build(
+        ctx: &Attr2Context<Self::Input, Self::Output>,
+    ) -> Attr2Functor<Self::Input, Self::Output> {
         F::build(ctx)
     }
 }
@@ -240,22 +248,24 @@ macro_rules! define_field {
             type Input = Self;
             type Output = Self;
 
-            fn context() -> Attr2Context<Self::Output> {
+            fn context() -> Attr2Context<Self::Input, Self::Output> {
                 Attr2Context {
                     bit_size: $size,
                     ..Default::default()
                 }
             }
 
-            fn new(_ctx: &Attr2Context<Self::Output>) -> Self {
+            fn new(_ctx: &Attr2Context<Self::Input, Self::Output>) -> Self {
                 Default::default()
             }
 
-            fn class(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder {
+            fn class(ctx: &Attr2Context<Self::Input, Self::Output>) -> AttrClassBuilder {
                 Self::build(ctx).into()
             }
 
-            fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output> {
+            fn build(
+                ctx: &Attr2Context<Self::Input, Self::Output>,
+            ) -> Attr2Functor<Self::Input, Self::Output> {
                 let parse: fn(&ByteSlice, Range<usize>) -> io::Result<Self::Output> =
                     if ctx.little_endian { $little } else { $big };
 
@@ -432,22 +442,24 @@ impl Attr2Field for Bit2Flag {
     type Input = bool;
     type Output = bool;
 
-    fn context() -> Attr2Context<Self::Output> {
+    fn context() -> Attr2Context<Self::Input, Self::Output> {
         Attr2Context {
             bit_size: 1,
             ..Default::default()
         }
     }
 
-    fn new(_ctx: &Attr2Context<Self::Output>) -> Self {
+    fn new(_ctx: &Attr2Context<Self::Input, Self::Output>) -> Self {
         Bit2Flag()
     }
 
-    fn class(ctx: &Attr2Context<Self::Output>) -> AttrClassBuilder {
+    fn class(ctx: &Attr2Context<Self::Input, Self::Output>) -> AttrClassBuilder {
         Self::build(ctx).into()
     }
 
-    fn build(ctx: &Attr2Context<Self::Output>) -> Attr2Functor<Self::Output> {
+    fn build(
+        ctx: &Attr2Context<Self::Input, Self::Output>,
+    ) -> Attr2Functor<Self::Input, Self::Output> {
         let parse =
             |data: &ByteSlice, range: Range<usize>| Cursor::new(data.try_get(range)?).read_u8();
 
