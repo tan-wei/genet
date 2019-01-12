@@ -144,7 +144,7 @@ where
     fn new(ctx: &Attr2Context<Self::Input, Self::Output>) -> Self {
         let func = Self::build(ctx);
         let mut subctx = C::context();
-        subctx.path = format!("{}.{}", ctx.path, ctx.id);
+        subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
         subctx.bit_offset = ctx.bit_offset;
         Self {
             data: C::new(&subctx),
@@ -155,7 +155,7 @@ where
 
     fn class(ctx: &Attr2Context<Self::Input, Self::Output>) -> AttrClassBuilder {
         let mut subctx = C::context();
-        subctx.path = format!("{}.{}", ctx.path, ctx.id);
+        subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
         subctx.bit_offset = ctx.bit_offset;
         F::class(ctx).merge_children(C::class(&subctx))
     }
@@ -209,7 +209,7 @@ where
 
     fn class(ctx: &Attr2Context<Self::Input, Self::Output>) -> AttrClassBuilder {
         let mut subctx = F::context();
-        subctx.path = format!("{}.{}", ctx.path, ctx.id);
+        subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
         subctx.bit_offset = ctx.bit_offset;
         subctx.bit_size = ctx.bit_size;
         subctx.func_map = ctx.func_map;

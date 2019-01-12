@@ -206,7 +206,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     subctx.id = #id.into();
                     subctx.name = #name;
                     subctx.description = #description;
-                    subctx.path = format!("{}.{}", ctx.path, ctx.id);
+                    subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
                     subctx.bit_offset = bit_offset;
                     subctx.aliases = #aliases
                         .split(' ')
