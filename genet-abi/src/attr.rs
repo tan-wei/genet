@@ -34,7 +34,7 @@ pub struct Attr2Context<T> {
     pub bit_size: usize,
     pub bit_offset: usize,
     pub aliases: Vec<String>,
-    pub func_map: fn(T) -> T,
+    pub func_map: fn(T) -> io::Result<T>,
     pub func_cond: fn(&T) -> bool,
 }
 
@@ -71,7 +71,7 @@ impl<T> Default for Attr2Context<T> {
             bit_size: Default::default(),
             bit_offset: Default::default(),
             aliases: Default::default(),
-            func_map: |x| x,
+            func_map: |x| Ok(x),
             func_cond: |_| true,
         }
     }
@@ -257,12 +257,12 @@ macro_rules! define_field {
 
                 let mctx = ctx.clone();
                 let func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<Self::Output> + Send + Sync> =
-                    Box::new(move |attr, data| parse(data, attr.range()).map(mctx.func_map));
+                    Box::new(move |attr, data| parse(data, attr.range()).and_then(mctx.func_map));
 
                 let mctx = ctx.clone();
                 let func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> =
                     Box::new(move |attr, data| {
-                        parse(data, attr.range()).map(mctx.func_map).map(|x| {
+                        parse(data, attr.range()).and_then(mctx.func_map).map(|x| {
                             if (mctx.func_cond)(&x) {
                                 x.into()
                             } else {
@@ -451,7 +451,7 @@ impl Attr2Field for Bit2Flag {
             Box::new(move |attr, data| {
                 parse(data, attr.range())
                     .map(|byte| (byte & (0b1000_0000 >> (attr.bit_range().start % 8))) != 0)
-                    .map(mctx.func_map)
+                    .and_then(mctx.func_map)
             });
 
         let mctx = ctx.clone();
@@ -459,7 +459,7 @@ impl Attr2Field for Bit2Flag {
             Box::new(move |attr, data| {
                 parse(data, attr.range())
                     .map(|byte| (byte & (0b1000_0000 >> (attr.bit_range().start % 8))) != 0)
-                    .map(mctx.func_map)
+                    .and_then(mctx.func_map)
                     .map(|x| {
                         if (mctx.func_cond)(&x) {
                             x.into()

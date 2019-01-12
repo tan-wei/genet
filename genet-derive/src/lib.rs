@@ -175,7 +175,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 let filter = match meta.map {
                     AttrMapExpr::Map(s) => {
                         let expr = syn::parse_str::<Expr>(&s).unwrap();
-                        quote! { subctx.func_map = |x| { #expr }; }
+                        quote! { subctx.func_map = |x| { Ok({ #expr }.into()) }; }
                     }
                     AttrMapExpr::Cond(s) => {
                         let expr = syn::parse_str::<Expr>(&s).unwrap();
