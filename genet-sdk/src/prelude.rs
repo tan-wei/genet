@@ -10,7 +10,7 @@ pub use crate::{
     result::Result,
     slice::{ByteSlice, TryGet},
     token::Token,
-    variant::Value,
+    variant::TryInto,
 };
 
 pub use crate::{

@@ -12,4 +12,4 @@
 //! - Buffer - `Box<[u8]>`,
 //! - Slice - `ByteArray`
 
-pub use genet_abi::variant::{Value, Variant};
+pub use genet_abi::variant::{TryInto, Variant};
