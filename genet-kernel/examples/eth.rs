@@ -17,6 +17,9 @@ struct Eth {
 
     #[genet(cond = "x > 1500", typ = "@enum", align_before)]
     r#type: Enum2Field<u16, EthTypeEnum>,
+
+    #[genet(map = "x as f32 * 0.5")]
+    nnn: Cast2Cast<u16, f32>,
 }
 
 #[derive(Attr)]

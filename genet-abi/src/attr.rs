@@ -8,7 +8,7 @@ use crate::{
     slice::{ByteSlice, TryGet},
     string::SafeString,
     token::Token,
-    variant::Variant,
+    variant::{TryInto, Variant},
     vec::SafeVec,
 };
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
@@ -59,7 +59,11 @@ impl<I, O> Into<AttrClassBuilder> for Attr2Functor<I, O> {
     }
 }
 
-impl<I: Into<O>, O> Default for Attr2Context<I, O> {
+impl<I, O> Default for Attr2Context<I, O>
+where
+    I: Into<Variant>,
+    Variant: TryInto<O>,
+{
     fn default() -> Self {
         Self {
             id: Default::default(),
@@ -71,7 +75,7 @@ impl<I: Into<O>, O> Default for Attr2Context<I, O> {
             bit_size: Default::default(),
             bit_offset: Default::default(),
             aliases: Default::default(),
-            func_map: |x| Ok(x.into()),
+            func_map: |x| x.into().try_into(),
             func_cond: |_| true,
         }
     }
@@ -80,6 +84,74 @@ impl<I: Into<O>, O> Default for Attr2Context<I, O> {
 impl Cast for Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> {
     fn cast(&self, attr: &Attr, data: &ByteSlice) -> io::Result<Variant> {
         (self)(attr, data)
+    }
+}
+
+pub struct Cast2Cast<I, O> {
+    phantom: PhantomData<(I, O)>,
+}
+
+impl<I: Attr2Field, O: Attr2Field> Attr2Field for Cast2Cast<I, O>
+where
+    I::Input: 'static + Into<Variant>,
+    I::Output: 'static + Into<I::Input>,
+    O::Input: 'static,
+    Variant: TryInto<O::Input>,
+{
+    type Input = I::Input;
+    type Output = O::Input;
+
+    fn context() -> Attr2Context<Self::Input, Self::Output> {
+        Attr2Context::default()
+    }
+
+    fn new(ctx: &Attr2Context<Self::Input, Self::Output>) -> Self {
+        Self {
+            phantom: PhantomData,
+        }
+    }
+
+    fn class(ctx: &Attr2Context<Self::Input, Self::Output>) -> AttrClassBuilder {
+        let mut ctx = I::context();
+        I::class(&ctx)
+    }
+
+    fn build(
+        ctx: &Attr2Context<Self::Input, Self::Output>,
+    ) -> Attr2Functor<Self::Input, Self::Output> {
+        let mctx_fm = ctx.func_map;
+        let mctx_cd = ctx.func_cond;
+
+        let mut ictx = I::context();
+        let func = I::build(&ictx);
+
+        let func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<Self::Output> + Send + Sync> =
+            Box::new(move |attr, data| {
+                (func.func_map)(attr, data)
+                    .map(|x| x.into())
+                    .and_then(mctx_fm)
+            });
+
+        let func = I::build(&ictx);
+        let func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> =
+            Box::new(move |attr, data| {
+                (func.func_map)(attr, data)
+                    .map(|x| x.into())
+                    .and_then(mctx_fm)
+                    .map(|x| {
+                        if (mctx_cd)(&x) {
+                            x.into()
+                        } else {
+                            Variant::Nil
+                        }
+                    })
+            });
+
+        Attr2Functor {
+            ctx: Attr2Context::default(),
+            func_map,
+            func_var,
+        }
     }
 }
 

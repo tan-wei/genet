@@ -64,6 +64,15 @@ impl TryInto<u64> for Variant {
     }
 }
 
+impl TryInto<bool> for Variant {
+    fn try_into(self) -> Result<bool> {
+        match self {
+            Variant::Bool(val) => Ok(val),
+            _ => Err(Error::new(ErrorKind::InvalidData, "wrong type")),
+        }
+    }
+}
+
 impl TryInto<usize> for Variant {
     fn try_into(self) -> Result<usize> {
         TryInto::<u64>::try_into(self).map(|v| v as usize)
