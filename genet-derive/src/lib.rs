@@ -43,11 +43,11 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
         };
 
         let name = if let Some(name) = meta.name {
-            name.into()
+            name
         } else {
             to_title_case(&v.ident.to_string())
         };
-        let description = meta.description.unwrap_or_else(|| String::new());
+        let description = meta.description.unwrap_or_else(String::new);
 
         let aliases = meta
             .aliases
@@ -120,7 +120,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
 
     if let Fields::Named(f) = &s.fields {
         for field in &f.named {
-            if let Some(_) = &field.ident {
+            if field.ident.is_some() {
                 let meta = AttrMetadata::parse(&field.attrs);
                 fields_align.push_back(meta.align_before);
             }
@@ -147,11 +147,11 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     quote! {}
                 };
                 let name = if let Some(name) = meta.name {
-                    name.into()
+                    name
                 } else {
                     to_title_case(&ident.to_string())
                 };
-                let description = meta.description.unwrap_or_else(|| String::new());
+                let description = meta.description.unwrap_or_else(String::new);
                 let ty = &field.ty;
                 let id = if let Some(id) = meta.id {
                     id

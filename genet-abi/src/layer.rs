@@ -142,7 +142,7 @@ impl Layer {
     /// Creates a new Layer.
     pub fn new<C: AsRef<Fixed<LayerClass>>>(class: &C, data: &ByteSlice) -> Layer {
         Layer {
-            class: class.as_ref().clone(),
+            class: *class.as_ref(),
             data: *data,
             attrs: Vec::new(),
             payload: ByteSlice::new(),
@@ -192,7 +192,7 @@ impl Layer {
         (func)(
             self,
             BoundAttr {
-                attr: attr.as_ref().clone(),
+                attr: *attr.as_ref(),
                 range: (range.start * 8)..(range.end * 8),
             },
         );
