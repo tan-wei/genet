@@ -15,7 +15,7 @@ struct Eth {
     #[genet(cond = "x <= 1500")]
     len: u16,
 
-    #[genet(cond = "x > 1500", typ = "@enum", align_before)]
+    #[genet(cond = "x > 1500", align_before)]
     r#type: EnumField<u16, EthType>,
 }
 

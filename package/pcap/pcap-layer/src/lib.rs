@@ -47,7 +47,7 @@ struct Link {
         typ = "@datetime:unix",
         map = "(x >> 32) as f64 + (x & 0xffff_ffff) as f64 / 1_000_000f64"
     )]
-    timestamp: Node<CastCast<u64, f64>, Timestamp>,
+    timestamp: Node<Cast<u64, f64>, Timestamp>,
 }
 
 #[derive(Attr)]

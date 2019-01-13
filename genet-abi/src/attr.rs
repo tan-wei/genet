@@ -79,11 +79,11 @@ where
     }
 }
 
-pub struct CastCast<I, O> {
+pub struct Cast<I, O> {
     phantom: PhantomData<(I, O)>,
 }
 
-impl<I: AttrField, O: AttrField> AttrField for CastCast<I, O>
+impl<I: AttrField, O: AttrField> AttrField for Cast<I, O>
 where
     I::Input: 'static + Into<Variant>,
     I::Output: 'static + Into<I::Input>,
@@ -273,7 +273,10 @@ where
     type Output = F::Output;
 
     fn context() -> AttrContext<Self::Input, Self::Output> {
-        F::context()
+        AttrContext {
+            typ: "@enum".into(),
+            ..F::context()
+        }
     }
 
     fn new(ctx: &AttrContext<Self::Input, Self::Output>) -> Self {

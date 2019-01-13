@@ -12,14 +12,11 @@ struct Eth {
     #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
     dst: ByteSlice,
 
-    //#[genet(cond = "x <= 1500")]
-    #[genet(map = "x as f64 * 0.4")]
-    len: CastCast<u16, f64>,
+    #[genet(cond = "x <= 1500")]
+    len: u16,
 
-    #[genet(cond = "x > 1500", typ = "@enum", align_before, map = "x as u16")]
-    r#type: EnumField<CastCast<f64, u16>, EthTypeEnum>,
-
-    nnn: Node<CastCast<u16, f32>>,
+    #[genet(cond = "x > 1500", align_before, map = "x as u16")]
+    r#type: EnumField<u16, EthTypeEnum>,
 }
 
 #[derive(Attr)]

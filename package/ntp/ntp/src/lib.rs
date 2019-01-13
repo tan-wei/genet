@@ -80,10 +80,10 @@ struct Ntp {
     precision: u8,
 
     #[genet(map = "(x >> 16) as f64 + ((x & 0xffff) as f64 / 65536f64)")]
-    root_delay: Node<CastCast<u32, f64>, ShortFormat>,
+    root_delay: Node<Cast<u32, f64>, ShortFormat>,
 
     #[genet(map = "(x >> 16) as f64 + ((x & 0xffff) as f64 / 65536f64)")]
-    root_dispersion: Node<CastCast<u32, f64>, ShortFormat>,
+    root_dispersion: Node<Cast<u32, f64>, ShortFormat>,
 
     #[genet(skip, byte_size = 4)]
     identifier: Node<ByteSlice>,
@@ -101,25 +101,25 @@ struct Ntp {
         typ = "@ntp:time",
         map = "(x >> 32) as f64 + ((x & 0xffff_ffff) as f64 / 4294967296f64)"
     )]
-    reference_ts: Node<CastCast<u64, f64>, TimeFormat>,
+    reference_ts: Node<Cast<u64, f64>, TimeFormat>,
 
     #[genet(
         typ = "@ntp:time",
         map = "(x >> 32) as f64 + ((x & 0xffff_ffff) as f64 / 4294967296f64)"
     )]
-    originate_ts: Node<CastCast<u64, f64>, TimeFormat>,
+    originate_ts: Node<Cast<u64, f64>, TimeFormat>,
 
     #[genet(
         typ = "@ntp:time",
         map = "(x >> 32) as f64 + ((x & 0xffff_ffff) as f64 / 4294967296f64)"
     )]
-    receive_ts: Node<CastCast<u64, f64>, TimeFormat>,
+    receive_ts: Node<Cast<u64, f64>, TimeFormat>,
 
     #[genet(
         typ = "@ntp:time",
         map = "(x >> 32) as f64 + ((x & 0xffff_ffff) as f64 / 4294967296f64)"
     )]
-    transmit_ts: Node<CastCast<u64, f64>, TimeFormat>,
+    transmit_ts: Node<Cast<u64, f64>, TimeFormat>,
 }
 
 #[derive(Attr)]

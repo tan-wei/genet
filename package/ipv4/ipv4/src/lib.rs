@@ -67,7 +67,6 @@ struct IPv4 {
 
     ttl: u8,
 
-    #[genet(typ = "@enum")]
     protocol: EnumField<u8, ProtoType>,
 
     checksum: u16,
