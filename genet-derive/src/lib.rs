@@ -61,7 +61,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
         fields_class.push(quote! {
             {
                 let func = T::build(ctx);
-                let func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<genet_sdk::variant::Variant> + Send + Sync> =
+                let func_var: Box<Fn(&Attr, &ByteSlice) -> genet_sdk::result::Result<genet_sdk::variant::Variant> + Send + Sync> =
                     Box::new(move |attr, data| {
                         (func.func_map)(attr, data)
                             .map(|x| x.into())
