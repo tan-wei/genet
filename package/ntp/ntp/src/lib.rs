@@ -79,15 +79,11 @@ struct Ntp {
 
     precision: u8,
 
-    #[genet(
-// TODO:       map = "(x >> 16) as f64 + ((x & 0xffff) as f64 / 65536f64)"
-    )]
-    root_delay: Node2Field<u32, ShortFormat>,
+    #[genet(map = "(x >> 16) as f64 + ((x & 0xffff) as f64 / 65536f64)")]
+    root_delay: Node2Field<Cast2Cast<u32, f64>, ShortFormat>,
 
-    #[genet(
-// TODO:       map = "(x >> 16) as f64 + ((x & 0xffff) as f64 / 65536f64)"
-    )]
-    root_dispersion: Node2Field<u32, ShortFormat>,
+    #[genet(map = "(x >> 16) as f64 + ((x & 0xffff) as f64 / 65536f64)")]
+    root_dispersion: Node2Field<Cast2Cast<u32, f64>, ShortFormat>,
 
     #[genet(skip, byte_size = 4)]
     identifier: Node2Field<ByteSlice>,
@@ -103,27 +99,27 @@ struct Ntp {
 
     #[genet(
         typ = "@ntp:time",
-// TODO:       map = "(x >> 32) as f64 + ((x & 0xffff_ffff) as f64 / 4294967296f64)"
+        map = "(x >> 32) as f64 + ((x & 0xffff_ffff) as f64 / 4294967296f64)"
     )]
-    reference_ts: Node2Field<u64, TimeFormat>,
+    reference_ts: Node2Field<Cast2Cast<u64, f64>, TimeFormat>,
 
     #[genet(
         typ = "@ntp:time",
-// TODO:       map = "(x >> 32) as f64 + ((x & 0xffff_ffff) as f64 / 4294967296f64)"
+        map = "(x >> 32) as f64 + ((x & 0xffff_ffff) as f64 / 4294967296f64)"
     )]
-    originate_ts: Node2Field<u64, TimeFormat>,
+    originate_ts: Node2Field<Cast2Cast<u64, f64>, TimeFormat>,
 
     #[genet(
         typ = "@ntp:time",
-// TODO:       map = "(x >> 32) as f64 + ((x & 0xffff_ffff) as f64 / 4294967296f64)"
+        map = "(x >> 32) as f64 + ((x & 0xffff_ffff) as f64 / 4294967296f64)"
     )]
-    receive_ts: Node2Field<u64, TimeFormat>,
+    receive_ts: Node2Field<Cast2Cast<u64, f64>, TimeFormat>,
 
     #[genet(
         typ = "@ntp:time",
-// TODO:       map = "(x >> 32) as f64 + ((x & 0xffff_ffff) as f64 / 4294967296f64)"
+        map = "(x >> 32) as f64 + ((x & 0xffff_ffff) as f64 / 4294967296f64)"
     )]
-    transmit_ts: Node2Field<u64, TimeFormat>,
+    transmit_ts: Node2Field<Cast2Cast<u64, f64>, TimeFormat>,
 }
 
 #[derive(Attr)]

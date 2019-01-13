@@ -74,9 +74,9 @@ struct IPv6 {
 
     #[genet(
         bit_size = 20,
-    // TODO:   map = "(((x[2] as u32) & 0xf) << 16) | ((x[1] as u32) << 8) | x[2] as u32"
+        map = "(((x[2] as u32) & 0xf) << 16) | ((x[1] as u32) << 8) | x[2] as u32"
     )]
-    flow_label: ByteSlice,
+    flow_label: Cast2Cast<ByteSlice, u32>,
 
     payload_length: u16,
 

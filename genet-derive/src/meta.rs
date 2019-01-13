@@ -1,11 +1,5 @@
 use syn::{Attribute, Lit, Meta, MetaNameValue, NestedMeta};
 
-pub enum AttrMapExpr {
-    None,
-    Map(String),
-    Cond(String),
-}
-
 pub struct AttrMetadata {
     pub id: Option<String>,
     pub typ: Option<String>,
@@ -15,7 +9,8 @@ pub struct AttrMetadata {
     pub bit_size: Option<usize>,
     pub little_endian: bool,
     pub align_before: bool,
-    pub map: AttrMapExpr,
+    pub func_map: Option<String>,
+    pub func_cond: Option<String>,
     pub skip: bool,
     pub detach: bool,
 }
@@ -31,7 +26,8 @@ impl AttrMetadata {
         let mut detach = false;
         let mut little_endian = false;
         let mut align_before = false;
-        let mut map = AttrMapExpr::None;
+        let mut func_map = None;
+        let mut func_cond = None;
         for attr in attrs {
             if let Some(meta) = attr.interpret_meta() {
                 let name = meta.name().to_string();
@@ -76,10 +72,10 @@ impl AttrMetadata {
                                             aliases.push(lit_str.value().to_string());
                                         }
                                         "map" => {
-                                            map = AttrMapExpr::Map(lit_str.value().to_string());
+                                            func_map = Some(lit_str.value().to_string());
                                         }
                                         "cond" => {
-                                            map = AttrMapExpr::Cond(lit_str.value().to_string());
+                                            func_cond = Some(lit_str.value().to_string());
                                         }
                                         _ => panic!("unsupported attribute: {}", name),
                                     }
@@ -131,7 +127,8 @@ impl AttrMetadata {
             detach,
             little_endian,
             align_before,
-            map,
+            func_map,
+            func_cond,
         }
     }
 }

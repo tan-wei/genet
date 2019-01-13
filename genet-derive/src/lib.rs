@@ -9,7 +9,7 @@ use std::collections::VecDeque;
 use syn::{parse_macro_input, Data, DataEnum, DataStruct, DeriveInput, Expr, Fields, Ident};
 
 mod meta;
-use crate::meta::{AttrMapExpr, AttrMetadata};
+use crate::meta::AttrMetadata;
 
 mod initialisms;
 use crate::initialisms::to_title_case;
@@ -172,16 +172,18 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     });
                 }
 
-                let filter = match meta.map {
-                    AttrMapExpr::Map(s) => {
-                        let expr = syn::parse_str::<Expr>(&s).unwrap();
-                        quote! { subctx.func_map = |x| { Ok({ #expr }.into()) }; }
-                    }
-                    AttrMapExpr::Cond(s) => {
-                        let expr = syn::parse_str::<Expr>(&s).unwrap();
-                        quote! { subctx.func_cond = |&x| { #expr }; }
-                    }
-                    _ => quote! {},
+                let func_map = if let Some(func) = meta.func_map {
+                    let expr = syn::parse_str::<Expr>(&func).unwrap();
+                    quote! { subctx.func_map = |x| { Ok({ #expr }.into()) }; }
+                } else {
+                    quote! {}
+                };
+
+                let func_cond = if let Some(func) = meta.func_cond {
+                    let expr = syn::parse_str::<Expr>(&func).unwrap();
+                    quote! { subctx.func_cond = |&x| { #expr }; }
+                } else {
+                    quote! {}
                 };
 
                 let aliases = meta
@@ -202,7 +204,8 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     let mut subctx = <Alias as genet_sdk::attr::Attr2Field>::context();
                     #assign_typ;
                     #assign_bit_size;
-                    #filter;
+                    #func_map;
+                    #func_cond;
                     subctx.id = #id.into();
                     subctx.name = #name;
                     subctx.description = #description;

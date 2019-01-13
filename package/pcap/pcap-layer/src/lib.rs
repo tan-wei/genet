@@ -45,9 +45,9 @@ struct Link {
 
     #[genet(
         typ = "@datetime:unix",
-// TODO:       map = "(x >> 32) as f64 + (x & 0xffff_ffff) as f64 / 1_000_000f64"
+        map = "(x >> 32) as f64 + (x & 0xffff_ffff) as f64 / 1_000_000f64"
     )]
-    timestamp: Node2Field<u64, Timestamp>,
+    timestamp: Node2Field<Cast2Cast<u64, f64>, Timestamp>,
 }
 
 #[derive(Attr)]
