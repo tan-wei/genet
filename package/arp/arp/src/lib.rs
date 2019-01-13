@@ -13,8 +13,8 @@ impl Worker for ArpWorker {
         let hwtype = self.layer.hwtype.try_get(&layer)?;
         let protocol = self.layer.protocol.try_get(&layer)?;
 
-        let hlen: usize = self.layer.hlen.try_get(&layer)? as usize;
-        let plen: usize = self.layer.plen.try_get(&layer)? as usize;
+        let hlen = self.layer.hlen.try_get(&layer)? as usize;
+        let plen = self.layer.plen.try_get(&layer)? as usize;
 
         let (sha, tha) = match hwtype {
             HardwareType::Eth => (&self.layer.sha_eth, &self.layer.tha_eth),

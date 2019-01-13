@@ -10,7 +10,7 @@ impl Worker for TcpWorker {
         let data = stack.top().unwrap().payload();
         let mut layer = Layer::new(&self.layer, &data);
 
-        let data_offset: usize = self.layer.data_offset.try_get(&layer)? as usize;
+        let data_offset = self.layer.data_offset.try_get(&layer)? as usize;
         let data_offset = data_offset * 4;
 
         let opt_offset = self.layer.byte_size();
