@@ -65,13 +65,13 @@ impl Decoder for NtpDecoder {
 #[derive(Attr)]
 struct Ntp {
     #[genet(bit_size = 2, map = "x >> 6")]
-    leap_indicator: EnumField<u8, Leap>,
+    leap_indicator: Enum<u8, Leap>,
 
     #[genet(bit_size = 3, map = "(x >> 3) & 0b111")]
     version: u8,
 
     #[genet(bit_size = 3, map = "x & 0b111")]
-    mode: EnumField<u8, Mode>,
+    mode: Enum<u8, Mode>,
 
     stratum: Node<u8>,
 

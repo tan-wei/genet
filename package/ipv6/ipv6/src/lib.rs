@@ -91,7 +91,7 @@ struct IPv6 {
     src: ByteSlice,
 
     #[genet(detach)]
-    protocol: EnumField<u8, ProtoType>,
+    protocol: Enum<u8, ProtoType>,
 }
 
 #[derive(Attr)]

@@ -1,7 +1,7 @@
 //! The SDK Prelude
 
 pub use crate::{
-    attr::{Attr, AttrClass, BitFlag, Cast, EnumField, Node},
+    attr::{Attr, AttrClass, BitFlag, Cast, Enum, Node},
     context::Context,
     file::FileType,
     fixed::Fixed,

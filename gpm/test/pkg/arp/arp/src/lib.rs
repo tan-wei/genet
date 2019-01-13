@@ -62,11 +62,11 @@ impl Decoder for ArpDecoder {
 
 #[derive(Attr)]
 struct ARP {
-    hwtype: EnumField<u16, HardwareType>,
-    protocol: EnumField<u16, ProtocolType>,
+    hwtype: Enum<u16, HardwareType>,
+    protocol: Enum<u16, ProtocolType>,
     hlen: Node<u8>,
     plen: Node<u8>,
-    op: EnumField<u16, OperationType>,
+    op: Enum<u16, OperationType>,
 
     #[genet(detach, id = "sha", typ = "@eth:mac", alias = "_.src", byte_size = 6)]
     sha_eth: Node<ByteSlice>,

@@ -67,7 +67,7 @@ struct IPv4 {
 
     ttl: u8,
 
-    protocol: EnumField<u8, ProtoType>,
+    protocol: Enum<u8, ProtoType>,
 
     checksum: u16,
 

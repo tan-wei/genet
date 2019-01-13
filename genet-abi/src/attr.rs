@@ -252,19 +252,19 @@ pub trait EnumType {
     ) -> AttrClassBuilder;
 }
 
-pub struct EnumField<F, E> {
+pub struct Enum<F, E> {
     phantom: PhantomData<F>,
     class: Fixed<AttrClass>,
     func: Box<Fn(&Attr, &ByteSlice) -> io::Result<E> + Send + Sync>,
 }
 
-impl<F: AttrField, E: EnumType> AsRef<Fixed<AttrClass>> for EnumField<F, E> {
+impl<F: AttrField, E: EnumType> AsRef<Fixed<AttrClass>> for Enum<F, E> {
     fn as_ref(&self) -> &Fixed<AttrClass> {
         &self.class
     }
 }
 
-impl<F: 'static + AttrField, E: 'static + EnumType<Output = E>> AttrField for EnumField<F, E>
+impl<F: 'static + AttrField, E: 'static + EnumType<Output = E>> AttrField for Enum<F, E>
 where
     F::Input: 'static,
     F::Output: 'static + Into<E>,
@@ -305,7 +305,7 @@ where
     }
 }
 
-impl<F: AttrField, E> EnumField<F, E>
+impl<F: AttrField, E> Enum<F, E>
 where
     F::Output: Into<E>,
 {
