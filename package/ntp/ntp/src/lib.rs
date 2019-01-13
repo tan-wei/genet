@@ -65,28 +65,28 @@ impl Decoder for NtpDecoder {
 #[derive(Attr)]
 struct Ntp {
     #[genet(bit_size = 2, map = "x >> 6")]
-    leap_indicator: Enum2Field<u8, Leap>,
+    leap_indicator: EnumField<u8, Leap>,
 
     #[genet(bit_size = 3, map = "(x >> 3) & 0b111")]
     version: u8,
 
     #[genet(bit_size = 3, map = "x & 0b111")]
-    mode: Enum2Field<u8, Mode>,
+    mode: EnumField<u8, Mode>,
 
-    stratum: Node2Field<u8>,
+    stratum: Node<u8>,
 
     poll_interval: u8,
 
     precision: u8,
 
     #[genet(map = "(x >> 16) as f64 + ((x & 0xffff) as f64 / 65536f64)")]
-    root_delay: Node2Field<Cast2Cast<u32, f64>, ShortFormat>,
+    root_delay: Node<CastCast<u32, f64>, ShortFormat>,
 
     #[genet(map = "(x >> 16) as f64 + ((x & 0xffff) as f64 / 65536f64)")]
-    root_dispersion: Node2Field<Cast2Cast<u32, f64>, ShortFormat>,
+    root_dispersion: Node<CastCast<u32, f64>, ShortFormat>,
 
     #[genet(skip, byte_size = 4)]
-    identifier: Node2Field<ByteSlice>,
+    identifier: Node<ByteSlice>,
 
     #[genet(
         skip,
@@ -95,31 +95,31 @@ struct Ntp {
         byte_size = 4,
         typ = "@ipv4:addr"
     )]
-    identifier_ip: Node2Field<ByteSlice>,
+    identifier_ip: Node<ByteSlice>,
 
     #[genet(
         typ = "@ntp:time",
         map = "(x >> 32) as f64 + ((x & 0xffff_ffff) as f64 / 4294967296f64)"
     )]
-    reference_ts: Node2Field<Cast2Cast<u64, f64>, TimeFormat>,
+    reference_ts: Node<CastCast<u64, f64>, TimeFormat>,
 
     #[genet(
         typ = "@ntp:time",
         map = "(x >> 32) as f64 + ((x & 0xffff_ffff) as f64 / 4294967296f64)"
     )]
-    originate_ts: Node2Field<Cast2Cast<u64, f64>, TimeFormat>,
+    originate_ts: Node<CastCast<u64, f64>, TimeFormat>,
 
     #[genet(
         typ = "@ntp:time",
         map = "(x >> 32) as f64 + ((x & 0xffff_ffff) as f64 / 4294967296f64)"
     )]
-    receive_ts: Node2Field<Cast2Cast<u64, f64>, TimeFormat>,
+    receive_ts: Node<CastCast<u64, f64>, TimeFormat>,
 
     #[genet(
         typ = "@ntp:time",
         map = "(x >> 32) as f64 + ((x & 0xffff_ffff) as f64 / 4294967296f64)"
     )]
-    transmit_ts: Node2Field<Cast2Cast<u64, f64>, TimeFormat>,
+    transmit_ts: Node<CastCast<u64, f64>, TimeFormat>,
 }
 
 #[derive(Attr)]

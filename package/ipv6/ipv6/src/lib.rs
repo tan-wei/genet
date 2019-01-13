@@ -76,11 +76,11 @@ struct IPv6 {
         bit_size = 20,
         map = "(((x[2] as u32) & 0xf) << 16) | ((x[1] as u32) << 8) | x[2] as u32"
     )]
-    flow_label: Cast2Cast<ByteSlice, u32>,
+    flow_label: CastCast<ByteSlice, u32>,
 
     payload_length: u16,
 
-    next_header: Node2Field<u8>,
+    next_header: Node<u8>,
 
     hop_limit: u8,
 
@@ -91,7 +91,7 @@ struct IPv6 {
     src: ByteSlice,
 
     #[genet(detach, typ = "@enum")]
-    protocol: Enum2Field<u8, ProtoType>,
+    protocol: EnumField<u8, ProtoType>,
 }
 
 #[derive(Attr)]

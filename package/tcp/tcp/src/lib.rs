@@ -85,10 +85,10 @@ struct Tcp {
 
     ask: u32,
     #[genet(bit_size = 4, map = "x >> 4")]
-    data_offset: Node2Field<u8>,
+    data_offset: Node<u8>,
 
     #[genet(bit_size = 12, typ = "@flags", map = "x & 0xfff")]
-    flags: Node2Field<u16, Flags>,
+    flags: Node<u16, Flags>,
 
     window: u16,
 
@@ -97,7 +97,7 @@ struct Tcp {
     urgent: u16,
 
     #[genet(detach, byte_size = 1)]
-    options: Node2Field<ByteSlice, Options>,
+    options: Node<ByteSlice, Options>,
 }
 
 #[derive(Attr)]
@@ -105,44 +105,44 @@ struct Flags {
     #[genet(bit_size = 3, skip)]
     reserved: u8,
 
-    ns: Bit2Flag,
+    ns: BitFlag,
 
-    cwr: Bit2Flag,
+    cwr: BitFlag,
 
-    ece: Bit2Flag,
+    ece: BitFlag,
 
-    urg: Bit2Flag,
+    urg: BitFlag,
 
-    ack: Bit2Flag,
+    ack: BitFlag,
 
-    psh: Bit2Flag,
+    psh: BitFlag,
 
-    rst: Bit2Flag,
+    rst: BitFlag,
 
-    syn: Bit2Flag,
+    syn: BitFlag,
 
-    fin: Bit2Flag,
+    fin: BitFlag,
 }
 
 #[derive(Attr)]
 struct Options {
     #[genet(detach)]
-    nop: Node2Field<u8>,
+    nop: Node<u8>,
 
     #[genet(detach)]
-    mss: Node2Field<u16>,
+    mss: Node<u16>,
 
     #[genet(detach)]
-    scale: Node2Field<u8>,
+    scale: Node<u8>,
 
     #[genet(detach)]
-    selective_ack_permitted: Node2Field<u8>,
+    selective_ack_permitted: Node<u8>,
 
     #[genet(detach, byte_size = 1)]
-    selective_ack: Node2Field<ByteSlice>,
+    selective_ack: Node<ByteSlice>,
 
     #[genet(detach, typ = "@nested")]
-    ts: Node2Field<Timestamp>,
+    ts: Node<Timestamp>,
 }
 
 #[derive(Attr)]

@@ -22,7 +22,7 @@ use std::{
 };
 
 #[derive(Clone)]
-pub struct Attr2Context<I, O> {
+pub struct AttrContext<I, O> {
     pub id: String,
     pub path: String,
     pub typ: String,
@@ -36,13 +36,13 @@ pub struct Attr2Context<I, O> {
     pub func_cond: fn(&O) -> bool,
 }
 
-pub struct Attr2Functor<I, O> {
-    pub ctx: Attr2Context<I, O>,
+pub struct AttrFunctor<I, O> {
+    pub ctx: AttrContext<I, O>,
     pub func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<O> + Send + Sync>,
     pub func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync>,
 }
 
-impl<I, O> Into<AttrClassBuilder> for Attr2Functor<I, O> {
+impl<I, O> Into<AttrClassBuilder> for AttrFunctor<I, O> {
     fn into(self) -> AttrClassBuilder {
         AttrClass::builder(format!("{}.{}", self.ctx.path, self.ctx.id).trim_matches('.'))
             .cast(self.func_var)
@@ -57,7 +57,7 @@ impl<I, O> Into<AttrClassBuilder> for Attr2Functor<I, O> {
     }
 }
 
-impl<I, O> Default for Attr2Context<I, O>
+impl<I, O> Default for AttrContext<I, O>
 where
     I: Into<Variant>,
     Variant: TryInto<O>,
@@ -79,11 +79,11 @@ where
     }
 }
 
-pub struct Cast2Cast<I, O> {
+pub struct CastCast<I, O> {
     phantom: PhantomData<(I, O)>,
 }
 
-impl<I: Attr2Field, O: Attr2Field> Attr2Field for Cast2Cast<I, O>
+impl<I: AttrField, O: AttrField> AttrField for CastCast<I, O>
 where
     I::Input: 'static + Into<Variant>,
     I::Output: 'static + Into<I::Input>,
@@ -93,26 +93,26 @@ where
     type Input = I::Input;
     type Output = O::Input;
 
-    fn context() -> Attr2Context<Self::Input, Self::Output> {
-        Attr2Context {
+    fn context() -> AttrContext<Self::Input, Self::Output> {
+        AttrContext {
             bit_size: I::context().bit_size,
-            ..Attr2Context::default()
+            ..AttrContext::default()
         }
     }
 
-    fn new(_ctx: &Attr2Context<Self::Input, Self::Output>) -> Self {
+    fn new(_ctx: &AttrContext<Self::Input, Self::Output>) -> Self {
         Self {
             phantom: PhantomData,
         }
     }
 
-    fn class(ctx: &Attr2Context<Self::Input, Self::Output>) -> AttrClassBuilder {
+    fn class(ctx: &AttrContext<Self::Input, Self::Output>) -> AttrClassBuilder {
         Self::build(ctx).into()
     }
 
     fn build(
-        ctx: &Attr2Context<Self::Input, Self::Output>,
-    ) -> Attr2Functor<Self::Input, Self::Output> {
+        ctx: &AttrContext<Self::Input, Self::Output>,
+    ) -> AttrFunctor<Self::Input, Self::Output> {
         let mctx_fm = ctx.func_map;
         let mctx_cd = ctx.func_cond;
 
@@ -149,7 +149,7 @@ where
         subctx.bit_offset = ctx.bit_offset;
         subctx.bit_size = ctx.bit_size;
 
-        Attr2Functor {
+        AttrFunctor {
             ctx: subctx,
             func_map,
             func_var,
@@ -157,24 +157,24 @@ where
     }
 }
 
-pub trait Attr2Field {
+pub trait AttrField {
     type Input: Into<Variant>;
     type Output: Into<Variant>;
-    fn context() -> Attr2Context<Self::Input, Self::Output>;
-    fn new(ctx: &Attr2Context<Self::Input, Self::Output>) -> Self;
-    fn class(ctx: &Attr2Context<Self::Input, Self::Output>) -> AttrClassBuilder;
+    fn context() -> AttrContext<Self::Input, Self::Output>;
+    fn new(ctx: &AttrContext<Self::Input, Self::Output>) -> Self;
+    fn class(ctx: &AttrContext<Self::Input, Self::Output>) -> AttrClassBuilder;
     fn build(
-        ctx: &Attr2Context<Self::Input, Self::Output>,
-    ) -> Attr2Functor<Self::Input, Self::Output>;
+        ctx: &AttrContext<Self::Input, Self::Output>,
+    ) -> AttrFunctor<Self::Input, Self::Output>;
 }
 
-pub struct Node2Field<F: Attr2Field, C: Attr2Field = F> {
+pub struct Node<F: AttrField, C: AttrField = F> {
     data: C,
     class: Fixed<AttrClass>,
     func: Box<Fn(&Attr, &ByteSlice) -> io::Result<F::Output> + Send + Sync>,
 }
 
-impl<F: Attr2Field, C: Attr2Field> Node2Field<F, C> {
+impl<F: AttrField, C: AttrField> Node<F, C> {
     pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> io::Result<F::Output> {
         let class = self.class;
         let bit_offset = class.bit_range().start;
@@ -189,13 +189,13 @@ impl<F: Attr2Field, C: Attr2Field> Node2Field<F, C> {
     }
 }
 
-impl<F: Attr2Field, C: Attr2Field> AsRef<Fixed<AttrClass>> for Node2Field<F, C> {
+impl<F: AttrField, C: AttrField> AsRef<Fixed<AttrClass>> for Node<F, C> {
     fn as_ref(&self) -> &Fixed<AttrClass> {
         &self.class
     }
 }
 
-impl<F: Attr2Field, C: Attr2Field> Deref for Node2Field<F, C> {
+impl<F: AttrField, C: AttrField> Deref for Node<F, C> {
     type Target = C;
 
     fn deref(&self) -> &C {
@@ -203,7 +203,7 @@ impl<F: Attr2Field, C: Attr2Field> Deref for Node2Field<F, C> {
     }
 }
 
-impl<F: Attr2Field, C: Attr2Field> Attr2Field for Node2Field<F, C>
+impl<F: AttrField, C: AttrField> AttrField for Node<F, C>
 where
     F::Input: 'static,
     F::Output: 'static,
@@ -211,11 +211,11 @@ where
     type Input = F::Input;
     type Output = F::Output;
 
-    fn context() -> Attr2Context<Self::Input, Self::Output> {
+    fn context() -> AttrContext<Self::Input, Self::Output> {
         F::context()
     }
 
-    fn new(ctx: &Attr2Context<Self::Input, Self::Output>) -> Self {
+    fn new(ctx: &AttrContext<Self::Input, Self::Output>) -> Self {
         let func = Self::build(ctx);
         let mut subctx = C::context();
         subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
@@ -227,7 +227,7 @@ where
         }
     }
 
-    fn class(ctx: &Attr2Context<Self::Input, Self::Output>) -> AttrClassBuilder {
+    fn class(ctx: &AttrContext<Self::Input, Self::Output>) -> AttrClassBuilder {
         let mut subctx = C::context();
         subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
         subctx.bit_offset = ctx.bit_offset;
@@ -235,32 +235,32 @@ where
     }
 
     fn build(
-        ctx: &Attr2Context<Self::Input, Self::Output>,
-    ) -> Attr2Functor<Self::Input, Self::Output> {
+        ctx: &AttrContext<Self::Input, Self::Output>,
+    ) -> AttrFunctor<Self::Input, Self::Output> {
         F::build(ctx)
     }
 }
 
-pub trait Enum2Type {
+pub trait EnumType {
     type Output;
-    fn class<T: 'static + Attr2Field<Output = E>, E: 'static + Into<Variant> + Into<Self::Output>>(
-        ctx: &Attr2Context<T::Input, E>,
+    fn class<T: 'static + AttrField<Output = E>, E: 'static + Into<Variant> + Into<Self::Output>>(
+        ctx: &AttrContext<T::Input, E>,
     ) -> AttrClassBuilder;
 }
 
-pub struct Enum2Field<F, E> {
+pub struct EnumField<F, E> {
     phantom: PhantomData<F>,
     class: Fixed<AttrClass>,
     func: Box<Fn(&Attr, &ByteSlice) -> io::Result<E> + Send + Sync>,
 }
 
-impl<F: Attr2Field, E: Enum2Type> AsRef<Fixed<AttrClass>> for Enum2Field<F, E> {
+impl<F: AttrField, E: EnumType> AsRef<Fixed<AttrClass>> for EnumField<F, E> {
     fn as_ref(&self) -> &Fixed<AttrClass> {
         &self.class
     }
 }
 
-impl<F: 'static + Attr2Field, E: 'static + Enum2Type<Output = E>> Attr2Field for Enum2Field<F, E>
+impl<F: 'static + AttrField, E: 'static + EnumType<Output = E>> AttrField for EnumField<F, E>
 where
     F::Input: 'static,
     F::Output: 'static + Into<E>,
@@ -268,11 +268,11 @@ where
     type Input = F::Input;
     type Output = F::Output;
 
-    fn context() -> Attr2Context<Self::Input, Self::Output> {
+    fn context() -> AttrContext<Self::Input, Self::Output> {
         F::context()
     }
 
-    fn new(ctx: &Attr2Context<Self::Input, Self::Output>) -> Self {
+    fn new(ctx: &AttrContext<Self::Input, Self::Output>) -> Self {
         let func = Self::build(ctx);
         Self {
             phantom: PhantomData,
@@ -281,7 +281,7 @@ where
         }
     }
 
-    fn class(ctx: &Attr2Context<Self::Input, Self::Output>) -> AttrClassBuilder {
+    fn class(ctx: &AttrContext<Self::Input, Self::Output>) -> AttrClassBuilder {
         let mut subctx = F::context();
         subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
         subctx.bit_offset = ctx.bit_offset;
@@ -292,13 +292,13 @@ where
     }
 
     fn build(
-        ctx: &Attr2Context<Self::Input, Self::Output>,
-    ) -> Attr2Functor<Self::Input, Self::Output> {
+        ctx: &AttrContext<Self::Input, Self::Output>,
+    ) -> AttrFunctor<Self::Input, Self::Output> {
         F::build(ctx)
     }
 }
 
-impl<F: Attr2Field, E> Enum2Field<F, E>
+impl<F: AttrField, E> EnumField<F, E>
 where
     F::Output: Into<E>,
 {
@@ -318,28 +318,28 @@ where
 
 macro_rules! define_field {
     ($t:ty, $size:expr, $little:block, $big:block) => {
-        impl Attr2Field for $t {
+        impl AttrField for $t {
             type Input = Self;
             type Output = Self;
 
-            fn context() -> Attr2Context<Self::Input, Self::Output> {
-                Attr2Context {
+            fn context() -> AttrContext<Self::Input, Self::Output> {
+                AttrContext {
                     bit_size: $size,
                     ..Default::default()
                 }
             }
 
-            fn new(_ctx: &Attr2Context<Self::Input, Self::Output>) -> Self {
+            fn new(_ctx: &AttrContext<Self::Input, Self::Output>) -> Self {
                 Default::default()
             }
 
-            fn class(ctx: &Attr2Context<Self::Input, Self::Output>) -> AttrClassBuilder {
+            fn class(ctx: &AttrContext<Self::Input, Self::Output>) -> AttrClassBuilder {
                 Self::build(ctx).into()
             }
 
             fn build(
-                ctx: &Attr2Context<Self::Input, Self::Output>,
-            ) -> Attr2Functor<Self::Input, Self::Output> {
+                ctx: &AttrContext<Self::Input, Self::Output>,
+            ) -> AttrFunctor<Self::Input, Self::Output> {
                 let parse: fn(&ByteSlice, Range<usize>) -> io::Result<Self::Output> =
                     if ctx.little_endian { $little } else { $big };
 
@@ -359,7 +359,7 @@ macro_rules! define_field {
                         })
                     });
 
-                Attr2Functor {
+                AttrFunctor {
                     ctx: ctx.clone(),
                     func_map,
                     func_var,
@@ -510,30 +510,30 @@ define_field!(
     { |data: &ByteSlice, range: Range<usize>| data.try_get(range) }
 );
 
-pub struct Bit2Flag();
+pub struct BitFlag();
 
-impl Attr2Field for Bit2Flag {
+impl AttrField for BitFlag {
     type Input = bool;
     type Output = bool;
 
-    fn context() -> Attr2Context<Self::Input, Self::Output> {
-        Attr2Context {
+    fn context() -> AttrContext<Self::Input, Self::Output> {
+        AttrContext {
             bit_size: 1,
             ..Default::default()
         }
     }
 
-    fn new(_ctx: &Attr2Context<Self::Input, Self::Output>) -> Self {
-        Bit2Flag()
+    fn new(_ctx: &AttrContext<Self::Input, Self::Output>) -> Self {
+        BitFlag()
     }
 
-    fn class(ctx: &Attr2Context<Self::Input, Self::Output>) -> AttrClassBuilder {
+    fn class(ctx: &AttrContext<Self::Input, Self::Output>) -> AttrClassBuilder {
         Self::build(ctx).into()
     }
 
     fn build(
-        ctx: &Attr2Context<Self::Input, Self::Output>,
-    ) -> Attr2Functor<Self::Input, Self::Output> {
+        ctx: &AttrContext<Self::Input, Self::Output>,
+    ) -> AttrFunctor<Self::Input, Self::Output> {
         let parse =
             |data: &ByteSlice, range: Range<usize>| Cursor::new(data.try_get(range)?).read_u8();
 
@@ -560,23 +560,12 @@ impl Attr2Field for Bit2Flag {
                     })
             });
 
-        Attr2Functor {
+        AttrFunctor {
             ctx: ctx.clone(),
             func_map,
             func_var,
         }
     }
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct AttrContext {
-    pub path: String,
-    pub typ: String,
-    pub name: &'static str,
-    pub description: &'static str,
-    pub bit_offset: usize,
-    pub detached: bool,
-    pub aliases: Vec<String>,
 }
 
 /// An attribute object.

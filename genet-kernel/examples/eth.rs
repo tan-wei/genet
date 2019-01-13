@@ -14,12 +14,12 @@ struct Eth {
 
     //#[genet(cond = "x <= 1500")]
     #[genet(map = "x as f64 * 0.4")]
-    len: Cast2Cast<u16, f64>,
+    len: CastCast<u16, f64>,
 
     #[genet(cond = "x > 1500", typ = "@enum", align_before, map = "x as u16")]
-    r#type: Enum2Field<Cast2Cast<f64, u16>, EthTypeEnum>,
+    r#type: EnumField<CastCast<f64, u16>, EthTypeEnum>,
 
-    nnn: Node2Field<Cast2Cast<u16, f32>>,
+    nnn: Node<CastCast<u16, f32>>,
 }
 
 #[derive(Attr)]

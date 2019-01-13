@@ -60,7 +60,7 @@ struct IPv4 {
     id: u16,
 
     #[genet(bit_size = 3, map = "(x >> 5) & 0b0000_0111", typ = "@flags")]
-    flags: Node2Field<u8, Flags>,
+    flags: Node<u8, Flags>,
 
     #[genet(bit_size = 13, map = "x & 0x1fff")]
     fragment_offset: u16,
@@ -68,7 +68,7 @@ struct IPv4 {
     ttl: u8,
 
     #[genet(typ = "@enum")]
-    protocol: Enum2Field<u8, ProtoType>,
+    protocol: EnumField<u8, ProtoType>,
 
     checksum: u16,
 
@@ -81,11 +81,11 @@ struct IPv4 {
 
 #[derive(Attr)]
 struct Flags {
-    reserved: Bit2Flag,
+    reserved: BitFlag,
 
-    dont_fragment: Bit2Flag,
+    dont_fragment: BitFlag,
 
-    more_fragments: Bit2Flag,
+    more_fragments: BitFlag,
 }
 
 #[derive(Attr)]

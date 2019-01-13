@@ -16,7 +16,7 @@ struct Eth {
     len: u16,
 
     #[genet(cond = "x > 1500", typ = "@enum", align_before)]
-    r#type: Enum2Field<u16, EthType>,
+    r#type: EnumField<u16, EthType>,
 }
 
 #[derive(Attr, Debug)]

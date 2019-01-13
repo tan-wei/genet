@@ -62,29 +62,29 @@ impl Decoder for ArpDecoder {
 
 #[derive(Attr)]
 struct ARP {
-    hwtype: Enum2Field<u16, HardwareType>,
-    protocol: Enum2Field<u16, ProtocolType>,
-    hlen: Node2Field<u8>,
-    plen: Node2Field<u8>,
-    op: Enum2Field<u16, OperationType>,
+    hwtype: EnumField<u16, HardwareType>,
+    protocol: EnumField<u16, ProtocolType>,
+    hlen: Node<u8>,
+    plen: Node<u8>,
+    op: EnumField<u16, OperationType>,
 
     #[genet(detach, id = "sha", typ = "@eth:mac", alias = "_.src", byte_size = 6)]
-    sha_eth: Node2Field<ByteSlice>,
+    sha_eth: Node<ByteSlice>,
 
     #[genet(detach, id = "tha", typ = "@eth:mac", alias = "_.dst", byte_size = 6)]
-    tha_eth: Node2Field<ByteSlice>,
+    tha_eth: Node<ByteSlice>,
 
     #[genet(detach, id = "spa", typ = "@ipv4:addr", byte_size = 4)]
-    spa_ipv4: Node2Field<ByteSlice>,
+    spa_ipv4: Node<ByteSlice>,
 
     #[genet(detach, id = "tpa", typ = "@ipv4:addr", byte_size = 4)]
-    tpa_ipv4: Node2Field<ByteSlice>,
+    tpa_ipv4: Node<ByteSlice>,
 
     #[genet(detach, id = "spa", typ = "@ipv6:addr", byte_size = 16)]
-    spa_ipv6: Node2Field<ByteSlice>,
+    spa_ipv6: Node<ByteSlice>,
 
     #[genet(detach, id = "tpa", typ = "@ipv6:addr", byte_size = 16)]
-    tpa_ipv6: Node2Field<ByteSlice>,
+    tpa_ipv6: Node<ByteSlice>,
 }
 
 #[derive(Attr)]

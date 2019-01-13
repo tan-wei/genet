@@ -86,14 +86,14 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
     }
 
     let tokens = quote! {
-        impl genet_sdk::attr::Enum2Type for #ident {
+        impl genet_sdk::attr::EnumType for #ident {
             type Output = Self;
 
-            fn class<T: 'static + genet_sdk::attr::Attr2Field<Output = E>, E: 'static + Into<genet_sdk::variant::Variant> + Into<Self::Output>>(
-                ctx: &genet_sdk::attr::Attr2Context<T::Input, E>,
+            fn class<T: 'static + genet_sdk::attr::AttrField<Output = E>, E: 'static + Into<genet_sdk::variant::Variant> + Into<Self::Output>>(
+                ctx: &genet_sdk::attr::AttrContext<T::Input, E>,
             ) -> genet_sdk::attr::AttrClassBuilder {
                 use std::io;
-                use genet_sdk::attr::{AttrClass, Attr2Field};
+                use genet_sdk::attr::{AttrClass, AttrField};
 
                 let mut children : Vec<genet_sdk::attr::AttrClassBuilder> = Vec::new();
 
@@ -165,7 +165,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     fields_bit_size.push(quote! {
                         {
                             type Alias = #ty;
-                            let mut subctx = <Alias as genet_sdk::attr::Attr2Field>::context();
+                            let mut subctx = <Alias as genet_sdk::attr::AttrField>::context();
                             #assign_bit_size;
                             bit_size += subctx.bit_size;
                         }
@@ -201,7 +201,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
 
                 let field = quote! {
                     type Alias = #ty;
-                    let mut subctx = <Alias as genet_sdk::attr::Attr2Field>::context();
+                    let mut subctx = <Alias as genet_sdk::attr::AttrField>::context();
                     #assign_typ;
                     #assign_bit_size;
                     #func_map;
@@ -222,7 +222,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 fields_new.push(quote! {
                     #ident: {
                         #field
-                        <Alias as genet_sdk::attr::Attr2Field>::new(&subctx)
+                        <Alias as genet_sdk::attr::AttrField>::new(&subctx)
                     },
                 });
 
@@ -235,7 +235,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     fields_class.push(quote! {
                         {
                             #field
-                            <Alias as genet_sdk::attr::Attr2Field>::class(&subctx)
+                            <Alias as genet_sdk::attr::AttrField>::class(&subctx)
                         }
                     });
                 }
@@ -245,24 +245,24 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
 
     let tokens = quote! {
 
-        impl genet_sdk::attr::Attr2Field for #ident {
+        impl genet_sdk::attr::AttrField for #ident {
             type Input = genet_sdk::slice::ByteSlice;
             type Output = genet_sdk::slice::ByteSlice;
 
-            fn context() -> genet_sdk::attr::Attr2Context<Self::Input, Self::Output> {
+            fn context() -> genet_sdk::attr::AttrContext<Self::Input, Self::Output> {
                 let mut bit_size = 0;
 
                 #(
                     #fields_bit_size
                 )*
 
-                genet_sdk::attr::Attr2Context {
+                genet_sdk::attr::AttrContext {
                     bit_size,
                     ..Default::default()
                 }
             }
 
-            fn new(ctx: &genet_sdk::attr::Attr2Context<Self::Input, Self::Output>) -> Self {
+            fn new(ctx: &genet_sdk::attr::AttrContext<Self::Input, Self::Output>) -> Self {
                 let mut bit_offset = ctx.bit_offset;
                 let data = Self {
                     #(
@@ -275,7 +275,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 data
             }
 
-            fn class(ctx: &genet_sdk::attr::Attr2Context<Self::Input, Self::Output>) -> genet_sdk::attr::AttrClassBuilder {
+            fn class(ctx: &genet_sdk::attr::AttrContext<Self::Input, Self::Output>) -> genet_sdk::attr::AttrClassBuilder {
                 let mut bit_offset = ctx.bit_offset;
                 let mut children : Vec<genet_sdk::attr::AttrClassBuilder> = Vec::new();
                 #(
@@ -291,7 +291,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     .typ(&ctx.typ)
             }
 
-            fn build(ctx: &genet_sdk::attr::Attr2Context<Self::Input, Self::Output>) -> genet_sdk::attr::Attr2Functor<Self::Input, Self::Output> {
+            fn build(ctx: &genet_sdk::attr::AttrContext<Self::Input, Self::Output>) -> genet_sdk::attr::AttrFunctor<Self::Input, Self::Output> {
                 genet_sdk::slice::ByteSlice::build(ctx)
             }
         }

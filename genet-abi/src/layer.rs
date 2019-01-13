@@ -1,5 +1,5 @@
 use crate::{
-    attr::{Attr, Attr2Field, AttrClass},
+    attr::{Attr, AttrClass, AttrField},
     fixed::{Fixed, MutFixed},
     slice::ByteSlice,
     token::Token,
@@ -280,7 +280,7 @@ impl<T> AsRef<Fixed<LayerClass>> for LayerType<T> {
     }
 }
 
-impl<T: Attr2Field> LayerType<T> {
+impl<T: AttrField> LayerType<T> {
     pub fn new<D: Into<Token>>(id: D) -> Self {
         let mut ctx = T::context();
         ctx.id = id.into().to_string();
