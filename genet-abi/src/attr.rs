@@ -36,16 +36,25 @@ pub struct AttrContext<I, O> {
     pub func_cond: fn(&O) -> bool,
 }
 
-pub struct AttrFunctor<I, O> {
+pub struct AttrFunctor<I: 'static, O: 'static + Into<Variant>> {
     pub ctx: AttrContext<I, O>,
     pub func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<O> + Send + Sync>,
-    pub func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync>,
 }
 
-impl<I, O> Into<AttrClassBuilder> for AttrFunctor<I, O> {
+impl<I: 'static, O: 'static + Into<Variant>> Into<AttrClassBuilder> for AttrFunctor<I, O> {
     fn into(self) -> AttrClassBuilder {
+        let func_map = self.func_map;
+        let func_cond = self.ctx.func_cond;
         AttrClass::builder(format!("{}.{}", self.ctx.path, self.ctx.id).trim_matches('.'))
-            .cast(self.func_var)
+            .cast(Box::new(move |attr, data| {
+                (func_map)(attr, data).map(|x| {
+                    if (func_cond)(&x) {
+                        x.into()
+                    } else {
+                        Variant::Nil
+                    }
+                })
+            }))
             .aliases(self.ctx.aliases.clone())
             .name(self.ctx.name)
             .description(self.ctx.description)
@@ -114,7 +123,6 @@ where
         ctx: &AttrContext<Self::Input, Self::Output>,
     ) -> AttrFunctor<Self::Input, Self::Output> {
         let mctx_fm = ctx.func_map;
-        let mctx_cd = ctx.func_cond;
 
         let mut subctx = I::context();
         subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
@@ -129,21 +137,6 @@ where
                     .and_then(mctx_fm)
             });
 
-        let func = I::build(&subctx);
-        let func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> =
-            Box::new(move |attr, data| {
-                (func.func_map)(attr, data)
-                    .map(|x| x.into())
-                    .and_then(mctx_fm)
-                    .map(|x| {
-                        if (mctx_cd)(&x) {
-                            x.into()
-                        } else {
-                            Variant::Nil
-                        }
-                    })
-            });
-
         let mut subctx = Self::context();
         subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
         subctx.typ = ctx.typ.clone();
@@ -156,7 +149,6 @@ where
         AttrFunctor {
             ctx: subctx,
             func_map,
-            func_var,
         }
     }
 }
@@ -354,22 +346,9 @@ macro_rules! define_field {
                 let func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<Self::Output> + Send + Sync> =
                     Box::new(move |attr, data| parse(data, attr.range()).and_then(mctx.func_map));
 
-                let mctx = ctx.clone();
-                let func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> =
-                    Box::new(move |attr, data| {
-                        parse(data, attr.range()).and_then(mctx.func_map).map(|x| {
-                            if (mctx.func_cond)(&x) {
-                                x.into()
-                            } else {
-                                Variant::Nil
-                            }
-                        })
-                    });
-
                 AttrFunctor {
                     ctx: ctx.clone(),
                     func_map,
-                    func_var,
                 }
             }
         }
@@ -552,25 +531,9 @@ impl AttrField for BitFlag {
                     .and_then(mctx.func_map)
             });
 
-        let mctx = ctx.clone();
-        let func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> =
-            Box::new(move |attr, data| {
-                parse(data, attr.range())
-                    .map(|byte| (byte & (0b1000_0000 >> (attr.bit_range().start % 8))) != 0)
-                    .and_then(mctx.func_map)
-                    .map(|x| {
-                        if (mctx.func_cond)(&x) {
-                            x.into()
-                        } else {
-                            Variant::Nil
-                        }
-                    })
-            });
-
         AttrFunctor {
             ctx: ctx.clone(),
             func_map,
-            func_var,
         }
     }
 }

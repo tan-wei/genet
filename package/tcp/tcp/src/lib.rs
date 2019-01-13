@@ -83,7 +83,7 @@ struct Tcp {
 
     seq: u32,
 
-    ask: u32,
+    ack: u32,
 
     #[genet(bit_size = 4, map = "x >> 4")]
     data_offset: Node<u8>,
