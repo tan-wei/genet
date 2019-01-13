@@ -102,18 +102,20 @@ where
     type Output = O::Input;
 
     fn context() -> Attr2Context<Self::Input, Self::Output> {
-        Attr2Context::default()
+        Attr2Context {
+            bit_size: I::context().bit_size,
+            ..Attr2Context::default()
+        }
     }
 
-    fn new(ctx: &Attr2Context<Self::Input, Self::Output>) -> Self {
+    fn new(_ctx: &Attr2Context<Self::Input, Self::Output>) -> Self {
         Self {
             phantom: PhantomData,
         }
     }
 
     fn class(ctx: &Attr2Context<Self::Input, Self::Output>) -> AttrClassBuilder {
-        let mut ctx = I::context();
-        I::class(&ctx)
+        Self::build(ctx).into()
     }
 
     fn build(
@@ -122,8 +124,11 @@ where
         let mctx_fm = ctx.func_map;
         let mctx_cd = ctx.func_cond;
 
-        let mut ictx = I::context();
-        let func = I::build(&ictx);
+        let mut subctx = I::context();
+        subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
+        subctx.bit_offset = ctx.bit_offset;
+        subctx.bit_size = ctx.bit_size;
+        let func = I::build(&subctx);
 
         let func_map: Box<Fn(&Attr, &ByteSlice) -> io::Result<Self::Output> + Send + Sync> =
             Box::new(move |attr, data| {
@@ -132,7 +137,7 @@ where
                     .and_then(mctx_fm)
             });
 
-        let func = I::build(&ictx);
+        let func = I::build(&subctx);
         let func_var: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> =
             Box::new(move |attr, data| {
                 (func.func_map)(attr, data)
@@ -147,8 +152,13 @@ where
                     })
             });
 
+        let mut subctx = Self::context();
+        subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
+        subctx.bit_offset = ctx.bit_offset;
+        subctx.bit_size = ctx.bit_size;
+
         Attr2Functor {
-            ctx: Attr2Context::default(),
+            ctx: subctx,
             func_map,
             func_var,
         }

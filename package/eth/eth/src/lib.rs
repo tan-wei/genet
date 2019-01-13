@@ -12,8 +12,8 @@ struct Eth {
     #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
     dst: ByteSlice,
 
-    #[genet(cond = "x <= 1500")]
-    len: u16,
+    #[genet(map = "x as f64 * 0.412345", cond = "x <= 1500")]
+    len: Cast2Cast<u16, f64>,
 
     #[genet(cond = "x > 1500", typ = "@enum", align_before)]
     r#type: Enum2Field<u16, EthType>,
