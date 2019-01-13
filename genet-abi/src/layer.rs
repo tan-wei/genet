@@ -1,9 +1,8 @@
 use crate::{
-    attr::{Attr, Attr2Field, AttrClass, AttrContext, AttrField, SizedField},
+    attr::{Attr, Attr2Field, AttrClass},
     fixed::{Fixed, MutFixed},
     slice::ByteSlice,
     token::Token,
-    variant::Variant,
 };
 use std::{
     fmt,
@@ -328,28 +327,6 @@ impl LayerClass {
         }
     }
 
-    pub fn new<I: Into<Variant>, T: Into<Token>, A: SizedField + AttrField<I = I>>(
-        id: T,
-        attr: &A,
-    ) -> LayerClass {
-        let ctx = AttrContext {
-            path: id.into().to_string(),
-            typ: "@layer".into(),
-            ..Default::default()
-        };
-        let class = attr.class(&ctx, attr.bit_size(), None).build();
-        LayerClass {
-            get_id: abi_id,
-            data: abi_data,
-            attrs_len: abi_attrs_len,
-            attrs_data: abi_attrs_data,
-            add_attr: abi_add_attr,
-            set_payload: abi_set_payload,
-            payload: abi_payload,
-            header: Fixed::new(class),
-        }
-    }
-
     fn id(&self) -> Token {
         (self.get_id)(self)
     }
@@ -440,7 +417,6 @@ extern "C" fn abi_set_payload(layer: *mut Layer, data: *const u8, len: u64) {
 mod tests {
     use crate::{
         attr::{Attr, AttrClass},
-        cast::Cast,
         fixed::Fixed,
         layer::{Layer, LayerClass},
         slice::ByteSlice,

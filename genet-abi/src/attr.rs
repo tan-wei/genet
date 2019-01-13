@@ -1,5 +1,4 @@
 use crate::{
-    cast::{Cast, Nil, Typed},
     env,
     fixed::Fixed,
     layer::Layer,
@@ -14,7 +13,6 @@ use crate::{
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 use failure::format_err;
 use std::{
-    cell::Cell,
     fmt,
     io::{self, Cursor},
     marker::PhantomData,
@@ -78,12 +76,6 @@ where
             func_map: |x| x.into().try_into(),
             func_cond: |_| true,
         }
-    }
-}
-
-impl Cast for Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync> {
-    fn cast(&self, attr: &Attr, data: &ByteSlice) -> io::Result<Variant> {
-        (self)(attr, data)
     }
 }
 
@@ -587,24 +579,6 @@ pub struct AttrContext {
     pub aliases: Vec<String>,
 }
 
-pub trait AttrField {
-    type I;
-
-    fn class(
-        &self,
-        ctx: &AttrContext,
-        bit_size: usize,
-        filter: Option<fn(Self::I) -> Variant>,
-    ) -> AttrClassBuilder;
-}
-
-pub trait SizedField {
-    fn bit_size(&self) -> usize;
-    fn byte_size(&self) -> usize {
-        (self.bit_size() + 7) / 8
-    }
-}
-
 /// An attribute object.
 #[repr(C)]
 pub struct Attr<'a> {
@@ -668,17 +642,6 @@ enum ValueType {
     ByteSlice = 7,
 }
 
-#[derive(Clone)]
-struct Const<T>(pub T);
-
-impl<T: 'static + Into<Variant> + Send + Sync + Clone> Typed for Const<T> {
-    type Output = T;
-
-    fn cast(&self, _attr: &Attr, _data: &ByteSlice) -> io::Result<T> {
-        Ok(self.0.clone())
-    }
-}
-
 /// A builder object for AttrClass.
 pub struct AttrClassBuilder {
     id: Token,
@@ -687,7 +650,7 @@ pub struct AttrClassBuilder {
     range: Range<usize>,
     children: Vec<Fixed<AttrClass>>,
     aliases: Vec<Token>,
-    cast: Box<Cast>,
+    cast: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync>,
 }
 
 impl AttrClassBuilder {
@@ -722,8 +685,11 @@ impl AttrClassBuilder {
     }
 
     /// Sets a cast of AttrClass.
-    pub fn cast<T: Cast>(mut self, cast: T) -> AttrClassBuilder {
-        self.cast = Box::new(cast);
+    pub fn cast(
+        mut self,
+        cast: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync>,
+    ) -> AttrClassBuilder {
+        self.cast = cast;
         self
     }
 
@@ -758,7 +724,8 @@ impl AttrClassBuilder {
         mut self,
         value: T,
     ) -> AttrClassBuilder {
-        self.cast = Box::new(Const(value));
+        let value: Variant = value.into();
+        self.cast = Box::new(move |_, _| Ok(value.clone()));
         self
     }
 
@@ -797,7 +764,7 @@ pub struct AttrClass {
     range: Range<usize>,
     children: Vec<Fixed<AttrClass>>,
     aliases: Vec<Token>,
-    cast: Box<Cast>,
+    cast: Box<Fn(&Attr, &ByteSlice) -> io::Result<Variant> + Send + Sync>,
 }
 
 impl fmt::Debug for AttrClass {
@@ -824,7 +791,7 @@ impl AttrClass {
             range: 0..0,
             children: Vec::new(),
             aliases: Vec::new(),
-            cast: Box::new(Const(true)),
+            cast: Box::new(|_, _| Ok(Variant::Nil)),
         }
     }
 
@@ -952,7 +919,7 @@ extern "C" fn abi_get(
     let cast = &attr.class.cast;
     let slice = unsafe { ByteSlice::from_raw_parts(*data, len as usize) };
 
-    match cast.cast(attr, &slice) {
+    match (cast)(attr, &slice) {
         Ok(v) => match v {
             Variant::Bool(val) => {
                 unsafe { *num = if val { 1 } else { 0 } };
@@ -1002,166 +969,10 @@ extern "C" fn abi_get(
     }
 }
 
-pub struct Node<T, U = Nil> {
-    node: T,
-    fields: U,
-    class: Cell<Option<Fixed<AttrClass>>>,
-}
-
-impl<T, U> Node<T, U> {
-    pub fn class(&self) -> Fixed<AttrClass> {
-        self.class.get().unwrap()
-    }
-
-    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<Variant> {
-        self.class().try_get_range(layer, range)
-    }
-
-    pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
-        self.class().try_get(layer)
-    }
-}
-
-impl<T, U> Deref for Node<T, U> {
-    type Target = U;
-
-    fn deref(&self) -> &U {
-        &self.fields
-    }
-}
-
-impl<I: Into<Variant>, J: Into<Variant>, T: AttrField<I = I>, U: AttrField<I = J>> AttrField
-    for Node<T, U>
-{
-    type I = I;
-
-    fn class(
-        &self,
-        ctx: &AttrContext,
-        bit_size: usize,
-        filter: Option<fn(Self::I) -> Variant>,
-    ) -> AttrClassBuilder {
-        let node = self.node.class(ctx, bit_size, filter);
-        let fields = self.fields.class(ctx, bit_size, None);
-
-        if self.class.get().is_none() {
-            self.class.set(Some(Fixed::new(
-                self.node
-                    .class(ctx, bit_size, filter)
-                    .add_children(fields.children().to_vec())
-                    .build(),
-            )))
-        }
-
-        node.add_children(fields.children().to_vec())
-    }
-}
-
-impl<T: SizedField, U> SizedField for Node<T, U> {
-    fn bit_size(&self) -> usize {
-        self.node.bit_size()
-    }
-}
-
-impl<T: Default, U: Default> Default for Node<T, U> {
-    fn default() -> Self {
-        Self {
-            node: T::default(),
-            fields: U::default(),
-            class: Cell::new(None),
-        }
-    }
-}
-
-pub trait EnumField<T: Into<Variant>> {
-    fn class_enum<C: Typed<Output = T> + Clone>(
-        &self,
-        ctx: &AttrContext,
-        bit_size: usize,
-        cast: C,
-    ) -> AttrClassBuilder;
-}
-
-pub struct EnumNode<T, U> {
-    node: T,
-    fields: U,
-    class: Cell<Option<Fixed<AttrClass>>>,
-}
-
-impl<I: Into<Variant>, T: AttrField<I = I> + Typed<Output = I> + Clone, U: EnumField<I>> AttrField
-    for EnumNode<T, U>
-{
-    type I = I;
-
-    fn class(
-        &self,
-        ctx: &AttrContext,
-        bit_size: usize,
-        filter: Option<fn(Self::I) -> Variant>,
-    ) -> AttrClassBuilder {
-        let fields = self.fields.class_enum(ctx, bit_size, self.node.clone());
-
-        if self.class.get().is_none() {
-            self.class.set(Some(Fixed::new(
-                self.node
-                    .class(ctx, bit_size, filter)
-                    .add_children(fields.children().to_vec())
-                    .build(),
-            )))
-        }
-
-        fields
-    }
-}
-
-impl<I: Into<Variant> + Into<U>, T: Typed<Output = I>, U: EnumField<I>> EnumNode<T, U> {
-    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<U> {
-        let class = self.class.get().unwrap();
-
-        let bit_offset = class.bit_range().start;
-        let range = (class.bit_range().start - bit_offset + range.start * 8)
-            ..(class.bit_range().end - bit_offset + range.end * 8);
-
-        let root = Attr::new(&class, range, layer.data());
-        match Typed::cast(&self.node, &root, &layer.data()) {
-            Ok(data) => Ok(data.into()),
-            Err(err) => Err(format_err!("{}", err)),
-        }
-    }
-
-    pub fn try_get(&self, layer: &Layer) -> Result<U> {
-        let class = self.class.get().unwrap();
-        self.try_get_range(layer, class.range())
-    }
-}
-
-impl<T: SizedField, U> SizedField for EnumNode<T, U> {
-    fn bit_size(&self) -> usize {
-        self.node.bit_size()
-    }
-}
-
-impl<T, U> EnumNode<T, U> {
-    pub fn class(&self) -> Fixed<AttrClass> {
-        self.class.get().unwrap()
-    }
-}
-
-impl<T: Default, U: Default> Default for EnumNode<T, U> {
-    fn default() -> Self {
-        Self {
-            node: T::default(),
-            fields: U::default(),
-            class: Cell::new(None),
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use crate::{
         attr::{Attr, AttrClass},
-        cast::Cast,
         slice::{ByteSlice, TryGet},
         token::Token,
         variant::Variant,

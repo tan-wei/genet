@@ -2,7 +2,6 @@
 //! [genet](https://genet.app/).
 
 pub mod attr;
-pub mod cast;
 pub mod context;
 pub mod decoder;
 pub mod file;
