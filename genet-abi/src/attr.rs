@@ -146,6 +146,10 @@ where
 
         let mut subctx = Self::context();
         subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
+        subctx.typ = ctx.typ.clone();
+        subctx.aliases = ctx.aliases.clone();
+        subctx.name = ctx.name;
+        subctx.description = ctx.description;
         subctx.bit_offset = ctx.bit_offset;
         subctx.bit_size = ctx.bit_size;
 
