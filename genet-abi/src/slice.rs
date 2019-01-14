@@ -1,5 +1,6 @@
+use crate::result::Result;
+use failure::err_msg;
 use std::{
-    io::{Error, ErrorKind, Result},
     marker::PhantomData,
     mem,
     ops::{Deref, Range, RangeFrom, RangeFull, RangeInclusive, RangeTo, RangeToInclusive},
@@ -23,7 +24,7 @@ macro_rules! impl_slice_index {
                 fn try_get(&self, index: $x) -> Result<ByteSlice> {
                     <[u8]>::get(self, index)
                         .map(|s| unsafe { ByteSlice::from_raw_parts(s.as_ptr(), s.len()) })
-                        .ok_or_else(|| Error::new(ErrorKind::Other, "out of bounds"))
+                        .ok_or_else(|| err_msg("out of bounds"))
                 }
             }
         )*
@@ -45,7 +46,7 @@ impl TryGet<usize> for ByteSlice {
     fn try_get(&self, index: usize) -> Result<u8> {
         <[u8]>::get(self, index)
             .cloned()
-            .ok_or_else(|| Error::new(ErrorKind::Other, "out of bounds"))
+            .ok_or_else(|| err_msg("out of bounds"))
     }
 }
 

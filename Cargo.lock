@@ -347,6 +347,7 @@ name = "genet-filter"
 version = "0.1.0"
 dependencies = [
  "arrayref 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "failure 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "genet-abi 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "hwaddr 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-bigint 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",

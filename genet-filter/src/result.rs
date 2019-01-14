@@ -1,3 +1,4 @@
-use std::{error::Error, result};
+use failure::Error;
+use std::result;
 
-pub type Result<T> = result::Result<T, Box<Error + Send>>;
+pub type Result<T> = result::Result<T, Error>;

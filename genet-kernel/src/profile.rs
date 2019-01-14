@@ -1,3 +1,4 @@
+use failure::{err_msg, Error};
 use fnv::FnvHashMap;
 use genet_abi::{
     context::Context,
@@ -11,7 +12,7 @@ use genet_abi::{
 use libloading::Library;
 use num_cpus;
 use serde_derive::Serialize;
-use std::{io, mem};
+use std::mem;
 
 #[derive(Serialize, Clone, Default)]
 pub struct Profile {
@@ -73,7 +74,7 @@ impl Profile {
         ctx
     }
 
-    pub fn load_library(&mut self, path: &str) -> Result<(), io::Error> {
+    pub fn load_library(&mut self, path: &str) -> Result<(), Error> {
         let lib = Library::new(path)?;
 
         type FnVersion = extern "C" fn() -> u64;
@@ -98,7 +99,7 @@ impl Profile {
             }
 
             if canonical(env::genet_abi_version()) != canonical(func()) {
-                return Err(io::Error::new(io::ErrorKind::Other, "abi version mismatch"));
+                return Err(err_msg("abi version mismatch"));
             }
 
             let func =
