@@ -61,18 +61,16 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
         fields_class.push(quote! {
             {
                 let func = T::build(ctx);
-                let func_var: Box<Fn(&Attr, &ByteSlice) -> genet_sdk::result::Result<genet_sdk::variant::Variant> + Send + Sync> =
-                    Box::new(move |attr, data| {
-                        (func.func_map)(attr, data)
-                            .map(|x| x.into())
-                            .map(|x| match x {
-                                #ident::#field_ident => genet_sdk::variant::Variant::Bool(true),
-                                _ => genet_sdk::variant::Variant::Nil
-                            })
-                    });
 
                 AttrClass::builder(format!("{}.{}", ctx.path, #id).trim_matches('.'))
-                    .cast(func_var)
+                    .cast(move |attr, data| {
+                    (func.func_map)(attr, data)
+                        .map(|x| x.into())
+                        .map(|x| match x {
+                            #ident::#field_ident => genet_sdk::variant::Variant::Bool(true),
+                            _ => genet_sdk::variant::Variant::Nil
+                        })
+                })
                     .bit_range(0, ctx.bit_offset..(ctx.bit_offset + ctx.bit_size))
                     .aliases(#aliases
                             .split(' ')

@@ -46,7 +46,7 @@ impl<I: 'static, O: 'static + Into<Variant>> Into<AttrClassBuilder> for AttrFunc
         let func_map = self.func_map;
         let func_cond = self.ctx.func_cond;
         AttrClass::builder(format!("{}.{}", self.ctx.path, self.ctx.id).trim_matches('.'))
-            .cast(Box::new(move |attr, data| {
+            .cast(move |attr, data| {
                 (func_map)(attr, data).map(|x| {
                     if (func_cond)(&x) {
                         x.into()
@@ -54,7 +54,7 @@ impl<I: 'static, O: 'static + Into<Variant>> Into<AttrClassBuilder> for AttrFunc
                         Variant::Nil
                     }
                 })
-            }))
+            })
             .aliases(self.ctx.aliases.clone())
             .name(self.ctx.name)
             .description(self.ctx.description)
@@ -703,11 +703,11 @@ impl AttrClassBuilder {
     }
 
     /// Sets a cast of AttrClass.
-    pub fn cast(
+    pub fn cast<F: 'static + Fn(&Attr, &ByteSlice) -> Result<Variant> + Send + Sync>(
         mut self,
-        cast: Box<Fn(&Attr, &ByteSlice) -> Result<Variant> + Send + Sync>,
+        cast: F,
     ) -> AttrClassBuilder {
-        self.cast = cast;
+        self.cast = Box::new(cast);
         self
     }
 
@@ -995,25 +995,18 @@ mod tests {
         token::Token,
         variant::Variant,
     };
-    use std::{
-        io::{Error, ErrorKind, Result},
-        str::from_utf8,
-    };
+    use failure::err_msg;
+    use std::str::from_utf8;
 
     #[test]
     fn bool() {
         #[derive(Clone)]
         struct TestCast {}
 
-        impl Cast for TestCast {
-            fn cast(&self, _attr: &Attr, data: &ByteSlice) -> Result<Variant> {
-                Ok(Variant::Bool(data[0] == 1))
-            }
-        }
         let class = AttrClass::builder("bool")
             .typ("@bool")
             .range(0..1)
-            .cast(TestCast {})
+            .cast(|_, data| Ok(Variant::Bool(data[0] == 1)))
             .build();
         let attr = Attr::new(&class, 0..8, ByteSlice::from(&[1][..]));
         assert_eq!(attr.id(), Token::from("bool"));
@@ -1028,18 +1021,10 @@ mod tests {
 
     #[test]
     fn u64() {
-        #[derive(Clone)]
-        struct TestCast {}
-
-        impl Cast for TestCast {
-            fn cast(&self, _attr: &Attr, data: &ByteSlice) -> Result<Variant> {
-                Ok(Variant::UInt64(from_utf8(data).unwrap().parse().unwrap()))
-            }
-        }
         let class = AttrClass::builder("u64")
             .typ("@u64")
             .range(0..6)
-            .cast(TestCast {})
+            .cast(|_, data| Ok(Variant::UInt64(from_utf8(data).unwrap().parse().unwrap())))
             .build();
         let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("u64"));
@@ -1054,18 +1039,10 @@ mod tests {
 
     #[test]
     fn i64() {
-        #[derive(Clone)]
-        struct TestCast {}
-
-        impl Cast for TestCast {
-            fn cast(&self, _attr: &Attr, data: &ByteSlice) -> Result<Variant> {
-                Ok(Variant::Int64(from_utf8(data).unwrap().parse().unwrap()))
-            }
-        }
         let class = AttrClass::builder("i64")
             .typ("@i64")
             .range(0..6)
-            .cast(TestCast {})
+            .cast(|_, data| Ok(Variant::Int64(from_utf8(data).unwrap().parse().unwrap())))
             .build();
         let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"-123456789"[..]));
         assert_eq!(attr.id(), Token::from("i64"));
@@ -1080,18 +1057,10 @@ mod tests {
 
     #[test]
     fn buffer() {
-        #[derive(Clone)]
-        struct TestCast {}
-
-        impl Cast for TestCast {
-            fn cast(&self, _attr: &Attr, data: &ByteSlice) -> Result<Variant> {
-                Ok(Variant::Buffer(data.to_vec().into_boxed_slice()))
-            }
-        }
         let class = AttrClass::builder("buffer")
             .typ("@buffer")
             .range(0..6)
-            .cast(TestCast {})
+            .cast(|_, data| Ok(Variant::Buffer(data.to_vec().into_boxed_slice())))
             .build();
         let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("buffer"));
@@ -1106,20 +1075,14 @@ mod tests {
 
     #[test]
     fn string() {
-        #[derive(Clone)]
-        struct TestCast {}
-
-        impl Cast for TestCast {
-            fn cast(&self, _attr: &Attr, data: &ByteSlice) -> Result<Variant> {
-                Ok(Variant::String(
-                    from_utf8(&data).unwrap().to_string().into_boxed_str(),
-                ))
-            }
-        }
         let class = AttrClass::builder("string")
             .typ("@string")
             .range(0..6)
-            .cast(TestCast {})
+            .cast(|_, data| {
+                Ok(Variant::String(
+                    from_utf8(&data).unwrap().to_string().into_boxed_str(),
+                ))
+            })
             .build();
         let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("string"));
@@ -1134,18 +1097,10 @@ mod tests {
 
     #[test]
     fn slice() {
-        #[derive(Clone)]
-        struct TestCast {}
-
-        impl Cast for TestCast {
-            fn cast(&self, _attr: &Attr, data: &ByteSlice) -> Result<Variant> {
-                data.try_get(0..3).map(Variant::Slice)
-            }
-        }
         let class = AttrClass::builder("slice")
             .typ("@slice")
             .range(0..6)
-            .cast(TestCast {})
+            .cast(|_, data| data.try_get(0..3).map(Variant::Slice))
             .build();
         let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("slice"));
@@ -1160,18 +1115,10 @@ mod tests {
 
     #[test]
     fn error() {
-        #[derive(Clone)]
-        struct TestCast {}
-
-        impl Cast for TestCast {
-            fn cast(&self, _attr: &Attr, _: &ByteSlice) -> Result<Variant> {
-                Err(Error::new(ErrorKind::Other, "oh no!"))
-            }
-        }
         let class = AttrClass::builder("slice")
             .typ("@slice")
             .range(0..6)
-            .cast(TestCast {})
+            .cast(|_, _| Err(err_msg("oh no!")))
             .build();
         let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("slice"));

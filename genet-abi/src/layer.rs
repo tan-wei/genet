@@ -416,14 +416,13 @@ extern "C" fn abi_set_payload(layer: *mut Layer, data: *const u8, len: u64) {
 #[cfg(test)]
 mod tests {
     use crate::{
-        attr::{Attr, AttrClass},
+        attr::AttrClass,
         fixed::Fixed,
         layer::{Layer, LayerClass},
         slice::ByteSlice,
         token::Token,
         variant::Variant,
     };
-    use std::io::Result;
 
     #[test]
     fn id() {
@@ -450,24 +449,23 @@ mod tests {
         let mut layer = Layer::new(&class, &ByteSlice::new());
         assert!(layer.attrs().next().is_none());
 
-        #[derive(Clone)]
-        struct TestCast {}
-
-        impl Cast for TestCast {
-            fn cast(&self, _attr: &Attr, _: &ByteSlice) -> Result<Variant> {
-                Ok(Variant::Nil)
+        struct Class(Fixed<AttrClass>);
+        impl AsRef<Fixed<AttrClass>> for Class {
+            fn as_ref(&self) -> &Fixed<AttrClass> {
+                &self.0
             }
         }
-        let class = Fixed::new(
+
+        let class = Class(Fixed::new(
             AttrClass::builder("nil")
                 .typ("@nil")
-                .cast(TestCast {})
+                .cast(|_, _| Ok(Variant::Nil))
                 .build(),
-        );
+        ));
 
         let count = 100;
         for i in 0..count {
-            layer.add_attr(class.clone(), 0..i);
+            layer.add_attr(&class, 0..i);
         }
         let mut iter = layer.attrs();
         for i in 0..count {
