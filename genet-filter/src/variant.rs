@@ -21,7 +21,6 @@ pub trait VariantExt {
 impl VariantExt for Variant {
     fn shrink(self) -> Variant {
         if let Variant::BigInt(v) = &self {
-            let v = BigInt::from_signed_bytes_be(&v);
             if let Some(i) = v.to_u64() {
                 return Variant::UInt64(i);
             } else if let Some(i) = v.to_i64() {
@@ -52,45 +51,24 @@ impl VariantExt for Variant {
             Variant::Int64(v) => Variant::Int64(-v),
             Variant::UInt64(v) => Variant::Int64(-(*v as i64)),
             Variant::Float64(v) => Variant::Float64(-v),
-            Variant::BigInt(v) => Variant::BigInt(
-                (-BigInt::from_signed_bytes_be(&v))
-                    .to_signed_bytes_be()
-                    .into_boxed_slice(),
-            ),
+            Variant::BigInt(v) => Variant::BigInt(-v),
             _ => Variant::Int64(0),
         }
     }
 
     fn ord(&self, other: &Variant) -> Option<Ordering> {
         let lhs = match self {
-            Variant::Buffer(v) => Variant::BigInt(
-                BigInt::from_bytes_be(Sign::Plus, &v)
-                    .to_signed_bytes_be()
-                    .into_boxed_slice(),
-            ),
-            Variant::Slice(v) => Variant::BigInt(
-                BigInt::from_bytes_be(Sign::Plus, &v)
-                    .to_signed_bytes_be()
-                    .into_boxed_slice(),
-            ),
+            Variant::Buffer(v) => Variant::BigInt(BigInt::from_bytes_be(Sign::Plus, &v)),
+            Variant::Slice(v) => Variant::BigInt(BigInt::from_bytes_be(Sign::Plus, &v)),
             _ => self.clone(),
         };
         let rhs = match other {
-            Variant::Buffer(v) => Variant::BigInt(
-                BigInt::from_bytes_be(Sign::Plus, &v)
-                    .to_signed_bytes_be()
-                    .into_boxed_slice(),
-            ),
-            Variant::Slice(v) => Variant::BigInt(
-                BigInt::from_bytes_be(Sign::Plus, &v)
-                    .to_signed_bytes_be()
-                    .into_boxed_slice(),
-            ),
+            Variant::Buffer(v) => Variant::BigInt(BigInt::from_bytes_be(Sign::Plus, &v)),
+            Variant::Slice(v) => Variant::BigInt(BigInt::from_bytes_be(Sign::Plus, &v)),
             _ => other.clone(),
         };
 
         match (&lhs, &rhs) {
-            (Variant::String(a), Variant::String(b)) => a.partial_cmp(b),
             (Variant::Int64(a), Variant::Int64(b)) => a.partial_cmp(b),
             (Variant::UInt64(a), Variant::UInt64(b)) => a.partial_cmp(b),
             (Variant::Float64(a), Variant::Float64(b)) => a.partial_cmp(b),
@@ -103,25 +81,13 @@ impl VariantExt for Variant {
             (Variant::Float64(a), Variant::Int64(b)) => a.partial_cmp(&(*b as f64)),
             (Variant::Float64(a), Variant::UInt64(b)) => a.partial_cmp(&(*b as f64)),
 
-            (Variant::Int64(a), Variant::BigInt(b)) => {
-                BigInt::from(*a).partial_cmp(&BigInt::from_signed_bytes_be(&b))
-            }
-            (Variant::UInt64(a), Variant::BigInt(b)) => {
-                BigInt::from(*a).partial_cmp(&BigInt::from_signed_bytes_be(&b))
-            }
-            (Variant::Float64(a), Variant::BigInt(b)) => {
-                BigInt::from(*a as i64).partial_cmp(&BigInt::from_signed_bytes_be(&b))
-            }
+            (Variant::Int64(a), Variant::BigInt(b)) => BigInt::from(*a).partial_cmp(&b),
+            (Variant::UInt64(a), Variant::BigInt(b)) => BigInt::from(*a).partial_cmp(&b),
+            (Variant::Float64(a), Variant::BigInt(b)) => BigInt::from(*a as i64).partial_cmp(&b),
 
-            (Variant::BigInt(a), Variant::Int64(b)) => {
-                BigInt::from_signed_bytes_be(&a).partial_cmp(&BigInt::from(*b))
-            }
-            (Variant::BigInt(a), Variant::UInt64(b)) => {
-                BigInt::from_signed_bytes_be(&a).partial_cmp(&BigInt::from(*b))
-            }
-            (Variant::BigInt(a), Variant::Float64(b)) => {
-                BigInt::from_signed_bytes_be(&a).partial_cmp(&BigInt::from(*b as i64))
-            }
+            (Variant::BigInt(a), Variant::Int64(b)) => a.partial_cmp(&BigInt::from(*b)),
+            (Variant::BigInt(a), Variant::UInt64(b)) => a.partial_cmp(&BigInt::from(*b)),
+            (Variant::BigInt(a), Variant::Float64(b)) => a.partial_cmp(&BigInt::from(*b as i64)),
             _ => None,
         }
     }
@@ -171,8 +137,8 @@ impl VariantExt for Variant {
             Variant::Int64(v) => format!("{}", v),
             Variant::UInt64(v) => format!("{}", v),
             Variant::Float64(v) => format!("{}", v),
-            Variant::String(s) => serde_json::to_string(&s).unwrap(),
-            Variant::BigInt(b) | Variant::Buffer(b) => {
+            Variant::BigInt(b) => "0x".to_string() + &b.to_str_radix(16),
+            Variant::Buffer(b) => {
                 "0x".to_string() + &BigInt::from_bytes_be(Sign::Plus, &b).to_str_radix(16)
             }
             Variant::Slice(b) => {

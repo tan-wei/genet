@@ -12,6 +12,7 @@ use crate::{
 };
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 use failure::format_err;
+use num_bigint::BigInt;
 use std::{
     fmt,
     io::Cursor,
@@ -655,8 +656,8 @@ enum ValueType {
     Int64 = 2,
     UInt64 = 3,
     Float64 = 4,
-    String = 5,
-    Buffer = 6,
+    Buffer = 5,
+    BigInt = 6,
     ByteSlice = 7,
 }
 
@@ -885,12 +886,11 @@ impl AttrClass {
                 env::dealloc(buf as *mut u8);
                 Ok(Variant::Buffer(b))
             },
-            ValueType::String => unsafe {
+            ValueType::BigInt => unsafe {
                 let len: u64 = mem::transmute_copy(&num);
-                let s =
-                    String::from_utf8_unchecked(slice::from_raw_parts(buf, len as usize).to_vec());
+                let b = slice::from_raw_parts(buf, len as usize);
                 env::dealloc(buf as *mut u8);
-                Ok(Variant::String(s.into_boxed_str()))
+                Ok(Variant::BigInt(BigInt::from_signed_bytes_le(b)))
             },
             ValueType::ByteSlice => {
                 let len: u64 = unsafe { mem::transmute_copy(&num) };
@@ -955,6 +955,15 @@ extern "C" fn abi_get(
                 unsafe { *(num as *mut f64) = val };
                 ValueType::Float64
             }
+            Variant::BigInt(val) => {
+                let val = val.to_signed_bytes_le();
+                unsafe {
+                    let (buf, len) = SafeVec::into_raw(SafeVec::from(val));
+                    *data = buf;
+                    *(num as *mut u64) = len as u64;
+                };
+                ValueType::BigInt
+            }
             Variant::Buffer(val) => {
                 unsafe {
                     let (buf, len) = SafeVec::into_raw(SafeVec::from(&val));
@@ -962,14 +971,6 @@ extern "C" fn abi_get(
                     *(num as *mut u64) = len as u64;
                 };
                 ValueType::Buffer
-            }
-            Variant::String(val) => {
-                unsafe {
-                    let (buf, len) = SafeVec::into_raw(SafeVec::from(val.as_bytes()));
-                    *data = buf;
-                    *(num as *mut u64) = len as u64;
-                };
-                ValueType::String
             }
             Variant::Slice(val) => {
                 unsafe {
@@ -1069,28 +1070,6 @@ mod tests {
 
         match attr.try_get().unwrap() {
             Variant::Buffer(val) => assert_eq!(&*val, b"123456789"),
-            _ => panic!(),
-        };
-    }
-
-    #[test]
-    fn string() {
-        let class = AttrClass::builder("string")
-            .typ("@string")
-            .range(0..6)
-            .cast(|_, data| {
-                Ok(Variant::String(
-                    from_utf8(&data).unwrap().to_string().into_boxed_str(),
-                ))
-            })
-            .build();
-        let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"123456789"[..]));
-        assert_eq!(attr.id(), Token::from("string"));
-        assert_eq!(attr.typ(), Token::from("@string"));
-        assert_eq!(attr.range(), 0..6);
-
-        match attr.try_get().unwrap() {
-            Variant::String(val) => assert_eq!(&*val, "123456789"),
             _ => panic!(),
         };
     }

@@ -81,23 +81,20 @@ fn consume_primary(pair: Pair<Rule>) -> Expr {
             Rule::op_logical_negation => Expr::LogicalNegation(Box::new(result.take().unwrap())),
             Rule::bin_integer => {
                 let v = BigInt::from_str_radix(&item.as_str()[2..], 2).unwrap();
-                Expr::Literal(Variant::BigInt(v.to_signed_bytes_be().into_boxed_slice()).shrink())
+                Expr::Literal(Variant::BigInt(v).shrink())
             }
             Rule::oct_integer => {
                 let v = BigInt::from_str_radix(&item.as_str()[2..], 8).unwrap();
-                Expr::Literal(Variant::BigInt(v.to_signed_bytes_be().into_boxed_slice()).shrink())
+                Expr::Literal(Variant::BigInt(v).shrink())
             }
             Rule::hex_integer => {
                 let v = BigInt::from_str_radix(&item.as_str()[2..], 16).unwrap();
-                Expr::Literal(Variant::BigInt(v.to_signed_bytes_be().into_boxed_slice()).shrink())
+                Expr::Literal(Variant::BigInt(v).shrink())
             }
             Rule::dec_integer => {
                 let v = BigInt::from_str_radix(item.as_str(), 10).unwrap();
-                Expr::Literal(Variant::BigInt(v.to_signed_bytes_be().into_boxed_slice()).shrink())
+                Expr::Literal(Variant::BigInt(v).shrink())
             }
-            Rule::string => Expr::Literal(Variant::String(
-                serde_json::from_str(item.as_str()).unwrap(),
-            )),
             Rule::macro_exp => parse_macro(item.as_str()[1..].to_string()),
             Rule::float => Expr::Literal(Variant::Float64(item.as_str().parse().unwrap())),
             Rule::nil => Expr::Literal(Variant::Nil),
@@ -133,30 +130,9 @@ mod tests {
         assert_eq!(parse("0o776503"), Ok(Literal(Variant::UInt64(261_443))));
         assert_eq!(parse("0xff5678"), Ok(Literal(Variant::UInt64(16_733_816))));
         assert_eq!(
-            parse(r#" "aaaa" "#),
-            Ok(Literal(Variant::String(
-                "aaaa".to_string().into_boxed_str()
-            )))
-        );
-        assert_eq!(
-            parse(r#" "aa\\aa" "#),
-            Ok(Literal(Variant::String(
-                "aa\\aa".to_string().into_boxed_str()
-            )))
-        );
-        assert_eq!(
-            parse(r#" " \u1234 " "#),
-            Ok(Literal(Variant::String(
-                " \u{1234} ".to_string().into_boxed_str()
-            )))
-        );
-        assert_eq!(
             parse("9999999999999999999999999"),
             Ok(Literal(Variant::BigInt(
-                BigInt::from_str_radix("9999999999999999999999999", 10)
-                    .unwrap()
-                    .to_signed_bytes_be()
-                    .into_boxed_slice()
+                BigInt::from_str_radix("9999999999999999999999999", 10).unwrap()
             )))
         );
         assert_eq!(
@@ -166,26 +142,20 @@ mod tests {
                     BigInt::from_str_radix(
                         "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111",
                         2
-                    ).unwrap().to_signed_bytes_be().into_boxed_slice()
+                    ).unwrap()
                 ))
             )
         );
         assert_eq!(
             parse("0o7777777777777777777777777777777777777"),
             Ok(Literal(Variant::BigInt(
-                BigInt::from_str_radix("7777777777777777777777777777777777777", 8)
-                    .unwrap()
-                    .to_signed_bytes_be()
-                    .into_boxed_slice()
+                BigInt::from_str_radix("7777777777777777777777777777777777777", 8).unwrap()
             )))
         );
         assert_eq!(
             parse("0xffffffffffffffffffffffffffff"),
             Ok(Literal(Variant::BigInt(
-                BigInt::from_str_radix("ffffffffffffffffffffffffffff", 16)
-                    .unwrap()
-                    .to_signed_bytes_be()
-                    .into_boxed_slice()
+                BigInt::from_str_radix("ffffffffffffffffffffffffffff", 16).unwrap()
             )))
         );
     }

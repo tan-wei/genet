@@ -1,5 +1,6 @@
 use crate::{result::Result, slice::ByteSlice};
 use failure::err_msg;
+use num_bigint::BigInt;
 use std::convert::Into;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -9,8 +10,7 @@ pub enum Variant {
     Int64(i64),
     UInt64(u64),
     Float64(f64),
-    String(Box<str>),
-    BigInt(Box<[u8]>),
+    BigInt(BigInt),
     Buffer(Box<[u8]>),
     Slice(ByteSlice),
 }
@@ -20,19 +20,9 @@ pub trait TryInto<T> {
     fn try_into(self) -> Result<T>;
 }
 
-impl TryInto<String> for Variant {
-    fn try_into(self) -> Result<String> {
-        match self {
-            Variant::String(val) => Ok(val.to_string()),
-            _ => Err(err_msg("wrong type")),
-        }
-    }
-}
-
 impl TryInto<Vec<u8>> for Variant {
     fn try_into(self) -> Result<Vec<u8>> {
         match self {
-            Variant::String(val) => Ok(val.to_string().into_bytes()),
             Variant::Buffer(val) => Ok(val.into_vec()),
             Variant::Slice(val) => Ok(val.as_ref().to_vec()),
             _ => Err(err_msg("wrong type")),
@@ -52,8 +42,6 @@ impl TryInto<ByteSlice> for Variant {
 impl TryInto<u64> for Variant {
     fn try_into(self) -> Result<u64> {
         match self {
-            Variant::Nil => Ok(0),
-            Variant::Bool(val) => Ok(if val { 1 } else { 0 }),
             Variant::Int64(val) => Ok(val as u64),
             Variant::UInt64(val) => Ok(val as u64),
             Variant::Float64(val) => Ok(val as u64),
@@ -98,8 +86,6 @@ impl TryInto<u8> for Variant {
 impl TryInto<i64> for Variant {
     fn try_into(self) -> Result<i64> {
         match self {
-            Variant::Nil => Ok(0),
-            Variant::Bool(val) => Ok(if val { 1 } else { 0 }),
             Variant::Int64(val) => Ok(val as i64),
             Variant::UInt64(val) => Ok(val as i64),
             Variant::Float64(val) => Ok(val as i64),
@@ -135,8 +121,6 @@ impl TryInto<i8> for Variant {
 impl TryInto<f64> for Variant {
     fn try_into(self) -> Result<f64> {
         match self {
-            Variant::Nil => Ok(0f64),
-            Variant::Bool(val) => Ok(if val { 1f64 } else { 0f64 }),
             Variant::Int64(val) => Ok(val as f64),
             Variant::UInt64(val) => Ok(val as f64),
             Variant::Float64(val) => Ok(val as f64),
@@ -214,12 +198,6 @@ impl Into<Variant> for f32 {
 impl Into<Variant> for f64 {
     fn into(self) -> Variant {
         Variant::Float64(self)
-    }
-}
-
-impl Into<Variant> for Box<str> {
-    fn into(self) -> Variant {
-        Variant::String(self)
     }
 }
 
