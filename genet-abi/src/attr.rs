@@ -60,10 +60,7 @@ impl<I: 'static, O: 'static + Into<Variant>> Into<AttrClassBuilder> for AttrFunc
             .name(self.ctx.name)
             .description(self.ctx.description)
             .typ(&self.ctx.typ)
-            .bit_range(
-                0,
-                self.ctx.bit_offset..(self.ctx.bit_offset + self.ctx.bit_size),
-            )
+            .bit_range(self.ctx.bit_offset..(self.ctx.bit_offset + self.ctx.bit_size))
     }
 }
 
@@ -698,8 +695,8 @@ impl AttrClassBuilder {
     }
 
     /// Sets a bit range of Attr.
-    pub fn bit_range(mut self, byte_offset: usize, range: Range<usize>) -> AttrClassBuilder {
-        self.range = (range.start + byte_offset * 8)..(range.end + byte_offset * 8);
+    pub fn bit_range(mut self, range: Range<usize>) -> AttrClassBuilder {
+        self.range = range.start..range.end;
         self
     }
 

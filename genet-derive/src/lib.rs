@@ -71,7 +71,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
                             _ => genet_sdk::variant::Variant::Nil
                         })
                 })
-                    .bit_range(0, ctx.bit_offset..(ctx.bit_offset + ctx.bit_size))
+                    .bit_range(ctx.bit_offset..(ctx.bit_offset + ctx.bit_size))
                     .aliases(#aliases
                             .split(' ')
                             .filter(|s| !s.is_empty())
@@ -282,7 +282,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
 
                 genet_sdk::attr::AttrClass::builder(format!("{}.{}", ctx.path, ctx.id).trim_matches('.'))
                     .add_children(children.into_iter().map(|attr| Fixed::new(attr.build())).collect())
-                    .bit_range(0, ctx.bit_offset..(ctx.bit_offset + ctx.bit_size))
+                    .bit_range(ctx.bit_offset..(ctx.bit_offset + ctx.bit_size))
                     .aliases(ctx.aliases.clone())
                     .name(ctx.name)
                     .description(ctx.description)
