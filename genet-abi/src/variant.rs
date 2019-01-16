@@ -1,6 +1,7 @@
 use crate::{result::Result, slice::ByteSlice};
 use failure::err_msg;
 use num_bigint::BigInt;
+use num_traits::cast::ToPrimitive;
 use std::convert::Into;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -41,10 +42,17 @@ impl TryInto<ByteSlice> for Variant {
 
 impl TryInto<u64> for Variant {
     fn try_into(self) -> Result<u64> {
+        TryInto::<u128>::try_into(self).map(|v| v as u64)
+    }
+}
+
+impl TryInto<u128> for Variant {
+    fn try_into(self) -> Result<u128> {
         match self {
-            Variant::Int64(val) => Ok(val as u64),
-            Variant::UInt64(val) => Ok(val as u64),
-            Variant::Float64(val) => Ok(val as u64),
+            Variant::Int64(val) => Ok(val as u128),
+            Variant::UInt64(val) => Ok(val as u128),
+            Variant::Float64(val) => Ok(val as u128),
+            Variant::BigInt(val) => val.to_u128().ok_or(err_msg("overflow")),
             _ => Err(err_msg("wrong type")),
         }
     }
@@ -85,10 +93,17 @@ impl TryInto<u8> for Variant {
 
 impl TryInto<i64> for Variant {
     fn try_into(self) -> Result<i64> {
+        TryInto::<i128>::try_into(self).map(|v| v as i64)
+    }
+}
+
+impl TryInto<i128> for Variant {
+    fn try_into(self) -> Result<i128> {
         match self {
-            Variant::Int64(val) => Ok(val as i64),
-            Variant::UInt64(val) => Ok(val as i64),
-            Variant::Float64(val) => Ok(val as i64),
+            Variant::Int64(val) => Ok(val as i128),
+            Variant::UInt64(val) => Ok(val as i128),
+            Variant::Float64(val) => Ok(val as i128),
+            Variant::BigInt(val) => val.to_i128().ok_or(err_msg("overflow")),
             _ => Err(err_msg("wrong type")),
         }
     }
@@ -165,6 +180,12 @@ impl Into<Variant> for i64 {
     }
 }
 
+impl Into<Variant> for i128 {
+    fn into(self) -> Variant {
+        Variant::BigInt(self.into())
+    }
+}
+
 impl Into<Variant> for u8 {
     fn into(self) -> Variant {
         Variant::UInt64(u64::from(self))
@@ -186,6 +207,12 @@ impl Into<Variant> for u32 {
 impl Into<Variant> for u64 {
     fn into(self) -> Variant {
         Variant::UInt64(self)
+    }
+}
+
+impl Into<Variant> for u128 {
+    fn into(self) -> Variant {
+        Variant::BigInt(self.into())
     }
 }
 
