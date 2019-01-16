@@ -62,8 +62,8 @@ impl<'a> LayerStack<'a> {
     }
 
     /// Adds an attribute to the Layer.
-    pub fn add_attr<C: AsRef<Fixed<AttrClass>>>(&mut self, attr: &C, range: Range<usize>) {
-        self.deref_mut().add_attr(attr, range);
+    pub fn add_attr<C: AsRef<[Fixed<AttrClass>]>>(&mut self, attrs: &C, range: Range<usize>) {
+        self.deref_mut().add_attr(attrs, range);
     }
 
     /// Returns the payload.
@@ -187,15 +187,32 @@ impl Layer {
     }
 
     /// Adds an attribute to the Layer.
-    pub fn add_attr<C: AsRef<Fixed<AttrClass>>>(&mut self, attr: &C, range: Range<usize>) {
+    pub fn add_attr<C: AsRef<[Fixed<AttrClass>]>>(&mut self, attrs: &C, range: Range<usize>) {
         let func = self.class.add_attr;
+        let attrs = attrs.as_ref();
+
+        let root = attrs[0];
+        let offset = (range.start * 8) as isize - root.bit_range().start as isize;
+
         (func)(
             self,
             BoundAttr {
-                attr: *attr.as_ref(),
+                attr: root,
                 range: (range.start * 8)..(range.end * 8),
             },
         );
+
+        for attr in &attrs[1..] {
+            let range = attr.bit_range();
+            (func)(
+                self,
+                BoundAttr {
+                    attr: *attr,
+                    range: (range.start as isize + offset) as usize
+                        ..(range.end as isize + offset) as usize,
+                },
+            );
+        }
     }
 
     /// Returns the payload.
@@ -284,8 +301,15 @@ impl<T: AttrField> LayerType<T> {
     pub fn new<D: Into<Token>>(id: D) -> Self {
         let mut ctx = T::context();
         ctx.id = id.into().to_string();
-        ctx.typ = "@layer".into();
-        let class = T::class(&ctx).build();
+        let class = T::class(&ctx)
+            .into_iter()
+            .map(|attr| Fixed::new(attr.build()))
+            .collect();
+        let class = AttrClass::builder(ctx.id.clone())
+            .bit_range(ctx.bit_offset..(ctx.bit_offset + ctx.bit_size))
+            .typ("@layer")
+            .add_children(class)
+            .build();
         let layer = Fixed::new(LayerClass {
             get_id: abi_id,
             data: abi_data,

@@ -90,7 +90,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
 
             fn class<T: 'static + genet_sdk::attr::AttrField<Output = E>, E: 'static + Into<genet_sdk::variant::Variant> + Into<Self::Output>>(
                 ctx: &genet_sdk::attr::AttrContext<T::Input, E>,
-            ) -> genet_sdk::attr::AttrClassBuilder {
+            ) -> Vec<genet_sdk::attr::AttrClassBuilder> {
                 use std::io;
                 use genet_sdk::attr::{AttrClass, AttrField};
 
@@ -100,8 +100,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
                     children.push(#fields_class);
                 )*
 
-                AttrClass::builder("")
-                    .add_children(children.into_iter().map(|attr| Fixed::new(attr.build())).collect())
+                children
             }
         }
     };
@@ -274,20 +273,23 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 data
             }
 
-            fn class(ctx: &genet_sdk::attr::AttrContext<Self::Input, Self::Output>) -> genet_sdk::attr::AttrClassBuilder {
+            fn class(ctx: &genet_sdk::attr::AttrContext<Self::Input, Self::Output>) -> Vec<genet_sdk::attr::AttrClassBuilder> {
                 let mut bit_offset = ctx.bit_offset;
                 let mut children : Vec<genet_sdk::attr::AttrClassBuilder> = Vec::new();
                 #(
-                    children.push(#fields_class);
+                    children.append(&mut #fields_class);
                 )*
 
-                genet_sdk::attr::AttrClass::builder(format!("{}.{}", ctx.path, ctx.id).trim_matches('.'))
-                    .add_children(children.into_iter().map(|attr| Fixed::new(attr.build())).collect())
+                let mut root = vec![genet_sdk::attr::AttrClass::builder(format!("{}.{}", ctx.path, ctx.id).trim_matches('.'))
+                    .cast(|attr, data| Ok(genet_sdk::variant::Variant::Bool(true)))
                     .bit_range(ctx.bit_offset..(ctx.bit_offset + ctx.bit_size))
                     .aliases(ctx.aliases.clone())
                     .name(ctx.name)
                     .description(ctx.description)
-                    .typ(&ctx.typ)
+                    .typ(&ctx.typ)];
+
+                root.append(&mut children);
+                root
             }
 
             fn build(ctx: &genet_sdk::attr::AttrContext<Self::Input, Self::Output>) -> genet_sdk::attr::AttrFunctor<Self::Input, Self::Output> {
