@@ -39,7 +39,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
     fn layer_attrs<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
-        let attrs = layer.attrs().collect::<Vec<_>>();
+        let attrs = layer.attrs();
         let attr_class = env.get_constructor(JsClass::Attr as usize).unwrap();
         let array = env.create_array(attrs.len())?;
         for (i, item) in attrs.into_iter().enumerate() {

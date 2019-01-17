@@ -3,6 +3,7 @@ use crate::{
     fixed::{Fixed, MutFixed},
     slice::ByteSlice,
     token::Token,
+    variant::Variant,
 };
 use std::{
     fmt,
@@ -52,7 +53,7 @@ impl<'a> LayerStack<'a> {
     }
 
     /// Returns the slice of attributes.
-    pub fn attrs(&self) -> impl Iterator<Item = Attr> {
+    pub fn attrs(&self) -> Vec<Attr> {
         self.deref().attrs()
     }
 
@@ -165,7 +166,7 @@ impl Layer {
     }
 
     /// Returns the slice of attributes.
-    pub fn attrs(&self) -> impl Iterator<Item = Attr> {
+    pub fn attrs(&self) -> Vec<Attr> {
         self.class.attrs(self)
     }
 
@@ -302,6 +303,7 @@ impl<T: AttrField> LayerType<T> {
         let mut ctx = T::context();
         ctx.id = id.into().to_string();
         let class = vec![AttrClass::builder(ctx.id.clone())
+            .cast(|_, _| Ok(Variant::Bool(true)))
             .bit_range(ctx.bit_offset..(ctx.bit_offset + ctx.bit_size))
             .typ("@layer")];
         let class = class
@@ -364,19 +366,17 @@ impl LayerClass {
         unsafe { ByteSlice::from_raw_parts(data, len as usize) }
     }
 
-    fn attrs(&self, layer: &Layer) -> impl Iterator<Item = Attr> {
+    fn attrs(&self, layer: &Layer) -> Vec<Attr> {
         let data = (self.attrs_data)(layer);
         let len = (self.attrs_len)(layer) as usize;
         let headers = self
             .headers()
             .iter()
-            .map(|h| Attr::new(&h, h.bit_range(), layer.data()))
-            .collect::<Vec<_>>();
+            .map(|h| Attr::new(&h, h.bit_range(), layer.data()));
         let attrs = unsafe { slice::from_raw_parts(data, len) }
             .iter()
-            .map(|b| Attr::new(&b.attr, b.range.clone(), layer.data()))
-            .collect::<Vec<_>>();
-        headers.into_iter().chain(attrs.into_iter())
+            .map(|b| Attr::new(&b.attr, b.range.clone(), layer.data()));
+        headers.into_iter().chain(attrs.into_iter()).collect()
     }
 
     fn payload(&self, layer: &Layer) -> ByteSlice {

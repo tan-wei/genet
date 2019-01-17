@@ -281,7 +281,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 )*
 
                 let mut root = vec![genet_sdk::attr::AttrClass::builder(format!("{}.{}", ctx.path, ctx.id).trim_matches('.'))
-                    .cast(|attr, data| Ok(genet_sdk::variant::Variant::Bool(true)))
+                    .cast(|_, _| Ok(genet_sdk::variant::Variant::Bool(true)))
                     .bit_range(ctx.bit_offset..(ctx.bit_offset + ctx.bit_size))
                     .aliases(ctx.aliases.clone())
                     .name(ctx.name)
