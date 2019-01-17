@@ -1,5 +1,5 @@
 use crate::binding::JsClass;
-use genet_abi::{attr::AttrClass, layer::Layer, token::Token};
+use genet_abi::{layer::Layer, token::Token};
 use genet_filter::{ast::Expr, unparser::unparse};
 use genet_napi::napi::{
     CallbackInfo, Env, PropertyAttributes, PropertyDescriptor, Result, Status, TypedArrayType,
@@ -39,21 +39,13 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
     fn layer_attrs<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
-
-        let headers = AttrClass::expand(layer.header(), &layer.data(), None);
-        let hlen = headers.len();
         let attrs = layer.attrs().collect::<Vec<_>>();
         let attr_class = env.get_constructor(JsClass::Attr as usize).unwrap();
-        let array = env.create_array(hlen + attrs.len())?;
-        for (i, item) in headers.into_iter().enumerate() {
-            let instance = env.new_instance(&attr_class, &[])?;
-            env.wrap(instance, item)?;
-            env.set_element(array, i as u32, instance)?;
-        }
+        let array = env.create_array(attrs.len())?;
         for (i, item) in attrs.into_iter().enumerate() {
             let instance = env.new_instance(&attr_class, &[])?;
             env.wrap(instance, item)?;
-            env.set_element(array, (hlen + i) as u32, instance)?;
+            env.set_element(array, i as u32, instance)?;
         }
         Ok(array)
     }

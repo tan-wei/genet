@@ -885,27 +885,6 @@ impl AttrClass {
         self.range.clone()
     }
 
-    pub fn expand<'a>(
-        attr: &'a AttrClass,
-        data: &ByteSlice,
-        bit_range: Option<Range<usize>>,
-    ) -> Vec<Attr<'a>> {
-        let range = if let Some(range) = bit_range {
-            range
-        } else {
-            attr.bit_range()
-        };
-        let root = Attr::new(attr, range.clone(), *data);
-        let mut attrs = vec![root];
-        for child in &attr.children {
-            let offset = range.start as isize - attr.bit_range().start as isize;
-            let range = (child.bit_range().start as isize + offset) as usize
-                ..(child.bit_range().end as isize + offset) as usize;
-            attrs.append(&mut AttrClass::expand(&child, &data, Some(range)));
-        }
-        attrs
-    }
-
     pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
         self.try_get_range(layer, self.range())
     }
