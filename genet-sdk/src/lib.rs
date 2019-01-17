@@ -6,7 +6,6 @@ pub mod context;
 pub mod decoder;
 pub mod file;
 pub mod fixed;
-pub mod helper;
 pub mod layer;
 pub mod prelude;
 pub mod reader;
