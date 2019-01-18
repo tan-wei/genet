@@ -37,6 +37,42 @@ pub struct AttrContext<I, O> {
     pub func_cond: fn(&O) -> bool,
 }
 
+pub trait Mapper<O> {
+    fn invoke(&self, attr: &Attr, data: &ByteSlice) -> Result<O>;
+    fn box_clone(&self) -> Box<Mapper<O>>;
+}
+
+impl<O> Clone for Box<Mapper<O>> {
+    fn clone(&self) -> Box<Mapper<O>> {
+        self.box_clone()
+    }
+}
+
+pub struct MapFunc<
+    O: 'static,
+    F: 'static + Fn(&Attr, &ByteSlice) -> Result<O> + Send + Sync + Clone,
+>(F);
+
+impl<O: 'static, F: 'static + Fn(&Attr, &ByteSlice) -> Result<O> + Send + Sync + Clone>
+    MapFunc<O, F>
+{
+    pub fn wrap(func: F) -> Box<Mapper<O>> {
+        Box::new(Self(func))
+    }
+}
+
+impl<O: 'static, F: 'static + Fn(&Attr, &ByteSlice) -> Result<O> + Send + Sync + Clone> Mapper<O>
+    for MapFunc<O, F>
+{
+    fn invoke(&self, attr: &Attr, data: &ByteSlice) -> Result<O> {
+        (self.0)(attr, data)
+    }
+
+    fn box_clone(&self) -> Box<Mapper<O>> {
+        Box::new(Self(self.0.clone()))
+    }
+}
+
 pub struct AttrFunctor<I: 'static, O: 'static + Into<Variant>> {
     pub ctx: AttrContext<I, O>,
     pub func_map: Box<Fn(&Attr, &ByteSlice) -> Result<O> + Send + Sync>,
