@@ -10,7 +10,6 @@ use pest::{
     Parser,
 };
 use pest_derive::Parser;
-use serde_json;
 use std::net::{Ipv4Addr, Ipv6Addr};
 
 #[derive(Parser)]

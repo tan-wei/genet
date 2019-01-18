@@ -1,7 +1,6 @@
 use genet_abi::variant::Variant;
 use num_bigint::{BigInt, Sign};
 use num_traits::ToPrimitive;
-use serde_json;
 use std::cmp::Ordering;
 
 pub trait VariantExt {
