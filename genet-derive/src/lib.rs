@@ -61,10 +61,11 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
         fields_class.push(quote! {
             {
                 let func = T::build(ctx);
+                let func_map = func.func_map;
 
                 AttrClass::builder(format!("{}.{}", ctx.path, #id).trim_matches('.'))
                     .cast(move |attr, data| {
-                    (func.func_map)(attr, data)
+                    func_map.invoke(attr, data)
                         .map(|x| x.into())
                         .map(|x| match x {
                             #ident::#field_ident => genet_sdk::variant::Variant::Bool(true),

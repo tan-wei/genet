@@ -37,9 +37,45 @@ pub struct AttrContext<I, O> {
     pub func_cond: fn(&O) -> bool,
 }
 
+pub trait Mapper<O>: Send + Sync {
+    fn invoke(&self, attr: &Attr, data: &ByteSlice) -> Result<O>;
+    fn box_clone(&self) -> Box<Mapper<O>>;
+}
+
+impl<O> Clone for Box<Mapper<O>> {
+    fn clone(&self) -> Box<Mapper<O>> {
+        self.box_clone()
+    }
+}
+
+pub struct MapFunc<
+    O: 'static,
+    F: 'static + Fn(&Attr, &ByteSlice) -> Result<O> + Send + Sync + Clone,
+>(F);
+
+impl<O: 'static, F: 'static + Fn(&Attr, &ByteSlice) -> Result<O> + Send + Sync + Clone>
+    MapFunc<O, F>
+{
+    pub fn wrap(func: F) -> Box<Mapper<O>> {
+        Box::new(Self(func))
+    }
+}
+
+impl<O: 'static, F: 'static + Fn(&Attr, &ByteSlice) -> Result<O> + Send + Sync + Clone> Mapper<O>
+    for MapFunc<O, F>
+{
+    fn invoke(&self, attr: &Attr, data: &ByteSlice) -> Result<O> {
+        (self.0)(attr, data)
+    }
+
+    fn box_clone(&self) -> Box<Mapper<O>> {
+        Box::new(Self(self.0.clone()))
+    }
+}
+
 pub struct AttrFunctor<I: 'static, O: 'static + Into<Variant>> {
     pub ctx: AttrContext<I, O>,
-    pub func_map: Box<Fn(&Attr, &ByteSlice) -> Result<O> + Send + Sync>,
+    pub func_map: Box<Mapper<O>>,
 }
 
 impl<I: 'static, O: 'static + Into<Variant>> Into<AttrClassBuilder> for AttrFunctor<I, O> {
@@ -48,7 +84,7 @@ impl<I: 'static, O: 'static + Into<Variant>> Into<AttrClassBuilder> for AttrFunc
         let func_cond = self.ctx.func_cond;
         AttrClass::builder(format!("{}.{}", self.ctx.path, self.ctx.id).trim_matches('.'))
             .cast(move |attr, data| {
-                (func_map)(attr, data).map(|x| {
+                func_map.invoke(attr, data).map(|x| {
                     if (func_cond)(&x) {
                         x.into()
                     } else {
@@ -128,12 +164,13 @@ where
         subctx.bit_size = ctx.bit_size;
         let func = I::build(&subctx);
 
-        let func_map: Box<Fn(&Attr, &ByteSlice) -> Result<Self::Output> + Send + Sync> =
-            Box::new(move |attr, data| {
-                (func.func_map)(attr, data)
-                    .map(|x| x.into())
-                    .and_then(mctx_fm)
-            });
+        let func_map = func.func_map;
+        let func_map = MapFunc::wrap(move |attr, data| {
+            func_map
+                .invoke(attr, data)
+                .map(|x| x.into())
+                .and_then(mctx_fm)
+        });
 
         let mut subctx = Self::context();
         subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
@@ -217,7 +254,7 @@ where
         Self {
             data: C::new(&subctx),
             class: Fixed::new(Self::class(ctx).build()),
-            func: Box::new(move |attr, data| (func.func_map)(attr, data)),
+            func: Box::new(move |attr, data| func.func_map.invoke(attr, data)),
         }
     }
 
@@ -245,7 +282,7 @@ pub trait EnumType {
 pub struct Enum<F, E> {
     phantom: PhantomData<F>,
     class: Fixed<AttrClass>,
-    func: Box<Fn(&Attr, &ByteSlice) -> Result<E> + Send + Sync>,
+    func: Box<Fn(&Attr, &ByteSlice) -> Result<E>>,
 }
 
 impl<F: AttrField, E: EnumType> AsRef<Fixed<AttrClass>> for Enum<F, E> {
@@ -274,7 +311,7 @@ where
         Self {
             phantom: PhantomData,
             class: Fixed::new(Self::class(ctx).build()),
-            func: Box::new(move |attr, data| (func.func_map)(attr, data).map(|x| x.into())),
+            func: Box::new(move |attr, data| func.func_map.invoke(attr, data).map(|x| x.into())),
         }
     }
 
@@ -340,9 +377,9 @@ macro_rules! define_field {
                 let parse: fn(&ByteSlice, Range<usize>) -> Result<Self::Output> =
                     if ctx.little_endian { $little } else { $big };
 
-                let mctx = ctx.clone();
-                let func_map: Box<Fn(&Attr, &ByteSlice) -> Result<Self::Output> + Send + Sync> =
-                    Box::new(move |attr, data| parse(data, attr.range()).and_then(mctx.func_map));
+                let func_map = ctx.func_map;
+                let func_map =
+                    MapFunc::wrap(move |attr, data| parse(data, attr.range()).and_then(func_map));
 
                 AttrFunctor {
                     ctx: ctx.clone(),
@@ -580,13 +617,12 @@ impl AttrField for BitFlag {
                 .map_err(|e| e.into())
         };
 
-        let mctx = ctx.clone();
-        let func_map: Box<Fn(&Attr, &ByteSlice) -> Result<Self::Output> + Send + Sync> =
-            Box::new(move |attr, data| {
-                parse(data, attr.range())
-                    .map(|byte| (byte & (0b1000_0000 >> (attr.bit_range().start % 8))) != 0)
-                    .and_then(mctx.func_map)
-            });
+        let func_map = ctx.func_map;
+        let func_map = MapFunc::wrap(move |attr, data| {
+            parse(data, attr.range())
+                .map(|byte| (byte & (0b1000_0000 >> (attr.bit_range().start % 8))) != 0)
+                .and_then(func_map)
+        });
 
         AttrFunctor {
             ctx: ctx.clone(),
