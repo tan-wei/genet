@@ -376,7 +376,7 @@ impl LayerClass {
         let attrs = unsafe { slice::from_raw_parts(data, len) }
             .iter()
             .map(|b| Attr::new(&b.attr, b.range.clone(), layer.data()));
-        headers.into_iter().chain(attrs.into_iter()).collect()
+        headers.chain(attrs).collect()
     }
 
     fn payload(&self, layer: &Layer) -> ByteSlice {
