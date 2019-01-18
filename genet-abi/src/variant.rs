@@ -50,9 +50,9 @@ impl TryInto<u128> for Variant {
     fn try_into(self) -> Result<u128> {
         match self {
             Variant::Int64(val) => Ok(val as u128),
-            Variant::UInt64(val) => Ok(val as u128),
+            Variant::UInt64(val) => Ok(u128::from(val)),
             Variant::Float64(val) => Ok(val as u128),
-            Variant::BigInt(val) => val.to_u128().ok_or(err_msg("overflow")),
+            Variant::BigInt(val) => val.to_u128().ok_or_else(|| err_msg("overflow")),
             _ => Err(err_msg("wrong type")),
         }
     }
@@ -100,10 +100,10 @@ impl TryInto<i64> for Variant {
 impl TryInto<i128> for Variant {
     fn try_into(self) -> Result<i128> {
         match self {
-            Variant::Int64(val) => Ok(val as i128),
-            Variant::UInt64(val) => Ok(val as i128),
+            Variant::Int64(val) => Ok(i128::from(val)),
+            Variant::UInt64(val) => Ok(i128::from(val)),
             Variant::Float64(val) => Ok(val as i128),
-            Variant::BigInt(val) => val.to_i128().ok_or(err_msg("overflow")),
+            Variant::BigInt(val) => val.to_i128().ok_or_else(|| err_msg("overflow")),
             _ => Err(err_msg("wrong type")),
         }
     }

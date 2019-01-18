@@ -80,7 +80,7 @@ where
             bit_size: Default::default(),
             bit_offset: Default::default(),
             aliases: Default::default(),
-            func_map: |x| x.into().try_into().map_err(|e| e.into()),
+            func_map: |x| x.into().try_into(),
             func_cond: |_| true,
         }
     }
@@ -546,8 +546,8 @@ define_field!(
 define_field!(
     ByteSlice,
     8,
-    { |data: &ByteSlice, range: Range<usize>| data.try_get(range).map_err(|e| e.into()) },
-    { |data: &ByteSlice, range: Range<usize>| data.try_get(range).map_err(|e| e.into()) }
+    { |data: &ByteSlice, range: Range<usize>| data.try_get(range) },
+    { |data: &ByteSlice, range: Range<usize>| data.try_get(range) }
 );
 
 pub struct BitFlag();

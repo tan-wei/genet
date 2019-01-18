@@ -696,7 +696,7 @@ impl Env {
                 &mut data,
             ) {
                 Status::Ok => Ok(CallbackInfo {
-                    argv: argv.into_iter().take(argc).map(|v| &**v).collect(),
+                    argv: argv.iter().take(argc).map(|v| &**v).collect(),
                     this: &*this,
                     data,
                 }),
