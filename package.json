@@ -113,15 +113,15 @@
     "@genet/image-assets": "^0.1.0",
     "benchmark": "^2.1.4",
     "electron": "4.0.1",
-    "electron-builder": "^20.38.4",
+    "electron-builder": "^20.38.5",
     "less": "^3.9.0",
     "node-gyp": "^3.8.0",
     "pretty-bytes": "^5.1.0",
     "ts-loader": "^5.3.3",
     "typedoc": "^0.13.0",
     "typedoc-plugin-internal-external": "^1.0.10",
-    "typescript": "^3.2.2",
-    "webpack": "^4.28.3",
+    "typescript": "^3.2.4",
+    "webpack": "^4.28.4",
     "webpack-cli": "^3.2.1",
     "webpack-node-externals": "^1.7.2"
   }
