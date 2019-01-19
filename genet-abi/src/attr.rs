@@ -721,7 +721,6 @@ pub struct AttrClassBuilder {
     typ: Token,
     meta: Metadata,
     range: Range<usize>,
-    children: Vec<Fixed<AttrClass>>,
     aliases: Vec<Token>,
     cast: Box<Fn(&Attr, &ByteSlice) -> Result<Variant> + Send + Sync>,
 }
@@ -777,21 +776,6 @@ impl AttrClassBuilder {
         self
     }
 
-    pub fn child<C: Into<Fixed<AttrClass>>>(mut self, class: C) -> AttrClassBuilder {
-        self.children.push(class.into());
-        self
-    }
-
-    pub fn add_children<C: Into<Fixed<AttrClass>>>(mut self, children: Vec<C>) -> AttrClassBuilder {
-        let mut children = children.into_iter().map(|s| s.into()).collect();
-        self.children.append(&mut children);
-        self
-    }
-
-    pub fn children(&self) -> &[Fixed<AttrClass>] {
-        &self.children
-    }
-
     /// Sets a constant value of AttrClass.
     pub fn value<T: 'static + Into<Variant> + Send + Sync + Clone>(
         mut self,
@@ -813,7 +797,6 @@ impl AttrClassBuilder {
             typ: self.typ,
             meta: self.meta,
             range: self.range,
-            children: self.children,
             aliases: self.aliases,
             cast: self.cast,
         }
@@ -831,7 +814,6 @@ pub struct AttrClass {
     typ: Token,
     meta: Metadata,
     range: Range<usize>,
-    children: Vec<Fixed<AttrClass>>,
     aliases: Vec<Token>,
     cast: Box<Fn(&Attr, &ByteSlice) -> Result<Variant> + Send + Sync>,
 }
@@ -845,7 +827,6 @@ impl fmt::Debug for AttrClass {
             .field("typ", &self.typ)
             .field("range", &self.range)
             .field("aliases", &self.aliases)
-            .field("children", &self.children)
             .finish()
     }
 }
@@ -858,7 +839,6 @@ impl AttrClass {
             typ: Token::null(),
             meta: Metadata::new(),
             range: 0..0,
-            children: Vec::new(),
             aliases: Vec::new(),
             cast: Box::new(|_, _| Ok(Variant::Nil)),
         }
