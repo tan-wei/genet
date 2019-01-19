@@ -377,10 +377,9 @@ macro_rules! define_field {
                 let parse: fn(&ByteSlice, Range<usize>) -> Result<Self::Output> =
                     if ctx.little_endian { $little } else { $big };
 
-                let mctx = ctx.clone();
-                let func_map = MapFunc::wrap(move |attr, data| {
-                    parse(data, attr.range()).and_then(mctx.func_map)
-                });
+                let func_map = ctx.func_map;
+                let func_map =
+                    MapFunc::wrap(move |attr, data| parse(data, attr.range()).and_then(func_map));
 
                 AttrFunctor {
                     ctx: ctx.clone(),
@@ -618,11 +617,11 @@ impl AttrField for BitFlag {
                 .map_err(|e| e.into())
         };
 
-        let mctx = ctx.clone();
+        let func_map = ctx.func_map;
         let func_map = MapFunc::wrap(move |attr, data| {
             parse(data, attr.range())
                 .map(|byte| (byte & (0b1000_0000 >> (attr.bit_range().start % 8))) != 0)
-                .and_then(mctx.func_map)
+                .and_then(func_map)
         });
 
         AttrFunctor {
