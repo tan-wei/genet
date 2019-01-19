@@ -245,6 +245,26 @@ impl Env {
         }
     }
 
+    pub fn create_bigint_from_i64<'env>(&self, value: i64) -> Result<&'env Value> {
+        unsafe {
+            let mut result: *const Value = mem::uninitialized();
+            match napi_create_bigint_int64(self, value, &mut result) {
+                Status::Ok => Ok(&*result),
+                s => Err(s),
+            }
+        }
+    }
+
+    pub fn create_bigint_from_u64<'env>(&self, value: u64) -> Result<&'env Value> {
+        unsafe {
+            let mut result: *const Value = mem::uninitialized();
+            match napi_create_bigint_uint64(self, value, &mut result) {
+                Status::Ok => Ok(&*result),
+                s => Err(s),
+            }
+        }
+    }
+
     pub fn create_bigint<'env>(&self, value: &BigInt) -> Result<&'env Value> {
         unsafe {
             let mut result: *const Value = mem::uninitialized();
@@ -1012,6 +1032,9 @@ extern "C" {
     fn napi_create_int32(env: *const Env, value: i32, result: *mut *const Value) -> Status;
     fn napi_create_uint32(env: *const Env, value: u32, result: *mut *const Value) -> Status;
     fn napi_create_int64(env: *const Env, value: i64, result: *mut *const Value) -> Status;
+
+    fn napi_create_bigint_int64(env: *const Env, value: i64, result: *mut *const Value) -> Status;
+    fn napi_create_bigint_uint64(env: *const Env, value: u64, result: *mut *const Value) -> Status;
 
     fn napi_create_bigint_words(
         env: *const Env,

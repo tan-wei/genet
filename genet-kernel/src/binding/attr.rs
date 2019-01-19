@@ -7,7 +7,6 @@ use genet_napi::napi::{
     CallbackInfo, Env, PropertyAttributes, PropertyDescriptor, Result, TypedArrayType, Value,
     ValueRef,
 };
-use num_bigint::BigInt;
 use std::rc::Rc;
 
 fn variant_to_js<'env>(
@@ -20,8 +19,8 @@ fn variant_to_js<'env>(
             env.create_string(&format!("{}", err))?,
         ),
         Ok(Variant::Bool(b)) => env.get_boolean(*b),
-        Ok(Variant::Int64(v)) => env.create_bigint(&BigInt::from(*v)),
-        Ok(Variant::UInt64(v)) => env.create_bigint(&BigInt::from(*v)),
+        Ok(Variant::Int64(v)) => env.create_bigint_from_i64(*v),
+        Ok(Variant::UInt64(v)) => env.create_bigint_from_u64(*v),
         Ok(Variant::Float64(v)) => env.create_double(*v),
         Ok(Variant::BigInt(v)) => env.create_bigint(&v),
         Ok(Variant::Buffer(v)) => env.create_typedarray(
