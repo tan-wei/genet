@@ -4,7 +4,7 @@ extern crate proc_macro;
 
 use inflector::cases::camelcase::to_camel_case;
 use proc_macro::TokenStream;
-use quote::quote;
+use quote::*;
 use std::collections::VecDeque;
 use syn::{parse_macro_input, Data, DataEnum, DataStruct, DeriveInput, Expr, Fields, Ident};
 
