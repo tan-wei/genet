@@ -5,6 +5,6 @@ authors = ["Ron Hashimoto <mail@h2so5.net>"]
 edition = "2018"
 
 [dependencies]
-pcap = { path = "../pcap" }
 clap = "2"
+pcap = { path = "../pcap" }
 serde_json = "1"

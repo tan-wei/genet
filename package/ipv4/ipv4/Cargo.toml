@@ -5,9 +5,9 @@ authors = ["Ron Hashimoto <mail@h2so5.net>"]
 edition = "2018"
 
 [lib]
-name = "ipv4"
 crate-type = ["cdylib"]
+name = "ipv4"
 
 [dependencies]
-genet-sdk = "0.5.0"
 genet-derive = { path = "../../../genet-derive" }
+genet-sdk = "0.5.0"

@@ -5,7 +5,7 @@ authors = ["Ron Hashimoto <mail@h2so5.net>"]
 edition = "2018"
 
 [dependencies]
-libc = "0.2"
 bitflags = "1"
-num-bigint = "0.2"
 genet-abi = "0.5.0"
+libc = "0.2"
+num-bigint = "0.2"

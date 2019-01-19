@@ -7,14 +7,14 @@ authors = ["Ron Hashimoto <mail@h2so5.net>"]
 edition = "2018"
 
 [dependencies]
-proc-macro2 = "0.4"
-quote = "0.6.3"
 Inflector = "0.11"
 genet-abi = { path = "../genet-abi" }
+proc-macro2 = "0.4"
+quote = "0.6.3"
 
 [dependencies.syn]
-version = "0.15"
 features = ["extra-traits"]
+version = "0.15"
 
 [lib]
 proc-macro = true
