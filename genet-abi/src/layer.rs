@@ -493,7 +493,7 @@ mod tests {
         for i in 0..count {
             layer.add_attr(&class, 0..i);
         }
-        let mut iter = layer.attrs();
+        let mut iter = layer.attrs().into_iter();
         iter.next();
         for i in 0..count {
             let attr = iter.next().unwrap();
