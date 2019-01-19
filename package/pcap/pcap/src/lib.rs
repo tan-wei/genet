@@ -233,11 +233,11 @@ impl Device {
 
 mod platform {
     use super::Device;
-    use std::os::raw::{c_char, c_long};
 
     #[cfg(target_os = "macos")]
     pub(crate) fn device_descriptions(devices: Vec<Device>) -> Vec<Device> {
         use super::platform::macos::*;
+        use std::os::raw::{c_char, c_long};
 
         fn getstr(string: *const CFString) -> String {
             use std::ffi::CStr;
