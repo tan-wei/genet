@@ -1,4 +1,4 @@
-use genet_derive::Attr;
+use genet_derive::{Attr, Package};
 use genet_sdk::{decoder::*, prelude::*};
 
 struct TcpWorker {
@@ -55,7 +55,7 @@ impl Worker for TcpWorker {
     }
 }
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 struct TcpDecoder {}
 
 impl Decoder for TcpDecoder {
@@ -64,13 +64,12 @@ impl Decoder for TcpDecoder {
             layer: LayerType::new("tcp"),
         })
     }
+}
 
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "tcp".into(),
-            ..Metadata::default()
-        }
-    }
+#[derive(Default, Package)]
+struct TcpPackage {
+    #[decoder(id = "tcp")]
+    decoder: TcpDecoder,
 }
 
 #[derive(Attr)]
@@ -151,5 +150,3 @@ struct Timestamp {
     my: u32,
     echo: u32,
 }
-
-genet_decoders!(TcpDecoder {});

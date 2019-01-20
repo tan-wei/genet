@@ -1,4 +1,4 @@
-use genet_derive::Attr;
+use genet_derive::{Attr, Package};
 use genet_sdk::{decoder::*, prelude::*};
 
 struct PcapLayerWorker {
@@ -18,7 +18,7 @@ impl Worker for PcapLayerWorker {
     }
 }
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 struct PcapLayerDecoder {}
 
 impl Decoder for PcapLayerDecoder {
@@ -28,13 +28,12 @@ impl Decoder for PcapLayerDecoder {
             eth: ctx.decoder("eth").unwrap(),
         })
     }
+}
 
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "pcap_layer".into(),
-            ..Metadata::default()
-        }
-    }
+#[derive(Default, Package)]
+struct PcapLayerPackage {
+    #[decoder(id = "pcap_layer")]
+    decoder: PcapLayerDecoder,
 }
 
 #[derive(Attr)]
@@ -55,5 +54,3 @@ struct Timestamp {
     sec: u32,
     usec: u32,
 }
-
-genet_decoders!(PcapLayerDecoder {});

@@ -16,7 +16,7 @@ pub struct AttrMetadata {
 }
 
 impl AttrMetadata {
-    pub fn parse(attrs: &[Attribute]) -> AttrMetadata {
+    pub fn new(attrs: &[Attribute]) -> Self {
         let mut id = None;
         let mut typ = None;
         let mut aliases = Vec::new();
@@ -129,6 +129,124 @@ impl AttrMetadata {
             align_before,
             func_map,
             func_cond,
+        }
+    }
+}
+
+pub struct FileType {
+    pub name: String,
+    pub extensions: Vec<String>,
+}
+
+pub struct ComponentMetadata {
+    pub id: String,
+    pub trigger_after: Vec<String>,
+    pub files: Vec<FileType>,
+}
+
+impl ComponentMetadata {
+    pub fn new(attrs: &[Attribute]) -> Self {
+        let mut id = String::new();
+        let mut trigger_after = Vec::new();
+        let mut files = Vec::new();
+
+        for attr in attrs {
+            if let Some(meta) = attr.interpret_meta() {
+                let name = meta.name().to_string();
+                match (name.as_str(), meta) {
+                    ("decoder", Meta::List(list)) => {
+                        for item in list.nested {
+                            if let NestedMeta::Meta(meta) = item {
+                                let name = meta.name().to_string();
+                                match name.as_str() {
+                                    "id" => {
+                                        if let Meta::NameValue(MetaNameValue {
+                                            lit: Lit::Str(lit_str),
+                                            ..
+                                        }) = meta
+                                        {
+                                            id = lit_str.value().trim().into();
+                                        }
+                                    }
+                                    "trigger_after" => {
+                                        if let Meta::List(list) = meta {
+                                            for item in list.nested {
+                                                if let NestedMeta::Literal(Lit::Str(lit_str)) = item
+                                                {
+                                                    trigger_after
+                                                        .push(lit_str.value().trim().into());
+                                                }
+                                            }
+                                        }
+                                    }
+                                    _ => panic!("unsupported attribute: {}", name),
+                                }
+                            }
+                        }
+                    }
+                    ("reader", Meta::List(list)) | ("writer", Meta::List(list)) => {
+                        for item in list.nested {
+                            if let NestedMeta::Meta(meta) = item {
+                                let name = meta.name().to_string();
+                                match name.as_str() {
+                                    "id" => {
+                                        if let Meta::NameValue(MetaNameValue {
+                                            lit: Lit::Str(lit_str),
+                                            ..
+                                        }) = meta
+                                        {
+                                            id = lit_str.value().trim().into();
+                                        }
+                                    }
+                                    "filter" => {
+                                        if let Meta::List(list) = meta {
+                                            for item in list.nested {
+                                                let mut file = FileType {
+                                                    name: String::new(),
+                                                    extensions: Vec::new(),
+                                                };
+                                                if let NestedMeta::Meta(meta) = item {
+                                                    let name = meta.name().to_string();
+                                                    if let Meta::NameValue(MetaNameValue {
+                                                        lit: Lit::Str(lit_str),
+                                                        ..
+                                                    }) = meta
+                                                    {
+                                                        match name.as_str() {
+                                                            "name" => {
+                                                                file.name =
+                                                                    lit_str.value().trim().into();
+                                                            }
+                                                            "ext" => {
+                                                                file.extensions.push(
+                                                                    lit_str.value().trim().into(),
+                                                                );
+                                                            }
+                                                            _ => panic!(
+                                                                "unsupported attribute: {}",
+                                                                name
+                                                            ),
+                                                        }
+                                                    }
+                                                }
+                                                files.push(file);
+                                            }
+                                        }
+                                    }
+                                    _ => panic!("unsupported attribute: {}", name),
+                                }
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        ComponentMetadata {
+            id,
+            trigger_after,
+            files,
         }
     }
 }

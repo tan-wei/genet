@@ -6,6 +6,7 @@ edition = "2018"
 publish = false
 
 [dependencies]
+bincode = "1"
 crossbeam-channel = "0.3"
 failure = "0.1"
 fnv = "1"

@@ -1,4 +1,4 @@
-use genet_derive::Attr;
+use genet_derive::{Attr, Package};
 use genet_sdk::{decoder::*, prelude::*};
 
 /// Ethernet
@@ -15,12 +15,12 @@ struct Eth {
     #[attr(cond = "x <= 1500")]
     len: u16,
 
-    #[attr(cond = "x > 1500", align_before, map = "x as u16")]
-    r#type: Enum<u16, EthTypeEnum>,
+    #[attr(cond = "x > 1500", align_before)]
+    r#type: Enum<u16, EthType>,
 }
 
-#[derive(Attr)]
-enum EthTypeEnum {
+#[derive(Attr, Debug)]
+enum EthType {
     IPv4,
     ARP,
     WOL,
@@ -29,214 +29,68 @@ enum EthTypeEnum {
     Unknown,
 }
 
-impl Default for EthTypeEnum {
+impl Default for EthType {
     fn default() -> Self {
-        EthTypeEnum::Unknown
+        EthType::Unknown
     }
 }
 
-impl From<u16> for EthTypeEnum {
-    fn from(data: u16) -> EthTypeEnum {
+impl From<u16> for EthType {
+    fn from(data: u16) -> Self {
         match data {
-            0x0800 => EthTypeEnum::IPv4,
-            0x0806 => EthTypeEnum::ARP,
-            0x0842 => EthTypeEnum::WOL,
-            0x86DD => EthTypeEnum::IPv6,
-            0x888E => EthTypeEnum::EAP,
-            _ => EthTypeEnum::Unknown,
+            0x0800 => EthType::IPv4,
+            0x0806 => EthType::ARP,
+            0x0842 => EthType::WOL,
+            0x86DD => EthType::IPv6,
+            0x888E => EthType::EAP,
+            _ => Self::default(),
         }
     }
 }
 
 struct EthWorker {
     layer: LayerType<Eth>,
+    ipv4: DecoderStack,
+    ipv6: DecoderStack,
+    arp: DecoderStack,
 }
 
 impl Worker for EthWorker {
     fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
-        if stack.id() == token!("[link-1]") {
-            let data = stack.top().unwrap().payload();
-            let layer = Layer::new(&self.layer, &data);
-            stack.add_child(layer);
-            Ok(Status::Done)
-        } else {
-            Ok(Status::Skip)
-        }
-    }
-}
-
-#[derive(Clone)]
-struct EthDecoder {}
-
-impl Decoder for EthDecoder {
-    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
-        Box::new(EthWorker {
-            layer: LayerType::new("eth"),
-        })
-    }
-
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "eth".into(),
-            ..Metadata::default()
-        }
-    }
-}
-
-genet_decoders!(EthDecoder {});
-
-#[test]
-fn session() {
-    let leyer: LayerType<Tcp> = LayerType::new("tcp");
-    println!("{:#?}", leyer.as_ref());
-}
-
-struct TcpWorker {
-    layer: LayerType<Tcp>,
-}
-
-impl Worker for TcpWorker {
-    fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
         let data = stack.top().unwrap().payload();
         let mut layer = Layer::new(&self.layer, &data);
 
-        let data_offset = self.layer.data_offset.try_get(&layer)? as usize;
-        let data_offset = data_offset * 4;
-
-        let opt_offset = self.layer.byte_size();
-        let mut offset = opt_offset;
-        while offset < data_offset {
-            let typ = layer.data().try_get(offset)?;
-            if typ <= 1 {
-                if typ == 1 {
-                    layer.add_attr(&self.layer.options.nop, offset..offset + 1);
-                }
-                offset += 1;
-                continue;
-            }
-            let len = layer.data().try_get(offset + 1)? as usize;
-            match typ {
-                2 => {
-                    layer.add_attr(&self.layer.options.mss, offset + 2..offset + len);
-                }
-                3 => {
-                    layer.add_attr(&self.layer.options.scale, offset + 2..offset + len);
-                }
-                4 => {
-                    layer.add_attr(
-                        &self.layer.options.selective_ack_permitted,
-                        offset..offset + len,
-                    );
-                }
-                5 => {
-                    layer.add_attr(&self.layer.options.selective_ack, offset + 2..offset + len);
-                }
-                8 => {
-                    layer.add_attr(&self.layer.options.ts, offset + 2..offset + len);
-                }
-                _ => {}
-            }
-            offset += len;
-        }
-        layer.add_attr(&self.layer.options, opt_offset..offset);
+        let typ = self.layer.r#type.try_get(&layer);
+        let payload = data.try_get(self.layer.byte_size()..)?;
+        layer.set_payload(&payload);
 
         stack.add_child(layer);
-        Ok(Status::Done)
-    }
-}
 
-#[derive(Clone)]
-struct TcpDecoder {}
-
-impl Decoder for TcpDecoder {
-    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
-        Box::new(TcpWorker {
-            layer: LayerType::new("tcp"),
-        })
-    }
-
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "tcp".into(),
-            ..Metadata::default()
+        match typ {
+            Ok(EthType::IPv4) => self.ipv4.decode(stack),
+            Ok(EthType::IPv6) => self.ipv6.decode(stack),
+            Ok(EthType::ARP) => self.arp.decode(stack),
+            _ => Ok(Status::Done),
         }
     }
 }
 
-#[derive(Attr)]
-struct Tcp {
-    #[attr(alias = "_.src", typ = "@tcp:port")]
-    src: u16,
+#[derive(Default, Clone)]
+struct EthDecoder {}
 
-    #[attr(alias = "_.dst", typ = "@tcp:port")]
-    dst: u16,
-
-    seq: u32,
-
-    ack: u32,
-
-    #[attr(bit_size = 4, map = "x >> 4")]
-    data_offset: Node<u8>,
-
-    #[attr(bit_size = 12, typ = "@flags", map = "x & 0xfff")]
-    flags: Node<u16, Flags>,
-
-    window: u16,
-
-    checksum: u16,
-
-    urgent: u16,
-
-    #[attr(byte_size = 1)]
-    options: Node<ByteSlice, Options>,
+impl Decoder for EthDecoder {
+    fn new_worker(&self, ctx: &Context) -> Box<Worker> {
+        Box::new(EthWorker {
+            layer: LayerType::new("eth"),
+            ipv4: ctx.decoder("ipv4").unwrap(),
+            ipv6: ctx.decoder("ipv6").unwrap(),
+            arp: ctx.decoder("arp").unwrap(),
+        })
+    }
 }
 
-#[derive(Attr)]
-struct Flags {
-    #[attr(bit_size = 3, skip)]
-    reserved: u8,
-
-    ns: BitFlag,
-
-    cwr: BitFlag,
-
-    ece: BitFlag,
-
-    urg: BitFlag,
-
-    ack: BitFlag,
-
-    psh: BitFlag,
-
-    rst: BitFlag,
-
-    syn: BitFlag,
-
-    fin: BitFlag,
-}
-
-#[derive(Attr)]
-struct Options {
-    nop: Node<u8>,
-
-    #[attr(detach)]
-    mss: Node<u16>,
-
-    #[attr(detach)]
-    scale: Node<u8>,
-
-    #[attr(detach)]
-    selective_ack_permitted: Node<u8>,
-
-    #[attr(detach, byte_size = 1)]
-    selective_ack: Node<ByteSlice>,
-
-    #[attr(typ = "@nested")]
-    ts: Node<Timestamp>,
-}
-
-#[derive(Attr)]
-struct Timestamp {
-    my: u32,
-    echo: u32,
+#[derive(Default, Package)]
+struct EthPackage {
+    #[decoder(id = "eth")]
+    decoder: EthDecoder,
 }

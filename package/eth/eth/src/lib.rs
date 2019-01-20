@@ -1,4 +1,4 @@
-use genet_derive::Attr;
+use genet_derive::{Attr, Package};
 use genet_sdk::{decoder::*, prelude::*};
 
 /// Ethernet
@@ -75,7 +75,7 @@ impl Worker for EthWorker {
     }
 }
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 struct EthDecoder {}
 
 impl Decoder for EthDecoder {
@@ -87,13 +87,10 @@ impl Decoder for EthDecoder {
             arp: ctx.decoder("arp").unwrap(),
         })
     }
-
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "eth".into(),
-            ..Metadata::default()
-        }
-    }
 }
 
-genet_decoders!(EthDecoder {});
+#[derive(Default, Package)]
+struct EthPackage {
+    #[decoder(id = "eth")]
+    decoder: EthDecoder,
+}

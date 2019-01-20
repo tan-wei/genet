@@ -1,37 +1,13 @@
 use crate::{
-    context::Context, file::FileType, result::Result, slice::ByteSlice, string::SafeString,
+    codable::Codable, context::Context, result::Result, slice::ByteSlice, string::SafeString,
     token::Token, vec::SafeVec,
 };
-use bincode;
 use failure::format_err;
-use serde::ser::{Serialize, Serializer};
-use serde_derive::{Deserialize, Serialize};
 use std::{fmt, mem, ptr, slice, str};
-
-/// Reader metadata.
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Metadata {
-    pub id: String,
-    pub name: String,
-    pub description: String,
-    pub filters: Vec<FileType>,
-}
-
-impl Default for Metadata {
-    fn default() -> Self {
-        Metadata {
-            id: String::new(),
-            name: String::new(),
-            description: String::new(),
-            filters: Vec::new(),
-        }
-    }
-}
 
 /// Reader trait.
 pub trait Reader: Send {
     fn new_worker(&self, ctx: &Context, arg: &str) -> Result<Box<Worker>>;
-    fn metadata(&self) -> Metadata;
 }
 
 type ReaderNewWorkerFunc = extern "C" fn(
@@ -48,10 +24,10 @@ type ReaderNewWorkerFunc = extern "C" fn(
 pub struct ReaderBox {
     reader: *mut Box<Reader>,
     new_worker: ReaderNewWorkerFunc,
-    metadata: extern "C" fn(*const ReaderBox) -> SafeVec<u8>,
 }
 
 unsafe impl Send for ReaderBox {}
+unsafe impl Codable for ReaderBox {}
 
 impl ReaderBox {
     pub fn new<T: 'static + Reader>(reader: T) -> ReaderBox {
@@ -59,7 +35,6 @@ impl ReaderBox {
         Self {
             reader: Box::into_raw(Box::new(reader)),
             new_worker: abi_reader_new_worker,
-            metadata: abi_metadata,
         }
     }
 
@@ -80,19 +55,6 @@ impl ReaderBox {
             mem::forget(out);
             Err(format_err!("{}", err))
         }
-    }
-
-    pub fn metadata(&self) -> Metadata {
-        bincode::deserialize(&(self.metadata)(self)).unwrap()
-    }
-}
-
-impl Serialize for ReaderBox {
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        self.metadata().serialize(serializer)
     }
 }
 
@@ -117,11 +79,6 @@ extern "C" fn abi_reader_new_worker(
             0
         }
     }
-}
-
-extern "C" fn abi_metadata(reader: *const ReaderBox) -> SafeVec<u8> {
-    let reader = unsafe { &*((*reader).reader) };
-    bincode::serialize(&reader.metadata()).unwrap().into()
 }
 
 /// Reader worker trait.

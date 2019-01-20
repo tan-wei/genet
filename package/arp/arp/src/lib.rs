@@ -1,4 +1,4 @@
-use genet_derive::Attr;
+use genet_derive::{Attr, Package};
 use genet_sdk::{decoder::*, prelude::*};
 
 struct ArpWorker {
@@ -41,7 +41,7 @@ impl Worker for ArpWorker {
     }
 }
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 struct ArpDecoder {}
 
 impl Decoder for ArpDecoder {
@@ -50,13 +50,12 @@ impl Decoder for ArpDecoder {
             layer: LayerType::new("arp"),
         })
     }
+}
 
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "arp".into(),
-            ..Metadata::default()
-        }
-    }
+#[derive(Default, Package)]
+struct ArpPackage {
+    #[decoder(id = "arp")]
+    decoder: ArpDecoder,
 }
 
 #[derive(Attr)]
@@ -152,5 +151,3 @@ impl From<u16> for OperationType {
         }
     }
 }
-
-genet_decoders!(ArpDecoder {});

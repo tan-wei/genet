@@ -5,6 +5,7 @@ edition = "2018"
 
 [dependencies]
 bincode = "1"
+genet-derive = { path = "../../../genet-derive" }
 genet-format = { path = "../format" }
 genet-sdk = "0.5.0"
 serde = "1"

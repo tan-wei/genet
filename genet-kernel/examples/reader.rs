@@ -1,6 +1,5 @@
-use genet_sdk::{
-    context::Context, genet_readers, reader::*, result::Result, slice::ByteSlice, token::Token,
-};
+use genet_derive::Package;
+use genet_sdk::{context::Context, reader::*, result::Result, slice::ByteSlice, token::Token};
 use std::iter;
 
 pub fn tcp_ipv4_pcap() -> &'static [u8] {
@@ -16,20 +15,19 @@ pub fn tcp_ipv4_pcap() -> &'static [u8] {
     ]
 }
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 struct TestReader {}
 
 impl Reader for TestReader {
     fn new_worker(&self, _ctx: &Context, _arg: &str) -> Result<Box<Worker>> {
         Ok(Box::new(TestWorker {}))
     }
+}
 
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "app.genet.reader.test-input".into(),
-            ..Metadata::default()
-        }
-    }
+#[derive(Default, Package)]
+struct TestPackage {
+    #[reader(id = "app.genet.reader.test-input")]
+    reader: TestReader,
 }
 
 struct TestWorker {}
@@ -47,5 +45,3 @@ impl Worker for TestWorker {
         "[link-1]".into()
     }
 }
-
-genet_readers!(TestReader {});

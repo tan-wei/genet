@@ -1,10 +1,7 @@
 use crate::{
-    context::Context, layer::LayerStack, result::Result, string::SafeString, vec::SafeVec,
+    codable::Codable, context::Context, layer::LayerStack, result::Result, string::SafeString,
 };
-use bincode;
 use failure::format_err;
-use serde::ser::{Serialize, Serializer};
-use serde_derive::{Deserialize, Serialize};
 use std::ptr;
 
 /// Decoding status.
@@ -12,26 +9,6 @@ use std::ptr;
 pub enum Status {
     Done,
     Skip,
-}
-
-/// Decoder metadata.
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Metadata {
-    pub id: String,
-    pub name: String,
-    pub description: String,
-    pub trigger_after: Vec<String>,
-}
-
-impl Default for Metadata {
-    fn default() -> Self {
-        Metadata {
-            id: String::new(),
-            name: String::new(),
-            description: String::new(),
-            trigger_after: Vec::new(),
-        }
-    }
 }
 
 /// Decoder worker trait.
@@ -127,7 +104,6 @@ extern "C" fn abi_drop(worker: *mut Box<Worker>) {
 /// Decoder trait.
 pub trait Decoder: DecoderClone + Send {
     fn new_worker(&self, ctx: &Context) -> Box<Worker>;
-    fn metadata(&self) -> Metadata;
 }
 
 pub trait DecoderClone {
@@ -153,37 +129,23 @@ impl Clone for Box<Decoder> {
 #[derive(Clone, Copy)]
 pub struct DecoderBox {
     new_worker: extern "C" fn(*const DecoderBox, *const Context) -> WorkerBox,
-    metadata: extern "C" fn(*const DecoderBox) -> SafeVec<u8>,
     decoder: *mut Box<Decoder>,
 }
 
 unsafe impl Send for DecoderBox {}
+unsafe impl Codable for DecoderBox {}
 
 impl DecoderBox {
     pub fn new<T: 'static + Decoder>(diss: T) -> DecoderBox {
         let diss: Box<Decoder> = Box::new(diss);
         Self {
             new_worker: abi_new_worker,
-            metadata: abi_metadata,
             decoder: Box::into_raw(Box::new(diss)),
         }
     }
 
     pub fn new_worker(&self, ctx: &Context) -> WorkerBox {
         (self.new_worker)(self, ctx)
-    }
-
-    pub fn metadata(&self) -> Metadata {
-        bincode::deserialize(&(self.metadata)(self)).unwrap()
-    }
-}
-
-impl Serialize for DecoderBox {
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        self.metadata().serialize(serializer)
     }
 }
 
@@ -193,17 +155,12 @@ extern "C" fn abi_new_worker(diss: *const DecoderBox, ctx: *const Context) -> Wo
     WorkerBox::new(diss.new_worker(ctx))
 }
 
-extern "C" fn abi_metadata(diss: *const DecoderBox) -> SafeVec<u8> {
-    let diss = unsafe { &*((*diss).decoder) };
-    bincode::serialize(&diss.metadata()).unwrap().into()
-}
-
 #[cfg(test)]
 mod tests {
     use crate::{
         attr::AttrClass,
         context::Context,
-        decoder::{Decoder, DecoderBox, Metadata, Status, Worker},
+        decoder::{Decoder, DecoderBox, Status, Worker},
         fixed::Fixed,
         layer::{Layer, LayerClass, LayerStack, LayerStackData},
         result::Result,
@@ -231,12 +188,6 @@ mod tests {
         impl Decoder for TestDecoder {
             fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
                 Box::new(TestWorker {})
-            }
-
-            fn metadata(&self) -> Metadata {
-                Metadata {
-                    ..Metadata::default()
-                }
             }
         }
 

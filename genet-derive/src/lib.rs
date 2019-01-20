@@ -1,4 +1,4 @@
-#![recursion_limit = "512"]
+#![recursion_limit = "256"]
 
 extern crate proc_macro;
 
@@ -9,10 +9,101 @@ use std::collections::VecDeque;
 use syn::{parse_macro_input, Data, DataEnum, DataStruct, DeriveInput, Expr, Fields, Ident};
 
 mod meta;
-use crate::meta::AttrMetadata;
+use crate::meta::{AttrMetadata, ComponentMetadata};
 
 mod initialisms;
 use crate::initialisms::to_title_case;
+
+#[proc_macro_derive(Package, attributes(decoder, reader, writer, trigger_after, id, file))]
+pub fn derive_package(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+
+    let data = if let Data::Struct(s) = &input.data {
+        s
+    } else {
+        unimplemented!();
+    };
+
+    let ident = &input.ident;
+
+    let mut components = Vec::new();
+    if let Fields::Named(f) = &data.fields {
+        for field in &f.named {
+            let meta = ComponentMetadata::new(&field.attrs);
+            let mut attrs = Vec::new();
+
+            for trigger in meta.trigger_after {
+                attrs.push(quote! {
+                    .trigger_after(#trigger)
+                })
+            }
+
+            for file in meta.files {
+                let name = &file.name;
+                let extensions = file
+                    .extensions
+                    .iter()
+                    .fold(String::new(), |acc, x| acc + x + " ")
+                    .trim()
+                    .to_string();
+                attrs.push(quote! {
+                    .filter(genet_sdk::file::FileType {
+                        name: #name.into(),
+                        extensions: #extensions
+                            .split(' ')
+                            .filter(|s| !s.is_empty())
+                            .map(|s| s.to_string())
+                            .collect()
+                    })
+                })
+            }
+
+            let id = &meta.id;
+            attrs.push(quote! {
+                .id(#id)
+            });
+
+            if field.ident.is_some() {
+                let ident = &field.ident;
+                components.push(quote! {
+                    IntoBuilder::into_builder(pkg.#ident)
+                        #(
+                            #attrs
+                        )*
+                });
+            }
+        }
+    }
+
+    let tokens = quote! {
+        impl Into<genet_sdk::package::Package> for #ident {
+            fn into(self) -> genet_sdk::package::Package {
+                use genet_sdk::package::{Package, IntoBuilder};
+                let pkg : #ident = Default::default();
+                Package::builder()
+                    .id(env!("CARGO_PKG_NAME"))
+                    .name(env!("CARGO_PKG_NAME"))
+                    .description(env!("CARGO_PKG_DESCRIPTION"))
+
+                    #(
+                        .component(#components)
+                    )*
+
+                    .into()
+            }
+        }
+
+        #[no_mangle]
+        extern "C" fn genet_abi_v1_load_package(data: *mut (), cb: extern "C" fn(*const u8, u64, *mut ())) {
+            use genet_sdk::package::Package;
+            let pkg : #ident = #ident::default().into();
+            let pkg : Package = pkg.into();
+            let buf = genet_sdk::bincode::serialize(&pkg).unwrap();
+            cb(buf.as_ptr(), buf.len() as u64, data);
+        }
+    };
+    tokens.into()
+}
 
 #[proc_macro_derive(Attr, attributes(attr))]
 pub fn derive_attr(input: TokenStream) -> TokenStream {
@@ -35,7 +126,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
 
     let mut fields_class = Vec::new();
     for v in &s.variants {
-        let meta = AttrMetadata::parse(&v.attrs);
+        let meta = AttrMetadata::new(&v.attrs);
         let id = if let Some(id) = meta.id {
             id
         } else {
@@ -119,7 +210,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     if let Fields::Named(f) = &s.fields {
         for field in &f.named {
             if field.ident.is_some() {
-                let meta = AttrMetadata::parse(&field.attrs);
+                let meta = AttrMetadata::new(&field.attrs);
                 fields_align.push_back(meta.align_before);
             }
         }
@@ -133,7 +224,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     if let Fields::Named(f) = &s.fields {
         for field in &f.named {
             if let Some(ident) = &field.ident {
-                let meta = AttrMetadata::parse(&field.attrs);
+                let meta = AttrMetadata::new(&field.attrs);
                 let assign_typ = if let Some(typ) = meta.typ {
                     quote! { subctx.typ = #typ.into() }
                 } else {

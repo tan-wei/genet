@@ -1,4 +1,4 @@
-use genet_derive::Attr;
+use genet_derive::{Attr, Package};
 use genet_sdk::{decoder::*, prelude::*};
 
 struct NtpWorker {
@@ -43,7 +43,7 @@ impl Worker for NtpWorker {
     }
 }
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 struct NtpDecoder {}
 
 impl Decoder for NtpDecoder {
@@ -51,14 +51,6 @@ impl Decoder for NtpDecoder {
         Box::new(NtpWorker {
             layer: LayerType::new("ntp"),
         })
-    }
-
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "ntp".into(),
-            trigger_after: vec!["udp".into()],
-            ..Metadata::default()
-        }
     }
 }
 
@@ -194,4 +186,8 @@ impl From<u8> for Mode {
     }
 }
 
-genet_decoders!(NtpDecoder {});
+#[derive(Default, Package)]
+struct NtpPackage {
+    #[decoder(id = "ntp", trigger_after("udp"))]
+    decoder: NtpDecoder,
+}

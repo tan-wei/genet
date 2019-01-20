@@ -1,4 +1,4 @@
-use genet_derive::Attr;
+use genet_derive::{Attr, Package};
 use genet_sdk::{decoder::*, prelude::*};
 
 struct IPv6Worker {
@@ -44,7 +44,7 @@ impl Worker for IPv6Worker {
     }
 }
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 struct IPv6Decoder {}
 
 impl Decoder for IPv6Decoder {
@@ -55,13 +55,12 @@ impl Decoder for IPv6Decoder {
             udp: ctx.decoder("udp").unwrap(),
         })
     }
+}
 
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "ipv6".into(),
-            ..Metadata::default()
-        }
-    }
+#[derive(Default, Package)]
+struct IPv6Package {
+    #[decoder(id = "ipv6")]
+    decoder: IPv6Decoder,
 }
 
 #[derive(Attr)]
@@ -120,5 +119,3 @@ impl From<u8> for ProtoType {
         }
     }
 }
-
-genet_decoders!(IPv6Decoder {});

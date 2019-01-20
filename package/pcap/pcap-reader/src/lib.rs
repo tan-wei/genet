@@ -1,6 +1,7 @@
 use serde_derive::Deserialize;
 
 use byteorder::{BigEndian, WriteBytesExt};
+use genet_derive::Package;
 use genet_sdk::{prelude::*, reader::*};
 use pcap::Header;
 
@@ -16,7 +17,7 @@ struct Arg {
     link: u32,
 }
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 struct PcapReader {}
 
 impl Reader for PcapReader {
@@ -38,13 +39,12 @@ impl Reader for PcapReader {
             link: arg.link,
         }))
     }
+}
 
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "app.genet.reader.pcap".into(),
-            ..Metadata::default()
-        }
-    }
+#[derive(Default, Package)]
+struct PcapPackage {
+    #[reader(id = "app.genet.reader.pcap")]
+    reader: PcapReader,
 }
 
 struct PcapWorker {
@@ -89,5 +89,3 @@ impl Drop for PcapWorker {
         let _ = self.child.kill();
     }
 }
-
-genet_readers!(PcapReader {});

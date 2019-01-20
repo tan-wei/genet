@@ -1,37 +1,10 @@
-use crate::{
-    context::Context, file::FileType, layer::Layer, result::Result, string::SafeString,
-    vec::SafeVec,
-};
-use bincode;
+use crate::{codable::Codable, context::Context, layer::Layer, result::Result, string::SafeString};
 use failure::format_err;
-use serde::ser::{Serialize, Serializer};
-use serde_derive::{Deserialize, Serialize};
 use std::{fmt, mem, ptr, slice, str};
-
-/// Writer metadata.
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Metadata {
-    pub id: String,
-    pub name: String,
-    pub description: String,
-    pub filters: Vec<FileType>,
-}
-
-impl Default for Metadata {
-    fn default() -> Self {
-        Metadata {
-            id: String::new(),
-            name: String::new(),
-            description: String::new(),
-            filters: Vec::new(),
-        }
-    }
-}
 
 /// Writer trait.
 pub trait Writer: Send {
     fn new_worker(&self, ctx: &Context, args: &str) -> Result<Box<Worker>>;
-    fn metadata(&self) -> Metadata;
 }
 
 type WriterNewWorkerFunc = extern "C" fn(
@@ -48,10 +21,10 @@ type WriterNewWorkerFunc = extern "C" fn(
 pub struct WriterBox {
     writer: *mut Box<Writer>,
     new_worker: WriterNewWorkerFunc,
-    metadata: extern "C" fn(*const WriterBox) -> SafeVec<u8>,
 }
 
 unsafe impl Send for WriterBox {}
+unsafe impl Codable for WriterBox {}
 
 impl WriterBox {
     pub fn new<T: 'static + Writer>(writer: T) -> WriterBox {
@@ -59,7 +32,6 @@ impl WriterBox {
         Self {
             writer: Box::into_raw(Box::new(writer)),
             new_worker: abi_writer_new_worker,
-            metadata: abi_metadata,
         }
     }
 
@@ -80,19 +52,6 @@ impl WriterBox {
             mem::forget(out);
             Err(format_err!("{}", err))
         }
-    }
-
-    pub fn metadata(&self) -> Metadata {
-        bincode::deserialize(&(self.metadata)(self)).unwrap()
-    }
-}
-
-impl Serialize for WriterBox {
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        self.metadata().serialize(serializer)
     }
 }
 
@@ -117,11 +76,6 @@ extern "C" fn abi_writer_new_worker(
             0
         }
     }
-}
-
-extern "C" fn abi_metadata(writer: *const WriterBox) -> SafeVec<u8> {
-    let writer = unsafe { &*((*writer).writer) };
-    bincode::serialize(&writer.metadata()).unwrap().into()
 }
 
 /// Writer worker trait.

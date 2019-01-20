@@ -1,6 +1,7 @@
 use serde_derive::Deserialize;
 
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt, WriteBytesExt};
+use genet_derive::Package;
 use genet_sdk::{prelude::*, reader::*};
 use std::{
     fs::File,
@@ -12,7 +13,7 @@ struct Arg {
     file: String,
 }
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 struct PcapFileReader {}
 
 impl Reader for PcapFileReader {
@@ -58,14 +59,15 @@ impl Reader for PcapFileReader {
             link: network,
         }))
     }
+}
 
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "app.genet.reader.pcap-file".into(),
-            filters: vec![FileType::new("Pcap File", &["pcap"])],
-            ..Metadata::default()
-        }
-    }
+#[derive(Default, Package)]
+struct PcapFilePackage {
+    #[reader(
+        id = "app.genet.reader.pcap-file",
+        filter(name = "Pcap File", ext = "pcap")
+    )]
+    reader: PcapFileReader,
 }
 
 struct PcapFileWorker {
@@ -136,5 +138,3 @@ impl Worker for PcapFileWorker {
         token!("[pcap]")
     }
 }
-
-genet_readers!(PcapFileReader {});
