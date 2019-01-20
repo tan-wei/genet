@@ -9,4 +9,3 @@ edition = "2018"
 [dependencies]
 byteorder = "1"
 genet-abi = "0.5.0"
-lazy_static = "1"

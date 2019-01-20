@@ -14,6 +14,3 @@ pub mod slice;
 pub mod token;
 pub mod variant;
 pub mod writer;
-
-#[doc(hidden)]
-pub use lazy_static::*;

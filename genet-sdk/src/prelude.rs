@@ -13,5 +13,3 @@ pub use crate::{
 };
 
 pub use crate::{attr, genet_decoders, genet_readers, genet_writers, token};
-
-pub use lazy_static::lazy_static;
