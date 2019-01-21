@@ -65,7 +65,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
     fn attr_range<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let attr = env.unwrap::<Attr>(info.this())?;
-        let range = attr.range();
+        let range = attr.byte_range();
         let array = env.create_array(2)?;
         env.set_element(array, 0, env.create_uint32(range.start as u32)?)?;
         env.set_element(array, 1, env.create_uint32(range.end as u32)?)?;

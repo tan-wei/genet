@@ -207,17 +207,17 @@ pub struct Node<F: AttrField, C: AttrField = F> {
 }
 
 impl<F: AttrField, C: AttrField> Node<F, C> {
-    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<F::Output> {
+    pub fn try_get_range(&self, layer: &Layer, byte_range: Range<usize>) -> Result<F::Output> {
         let class = self.class[0];
         let bit_offset = class.bit_range().start;
-        let range = (class.bit_range().start - bit_offset + range.start * 8)
-            ..(class.bit_range().end - bit_offset + range.end * 8);
+        let range = (class.bit_range().start - bit_offset + byte_range.start * 8)
+            ..(class.bit_range().end - bit_offset + byte_range.end * 8);
         let attr = Attr::new(&self.class[0], range, layer.data());
         (self.func)(&attr, &layer.data())
     }
 
     pub fn try_get(&self, layer: &Layer) -> Result<F::Output> {
-        self.try_get_range(layer, self.class[0].range())
+        self.try_get_range(layer, self.class[0].byte_range())
     }
 }
 
@@ -357,17 +357,17 @@ impl<F: AttrField, E> Enum<F, E>
 where
     F::Output: Into<E>,
 {
-    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<E> {
+    pub fn try_get_range(&self, layer: &Layer, byte_range: Range<usize>) -> Result<E> {
         let class = self.class[0];
         let bit_offset = class.bit_range().start;
-        let range = (class.bit_range().start - bit_offset + range.start * 8)
-            ..(class.bit_range().end - bit_offset + range.end * 8);
+        let range = (class.bit_range().start - bit_offset + byte_range.start * 8)
+            ..(class.bit_range().end - bit_offset + byte_range.end * 8);
         let attr = Attr::new(&self.class[0], range, layer.data());
         (self.func)(&attr, &layer.data())
     }
 
     pub fn try_get(&self, layer: &Layer) -> Result<E> {
-        self.try_get_range(layer, self.class[0].range())
+        self.try_get_range(layer, self.class[0].byte_range())
     }
 }
 
@@ -399,8 +399,9 @@ macro_rules! define_field {
                     if ctx.little_endian { $little } else { $big };
 
                 let func_map = ctx.func_map;
-                let func_map =
-                    MapFunc::wrap(move |attr, data| parse(data, attr.range()).and_then(func_map));
+                let func_map = MapFunc::wrap(move |attr, data| {
+                    parse(data, attr.byte_range()).and_then(func_map)
+                });
 
                 AttrFunctor {
                     ctx: ctx.clone(),
@@ -640,7 +641,7 @@ impl AttrField for BitFlag {
 
         let func_map = ctx.func_map;
         let func_map = MapFunc::wrap(move |attr, data| {
-            parse(data, attr.range())
+            parse(data, attr.byte_range())
                 .map(|byte| (byte & (0b1000_0000 >> (attr.bit_range().start % 8))) != 0)
                 .and_then(func_map)
         });
@@ -656,7 +657,7 @@ impl AttrField for BitFlag {
 #[repr(C)]
 pub struct Attr<'a> {
     class: &'a AttrClass,
-    range: Range<usize>,
+    bit_range: Range<usize>,
     data: ByteSlice,
 }
 
@@ -667,8 +668,12 @@ impl<'a> fmt::Debug for Attr<'a> {
 }
 
 impl<'a> Attr<'a> {
-    pub fn new(class: &'a AttrClass, range: Range<usize>, data: ByteSlice) -> Attr<'a> {
-        Attr { class, range, data }
+    pub fn new(class: &'a AttrClass, bit_range: Range<usize>, data: ByteSlice) -> Attr<'a> {
+        Attr {
+            class,
+            bit_range,
+            data,
+        }
     }
 
     /// Returns the ID of self.
@@ -686,14 +691,14 @@ impl<'a> Attr<'a> {
     }
 
     /// Returns the byte range of self.
-    pub fn range(&self) -> Range<usize> {
+    pub fn byte_range(&self) -> Range<usize> {
         let range = self.bit_range();
         (range.start / 8)..((range.end + 7) / 8)
     }
 
     /// Returns the bit range of self.
     pub fn bit_range(&self) -> Range<usize> {
-        self.range.clone()
+        self.bit_range.clone()
     }
 
     /// Returns the attribute value.
@@ -720,7 +725,7 @@ pub struct AttrClassBuilder {
     id: Token,
     typ: Token,
     meta: Metadata,
-    range: Range<usize>,
+    bit_range: Range<usize>,
     aliases: Vec<Token>,
     cast: Box<Fn(&Attr, &ByteSlice) -> Result<Variant> + Send + Sync>,
 }
@@ -745,14 +750,14 @@ impl AttrClassBuilder {
     }
 
     /// Sets a byte range of Attr.
-    pub fn range(mut self, range: Range<usize>) -> AttrClassBuilder {
-        self.range = (range.start * 8)..(range.end * 8);
+    pub fn byte_range(mut self, range: Range<usize>) -> AttrClassBuilder {
+        self.bit_range = (range.start * 8)..(range.end * 8);
         self
     }
 
     /// Sets a bit range of Attr.
     pub fn bit_range(mut self, range: Range<usize>) -> AttrClassBuilder {
-        self.range = range.start..range.end;
+        self.bit_range = range;
         self
     }
 
@@ -796,7 +801,7 @@ impl AttrClassBuilder {
             id: self.id,
             typ: self.typ,
             meta: self.meta,
-            range: self.range,
+            bit_range: self.bit_range,
             aliases: self.aliases,
             cast: self.cast,
         }
@@ -813,7 +818,7 @@ pub struct AttrClass {
     id: Token,
     typ: Token,
     meta: Metadata,
-    range: Range<usize>,
+    bit_range: Range<usize>,
     aliases: Vec<Token>,
     cast: Box<Fn(&Attr, &ByteSlice) -> Result<Variant> + Send + Sync>,
 }
@@ -825,7 +830,7 @@ impl fmt::Debug for AttrClass {
             .field("name", &self.meta.name())
             .field("description", &self.meta.description())
             .field("typ", &self.typ)
-            .field("range", &self.range)
+            .field("bit_range", &self.bit_range)
             .field("aliases", &self.aliases)
             .finish()
     }
@@ -838,7 +843,7 @@ impl AttrClass {
             id: id.into(),
             typ: Token::null(),
             meta: Metadata::new(),
-            range: 0..0,
+            bit_range: 0..0,
             aliases: Vec::new(),
             cast: Box::new(|_, _| Ok(Variant::Nil)),
         }
@@ -856,23 +861,23 @@ impl AttrClass {
         (self.get_typ)(self)
     }
 
-    pub fn range(&self) -> Range<usize> {
+    pub fn byte_range(&self) -> Range<usize> {
         let range = self.bit_range();
         (range.start / 8)..((range.end + 7) / 8)
     }
 
     pub fn bit_range(&self) -> Range<usize> {
-        self.range.clone()
+        self.bit_range.clone()
     }
 
     pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
-        self.try_get_range(layer, self.range())
+        self.try_get_range(layer, self.byte_range())
     }
 
-    pub fn try_get_range(&self, layer: &Layer, range: Range<usize>) -> Result<Variant> {
+    pub fn try_get_range(&self, layer: &Layer, byte_range: Range<usize>) -> Result<Variant> {
         let bit_offset = self.bit_range().start;
-        let range = (self.bit_range().start - bit_offset + range.start * 8)
-            ..(self.bit_range().end - bit_offset + range.end * 8);
+        let range = (self.bit_range().start - bit_offset + byte_range.start * 8)
+            ..(self.bit_range().end - bit_offset + byte_range.end * 8);
         let attr = Attr::new(self, range, layer.data());
         self.try_get_attr(&attr)
     }
@@ -1021,7 +1026,7 @@ mod tests {
         let attr = Attr::new(&class, 0..8, ByteSlice::from(&[1][..]));
         assert_eq!(attr.id(), Token::from("bool"));
         assert_eq!(attr.typ(), Token::from("@bool"));
-        assert_eq!(attr.range(), 0..1);
+        assert_eq!(attr.byte_range(), 0..1);
 
         match attr.try_get().unwrap() {
             Variant::Bool(val) => assert!(val),
@@ -1039,7 +1044,7 @@ mod tests {
         let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("u64"));
         assert_eq!(attr.typ(), Token::from("@u64"));
-        assert_eq!(attr.range(), 0..6);
+        assert_eq!(attr.byte_range(), 0..6);
 
         match attr.try_get().unwrap() {
             Variant::UInt64(val) => assert_eq!(val, 123_456_789),
@@ -1057,7 +1062,7 @@ mod tests {
         let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"-123456789"[..]));
         assert_eq!(attr.id(), Token::from("i64"));
         assert_eq!(attr.typ(), Token::from("@i64"));
-        assert_eq!(attr.range(), 0..6);
+        assert_eq!(attr.byte_range(), 0..6);
 
         match attr.try_get().unwrap() {
             Variant::Int64(val) => assert_eq!(val, -123456789),
@@ -1075,7 +1080,7 @@ mod tests {
         let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("buffer"));
         assert_eq!(attr.typ(), Token::from("@buffer"));
-        assert_eq!(attr.range(), 0..6);
+        assert_eq!(attr.byte_range(), 0..6);
 
         match attr.try_get().unwrap() {
             Variant::Buffer(val) => assert_eq!(&*val, b"123456789"),
@@ -1093,7 +1098,7 @@ mod tests {
         let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("slice"));
         assert_eq!(attr.typ(), Token::from("@slice"));
-        assert_eq!(attr.range(), 0..6);
+        assert_eq!(attr.byte_range(), 0..6);
 
         match attr.try_get().unwrap() {
             Variant::Slice(val) => assert_eq!(val, ByteSlice::from(&b"123"[..])),
@@ -1111,7 +1116,7 @@ mod tests {
         let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("slice"));
         assert_eq!(attr.typ(), Token::from("@slice"));
-        assert_eq!(attr.range(), 0..6);
+        assert_eq!(attr.byte_range(), 0..6);
 
         match attr.try_get() {
             Err(err) => assert_eq!(format!("{}", err), "oh no!"),

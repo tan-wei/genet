@@ -36,7 +36,7 @@ impl Worker for NtpWorker {
         } else {
             &self.layer.identifier
         };
-        layer.add_attr(&class, class.as_ref()[0].range());
+        layer.add_attr(&class, class.as_ref()[0].byte_range());
 
         stack.add_child(layer);
         Ok(Status::Done)

@@ -63,8 +63,8 @@ impl<'a> LayerStack<'a> {
     }
 
     /// Adds an attribute to the Layer.
-    pub fn add_attr<C: AsRef<[Fixed<AttrClass>]>>(&mut self, attrs: &C, range: Range<usize>) {
-        self.deref_mut().add_attr(attrs, range);
+    pub fn add_attr<C: AsRef<[Fixed<AttrClass>]>>(&mut self, attrs: &C, byte_range: Range<usize>) {
+        self.deref_mut().add_attr(attrs, byte_range);
     }
 
     /// Returns the payload.
@@ -125,7 +125,7 @@ extern "C" fn abi_children_data(data: *const LayerStackData) -> *const MutFixed<
 #[repr(C)]
 struct BoundAttr {
     attr: Fixed<AttrClass>,
-    range: Range<usize>,
+    bit_range: Range<usize>,
 }
 
 /// A layer object.
@@ -182,24 +182,24 @@ impl Layer {
         let attrs = self
             .attrs
             .iter()
-            .map(|b| Attr::new(&b.attr, b.range.clone(), self.data()));
+            .map(|b| Attr::new(&b.attr, b.bit_range.clone(), self.data()));
 
         headers.chain(attrs).find(|attr| attr.is_match(id))
     }
 
     /// Adds an attribute to the Layer.
-    pub fn add_attr<C: AsRef<[Fixed<AttrClass>]>>(&mut self, attrs: &C, range: Range<usize>) {
+    pub fn add_attr<C: AsRef<[Fixed<AttrClass>]>>(&mut self, attrs: &C, byte_range: Range<usize>) {
         let func = self.class.add_attr;
         let attrs = attrs.as_ref();
 
         let root = attrs[0];
-        let offset = (range.start * 8) as isize - root.bit_range().start as isize;
+        let offset = (byte_range.start * 8) as isize - root.bit_range().start as isize;
 
         (func)(
             self,
             BoundAttr {
                 attr: root,
-                range: (range.start * 8)..(range.end * 8),
+                bit_range: (byte_range.start * 8)..(byte_range.end * 8),
             },
         );
 
@@ -209,7 +209,7 @@ impl Layer {
                 self,
                 BoundAttr {
                     attr: *attr,
-                    range: (range.start as isize + offset) as usize
+                    bit_range: (range.start as isize + offset) as usize
                         ..(range.end as isize + offset) as usize,
                 },
             );
@@ -326,7 +326,7 @@ impl<T: AttrField> LayerType<T> {
     }
 
     pub fn byte_size(&self) -> usize {
-        let range = self.layer.headers()[0].range();
+        let range = self.layer.headers()[0].byte_range();
         range.end - range.start
     }
 }
@@ -375,7 +375,7 @@ impl LayerClass {
             .map(|h| Attr::new(&h, h.bit_range(), layer.data()));
         let attrs = unsafe { slice::from_raw_parts(data, len) }
             .iter()
-            .map(|b| Attr::new(&b.attr, b.range.clone(), layer.data()));
+            .map(|b| Attr::new(&b.attr, b.bit_range.clone(), layer.data()));
         headers.chain(attrs).collect()
     }
 
@@ -499,7 +499,7 @@ mod tests {
             let attr = iter.next().unwrap();
             assert_eq!(attr.id(), Token::from("nil"));
             assert_eq!(attr.typ(), Token::from("@nil"));
-            assert_eq!(attr.range(), 0..i);
+            assert_eq!(attr.byte_range(), 0..i);
         }
         assert!(iter.next().is_none());
     }
