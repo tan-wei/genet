@@ -13,11 +13,11 @@ pub fn to_title_case(s: &str) -> String {
     titlecase::to_title_case(s)
         .split_whitespace()
         .map(|w| {
-            if let Some(m) = WORDLIST.iter().find(|i| w.eq_ignore_ascii_case(i)) {
-                m
-            } else {
-                w
-            }
+            WORDLIST
+                .iter()
+                .find(|&i| w.eq_ignore_ascii_case(i))
+                .map(|s| *s)
+                .unwrap_or(w)
         })
         .fold(String::new(), |acc, x| acc + x + " ")
         .trim()
