@@ -6,11 +6,11 @@ use serde::{
 use serde_derive::{Deserialize, Serialize};
 use std::{fmt, mem, ptr};
 
-pub struct ByteData<T: Clone> {
+pub struct ByteData<T: Copy> {
     data: T,
 }
 
-impl<T: Clone> ByteData<T> {
+impl<T: Copy> ByteData<T> {
     unsafe fn new(data: T) -> Self {
         Self { data }
     }
@@ -20,14 +20,14 @@ impl<T: Clone> ByteData<T> {
     }
 }
 
-impl<T: Clone> ser::Serialize for ByteData<T> {
+impl<T: Copy> ser::Serialize for ByteData<T> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: ser::Serializer,
         T: Sized,
     {
         let mut buf = vec![0; mem::size_of::<T>()];
-        unsafe { ptr::write(buf.as_mut_ptr() as *mut T, self.data.clone()) };
+        unsafe { ptr::write(buf.as_mut_ptr() as *mut T, self.data) };
         serializer.serialize_bytes(&buf)
     }
 }
@@ -49,7 +49,7 @@ impl<'de> Visitor<'de> for BufVisitor {
     }
 }
 
-impl<'de, T: Clone> Deserialize<'de> for ByteData<T> {
+impl<'de, T: Copy> Deserialize<'de> for ByteData<T> {
     fn deserialize<D>(deserializer: D) -> Result<ByteData<T>, D::Error>
     where
         D: de::Deserializer<'de>,
