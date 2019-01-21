@@ -4,14 +4,38 @@ use serde::{
     ser,
 };
 use serde_derive::{Deserialize, Serialize};
-use std::{fmt, mem, ptr};
+use std::{
+    fmt, mem,
+    ops::{Deref, DerefMut},
+    ptr,
+};
 
-pub struct ByteData<T: Copy> {
+pub unsafe trait Codable: Copy {}
+
+unsafe impl Codable for DecoderBox {}
+unsafe impl Codable for ReaderBox {}
+unsafe impl Codable for WriterBox {}
+
+pub struct CodedData<T: Codable> {
     data: T,
 }
 
-impl<T: Copy> ByteData<T> {
-    unsafe fn new(data: T) -> Self {
+impl<T: Codable> Deref for CodedData<T> {
+    type Target = T;
+
+    fn deref(&self) -> &T {
+        &self.data
+    }
+}
+
+impl<T: Codable> DerefMut for CodedData<T> {
+    fn deref_mut(&mut self) -> &mut T {
+        &mut self.data
+    }
+}
+
+impl<T: Codable> CodedData<T> {
+    fn new(data: T) -> Self {
         Self { data }
     }
 
@@ -20,7 +44,7 @@ impl<T: Copy> ByteData<T> {
     }
 }
 
-impl<T: Copy> ser::Serialize for ByteData<T> {
+impl<T: Codable> ser::Serialize for CodedData<T> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: ser::Serializer,
@@ -49,13 +73,13 @@ impl<'de> Visitor<'de> for BufVisitor {
     }
 }
 
-impl<'de, T: Copy> Deserialize<'de> for ByteData<T> {
-    fn deserialize<D>(deserializer: D) -> Result<ByteData<T>, D::Error>
+impl<'de, T: Codable> Deserialize<'de> for CodedData<T> {
+    fn deserialize<D>(deserializer: D) -> Result<CodedData<T>, D::Error>
     where
         D: de::Deserializer<'de>,
     {
         let buf = deserializer.deserialize_bytes(BufVisitor)?;
-        unsafe { Ok(ByteData::new(ptr::read(mem::transmute(buf.as_ptr())))) }
+        unsafe { Ok(CodedData::new(ptr::read(mem::transmute(buf.as_ptr())))) }
     }
 }
 
@@ -112,7 +136,7 @@ impl Into<Package> for PackageBuilder {
 pub struct Decoder {
     id: String,
     trigger_after: Vec<String>,
-    decoder: ByteData<DecoderBox>,
+    decoder: CodedData<DecoderBox>,
 }
 
 impl Decoder {
@@ -121,7 +145,7 @@ impl Decoder {
             data: Decoder {
                 id: String::new(),
                 trigger_after: Vec::new(),
-                decoder: unsafe { ByteData::new(DecoderBox::new(decoder)) },
+                decoder: CodedData::new(DecoderBox::new(decoder)),
             },
         }
     }
@@ -129,6 +153,22 @@ impl Decoder {
 
 pub struct DecoderBuilder {
     data: Decoder,
+}
+
+impl DecoderBuilder {
+    pub fn id<T: Into<String>>(&mut self, id: T) {
+        self.data.id = id.into();
+    }
+
+    pub fn name<T: Into<String>>(&mut self, id: T) {
+        self.data.trigger_after.push(id.into());
+    }
+}
+
+impl Into<Decoder> for DecoderBuilder {
+    fn into(self) -> Decoder {
+        self.data
+    }
 }
 
 impl Into<Component> for DecoderBuilder {
@@ -141,7 +181,7 @@ impl Into<Component> for DecoderBuilder {
 pub struct Reader {
     id: String,
     filters: Vec<FileType>,
-    reader: ByteData<ReaderBox>,
+    reader: CodedData<ReaderBox>,
 }
 
 impl Reader {
@@ -150,7 +190,7 @@ impl Reader {
             data: Reader {
                 id: String::new(),
                 filters: Vec::new(),
-                reader: unsafe { ByteData::new(ReaderBox::new(reader)) },
+                reader: CodedData::new(ReaderBox::new(reader)),
             },
         }
     }
@@ -170,7 +210,7 @@ impl Into<Component> for ReaderBuilder {
 pub struct Writer {
     id: String,
     filters: Vec<FileType>,
-    writer: ByteData<WriterBox>,
+    writer: CodedData<WriterBox>,
 }
 
 impl Writer {
@@ -179,7 +219,7 @@ impl Writer {
             data: Writer {
                 id: String::new(),
                 filters: Vec::new(),
-                writer: unsafe { ByteData::new(WriterBox::new(writer)) },
+                writer: CodedData::new(WriterBox::new(writer)),
             },
         }
     }

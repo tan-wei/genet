@@ -1,4 +1,5 @@
 pub mod attr;
+pub mod codable;
 pub mod context;
 pub mod decoder;
 pub mod env;
