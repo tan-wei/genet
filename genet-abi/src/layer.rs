@@ -160,11 +160,6 @@ impl Layer {
         self.class.data(self)
     }
 
-    /// Returns the slice of headers.
-    pub fn headers(&self) -> &[Fixed<AttrClass>] {
-        self.class.headers()
-    }
-
     /// Returns the slice of attributes.
     pub fn attrs(&self) -> Vec<Attr> {
         self.class.attrs(self)
@@ -176,7 +171,7 @@ impl Layer {
 
         let headers = self
             .class
-            .headers()
+            .headers
             .iter()
             .map(|h| Attr::new(&h, h.bit_range(), self.data()));
         let attrs = self
@@ -326,7 +321,7 @@ impl<T: AttrField> LayerType<T> {
     }
 
     pub fn byte_size(&self) -> usize {
-        let range = self.layer.headers()[0].byte_range();
+        let range = self.layer.headers[0].byte_range();
         range.end - range.start
     }
 }
@@ -356,10 +351,6 @@ impl LayerClass {
         (self.get_id)(self)
     }
 
-    fn headers(&self) -> &[Fixed<AttrClass>] {
-        &self.headers
-    }
-
     fn data(&self, layer: &Layer) -> ByteSlice {
         let mut len = 0;
         let data = (self.data)(layer, &mut len);
@@ -370,7 +361,7 @@ impl LayerClass {
         let data = (self.attrs_data)(layer);
         let len = (self.attrs_len)(layer) as usize;
         let headers = self
-            .headers()
+            .headers
             .iter()
             .map(|h| Attr::new(&h, h.bit_range(), layer.data()));
         let attrs = unsafe { slice::from_raw_parts(data, len) }
