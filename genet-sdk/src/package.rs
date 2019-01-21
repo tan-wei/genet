@@ -16,6 +16,7 @@ unsafe impl Codable for DecoderBox {}
 unsafe impl Codable for ReaderBox {}
 unsafe impl Codable for WriterBox {}
 
+#[derive(Clone)]
 pub struct CodedData<T: Codable> {
     data: T,
 }
@@ -132,7 +133,7 @@ impl Into<Package> for PackageBuilder {
     }
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 pub struct Decoder {
     id: String,
     trigger_after: Vec<String>,
@@ -177,7 +178,7 @@ impl Into<Component> for DecoderBuilder {
     }
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 pub struct Reader {
     id: String,
     filters: Vec<FileType>,
@@ -206,7 +207,7 @@ impl Into<Component> for ReaderBuilder {
     }
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 pub struct Writer {
     id: String,
     filters: Vec<FileType>,
@@ -235,14 +236,14 @@ impl Into<Component> for WriterBuilder {
     }
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 pub enum Component {
     Decoder(Decoder),
     Reader(Reader),
     Writer(Writer),
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct FileType {
     name: String,
     extensions: Vec<String>,
