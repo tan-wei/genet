@@ -212,12 +212,20 @@ impl<F: AttrField, C: AttrField> Node<F, C> {
         let bit_offset = class.bit_range().start;
         let range = (class.bit_range().start - bit_offset + byte_range.start * 8)
             ..(class.bit_range().end - bit_offset + byte_range.end * 8);
-        let attr = Attr::new(&self.class[0], range, layer.data());
+        let attr = Attr::new(&class, range, layer.data());
         (self.func)(&attr, &layer.data())
     }
 
     pub fn try_get(&self, layer: &Layer) -> Result<F::Output> {
-        self.try_get_range(layer, self.class[0].byte_range())
+        self.try_get_range(layer, self.byte_range())
+    }
+
+    pub fn byte_range(&self) -> Range<usize> {
+        self.class[0].byte_range()
+    }
+
+    pub fn bit_range(&self) -> Range<usize> {
+        self.class[0].bit_range()
     }
 }
 
@@ -362,12 +370,20 @@ where
         let bit_offset = class.bit_range().start;
         let range = (class.bit_range().start - bit_offset + byte_range.start * 8)
             ..(class.bit_range().end - bit_offset + byte_range.end * 8);
-        let attr = Attr::new(&self.class[0], range, layer.data());
+        let attr = Attr::new(&class, range, layer.data());
         (self.func)(&attr, &layer.data())
     }
 
     pub fn try_get(&self, layer: &Layer) -> Result<E> {
-        self.try_get_range(layer, self.class[0].byte_range())
+        self.try_get_range(layer, self.byte_range())
+    }
+
+    pub fn byte_range(&self) -> Range<usize> {
+        self.class[0].byte_range()
+    }
+
+    pub fn bit_range(&self) -> Range<usize> {
+        self.class[0].bit_range()
     }
 }
 

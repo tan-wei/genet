@@ -28,7 +28,7 @@ impl Worker for IPv6Worker {
             }
         }
 
-        let range = self.layer.next_header.as_ref()[0].byte_range();
+        let range = self.layer.next_header.byte_range();
         let typ = self.layer.protocol.try_get_range(&layer, range.clone());
         layer.add_attr(&self.layer.protocol, range.clone());
 
