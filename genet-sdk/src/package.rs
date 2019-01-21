@@ -134,16 +134,16 @@ impl Into<Package> for PackageBuilder {
 }
 
 #[derive(Clone, Deserialize, Serialize)]
-pub struct Decoder {
+pub struct DecoderData {
     id: String,
     trigger_after: Vec<String>,
     decoder: CodedData<DecoderBox>,
 }
 
-impl Decoder {
+impl DecoderData {
     pub fn builder<T: 'static + crate::decoder::Decoder>(decoder: T) -> DecoderBuilder {
         DecoderBuilder {
-            data: Decoder {
+            data: DecoderData {
                 id: String::new(),
                 trigger_after: Vec::new(),
                 decoder: CodedData::new(DecoderBox::new(decoder)),
@@ -153,7 +153,7 @@ impl Decoder {
 }
 
 pub struct DecoderBuilder {
-    data: Decoder,
+    data: DecoderData,
 }
 
 impl DecoderBuilder {
@@ -166,8 +166,8 @@ impl DecoderBuilder {
     }
 }
 
-impl Into<Decoder> for DecoderBuilder {
-    fn into(self) -> Decoder {
+impl Into<DecoderData> for DecoderBuilder {
+    fn into(self) -> DecoderData {
         self.data
     }
 }
@@ -179,16 +179,16 @@ impl Into<Component> for DecoderBuilder {
 }
 
 #[derive(Clone, Deserialize, Serialize)]
-pub struct Reader {
+pub struct ReaderData {
     id: String,
     filters: Vec<FileType>,
     reader: CodedData<ReaderBox>,
 }
 
-impl Reader {
+impl ReaderData {
     pub fn builder<T: 'static + crate::reader::Reader>(reader: T) -> ReaderBuilder {
         ReaderBuilder {
-            data: Reader {
+            data: ReaderData {
                 id: String::new(),
                 filters: Vec::new(),
                 reader: CodedData::new(ReaderBox::new(reader)),
@@ -198,7 +198,7 @@ impl Reader {
 }
 
 pub struct ReaderBuilder {
-    data: Reader,
+    data: ReaderData,
 }
 
 impl Into<Component> for ReaderBuilder {
@@ -208,16 +208,16 @@ impl Into<Component> for ReaderBuilder {
 }
 
 #[derive(Clone, Deserialize, Serialize)]
-pub struct Writer {
+pub struct WriterData {
     id: String,
     filters: Vec<FileType>,
     writer: CodedData<WriterBox>,
 }
 
-impl Writer {
+impl WriterData {
     pub fn builder<T: 'static + crate::writer::Writer>(writer: T) -> WriterBuilder {
         WriterBuilder {
-            data: Writer {
+            data: WriterData {
                 id: String::new(),
                 filters: Vec::new(),
                 writer: CodedData::new(WriterBox::new(writer)),
@@ -227,7 +227,7 @@ impl Writer {
 }
 
 pub struct WriterBuilder {
-    data: Writer,
+    data: WriterData,
 }
 
 impl Into<Component> for WriterBuilder {
@@ -238,9 +238,9 @@ impl Into<Component> for WriterBuilder {
 
 #[derive(Clone, Deserialize, Serialize)]
 pub enum Component {
-    Decoder(Decoder),
-    Reader(Reader),
-    Writer(Writer),
+    Decoder(DecoderData),
+    Reader(ReaderData),
+    Writer(WriterData),
 }
 
 #[derive(Clone, Serialize, Deserialize)]
