@@ -319,6 +319,7 @@ mod platform {
     #[cfg(target_os = "windows")]
     pub(crate) fn device_descriptions(devices: Vec<Device>) -> Vec<Device> {
         use super::platform::windows::*;
+        use std::os::raw::c_ulong;
 
         use std::{mem, ptr};
         const NO_ERROR: u32 = 0;
@@ -403,7 +404,7 @@ mod platform {
         extern "system" {
             pub(crate) fn GetIfTable(
                 table: *mut MibIftable,
-                size: *mut c_ulong,
+                size: *mut std::os::raw::c_ulong,
                 order: bool,
             ) -> u32;
             pub(crate) fn GetIfEntry(row: *mut MibIfrow) -> u32;
@@ -515,7 +516,7 @@ mod ffi {
 
         #[cfg(windows)]
         pub(crate) fn new() -> Result<Symbols, super::Error> {
-            use super::libloading;
+            use libloading;
             use std::ops::Deref;
             let lib =
                 libloading::Library::new("Wpcap.dll").map_err(|_| super::Error::DLLNotFound)?;
