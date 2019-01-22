@@ -6,7 +6,7 @@ use genet_abi::{
     decoder::DecoderBox,
     env::{self, Allocator},
     fixed::Fixed,
-    package::{DecoderData, Package, ReaderData, WriterData},
+    package::{Component, DecoderData, Package, ReaderData, WriterData},
     reader::ReaderBox,
     token::Token,
     writer::WriterBox,
@@ -174,7 +174,15 @@ impl Profile {
             }
             let mut buf = vec![];
             func(&mut buf, cb);
-            if let Ok(pkg) = bincode::deserialize::<Package>(&buf) {}
+            if let Ok(pkg) = bincode::deserialize::<Package>(&buf) {
+                for cmp in pkg.components {
+                    match cmp {
+                        Component::Decoder(data) => self.decoders.push(data),
+                        Component::Reader(data) => self.readers.push(data),
+                        Component::Writer(data) => self.writers.push(data),
+                    }
+                }
+            }
         }
 
         mem::forget(lib);

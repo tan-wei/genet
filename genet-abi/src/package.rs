@@ -5,10 +5,10 @@ use serde_derive::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
 pub struct Package {
-    id: String,
-    name: String,
-    description: String,
-    components: Vec<Component>,
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub components: Vec<Component>,
 }
 
 pub struct PackageBuilder {

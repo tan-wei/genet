@@ -14,7 +14,15 @@ use crate::meta::AttrMetadata;
 mod initialisms;
 use crate::initialisms::to_title_case;
 
-#[proc_macro_derive(Attr, attributes(attr))]
+#[proc_macro_attribute]
+pub fn export_decoder(_: TokenStream, input: TokenStream) -> TokenStream {
+    let tokens = quote! {};
+    let mut tokens: TokenStream = tokens.into();
+    tokens.extend(input);
+    tokens
+}
+
+#[proc_macro_derive(Attr, attributes(genet))]
 pub fn derive_attr(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 

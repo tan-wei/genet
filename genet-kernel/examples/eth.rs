@@ -1,4 +1,4 @@
-use genet_derive::Attr;
+use genet_derive::{export_decoder, Attr};
 use genet_sdk::{decoder::*, prelude::*};
 
 /// Ethernet
@@ -65,6 +65,7 @@ impl Worker for EthWorker {
     }
 }
 
+#[export_decoder]
 #[derive(Clone)]
 struct EthDecoder {}
 
