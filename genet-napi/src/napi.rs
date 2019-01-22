@@ -770,7 +770,7 @@ impl Env {
         }
     }
 
-    pub fn wrap_fixed<T>(&self, js_object: &Value, value: &Fixed<T>) -> Result<()> {
+    pub fn wrap_fixed<T>(&self, js_object: &Value, value: Fixed<T>) -> Result<()> {
         extern "C" fn finalize_cb<T>(_env: *const Env, _data: *mut u8, _hint: *mut u8) {}
         unsafe {
             match napi_wrap(
