@@ -1,5 +1,6 @@
 use crate::{
-    context::Context, layer::LayerStack, result::Result, string::SafeString, vec::SafeVec,
+    codable::Codable, context::Context, layer::LayerStack, result::Result, string::SafeString,
+    vec::SafeVec,
 };
 use bincode;
 use failure::format_err;
@@ -158,6 +159,7 @@ pub struct DecoderBox {
 }
 
 unsafe impl Send for DecoderBox {}
+unsafe impl Codable for DecoderBox {}
 
 impl DecoderBox {
     pub fn new<T: 'static + Decoder>(diss: T) -> DecoderBox {

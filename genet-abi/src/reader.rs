@@ -1,6 +1,6 @@
 use crate::{
-    context::Context, file::FileType, result::Result, slice::ByteSlice, string::SafeString,
-    token::Token, vec::SafeVec,
+    codable::Codable, context::Context, file::FileType, result::Result, slice::ByteSlice,
+    string::SafeString, token::Token, vec::SafeVec,
 };
 use bincode;
 use failure::format_err;
@@ -52,6 +52,7 @@ pub struct ReaderBox {
 }
 
 unsafe impl Send for ReaderBox {}
+unsafe impl Codable for ReaderBox {}
 
 impl ReaderBox {
     pub fn new<T: 'static + Reader>(reader: T) -> ReaderBox {

@@ -7,7 +7,6 @@ pub mod decoder;
 pub mod file;
 pub mod fixed;
 pub mod layer;
-pub mod package;
 pub mod prelude;
 pub mod reader;
 pub mod result;

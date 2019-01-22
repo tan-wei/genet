@@ -1,6 +1,6 @@
 use crate::{
-    context::Context, file::FileType, layer::Layer, result::Result, string::SafeString,
-    vec::SafeVec,
+    codable::Codable, context::Context, file::FileType, layer::Layer, result::Result,
+    string::SafeString, vec::SafeVec,
 };
 use bincode;
 use failure::format_err;
@@ -52,6 +52,7 @@ pub struct WriterBox {
 }
 
 unsafe impl Send for WriterBox {}
+unsafe impl Codable for WriterBox {}
 
 impl WriterBox {
     pub fn new<T: 'static + Writer>(writer: T) -> WriterBox {
