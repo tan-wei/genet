@@ -1,3 +1,4 @@
+use bincode;
 use failure::{err_msg, Error};
 use fnv::FnvHashMap;
 use genet_abi::{
@@ -5,7 +6,7 @@ use genet_abi::{
     decoder::DecoderBox,
     env::{self, Allocator},
     fixed::Fixed,
-    package::{DecoderData, ReaderData, WriterData},
+    package::{DecoderData, Package, ReaderData, WriterData},
     reader::ReaderBox,
     token::Token,
     writer::WriterBox,
@@ -87,6 +88,9 @@ impl Profile {
         type FnGetReaders = extern "C" fn(*mut u64) -> *const ReaderBox;
         type FnGetWriters = extern "C" fn(*mut u64) -> *const WriterBox;
 
+        type FnLoadPackageCallback = extern "C" fn(*mut u8, u64, *mut Vec<u8>);
+        type FnLoadPackage = extern "C" fn(*mut Vec<u8>, FnLoadPackageCallback);
+
         {
             let func = unsafe { lib.get::<FnVersion>(b"genet_abi_version")? };
 
@@ -160,6 +164,17 @@ impl Profile {
                 }
                 self.writers.push(b.into());
             }
+        }
+
+        if let Ok(func) = unsafe { lib.get::<FnLoadPackage>(b"genet_abi_v1_load_package") } {
+            extern "C" fn cb(data: *mut u8, len: u64, dst: *mut Vec<u8>) {
+                for _ in 0..len {
+                    unsafe { (*dst).push(*data.offset(len as isize)) }
+                }
+            }
+            let mut buf = vec![];
+            func(&mut buf, cb);
+            if let Ok(pkg) = bincode::deserialize::<Package>(&buf) {}
         }
 
         mem::forget(lib);
