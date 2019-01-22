@@ -58,7 +58,7 @@ impl<O: 'static, F: 'static + Fn(&Attr, &ByteSlice) -> Result<O> + Send + Sync +
     MapFunc<O, F>
 {
     pub fn wrap(func: F) -> Box<Mapper<O>> {
-        Box::new(Self(func))
+        Box::new(MapFunc(func))
     }
 }
 
@@ -70,7 +70,7 @@ impl<O: 'static, F: 'static + Fn(&Attr, &ByteSlice) -> Result<O> + Send + Sync +
     }
 
     fn box_clone(&self) -> Box<Mapper<O>> {
-        Box::new(Self(self.0.clone()))
+        Box::new(MapFunc(self.0.clone()))
     }
 }
 

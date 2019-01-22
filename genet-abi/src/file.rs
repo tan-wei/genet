@@ -1,7 +1,7 @@
 use serde_derive::{Deserialize, Serialize};
 
 /// File type.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct FileType {
     name: String,
     extensions: Vec<String>,

@@ -5,7 +5,7 @@ use genet_abi::{
     decoder::DecoderBox,
     env::{self, Allocator},
     fixed::Fixed,
-    package::DecoderData,
+    package::{DecoderData, ReaderData, WriterData},
     reader::ReaderBox,
     token::Token,
     writer::WriterBox,
@@ -19,8 +19,8 @@ use std::mem;
 pub struct Profile {
     concurrency: u32,
     decoders: Vec<DecoderData>,
-    readers: Vec<ReaderBox>,
-    writers: Vec<WriterBox>,
+    readers: Vec<ReaderData>,
+    writers: Vec<WriterData>,
     config: FnvHashMap<String, String>,
 }
 
@@ -61,11 +61,11 @@ impl Profile {
         self.decoders.iter()
     }
 
-    pub fn readers(&self) -> impl Iterator<Item = &ReaderBox> {
+    pub fn readers(&self) -> impl Iterator<Item = &ReaderData> {
         self.readers.iter()
     }
 
-    pub fn writers(&self) -> impl Iterator<Item = &WriterBox> {
+    pub fn writers(&self) -> impl Iterator<Item = &WriterData> {
         self.writers.iter()
     }
 
@@ -136,7 +136,14 @@ impl Profile {
             let mut len = 0;
             let ptr = func(&mut len);
             for i in 0..len {
-                self.readers.push(unsafe { (*ptr.offset(i as isize)) });
+                let b = unsafe { (*ptr.offset(i as isize)) };
+                let id = b.metadata().id.clone();
+                let filters = b.metadata().filters.clone();
+                let mut b = ReaderData::builder(b).id(id);
+                for t in filters.into_iter() {
+                    b = b.filter(t);
+                }
+                self.readers.push(b.into());
             }
         }
 
@@ -144,7 +151,14 @@ impl Profile {
             let mut len = 0;
             let ptr = func(&mut len);
             for i in 0..len {
-                self.writers.push(unsafe { (*ptr.offset(i as isize)) });
+                let b = unsafe { (*ptr.offset(i as isize)) };
+                let id = b.metadata().id.clone();
+                let filters = b.metadata().filters.clone();
+                let mut b = WriterData::builder(b).id(id);
+                for t in filters.into_iter() {
+                    b = b.filter(t);
+                }
+                self.writers.push(b.into());
             }
         }
 

@@ -1,4 +1,6 @@
-use crate::{codable::CodedData, decoder::DecoderBox, reader::ReaderBox, writer::WriterBox};
+use crate::{
+    codable::CodedData, decoder::DecoderBox, file::FileType, reader::ReaderBox, writer::WriterBox,
+};
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
@@ -99,18 +101,18 @@ impl Into<Component> for DecoderBuilder {
 
 #[derive(Clone, Deserialize, Serialize)]
 pub struct ReaderData {
-    id: String,
-    filters: Vec<FileType>,
-    reader: CodedData<ReaderBox>,
+    pub id: String,
+    pub filters: Vec<FileType>,
+    pub reader: CodedData<ReaderBox>,
 }
 
 impl ReaderData {
-    pub fn builder<T: 'static + crate::reader::Reader>(reader: T) -> ReaderBuilder {
+    pub fn builder(reader: ReaderBox) -> ReaderBuilder {
         ReaderBuilder {
             data: ReaderData {
                 id: String::new(),
                 filters: Vec::new(),
-                reader: CodedData::new(ReaderBox::new(reader)),
+                reader: CodedData::new(reader),
             },
         }
     }
@@ -118,6 +120,24 @@ impl ReaderData {
 
 pub struct ReaderBuilder {
     data: ReaderData,
+}
+
+impl ReaderBuilder {
+    pub fn id<T: Into<String>>(mut self, id: T) -> Self {
+        self.data.id = id.into();
+        self
+    }
+
+    pub fn filter<T: Into<FileType>>(mut self, file: T) -> Self {
+        self.data.filters.push(file.into());
+        self
+    }
+}
+
+impl Into<ReaderData> for ReaderBuilder {
+    fn into(self) -> ReaderData {
+        self.data
+    }
 }
 
 impl Into<Component> for ReaderBuilder {
@@ -128,18 +148,18 @@ impl Into<Component> for ReaderBuilder {
 
 #[derive(Clone, Deserialize, Serialize)]
 pub struct WriterData {
-    id: String,
-    filters: Vec<FileType>,
-    writer: CodedData<WriterBox>,
+    pub id: String,
+    pub filters: Vec<FileType>,
+    pub writer: CodedData<WriterBox>,
 }
 
 impl WriterData {
-    pub fn builder<T: 'static + crate::writer::Writer>(writer: T) -> WriterBuilder {
+    pub fn builder(writer: WriterBox) -> WriterBuilder {
         WriterBuilder {
             data: WriterData {
                 id: String::new(),
                 filters: Vec::new(),
-                writer: CodedData::new(WriterBox::new(writer)),
+                writer: CodedData::new(writer),
             },
         }
     }
@@ -147,6 +167,24 @@ impl WriterData {
 
 pub struct WriterBuilder {
     data: WriterData,
+}
+
+impl WriterBuilder {
+    pub fn id<T: Into<String>>(mut self, id: T) -> Self {
+        self.data.id = id.into();
+        self
+    }
+
+    pub fn filter<T: Into<FileType>>(mut self, file: T) -> Self {
+        self.data.filters.push(file.into());
+        self
+    }
+}
+
+impl Into<WriterData> for WriterBuilder {
+    fn into(self) -> WriterData {
+        self.data
+    }
 }
 
 impl Into<Component> for WriterBuilder {
@@ -160,10 +198,4 @@ pub enum Component {
     Decoder(DecoderData),
     Reader(ReaderData),
     Writer(WriterData),
-}
-
-#[derive(Clone, Serialize, Deserialize)]
-pub struct FileType {
-    name: String,
-    extensions: Vec<String>,
 }
