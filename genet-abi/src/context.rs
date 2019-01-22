@@ -1,14 +1,11 @@
-use crate::{
-    decoder::{DecoderBox, DecoderStack},
-    token::Token,
-};
+use crate::{decoder::DecoderStack, package::DecoderData, token::Token};
 use std::collections::HashSet;
 
 /// A context object.
 #[repr(C)]
 #[derive(Default)]
 pub struct Context {
-    decoders: Vec<DecoderBox>,
+    decoders: Vec<DecoderData>,
 }
 
 impl Context {
@@ -23,20 +20,17 @@ impl Context {
         &self,
         used: &mut HashSet<String>,
         id: &str,
-        decoders: &[DecoderBox],
+        decoders: &[DecoderData],
     ) -> Vec<DecoderStack> {
         let used_decoders = used.clone();
         decoders
             .iter()
-            .filter(|d| {
-                !used_decoders.contains(&d.metadata().id)
-                    && d.metadata().trigger_after.iter().any(|x| x == id)
-            })
+            .filter(|d| !used_decoders.contains(&d.id) && d.trigger_after.iter().any(|x| x == id))
             .map(|d| {
-                used.insert(d.metadata().id);
+                used.insert(d.id.clone());
                 DecoderStack::new(
-                    d.new_worker(self),
-                    self.sub_decoders(used, &d.metadata().id, decoders),
+                    d.decoder.new_worker(self),
+                    self.sub_decoders(used, &d.id, decoders),
                 )
             })
             .collect::<Vec<_>>()
@@ -48,11 +42,11 @@ impl Context {
         let sub_decoders = self.sub_decoders(&mut used, &id, &self.decoders);
         self.decoders
             .iter()
-            .find(|d| d.metadata().id == id)
-            .map(|d| DecoderStack::new(d.new_worker(self), sub_decoders))
+            .find(|d| d.id == id)
+            .map(|d| DecoderStack::new(d.decoder.new_worker(self), sub_decoders))
     }
 
-    pub fn set_decoders(&mut self, decoders: Vec<DecoderBox>) {
+    pub fn set_decoders(&mut self, decoders: Vec<DecoderData>) {
         self.decoders = decoders
     }
 }

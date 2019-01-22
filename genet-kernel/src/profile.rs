@@ -5,6 +5,7 @@ use genet_abi::{
     decoder::DecoderBox,
     env::{self, Allocator},
     fixed::Fixed,
+    package::DecoderData,
     reader::ReaderBox,
     token::Token,
     writer::WriterBox,
@@ -17,7 +18,7 @@ use std::mem;
 #[derive(Serialize, Clone, Default)]
 pub struct Profile {
     concurrency: u32,
-    decoders: Vec<DecoderBox>,
+    decoders: Vec<DecoderData>,
     readers: Vec<ReaderBox>,
     writers: Vec<WriterBox>,
     config: FnvHashMap<String, String>,
@@ -56,7 +57,7 @@ impl Profile {
             .or_insert_with(|| String::from(value));
     }
 
-    pub fn decoders(&self) -> impl Iterator<Item = &DecoderBox> {
+    pub fn decoders(&self) -> impl Iterator<Item = &DecoderData> {
         self.decoders.iter()
     }
 
@@ -120,7 +121,14 @@ impl Profile {
             let mut len = 0;
             let ptr = func(&mut len);
             for i in 0..len {
-                self.decoders.push(unsafe { (*ptr.offset(i as isize)) });
+                let b = unsafe { (*ptr.offset(i as isize)) };
+                let id = b.metadata().id.clone();
+                let trigger_after = b.metadata().trigger_after.clone();
+                let mut b = DecoderData::builder(b).id(id);
+                for t in trigger_after.into_iter() {
+                    b = b.trigger_after(t);
+                }
+                self.decoders.push(b.into());
             }
         }
 

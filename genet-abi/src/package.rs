@@ -52,18 +52,18 @@ impl Into<Package> for PackageBuilder {
 
 #[derive(Clone, Deserialize, Serialize)]
 pub struct DecoderData {
-    id: String,
-    trigger_after: Vec<String>,
-    decoder: CodedData<DecoderBox>,
+    pub id: String,
+    pub trigger_after: Vec<String>,
+    pub decoder: CodedData<DecoderBox>,
 }
 
 impl DecoderData {
-    pub fn builder<T: 'static + crate::decoder::Decoder>(decoder: T) -> DecoderBuilder {
+    pub fn builder(decoder: DecoderBox) -> DecoderBuilder {
         DecoderBuilder {
             data: DecoderData {
                 id: String::new(),
                 trigger_after: Vec::new(),
-                decoder: CodedData::new(DecoderBox::new(decoder)),
+                decoder: CodedData::new(decoder),
             },
         }
     }
@@ -74,12 +74,14 @@ pub struct DecoderBuilder {
 }
 
 impl DecoderBuilder {
-    pub fn id<T: Into<String>>(&mut self, id: T) {
+    pub fn id<T: Into<String>>(mut self, id: T) -> Self {
         self.data.id = id.into();
+        self
     }
 
-    pub fn name<T: Into<String>>(&mut self, id: T) {
+    pub fn trigger_after<T: Into<String>>(mut self, id: T) -> Self {
         self.data.trigger_after.push(id.into());
+        self
     }
 }
 
