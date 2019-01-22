@@ -1036,7 +1036,7 @@ mod tests {
 
         let class = AttrClass::builder("bool")
             .typ("@bool")
-            .range(0..1)
+            .byte_range(0..1)
             .cast(|_, data| Ok(Variant::Bool(data[0] == 1)))
             .build();
         let attr = Attr::new(&class, 0..8, ByteSlice::from(&[1][..]));
@@ -1054,7 +1054,7 @@ mod tests {
     fn u64() {
         let class = AttrClass::builder("u64")
             .typ("@u64")
-            .range(0..6)
+            .byte_range(0..6)
             .cast(|_, data| Ok(Variant::UInt64(from_utf8(data).unwrap().parse().unwrap())))
             .build();
         let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"123456789"[..]));
@@ -1072,7 +1072,7 @@ mod tests {
     fn i64() {
         let class = AttrClass::builder("i64")
             .typ("@i64")
-            .range(0..6)
+            .byte_range(0..6)
             .cast(|_, data| Ok(Variant::Int64(from_utf8(data).unwrap().parse().unwrap())))
             .build();
         let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"-123456789"[..]));
@@ -1090,7 +1090,7 @@ mod tests {
     fn buffer() {
         let class = AttrClass::builder("buffer")
             .typ("@buffer")
-            .range(0..6)
+            .byte_range(0..6)
             .cast(|_, data| Ok(Variant::Buffer(data.to_vec().into_boxed_slice())))
             .build();
         let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"123456789"[..]));
@@ -1108,7 +1108,7 @@ mod tests {
     fn slice() {
         let class = AttrClass::builder("slice")
             .typ("@slice")
-            .range(0..6)
+            .byte_range(0..6)
             .cast(|_, data| data.try_get(0..3).map(Variant::Slice))
             .build();
         let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"123456789"[..]));
@@ -1126,7 +1126,7 @@ mod tests {
     fn error() {
         let class = AttrClass::builder("slice")
             .typ("@slice")
-            .range(0..6)
+            .byte_range(0..6)
             .cast(|_, _| Err(err_msg("oh no!")))
             .build();
         let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"123456789"[..]));
