@@ -42,8 +42,8 @@ impl Package {
         PackageBuilder {
             data: Package {
                 id: String::new(),
-                name: env!("CARGO_PKG_NAME").to_string(),
-                description: env!("CARGO_PKG_DESCRIPTION").to_string(),
+                name: String::new(),
+                description: String::new(),
                 components: Vec::new(),
             },
         }

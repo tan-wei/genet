@@ -1,4 +1,4 @@
-#![recursion_limit = "512"]
+#![recursion_limit = "256"]
 
 extern crate proc_macro;
 
@@ -15,11 +15,18 @@ mod initialisms;
 use crate::initialisms::to_title_case;
 
 #[proc_macro_attribute]
-pub fn export_decoder(_: TokenStream, input: TokenStream) -> TokenStream {
-    let tokens = quote! {};
-    let mut tokens: TokenStream = tokens.into();
-    tokens.extend(input);
-    tokens
+pub fn export_package(_: TokenStream, input: TokenStream) -> TokenStream {
+    let func: proc_macro2::TokenStream = input.into();
+    let tokens = quote! {
+        #[no_mangle]
+        extern "C" fn genet_abi_v1_load_package(data: *mut (), cb: extern "C" fn(*const u8, u64, *mut ())) {
+            #func;
+            let pkg: genet_sdk::package::Package = package().into();
+            let buf = genet_sdk::bincode::serialize(&pkg).unwrap();
+            cb(buf.as_ptr(), buf.len() as u64, data);
+        }
+    };
+    tokens.into()
 }
 
 #[proc_macro_derive(Attr, attributes(genet))]
