@@ -16,20 +16,24 @@ pub struct PackageBuilder {
 }
 
 impl PackageBuilder {
-    pub fn id<T: Into<String>>(&mut self, id: T) {
+    pub fn id<T: Into<String>>(mut self, id: T) -> Self {
         self.data.id = id.into();
+        self
     }
 
-    pub fn name<T: Into<String>>(&mut self, name: T) {
+    pub fn name<T: Into<String>>(mut self, name: T) -> Self {
         self.data.name = name.into();
+        self
     }
 
-    pub fn description<T: Into<String>>(&mut self, desc: T) {
+    pub fn description<T: Into<String>>(mut self, desc: T) -> Self {
         self.data.description = desc.into();
+        self
     }
 
-    pub fn component<T: Into<Component>>(&mut self, comp: T) {
+    pub fn component<T: Into<Component>>(mut self, comp: T) -> Self {
         self.data.components.push(comp.into());
+        self
     }
 }
 

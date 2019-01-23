@@ -14,7 +14,7 @@ use genet_abi::{
 use libloading::Library;
 use num_cpus;
 use serde_derive::Serialize;
-use std::mem;
+use std::{mem, slice};
 
 #[derive(Serialize, Clone, Default)]
 pub struct Profile {
@@ -88,7 +88,7 @@ impl Profile {
         type FnGetReaders = extern "C" fn(*mut u64) -> *const ReaderBox;
         type FnGetWriters = extern "C" fn(*mut u64) -> *const WriterBox;
 
-        type FnLoadPackageCallback = extern "C" fn(*mut u8, u64, *mut Vec<u8>);
+        type FnLoadPackageCallback = extern "C" fn(*const u8, u64, *mut Vec<u8>);
         type FnLoadPackage = extern "C" fn(*mut Vec<u8>, FnLoadPackageCallback);
 
         {
@@ -167,12 +167,10 @@ impl Profile {
         }
 
         if let Ok(func) = unsafe { lib.get::<FnLoadPackage>(b"genet_abi_v1_load_package") } {
-            extern "C" fn cb(data: *mut u8, len: u64, dst: *mut Vec<u8>) {
-                for _ in 0..len {
-                    unsafe { (*dst).push(*data.offset(len as isize)) }
-                }
+            extern "C" fn cb(data: *const u8, len: u64, dst: *mut Vec<u8>) {
+                unsafe { *dst = slice::from_raw_parts(data, len as usize).to_vec() };
             }
-            let mut buf = vec![];
+            let mut buf = Vec::new();
             func(&mut buf, cb);
             if let Ok(pkg) = bincode::deserialize::<Package>(&buf) {
                 for cmp in pkg.components {
