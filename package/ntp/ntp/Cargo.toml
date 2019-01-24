@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["Ron Hashimoto <mail@h2so5.net>"]
 edition = "2018"
 
+[package.metadata.genet]
+maintenance = { status = "..." }
+
 [lib]
 crate-type = ["cdylib"]
 name = "ntp"
@@ -11,6 +14,3 @@ name = "ntp"
 [dependencies]
 genet-derive = { path = "../../../genet-derive" }
 genet-sdk = "0.5.0"
-
-[package.metadata.genet]
-maintenance = { status = "..." }

@@ -29,9 +29,16 @@ pub fn export_package(_: TokenStream, input: TokenStream) -> TokenStream {
     tokens.into()
 }
 
-#[proc_macro]
-pub fn export_pkg(input: TokenStream) -> TokenStream {
-    input
+#[proc_macro_derive(Package, attributes(genet))]
+pub fn derive_package(input: TokenStream) -> TokenStream {
+    let _input = parse_macro_input!(input as DeriveInput);
+    let tokens = quote! {
+        #[no_mangle]
+        extern "C" fn genet_abi_v1_load_package(data: *mut (), cb: extern "C" fn(*const u8, u64, *mut ())) {
+
+        }
+    };
+    tokens.into()
 }
 
 #[proc_macro_derive(Attr, attributes(genet))]
