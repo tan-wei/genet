@@ -36,13 +36,6 @@ impl Decoder for IPv4Decoder {
             udp: ctx.decoder("udp").unwrap(),
         })
     }
-
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "ipv4".into(),
-            ..Metadata::default()
-        }
-    }
 }
 
 #[derive(Default, Package)]

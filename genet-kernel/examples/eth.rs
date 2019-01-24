@@ -87,13 +87,6 @@ impl Decoder for EthDecoder {
             arp: ctx.decoder("arp").unwrap(),
         })
     }
-
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "eth".into(),
-            ..Metadata::default()
-        }
-    }
 }
 
 #[derive(Default, Package)]

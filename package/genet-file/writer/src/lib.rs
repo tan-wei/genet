@@ -26,14 +26,6 @@ impl Writer for GenetFileWriter {
             layer_id: Token::null(),
         }))
     }
-
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "app.genet.writer.genet-file".into(),
-            filters: vec![FileType::new("genet", &["genet"])],
-            ..Metadata::default()
-        }
-    }
 }
 
 #[derive(Default, Package)]

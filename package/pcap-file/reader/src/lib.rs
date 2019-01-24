@@ -59,14 +59,6 @@ impl Reader for PcapFileReader {
             link: network,
         }))
     }
-
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "app.genet.reader.pcap-file".into(),
-            filters: vec![FileType::new("Pcap File", &["pcap"])],
-            ..Metadata::default()
-        }
-    }
 }
 
 #[derive(Default, Package)]

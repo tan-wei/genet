@@ -34,14 +34,6 @@ impl Reader for GenetFileReader {
 
         Ok(Box::new(GenetFileWorker { reader, header }))
     }
-
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "app.genet.reader.genet-file".into(),
-            filters: vec![FileType::new("genet", &["genet"])],
-            ..Metadata::default()
-        }
-    }
 }
 
 #[derive(Default, Package)]

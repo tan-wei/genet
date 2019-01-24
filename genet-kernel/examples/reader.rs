@@ -22,13 +22,6 @@ impl Reader for TestReader {
     fn new_worker(&self, _ctx: &Context, _arg: &str) -> Result<Box<Worker>> {
         Ok(Box::new(TestWorker {}))
     }
-
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "app.genet.reader.test-input".into(),
-            ..Metadata::default()
-        }
-    }
 }
 
 #[derive(Default, Package)]

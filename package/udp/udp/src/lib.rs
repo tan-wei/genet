@@ -25,13 +25,6 @@ impl Decoder for UdpDecoder {
             layer: LayerType::new("udp"),
         })
     }
-
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "udp".into(),
-            ..Metadata::default()
-        }
-    }
 }
 
 #[derive(Default, Package)]

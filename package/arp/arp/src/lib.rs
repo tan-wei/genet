@@ -50,13 +50,6 @@ impl Decoder for ArpDecoder {
             layer: LayerType::new("arp"),
         })
     }
-
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "arp".into(),
-            ..Metadata::default()
-        }
-    }
 }
 
 #[derive(Default, Package)]

@@ -2,9 +2,7 @@ use crate::{
     codable::Codable, context::Context, file::FileType, result::Result, slice::ByteSlice,
     string::SafeString, token::Token, vec::SafeVec,
 };
-use bincode;
 use failure::format_err;
-use serde::ser::{Serialize, Serializer};
 use serde_derive::{Deserialize, Serialize};
 use std::{fmt, mem, ptr, slice, str};
 
@@ -31,7 +29,6 @@ impl Default for Metadata {
 /// Reader trait.
 pub trait Reader: Send {
     fn new_worker(&self, ctx: &Context, arg: &str) -> Result<Box<Worker>>;
-    fn metadata(&self) -> Metadata;
 }
 
 type ReaderNewWorkerFunc = extern "C" fn(
@@ -48,7 +45,6 @@ type ReaderNewWorkerFunc = extern "C" fn(
 pub struct ReaderBox {
     reader: *mut Box<Reader>,
     new_worker: ReaderNewWorkerFunc,
-    metadata: extern "C" fn(*const ReaderBox) -> SafeVec<u8>,
 }
 
 unsafe impl Send for ReaderBox {}
@@ -60,7 +56,6 @@ impl ReaderBox {
         Self {
             reader: Box::into_raw(Box::new(reader)),
             new_worker: abi_reader_new_worker,
-            metadata: abi_metadata,
         }
     }
 
@@ -81,19 +76,6 @@ impl ReaderBox {
             mem::forget(out);
             Err(format_err!("{}", err))
         }
-    }
-
-    pub fn metadata(&self) -> Metadata {
-        bincode::deserialize(&(self.metadata)(self)).unwrap()
-    }
-}
-
-impl Serialize for ReaderBox {
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        self.metadata().serialize(serializer)
     }
 }
 
@@ -118,11 +100,6 @@ extern "C" fn abi_reader_new_worker(
             0
         }
     }
-}
-
-extern "C" fn abi_metadata(reader: *const ReaderBox) -> SafeVec<u8> {
-    let reader = unsafe { &*((*reader).reader) };
-    bincode::serialize(&reader.metadata()).unwrap().into()
 }
 
 /// Reader worker trait.

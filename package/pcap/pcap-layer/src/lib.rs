@@ -28,13 +28,6 @@ impl Decoder for PcapLayerDecoder {
             eth: ctx.decoder("eth").unwrap(),
         })
     }
-
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "pcap_layer".into(),
-            ..Metadata::default()
-        }
-    }
 }
 
 #[derive(Default, Package)]

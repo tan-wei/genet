@@ -64,13 +64,6 @@ impl Decoder for TcpDecoder {
             layer: LayerType::new("tcp"),
         })
     }
-
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "tcp".into(),
-            ..Metadata::default()
-        }
-    }
 }
 
 #[derive(Default, Package)]

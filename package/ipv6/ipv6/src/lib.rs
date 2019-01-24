@@ -55,13 +55,6 @@ impl Decoder for IPv6Decoder {
             udp: ctx.decoder("udp").unwrap(),
         })
     }
-
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "ipv6".into(),
-            ..Metadata::default()
-        }
-    }
 }
 
 #[derive(Default, Package)]

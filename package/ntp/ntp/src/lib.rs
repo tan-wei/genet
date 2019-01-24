@@ -52,14 +52,6 @@ impl Decoder for NtpDecoder {
             layer: LayerType::new("ntp"),
         })
     }
-
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "ntp".into(),
-            trigger_after: vec!["udp".into()],
-            ..Metadata::default()
-        }
-    }
 }
 
 #[derive(Attr)]

@@ -39,13 +39,6 @@ impl Reader for PcapReader {
             link: arg.link,
         }))
     }
-
-    fn metadata(&self) -> Metadata {
-        Metadata {
-            id: "app.genet.reader.pcap".into(),
-            ..Metadata::default()
-        }
-    }
 }
 
 #[derive(Default, Package)]

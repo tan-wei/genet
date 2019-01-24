@@ -1,10 +1,7 @@
 use crate::{
     codable::Codable, context::Context, layer::LayerStack, result::Result, string::SafeString,
-    vec::SafeVec,
 };
-use bincode;
 use failure::format_err;
-use serde::ser::{Serialize, Serializer};
 use serde_derive::{Deserialize, Serialize};
 use std::ptr;
 
@@ -128,7 +125,6 @@ extern "C" fn abi_drop(worker: *mut Box<Worker>) {
 /// Decoder trait.
 pub trait Decoder: DecoderClone + Send {
     fn new_worker(&self, ctx: &Context) -> Box<Worker>;
-    fn metadata(&self) -> Metadata;
 }
 
 pub trait DecoderClone {
@@ -154,7 +150,6 @@ impl Clone for Box<Decoder> {
 #[derive(Clone, Copy)]
 pub struct DecoderBox {
     new_worker: extern "C" fn(*const DecoderBox, *const Context) -> WorkerBox,
-    metadata: extern "C" fn(*const DecoderBox) -> SafeVec<u8>,
     decoder: *mut Box<Decoder>,
 }
 
@@ -166,7 +161,6 @@ impl DecoderBox {
         let diss: Box<Decoder> = Box::new(diss);
         Self {
             new_worker: abi_new_worker,
-            metadata: abi_metadata,
             decoder: Box::into_raw(Box::new(diss)),
         }
     }
@@ -174,30 +168,12 @@ impl DecoderBox {
     pub fn new_worker(&self, ctx: &Context) -> WorkerBox {
         (self.new_worker)(self, ctx)
     }
-
-    pub fn metadata(&self) -> Metadata {
-        bincode::deserialize(&(self.metadata)(self)).unwrap()
-    }
-}
-
-impl Serialize for DecoderBox {
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        self.metadata().serialize(serializer)
-    }
 }
 
 extern "C" fn abi_new_worker(diss: *const DecoderBox, ctx: *const Context) -> WorkerBox {
     let diss = unsafe { &*(*diss).decoder };
     let ctx = unsafe { &(*ctx) };
     WorkerBox::new(diss.new_worker(ctx))
-}
-
-extern "C" fn abi_metadata(diss: *const DecoderBox) -> SafeVec<u8> {
-    let diss = unsafe { &*((*diss).decoder) };
-    bincode::serialize(&diss.metadata()).unwrap().into()
 }
 
 #[cfg(test)]
@@ -233,12 +209,6 @@ mod tests {
         impl Decoder for TestDecoder {
             fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
                 Box::new(TestWorker {})
-            }
-
-            fn metadata(&self) -> Metadata {
-                Metadata {
-                    ..Metadata::default()
-                }
             }
         }
 
