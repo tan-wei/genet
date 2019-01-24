@@ -14,28 +14,48 @@ use crate::meta::AttrMetadata;
 mod initialisms;
 use crate::initialisms::to_title_case;
 
-#[proc_macro_attribute]
-pub fn export_package(_: TokenStream, input: TokenStream) -> TokenStream {
-    let func: proc_macro2::TokenStream = input.into();
-    let tokens = quote! {
-        #[no_mangle]
-        extern "C" fn genet_abi_v1_load_package(data: *mut (), cb: extern "C" fn(*const u8, u64, *mut ())) {
-            #func;
-            let pkg: genet_sdk::package::Package = package().into();
-            let buf = genet_sdk::bincode::serialize(&pkg).unwrap();
-            cb(buf.as_ptr(), buf.len() as u64, data);
-        }
-    };
-    tokens.into()
-}
-
 #[proc_macro_derive(Package, attributes(genet))]
 pub fn derive_package(input: TokenStream) -> TokenStream {
-    let _input = parse_macro_input!(input as DeriveInput);
+    let input = parse_macro_input!(input as DeriveInput);
+
+    let data = if let Data::Struct(s) = &input.data {
+        s
+    } else {
+        unimplemented!();
+    };
+
+    let ident = &input.ident;
+
+    let mut components = Vec::new();
+    if let Fields::Named(f) = &data.fields {
+        for field in &f.named {
+            if field.ident.is_some() {
+                let ident = &field.ident;
+                components.push(quote! {
+                    IntoBuilder::into_builder(pkg.#ident)
+                        .trigger_after("udp")
+                });
+            }
+        }
+    }
+
     let tokens = quote! {
         #[no_mangle]
         extern "C" fn genet_abi_v1_load_package(data: *mut (), cb: extern "C" fn(*const u8, u64, *mut ())) {
+            use genet_sdk::package::{Package, IntoBuilder};
+            let pkg : #ident = Default::default();
+            let pkg : Package = Package::builder()
+                .id(env!("CARGO_PKG_NAME"))
+                .name(env!("CARGO_PKG_NAME"))
+                .description(env!("CARGO_PKG_DESCRIPTION"))
 
+                #(
+                    .component(#components)
+                )*
+
+                .into();
+            let buf = genet_sdk::bincode::serialize(&pkg).unwrap();
+            cb(buf.as_ptr(), buf.len() as u64, data);
         }
     };
     tokens.into()

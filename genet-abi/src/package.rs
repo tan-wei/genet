@@ -1,5 +1,9 @@
 use crate::{
-    codable::CodedData, decoder::DecoderBox, file::FileType, reader::ReaderBox, writer::WriterBox,
+    codable::CodedData,
+    decoder::{Decoder, DecoderBox},
+    file::FileType,
+    reader::{Reader, ReaderBox},
+    writer::WriterBox,
 };
 use serde_derive::{Deserialize, Serialize};
 
@@ -56,6 +60,16 @@ impl Into<Package> for PackageBuilder {
     }
 }
 
+pub trait IntoBuilder<T> {
+    fn into_builder(self) -> T;
+}
+
+impl<T: 'static + Decoder> IntoBuilder<DecoderBuilder> for T {
+    fn into_builder(self) -> DecoderBuilder {
+        DecoderData::builder(DecoderBox::new(self))
+    }
+}
+
 #[derive(Clone, Deserialize, Serialize)]
 pub struct DecoderData {
     pub id: String,
@@ -100,6 +114,12 @@ impl Into<DecoderData> for DecoderBuilder {
 impl Into<Component> for DecoderBuilder {
     fn into(self) -> Component {
         Component::Decoder(self.data)
+    }
+}
+
+impl<T: 'static + Reader> IntoBuilder<ReaderBuilder> for T {
+    fn into_builder(self) -> ReaderBuilder {
+        ReaderData::builder(ReaderBox::new(self))
     }
 }
 
