@@ -14,7 +14,7 @@ use crate::meta::{AttrMetadata, ComponentMetadata};
 mod initialisms;
 use crate::initialisms::to_title_case;
 
-#[proc_macro_derive(Package, attributes(trigger_after))]
+#[proc_macro_derive(Package, attributes(trigger_after, id, file))]
 pub fn derive_package(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
@@ -37,6 +37,31 @@ pub fn derive_package(input: TokenStream) -> TokenStream {
                     .trigger_after(#trigger)
                 })
             }
+
+            for file in meta.files {
+                let name = &file.name;
+                let extensions = file
+                    .extensions
+                    .iter()
+                    .fold(String::new(), |acc, x| acc + x + " ")
+                    .trim()
+                    .to_string();
+                attrs.push(quote! {
+                    .filter(genet_sdk::file::FileType {
+                        name: #name.into(),
+                        extensions: #extensions
+                            .split(' ')
+                            .filter(|s| !s.is_empty())
+                            .map(|s| s.to_string())
+                            .collect()
+                    })
+                })
+            }
+
+            let id = &meta.id;
+            attrs.push(quote! {
+                .id(#id)
+            });
 
             if field.ident.is_some() {
                 let ident = &field.ident;

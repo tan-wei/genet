@@ -1,6 +1,7 @@
 use serde_derive::Deserialize;
 
 use byteorder::{LittleEndian, WriteBytesExt};
+use genet_derive::Package;
 use genet_sdk::{prelude::*, writer::*};
 
 use std::{
@@ -13,7 +14,7 @@ struct Arg {
     file: String,
 }
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 struct PcapFileWriter {}
 
 impl Writer for PcapFileWriter {
@@ -35,6 +36,13 @@ impl Writer for PcapFileWriter {
             ..Metadata::default()
         }
     }
+}
+
+#[derive(Default, Package)]
+struct PcapFilePackage {
+    #[id("app.genet.writer.pcap-file")]
+    #[file(name = "Pcap File", ext = "pcap")]
+    writer: PcapFileWriter,
 }
 
 struct PcapFileWorker {
@@ -93,5 +101,3 @@ impl Worker for PcapFileWorker {
         Ok(())
     }
 }
-
-genet_writers!(PcapFileWriter {});

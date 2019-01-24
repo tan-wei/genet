@@ -1,3 +1,4 @@
+use genet_derive::Package;
 use genet_sdk::{prelude::*, reader::*};
 use serde_derive::Deserialize;
 
@@ -11,7 +12,7 @@ struct Arg {
     file: String,
 }
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 struct GenetFileReader {}
 
 fn read_usize(reader: &mut BufReader<File>) -> Result<usize> {
@@ -43,6 +44,13 @@ impl Reader for GenetFileReader {
     }
 }
 
+#[derive(Default, Package)]
+struct GenetFilePackage {
+    #[id("app.genet.reader.genet-file")]
+    #[file(name = "genet", ext = "genet")]
+    reader: GenetFileReader,
+}
+
 struct GenetFileWorker {
     reader: BufReader<File>,
     header: genet_format::Header,
@@ -67,5 +75,3 @@ impl Worker for GenetFileWorker {
         self.header.layer_id.clone().into()
     }
 }
-
-genet_readers!(GenetFileReader {});

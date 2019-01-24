@@ -1,3 +1,4 @@
+use genet_derive::Package;
 use genet_sdk::{prelude::*, writer::*};
 use serde_derive::Deserialize;
 
@@ -11,7 +12,7 @@ struct Arg {
     file: String,
 }
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 struct GenetFileWriter {}
 
 impl Writer for GenetFileWriter {
@@ -33,6 +34,13 @@ impl Writer for GenetFileWriter {
             ..Metadata::default()
         }
     }
+}
+
+#[derive(Default, Package)]
+struct GenetFilePackage {
+    #[id("app.genet.writer.genet-file")]
+    #[file(name = "genet", ext = "genet")]
+    writer: GenetFileWriter,
 }
 
 struct GenetFileWorker {
@@ -70,5 +78,3 @@ impl Worker for GenetFileWorker {
         Ok(())
     }
 }
-
-genet_writers!(GenetFileWriter {});

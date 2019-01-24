@@ -1,4 +1,4 @@
-use genet_derive::{export_package, Attr};
+use genet_derive::Attr;
 use genet_sdk::{decoder::*, prelude::*};
 
 /// Ethernet

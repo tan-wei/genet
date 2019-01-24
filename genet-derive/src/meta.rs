@@ -133,13 +133,23 @@ impl AttrMetadata {
     }
 }
 
+pub struct FileType {
+    pub name: String,
+    pub extensions: Vec<String>,
+}
+
 pub struct ComponentMetadata {
+    pub id: String,
     pub trigger_after: Vec<String>,
+    pub files: Vec<FileType>,
 }
 
 impl ComponentMetadata {
     pub fn new(attrs: &[Attribute]) -> Self {
+        let mut id = String::new();
         let mut trigger_after = Vec::new();
+        let mut files = Vec::new();
+
         for attr in attrs {
             if let Some(meta) = attr.interpret_meta() {
                 let name = meta.name().to_string();
@@ -150,6 +160,40 @@ impl ComponentMetadata {
                                 trigger_after.push(lit_str.value().trim().into());
                             }
                         }
+                    }
+                    ("id", Meta::List(list)) => {
+                        for item in list.nested {
+                            if let NestedMeta::Literal(Lit::Str(lit_str)) = item {
+                                id = lit_str.value().trim().into();
+                            }
+                        }
+                    }
+                    ("file", Meta::List(list)) => {
+                        let mut file = FileType {
+                            name: String::new(),
+                            extensions: Vec::new(),
+                        };
+                        for item in list.nested {
+                            if let NestedMeta::Meta(meta) = item {
+                                let name = meta.name().to_string();
+                                if let Meta::NameValue(MetaNameValue {
+                                    lit: Lit::Str(lit_str),
+                                    ..
+                                }) = meta
+                                {
+                                    match name.as_str() {
+                                        "name" => {
+                                            file.name = lit_str.value().trim().into();
+                                        }
+                                        "ext" => {
+                                            file.extensions.push(lit_str.value().trim().into());
+                                        }
+                                        _ => panic!("unsupported attribute: {}", name),
+                                    }
+                                }
+                            }
+                        }
+                        files.push(file);
                     }
                     ("decoder", Meta::List(list)) => {
                         for item in list.nested {
@@ -175,6 +219,10 @@ impl ComponentMetadata {
             }
         }
 
-        ComponentMetadata { trigger_after }
+        ComponentMetadata {
+            id,
+            trigger_after,
+            files,
+        }
     }
 }

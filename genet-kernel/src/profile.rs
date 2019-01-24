@@ -7,9 +7,7 @@ use genet_abi::{
     env::{self, Allocator},
     fixed::Fixed,
     package::{Component, DecoderData, Package, ReaderData, WriterData},
-    reader::ReaderBox,
     token::Token,
-    writer::WriterBox,
 };
 use libloading::Library;
 use num_cpus;
@@ -85,8 +83,6 @@ impl Profile {
             extern "C" fn(unsafe extern "C" fn(Token, *mut u64) -> *const u8);
         type FnRegisterGetAllocator = extern "C" fn(extern "C" fn() -> Fixed<Allocator>);
         type FnGetDecoders = extern "C" fn(*mut u64) -> *const DecoderBox;
-        type FnGetReaders = extern "C" fn(*mut u64) -> *const ReaderBox;
-        type FnGetWriters = extern "C" fn(*mut u64) -> *const WriterBox;
 
         type FnLoadPackageCallback = extern "C" fn(*const u8, u64, *mut Vec<u8>);
         type FnLoadPackage = extern "C" fn(*mut Vec<u8>, FnLoadPackageCallback);
@@ -133,36 +129,6 @@ impl Profile {
                     b = b.trigger_after(t);
                 }
                 self.decoders.push(b.into());
-            }
-        }
-
-        if let Ok(func) = unsafe { lib.get::<FnGetReaders>(b"genet_abi_v1_get_readers") } {
-            let mut len = 0;
-            let ptr = func(&mut len);
-            for i in 0..len {
-                let b = unsafe { (*ptr.offset(i as isize)) };
-                let id = b.metadata().id.clone();
-                let filters = b.metadata().filters.clone();
-                let mut b = ReaderData::builder(b).id(id);
-                for t in filters.into_iter() {
-                    b = b.filter(t);
-                }
-                self.readers.push(b.into());
-            }
-        }
-
-        if let Ok(func) = unsafe { lib.get::<FnGetWriters>(b"genet_abi_v1_get_writers") } {
-            let mut len = 0;
-            let ptr = func(&mut len);
-            for i in 0..len {
-                let b = unsafe { (*ptr.offset(i as isize)) };
-                let id = b.metadata().id.clone();
-                let filters = b.metadata().filters.clone();
-                let mut b = WriterData::builder(b).id(id);
-                for t in filters.into_iter() {
-                    b = b.filter(t);
-                }
-                self.writers.push(b.into());
             }
         }
 
