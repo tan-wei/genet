@@ -29,6 +29,11 @@ pub fn export_package(_: TokenStream, input: TokenStream) -> TokenStream {
     tokens.into()
 }
 
+#[proc_macro]
+pub fn export_pkg(input: TokenStream) -> TokenStream {
+    input
+}
+
 #[proc_macro_derive(Attr, attributes(genet))]
 pub fn derive_attr(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);

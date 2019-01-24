@@ -1,4 +1,4 @@
-use genet_derive::{export_package, Attr};
+use genet_derive::{export_package, export_pkg, Attr};
 use genet_sdk::{
     decoder::*,
     package::{DecoderData, Package},
@@ -197,6 +197,8 @@ impl From<u8> for Mode {
         }
     }
 }
+
+export_pkg!();
 
 #[export_package]
 fn package() -> Package {
