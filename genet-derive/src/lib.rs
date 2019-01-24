@@ -9,12 +9,12 @@ use std::collections::VecDeque;
 use syn::{parse_macro_input, Data, DataEnum, DataStruct, DeriveInput, Expr, Fields, Ident};
 
 mod meta;
-use crate::meta::AttrMetadata;
+use crate::meta::{AttrMetadata, ComponentMetadata};
 
 mod initialisms;
 use crate::initialisms::to_title_case;
 
-#[proc_macro_derive(Package, attributes(genet))]
+#[proc_macro_derive(Package, attributes(trigger_after))]
 pub fn derive_package(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
@@ -29,11 +29,22 @@ pub fn derive_package(input: TokenStream) -> TokenStream {
     let mut components = Vec::new();
     if let Fields::Named(f) = &data.fields {
         for field in &f.named {
+            let meta = ComponentMetadata::new(&field.attrs);
+            let mut attrs = Vec::new();
+
+            for trigger in meta.trigger_after {
+                attrs.push(quote! {
+                    .trigger_after(#trigger)
+                })
+            }
+
             if field.ident.is_some() {
                 let ident = &field.ident;
                 components.push(quote! {
                     IntoBuilder::into_builder(pkg.#ident)
-                        .trigger_after("udp")
+                        #(
+                            #attrs
+                        )*
                 });
             }
         }
@@ -82,7 +93,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
 
     let mut fields_class = Vec::new();
     for v in &s.variants {
-        let meta = AttrMetadata::parse(&v.attrs);
+        let meta = AttrMetadata::new(&v.attrs);
         let id = if let Some(id) = meta.id {
             id
         } else {
@@ -166,7 +177,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     if let Fields::Named(f) = &s.fields {
         for field in &f.named {
             if field.ident.is_some() {
-                let meta = AttrMetadata::parse(&field.attrs);
+                let meta = AttrMetadata::new(&field.attrs);
                 fields_align.push_back(meta.align_before);
             }
         }
@@ -180,7 +191,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     if let Fields::Named(f) = &s.fields {
         for field in &f.named {
             if let Some(ident) = &field.ident {
-                let meta = AttrMetadata::parse(&field.attrs);
+                let meta = AttrMetadata::new(&field.attrs);
                 let assign_typ = if let Some(typ) = meta.typ {
                     quote! { subctx.typ = #typ.into() }
                 } else {

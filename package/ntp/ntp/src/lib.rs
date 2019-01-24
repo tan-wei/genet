@@ -1,9 +1,5 @@
 use genet_derive::{Attr, Package};
-use genet_sdk::{
-    decoder::*,
-    package::{DecoderData, Package},
-    prelude::*,
-};
+use genet_sdk::{decoder::*, prelude::*};
 
 struct NtpWorker {
     layer: LayerType<Ntp>,
@@ -200,13 +196,6 @@ impl From<u8> for Mode {
 
 #[derive(Default, Package)]
 struct NtpPackage {
+    #[trigger_after("udp")]
     decoder: NtpDecoder,
 }
-
-/*
-#[export_package]
-fn package() -> Package {
-    let decoder = DecoderData::builder(DecoderBox::new(NtpDecoder {})).trigger_after("udp");
-    Package::builder().component(decoder).into()
-}
-*/

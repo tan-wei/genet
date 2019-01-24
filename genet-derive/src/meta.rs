@@ -16,7 +16,7 @@ pub struct AttrMetadata {
 }
 
 impl AttrMetadata {
-    pub fn parse(attrs: &[Attribute]) -> AttrMetadata {
+    pub fn new(attrs: &[Attribute]) -> Self {
         let mut id = None;
         let mut typ = None;
         let mut aliases = Vec::new();
@@ -130,5 +130,51 @@ impl AttrMetadata {
             func_map,
             func_cond,
         }
+    }
+}
+
+pub struct ComponentMetadata {
+    pub trigger_after: Vec<String>,
+}
+
+impl ComponentMetadata {
+    pub fn new(attrs: &[Attribute]) -> Self {
+        let mut trigger_after = Vec::new();
+        for attr in attrs {
+            if let Some(meta) = attr.interpret_meta() {
+                let name = meta.name().to_string();
+                match (name.as_str(), meta) {
+                    ("trigger_after", Meta::List(list)) => {
+                        for item in list.nested {
+                            if let NestedMeta::Literal(Lit::Str(lit_str)) = item {
+                                trigger_after.push(lit_str.value().trim().into());
+                            }
+                        }
+                    }
+                    ("decoder", Meta::List(list)) => {
+                        for item in list.nested {
+                            if let NestedMeta::Meta(meta) = item {
+                                let name = meta.name().to_string();
+                                if let Meta::NameValue(MetaNameValue {
+                                    lit: Lit::Str(lit_str),
+                                    ..
+                                }) = meta
+                                {
+                                    match name.as_str() {
+                                        "trigger_after" => {
+                                            trigger_after.push(lit_str.value().trim().into());
+                                        }
+                                        _ => panic!("unsupported attribute: {}", name),
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        ComponentMetadata { trigger_after }
     }
 }

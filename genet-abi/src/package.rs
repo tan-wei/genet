@@ -3,7 +3,7 @@ use crate::{
     decoder::{Decoder, DecoderBox},
     file::FileType,
     reader::{Reader, ReaderBox},
-    writer::WriterBox,
+    writer::{Writer, WriterBox},
 };
 use serde_derive::{Deserialize, Serialize};
 
@@ -167,6 +167,12 @@ impl Into<ReaderData> for ReaderBuilder {
 impl Into<Component> for ReaderBuilder {
     fn into(self) -> Component {
         Component::Reader(self.data)
+    }
+}
+
+impl<T: 'static + Writer> IntoBuilder<WriterBuilder> for T {
+    fn into_builder(self) -> WriterBuilder {
+        WriterData::builder(WriterBox::new(self))
     }
 }
 
