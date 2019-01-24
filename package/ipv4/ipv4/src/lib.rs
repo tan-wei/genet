@@ -1,4 +1,4 @@
-use genet_derive::Attr;
+use genet_derive::{Attr, Package};
 use genet_sdk::{decoder::*, prelude::*};
 
 struct IPv4Worker {
@@ -25,7 +25,7 @@ impl Worker for IPv4Worker {
     }
 }
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 struct IPv4Decoder {}
 
 impl Decoder for IPv4Decoder {
@@ -43,6 +43,12 @@ impl Decoder for IPv4Decoder {
             ..Metadata::default()
         }
     }
+}
+
+#[derive(Default, Package)]
+struct IPv4Package {
+    #[id("ipv4")]
+    decoder: IPv4Decoder,
 }
 
 #[derive(Attr)]
@@ -113,5 +119,3 @@ impl From<u8> for ProtoType {
         }
     }
 }
-
-genet_decoders!(IPv4Decoder {});

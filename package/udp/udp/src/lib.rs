@@ -1,4 +1,4 @@
-use genet_derive::Attr;
+use genet_derive::{Attr, Package};
 use genet_sdk::{decoder::*, prelude::*};
 
 struct UdpWorker {
@@ -16,7 +16,7 @@ impl Worker for UdpWorker {
     }
 }
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 struct UdpDecoder {}
 
 impl Decoder for UdpDecoder {
@@ -34,6 +34,12 @@ impl Decoder for UdpDecoder {
     }
 }
 
+#[derive(Default, Package)]
+struct UdpPackage {
+    #[id("udp")]
+    decoder: UdpDecoder,
+}
+
 #[derive(Attr)]
 struct Udp {
     #[attr(alias = "_.src", typ = "@udp:port")]
@@ -46,5 +52,3 @@ struct Udp {
 
     checksum: u16,
 }
-
-genet_decoders!(UdpDecoder {});

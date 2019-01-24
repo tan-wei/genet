@@ -12,4 +12,4 @@ pub use crate::{
     variant::TryInto,
 };
 
-pub use crate::{attr, genet_decoders, token};
+pub use crate::{attr, token};

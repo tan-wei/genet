@@ -3,7 +3,6 @@ use failure::{err_msg, Error};
 use fnv::FnvHashMap;
 use genet_abi::{
     context::Context,
-    decoder::DecoderBox,
     env::{self, Allocator},
     fixed::Fixed,
     package::{Component, DecoderData, Package, ReaderData, WriterData},
@@ -82,7 +81,6 @@ impl Profile {
         type FnRegisterGetString =
             extern "C" fn(unsafe extern "C" fn(Token, *mut u64) -> *const u8);
         type FnRegisterGetAllocator = extern "C" fn(extern "C" fn() -> Fixed<Allocator>);
-        type FnGetDecoders = extern "C" fn(*mut u64) -> *const DecoderBox;
 
         type FnLoadPackageCallback = extern "C" fn(*const u8, u64, *mut Vec<u8>);
         type FnLoadPackage = extern "C" fn(*mut Vec<u8>, FnLoadPackageCallback);
@@ -115,21 +113,6 @@ impl Profile {
                 lib.get::<FnRegisterGetAllocator>(b"genet_abi_v1_register_get_allocator")?
             };
             func(env::abi_genet_get_allocator);
-        }
-
-        if let Ok(func) = unsafe { lib.get::<FnGetDecoders>(b"genet_abi_v1_get_decoders") } {
-            let mut len = 0;
-            let ptr = func(&mut len);
-            for i in 0..len {
-                let b = unsafe { (*ptr.offset(i as isize)) };
-                let id = b.metadata().id.clone();
-                let trigger_after = b.metadata().trigger_after.clone();
-                let mut b = DecoderData::builder(b).id(id);
-                for t in trigger_after.into_iter() {
-                    b = b.trigger_after(t);
-                }
-                self.decoders.push(b.into());
-            }
         }
 
         if let Ok(func) = unsafe { lib.get::<FnLoadPackage>(b"genet_abi_v1_load_package") } {
