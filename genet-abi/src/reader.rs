@@ -1,30 +1,9 @@
 use crate::{
-    codable::Codable, context::Context, file::FileType, result::Result, slice::ByteSlice,
-    string::SafeString, token::Token, vec::SafeVec,
+    codable::Codable, context::Context, result::Result, slice::ByteSlice, string::SafeString,
+    token::Token, vec::SafeVec,
 };
 use failure::format_err;
-use serde_derive::{Deserialize, Serialize};
 use std::{fmt, mem, ptr, slice, str};
-
-/// Reader metadata.
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Metadata {
-    pub id: String,
-    pub name: String,
-    pub description: String,
-    pub filters: Vec<FileType>,
-}
-
-impl Default for Metadata {
-    fn default() -> Self {
-        Metadata {
-            id: String::new(),
-            name: String::new(),
-            description: String::new(),
-            filters: Vec::new(),
-        }
-    }
-}
 
 /// Reader trait.
 pub trait Reader: Send {

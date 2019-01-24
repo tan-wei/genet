@@ -2,7 +2,6 @@ use crate::{
     codable::Codable, context::Context, layer::LayerStack, result::Result, string::SafeString,
 };
 use failure::format_err;
-use serde_derive::{Deserialize, Serialize};
 use std::ptr;
 
 /// Decoding status.
@@ -10,26 +9,6 @@ use std::ptr;
 pub enum Status {
     Done,
     Skip,
-}
-
-/// Decoder metadata.
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Metadata {
-    pub id: String,
-    pub name: String,
-    pub description: String,
-    pub trigger_after: Vec<String>,
-}
-
-impl Default for Metadata {
-    fn default() -> Self {
-        Metadata {
-            id: String::new(),
-            name: String::new(),
-            description: String::new(),
-            trigger_after: Vec::new(),
-        }
-    }
 }
 
 /// Decoder worker trait.

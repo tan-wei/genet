@@ -1,30 +1,6 @@
-use crate::{
-    codable::Codable, context::Context, file::FileType, layer::Layer, result::Result,
-    string::SafeString,
-};
+use crate::{codable::Codable, context::Context, layer::Layer, result::Result, string::SafeString};
 use failure::format_err;
-use serde_derive::{Deserialize, Serialize};
 use std::{fmt, mem, ptr, slice, str};
-
-/// Writer metadata.
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Metadata {
-    pub id: String,
-    pub name: String,
-    pub description: String,
-    pub filters: Vec<FileType>,
-}
-
-impl Default for Metadata {
-    fn default() -> Self {
-        Metadata {
-            id: String::new(),
-            name: String::new(),
-            description: String::new(),
-            filters: Vec::new(),
-        }
-    }
-}
 
 /// Writer trait.
 pub trait Writer: Send {
