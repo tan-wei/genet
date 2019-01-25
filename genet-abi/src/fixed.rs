@@ -47,7 +47,7 @@ impl<T> Fixed<T> {
     }
 
     /// Returns a raw pointer to the underlying data in this container.
-    pub fn as_ptr(&self) -> *const T {
+    pub const fn as_ptr(self) -> *const T {
         self.ptr.as_ptr()
     }
 }
