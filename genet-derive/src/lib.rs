@@ -76,20 +76,28 @@ pub fn derive_package(input: TokenStream) -> TokenStream {
     }
 
     let tokens = quote! {
+        impl Into<genet_sdk::package::Package> for #ident {
+            fn into(self) -> genet_sdk::package::Package {
+                            use genet_sdk::package::{Package, IntoBuilder};
+                            let pkg : #ident = Default::default();
+                            Package::builder()
+                                .id(env!("CARGO_PKG_NAME"))
+                                .name(env!("CARGO_PKG_NAME"))
+                                .description(env!("CARGO_PKG_DESCRIPTION"))
+
+                                #(
+                                    .component(#components)
+                                )*
+
+                                .into()
+            }
+        }
+
         #[no_mangle]
         extern "C" fn genet_abi_v1_load_package(data: *mut (), cb: extern "C" fn(*const u8, u64, *mut ())) {
-            use genet_sdk::package::{Package, IntoBuilder};
-            let pkg : #ident = Default::default();
-            let pkg : Package = Package::builder()
-                .id(env!("CARGO_PKG_NAME"))
-                .name(env!("CARGO_PKG_NAME"))
-                .description(env!("CARGO_PKG_DESCRIPTION"))
-
-                #(
-                    .component(#components)
-                )*
-
-                .into();
+            use genet_sdk::package::Package;
+            let pkg : #ident = Default::default().into();
+            let pkg : Package = pkg.into();
             let buf = genet_sdk::bincode::serialize(&pkg).unwrap();
             cb(buf.as_ptr(), buf.len() as u64, data);
         }
