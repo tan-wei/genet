@@ -42,7 +42,6 @@ struct GenetFilePackage {
         id = "app.genet.reader.genet-file",
         filter(name = "genet", ext = "genet")
     )]
-    #[file(name = "genet", ext = "genet")]
     reader: GenetFileReader,
 }
 

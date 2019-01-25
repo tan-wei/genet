@@ -67,7 +67,6 @@ struct PcapFilePackage {
         id = "app.genet.reader.pcap-file",
         filter(name = "Pcap File", ext = "pcap")
     )]
-    #[file(name = "Pcap File", ext = "pcap")]
     reader: PcapFileReader,
 }
 

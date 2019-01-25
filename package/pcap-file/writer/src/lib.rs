@@ -36,7 +36,6 @@ struct PcapFilePackage {
         id = "app.genet.writer.pcap-file",
         filter(name = "Pcap File", ext = "pcap")
     )]
-    #[file(name = "Pcap File", ext = "pcap")]
     writer: PcapFileWriter,
 }
 
