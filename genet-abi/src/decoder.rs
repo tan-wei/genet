@@ -160,7 +160,7 @@ mod tests {
     use crate::{
         attr::AttrClass,
         context::Context,
-        decoder::{Decoder, DecoderBox, Metadata, Status, Worker},
+        decoder::{Decoder, DecoderBox, Status, Worker},
         fixed::Fixed,
         layer::{Layer, LayerClass, LayerStack, LayerStackData},
         result::Result,
