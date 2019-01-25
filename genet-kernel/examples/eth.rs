@@ -15,8 +15,8 @@ struct Eth {
     #[attr(cond = "x <= 1500")]
     len: u16,
 
-    #[attr(cond = "x > 1500", align_before, map = "x as u16")]
-    r#type: Enum<u16, EthTypeEnum>,
+    #[attr(cond = "x > 1500", align_before)]
+    r#type: Enum<u16, EthType>,
 }
 
 #[derive(Attr, Debug)]
