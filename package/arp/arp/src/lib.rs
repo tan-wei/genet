@@ -67,22 +67,22 @@ struct ARP {
     plen: Node<u8>,
     op: Enum<u16, OperationType>,
 
-    #[genet(detach, id = "sha", typ = "@eth:mac", alias = "_.src", byte_size = 6)]
+    #[attr(detach, id = "sha", typ = "@eth:mac", alias = "_.src", byte_size = 6)]
     sha_eth: Node<ByteSlice>,
 
-    #[genet(detach, id = "tha", typ = "@eth:mac", alias = "_.dst", byte_size = 6)]
+    #[attr(detach, id = "tha", typ = "@eth:mac", alias = "_.dst", byte_size = 6)]
     tha_eth: Node<ByteSlice>,
 
-    #[genet(detach, id = "spa", typ = "@ipv4:addr", byte_size = 4)]
+    #[attr(detach, id = "spa", typ = "@ipv4:addr", byte_size = 4)]
     spa_ipv4: Node<ByteSlice>,
 
-    #[genet(detach, id = "tpa", typ = "@ipv4:addr", byte_size = 4)]
+    #[attr(detach, id = "tpa", typ = "@ipv4:addr", byte_size = 4)]
     tpa_ipv4: Node<ByteSlice>,
 
-    #[genet(detach, id = "spa", typ = "@ipv6:addr", byte_size = 16)]
+    #[attr(detach, id = "spa", typ = "@ipv6:addr", byte_size = 16)]
     spa_ipv6: Node<ByteSlice>,
 
-    #[genet(detach, id = "tpa", typ = "@ipv6:addr", byte_size = 16)]
+    #[attr(detach, id = "tpa", typ = "@ipv6:addr", byte_size = 16)]
     tpa_ipv6: Node<ByteSlice>,
 }
 

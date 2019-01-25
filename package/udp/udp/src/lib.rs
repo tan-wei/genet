@@ -36,10 +36,10 @@ impl Decoder for UdpDecoder {
 
 #[derive(Attr)]
 struct Udp {
-    #[genet(alias = "_.src", typ = "@udp:port")]
+    #[attr(alias = "_.src", typ = "@udp:port")]
     src: u16,
 
-    #[genet(alias = "_.dst", typ = "@udp:port")]
+    #[attr(alias = "_.dst", typ = "@udp:port")]
     dst: u16,
 
     length: u16,

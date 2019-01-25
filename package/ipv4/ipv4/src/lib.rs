@@ -47,10 +47,10 @@ impl Decoder for IPv4Decoder {
 
 #[derive(Attr)]
 struct IPv4 {
-    #[genet(bit_size = 4, map = "x >> 4")]
+    #[attr(bit_size = 4, map = "x >> 4")]
     version: u8,
 
-    #[genet(bit_size = 4, map = "x & 0b00001111")]
+    #[attr(bit_size = 4, map = "x & 0b00001111")]
     header_length: u8,
 
     tos: u8,
@@ -59,10 +59,10 @@ struct IPv4 {
 
     id: u16,
 
-    #[genet(bit_size = 3, map = "(x >> 5) & 0b0000_0111", typ = "@flags")]
+    #[attr(bit_size = 3, map = "(x >> 5) & 0b0000_0111", typ = "@flags")]
     flags: Node<u8, Flags>,
 
-    #[genet(bit_size = 13, map = "x & 0x1fff")]
+    #[attr(bit_size = 13, map = "x & 0x1fff")]
     fragment_offset: u16,
 
     ttl: u8,
@@ -71,10 +71,10 @@ struct IPv4 {
 
     checksum: u16,
 
-    #[genet(alias = "_.src", typ = "@ipv4:addr", byte_size = 4)]
+    #[attr(alias = "_.src", typ = "@ipv4:addr", byte_size = 4)]
     src: ByteSlice,
 
-    #[genet(alias = "_.dst", typ = "@ipv4:addr", byte_size = 4)]
+    #[attr(alias = "_.dst", typ = "@ipv4:addr", byte_size = 4)]
     dst: ByteSlice,
 }
 

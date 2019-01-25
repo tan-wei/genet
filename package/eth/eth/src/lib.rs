@@ -5,17 +5,17 @@ use genet_sdk::{decoder::*, prelude::*};
 #[derive(Attr)]
 struct Eth {
     /// Source Hardware Address
-    #[genet(alias = "_.src", typ = "@eth:mac", byte_size = 6)]
+    #[attr(alias = "_.src", typ = "@eth:mac", byte_size = 6)]
     src: ByteSlice,
 
     /// Destination Hardware Address
-    #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
+    #[attr(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
     dst: ByteSlice,
 
-    #[genet(cond = "x <= 1500")]
+    #[attr(cond = "x <= 1500")]
     len: u16,
 
-    #[genet(cond = "x > 1500", align_before)]
+    #[attr(cond = "x > 1500", align_before)]
     r#type: Enum<u16, EthType>,
 }
 

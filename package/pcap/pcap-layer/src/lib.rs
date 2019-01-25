@@ -43,7 +43,7 @@ struct Link {
     payload_length: u32,
     original_length: u32,
 
-    #[genet(
+    #[attr(
         typ = "@datetime:unix",
         map = "(x >> 32) as f64 + (x & 0xffff_ffff) as f64 / 1_000_000f64"
     )]

@@ -42,7 +42,7 @@ impl AttrMetadata {
                         docs += &lit_str.value();
                         docs += "\n";
                     }
-                    ("genet", Meta::List(list)) => {
+                    ("attr", Meta::List(list)) => {
                         for item in list.nested {
                             if let NestedMeta::Meta(meta) = item {
                                 let name = meta.name().to_string();

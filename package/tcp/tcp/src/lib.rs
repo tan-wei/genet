@@ -75,20 +75,20 @@ impl Decoder for TcpDecoder {
 
 #[derive(Attr)]
 struct Tcp {
-    #[genet(alias = "_.src", typ = "@tcp:port")]
+    #[attr(alias = "_.src", typ = "@tcp:port")]
     src: u16,
 
-    #[genet(alias = "_.dst", typ = "@tcp:port")]
+    #[attr(alias = "_.dst", typ = "@tcp:port")]
     dst: u16,
 
     seq: u32,
 
     ack: u32,
 
-    #[genet(bit_size = 4, map = "x >> 4")]
+    #[attr(bit_size = 4, map = "x >> 4")]
     data_offset: Node<u8>,
 
-    #[genet(bit_size = 12, typ = "@flags", map = "x & 0xfff")]
+    #[attr(bit_size = 12, typ = "@flags", map = "x & 0xfff")]
     flags: Node<u16, Flags>,
 
     window: u16,
@@ -97,13 +97,13 @@ struct Tcp {
 
     urgent: u16,
 
-    #[genet(detach, byte_size = 1)]
+    #[attr(detach, byte_size = 1)]
     options: Node<ByteSlice, Options>,
 }
 
 #[derive(Attr)]
 struct Flags {
-    #[genet(bit_size = 3, skip)]
+    #[attr(bit_size = 3, skip)]
     reserved: u8,
 
     ns: BitFlag,
@@ -127,22 +127,22 @@ struct Flags {
 
 #[derive(Attr)]
 struct Options {
-    #[genet(detach)]
+    #[attr(detach)]
     nop: Node<u8>,
 
-    #[genet(detach)]
+    #[attr(detach)]
     mss: Node<u16>,
 
-    #[genet(detach)]
+    #[attr(detach)]
     scale: Node<u8>,
 
-    #[genet(detach)]
+    #[attr(detach)]
     selective_ack_permitted: Node<u8>,
 
-    #[genet(detach, byte_size = 1)]
+    #[attr(detach, byte_size = 1)]
     selective_ack: Node<ByteSlice>,
 
-    #[genet(detach, typ = "@nested")]
+    #[attr(detach, typ = "@nested")]
     ts: Node<Timestamp>,
 }
 

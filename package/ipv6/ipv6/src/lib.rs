@@ -66,13 +66,13 @@ impl Decoder for IPv6Decoder {
 
 #[derive(Attr)]
 struct IPv6 {
-    #[genet(bit_size = 4, map = "x >> 4")]
+    #[attr(bit_size = 4, map = "x >> 4")]
     version: u8,
 
-    #[genet(bit_size = 8, map = "(x >> 4) & 0xff")]
+    #[attr(bit_size = 8, map = "(x >> 4) & 0xff")]
     traffic_class: u16,
 
-    #[genet(
+    #[attr(
         bit_size = 20,
         map = "(((x[2] as u32) & 0xf) << 16) | ((x[1] as u32) << 8) | x[2] as u32"
     )]
@@ -84,13 +84,13 @@ struct IPv6 {
 
     hop_limit: u8,
 
-    #[genet(alias = "_.dst", typ = "@ipv6:addr", byte_size = 16)]
+    #[attr(alias = "_.dst", typ = "@ipv6:addr", byte_size = 16)]
     dst: ByteSlice,
 
-    #[genet(alias = "_.src", typ = "@ipv6:addr", byte_size = 16)]
+    #[attr(alias = "_.src", typ = "@ipv6:addr", byte_size = 16)]
     src: ByteSlice,
 
-    #[genet(detach)]
+    #[attr(detach)]
     protocol: Enum<u8, ProtoType>,
 }
 

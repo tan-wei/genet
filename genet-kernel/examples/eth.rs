@@ -5,17 +5,17 @@ use genet_sdk::{decoder::*, prelude::*};
 #[derive(Attr)]
 struct Eth {
     /// Source Hardware Address
-    #[genet(alias = "_.src", typ = "@eth:mac", byte_size = 6)]
+    #[attr(alias = "_.src", typ = "@eth:mac", byte_size = 6)]
     src: ByteSlice,
 
     /// Destination Hardware Address
-    #[genet(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
+    #[attr(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
     dst: ByteSlice,
 
-    #[genet(cond = "x <= 1500")]
+    #[attr(cond = "x <= 1500")]
     len: u16,
 
-    #[genet(cond = "x > 1500", align_before, map = "x as u16")]
+    #[attr(cond = "x > 1500", align_before, map = "x as u16")]
     r#type: Enum<u16, EthTypeEnum>,
 }
 
@@ -165,20 +165,20 @@ impl Decoder for TcpDecoder {
 
 #[derive(Attr)]
 struct Tcp {
-    #[genet(alias = "_.src", typ = "@tcp:port")]
+    #[attr(alias = "_.src", typ = "@tcp:port")]
     src: u16,
 
-    #[genet(alias = "_.dst", typ = "@tcp:port")]
+    #[attr(alias = "_.dst", typ = "@tcp:port")]
     dst: u16,
 
     seq: u32,
 
     ack: u32,
 
-    #[genet(bit_size = 4, map = "x >> 4")]
+    #[attr(bit_size = 4, map = "x >> 4")]
     data_offset: Node<u8>,
 
-    #[genet(bit_size = 12, typ = "@flags", map = "x & 0xfff")]
+    #[attr(bit_size = 12, typ = "@flags", map = "x & 0xfff")]
     flags: Node<u16, Flags>,
 
     window: u16,
@@ -187,13 +187,13 @@ struct Tcp {
 
     urgent: u16,
 
-    #[genet(byte_size = 1)]
+    #[attr(byte_size = 1)]
     options: Node<ByteSlice, Options>,
 }
 
 #[derive(Attr)]
 struct Flags {
-    #[genet(bit_size = 3, skip)]
+    #[attr(bit_size = 3, skip)]
     reserved: u8,
 
     ns: BitFlag,
@@ -219,19 +219,19 @@ struct Flags {
 struct Options {
     nop: Node<u8>,
 
-    #[genet(detach)]
+    #[attr(detach)]
     mss: Node<u16>,
 
-    #[genet(detach)]
+    #[attr(detach)]
     scale: Node<u8>,
 
-    #[genet(detach)]
+    #[attr(detach)]
     selective_ack_permitted: Node<u8>,
 
-    #[genet(detach, byte_size = 1)]
+    #[attr(detach, byte_size = 1)]
     selective_ack: Node<ByteSlice>,
 
-    #[genet(typ = "@nested")]
+    #[attr(typ = "@nested")]
     ts: Node<Timestamp>,
 }
 
