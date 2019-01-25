@@ -32,7 +32,7 @@ impl Decoder for PcapLayerDecoder {
 
 #[derive(Default, Package)]
 struct PcapLayerPackage {
-    #[id("pcap_layer")]
+    #[decoder(id = "pcap_layer")]
     decoder: PcapLayerDecoder,
 }
 

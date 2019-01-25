@@ -32,7 +32,10 @@ impl Writer for PcapFileWriter {
 
 #[derive(Default, Package)]
 struct PcapFilePackage {
-    #[id("app.genet.writer.pcap-file")]
+    #[writer(
+        id = "app.genet.writer.pcap-file",
+        filter(name = "Pcap File", ext = "pcap")
+    )]
     #[file(name = "Pcap File", ext = "pcap")]
     writer: PcapFileWriter,
 }

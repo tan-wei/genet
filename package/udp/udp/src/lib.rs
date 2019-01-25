@@ -29,7 +29,7 @@ impl Decoder for UdpDecoder {
 
 #[derive(Default, Package)]
 struct UdpPackage {
-    #[id("udp")]
+    #[decoder(id = "udp")]
     decoder: UdpDecoder,
 }
 

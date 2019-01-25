@@ -54,7 +54,7 @@ impl Decoder for ArpDecoder {
 
 #[derive(Default, Package)]
 struct ArpPackage {
-    #[id("arp")]
+    #[decoder(id = "arp")]
     decoder: ArpDecoder,
 }
 

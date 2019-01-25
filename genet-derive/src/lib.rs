@@ -14,7 +14,7 @@ use crate::meta::{AttrMetadata, ComponentMetadata};
 mod initialisms;
 use crate::initialisms::to_title_case;
 
-#[proc_macro_derive(Package, attributes(trigger_after, id, file))]
+#[proc_macro_derive(Package, attributes(decoder, reader, writer, trigger_after, id, file))]
 pub fn derive_package(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 

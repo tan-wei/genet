@@ -30,7 +30,10 @@ impl Writer for GenetFileWriter {
 
 #[derive(Default, Package)]
 struct GenetFilePackage {
-    #[id("app.genet.writer.genet-file")]
+    #[writer(
+        id = "app.genet.writer.genet-file",
+        filter(name = "genet", ext = "genet")
+    )]
     #[file(name = "genet", ext = "genet")]
     writer: GenetFileWriter,
 }

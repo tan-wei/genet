@@ -68,7 +68,7 @@ impl Decoder for TcpDecoder {
 
 #[derive(Default, Package)]
 struct TcpPackage {
-    #[id("tcp")]
+    #[decoder(id = "tcp")]
     decoder: TcpDecoder,
 }
 

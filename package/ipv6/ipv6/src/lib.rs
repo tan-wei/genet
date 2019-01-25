@@ -59,7 +59,7 @@ impl Decoder for IPv6Decoder {
 
 #[derive(Default, Package)]
 struct IPv6Package {
-    #[id("ipv6")]
+    #[decoder(id = "ipv6")]
     decoder: IPv6Decoder,
 }
 

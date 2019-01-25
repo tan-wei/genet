@@ -40,7 +40,7 @@ impl Decoder for IPv4Decoder {
 
 #[derive(Default, Package)]
 struct IPv4Package {
-    #[id("ipv4")]
+    #[decoder(id = "ipv4")]
     decoder: IPv4Decoder,
 }
 

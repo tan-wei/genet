@@ -43,7 +43,7 @@ impl Reader for PcapReader {
 
 #[derive(Default, Package)]
 struct PcapPackage {
-    #[id("app.genet.reader.pcap")]
+    #[reader(id = "app.genet.reader.pcap")]
     reader: PcapReader,
 }
 

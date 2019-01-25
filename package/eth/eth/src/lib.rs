@@ -91,6 +91,6 @@ impl Decoder for EthDecoder {
 
 #[derive(Default, Package)]
 struct EthPackage {
-    #[id("eth")]
+    #[decoder(id = "eth")]
     decoder: EthDecoder,
 }
