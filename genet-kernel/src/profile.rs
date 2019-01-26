@@ -6,7 +6,7 @@ use genet_abi::{
     context::Context,
     env,
     package::{Component, DecoderData, Package, ReaderData, WriterData},
-    token::Token,
+    token::TokenRegistry,
 };
 use libloading::Library;
 use num_cpus;
@@ -77,9 +77,7 @@ impl Profile {
         let lib = Library::new(path)?;
 
         type FnVersion = extern "C" fn() -> u64;
-        type FnRegisterGetToken = extern "C" fn(unsafe extern "C" fn(*const u8, u64) -> Token);
-        type FnRegisterGetString =
-            extern "C" fn(unsafe extern "C" fn(Token, *mut u64) -> *const u8);
+        type FnRegisterTokenRegistry = extern "C" fn(TokenRegistry);
         type FnRegisterAllocator = extern "C" fn(Allocator);
 
         type FnLoadPackageCallback = extern "C" fn(*const u8, u64, *mut Vec<u8>);
@@ -102,16 +100,13 @@ impl Profile {
             }
 
             let func =
-                unsafe { lib.get::<FnRegisterGetToken>(b"genet_abi_v1_register_get_token")? };
-            func(env::abi_genet_get_token);
-
-            let func =
-                unsafe { lib.get::<FnRegisterGetString>(b"genet_abi_v1_register_get_string")? };
-            func(env::abi_genet_get_string);
-
-            let func =
                 unsafe { lib.get::<FnRegisterAllocator>(b"genet_abi_v1_register_allocator")? };
             func(Allocator::default());
+
+            let func = unsafe {
+                lib.get::<FnRegisterTokenRegistry>(b"genet_abi_v1_register_token_registry")?
+            };
+            func(TokenRegistry::default());
         }
 
         if let Ok(func) = unsafe { lib.get::<FnLoadPackage>(b"genet_abi_v1_load_package") } {
