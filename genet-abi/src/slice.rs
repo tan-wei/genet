@@ -1,7 +1,6 @@
 use crate::result::Result;
 use failure::err_msg;
 use std::{
-    marker::PhantomData,
     mem,
     ops::{Deref, Range, RangeFrom, RangeFull, RangeInclusive, RangeTo, RangeToInclusive},
     slice,
