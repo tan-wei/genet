@@ -18,3 +18,8 @@ pub mod writer;
 
 mod string;
 mod vec;
+
+use genet_allocator::SharedAllocator;
+
+#[global_allocator]
+static ALLOC: SharedAllocator = SharedAllocator;

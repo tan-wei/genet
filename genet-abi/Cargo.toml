@@ -11,6 +11,7 @@ bincode = "1"
 byteorder = "1"
 failure = "0.1"
 fnv = "1"
+genet-allocator = { path = "../genet-allocator" }
 lazy_static = "1"
 libc = "0.2"
 num-bigint = "0.2"
