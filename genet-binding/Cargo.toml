@@ -1,0 +1,16 @@
+[package]
+name = "genet-binding"
+version = "0.1.0"
+authors = ["Ron Hashimoto <mail@h2so5.net>"]
+edition = "2018"
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+genet-abi = { path = "../genet-abi" }
+genet-filter = { path = "../genet-filter" }
+genet-kernel = { path = "../genet-kernel" }
+genet-napi = { path = "../genet-napi" }
+parking_lot = "0.7"
+serde_json = "1"

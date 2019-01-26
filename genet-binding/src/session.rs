@@ -1,9 +1,9 @@
-use crate::{
-    binding::JsClass,
+use crate::JsClass;
+use genet_filter::CompiledLayerFilter;
+use genet_kernel::{
     profile::Profile,
     session::{Callback, Event, Session},
 };
-use genet_filter::CompiledLayerFilter;
 use genet_napi::{
     napi::{
         CallbackInfo, Env, HandleScope, PropertyAttributes, PropertyDescriptor, Result, Status,
