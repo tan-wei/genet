@@ -1,3 +1,4 @@
+pub mod alloc;
 pub mod attr;
 pub mod codable;
 pub mod context;
@@ -18,3 +19,8 @@ pub mod writer;
 
 mod string;
 mod vec;
+
+use alloc::SharedAllocator;
+
+#[global_allocator]
+static ALLOC: SharedAllocator = SharedAllocator;

@@ -2,9 +2,9 @@ use bincode;
 use failure::{err_msg, Error};
 use fnv::FnvHashMap;
 use genet_abi::{
+    alloc::Allocator,
     context::Context,
-    env::{self, Allocator},
-    fixed::Fixed,
+    env,
     package::{Component, DecoderData, Package, ReaderData, WriterData},
     token::Token,
 };
@@ -80,7 +80,7 @@ impl Profile {
         type FnRegisterGetToken = extern "C" fn(unsafe extern "C" fn(*const u8, u64) -> Token);
         type FnRegisterGetString =
             extern "C" fn(unsafe extern "C" fn(Token, *mut u64) -> *const u8);
-        type FnRegisterGetAllocator = extern "C" fn(extern "C" fn() -> Fixed<Allocator>);
+        type FnRegisterAllocator = extern "C" fn(Allocator);
 
         type FnLoadPackageCallback = extern "C" fn(*const u8, u64, *mut Vec<u8>);
         type FnLoadPackage = extern "C" fn(*mut Vec<u8>, FnLoadPackageCallback);
@@ -109,10 +109,9 @@ impl Profile {
                 unsafe { lib.get::<FnRegisterGetString>(b"genet_abi_v1_register_get_string")? };
             func(env::abi_genet_get_string);
 
-            let func = unsafe {
-                lib.get::<FnRegisterGetAllocator>(b"genet_abi_v1_register_get_allocator")?
-            };
-            func(env::abi_genet_get_allocator);
+            let func =
+                unsafe { lib.get::<FnRegisterAllocator>(b"genet_abi_v1_register_allocator")? };
+            func(Allocator::default());
         }
 
         if let Ok(func) = unsafe { lib.get::<FnLoadPackage>(b"genet_abi_v1_load_package") } {

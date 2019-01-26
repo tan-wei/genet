@@ -1,5 +1,4 @@
 use crate::{
-    env,
     fixed::Fixed,
     layer::Layer,
     metadata::Metadata,
@@ -913,13 +912,13 @@ impl AttrClass {
             ValueType::Buffer => unsafe {
                 let len: u64 = mem::transmute_copy(&num);
                 let b = Box::from(slice::from_raw_parts(buf, len as usize));
-                env::dealloc(buf as *mut u8);
+                Box::from_raw(buf as *mut u8);
                 Ok(Variant::Buffer(b))
             },
             ValueType::BigInt => unsafe {
                 let len: u64 = mem::transmute_copy(&num);
                 let b = slice::from_raw_parts(buf, len as usize);
-                env::dealloc(buf as *mut u8);
+                Box::from_raw(buf as *mut u8);
                 Ok(Variant::BigInt(BigInt::from_signed_bytes_le(b)))
             },
             ValueType::ByteSlice => {

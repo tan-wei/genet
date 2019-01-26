@@ -1,7 +1,6 @@
-use crate::{fixed::Fixed, token::Token};
+use crate::token::Token;
 use fnv::FnvHashMap;
 use lazy_static::lazy_static;
-use libc;
 use parking_lot::Mutex;
 use std::{cell::RefCell, collections::hash_map::Entry, slice, str};
 
@@ -27,33 +26,9 @@ pub extern "C" fn genet_abi_v1_register_get_string(
     unsafe { GENET_GET_STRING = ptr };
 }
 
-#[cfg(not(feature = "genet-static"))]
-#[no_mangle]
-pub extern "C" fn genet_abi_v1_register_get_allocator(ptr: extern "C" fn() -> Fixed<Allocator>) {
-    unsafe { GENET_GET_ALLOCATOR = ptr };
-}
-
 static mut GENET_GET_TOKEN: unsafe extern "C" fn(*const u8, u64) -> Token = abi_genet_get_token;
 static mut GENET_GET_STRING: unsafe extern "C" fn(Token, *mut u64) -> *const u8 =
     abi_genet_get_string;
-static mut GENET_GET_ALLOCATOR: extern "C" fn() -> Fixed<Allocator> = abi_genet_get_allocator;
-
-pub extern "C" fn abi_genet_get_allocator() -> Fixed<Allocator> {
-    extern "C" fn alloc(size: u64) -> *mut u8 {
-        unsafe { libc::malloc(size as usize) as *mut u8 }
-    }
-    extern "C" fn realloc(ptr: *mut u8, size: u64) -> *mut u8 {
-        unsafe { libc::realloc(ptr as *mut libc::c_void, size as usize) as *mut u8 }
-    }
-    extern "C" fn dealloc(ptr: *mut u8) {
-        unsafe { libc::free(ptr as *mut libc::c_void) };
-    }
-    Fixed::new(Allocator {
-        alloc,
-        realloc,
-        dealloc,
-    })
-}
 
 pub unsafe extern "C" fn abi_genet_get_token(data: *const u8, len: u64) -> Token {
     let tokens = GLOBAL_TOKENS.lock();
@@ -87,18 +62,10 @@ pub unsafe extern "C" fn abi_genet_get_string(token: Token, len: *mut u64) -> *c
 }
 
 lazy_static! {
-    static ref GLOBAL_ALLOCATOR: Fixed<Allocator> = unsafe { GENET_GET_ALLOCATOR() };
     static ref GLOBAL_TOKENS: Mutex<RefCell<FnvHashMap<String, Token>>> =
         Mutex::new(RefCell::new(FnvHashMap::default()));
     static ref GLOBAL_STRINGS: Mutex<RefCell<Vec<String>>> =
         Mutex::new(RefCell::new(vec![String::new()]));
-}
-
-#[repr(C)]
-pub struct Allocator {
-    alloc: extern "C" fn(u64) -> *mut u8,
-    realloc: extern "C" fn(*mut u8, u64) -> *mut u8,
-    dealloc: extern "C" fn(*mut u8),
 }
 
 pub(crate) fn token(id: &str) -> Token {
@@ -117,18 +84,6 @@ pub(crate) fn string(id: Token) -> String {
         let s = unsafe { GENET_GET_STRING(id, &mut len) };
         unsafe { str::from_utf8_unchecked(slice::from_raw_parts(s, len as usize)).to_string() }
     }
-}
-
-pub fn alloc(len: usize) -> *mut u8 {
-    (GLOBAL_ALLOCATOR.alloc)(len as u64)
-}
-
-pub fn realloc(ptr: *mut u8, len: usize) -> *mut u8 {
-    (GLOBAL_ALLOCATOR.realloc)(ptr, len as u64)
-}
-
-pub fn dealloc(ptr: *mut u8) {
-    (GLOBAL_ALLOCATOR.dealloc)(ptr)
 }
 
 #[cfg(test)]

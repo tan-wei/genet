@@ -1,4 +1,3 @@
-use crate::env;
 use std::{
     iter::{FromIterator, IntoIterator},
     mem,
@@ -14,6 +13,7 @@ where
 {
     ptr: *mut T,
     len: u64,
+    cap: u64,
     offset: u64,
 }
 
@@ -36,7 +36,9 @@ impl<T> Iterator for IntoIter<T> {
 
 impl<T> Drop for IntoIter<T> {
     fn drop(&mut self) {
-        env::dealloc(self.ptr as *mut u8);
+        unsafe {
+            Vec::from_raw_parts(self.ptr, self.len as usize, self.cap as usize);
+        }
     }
 }
 
@@ -53,24 +55,21 @@ where
 
 impl<T> SafeVec<T> {
     pub fn new() -> Self {
-        Self {
-            ptr: ptr::null_mut(),
-            len: 0,
-            cap: 0,
-        }
+        let mut vec = Vec::new();
+        let ptr = vec.as_mut_ptr();
+        let len = vec.len() as u64;
+        let cap = vec.capacity() as u64;
+        mem::forget(vec);
+        SafeVec { ptr, len, cap }
     }
 
     pub fn with_capacity(capacity: u64) -> Self {
-        let size = mem::size_of::<T>() * capacity as usize;
-        let ptr: *mut T = env::alloc(size) as *mut T;
-        if ptr.is_null() {
-            panic!("alloc() returns NULL");
-        }
-        SafeVec {
-            ptr,
-            len: 0,
-            cap: capacity,
-        }
+        let mut vec = Vec::with_capacity(capacity as usize);
+        let ptr = vec.as_mut_ptr();
+        let len = vec.len() as u64;
+        let cap = vec.capacity() as u64;
+        mem::forget(vec);
+        SafeVec { ptr, len, cap }
     }
 
     pub fn into_raw(mut self) -> (*mut T, u64) {
@@ -83,12 +82,11 @@ impl<T> SafeVec<T> {
     pub fn push(&mut self, val: T) {
         unsafe {
             if self.cap <= self.len {
-                self.cap += 4;
-                let size = mem::size_of::<T>() * self.cap as usize;
-                self.ptr = env::realloc(self.ptr as *mut u8, size) as *mut T;
-                if self.ptr.is_null() {
-                    panic!("realloc() returns NULL");
-                }
+                let mut vec = Vec::from_raw_parts(self.ptr, self.len as usize, self.cap as usize);
+                vec.reserve((self.len - self.cap) as usize + 1);
+                self.ptr = vec.as_mut_ptr();
+                self.cap = vec.capacity() as u64;
+                mem::forget(vec);
             }
             let ptr = self.ptr.offset(self.len as isize);
             ptr::write(&mut *ptr, val);
@@ -113,11 +111,10 @@ impl<T> IntoIterator for SafeVec<T> {
         let iter = IntoIter {
             ptr: self.ptr,
             len: self.len,
+            cap: self.cap,
             offset: 0,
         };
-        self.len = 0;
-        self.cap = 0;
-        self.ptr = ptr::null_mut();
+        unsafe { ptr::write(&mut self, SafeVec::new()) };
         iter
     }
 }
@@ -138,10 +135,7 @@ unsafe impl<T: Send> Send for SafeVec<T> {}
 impl<T> Drop for SafeVec<T> {
     fn drop(&mut self) {
         unsafe {
-            for i in 0..self.len {
-                ptr::drop_in_place(self.ptr.offset(i as isize));
-            }
-            env::dealloc(self.ptr as *mut u8);
+            Vec::from_raw_parts(self.ptr, self.len as usize, self.cap as usize);
         }
     }
 }
@@ -233,6 +227,6 @@ mod tests {
         let (ptr, len) = SafeVec::into_raw(v);
         assert_eq!(len, 5000);
         assert!(!ptr.is_null());
-        env::dealloc(ptr as *mut u8);
+        unsafe { Box::from_raw(ptr as *mut u8) };
     }
 }
