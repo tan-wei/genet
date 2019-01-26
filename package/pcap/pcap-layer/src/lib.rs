@@ -25,14 +25,14 @@ impl Decoder for PcapLayerDecoder {
     fn new_worker(&self, ctx: &Context) -> Box<Worker> {
         Box::new(PcapLayerWorker {
             layer: LayerType::new("link"),
-            eth: ctx.decoder("eth").unwrap(),
+            eth: ctx.decoder("app.genet.decoder.eth").unwrap(),
         })
     }
 }
 
 #[derive(Default, Package)]
 struct PcapLayerPackage {
-    #[decoder(id = "pcap_layer")]
+    #[decoder(id = "app.genet.decoder.pcap_layer")]
     decoder: PcapLayerDecoder,
 }
 

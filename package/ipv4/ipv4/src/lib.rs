@@ -32,15 +32,15 @@ impl Decoder for IPv4Decoder {
     fn new_worker(&self, ctx: &Context) -> Box<Worker> {
         Box::new(IPv4Worker {
             layer: LayerType::new("ipv4"),
-            tcp: ctx.decoder("tcp").unwrap(),
-            udp: ctx.decoder("udp").unwrap(),
+            tcp: ctx.decoder("app.genet.decoder.tcp").unwrap(),
+            udp: ctx.decoder("app.genet.decoder.udp").unwrap(),
         })
     }
 }
 
 #[derive(Default, Package)]
 struct IPv4Package {
-    #[decoder(id = "ipv4")]
+    #[decoder(id = "app.genet.decoder.ipv4")]
     decoder: IPv4Decoder,
 }
 

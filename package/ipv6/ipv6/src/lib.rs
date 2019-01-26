@@ -51,15 +51,15 @@ impl Decoder for IPv6Decoder {
     fn new_worker(&self, ctx: &Context) -> Box<Worker> {
         Box::new(IPv6Worker {
             layer: LayerType::new("ipv6"),
-            tcp: ctx.decoder("tcp").unwrap(),
-            udp: ctx.decoder("udp").unwrap(),
+            tcp: ctx.decoder("app.genet.decoder.tcp").unwrap(),
+            udp: ctx.decoder("app.genet.decoder.udp").unwrap(),
         })
     }
 }
 
 #[derive(Default, Package)]
 struct IPv6Package {
-    #[decoder(id = "ipv6")]
+    #[decoder(id = "app.genet.decoder.ipv6")]
     decoder: IPv6Decoder,
 }
 

@@ -82,15 +82,15 @@ impl Decoder for EthDecoder {
     fn new_worker(&self, ctx: &Context) -> Box<Worker> {
         Box::new(EthWorker {
             layer: LayerType::new("eth"),
-            ipv4: ctx.decoder("ipv4").unwrap(),
-            ipv6: ctx.decoder("ipv6").unwrap(),
-            arp: ctx.decoder("arp").unwrap(),
+            ipv4: ctx.decoder("app.genet.decoder.ipv4").unwrap(),
+            ipv6: ctx.decoder("app.genet.decoder.ipv6").unwrap(),
+            arp: ctx.decoder("app.genet.decoder.arp").unwrap(),
         })
     }
 }
 
 #[derive(Default, Package)]
 struct EthPackage {
-    #[decoder(id = "eth")]
+    #[decoder(id = "app.genet.decoder.eth")]
     decoder: EthDecoder,
 }

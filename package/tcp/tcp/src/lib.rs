@@ -68,7 +68,7 @@ impl Decoder for TcpDecoder {
 
 #[derive(Default, Package)]
 struct TcpPackage {
-    #[decoder(id = "tcp")]
+    #[decoder(id = "app.genet.decoder.tcp")]
     decoder: TcpDecoder,
 }
 

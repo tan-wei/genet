@@ -188,6 +188,6 @@ impl From<u8> for Mode {
 
 #[derive(Default, Package)]
 struct NtpPackage {
-    #[decoder(id = "ntp", trigger_after("udp"))]
+    #[decoder(id = "app.genet.decoder.ntp", trigger_after("app.genet.decoder.udp"))]
     decoder: NtpDecoder,
 }
