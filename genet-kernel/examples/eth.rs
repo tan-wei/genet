@@ -151,8 +151,8 @@ struct Timestamp {
     echo: u32,
 }
 
-#[test]
-fn session() {
-    let leyer: LayerType<Tcp> = LayerType::new("tcp");
-    println!("{:#?}", leyer.as_ref());
+#[derive(Default, Package)]
+struct DefaultPackage {
+    #[decoder(id = "app.genet.decoder.eth")]
+    decoder: EthDecoder,
 }
