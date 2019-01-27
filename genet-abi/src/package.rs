@@ -1,7 +1,7 @@
 use crate::{decoder::DecoderData, reader::ReaderData, writer::WriterData};
 use serde_derive::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 pub struct Package {
     pub id: String,
     pub name: String,

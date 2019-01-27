@@ -20,7 +20,7 @@ impl Default for Profile {
     fn default() -> Self {
         Self {
             concurrency: 4,
-            components: Vec::new(),
+            packages: Vec::new(),
             config: FnvHashMap::default(),
         }
     }
@@ -29,7 +29,7 @@ impl Default for Profile {
 #[derive(Serialize, Clone)]
 pub struct Profile {
     concurrency: u32,
-    components: Vec<Component>,
+    packages: Vec<Package>,
     config: FnvHashMap<String, String>,
 }
 
@@ -57,33 +57,48 @@ impl Profile {
     }
 
     pub fn decoders(&self) -> impl Iterator<Item = &DecoderData> {
-        self.components.iter().filter_map(|comp| {
-            if let Component::Decoder(comp) = comp {
-                Some(comp)
-            } else {
-                None
-            }
-        })
+        self.packages
+            .iter()
+            .map(|pkg| {
+                pkg.components.iter().filter_map(|comp| {
+                    if let Component::Decoder(comp) = comp {
+                        Some(comp)
+                    } else {
+                        None
+                    }
+                })
+            })
+            .flatten()
     }
 
     pub fn readers(&self) -> impl Iterator<Item = &ReaderData> {
-        self.components.iter().filter_map(|comp| {
-            if let Component::Reader(comp) = comp {
-                Some(comp)
-            } else {
-                None
-            }
-        })
+        self.packages
+            .iter()
+            .map(|pkg| {
+                pkg.components.iter().filter_map(|comp| {
+                    if let Component::Reader(comp) = comp {
+                        Some(comp)
+                    } else {
+                        None
+                    }
+                })
+            })
+            .flatten()
     }
 
     pub fn writers(&self) -> impl Iterator<Item = &WriterData> {
-        self.components.iter().filter_map(|comp| {
-            if let Component::Writer(comp) = comp {
-                Some(comp)
-            } else {
-                None
-            }
-        })
+        self.packages
+            .iter()
+            .map(|pkg| {
+                pkg.components.iter().filter_map(|comp| {
+                    if let Component::Writer(comp) = comp {
+                        Some(comp)
+                    } else {
+                        None
+                    }
+                })
+            })
+            .flatten()
     }
 
     pub fn context(&self) -> Context {
@@ -134,8 +149,8 @@ impl Profile {
             }
             let mut buf = Vec::new();
             func(&mut buf, cb);
-            if let Ok(mut pkg) = bincode::deserialize::<Package>(&buf) {
-                self.components.append(&mut pkg.components);
+            if let Ok(pkg) = bincode::deserialize::<Package>(&buf) {
+                self.packages.push(pkg);
             }
         }
 
