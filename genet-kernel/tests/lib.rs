@@ -19,7 +19,7 @@ impl Callback for SessionCallback {
 
 #[test]
 fn session() {
-    let mut profile = Profile::new();
+    let mut profile = Profile::default();
 
     let libdir = std::env::current_exe()
         .unwrap()

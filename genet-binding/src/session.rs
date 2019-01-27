@@ -48,7 +48,7 @@ impl SessionCallback {
 
 pub fn init(env: &Env, exports: &Value) -> Result<()> {
     fn profile_ctor<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
-        let profile = Profile::new();
+        let profile = Profile::default();
         env.wrap(info.this(), profile)?;
         env.get_null()
     }

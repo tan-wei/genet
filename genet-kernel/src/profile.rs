@@ -16,26 +16,24 @@ use num_cpus;
 use serde_derive::Serialize;
 use std::{mem, slice};
 
-#[derive(Serialize, Clone, Default)]
+impl Default for Profile {
+    fn default() -> Self {
+        Self {
+            concurrency: 4,
+            components: Vec::new(),
+            config: FnvHashMap::default(),
+        }
+    }
+}
+
+#[derive(Serialize, Clone)]
 pub struct Profile {
     concurrency: u32,
-    decoders: Vec<DecoderData>,
-    readers: Vec<ReaderData>,
-    writers: Vec<WriterData>,
+    components: Vec<Component>,
     config: FnvHashMap<String, String>,
 }
 
 impl Profile {
-    pub fn new() -> Profile {
-        Profile {
-            concurrency: 4,
-            decoders: Vec::new(),
-            readers: Vec::new(),
-            writers: Vec::new(),
-            config: FnvHashMap::default(),
-        }
-    }
-
     pub fn set_concurrency(&mut self, concurrency: u32) {
         self.concurrency = if concurrency > 0 {
             concurrency
@@ -59,20 +57,38 @@ impl Profile {
     }
 
     pub fn decoders(&self) -> impl Iterator<Item = &DecoderData> {
-        self.decoders.iter()
+        self.components.iter().filter_map(|comp| {
+            if let Component::Decoder(comp) = comp {
+                Some(comp)
+            } else {
+                None
+            }
+        })
     }
 
     pub fn readers(&self) -> impl Iterator<Item = &ReaderData> {
-        self.readers.iter()
+        self.components.iter().filter_map(|comp| {
+            if let Component::Reader(comp) = comp {
+                Some(comp)
+            } else {
+                None
+            }
+        })
     }
 
     pub fn writers(&self) -> impl Iterator<Item = &WriterData> {
-        self.writers.iter()
+        self.components.iter().filter_map(|comp| {
+            if let Component::Writer(comp) = comp {
+                Some(comp)
+            } else {
+                None
+            }
+        })
     }
 
     pub fn context(&self) -> Context {
         let mut ctx = Context::default();
-        ctx.set_decoders(self.decoders.clone());
+        ctx.set_decoders(self.decoders().cloned().collect());
         ctx
     }
 
@@ -118,14 +134,8 @@ impl Profile {
             }
             let mut buf = Vec::new();
             func(&mut buf, cb);
-            if let Ok(pkg) = bincode::deserialize::<Package>(&buf) {
-                for cmp in pkg.components {
-                    match cmp {
-                        Component::Decoder(data) => self.decoders.push(data),
-                        Component::Reader(data) => self.readers.push(data),
-                        Component::Writer(data) => self.writers.push(data),
-                    }
-                }
+            if let Ok(mut pkg) = bincode::deserialize::<Package>(&buf) {
+                self.components.append(&mut pkg.components);
             }
         }
 

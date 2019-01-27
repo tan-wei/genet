@@ -422,13 +422,13 @@ mod tests {
 
     #[test]
     fn drop() {
-        let profile = Profile::new();
+        let profile = Profile::default();
         let _store = Store::new(profile, TestCallback {});
     }
 
     #[test]
     fn invalid_range() {
-        let profile = Profile::new();
+        let profile = Profile::default();
         let mut store = Store::new(profile, TestCallback {});
         store.set_filter(0, CompiledLayerFilter::compile("false").ok());
         assert_eq!(store.frames(100..0).len(), 0);
