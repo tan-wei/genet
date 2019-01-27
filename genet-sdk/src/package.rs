@@ -1,1 +1,1 @@
-pub use genet_abi::package::{DecoderData, IntoBuilder, Package};
+pub use genet_abi::package::{IntoBuilder, Package};

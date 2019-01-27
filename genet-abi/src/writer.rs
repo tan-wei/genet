@@ -1,5 +1,14 @@
-use crate::{codable::Codable, context::Context, layer::Layer, result::Result, string::SafeString};
+use crate::{
+    codable::{Codable, CodedData},
+    context::Context,
+    file::FileType,
+    layer::Layer,
+    package::{Component, IntoBuilder},
+    result::Result,
+    string::SafeString,
+};
 use failure::format_err;
+use serde_derive::{Deserialize, Serialize};
 use std::{fmt, mem, ptr, slice, str};
 
 /// Writer trait.
@@ -170,5 +179,52 @@ extern "C" fn abi_writer_worker_end(worker: *mut Box<Worker>, err: *mut SafeStri
             unsafe { *err = SafeString::from(&format!("{}", e)) };
             0
         }
+    }
+}
+
+impl<T: 'static + Writer> IntoBuilder<WriterBuilder> for T {
+    fn into_builder(self) -> WriterBuilder {
+        WriterBuilder {
+            data: WriterData {
+                id: String::new(),
+                filters: Vec::new(),
+                writer: CodedData::new(WriterBox::new(self)),
+            },
+        }
+    }
+}
+
+#[derive(Clone, Deserialize, Serialize)]
+pub struct WriterData {
+    pub id: String,
+    pub filters: Vec<FileType>,
+    pub writer: CodedData<WriterBox>,
+}
+
+pub struct WriterBuilder {
+    data: WriterData,
+}
+
+impl WriterBuilder {
+    pub fn id<T: Into<String>>(mut self, id: T) -> Self {
+        self.data.id = id.into();
+        self
+    }
+
+    pub fn filter<T: Into<FileType>>(mut self, file: T) -> Self {
+        self.data.filters.push(file.into());
+        self
+    }
+}
+
+impl Into<WriterData> for WriterBuilder {
+    fn into(self) -> WriterData {
+        self.data
+    }
+}
+
+impl Into<Component> for WriterBuilder {
+    fn into(self) -> Component {
+        Component::Writer(self.data)
     }
 }

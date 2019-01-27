@@ -1,8 +1,16 @@
 use crate::{
-    codable::Codable, context::Context, result::Result, slice::ByteSlice, string::SafeString,
-    token::Token, vec::SafeVec,
+    codable::{Codable, CodedData},
+    context::Context,
+    file::FileType,
+    package::{Component, IntoBuilder},
+    result::Result,
+    slice::ByteSlice,
+    string::SafeString,
+    token::Token,
+    vec::SafeVec,
 };
 use failure::format_err;
+use serde_derive::{Deserialize, Serialize};
 use std::{fmt, mem, ptr, slice, str};
 
 /// Reader trait.
@@ -163,5 +171,52 @@ extern "C" fn abi_reader_worker_read(
             unsafe { *err = SafeString::from(&format!("{}", e)) };
             0
         }
+    }
+}
+
+#[derive(Clone, Deserialize, Serialize)]
+pub struct ReaderData {
+    pub id: String,
+    pub filters: Vec<FileType>,
+    pub reader: CodedData<ReaderBox>,
+}
+
+pub struct ReaderBuilder {
+    data: ReaderData,
+}
+
+impl<T: 'static + Reader> IntoBuilder<ReaderBuilder> for T {
+    fn into_builder(self) -> ReaderBuilder {
+        ReaderBuilder {
+            data: ReaderData {
+                id: String::new(),
+                filters: Vec::new(),
+                reader: CodedData::new(ReaderBox::new(self)),
+            },
+        }
+    }
+}
+
+impl ReaderBuilder {
+    pub fn id<T: Into<String>>(mut self, id: T) -> Self {
+        self.data.id = id.into();
+        self
+    }
+
+    pub fn filter<T: Into<FileType>>(mut self, file: T) -> Self {
+        self.data.filters.push(file.into());
+        self
+    }
+}
+
+impl Into<ReaderData> for ReaderBuilder {
+    fn into(self) -> ReaderData {
+        self.data
+    }
+}
+
+impl Into<Component> for ReaderBuilder {
+    fn into(self) -> Component {
+        Component::Reader(self.data)
     }
 }

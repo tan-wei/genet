@@ -4,9 +4,12 @@ use fnv::FnvHashMap;
 use genet_abi::{
     alloc::Allocator,
     context::Context,
+    decoder::DecoderData,
     env,
-    package::{Component, DecoderData, Package, ReaderData, WriterData},
+    package::{Component, Package},
+    reader::ReaderData,
     token::TokenRegistry,
+    writer::WriterData,
 };
 use libloading::Library;
 use num_cpus;

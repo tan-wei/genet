@@ -1,4 +1,7 @@
-use crate::{decoder::DecoderStack, package::DecoderData, token::Token};
+use crate::{
+    decoder::{DecoderData, DecoderStack},
+    token::Token,
+};
 use std::collections::HashSet;
 
 /// A context object.

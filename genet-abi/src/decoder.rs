@@ -1,7 +1,13 @@
 use crate::{
-    codable::Codable, context::Context, layer::LayerStack, result::Result, string::SafeString,
+    codable::{Codable, CodedData},
+    context::Context,
+    layer::LayerStack,
+    package::{Component, IntoBuilder},
+    result::Result,
+    string::SafeString,
 };
 use failure::format_err;
+use serde_derive::{Deserialize, Serialize};
 use std::ptr;
 
 /// Decoding status.
@@ -153,6 +159,53 @@ extern "C" fn abi_new_worker(diss: *const DecoderBox, ctx: *const Context) -> Wo
     let diss = unsafe { &*(*diss).decoder };
     let ctx = unsafe { &(*ctx) };
     WorkerBox::new(diss.new_worker(ctx))
+}
+
+impl<T: 'static + Decoder> IntoBuilder<DecoderBuilder> for T {
+    fn into_builder(self) -> DecoderBuilder {
+        DecoderBuilder {
+            data: DecoderData {
+                id: String::new(),
+                trigger_after: Vec::new(),
+                decoder: CodedData::new(DecoderBox::new(self)),
+            },
+        }
+    }
+}
+
+#[derive(Clone, Deserialize, Serialize)]
+pub struct DecoderData {
+    pub id: String,
+    pub trigger_after: Vec<String>,
+    pub decoder: CodedData<DecoderBox>,
+}
+
+pub struct DecoderBuilder {
+    data: DecoderData,
+}
+
+impl DecoderBuilder {
+    pub fn id<T: Into<String>>(mut self, id: T) -> Self {
+        self.data.id = id.into();
+        self
+    }
+
+    pub fn trigger_after<T: Into<String>>(mut self, id: T) -> Self {
+        self.data.trigger_after.push(id.into());
+        self
+    }
+}
+
+impl Into<DecoderData> for DecoderBuilder {
+    fn into(self) -> DecoderData {
+        self.data
+    }
+}
+
+impl Into<Component> for DecoderBuilder {
+    fn into(self) -> Component {
+        Component::Decoder(self.data)
+    }
 }
 
 #[cfg(test)]
