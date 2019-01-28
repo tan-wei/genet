@@ -29,12 +29,12 @@ impl Worker for IPv4Worker {
 struct IPv4Decoder {}
 
 impl Decoder for IPv4Decoder {
-    fn new_worker(&self, ctx: &Context) -> Box<Worker> {
-        Box::new(IPv4Worker {
+    fn new_worker(&self, ctx: &Context) -> Result<Box<Worker>> {
+        Ok(Box::new(IPv4Worker {
             layer: LayerType::new("ipv4"),
-            tcp: ctx.decoder("app.genet.decoder.tcp").unwrap(),
-            udp: ctx.decoder("app.genet.decoder.udp").unwrap(),
-        })
+            tcp: ctx.decoder("app.genet.decoder.tcp")?,
+            udp: ctx.decoder("app.genet.decoder.udp")?,
+        }))
     }
 }
 

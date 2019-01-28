@@ -59,10 +59,10 @@ impl Worker for TcpWorker {
 struct TcpDecoder {}
 
 impl Decoder for TcpDecoder {
-    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
-        Box::new(TcpWorker {
+    fn new_worker(&self, _ctx: &Context) -> Result<Box<Worker>> {
+        Ok(Box::new(TcpWorker {
             layer: LayerType::new("tcp"),
-        })
+        }))
     }
 }
 

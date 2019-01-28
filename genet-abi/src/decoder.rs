@@ -8,7 +8,7 @@ use crate::{
 };
 use failure::format_err;
 use serde_derive::{Deserialize, Serialize};
-use std::ptr;
+use std::{mem, ptr};
 
 /// Decoding status.
 #[derive(Clone, PartialEq, Debug)]
@@ -109,7 +109,7 @@ extern "C" fn abi_drop(worker: *mut Box<Worker>) {
 
 /// Decoder trait.
 pub trait Decoder: DecoderClone + Send {
-    fn new_worker(&self, ctx: &Context) -> Box<Worker>;
+    fn new_worker(&self, ctx: &Context) -> Result<Box<Worker>>;
 }
 
 pub trait DecoderClone {
@@ -134,7 +134,8 @@ impl Clone for Box<Decoder> {
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct DecoderBox {
-    new_worker: extern "C" fn(*const DecoderBox, *const Context) -> WorkerBox,
+    new_worker:
+        extern "C" fn(*const DecoderBox, *const Context, *mut WorkerBox, *mut SafeString) -> u8,
     decoder: *mut Box<Decoder>,
 }
 
@@ -150,15 +151,37 @@ impl DecoderBox {
         }
     }
 
-    pub fn new_worker(&self, ctx: &Context) -> WorkerBox {
-        (self.new_worker)(self, ctx)
+    pub fn new_worker(&self, ctx: &Context) -> Result<WorkerBox> {
+        let mut out: WorkerBox = unsafe { mem::uninitialized() };
+        let mut err = SafeString::new();
+        if (self.new_worker)(self, ctx, &mut out, &mut err) == 1 {
+            Ok(out)
+        } else {
+            mem::forget(out);
+            Err(format_err!("{}", err))
+        }
     }
 }
 
-extern "C" fn abi_new_worker(diss: *const DecoderBox, ctx: *const Context) -> WorkerBox {
+extern "C" fn abi_new_worker(
+    diss: *const DecoderBox,
+    ctx: *const Context,
+    out: *mut WorkerBox,
+    err: *mut SafeString,
+) -> u8 {
     let diss = unsafe { &*(*diss).decoder };
     let ctx = unsafe { &(*ctx) };
-    WorkerBox::new(diss.new_worker(ctx))
+
+    match diss.new_worker(ctx) {
+        Ok(worker) => {
+            unsafe { ptr::write(out, WorkerBox::new(worker)) };
+            1
+        }
+        Err(e) => {
+            unsafe { *err = SafeString::from(&format!("{}", e)) };
+            0
+        }
+    }
 }
 
 impl<T: 'static + Decoder> IntoBuilder<DecoderData> for T {
@@ -221,14 +244,14 @@ mod tests {
         struct TestDecoder {}
 
         impl Decoder for TestDecoder {
-            fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
-                Box::new(TestWorker {})
+            fn new_worker(&self, _ctx: &Context) -> Result<Box<Worker>> {
+                Ok(Box::new(TestWorker {}))
             }
         }
 
         let ctx = Context::default();
         let diss = DecoderBox::new(TestDecoder {});
-        let mut worker = diss.new_worker(&ctx);
+        let mut worker = diss.new_worker(&ctx).unwrap();
 
         let attr = vec![Fixed::new(AttrClass::builder(Token::null()).build())];
         let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));

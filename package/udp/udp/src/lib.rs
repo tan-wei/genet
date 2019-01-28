@@ -20,10 +20,10 @@ impl Worker for UdpWorker {
 struct UdpDecoder {}
 
 impl Decoder for UdpDecoder {
-    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
-        Box::new(UdpWorker {
+    fn new_worker(&self, _ctx: &Context) -> Result<Box<Worker>> {
+        Ok(Box::new(UdpWorker {
             layer: LayerType::new("udp"),
-        })
+        }))
     }
 }
 

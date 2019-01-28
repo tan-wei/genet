@@ -2,7 +2,7 @@ use crate::{
     decoder::{DecoderData, DecoderStack},
     token::Token,
 };
-use failure::Fail;
+use failure::{format_err, Error};
 use std::{collections::HashSet, result::Result};
 
 /// A context object.
@@ -30,35 +30,28 @@ impl Context {
         decoders
             .iter()
             .filter(|d| !used_decoders.contains(&d.id) && d.trigger_after.iter().any(|x| x == id))
-            .map(|d| {
+            .filter_map(|d| {
                 used.insert(d.id.clone());
-                DecoderStack::new(
-                    d.decoder.new_worker(self),
+                Some(DecoderStack::new(
+                    d.decoder.new_worker(self).ok()?,
                     self.sub_decoders(used, &d.id, decoders),
-                )
+                ))
             })
             .collect::<Vec<_>>()
     }
 
-    pub fn decoder<T: Into<Token>>(&self, id: T) -> Result<DecoderStack, ContextError> {
-        let id = id.into();
-        let strid = id.to_string();
+    pub fn decoder<T: Into<Token>>(&self, id: T) -> Result<DecoderStack, Error> {
+        let id = id.into().to_string();
         let mut used = HashSet::new();
-        let sub_decoders = self.sub_decoders(&mut used, &strid, &self.decoders);
+        let sub_decoders = self.sub_decoders(&mut used, &id, &self.decoders);
         self.decoders
             .iter()
-            .find(|d| d.id == strid)
-            .map(|d| DecoderStack::new(d.decoder.new_worker(self), sub_decoders))
-            .ok_or_else(|| ContextError::DecoderNotFound { id })
+            .find(|d| d.id == id)
+            .ok_or_else(|| format_err!("no such decoder: {}", id))
+            .and_then(|d| Ok(DecoderStack::new(d.decoder.new_worker(self)?, sub_decoders)))
     }
 
     pub fn set_decoders(&mut self, decoders: Vec<DecoderData>) {
         self.decoders = decoders
     }
-}
-
-#[derive(Debug, Fail)]
-pub enum ContextError {
-    #[fail(display = "no such decoder: {}", id)]
-    DecoderNotFound { id: Token },
 }

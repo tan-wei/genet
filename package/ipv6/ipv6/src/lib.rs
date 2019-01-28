@@ -48,12 +48,12 @@ impl Worker for IPv6Worker {
 struct IPv6Decoder {}
 
 impl Decoder for IPv6Decoder {
-    fn new_worker(&self, ctx: &Context) -> Box<Worker> {
-        Box::new(IPv6Worker {
+    fn new_worker(&self, ctx: &Context) -> Result<Box<Worker>> {
+        Ok(Box::new(IPv6Worker {
             layer: LayerType::new("ipv6"),
-            tcp: ctx.decoder("app.genet.decoder.tcp").unwrap(),
-            udp: ctx.decoder("app.genet.decoder.udp").unwrap(),
-        })
+            tcp: ctx.decoder("app.genet.decoder.tcp")?,
+            udp: ctx.decoder("app.genet.decoder.udp")?,
+        }))
     }
 }
 

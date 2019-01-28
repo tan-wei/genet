@@ -22,11 +22,11 @@ impl Worker for PcapLayerWorker {
 struct PcapLayerDecoder {}
 
 impl Decoder for PcapLayerDecoder {
-    fn new_worker(&self, ctx: &Context) -> Box<Worker> {
-        Box::new(PcapLayerWorker {
+    fn new_worker(&self, ctx: &Context) -> Result<Box<Worker>> {
+        Ok(Box::new(PcapLayerWorker {
             layer: LayerType::new("link"),
-            eth: ctx.decoder("app.genet.decoder.eth").unwrap(),
-        })
+            eth: ctx.decoder("app.genet.decoder.eth")?,
+        }))
     }
 }
 

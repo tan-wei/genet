@@ -47,10 +47,10 @@ impl Worker for NtpWorker {
 struct NtpDecoder {}
 
 impl Decoder for NtpDecoder {
-    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
-        Box::new(NtpWorker {
+    fn new_worker(&self, _ctx: &Context) -> Result<Box<Worker>> {
+        Ok(Box::new(NtpWorker {
             layer: LayerType::new("ntp"),
-        })
+        }))
     }
 }
 

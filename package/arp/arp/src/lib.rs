@@ -45,10 +45,10 @@ impl Worker for ArpWorker {
 struct ArpDecoder {}
 
 impl Decoder for ArpDecoder {
-    fn new_worker(&self, _ctx: &Context) -> Box<Worker> {
-        Box::new(ArpWorker {
+    fn new_worker(&self, _ctx: &Context) -> Result<Box<Worker>> {
+        Ok(Box::new(ArpWorker {
             layer: LayerType::new("arp"),
-        })
+        }))
     }
 }
 
