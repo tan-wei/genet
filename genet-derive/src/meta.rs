@@ -168,7 +168,7 @@ impl ComponentMetadata {
                                             id = lit_str.value().trim().into();
                                         }
                                     }
-                                    "trigger_after" => {
+                                    "after" => {
                                         if let Meta::List(list) = meta {
                                             for item in list.nested {
                                                 if let NestedMeta::Literal(Lit::Str(lit_str)) = item
