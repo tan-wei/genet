@@ -31,7 +31,7 @@ impl Pool {
         recv: crossbeam_channel::Receiver<Option<Vec<Frame>>>,
     ) -> JoinHandle<()> {
         thread::spawn(move || {
-            if let Some(mut decoder) = profile.context().decoder("app.genet.decoder.pcap_layer") {
+            if let Ok(mut decoder) = profile.context().decoder("app.genet.decoder.pcap_layer") {
                 loop {
                     if let Ok(frames) = recv.recv() {
                         if let Some(mut frames) = frames {

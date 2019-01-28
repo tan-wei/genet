@@ -2,7 +2,8 @@ use crate::{
     decoder::{DecoderData, DecoderStack},
     token::Token,
 };
-use std::collections::HashSet;
+use failure::Fail;
+use std::{collections::HashSet, result::Result};
 
 /// A context object.
 #[repr(C)]
@@ -19,7 +20,7 @@ impl Context {
         }
     }
 
-    pub fn sub_decoders(
+    fn sub_decoders(
         &self,
         used: &mut HashSet<String>,
         id: &str,
@@ -39,17 +40,25 @@ impl Context {
             .collect::<Vec<_>>()
     }
 
-    pub fn decoder<T: Into<Token>>(&self, id: T) -> Option<DecoderStack> {
-        let id = id.into().to_string();
+    pub fn decoder<T: Into<Token>>(&self, id: T) -> Result<DecoderStack, ContextError> {
+        let id = id.into();
+        let strid = id.to_string();
         let mut used = HashSet::new();
-        let sub_decoders = self.sub_decoders(&mut used, &id, &self.decoders);
+        let sub_decoders = self.sub_decoders(&mut used, &strid, &self.decoders);
         self.decoders
             .iter()
-            .find(|d| d.id == id)
+            .find(|d| d.id == strid)
             .map(|d| DecoderStack::new(d.decoder.new_worker(self), sub_decoders))
+            .ok_or_else(|| ContextError::DecoderNotFound { id })
     }
 
     pub fn set_decoders(&mut self, decoders: Vec<DecoderData>) {
         self.decoders = decoders
     }
+}
+
+#[derive(Debug, Fail)]
+pub enum ContextError {
+    #[fail(display = "no such decoder: {}", id)]
+    DecoderNotFound { id: Token },
 }
