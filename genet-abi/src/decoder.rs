@@ -196,12 +196,6 @@ impl DecoderBuilder {
     }
 }
 
-impl Into<DecoderData> for DecoderBuilder {
-    fn into(self) -> DecoderData {
-        self.data
-    }
-}
-
 impl Into<Component> for DecoderBuilder {
     fn into(self) -> Component {
         Component::Decoder(self.data)

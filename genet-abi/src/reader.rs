@@ -209,12 +209,6 @@ impl ReaderBuilder {
     }
 }
 
-impl Into<ReaderData> for ReaderBuilder {
-    fn into(self) -> ReaderData {
-        self.data
-    }
-}
-
 impl Into<Component> for ReaderBuilder {
     fn into(self) -> Component {
         Component::Reader(self.data)

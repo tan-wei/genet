@@ -217,12 +217,6 @@ impl WriterBuilder {
     }
 }
 
-impl Into<WriterData> for WriterBuilder {
-    fn into(self) -> WriterData {
-        self.data
-    }
-}
-
 impl Into<Component> for WriterBuilder {
     fn into(self) -> Component {
         Component::Writer(self.data)
