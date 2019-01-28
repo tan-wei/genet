@@ -3,7 +3,7 @@ use crate::{
     context::Context,
     file::FileType,
     layer::Layer,
-    package::{Component, IntoBuilder},
+    package::IntoBuilder,
     result::Result,
     string::SafeString,
 };
@@ -182,14 +182,12 @@ extern "C" fn abi_writer_worker_end(worker: *mut Box<Worker>, err: *mut SafeStri
     }
 }
 
-impl<T: 'static + Writer> IntoBuilder<WriterBuilder> for T {
-    fn into_builder(self) -> WriterBuilder {
-        WriterBuilder {
-            data: WriterData {
-                id: String::new(),
-                filters: Vec::new(),
-                writer: CodedData::new(WriterBox::new(self)),
-            },
+impl<T: 'static + Writer> IntoBuilder<WriterData> for T {
+    fn into_builder(self) -> WriterData {
+        WriterData {
+            id: String::new(),
+            filters: Vec::new(),
+            writer: CodedData::new(WriterBox::new(self)),
         }
     }
 }
@@ -201,24 +199,14 @@ pub struct WriterData {
     pub writer: CodedData<WriterBox>,
 }
 
-pub struct WriterBuilder {
-    data: WriterData,
-}
-
-impl WriterBuilder {
+impl WriterData {
     pub fn id<T: Into<String>>(mut self, id: T) -> Self {
-        self.data.id = id.into();
+        self.id = id.into();
         self
     }
 
     pub fn filter<T: Into<FileType>>(mut self, file: T) -> Self {
-        self.data.filters.push(file.into());
+        self.filters.push(file.into());
         self
-    }
-}
-
-impl Into<Component> for WriterBuilder {
-    fn into(self) -> Component {
-        Component::Writer(self.data)
     }
 }

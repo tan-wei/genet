@@ -2,7 +2,7 @@ use crate::{
     codable::{Codable, CodedData},
     context::Context,
     layer::LayerStack,
-    package::{Component, IntoBuilder},
+    package::IntoBuilder,
     result::Result,
     string::SafeString,
 };
@@ -161,14 +161,12 @@ extern "C" fn abi_new_worker(diss: *const DecoderBox, ctx: *const Context) -> Wo
     WorkerBox::new(diss.new_worker(ctx))
 }
 
-impl<T: 'static + Decoder> IntoBuilder<DecoderBuilder> for T {
-    fn into_builder(self) -> DecoderBuilder {
-        DecoderBuilder {
-            data: DecoderData {
-                id: String::new(),
-                trigger_after: Vec::new(),
-                decoder: CodedData::new(DecoderBox::new(self)),
-            },
+impl<T: 'static + Decoder> IntoBuilder<DecoderData> for T {
+    fn into_builder(self) -> DecoderData {
+        DecoderData {
+            id: String::new(),
+            trigger_after: Vec::new(),
+            decoder: CodedData::new(DecoderBox::new(self)),
         }
     }
 }
@@ -180,25 +178,15 @@ pub struct DecoderData {
     pub decoder: CodedData<DecoderBox>,
 }
 
-pub struct DecoderBuilder {
-    data: DecoderData,
-}
-
-impl DecoderBuilder {
+impl DecoderData {
     pub fn id<T: Into<String>>(mut self, id: T) -> Self {
-        self.data.id = id.into();
+        self.id = id.into();
         self
     }
 
     pub fn trigger_after<T: Into<String>>(mut self, id: T) -> Self {
-        self.data.trigger_after.push(id.into());
+        self.trigger_after.push(id.into());
         self
-    }
-}
-
-impl Into<Component> for DecoderBuilder {
-    fn into(self) -> Component {
-        Component::Decoder(self.data)
     }
 }
 

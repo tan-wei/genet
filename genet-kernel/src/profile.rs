@@ -2,15 +2,10 @@ use bincode;
 use failure::{err_msg, Error};
 use fnv::FnvHashMap;
 use genet_abi::{
-    alloc::Allocator,
-    context::Context,
-    decoder::DecoderData,
-    env,
-    package::{Component, Package},
-    reader::ReaderData,
-    token::TokenRegistry,
-    writer::WriterData,
+    alloc::Allocator, context::Context, decoder::DecoderData, env, reader::ReaderData,
+    token::TokenRegistry, writer::WriterData,
 };
+use genet_sdk::package::{Component, Package};
 use libloading::Library;
 use num_cpus;
 use serde_derive::Serialize;
