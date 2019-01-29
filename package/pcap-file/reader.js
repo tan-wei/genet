@@ -1,6 +1,6 @@
-module.exports = (sess, arg) => {
-  if (arg.file.endsWith('.pcap')) {
-    sess.createReader('app.genet.reader.pcap-file', arg)
+module.exports = (sess, url) => {
+  if (url.toString().endsWith('.pcap')) {
+    sess.createReader('app.genet.reader.pcap-file', url)
     return true
   }
 }

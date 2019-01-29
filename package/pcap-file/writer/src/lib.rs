@@ -1,26 +1,18 @@
-use serde_derive::Deserialize;
-
 use byteorder::{LittleEndian, WriteBytesExt};
 use genet_derive::Package;
-use genet_sdk::{prelude::*, writer::*};
+use genet_sdk::{prelude::*, url::Url, writer::*};
 
 use std::{
     fs::File,
     io::{BufWriter, Write},
 };
 
-#[derive(Deserialize)]
-struct Arg {
-    file: String,
-}
-
 #[derive(Default, Clone)]
 struct PcapFileWriter {}
 
 impl Writer for PcapFileWriter {
-    fn new_worker(&self, _ctx: &Context, arg: &str) -> Result<Box<Worker>> {
-        let arg: Arg = serde_json::from_str(arg)?;
-        let file = File::create(&arg.file)?;
+    fn new_worker(&self, _ctx: &Context, url: &Url) -> Result<Box<Worker>> {
+        let file = File::create(&url.to_file_path().unwrap())?;
         let mut writer = BufWriter::new(file);
         writer.write_all(&[0x4d, 0x3c, 0xb2, 0xa1])?;
         Ok(Box::new(PcapFileWorker {

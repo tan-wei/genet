@@ -163,9 +163,9 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
 
     fn session_create_reader<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let session = env.unwrap::<Session>(info.this())?;
-        if let Some([id, arg]) = info.argv().get(0..2) {
+        if let Some([id, url]) = info.argv().get(0..2) {
             let handle =
-                session.create_reader(&env.get_value_string(id)?, &env.get_value_string(arg)?);
+                session.create_reader(&env.get_value_string(id)?, &env.get_value_string(url)?);
             env.create_uint32(handle)
         } else {
             Err(Status::InvalidArg)

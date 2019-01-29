@@ -183,17 +183,17 @@ export default class OutputDialog {
             m(PanelView, {
               ...panel,
               attrs: {
-                callback: (id, options) => {
+                callback: (id, url) => {
                   const { sess } = vnode.attrs
-                  sess.createWriter(id, options, this.filter)
+                  sess.createWriter(id, url, this.filter)
                     .then(() => {
-                      genet.notify.show(options.file || '', {
+                      genet.notify.show(url.pathname, {
                         type: 'sussess',
                         title: 'Exported',
                       })
                     })
                     .catch((err) => {
-                      genet.notify.show(`${options.file || ''}\n${err.message}`, {
+                      genet.notify.show(`${url.pathname}\n${err.message}`, {
                         type: 'error',
                         title: 'Error',
                       })

@@ -12,10 +12,11 @@ use crate::{
 use failure::format_err;
 use serde_derive::{Deserialize, Serialize};
 use std::{fmt, mem, ptr, slice, str};
+use url::Url;
 
 /// Reader trait.
 pub trait Reader: Send {
-    fn new_worker(&self, ctx: &Context, arg: &str) -> Result<Box<Worker>>;
+    fn new_worker(&self, ctx: &Context, url: &Url) -> Result<Box<Worker>>;
 }
 
 type ReaderNewWorkerFunc = extern "C" fn(
@@ -46,14 +47,14 @@ impl ReaderBox {
         }
     }
 
-    pub fn new_worker(&self, ctx: &Context, args: &str) -> Result<WorkerBox> {
+    pub fn new_worker(&self, ctx: &Context, url: &str) -> Result<WorkerBox> {
         let mut out: WorkerBox = unsafe { mem::uninitialized() };
         let mut err = SafeString::new();
         if (self.new_worker)(
             self.reader,
             ctx,
-            args.as_ptr(),
-            args.len() as u64,
+            url.as_ptr(),
+            url.len() as u64,
             &mut out,
             &mut err,
         ) == 1
@@ -69,15 +70,18 @@ impl ReaderBox {
 extern "C" fn abi_reader_new_worker(
     reader: *mut Box<Reader>,
     ctx: *const Context,
-    arg: *const u8,
-    arg_len: u64,
+    url: *const u8,
+    url_len: u64,
     out: *mut WorkerBox,
     err: *mut SafeString,
 ) -> u8 {
     let reader = unsafe { &*reader };
     let ctx = unsafe { &*ctx };
-    let arg = unsafe { str::from_utf8_unchecked(slice::from_raw_parts(arg, arg_len as usize)) };
-    match reader.new_worker(ctx, arg) {
+    let url = unsafe { str::from_utf8_unchecked(slice::from_raw_parts(url, url_len as usize)) };
+    let url = Url::parse(url)
+        .ok()
+        .unwrap_or_else(|| Url::parse("null:").unwrap());
+    match reader.new_worker(ctx, &url) {
         Ok(worker) => {
             unsafe { ptr::write(out, WorkerBox::new(worker)) };
             1

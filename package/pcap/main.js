@@ -1,6 +1,7 @@
 const cli = require('./cli')
 const m = require('mithril')
 const genet = require('@genet/api')
+const url = require('url')
 const { execFile } = require('child_process')
 const PermissionMassage = require('./permission-message')
 class PcapView {
@@ -29,11 +30,14 @@ class PcapView {
     if (Number.isInteger(snaplen)) {
       args.push('-l', `${snaplen}`)
     }
-    const stream = {
-      cmd: cli,
-      args,
-      link,
-    }
+    const stream = url.format({
+      protocol: 'pcap',
+      query: {
+        cmd: cli,
+        args: args.join(' '),
+        link,
+      },
+    })
     const name = 'app.genet.reader.pcap'
     genet.resumer.set('core:session:stream-reader', {
       name,

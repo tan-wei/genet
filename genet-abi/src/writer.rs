@@ -10,10 +10,11 @@ use crate::{
 use failure::format_err;
 use serde_derive::{Deserialize, Serialize};
 use std::{fmt, mem, ptr, slice, str};
+use url::Url;
 
 /// Writer trait.
 pub trait Writer: Send {
-    fn new_worker(&self, ctx: &Context, args: &str) -> Result<Box<Worker>>;
+    fn new_worker(&self, ctx: &Context, url: &Url) -> Result<Box<Worker>>;
 }
 
 type WriterNewWorkerFunc = extern "C" fn(
@@ -44,14 +45,14 @@ impl WriterBox {
         }
     }
 
-    pub fn new_worker(&self, ctx: &Context, args: &str) -> Result<WorkerBox> {
+    pub fn new_worker(&self, ctx: &Context, url: &str) -> Result<WorkerBox> {
         let mut out: WorkerBox = unsafe { mem::uninitialized() };
         let mut err = SafeString::new();
         if (self.new_worker)(
             self.writer,
             ctx,
-            args.as_ptr(),
-            args.len() as u64,
+            url.as_ptr(),
+            url.len() as u64,
             &mut out,
             &mut err,
         ) == 1
@@ -67,15 +68,18 @@ impl WriterBox {
 extern "C" fn abi_writer_new_worker(
     writer: *mut Box<Writer>,
     ctx: *const Context,
-    arg: *const u8,
-    arg_len: u64,
+    url: *const u8,
+    url_len: u64,
     out: *mut WorkerBox,
     err: *mut SafeString,
 ) -> u8 {
     let writer = unsafe { &*writer };
     let ctx = unsafe { &*ctx };
-    let arg = unsafe { str::from_utf8_unchecked(slice::from_raw_parts(arg, arg_len as usize)) };
-    match writer.new_worker(ctx, arg) {
+    let url = unsafe { str::from_utf8_unchecked(slice::from_raw_parts(url, url_len as usize)) };
+    let url = Url::parse(url)
+        .ok()
+        .unwrap_or_else(|| Url::parse("null:").unwrap());
+    match writer.new_worker(ctx, &url) {
         Ok(worker) => {
             unsafe { ptr::write(out, WorkerBox::new(worker)) };
             1

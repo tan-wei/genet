@@ -159,8 +159,9 @@ export default class TopView {
         }
         if (genet.resumer.has('core:session:dump')) {
           const file = genet.resumer.get('core:session:dump')
+          const url = new URL(path.resolve(file), 'file://')
           for (const { handler } of genet.session.fileReaders) {
-            if (handler(sess, { file }) === true) {
+            if (handler(sess, url) === true) {
               break
             }
           }
@@ -174,9 +175,10 @@ export default class TopView {
       })
       if (genet.argv.import) {
         const file = path.resolve(genet.argv.import)
+        const url = new URL(path.resolve(file), 'file://')
         genet.session.create().then((sess) => {
           for (const { handler } of genet.session.fileReaders) {
-            if (handler(sess, { file }) === true) {
+            if (handler(sess, url) === true) {
               break
             }
           }
@@ -225,7 +227,8 @@ export default class TopView {
       if (this.sess) {
         const file = tempy.file({ extension: 'genet' })
         genet.resumer.set('core:session:dump', file)
-        dump = this.sess.createWriter('app.genet.writer.genet-file', { file })
+        const url = new URL(path.resolve(file), 'file://')
+        dump = this.sess.createWriter('app.genet.writer.genet-file', url)
       }
       dump.then(() => {
         genet.resumer.reload()

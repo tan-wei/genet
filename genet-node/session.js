@@ -120,8 +120,8 @@ class Session extends EventEmitter {
     }
   }
 
-  createReader (id, arg = {}) {
-    const handle = this._sess.createReader(id, JSON.stringify(arg))
+  createReader (id, url) {
+    const handle = this._sess.createReader(id, url.toString())
     if (handle === 0) {
       throw new Error(`failed to invoke reader: ${id}`)
     }
@@ -142,9 +142,9 @@ class Session extends EventEmitter {
     return disposable
   }
 
-  async createWriter (id, arg = {}, filter = '') {
+  async createWriter (id, url, filter = '') {
     const handle = this._sess.createWriter(
-      id, JSON.stringify(arg), filter)
+      id, url.toString(), filter)
     if (handle === 0) {
       throw new Error(`failed to invoke writer: ${id}`)
     }
@@ -165,10 +165,10 @@ class Session extends EventEmitter {
     return disposable
   }
 
-  regiterStreamReader (id, arg = {}) {
+  regiterStreamReader (id, url) {
     const reader = {
       id,
-      arg,
+      url,
     }
     this._streamReaders.add(reader)
     return new Disposable(() => {
@@ -179,7 +179,7 @@ class Session extends EventEmitter {
   startStream () {
     this.stopStream()
     this._streams = Array.from(this._streamReaders)
-      .map(({ id, arg }) => this.createReader(id, arg))
+      .map(({ id, url }) => this.createReader(id, url.toString()))
     this._status.stream = true
   }
 
