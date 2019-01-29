@@ -1,16 +1,10 @@
 use genet_derive::Package;
-use genet_sdk::{prelude::*, reader::*};
-use serde_derive::Deserialize;
+use genet_sdk::{prelude::*, reader::*, url::Url};
 
 use std::{
     fs::File,
     io::{BufReader, Read},
 };
-
-#[derive(Deserialize)]
-struct Arg {
-    file: String,
-}
 
 #[derive(Default, Clone)]
 struct GenetFileReader {}
@@ -23,9 +17,8 @@ fn read_usize(reader: &mut BufReader<File>) -> Result<usize> {
 }
 
 impl Reader for GenetFileReader {
-    fn new_worker(&self, _ctx: &Context, arg: &str) -> Result<Box<Worker>> {
-        let arg: Arg = serde_json::from_str(arg)?;
-        let file = File::open(&arg.file)?;
+    fn new_worker(&self, _ctx: &Context, url: &Url) -> Result<Box<Worker>> {
+        let file = File::open(&url.to_file_path().unwrap())?;
         let mut reader = BufReader::new(file);
 
         let mut header_buf = vec![0; read_usize(&mut reader)?];

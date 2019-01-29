@@ -17,3 +17,4 @@ pub mod variant;
 pub mod writer;
 
 pub use bincode;
+pub use url;

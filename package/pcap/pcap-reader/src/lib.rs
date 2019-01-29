@@ -1,30 +1,28 @@
-use serde_derive::Deserialize;
-
 use byteorder::{BigEndian, WriteBytesExt};
 use genet_derive::Package;
-use genet_sdk::{prelude::*, reader::*};
+use genet_sdk::{prelude::*, reader::*, url::Url};
 use pcap::Header;
+use std::{
+    collections::{hash_map::RandomState, HashMap},
+    iter::FromIterator,
+};
 
 use std::{
     io::{BufRead, BufReader, Cursor, Error, ErrorKind, Read},
     process::{Child, ChildStdout, Command, Stdio},
 };
 
-#[derive(Deserialize)]
-struct Arg {
-    cmd: String,
-    args: Vec<String>,
-    link: u32,
-}
-
 #[derive(Default, Clone)]
 struct PcapReader {}
 
 impl Reader for PcapReader {
-    fn new_worker(&self, _ctx: &Context, arg: &str) -> Result<Box<Worker>> {
-        let arg: Arg = serde_json::from_str(arg)?;
-        let mut child = Command::new(&arg.cmd)
-            .args(&arg.args)
+    fn new_worker(&self, _ctx: &Context, url: &Url) -> Result<Box<Worker>> {
+        let query: HashMap<_, _, RandomState> = HashMap::from_iter(url.query_pairs());
+        let cmd = query["cmd"].to_string();
+        let args = query["args"].split(' ').collect::<Vec<_>>();
+        let link: u32 = query["link"].parse()?;
+        let mut child = Command::new(&cmd)
+            .args(&args)
             .stdout(Stdio::piped())
             .spawn()?;
         let reader = BufReader::new(
@@ -36,7 +34,7 @@ impl Reader for PcapReader {
         Ok(Box::new(PcapWorker {
             child,
             reader,
-            link: arg.link,
+            link,
         }))
     }
 }

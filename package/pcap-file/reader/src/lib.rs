@@ -1,25 +1,17 @@
-use serde_derive::Deserialize;
-
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt, WriteBytesExt};
 use genet_derive::Package;
-use genet_sdk::{prelude::*, reader::*};
+use genet_sdk::{prelude::*, reader::*, url::Url};
 use std::{
     fs::File,
     io::{self, BufReader, Cursor, Error, ErrorKind, Read},
 };
 
-#[derive(Deserialize)]
-struct Arg {
-    file: String,
-}
-
 #[derive(Default, Clone)]
 struct PcapFileReader {}
 
 impl Reader for PcapFileReader {
-    fn new_worker(&self, _ctx: &Context, arg: &str) -> Result<Box<Worker>> {
-        let arg: Arg = serde_json::from_str(arg)?;
-        let file = File::open(&arg.file)?;
+    fn new_worker(&self, _ctx: &Context, url: &Url) -> Result<Box<Worker>> {
+        let file = File::open(&url.to_file_path().unwrap())?;
         let mut reader = BufReader::new(file);
 
         let magic_number = reader.read_u32::<BigEndian>()?;

@@ -52,11 +52,11 @@ impl Session {
         self.store.set_filter(id, filter);
     }
 
-    pub fn create_reader(&mut self, id: &str, arg: &str) -> u32 {
+    pub fn create_reader(&mut self, id: &str, url: &str) -> u32 {
         if let Some(reader) = self.profile.readers().find(|&r| r.id.as_str() == id) {
             self.io_cnt += 1;
             let ctx = self.profile.context();
-            match reader.reader.new_worker(&ctx, arg) {
+            match reader.reader.new_worker(&ctx, url) {
                 Ok(input) => {
                     let id = input.layer_id();
                     self.store
@@ -74,13 +74,13 @@ impl Session {
     pub fn create_writer(
         &mut self,
         id: &str,
-        arg: &str,
+        url: &str,
         filter: Option<CompiledLayerFilter>,
     ) -> u32 {
         if let Some(writer) = self.profile.writers().find(|&r| r.id.as_str() == id) {
             self.io_cnt += 1;
             let ctx = self.profile.context();
-            match writer.writer.new_worker(&ctx, arg) {
+            match writer.writer.new_worker(&ctx, url) {
                 Ok(output) => {
                     self.store
                         .push_output(self.io_cnt, WorkerOutput::new(output), filter);

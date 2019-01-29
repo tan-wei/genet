@@ -1,5 +1,7 @@
 use genet_derive::Package;
-use genet_sdk::{context::Context, reader::*, result::Result, slice::ByteSlice, token::Token};
+use genet_sdk::{
+    context::Context, reader::*, result::Result, slice::ByteSlice, token::Token, url::Url,
+};
 use std::iter;
 
 pub fn tcp_ipv4_pcap() -> &'static [u8] {
@@ -19,7 +21,7 @@ pub fn tcp_ipv4_pcap() -> &'static [u8] {
 struct TestReader {}
 
 impl Reader for TestReader {
-    fn new_worker(&self, _ctx: &Context, _arg: &str) -> Result<Box<Worker>> {
+    fn new_worker(&self, _ctx: &Context, _url: &Url) -> Result<Box<Worker>> {
         Ok(Box::new(TestWorker {}))
     }
 }
