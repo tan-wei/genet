@@ -23,7 +23,7 @@ impl<T> Iterator for IntoIter<T> {
     fn next(&mut self) -> Option<Self::Item> {
         if self.len > 0 {
             unsafe {
-                let val = Some(ptr::read(self.ptr.offset(self.offset as isize)));
+                let val = Some(ptr::read(self.ptr.add(self.offset as usize)));
                 self.offset += 1;
                 self.len -= 1;
                 val
@@ -88,7 +88,7 @@ impl<T> SafeVec<T> {
                 self.cap = vec.capacity() as u64;
                 mem::forget(vec);
             }
-            let ptr = self.ptr.offset(self.len as isize);
+            let ptr = self.ptr.add(self.len as usize);
             ptr::write(&mut *ptr, val);
             self.len += 1;
         }
