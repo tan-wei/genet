@@ -74,12 +74,12 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
     fn attr_value<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let attr = env.unwrap::<Attr>(info.this())?;
-        variant_to_js(env, &attr.try_get())
+        variant_to_js(env, &attr.get())
     }
 
     fn attr_filter_expression<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let attr = env.unwrap::<Attr>(info.this())?;
-        match attr.try_get() {
+        match attr.get() {
             Ok(val) => env.create_string(&unparse(&Expr::CmpEq(
                 Box::new(Expr::Token(attr.id())),
                 Box::new(unparse_attr(attr.typ(), &val)),

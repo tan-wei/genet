@@ -10,11 +10,11 @@ impl Worker for ArpWorker {
         let data = stack.top().unwrap().payload();
         let mut layer = Layer::new(&self.layer, &data);
 
-        let hwtype = self.layer.hwtype.try_get(&layer)?;
-        let protocol = self.layer.protocol.try_get(&layer)?;
+        let hwtype = self.layer.hwtype.get(&layer)?;
+        let protocol = self.layer.protocol.get(&layer)?;
 
-        let hlen: usize = self.layer.hlen.try_get(&layer)?;
-        let plen: usize = self.layer.plen.try_get(&layer)?;
+        let hlen: usize = self.layer.hlen.get(&layer)?;
+        let plen: usize = self.layer.plen.get(&layer)?;
 
         let (sha, tha) = match hwtype {
             HardwareType::Eth => (&self.layer.sha_eth, &self.layer.tha_eth),

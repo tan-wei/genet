@@ -41,7 +41,7 @@ impl Expr {
             Expr::Token(t) => {
                 for layer in ctx.layers().iter().rev() {
                     if let Some(attr) = layer.attr(t) {
-                        if let Ok(val) = attr.try_get() {
+                        if let Ok(val) = attr.get() {
                             return val;
                         }
                     }

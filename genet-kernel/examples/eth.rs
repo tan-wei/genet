@@ -60,8 +60,8 @@ impl Worker for EthWorker {
         let data = stack.top().unwrap().payload();
         let mut layer = Layer::new(&self.layer, &data);
 
-        let typ = self.layer.r#type.try_get(&layer);
-        let payload = data.try_get(self.layer.byte_size()..)?;
+        let typ = self.layer.r#type.get(&layer);
+        let payload = data.get(self.layer.byte_size()..)?;
         layer.set_payload(&payload);
 
         stack.add_child(layer);

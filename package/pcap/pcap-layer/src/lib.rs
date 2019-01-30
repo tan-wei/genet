@@ -10,7 +10,7 @@ impl Worker for PcapLayerWorker {
     fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
         let data = stack.data();
         let mut layer = Layer::new(&self.layer, &data);
-        let payload = data.try_get(self.layer.byte_size()..)?;
+        let payload = data.get(self.layer.byte_size()..)?;
         layer.set_payload(&payload);
 
         stack.add_child(layer);

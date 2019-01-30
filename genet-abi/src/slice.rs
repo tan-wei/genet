@@ -11,7 +11,7 @@ pub trait TryGet<T> {
     type Output;
 
     /// Returns a byte or subslice depending on the type of index.
-    fn try_get(&self, index: T) -> Result<Self::Output>;
+    fn get(&self, index: T) -> Result<Self::Output>;
 }
 
 macro_rules! impl_slice_index {
@@ -20,7 +20,7 @@ macro_rules! impl_slice_index {
             impl TryGet<$x> for ByteSlice {
                 type Output = ByteSlice;
 
-                fn try_get(&self, index: $x) -> Result<ByteSlice> {
+                fn get(&self, index: $x) -> Result<ByteSlice> {
                     <[u8]>::get(self, index)
                         .map(|s| unsafe { ByteSlice::from_raw_parts(s.as_ptr(), s.len()) })
                         .ok_or_else(|| err_msg("out of bounds"))
@@ -42,7 +42,7 @@ impl_slice_index!(
 impl TryGet<usize> for ByteSlice {
     type Output = u8;
 
-    fn try_get(&self, index: usize) -> Result<u8> {
+    fn get(&self, index: usize) -> Result<u8> {
         <[u8]>::get(self, index)
             .cloned()
             .ok_or_else(|| err_msg("out of bounds"))

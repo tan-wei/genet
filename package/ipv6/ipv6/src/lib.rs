@@ -12,7 +12,7 @@ impl Worker for IPv6Worker {
         let data = stack.top().unwrap().payload();
         let mut layer = Layer::new(&self.layer, &data);
 
-        let nheader = self.layer.next_header.try_get(&layer)?;
+        let nheader = self.layer.next_header.get(&layer)?;
         loop {
             match nheader {
                 // TODO:
@@ -29,10 +29,10 @@ impl Worker for IPv6Worker {
         }
 
         let range = self.layer.next_header.byte_range();
-        let typ = self.layer.protocol.try_get_range(&layer, range.clone());
+        let typ = self.layer.protocol.get_range(&layer, range.clone());
         layer.add_attr(&self.layer.protocol, range.clone());
 
-        let payload = data.try_get(self.layer.byte_size()..)?;
+        let payload = data.get(self.layer.byte_size()..)?;
         layer.set_payload(&payload);
         stack.add_child(layer);
 

@@ -206,7 +206,7 @@ pub struct Node<F: AttrField, C: AttrField = F> {
 }
 
 impl<F: AttrField, C: AttrField> Node<F, C> {
-    pub fn try_get_range(&self, layer: &Layer, byte_range: Range<usize>) -> Result<F::Output> {
+    pub fn get_range(&self, layer: &Layer, byte_range: Range<usize>) -> Result<F::Output> {
         let class = self.class[0];
         let bit_offset = class.bit_range().start;
         let range = (class.bit_range().start - bit_offset + byte_range.start * 8)
@@ -215,8 +215,8 @@ impl<F: AttrField, C: AttrField> Node<F, C> {
         (self.func)(&attr, &layer.data())
     }
 
-    pub fn try_get(&self, layer: &Layer) -> Result<F::Output> {
-        self.try_get_range(layer, self.byte_range())
+    pub fn get(&self, layer: &Layer) -> Result<F::Output> {
+        self.get_range(layer, self.byte_range())
     }
 
     pub fn byte_range(&self) -> Range<usize> {
@@ -364,7 +364,7 @@ impl<F: AttrField, E> Enum<F, E>
 where
     F::Output: Into<E>,
 {
-    pub fn try_get_range(&self, layer: &Layer, byte_range: Range<usize>) -> Result<E> {
+    pub fn get_range(&self, layer: &Layer, byte_range: Range<usize>) -> Result<E> {
         let class = self.class[0];
         let bit_offset = class.bit_range().start;
         let range = (class.bit_range().start - bit_offset + byte_range.start * 8)
@@ -373,8 +373,8 @@ where
         (self.func)(&attr, &layer.data())
     }
 
-    pub fn try_get(&self, layer: &Layer) -> Result<E> {
-        self.try_get_range(layer, self.byte_range())
+    pub fn get(&self, layer: &Layer) -> Result<E> {
+        self.get_range(layer, self.byte_range())
     }
 
     pub fn byte_range(&self) -> Range<usize> {
@@ -432,14 +432,14 @@ define_field!(
     mem::size_of::<Self>() * 8,
     {
         |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_u8()
                 .map_err(|e| e.into())
         }
     },
     {
         |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_u8()
                 .map_err(|e| e.into())
         }
@@ -451,14 +451,14 @@ define_field!(
     mem::size_of::<Self>() * 8,
     {
         |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_i8()
                 .map_err(|e| e.into())
         }
     },
     {
         |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_i8()
                 .map_err(|e| e.into())
         }
@@ -470,14 +470,14 @@ define_field!(
     mem::size_of::<Self>() * 8,
     {
         |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_u16::<LittleEndian>()
                 .map_err(|e| e.into())
         }
     },
     {
         |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_u16::<BigEndian>()
                 .map_err(|e| e.into())
         }
@@ -489,14 +489,14 @@ define_field!(
     mem::size_of::<Self>() * 8,
     {
         |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_i16::<LittleEndian>()
                 .map_err(|e| e.into())
         }
     },
     {
         |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_i16::<BigEndian>()
                 .map_err(|e| e.into())
         }
@@ -508,14 +508,14 @@ define_field!(
     mem::size_of::<Self>() * 8,
     {
         |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_u32::<LittleEndian>()
                 .map_err(|e| e.into())
         }
     },
     {
         |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_u32::<BigEndian>()
                 .map_err(|e| e.into())
         }
@@ -527,14 +527,14 @@ define_field!(
     mem::size_of::<Self>() * 8,
     {
         |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_i32::<LittleEndian>()
                 .map_err(|e| e.into())
         }
     },
     {
         |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_i32::<BigEndian>()
                 .map_err(|e| e.into())
         }
@@ -546,14 +546,14 @@ define_field!(
     mem::size_of::<Self>() * 8,
     {
         |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_u64::<LittleEndian>()
                 .map_err(|e| e.into())
         }
     },
     {
         |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_u64::<BigEndian>()
                 .map_err(|e| e.into())
         }
@@ -565,14 +565,14 @@ define_field!(
     mem::size_of::<Self>() * 8,
     {
         |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_i64::<LittleEndian>()
                 .map_err(|e| e.into())
         }
     },
     {
         |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_i64::<BigEndian>()
                 .map_err(|e| e.into())
         }
@@ -584,14 +584,14 @@ define_field!(
     mem::size_of::<Self>() * 8,
     {
         |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_f32::<LittleEndian>()
                 .map_err(|e| e.into())
         }
     },
     {
         |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_f32::<BigEndian>()
                 .map_err(|e| e.into())
         }
@@ -603,14 +603,14 @@ define_field!(
     mem::size_of::<Self>() * 8,
     {
         |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_f64::<LittleEndian>()
                 .map_err(|e| e.into())
         }
     },
     {
         |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_f64::<BigEndian>()
                 .map_err(|e| e.into())
         }
@@ -620,8 +620,8 @@ define_field!(
 define_field!(
     ByteSlice,
     8,
-    { |data: &ByteSlice, range: Range<usize>| data.try_get(range) },
-    { |data: &ByteSlice, range: Range<usize>| data.try_get(range) }
+    { |data: &ByteSlice, range: Range<usize>| data.get(range) },
+    { |data: &ByteSlice, range: Range<usize>| data.get(range) }
 );
 
 pub struct BitFlag();
@@ -649,7 +649,7 @@ impl AttrField for BitFlag {
         ctx: &AttrContext<Self::Input, Self::Output>,
     ) -> AttrFunctor<Self::Input, Self::Output> {
         let parse = |data: &ByteSlice, range: Range<usize>| {
-            Cursor::new(data.try_get(range)?)
+            Cursor::new(data.get(range)?)
                 .read_u8()
                 .map_err(|e| e.into())
         };
@@ -717,8 +717,8 @@ impl<'a> Attr<'a> {
     }
 
     /// Returns the attribute value.
-    pub fn try_get(&self) -> Result<Variant> {
-        self.class.try_get_attr(self)
+    pub fn get(&self) -> Result<Variant> {
+        self.class.get_attr(self)
     }
 }
 
@@ -885,19 +885,19 @@ impl AttrClass {
         self.bit_range.clone()
     }
 
-    pub fn try_get(&self, layer: &Layer) -> Result<Variant> {
-        self.try_get_range(layer, self.byte_range())
+    pub fn get(&self, layer: &Layer) -> Result<Variant> {
+        self.get_range(layer, self.byte_range())
     }
 
-    pub fn try_get_range(&self, layer: &Layer, byte_range: Range<usize>) -> Result<Variant> {
+    pub fn get_range(&self, layer: &Layer, byte_range: Range<usize>) -> Result<Variant> {
         let bit_offset = self.bit_range().start;
         let range = (self.bit_range().start - bit_offset + byte_range.start * 8)
             ..(self.bit_range().end - bit_offset + byte_range.end * 8);
         let attr = Attr::new(self, range, layer.data());
-        self.try_get_attr(&attr)
+        self.get_attr(&attr)
     }
 
-    fn try_get_attr(&self, attr: &Attr) -> Result<Variant> {
+    fn get_attr(&self, attr: &Attr) -> Result<Variant> {
         let data = attr.data;
         let mut buf: *const u8 = data.as_ptr();
         let mut num = 0;
@@ -1043,7 +1043,7 @@ mod tests {
         assert_eq!(attr.typ(), Token::from("@bool"));
         assert_eq!(attr.byte_range(), 0..1);
 
-        match attr.try_get().unwrap() {
+        match attr.get().unwrap() {
             Variant::Bool(val) => assert!(val),
             _ => panic!(),
         };
@@ -1061,7 +1061,7 @@ mod tests {
         assert_eq!(attr.typ(), Token::from("@u64"));
         assert_eq!(attr.byte_range(), 0..6);
 
-        match attr.try_get().unwrap() {
+        match attr.get().unwrap() {
             Variant::UInt64(val) => assert_eq!(val, 123_456_789),
             _ => panic!(),
         };
@@ -1079,7 +1079,7 @@ mod tests {
         assert_eq!(attr.typ(), Token::from("@i64"));
         assert_eq!(attr.byte_range(), 0..6);
 
-        match attr.try_get().unwrap() {
+        match attr.get().unwrap() {
             Variant::Int64(val) => assert_eq!(val, -123456789),
             _ => panic!(),
         };
@@ -1097,7 +1097,7 @@ mod tests {
         assert_eq!(attr.typ(), Token::from("@buffer"));
         assert_eq!(attr.byte_range(), 0..6);
 
-        match attr.try_get().unwrap() {
+        match attr.get().unwrap() {
             Variant::Buffer(val) => assert_eq!(&*val, b"123456789"),
             _ => panic!(),
         };
@@ -1108,14 +1108,14 @@ mod tests {
         let class = AttrClass::builder("slice")
             .typ("@slice")
             .byte_range(0..6)
-            .cast(|_, data| data.try_get(0..3).map(Variant::Slice))
+            .cast(|_, data| data.get(0..3).map(Variant::Slice))
             .build();
         let attr = Attr::new(&class, 0..48, ByteSlice::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("slice"));
         assert_eq!(attr.typ(), Token::from("@slice"));
         assert_eq!(attr.byte_range(), 0..6);
 
-        match attr.try_get().unwrap() {
+        match attr.get().unwrap() {
             Variant::Slice(val) => assert_eq!(val, ByteSlice::from(&b"123"[..])),
             _ => panic!(),
         };
@@ -1133,7 +1133,7 @@ mod tests {
         assert_eq!(attr.typ(), Token::from("@slice"));
         assert_eq!(attr.byte_range(), 0..6);
 
-        match attr.try_get() {
+        match attr.get() {
             Err(err) => assert_eq!(format!("{}", err), "oh no!"),
             _ => panic!(),
         };

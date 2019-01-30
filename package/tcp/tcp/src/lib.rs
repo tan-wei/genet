@@ -10,13 +10,13 @@ impl Worker for TcpWorker {
         let data = stack.top().unwrap().payload();
         let mut layer = Layer::new(&self.layer, &data);
 
-        let data_offset = self.layer.data_offset.try_get(&layer)? as usize;
+        let data_offset = self.layer.data_offset.get(&layer)? as usize;
         let data_offset = data_offset * 4;
 
         let opt_offset = self.layer.byte_size();
         let mut offset = opt_offset;
         while offset < data_offset {
-            let typ = layer.data().try_get(offset)?;
+            let typ = layer.data().get(offset)?;
             if typ <= 1 {
                 if typ == 1 {
                     layer.add_attr(&self.layer.options.nop, offset..offset + 1);
@@ -24,7 +24,7 @@ impl Worker for TcpWorker {
                 offset += 1;
                 continue;
             }
-            let len = layer.data().try_get(offset + 1)? as usize;
+            let len = layer.data().get(offset + 1)? as usize;
             match typ {
                 2 => {
                     layer.add_attr(&self.layer.options.mss, offset + 2..offset + len);

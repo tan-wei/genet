@@ -12,7 +12,7 @@ impl Worker for NtpWorker {
             .unwrap()
             .attr(token!("udp.src"))
             .unwrap()
-            .try_get()?
+            .get()?
             .try_into()?;
 
         let parent_dst: u16 = stack
@@ -20,7 +20,7 @@ impl Worker for NtpWorker {
             .unwrap()
             .attr(token!("udp.dst"))
             .unwrap()
-            .try_get()?
+            .get()?
             .try_into()?;
 
         if parent_src != 123 && parent_dst != 123 {
@@ -30,7 +30,7 @@ impl Worker for NtpWorker {
         let data = stack.top().unwrap().payload();
         let mut layer = Layer::new(&self.layer, &data);
 
-        let stratum = self.layer.stratum.try_get(&layer)?;
+        let stratum = self.layer.stratum.get(&layer)?;
         let class = if stratum >= 2 {
             &self.layer.identifier_ip
         } else {
