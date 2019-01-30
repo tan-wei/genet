@@ -10,6 +10,6 @@
 //! - Double - [`f64`](https://doc.rust-lang.org/std/primitive.f64.html)
 //! - String - `Box<str>`,
 //! - Buffer - `Box<[u8]>`,
-//! - Slice - `ByteArray`
+//! - Bytes - `Bytes`
 
 pub use genet_abi::variant::{TryInto, Variant};

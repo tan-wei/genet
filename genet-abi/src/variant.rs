@@ -13,7 +13,7 @@ pub enum Variant {
     Float64(f64),
     BigInt(BigInt),
     Buffer(Box<[u8]>),
-    Slice(Bytes),
+    Bytes(Bytes),
 }
 
 /// Variant value trait.
@@ -25,7 +25,7 @@ impl TryInto<Vec<u8>> for Variant {
     fn try_into(self) -> Result<Vec<u8>> {
         match self {
             Variant::Buffer(val) => Ok(val.into_vec()),
-            Variant::Slice(val) => Ok(val.as_ref().to_vec()),
+            Variant::Bytes(val) => Ok(val.as_ref().to_vec()),
             _ => Err(err_msg("wrong type")),
         }
     }
@@ -34,7 +34,7 @@ impl TryInto<Vec<u8>> for Variant {
 impl TryInto<Bytes> for Variant {
     fn try_into(self) -> Result<Bytes> {
         match self {
-            Variant::Slice(val) => Ok(val),
+            Variant::Bytes(val) => Ok(val),
             _ => Err(err_msg("wrong type")),
         }
     }
@@ -236,7 +236,7 @@ impl Into<Variant> for Box<[u8]> {
 
 impl Into<Variant> for Bytes {
     fn into(self) -> Variant {
-        Variant::Slice(self)
+        Variant::Bytes(self)
     }
 }
 

@@ -919,7 +919,7 @@ impl AttrClass {
             },
             ValueType::Bytes => {
                 let len: u64 = unsafe { mem::transmute_copy(&num) };
-                Ok(Variant::Slice(unsafe {
+                Ok(Variant::Bytes(unsafe {
                     Bytes::from_raw_parts(buf, len as usize)
                 }))
             }
@@ -997,7 +997,7 @@ extern "C" fn abi_get(
                 };
                 ValueType::Buffer
             }
-            Variant::Slice(val) => {
+            Variant::Bytes(val) => {
                 unsafe {
                     *data = val.as_ptr();
                     *(num as *mut u64) = val.len() as u64;
@@ -1104,7 +1104,7 @@ mod tests {
         let class = AttrClass::builder("slice")
             .typ("@slice")
             .byte_range(0..6)
-            .cast(|_, data| data.get(0..3).map(Variant::Slice))
+            .cast(|_, data| data.get(0..3).map(Variant::Bytes))
             .build();
         let attr = Attr::new(&class, 0..48, Bytes::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("slice"));
@@ -1112,7 +1112,7 @@ mod tests {
         assert_eq!(attr.byte_range(), 0..6);
 
         match attr.get().unwrap() {
-            Variant::Slice(val) => assert_eq!(val, Bytes::from(&b"123"[..])),
+            Variant::Bytes(val) => assert_eq!(val, Bytes::from(&b"123"[..])),
             _ => panic!(),
         };
     }

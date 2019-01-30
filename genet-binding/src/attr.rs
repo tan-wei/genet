@@ -29,7 +29,7 @@ fn variant_to_js<'env>(
             env.create_arraybuffer_copy(&v)?,
             0,
         ),
-        Ok(Variant::Slice(v)) => env.create_typedarray(
+        Ok(Variant::Bytes(v)) => env.create_typedarray(
             TypedArrayType::Uint8Array,
             v.len(),
             env.create_arraybuffer_from_slice(&v)?,

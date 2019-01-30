@@ -58,12 +58,12 @@ impl VariantExt for Variant {
     fn ord(&self, other: &Variant) -> Option<Ordering> {
         let lhs = match self {
             Variant::Buffer(v) => Variant::BigInt(BigInt::from_bytes_be(Sign::Plus, &v)),
-            Variant::Slice(v) => Variant::BigInt(BigInt::from_bytes_be(Sign::Plus, &v)),
+            Variant::Bytes(v) => Variant::BigInt(BigInt::from_bytes_be(Sign::Plus, &v)),
             _ => self.clone(),
         };
         let rhs = match other {
             Variant::Buffer(v) => Variant::BigInt(BigInt::from_bytes_be(Sign::Plus, &v)),
-            Variant::Slice(v) => Variant::BigInt(BigInt::from_bytes_be(Sign::Plus, &v)),
+            Variant::Bytes(v) => Variant::BigInt(BigInt::from_bytes_be(Sign::Plus, &v)),
             _ => other.clone(),
         };
 
@@ -140,7 +140,7 @@ impl VariantExt for Variant {
             Variant::Buffer(b) => {
                 "0x".to_string() + &BigInt::from_bytes_be(Sign::Plus, &b).to_str_radix(16)
             }
-            Variant::Slice(b) => {
+            Variant::Bytes(b) => {
                 "0x".to_string() + &BigInt::from_bytes_be(Sign::Plus, &b).to_str_radix(16)
             }
         }
