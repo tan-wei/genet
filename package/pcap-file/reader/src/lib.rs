@@ -70,7 +70,7 @@ struct PcapFileWorker {
 }
 
 impl PcapFileWorker {
-    fn read_one(&mut self) -> io::Result<ByteSlice> {
+    fn read_one(&mut self) -> io::Result<Bytes> {
         let (ts_sec, mut ts_usec, inc_len, orig_len) = if self.le {
             (
                 self.reader.read_u32::<LittleEndian>()?,
@@ -103,7 +103,7 @@ impl PcapFileWorker {
         cur.write_u32::<BigEndian>(ts_sec)?;
         cur.write_u32::<BigEndian>(ts_usec)?;
 
-        let payload = ByteSlice::from(cur.into_inner());
+        let payload = Bytes::from(cur.into_inner());
         Ok(payload)
     }
 }
@@ -111,7 +111,7 @@ impl PcapFileWorker {
 const BLOCK_SIZE: usize = 2048;
 
 impl Worker for PcapFileWorker {
-    fn read(&mut self) -> Result<Vec<ByteSlice>> {
+    fn read(&mut self) -> Result<Vec<Bytes>> {
         let mut slices = Vec::with_capacity(BLOCK_SIZE);
         for _ in 0..BLOCK_SIZE {
             match self.read_one() {

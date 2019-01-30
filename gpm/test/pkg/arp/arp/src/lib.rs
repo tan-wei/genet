@@ -62,22 +62,22 @@ struct ARP {
     op: Enum<u16, OperationType>,
 
     #[attr(detach, id = "sha", typ = "@eth:mac", alias = "_.src", byte_size = 6)]
-    sha_eth: Node<ByteSlice>,
+    sha_eth: Node<Bytes>,
 
     #[attr(detach, id = "tha", typ = "@eth:mac", alias = "_.dst", byte_size = 6)]
-    tha_eth: Node<ByteSlice>,
+    tha_eth: Node<Bytes>,
 
     #[attr(detach, id = "spa", typ = "@ipv4:addr", byte_size = 4)]
-    spa_ipv4: Node<ByteSlice>,
+    spa_ipv4: Node<Bytes>,
 
     #[attr(detach, id = "tpa", typ = "@ipv4:addr", byte_size = 4)]
-    tpa_ipv4: Node<ByteSlice>,
+    tpa_ipv4: Node<Bytes>,
 
     #[attr(detach, id = "spa", typ = "@ipv6:addr", byte_size = 16)]
-    spa_ipv6: Node<ByteSlice>,
+    spa_ipv6: Node<Bytes>,
 
     #[attr(detach, id = "tpa", typ = "@ipv6:addr", byte_size = 16)]
-    tpa_ipv6: Node<ByteSlice>,
+    tpa_ipv6: Node<Bytes>,
 }
 
 #[derive(Attr)]

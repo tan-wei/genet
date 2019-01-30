@@ -317,7 +317,7 @@ pub fn init(env: &Env, exports: &Value) -> Result<()> {
         "address",
         env.create_function("address", get_address)?,
     )?;
-    env.set_named_property(exports, "ByteSlice", slice)?;
+    env.set_named_property(exports, "Bytes", slice)?;
 
     env.set_named_property(exports, "Session", session_class)?;
     env.set_named_property(session_class, "Profile", profile_class)?;

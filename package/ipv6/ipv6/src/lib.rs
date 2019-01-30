@@ -75,7 +75,7 @@ struct IPv6 {
         bit_size = 20,
         map = "(((x[2] as u32) & 0xf) << 16) | ((x[1] as u32) << 8) | x[2] as u32"
     )]
-    flow_label: Cast<ByteSlice, u32>,
+    flow_label: Cast<Bytes, u32>,
 
     payload_length: u16,
 
@@ -84,10 +84,10 @@ struct IPv6 {
     hop_limit: u8,
 
     #[attr(alias = "_.dst", typ = "@ipv6:addr", byte_size = 16)]
-    dst: ByteSlice,
+    dst: Bytes,
 
     #[attr(alias = "_.src", typ = "@ipv6:addr", byte_size = 16)]
-    src: ByteSlice,
+    src: Bytes,
 
     #[attr(detach)]
     protocol: Enum<u8, ProtoType>,

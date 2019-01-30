@@ -1,6 +1,6 @@
 use genet_derive::Package;
 use genet_sdk::{
-    context::Context, reader::*, result::Result, slice::ByteSlice, token::Token, url::Url,
+    bytes::Bytes, context::Context, reader::*, result::Result, token::Token, url::Url,
 };
 use std::iter;
 
@@ -35,10 +35,10 @@ struct TestPackage {
 struct TestWorker {}
 
 impl Worker for TestWorker {
-    fn read(&mut self) -> Result<Vec<ByteSlice>> {
+    fn read(&mut self) -> Result<Vec<Bytes>> {
         let slices = iter::repeat(())
             .take(1000)
-            .map(|_| ByteSlice::from(tcp_ipv4_pcap()))
+            .map(|_| Bytes::from(tcp_ipv4_pcap()))
             .collect();
         Ok(slices)
     }

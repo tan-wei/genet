@@ -1,10 +1,10 @@
 use crate::{
+    bytes::Bytes,
     codable::{Codable, CodedData},
     context::Context,
     file::FileType,
     package::IntoBuilder,
     result::Result,
-    slice::ByteSlice,
     string::SafeString,
     token::Token,
     vec::SafeVec,
@@ -95,11 +95,11 @@ extern "C" fn abi_reader_new_worker(
 
 /// Reader worker trait.
 pub trait Worker: Send {
-    fn read(&mut self) -> Result<Vec<ByteSlice>>;
+    fn read(&mut self) -> Result<Vec<Bytes>>;
     fn layer_id(&self) -> Token;
 }
 
-type ReaderFunc = extern "C" fn(*mut Box<Worker>, *mut SafeVec<ByteSlice>, *mut SafeString) -> u8;
+type ReaderFunc = extern "C" fn(*mut Box<Worker>, *mut SafeVec<Bytes>, *mut SafeString) -> u8;
 
 pub struct WorkerBox {
     worker: *mut Box<Worker>,
@@ -120,7 +120,7 @@ impl WorkerBox {
         }
     }
 
-    pub fn read(&mut self) -> Result<Vec<ByteSlice>> {
+    pub fn read(&mut self) -> Result<Vec<Bytes>> {
         let mut v = SafeVec::new();
         let mut e = SafeString::new();
         if (self.read)(self.worker, &mut v, &mut e) == 0 {
@@ -158,7 +158,7 @@ extern "C" fn abi_reader_worker_layer_id(worker: *const Box<Worker>) -> u32 {
 
 extern "C" fn abi_reader_worker_read(
     worker: *mut Box<Worker>,
-    out: *mut SafeVec<ByteSlice>,
+    out: *mut SafeVec<Bytes>,
     err: *mut SafeString,
 ) -> u8 {
     let worker = unsafe { &mut *worker };

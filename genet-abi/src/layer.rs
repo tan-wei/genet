@@ -1,7 +1,7 @@
 use crate::{
     attr::{Attr, AttrClass, AttrField},
+    bytes::Bytes,
     fixed::{Fixed, MutFixed},
-    slice::ByteSlice,
     token::Token,
     variant::Variant,
 };
@@ -48,7 +48,7 @@ impl<'a> LayerStack<'a> {
     }
 
     /// Returns the type of self.
-    pub fn data(&self) -> ByteSlice {
+    pub fn data(&self) -> Bytes {
         self.deref().data()
     }
 
@@ -68,12 +68,12 @@ impl<'a> LayerStack<'a> {
     }
 
     /// Returns the payload.
-    pub fn payload(&self) -> ByteSlice {
+    pub fn payload(&self) -> Bytes {
         self.deref().payload()
     }
 
     /// Adds a payload to the Layer.
-    pub fn set_payload(&mut self, payload: &ByteSlice) {
+    pub fn set_payload(&mut self, payload: &Bytes) {
         self.deref_mut().set_payload(payload);
     }
 
@@ -132,21 +132,21 @@ struct BoundAttr {
 #[repr(C)]
 pub struct Layer {
     class: Fixed<LayerClass>,
-    data: ByteSlice,
+    data: Bytes,
     attrs: Vec<BoundAttr>,
-    payload: ByteSlice,
+    payload: Bytes,
 }
 
 unsafe impl Send for Layer {}
 
 impl Layer {
     /// Creates a new Layer.
-    pub fn new<C: AsRef<Fixed<LayerClass>>>(class: &C, data: &ByteSlice) -> Layer {
+    pub fn new<C: AsRef<Fixed<LayerClass>>>(class: &C, data: &Bytes) -> Layer {
         Layer {
             class: *class.as_ref(),
             data: *data,
             attrs: Vec::new(),
-            payload: ByteSlice::new(),
+            payload: Bytes::new(),
         }
     }
 
@@ -156,7 +156,7 @@ impl Layer {
     }
 
     /// Returns the type of self.
-    pub fn data(&self) -> ByteSlice {
+    pub fn data(&self) -> Bytes {
         self.class.data(self)
     }
 
@@ -212,12 +212,12 @@ impl Layer {
     }
 
     /// Returns the payload.
-    pub fn payload(&self) -> ByteSlice {
+    pub fn payload(&self) -> Bytes {
         self.class.payload(self)
     }
 
     /// Sets a payload to the Layer.
-    pub fn set_payload(&mut self, payload: &ByteSlice) {
+    pub fn set_payload(&mut self, payload: &Bytes) {
         let func = self.class.set_payload;
         (func)(self, payload.as_ptr(), payload.len() as u64);
     }
@@ -351,10 +351,10 @@ impl LayerClass {
         (self.get_id)(self)
     }
 
-    fn data(&self, layer: &Layer) -> ByteSlice {
+    fn data(&self, layer: &Layer) -> Bytes {
         let mut len = 0;
         let data = (self.data)(layer, &mut len);
-        unsafe { ByteSlice::from_raw_parts(data, len as usize) }
+        unsafe { Bytes::from_raw_parts(data, len as usize) }
     }
 
     fn attrs(&self, layer: &Layer) -> Vec<Attr> {
@@ -370,10 +370,10 @@ impl LayerClass {
         headers.chain(attrs).collect()
     }
 
-    fn payload(&self, layer: &Layer) -> ByteSlice {
+    fn payload(&self, layer: &Layer) -> Bytes {
         let mut len = 0;
         let data = (self.payload)(layer, &mut len);
-        unsafe { ByteSlice::from_raw_parts(data, len as usize) }
+        unsafe { Bytes::from_raw_parts(data, len as usize) }
     }
 }
 
@@ -427,7 +427,7 @@ extern "C" fn abi_payload(layer: *const Layer, len: *mut u64) -> *const u8 {
 extern "C" fn abi_set_payload(layer: *mut Layer, data: *const u8, len: u64) {
     unsafe {
         let layer = &mut (*layer);
-        layer.payload = ByteSlice::from_raw_parts(data, len as usize);
+        layer.payload = Bytes::from_raw_parts(data, len as usize);
     }
 }
 
@@ -435,9 +435,9 @@ extern "C" fn abi_set_payload(layer: *mut Layer, data: *const u8, len: u64) {
 mod tests {
     use crate::{
         attr::AttrClass,
+        bytes::Bytes,
         fixed::Fixed,
         layer::{Layer, LayerClass},
-        slice::ByteSlice,
         token::Token,
         variant::Variant,
     };
@@ -447,7 +447,7 @@ mod tests {
         let id = Token::from(123);
         let attr = vec![Fixed::new(AttrClass::builder(id).build())];
         let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
-        let layer = Layer::new(&class, &ByteSlice::new());
+        let layer = Layer::new(&class, &Bytes::new());
         assert_eq!(layer.id(), id);
     }
 
@@ -456,15 +456,15 @@ mod tests {
         let data = b"hello";
         let attr = vec![Fixed::new(AttrClass::builder(Token::null()).build())];
         let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
-        let layer = Layer::new(&class, &ByteSlice::from(&data[..]));
-        assert_eq!(layer.data(), ByteSlice::from(&data[..]));
+        let layer = Layer::new(&class, &Bytes::from(&data[..]));
+        assert_eq!(layer.data(), Bytes::from(&data[..]));
     }
 
     #[test]
     fn attrs() {
         let attr = vec![Fixed::new(AttrClass::builder(Token::null()).build())];
         let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
-        let mut layer = Layer::new(&class, &ByteSlice::new());
+        let mut layer = Layer::new(&class, &Bytes::new());
 
         struct Class(Vec<Fixed<AttrClass>>);
         impl AsRef<[Fixed<AttrClass>]> for Class {

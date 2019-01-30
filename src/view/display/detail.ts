@@ -1,6 +1,6 @@
 import { BufferValueItem, AttributeValueItem } from './value'
 import AttributeItem from './attr'
-import { ByteSlice } from '@genet/load-module'
+import { Bytes } from '@genet/load-module'
 import DefaultSummary from './default-summary'
 import genet from '@genet/api'
 import m from 'mithril'
@@ -28,7 +28,7 @@ function mergeOrphanedItems(item) {
 class LayerItem {
   view(vnode) {
     const { layer, frame } = vnode.attrs
-    const addr = ByteSlice.address(layer.data)
+    const addr = Bytes.address(layer.data)
     const name = genet.session.tokenName(layer.id)
 
     const attrArray = [{

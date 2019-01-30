@@ -1,5 +1,5 @@
 import { AttributeValueItem } from './value'
-import { ByteSlice } from '@genet/load-module'
+import { Bytes } from '@genet/load-module'
 import genet from '@genet/api'
 import m from 'mithril'
 
@@ -11,7 +11,7 @@ export default class AttributeItem {
   view(vnode) {
     const { item, layer } = vnode.attrs
     const { attr, children } = item
-    const addr = ByteSlice.address(layer.data)
+    const addr = Bytes.address(layer.data)
     let faClass = 'attribute'
     if (children.length) {
       faClass = 'attribute children'

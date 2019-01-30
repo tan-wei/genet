@@ -44,7 +44,7 @@ struct GenetFileWorker {
 }
 
 impl Worker for GenetFileWorker {
-    fn read(&mut self) -> Result<Vec<ByteSlice>> {
+    fn read(&mut self) -> Result<Vec<Bytes>> {
         let mut slices = Vec::new();
         for _ in 0..self.header.entries {
             let mut frame_buf = vec![0; read_usize(&mut self.reader)?];
@@ -52,7 +52,7 @@ impl Worker for GenetFileWorker {
             let frame: genet_format::Frame = bincode::deserialize(&frame_buf)?;
             let mut payload = vec![0; frame.len];
             self.reader.read_exact(&mut payload)?;
-            slices.push(ByteSlice::from(payload));
+            slices.push(Bytes::from(payload));
         }
         self.header.entries = 0;
         Ok(slices)

@@ -17,12 +17,12 @@ pub trait TryGet<T> {
 macro_rules! impl_slice_index {
     ( $( $x:ty ), * ) => {
         $(
-            impl TryGet<$x> for ByteSlice {
-                type Output = ByteSlice;
+            impl TryGet<$x> for Bytes {
+                type Output = Bytes;
 
-                fn get(&self, index: $x) -> Result<ByteSlice> {
+                fn get(&self, index: $x) -> Result<Bytes> {
                     <[u8]>::get(self, index)
-                        .map(|s| unsafe { ByteSlice::from_raw_parts(s.as_ptr(), s.len()) })
+                        .map(|s| unsafe { Bytes::from_raw_parts(s.as_ptr(), s.len()) })
                         .ok_or_else(|| err_msg("out of bounds"))
                 }
             }
@@ -39,7 +39,7 @@ impl_slice_index!(
     RangeToInclusive<usize>
 );
 
-impl TryGet<usize> for ByteSlice {
+impl TryGet<usize> for Bytes {
     type Output = u8;
 
     fn get(&self, index: usize) -> Result<u8> {
@@ -51,34 +51,34 @@ impl TryGet<usize> for ByteSlice {
 
 /// A fixed-lifetime slice object.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-pub struct ByteSlice(&'static [u8]);
+pub struct Bytes(&'static [u8]);
 
-impl ByteSlice {
-    /// Creates a new empty ByteSlice.
-    pub fn new() -> ByteSlice {
-        ByteSlice(&[])
+impl Bytes {
+    /// Creates a new empty Bytes.
+    pub fn new() -> Bytes {
+        Bytes(&[])
     }
 
-    /// Creates a new ByteSlice from a length and pointer.
+    /// Creates a new Bytes from a length and pointer.
     ///
     /// The pointer must be valid during the program execution.
-    pub unsafe fn from_raw_parts(data: *const u8, len: usize) -> ByteSlice {
-        ByteSlice(slice::from_raw_parts(data, len))
+    pub unsafe fn from_raw_parts(data: *const u8, len: usize) -> Bytes {
+        Bytes(slice::from_raw_parts(data, len))
     }
 
-    /// Returns the length of this ByteSlice.
+    /// Returns the length of this Bytes.
     pub fn len(&self) -> usize {
         self.0.len()
     }
 
-    /// Returns true if this ByteSlice has a length of zero.
+    /// Returns true if this Bytes has a length of zero.
     ///
     /// Returns false otherwise.
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
 
-    /// Returns a raw pointer to the first byte in this ByteSlice.
+    /// Returns a raw pointer to the first byte in this Bytes.
     pub fn as_ptr(&self) -> *const u8 {
         self.0.as_ptr()
     }
@@ -88,27 +88,27 @@ impl ByteSlice {
     }
 }
 
-impl From<&'static [u8]> for ByteSlice {
+impl From<&'static [u8]> for Bytes {
     fn from(data: &'static [u8]) -> Self {
-        ByteSlice(data)
+        Bytes(data)
     }
 }
 
-impl From<Box<[u8]>> for ByteSlice {
+impl From<Box<[u8]>> for Bytes {
     fn from(data: Box<[u8]>) -> Self {
-        let s = unsafe { ByteSlice::from_raw_parts(data.as_ptr(), data.len()) };
+        let s = unsafe { Bytes::from_raw_parts(data.as_ptr(), data.len()) };
         mem::forget(data);
         s
     }
 }
 
-impl From<Vec<u8>> for ByteSlice {
+impl From<Vec<u8>> for Bytes {
     fn from(data: Vec<u8>) -> Self {
-        ByteSlice::from(data.into_boxed_slice())
+        Bytes::from(data.into_boxed_slice())
     }
 }
 
-impl Deref for ByteSlice {
+impl Deref for Bytes {
     type Target = [u8];
 
     fn deref(&self) -> &'static [u8] {
@@ -116,7 +116,7 @@ impl Deref for ByteSlice {
     }
 }
 
-impl AsRef<[u8]> for ByteSlice {
+impl AsRef<[u8]> for Bytes {
     #[inline]
     fn as_ref(&self) -> &[u8] {
         &self.0

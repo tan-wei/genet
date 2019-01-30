@@ -97,7 +97,7 @@ struct Tcp {
     urgent: u16,
 
     #[attr(detach, byte_size = 1)]
-    options: Node<ByteSlice, Options>,
+    options: Node<Bytes, Options>,
 }
 
 #[derive(Attr)]
@@ -139,7 +139,7 @@ struct Options {
     selective_ack_permitted: Node<u8>,
 
     #[attr(detach, byte_size = 1)]
-    selective_ack: Node<ByteSlice>,
+    selective_ack: Node<Bytes>,
 
     #[attr(detach, typ = "@nested")]
     ts: Node<Timestamp>,

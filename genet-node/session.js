@@ -1,5 +1,5 @@
 const native = require('./binding')
-const { Token, ByteSlice } = native
+const { Token, Bytes } = native
 const { Disposable } = require('disposables')
 const { EventEmitter } = require('events')
 function treefy (layerStack) {
@@ -13,11 +13,11 @@ function treefy (layerStack) {
   for (const layer of layerStack) {
     layer.children = layer.children || []
 
-    let cursorAddr = ByteSlice.address(cursor.data)
-    const layerAddr = ByteSlice.address(layer.data)
+    let cursorAddr = Bytes.address(cursor.data)
+    const layerAddr = Bytes.address(layer.data)
     while (layerAddr < cursorAddr) {
       cursor = cursor.parent
-      cursorAddr = ByteSlice.address(cursor.data)
+      cursorAddr = Bytes.address(cursor.data)
     }
     cursor.children.push(layer)
     layer.parent = cursor

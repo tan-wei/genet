@@ -14,5 +14,5 @@ pub struct Frame {
 
 pub struct Entry {
     pub frame: Frame,
-    pub data: ByteSlice,
+    pub data: Bytes,
 }

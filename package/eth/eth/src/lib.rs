@@ -6,11 +6,11 @@ use genet_sdk::{decoder::*, prelude::*};
 struct Eth {
     /// Source Hardware Address
     #[attr(alias = "_.src", typ = "@eth:mac", byte_size = 6)]
-    src: ByteSlice,
+    src: Bytes,
 
     /// Destination Hardware Address
     #[attr(alias = "_.dst", typ = "@eth:mac", byte_size = 6)]
-    dst: ByteSlice,
+    dst: Bytes,
 
     #[attr(cond = "x <= 1500")]
     len: u16,

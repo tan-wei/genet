@@ -1,4 +1,4 @@
-use crate::{result::Result, slice::ByteSlice};
+use crate::{bytes::Bytes, result::Result};
 use failure::err_msg;
 use num_bigint::BigInt;
 use num_traits::cast::ToPrimitive;
@@ -13,7 +13,7 @@ pub enum Variant {
     Float64(f64),
     BigInt(BigInt),
     Buffer(Box<[u8]>),
-    Slice(ByteSlice),
+    Slice(Bytes),
 }
 
 /// Variant value trait.
@@ -31,8 +31,8 @@ impl TryInto<Vec<u8>> for Variant {
     }
 }
 
-impl TryInto<ByteSlice> for Variant {
-    fn try_into(self) -> Result<ByteSlice> {
+impl TryInto<Bytes> for Variant {
+    fn try_into(self) -> Result<Bytes> {
         match self {
             Variant::Slice(val) => Ok(val),
             _ => Err(err_msg("wrong type")),
@@ -234,7 +234,7 @@ impl Into<Variant> for Box<[u8]> {
     }
 }
 
-impl Into<Variant> for ByteSlice {
+impl Into<Variant> for Bytes {
     fn into(self) -> Variant {
         Variant::Slice(self)
     }

@@ -1,7 +1,7 @@
 use bitflags::bitflags;
 use genet_abi::{
+    bytes::Bytes,
     fixed::{Fixed, MutFixed},
-    slice::ByteSlice,
 };
 use libc;
 use num_bigint::{BigInt, Sign};
@@ -344,7 +344,7 @@ impl Env {
         }
     }
 
-    pub fn create_arraybuffer_from_slice<'env>(&self, data: &ByteSlice) -> Result<&'env Value> {
+    pub fn create_arraybuffer_from_slice<'env>(&self, data: &Bytes) -> Result<&'env Value> {
         unsafe {
             extern "C" fn finalize_cb(_env: *const Env, _data: *mut u8, _hint: *mut u8) {}
 

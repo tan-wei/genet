@@ -71,10 +71,10 @@ struct IPv4 {
     checksum: u16,
 
     #[attr(alias = "_.src", typ = "@ipv4:addr", byte_size = 4)]
-    src: ByteSlice,
+    src: Bytes,
 
     #[attr(alias = "_.dst", typ = "@ipv4:addr", byte_size = 4)]
-    dst: ByteSlice,
+    dst: Bytes,
 }
 
 #[derive(Attr)]

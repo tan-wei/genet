@@ -78,7 +78,7 @@ struct Ntp {
     root_dispersion: Node<Cast<u32, f64>, ShortFormat>,
 
     #[attr(skip, byte_size = 4)]
-    identifier: Node<ByteSlice>,
+    identifier: Node<Bytes>,
 
     #[attr(
         skip,
@@ -87,7 +87,7 @@ struct Ntp {
         byte_size = 4,
         typ = "@ipv4:addr"
     )]
-    identifier_ip: Node<ByteSlice>,
+    identifier_ip: Node<Bytes>,
 
     #[attr(
         typ = "@ntp:time",

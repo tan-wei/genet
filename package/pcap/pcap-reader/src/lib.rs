@@ -52,7 +52,7 @@ struct PcapWorker {
 }
 
 impl Worker for PcapWorker {
-    fn read(&mut self) -> Result<Vec<ByteSlice>> {
+    fn read(&mut self) -> Result<Vec<Bytes>> {
         let mut header = String::new();
         self.reader.read_line(&mut header)?;
         let header = header.trim();
@@ -73,7 +73,7 @@ impl Worker for PcapWorker {
         cur.write_u32::<BigEndian>(header.ts_sec)?;
         cur.write_u32::<BigEndian>(header.ts_usec)?;
 
-        let payload = ByteSlice::from(cur.into_inner());
+        let payload = Bytes::from(cur.into_inner());
         Ok(vec![payload])
     }
 

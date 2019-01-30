@@ -335,8 +335,8 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let tokens = quote! {
 
         impl genet_sdk::attr::AttrField for #ident {
-            type Input = genet_sdk::slice::ByteSlice;
-            type Output = genet_sdk::slice::ByteSlice;
+            type Input = genet_sdk::bytes::Bytes;
+            type Output = genet_sdk::bytes::Bytes;
 
             fn context() -> genet_sdk::attr::AttrContext<Self::Input, Self::Output> {
                 let mut bit_size = 0;
@@ -384,7 +384,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
             }
 
             fn build(ctx: &genet_sdk::attr::AttrContext<Self::Input, Self::Output>) -> genet_sdk::attr::AttrFunctor<Self::Input, Self::Output> {
-                genet_sdk::slice::ByteSlice::build(ctx)
+                genet_sdk::bytes::Bytes::build(ctx)
             }
         }
 

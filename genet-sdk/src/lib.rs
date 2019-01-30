@@ -2,6 +2,7 @@
 //! [genet](https://genet.app/).
 
 pub mod attr;
+pub mod bytes;
 pub mod context;
 pub mod decoder;
 pub mod file;
@@ -11,7 +12,6 @@ pub mod package;
 pub mod prelude;
 pub mod reader;
 pub mod result;
-pub mod slice;
 pub mod token;
 pub mod variant;
 pub mod writer;
