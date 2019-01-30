@@ -2,8 +2,8 @@ use bincode;
 use failure::{err_msg, Error};
 use fnv::FnvHashMap;
 use genet_abi::{
-    alloc::Allocator, context::Context, decoder::DecoderData, env, reader::ReaderData,
-    token::TokenRegistry, writer::WriterData,
+    alloc::Allocator, context::Context, decoder::DecoderData, genet_abi_version,
+    reader::ReaderData, token::TokenRegistry, writer::WriterData,
 };
 use genet_sdk::package::{Component, Package};
 use libloading::Library;
@@ -124,7 +124,7 @@ impl Profile {
                 }
             }
 
-            if canonical(env::genet_abi_version()) != canonical(func()) {
+            if canonical(genet_abi_version()) != canonical(func()) {
                 return Err(err_msg("abi version mismatch"));
             }
 
