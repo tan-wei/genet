@@ -7,7 +7,6 @@ use crate::{
     string::SafeString,
     token::Token,
     variant::{TryInto, Variant},
-    vec::SafeVec,
 };
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 use failure::format_err;
@@ -983,17 +982,17 @@ extern "C" fn abi_get(
             }
             Variant::BigInt(val) => {
                 let val = val.to_signed_bytes_le();
+                let len = val.len() as u64;
                 unsafe {
-                    let (buf, len) = SafeVec::into_raw(SafeVec::from(val));
-                    *data = buf;
-                    *(num as *mut u64) = len as u64;
+                    *data = Box::into_raw(val.into_boxed_slice()) as *mut u8;
+                    *(num as *mut u64) = len;
                 };
                 ValueType::BigInt
             }
             Variant::Buffer(val) => {
+                let len = val.len() as u64;
                 unsafe {
-                    let (buf, len) = SafeVec::into_raw(SafeVec::from(&val));
-                    *data = buf;
+                    *data = Box::into_raw(val) as *mut u8;
                     *(num as *mut u64) = len as u64;
                 };
                 ValueType::Buffer

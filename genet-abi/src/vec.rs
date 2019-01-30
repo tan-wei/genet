@@ -72,13 +72,6 @@ impl<T> SafeVec<T> {
         SafeVec { ptr, len, cap }
     }
 
-    pub fn into_raw(mut self) -> (*mut T, u64) {
-        let ptr = self.ptr;
-        self.ptr = ptr::null_mut();
-        self.cap = 0;
-        (ptr, self.len)
-    }
-
     pub fn push(&mut self, val: T) {
         unsafe {
             if self.cap <= self.len {
@@ -216,17 +209,5 @@ mod tests {
         assert_eq!(v2.len(), 5000);
         assert_eq!(v2.first(), Some(&0));
         assert_eq!(v2.last(), Some(&4999));
-    }
-
-    #[test]
-    fn into_raw() {
-        let mut v = SafeVec::<u64>::new();
-        for i in 0..5000 {
-            v.push(i);
-        }
-        let (ptr, len) = SafeVec::into_raw(v);
-        assert_eq!(len, 5000);
-        assert!(!ptr.is_null());
-        unsafe { Box::from_raw(ptr as *mut u8) };
     }
 }
