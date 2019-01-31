@@ -320,11 +320,19 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     std::ptr::eq(&data.#ident, &data.#ident);
                 });
 
-                if !meta.skip && !meta.detach {
-                    fields_class.push(quote! {
-                        {
-                            #field
-                            <Alias as genet_sdk::attr::AttrField>::class(&subctx)
+                if !meta.detach {
+                    fields_class.push(if meta.skip {
+                        quote! {
+                            {
+                                #field
+                            }
+                        }
+                    } else {
+                        quote! {
+                            children.append(&mut {
+                                #field
+                                <Alias as genet_sdk::attr::AttrField>::class(&subctx)
+                            });
                         }
                     });
                 }
@@ -368,7 +376,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 let mut bit_offset = ctx.bit_offset;
                 let mut children : Vec<genet_sdk::attr::AttrClassBuilder> = Vec::new();
                 #(
-                    children.append(&mut #fields_class);
+                    #fields_class;
                 )*
 
                 let mut root = vec![genet_sdk::attr::AttrClass::builder(format!("{}.{}", ctx.path, ctx.id).trim_matches('.'))
