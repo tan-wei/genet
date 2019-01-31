@@ -620,9 +620,7 @@ define_field!(
     { |data: &Bytes, range: Range<usize>| data.get(range) }
 );
 
-pub struct BitFlag();
-
-impl AttrField for BitFlag {
+impl AttrField for bool {
     type Input = bool;
     type Output = bool;
 
@@ -634,7 +632,7 @@ impl AttrField for BitFlag {
     }
 
     fn new(_ctx: &AttrContext<Self::Input, Self::Output>) -> Self {
-        BitFlag()
+        false
     }
 
     fn class(ctx: &AttrContext<Self::Input, Self::Output>) -> Vec<AttrClassBuilder> {

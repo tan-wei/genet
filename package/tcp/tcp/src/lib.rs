@@ -105,23 +105,23 @@ struct Flags {
     #[attr(bit_size = 3, skip)]
     reserved: u8,
 
-    ns: BitFlag,
+    ns: bool,
 
-    cwr: BitFlag,
+    cwr: bool,
 
-    ece: BitFlag,
+    ece: bool,
 
-    urg: BitFlag,
+    urg: bool,
 
-    ack: BitFlag,
+    ack: bool,
 
-    psh: BitFlag,
+    psh: bool,
 
-    rst: BitFlag,
+    rst: bool,
 
-    syn: BitFlag,
+    syn: bool,
 
-    fin: BitFlag,
+    fin: bool,
 }
 
 #[derive(Attr)]

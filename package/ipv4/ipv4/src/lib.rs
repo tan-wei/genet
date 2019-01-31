@@ -79,11 +79,11 @@ struct IPv4 {
 
 #[derive(Attr)]
 struct Flags {
-    reserved: BitFlag,
+    reserved: bool,
 
-    dont_fragment: BitFlag,
+    dont_fragment: bool,
 
-    more_fragments: BitFlag,
+    more_fragments: bool,
 }
 
 #[derive(Attr)]
