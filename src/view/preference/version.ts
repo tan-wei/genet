@@ -13,7 +13,7 @@ export default class Version {
     return [
       m('h4', ['genet version']),
       m('span', [this.version]),
-      m('h4', ['ABI version']),
+      m('h4', ['ABI signature']),
       m('span', [native.version.abi])
     ]
   }

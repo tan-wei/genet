@@ -20,13 +20,25 @@ mod string;
 mod vec;
 
 use alloc::SharedAllocator;
+use std::mem::size_of;
 
 #[global_allocator]
 static ALLOC: SharedAllocator = SharedAllocator;
 
 #[no_mangle]
-pub extern "C" fn genet_abi_version() -> u64 {
-    let major: u64 = env!("CARGO_PKG_VERSION_MAJOR").parse().unwrap_or(0);
-    let minor: u64 = env!("CARGO_PKG_VERSION_MINOR").parse().unwrap_or(0);
-    major << 32 | minor
+pub extern "C" fn genet_abi_signature(
+    data: *const (),
+    cb: extern "C" fn(*const u8, u64, *const ()),
+) {
+    let abi_signature = abi_signature();
+    (cb)(abi_signature.as_ptr(), abi_signature.len() as u64, data);
+}
+
+pub fn abi_signature() -> String {
+    format!(
+        "abi={}.{} layer_size={}",
+        env!("CARGO_PKG_VERSION_MAJOR").parse().unwrap_or(0),
+        env!("CARGO_PKG_VERSION_MINOR").parse().unwrap_or(0),
+        size_of::<layer::Layer>()
+    )
 }

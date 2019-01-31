@@ -2,14 +2,14 @@ use bincode;
 use failure::{err_msg, Error};
 use fnv::FnvHashMap;
 use genet_abi::{
-    alloc::Allocator, context::Context, decoder::DecoderData, genet_abi_version,
-    reader::ReaderData, token::TokenRegistry, writer::WriterData,
+    abi_signature, alloc::Allocator, context::Context, decoder::DecoderData, reader::ReaderData,
+    token::TokenRegistry, writer::WriterData,
 };
 use genet_sdk::package::{Component, Package};
 use libloading::Library;
 use num_cpus;
 use serde_derive::Serialize;
-use std::{mem, slice};
+use std::{mem, slice, str};
 
 impl Default for Profile {
     fn default() -> Self {
@@ -105,7 +105,7 @@ impl Profile {
     pub fn load_library(&mut self, path: &str) -> Result<(), Error> {
         let lib = Library::new(path)?;
 
-        type FnVersion = extern "C" fn() -> u64;
+        type FnSignature = extern "C" fn(*mut String, extern "C" fn(*const u8, u64, *mut String));
         type FnRegisterTokenRegistry = extern "C" fn(TokenRegistry);
         type FnRegisterAllocator = extern "C" fn(Allocator);
 
@@ -113,19 +113,17 @@ impl Profile {
         type FnLoadPackage = extern "C" fn(*mut Vec<u8>, FnLoadPackageCallback);
 
         {
-            let func = unsafe { lib.get::<FnVersion>(b"genet_abi_version")? };
-
-            // In the initial development, minor version changes may break ABI.
-            fn canonical(ver: u64) -> u64 {
-                if ver >> 32 == 0 {
-                    ver
-                } else {
-                    ver & (0xffff_ffff << 32)
-                }
+            let func = unsafe { lib.get::<FnSignature>(b"genet_abi_signature")? };
+            extern "C" fn callback(dst: *const u8, len: u64, data: *mut String) {
+                unsafe {
+                    *data = str::from_utf8_unchecked(slice::from_raw_parts(dst, len as usize))
+                        .to_string()
+                };
             }
-
-            if canonical(genet_abi_version()) != canonical(func()) {
-                return Err(err_msg("abi version mismatch"));
+            let mut signature = String::new();
+            func(&mut signature, callback);
+            if abi_signature() != signature {
+                return Err(err_msg("abi signature mismatch"));
             }
 
             let func =
