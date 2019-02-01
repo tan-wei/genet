@@ -17,8 +17,8 @@ use std::{
     io::Cursor,
     marker::PhantomData,
     mem,
-    ops::{Deref, Range},
-    slice, str,
+    ops::{Deref, DerefMut, Range},
+    slice,
 };
 
 #[derive(Clone)]
@@ -240,6 +240,12 @@ impl<F: AttrField, C: AttrField> Deref for Node<F, C> {
     }
 }
 
+impl<F: AttrField, C: AttrField> DerefMut for Node<F, C> {
+    fn deref_mut(&mut self) -> &mut C {
+        &mut self.data
+    }
+}
+
 impl<F: AttrField, C: AttrField> AttrField for Node<F, C>
 where
     F: 'static,
@@ -300,8 +306,8 @@ pub trait EnumType {
     ) -> Vec<AttrClassBuilder>;
 }
 
-pub struct Enum<F, E> {
-    phantom: PhantomData<F>,
+pub struct Enum<F: AttrField, E> {
+    data: F::Input,
     class: Vec<Fixed<AttrClass>>,
     func: Box<Fn(&Attr, &Bytes) -> Result<E>>,
 }
@@ -314,7 +320,7 @@ impl<F: AttrField, E: EnumType> AsRef<[Fixed<AttrClass>]> for Enum<F, E> {
 
 impl<F: 'static + AttrField, E: 'static + EnumType<Output = E>> AttrField for Enum<F, E>
 where
-    F::Input: 'static,
+    F::Input: 'static + Default,
     F::Output: 'static + Into<E>,
 {
     type Input = F::Input;
@@ -334,7 +340,7 @@ where
             .map(|attr| Fixed::new(attr.build()))
             .collect();
         Self {
-            phantom: PhantomData,
+            data: Default::default(),
             class,
             func: Box::new(move |attr, data| func.func_map.invoke(attr, data).map(|x| x.into())),
         }
@@ -358,6 +364,20 @@ where
         ctx: &AttrContext<Self::Input, Self::Output>,
     ) -> AttrFunctor<Self::Input, Self::Output> {
         F::build(ctx)
+    }
+}
+
+impl<F: AttrField, E> Deref for Enum<F, E> {
+    type Target = F::Input;
+
+    fn deref(&self) -> &Self::Target {
+        &self.data
+    }
+}
+
+impl<F: AttrField, E> DerefMut for Enum<F, E> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.data
     }
 }
 
