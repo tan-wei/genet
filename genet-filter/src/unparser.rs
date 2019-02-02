@@ -1,6 +1,6 @@
 use crate::{ast::Expr, variant::VariantExt};
 use arrayref::array_ref;
-use genet_abi::{token::Token, variant::Variant};
+use genet_abi::{ variant::Variant};
 use hwaddr::HwAddr;
 use std::net::{Ipv4Addr, Ipv6Addr};
 

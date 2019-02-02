@@ -695,7 +695,7 @@ impl<'a> Attr<'a> {
     }
 
     /// Returns the type of self.
-    pub fn typ(&self) -> Token {
+    pub fn typ(&self) -> SafeString {
         self.class.typ()
     }
 
@@ -732,7 +732,7 @@ enum ValueType {
 /// A builder object for AttrClass.
 pub struct AttrClassBuilder {
     id: Token,
-    typ: Token,
+    typ: String,
     meta: Metadata,
     bit_range: Range<usize>,
     aliases: Vec<Token>,
@@ -741,7 +741,7 @@ pub struct AttrClassBuilder {
 
 impl AttrClassBuilder {
     /// Sets a type of AttrClass.
-    pub fn typ<T: Into<Token>>(mut self, typ: T) -> AttrClassBuilder {
+    pub fn typ(mut self, typ: &str) -> AttrClassBuilder {
         self.typ = typ.into();
         self
     }
@@ -822,10 +822,10 @@ impl AttrClassBuilder {
 pub struct AttrClass {
     get_id: extern "C" fn(class: *const AttrClass) -> Token,
     is_match: extern "C" fn(class: *const AttrClass, id: Token) -> u8,
-    get_typ: extern "C" fn(class: *const AttrClass) -> Token,
+    get_typ: extern "C" fn(class: *const AttrClass) -> SafeString,
     get: extern "C" fn(*const Attr, *mut *const u8, u64, *mut i64, *mut SafeString) -> ValueType,
     id: Token,
-    typ: Token,
+    typ: String,
     meta: Metadata,
     bit_range: Range<usize>,
     aliases: Vec<Token>,
@@ -850,7 +850,7 @@ impl AttrClass {
     pub fn builder<T: Into<Token>>(id: T) -> AttrClassBuilder {
         AttrClassBuilder {
             id: id.into(),
-            typ: Token::null(),
+            typ: String::new(),
             meta: Metadata::new(),
             bit_range: 0..0,
             aliases: Vec::new(),
@@ -866,7 +866,7 @@ impl AttrClass {
         (self.is_match)(self, id) != 0
     }
 
-    pub fn typ(&self) -> Token {
+    pub fn typ(&self) -> SafeString {
         (self.get_typ)(self)
     }
 
@@ -945,8 +945,8 @@ extern "C" fn abi_is_match(class: *const AttrClass, id: Token) -> u8 {
     }
 }
 
-extern "C" fn abi_typ(class: *const AttrClass) -> Token {
-    unsafe { (*class).typ }
+extern "C" fn abi_typ(class: *const AttrClass) -> SafeString {
+    unsafe { SafeString::from(&(*class).typ) }
 }
 
 extern "C" fn abi_get(
@@ -1034,7 +1034,7 @@ mod tests {
             .build();
         let attr = Attr::new(&class, 0..8, Bytes::from(&[1][..]));
         assert_eq!(attr.id(), Token::from("bool"));
-        assert_eq!(attr.typ(), Token::from("@bool"));
+        assert_eq!(attr.typ().as_str(), "@bool");
         assert_eq!(attr.byte_range(), 0..1);
 
         match attr.get().unwrap() {
@@ -1052,7 +1052,7 @@ mod tests {
             .build();
         let attr = Attr::new(&class, 0..48, Bytes::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("u64"));
-        assert_eq!(attr.typ(), Token::from("@u64"));
+        assert_eq!(attr.typ().as_str(), "@u64");
         assert_eq!(attr.byte_range(), 0..6);
 
         match attr.get().unwrap() {
@@ -1070,7 +1070,7 @@ mod tests {
             .build();
         let attr = Attr::new(&class, 0..48, Bytes::from(&b"-123456789"[..]));
         assert_eq!(attr.id(), Token::from("i64"));
-        assert_eq!(attr.typ(), Token::from("@i64"));
+        assert_eq!(attr.typ().as_str(), "@i64");
         assert_eq!(attr.byte_range(), 0..6);
 
         match attr.get().unwrap() {
@@ -1088,7 +1088,7 @@ mod tests {
             .build();
         let attr = Attr::new(&class, 0..48, Bytes::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("buffer"));
-        assert_eq!(attr.typ(), Token::from("@buffer"));
+        assert_eq!(attr.typ().as_str(), "@buffer");
         assert_eq!(attr.byte_range(), 0..6);
 
         match attr.get().unwrap() {
@@ -1106,7 +1106,7 @@ mod tests {
             .build();
         let attr = Attr::new(&class, 0..48, Bytes::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("slice"));
-        assert_eq!(attr.typ(), Token::from("@slice"));
+        assert_eq!(attr.typ().as_str(), "@slice");
         assert_eq!(attr.byte_range(), 0..6);
 
         match attr.get().unwrap() {
@@ -1124,7 +1124,7 @@ mod tests {
             .build();
         let attr = Attr::new(&class, 0..48, Bytes::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("slice"));
-        assert_eq!(attr.typ(), Token::from("@slice"));
+        assert_eq!(attr.typ().as_str(), "@slice");
         assert_eq!(attr.byte_range(), 0..6);
 
         match attr.get() {

@@ -81,8 +81,8 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         let attr = env.unwrap::<Attr>(info.this())?;
         match attr.get() {
             Ok(val) => env.create_string(&unparse(&Expr::CmpEq(
-                Box::new(Expr::Token(attr.id())),
-                Box::new(unparse_attr(attr.typ(), &val)),
+                Box::new(Expr::Token(attr.id().to_string(), attr.id())),
+                Box::new(unparse_attr(&attr.typ(), &val)),
             ))),
             Err(_) => env.get_null(),
         }

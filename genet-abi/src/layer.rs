@@ -489,7 +489,7 @@ mod tests {
         for i in 0..count {
             let attr = iter.next().unwrap();
             assert_eq!(attr.id(), Token::from("nil"));
-            assert_eq!(attr.typ(), Token::from("@nil"));
+            assert_eq!(attr.typ().as_str(), "@nil");
             assert_eq!(attr.byte_range(), 0..i);
         }
         assert!(iter.next().is_none());
