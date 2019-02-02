@@ -4,9 +4,8 @@ use genet_abi::{token::Token, variant::Variant};
 use hwaddr::HwAddr;
 use std::net::{Ipv4Addr, Ipv6Addr};
 
-pub fn unparse_attr(typ: Token, var: &Variant) -> Expr {
-    let typ = typ.to_string();
-    match (typ.as_str(), var) {
+pub fn unparse_attr(typ: &str, var: &Variant) -> Expr {
+    match (typ, var) {
         ("@ipv4:addr", Variant::Bytes(b)) => {
             if b.len() == 4 {
                 return Expr::Macro(Ipv4Addr::from(*array_ref![b, 0, 4]).to_string());
@@ -30,7 +29,7 @@ pub fn unparse_attr(typ: Token, var: &Variant) -> Expr {
 pub fn unparse(expr: &Expr) -> String {
     match expr {
         Expr::Literal(var) => var.to_string(),
-        Expr::Token(t) => t.to_string(),
+        Expr::Token(t) => "[t]".to_string(),
         Expr::Macro(expr) => format!("@{}", expr),
         Expr::CmpEq(lhs, rhs) => match (lhs.as_ref(), rhs.as_ref()) {
             (lhs, &Expr::Literal(Variant::Bool(true))) => unparse(lhs),

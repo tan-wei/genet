@@ -5,24 +5,13 @@ use std::{cell::RefCell, collections::hash_map::Entry, fmt, slice, str};
 
 /// A token value.
 #[repr(transparent)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Token(u128);
 
 impl Token {
     /// Returns a null token.
     pub fn null() -> Token {
         Token(0)
-    }
-
-    /// Returns the corresponded string.
-    pub fn to_string(self) -> String {
-        string(self)
-    }
-}
-
-impl fmt::Debug for Token {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} ({})", self.to_string(), self.0)
     }
 }
 
@@ -59,12 +48,6 @@ impl From<&String> for Token {
 impl<'a> From<&'a str> for Token {
     fn from(id: &'a str) -> Token {
         token(id)
-    }
-}
-
-impl fmt::Display for Token {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.pad(&Token::to_string(*self))
     }
 }
 
@@ -139,16 +122,6 @@ fn token(id: &str) -> Token {
     }
 }
 
-fn string(id: Token) -> String {
-    if id == Token::null() {
-        String::new()
-    } else {
-        let mut len: u64 = 0;
-        let s = unsafe { GENET_GET_STRING(id, &mut len) };
-        unsafe { str::from_utf8_unchecked(slice::from_raw_parts(s, len as usize)).to_string() }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use crate::token::Token;
@@ -156,6 +129,7 @@ mod tests {
     #[test]
     fn token() {
         assert_eq!(Token::from(""), Token::null());
+        /*
         let token = Token::from("eth");
         assert_eq!(token.to_string(), "eth");
         let token = Token::from("[eth]");
@@ -167,5 +141,6 @@ mod tests {
         let token = Token::from("dd31817d-1501-4b2b-bcf6-d02e148d3ab9");
         assert_eq!(token.to_string(), "dd31817d-1501-4b2b-bcf6-d02e148d3ab9");
         assert_eq!(Token::from(1000).to_string(), "");
+        */
     }
 }

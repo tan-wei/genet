@@ -28,24 +28,3 @@ macro_rules! token {
 }
 
 pub use genet_abi::token::Token;
-
-#[cfg(test)]
-mod tests {
-    use crate::token::Token;
-
-    #[test]
-    fn token() {
-        assert_eq!(token!(), Token::null());
-        let token = token!("eth");
-        assert_eq!(token.to_string(), "eth");
-        let token = token!("[eth]");
-        assert_eq!(token.to_string(), "[eth]");
-        let token = token!("eth");
-        assert_eq!(token.to_string(), "eth");
-        let token = token!();
-        assert_eq!(token.to_string(), "");
-        let token = token!("dd31817d-1501-4b2b-bcf6-d02e148d3ab9");
-        assert_eq!(token.to_string(), "dd31817d-1501-4b2b-bcf6-d02e148d3ab9");
-        assert_eq!(Token::from(1000).to_string(), "");
-    }
-}
