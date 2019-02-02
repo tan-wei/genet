@@ -294,9 +294,9 @@ impl<T> AsRef<Fixed<LayerClass>> for LayerType<T> {
 }
 
 impl<T: AttrField> LayerType<T> {
-    pub fn new<D: Into<Token>>(id: D) -> Self {
+    pub fn new(id: &str) -> Self {
         let mut ctx = T::context();
-        ctx.id = id.into().to_string();
+        ctx.id = id.into();
         let class = vec![AttrClass::builder(ctx.id.clone())
             .cast(|_, _| Ok(Variant::Bool(true)))
             .bit_range(ctx.bit_offset..(ctx.bit_offset + ctx.bit_size))

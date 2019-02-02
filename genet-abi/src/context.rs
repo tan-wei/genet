@@ -1,7 +1,4 @@
-use crate::{
-    decoder::{DecoderData, DecoderStack},
-    token::Token,
-};
+use crate::decoder::{DecoderData, DecoderStack};
 use failure::{format_err, Error};
 use std::{collections::HashSet, result::Result};
 
@@ -40,8 +37,8 @@ impl Context {
             .collect::<Vec<_>>()
     }
 
-    pub fn decoder<T: Into<Token>>(&self, id: T) -> Result<DecoderStack, Error> {
-        let id = id.into().to_string();
+    pub fn decoder(&self, id: &str) -> Result<DecoderStack, Error> {
+        let id = id.to_string();
         let mut used = HashSet::new();
         let sub_decoders = self.sub_decoders(&mut used, &id, &self.decoders);
         self.decoders
