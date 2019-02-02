@@ -104,7 +104,7 @@ type ReaderFunc = extern "C" fn(*mut Box<Worker>, *mut SafeVec<Bytes>, *mut Safe
 pub struct WorkerBox {
     worker: *mut Box<Worker>,
     read: ReaderFunc,
-    layer_id: extern "C" fn(*const Box<Worker>) -> u32,
+    layer_id: extern "C" fn(*const Box<Worker>) -> u128,
     drop: extern "C" fn(*mut Box<Worker>),
 }
 
@@ -151,7 +151,7 @@ extern "C" fn abi_reader_worker_drop(worker: *mut Box<Worker>) {
     unsafe { Box::from_raw(worker) };
 }
 
-extern "C" fn abi_reader_worker_layer_id(worker: *const Box<Worker>) -> u32 {
+extern "C" fn abi_reader_worker_layer_id(worker: *const Box<Worker>) -> u128 {
     let worker = unsafe { &*worker };
     worker.layer_id().into()
 }

@@ -4,9 +4,9 @@ use parking_lot::Mutex;
 use std::{cell::RefCell, collections::hash_map::Entry, fmt, slice, str};
 
 /// A token value.
-#[repr(C)]
+#[repr(transparent)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
-pub struct Token(u32);
+pub struct Token(u128);
 
 impl Token {
     /// Returns a null token.
@@ -26,8 +26,8 @@ impl fmt::Debug for Token {
     }
 }
 
-impl Into<u32> for Token {
-    fn into(self) -> u32 {
+impl Into<u128> for Token {
+    fn into(self) -> u128 {
         self.0
     }
 }
@@ -38,8 +38,8 @@ impl<'a> From<&'a Token> for Token {
     }
 }
 
-impl From<u32> for Token {
-    fn from(id: u32) -> Token {
+impl From<u128> for Token {
+    fn from(id: u128) -> Token {
         Token(id)
     }
 }
@@ -107,13 +107,13 @@ unsafe extern "C" fn abi_genet_get_token(data: *const u8, len: u64) -> Token {
     if let Entry::Vacant(_) = entry {
         strings.push(String::from(id));
     }
-    *entry.or_insert_with(|| Token::from(next as u32))
+    *entry.or_insert_with(|| Token::from(next as u128))
 }
 
 unsafe extern "C" fn abi_genet_get_string(token: Token, len: *mut u64) -> *const u8 {
     let strings = GLOBAL_STRINGS.lock();
     let strings = strings.borrow();
-    let index: u32 = token.into();
+    let index: u128 = token.into();
     let index = index as usize;
     let s = if index < strings.len() {
         strings[index].as_str()
