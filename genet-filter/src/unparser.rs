@@ -1,12 +1,11 @@
 use crate::{ast::Expr, variant::VariantExt};
 use arrayref::array_ref;
-use genet_abi::{token::Token, variant::Variant};
+use genet_abi::variant::Variant;
 use hwaddr::HwAddr;
 use std::net::{Ipv4Addr, Ipv6Addr};
 
-pub fn unparse_attr(typ: Token, var: &Variant) -> Expr {
-    let typ = typ.to_string();
-    match (typ.as_str(), var) {
+pub fn unparse_attr(typ: &str, var: &Variant) -> Expr {
+    match (typ, var) {
         ("@ipv4:addr", Variant::Bytes(b)) => {
             if b.len() == 4 {
                 return Expr::Macro(Ipv4Addr::from(*array_ref![b, 0, 4]).to_string());

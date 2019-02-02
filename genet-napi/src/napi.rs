@@ -14,6 +14,7 @@ use std::{
     os::raw::{c_char, c_int},
     ptr,
     rc::Rc,
+    slice,
 };
 
 thread_local! {
@@ -501,13 +502,13 @@ impl Env {
             };
 
             let mut sign_bit: c_int = mem::uninitialized();
-            let mut words = vec![0u8; (word_count * 8) as usize];
+            let mut words = vec![0u64; word_count as usize];
             match napi_get_value_bigint_words(
                 self,
                 value,
                 &mut word_count,
                 &mut sign_bit,
-                words.as_mut_ptr() as *mut u64,
+                words.as_mut_ptr(),
             ) {
                 Status::Ok => Ok(BigInt::from_bytes_le(
                     if sign_bit > 0 {
@@ -515,9 +516,9 @@ impl Env {
                     } else {
                         Sign::Minus
                     },
-                    &words,
+                    slice::from_raw_parts(words.as_ptr() as *const u8, word_count * 8 as usize),
                 )),
-                s => return Err(s),
+                s => Err(s),
             }
         }
     }

@@ -10,7 +10,7 @@ impl Worker for NtpWorker {
         let parent_src: u16 = stack
             .top()
             .unwrap()
-            .attr(token!("udp.src"))
+            .attr("udp.src")
             .unwrap()
             .get()?
             .try_into()?;
@@ -18,7 +18,7 @@ impl Worker for NtpWorker {
         let parent_dst: u16 = stack
             .top()
             .unwrap()
-            .attr(token!("udp.dst"))
+            .attr("udp.dst")
             .unwrap()
             .get()?
             .try_into()?;
