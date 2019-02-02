@@ -4,7 +4,7 @@ use genet_abi::{filter::LayerContext, token::Token, variant::Variant};
 #[derive(PartialEq, Clone, Debug)]
 pub enum Expr {
     Literal(Variant),
-    Token(Token),
+    Token(String, Token),
     Macro(String),
     CmpEq(Box<Expr>, Box<Expr>),
     CmpNotEq(Box<Expr>, Box<Expr>),
@@ -38,7 +38,7 @@ impl Expr {
             Expr::LogicalNegation(v) => Variant::Bool(!v.eval(ctx).is_truthy()),
             Expr::UnaryPlus(v) => v.eval(ctx).op_unary_plus(),
             Expr::UnaryNegation(v) => v.eval(ctx).op_unary_negation(),
-            Expr::Token(t) => {
+            Expr::Token(_, t) => {
                 for layer in ctx.layers().iter().rev() {
                     if let Some(attr) = layer.attr(t) {
                         if let Ok(val) = attr.get() {

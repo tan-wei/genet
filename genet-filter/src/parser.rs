@@ -98,7 +98,7 @@ fn consume_primary(pair: Pair<Rule>) -> Expr {
             Rule::float => Expr::Literal(Variant::Float64(item.as_str().parse().unwrap())),
             Rule::nil => Expr::Literal(Variant::Nil),
             Rule::boolean => Expr::Literal(Variant::Bool(item.as_str() == "true")),
-            Rule::member => Expr::Token(Token::from(item.as_str())),
+            Rule::member => Expr::Token(item.as_str().to_string(), Token::from(item.as_str())),
             _ => Expr::Literal(Variant::Nil),
         });
     }
@@ -115,12 +115,24 @@ mod tests {
     #[test]
     fn literal() {
         assert_eq!(parse("nil"), Ok(Literal(Variant::Nil)));
-        assert_eq!(parse("nile"), Ok(Token(Token::from("nile"))));
+        assert_eq!(
+            parse("nile"),
+            Ok(Token("nile".to_string(), Token::from("nile")))
+        );
         assert_eq!(parse("true"), Ok(Literal(Variant::Bool(true))));
-        assert_eq!(parse("truely"), Ok(Token(Token::from("truely"))));
+        assert_eq!(
+            parse("truely"),
+            Ok(Token("truely".to_string(), Token::from("truely")))
+        );
         assert_eq!(parse("false"), Ok(Literal(Variant::Bool(false))));
-        assert_eq!(parse("falsely"), Ok(Token(Token::from("falsely"))));
-        assert_eq!(parse("false.false"), Ok(Token(Token::from("false.false"))));
+        assert_eq!(
+            parse("falsely"),
+            Ok(Token("falsely".to_string(), Token::from("falsely")))
+        );
+        assert_eq!(
+            parse("false.false"),
+            Ok(Token("false.false".to_string(), Token::from("false.false")))
+        );
         assert_eq!(parse("0"), Ok(Literal(Variant::UInt64(0))));
         assert_eq!(parse("0.0"), Ok(Literal(Variant::Float64(0.0))));
         assert_eq!(parse("1234"), Ok(Literal(Variant::UInt64(1234))));

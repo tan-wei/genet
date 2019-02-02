@@ -2,10 +2,10 @@ use crate::{
     attr::{Attr, AttrClass, AttrField},
     bytes::Bytes,
     fixed::{Fixed, MutFixed},
+    string::SafeString,
     token::Token,
     variant::Variant,
 };
-use crate::string::SafeString;
 use std::{
     fmt,
     marker::PhantomData,

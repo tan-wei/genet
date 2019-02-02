@@ -96,7 +96,7 @@ extern "C" fn abi_reader_new_worker(
 /// Reader worker trait.
 pub trait Worker: Send {
     fn read(&mut self) -> Result<Vec<Bytes>>;
-    fn layer_id(&self) -> Token;
+    fn layer_id(&self) -> String;
 }
 
 type ReaderFunc = extern "C" fn(*mut Box<Worker>, *mut SafeVec<Bytes>, *mut SafeString) -> u8;
@@ -104,7 +104,7 @@ type ReaderFunc = extern "C" fn(*mut Box<Worker>, *mut SafeVec<Bytes>, *mut Safe
 pub struct WorkerBox {
     worker: *mut Box<Worker>,
     read: ReaderFunc,
-    layer_id: extern "C" fn(*const Box<Worker>) -> u128,
+    layer_id: extern "C" fn(*const Box<Worker>) -> String,
     drop: extern "C" fn(*mut Box<Worker>),
 }
 
@@ -130,8 +130,8 @@ impl WorkerBox {
         }
     }
 
-    pub fn layer_id(&self) -> Token {
-        (self.layer_id)(self.worker).into()
+    pub fn layer_id(&self) -> String {
+        (self.layer_id)(self.worker)
     }
 }
 
@@ -151,9 +151,9 @@ extern "C" fn abi_reader_worker_drop(worker: *mut Box<Worker>) {
     unsafe { Box::from_raw(worker) };
 }
 
-extern "C" fn abi_reader_worker_layer_id(worker: *const Box<Worker>) -> u128 {
+extern "C" fn abi_reader_worker_layer_id(worker: *const Box<Worker>) -> String {
     let worker = unsafe { &*worker };
-    worker.layer_id().into()
+    worker.layer_id().clone()
 }
 
 extern "C" fn abi_reader_worker_read(

@@ -1,7 +1,5 @@
 use genet_derive::Package;
-use genet_sdk::{
-    bytes::Bytes, context::Context, reader::*, result::Result, token::Token, url::Url,
-};
+use genet_sdk::{bytes::Bytes, context::Context, reader::*, result::Result, url::Url};
 use std::iter;
 
 pub fn tcp_ipv4_pcap() -> &'static [u8] {
@@ -43,7 +41,7 @@ impl Worker for TestWorker {
         Ok(slices)
     }
 
-    fn layer_id(&self) -> Token {
+    fn layer_id(&self) -> String {
         "[link-1]".into()
     }
 }
