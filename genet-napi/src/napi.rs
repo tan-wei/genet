@@ -6,7 +6,14 @@ use genet_abi::{
 use libc;
 use num_bigint::{BigInt, Sign};
 use std::{
-    cell::RefCell, convert::AsRef, ffi::CString, mem, ops::Deref, os::raw::c_char, ptr, rc::Rc,
+    cell::RefCell,
+    convert::AsRef,
+    ffi::CString,
+    mem,
+    ops::Deref,
+    os::raw::{c_char, c_int},
+    ptr,
+    rc::Rc,
 };
 
 thread_local! {
@@ -475,6 +482,42 @@ impl Env {
             match napi_get_value_int64(self, value, &mut result) {
                 Status::Ok => Ok(result),
                 s => Err(s),
+            }
+        }
+    }
+
+    pub fn get_value_bigint(&self, value: &Value) -> Result<BigInt> {
+        unsafe {
+            let mut word_count: libc::size_t = mem::uninitialized();
+            match napi_get_value_bigint_words(
+                self,
+                value,
+                &mut word_count,
+                ptr::null_mut(),
+                ptr::null_mut(),
+            ) {
+                Status::Ok => {}
+                s => return Err(s),
+            };
+
+            let mut sign_bit: c_int = mem::uninitialized();
+            let mut words = vec![0u8; (word_count * 8) as usize];
+            match napi_get_value_bigint_words(
+                self,
+                value,
+                &mut word_count,
+                &mut sign_bit,
+                words.as_mut_ptr() as *mut u64,
+            ) {
+                Status::Ok => Ok(BigInt::from_bytes_le(
+                    if sign_bit > 0 {
+                        Sign::Plus
+                    } else {
+                        Sign::Minus
+                    },
+                    &words,
+                )),
+                s => return Err(s),
             }
         }
     }
@@ -1124,6 +1167,14 @@ extern "C" {
     fn napi_get_value_uint32(env: *const Env, value: *const Value, result: *mut u32) -> Status;
     fn napi_get_value_int64(env: *const Env, value: *const Value, result: *mut i64) -> Status;
     fn napi_get_value_bool(env: *const Env, value: *const Value, result: *mut u8) -> Status;
+
+    fn napi_get_value_bigint_words(
+        env: *const Env,
+        value: *const Value,
+        word_count: *mut libc::size_t,
+        sign_bit: *mut c_int,
+        words: *mut u64,
+    ) -> Status;
 
     fn napi_get_value_string_utf8(
         env: *const Env,
