@@ -75,7 +75,7 @@ class Session extends EventEmitter {
           this._status.asyncFrames = event.length
           break
         case 'filtered_frames':
-          this._status.filters[Token.string(event.id)] =
+          this._status.filters[event.id] =
             { frames: event.length }
           break
         case 'error':
@@ -106,7 +106,7 @@ class Session extends EventEmitter {
   }
 
   filteredFrames (id, start, end) {
-    return this._sess.filteredFrames(Token.get(id), start, end)
+    return this._sess.filteredFrames(id, start, end)
   }
 
   get status () {
@@ -114,7 +114,7 @@ class Session extends EventEmitter {
   }
 
   setFilter (id, filter = '') {
-    this._sess.setFilter(Token.get(id), filter)
+    this._sess.setFilter(id, filter)
     if (filter === '') {
       Reflect.deleteProperty(this._status.filters, id)
     }

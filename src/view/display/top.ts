@@ -65,8 +65,8 @@ export default class TopView {
     this.viewState.counter = '0'
     if (this.sess) {
       const { status } = this.sess
-      this.viewState.counter = status.filters.main
-        ? `${status.filters.main.frames} / ${status.frames}`
+      this.viewState.counter = status.filters[1]
+        ? `${status.filters[1].frames} / ${status.frames}`
         : `${status.frames}`
     }
     return [
@@ -245,7 +245,7 @@ export default class TopView {
       try {
         filterInput.value = value
         this.displayFilter = value
-        this.sess.setFilter('main', value)
+        this.sess.setFilter(1, value)
         if (value.length > 0) {
           const maxLength = 10
           const history =

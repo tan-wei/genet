@@ -3,7 +3,7 @@ use genet_abi::{layer::Layer, token::Token};
 use genet_filter::{ast::Expr, unparser::unparse};
 use genet_napi::napi::{
     CallbackInfo, Env, PropertyAttributes, PropertyDescriptor, Result, Status, TypedArrayType,
-    Value, ValueRef, ValueType,
+    Value, ValueRef,
 };
 use std::rc::Rc;
 
@@ -20,10 +20,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
     fn layer_attr<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
         if let Some(id) = info.argv().get(0) {
-            let id = match env.type_of(id)? {
-                ValueType::Number => Token::from(env.get_value_uint32(id)?),
-                _ => Token::from(env.get_value_string(env.coerce_to_string(id)?)?.as_str()),
-            };
+            let id = Token::from(env.get_value_string(env.coerce_to_string(id)?)?.as_str());
             if let Some(attr) = layer.attr(id) {
                 let attr_class = env.get_constructor(JsClass::Attr as usize).unwrap();
                 let instance = env.new_instance(&attr_class, &[])?;

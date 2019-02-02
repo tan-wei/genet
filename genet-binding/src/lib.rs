@@ -5,7 +5,6 @@ mod attr;
 mod frame;
 mod layer;
 mod session;
-mod token;
 mod version;
 
 #[no_mangle]
@@ -20,7 +19,6 @@ pub unsafe extern "C" fn genet_napi_init(env: *const Env, exports: *const Value)
     let env = &*env;
     let exports = &*exports;
     let _ = version::init(env, exports);
-    let _ = token::init(env, exports);
     let _ = session::init(env, exports);
     env.set_constructor(JsClass::Frame as usize, &frame::wrapper(env));
     env.set_constructor(JsClass::Layer as usize, &layer::wrapper(env));

@@ -108,14 +108,14 @@ export default class FrameListView {
     const { sess } = vnode.attrs
     const { status } = sess
     if (sess && status.frames > 0 && this.dummyItem) {
-      const frames = (status.filters.main
-        ? status.filters.main.frames
+      const frames = (status.filters[1]
+        ? status.filters[1].frames
         : status.frames)
       if (frames > 0) {
         for (let line = 0; line < this.mapHeight; line += 1) {
           let index = Math.floor(frames / this.mapHeight * (line + 0.5))
-          if (status.filters.main) {
-            [index] = sess.filteredFrames('main', index, index + 1)
+          if (status.filters[1]) {
+            [index] = sess.filteredFrames(1, index, index + 1)
           }
           const [frame] = sess.frames(index, index + 1)
           this.dummyItem.setAttribute('data-layer', frame.primary.id)
@@ -139,8 +139,8 @@ export default class FrameListView {
 
   view(vnode) {
     const { status } = vnode.attrs.sess
-    const frames = status.filters.main
-      ? status.filters.main.frames
+    const frames = status.filters[1]
+      ? status.filters[1].frames
       : status.frames
     const startIndex = Math.floor(this.scrollTop / this.itemHeight)
     const visibleItems = Math.min(
@@ -148,8 +148,8 @@ export default class FrameListView {
     const listStyle = { height: `${frames * this.itemHeight}px` }
     const filteredFrames =
       vnode.attrs.sess.filteredFrames(
-        'main', startIndex, startIndex + visibleItems)
-    const indices = status.filters.main
+        1, startIndex, startIndex + visibleItems)
+    const indices = status.filters[1]
       ? filteredFrames
       : new Array(visibleItems).fill(0)
         .map((_val, index) => startIndex + index)
@@ -186,8 +186,8 @@ export default class FrameListView {
   onupdate(vnode) {
     const { sess, viewState } = vnode.attrs
     const { status } = sess
-    const frames = status.filters.main
-      ? status.filters.main.frames
+    const frames = status.filters[1]
+      ? status.filters[1].frames
       : status.frames
     if (this.prevFrames !== frames) {
       this.updateMapThrottle(vnode)

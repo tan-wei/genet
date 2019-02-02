@@ -3,7 +3,6 @@ use genet_abi::token::Token;
 use genet_kernel::frame::Frame;
 use genet_napi::napi::{
     CallbackInfo, Env, PropertyAttributes, PropertyDescriptor, Result, Status, Value, ValueRef,
-    ValueType,
 };
 use std::rc::Rc;
 
@@ -20,10 +19,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
     fn frame_query<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let frame = env.unwrap::<Frame>(info.this())?;
         if let Some(id) = info.argv().get(0) {
-            let id = match env.type_of(id)? {
-                ValueType::Number => Token::from(env.get_value_uint32(id)?),
-                _ => Token::from(env.get_value_string(env.coerce_to_string(id)?)?.as_str()),
-            };
+            let id = Token::from(env.get_value_string(env.coerce_to_string(id)?)?.as_str());
 
             for layer in frame.layers().iter().rev() {
                 if layer.id() == id {
