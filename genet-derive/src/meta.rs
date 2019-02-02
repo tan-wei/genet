@@ -56,6 +56,12 @@ impl AttrMetadata {
                                     little_endian = true;
                                 } else if name == "big_endian" {
                                     little_endian = false;
+                                } else if name == "native_endian" {
+                                    #[cfg(target_endian = "little")]
+                                    const LITTLE: bool = true;
+                                    #[cfg(target_endian = "big")]
+                                    const LITTLE: bool = false;
+                                    little_endian = LITTLE;
                                 } else if let Meta::NameValue(MetaNameValue {
                                     lit: Lit::Str(lit_str),
                                     ..
