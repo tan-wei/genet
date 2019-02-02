@@ -14,7 +14,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
     fn layer_id<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
-        env.create_string(&layer.id().to_string())
+        env.create_string(&layer.path())
     }
 
     fn layer_attr<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
@@ -70,7 +70,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
     fn layer_filter_expression<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
-        env.create_string(&unparse(&Expr::Token(layer.id())))
+        env.create_string(&unparse(&Expr::Token(layer.path().to_string(), layer.id())))
     }
 
     let class = env

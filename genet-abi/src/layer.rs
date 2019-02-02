@@ -5,6 +5,7 @@ use crate::{
     token::Token,
     variant::Variant,
 };
+use crate::string::SafeString;
 use std::{
     fmt,
     marker::PhantomData,
@@ -155,6 +156,10 @@ impl Layer {
         self.class.id()
     }
 
+    pub fn path(&self) -> SafeString {
+        self.class.path()
+    }
+
     /// Returns the type of self.
     pub fn data(&self) -> Bytes {
         self.class.data(self)
@@ -254,6 +259,7 @@ impl LayerClassBuilder {
     pub fn build(self) -> LayerClass {
         LayerClass {
             get_id: abi_id,
+            get_path: abi_path,
             data: abi_data,
             attrs_len: abi_attrs_len,
             attrs_data: abi_attrs_data,
@@ -297,7 +303,7 @@ impl<T: AttrField> LayerType<T> {
     pub fn new(id: &str) -> Self {
         let mut ctx = T::context();
         ctx.id = id.into();
-        let class = vec![AttrClass::builder(ctx.id.clone())
+        let class = vec![AttrClass::builder(&ctx.id)
             .cast(|_, _| Ok(Variant::Bool(true)))
             .bit_range(ctx.bit_offset..(ctx.bit_offset + ctx.bit_size))
             .typ("@layer")];
@@ -308,6 +314,7 @@ impl<T: AttrField> LayerType<T> {
             .collect();
         let layer = Fixed::new(LayerClass {
             get_id: abi_id,
+            get_path: abi_path,
             data: abi_data,
             attrs_len: abi_attrs_len,
             attrs_data: abi_attrs_data,
@@ -330,6 +337,7 @@ impl<T: AttrField> LayerType<T> {
 #[repr(C)]
 pub struct LayerClass {
     get_id: extern "C" fn(*const LayerClass) -> Token,
+    get_path: extern "C" fn(*const LayerClass) -> SafeString,
     data: extern "C" fn(*const Layer, *mut u64) -> *const u8,
     attrs_len: extern "C" fn(*const Layer) -> u64,
     attrs_data: extern "C" fn(*const Layer) -> *const BoundAttr,
@@ -349,6 +357,10 @@ impl LayerClass {
 
     fn id(&self) -> Token {
         (self.get_id)(self)
+    }
+
+    fn path(&self) -> SafeString {
+        (self.get_path)(self)
     }
 
     fn data(&self, layer: &Layer) -> Bytes {
@@ -393,6 +405,10 @@ impl Into<Fixed<LayerClass>> for &'static LayerClass {
 
 extern "C" fn abi_id(class: *const LayerClass) -> Token {
     unsafe { (*class).headers[0].id() }
+}
+
+extern "C" fn abi_path(class: *const LayerClass) -> SafeString {
+    unsafe { (*class).headers[0].path() }
 }
 
 extern "C" fn abi_data(layer: *const Layer, len: *mut u64) -> *const u8 {
@@ -444,8 +460,8 @@ mod tests {
 
     #[test]
     fn id() {
-        let id = Token::from(123);
-        let attr = vec![Fixed::new(AttrClass::builder(id).build())];
+        let id = Token::from("123");
+        let attr = vec![Fixed::new(AttrClass::builder("123").build())];
         let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
         let layer = Layer::new(&class, &Bytes::new());
         assert_eq!(layer.id(), id);
@@ -454,7 +470,7 @@ mod tests {
     #[test]
     fn data() {
         let data = b"hello";
-        let attr = vec![Fixed::new(AttrClass::builder(Token::null()).build())];
+        let attr = vec![Fixed::new(AttrClass::builder("").build())];
         let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
         let layer = Layer::new(&class, &Bytes::from(&data[..]));
         assert_eq!(layer.data(), Bytes::from(&data[..]));
@@ -462,7 +478,7 @@ mod tests {
 
     #[test]
     fn attrs() {
-        let attr = vec![Fixed::new(AttrClass::builder(Token::null()).build())];
+        let attr = vec![Fixed::new(AttrClass::builder("").build())];
         let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
         let mut layer = Layer::new(&class, &Bytes::new());
 

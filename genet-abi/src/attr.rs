@@ -690,6 +690,10 @@ impl<'a> Attr<'a> {
         self.class.id()
     }
 
+    pub fn path(&self) -> SafeString {
+        self.class.path()
+    }
+
     pub fn is_match(&self, id: Token) -> bool {
         self.class.is_match(id)
     }
@@ -732,6 +736,7 @@ enum ValueType {
 /// A builder object for AttrClass.
 pub struct AttrClassBuilder {
     id: Token,
+    path: String,
     typ: String,
     meta: Metadata,
     bit_range: Range<usize>,
@@ -804,10 +809,12 @@ impl AttrClassBuilder {
     pub fn build(self) -> AttrClass {
         AttrClass {
             get_id: abi_id,
+            get_path: abi_path,
             is_match: abi_is_match,
             get_typ: abi_typ,
             get: abi_get,
             id: self.id,
+            path: self.path,
             typ: self.typ,
             meta: self.meta,
             bit_range: self.bit_range,
@@ -821,10 +828,12 @@ impl AttrClassBuilder {
 #[repr(C)]
 pub struct AttrClass {
     get_id: extern "C" fn(class: *const AttrClass) -> Token,
+    get_path: extern "C" fn(class: *const AttrClass) -> SafeString,
     is_match: extern "C" fn(class: *const AttrClass, id: Token) -> u8,
     get_typ: extern "C" fn(class: *const AttrClass) -> SafeString,
     get: extern "C" fn(*const Attr, *mut *const u8, u64, *mut i64, *mut SafeString) -> ValueType,
     id: Token,
+    path: String,
     typ: String,
     meta: Metadata,
     bit_range: Range<usize>,
@@ -847,9 +856,10 @@ impl fmt::Debug for AttrClass {
 
 impl AttrClass {
     /// Creates a new builder object for AttrClass.
-    pub fn builder<T: Into<Token>>(id: T) -> AttrClassBuilder {
+    pub fn builder(id: &str) -> AttrClassBuilder {
         AttrClassBuilder {
-            id: id.into(),
+            id: Token::from(id),
+            path: id.to_string(),
             typ: String::new(),
             meta: Metadata::new(),
             bit_range: 0..0,
@@ -860,6 +870,10 @@ impl AttrClass {
 
     pub fn id(&self) -> Token {
         (self.get_id)(self)
+    }
+
+    pub fn path(&self) -> SafeString {
+        (self.get_path)(self)
     }
 
     pub fn is_match(&self, id: Token) -> bool {
@@ -934,6 +948,10 @@ impl Into<Fixed<AttrClass>> for &'static AttrClass {
 
 extern "C" fn abi_id(class: *const AttrClass) -> Token {
     unsafe { (*class).id }
+}
+
+extern "C" fn abi_path(class: *const AttrClass) -> SafeString {
+    unsafe { SafeString::from(&(*class).path) }
 }
 
 extern "C" fn abi_is_match(class: *const AttrClass, id: Token) -> u8 {
