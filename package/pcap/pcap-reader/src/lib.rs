@@ -77,8 +77,8 @@ impl Worker for PcapWorker {
         Ok(vec![payload])
     }
 
-    fn layer_id(&self) -> Token {
-        token!("[pcap]")
+    fn layer_id(&self) -> &str {
+        "[pcap]"
     }
 }
 

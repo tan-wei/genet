@@ -126,7 +126,7 @@ impl Worker for PcapFileWorker {
         Ok(slices)
     }
 
-    fn layer_id(&self) -> Token {
-        token!("[pcap]")
+    fn layer_id(&self) -> &str {
+        "[pcap]"
     }
 }

@@ -58,7 +58,7 @@ impl Worker for GenetFileWorker {
         Ok(slices)
     }
 
-    fn layer_id(&self) -> Token {
-        self.header.layer_id.clone().into()
+    fn layer_id(&self) -> &str {
+        &self.header.layer_id
     }
 }

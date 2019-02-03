@@ -58,7 +58,7 @@ impl Session {
             let ctx = self.profile.context();
             match reader.reader.new_worker(&ctx, url) {
                 Ok(input) => {
-                    let id = input.layer_id();
+                    let id: Token = input.layer_id().to_string().into();
                     self.store
                         .set_input(self.io_cnt, WorkerInput::new(input, id));
                     return self.io_cnt;
