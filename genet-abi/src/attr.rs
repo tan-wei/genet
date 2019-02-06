@@ -8,17 +8,17 @@ use crate::{
     token::Token,
     variant::{TryInto, Variant},
 };
-use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
+use byteorder::{BigEndian, LittleEndian, ReadBytesExt, WriteBytesExt};
 use failure::format_err;
 use num_bigint::BigInt;
 use std::{
     any::TypeId,
     fmt,
-    io::Cursor,
+    io::{Cursor, Write},
     marker::PhantomData,
     mem,
     ops::{Deref, DerefMut, Range},
-    slice,
+    slice, str,
 };
 
 #[derive(Clone)]
@@ -34,6 +34,13 @@ pub struct AttrContext<I, O> {
     pub aliases: Vec<String>,
     pub func_map: fn(I) -> Result<O>,
     pub func_cond: fn(&O) -> bool,
+}
+
+#[derive(Default, Clone)]
+pub struct WriterContext {
+    pub little_endian: bool,
+    pub bit_size: usize,
+    pub bit_offset: usize,
 }
 
 pub trait Mapper<O>: Send + Sync {
@@ -195,6 +202,9 @@ pub trait AttrField {
     fn build(
         ctx: &AttrContext<Self::Input, Self::Output>,
     ) -> AttrFunctor<Self::Input, Self::Output>;
+    fn write(&self, _ctx: &WriterContext, _data: &mut [u8]) -> Result<()> {
+        Ok(())
+    }
 }
 
 pub struct Node<F: AttrField, C: AttrField = F> {
@@ -297,6 +307,10 @@ where
     ) -> AttrFunctor<Self::Input, Self::Output> {
         F::build(ctx)
     }
+
+    fn write(&self, ctx: &WriterContext, data: &mut [u8]) -> Result<()> {
+        self.data.write(ctx, data)
+    }
 }
 
 pub trait EnumType {
@@ -307,7 +321,7 @@ pub trait EnumType {
 }
 
 pub struct Enum<F: AttrField, E> {
-    data: F::Input,
+    data: F,
     class: Vec<Fixed<AttrClass>>,
     func: Box<Fn(&Attr, &Bytes) -> Result<E>>,
 }
@@ -320,7 +334,7 @@ impl<F: AttrField, E: EnumType> AsRef<[Fixed<AttrClass>]> for Enum<F, E> {
 
 impl<F: 'static + AttrField, E: 'static + EnumType<Output = E>> AttrField for Enum<F, E>
 where
-    F::Input: 'static + Default,
+    F::Input: 'static,
     F::Output: 'static + Into<E>,
 {
     type Input = F::Input;
@@ -340,7 +354,7 @@ where
             .map(|attr| Fixed::new(attr.build()))
             .collect();
         Self {
-            data: Default::default(),
+            data: F::new(ctx),
             class,
             func: Box::new(move |attr, data| func.func_map.invoke(attr, data).map(|x| x.into())),
         }
@@ -365,10 +379,14 @@ where
     ) -> AttrFunctor<Self::Input, Self::Output> {
         F::build(ctx)
     }
+
+    fn write(&self, ctx: &WriterContext, data: &mut [u8]) -> Result<()> {
+        self.data.write(ctx, data)
+    }
 }
 
 impl<F: AttrField, E> Deref for Enum<F, E> {
-    type Target = F::Input;
+    type Target = F;
 
     fn deref(&self) -> &Self::Target {
         &self.data
@@ -408,7 +426,7 @@ where
 }
 
 macro_rules! define_field {
-    ($t:ty, $size:expr, $little:block, $big:block) => {
+    ($t:ty, $size:expr, $little:block, $big:block, $little_write:block, $big_write:block) => {
         impl AttrField for $t {
             type Input = Self;
             type Output = Self;
@@ -444,13 +462,18 @@ macro_rules! define_field {
                     func_map,
                 }
             }
+
+            fn write(&self, ctx: &WriterContext, data: &mut [u8]) -> Result<()> {
+                let func = $little_write;
+                func(self, Cursor::new(data)).map_err(|e| e.into())
+            }
         }
     };
 }
 
 define_field!(
     u8,
-    mem::size_of::<Self>() * 8,
+    (mem::size_of::<Self>() * 8),
     {
         |data: &Bytes, range: Range<usize>| {
             Cursor::new(data.get(range)?)
@@ -464,12 +487,14 @@ define_field!(
                 .read_u8()
                 .map_err(|e| e.into())
         }
-    }
+    },
+    { |value: &u8, mut data: Cursor<&mut [u8]>| data.write_u8(*value) },
+    { |value: &u8, mut data: Cursor<&mut [u8]>| data.write_u8(*value) }
 );
 
 define_field!(
     i8,
-    mem::size_of::<Self>() * 8,
+    (mem::size_of::<Self>() * 8),
     {
         |data: &Bytes, range: Range<usize>| {
             Cursor::new(data.get(range)?)
@@ -483,12 +508,14 @@ define_field!(
                 .read_i8()
                 .map_err(|e| e.into())
         }
-    }
+    },
+    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) },
+    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) }
 );
 
 define_field!(
     u16,
-    mem::size_of::<Self>() * 8,
+    (mem::size_of::<Self>() * 8),
     {
         |data: &Bytes, range: Range<usize>| {
             Cursor::new(data.get(range)?)
@@ -502,12 +529,14 @@ define_field!(
                 .read_u16::<BigEndian>()
                 .map_err(|e| e.into())
         }
-    }
+    },
+    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) },
+    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) }
 );
 
 define_field!(
     i16,
-    mem::size_of::<Self>() * 8,
+    (mem::size_of::<Self>() * 8),
     {
         |data: &Bytes, range: Range<usize>| {
             Cursor::new(data.get(range)?)
@@ -521,12 +550,14 @@ define_field!(
                 .read_i16::<BigEndian>()
                 .map_err(|e| e.into())
         }
-    }
+    },
+    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) },
+    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) }
 );
 
 define_field!(
     u32,
-    mem::size_of::<Self>() * 8,
+    (mem::size_of::<Self>() * 8),
     {
         |data: &Bytes, range: Range<usize>| {
             Cursor::new(data.get(range)?)
@@ -540,12 +571,14 @@ define_field!(
                 .read_u32::<BigEndian>()
                 .map_err(|e| e.into())
         }
-    }
+    },
+    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) },
+    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) }
 );
 
 define_field!(
     i32,
-    mem::size_of::<Self>() * 8,
+    (mem::size_of::<Self>() * 8),
     {
         |data: &Bytes, range: Range<usize>| {
             Cursor::new(data.get(range)?)
@@ -559,12 +592,14 @@ define_field!(
                 .read_i32::<BigEndian>()
                 .map_err(|e| e.into())
         }
-    }
+    },
+    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) },
+    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) }
 );
 
 define_field!(
     u64,
-    mem::size_of::<Self>() * 8,
+    (mem::size_of::<Self>() * 8),
     {
         |data: &Bytes, range: Range<usize>| {
             Cursor::new(data.get(range)?)
@@ -578,12 +613,14 @@ define_field!(
                 .read_u64::<BigEndian>()
                 .map_err(|e| e.into())
         }
-    }
+    },
+    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) },
+    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) }
 );
 
 define_field!(
     i64,
-    mem::size_of::<Self>() * 8,
+    (mem::size_of::<Self>() * 8),
     {
         |data: &Bytes, range: Range<usize>| {
             Cursor::new(data.get(range)?)
@@ -597,12 +634,14 @@ define_field!(
                 .read_i64::<BigEndian>()
                 .map_err(|e| e.into())
         }
-    }
+    },
+    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) },
+    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) }
 );
 
 define_field!(
     f32,
-    mem::size_of::<Self>() * 8,
+    (mem::size_of::<Self>() * 8),
     {
         |data: &Bytes, range: Range<usize>| {
             Cursor::new(data.get(range)?)
@@ -616,12 +655,14 @@ define_field!(
                 .read_f32::<BigEndian>()
                 .map_err(|e| e.into())
         }
-    }
+    },
+    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) },
+    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) }
 );
 
 define_field!(
     f64,
-    mem::size_of::<Self>() * 8,
+    (mem::size_of::<Self>() * 8),
     {
         |data: &Bytes, range: Range<usize>| {
             Cursor::new(data.get(range)?)
@@ -635,14 +676,18 @@ define_field!(
                 .read_f64::<BigEndian>()
                 .map_err(|e| e.into())
         }
-    }
+    },
+    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) },
+    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) }
 );
 
 define_field!(
     Bytes,
     8,
     { |data: &Bytes, range: Range<usize>| data.get(range) },
-    { |data: &Bytes, range: Range<usize>| data.get(range) }
+    { |data: &Bytes, range: Range<usize>| data.get(range) },
+    { |value, mut data: Cursor<&mut [u8]>| data.write(value).map(|_| ()) },
+    { |value, mut data: Cursor<&mut [u8]>| data.write(value).map(|_| ()) }
 );
 
 impl AttrField for bool {
