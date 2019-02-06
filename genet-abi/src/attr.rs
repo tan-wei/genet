@@ -9,7 +9,7 @@ use crate::{
     variant::{TryInto, Variant},
 };
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt, WriteBytesExt};
-use failure::format_err;
+use failure::{err_msg, format_err};
 use num_bigint::BigInt;
 use std::{
     any::TypeId,
@@ -742,7 +742,18 @@ impl AttrField for bool {
         }
     }
 
-    fn write(&self, _ctx: &WriterContext, _data: &mut [u8]) -> Result<()> {
+    fn write(&self, ctx: &WriterContext, data: &mut [u8]) -> Result<()> {
+        let byte_offset = ctx.bit_offset / 8;
+        let bit_offset = ctx.bit_offset % 8;
+        if data.len() <= byte_offset {
+            return Err(err_msg("out of bounds"));
+        }
+        let byte = data[byte_offset] & !(0b1000_0000 >> bit_offset);
+        data[byte_offset] = if *self {
+            byte | (0b1000_0000 >> bit_offset)
+        } else {
+            byte
+        };
         Ok(())
     }
 }
