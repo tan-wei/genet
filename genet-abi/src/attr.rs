@@ -126,7 +126,8 @@ where
 }
 
 pub struct Cast<I, O> {
-    phantom: PhantomData<(I, O)>,
+    data: I,
+    phantom: PhantomData<O>,
 }
 
 impl<I: AttrField, O: AttrField> AttrField for Cast<I, O>
@@ -146,8 +147,9 @@ where
         }
     }
 
-    fn new(_ctx: &AttrContext<Self::Input, Self::Output>) -> Self {
+    fn new(ctx: &AttrContext<Self::Input, Self::Output>) -> Self {
         Self {
+            data: I::new(&I::context()),
             phantom: PhantomData,
         }
     }
@@ -191,6 +193,10 @@ where
             func_map,
         }
     }
+
+    fn write(&self, ctx: &WriterContext, data: &mut [u8]) -> Result<()> {
+        self.data.write(ctx, data)
+    }
 }
 
 pub trait AttrField {
@@ -202,9 +208,7 @@ pub trait AttrField {
     fn build(
         ctx: &AttrContext<Self::Input, Self::Output>,
     ) -> AttrFunctor<Self::Input, Self::Output>;
-    fn write(&self, _ctx: &WriterContext, _data: &mut [u8]) -> Result<()> {
-        Ok(())
-    }
+    fn write(&self, _ctx: &WriterContext, _data: &mut [u8]) -> Result<()>;
 }
 
 pub struct Node<F: AttrField, C: AttrField = F> {
@@ -464,8 +468,15 @@ macro_rules! define_field {
             }
 
             fn write(&self, ctx: &WriterContext, data: &mut [u8]) -> Result<()> {
-                let func = $little_write;
-                func(self, Cursor::new(data)).map_err(|e| e.into())
+                let mut data = Cursor::new(data);
+                data.set_position((ctx.bit_offset / 8) as u64);
+                if ctx.little_endian {
+                    let func = $little_write;
+                    func(self, data).map_err(|e| e.into())
+                } else {
+                    let func = $big_write;
+                    func(self, data).map_err(|e| e.into())
+                }
             }
         }
     };
@@ -509,8 +520,8 @@ define_field!(
                 .map_err(|e| e.into())
         }
     },
-    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) },
-    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) }
+    { |value: &i8, mut data: Cursor<&mut [u8]>| data.write_i8(*value) },
+    { |value: &i8, mut data: Cursor<&mut [u8]>| data.write_i8(*value) }
 );
 
 define_field!(
@@ -530,8 +541,8 @@ define_field!(
                 .map_err(|e| e.into())
         }
     },
-    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) },
-    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) }
+    { |value: &u16, mut data: Cursor<&mut [u8]>| data.write_u16::<LittleEndian>(*value) },
+    { |value: &u16, mut data: Cursor<&mut [u8]>| data.write_u16::<BigEndian>(*value) }
 );
 
 define_field!(
@@ -551,8 +562,8 @@ define_field!(
                 .map_err(|e| e.into())
         }
     },
-    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) },
-    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) }
+    { |value: &i16, mut data: Cursor<&mut [u8]>| data.write_i16::<LittleEndian>(*value) },
+    { |value: &i16, mut data: Cursor<&mut [u8]>| data.write_i16::<BigEndian>(*value) }
 );
 
 define_field!(
@@ -572,8 +583,8 @@ define_field!(
                 .map_err(|e| e.into())
         }
     },
-    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) },
-    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) }
+    { |value: &u32, mut data: Cursor<&mut [u8]>| data.write_u32::<LittleEndian>(*value) },
+    { |value: &u32, mut data: Cursor<&mut [u8]>| data.write_u32::<BigEndian>(*value) }
 );
 
 define_field!(
@@ -593,8 +604,8 @@ define_field!(
                 .map_err(|e| e.into())
         }
     },
-    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) },
-    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) }
+    { |value: &i32, mut data: Cursor<&mut [u8]>| data.write_i32::<LittleEndian>(*value) },
+    { |value: &i32, mut data: Cursor<&mut [u8]>| data.write_i32::<BigEndian>(*value) }
 );
 
 define_field!(
@@ -614,8 +625,8 @@ define_field!(
                 .map_err(|e| e.into())
         }
     },
-    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) },
-    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) }
+    { |value: &u64, mut data: Cursor<&mut [u8]>| data.write_u64::<LittleEndian>(*value) },
+    { |value: &u64, mut data: Cursor<&mut [u8]>| data.write_u64::<BigEndian>(*value) }
 );
 
 define_field!(
@@ -635,8 +646,8 @@ define_field!(
                 .map_err(|e| e.into())
         }
     },
-    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) },
-    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) }
+    { |value: &i64, mut data: Cursor<&mut [u8]>| data.write_i64::<LittleEndian>(*value) },
+    { |value: &i64, mut data: Cursor<&mut [u8]>| data.write_i64::<BigEndian>(*value) }
 );
 
 define_field!(
@@ -656,8 +667,8 @@ define_field!(
                 .map_err(|e| e.into())
         }
     },
-    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) },
-    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) }
+    { |value: &f32, mut data: Cursor<&mut [u8]>| data.write_f32::<LittleEndian>(*value) },
+    { |value: &f32, mut data: Cursor<&mut [u8]>| data.write_f32::<BigEndian>(*value) }
 );
 
 define_field!(
@@ -677,8 +688,8 @@ define_field!(
                 .map_err(|e| e.into())
         }
     },
-    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) },
-    { |value, mut data: Cursor<&mut [u8]>| data.write_u8(1) }
+    { |value: &f64, mut data: Cursor<&mut [u8]>| data.write_f64::<LittleEndian>(*value) },
+    { |value: &f64, mut data: Cursor<&mut [u8]>| data.write_f64::<BigEndian>(*value) }
 );
 
 define_field!(
@@ -729,6 +740,10 @@ impl AttrField for bool {
             ctx: ctx.clone(),
             func_map,
         }
+    }
+
+    fn write(&self, _ctx: &WriterContext, _data: &mut [u8]) -> Result<()> {
+        Ok(())
     }
 }
 

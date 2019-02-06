@@ -396,6 +396,10 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
             fn build(ctx: &genet_sdk::attr::AttrContext<Self::Input, Self::Output>) -> genet_sdk::attr::AttrFunctor<Self::Input, Self::Output> {
                 genet_sdk::bytes::Bytes::build(ctx)
             }
+
+            fn write(&self, ctx: &genet_sdk::attr::WriterContext, data: &mut [u8]) -> Result<()> {
+                Ok(())
+            }
         }
 
     };

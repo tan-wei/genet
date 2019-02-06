@@ -4,5 +4,5 @@
 
 pub use genet_abi::attr::{
     Attr, AttrClass, AttrClassBuilder, AttrContext, AttrField, AttrFunctor, Cast, Enum, EnumType,
-    Node,
+    Node, WriterContext,
 };
