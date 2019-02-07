@@ -1,5 +1,5 @@
 use crate::{
-    attr::{Attr, AttrClass, AttrField},
+    attr::{Attr, AttrClass, AttrField, WriterContext},
     bytes::Bytes,
     fixed::{Fixed, MutFixed},
     token::Token,
@@ -236,6 +236,37 @@ impl fmt::Debug for Layer {
 impl Into<MutFixed<Layer>> for Layer {
     fn into(self) -> MutFixed<Layer> {
         MutFixed::new(self)
+    }
+}
+
+pub struct MutLayer {
+    class: Fixed<LayerClass>,
+    data: Vec<u8>,
+    attrs: Vec<BoundAttr>,
+}
+
+impl MutLayer {
+    /// Creates a new MutLayer.
+    pub fn new<T: AttrField>(ty: &LayerType<T>, len: usize) -> Self {
+        let mut data = vec![0; len];
+        let class = *ty.as_ref();
+        let _ = ty.write(&WriterContext::default(), &mut data);
+        Self {
+            class,
+            data,
+            attrs: Vec::new(),
+        }
+    }
+}
+
+impl Into<Layer> for MutLayer {
+    fn into(self) -> Layer {
+        Layer {
+            class: self.class,
+            data: self.data.into(),
+            attrs: self.attrs,
+            payload: Bytes::new(),
+        }
     }
 }
 
