@@ -138,8 +138,6 @@ pub struct Layer {
     payload: Bytes,
 }
 
-unsafe impl Send for Layer {}
-
 impl Layer {
     /// Creates a new Layer.
     pub fn new<C: AsRef<Fixed<LayerClass>>>(class: &C, data: &Bytes) -> Layer {
