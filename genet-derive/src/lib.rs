@@ -235,6 +235,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 } else {
                     quote! {}
                 };
+                let little_endian = meta.little_endian;
                 let name = if let Some(name) = meta.name {
                     name
                 } else {
@@ -300,6 +301,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     subctx.description = #description;
                     subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
                     subctx.bit_offset = bit_offset;
+                    subctx.little_endian = #little_endian;
                     subctx.aliases = #aliases
                         .split(' ')
                         .filter(|s| !s.is_empty())

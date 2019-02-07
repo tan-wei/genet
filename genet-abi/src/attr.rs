@@ -158,6 +158,7 @@ where
         subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
         subctx.bit_offset = ctx.bit_offset;
         subctx.bit_size = ctx.bit_size;
+        subctx.little_endian = ctx.little_endian;
         let func = I::build(&subctx);
 
         let func_map = func.func_map;
@@ -176,6 +177,7 @@ where
         subctx.description = ctx.description;
         subctx.bit_offset = ctx.bit_offset;
         subctx.bit_size = ctx.bit_size;
+        subctx.little_endian = ctx.little_endian;
 
         AttrFunctor {
             ctx: subctx,
@@ -257,6 +259,7 @@ where
         let mut subctx = C::context();
         subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
         subctx.bit_offset = ctx.bit_offset;
+        subctx.little_endian = ctx.little_endian;
 
         let class = Self::class(ctx)
             .into_iter()
@@ -274,6 +277,7 @@ where
         let mut subctx = C::context();
         subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
         subctx.bit_offset = ctx.bit_offset;
+        subctx.little_endian = ctx.little_endian;
         let mut v = F::class(ctx);
         if TypeId::of::<F>() != TypeId::of::<C>() {
             let mut children = C::class(&subctx).into_iter().skip(1).collect();
@@ -341,6 +345,7 @@ where
         subctx.path = format!("{}.{}", ctx.path, ctx.id).trim_matches('.').into();
         subctx.bit_offset = ctx.bit_offset;
         subctx.bit_size = ctx.bit_size;
+        subctx.little_endian = ctx.little_endian;
         subctx.func_map = ctx.func_map;
         subctx.func_cond = ctx.func_cond;
 
