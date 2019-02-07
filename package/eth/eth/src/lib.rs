@@ -48,8 +48,22 @@ impl From<u16> for EthType {
     }
 }
 
+#[derive(Attr)]
+struct Nano {
+    /// Source Hardware Address
+    #[attr(alias = "_.src", byte_size = 6)]
+    src: Bytes,
+
+    /// Destination Hardware Address
+    #[attr(alias = "_.dst", byte_size = 6)]
+    dst: Bytes,
+
+    len: u16,
+}
+
 struct EthWorker {
     layer: LayerType<Eth>,
+    layer2: LayerType<Nano>,
     ipv4: DecoderStack,
     ipv6: DecoderStack,
     arp: DecoderStack,
@@ -60,11 +74,17 @@ impl Worker for EthWorker {
         let data = stack.top().unwrap().payload();
         let mut layer = Layer::new(&self.layer, &data);
 
+        self.layer2.len = 345;
+        self.layer2.src = data.get(0..6)?;
+        self.layer2.dst = data.get(0..6)?;
+        let layer2 = MutLayer::new(&self.layer2, self.layer2.byte_size());
+
         let typ = self.layer.r#type.get(&layer);
         let payload = data.get(self.layer.byte_size()..)?;
         layer.set_payload(&payload);
 
         stack.add_child(layer);
+        stack.add_child(layer2);
 
         match typ {
             Ok(EthType::IPv4) => self.ipv4.decode(stack),
@@ -82,6 +102,7 @@ impl Decoder for EthDecoder {
     fn new_worker(&self, ctx: &Context) -> Result<Box<Worker>> {
         Ok(Box::new(EthWorker {
             layer: LayerType::new("eth"),
+            layer2: LayerType::new("eth2"),
             ipv4: ctx.decoder("app.genet.decoder.ipv4")?,
             ipv6: ctx.decoder("app.genet.decoder.ipv6")?,
             arp: ctx.decoder("app.genet.decoder.arp")?,

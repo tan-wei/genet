@@ -78,8 +78,8 @@ impl<'a> LayerStack<'a> {
         self.deref_mut().set_payload(payload);
     }
 
-    pub fn add_child<T: Into<MutFixed<Layer>>>(&mut self, layer: T) {
-        (self.add_child)(self.data, layer.into().as_mut_ptr());
+    pub fn add_child<T: Into<Layer>>(&mut self, layer: T) {
+        (self.add_child)(self.data, MutFixed::new(layer.into()).as_mut_ptr());
     }
 
     pub fn top(&self) -> Option<&Layer> {
