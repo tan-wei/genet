@@ -206,6 +206,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
     let mut fields_eq = Vec::new();
     let mut fields_class = Vec::new();
     let mut fields_align = VecDeque::new();
+    let mut fields_write = Vec::new();
 
     if let Fields::Named(f) = &s.fields {
         for field in &f.named {
@@ -317,6 +318,15 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     },
                 });
 
+                if !meta.detach {
+                    fields_write.push(quote! {
+                      {
+                        let mut subctx = ctx.clone();
+                        self.#ident.write(&subctx, data)?;
+                      }
+                    });
+                }
+
                 // Suppress unused field warnings
                 fields_eq.push(quote! {
                     std::ptr::eq(&data.#ident, &data.#ident);
@@ -398,6 +408,12 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
             }
 
             fn write(&self, ctx: &genet_sdk::attr::WriterContext, data: &mut [u8]) -> Result<()> {
+                let mut bit_offset = ctx.bit_offset;
+
+                #(
+                    #fields_write
+                )*
+
                 Ok(())
             }
         }

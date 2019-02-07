@@ -39,7 +39,6 @@ pub struct AttrContext<I, O> {
 #[derive(Default, Clone)]
 pub struct WriterContext {
     pub little_endian: bool,
-    pub bit_size: usize,
     pub bit_offset: usize,
 }
 
