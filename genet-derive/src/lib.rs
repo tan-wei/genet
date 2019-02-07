@@ -319,10 +319,23 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                 });
 
                 if !meta.detach {
+                    let write = if meta.skip {
+                        quote! {}
+                    } else {
+                        quote! {
+                            self.#ident.write(&writer_ctx, data)?;
+                        }
+                    };
                     fields_write.push(quote! {
                       {
-                        let mut subctx = ctx.clone();
-                        self.#ident.write(&subctx, data)?;
+                        type Alias = #ty;
+                        let mut subctx = <Alias as genet_sdk::attr::AttrField>::context();
+                        #assign_bit_size;
+                        let mut writer_ctx = ctx.clone();
+                        writer_ctx.little_endian = subctx.little_endian;
+                        writer_ctx.bit_offset = bit_offset;
+                        #write;
+                        #assign_bit_offset;
                       }
                     });
                 }
