@@ -332,7 +332,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                         let mut subctx = <Alias as genet_sdk::attr::AttrField>::context();
                         #assign_bit_size;
                         let mut writer_ctx = ctx.clone();
-                        writer_ctx.little_endian = subctx.little_endian;
+                        writer_ctx.little_endian = #little_endian;
                         writer_ctx.bit_offset = bit_offset;
                         #write;
                         #assign_bit_offset;

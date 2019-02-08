@@ -58,7 +58,8 @@ struct Nano {
     #[attr(alias = "_.dst", byte_size = 6)]
     dst: Bytes,
 
-    len: u16,
+    #[attr(little_endian)]
+    len: u32,
 }
 
 struct EthWorker {
