@@ -19,7 +19,7 @@ impl fmt::Debug for Token {
 
 impl PartialEq for Token {
     fn eq(&self, other: &Token) -> bool {
-        self.index() == other.index()
+        self.0 == other.0 || self.index() == other.index()
     }
 }
 
