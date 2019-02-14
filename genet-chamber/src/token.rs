@@ -34,7 +34,7 @@ impl Token {
             ptr = Box::into_raw(Box::new(header));
         } else {
             let header = Header {
-                index: 0,
+                index,
                 strlen: s.len() as u32,
             };
             let header_size = mem::size_of::<Header>();
@@ -42,7 +42,11 @@ impl Token {
             let mut v = vec![header; size];
             let bytes = s.as_bytes();
             unsafe {
-                ptr::copy_nonoverlapping(bytes.as_ptr(), v.as_mut_ptr() as *mut u8, bytes.len());
+                ptr::copy_nonoverlapping(
+                    bytes.as_ptr(),
+                    v.as_mut_ptr().offset(1) as *mut u8,
+                    bytes.len(),
+                );
             }
             ptr = v.as_mut_ptr();
             mem::forget(v);
@@ -76,4 +80,53 @@ impl Token {
 struct Header {
     pub index: u32,
     pub strlen: u32,
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::token::Token;
+
+    #[test]
+    fn null() {
+        let tk = Token::new(0, "");
+        assert_eq!(tk.index(), 0);
+        assert_eq!(tk.as_str(), "");
+
+        let tk = Token::new(1, "");
+        assert_eq!(tk.index(), 1);
+        assert_eq!(tk.as_str(), "");
+    }
+
+    #[test]
+    fn short_str() {
+        let tk = Token::new(0, "a");
+        assert_eq!(tk.index(), 0);
+        assert_eq!(tk.as_str(), "a");
+
+        let tk = Token::new(1, "ab");
+        assert_eq!(tk.index(), 1);
+        assert_eq!(tk.as_str(), "ab");
+
+        let tk = Token::new(2, "abc");
+        assert_eq!(tk.index(), 2);
+        assert_eq!(tk.as_str(), "abc");
+
+        let tk = Token::new(3, "abcd");
+        assert_eq!(tk.index(), 3);
+        assert_eq!(tk.as_str(), "abcd");
+    }
+
+    #[test]
+    fn long_str() {
+        let tk = Token::new(1, "The quick brown fox jumps over the lazy dog");
+        assert_eq!(tk.index(), 1);
+        assert_eq!(tk.as_str(), "The quick brown fox jumps over the lazy dog");
+    }
+
+    #[test]
+    fn eq() {
+        assert_eq!(Token::new(1, "aaa"), Token::new(1, "aaa"));
+        assert_ne!(Token::new(0, "aaa"), Token::new(1, "aaa"));
+        assert_eq!(Token::new(1, "aaa"), Token::new(1, "bbb"));
+    }
 }
