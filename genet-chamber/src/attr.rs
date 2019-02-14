@@ -3,6 +3,28 @@
 use crate::token::Token;
 use std::{borrow::Cow, ops::Range};
 
+#[repr(C)]
+pub struct Attr {
+    id: Token,
+    bit_start: u64,
+    bit_end: u64,
+}
+
+impl Attr {
+    pub fn id(&self) -> Token {
+        self.id
+    }
+
+    pub fn bit_range(&self) -> Range<usize> {
+        self.bit_start as usize..self.bit_end as usize
+    }
+
+    pub fn byte_range(&self) -> Range<usize> {
+        let range = self.bit_range();
+        (range.start / 8)..((range.end + 7) / 8)
+    }
+}
+
 pub struct AttrType<'a> {
     id: Token,
     path: Cow<'a, str>,
