@@ -25,8 +25,7 @@ impl<'a> Attr<'a> {
 }
 
 pub struct AttrType<'a> {
-    id_token: Token,
-    id: Cow<'a, str>,
+    id: Token,
     bit_range: Range<usize>,
     ty: Cow<'a, str>,
     name: Cow<'a, str>,
@@ -36,11 +35,11 @@ pub struct AttrType<'a> {
 
 impl<'a> AttrType<'a> {
     pub(crate) fn id_token(&self) -> Token {
-        self.id_token
+        self.id
     }
 
     pub fn id(&self) -> &str {
-        &self.id
+        self.id.as_str()
     }
 
     pub fn bit_range(&self) -> Range<usize> {
