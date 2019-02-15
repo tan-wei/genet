@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
-pub(crate) struct FrameInternal {
+use crate::attr::AttrTypeSet;
+
+pub(crate) struct FrameData {
     pub data: Vec<u8>,
+    pub attr_sets: Vec<*const AttrTypeSet>,
 }
