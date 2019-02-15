@@ -3,6 +3,7 @@
 use crate::token::Token;
 use std::{borrow::Cow, ops::Range};
 
+#[derive(Clone)]
 pub struct Attr<'a> {
     bit_range: Range<usize>,
     ty: &'a AttrType<'a>,
@@ -24,6 +25,7 @@ impl<'a> Attr<'a> {
 }
 
 pub struct AttrType<'a> {
+    id_token: Token,
     id: Cow<'a, str>,
     bit_range: Range<usize>,
     ty: Cow<'a, str>,
@@ -33,6 +35,10 @@ pub struct AttrType<'a> {
 }
 
 impl<'a> AttrType<'a> {
+    pub(crate) fn id_token(&self) -> Token {
+        self.id_token
+    }
+
     pub fn id(&self) -> &str {
         &self.id
     }
