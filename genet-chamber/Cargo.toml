@@ -5,4 +5,5 @@ authors = ["Ron Hashimoto <mail@h2so5.net>"]
 edition = "2018"
 
 [dependencies]
+failure = "0.1"
 parking_lot = "0.6"
