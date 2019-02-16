@@ -1,7 +1,7 @@
-use crate::token::Token;
+use crate::{filter::CompiledFilter, token::Token};
 use fnv::FnvHashMap;
 use parking_lot::Mutex;
-use std::{slice, str, sync::Arc};
+use std::{ops::Range, slice, str, sync::Arc};
 
 pub struct Chamber {
     inner: Inner,
@@ -29,6 +29,10 @@ pub struct Context {
 impl Context {
     pub(crate) fn get_token(&self, s: &str) -> Token {
         (self.get_token)(self.inner, s.as_ptr(), s.len() as u64)
+    }
+
+    pub fn filter(&self, filter: &CompiledFilter, range: Range<usize>) -> Vec<usize> {
+        vec![]
     }
 }
 
