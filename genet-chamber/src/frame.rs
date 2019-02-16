@@ -1,13 +1,13 @@
 #![forbid(unsafe_code)]
 
-use crate::attr::{Attr, AttrType, AttrTypeSet};
+use crate::attr::{Attr, AttrQuery, AttrTypeSet};
 
 pub struct Frame<'a> {
     attrs: &'a [Attr<'a>],
 }
 
 impl<'a> Frame<'a> {
-    pub fn find(&self, attr: &AttrType) -> impl Iterator<Item = Attr<'a>> {
+    pub fn find(&self, attr: &AttrQuery) -> impl Iterator<Item = Attr<'a>> {
         let id = attr.id_token();
         self.attrs
             .iter()

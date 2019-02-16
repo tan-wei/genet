@@ -1,6 +1,9 @@
 #![forbid(unsafe_code)]
 
-use crate::token::Token;
+use crate::{
+    field::{BoundField, Field},
+    token::Token,
+};
 use std::{borrow::Cow, ops::Range};
 
 #[derive(Clone)]
@@ -22,12 +25,27 @@ impl<'a> Attr<'a> {
     pub fn ty(&self) -> &AttrType<'a> {
         self.ty
     }
+
+    pub fn bind<'b: 'a, F: ?Sized + Field>(&self, field: &'b F) -> BoundField<F> {
+        field.bind()
+    }
+}
+
+pub struct AttrQuery {
+    id: Token,
+    ty: Option<Token>,
+}
+
+impl AttrQuery {
+    pub(crate) fn id_token(&self) -> Token {
+        self.id
+    }
 }
 
 pub struct AttrType<'a> {
     id: Token,
     bit_range: Range<usize>,
-    ty: Cow<'a, str>,
+    ty: Token,
     name: Cow<'a, str>,
     description: Cow<'a, str>,
     aliases: Cow<'a, [&'a str]>,
@@ -52,7 +70,7 @@ impl<'a> AttrType<'a> {
     }
 
     pub fn ty(&self) -> &str {
-        &self.ty
+        self.ty.as_str()
     }
 
     pub fn name(&self) -> &str {
