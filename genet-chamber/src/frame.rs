@@ -1,8 +1,12 @@
 #![forbid(unsafe_code)]
 
-use crate::attr::{Attr, AttrQuery, AttrTypeSet};
+use crate::{
+    attr::{Attr, AttrQuery, AttrTypeSet},
+    chamber::Context,
+};
 
 pub struct Frame<'a> {
+    ctx: &'a Context,
     attrs: &'a [Attr<'a>],
 }
 
