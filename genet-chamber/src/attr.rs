@@ -10,7 +10,7 @@ use std::{borrow::Cow, ops::Range};
 #[derive(Clone)]
 pub struct Attr<'a> {
     bit_range: Range<usize>,
-    ty: &'a AttrType<'a>,
+    ty: Cow<'a, AttrType<'a>>,
 }
 
 impl<'a> Attr<'a> {
@@ -24,7 +24,7 @@ impl<'a> Attr<'a> {
     }
 
     pub fn ty(&self) -> &AttrType<'a> {
-        self.ty
+        &self.ty
     }
 
     pub fn bind<'b: 'a, F: ?Sized + Field>(&self, field: &'b F) -> BoundField<F> {
@@ -56,6 +56,7 @@ impl<'a> AttrQuery<'a> {
     }
 }
 
+#[derive(Clone)]
 pub struct AttrType<'a> {
     id: Token,
     bit_range: Range<usize>,
