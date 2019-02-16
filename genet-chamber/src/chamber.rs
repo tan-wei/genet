@@ -1,7 +1,7 @@
 use crate::token::Token;
 use fnv::FnvHashMap;
-use parking_lot::{Mutex, MutexGuard};
-use std::{slice, str};
+use parking_lot::Mutex;
+use std::{slice, str, sync::Arc};
 
 pub struct Chamber {
     inner: Inner,
@@ -11,14 +11,14 @@ impl Chamber {
     pub fn new() -> Self {
         Self {
             inner: Inner {
-                tokens: FnvHashMap::default(),
+                tokens: Arc::new(Mutex::new(FnvHashMap::default())),
             },
         }
     }
 }
 
 struct Inner {
-    tokens: FnvHashMap<String, Token>,
+    tokens: Arc<Mutex<FnvHashMap<String, Token>>>,
 }
 
 pub struct Context {
@@ -34,7 +34,7 @@ impl Context {
 
 extern "C" fn get_token(cham: *mut Inner, s: *const u8, len: u64) -> Token {
     unsafe {
-        let tokens = &mut (*cham).tokens;
+        let tokens = &mut (*cham).tokens.lock();
         let key = str::from_utf8_unchecked(slice::from_raw_parts(s, len as usize));
         let index = tokens.len() as u32;
         *tokens
