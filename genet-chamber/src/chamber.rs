@@ -1,28 +1,44 @@
+use crate::token::Token;
+use fnv::FnvHashMap;
 use parking_lot::{Mutex, MutexGuard};
-use std::sync::Arc;
+use std::{slice, str};
 
 pub struct Chamber {
-    inner: Arc<Mutex<Inner>>,
+    inner: Inner,
 }
 
 impl Chamber {
     pub fn new() -> Self {
         Self {
-            inner: Arc::new(Mutex::new(Inner {})),
+            inner: Inner {
+                tokens: FnvHashMap::default(),
+            },
         }
     }
 }
 
-struct Inner {}
+struct Inner {
+    tokens: FnvHashMap<String, Token>,
+}
 
-pub struct ChamberScope;
+pub struct Context {
+    inner: *mut Inner,
+    get_token: extern "C" fn(cham: *mut Inner, s: *const u8, len: u64) -> Token,
+}
 
-impl ChamberScope {
-    pub unsafe fn try_lock(&self, ptr: *mut Chamber) -> Option<ChamberLock> {
-        (*ptr).inner.try_lock().map(|lock| ChamberLock { lock })
+impl Context {
+    pub(crate) fn get_token(&self, s: &str) -> Token {
+        (self.get_token)(self.inner, s.as_ptr(), s.len() as u64)
     }
 }
 
-pub struct ChamberLock<'a> {
-    lock: MutexGuard<'a, Inner>,
+extern "C" fn get_token(cham: *mut Inner, s: *const u8, len: u64) -> Token {
+    unsafe {
+        let tokens = &mut (*cham).tokens;
+        let key = str::from_utf8_unchecked(slice::from_raw_parts(s, len as usize));
+        let index = tokens.len() as u32;
+        *tokens
+            .entry(key.to_string())
+            .or_insert_with(|| Token::new(index, &key))
+    }
 }

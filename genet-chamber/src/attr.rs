@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
 
 use crate::{
+    chamber::Context,
     field::{BoundField, Field},
     token::Token,
 };
@@ -31,14 +32,27 @@ impl<'a> Attr<'a> {
     }
 }
 
-pub struct AttrQuery {
+pub struct AttrQuery<'a> {
+    ctx: &'a Context,
     id: Token,
     ty: Option<Token>,
 }
 
-impl AttrQuery {
-    pub(crate) fn id_token(&self) -> Token {
+impl<'a> AttrQuery<'a> {
+    pub fn new(ctx: &'a Context, id: &str, ty: Option<&str>) -> Self {
+        Self {
+            ctx,
+            id: ctx.get_token(id),
+            ty: ty.map(|ty| ctx.get_token(ty)),
+        }
+    }
+
+    pub(crate) fn id(&self) -> Token {
         self.id
+    }
+
+    pub(crate) fn ty(&self) -> Option<Token> {
+        self.ty.clone()
     }
 }
 
@@ -54,6 +68,10 @@ pub struct AttrType<'a> {
 impl<'a> AttrType<'a> {
     pub(crate) fn id_token(&self) -> Token {
         self.id
+    }
+
+    pub(crate) fn id_ty(&self) -> Token {
+        self.ty
     }
 
     pub fn id(&self) -> &str {

@@ -8,10 +8,13 @@ pub struct Frame<'a> {
 
 impl<'a> Frame<'a> {
     pub fn find(&self, attr: &AttrQuery) -> impl Iterator<Item = Attr<'a>> {
-        let id = attr.id_token();
+        let id = attr.id();
+        let ty = attr.ty();
         self.attrs
             .iter()
-            .filter(move |a| a.ty().id_token() == id)
+            .filter(move |a| {
+                a.ty().id_token() == id && (ty.is_none() || ty.unwrap() == a.ty().id_ty())
+            })
             .cloned()
     }
 }

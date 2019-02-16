@@ -6,4 +6,5 @@ edition = "2018"
 
 [dependencies]
 failure = "0.1"
+fnv = "1"
 parking_lot = "0.6"
