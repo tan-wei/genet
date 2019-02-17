@@ -12,8 +12,6 @@ impl fmt::Debug for Frame {
     }
 }
 
-unsafe impl Send for Frame {}
-
 impl Frame {
     pub fn new(index: u32, root: MutFixed<Layer>) -> Frame {
         Frame {
