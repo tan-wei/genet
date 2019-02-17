@@ -16,7 +16,7 @@ impl Writer for GenetFileWriter {
         Ok(Box::new(GenetFileWorker {
             writer,
             entries: Vec::new(),
-            layer_id: String::new(),
+            layer_id: Token::null(),
         }))
     }
 }
@@ -33,12 +33,12 @@ struct GenetFilePackage {
 struct GenetFileWorker {
     writer: BufWriter<File>,
     entries: Vec<genet_format::Entry>,
-    layer_id: String,
+    layer_id: Token,
 }
 
 impl Worker for GenetFileWorker {
     fn write(&mut self, _index: u32, layer: &Layer) -> Result<()> {
-        self.layer_id = layer.path().to_string();
+        self.layer_id = layer.id();
         self.entries.push(genet_format::Entry {
             frame: genet_format::Frame {
                 len: layer.data().len(),
@@ -50,7 +50,7 @@ impl Worker for GenetFileWorker {
 
     fn end(&mut self) -> Result<()> {
         let header = genet_format::Header {
-            layer_id: self.layer_id.clone(),
+            layer_id: self.layer_id.to_string(),
             entries: self.entries.len(),
         };
         let bin = bincode::serialize(&header)?;

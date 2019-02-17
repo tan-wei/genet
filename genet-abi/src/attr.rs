@@ -18,7 +18,7 @@ use std::{
     marker::PhantomData,
     mem,
     ops::{Deref, Range},
-    slice, str,
+    slice,
 };
 
 #[derive(Clone)]
@@ -695,16 +695,12 @@ impl<'a> Attr<'a> {
         self.class.id()
     }
 
-    pub fn path(&self) -> &str {
-        self.class.path()
-    }
-
     pub fn is_match(&self, id: Token) -> bool {
         self.class.is_match(id)
     }
 
     /// Returns the type of self.
-    pub fn typ(&self) -> &str {
+    pub fn typ(&self) -> Token {
         self.class.typ()
     }
 
@@ -741,8 +737,7 @@ enum ValueType {
 /// A builder object for AttrClass.
 pub struct AttrClassBuilder {
     id: Token,
-    path: String,
-    typ: String,
+    typ: Token,
     meta: Metadata,
     bit_range: Range<usize>,
     aliases: Vec<Token>,
@@ -751,7 +746,7 @@ pub struct AttrClassBuilder {
 
 impl AttrClassBuilder {
     /// Sets a type of AttrClass.
-    pub fn typ(mut self, typ: &str) -> AttrClassBuilder {
+    pub fn typ<T: Into<Token>>(mut self, typ: T) -> AttrClassBuilder {
         self.typ = typ.into();
         self
     }
@@ -814,12 +809,10 @@ impl AttrClassBuilder {
     pub fn build(self) -> AttrClass {
         AttrClass {
             get_id: abi_id,
-            get_path: abi_path,
             is_match: abi_is_match,
             get_typ: abi_typ,
             get: abi_get,
             id: self.id,
-            path: self.path,
             typ: self.typ,
             meta: self.meta,
             bit_range: self.bit_range,
@@ -833,13 +826,11 @@ impl AttrClassBuilder {
 #[repr(C)]
 pub struct AttrClass {
     get_id: extern "C" fn(class: *const AttrClass) -> Token,
-    get_path: extern "C" fn(class: *const AttrClass, len: *mut u64) -> *const u8,
     is_match: extern "C" fn(class: *const AttrClass, id: Token) -> u8,
-    get_typ: extern "C" fn(class: *const AttrClass, len: *mut u64) -> *const u8,
+    get_typ: extern "C" fn(class: *const AttrClass) -> Token,
     get: extern "C" fn(*const Attr, *mut *const u8, u64, *mut i64, *mut SafeString) -> ValueType,
     id: Token,
-    path: String,
-    typ: String,
+    typ: Token,
     meta: Metadata,
     bit_range: Range<usize>,
     aliases: Vec<Token>,
@@ -861,11 +852,10 @@ impl fmt::Debug for AttrClass {
 
 impl AttrClass {
     /// Creates a new builder object for AttrClass.
-    pub fn builder(id: &str) -> AttrClassBuilder {
+    pub fn builder<T: Into<Token>>(id: T) -> AttrClassBuilder {
         AttrClassBuilder {
-            id: Token::from(id),
-            path: id.to_string(),
-            typ: String::new(),
+            id: id.into(),
+            typ: Token::null(),
             meta: Metadata::new(),
             bit_range: 0..0,
             aliases: Vec::new(),
@@ -877,20 +867,12 @@ impl AttrClass {
         (self.get_id)(self)
     }
 
-    pub fn path(&self) -> &str {
-        let mut len = 0;
-        let data = (self.get_path)(self, &mut len);
-        unsafe { str::from_utf8_unchecked(slice::from_raw_parts(data, len as usize)) }
-    }
-
     pub fn is_match(&self, id: Token) -> bool {
         (self.is_match)(self, id) != 0
     }
 
-    pub fn typ(&self) -> &str {
-        let mut len = 0;
-        let data = (self.get_typ)(self, &mut len);
-        unsafe { str::from_utf8_unchecked(slice::from_raw_parts(data, len as usize)) }
+    pub fn typ(&self) -> Token {
+        (self.get_typ)(self)
     }
 
     pub fn byte_range(&self) -> Range<usize> {
@@ -959,14 +941,6 @@ extern "C" fn abi_id(class: *const AttrClass) -> Token {
     unsafe { (*class).id }
 }
 
-extern "C" fn abi_path(class: *const AttrClass, len: *mut u64) -> *const u8 {
-    unsafe {
-        let path = &(*class).path;
-        *len = path.len() as u64;
-        path.as_ptr()
-    }
-}
-
 extern "C" fn abi_is_match(class: *const AttrClass, id: Token) -> u8 {
     let class = unsafe { &(*class) };
     if class.id == id || class.aliases.iter().any(|&x| x == id) {
@@ -976,12 +950,8 @@ extern "C" fn abi_is_match(class: *const AttrClass, id: Token) -> u8 {
     }
 }
 
-extern "C" fn abi_typ(class: *const AttrClass, len: *mut u64) -> *const u8 {
-    unsafe {
-        let typ = &(*class).typ;
-        *len = typ.len() as u64;
-        typ.as_ptr()
-    }
+extern "C" fn abi_typ(class: *const AttrClass) -> Token {
+    unsafe { (*class).typ }
 }
 
 extern "C" fn abi_get(
@@ -1069,7 +1039,7 @@ mod tests {
             .build();
         let attr = Attr::new(&class, 0..8, Bytes::from(&[1][..]));
         assert_eq!(attr.id(), Token::from("bool"));
-        assert_eq!(attr.typ(), "@bool");
+        assert_eq!(attr.typ(), Token::from("@bool"));
         assert_eq!(attr.byte_range(), 0..1);
 
         match attr.get().unwrap() {
@@ -1087,7 +1057,7 @@ mod tests {
             .build();
         let attr = Attr::new(&class, 0..48, Bytes::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("u64"));
-        assert_eq!(attr.typ(), "@u64");
+        assert_eq!(attr.typ(), Token::from("@u64"));
         assert_eq!(attr.byte_range(), 0..6);
 
         match attr.get().unwrap() {
@@ -1105,7 +1075,7 @@ mod tests {
             .build();
         let attr = Attr::new(&class, 0..48, Bytes::from(&b"-123456789"[..]));
         assert_eq!(attr.id(), Token::from("i64"));
-        assert_eq!(attr.typ(), "@i64");
+        assert_eq!(attr.typ(), Token::from("@i64"));
         assert_eq!(attr.byte_range(), 0..6);
 
         match attr.get().unwrap() {
@@ -1123,7 +1093,7 @@ mod tests {
             .build();
         let attr = Attr::new(&class, 0..48, Bytes::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("buffer"));
-        assert_eq!(attr.typ(), "@buffer");
+        assert_eq!(attr.typ(), Token::from("@buffer"));
         assert_eq!(attr.byte_range(), 0..6);
 
         match attr.get().unwrap() {
@@ -1141,7 +1111,7 @@ mod tests {
             .build();
         let attr = Attr::new(&class, 0..48, Bytes::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("slice"));
-        assert_eq!(attr.typ(), "@slice");
+        assert_eq!(attr.typ(), Token::from("@slice"));
         assert_eq!(attr.byte_range(), 0..6);
 
         match attr.get().unwrap() {
@@ -1159,7 +1129,7 @@ mod tests {
             .build();
         let attr = Attr::new(&class, 0..48, Bytes::from(&b"123456789"[..]));
         assert_eq!(attr.id(), Token::from("slice"));
-        assert_eq!(attr.typ(), "@slice");
+        assert_eq!(attr.typ(), Token::from("@slice"));
         assert_eq!(attr.byte_range(), 0..6);
 
         match attr.get() {

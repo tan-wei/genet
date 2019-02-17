@@ -3,7 +3,7 @@ use failure::{err_msg, Error};
 use fnv::FnvHashMap;
 use genet_abi::{
     abi_signature, alloc::Allocator, context::Context, decoder::DecoderData, reader::ReaderData,
-    writer::WriterData,
+    token::TokenRegistry, writer::WriterData,
 };
 use genet_sdk::package::{Component, Package};
 use libloading::Library;
@@ -106,6 +106,7 @@ impl Profile {
         let lib = Library::new(path)?;
 
         type FnSignature = extern "C" fn(*mut String, extern "C" fn(*const u8, u64, *mut String));
+        type FnRegisterTokenRegistry = extern "C" fn(TokenRegistry);
         type FnRegisterAllocator = extern "C" fn(Allocator);
 
         type FnLoadPackageCallback = extern "C" fn(*const u8, u64, *mut Vec<u8>);
@@ -128,6 +129,11 @@ impl Profile {
             let func =
                 unsafe { lib.get::<FnRegisterAllocator>(b"genet_abi_v1_register_allocator")? };
             func(Allocator::default());
+
+            let func = unsafe {
+                lib.get::<FnRegisterTokenRegistry>(b"genet_abi_v1_register_token_registry")?
+            };
+            func(TokenRegistry::default());
         }
 
         if let Ok(func) = unsafe { lib.get::<FnLoadPackage>(b"genet_abi_v1_load_package") } {

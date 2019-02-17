@@ -9,7 +9,7 @@ use std::{
     fmt,
     marker::PhantomData,
     ops::{Deref, DerefMut, Range},
-    slice, str,
+    slice,
 };
 
 #[repr(C)]
@@ -58,7 +58,6 @@ impl<'a> LayerStack<'a> {
     }
 
     /// Find the attribute in the Layer.
-    #[inline]
     pub fn attr<T: Into<Token>>(&self, id: T) -> Option<Attr> {
         self.deref().attr(id)
     }
@@ -154,10 +153,6 @@ impl Layer {
         self.class.id()
     }
 
-    pub fn path(&self) -> &str {
-        self.class.path()
-    }
-
     /// Returns the type of self.
     pub fn data(&self) -> Bytes {
         self.class.data(self)
@@ -169,7 +164,6 @@ impl Layer {
     }
 
     /// Find the attribute in the Layer.
-    #[inline]
     pub fn attr<T: Into<Token>>(&self, id: T) -> Option<Attr> {
         let id = id.into();
 
@@ -258,7 +252,6 @@ impl LayerClassBuilder {
     pub fn build(self) -> LayerClass {
         LayerClass {
             get_id: abi_id,
-            get_path: abi_path,
             data: abi_data,
             attrs_len: abi_attrs_len,
             attrs_data: abi_attrs_data,
@@ -302,7 +295,7 @@ impl<T: AttrField> LayerType<T> {
     pub fn new(id: &str) -> Self {
         let mut ctx = T::context();
         ctx.id = id.into();
-        let class = vec![AttrClass::builder(&ctx.id)
+        let class = vec![AttrClass::builder(ctx.id.clone())
             .cast(|_, _| Ok(Variant::Bool(true)))
             .bit_range(ctx.bit_offset..(ctx.bit_offset + ctx.bit_size))
             .typ("@layer")];
@@ -313,7 +306,6 @@ impl<T: AttrField> LayerType<T> {
             .collect();
         let layer = Fixed::new(LayerClass {
             get_id: abi_id,
-            get_path: abi_path,
             data: abi_data,
             attrs_len: abi_attrs_len,
             attrs_data: abi_attrs_data,
@@ -336,7 +328,6 @@ impl<T: AttrField> LayerType<T> {
 #[repr(C)]
 pub struct LayerClass {
     get_id: extern "C" fn(*const LayerClass) -> Token,
-    get_path: extern "C" fn(*const LayerClass, len: *mut u64) -> *const u8,
     data: extern "C" fn(*const Layer, *mut u64) -> *const u8,
     attrs_len: extern "C" fn(*const Layer) -> u64,
     attrs_data: extern "C" fn(*const Layer) -> *const BoundAttr,
@@ -356,12 +347,6 @@ impl LayerClass {
 
     fn id(&self) -> Token {
         (self.get_id)(self)
-    }
-
-    fn path(&self) -> &str {
-        let mut len = 0;
-        let data = (self.get_path)(self, &mut len);
-        unsafe { str::from_utf8_unchecked(slice::from_raw_parts(data, len as usize)) }
     }
 
     fn data(&self, layer: &Layer) -> Bytes {
@@ -406,14 +391,6 @@ impl Into<Fixed<LayerClass>> for &'static LayerClass {
 
 extern "C" fn abi_id(class: *const LayerClass) -> Token {
     unsafe { (*class).headers[0].id() }
-}
-
-extern "C" fn abi_path(class: *const LayerClass, len: *mut u64) -> *const u8 {
-    unsafe {
-        let path = &(*class).headers[0].path();
-        *len = path.len() as u64;
-        path.as_ptr()
-    }
 }
 
 extern "C" fn abi_data(layer: *const Layer, len: *mut u64) -> *const u8 {
@@ -465,8 +442,8 @@ mod tests {
 
     #[test]
     fn id() {
-        let id = Token::from("123");
-        let attr = vec![Fixed::new(AttrClass::builder("123").build())];
+        let id = Token::from(123);
+        let attr = vec![Fixed::new(AttrClass::builder(id).build())];
         let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
         let layer = Layer::new(&class, &Bytes::new());
         assert_eq!(layer.id(), id);
@@ -475,7 +452,7 @@ mod tests {
     #[test]
     fn data() {
         let data = b"hello";
-        let attr = vec![Fixed::new(AttrClass::builder("").build())];
+        let attr = vec![Fixed::new(AttrClass::builder(Token::null()).build())];
         let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
         let layer = Layer::new(&class, &Bytes::from(&data[..]));
         assert_eq!(layer.data(), Bytes::from(&data[..]));
@@ -483,7 +460,7 @@ mod tests {
 
     #[test]
     fn attrs() {
-        let attr = vec![Fixed::new(AttrClass::builder("").build())];
+        let attr = vec![Fixed::new(AttrClass::builder(Token::null()).build())];
         let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
         let mut layer = Layer::new(&class, &Bytes::new());
 
@@ -510,7 +487,7 @@ mod tests {
         for i in 0..count {
             let attr = iter.next().unwrap();
             assert_eq!(attr.id(), Token::from("nil"));
-            assert_eq!(attr.typ(), "@nil");
+            assert_eq!(attr.typ(), Token::from("@nil"));
             assert_eq!(attr.byte_range(), 0..i);
         }
         assert!(iter.next().is_none());

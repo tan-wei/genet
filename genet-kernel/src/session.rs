@@ -10,7 +10,9 @@ use genet_abi::{
     attr::AttrClass,
     fixed::{Fixed, MutFixed},
     layer::{Layer, LayerClass},
-    reader, writer,
+    reader,
+    token::Token,
+    writer,
 };
 use genet_filter::CompiledLayerFilter;
 use serde::ser::{Serialize, SerializeMap, Serializer};
@@ -56,9 +58,9 @@ impl Session {
             let ctx = self.profile.context();
             match reader.reader.new_worker(&ctx, url) {
                 Ok(input) => {
-                    let id = input.layer_id().to_string();
+                    let id: Token = input.layer_id().to_string().into();
                     self.store
-                        .set_input(self.io_cnt, WorkerInput::new(input, &id));
+                        .set_input(self.io_cnt, WorkerInput::new(input, id));
                     return self.io_cnt;
                 }
                 Err(err) => {
@@ -253,7 +255,7 @@ struct WorkerInput {
 }
 
 impl WorkerInput {
-    fn new(worker: reader::WorkerBox, id: &str) -> WorkerInput {
+    fn new(worker: reader::WorkerBox, id: Token) -> WorkerInput {
         let attr = vec![Fixed::new(AttrClass::builder(id).build())];
         Self {
             worker,

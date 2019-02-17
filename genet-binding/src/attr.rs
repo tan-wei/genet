@@ -46,7 +46,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
     fn attr_id<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let attr = env.unwrap::<Attr>(info.this())?;
-        env.create_string(&attr.path())
+        env.create_string(&attr.id().to_string())
     }
 
     fn attr_type<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
@@ -81,8 +81,8 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         let attr = env.unwrap::<Attr>(info.this())?;
         match attr.get() {
             Ok(val) => env.create_string(&unparse(&Expr::CmpEq(
-                Box::new(Expr::Token(attr.path().to_string(), attr.id())),
-                Box::new(unparse_attr(&attr.typ(), &val)),
+                Box::new(Expr::Token(attr.id().to_string(), attr.id())),
+                Box::new(unparse_attr(attr.typ(), &val)),
             ))),
             Err(_) => env.get_null(),
         }
