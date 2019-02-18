@@ -6,7 +6,7 @@ use std::{
 
 #[repr(transparent)]
 #[derive(Clone, Copy)]
-pub struct Token(NonNull<Header>);
+pub struct Token(Option<NonNull<Header>>);
 
 unsafe impl Send for Token {}
 unsafe impl Sync for Token {}
@@ -51,27 +51,40 @@ impl Token {
             ptr = v.as_mut_ptr();
             mem::forget(v);
         }
-        unsafe { Self(NonNull::new_unchecked(ptr)) }
+        unsafe { Self(Some(NonNull::new_unchecked(ptr))) }
     }
 
     pub fn as_str(&self) -> &str {
-        let header = self.header();
-        if header.strlen == 0 {
-            ""
-        } else {
-            unsafe {
-                let data = self.0.as_ptr().offset(1) as *const u8;
-                str::from_utf8_unchecked(slice::from_raw_parts(data, header.strlen as usize))
+        if let Some(header) = self.header() {
+            if header.strlen == 0 {
+                ""
+            } else {
+                unsafe {
+                    let data = self.0.unwrap().as_ptr().offset(1) as *const u8;
+                    str::from_utf8_unchecked(slice::from_raw_parts(data, header.strlen as usize))
+                }
             }
+        } else {
+            ""
         }
     }
 
     pub fn index(&self) -> u32 {
-        self.header().index
+        if let Some(header) = self.header() {
+            header.index
+        } else {
+            0
+        }
     }
 
-    fn header(&self) -> &Header {
-        unsafe { self.0.as_ref() }
+    fn header(&self) -> Option<&Header> {
+        unsafe {
+            if let Some(header) = &self.0 {
+                Some(header.as_ref())
+            } else {
+                None
+            }
+        }
     }
 }
 
