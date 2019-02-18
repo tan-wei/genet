@@ -825,10 +825,16 @@ impl AttrClassBuilder {
 /// An attribute class.
 #[repr(C)]
 pub struct AttrClass {
-    get_id: extern "C" fn(class: *const AttrClass) -> Token,
-    is_match: extern "C" fn(class: *const AttrClass, id: Token) -> u8,
-    get_typ: extern "C" fn(class: *const AttrClass) -> Token,
-    get: extern "C" fn(*const Attr, *mut *const u8, u64, *mut i64, *mut SafeString) -> ValueType,
+    get_id: unsafe extern "C" fn(class: *const AttrClass) -> Token,
+    is_match: unsafe extern "C" fn(class: *const AttrClass, id: Token) -> u8,
+    get_typ: unsafe extern "C" fn(class: *const AttrClass) -> Token,
+    get: unsafe extern "C" fn(
+        *const Attr,
+        *mut *const u8,
+        u64,
+        *mut i64,
+        *mut SafeString,
+    ) -> ValueType,
     id: Token,
     typ: Token,
     meta: Metadata,
@@ -864,15 +870,15 @@ impl AttrClass {
     }
 
     pub fn id(&self) -> Token {
-        (self.get_id)(self)
+        unsafe { (self.get_id)(self) }
     }
 
     pub fn is_match(&self, id: Token) -> bool {
-        (self.is_match)(self, id) != 0
+        unsafe { (self.is_match)(self, id) != 0 }
     }
 
     pub fn typ(&self) -> Token {
-        (self.get_typ)(self)
+        unsafe { (self.get_typ)(self) }
     }
 
     pub fn byte_range(&self) -> Range<usize> {
@@ -901,32 +907,32 @@ impl AttrClass {
         let mut buf: *const u8 = data.as_ptr();
         let mut num = 0;
         let mut err = SafeString::new();
-        let typ = (self.get)(attr, &mut buf, data.len() as u64, &mut num, &mut err);
-        match typ {
-            ValueType::Error => Err(format_err!("{}", err)),
-            ValueType::Bool => Ok(Variant::Bool(num == 1)),
-            ValueType::Int64 => Ok(Variant::Int64(num)),
-            ValueType::UInt64 => Ok(Variant::UInt64(unsafe { mem::transmute_copy(&num) })),
-            ValueType::Float64 => Ok(Variant::Float64(unsafe { mem::transmute_copy(&num) })),
-            ValueType::Buffer => unsafe {
-                let len: u64 = mem::transmute_copy(&num);
-                let b = Box::from(slice::from_raw_parts(buf, len as usize));
-                Box::from_raw(buf as *mut u8);
-                Ok(Variant::Buffer(b))
-            },
-            ValueType::BigInt => unsafe {
-                let len: u64 = mem::transmute_copy(&num);
-                let b = slice::from_raw_parts(buf, len as usize);
-                Box::from_raw(buf as *mut u8);
-                Ok(Variant::BigInt(BigInt::from_signed_bytes_le(b)))
-            },
-            ValueType::Bytes => {
-                let len: u64 = unsafe { mem::transmute_copy(&num) };
-                Ok(Variant::Bytes(unsafe {
-                    Bytes::from_raw_parts(buf, len as usize)
-                }))
+        unsafe {
+            let typ = (self.get)(attr, &mut buf, data.len() as u64, &mut num, &mut err);
+            match typ {
+                ValueType::Error => Err(format_err!("{}", err)),
+                ValueType::Bool => Ok(Variant::Bool(num == 1)),
+                ValueType::Int64 => Ok(Variant::Int64(num)),
+                ValueType::UInt64 => Ok(Variant::UInt64(mem::transmute_copy(&num))),
+                ValueType::Float64 => Ok(Variant::Float64(mem::transmute_copy(&num))),
+                ValueType::Buffer => {
+                    let len: u64 = mem::transmute_copy(&num);
+                    let b = Box::from(slice::from_raw_parts(buf, len as usize));
+                    Box::from_raw(buf as *mut u8);
+                    Ok(Variant::Buffer(b))
+                }
+                ValueType::BigInt => {
+                    let len: u64 = mem::transmute_copy(&num);
+                    let b = slice::from_raw_parts(buf, len as usize);
+                    Box::from_raw(buf as *mut u8);
+                    Ok(Variant::BigInt(BigInt::from_signed_bytes_le(b)))
+                }
+                ValueType::Bytes => {
+                    let len: u64 = mem::transmute_copy(&num);
+                    Ok(Variant::Bytes(Bytes::from_raw_parts(buf, len as usize)))
+                }
+                _ => Ok(Variant::Nil),
             }
-            _ => Ok(Variant::Nil),
         }
     }
 }
@@ -937,12 +943,12 @@ impl Into<Fixed<AttrClass>> for &'static AttrClass {
     }
 }
 
-extern "C" fn abi_id(class: *const AttrClass) -> Token {
-    unsafe { (*class).id }
+unsafe extern "C" fn abi_id(class: *const AttrClass) -> Token {
+    (*class).id
 }
 
-extern "C" fn abi_is_match(class: *const AttrClass, id: Token) -> u8 {
-    let class = unsafe { &(*class) };
+unsafe extern "C" fn abi_is_match(class: *const AttrClass, id: Token) -> u8 {
+    let class = &(*class);
     if class.id == id || class.aliases.iter().any(|&x| x == id) {
         1
     } else {
@@ -950,67 +956,61 @@ extern "C" fn abi_is_match(class: *const AttrClass, id: Token) -> u8 {
     }
 }
 
-extern "C" fn abi_typ(class: *const AttrClass) -> Token {
-    unsafe { (*class).typ }
+unsafe extern "C" fn abi_typ(class: *const AttrClass) -> Token {
+    (*class).typ
 }
 
-extern "C" fn abi_get(
+unsafe extern "C" fn abi_get(
     attr: *const Attr,
     data: *mut *const u8,
     len: u64,
     num: *mut i64,
     err: *mut SafeString,
 ) -> ValueType {
-    let attr = unsafe { &(*attr) };
+    let attr = &(*attr);
     let cast = &attr.class.cast;
-    let slice = unsafe { Bytes::from_raw_parts(*data, len as usize) };
+    let slice = Bytes::from_raw_parts(*data, len as usize);
 
     match (cast)(attr, &slice) {
         Ok(v) => match v {
             Variant::Bool(val) => {
-                unsafe { *num = if val { 1 } else { 0 } };
+                *num = if val { 1 } else { 0 };
                 ValueType::Bool
             }
             Variant::Int64(val) => {
-                unsafe { *num = val };
+                *num = val;
                 ValueType::Int64
             }
             Variant::UInt64(val) => {
-                unsafe { *(num as *mut u64) = val };
+                *(num as *mut u64) = val;
                 ValueType::UInt64
             }
             Variant::Float64(val) => {
-                unsafe { *(num as *mut f64) = val };
+                *(num as *mut f64) = val;
                 ValueType::Float64
             }
             Variant::BigInt(val) => {
                 let val = val.to_signed_bytes_le();
                 let len = val.len() as u64;
-                unsafe {
-                    *data = Box::into_raw(val.into_boxed_slice()) as *mut u8;
-                    *(num as *mut u64) = len;
-                };
+                *data = Box::into_raw(val.into_boxed_slice()) as *mut u8;
+                *(num as *mut u64) = len;
                 ValueType::BigInt
             }
             Variant::Buffer(val) => {
                 let len = val.len() as u64;
-                unsafe {
-                    *data = Box::into_raw(val) as *mut u8;
-                    *(num as *mut u64) = len as u64;
-                };
+                *data = Box::into_raw(val) as *mut u8;
+                *(num as *mut u64) = len as u64;
                 ValueType::Buffer
             }
             Variant::Bytes(val) => {
-                unsafe {
-                    *data = val.as_ptr();
-                    *(num as *mut u64) = val.len() as u64;
-                };
+                *data = val.as_ptr();
+                *(num as *mut u64) = val.len() as u64;
                 ValueType::Bytes
             }
             _ => ValueType::Nil,
         },
         Err(e) => {
-            unsafe { *err = SafeString::from(&format!("{}", e)) }
+            *err = SafeString::from(&format!("{}", e));
             ValueType::Error
         }
     }

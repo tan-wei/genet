@@ -18,11 +18,9 @@ unsafe impl Sync for Async {}
 impl Async {
     pub fn new<F: Fn()>(env: &Env, callback: F) -> Async {
         unsafe {
-            extern "C" fn async_cb(asyn: *mut Inner) {
-                unsafe {
-                    let data = (*asyn).data as *mut Box<Fn()>;
-                    (*data)();
-                }
+            unsafe extern "C" fn async_cb(asyn: *mut Inner) {
+                let data = (*asyn).data as *mut Box<Fn()>;
+                (*data)();
             }
 
             let data: *mut Box<Fn()> = Box::into_raw(Box::new(Box::new(callback)));
@@ -48,8 +46,8 @@ impl Async {
 
 impl Drop for Async {
     fn drop(&mut self) {
-        extern "C" fn close_cb(asyn: *mut Inner) {
-            unsafe { Box::from_raw(asyn) };
+        unsafe extern "C" fn close_cb(asyn: *mut Inner) {
+            Box::from_raw(asyn);
         }
         unsafe { uv_close(self.0, close_cb) };
     }
@@ -59,10 +57,10 @@ extern "C" {
     fn uv_async_init(
         evloop: *mut Loop,
         async_data: *mut Inner,
-        async_cb: extern "C" fn(*mut Inner),
+        async_cb: unsafe extern "C" fn(*mut Inner),
     ) -> c_int;
     fn uv_async_send(async_data: *const Inner) -> c_int;
-    fn uv_close(async_data: *mut Inner, close_cb: extern "C" fn(*mut Inner));
+    fn uv_close(async_data: *mut Inner, close_cb: unsafe extern "C" fn(*mut Inner));
 
     fn napi_get_uv_event_loop(env: *const Env, evloop: *mut *mut Loop) -> Status;
 }

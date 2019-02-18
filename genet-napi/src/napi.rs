@@ -173,17 +173,15 @@ impl Env {
         func: fn(&'env Env, &CallbackInfo) -> Result<&'env Value>,
     ) -> (Cb, *mut libc::c_void) {
         struct FuncData<'env>(fn(&'env Env, &CallbackInfo) -> Result<&'env Value>);
-        extern "C" fn cb(env: *const Env, info: *const CbInfo) -> *const Value {
-            unsafe {
-                let env = &*env;
-                let info = env.get_cb_info(&*info).unwrap();
-                let func: FuncData = mem::transmute(info.data);
-                match func.0(env, &info) {
-                    Ok(v) => v,
-                    Err(s) => {
-                        let _ = env.throw_error("napi_status", &format!("{:?}", s));
-                        env.get_undefined().unwrap()
-                    }
+        unsafe extern "C" fn cb(env: *const Env, info: *const CbInfo) -> *const Value {
+            let env = &*env;
+            let info = env.get_cb_info(&*info).unwrap();
+            let func: FuncData = mem::transmute(info.data);
+            match func.0(env, &info) {
+                Ok(v) => v,
+                Err(s) => {
+                    let _ = env.throw_error("napi_status", &format!("{:?}", s));
+                    env.get_undefined().unwrap()
                 }
             }
         }
@@ -794,8 +792,8 @@ impl Env {
     }
 
     pub fn wrap<T>(&self, js_object: &Value, value: T) -> Result<()> {
-        extern "C" fn finalize_cb<T>(_env: *const Env, data: *mut u8, _hint: *mut u8) {
-            unsafe { Box::from_raw(data as *mut T) };
+        unsafe extern "C" fn finalize_cb<T>(_env: *const Env, data: *mut u8, _hint: *mut u8) {
+            Box::from_raw(data as *mut T);
         }
         let value = Box::into_raw(Box::new(value));
         unsafe {
@@ -954,7 +952,7 @@ impl Deref for ValueRef {
 }
 
 pub enum CbInfo {}
-type Cb = extern "C" fn(env: *const Env, info: *const CbInfo) -> *const Value;
+type Cb = unsafe extern "C" fn(env: *const Env, info: *const CbInfo) -> *const Value;
 
 pub struct CallbackInfo<'env> {
     argv: Vec<&'env Value>,
@@ -1294,7 +1292,7 @@ extern "C" {
         env: *const Env,
         js_object: *const Value,
         native_object: *mut libc::c_void,
-        finalize_cb: extern "C" fn(*const Env, *mut u8, *mut u8),
+        finalize_cb: unsafe extern "C" fn(*const Env, *mut u8, *mut u8),
         finalize_hint: *mut libc::c_void,
         result: *mut *const Ref,
     ) -> Status;

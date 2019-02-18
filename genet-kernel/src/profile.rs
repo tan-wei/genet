@@ -105,20 +105,19 @@ impl Profile {
     pub fn load_library(&mut self, path: &str) -> Result<(), Error> {
         let lib = Library::new(path)?;
 
-        type FnSignature = extern "C" fn(*mut String, extern "C" fn(*const u8, u64, *mut String));
+        type FnSignature =
+            extern "C" fn(*mut String, unsafe extern "C" fn(*const u8, u64, *mut String));
         type FnRegisterTokenRegistry = extern "C" fn(TokenRegistry);
         type FnRegisterAllocator = extern "C" fn(Allocator);
 
-        type FnLoadPackageCallback = extern "C" fn(*const u8, u64, *mut Vec<u8>);
+        type FnLoadPackageCallback = unsafe extern "C" fn(*const u8, u64, *mut Vec<u8>);
         type FnLoadPackage = extern "C" fn(*mut Vec<u8>, FnLoadPackageCallback);
 
         {
             let func = unsafe { lib.get::<FnSignature>(b"genet_abi_signature")? };
-            extern "C" fn callback(dst: *const u8, len: u64, data: *mut String) {
-                unsafe {
-                    *data = str::from_utf8_unchecked(slice::from_raw_parts(dst, len as usize))
-                        .to_string()
-                };
+            unsafe extern "C" fn callback(dst: *const u8, len: u64, data: *mut String) {
+                *data =
+                    str::from_utf8_unchecked(slice::from_raw_parts(dst, len as usize)).to_string();
             }
             let mut signature = String::new();
             func(&mut signature, callback);
@@ -137,8 +136,8 @@ impl Profile {
         }
 
         if let Ok(func) = unsafe { lib.get::<FnLoadPackage>(b"genet_abi_v1_load_package") } {
-            extern "C" fn cb(data: *const u8, len: u64, dst: *mut Vec<u8>) {
-                unsafe { *dst = slice::from_raw_parts(data, len as usize).to_vec() };
+            unsafe extern "C" fn cb(data: *const u8, len: u64, dst: *mut Vec<u8>) {
+                *dst = slice::from_raw_parts(data, len as usize).to_vec();
             }
             let mut buf = Vec::new();
             func(&mut buf, cb);

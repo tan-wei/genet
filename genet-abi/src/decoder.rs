@@ -51,8 +51,8 @@ impl DecoderStack {
 
 #[repr(C)]
 pub struct WorkerBox {
-    decode: extern "C" fn(*mut WorkerBox, *mut LayerStack, *mut SafeString) -> u8,
-    drop: extern "C" fn(*mut Box<Worker>),
+    decode: unsafe extern "C" fn(*mut WorkerBox, *mut LayerStack, *mut SafeString) -> u8,
+    drop: unsafe extern "C" fn(*mut Box<Worker>),
     worker: *mut Box<Worker>,
 }
 
@@ -67,7 +67,7 @@ impl WorkerBox {
 
     pub fn decode(&mut self, layer: &mut LayerStack) -> Result<Status> {
         let mut err = SafeString::new();
-        let result = (self.decode)(self, layer, &mut err);
+        let result = unsafe { (self.decode)(self, layer, &mut err) };
         match result {
             2 => Ok(Status::Done),
             1 => Ok(Status::Skip),
@@ -78,33 +78,31 @@ impl WorkerBox {
 
 impl Drop for WorkerBox {
     fn drop(&mut self) {
-        (self.drop)(self.worker);
+        unsafe { (self.drop)(self.worker) };
     }
 }
 
-extern "C" fn abi_decode(
+unsafe extern "C" fn abi_decode(
     worker: *mut WorkerBox,
     layer: *mut LayerStack,
     error: *mut SafeString,
 ) -> u8 {
-    let worker = unsafe { &mut *((*worker).worker) };
-    let mut layer = unsafe { &mut *layer };
+    let worker = &mut *((*worker).worker);
+    let mut layer = &mut *layer;
     match worker.decode(&mut layer) {
         Ok(stat) => match stat {
             Status::Done => 2,
             Status::Skip => 1,
         },
         Err(err) => {
-            unsafe {
-                ptr::write(error, SafeString::from(&format!("{}", err)));
-            }
+            ptr::write(error, SafeString::from(&format!("{}", err)));
             0
         }
     }
 }
 
-extern "C" fn abi_drop(worker: *mut Box<Worker>) {
-    unsafe { Box::from_raw(worker) };
+unsafe extern "C" fn abi_drop(worker: *mut Box<Worker>) {
+    Box::from_raw(worker);
 }
 
 /// Decoder trait.
@@ -134,8 +132,12 @@ impl Clone for Box<Decoder> {
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct DecoderBox {
-    new_worker:
-        extern "C" fn(*const DecoderBox, *const Context, *mut WorkerBox, *mut SafeString) -> u8,
+    new_worker: unsafe extern "C" fn(
+        *const DecoderBox,
+        *const Context,
+        *mut WorkerBox,
+        *mut SafeString,
+    ) -> u8,
     decoder: *mut Box<Decoder>,
 }
 
@@ -152,33 +154,35 @@ impl DecoderBox {
     }
 
     pub fn new_worker(&self, ctx: &Context) -> Result<WorkerBox> {
-        let mut out: WorkerBox = unsafe { mem::uninitialized() };
-        let mut err = SafeString::new();
-        if (self.new_worker)(self, ctx, &mut out, &mut err) == 1 {
-            Ok(out)
-        } else {
-            mem::forget(out);
-            Err(format_err!("{}", err))
+        unsafe {
+            let mut out: WorkerBox = mem::uninitialized();
+            let mut err = SafeString::new();
+            if (self.new_worker)(self, ctx, &mut out, &mut err) == 1 {
+                Ok(out)
+            } else {
+                mem::forget(out);
+                Err(format_err!("{}", err))
+            }
         }
     }
 }
 
-extern "C" fn abi_new_worker(
+unsafe extern "C" fn abi_new_worker(
     diss: *const DecoderBox,
     ctx: *const Context,
     out: *mut WorkerBox,
     err: *mut SafeString,
 ) -> u8 {
-    let diss = unsafe { &*(*diss).decoder };
-    let ctx = unsafe { &(*ctx) };
+    let diss = &*(*diss).decoder;
+    let ctx = &(*ctx);
 
     match diss.new_worker(ctx) {
         Ok(worker) => {
-            unsafe { ptr::write(out, WorkerBox::new(worker)) };
+            ptr::write(out, WorkerBox::new(worker));
             1
         }
         Err(e) => {
-            unsafe { *err = SafeString::from(&format!("{}", e)) };
+            *err = SafeString::from(&format!("{}", e));
             0
         }
     }

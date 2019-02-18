@@ -1,14 +1,14 @@
 use std::alloc::{GlobalAlloc, Layout};
 
-static mut ALLOC: extern "C" fn(size: u64) -> *mut u8 = alloc;
-static mut REALLOC: extern "C" fn(ptr: *mut u8, size: u64) -> *mut u8 = realloc;
-static mut DEALLOC: extern "C" fn(ptr: *mut u8) = dealloc;
+static mut ALLOC: unsafe extern "C" fn(size: u64) -> *mut u8 = alloc;
+static mut REALLOC: unsafe extern "C" fn(ptr: *mut u8, size: u64) -> *mut u8 = realloc;
+static mut DEALLOC: unsafe extern "C" fn(ptr: *mut u8) = dealloc;
 
 #[repr(C)]
 pub struct Allocator {
-    alloc: extern "C" fn(size: u64) -> *mut u8,
-    realloc: extern "C" fn(ptr: *mut u8, size: u64) -> *mut u8,
-    dealloc: extern "C" fn(ptr: *mut u8),
+    alloc: unsafe extern "C" fn(size: u64) -> *mut u8,
+    realloc: unsafe extern "C" fn(ptr: *mut u8, size: u64) -> *mut u8,
+    dealloc: unsafe extern "C" fn(ptr: *mut u8),
 }
 
 impl Default for Allocator {
@@ -28,14 +28,16 @@ pub unsafe extern "C" fn genet_abi_v1_register_allocator(alloc: Allocator) {
     DEALLOC = alloc.dealloc;
 }
 
-extern "C" fn alloc(size: u64) -> *mut u8 {
-    unsafe { libc::malloc(size as usize) as *mut u8 }
+unsafe extern "C" fn alloc(size: u64) -> *mut u8 {
+    libc::malloc(size as usize) as *mut u8
 }
-extern "C" fn realloc(ptr: *mut u8, size: u64) -> *mut u8 {
-    unsafe { libc::realloc(ptr as *mut libc::c_void, size as usize) as *mut u8 }
+
+unsafe extern "C" fn realloc(ptr: *mut u8, size: u64) -> *mut u8 {
+    libc::realloc(ptr as *mut libc::c_void, size as usize) as *mut u8
 }
-extern "C" fn dealloc(ptr: *mut u8) {
-    unsafe { libc::free(ptr as *mut libc::c_void) };
+
+unsafe extern "C" fn dealloc(ptr: *mut u8) {
+    libc::free(ptr as *mut libc::c_void);
 }
 
 pub struct SharedAllocator;

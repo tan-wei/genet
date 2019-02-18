@@ -18,7 +18,7 @@ pub trait Reader: Send {
     fn new_worker(&self, ctx: &Context, url: &Url) -> Result<Box<Worker>>;
 }
 
-type ReaderNewWorkerFunc = extern "C" fn(
+type ReaderNewWorkerFunc = unsafe extern "C" fn(
     *mut Box<Reader>,
     *const Context,
     *const u8,
@@ -49,15 +49,17 @@ impl ReaderBox {
     pub fn new_worker(&self, ctx: &Context, url: &str) -> Result<WorkerBox> {
         let mut out: WorkerBox = unsafe { mem::uninitialized() };
         let mut err = SafeString::new();
-        if (self.new_worker)(
-            self.reader,
-            ctx,
-            url.as_ptr(),
-            url.len() as u64,
-            &mut out,
-            &mut err,
-        ) == 1
-        {
+        let result = unsafe {
+            (self.new_worker)(
+                self.reader,
+                ctx,
+                url.as_ptr(),
+                url.len() as u64,
+                &mut out,
+                &mut err,
+            )
+        };
+        if result == 1 {
             Ok(out)
         } else {
             mem::forget(out);
@@ -66,7 +68,7 @@ impl ReaderBox {
     }
 }
 
-extern "C" fn abi_reader_new_worker(
+unsafe extern "C" fn abi_reader_new_worker(
     reader: *mut Box<Reader>,
     ctx: *const Context,
     url: *const u8,
@@ -74,19 +76,19 @@ extern "C" fn abi_reader_new_worker(
     out: *mut WorkerBox,
     err: *mut SafeString,
 ) -> u8 {
-    let reader = unsafe { &*reader };
-    let ctx = unsafe { &*ctx };
-    let url = unsafe { str::from_utf8_unchecked(slice::from_raw_parts(url, url_len as usize)) };
+    let reader = &*reader;
+    let ctx = &*ctx;
+    let url = str::from_utf8_unchecked(slice::from_raw_parts(url, url_len as usize));
     let url = Url::parse(url)
         .ok()
         .unwrap_or_else(|| Url::parse("null:").unwrap());
     match reader.new_worker(ctx, &url) {
         Ok(worker) => {
-            unsafe { ptr::write(out, WorkerBox::new(worker)) };
+            ptr::write(out, WorkerBox::new(worker));
             1
         }
         Err(e) => {
-            unsafe { *err = SafeString::from(&format!("{}", e)) };
+            *err = SafeString::from(&format!("{}", e));
             0
         }
     }
@@ -98,13 +100,14 @@ pub trait Worker: Send {
     fn layer_id(&self) -> &str;
 }
 
-type ReaderFunc = extern "C" fn(*mut Box<Worker>, *mut SafeVec<Bytes>, *mut SafeString) -> u8;
+type ReaderFunc =
+    unsafe extern "C" fn(*mut Box<Worker>, *mut SafeVec<Bytes>, *mut SafeString) -> u8;
 
 pub struct WorkerBox {
     worker: *mut Box<Worker>,
     read: ReaderFunc,
-    layer_id: extern "C" fn(*const Box<Worker>, *mut u64) -> *const u8,
-    drop: extern "C" fn(*mut Box<Worker>),
+    layer_id: unsafe extern "C" fn(*const Box<Worker>, *mut u64) -> *const u8,
+    drop: unsafe extern "C" fn(*mut Box<Worker>),
 }
 
 unsafe impl Send for WorkerBox {}
@@ -122,7 +125,7 @@ impl WorkerBox {
     pub fn read(&mut self) -> Result<Vec<Bytes>> {
         let mut v = SafeVec::new();
         let mut e = SafeString::new();
-        if (self.read)(self.worker, &mut v, &mut e) == 0 {
+        if unsafe { (self.read)(self.worker, &mut v, &mut e) } == 0 {
             Err(format_err!("{}", e))
         } else {
             Ok(v.into_iter().collect())
@@ -131,8 +134,10 @@ impl WorkerBox {
 
     pub fn layer_id(&self) -> &str {
         let mut len = 0;
-        let data = (self.layer_id)(self.worker, &mut len);
-        unsafe { str::from_utf8_unchecked(slice::from_raw_parts(data, len as usize)) }
+        unsafe {
+            let data = (self.layer_id)(self.worker, &mut len);
+            str::from_utf8_unchecked(slice::from_raw_parts(data, len as usize))
+        }
     }
 }
 
@@ -144,38 +149,41 @@ impl fmt::Debug for WorkerBox {
 
 impl Drop for WorkerBox {
     fn drop(&mut self) {
-        (self.drop)(self.worker);
+        unsafe { (self.drop)(self.worker) };
     }
 }
 
-extern "C" fn abi_reader_worker_drop(worker: *mut Box<Worker>) {
-    unsafe { Box::from_raw(worker) };
+unsafe extern "C" fn abi_reader_worker_drop(worker: *mut Box<Worker>) {
+    Box::from_raw(worker);
 }
 
-extern "C" fn abi_reader_worker_layer_id(worker: *const Box<Worker>, len: *mut u64) -> *const u8 {
-    let worker = unsafe { &*worker };
+unsafe extern "C" fn abi_reader_worker_layer_id(
+    worker: *const Box<Worker>,
+    len: *mut u64,
+) -> *const u8 {
+    let worker = &*worker;
     let id = worker.layer_id();
-    unsafe { *len = id.len() as u64 };
+    *len = id.len() as u64;
     id.as_ptr()
 }
 
-extern "C" fn abi_reader_worker_read(
+unsafe extern "C" fn abi_reader_worker_read(
     worker: *mut Box<Worker>,
     out: *mut SafeVec<Bytes>,
     err: *mut SafeString,
 ) -> u8 {
-    let worker = unsafe { &mut *worker };
+    let worker = &mut *worker;
     match worker.read() {
         Ok(slices) => {
             let mut safe = SafeVec::with_capacity(slices.len() as u64);
             for slice in slices {
                 safe.push(slice);
             }
-            unsafe { *out = safe };
+            *out = safe;
             1
         }
         Err(e) => {
-            unsafe { *err = SafeString::from(&format!("{}", e)) };
+            *err = SafeString::from(&format!("{}", e));
             0
         }
     }

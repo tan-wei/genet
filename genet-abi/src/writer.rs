@@ -17,7 +17,7 @@ pub trait Writer: Send {
     fn new_worker(&self, ctx: &Context, url: &Url) -> Result<Box<Worker>>;
 }
 
-type WriterNewWorkerFunc = extern "C" fn(
+type WriterNewWorkerFunc = unsafe extern "C" fn(
     *mut Box<Writer>,
     *const Context,
     *const u8,
@@ -48,15 +48,17 @@ impl WriterBox {
     pub fn new_worker(&self, ctx: &Context, url: &str) -> Result<WorkerBox> {
         let mut out: WorkerBox = unsafe { mem::uninitialized() };
         let mut err = SafeString::new();
-        if (self.new_worker)(
-            self.writer,
-            ctx,
-            url.as_ptr(),
-            url.len() as u64,
-            &mut out,
-            &mut err,
-        ) == 1
-        {
+        let result = unsafe {
+            (self.new_worker)(
+                self.writer,
+                ctx,
+                url.as_ptr(),
+                url.len() as u64,
+                &mut out,
+                &mut err,
+            )
+        };
+        if result == 1 {
             Ok(out)
         } else {
             mem::forget(out);
@@ -65,7 +67,7 @@ impl WriterBox {
     }
 }
 
-extern "C" fn abi_writer_new_worker(
+unsafe extern "C" fn abi_writer_new_worker(
     writer: *mut Box<Writer>,
     ctx: *const Context,
     url: *const u8,
@@ -73,19 +75,19 @@ extern "C" fn abi_writer_new_worker(
     out: *mut WorkerBox,
     err: *mut SafeString,
 ) -> u8 {
-    let writer = unsafe { &*writer };
-    let ctx = unsafe { &*ctx };
-    let url = unsafe { str::from_utf8_unchecked(slice::from_raw_parts(url, url_len as usize)) };
+    let writer = &*writer;
+    let ctx = &*ctx;
+    let url = str::from_utf8_unchecked(slice::from_raw_parts(url, url_len as usize));
     let url = Url::parse(url)
         .ok()
         .unwrap_or_else(|| Url::parse("null:").unwrap());
     match writer.new_worker(ctx, &url) {
         Ok(worker) => {
-            unsafe { ptr::write(out, WorkerBox::new(worker)) };
+            ptr::write(out, WorkerBox::new(worker));
             1
         }
         Err(e) => {
-            unsafe { *err = SafeString::from(&format!("{}", e)) };
+            *err = SafeString::from(&format!("{}", e));
             0
         }
     }
@@ -99,15 +101,15 @@ pub trait Worker: Send {
     }
 }
 
-type WriterFunc = extern "C" fn(*mut Box<Worker>, u32, *const Layer, *mut SafeString) -> u8;
+type WriterFunc = unsafe extern "C" fn(*mut Box<Worker>, u32, *const Layer, *mut SafeString) -> u8;
 
-type WriterEndFunc = extern "C" fn(*mut Box<Worker>, *mut SafeString) -> u8;
+type WriterEndFunc = unsafe extern "C" fn(*mut Box<Worker>, *mut SafeString) -> u8;
 
 pub struct WorkerBox {
     worker: *mut Box<Worker>,
     write: WriterFunc,
     end: WriterEndFunc,
-    drop: extern "C" fn(*mut Box<Worker>),
+    drop: unsafe extern "C" fn(*mut Box<Worker>),
 }
 
 unsafe impl Send for WorkerBox {}
@@ -125,7 +127,7 @@ impl WorkerBox {
     pub fn write(&mut self, index: u32, layer: &Layer) -> Result<()> {
         let mut e = SafeString::new();
         let layer = layer as *const Layer;
-        if (self.write)(self.worker, index, layer, &mut e) == 0 {
+        if unsafe { (self.write)(self.worker, index, layer, &mut e) } == 0 {
             Err(format_err!("{}", e))
         } else {
             Ok(())
@@ -134,7 +136,7 @@ impl WorkerBox {
 
     pub fn end(&mut self) -> Result<()> {
         let mut e = SafeString::new();
-        if (self.end)(self.worker, &mut e) == 0 {
+        if unsafe { (self.end)(self.worker, &mut e) } == 0 {
             Err(format_err!("{}", e))
         } else {
             Ok(())
@@ -150,37 +152,37 @@ impl fmt::Debug for WorkerBox {
 
 impl Drop for WorkerBox {
     fn drop(&mut self) {
-        (self.drop)(self.worker);
+        unsafe { (self.drop)(self.worker) };
     }
 }
 
-extern "C" fn abi_writer_worker_drop(worker: *mut Box<Worker>) {
-    unsafe { Box::from_raw(worker) };
+unsafe extern "C" fn abi_writer_worker_drop(worker: *mut Box<Worker>) {
+    Box::from_raw(worker);
 }
 
-extern "C" fn abi_writer_worker_write(
+unsafe extern "C" fn abi_writer_worker_write(
     worker: *mut Box<Worker>,
     index: u32,
     layer: *const Layer,
     err: *mut SafeString,
 ) -> u8 {
-    let worker = unsafe { &mut *worker };
-    let layer = unsafe { &*layer };
+    let worker = &mut *worker;
+    let layer = &*layer;
     match worker.write(index, &layer) {
         Ok(()) => 1,
         Err(e) => {
-            unsafe { *err = SafeString::from(&format!("{}", e)) };
+            *err = SafeString::from(&format!("{}", e));
             0
         }
     }
 }
 
-extern "C" fn abi_writer_worker_end(worker: *mut Box<Worker>, err: *mut SafeString) -> u8 {
-    let worker = unsafe { &mut *worker };
+unsafe extern "C" fn abi_writer_worker_end(worker: *mut Box<Worker>, err: *mut SafeString) -> u8 {
+    let worker = &mut *worker;
     match worker.end() {
         Ok(()) => 1,
         Err(e) => {
-            unsafe { *err = SafeString::from(&format!("{}", e)) };
+            *err = SafeString::from(&format!("{}", e));
             0
         }
     }
