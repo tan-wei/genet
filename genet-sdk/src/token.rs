@@ -37,15 +37,14 @@ mod tests {
     fn token() {
         assert_eq!(token!(), Token::null());
         let token = token!("eth");
-        assert_eq!(token.to_string(), "eth");
+        assert_eq!(token.as_str(), "eth");
         let token = token!("[eth]");
-        assert_eq!(token.to_string(), "[eth]");
+        assert_eq!(token.as_str(), "[eth]");
         let token = token!("eth");
-        assert_eq!(token.to_string(), "eth");
+        assert_eq!(token.as_str(), "eth");
         let token = token!();
-        assert_eq!(token.to_string(), "");
+        assert_eq!(token.as_str(), "");
         let token = token!("dd31817d-1501-4b2b-bcf6-d02e148d3ab9");
-        assert_eq!(token.to_string(), "dd31817d-1501-4b2b-bcf6-d02e148d3ab9");
-        assert_eq!(Token::from(1000).to_string(), "");
+        assert_eq!(token.as_str(), "dd31817d-1501-4b2b-bcf6-d02e148d3ab9");
     }
 }

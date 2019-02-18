@@ -40,7 +40,7 @@ impl Expr {
             Expr::UnaryNegation(v) => v.eval(ctx).op_unary_negation(),
             Expr::Token(_, t) => {
                 for layer in ctx.layers().iter().rev() {
-                    if let Some(attr) = layer.attr(t) {
+                    if let Some(attr) = layer.attr(*t) {
                         if let Ok(val) = attr.get() {
                             return val;
                         }

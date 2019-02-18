@@ -46,12 +46,12 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
     fn attr_id<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let attr = env.unwrap::<Attr>(info.this())?;
-        env.create_string(&attr.id().to_string())
+        env.create_string(&attr.id().as_str())
     }
 
     fn attr_type<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let attr = env.unwrap::<Attr>(info.this())?;
-        env.create_string(&attr.typ().to_string())
+        env.create_string(attr.typ().as_str())
     }
 
     fn attr_bit_range<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
@@ -81,7 +81,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
         let attr = env.unwrap::<Attr>(info.this())?;
         match attr.get() {
             Ok(val) => env.create_string(&unparse(&Expr::CmpEq(
-                Box::new(Expr::Token(attr.id().to_string(), attr.id())),
+                Box::new(Expr::Token(attr.id().as_str().into(), attr.id())),
                 Box::new(unparse_attr(attr.typ(), &val)),
             ))),
             Err(_) => env.get_null(),

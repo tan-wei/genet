@@ -236,7 +236,7 @@ mod tests {
 
         impl Worker for TestWorker {
             fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
-                let attr = vec![Fixed::new(AttrClass::builder(Token::from(1234)).build())];
+                let attr = vec![Fixed::new(AttrClass::builder(Token::null()).build())];
                 let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
                 let layer = Layer::new(&class, &Bytes::new());
                 stack.add_child(layer);

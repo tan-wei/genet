@@ -448,7 +448,7 @@ mod tests {
 
     #[test]
     fn id() {
-        let id = Token::from(123);
+        let id = Token::null();
         let attr = vec![Fixed::new(AttrClass::builder(id).build())];
         let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
         let layer = Layer::new(&class, &Bytes::new());

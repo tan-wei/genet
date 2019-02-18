@@ -5,8 +5,8 @@ use hwaddr::HwAddr;
 use std::net::{Ipv4Addr, Ipv6Addr};
 
 pub fn unparse_attr(typ: Token, var: &Variant) -> Expr {
-    let typ = typ.to_string();
-    match (typ.as_str(), var) {
+    let typ = typ.as_str();
+    match (typ, var) {
         ("@ipv4:addr", Variant::Bytes(b)) => {
             if b.len() == 4 {
                 return Expr::Macro(Ipv4Addr::from(*array_ref![b, 0, 4]).to_string());

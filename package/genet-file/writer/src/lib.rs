@@ -50,7 +50,7 @@ impl Worker for GenetFileWorker {
 
     fn end(&mut self) -> Result<()> {
         let header = genet_format::Header {
-            layer_id: self.layer_id.to_string(),
+            layer_id: self.layer_id.as_str().into(),
             entries: self.entries.len(),
         };
         let bin = bincode::serialize(&header)?;
