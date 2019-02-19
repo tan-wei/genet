@@ -70,10 +70,7 @@ pub fn wrapper(env: &Env) -> Rc<ValueRef> {
 
     fn layer_filter_expression<'env>(env: &'env Env, info: &CallbackInfo) -> Result<&'env Value> {
         let layer = env.unwrap::<Layer>(info.this())?;
-        env.create_string(&unparse(&Expr::Token(
-            layer.id().as_str().into(),
-            layer.id(),
-        )))
+        env.create_string(&unparse(&Expr::Token(layer.id())))
     }
 
     let class = env

@@ -30,7 +30,7 @@ pub fn unparse_attr(typ: Token, var: &Variant) -> Expr {
 pub fn unparse(expr: &Expr) -> String {
     match expr {
         Expr::Literal(var) => var.to_string(),
-        Expr::Token(s, _) => s.clone(),
+        Expr::Token(t) => t.as_str().to_string(),
         Expr::Macro(expr) => format!("@{}", expr),
         Expr::CmpEq(lhs, rhs) => match (lhs.as_ref(), rhs.as_ref()) {
             (lhs, &Expr::Literal(Variant::Bool(true))) => unparse(lhs),
