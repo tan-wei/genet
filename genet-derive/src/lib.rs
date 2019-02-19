@@ -154,7 +154,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
                 let func = T::build(ctx);
                 let func_map = func.func_map;
 
-                AttrClass::builder(format!("{}.{}", ctx.path, #id).trim_matches('.'))
+                AttrClassData::builder(format!("{}.{}", ctx.path, #id).trim_matches('.'))
                     .cast(move |attr, data| {
                     func_map.invoke(attr, data)
                         .map(|x| x.into())
@@ -183,7 +183,7 @@ fn parse_enum(input: &DeriveInput, s: &DataEnum) -> TokenStream {
                 ctx: &genet_sdk::attr::AttrContext<T::Input, E>,
             ) -> Vec<genet_sdk::attr::AttrClassBuilder> {
                 use std::io;
-                use genet_sdk::attr::{AttrClass, AttrField};
+                use genet_sdk::attr::{AttrClassData, AttrField};
 
                 let mut children : Vec<genet_sdk::attr::AttrClassBuilder> = Vec::new();
 
@@ -381,7 +381,7 @@ fn parse_struct(input: &DeriveInput, s: &DataStruct) -> TokenStream {
                     #fields_class;
                 )*
 
-                let mut root = vec![genet_sdk::attr::AttrClass::builder(format!("{}.{}", ctx.path, ctx.id).trim_matches('.'))
+                let mut root = vec![genet_sdk::attr::AttrClassData::builder(format!("{}.{}", ctx.path, ctx.id).trim_matches('.'))
                     .cast(|_, _| Ok(genet_sdk::variant::Variant::Bool(true)))
                     .bit_range(ctx.bit_offset..(ctx.bit_offset + ctx.bit_size))
                     .aliases(ctx.aliases.clone())

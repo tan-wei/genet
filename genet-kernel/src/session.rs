@@ -7,7 +7,7 @@ use crate::{
 use failure::Error;
 use genet_abi::{
     self,
-    attr::AttrClass,
+    attr::AttrClassData,
     fixed::{Fixed, MutFixed},
     layer::{Layer, LayerClass},
     reader,
@@ -256,7 +256,7 @@ struct WorkerInput {
 
 impl WorkerInput {
     fn new(worker: reader::WorkerBox, id: Token) -> WorkerInput {
-        let attr = vec![Fixed::new(AttrClass::builder(id).build())];
+        let attr = vec![Fixed::new(AttrClassData::builder(id).build())];
         Self {
             worker,
             class: Box::new(Fixed::new(LayerClass::builder(attr).build())),

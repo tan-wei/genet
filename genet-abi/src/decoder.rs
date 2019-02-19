@@ -220,7 +220,7 @@ impl DecoderData {
 #[cfg(test)]
 mod tests {
     use crate::{
-        attr::AttrClass,
+        attr::AttrClassData,
         bytes::Bytes,
         context::Context,
         decoder::{Decoder, DecoderBox, Status, Worker},
@@ -236,7 +236,7 @@ mod tests {
 
         impl Worker for TestWorker {
             fn decode(&mut self, stack: &mut LayerStack) -> Result<Status> {
-                let attr = vec![Fixed::new(AttrClass::builder(Token::null()).build())];
+                let attr = vec![Fixed::new(AttrClassData::builder(Token::null()).build())];
                 let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
                 let layer = Layer::new(&class, &Bytes::new());
                 stack.add_child(layer);
@@ -257,7 +257,7 @@ mod tests {
         let diss = DecoderBox::new(TestDecoder {});
         let mut worker = diss.new_worker(&ctx).unwrap();
 
-        let attr = vec![Fixed::new(AttrClass::builder(Token::null()).build())];
+        let attr = vec![Fixed::new(AttrClassData::builder(Token::null()).build())];
         let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
         let mut layer = Layer::new(&class, &Bytes::new());
         let mut data = LayerStackData {

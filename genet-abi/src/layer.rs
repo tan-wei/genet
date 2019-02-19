@@ -1,5 +1,5 @@
 use crate::{
-    attr::{Attr, AttrClass, AttrField},
+    attr::{Attr, AttrClassData, AttrField},
     bytes::Bytes,
     fixed::{Fixed, MutFixed},
     token::Token,
@@ -63,7 +63,11 @@ impl<'a> LayerStack<'a> {
     }
 
     /// Adds an attribute to the Layer.
-    pub fn add_attr<C: AsRef<[Fixed<AttrClass>]>>(&mut self, attrs: &C, byte_range: Range<usize>) {
+    pub fn add_attr<C: AsRef<[Fixed<AttrClassData>]>>(
+        &mut self,
+        attrs: &C,
+        byte_range: Range<usize>,
+    ) {
         self.deref_mut().add_attr(attrs, byte_range);
     }
 
@@ -126,7 +130,7 @@ unsafe extern "C" fn abi_children_data(data: *const LayerStackData) -> *const Mu
 
 #[repr(C)]
 struct BoundAttr {
-    attr: Fixed<AttrClass>,
+    attr: Fixed<AttrClassData>,
     bit_range: Range<usize>,
 }
 
@@ -183,7 +187,11 @@ impl Layer {
     }
 
     /// Adds an attribute to the Layer.
-    pub fn add_attr<C: AsRef<[Fixed<AttrClass>]>>(&mut self, attrs: &C, byte_range: Range<usize>) {
+    pub fn add_attr<C: AsRef<[Fixed<AttrClassData>]>>(
+        &mut self,
+        attrs: &C,
+        byte_range: Range<usize>,
+    ) {
         let func = self.class.add_attr;
         let attrs = attrs.as_ref();
 
@@ -250,7 +258,7 @@ pub struct Payload {
 
 /// A builder object for LayerClass.
 pub struct LayerClassBuilder {
-    headers: Vec<Fixed<AttrClass>>,
+    headers: Vec<Fixed<AttrClassData>>,
 }
 
 impl LayerClassBuilder {
@@ -301,7 +309,7 @@ impl<T: AttrField> LayerType<T> {
     pub fn new(id: &str) -> Self {
         let mut ctx = T::context();
         ctx.id = id.into();
-        let class = vec![AttrClass::builder(ctx.id.clone())
+        let class = vec![AttrClassData::builder(ctx.id.clone())
             .cast(|_, _| Ok(Variant::Bool(true)))
             .bit_range(ctx.bit_offset..(ctx.bit_offset + ctx.bit_size))
             .typ("@layer")];
@@ -340,12 +348,12 @@ pub struct LayerClass {
     add_attr: unsafe extern "C" fn(*mut Layer, BoundAttr),
     set_payload: unsafe extern "C" fn(*mut Layer, *const u8, u64),
     payload: unsafe extern "C" fn(*const Layer, *mut u64) -> *const u8,
-    headers: Vec<Fixed<AttrClass>>,
+    headers: Vec<Fixed<AttrClassData>>,
 }
 
 impl LayerClass {
     /// Creates a new builder object for LayerClass.
-    pub fn builder<H: Into<Vec<Fixed<AttrClass>>>>(headers: H) -> LayerClassBuilder {
+    pub fn builder<H: Into<Vec<Fixed<AttrClassData>>>>(headers: H) -> LayerClassBuilder {
         LayerClassBuilder {
             headers: headers.into(),
         }
@@ -438,7 +446,7 @@ unsafe extern "C" fn abi_set_payload(layer: *mut Layer, data: *const u8, len: u6
 #[cfg(test)]
 mod tests {
     use crate::{
-        attr::AttrClass,
+        attr::AttrClassData,
         bytes::Bytes,
         fixed::Fixed,
         layer::{Layer, LayerClass},
@@ -449,7 +457,7 @@ mod tests {
     #[test]
     fn id() {
         let id = Token::null();
-        let attr = vec![Fixed::new(AttrClass::builder(id).build())];
+        let attr = vec![Fixed::new(AttrClassData::builder(id).build())];
         let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
         let layer = Layer::new(&class, &Bytes::new());
         assert_eq!(layer.id(), id);
@@ -458,7 +466,7 @@ mod tests {
     #[test]
     fn data() {
         let data = b"hello";
-        let attr = vec![Fixed::new(AttrClass::builder(Token::null()).build())];
+        let attr = vec![Fixed::new(AttrClassData::builder(Token::null()).build())];
         let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
         let layer = Layer::new(&class, &Bytes::from(&data[..]));
         assert_eq!(layer.data(), Bytes::from(&data[..]));
@@ -466,19 +474,19 @@ mod tests {
 
     #[test]
     fn attrs() {
-        let attr = vec![Fixed::new(AttrClass::builder(Token::null()).build())];
+        let attr = vec![Fixed::new(AttrClassData::builder(Token::null()).build())];
         let class = Box::new(Fixed::new(LayerClass::builder(attr).build()));
         let mut layer = Layer::new(&class, &Bytes::new());
 
-        struct Class(Vec<Fixed<AttrClass>>);
-        impl AsRef<[Fixed<AttrClass>]> for Class {
-            fn as_ref(&self) -> &[Fixed<AttrClass>] {
+        struct Class(Vec<Fixed<AttrClassData>>);
+        impl AsRef<[Fixed<AttrClassData>]> for Class {
+            fn as_ref(&self) -> &[Fixed<AttrClassData>] {
                 &self.0
             }
         }
 
         let class = Class(vec![Fixed::new(
-            AttrClass::builder("nil")
+            AttrClassData::builder("nil")
                 .typ("@nil")
                 .cast(|_, _| Ok(Variant::Nil))
                 .build(),

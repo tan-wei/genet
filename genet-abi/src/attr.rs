@@ -12,6 +12,7 @@ use failure::format_err;
 use num_bigint::BigInt;
 use std::{
     any::TypeId,
+    borrow::Cow,
     fmt,
     io::Cursor,
     marker::PhantomData,
@@ -77,7 +78,7 @@ impl<I: 'static, O: 'static + Into<Variant>> Into<AttrClassBuilder> for AttrFunc
     fn into(self) -> AttrClassBuilder {
         let func_map = self.func_map;
         let func_cond = self.ctx.func_cond;
-        AttrClass::builder(format!("{}.{}", self.ctx.path, self.ctx.id).trim_matches('.'))
+        AttrClassData::builder(format!("{}.{}", self.ctx.path, self.ctx.id).trim_matches('.'))
             .cast(move |attr, data| {
                 func_map.invoke(attr, data).map(|x| {
                     if (func_cond)(&x) {
@@ -198,7 +199,7 @@ pub trait AttrField {
 
 pub struct Node<F: AttrField, C: AttrField = F> {
     data: C,
-    class: Vec<Fixed<AttrClass>>,
+    class: Vec<Fixed<AttrClassData>>,
     func: Box<Fn(&Attr, &Bytes) -> Result<F::Output> + Send + Sync>,
 }
 
@@ -225,8 +226,8 @@ impl<F: AttrField, C: AttrField> Node<F, C> {
     }
 }
 
-impl<F: AttrField, C: AttrField> AsRef<[Fixed<AttrClass>]> for Node<F, C> {
-    fn as_ref(&self) -> &[Fixed<AttrClass>] {
+impl<F: AttrField, C: AttrField> AsRef<[Fixed<AttrClassData>]> for Node<F, C> {
+    fn as_ref(&self) -> &[Fixed<AttrClassData>] {
         &self.class
     }
 }
@@ -301,12 +302,12 @@ pub trait EnumType {
 
 pub struct Enum<F, E> {
     phantom: PhantomData<F>,
-    class: Vec<Fixed<AttrClass>>,
+    class: Vec<Fixed<AttrClassData>>,
     func: Box<Fn(&Attr, &Bytes) -> Result<E>>,
 }
 
-impl<F: AttrField, E: EnumType> AsRef<[Fixed<AttrClass>]> for Enum<F, E> {
-    fn as_ref(&self) -> &[Fixed<AttrClass>] {
+impl<F: AttrField, E: EnumType> AsRef<[Fixed<AttrClassData>]> for Enum<F, E> {
+    fn as_ref(&self) -> &[Fixed<AttrClassData>] {
         &self.class
     }
 }
@@ -669,7 +670,7 @@ impl AttrField for bool {
 /// An attribute object.
 #[repr(C)]
 pub struct Attr<'a> {
-    class: &'a AttrClass,
+    class: &'a AttrClassData,
     bit_range: Range<usize>,
     data: Bytes,
 }
@@ -681,7 +682,7 @@ impl<'a> fmt::Debug for Attr<'a> {
 }
 
 impl<'a> Attr<'a> {
-    pub fn new(class: &'a AttrClass, bit_range: Range<usize>, data: Bytes) -> Attr<'a> {
+    pub fn new(class: &'a AttrClassData, bit_range: Range<usize>, data: Bytes) -> Attr<'a> {
         Attr {
             class,
             bit_range,
@@ -733,7 +734,7 @@ enum ValueType {
     Bytes = 7,
 }
 
-/// A builder object for AttrClass.
+/// A builder object for AttrClassData.
 pub struct AttrClassBuilder {
     id: Token,
     typ: Token,
@@ -745,19 +746,19 @@ pub struct AttrClassBuilder {
 }
 
 impl AttrClassBuilder {
-    /// Sets a type of AttrClass.
+    /// Sets a type of AttrClassData.
     pub fn typ<T: Into<Token>>(mut self, typ: T) -> AttrClassBuilder {
         self.typ = typ.into();
         self
     }
 
-    /// Sets a name of AttrClass.
+    /// Sets a name of AttrClassData.
     pub fn name(mut self, name: &str) -> AttrClassBuilder {
         self.name = name.into();
         self
     }
 
-    /// Sets a description of AttrClass.
+    /// Sets a description of AttrClassData.
     pub fn description(mut self, desc: &str) -> AttrClassBuilder {
         self.description = desc.into();
         self
@@ -775,7 +776,7 @@ impl AttrClassBuilder {
         self
     }
 
-    /// Sets a cast of AttrClass.
+    /// Sets a cast of AttrClassData.
     pub fn cast<F: 'static + Fn(&Attr, &Bytes) -> Result<Variant> + Send + Sync>(
         mut self,
         cast: F,
@@ -795,7 +796,7 @@ impl AttrClassBuilder {
         self
     }
 
-    /// Sets a constant value of AttrClass.
+    /// Sets a constant value of AttrClassData.
     pub fn value<T: 'static + Into<Variant> + Send + Sync + Clone>(
         mut self,
         value: T,
@@ -805,9 +806,9 @@ impl AttrClassBuilder {
         self
     }
 
-    /// Builds a new AttrClass.
-    pub fn build(self) -> AttrClass {
-        AttrClass {
+    /// Builds a new AttrClassData.
+    pub fn build(self) -> AttrClassData {
+        AttrClassData {
             get_id: abi_id,
             is_match: abi_is_match,
             get_typ: abi_typ,
@@ -823,12 +824,50 @@ impl AttrClassBuilder {
     }
 }
 
+#[repr(C)]
+struct AttrClassPort {
+    id: Token,
+    typ: Token,
+    bit_range_start: u64,
+    bit_range_end: u64,
+}
+
+impl AttrClassPort {
+    fn as_ref(&self) -> AttrClass {
+        AttrClass {
+            id: Cow::Borrowed(self.id.as_str()),
+            typ: Cow::Borrowed(self.typ.as_str()),
+            bit_range: self.bit_range_start as usize..self.bit_range_end as usize,
+        }
+    }
+}
+
+pub struct AttrClass<'a> {
+    id: Cow<'a, str>,
+    typ: Cow<'a, str>,
+    bit_range: Range<usize>,
+}
+
+impl<'a> AttrClass<'a> {
+    fn id(&self) -> &str {
+        &self.id
+    }
+
+    fn typ(&self) -> &str {
+        &self.typ
+    }
+
+    fn bit_range(&self) -> Range<usize> {
+        self.bit_range.clone()
+    }
+}
+
 /// An attribute class.
 #[repr(C)]
-pub struct AttrClass {
-    get_id: unsafe extern "C" fn(class: *const AttrClass) -> Token,
-    is_match: unsafe extern "C" fn(class: *const AttrClass, id: Token) -> u8,
-    get_typ: unsafe extern "C" fn(class: *const AttrClass) -> Token,
+pub struct AttrClassData {
+    get_id: unsafe extern "C" fn(class: *const AttrClassData) -> Token,
+    is_match: unsafe extern "C" fn(class: *const AttrClassData, id: Token) -> u8,
+    get_typ: unsafe extern "C" fn(class: *const AttrClassData) -> Token,
     get: unsafe extern "C" fn(
         *const Attr,
         *mut *const u8,
@@ -845,9 +884,9 @@ pub struct AttrClass {
     cast: Box<Fn(&Attr, &Bytes) -> Result<Variant> + Send + Sync>,
 }
 
-impl fmt::Debug for AttrClass {
+impl fmt::Debug for AttrClassData {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("AttrClass")
+        f.debug_struct("AttrClassData")
             .field("id", &self.id)
             .field("name", &self.name)
             .field("description", &self.description)
@@ -858,8 +897,8 @@ impl fmt::Debug for AttrClass {
     }
 }
 
-impl AttrClass {
-    /// Creates a new builder object for AttrClass.
+impl AttrClassData {
+    /// Creates a new builder object for AttrClassData.
     pub fn builder<T: Into<Token>>(id: T) -> AttrClassBuilder {
         AttrClassBuilder {
             id: id.into(),
@@ -940,17 +979,17 @@ impl AttrClass {
     }
 }
 
-impl Into<Fixed<AttrClass>> for &'static AttrClass {
-    fn into(self) -> Fixed<AttrClass> {
+impl Into<Fixed<AttrClassData>> for &'static AttrClassData {
+    fn into(self) -> Fixed<AttrClassData> {
         Fixed::from_static(self)
     }
 }
 
-unsafe extern "C" fn abi_id(class: *const AttrClass) -> Token {
+unsafe extern "C" fn abi_id(class: *const AttrClassData) -> Token {
     (*class).id
 }
 
-unsafe extern "C" fn abi_is_match(class: *const AttrClass, id: Token) -> u8 {
+unsafe extern "C" fn abi_is_match(class: *const AttrClassData, id: Token) -> u8 {
     let class = &(*class);
     if class.id == id || class.aliases.iter().any(|&x| x == id) {
         1
@@ -959,7 +998,7 @@ unsafe extern "C" fn abi_is_match(class: *const AttrClass, id: Token) -> u8 {
     }
 }
 
-unsafe extern "C" fn abi_typ(class: *const AttrClass) -> Token {
+unsafe extern "C" fn abi_typ(class: *const AttrClassData) -> Token {
     (*class).typ
 }
 
@@ -1022,7 +1061,7 @@ unsafe extern "C" fn abi_get(
 #[cfg(test)]
 mod tests {
     use crate::{
-        attr::{Attr, AttrClass},
+        attr::{Attr, AttrClassData},
         bytes::{Bytes, TryGet},
         token::Token,
         variant::Variant,
@@ -1035,7 +1074,7 @@ mod tests {
         #[derive(Clone)]
         struct TestCast {}
 
-        let class = AttrClass::builder("bool")
+        let class = AttrClassData::builder("bool")
             .typ("@bool")
             .byte_range(0..1)
             .cast(|_, data| Ok(Variant::Bool(data[0] == 1)))
@@ -1053,7 +1092,7 @@ mod tests {
 
     #[test]
     fn u64() {
-        let class = AttrClass::builder("u64")
+        let class = AttrClassData::builder("u64")
             .typ("@u64")
             .byte_range(0..6)
             .cast(|_, data| Ok(Variant::UInt64(from_utf8(data).unwrap().parse().unwrap())))
@@ -1071,7 +1110,7 @@ mod tests {
 
     #[test]
     fn i64() {
-        let class = AttrClass::builder("i64")
+        let class = AttrClassData::builder("i64")
             .typ("@i64")
             .byte_range(0..6)
             .cast(|_, data| Ok(Variant::Int64(from_utf8(data).unwrap().parse().unwrap())))
@@ -1089,7 +1128,7 @@ mod tests {
 
     #[test]
     fn buffer() {
-        let class = AttrClass::builder("buffer")
+        let class = AttrClassData::builder("buffer")
             .typ("@buffer")
             .byte_range(0..6)
             .cast(|_, data| Ok(Variant::Buffer(data.to_vec().into_boxed_slice())))
@@ -1107,7 +1146,7 @@ mod tests {
 
     #[test]
     fn slice() {
-        let class = AttrClass::builder("slice")
+        let class = AttrClassData::builder("slice")
             .typ("@slice")
             .byte_range(0..6)
             .cast(|_, data| data.get(0..3).map(Variant::Bytes))
@@ -1125,7 +1164,7 @@ mod tests {
 
     #[test]
     fn error() {
-        let class = AttrClass::builder("slice")
+        let class = AttrClassData::builder("slice")
             .typ("@slice")
             .byte_range(0..6)
             .cast(|_, _| Err(err_msg("oh no!")))
