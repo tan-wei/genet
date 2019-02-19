@@ -2,7 +2,6 @@ use crate::{
     bytes::{Bytes, TryGet},
     fixed::Fixed,
     layer::Layer,
-    metadata::Metadata,
     result::Result,
     string::SafeString,
     token::Token,
@@ -738,7 +737,8 @@ enum ValueType {
 pub struct AttrClassBuilder {
     id: Token,
     typ: Token,
-    meta: Metadata,
+    name: String,
+    description: String,
     bit_range: Range<usize>,
     aliases: Vec<Token>,
     cast: Box<Fn(&Attr, &Bytes) -> Result<Variant> + Send + Sync>,
@@ -752,14 +752,14 @@ impl AttrClassBuilder {
     }
 
     /// Sets a name of AttrClass.
-    pub fn name(mut self, name: &'static str) -> AttrClassBuilder {
-        self.meta.set_name(name);
+    pub fn name(mut self, name: &str) -> AttrClassBuilder {
+        self.name = name.into();
         self
     }
 
     /// Sets a description of AttrClass.
-    pub fn description(mut self, desc: &'static str) -> AttrClassBuilder {
-        self.meta.set_description(desc);
+    pub fn description(mut self, desc: &str) -> AttrClassBuilder {
+        self.description = desc.into();
         self
     }
 
@@ -814,7 +814,8 @@ impl AttrClassBuilder {
             get: abi_get,
             id: self.id,
             typ: self.typ,
-            meta: self.meta,
+            name: self.name,
+            description: self.description,
             bit_range: self.bit_range,
             aliases: self.aliases,
             cast: self.cast,
@@ -837,7 +838,8 @@ pub struct AttrClass {
     ) -> ValueType,
     id: Token,
     typ: Token,
-    meta: Metadata,
+    name: String,
+    description: String,
     bit_range: Range<usize>,
     aliases: Vec<Token>,
     cast: Box<Fn(&Attr, &Bytes) -> Result<Variant> + Send + Sync>,
@@ -847,8 +849,8 @@ impl fmt::Debug for AttrClass {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("AttrClass")
             .field("id", &self.id)
-            .field("name", &self.meta.name())
-            .field("description", &self.meta.description())
+            .field("name", &self.name)
+            .field("description", &self.description)
             .field("typ", &self.typ)
             .field("bit_range", &self.bit_range)
             .field("aliases", &self.aliases)
@@ -862,7 +864,8 @@ impl AttrClass {
         AttrClassBuilder {
             id: id.into(),
             typ: Token::null(),
-            meta: Metadata::new(),
+            name: String::new(),
+            description: String::new(),
             bit_range: 0..0,
             aliases: Vec::new(),
             cast: Box::new(|_, _| Ok(Variant::Nil)),

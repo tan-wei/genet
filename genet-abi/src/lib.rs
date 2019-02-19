@@ -8,7 +8,6 @@ pub mod file;
 pub mod filter;
 pub mod fixed;
 pub mod layer;
-pub mod metadata;
 pub mod package;
 pub mod reader;
 pub mod result;
