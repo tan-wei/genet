@@ -813,6 +813,7 @@ impl AttrClassBuilder {
             is_match: abi_is_match,
             get_typ: abi_typ,
             get: abi_get,
+            port: abi_port,
             id: self.id,
             typ: self.typ,
             name: self.name,
@@ -832,19 +833,6 @@ struct AttrClassPort {
     bit_range_end: u64,
     aliases: *const Token,
     aliases_len: u64,
-}
-
-impl AttrClassPort {
-    fn as_ref(&self) -> AttrClass {
-        AttrClass {
-            id: self.id,
-            typ: self.typ,
-            bit_range: self.bit_range_start as usize..self.bit_range_end as usize,
-            aliases: Cow::Borrowed(unsafe {
-                slice::from_raw_parts(self.aliases, self.aliases_len as usize)
-            }),
-        }
-    }
 }
 
 pub struct AttrClass<'a> {
@@ -882,6 +870,7 @@ pub struct AttrClassData {
     get_id: unsafe extern "C" fn(class: *const AttrClassData) -> Token,
     is_match: unsafe extern "C" fn(class: *const AttrClassData, id: Token) -> u8,
     get_typ: unsafe extern "C" fn(class: *const AttrClassData) -> Token,
+    port: unsafe extern "C" fn(class: *const AttrClassData) -> AttrClassPort,
     get: unsafe extern "C" fn(
         *const Attr,
         *mut *const u8,
@@ -991,6 +980,18 @@ impl AttrClassData {
             }
         }
     }
+
+    pub fn port(&self) -> AttrClass {
+        let port = unsafe { (self.port)(self) };
+        AttrClass {
+            id: port.id,
+            typ: port.typ,
+            bit_range: port.bit_range_start as usize..port.bit_range_end as usize,
+            aliases: Cow::Borrowed(unsafe {
+                slice::from_raw_parts(port.aliases, port.aliases_len as usize)
+            }),
+        }
+    }
 }
 
 impl Into<Fixed<AttrClassData>> for &'static AttrClassData {
@@ -1069,6 +1070,18 @@ unsafe extern "C" fn abi_get(
             *err = SafeString::from(&format!("{}", e));
             ValueType::Error
         }
+    }
+}
+
+unsafe extern "C" fn abi_port(class: *const AttrClassData) -> AttrClassPort {
+    let class = &(*class);
+    AttrClassPort {
+        id: class.id,
+        typ: class.typ,
+        bit_range_start: class.bit_range.start as u64,
+        bit_range_end: class.bit_range.end as u64,
+        aliases: class.aliases.as_ptr(),
+        aliases_len: class.aliases.len() as u64,
     }
 }
 
