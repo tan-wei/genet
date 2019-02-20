@@ -837,8 +837,8 @@ struct AttrClassPort {
 impl AttrClassPort {
     fn as_ref(&self) -> AttrClass {
         AttrClass {
-            id: Cow::Borrowed(self.id.as_str()),
-            typ: Cow::Borrowed(self.typ.as_str()),
+            id: self.id,
+            typ: self.typ,
             bit_range: self.bit_range_start as usize..self.bit_range_end as usize,
             aliases: Cow::Borrowed(unsafe {
                 slice::from_raw_parts(self.aliases, self.aliases_len as usize)
@@ -848,27 +848,31 @@ impl AttrClassPort {
 }
 
 pub struct AttrClass<'a> {
-    id: Cow<'a, str>,
-    typ: Cow<'a, str>,
+    id: Token,
+    typ: Token,
     bit_range: Range<usize>,
     aliases: Cow<'a, [Token]>,
 }
 
 impl<'a> AttrClass<'a> {
-    fn id(&self) -> &str {
-        &self.id
+    pub fn id(&self) -> &str {
+        self.id.as_str()
     }
 
-    fn typ(&self) -> &str {
-        &self.typ
+    pub fn typ(&self) -> &str {
+        self.typ.as_str()
     }
 
-    fn bit_range(&self) -> Range<usize> {
+    pub fn bit_range(&self) -> Range<usize> {
         self.bit_range.clone()
     }
 
-    fn aliases(&self) -> impl Iterator<Item = &str> {
+    pub fn aliases(&self) -> impl Iterator<Item = &str> {
         self.aliases.iter().map(|t| t.as_str())
+    }
+
+    pub(crate) fn is_match(&self, id: Token) -> bool {
+        self.id == id || self.aliases.iter().any(|&x| x == id)
     }
 }
 
