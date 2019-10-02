@@ -61,8 +61,9 @@ impl Pcap {
         use ffi::*;
         use std::ptr;
         let mut front: *mut PcapIf = ptr::null_mut();
+        let errbuf = [0u8; PCAP_ERRBUF_SIZE];
         unsafe {
-            if (self.syms.pcap_findalldevs)(&mut front as *mut *mut PcapIf) < 0 || front.is_null() {
+            if (self.syms.pcap_findalldevs)(&mut front as *mut *mut PcapIf, errbuf.as_ptr() as *mut c_char) < 0 || front.is_null() {
                 return false;
             }
             (self.syms.pcap_freealldevs)(front);
@@ -150,8 +151,9 @@ impl Pcap {
         let mut front: *mut PcapIf = ptr::null_mut();
 
         let mut devs = Vec::new();
+        let errbuf = [0i8; PCAP_ERRBUF_SIZE];
         unsafe {
-            if (self.syms.pcap_findalldevs)(&mut front as *mut *mut PcapIf) < 0 {
+            if (self.syms.pcap_findalldevs)(&mut front as *mut *mut PcapIf, errbuf.as_ptr() as *mut c_char) < 0 {
                 return None;
             }
 
@@ -242,7 +244,8 @@ impl Device {
 
 mod platform {
     extern crate libc;
-    use super::Device;
+    use std::os::raw::c_ulong;
+use super::Device;
     use std::os::raw::{c_char, c_long};
 
     #[cfg(target_os = "macos")]
@@ -394,7 +397,9 @@ mod platform {
     mod windows {
         extern crate libc;
 
-        pub(crate) const MAX_INTERFACE_NAME_LEN: usize = 256;
+        use std::os::raw::c_ulong;
+
+pub(crate) const MAX_INTERFACE_NAME_LEN: usize = 256;
         pub(crate) const MAXLEN_IFDESCR: usize = 256;
 
         #[repr(C)]
@@ -492,7 +497,7 @@ mod ffi {
     #[derive(Debug, Clone)]
     pub(crate) struct Symbols {
         lib: Option<Arc<super::libloading::Library>>,
-        pub pcap_findalldevs: unsafe extern "C" fn(alldevsp: *mut *mut PcapIf) -> c_int,
+        pub pcap_findalldevs: unsafe extern "C" fn(alldevsp: *mut *mut PcapIf, errbuf: *mut c_char) -> c_int,
         pub pcap_freealldevs: unsafe extern "C" fn(alldevsp: *mut PcapIf),
         pub pcap_open_live: unsafe extern "C" fn(
             device: *const c_char,
@@ -544,7 +549,7 @@ mod ffi {
 
             {
                 let pcap_findalldevs_: libloading::Symbol<
-                    unsafe extern "C" fn(alldevsp: *mut *mut PcapIf) -> c_int,
+                    unsafe extern "C" fn(alldevsp: *mut *mut PcapIf, errbuf: *mut c_char) -> c_int,
                 >;
                 let pcap_freealldevs_: libloading::Symbol<
                     unsafe extern "C" fn(alldevsp: *mut PcapIf),
@@ -658,7 +663,7 @@ mod ffi {
     #[cfg(not(target_os = "windows"))]
     #[link(name = "pcap")]
     extern "C" {
-        fn pcap_findalldevs(alldevsp: *mut *mut PcapIf) -> c_int;
+        fn pcap_findalldevs(alldevsp: *mut *mut PcapIf, errbuf: *mut c_char) -> c_int;
         fn pcap_freealldevs(alldevsp: *mut PcapIf);
         fn pcap_open_live(
             device: *const c_char,
@@ -676,5 +681,15 @@ mod ffi {
         ) -> c_int;
         fn pcap_breakloop(pcap: *mut Pcap);
         fn pcap_close(pcap: *mut Pcap);
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::Pcap;
+    #[test]
+    fn test_dll_load() {
+        let pcap = Pcap::new();
+        assert!(pcap.is_ok());
     }
 }
